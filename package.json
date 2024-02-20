@@ -2,6 +2,10 @@
   "name": "hca-atlas-tracker",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "lint": "next lint --dir .",
+    "check-format": "prettier --check ."
+  },
   "dependencies": {
     "@clevercanary/data-explorer-ui": "66.0.0",
     "@emotion/react": "11.11.1",
