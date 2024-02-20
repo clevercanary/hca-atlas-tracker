@@ -1,0 +1,17 @@
+name: Run checks
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16.15.1"
+      - run: |
+          mkdir pages # Temporarily included to make lint work before there are actually any pages
+          npm ci
+          npm run check-format
+          npm run lint
+          npx tsc --noEmit
