@@ -35,7 +35,7 @@ export const atlasEntityConfig: EntityConfig = {
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
   getId: getAtlasId,
-  label: "Projects",
+  label: "Atlases",
   list: {
     columns: [
       {
@@ -46,6 +46,42 @@ export const atlasEntityConfig: EntityConfig = {
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
         width: { max: "2fr", min: "374px" },
+      },
+      {
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildBioNetwork,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildVersion,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildIntegrationLead,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildStatus,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.STATUS,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.STATUS,
+        width: { max: "1fr", min: "136px" },
       },
     ],
     defaultSort: {

@@ -8,6 +8,10 @@ import {
   TEXT_HEADING_XLARGE,
 } from "@clevercanary/data-explorer-ui/lib/theme/common/typography";
 import * as C from "../../../app/components/index";
+import {
+  HCA_ATLAS_TRACKER_CATEGORY_KEY,
+  HCA_ATLAS_TRACKER_CATEGORY_LABEL,
+} from "../category";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
 
 // Template constants
@@ -23,7 +27,40 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
   return {
     appTitle: APP_TITLE,
     browserURL: browserUrl,
-    categoryGroupConfigs: [],
+    categoryGroupConfigs: [
+      {
+        categoryConfigs: [
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
+          },
+        ],
+      },
+      {
+        categoryConfigs: [
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.STATUS,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.STATUS,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,
+          },
+        ],
+      },
+    ],
     dataSource: {
       entityURL: LOCALHOST,
       url: LOCALHOST,
