@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "./scripts/dev.sh hca-atlas-tracker && next dev",
     "lint": "next lint --dir .",
     "check-format": "prettier --check ."
   },
