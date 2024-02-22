@@ -9,6 +9,5 @@ export interface HCAAtlasTrackerAtlas {
 
 export enum ATLAS_STATUS {
   DRAFT = "Draft",
-  PRIVATE = "Private",
   PUBLISHED = "Published",
 }

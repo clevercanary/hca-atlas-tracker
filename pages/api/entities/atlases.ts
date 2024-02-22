@@ -21,12 +21,12 @@ const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
     status: ATLAS_STATUS.DRAFT,
     version: "2.0",
   },
-  3: {
+  2: {
     atlasTitle: "The Baz Atlas",
     bioNetwork: "Adipose",
     integrationLead: "Bazb Azbaz",
     publication: "Bazbaz et al.",
-    status: ATLAS_STATUS.PRIVATE,
+    status: ATLAS_STATUS.PUBLISHED,
     version: "3.0",
   },
 };
