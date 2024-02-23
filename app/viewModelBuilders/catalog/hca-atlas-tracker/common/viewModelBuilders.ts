@@ -6,12 +6,21 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
 
-export const buildAtlasTitle = (
+export const buildAtlas = (
   atlas: HCAAtlasTrackerAtlas
-): React.ComponentProps<typeof C.Link> => {
+): React.ComponentProps<typeof C.AtlasCell> => {
   return {
     label: atlas.atlasTitle,
-    url: "",
+    subLabel: atlas.publication,
+    url: `/atlases/${encodeURIComponent(atlas.atlasTitle)}`, // TODO use actual ID
+  };
+};
+
+export const buildPublication = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: atlas.publication,
   };
 };
 

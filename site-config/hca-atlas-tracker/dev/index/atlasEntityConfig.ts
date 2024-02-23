@@ -40,12 +40,23 @@ export const atlasEntityConfig: EntityConfig = {
     columns: [
       {
         componentConfig: {
-          component: C.Link,
-          viewBuilder: V.buildAtlasTitle,
-        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerAtlas>,
+          component: C.AtlasCell,
+          viewBuilder: V.buildAtlas,
+        } as ComponentConfig<typeof C.AtlasCell, HCAAtlasTrackerAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
         width: { max: "2fr", min: "374px" },
+      },
+      {
+        columnVisible: false,
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildPublication,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        disableHiding: true,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
+        width: { max: "1fr", min: "136px" },
       },
       {
         componentConfig: {
