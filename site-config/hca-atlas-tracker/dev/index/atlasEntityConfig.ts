@@ -100,5 +100,8 @@ export const atlasEntityConfig: EntityConfig = {
       id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
     },
   } as ListConfig<HCAAtlasTrackerAtlas>,
+  listView: {
+    disablePagination: true,
+  },
   route: "atlases",
 };
