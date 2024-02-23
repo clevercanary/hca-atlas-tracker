@@ -60,9 +60,9 @@ export const atlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
-          component: C.Cell,
+          component: C.BioNetworkCell,
           viewBuilder: V.buildBioNetwork,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        } as ComponentConfig<typeof C.BioNetworkCell, HCAAtlasTrackerAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
         width: { max: "1fr", min: "136px" },

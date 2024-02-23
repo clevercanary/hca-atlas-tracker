@@ -1,8 +1,11 @@
 import { STATUS_BADGE_COLOR } from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
+import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import React from "react";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
+  Network,
+  NetworkKey,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
 
@@ -28,9 +31,9 @@ export const buildAtlas = (
  */
 export const buildBioNetwork = (
   atlas: HCAAtlasTrackerAtlas
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
-    value: atlas.bioNetwork,
+    networkKey: atlas.bioNetwork,
   };
 };
 
@@ -90,3 +93,21 @@ export const buildVersion = (
     value: atlas.version,
   };
 };
+
+/**
+ * Attempts to return the bio network with the given key.
+ * @param key - Bio network key.
+ * @returns bio network, or undefined if not found.
+ */
+export function getBioNetworkByKey(key: NetworkKey): Network | undefined {
+  return NETWORKS.find((network) => network.key === key);
+}
+
+/**
+ * Returns the bio network name, without the suffix "Network".
+ * @param name - Bio network name.
+ * @returns name of the bio network.
+ */
+export function getBioNetworkName(name: string): string {
+  return name.replace(/(\sNetwork.*)/gi, "");
+}

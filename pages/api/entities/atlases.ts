@@ -7,7 +7,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
   0: {
     atlasTitle: "The Foo Atlas",
-    bioNetwork: "Musculoskeletal",
+    bioNetwork: "musculoskeletal",
     integrationLead: "Foof Oofoo",
     publication: "Foofoo et al.",
     status: ATLAS_STATUS.PUBLISHED,
@@ -15,7 +15,7 @@ const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
   },
   1: {
     atlasTitle: "The Bar Atlas",
-    bioNetwork: "Heart",
+    bioNetwork: "heart",
     integrationLead: "Barb Arbar",
     publication: "Barbar et al.",
     status: ATLAS_STATUS.DRAFT,
@@ -23,7 +23,7 @@ const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
   },
   2: {
     atlasTitle: "The Baz Atlas",
-    bioNetwork: "Adipose",
+    bioNetwork: "adipose",
     integrationLead: "Bazb Azbaz",
     publication: "Bazbaz et al.",
     status: ATLAS_STATUS.PUBLISHED,
