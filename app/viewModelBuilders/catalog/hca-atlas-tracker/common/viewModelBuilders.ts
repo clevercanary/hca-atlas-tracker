@@ -6,6 +6,11 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
 
+/**
+ * Build props for the atlas title and publication cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
 export const buildAtlas = (
   atlas: HCAAtlasTrackerAtlas
 ): React.ComponentProps<typeof C.AtlasCell> => {
@@ -16,14 +21,11 @@ export const buildAtlas = (
   };
 };
 
-export const buildPublication = (
-  atlas: HCAAtlasTrackerAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: atlas.publication,
-  };
-};
-
+/**
+ * Build props for the biological network cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
 export const buildBioNetwork = (
   atlas: HCAAtlasTrackerAtlas
 ): React.ComponentProps<typeof C.Cell> => {
@@ -32,14 +34,11 @@ export const buildBioNetwork = (
   };
 };
 
-export const buildVersion = (
-  atlas: HCAAtlasTrackerAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: atlas.version,
-  };
-};
-
+/**
+ * Build props for the integration lead cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
 export const buildIntegrationLead = (
   atlas: HCAAtlasTrackerAtlas
 ): React.ComponentProps<typeof C.Cell> => {
@@ -48,6 +47,24 @@ export const buildIntegrationLead = (
   };
 };
 
+/**
+ * Build props for the publication cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildPublication = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: atlas.publication,
+  };
+};
+
+/**
+ * Build props for the status cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
 export const buildStatus = (
   atlas: HCAAtlasTrackerAtlas
 ): React.ComponentProps<typeof C.StatusBadge> => {
@@ -58,5 +75,18 @@ export const buildStatus = (
   return {
     color,
     label: atlas.status,
+  };
+};
+
+/**
+ * Build props for the version cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildVersion = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: atlas.version,
   };
 };
