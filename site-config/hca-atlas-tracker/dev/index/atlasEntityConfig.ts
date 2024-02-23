@@ -76,9 +76,9 @@ export const atlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
-          component: C.Cell,
+          component: C.StatusBadge,
           viewBuilder: V.buildStatus,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        } as ComponentConfig<typeof C.StatusBadge, HCAAtlasTrackerAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.STATUS,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.STATUS,
         width: { max: "1fr", min: "136px" },

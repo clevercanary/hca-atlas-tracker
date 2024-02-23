@@ -1,5 +1,9 @@
-import { HCAAtlasTrackerAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { STATUS_BADGE_COLOR } from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
 import React from "react";
+import {
+  ATLAS_STATUS,
+  HCAAtlasTrackerAtlas,
+} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
 
 export const buildAtlasTitle = (
@@ -37,8 +41,13 @@ export const buildIntegrationLead = (
 
 export const buildStatus = (
   atlas: HCAAtlasTrackerAtlas
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.StatusBadge> => {
+  let color;
+  if (atlas.status === ATLAS_STATUS.PUBLISHED)
+    color = STATUS_BADGE_COLOR.SUCCESS;
+  else if (atlas.status === ATLAS_STATUS.DRAFT) color = STATUS_BADGE_COLOR.INFO;
   return {
-    value: atlas.status,
+    color,
+    label: atlas.status,
   };
 };
