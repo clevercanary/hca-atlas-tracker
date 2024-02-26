@@ -65,7 +65,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
     ],
     dataSource: {
       entityURL: LOCALHOST,
-      url: BROWSER_URL,
+      url: browserUrl,
     },
     entities: [atlasEntityConfig],
     explorerTitle: "Manage Atlases",
