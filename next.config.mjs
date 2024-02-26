@@ -3,7 +3,7 @@ import withPlugins from "next-compose-plugins";
 import path from "path";
 
 export default withPlugins([withMDX], {
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
+  basePath: "",
   images: {
     unoptimized: true,
   },
