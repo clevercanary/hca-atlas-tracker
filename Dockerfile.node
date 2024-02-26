@@ -1,0 +1,43 @@
+# docker build -t explorer-node -f Dockerfile.node .
+# docker run -p 3000:3000 explorer-node
+
+# Base stage
+FROM --platform=linux/amd64 node:16 AS base
+
+# Deps stage
+FROM base AS deps
+WORKDIR /app
+ARG ENVIRONMENT
+ENV ENVIRONMENT ${ENVIRONMENT}
+COPY ./package*.json ./
+RUN node --version
+RUN npm install -g n
+RUN n 16.15.1
+RUN node --version
+RUN npm ci
+
+# Build stage
+FROM base AS builder
+
+WORKDIR /app
+ARG ENVIRONMENT
+ENV ENVIRONMENT ${ENVIRONMENT}
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build:${ENVIRONMENT}
+
+# Run stage
+FROM base AS runner
+RUN npm install -g pm2
+WORKDIR /app
+ENV NODE_ENV production
+COPY --from=builder /app/next.config.mjs ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+
+EXPOSE 3000
+ENV PORT 3000
+CMD ["pm2-runtime", "start", "npm", "--", "start"]
