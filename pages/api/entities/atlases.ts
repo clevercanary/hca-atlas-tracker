@@ -4,7 +4,7 @@ import {
 } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
+export const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
   0: {
     atlasTitle: "The Foo Atlas",
     bioNetwork: "musculoskeletal",

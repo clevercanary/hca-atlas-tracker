@@ -71,57 +71,9 @@ const seedDatabase = async function seedDatabase(
  * getStaticPaths - return the list of paths to prerender for each entity type and its tabs.
  */
 export const getStaticPaths: GetStaticPaths<PageUrl> = async () => {
-  const appConfig = config();
-  const { entities } = appConfig;
-  const paths = await Promise.all(
-    entities.map(async (entityConfig) => {
-      const { exploreMode } = entityConfig;
-      // Seed database.
-      if (
-        exploreMode === EXPLORE_MODE.CS_FETCH_CS_FILTERING &&
-        entityConfig.detail.staticLoad
-      ) {
-        await seedDatabase(entityConfig.route, entityConfig);
-      }
-
-      const resultParams: { params: PageUrl }[] = [];
-
-      // Fetch entity data.
-      if (entityConfig.detail.staticLoad) {
-        const { fetchAllEntities, path } = getEntityService(
-          entityConfig,
-          undefined
-        );
-
-        const data = await fetchAllEntities(path);
-        const tabs = entityConfig.detail?.tabs.map((tab) => tab.route) ?? [];
-
-        // process all hits
-        data.hits.forEach((hit) => {
-          // process all tabs on each hit
-          // TODO maybe we dont't want to pre-render the tabs.
-          tabs.forEach((tab) => {
-            resultParams.push({
-              params: {
-                entityListType: entityConfig.route,
-                params: [entityConfig.getId?.(hit) ?? "", tab],
-              },
-            });
-          });
-        });
-      }
-
-      return resultParams;
-    })
-  );
-
-  const result = paths
-    .reduce((prev, curr) => [...prev, ...curr], [])
-    .filter(({ params }) => !!params);
-
   return {
-    fallback: false, // others e.g. true, blocking are not supported with next export
-    paths: result,
+    fallback: "blocking", // 'blocking' will render the page on the first request
+    paths: [], // An empty array means no paths are pre-rendered at build time
   };
 };
 

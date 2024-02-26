@@ -13,6 +13,7 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../category";
+import { mainColumn } from "../detail/atlas/overviewMainColumn";
 
 export const PROJECT_ENTITY_ROUTE = {
   EXPORT_TO_TERRA: "export-to-terra",
@@ -30,7 +31,13 @@ export const atlasEntityConfig: EntityConfig = {
   detail: {
     detailOverviews: [],
     staticLoad: true,
-    tabs: [],
+    tabs: [
+      {
+        label: "Overview",
+        mainColumn: mainColumn,
+        route: "",
+      },
+    ],
     top: [],
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
