@@ -15,14 +15,6 @@ import {
 } from "../../category";
 import { mainColumn } from "../detail/atlas/overviewMainColumn";
 
-export const PROJECT_ENTITY_ROUTE = {
-  EXPORT_TO_TERRA: "export-to-terra",
-  GET_CURL_COMMAND: "get-curl-command",
-  OVERVIEW: "",
-  PROJECT_MATRICES: "project-matrices",
-  PROJECT_METADATA: "project-metadata",
-};
-
 /**
  * Entity config object responsible to config anything related to the /atlases route.
  */
