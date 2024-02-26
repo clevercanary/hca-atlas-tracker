@@ -23,6 +23,7 @@ interface ListPageProps extends AzulEntitiesStaticResponse {
  * Seed database.
  * @param entityListType - Entity list type.
  * @param entityConfig - Entity config.
+ * @returns Promise<void>.
  */
 const seedDatabase = async function seedDatabase( // TODO get rid of this duplicated code
   entityListType: string,
@@ -65,6 +66,7 @@ const IndexPage = ({
 
 /**
  * Build the list of paths to be built statically.
+ * @returns static paths.
  */
 export const getStaticPaths: GetStaticPaths = async () => {
   const appConfig = config();
@@ -83,6 +85,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 /**
  * Build the set of props for pre-rendering of page.
  * @param context - Object containing values related to the current context.
+ * @returns static props.
  */
 export const getStaticProps: GetStaticProps<
   AzulEntitiesStaticResponse

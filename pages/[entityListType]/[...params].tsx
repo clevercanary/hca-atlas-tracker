@@ -38,6 +38,7 @@ const EntityDetailPage = (props: EntityDetailPageProps): JSX.Element => {
  * Seed database.
  * @param entityListType - Entity list type.
  * @param entityConfig - Entity config.
+ * @returns Promise<void>
  */
 const seedDatabase = async function seedDatabase(
   entityListType: string,
@@ -68,6 +69,7 @@ const seedDatabase = async function seedDatabase(
 
 /**
  * getStaticPaths - return the list of paths to prerender for each entity type and its tabs.
+ * @returns Promise<GetStaticPaths<PageUrl>>.
  */
 export const getStaticPaths: GetStaticPaths<PageUrl> = async () => {
   return {
