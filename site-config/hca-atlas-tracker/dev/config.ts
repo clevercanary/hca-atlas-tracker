@@ -1,3 +1,5 @@
+import { ELEMENT_ALIGNMENT } from "@clevercanary/data-explorer-ui/lib/common/entities";
+import { ANCHOR_TARGET } from "@clevercanary/data-explorer-ui/lib/components/Links/common/entities";
 import { SiteConfig } from "@clevercanary/data-explorer-ui/lib/config/entities";
 import { tabletUp } from "@clevercanary/data-explorer-ui/lib/theme/common/breakpoints";
 import {
@@ -82,7 +84,26 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
           link: HOME_PAGE_PATH,
           src: "/images/hcaAtlasTracker.svg",
         }),
-        navLinks: [],
+        navAlignment: ELEMENT_ALIGNMENT.RIGHT,
+        navLinks: [
+          {
+            flatten: true,
+            label: "Help & Documentation",
+            menuItems: [
+              {
+                label: C.LabelIconMenuItem({ label: "Guides" }),
+                target: ANCHOR_TARGET.BLANK,
+                url: `${portalUrl}/guides`,
+              },
+              {
+                label: C.LabelIconMenuItem({ label: "Privacy" }),
+                target: ANCHOR_TARGET.BLANK,
+                url: `${portalUrl}/privacy`,
+              },
+            ],
+            url: "",
+          },
+        ],
       },
     },
     redirectRootToPath: HOME_PAGE_PATH,
