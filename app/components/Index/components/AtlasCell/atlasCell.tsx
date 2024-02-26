@@ -5,7 +5,6 @@ import {
   TEXT_BODY_SMALL_400,
 } from "@clevercanary/data-explorer-ui/lib/theme/common/typography";
 import { Typography } from "@mui/material";
-import React from "react";
 
 interface AtlasCellProps {
   label: string;

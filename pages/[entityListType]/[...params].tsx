@@ -13,7 +13,6 @@ import { config } from "app/config/config";
 import fsp from "fs/promises";
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
-import React from "react";
 
 interface PageUrl extends ParsedUrlQuery {
   entityListType: string;
