@@ -1,8 +1,8 @@
-# docker build -t explorer-node -f Dockerfile.node .
-# docker run -p 3000:3000 explorer-node
+# docker build --build-arg ENVIRONMENT=<environment> -t tracker-node -f Dockerfile.node .
+# docker run -p 3000:3000 tracker-node
 
 # Base stage
-FROM --platform=linux/amd64 node:16 AS base
+FROM --platform=linux/amd64 node:20 AS base
 
 # Deps stage
 FROM base AS deps
