@@ -21,7 +21,7 @@ export const HCABranding = ({
         target={ANCHOR_TARGET.BLANK}
       />
       <Logo
-        alt="HCA Data Portal"
+        alt="The Human Cell Atlas"
         height={32}
         link={orgURL}
         src="/images/hcaOrg.png"
