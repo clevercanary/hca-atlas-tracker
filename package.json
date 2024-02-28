@@ -8,7 +8,8 @@
     "build:prod": "./scripts/build.sh hca-atlas-tracker prod && next build",
     "start": "next start",
     "lint": "next lint --dir .",
-    "check-format": "prettier --check ."
+    "check-format": "prettier --check .",
+    "prepare": "husky install .husky"
   },
   "dependencies": {
     "@clevercanary/data-explorer-ui": "67.0.0",
