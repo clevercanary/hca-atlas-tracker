@@ -19,7 +19,7 @@ export const AtlasCell = ({
 }: AtlasCellProps): JSX.Element => {
   // TODO sub-label color
   return (
-    <Grid gridSx={{ gap: 2 }}>
+    <Grid gridSx={{ gap: 1 }}>
       <Typography variant={TEXT_BODY_500}>
         <Link label={label} url={url} />
       </Typography>
