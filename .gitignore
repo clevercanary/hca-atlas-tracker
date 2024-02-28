@@ -37,8 +37,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# vscode
+# editors
 /.vscode
+.idea
 
 # hygen
 _templates
