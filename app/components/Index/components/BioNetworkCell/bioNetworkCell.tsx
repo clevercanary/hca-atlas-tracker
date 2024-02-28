@@ -17,7 +17,7 @@ export const BioNetworkCell = ({
   const name = getBioNetworkByKey(networkKey)?.name ?? networkKey;
   return (
     <Cell>
-      <StaticImage alt={name} height={24} src={NETWORK_ICONS[networkKey].src} />
+      <StaticImage alt={name} height={24} src={NETWORK_ICONS[networkKey]} />
       <div>{getBioNetworkName(name)}</div>
     </Cell>
   );
