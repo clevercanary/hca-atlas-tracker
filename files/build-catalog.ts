@@ -1,11 +1,14 @@
+import fsp from "fs/promises";
+import path from "path";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
-} from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { NextApiRequest, NextApiResponse } from "next";
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
-export const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
-  0: {
+const OUT_DIR = "./files/out";
+
+const atlases: HCAAtlasTrackerAtlas[] = [
+  {
     atlasTitle: "The Foo Atlas",
     bioNetwork: "musculoskeletal",
     integrationLead: "Foof Oofoo",
@@ -13,7 +16,7 @@ export const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
     status: ATLAS_STATUS.PUBLISHED,
     version: "1.0",
   },
-  1: {
+  {
     atlasTitle: "The Bar Atlas",
     bioNetwork: "heart",
     integrationLead: "Barb Arbar",
@@ -21,7 +24,7 @@ export const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
     status: ATLAS_STATUS.DRAFT,
     version: "2.0",
   },
-  2: {
+  {
     atlasTitle: "The Baz Atlas",
     bioNetwork: "adipose",
     integrationLead: "Bazb Azbaz",
@@ -29,11 +32,23 @@ export const testAtlases: Record<number, HCAAtlasTrackerAtlas> = {
     status: ATLAS_STATUS.PUBLISHED,
     version: "3.0",
   },
-};
+];
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-): void {
-  res.json(testAtlases);
+buildCatalog();
+
+async function buildCatalog(): Promise<void> {
+  console.log("Building catalog");
+
+  try {
+    await fsp.mkdir(OUT_DIR);
+  } catch (e) {
+    // Assume it already exists
+  }
+
+  await fsp.writeFile(
+    path.resolve(OUT_DIR, "atlases.json"),
+    JSON.stringify(Object.fromEntries(atlases.entries()), undefined, 2)
+  );
+
+  console.log("Done");
 }

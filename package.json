@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint --dir .",
     "check-format": "prettier --check .",
-    "prepare": "husky install .husky"
+    "prepare": "husky install .husky",
+    "build-catalog": "esrun ./files/build-catalog.ts"
   },
   "dependencies": {
     "@clevercanary/data-explorer-ui": "67.0.0",
@@ -35,6 +36,7 @@
     "@babel/core": "^7.17.10",
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
+    "@digitak/esrun": "^3.2.26",
     "@next/eslint-plugin-next": "^14.1.0",
     "@playwright/test": "^1.37.1",
     "@storybook/addon-actions": "^7.6.17",
