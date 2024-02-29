@@ -14,9 +14,7 @@ export default async function handler(
 ): Promise<void> {
   await atlasesLoaded;
   res.json(
-    Object.values(atlases).find(
-      (atlas) => atlas.atlasTitle === req.query.id // TODO use actual ID
-    )
+    Object.values(atlases).find((atlas) => atlas.atlasKey === req.query.id)
   );
 }
 

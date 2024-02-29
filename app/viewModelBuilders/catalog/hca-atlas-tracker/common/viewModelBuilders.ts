@@ -20,7 +20,7 @@ export const buildAtlas = (
   return {
     label: atlas.atlasTitle,
     subLabel: atlas.publication,
-    url: `/atlases/${encodeURIComponent(atlas.atlasTitle)}`, // TODO use actual ID
+    url: `/atlases/${encodeURIComponent(atlas.atlasKey)}`,
   };
 };
 
