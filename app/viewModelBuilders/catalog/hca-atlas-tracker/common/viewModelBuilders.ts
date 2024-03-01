@@ -4,10 +4,13 @@ import React from "react";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerComponentAtlas,
   Network,
   NetworkKey,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
+import { PLURALIZED_METADATA_LABEL } from "./constants";
+import { METADATA_KEY } from "./entities";
 
 /**
  * Build props for the atlas title and publication cell component.
@@ -34,6 +37,60 @@ export const buildBioNetwork = (
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: atlas.bioNetwork,
+  };
+};
+
+/**
+ * Build props for the component atlas name cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasName = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: componentAtlas.name,
+  };
+};
+
+/**
+ * Build props for the tissue cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasTissue = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
+    values: componentAtlas.tissue,
+  };
+};
+
+/**
+ * Build props for the disease cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasDisease = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
+    values: componentAtlas.disease,
+  };
+};
+
+/**
+ * Build props for the cell count cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasCellCount = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: formatCountSize(componentAtlas.cellCount),
   };
 };
 
@@ -110,4 +167,43 @@ export function getBioNetworkByKey(key: NetworkKey): Network | undefined {
  */
 export function getBioNetworkName(name: string): string {
   return name.replace(/(\sNetwork.*)/gi, "");
+}
+
+/**
+ * Returns the pluralized metadata label for the specified metadata.
+ * @param metadataKey - Metadata key.
+ * @returns string label describing the metadata in plural form.
+ */
+export function getPluralizedMetadataLabel(
+  metadataKey: keyof typeof METADATA_KEY
+): string {
+  return PLURALIZED_METADATA_LABEL[metadataKey];
+}
+
+/**
+ * Formats count sizes.
+ * @param value - Count size.
+ * @returns formatted count size as display string.
+ */
+export function formatCountSize(value: number): string {
+  const countSizes = ["k", "M", "G", "T", "P", "E"];
+
+  // Determine count size display value and unit
+  let val = value || 0;
+  let sigFig = 0;
+  while (val >= 1000) {
+    val = val / 1000;
+    sigFig += 1;
+  }
+
+  // No format of count size - tens, hundreds
+  if (sigFig === 0) {
+    return `${val}`;
+  }
+
+  // Format of count size to "n.0k"
+  // Round value to precision
+  const precision = 1;
+  const roundedValue = val.toFixed(precision);
+  return `${roundedValue}${countSizes[sigFig - 1]}`;
 }
