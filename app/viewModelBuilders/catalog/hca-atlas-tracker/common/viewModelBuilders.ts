@@ -41,6 +41,33 @@ export const buildBioNetwork = (
 };
 
 /**
+ * Build props for the cell count cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasCellCount = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: formatCountSize(componentAtlas.cellCount),
+  };
+};
+
+/**
+ * Build props for the disease cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasDisease = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
+    values: componentAtlas.disease,
+  };
+};
+
+/**
  * Build props for the component atlas name cell component.
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the cell.
@@ -64,33 +91,6 @@ export const buildComponentAtlasTissue = (
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
     values: componentAtlas.tissue,
-  };
-};
-
-/**
- * Build props for the disease cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildComponentAtlasDisease = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.NTagCell> => {
-  return {
-    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
-    values: componentAtlas.disease,
-  };
-};
-
-/**
- * Build props for the cell count cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildComponentAtlasCellCount = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: formatCountSize(componentAtlas.cellCount),
   };
 };
 
