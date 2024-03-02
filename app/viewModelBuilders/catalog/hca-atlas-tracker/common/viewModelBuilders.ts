@@ -49,7 +49,7 @@ export const buildComponentAtlasName = (
   componentAtlas: HCAAtlasTrackerComponentAtlas
 ): React.ComponentProps<typeof C.Cell> => {
   return {
-    value: componentAtlas.name,
+    value: componentAtlas.componentAtlasName,
   };
 };
 

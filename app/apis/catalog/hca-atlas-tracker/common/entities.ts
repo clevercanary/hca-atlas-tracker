@@ -1,13 +1,9 @@
-import { IntegratedAtlas } from "../../../../../files/build-component-atlases";
-import { ProjectsResponse } from "../../../../../files/entities/responses";
-
 export interface HCAAtlasTrackerAtlas {
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
   componentAtlases: HCAAtlasTrackerComponentAtlas[];
-  cxgId: string;
-  datasetIds: string[];
+  cxgCollectionId: string;
   integrationLead: string;
   publication: string;
   sourceDatasets: HCAAtlasTrackerSourceDataset[];
@@ -15,9 +11,26 @@ export interface HCAAtlasTrackerAtlas {
   version: string;
 }
 
-export type HCAAtlasTrackerComponentAtlas = IntegratedAtlas;
+export interface HCAAtlasTrackerComponentAtlas {
+  cellCount: number;
+  componentAtlasName: string;
+  cxgCollectionId: string;
+  cxgDatasetId: string;
+  cxgExploreUrl: string;
+  disease: string[];
+  tissue: string[];
+}
 
-export type HCAAtlasTrackerSourceDataset = ProjectsResponse;
+export interface HCAAtlasTrackerSourceDataset {
+  anatomicalEntity: string[];
+  donorDisease: string[];
+  estimatedCellCount: number | null;
+  libraryConstructionMethod: string[];
+  projectId: string | null;
+  projectTitle: string;
+  publicationUrl: string | null;
+  species: string[];
+}
 
 export enum ATLAS_STATUS {
   DRAFT = "Draft",

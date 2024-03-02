@@ -10,5 +10,5 @@ export function getAtlasId(atlas: HCAAtlasTrackerAtlas): string {
 export function getComponentAtlasId(
   componentAtlas: HCAAtlasTrackerComponentAtlas
 ): string {
-  return componentAtlas.cxgId;
+  return componentAtlas.cxgDatasetId;
 }
