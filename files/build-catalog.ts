@@ -22,7 +22,7 @@ const baseAtlases: AtlasBase[] = [
     atlasTitle: "The integrated Human Lung Cell Atlas (HLCA) v1.0",
     bioNetwork: "lung",
     cxgCollectionId: "6f6d381a-7701-4781-935c-db10d30de293",
-    integrationLead: "",
+    integrationLead: "Malte D. Luecken",
     publication: "Sikkema et al. (2023) Nat Med",
     status: ATLAS_STATUS.PUBLISHED,
     version: "1.0",
