@@ -35,5 +35,5 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   SPECIES: "Species",
   STATUS: "Status",
   TISSUE: "Tissue",
-  VERSION: "Version",
+  VERSION: "Atlas Version",
 };
