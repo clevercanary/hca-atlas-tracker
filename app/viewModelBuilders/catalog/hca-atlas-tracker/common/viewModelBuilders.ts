@@ -68,6 +68,20 @@ export const buildComponentAtlasDisease = (
 };
 
 /**
+ * Build props for the explore cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasExploreLink = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.Link> => {
+  return {
+    label: "CZ CELLxGENE",
+    url: componentAtlas.cxgExploreUrl,
+  };
+};
+
+/**
  * Build props for the component atlas name cell component.
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the cell.

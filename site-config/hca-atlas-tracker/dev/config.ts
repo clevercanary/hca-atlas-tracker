@@ -63,6 +63,10 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
           },
 
           {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.COMPONENT_ATLAS_NAME,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.COMPONENT_ATLAS_NAME,
+          },
+          {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TISSUE,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TISSUE,
           },

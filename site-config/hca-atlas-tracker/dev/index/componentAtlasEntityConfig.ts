@@ -74,6 +74,16 @@ export const componentAtlasEntityConfig: EntityConfig = {
         disableHiding: true,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CELL_COUNT,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.CELL_COUNT,
+        width: { max: "0.5fr", min: "68px" },
+      },
+      {
+        componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildComponentAtlasExploreLink,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerComponentAtlas>,
+        disableHiding: true,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CXG_EXPLORE_URL,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.CXG_EXPLORE_URL,
         width: { max: "1fr", min: "136px" },
       },
     ],
