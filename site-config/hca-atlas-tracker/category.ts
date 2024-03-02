@@ -20,10 +20,10 @@ export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
 
 export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   ANATOMICAL_ENTITY: "Anatomical Entity",
-  ATLAS_TITLE: "Atlas Title",
+  ATLAS_TITLE: "Atlas",
   BIONETWORK: "Biological Network",
   CELL_COUNT: "Cells",
-  COMPONENT_ATLAS_NAME: "Atlas Name",
+  COMPONENT_ATLAS_NAME: "Component Atlas",
   CXG_EXPLORE_URL: "Explore",
   DISEASE: "Disease",
   DONOR_DISEASE: "Disease (Donor)",
