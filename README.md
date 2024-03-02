@@ -4,7 +4,11 @@
 
 ### Setup
 
-Use Node.js version `20.10.0`. Run `npm install`.
+Use Node.js version `20.10.0`.
+
+Run `npm install`.
+
+If planning to run the app, run `npm run build-catalog` to build the catalog data.
 
 ### Using the development server
 
