@@ -1,13 +1,14 @@
 import { HCAAtlasTrackerComponentAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { processNullElements } from "./apis/azul/utils";
 import { CXGDataset } from "./apis/cellxgene";
+import { AtlasBase } from "./entities";
 
 export async function buildAtlasComponentAtlases(
-  cxgId: string
+  atlasBase: AtlasBase
 ): Promise<HCAAtlasTrackerComponentAtlas[]> {
   const cxgDatasets: CXGDataset[] = [];
   const response = await fetch(
-    `https://api.cellxgene.cziscience.com/curation/v1/collections/${cxgId}`
+    `https://api.cellxgene.cziscience.com/curation/v1/collections/${atlasBase.cxgCollectionId}`
   );
   const cxgCollection = await response.json();
   cxgDatasets.push(
@@ -15,6 +16,9 @@ export async function buildAtlasComponentAtlases(
   );
   cxgDatasets.sort(sortCXGDatasets);
   return cxgDatasets.map((cxgDataset) => ({
+    atlasKey: atlasBase.atlasKey,
+    atlasTitle: atlasBase.atlasTitle,
+    bioNetwork: atlasBase.bioNetwork,
     cellCount: cxgDataset.cell_count,
     componentAtlasName: cxgDataset.title,
     cxgCollectionId: cxgDataset.collection_id,

@@ -7,6 +7,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerEntity,
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
@@ -45,15 +46,29 @@ export const buildAtlas = (
 };
 
 /**
+ * Build props for the atlas title cell component.
+ * @param entity - Entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildAtlasTitle = (
+  entity: HCAAtlasTrackerEntity
+): React.ComponentProps<typeof C.Link> => {
+  return {
+    label: entity.atlasTitle,
+    url: `/atlases/${encodeURIComponent(entity.atlasKey)}`,
+  };
+};
+
+/**
  * Build props for the biological network cell component.
- * @param atlas - Atlas entity.
+ * @param entity - Entity.
  * @returns Props to be used for the cell.
  */
 export const buildBioNetwork = (
-  atlas: HCAAtlasTrackerAtlas
+  entity: HCAAtlasTrackerEntity
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
-    networkKey: atlas.bioNetwork,
+    networkKey: entity.bioNetwork,
   };
 };
 

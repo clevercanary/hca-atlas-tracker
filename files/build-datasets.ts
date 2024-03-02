@@ -16,6 +16,7 @@ import {
 } from "./apis/azul/utils";
 import { buildDataset } from "./apis/datasets";
 import { DATA_SOURCE } from "./constants";
+import { AtlasBase } from "./entities";
 
 interface AtlasDatasetsInfo {
   datasetIds: string[];
@@ -117,10 +118,10 @@ const datasetsByAtlasKey = new Map<string, AtlasDatasetsInfo>([
 ]);
 
 export async function buildAtlasDatasets(
-  atlasKey: string
+  atlasBase: AtlasBase
 ): Promise<HCAAtlasTrackerSourceDataset[]> {
   const projectsResponses: ProjectsResponse[] = [];
-  const datasetsInfo = datasetsByAtlasKey.get(atlasKey);
+  const datasetsInfo = datasetsByAtlasKey.get(atlasBase.atlasKey);
   if (datasetsInfo) {
     const { datasetIds, externalDatasets } = datasetsInfo;
     if (datasetIds.length > 0) {
@@ -140,6 +141,9 @@ export async function buildAtlasDatasets(
       projectsResponse.specimens,
       "organ"
     ),
+    atlasKey: atlasBase.atlasKey,
+    atlasTitle: atlasBase.atlasTitle,
+    bioNetwork: atlasBase.bioNetwork,
     donorDisease: processAggregatedOrArrayValue(
       projectsResponse.donorOrganisms,
       "disease"

@@ -1,3 +1,8 @@
+export type HCAAtlasTrackerEntity =
+  | HCAAtlasTrackerAtlas
+  | HCAAtlasTrackerComponentAtlas
+  | HCAAtlasTrackerSourceDataset;
+
 export interface HCAAtlasTrackerAtlas {
   atlasKey: string;
   atlasTitle: string;
@@ -12,6 +17,9 @@ export interface HCAAtlasTrackerAtlas {
 }
 
 export interface HCAAtlasTrackerComponentAtlas {
+  atlasKey: string;
+  atlasTitle: string;
+  bioNetwork: NetworkKey;
   cellCount: number;
   componentAtlasName: string;
   cxgCollectionId: string;
@@ -23,6 +31,9 @@ export interface HCAAtlasTrackerComponentAtlas {
 
 export interface HCAAtlasTrackerSourceDataset {
   anatomicalEntity: string[];
+  atlasKey: string;
+  atlasTitle: string;
+  bioNetwork: NetworkKey;
   donorDisease: string[];
   estimatedCellCount: number | null;
   libraryConstructionMethod: string[];

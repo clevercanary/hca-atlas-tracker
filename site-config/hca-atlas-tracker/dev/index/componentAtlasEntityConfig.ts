@@ -39,6 +39,27 @@ export const componentAtlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildAtlasTitle,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerComponentAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
+          component: C.BioNetworkCell,
+          viewBuilder: V.buildBioNetwork,
+        } as ComponentConfig<
+          typeof C.BioNetworkCell,
+          HCAAtlasTrackerComponentAtlas
+        >,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
           component: C.NTagCell,
           viewBuilder: V.buildTissue,
         } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerComponentAtlas>,

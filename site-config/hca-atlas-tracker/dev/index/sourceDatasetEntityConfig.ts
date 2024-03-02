@@ -39,6 +39,27 @@ export const sourceDatasetEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildAtlasTitle,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerSourceDataset>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
+          component: C.BioNetworkCell,
+          viewBuilder: V.buildBioNetwork,
+        } as ComponentConfig<
+          typeof C.BioNetworkCell,
+          HCAAtlasTrackerSourceDataset
+        >,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
           component: C.NTagCell,
           viewBuilder: V.buildSpecies,
         } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerSourceDataset>,

@@ -8,11 +8,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { buildAtlasComponentAtlases } from "./build-component-atlases";
 import { buildAtlasDatasets } from "./build-datasets";
-
-type AtlasBase = Omit<
-  HCAAtlasTrackerAtlas,
-  "componentAtlases" | "sourceDatasets"
->;
+import { AtlasBase } from "./entities";
 
 const OUT_DIR = "./files/out";
 
@@ -41,10 +37,8 @@ async function buildCatalog(): Promise<void> {
   for (const atlasBase of baseAtlases) {
     const atlas = {
       ...atlasBase,
-      componentAtlases: await buildAtlasComponentAtlases(
-        atlasBase.cxgCollectionId
-      ),
-      sourceDatasets: await buildAtlasDatasets(atlasBase.atlasKey),
+      componentAtlases: await buildAtlasComponentAtlases(atlasBase),
+      sourceDatasets: await buildAtlasDatasets(atlasBase),
     };
     atlases.push(atlas);
     componentAtlases.push(...atlas.componentAtlases);
