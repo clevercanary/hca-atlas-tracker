@@ -6,14 +6,12 @@ import {
 } from "@clevercanary/data-explorer-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@clevercanary/data-explorer-ui/lib/hooks/useExploreMode";
 import { HCAAtlasTrackerComponentAtlas } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getComponentAtlasId } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import * as C from "../../../../app/components";
 import * as V from "../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../category";
-import { mainColumn } from "../detail/atlas/overviewMainColumn";
 
 /**
  * Entity config object responsible to config anything related to the /component-atlases route.
@@ -23,17 +21,10 @@ export const componentAtlasEntityConfig: EntityConfig = {
   detail: {
     detailOverviews: [],
     staticLoad: true,
-    tabs: [
-      {
-        label: "Overview",
-        mainColumn: mainColumn,
-        route: "",
-      },
-    ],
+    tabs: [],
     top: [],
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
-  getId: getComponentAtlasId,
   label: "Component Atlases",
   list: {
     columns: [
@@ -49,7 +40,7 @@ export const componentAtlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.NTagCell,
-          viewBuilder: V.buildComponentAtlasTissue,
+          viewBuilder: V.buildTissue,
         } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerComponentAtlas>,
         disableHiding: true,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TISSUE,
@@ -58,9 +49,12 @@ export const componentAtlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
-          component: C.NTagCell,
-          viewBuilder: V.buildComponentAtlasDisease,
-        } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerComponentAtlas>,
+          component: C.PinnedNTagCell,
+          viewBuilder: V.buildDisease,
+        } as ComponentConfig<
+          typeof C.PinnedNTagCell,
+          HCAAtlasTrackerComponentAtlas
+        >,
         disableHiding: true,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
@@ -69,7 +63,7 @@ export const componentAtlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.Cell,
-          viewBuilder: V.buildComponentAtlasCellCount,
+          viewBuilder: V.buildCellCount,
         } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerComponentAtlas>,
         disableHiding: true,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CELL_COUNT,

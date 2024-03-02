@@ -1,16 +1,33 @@
 import { STATUS_BADGE_COLOR } from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
+import { MetadataValue } from "@clevercanary/data-explorer-ui/lib/components/Index/components/NTagCell/nTagCell";
 import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import { MetadataValueTuple } from "app/components/common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 import React from "react";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
 import { PLURALIZED_METADATA_LABEL } from "./constants";
-import { METADATA_KEY } from "./entities";
+import { DISEASE, METADATA_KEY } from "./entities";
+
+/**
+ * Build props for the anatomical entity cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildAnatomicalEntity = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.ANATOMICAL_ENTITY),
+    values: sourceDataset.anatomicalEntity,
+  };
+};
 
 /**
  * Build props for the atlas title and publication cell component.
@@ -45,25 +62,11 @@ export const buildBioNetwork = (
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the cell.
  */
-export const buildComponentAtlasCellCount = (
+export const buildCellCount = (
   componentAtlas: HCAAtlasTrackerComponentAtlas
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: formatCountSize(componentAtlas.cellCount),
-  };
-};
-
-/**
- * Build props for the disease cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildComponentAtlasDisease = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.NTagCell> => {
-  return {
-    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
-    values: componentAtlas.disease,
   };
 };
 
@@ -95,16 +98,45 @@ export const buildComponentAtlasName = (
 };
 
 /**
- * Build props for the tissue cell component.
+ * Build props for the disease cell component.
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the cell.
  */
-export const buildComponentAtlasTissue = (
+export const buildDisease = (
   componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.NTagCell> => {
+): React.ComponentProps<typeof C.PinnedNTagCell> => {
   return {
-    label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
-    values: componentAtlas.tissue,
+    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
+    values: partitionMetadataValues(componentAtlas.disease, [DISEASE.NORMAL]),
+  };
+};
+
+/**
+ * Build props for the donor disease cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildDonorDisease = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.PinnedNTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
+    values: partitionMetadataValues(sourceDataset.donorDisease, [
+      DISEASE.NORMAL,
+    ]),
+  };
+};
+
+/**
+ * Build props for the estimated cell count cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildEstimatedCellCount = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: sourceDataset.estimatedCellCount?.toLocaleString(),
   };
 };
 
@@ -122,6 +154,34 @@ export const buildIntegrationLead = (
 };
 
 /**
+ * Build props for the method cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildLibraryConstructionMethod = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.LIBRARY_CONSTRUCTION_METHOD),
+    values: sourceDataset.libraryConstructionMethod,
+  };
+};
+
+/**
+ * Build props for the project title cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildProjectTitle = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Link> => {
+  return {
+    label: sourceDataset.projectTitle,
+    url: `https://explore.data.humancellatlas.org/projects/${sourceDataset.projectId}`, // TODO different source for base URL?
+  };
+};
+
+/**
  * Build props for the publication cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -131,6 +191,20 @@ export const buildPublication = (
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: atlas.publication,
+  };
+};
+
+/**
+ * Build props for the species cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildSpecies = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.SPECIES),
+    values: sourceDataset.species,
   };
 };
 
@@ -149,6 +223,20 @@ export const buildStatus = (
   return {
     color,
     label: atlas.status,
+  };
+};
+
+/**
+ * Build props for the tissue cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildTissue = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
+    values: componentAtlas.tissue,
   };
 };
 
@@ -220,4 +308,25 @@ export function formatCountSize(value: number): string {
   const precision = 1;
   const roundedValue = val.toFixed(precision);
   return `${roundedValue}${countSizes[sigFig - 1]}`;
+}
+
+/**
+ * Returns metadata values partitioned into pinned values and non-pinned values.
+ * @param values - Values to partition.
+ * @param pinned - Values to pin.
+ * @returns metadata tuple containing pinned values and non-pinned values.
+ */
+function partitionMetadataValues(
+  values: MetadataValue[],
+  pinned: MetadataValue[]
+): MetadataValueTuple {
+  const partitionedValues: MetadataValueTuple = [[], []];
+  return values.reduce((acc, value) => {
+    if (pinned.includes(value)) {
+      acc[0].push(value);
+    } else {
+      acc[1].push(value);
+    }
+    return acc;
+  }, partitionedValues);
 }
