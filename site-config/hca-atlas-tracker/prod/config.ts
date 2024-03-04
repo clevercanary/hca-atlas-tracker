@@ -1,8 +1,8 @@
 import { SiteConfig } from "@clevercanary/data-explorer-ui/lib/config/entities";
-import { makeConfig } from "../dev/config";
+import { makeConfig } from "../local/config";
 
 // Template constants
-const BROWSER_URL = "TODO";
+const BROWSER_URL = "https://tracker.data.humancellatlas.org/";
 export const PORTAL_URL = "https://data.humancellatlas.org";
 
 const config: SiteConfig = makeConfig(BROWSER_URL, PORTAL_URL);
