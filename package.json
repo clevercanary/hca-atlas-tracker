@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "./scripts/dev.sh hca-atlas-tracker && next dev",
     "build:local": "./scripts/build.sh hca-atlas-tracker local && next build",
+    "build:dev": "./scripts/build.sh hca-atlas-tracker dev && next build",
     "build:prod": "./scripts/build.sh hca-atlas-tracker prod && next build",
     "start": "next start",
     "lint": "next lint --dir .",
