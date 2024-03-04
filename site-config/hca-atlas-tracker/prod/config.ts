@@ -1,5 +1,5 @@
 import { SiteConfig } from "@clevercanary/data-explorer-ui/lib/config/entities";
-import { makeConfig } from "../dev/config";
+import { makeConfig } from "../local/config";
 
 // Template constants
 const BROWSER_URL = "TODO";
