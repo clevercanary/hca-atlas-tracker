@@ -14,6 +14,7 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../category";
+import { getAuthenticationConfig } from "../dev/authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
 import { componentAtlasEntityConfig } from "./index/componentAtlasEntityConfig";
 import { sourceDatasetEntityConfig } from "./index/sourceDatasetEntityConfig";
@@ -30,6 +31,7 @@ export const PORTAL_URL = "https://data.humancellatlas.dev.clevercanary.com";
 export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
   return {
     appTitle: APP_TITLE,
+    authentication: getAuthenticationConfig(portalUrl),
     browserURL: browserUrl,
     categoryGroupConfigs: [
       {
