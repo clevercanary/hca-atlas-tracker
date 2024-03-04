@@ -73,7 +73,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
-        width: { max: "0.5fr", min: "68px" },
+        width: { max: "1fr", min: "136px" },
       },
       {
         componentConfig: {
