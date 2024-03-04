@@ -1,9 +1,11 @@
 import { setConfig } from "@clevercanary/data-explorer-ui/lib/config/config";
 import { SiteConfig } from "@clevercanary/data-explorer-ui/lib/config/entities";
 import hcaAtlasTrackerLocal from "../../site-config/hca-atlas-tracker/local/config";
+import hcaAtlasTrackerProd from "../../site-config/hca-atlas-tracker/prod/config";
 
 const CONFIGS: { [k: string]: SiteConfig } = {
   "hca-atlas-tracker-local": hcaAtlasTrackerLocal,
+  "hca-atlas-tracker-prod": hcaAtlasTrackerProd,
 };
 
 let appConfig: SiteConfig | null = null;
