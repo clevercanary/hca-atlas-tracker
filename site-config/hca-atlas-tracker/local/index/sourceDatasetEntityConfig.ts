@@ -119,6 +119,7 @@ export const sourceDatasetEntityConfig: EntityConfig = {
   } as ListConfig<HCAAtlasTrackerSourceDataset>,
   listView: {
     disablePagination: true,
+    enableDownload: true,
   },
   route: "source-datasets",
 };
