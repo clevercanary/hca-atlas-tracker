@@ -2,11 +2,14 @@ name: HCA Atlas Tracker Dev Deploy
 run-name: HCA Atlas Tracker Dev Deploy 🚀🚀
 on:
   push:
-    branches: [nope]
+    branches: [cc-dev-deploy]
 
 env:
-  AWS_REGION: us-west-2
+  AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
   IMAGE_TAG: ${{ github.sha }}
+permissions:
+  id-token: write
+  contents: read
 jobs:
   Build-and-Push-Docker-Image:
     runs-on: ubuntu-latest
@@ -21,46 +24,46 @@ jobs:
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.CC_DEV_ACCOUNT_HCA_TRACKER_IAM_DEPLOY_USER }}
-          aws-secret-access-key: ${{ secrets.CC_DEV_ACCOUNT_HCA_TRACKER_IAM_DEPLOY_PASSWORD }}
-          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
+          role-session-name: ${{ secrets.DEV_ROLE_SESSION_NAME }}
+          aws-region: ${{ secrets.DEV_AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker container
         id: build-image
         run: |
-          docker build --build-arg ENVIRONMENT=cc-dev -t hca-tracker-node:${{ env.IMAGE_TAG }} . -f Dockerfile.node
-          docker tag hca-tracker-node:${{ env.IMAGE_TAG }}  xxx.dkr.ecr.us-west-2.amazonaws.com/hca-tracker-node:${{ env.IMAGE_TAG }}
-          docker push xxx.dkr.ecr.us-west-2.amazonaws.com/hca-tracker-node:${{ env.IMAGE_TAG }}
-          echo "image=xxx.dkr.ecr.us-west-2.amazonaws.com/hca-tracker-node:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+          docker build --build-arg ENVIRONMENT=dev -t hca-tracker-node:${{ env.IMAGE_TAG }} . -f Dockerfile.node
+          docker tag hca-tracker-node:${{ env.IMAGE_TAG }}  ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.DEV_AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.DEV_AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}
+          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.DEV_AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
 
       - name: List ECR Images
         run: |
-          echo "List of images in ECR repository: $(aws ecr list-images --repository-name hca-tracker-node | jq '.imageIds[]')"
+          echo "List of images in ECR repository: $(aws ecr list-images --repository-name ${{ secrets.ECR_REPO_NAME }} | jq '.imageIds[]')"
 
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition hca-tracker --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition --task-definition ${{ secrets.DEV_ECS_TASK_NAME }} --query taskDefinition > task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: hca-tracker-node
+          container-name: ${{ secrets.DEV_CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: hca-tracker
-          cluster: cc-dev-hca-tracker
+          service: ${{ secrets.DEV_ECS_SERVICE_NAME }}
+          cluster: ${{ secrets.DEV_ECS_CLUSTER_NAME }}
           wait-for-service-stability: true
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
