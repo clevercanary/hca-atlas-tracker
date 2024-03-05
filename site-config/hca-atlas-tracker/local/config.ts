@@ -126,6 +126,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
           link: HOME_PAGE_PATH,
           src: "/images/hcaAtlasTracker.svg",
         }),
+        authenticationEnabled: true,
         navAlignment: ELEMENT_ALIGNMENT.RIGHT,
         navLinks: [
           {
