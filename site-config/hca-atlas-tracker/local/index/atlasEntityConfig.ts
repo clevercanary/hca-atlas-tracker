@@ -101,6 +101,7 @@ export const atlasEntityConfig: EntityConfig = {
   } as ListConfig<HCAAtlasTrackerAtlas>,
   listView: {
     disablePagination: true,
+    enableDownload: true,
   },
   route: "atlases",
 };

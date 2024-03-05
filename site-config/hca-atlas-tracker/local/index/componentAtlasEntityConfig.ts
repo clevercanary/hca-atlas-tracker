@@ -109,6 +109,7 @@ export const componentAtlasEntityConfig: EntityConfig = {
   } as ListConfig<HCAAtlasTrackerComponentAtlas>,
   listView: {
     disablePagination: true,
+    enableDownload: true,
   },
   route: "component-atlases",
 };
