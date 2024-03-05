@@ -1,5 +1,5 @@
 name: HCA Atlas Tracker Dev Deploy
-run-name: HCA Atlas Tracker Dev Deploy 🚀🚀
+run-name: 🚀HCA Atlas Tracker Dev Deploy 🚀
 on:
   push:
     branches: [main]
