@@ -2,7 +2,7 @@ name: HCA Atlas Tracker Dev Deploy
 run-name: HCA Atlas Tracker Dev Deploy 🚀🚀
 on:
   push:
-    branches: [cc-dev-deploy]
+    branches: [main]
 
 env:
   AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
