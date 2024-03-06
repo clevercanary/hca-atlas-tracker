@@ -169,6 +169,19 @@ export const buildInCellxGene = (
 };
 
 /**
+ * Build props for the "is published" cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildIsPublished = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: sourceDataset.isPublished,
+  };
+};
+
+/**
  * Build props for the integration lead cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
