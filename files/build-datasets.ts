@@ -1,6 +1,7 @@
 import {
   AzulEntitiesResponse,
   AzulListParams,
+  LABEL,
 } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/entities";
 import { transformFilters } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/filterTransformer";
 import { COLLATOR_CASE_INSENSITIVE } from "@clevercanary/data-explorer-ui/lib/common/constants";
@@ -163,7 +164,11 @@ export async function buildAtlasDatasets(
         "libraryConstructionApproach"
       ),
       projectId:
-        processEntityValue(projectsResponse.projects, "projectId") || null,
+        processEntityValue(
+          projectsResponse.projects,
+          "projectId",
+          LABEL.EMPTY
+        ) || null,
       projectTitle: processEntityValue(
         projectsResponse.projects,
         "projectTitle"
