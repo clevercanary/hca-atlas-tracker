@@ -1,6 +1,7 @@
 import {
   AzulEntitiesResponse,
   AzulListParams,
+  LABEL,
 } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/entities";
 import { transformFilters } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/filterTransformer";
 import { COLLATOR_CASE_INSENSITIVE } from "@clevercanary/data-explorer-ui/lib/common/constants";
@@ -14,6 +15,7 @@ import {
   processAggregatedOrArrayValue,
   processEntityValue,
 } from "./apis/azul/utils";
+import { CXGCollection } from "./apis/cellxgene";
 import { buildDataset } from "./apis/datasets";
 import { DATA_SOURCE } from "./constants";
 import { AtlasBase } from "./entities";
@@ -118,7 +120,8 @@ const datasetsByAtlasKey = new Map<string, AtlasDatasetsInfo>([
 ]);
 
 export async function buildAtlasDatasets(
-  atlasBase: AtlasBase
+  atlasBase: AtlasBase,
+  cxgCollections: CXGCollection[]
 ): Promise<HCAAtlasTrackerSourceDataset[]> {
   const projectsResponses: ProjectsResponse[] = [];
   const datasetsInfo = datasetsByAtlasKey.get(atlasBase.atlasKey);
@@ -136,34 +139,85 @@ export async function buildAtlasDatasets(
       }
     }
   }
-  return projectsResponses.map((projectsResponse) => ({
-    anatomicalEntity: processAggregatedOrArrayValue(
-      projectsResponse.specimens,
-      "organ"
-    ),
-    atlasKey: atlasBase.atlasKey,
-    atlasTitle: atlasBase.atlasTitle,
-    bioNetwork: atlasBase.bioNetwork,
-    donorDisease: processAggregatedOrArrayValue(
-      projectsResponse.donorOrganisms,
-      "disease"
-    ),
-    estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
-    libraryConstructionMethod: processAggregatedOrArrayValue(
-      projectsResponse.protocols,
-      "libraryConstructionApproach"
-    ),
-    projectId:
-      processEntityValue(projectsResponse.projects, "projectId") || null,
-    projectTitle: processEntityValue(projectsResponse.projects, "projectTitle"),
-    publicationUrl:
-      getProjectResponse(projectsResponse).publications[0]?.publicationUrl ||
-      null,
-    species: processAggregatedOrArrayValue(
-      projectsResponse.donorOrganisms,
-      "genusSpecies"
-    ),
-  }));
+  return projectsResponses.map((projectsResponse) => {
+    const cxgCollection = getEntityCxgCollection(
+      projectsResponse,
+      cxgCollections
+    );
+    return {
+      anatomicalEntity: processAggregatedOrArrayValue(
+        projectsResponse.specimens,
+        "organ"
+      ),
+      atlasKey: atlasBase.atlasKey,
+      atlasTitle: atlasBase.atlasTitle,
+      bioNetwork: atlasBase.bioNetwork,
+      cxgCollectionId: cxgCollection && cxgCollection.collection_id,
+      donorDisease: processAggregatedOrArrayValue(
+        projectsResponse.donorOrganisms,
+        "disease"
+      ),
+      estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
+      inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
+      libraryConstructionMethod: processAggregatedOrArrayValue(
+        projectsResponse.protocols,
+        "libraryConstructionApproach"
+      ),
+      projectId:
+        processEntityValue(
+          projectsResponse.projects,
+          "projectId",
+          LABEL.EMPTY
+        ) || null,
+      projectTitle: processEntityValue(
+        projectsResponse.projects,
+        "projectTitle"
+      ),
+      publicationUrl:
+        getProjectResponse(projectsResponse).publications[0]?.publicationUrl ||
+        null,
+      species: processAggregatedOrArrayValue(
+        projectsResponse.donorOrganisms,
+        "genusSpecies"
+      ),
+    };
+  });
+}
+
+function getEntityCxgCollection(
+  projectsResponse: ProjectsResponse,
+  cxgCollections: CXGCollection[]
+): CXGCollection | null {
+  for (const doi of getEntityDois(projectsResponse)) {
+    const collection = getCxgCollectionByDoi(cxgCollections, doi);
+    if (collection) return collection;
+  }
+  return null;
+}
+
+function getCxgCollectionByDoi(
+  cxgCollections: CXGCollection[],
+  doi: string
+): CXGCollection | null {
+  return cxgCollections.find((collection) => collection.doi === doi) || null;
+}
+
+/**
+ * Get the DOIs of publications of the project in the given projects response.
+ * @param projectsResponse - Response model returned from projects API.
+ * @returns array of DOIs, or null if it doesn't exist.
+ */
+function getEntityDois(projectsResponse: ProjectsResponse): string[] {
+  if (projectsResponse.projects.length === 0) {
+    return [];
+  }
+  const publications = projectsResponse.projects[0].publications;
+  if (publications.length === 0) return [];
+  const dois = [];
+  for (const { doi } of publications) {
+    if (doi) dois.push(doi);
+  }
+  return dois;
 }
 
 /**
@@ -275,3 +329,7 @@ export const filterProjectId = (value: string[]): AzulListParams => {
     ]),
   };
 };
+
+function getBooleanLabel(bool: boolean): string {
+  return bool ? "Yes" : "No";
+}

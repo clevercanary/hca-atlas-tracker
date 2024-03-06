@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CXGCollection } from "./apis/cellxgene";
 import { buildAtlasComponentAtlases } from "./build-component-atlases";
 import { buildAtlasDatasets } from "./build-datasets";
 import { AtlasBase } from "./entities";
@@ -30,6 +31,12 @@ buildCatalog();
 async function buildCatalog(): Promise<void> {
   console.log("Building catalog");
 
+  console.log("Getting CELLxGENE collections");
+
+  const cxgCollections = await getCxgCollections();
+
+  console.log("Building entities");
+
   const atlases: HCAAtlasTrackerAtlas[] = [];
   const componentAtlases: HCAAtlasTrackerComponentAtlas[] = [];
   const sourceDatasets: HCAAtlasTrackerSourceDataset[] = [];
@@ -38,12 +45,14 @@ async function buildCatalog(): Promise<void> {
     const atlas = {
       ...atlasBase,
       componentAtlases: await buildAtlasComponentAtlases(atlasBase),
-      sourceDatasets: await buildAtlasDatasets(atlasBase),
+      sourceDatasets: await buildAtlasDatasets(atlasBase, cxgCollections),
     };
     atlases.push(atlas);
     componentAtlases.push(...atlas.componentAtlases);
     sourceDatasets.push(...atlas.sourceDatasets);
   }
+
+  console.log("Writing output");
 
   try {
     await fsp.mkdir(OUT_DIR);
@@ -67,4 +76,10 @@ async function buildCatalog(): Promise<void> {
   );
 
   console.log("Done");
+}
+
+async function getCxgCollections(): Promise<CXGCollection[]> {
+  return await (
+    await fetch("https://api.cellxgene.cziscience.com/curation/v1/collections")
+  ).json();
 }

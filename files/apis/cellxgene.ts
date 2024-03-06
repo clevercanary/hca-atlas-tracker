@@ -2,6 +2,11 @@ export interface CXGAssay {
   label: string;
 }
 
+export interface CXGCollection {
+  collection_id: string;
+  doi: string | null;
+}
+
 export interface CXGDataset {
   assay: CXGAssay[];
   assets: CXGDatasetAsset[];
