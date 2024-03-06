@@ -139,8 +139,10 @@ export async function buildAtlasDatasets(
     }
   }
   return projectsResponses.map((projectsResponse) => {
-    const doi = getEntityDoi(projectsResponse);
-    const cxgCollection = doi && getCxgCollectionByDoi(cxgCollections, doi);
+    const cxgCollection = getEntityCxgCollection(
+      projectsResponse,
+      cxgCollections
+    );
     return {
       anatomicalEntity: processAggregatedOrArrayValue(
         projectsResponse.specimens,
@@ -177,6 +179,17 @@ export async function buildAtlasDatasets(
   });
 }
 
+function getEntityCxgCollection(
+  projectsResponse: ProjectsResponse,
+  cxgCollections: CXGCollection[]
+): CXGCollection | null {
+  for (const doi of getEntityDois(projectsResponse)) {
+    const collection = getCxgCollectionByDoi(cxgCollections, doi);
+    if (collection) return collection;
+  }
+  return null;
+}
+
 function getCxgCollectionByDoi(
   cxgCollections: CXGCollection[],
   doi: string
@@ -185,17 +198,21 @@ function getCxgCollectionByDoi(
 }
 
 /**
- * Get the DOI of the first publication of the project in the given projects response.
+ * Get the DOIs of publications of the project in the given projects response.
  * @param projectsResponse - Response model returned from projects API.
  * @returns DOI, or null if it doesn't exist.
  */
-function getEntityDoi(projectsResponse: ProjectsResponse): string | null {
+function getEntityDois(projectsResponse: ProjectsResponse): string[] {
   if (projectsResponse.projects.length === 0) {
-    return null;
+    return [];
   }
   const publications = projectsResponse.projects[0].publications;
-  if (publications.length === 0) return null;
-  return publications[0].doi;
+  if (publications.length === 0) return [];
+  const dois = [];
+  for (const { doi } of publications) {
+    if (doi) dois.push(doi);
+  }
+  return dois;
 }
 
 /**
