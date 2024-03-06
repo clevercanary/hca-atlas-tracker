@@ -156,6 +156,19 @@ export const buildEstimatedCellCount = (
 };
 
 /**
+ * Build props for the "in CAP" cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildInCap = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: sourceDataset.inCap,
+  };
+};
+
+/**
  * Build props for the "in CELLxGENE" cell component.
  * @param sourceDataset - Source dataset entity.
  * @returns Props to be used for the cell.

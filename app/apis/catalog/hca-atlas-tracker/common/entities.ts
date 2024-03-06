@@ -37,6 +37,7 @@ export interface HCAAtlasTrackerSourceDataset {
   cxgCollectionId: string | null;
   donorDisease: string[];
   estimatedCellCount: number | null;
+  inCap: string;
   inCellxGene: string;
   inHcaDataRepository: string;
   isPublished: string;

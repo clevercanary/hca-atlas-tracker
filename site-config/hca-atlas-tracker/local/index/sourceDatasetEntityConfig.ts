@@ -127,6 +127,15 @@ export const sourceDatasetEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.Cell,
+          viewBuilder: V.buildInCap,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerSourceDataset>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CAP,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CAP,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
+          component: C.Cell,
           viewBuilder: V.buildInHcaDataRepository,
         } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerSourceDataset>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_HCA_DATA_REPOSITORY,

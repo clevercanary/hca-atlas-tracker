@@ -161,6 +161,7 @@ export async function buildAtlasDatasets(
         "disease"
       ),
       estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
+      inCap: getBooleanLabel(false),
       inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
       inHcaDataRepository: getBooleanLabel(Boolean(projectId)),
       isPublished: getBooleanLabel(getEntityDois(projectsResponse).length > 0),
