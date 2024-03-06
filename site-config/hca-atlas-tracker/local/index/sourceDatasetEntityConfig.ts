@@ -107,7 +107,6 @@ export const sourceDatasetEntityConfig: EntityConfig = {
         width: { max: "1fr", min: "136px" },
       },
       {
-        columnVisible: false,
         componentConfig: {
           component: C.Cell,
           viewBuilder: V.buildInCellxGene,
@@ -117,7 +116,6 @@ export const sourceDatasetEntityConfig: EntityConfig = {
         width: { max: "1fr", min: "136px" },
       },
       {
-        columnVisible: false,
         componentConfig: {
           component: C.Cell,
           viewBuilder: V.buildIsPublished,
