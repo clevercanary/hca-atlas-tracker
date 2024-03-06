@@ -14,6 +14,7 @@ import {
   processAggregatedOrArrayValue,
   processEntityValue,
 } from "./apis/azul/utils";
+import { CXGCollection } from "./apis/cellxgene";
 import { buildDataset } from "./apis/datasets";
 import { DATA_SOURCE } from "./constants";
 import { AtlasBase } from "./entities";
@@ -118,7 +119,8 @@ const datasetsByAtlasKey = new Map<string, AtlasDatasetsInfo>([
 ]);
 
 export async function buildAtlasDatasets(
-  atlasBase: AtlasBase
+  atlasBase: AtlasBase,
+  cxgCollections: CXGCollection[]
 ): Promise<HCAAtlasTrackerSourceDataset[]> {
   const projectsResponses: ProjectsResponse[] = [];
   const datasetsInfo = datasetsByAtlasKey.get(atlasBase.atlasKey);
@@ -136,34 +138,64 @@ export async function buildAtlasDatasets(
       }
     }
   }
-  return projectsResponses.map((projectsResponse) => ({
-    anatomicalEntity: processAggregatedOrArrayValue(
-      projectsResponse.specimens,
-      "organ"
-    ),
-    atlasKey: atlasBase.atlasKey,
-    atlasTitle: atlasBase.atlasTitle,
-    bioNetwork: atlasBase.bioNetwork,
-    donorDisease: processAggregatedOrArrayValue(
-      projectsResponse.donorOrganisms,
-      "disease"
-    ),
-    estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
-    libraryConstructionMethod: processAggregatedOrArrayValue(
-      projectsResponse.protocols,
-      "libraryConstructionApproach"
-    ),
-    projectId:
-      processEntityValue(projectsResponse.projects, "projectId") || null,
-    projectTitle: processEntityValue(projectsResponse.projects, "projectTitle"),
-    publicationUrl:
-      getProjectResponse(projectsResponse).publications[0]?.publicationUrl ||
-      null,
-    species: processAggregatedOrArrayValue(
-      projectsResponse.donorOrganisms,
-      "genusSpecies"
-    ),
-  }));
+  return projectsResponses.map((projectsResponse) => {
+    const doi = getEntityDoi(projectsResponse);
+    const cxgCollection = doi && getCxgCollectionByDoi(cxgCollections, doi);
+    return {
+      anatomicalEntity: processAggregatedOrArrayValue(
+        projectsResponse.specimens,
+        "organ"
+      ),
+      atlasKey: atlasBase.atlasKey,
+      atlasTitle: atlasBase.atlasTitle,
+      bioNetwork: atlasBase.bioNetwork,
+      cxgCollectionId: cxgCollection && cxgCollection.collection_id,
+      donorDisease: processAggregatedOrArrayValue(
+        projectsResponse.donorOrganisms,
+        "disease"
+      ),
+      estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
+      inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
+      libraryConstructionMethod: processAggregatedOrArrayValue(
+        projectsResponse.protocols,
+        "libraryConstructionApproach"
+      ),
+      projectId:
+        processEntityValue(projectsResponse.projects, "projectId") || null,
+      projectTitle: processEntityValue(
+        projectsResponse.projects,
+        "projectTitle"
+      ),
+      publicationUrl:
+        getProjectResponse(projectsResponse).publications[0]?.publicationUrl ||
+        null,
+      species: processAggregatedOrArrayValue(
+        projectsResponse.donorOrganisms,
+        "genusSpecies"
+      ),
+    };
+  });
+}
+
+function getCxgCollectionByDoi(
+  cxgCollections: CXGCollection[],
+  doi: string
+): CXGCollection | null {
+  return cxgCollections.find((collection) => collection.doi === doi) || null;
+}
+
+/**
+ * Get the DOI of the first publication of the project in the given projects response.
+ * @param projectsResponse - Response model returned from projects API.
+ * @returns DOI, or null if it doesn't exist.
+ */
+function getEntityDoi(projectsResponse: ProjectsResponse): string | null {
+  if (projectsResponse.projects.length === 0) {
+    return null;
+  }
+  const publications = projectsResponse.projects[0].publications;
+  if (publications.length === 0) return null;
+  return publications[0].doi;
 }
 
 /**
@@ -275,3 +307,7 @@ export const filterProjectId = (value: string[]): AzulListParams => {
     ]),
   };
 };
+
+function getBooleanLabel(bool: boolean): string {
+  return bool ? "Yes" : "No";
+}
