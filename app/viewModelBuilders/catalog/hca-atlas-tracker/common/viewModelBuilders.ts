@@ -169,6 +169,19 @@ export const buildInCellxGene = (
 };
 
 /**
+ * Build props for the "in HCA data repository" cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildInHcaDataRepository = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: sourceDataset.inHcaDataRepository,
+  };
+};
+
+/**
  * Build props for the "is published" cell component.
  * @param sourceDataset - Source dataset entity.
  * @returns Props to be used for the cell.
