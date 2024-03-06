@@ -38,6 +38,7 @@ export interface HCAAtlasTrackerSourceDataset {
   donorDisease: string[];
   estimatedCellCount: number | null;
   inCellxGene: string;
+  inHcaDataRepository: string;
   isPublished: string;
   libraryConstructionMethod: string[];
   projectId: string | null;

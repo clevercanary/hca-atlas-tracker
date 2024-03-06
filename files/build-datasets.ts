@@ -144,6 +144,9 @@ export async function buildAtlasDatasets(
       projectsResponse,
       cxgCollections
     );
+    const projectId =
+      processEntityValue(projectsResponse.projects, "projectId", LABEL.EMPTY) ||
+      null;
     return {
       anatomicalEntity: processAggregatedOrArrayValue(
         projectsResponse.specimens,
@@ -159,17 +162,13 @@ export async function buildAtlasDatasets(
       ),
       estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
       inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
+      inHcaDataRepository: getBooleanLabel(Boolean(projectId)),
       isPublished: getBooleanLabel(getEntityDois(projectsResponse).length > 0),
       libraryConstructionMethod: processAggregatedOrArrayValue(
         projectsResponse.protocols,
         "libraryConstructionApproach"
       ),
-      projectId:
-        processEntityValue(
-          projectsResponse.projects,
-          "projectId",
-          LABEL.EMPTY
-        ) || null,
+      projectId,
       projectTitle: processEntityValue(
         projectsResponse.projects,
         "projectTitle"
