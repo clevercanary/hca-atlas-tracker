@@ -159,6 +159,7 @@ export async function buildAtlasDatasets(
       ),
       estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
       inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
+      isPublished: getBooleanLabel(getEntityDois(projectsResponse).length > 0),
       libraryConstructionMethod: processAggregatedOrArrayValue(
         projectsResponse.protocols,
         "libraryConstructionApproach"

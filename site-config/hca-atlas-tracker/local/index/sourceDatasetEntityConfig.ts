@@ -116,6 +116,16 @@ export const sourceDatasetEntityConfig: EntityConfig = {
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CELLXGENE,
         width: { max: "1fr", min: "136px" },
       },
+      {
+        columnVisible: false,
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildIsPublished,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerSourceDataset>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IS_PUBLISHED,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.IS_PUBLISHED,
+        width: { max: "1fr", min: "136px" },
+      },
     ],
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,
