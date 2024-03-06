@@ -205,7 +205,7 @@ function getCxgCollectionByDoi(
 /**
  * Get the DOIs of publications of the project in the given projects response.
  * @param projectsResponse - Response model returned from projects API.
- * @returns DOI, or null if it doesn't exist.
+ * @returns array of DOIs, or null if it doesn't exist.
  */
 function getEntityDois(projectsResponse: ProjectsResponse): string[] {
   if (projectsResponse.projects.length === 0) {
