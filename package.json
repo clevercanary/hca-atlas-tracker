@@ -14,7 +14,7 @@
     "build-catalog": "esrun ./files/build-catalog.ts"
   },
   "dependencies": {
-    "@clevercanary/data-explorer-ui": "68.0.0",
+    "@clevercanary/data-explorer-ui": "69.0.0",
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
     "@mdx-js/loader": "^3.0.1",
