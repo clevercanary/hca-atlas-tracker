@@ -19,7 +19,7 @@ const baseAtlases: AtlasBase[] = [
     atlasKey: "lung-v1-0",
     atlasTitle: "The integrated Human Lung Cell Atlas (HLCA) v1.0",
     bioNetwork: "lung",
-    code: "https://github.com/LungCellAtlas/HLCA",
+    codeUrl: "https://github.com/LungCellAtlas/HLCA",
     cxgCollectionId: "6f6d381a-7701-4781-935c-db10d30de293",
     integrationLead: "Malte D. Luecken",
     integrationLeadEmail: "malte.luecken@helmholtz-muenchen.de",

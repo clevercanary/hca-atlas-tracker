@@ -570,7 +570,7 @@ function getAtlasOverviewCodeKeyValuePairs(
   atlas: HCAAtlasTrackerAtlas
 ): KeyValues {
   const keyValuePairs: KeyValues = new Map();
-  keyValuePairs.set(C.Link({ label: atlas.code, url: atlas.code }), null);
+  keyValuePairs.set(C.Link({ label: atlas.codeUrl, url: atlas.codeUrl }), null);
   return keyValuePairs;
 }
 
