@@ -65,5 +65,8 @@ jobs:
           service: ${{ secrets.DEV_ECS_SERVICE_NAME }}
           cluster: ${{ secrets.DEV_ECS_CLUSTER_NAME }}
           wait-for-service-stability: true
-
+      - name: Invalidate CloudFront distribution
+        uses: aws-actions/aws-cli@v1
+        with:
+          args: cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
       - run: echo "🍏 This job's status is ${{ job.status }}."
