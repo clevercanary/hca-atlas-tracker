@@ -49,6 +49,26 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
       {
         categoryConfigs: [
           {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CELLXGENE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CELLXGENE,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IS_PUBLISHED,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IS_PUBLISHED,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CAP,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CAP,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_HCA_DATA_REPOSITORY,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_HCA_DATA_REPOSITORY,
+          },
+        ],
+      },
+      {
+        categoryConfigs: [
+          {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
           },

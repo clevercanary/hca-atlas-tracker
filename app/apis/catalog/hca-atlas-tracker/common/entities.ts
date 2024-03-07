@@ -34,9 +34,11 @@ export interface HCAAtlasTrackerSourceDataset {
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
+  capUrl: string | null;
   cxgCollectionId: string | null;
   donorDisease: string[];
   estimatedCellCount: number | null;
+  inCap: string;
   inCellxGene: string;
   inHcaDataRepository: string;
   isPublished: string;

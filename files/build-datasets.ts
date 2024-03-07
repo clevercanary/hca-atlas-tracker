@@ -155,12 +155,14 @@ export async function buildAtlasDatasets(
       atlasKey: atlasBase.atlasKey,
       atlasTitle: atlasBase.atlasTitle,
       bioNetwork: atlasBase.bioNetwork,
+      capUrl: null,
       cxgCollectionId: cxgCollection && cxgCollection.collection_id,
       donorDisease: processAggregatedOrArrayValue(
         projectsResponse.donorOrganisms,
         "disease"
       ),
       estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
+      inCap: getBooleanLabel(false),
       inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
       inHcaDataRepository: getBooleanLabel(Boolean(projectId)),
       isPublished: getBooleanLabel(getEntityDois(projectsResponse).length > 0),

@@ -73,6 +73,24 @@ export const buildBioNetwork = (
 };
 
 /**
+ * Build props for the CAP link cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildCapLink = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Link> => {
+  if (!sourceDataset.capUrl)
+    return {
+      label: "None",
+      url: "",
+    };
+  return {
+    label: "CAP",
+    url: sourceDataset.capUrl,
+  };
+};
+/**
  * Build props for the cell count cell component.
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the cell.
@@ -152,6 +170,19 @@ export const buildEstimatedCellCount = (
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: sourceDataset.estimatedCellCount?.toLocaleString(),
+  };
+};
+
+/**
+ * Build props for the "in CAP" cell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildInCap = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: sourceDataset.inCap,
   };
 };
 
