@@ -1,3 +1,5 @@
+import { MDXRemoteSerializeResult } from "next-mdx-remote";
+
 export type HCAAtlasTrackerEntity =
   | HCAAtlasTrackerAtlas
   | HCAAtlasTrackerComponentAtlas
@@ -7,10 +9,15 @@ export interface HCAAtlasTrackerAtlas {
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
+  codeUrl: string;
   componentAtlases: HCAAtlasTrackerComponentAtlas[];
   cxgCollectionId: string;
+  description: MDXRemoteSerializeResult | null;
   integrationLead: string;
+  integrationLeadEmail: string;
+  networkCoordinator: HCAAtlasTrackerNetworkCoordinator;
   publication: string;
+  publicationUrl: string;
   sourceDatasets: HCAAtlasTrackerSourceDataset[];
   status: ATLAS_STATUS;
   version: string;
@@ -27,6 +34,11 @@ export interface HCAAtlasTrackerComponentAtlas {
   cxgExploreUrl: string;
   disease: string[];
   tissue: string[];
+}
+
+export interface HCAAtlasTrackerNetworkCoordinator {
+  coordinatorNames: string[];
+  email: string;
 }
 
 export interface HCAAtlasTrackerSourceDataset {

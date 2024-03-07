@@ -13,7 +13,11 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../category";
+import { atlasesMainColumn } from "../detail/atlas/atlasesMainColumn";
+import { datasetsMainColumn } from "../detail/atlas/datasetsMainColumn";
 import { mainColumn } from "../detail/atlas/overviewMainColumn";
+import { sideColumn } from "../detail/atlas/overviewSideColumn";
+import { top } from "../detail/atlas/top";
 
 /**
  * Entity config object responsible to config anything related to the /atlases route.
@@ -28,9 +32,20 @@ export const atlasEntityConfig: EntityConfig = {
         label: "Overview",
         mainColumn: mainColumn,
         route: "",
+        sideColumn: sideColumn,
+      },
+      {
+        label: "Source Datasets",
+        mainColumn: datasetsMainColumn,
+        route: "datasets",
+      },
+      {
+        label: "Component Atlases",
+        mainColumn: atlasesMainColumn,
+        route: "atlases",
       },
     ],
-    top: [],
+    top,
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
   getId: getAtlasId,

@@ -1,8 +1,18 @@
+import { COLLATOR_CASE_INSENSITIVE } from "@clevercanary/data-explorer-ui/lib/common/constants";
+import { Breadcrumb } from "@clevercanary/data-explorer-ui/lib/components/common/Breadcrumbs/breadcrumbs";
+import { KeyValues } from "@clevercanary/data-explorer-ui/lib/components/common/KeyValuePairs/keyValuePairs";
 import { STATUS_BADGE_COLOR } from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
 import { MetadataValue } from "@clevercanary/data-explorer-ui/lib/components/Index/components/NTagCell/nTagCell";
+import { ViewContext } from "@clevercanary/data-explorer-ui/lib/config/entities";
+import { formatCountSize } from "@clevercanary/data-explorer-ui/lib/utils/formatCountSize";
+import { ColumnDef } from "@tanstack/react-table";
 import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { MetadataValueTuple } from "app/components/common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
-import React from "react";
+import { Fragment } from "react";
+import {
+  HCA_ATLAS_TRACKER_CATEGORY_KEY,
+  HCA_ATLAS_TRACKER_CATEGORY_LABEL,
+} from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
@@ -42,6 +52,153 @@ export const buildAtlas = (
     label: atlas.atlasTitle,
     subLabel: atlas.publication,
     url: `/atlases/${encodeURIComponent(atlas.atlasKey)}`,
+  };
+};
+
+/**
+ * Build props for Description component from the given entity.
+ * @param atlas - Atlas entity.
+ * @returns Model to be used as props for the Description component.
+ */
+export const buildAtlasDescription = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.OverviewDescription> => {
+  return {
+    description: atlas.description,
+    title: "Description",
+  };
+};
+
+/**
+ * Build props for DetailViewTable component from the given entity.
+ * Table displays component atlases for the given atlas.
+ * @param atlas - Atlas entity.
+ * @returns Model to be used as props for the DetailViewTable component.
+ */
+export const buildAtlasDetailViewComponentAtlasesTable = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<
+  typeof C.DetailViewTable<HCAAtlasTrackerComponentAtlas>
+> => {
+  const { componentAtlases } = atlas;
+  return {
+    Paper: C.FluidPaper,
+    columns: getAtlasComponentAtlasesTableColumns(),
+    gridTemplateColumns:
+      "minmax(340px, 2fr) minmax(236px, 1fr) repeat(3, minmax(136px, 1fr)) minmax(100px, auto) minmax(144px, auto)",
+    items: componentAtlases.sort(sortComponentAtlases),
+    noResultsTitle: "No Component Atlases",
+  };
+};
+
+/**
+ * Build props for DetailViewTable component from the given entity.
+ * Table displays source datasets for the given atlas.
+ * @param atlas - Atlas entity.
+ * @returns Model to be used as props for the DetailViewTable component.
+ */
+export const buildAtlasDetailViewSourceDatasetsTable = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<
+  typeof C.DetailViewTable<HCAAtlasTrackerSourceDataset>
+> => {
+  const { sourceDatasets } = atlas;
+  return {
+    Paper: C.FluidPaper,
+    columns: getAtlasSourceDatasetsTableColumns(),
+    gridTemplateColumns:
+      "minmax(340px, 2fr) minmax(236px, 1fr) repeat(5, minmax(136px, 1fr)) minmax(136px, auto) repeat(5, minmax(124px, auto))",
+    items: sourceDatasets.sort(sortSourceDatasets),
+    noResultsTitle: "No Source Datasets",
+  };
+};
+
+/**
+ * Build props for BackPageHero component from the given entity.
+ * @param atlas - Atlas entity.
+ * @param viewContext - View context.
+ * @returns Model to be used as props for the BackPageHero component.
+ */
+export const buildAtlasHero = (
+  atlas: HCAAtlasTrackerAtlas,
+  viewContext: ViewContext
+): React.ComponentProps<typeof C.BackPageHero> => {
+  const { atlasTitle } = atlas;
+  return {
+    breadcrumbs: getAtlasBreadcrumbs(viewContext, atlasTitle),
+    title: atlasTitle,
+  };
+};
+
+/**
+ * Build props for the atlas overview Section component from the given entity.
+ * @param atlas - Atlas entity.
+ * @returns Model to be used as props for the Section component.
+ */
+export const buildAtlasOverviewCode = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.OverviewSection> => {
+  return {
+    KeyElType: C.TypographyTextBody400,
+    KeyValueElType: Fragment,
+    KeyValuesElType: Fragment,
+    ValueElType: Fragment,
+    keyValuePairs: getAtlasOverviewCodeKeyValuePairs(atlas),
+    title: "Code",
+  };
+};
+
+/**
+ * Build props for the atlas overview Section component from the given entity.
+ * @param atlas - Atlas entity.
+ * @returns Model to be used as props for the Section component.
+ */
+export const buildAtlasOverviewIntegrationLead = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.OverviewSection> => {
+  return {
+    KeyElType: Fragment,
+    KeyValueElType: Fragment,
+    KeyValuesElType: Fragment,
+    ValueElType: Fragment,
+    keyValuePairs: getAtlasOverviewIntegrationLeadKeyValuePairs(atlas),
+    title: "Integration Lead",
+  };
+};
+
+/**
+ * Build props for the atlas overview Section component from the given entity.
+ * @param atlas - Atlas entity.
+ * @returns Model to be used as props for the Section component.
+ */
+export const buildAtlasOverviewNetworkCoordinators = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.OverviewSection> => {
+  return {
+    KeyElType: Fragment,
+    KeyValueElType: Fragment,
+    KeyValuesElType: Fragment,
+    ValueElType: Fragment,
+    keyValuePairs: getAtlasOverviewNetworkCoordinatorsKeyValuePairs(atlas),
+    title: "Network Coordinators",
+  };
+};
+
+/**
+ * Build props for the atlas overview Section component from the given entity.
+ * @param atlas - Atlas entity.
+ * @returns Model to be used as props for the Section component.
+ */
+export const buildAtlasOverviewPublication = (
+  atlas: HCAAtlasTrackerAtlas
+): React.ComponentProps<typeof C.OverviewSection> => {
+  return {
+    KeyElType: C.TypographyTextBody400,
+    KeyValueElType: Fragment,
+    KeyValuesElType: Fragment,
+    ValueElType: Fragment,
+    keyValuePairs: getAtlasOverviewPublicationKeyValuePairs(atlas),
+    title: "Publication",
   };
 };
 
@@ -339,6 +496,177 @@ export const buildVersion = (
 };
 
 /**
+ * Returns source dataset or component atlas' atlas title column def.
+ * @returns Column def.
+ */
+function getAtlasAtlasTitleColumnDef(): ColumnDef<
+  HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
+    cell: ({ row }) => C.Link(buildAtlasTitle(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
+  };
+}
+
+/**
+ * Returns source dataset or component atlas' biological network column def.
+ * @returns Column def.
+ */
+function getAtlasBiologicalNetworkColumnDef(): ColumnDef<
+  HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
+    cell: ({ row }) => C.BioNetworkCell(buildBioNetwork(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
+  };
+}
+
+/**
+ * Returns atlas detail view related breadcrumbs.
+ * @param viewContext - View context.
+ * @param lastCrumbText - Last crumb text.
+ * @returns Atlas detail view breadcrumbs.
+ */
+function getAtlasBreadcrumbs(
+  viewContext: ViewContext,
+  lastCrumbText?: string
+): Breadcrumb[] {
+  const { label, route } = viewContext.entityConfig;
+  const firstCrumb = {
+    path: `/${route}`,
+    text: label,
+  };
+  const breadcrumbs = [firstCrumb];
+  if (lastCrumbText) {
+    breadcrumbs.push({ path: "", text: lastCrumbText });
+  }
+  return breadcrumbs;
+}
+
+/**
+ * Returns the table column definition model for the atlas component atlases table.
+ * @returns Table column definition.
+ */
+function getAtlasComponentAtlasesTableColumns(): ColumnDef<HCAAtlasTrackerComponentAtlas>[] {
+  return [
+    getComponentAtlasAtlasNameColumnDef(),
+    getAtlasAtlasTitleColumnDef() as ColumnDef<HCAAtlasTrackerComponentAtlas>,
+    getAtlasBiologicalNetworkColumnDef() as ColumnDef<HCAAtlasTrackerComponentAtlas>,
+    getComponentAtlasTissueColumnDef(),
+    getComponentAtlasDiseaseColumnDef(),
+    getComponentAtlasCellCountColumnDef(),
+    getComponentAtlasExploreColumnDef(),
+  ];
+}
+
+/**
+ * Returns key value pairs for the atlas overview code section.
+ * @param atlas - Atlas entity.
+ * @returns Key value pairs.
+ */
+function getAtlasOverviewCodeKeyValuePairs(
+  atlas: HCAAtlasTrackerAtlas
+): KeyValues {
+  const keyValuePairs: KeyValues = new Map();
+  keyValuePairs.set(C.Link({ label: atlas.codeUrl, url: atlas.codeUrl }), null);
+  return keyValuePairs;
+}
+
+/**
+ * Returns key value pairs for the atlas overview integration lead section.
+ * @param atlas - Atlas entity.
+ * @returns Key value pairs.
+ */
+function getAtlasOverviewIntegrationLeadKeyValuePairs(
+  atlas: HCAAtlasTrackerAtlas
+): KeyValues {
+  const keyValuePairs: KeyValues = new Map();
+  keyValuePairs.set(
+    C.TypographyTextBody500({ children: atlas.integrationLead }),
+    null
+  );
+  keyValuePairs.set(
+    C.TypographyTextBody400({
+      children: C.OverviewKeyValuePairsValueElLink({
+        label: atlas.integrationLeadEmail,
+        url: `mailto: ${atlas.integrationLeadEmail}`,
+      }),
+    }),
+    null
+  );
+  return keyValuePairs;
+}
+
+/**
+ * Returns key value pairs for the atlas overview network coordinators section.
+ * @param atlas - Atlas entity.
+ * @returns Key value pairs.
+ */
+function getAtlasOverviewNetworkCoordinatorsKeyValuePairs(
+  atlas: HCAAtlasTrackerAtlas
+): KeyValues {
+  const { networkCoordinator } = atlas;
+  const { coordinatorNames, email } = networkCoordinator;
+  const keyValuePairs: KeyValues = new Map();
+  for (const coordinatorName of coordinatorNames) {
+    keyValuePairs.set(
+      C.TypographyTextBody500({ children: coordinatorName }),
+      null
+    );
+  }
+  keyValuePairs.set(
+    C.TypographyTextBody400({
+      children: C.OverviewKeyValuePairsValueElLink({
+        label: email,
+        url: `mailto: ${email}`,
+      }),
+    }),
+    null
+  );
+  return keyValuePairs;
+}
+
+/**
+ * Returns key value pairs for the atlas overview publication section.
+ * @param atlas - Atlas entity.
+ * @returns Key value pairs.
+ */
+function getAtlasOverviewPublicationKeyValuePairs(
+  atlas: HCAAtlasTrackerAtlas
+): KeyValues {
+  const keyValuePairs: KeyValues = new Map();
+  keyValuePairs.set(
+    C.Link({ label: atlas.publication, url: atlas.publicationUrl }),
+    null
+  );
+  return keyValuePairs;
+}
+
+/**
+ * Returns the table column definition model for the atlas source datasets table.
+ * @returns Table column definition.
+ */
+function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [
+    getSourceDatasetProjectTitleColumnDef(),
+    getAtlasAtlasTitleColumnDef() as ColumnDef<HCAAtlasTrackerSourceDataset>,
+    getAtlasBiologicalNetworkColumnDef() as ColumnDef<HCAAtlasTrackerSourceDataset>,
+    getSourceDatasetSpeciesColumnDef(),
+    getSourceDatasetMethodColumnDef(),
+    getSourceDatasetAnatomicalEntityColumnDef(),
+    getSourceDatasetDonorDiseaseColumnDef(),
+    getSourceDatasetEstimatedCellCountColumnDef(),
+    getSourceDatasetsCapLinkColumnDef(),
+    getSourceDatasetInCELLxGENEColumnDef(),
+    getSourceDatasetIsPublishedColumnDef(),
+    getSourceDatasetInCapColumnDef(),
+    getSourceDatasetInHCADataRepositoryColumnDef(),
+  ];
+}
+
+/**
  * Attempts to return the bio network with the given key.
  * @param key - Bio network key.
  * @returns bio network, or undefined if not found.
@@ -357,6 +685,66 @@ export function getBioNetworkName(name: string): string {
 }
 
 /**
+ * Returns component atlas' atlas name column def.
+ * @returns Column def.
+ */
+function getComponentAtlasAtlasNameColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.COMPONENT_ATLAS_NAME,
+    cell: ({ row }) => C.Cell(buildComponentAtlasName(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.COMPONENT_ATLAS_NAME,
+  };
+}
+
+/**
+ * Returns component atlas' cell count column def.
+ * @returns Column def.
+ */
+function getComponentAtlasCellCountColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.CELL_COUNT,
+    cell: ({ row }) => C.Cell(buildCellCount(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CELL_COUNT,
+  };
+}
+
+/**
+ * Returns component atlas' disease column def.
+ * @returns Column def.
+ */
+function getComponentAtlasDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
+    cell: ({ row }) => C.PinnedNTagCell(buildDisease(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
+  };
+}
+
+/**
+ * Returns component atlas' explore column def.
+ * @returns Column def.
+ */
+function getComponentAtlasExploreColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.CXG_EXPLORE_URL,
+    cell: ({ row }) => C.Link(buildComponentAtlasExploreLink(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CXG_EXPLORE_URL,
+  };
+}
+
+/**
+ * Returns component atlas' tissue column def.
+ * @returns Column def.
+ */
+function getComponentAtlasTissueColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TISSUE,
+    cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TISSUE,
+  };
+}
+
+/**
  * Returns the pluralized metadata label for the specified metadata.
  * @param metadataKey - Metadata key.
  * @returns string label describing the metadata in plural form.
@@ -368,31 +756,135 @@ export function getPluralizedMetadataLabel(
 }
 
 /**
- * Formats count sizes.
- * @param value - Count size.
- * @returns formatted count size as display string.
+ * Returns source dataset anatomical entity column def.
+ * @returns Column def.
  */
-export function formatCountSize(value: number): string {
-  const countSizes = ["k", "M", "G", "T", "P", "E"];
+function getSourceDatasetAnatomicalEntityColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.ANATOMICAL_ENTITY,
+    cell: ({ row }) => C.NTagCell(buildAnatomicalEntity(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ANATOMICAL_ENTITY,
+  };
+}
 
-  // Determine count size display value and unit
-  let val = value || 0;
-  let sigFig = 0;
-  while (val >= 1000) {
-    val = val / 1000;
-    sigFig += 1;
-  }
+/**
+ * Returns source dataset Cap link column def.
+ * @returns Column def.
+ */
+function getSourceDatasetsCapLinkColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.CAP_URL,
+    cell: ({ row }) => C.Link(buildCapLink(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CAP_URL,
+  };
+}
 
-  // No format of count size - tens, hundreds
-  if (sigFig === 0) {
-    return `${val}`;
-  }
+/**
+ * Returns source dataset donor disease column def.
+ * @returns Column def.
+ */
+function getSourceDatasetDonorDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DONOR_DISEASE,
+    cell: ({ row }) => C.PinnedNTagCell(buildDonorDisease(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DONOR_DISEASE,
+  };
+}
 
-  // Format of count size to "n.0k"
-  // Round value to precision
-  const precision = 1;
-  const roundedValue = val.toFixed(precision);
-  return `${roundedValue}${countSizes[sigFig - 1]}`;
+/**
+ * Returns source dataset estimated cell count column def.
+ * @returns Column def.
+ */
+function getSourceDatasetEstimatedCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.ESTIMATED_CELL_COUNT,
+    cell: ({ row }) => C.Cell(buildEstimatedCellCount(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ESTIMATED_CELL_COUNT,
+  };
+}
+
+/**
+ * Returns source dataset is in Cap column def.
+ * @returns Column def.
+ */
+function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CAP,
+    cell: ({ row }) => C.Cell(buildInCap(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CAP,
+  };
+}
+
+/**
+ * Returns source dataset in CELLxGENE column def.
+ * @returns Column def.
+ */
+function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CELLXGENE,
+    cell: ({ row }) => C.Cell(buildInCellxGene(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CELLXGENE,
+  };
+}
+
+/**
+ * Returns source dataset in HCA data repository column def.
+ * @returns Column def.
+ */
+function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_HCA_DATA_REPOSITORY,
+    cell: ({ row }) => C.Cell(buildInHcaDataRepository(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_HCA_DATA_REPOSITORY,
+  };
+}
+
+/**
+ * Returns source dataset is published column def.
+ * @returns Column def.
+ */
+function getSourceDatasetIsPublishedColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IS_PUBLISHED,
+    cell: ({ row }) => C.Cell(buildIsPublished(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IS_PUBLISHED,
+  };
+}
+
+/**
+ * Returns source dataset method column def.
+ * @returns Column def.
+ */
+function getSourceDatasetMethodColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.LIBRARY_CONSTRUCTION_METHOD,
+    cell: ({ row }) => C.NTagCell(buildLibraryConstructionMethod(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.LIBRARY_CONSTRUCTION_METHOD,
+  };
+}
+
+/**
+ * Returns source dataset project title column def.
+ * @returns Column def.
+ */
+function getSourceDatasetProjectTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.PROJECT_TITLE,
+    cell: ({ row }) => C.Link(buildProjectTitle(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PROJECT_TITLE,
+  };
+}
+
+/**
+ * Returns source dataset species column def.
+ * @returns Column def.
+ */
+function getSourceDatasetSpeciesColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SPECIES,
+    cell: ({ row }) => C.NTagCell(buildSpecies(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SPECIES,
+  };
 }
 
 /**
@@ -414,4 +906,33 @@ function partitionMetadataValues(
     }
     return acc;
   }, partitionedValues);
+}
+
+/**
+ * Sort component atlases by atlas name, ascending.
+ * @param a0 - First component atlas to compare.
+ * @param a1 - Second component atlas to compare.
+ * @returns Number indicating sort precedence of a0 vs a1.
+ */
+function sortComponentAtlases(
+  a0: HCAAtlasTrackerComponentAtlas,
+  a1: HCAAtlasTrackerComponentAtlas
+): number {
+  return COLLATOR_CASE_INSENSITIVE.compare(
+    a0.componentAtlasName,
+    a1.componentAtlasName
+  );
+}
+
+/**
+ * Sort source datasets by project title, ascending.
+ * @param d0 - First dataset to compare.
+ * @param d1 - Second dataset to compare.
+ * @returns Number indicating sort precedence of d0 vs d1.
+ */
+function sortSourceDatasets(
+  d0: HCAAtlasTrackerSourceDataset,
+  d1: HCAAtlasTrackerSourceDataset
+): number {
+  return COLLATOR_CASE_INSENSITIVE.compare(d0.projectTitle, d1.projectTitle);
 }

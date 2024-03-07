@@ -7,6 +7,7 @@ import {
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CXGCollection } from "./apis/cellxgene";
+import { buildAtlasDescription } from "./build-atlas-description";
 import { buildAtlasComponentAtlases } from "./build-component-atlases";
 import { buildAtlasDatasets } from "./build-datasets";
 import { AtlasBase } from "./entities";
@@ -18,9 +19,21 @@ const baseAtlases: AtlasBase[] = [
     atlasKey: "lung-v1-0",
     atlasTitle: "The integrated Human Lung Cell Atlas (HLCA) v1.0",
     bioNetwork: "lung",
+    codeUrl: "https://github.com/LungCellAtlas/HLCA",
     cxgCollectionId: "6f6d381a-7701-4781-935c-db10d30de293",
     integrationLead: "Malte D. Luecken",
+    integrationLeadEmail: "malte.luecken@helmholtz-muenchen.de",
+    networkCoordinator: {
+      coordinatorNames: [
+        "Pascal Barbry",
+        "Alexander Misharin",
+        "Martijn Nawijn",
+        "Jay Rajagopal",
+      ],
+      email: "lung@humancellatlas.org",
+    },
     publication: "Sikkema et al. (2023) Nat Med",
+    publicationUrl: "https://www.nature.com/articles/s41591-023-02327-2",
     status: ATLAS_STATUS.PUBLISHED,
     version: "1.0",
   },
@@ -45,6 +58,7 @@ async function buildCatalog(): Promise<void> {
     const atlas = {
       ...atlasBase,
       componentAtlases: await buildAtlasComponentAtlases(atlasBase),
+      description: await buildAtlasDescription(atlasBase),
       sourceDatasets: await buildAtlasDatasets(atlasBase, cxgCollections),
     };
     atlases.push(atlas);
