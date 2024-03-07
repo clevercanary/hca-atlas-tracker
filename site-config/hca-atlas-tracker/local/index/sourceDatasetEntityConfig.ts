@@ -108,6 +108,15 @@ export const sourceDatasetEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildCapLink,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerSourceDataset>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CAP_URL,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.CAP_URL,
+        width: { max: "1fr", min: "136px" },
+      },
+      {
+        componentConfig: {
           component: C.Cell,
           viewBuilder: V.buildInCellxGene,
         } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerSourceDataset>,

@@ -155,6 +155,7 @@ export async function buildAtlasDatasets(
       atlasKey: atlasBase.atlasKey,
       atlasTitle: atlasBase.atlasTitle,
       bioNetwork: atlasBase.bioNetwork,
+      capUrl: null,
       cxgCollectionId: cxgCollection && cxgCollection.collection_id,
       donorDisease: processAggregatedOrArrayValue(
         projectsResponse.donorOrganisms,
