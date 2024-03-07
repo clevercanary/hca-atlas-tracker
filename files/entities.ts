@@ -2,5 +2,5 @@ import { HCAAtlasTrackerAtlas } from "../app/apis/catalog/hca-atlas-tracker/comm
 
 export type AtlasBase = Omit<
   HCAAtlasTrackerAtlas,
-  "componentAtlases" | "sourceDatasets"
+  "componentAtlases" | "description" | "sourceDatasets"
 >;

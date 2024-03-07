@@ -14,7 +14,7 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../category";
-import { getAuthenticationConfig } from "../dev/authentication/authentication";
+import { getAuthenticationConfig } from "./authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
 import { componentAtlasEntityConfig } from "./index/componentAtlasEntityConfig";
 import { sourceDatasetEntityConfig } from "./index/sourceDatasetEntityConfig";

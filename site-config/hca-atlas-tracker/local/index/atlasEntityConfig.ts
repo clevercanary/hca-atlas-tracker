@@ -16,6 +16,7 @@ import {
 import { atlasesMainColumn } from "../detail/atlas/atlasesMainColumn";
 import { datasetsMainColumn } from "../detail/atlas/datasetsMainColumn";
 import { mainColumn } from "../detail/atlas/overviewMainColumn";
+import { sideColumn } from "../detail/atlas/overviewSideColumn";
 import { top } from "../detail/atlas/top";
 
 /**
@@ -31,6 +32,7 @@ export const atlasEntityConfig: EntityConfig = {
         label: "Overview",
         mainColumn: mainColumn,
         route: "",
+        sideColumn: sideColumn,
       },
       {
         label: "Source Datasets",
