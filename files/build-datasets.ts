@@ -210,7 +210,7 @@ function getHcaProjectByDoi(
 ): ProjectResponse | null {
   for (const project of hcaProjects) {
     for (const publication of project.publications) {
-      if (publication.doi === doi) return project;
+      if (publication.doi && doisEqual(publication.doi, doi)) return project;
     }
   }
   return null;
