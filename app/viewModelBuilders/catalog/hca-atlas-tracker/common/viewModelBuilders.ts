@@ -419,7 +419,9 @@ export const buildProjectTitle = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: sourceDataset.projectTitle,
-    url: `https://explore.data.humancellatlas.org/projects/${sourceDataset.projectId}`, // TODO different source for base URL?
+    url: sourceDataset.projectId
+      ? `https://explore.data.humancellatlas.org/projects/${sourceDataset.projectId}` // TODO different source for base URL?
+      : sourceDataset.publicationUrl || "",
   };
 };
 
