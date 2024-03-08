@@ -201,7 +201,11 @@ function getCxgCollectionByDoi(
   cxgCollections: CXGCollection[],
   doi: string
 ): CXGCollection | null {
-  return cxgCollections.find((collection) => collection.doi === doi) || null;
+  return (
+    cxgCollections.find(
+      (collection) => collection.doi && doisEqual(collection.doi, doi)
+    ) || null
+  );
 }
 
 /**
@@ -334,4 +338,19 @@ export const filterProjectId = (value: string[]): AzulListParams => {
 
 function getBooleanLabel(bool: boolean): string {
   return bool ? "Yes" : "No";
+}
+
+/**
+ * Check whether two DOI values are equal when ignoring case, URL prefix, and URL encoding.
+ * @param a - First DOI.
+ * @param b - Second DOI.
+ * @returns Boolean.
+ */
+function doisEqual(a: string, b: string): boolean {
+  return normalize(a) === normalize(b);
+
+  function normalize(doi: string): string {
+    const match = /^(https:\/\/doi\.org\/)?(.*)$/.exec(doi) as RegExpExecArray; // Regex is written to always match
+    return (match[1] ? decodeURIComponent(match[2]) : match[2]).toLowerCase();
+  }
 }
