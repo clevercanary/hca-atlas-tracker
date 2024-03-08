@@ -6,10 +6,13 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ProjectResponse } from "./apis/azul/entities";
+import { fetchAllEntities } from "./apis/azul/service";
 import { CXGCollection } from "./apis/cellxgene";
 import { buildAtlasDescription } from "./build-atlas-description";
 import { buildAtlasComponentAtlases } from "./build-component-atlases";
 import { buildAtlasDatasets } from "./build-datasets";
+import { DATA_SOURCE } from "./constants";
 import { AtlasBase } from "./entities";
 
 const OUT_DIR = "./files/out";
@@ -44,6 +47,10 @@ buildCatalog();
 async function buildCatalog(): Promise<void> {
   console.log("Building catalog");
 
+  console.log("Getting HCA projects");
+
+  const hcaProjects = await getHcaProjects();
+
   console.log("Getting CELLxGENE collections");
 
   const cxgCollections = await getCxgCollections();
@@ -59,7 +66,11 @@ async function buildCatalog(): Promise<void> {
       ...atlasBase,
       componentAtlases: await buildAtlasComponentAtlases(atlasBase),
       description: await buildAtlasDescription(atlasBase),
-      sourceDatasets: await buildAtlasDatasets(atlasBase, cxgCollections),
+      sourceDatasets: await buildAtlasDatasets(
+        atlasBase,
+        hcaProjects,
+        cxgCollections
+      ),
     };
     atlases.push(atlas);
     componentAtlases.push(...atlas.componentAtlases);
@@ -90,6 +101,12 @@ async function buildCatalog(): Promise<void> {
   );
 
   console.log("Done");
+}
+
+async function getHcaProjects(): Promise<ProjectResponse[]> {
+  return (await fetchAllEntities(`${DATA_SOURCE.url}/projects`)).hits
+    .map((projectsResponse) => projectsResponse.projects)
+    .flat();
 }
 
 async function getCxgCollections(): Promise<CXGCollection[]> {

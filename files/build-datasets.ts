@@ -1,16 +1,13 @@
 import {
-  AzulEntitiesResponse,
   AzulListParams,
   LABEL,
 } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/entities";
 import { transformFilters } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/filterTransformer";
 import { COLLATOR_CASE_INSENSITIVE } from "@clevercanary/data-explorer-ui/lib/common/constants";
-import { DataSourceConfig } from "@clevercanary/data-explorer-ui/lib/config/entities";
-import { api } from "@clevercanary/data-explorer-ui/lib/entity/common/client";
-import { convertUrlParams } from "@clevercanary/data-explorer-ui/lib/utils/url";
 import { HCAAtlasTrackerSourceDataset } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ProjectResponse } from "./apis/azul/entities";
 import { ProjectsResponse } from "./apis/azul/responses";
+import { fetchEntitiesFromQuery } from "./apis/azul/service";
 import {
   processAggregatedOrArrayValue,
   processEntityValue,
@@ -121,6 +118,7 @@ const datasetsByAtlasKey = new Map<string, AtlasDatasetsInfo>([
 
 export async function buildAtlasDatasets(
   atlasBase: AtlasBase,
+  hcaProjects: ProjectResponse[],
   cxgCollections: CXGCollection[]
 ): Promise<HCAAtlasTrackerSourceDataset[]> {
   const projectsResponses: ProjectsResponse[] = [];
@@ -139,51 +137,83 @@ export async function buildAtlasDatasets(
       }
     }
   }
-  return projectsResponses.map((projectsResponse) => {
-    const cxgCollection = getEntityCxgCollection(
-      projectsResponse,
-      cxgCollections
-    );
-    const projectId =
-      processEntityValue(projectsResponse.projects, "projectId", LABEL.EMPTY) ||
-      null;
-    return {
-      anatomicalEntity: processAggregatedOrArrayValue(
-        projectsResponse.specimens,
-        "organ"
-      ),
-      atlasKey: atlasBase.atlasKey,
-      atlasTitle: atlasBase.atlasTitle,
-      bioNetwork: atlasBase.bioNetwork,
-      capUrl: null,
-      cxgCollectionId: cxgCollection && cxgCollection.collection_id,
-      donorDisease: processAggregatedOrArrayValue(
-        projectsResponse.donorOrganisms,
-        "disease"
-      ),
-      estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
-      inCap: getBooleanLabel(false),
-      inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
-      inHcaDataRepository: getBooleanLabel(Boolean(projectId)),
-      isPublished: getBooleanLabel(getEntityDois(projectsResponse).length > 0),
-      libraryConstructionMethod: processAggregatedOrArrayValue(
-        projectsResponse.protocols,
-        "libraryConstructionApproach"
-      ),
-      projectId,
-      projectTitle: processEntityValue(
-        projectsResponse.projects,
-        "projectTitle"
-      ),
-      publicationUrl:
-        getProjectResponse(projectsResponse).publications[0]?.publicationUrl ||
-        null,
-      species: processAggregatedOrArrayValue(
-        projectsResponse.donorOrganisms,
-        "genusSpecies"
-      ),
-    };
-  });
+  return projectsResponses.map((projectsResponse) =>
+    buildSourceDataset(projectsResponse, atlasBase, hcaProjects, cxgCollections)
+  );
+}
+
+function buildSourceDataset(
+  projectsResponse: ProjectsResponse,
+  atlasBase: AtlasBase,
+  hcaProjects: ProjectResponse[],
+  cxgCollections: CXGCollection[]
+): HCAAtlasTrackerSourceDataset {
+  let projectId =
+    processEntityValue(projectsResponse.projects, "projectId", LABEL.EMPTY) ||
+    null;
+  if (!projectId)
+    projectId =
+      getEntityHcaProject(projectsResponse, hcaProjects)?.projectId || null;
+  const cxgCollection = getEntityCxgCollection(
+    projectsResponse,
+    cxgCollections
+  );
+  return {
+    anatomicalEntity: processAggregatedOrArrayValue(
+      projectsResponse.specimens,
+      "organ"
+    ),
+    atlasKey: atlasBase.atlasKey,
+    atlasTitle: atlasBase.atlasTitle,
+    bioNetwork: atlasBase.bioNetwork,
+    capUrl: null,
+    cxgCollectionId: cxgCollection && cxgCollection.collection_id,
+    donorDisease: processAggregatedOrArrayValue(
+      projectsResponse.donorOrganisms,
+      "disease"
+    ),
+    estimatedCellCount: calculateEstimatedCellCount(projectsResponse),
+    inCap: getBooleanLabel(false),
+    inCellxGene: getBooleanLabel(Boolean(cxgCollection)),
+    inHcaDataRepository: getBooleanLabel(Boolean(projectId)),
+    isPublished: getBooleanLabel(getEntityDois(projectsResponse).length > 0),
+    libraryConstructionMethod: processAggregatedOrArrayValue(
+      projectsResponse.protocols,
+      "libraryConstructionApproach"
+    ),
+    projectId,
+    projectTitle: processEntityValue(projectsResponse.projects, "projectTitle"),
+    publicationUrl:
+      getProjectResponse(projectsResponse).publications[0]?.publicationUrl ||
+      null,
+    species: processAggregatedOrArrayValue(
+      projectsResponse.donorOrganisms,
+      "genusSpecies"
+    ),
+  };
+}
+
+function getEntityHcaProject(
+  projectsResponse: ProjectsResponse,
+  hcaProjects: ProjectResponse[]
+): ProjectResponse | null {
+  for (const doi of getEntityDois(projectsResponse)) {
+    const project = getHcaProjectByDoi(hcaProjects, doi);
+    if (project) return project;
+  }
+  return null;
+}
+
+function getHcaProjectByDoi(
+  hcaProjects: ProjectResponse[],
+  doi: string
+): ProjectResponse | null {
+  for (const project of hcaProjects) {
+    for (const publication of project.publications) {
+      if (publication.doi === doi) return project;
+    }
+  }
+  return null;
 }
 
 function getEntityCxgCollection(
@@ -268,48 +298,6 @@ export function getProjectResponse(
   projectsResponse: ProjectsResponse
 ): ProjectResponse {
   return projectsResponse.projects[0];
-}
-
-/**
- * Make a GET or POST request for a list of entities
- * @param apiPath - Path that will be used to compose the API url
- * @param listParams - Params to be used on the request. If none passed, it will default to page's size 25 and the current catalog version
- * @returns @see ListResponseType
- */
-export const fetchEntitiesFromQuery = async (
-  apiPath: string,
-  listParams: AzulListParams
-): Promise<AzulEntitiesResponse> => {
-  const params = {
-    ...getDefaultListParams(),
-    ...listParams,
-  };
-  const response = await fetchEntitiesFromURL(
-    `${apiPath}?${convertUrlParams(params)}`
-  );
-  response.apiPath = apiPath;
-  return response;
-};
-
-/**
- * Fetch entities from the given URL.
- * @param URL - URL.
- * @returns entities.
- */
-export const fetchEntitiesFromURL = async (
-  URL: string
-): Promise<AzulEntitiesResponse> => {
-  const res = await api(DATA_SOURCE.url).get<AzulEntitiesResponse>(URL);
-  return res.data;
-};
-
-function getDefaultListParams():
-  | DataSourceConfig["defaultListParams"]
-  | DataSourceConfig["defaultParams"] {
-  return {
-    ...DATA_SOURCE.defaultListParams,
-    ...DATA_SOURCE.defaultParams,
-  };
 }
 
 /**
