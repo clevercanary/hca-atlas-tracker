@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 exports.up = (pgm) => {
   pgm.createSchema("hat", { ifNotExists: true });
 
