@@ -4,10 +4,10 @@ import {
 } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/entities";
 import { transformFilters } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/filterTransformer";
 import { COLLATOR_CASE_INSENSITIVE } from "@clevercanary/data-explorer-ui/lib/common/constants";
+import { fetchEntitiesFromQuery } from "@clevercanary/data-explorer-ui/lib/entity/api/service";
 import { HCAAtlasTrackerSourceDataset } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ProjectResponse } from "./apis/azul/entities";
 import { ProjectsResponse } from "./apis/azul/responses";
-import { fetchEntitiesFromQuery } from "./apis/azul/service";
 import {
   processAggregatedOrArrayValue,
   processEntityValue,
@@ -128,7 +128,9 @@ export async function buildAtlasDatasets(
     if (datasetIds.length > 0) {
       const result = await fetchEntitiesFromQuery(
         `${DATA_SOURCE.url}/projects`,
-        filterProjectId(datasetIds)
+        filterProjectId(datasetIds),
+        undefined,
+        undefined
       );
       projectsResponses.push(...result.hits);
       if (externalDatasets) {

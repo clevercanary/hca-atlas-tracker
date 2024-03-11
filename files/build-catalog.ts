@@ -1,3 +1,5 @@
+import { setConfig } from "@clevercanary/data-explorer-ui/lib/config/config";
+import { fetchAllEntities } from "@clevercanary/data-explorer-ui/lib/entity/api/service";
 import fsp from "fs/promises";
 import path from "path";
 import {
@@ -7,7 +9,6 @@ import {
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ProjectResponse } from "./apis/azul/entities";
-import { fetchAllEntities } from "./apis/azul/service";
 import { CXGCollection } from "./apis/cellxgene";
 import { buildAtlasDescription } from "./build-atlas-description";
 import { buildAtlasComponentAtlases } from "./build-component-atlases";
@@ -46,6 +47,24 @@ buildCatalog();
 
 async function buildCatalog(): Promise<void> {
   console.log("Building catalog");
+
+  setConfig({
+    appTitle: "",
+    browserURL: "",
+    dataSource: DATA_SOURCE,
+    entities: [],
+    explorerTitle: "",
+    layout: {
+      footer: {
+        Branding: "",
+      },
+      header: {
+        Logo: "",
+        navLinks: [],
+      },
+    },
+    redirectRootToPath: "",
+  });
 
   console.log("Getting HCA projects");
 
