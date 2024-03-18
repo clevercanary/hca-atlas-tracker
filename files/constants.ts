@@ -3,7 +3,7 @@ export const DATA_SOURCE = {
     size: "100",
   },
   defaultParams: {
-    catalog: "dcp34",
+    catalog: "dcp35",
   },
   url: "https://service.azul.data.humancellatlas.org/index",
 };
