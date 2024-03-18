@@ -63,7 +63,8 @@ export interface HCAAtlasTrackerSourceDataset {
 
 export enum ATLAS_STATUS {
   DRAFT = "Draft",
-  PUBLISHED = "Published",
+  PUBLIC = "Public",
+  REVISION = "Revision",
 }
 
 export interface Network {

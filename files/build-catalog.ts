@@ -38,7 +38,7 @@ const baseAtlases: AtlasBase[] = [
     },
     publication: "Sikkema et al. (2023) Nat Med",
     publicationUrl: "https://www.nature.com/articles/s41591-023-02327-2",
-    status: ATLAS_STATUS.PUBLISHED,
+    status: ATLAS_STATUS.PUBLIC,
     version: "1.0",
   },
 ];
