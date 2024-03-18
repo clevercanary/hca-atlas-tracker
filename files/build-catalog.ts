@@ -41,6 +41,23 @@ const baseAtlases: AtlasBase[] = [
     status: ATLAS_STATUS.PUBLIC,
     version: "1.0",
   },
+  {
+    atlasKey: "test-foo",
+    atlasTitle: "The Foo Atlas",
+    bioNetwork: "musculoskeletal",
+    codeUrl: "",
+    cxgCollectionId: null,
+    integrationLead: "Foof Oofoo",
+    integrationLeadEmail: "",
+    networkCoordinator: {
+      coordinatorNames: ["Foo Foo"],
+      email: "",
+    },
+    publication: "Foofoo et al.",
+    publicationUrl: "",
+    status: ATLAS_STATUS.DRAFT,
+    version: "1.0",
+  },
 ];
 
 buildCatalog();
