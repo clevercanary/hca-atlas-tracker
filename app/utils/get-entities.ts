@@ -3,14 +3,15 @@ import {
   HCAAtlasTrackerAtlas,
 } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import fsp from "fs/promises";
-import { OAuth2Client, TokenInfo } from "google-auth-library";
+import { TokenInfo } from "google-auth-library";
 import pg from "pg";
+import { getAuthClient } from "./auth-client-service";
 
 const { Pool } = pg;
 
 const atlasesPath = "files/out/atlases.json";
 
-const authClient = new OAuth2Client();
+const authClient = getAuthClient();
 const accessTokensInfo = new Map<string, TokenInfo>();
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
