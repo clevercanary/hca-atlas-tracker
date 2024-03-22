@@ -4,7 +4,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { endPgPool } from "../app/utils/get-entities";
+import { endPgPool } from "../app/utils/user";
 import atlasesHandler from "../pages/api/entities/atlases";
 
 afterAll(() => {
