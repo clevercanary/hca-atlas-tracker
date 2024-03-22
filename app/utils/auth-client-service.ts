@@ -14,10 +14,15 @@ export function getAuthClient(): AuthClient {
 
 function getTestAuthClient(): AuthClient {
   return {
-    async getTokenInfo(): Promise<TokenInfo> {
+    async getTokenInfo(token): Promise<TokenInfo> {
       return {
         aud: "",
-        email: "test@example.com",
+        email:
+          token === "a"
+            ? "a@example.com"
+            : token === "b"
+            ? "b@example.com"
+            : "test@example.com",
         email_verified: true,
         expiry_date: -1,
         scopes: [],

@@ -1,10 +1,10 @@
-import {
-  ATLAS_STATUS,
-  HCAAtlasTrackerAtlas,
-} from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import fsp from "fs/promises";
 import { TokenInfo } from "google-auth-library";
 import pg from "pg";
+import {
+  ATLAS_STATUS,
+  HCAAtlasTrackerAtlas,
+} from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getAuthClient } from "./auth-client-service";
 
 const { Pool } = pg;
@@ -53,4 +53,8 @@ async function getAccessTokenInfo(
       (tokenInfo = await authClient.getTokenInfo(token))
     );
   return tokenInfo;
+}
+
+export function endPgPool(): void {
+  pool.end();
 }
