@@ -7,6 +7,8 @@ import {
 import { endPgPool } from "../app/utils/api-handler";
 import atlasesHandler from "../pages/api/entities/atlases";
 
+//jest.mock("../app/utils/auth-client-service");
+
 afterAll(() => {
   endPgPool();
 });

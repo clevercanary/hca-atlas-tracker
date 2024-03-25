@@ -1,7 +1,6 @@
-import { TokenInfo } from "google-auth-library";
+import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import pg from "pg";
-import { getAuthClient } from "./auth-client-service";
 
 const { Pool } = pg;
 
@@ -13,7 +12,7 @@ export type MiddlewareFunction = (
 
 type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
-const authClient = getAuthClient();
+const authClient = new OAuth2Client();
 const accessTokensInfo = new Map<string, TokenInfo>();
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
