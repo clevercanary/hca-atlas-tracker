@@ -9,27 +9,39 @@ import {
 import { endPgPool } from "../app/utils/api-handler";
 import atlasesHandler from "../pages/api/entities/atlases";
 
+type Atlases = Record<number, HCAAtlasTrackerAtlas>;
+
 afterAll(() => {
   endPgPool();
 });
 
 describe("/api/entities/atlases", () => {
+  it("returns error 405 for non-GET request", async () => {
+    expect(
+      (await doAtlasesRequest(undefined, "POST"))._getStatusCode()
+    ).toEqual(405);
+  });
+
   it("does not return draft atlases for logged out user", async () => {
-    const data = await doAtlasesRequest();
+    const data = (await doAtlasesRequest())._getJSONData() as Atlases;
     expect(
       Object.values(data).find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
     ).toBeUndefined();
   });
 
   it("does not return draft atlases for logged in user without CONTENT_ADMIN role", async () => {
-    const data = await doAtlasesRequest(USER_NORMAL);
+    const data = (
+      await doAtlasesRequest(USER_NORMAL)
+    )._getJSONData() as Atlases;
     expect(
       Object.values(data).find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
     ).toBeUndefined();
   });
 
   it("does return draft atlases for logged in user with CONTENT_ADMIN role", async () => {
-    const data = await doAtlasesRequest(USER_CONTENT_ADMIN);
+    const data = (
+      await doAtlasesRequest(USER_CONTENT_ADMIN)
+    )._getJSONData() as Atlases;
     expect(
       Object.values(data).find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
     ).toBeDefined();
@@ -37,11 +49,13 @@ describe("/api/entities/atlases", () => {
 });
 
 async function doAtlasesRequest(
-  user?: TestUser
-): Promise<Record<number, HCAAtlasTrackerAtlas>> {
+  user?: TestUser,
+  method: "GET" | "POST" = "GET"
+): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
+    method,
   });
   await atlasesHandler(req, res);
-  return res._getJSONData();
+  return res;
 }
