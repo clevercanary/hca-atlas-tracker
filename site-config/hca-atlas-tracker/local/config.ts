@@ -16,8 +16,6 @@ import {
 } from "../category";
 import { getAuthenticationConfig } from "./authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
-import { componentAtlasEntityConfig } from "./index/componentAtlasEntityConfig";
-import { sourceDatasetEntityConfig } from "./index/sourceDatasetEntityConfig";
 
 // Template constants
 const LOCALHOST = "http://localhost:3000";
@@ -125,11 +123,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
       entityURL: LOCALHOST,
       url: browserUrl,
     },
-    entities: [
-      atlasEntityConfig,
-      componentAtlasEntityConfig,
-      sourceDatasetEntityConfig,
-    ],
+    entities: [atlasEntityConfig],
     explorerTitle: "Manage Atlases",
     layout: {
       footer: {
