@@ -9,9 +9,9 @@ export type MiddlewareFunction = (
   req: NextApiRequest,
   res: NextApiResponse,
   next: () => void
-) => Promise<void> | void;
+) => Promise<void>;
 
-type Handler = (req: NextApiRequest, res: NextApiResponse) => void;
+type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
 const authClient = getAuthClient();
 const accessTokensInfo = new Map<string, TokenInfo>();
@@ -19,16 +19,17 @@ const accessTokensInfo = new Map<string, TokenInfo>();
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 export function handler(...funcs: MiddlewareFunction[]): Handler {
-  return (req, res) => {
-    return next(0);
-    function next(i: number): void {
-      if (i < funcs.length) funcs[i](req, res, next.bind(null, i + 1));
+  return async (req, res) => {
+    for (const f of funcs) {
+      let done = true;
+      await f(req, res, () => (done = false));
+      if (done) return;
     }
   };
 }
 
 export function method(methodName: "GET" | "POST"): MiddlewareFunction {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     if (req.method !== methodName) {
       res.status(405).setHeader("Allow", methodName).end();
     } else {
