@@ -3,7 +3,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getUserRoleFromAuthorization } from "./user";
+import { getUserRoleFromAuthorization } from "./api-handler";
 
 const atlasesPath = "files/out/atlases.json";
 

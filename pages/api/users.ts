@@ -1,18 +1,15 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getUserRoleFromAuthorization, query } from "../../app/utils/user";
+import { handler, method, query, role } from "../../app/utils/api-handler";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> {
-  const role = await getUserRoleFromAuthorization(req.headers.authorization);
-  if (role !== "CONTENT_ADMIN") {
-    res.status(role === null ? 401 : 403).end();
-    return;
+export default handler(
+  method("GET"),
+  role("CONTENT_ADMIN"),
+  async (req, res) => {
+    const queryResult =
+      typeof req.query.email === "string"
+        ? await query("SELECT * FROM hat.users WHERE email=$1", [
+            req.query.email,
+          ])
+        : await query("SELECT * FROM hat.users");
+    res.json(queryResult.rows);
   }
-  const queryResult =
-    typeof req.query.email === "string"
-      ? await query("SELECT * FROM hat.users WHERE email=$1", [req.query.email])
-      : await query("SELECT * FROM hat.users");
-  res.json(queryResult.rows);
-}
+);

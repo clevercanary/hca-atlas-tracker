@@ -1,13 +1,10 @@
 import { getAtlases } from "app/utils/get-entities";
-import { NextApiRequest, NextApiResponse } from "next";
+import { handler, method } from "../../../app/utils/api-handler";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> {
+export default handler(method("GET"), async (req, res) => {
   res.json(
     Object.fromEntries(
       Object.entries(await getAtlases(req.headers.authorization))
     )
   );
-}
+});
