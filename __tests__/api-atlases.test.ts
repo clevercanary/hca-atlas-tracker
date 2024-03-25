@@ -7,7 +7,7 @@ import {
   HCAAtlasTrackerAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool } from "../app/utils/api-handler";
-import atlasesHandler from "../pages/api/entities/atlases";
+import atlasesHandler from "../pages/api/atlases";
 
 type Atlases = Record<number, HCAAtlasTrackerAtlas>;
 
@@ -15,7 +15,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("/api/entities/atlases", () => {
+describe("/api/atlases", () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (await doAtlasesRequest(undefined, "POST"))._getStatusCode()
