@@ -8,6 +8,7 @@ export const USER_CONTENT_ADMIN = makeTestUser(
 );
 
 export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
+export const USER_NEW = makeTestUser("test-new");
 
 export const INITIAL_TEST_USERS = [
   USER_NORMAL,
@@ -15,4 +16,4 @@ export const INITIAL_TEST_USERS = [
   USER_CONTENT_ADMIN,
 ];
 
-export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT];
+export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT, USER_NEW];
