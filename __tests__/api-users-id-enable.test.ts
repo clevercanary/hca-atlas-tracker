@@ -26,7 +26,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/users/[id]/disable", () => {
+describe("/api/users/[id]/enable", () => {
   it("returns error 401 for non-POST request", async () => {
     expect(
       (await doEnableRequest(undefined, userDisabledId, "GET"))._getStatusCode()
