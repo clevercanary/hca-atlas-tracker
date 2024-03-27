@@ -4,7 +4,7 @@ import { getPoolConfig } from "../app/utils/pg-connect-config";
 
 const { Pool } = pg;
 
-const runMigrations = async () => {
+const runMigrations = async (): Promise<void> => {
   const poolConfig = getPoolConfig();
 
   // Check and wait for password if it's a function (async generator for the token)
@@ -17,12 +17,12 @@ const runMigrations = async () => {
 
   await migrate({
     // specify the client to the migrate function
+    count: Infinity, // Number of migrations to apply, Infinity applies all available
     dbClient: client,
     dir: "migrations", // Your migrations directory
     direction: "up",
-    migrationsTable: "pgmigrations", // Default migrations table
-    count: Infinity, // Number of migrations to apply, Infinity applies all available
     log: console.log, // Log function
+    migrationsTable: "pgmigrations", // Default migrations table
   });
 
   await client.release(); // Release the client back to the pool
