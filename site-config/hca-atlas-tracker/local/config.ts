@@ -16,8 +16,6 @@ import {
 } from "../category";
 import { getAuthenticationConfig } from "./authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
-import { componentAtlasEntityConfig } from "./index/componentAtlasEntityConfig";
-import { sourceDatasetEntityConfig } from "./index/sourceDatasetEntityConfig";
 
 // Template constants
 const LOCALHOST = "http://localhost:3000";
@@ -43,26 +41,6 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
-          },
-        ],
-      },
-      {
-        categoryConfigs: [
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CELLXGENE,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CELLXGENE,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IS_PUBLISHED,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IS_PUBLISHED,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CAP,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CAP,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_HCA_DATA_REPOSITORY,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_HCA_DATA_REPOSITORY,
           },
         ],
       },
@@ -125,11 +103,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
       entityURL: LOCALHOST,
       url: browserUrl,
     },
-    entities: [
-      atlasEntityConfig,
-      componentAtlasEntityConfig,
-      sourceDatasetEntityConfig,
-    ],
+    entities: [atlasEntityConfig],
     explorerTitle: "Manage Atlases",
     layout: {
       footer: {

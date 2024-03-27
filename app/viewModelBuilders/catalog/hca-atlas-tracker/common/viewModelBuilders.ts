@@ -461,9 +461,17 @@ export const buildStatus = (
   atlas: HCAAtlasTrackerAtlas
 ): React.ComponentProps<typeof C.StatusBadge> => {
   let color;
-  if (atlas.status === ATLAS_STATUS.PUBLISHED)
-    color = STATUS_BADGE_COLOR.SUCCESS;
-  else if (atlas.status === ATLAS_STATUS.DRAFT) color = STATUS_BADGE_COLOR.INFO;
+  switch (atlas.status) {
+    case ATLAS_STATUS.DRAFT:
+      color = STATUS_BADGE_COLOR.INFO;
+      break;
+    case ATLAS_STATUS.PUBLIC:
+      color = STATUS_BADGE_COLOR.SUCCESS;
+      break;
+    case ATLAS_STATUS.REVISION:
+      color = STATUS_BADGE_COLOR.WARNING;
+      break;
+  }
   return {
     color,
     label: atlas.status,

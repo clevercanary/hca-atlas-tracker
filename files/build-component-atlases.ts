@@ -7,14 +7,16 @@ export async function buildAtlasComponentAtlases(
   atlasBase: AtlasBase
 ): Promise<HCAAtlasTrackerComponentAtlas[]> {
   const cxgDatasets: CXGDataset[] = [];
-  const response = await fetch(
-    `https://api.cellxgene.cziscience.com/curation/v1/collections/${atlasBase.cxgCollectionId}`
-  );
-  const cxgCollection = await response.json();
-  cxgDatasets.push(
-    ...mapCxgDatasets(cxgCollection.datasets, cxgCollection.collection_id)
-  );
-  cxgDatasets.sort(sortCXGDatasets);
+  if (atlasBase.cxgCollectionId) {
+    const response = await fetch(
+      `https://api.cellxgene.cziscience.com/curation/v1/collections/${atlasBase.cxgCollectionId}`
+    );
+    const cxgCollection = await response.json();
+    cxgDatasets.push(
+      ...mapCxgDatasets(cxgCollection.datasets, cxgCollection.collection_id)
+    );
+    cxgDatasets.sort(sortCXGDatasets);
+  }
   return cxgDatasets.map((cxgDataset) => ({
     atlasKey: atlasBase.atlasKey,
     atlasTitle: atlasBase.atlasTitle,

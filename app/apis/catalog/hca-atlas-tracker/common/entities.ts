@@ -11,7 +11,7 @@ export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
   codeUrl: string;
   componentAtlases: HCAAtlasTrackerComponentAtlas[];
-  cxgCollectionId: string;
+  cxgCollectionId: string | null;
   description: MDXRemoteSerializeResult | null;
   integrationLead: string;
   integrationLeadEmail: string;
@@ -63,7 +63,8 @@ export interface HCAAtlasTrackerSourceDataset {
 
 export enum ATLAS_STATUS {
   DRAFT = "Draft",
-  PUBLISHED = "Published",
+  PUBLIC = "Public",
+  REVISION = "Revision",
 }
 
 export interface Network {

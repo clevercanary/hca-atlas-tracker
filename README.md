@@ -27,3 +27,23 @@ Run `docker build --build-arg ENVIRONMENT=local -t tracker-node -f Dockerfile.no
 The container can be run using `docker run -p 3000:3000 tracker-node`.
 
 To build the development or production app instead, replace `local` with `dev` or `prod` in the build command, e.g. for production: `docker build --build-arg ENVIRONMENT=prod -t tracker-node -f Dockerfile.node .`.
+
+### Using Postgres
+
+#### Setup
+
+- Install Postgres using Homebrew: `brew install postgresql`
+- Start the Postgres server: `brew services run postgresql`, or `brew services start postgresql` to have it restart on reboot
+- Create a database: `createdb atlas-tracker`
+
+#### Running queries in the terminal
+
+- Run `psql atlas-tracker`
+- Enter a query, e.g. `SELECT * FROM hat.users;`
+- Enter `\q` to exit
+
+#### Using with the app
+
+- To provide the information necessary to connect to the database, run `export DATABASE_URL=postgres://localhost/atlas-tracker`
+- To migrate up, run `npm run migrate up`
+- To migrate down, run `npm run migrate down`

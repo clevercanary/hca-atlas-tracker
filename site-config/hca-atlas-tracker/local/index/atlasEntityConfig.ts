@@ -23,7 +23,7 @@ import { top } from "../detail/atlas/top";
  * Entity config object responsible to config anything related to the /atlases route.
  */
 export const atlasEntityConfig: EntityConfig = {
-  apiPath: "api/entities/atlases",
+  apiPath: "api/atlases",
   detail: {
     detailOverviews: [],
     staticLoad: true,
