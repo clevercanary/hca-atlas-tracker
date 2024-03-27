@@ -47,5 +47,5 @@ RUN chmod +x ./scripts/entrypoint.sh
 
 EXPOSE 3000
 ENV PORT 3000
-CMD ["pm2-runtime", "start", "npm", "--", "start"]
-# ENTRYPOINT ["./scripts/entrypoint.sh"]
+#CMD ["pm2-runtime", "start", "npm", "--", "start"]
+ENTRYPOINT ["./scripts/entrypoint.sh"]
