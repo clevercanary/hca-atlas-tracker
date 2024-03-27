@@ -2,7 +2,7 @@ name: HCA Atlas Tracker Dev Deploy
 run-name: 🚀 HCA Atlas Tracker Dev Deploy 🚀
 on:
   push:
-    branches: [main]
+    branches: [noopdog/44-aws-db]
 
 env:
   AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
