@@ -5,18 +5,10 @@ import { Signer } from "@aws-sdk/rds-signer";
 // Function to generate AWS RDS IAM authentication token
 const generateAuthToken = async (): Promise<string> => {
   const signer = new Signer({
-    /**
-     * Required. The hostname of the database to connect to.
-     */
     hostname:
       "hca-atlas-tracker.cluster-cpaohu0f2w38.us-east-1.rds.amazonaws.com",
-    /**
-     * Required. The port number the database is listening on.
-     */
     port: 5432,
-    /**
-     * Required. The username to login as.
-     */
+    region: "us-east-1",
     username: "hca_atlas_tracker",
   });
 
