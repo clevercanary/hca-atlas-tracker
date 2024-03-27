@@ -10,6 +10,7 @@ import {
 import { TestUser } from "../testing/entities";
 
 let userDisabledId: string;
+let nonexistentId: string;
 
 beforeAll(async () => {
   userDisabledId = (
@@ -17,6 +18,9 @@ beforeAll(async () => {
       USER_DISABLED.email,
     ])
   ).rows[0].id.toString();
+  nonexistentId = (
+    (await query("SELECT MAX(id) FROM hat.users")).rows[0].max + 1
+  ).toString();
 });
 
 afterAll(async () => {
@@ -43,6 +47,20 @@ describe("/api/users/[id]/enable", () => {
     expect(
       (await doEnableRequest(USER_NORMAL, userDisabledId))._getStatusCode()
     ).toEqual(403);
+  });
+
+  it("returns error 400 when specified ID is non-numeric", async () => {
+    expect(
+      (await doEnableRequest(USER_CONTENT_ADMIN, "test"))._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 404 when specified user doesn't exist", async () => {
+    expect(
+      (
+        await doEnableRequest(USER_CONTENT_ADMIN, nonexistentId)
+      )._getStatusCode()
+    ).toEqual(404);
   });
 
   it("sets disabled to false on specified user", async () => {
