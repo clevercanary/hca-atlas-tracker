@@ -5,7 +5,7 @@ import pg from "pg";
 import { Signer } from "@aws-sdk/rds-signer";
 
 // Function to generate AWS RDS IAM authentication token
-const generateAuthToken = async () => {
+const generateAuthToken = async (): Promise<string> => {
   const signer = new Signer({
     /**
      * Required. The hostname of the database to connect to.
@@ -22,37 +22,36 @@ const generateAuthToken = async () => {
     username: "hca_atlas_tracker",
   });
 
-  const token = await signer.getAuthToken();
   // Use this token as the password for connecting to your RDS instance
-  return token;
+  return await signer.getAuthToken();
 };
 
-const getPoolConfig = () => {
+const getPoolConfig = (): pg.PoolConfig => {
   console.log("NODE_ENV: ", process.env.NODE_ENV);
 
   if (process.env.APP_ENV === "aws-dev") {
     // Production config with IAM authentication
     return {
-      user: "hca_atlas_tracker",
-      host: " hca-atlas-tracker.cluster-cpaohu0f2w38.us-east-1.rds.amazonaws.com",
-      database: "hcaatlastracker",
-      port: 5432,
-      password: generateAuthToken, // IAM auth token for production
-      ssl: true,
       connectionTimeoutMillis: 5,
+      database: "hcaatlastracker",
+      host: " hca-atlas-tracker.cluster-cpaohu0f2w38.us-east-1.rds.amazonaws.com",
       idleTimeoutMillis: 10000,
+      password: generateAuthToken, // IAM auth token for production
+      port: 5432,
+      ssl: true,
+      user: "hca_atlas_tracker",
     };
   } else {
     // Development config for local database
     return {
-      user: "",
-      host: "localhost",
+      connectionTimeoutMillis: 5000,
       database: "atlas-tracker",
-      port: 5432,
-      password: "", // Local DB password
-      ssl: false,
-      connectionTimeoutMillis: 5,
+      host: "localhost",
       idleTimeoutMillis: 10000,
+      password: "", // Local DB password
+      port: 5432,
+      ssl: false,
+      user: "",
     };
   }
 };
