@@ -2,6 +2,61 @@ import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import pg from "pg";
 
+import { Signer } from "@aws-sdk/rds-signer";
+
+// Function to generate AWS RDS IAM authentication token
+const generateAuthToken = async () => {
+  const signer = new Signer({
+    /**
+     * Required. The hostname of the database to connect to.
+     */
+    hostname:
+      "hca-atlas-tracker.cluster-cpaohu0f2w38.us-east-1.rds.amazonaws.com",
+    /**
+     * Required. The port number the database is listening on.
+     */
+    port: 5432,
+    /**
+     * Required. The username to login as.
+     */
+    username: "hca_atlas_tracker",
+  });
+
+  const token = await signer.getAuthToken();
+  // Use this token as the password for connecting to your RDS instance
+  return token;
+};
+
+const getPoolConfig = () => {
+  console.log("NODE_ENV: ", process.env.NODE_ENV);
+
+  if (process.env.APP_ENV === "aws-dev") {
+    // Production config with IAM authentication
+    return {
+      user: "hca_atlas_tracker",
+      host: " hca-atlas-tracker.cluster-cpaohu0f2w38.us-east-1.rds.amazonaws.com",
+      database: "hcaatlastracker",
+      port: 5432,
+      password: generateAuthToken, // IAM auth token for production
+      ssl: true,
+      connectionTimeoutMillis: 5,
+      idleTimeoutMillis: 10000,
+    };
+  } else {
+    // Development config for local database
+    return {
+      user: "",
+      host: "localhost",
+      database: "atlas-tracker",
+      port: 5432,
+      password: "", // Local DB password
+      ssl: false,
+      connectionTimeoutMillis: 5,
+      idleTimeoutMillis: 10000,
+    };
+  }
+};
+
 const { Pool } = pg;
 
 export type MiddlewareFunction = (
@@ -15,7 +70,7 @@ type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 const authClient = new OAuth2Client();
 const accessTokensInfo = new Map<string, TokenInfo>();
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool(getPoolConfig());
 
 /**
  * Creates an API handler function that calls the provided middleware functions in order for as long as each one calls `next` function passed to it.

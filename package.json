@@ -39,6 +39,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@aws-sdk/rds-signer": "^3.540.0",
     "@babel/core": "^7.17.10",
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
