@@ -13,7 +13,12 @@ const generateAuthToken = async (): Promise<string> => {
   });
 
   // Use this token as the password for connecting to your RDS instance
-  return await signer.getAuthToken();
+  try {
+    return await signer.getAuthToken();
+  } catch (error) {
+    console.error("Error generating authentication token:", error);
+    throw error;
+  }
 };
 
 export function getPoolConfig(): pg.PoolConfig {
