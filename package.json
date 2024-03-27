@@ -13,7 +13,7 @@
     "prepare": "husky install .husky",
     "test": "jest --runInBand",
     "build-catalog": "esrun ./files/build-catalog.ts",
-    "migrate": "ts-node -O '{\"module\": \"commonjs\"}' node_modules/.bin/node-pg-migrate -j ts"
+    "migrate": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts"
   },
   "dependencies": {
     "@clevercanary/data-explorer-ui": "69.0.0",
