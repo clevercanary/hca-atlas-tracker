@@ -1,6 +1,10 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { TEST_USERS } from "testing/constants";
 
+/**
+ * Mock of google-auth-library that replaces OAuth2Client with a version that handles tokens for test users.
+ */
+
 type AuthClient = Pick<OAuth2Client, "getTokenInfo">;
 
 const googleAuthLibrary = jest.createMockFromModule("google-auth-library") as {

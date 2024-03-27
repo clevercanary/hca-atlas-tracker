@@ -11,6 +11,11 @@ let atlases: HCAAtlasTrackerAtlas[];
 
 const entitiesLoaded = loadEntities();
 
+/**
+ * Get array of atlases accessible by the current user.
+ * @param authorization - Authorization string for a logged-in user, or undefined for a logged-out user.
+ * @returns array of atlas entities.
+ */
 export async function getAtlases(
   authorization: string | undefined
 ): Promise<HCAAtlasTrackerAtlas[]> {

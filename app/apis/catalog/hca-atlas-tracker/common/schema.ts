@@ -1,5 +1,8 @@
 import { boolean, InferType, object, string } from "yup";
 
+/**
+ * Schema for data used to create a new user.
+ */
 export const newUserSchema = object({
   disabled: boolean().required().strict(true),
   email: string().required().email().strict(true),

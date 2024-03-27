@@ -10,6 +10,7 @@ export const USER_CONTENT_ADMIN = makeTestUser(
 export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
 export const USER_NEW = makeTestUser("test-new");
 
+// Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
   USER_NORMAL,
   USER_DISABLED,

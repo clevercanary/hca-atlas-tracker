@@ -1,5 +1,8 @@
 import { handler, method, query, role } from "../../app/utils/api-handler";
 
+/**
+ * API route for list of users. Optional `email` query paramter filters by email.
+ */
 export default handler(
   method("GET"),
   role("CONTENT_ADMIN"),

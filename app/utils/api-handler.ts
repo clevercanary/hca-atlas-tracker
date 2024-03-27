@@ -17,6 +17,11 @@ const accessTokensInfo = new Map<string, TokenInfo>();
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+/**
+ * Creates an API handler function that calls the provided middleware functions in order for as long as each one calls `next` function passed to it.
+ * @param funcs - Middleware functions.
+ * @returns API handler function.
+ */
 export function handler(...funcs: MiddlewareFunction[]): Handler {
   return async (req, res) => {
     for (const f of funcs) {
@@ -27,6 +32,11 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
   };
 }
 
+/**
+ * Creates a middleware function that rejects requests that don't have the specified request method.
+ * @param methodName - Allowed request method.
+ * @returns middleware function restricting requests to the specified method.
+ */
 export function method(methodName: "GET" | "POST"): MiddlewareFunction {
   return async (req, res, next) => {
     if (req.method !== methodName) {
@@ -37,6 +47,11 @@ export function method(methodName: "GET" | "POST"): MiddlewareFunction {
   };
 }
 
+/**
+ * Creates a middleware function that rejects requests from users who don't have the specified role.
+ * @param roleName - Allowed user role.
+ * @returns middleware function restricting requests to users with the specified role.
+ */
 export function role(roleName: string): MiddlewareFunction {
   return async (req, res, next) => {
     const role = await getUserRoleFromAuthorization(req.headers.authorization);
@@ -48,6 +63,14 @@ export function role(roleName: string): MiddlewareFunction {
   };
 }
 
+/**
+ * Retrieves a string-valued query parameter from a request, sending an error response if the parameter doesn't exist or doesn't match a given regular expression.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @param paramName - Parameter name to get.
+ * @param paramRegExp - Regular expression to match parameter against.
+ * @returns parameter value, or null if an error response was sent.
+ */
 export function handleRequiredParam(
   req: NextApiRequest,
   res: NextApiResponse,

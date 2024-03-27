@@ -6,6 +6,9 @@ import {
   role,
 } from "../../../../app/utils/api-handler";
 
+/**
+ * API route for setting a user as not disabled.
+ */
 export default handler(
   method("POST"),
   role("CONTENT_ADMIN"),
