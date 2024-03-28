@@ -35,7 +35,7 @@ export function getPoolConfig(): pg.PoolConfig {
       password: process.env.PGPASSWORD || "",
       port: 5432,
       ssl: true,
-      user: "hca_atlas_tracker",
+      user: process.env.PGUSER || "",
     };
   } else {
     // Development config for local database
