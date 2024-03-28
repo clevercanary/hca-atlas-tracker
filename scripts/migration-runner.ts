@@ -10,6 +10,7 @@ const runMigrations = async (): Promise<void> => {
   // Check and wait for password if it's a function (async generator for the token)
   if (typeof poolConfig.password === "function") {
     poolConfig.password = await poolConfig.password();
+    console.log("IAM auth token generated:", poolConfig.password);
   }
 
   const pool = new Pool(poolConfig);
