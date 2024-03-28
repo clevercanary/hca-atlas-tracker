@@ -9,6 +9,8 @@ import {
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
+jest.mock("../app/utils/pg-connect-config");
+
 afterAll(() => {
   endPgPool();
 });
