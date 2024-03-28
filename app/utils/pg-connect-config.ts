@@ -28,11 +28,11 @@ export function getPoolConfig(): pg.PoolConfig {
   if (process.env.APP_ENV === "aws-dev") {
     // Production config with IAM authentication
     return {
-      connectionTimeoutMillis: 5,
-      database: "hcaatlastracker",
-      host: " hca-atlas-tracker.cluster-cpaohu0f2w38.us-east-1.rds.amazonaws.com",
+      connectionTimeoutMillis: 5000,
+      database: process.env.PGDATABASE || "",
+      host: process.env.PGHOST || "",
       idleTimeoutMillis: 10000,
-      password: generateAuthToken, // IAM auth token for production
+      password: process.env.PGPASSWORD || "",
       port: 5432,
       ssl: true,
       user: "hca_atlas_tracker",
