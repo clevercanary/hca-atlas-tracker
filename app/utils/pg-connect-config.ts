@@ -24,6 +24,11 @@ const generateAuthToken = async (): Promise<string> => {
 export function getPoolConfig(): pg.PoolConfig {
   console.log("NODE_ENV: ", process.env.NODE_ENV);
   console.log("APP_ENV: ", process.env.APP_ENV);
+  console.log("DATABASE CONFIG VALUES:");
+  console.log("PGDATABASE:", process.env.PGDATABASE);
+  console.log("PGHOST:", process.env.PGHOST);
+  console.log("PGPASSWORD:", process.env.PGPASSWORD);
+  console.log("PGUSER:", process.env.PGUSER);
 
   if (process.env.APP_ENV === "aws-dev") {
     // Production config with IAM authentication
