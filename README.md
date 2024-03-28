@@ -35,6 +35,7 @@ To build the development or production app instead, replace `local` with `dev` o
 - Install Postgres using Homebrew: `brew install postgresql`
 - Start the Postgres server: `brew services run postgresql`, or `brew services start postgresql` to have it restart on reboot
 - Create a database: `createdb atlas-tracker`
+- In the app directory, run `npm run migrate` to migrate up
 
 #### Running queries in the terminal
 
@@ -42,8 +43,11 @@ To build the development or production app instead, replace `local` with `dev` o
 - Enter a query, e.g. `SELECT * FROM hat.users;`
 - Enter `\q` to exit
 
-#### Using with the app
+### Running tests
 
-- To provide the information necessary to connect to the database, run `export DATABASE_URL=postgres://localhost/atlas-tracker`
-- To migrate up, run `npm run migrate up`
-- To migrate down, run `npm run migrate down`
+In order to run tests, a test database must be created:
+
+- `createdb atlas-tracker-test`
+- `npm run migrate-test`
+
+Once this has been done, tests may be run with `npm run test`.

@@ -25,7 +25,8 @@ const runMigrations = async (): Promise<void> => {
     migrationsTable: "pgmigrations", // Default migrations table
   });
 
-  await client.release(); // Release the client back to the pool
+  client.release(); // Release the client back to the pool
+  pool.end(); // End the pool
 };
 
 runMigrations().catch((error) => {

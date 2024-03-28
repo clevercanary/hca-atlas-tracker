@@ -5,6 +5,8 @@ import disableHandler from "../pages/api/users/[id]/disable";
 import { USER_CONTENT_ADMIN, USER_NORMAL } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
+jest.mock("../app/utils/pg-connect-config");
+
 let userNormalId: string;
 let nonexistentId: string;
 
