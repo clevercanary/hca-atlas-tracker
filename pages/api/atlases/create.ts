@@ -18,7 +18,7 @@ export default handler(
       newInfo = await newAtlasSchema.validate(req.body);
     } catch (e) {
       if (e instanceof ValidationError) {
-        res.status(400).end();
+        res.status(400).json({ message: e.message });
         return;
       } else {
         throw e;
