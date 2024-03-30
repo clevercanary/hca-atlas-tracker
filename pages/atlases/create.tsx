@@ -1,6 +1,6 @@
 import { GetStaticProps } from "next";
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetStaticProps = async () => {
   return {
     props: {
       pageTitle: "Create Atlas",
