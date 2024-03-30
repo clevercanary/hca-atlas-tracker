@@ -1,5 +1,26 @@
 import { Network, NetworkKey } from "./entities";
 
+export const NETWORK_KEYS = [
+  "adipose",
+  "breast",
+  "development",
+  "eye",
+  "genetic-diversity",
+  "gut",
+  "heart",
+  "immune",
+  "kidney",
+  "liver",
+  "lung",
+  "musculoskeletal",
+  "nervous-system",
+  "oral",
+  "organoid",
+  "pancreas",
+  "reproduction",
+  "skin",
+] as const;
+
 export const NETWORKS: Network[] = [
   {
     key: "adipose",

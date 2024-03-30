@@ -1,4 +1,5 @@
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
+import { NETWORK_KEYS } from "./constants";
 
 export type HCAAtlasTrackerEntity =
   | HCAAtlasTrackerAtlas
@@ -72,22 +73,4 @@ export interface Network {
   name: string;
 }
 
-export type NetworkKey =
-  | "adipose"
-  | "breast"
-  | "development"
-  | "eye"
-  | "genetic-diversity"
-  | "gut"
-  | "heart"
-  | "immune"
-  | "kidney"
-  | "liver"
-  | "lung"
-  | "musculoskeletal"
-  | "nervous-system"
-  | "oral"
-  | "organoid"
-  | "pancreas"
-  | "reproduction"
-  | "skin";
+export type NetworkKey = (typeof NETWORK_KEYS)[number];
