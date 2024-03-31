@@ -165,6 +165,7 @@ function buildSourceDataset(
       projectsResponse.specimens,
       "organ"
     ),
+    atlasId: atlasBase.atlasKey,
     atlasKey: atlasBase.atlasKey,
     atlasTitle: atlasBase.atlasTitle,
     bioNetwork: atlasBase.bioNetwork,

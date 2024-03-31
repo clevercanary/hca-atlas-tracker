@@ -51,7 +51,7 @@ export const buildAtlas = (
   return {
     label: atlas.atlasTitle,
     subLabel: atlas.publication,
-    url: `/atlases/${encodeURIComponent(atlas.atlasKey)}`,
+    url: `/atlases/${encodeURIComponent(atlas.atlasId)}`,
   };
 };
 
@@ -212,7 +212,7 @@ export const buildAtlasTitle = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: entity.atlasTitle,
-    url: `/atlases/${encodeURIComponent(entity.atlasKey)}`,
+    url: `/atlases/${encodeURIComponent(entity.atlasId)}`,
   };
 };
 

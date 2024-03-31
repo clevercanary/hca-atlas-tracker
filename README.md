@@ -8,7 +8,7 @@ Use Node.js version `20.10.0`.
 
 Run `npm install`.
 
-If planning to run the app, run `npm run build-catalog` to build the catalog data.
+Set up Postgres database (see "Using Postgres" section below).
 
 ### Using the development server
 

@@ -1,4 +1,5 @@
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
+import { NETWORK_KEYS } from "./constants";
 
 export type HCAAtlasTrackerEntity =
   | HCAAtlasTrackerAtlas
@@ -6,6 +7,7 @@ export type HCAAtlasTrackerEntity =
   | HCAAtlasTrackerSourceDataset;
 
 export interface HCAAtlasTrackerAtlas {
+  atlasId: string;
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
@@ -24,6 +26,7 @@ export interface HCAAtlasTrackerAtlas {
 }
 
 export interface HCAAtlasTrackerComponentAtlas {
+  atlasId: string;
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
@@ -43,6 +46,7 @@ export interface HCAAtlasTrackerNetworkCoordinator {
 
 export interface HCAAtlasTrackerSourceDataset {
   anatomicalEntity: string[];
+  atlasId: string;
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
@@ -61,6 +65,21 @@ export interface HCAAtlasTrackerSourceDataset {
   species: string[];
 }
 
+export interface HCAAtlasTrackerDBAtlas {
+  created_at: Date;
+  id: string;
+  overview: HCAAtlasTrackerDBAtlasOverview;
+  source_datasets: [];
+  status: ATLAS_STATUS;
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBAtlasOverview {
+  network: NetworkKey;
+  short_name: string;
+  version: string;
+}
+
 export enum ATLAS_STATUS {
   DRAFT = "Draft",
   PUBLIC = "Public",
@@ -72,22 +91,4 @@ export interface Network {
   name: string;
 }
 
-export type NetworkKey =
-  | "adipose"
-  | "breast"
-  | "development"
-  | "eye"
-  | "genetic-diversity"
-  | "gut"
-  | "heart"
-  | "immune"
-  | "kidney"
-  | "liver"
-  | "lung"
-  | "musculoskeletal"
-  | "nervous-system"
-  | "oral"
-  | "organoid"
-  | "pancreas"
-  | "reproduction"
-  | "skin";
+export type NetworkKey = (typeof NETWORK_KEYS)[number];
