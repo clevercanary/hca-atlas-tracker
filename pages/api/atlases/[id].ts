@@ -1,12 +1,28 @@
-import { getAtlases } from "app/utils/get-entities";
-import { handler, method } from "../../../app/utils/api-handler";
+import { dbAtlasToListAtlas } from "app/apis/catalog/hca-atlas-tracker/common/utils";
+import { ATLAS_STATUS } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  getUserRoleFromAuthorization,
+  handler,
+  method,
+  query,
+} from "../../../app/utils/api-handler";
 
 /**
  * API route for atlas by ID.
  */
 export default handler(method("GET"), async (req, res) => {
-  const atlases = await getAtlases(req.headers.authorization);
-  const atlas = atlases.find((atlas) => atlas.atlasKey === req.query.id);
-  if (atlas) res.json(atlas);
-  else res.status(404).end();
+  const id = req.query.id as string;
+  const queryResult =
+    (await getUserRoleFromAuthorization(req.headers.authorization)) ===
+    "CONTENT_ADMIN"
+      ? await query("SELECT * FROM hat.atlases WHERE id=$1", [id])
+      : await query("SELECT * FROM hat.atlases WHERE id=$1 AND status=$2", [
+          id,
+          ATLAS_STATUS.PUBLIC,
+        ]);
+  if (queryResult.rows.length === 0) {
+    res.status(404).end();
+    return;
+  }
+  res.json(dbAtlasToListAtlas(queryResult.rows[0]));
 });

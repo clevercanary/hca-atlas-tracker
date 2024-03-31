@@ -100,6 +100,7 @@ async function buildCatalog(): Promise<void> {
   for (const atlasBase of baseAtlases) {
     const atlas = {
       ...atlasBase,
+      atlasId: atlasBase.atlasKey,
       componentAtlases: await buildAtlasComponentAtlases(atlasBase),
       description: await buildAtlasDescription(atlasBase),
       sourceDatasets: await buildAtlasDatasets(

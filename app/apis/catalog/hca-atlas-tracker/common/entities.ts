@@ -7,6 +7,7 @@ export type HCAAtlasTrackerEntity =
   | HCAAtlasTrackerSourceDataset;
 
 export interface HCAAtlasTrackerAtlas {
+  atlasId: string;
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
@@ -25,6 +26,7 @@ export interface HCAAtlasTrackerAtlas {
 }
 
 export interface HCAAtlasTrackerComponentAtlas {
+  atlasId: string;
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
@@ -44,6 +46,7 @@ export interface HCAAtlasTrackerNetworkCoordinator {
 
 export interface HCAAtlasTrackerSourceDataset {
   anatomicalEntity: string[];
+  atlasId: string;
   atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
@@ -60,6 +63,21 @@ export interface HCAAtlasTrackerSourceDataset {
   projectTitle: string;
   publicationUrl: string | null;
   species: string[];
+}
+
+export interface HCAAtlasTrackerDBAtlas {
+  created_at: Date;
+  id: string;
+  overview: HCAAtlasTrackerDBAtlasOverview;
+  source_datasets: [];
+  status: ATLAS_STATUS;
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBAtlasOverview {
+  network: NetworkKey;
+  short_name: string;
+  version: string;
 }
 
 export enum ATLAS_STATUS {

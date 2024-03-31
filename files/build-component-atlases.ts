@@ -18,6 +18,7 @@ export async function buildAtlasComponentAtlases(
     cxgDatasets.sort(sortCXGDatasets);
   }
   return cxgDatasets.map((cxgDataset) => ({
+    atlasId: atlasBase.atlasKey,
     atlasKey: atlasBase.atlasKey,
     atlasTitle: atlasBase.atlasTitle,
     bioNetwork: atlasBase.bioNetwork,

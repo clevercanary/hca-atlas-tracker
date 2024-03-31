@@ -1,5 +1,9 @@
 import { ValidationError } from "yup";
-import { ATLAS_STATUS } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  ATLAS_STATUS,
+  HCAAtlasTrackerDBAtlasOverview,
+  NetworkKey,
+} from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewAtlasData,
   newAtlasSchema,
@@ -24,9 +28,14 @@ export default handler(
         throw e;
       }
     }
+    const newOverview: HCAAtlasTrackerDBAtlasOverview = {
+      network: newInfo.network as NetworkKey,
+      short_name: newInfo.short_name,
+      version: newInfo.version,
+    };
     const queryResult = await query(
       "INSERT INTO hat.atlases (overview, source_datasets, status) VALUES ($1, $2, $3) RETURNING *",
-      [JSON.stringify(newInfo), "[]", ATLAS_STATUS.DRAFT]
+      [JSON.stringify(newOverview), "[]", ATLAS_STATUS.DRAFT]
     );
     res.status(201).json(queryResult.rows[0]);
   }
