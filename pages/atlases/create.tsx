@@ -94,7 +94,7 @@ const CreateAtlasPage = (): JSX.Element => {
         render={({ field }): JSX.Element => (
           <TextField
             {...field}
-            label="Short name"
+            label="Focus"
             error={!!errors.short_name}
             helperText={errors.short_name?.message}
           />

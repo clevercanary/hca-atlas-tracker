@@ -16,7 +16,7 @@ export const newAtlasSchema = object({
       NETWORK_REGEXP,
       `Network must be one of: ${NETWORK_KEYS.join(", ")}`
     ),
-  short_name: string().required("Short name is required"),
+  short_name: string().required("Focus is required"),
   version: string().required("Version is required"),
 }).strict(true);
 

@@ -57,8 +57,8 @@ export const atlasEntityConfig: EntityConfig = {
           component: C.AtlasCell,
           viewBuilder: V.buildAtlas,
         } as ComponentConfig<typeof C.AtlasCell, HCAAtlasTrackerAtlas>,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAME,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAME,
         width: { max: "2fr", min: "374px" },
       },
       {
@@ -111,7 +111,7 @@ export const atlasEntityConfig: EntityConfig = {
     ],
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,
-      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
+      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAME,
     },
   } as ListConfig<HCAAtlasTrackerAtlas>,
   listView: {
