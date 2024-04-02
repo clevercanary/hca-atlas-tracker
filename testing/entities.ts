@@ -13,9 +13,9 @@ export interface TestUser {
 }
 
 export interface TestAtlas {
+  focus: string;
   id: string;
   network: NetworkKey;
-  short_name: string;
   status: ATLAS_STATUS;
   version: string;
 }

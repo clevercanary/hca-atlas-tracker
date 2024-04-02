@@ -74,8 +74,8 @@ export interface HCAAtlasTrackerDBAtlas {
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
+  focus: string;
   network: NetworkKey;
-  short_name: string;
   version: string;
 }
 

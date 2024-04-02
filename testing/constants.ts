@@ -22,17 +22,17 @@ export const INITIAL_TEST_USERS = [
 export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT, USER_NEW];
 
 export const ATLAS_DRAFT: TestAtlas = {
+  focus: "test-draft",
   id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
   network: "eye",
-  short_name: "test-draft",
   status: ATLAS_STATUS.DRAFT,
   version: "1.2",
 };
 
 export const ATLAS_PUBLIC: TestAtlas = {
+  focus: "test-public",
   id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
   network: "lung",
-  short_name: "test-public",
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
 };
