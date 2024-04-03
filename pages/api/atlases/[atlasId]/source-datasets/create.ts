@@ -24,7 +24,7 @@ import {
  */
 export default handler(
   method("POST"),
-  role("CONTENT_ADMIN"),
+  role("CONTENT_ADMIN"), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     let newData: NewSourceDatasetData;
