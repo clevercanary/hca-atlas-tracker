@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool } from "../app/utils/api-handler";
-import atlasHandler from "../pages/api/atlases/[id]";
+import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
