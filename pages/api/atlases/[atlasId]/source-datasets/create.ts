@@ -60,6 +60,7 @@ export default handler(
         )
       ).rows[0]?.source_datasets;
       if (!atlasDatasets) {
+        await client.query("ROLLBACK");
         res.status(404).end();
         return;
       }
