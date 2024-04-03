@@ -129,6 +129,10 @@ export function query(
   return pool.query(queryTextOrConfig, values);
 }
 
+export function getPoolClient(): Promise<pg.PoolClient> {
+  return pool.connect();
+}
+
 export function endPgPool(): void {
   pool.end();
 }

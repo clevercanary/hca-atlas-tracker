@@ -23,6 +23,15 @@ export const newAtlasSchema = object({
 export type NewAtlasData = InferType<typeof newAtlasSchema>;
 
 /**
+ * Schema for data used to create a new source dataset.
+ */
+export const newSourceDatasetSchema = object({
+  doi: string().required("DOI is required"),
+}).strict(true);
+
+export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
+
+/**
  * Schema for data used to create a new user.
  */
 export const newUserSchema = object({
