@@ -1,0 +1,54 @@
+{
+  "0": {
+    "atlasKey": "lung-v1-0",
+    "atlasTitle": "The integrated Human Lung Cell Atlas (HLCA) v1.0",
+    "bioNetwork": "lung",
+    "cellCount": 2282447,
+    "componentAtlasName": "An integrated cell atlas of the human lung in health and disease (full)",
+    "cxgCollectionId": "6f6d381a-7701-4781-935c-db10d30de293",
+    "cxgDatasetId": "9f222629-9e39-47d0-b83f-e08d610c7479",
+    "cxgExploreUrl": "https://cellxgene.cziscience.com/e/9f222629-9e39-47d0-b83f-e08d610c7479.cxg/",
+    "disease": [
+      "chronic obstructive pulmonary disease",
+      "chronic rhinitis",
+      "COVID-19",
+      "cystic fibrosis",
+      "hypersensitivity pneumonitis",
+      "interstitial lung disease",
+      "lung adenocarcinoma",
+      "lung large cell carcinoma",
+      "lymphangioleiomyomatosis",
+      "non-specific interstitial pneumonia",
+      "normal",
+      "pleomorphic carcinoma",
+      "pneumonia",
+      "pulmonary fibrosis",
+      "pulmonary sarcoidosis",
+      "squamous cell lung carcinoma"
+    ],
+    "tissue": [
+      "lung",
+      "lung parenchyma",
+      "nose",
+      "respiratory airway"
+    ]
+  },
+  "1": {
+    "atlasKey": "lung-v1-0",
+    "atlasTitle": "The integrated Human Lung Cell Atlas (HLCA) v1.0",
+    "bioNetwork": "lung",
+    "cellCount": 584944,
+    "componentAtlasName": "An integrated cell atlas of the human lung in health and disease (core)",
+    "cxgCollectionId": "6f6d381a-7701-4781-935c-db10d30de293",
+    "cxgDatasetId": "066943a2-fdac-4b29-b348-40cede398e4e",
+    "cxgExploreUrl": "https://cellxgene.cziscience.com/e/066943a2-fdac-4b29-b348-40cede398e4e.cxg/",
+    "disease": [
+      "normal"
+    ],
+    "tissue": [
+      "lung parenchyma",
+      "nose",
+      "respiratory airway"
+    ]
+  }
+}

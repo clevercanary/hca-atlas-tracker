@@ -15,8 +15,8 @@ export default async function setup(): Promise<void> {
   }
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview: HCAAtlasTrackerDBAtlasOverview = {
+      focus: atlas.focus,
       network: atlas.network,
-      short_name: atlas.short_name,
       version: atlas.version,
     };
     await pool.query(

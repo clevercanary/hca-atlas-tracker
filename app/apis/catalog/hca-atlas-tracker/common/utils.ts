@@ -9,13 +9,14 @@ export function dbAtlasToListAtlas(
 ): HCAAtlasTrackerAtlas {
   return {
     atlasId: dbAtlas.id,
-    atlasKey: dbAtlas.overview.short_name,
+    atlasName: `${dbAtlas.overview.focus} ${dbAtlas.overview.version}`,
     atlasTitle: "",
     bioNetwork: dbAtlas.overview.network,
     codeUrl: "",
     componentAtlases: [],
     cxgCollectionId: null,
     description: null,
+    focus: dbAtlas.overview.focus,
     integrationLead: "",
     integrationLeadEmail: "",
     networkCoordinator: {

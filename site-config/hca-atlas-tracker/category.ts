@@ -1,5 +1,6 @@
 export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
   ANATOMICAL_ENTITY: "anatomicalEntity",
+  ATLAS_NAME: "atlasName",
   ATLAS_TITLE: "atlasTitle",
   BIONETWORK: "bioNetwork",
   CAP_URL: "capUrl",
@@ -25,6 +26,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
 
 export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   ANATOMICAL_ENTITY: "Anatomical Entity",
+  ATLAS_NAME: "Name",
   ATLAS_TITLE: "Atlas",
   BIONETWORK: "Biological Network",
   CAP_URL: "CAP Link",

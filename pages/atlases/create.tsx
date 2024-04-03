@@ -88,15 +88,15 @@ const CreateAtlasPage = (): JSX.Element => {
         )}
       />
       <Controller
-        name="short_name"
+        name="focus"
         control={control}
         defaultValue=""
         render={({ field }): JSX.Element => (
           <TextField
             {...field}
-            label="Short name"
-            error={!!errors.short_name}
-            helperText={errors.short_name?.message}
+            label="Focus"
+            error={!!errors.focus}
+            helperText={errors.focus?.message}
           />
         )}
       />

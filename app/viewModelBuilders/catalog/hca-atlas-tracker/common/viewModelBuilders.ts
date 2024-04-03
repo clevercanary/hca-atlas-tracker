@@ -41,17 +41,16 @@ export const buildAnatomicalEntity = (
 };
 
 /**
- * Build props for the atlas title and publication cell component.
+ * Build props for the atlas name cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
  */
-export const buildAtlas = (
+export const buildAtlasName = (
   atlas: HCAAtlasTrackerAtlas
-): React.ComponentProps<typeof C.AtlasCell> => {
+): React.ComponentProps<typeof C.Link> => {
   return {
-    label: atlas.atlasTitle,
-    subLabel: atlas.publication,
-    url: `/atlases/${encodeURIComponent(atlas.atlasId)}`,
+    label: atlas.atlasName,
+    url: `/atlases/edit/${encodeURIComponent(atlas.atlasId)}`,
   };
 };
 

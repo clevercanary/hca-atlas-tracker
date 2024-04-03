@@ -8,13 +8,14 @@ export type HCAAtlasTrackerEntity =
 
 export interface HCAAtlasTrackerAtlas {
   atlasId: string;
-  atlasKey: string;
+  atlasName: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
   codeUrl: string;
   componentAtlases: HCAAtlasTrackerComponentAtlas[];
   cxgCollectionId: string | null;
   description: MDXRemoteSerializeResult | null;
+  focus: string;
   integrationLead: string;
   integrationLeadEmail: string;
   networkCoordinator: HCAAtlasTrackerNetworkCoordinator;
@@ -27,7 +28,6 @@ export interface HCAAtlasTrackerAtlas {
 
 export interface HCAAtlasTrackerComponentAtlas {
   atlasId: string;
-  atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
   cellCount: number;
@@ -47,7 +47,6 @@ export interface HCAAtlasTrackerNetworkCoordinator {
 export interface HCAAtlasTrackerSourceDataset {
   anatomicalEntity: string[];
   atlasId: string;
-  atlasKey: string;
   atlasTitle: string;
   bioNetwork: NetworkKey;
   capUrl: string | null;
@@ -75,8 +74,8 @@ export interface HCAAtlasTrackerDBAtlas {
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
+  focus: string;
   network: NetworkKey;
-  short_name: string;
   version: string;
 }
 
