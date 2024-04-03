@@ -1,6 +1,5 @@
 import { ValidationError } from "yup";
 import {
-  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
@@ -13,6 +12,7 @@ import {
   getPoolClient,
   handler,
   method,
+  query,
   role,
 } from "../../../../../app/utils/api-handler";
 import {
@@ -28,6 +28,16 @@ export default handler(
   role("CONTENT_ADMIN"), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
+
+    const atlasExists = (
+      await query("SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE id=$1)", [
+        atlasId,
+      ])
+    ).rows[0].exists;
+    if (!atlasExists) {
+      res.status(404).end();
+      return;
+    }
 
     let newData: NewSourceDatasetData;
     try {
@@ -60,23 +70,10 @@ export default handler(
           [doi, JSON.stringify(newInfo)]
         )
       ).rows[0];
-      // Get the atlas's existing list of source datasets
-      const atlasDatasets = (
-        await client.query<HCAAtlasTrackerDBAtlas>(
-          "SELECT source_datasets FROM hat.atlases WHERE id=$1",
-          [atlasId]
-        )
-      ).rows[0]?.source_datasets;
-      if (!atlasDatasets) {
-        await client.query("ROLLBACK");
-        res.status(404).end();
-        return;
-      }
       // Update the atlas's list of source datasets
-      const newAtlasDatasets = atlasDatasets.concat([newDataset.id]);
       await client.query(
-        "UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2",
-        [JSON.stringify(newAtlasDatasets), atlasId]
+        "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
+        [JSON.stringify([newDataset.id]), atlasId]
       );
       await client.query("COMMIT");
       res.status(201).json(newDataset);
