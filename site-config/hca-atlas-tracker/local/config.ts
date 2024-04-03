@@ -109,7 +109,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
       url: browserUrl,
     },
     entities: [atlasEntityConfig],
-    explorerTitle: "Manage Atlases",
+    explorerTitle: C.Hero(),
     layout: {
       footer: {
         Branding: C.HCABranding({
