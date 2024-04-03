@@ -5,9 +5,11 @@ const actualPublications = jest.requireActual("../publications");
 
 const publications = {
   ...actualPublications,
-  async getPublicationInfo(doi: string): Promise<PublicationInfo> {
+  async getCrossrefPublicationInfo(
+    doi: string
+  ): Promise<PublicationInfo | null> {
     const publication = TEST_DOI_PUBLICATIONS.get(doi);
-    if (!publication) throw new Error("Error getting publication info");
+    if (!publication) return null;
     return publication;
   },
 };

@@ -19,14 +19,18 @@ export function normalizeDoi(doi: string): string {
   }
 }
 
-export async function getPublicationInfo(
+export async function getCrossrefPublicationInfo(
   doi: string
-): Promise<PublicationInfo> {
-  const work = (
-    await (
-      await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`)
-    ).json()
-  ).message as CrossrefWork;
+): Promise<PublicationInfo | null> {
+  const crossrefResponse = await fetch(
+    `https://api.crossref.org/works/${encodeURIComponent(doi)}`
+  );
+  if (crossrefResponse.status === 404) return null;
+  else if (crossrefResponse.status !== 200)
+    throw new Error(
+      `Received ${crossrefResponse.status} response from Crossref`
+    );
+  const work = (await crossrefResponse.json()).message as CrossrefWork;
   return {
     authors: work.author.map((author) =>
       "name" in author

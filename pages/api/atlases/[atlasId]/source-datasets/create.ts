@@ -3,6 +3,7 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
+  PUBLICATION_STATUS,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewSourceDatasetData,
@@ -15,7 +16,7 @@ import {
   role,
 } from "../../../../../app/utils/api-handler";
 import {
-  getPublicationInfo,
+  getCrossrefPublicationInfo,
   normalizeDoi,
 } from "../../../../../app/utils/publications";
 
@@ -27,6 +28,7 @@ export default handler(
   role("CONTENT_ADMIN"), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
+
     let newData: NewSourceDatasetData;
     try {
       newData = await newSourceDatasetSchema.validate(req.body);
@@ -38,10 +40,16 @@ export default handler(
         throw e;
       }
     }
+
     const doi = normalizeDoi(newData.doi);
+    const publication = await getCrossrefPublicationInfo(doi);
     const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
-      publication: await getPublicationInfo(doi),
+      publication,
+      publicationStatus: publication
+        ? PUBLICATION_STATUS.OK
+        : PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF,
     };
+
     const client = await getPoolClient();
     try {
       await client.query("BEGIN");
