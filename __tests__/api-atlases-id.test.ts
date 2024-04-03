@@ -27,16 +27,16 @@ describe("/api/atlases/[id]", () => {
   });
 
   it("returns public atlas when requested by logged out user", async () => {
-    const atlas = (
-      await doAtlasRequest(ATLAS_PUBLIC.id)
-    )._getJSONData() as HCAAtlasTrackerAtlas;
+    const res = await doAtlasRequest(ATLAS_PUBLIC.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expect(atlas.focus).toEqual(ATLAS_PUBLIC.focus);
   });
 
   it("returns public atlas when requested by logged in user without CONTENT_ADMIN role", async () => {
-    const atlas = (
-      await doAtlasRequest(ATLAS_PUBLIC.id, USER_NORMAL)
-    )._getJSONData() as HCAAtlasTrackerAtlas;
+    const res = await doAtlasRequest(ATLAS_PUBLIC.id, USER_NORMAL);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expect(atlas.focus).toEqual(ATLAS_PUBLIC.focus);
   });
 
@@ -53,22 +53,22 @@ describe("/api/atlases/[id]", () => {
   });
 
   it("returns draft atlas when requested by logged in user with CONTENT_ADMIN role", async () => {
-    const atlas = (
-      await doAtlasRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN)
-    )._getJSONData() as HCAAtlasTrackerAtlas;
+    const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expect(atlas.focus).toEqual(ATLAS_DRAFT.focus);
   });
 });
 
 async function doAtlasRequest(
-  id: string,
+  atlasId: string,
   user?: TestUser,
   method: "GET" | "POST" = "GET"
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: { id },
+    query: { atlasId },
   });
   await atlasHandler(req, res);
   return res;

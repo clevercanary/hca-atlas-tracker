@@ -1,4 +1,7 @@
-import { ATLAS_STATUS } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  ATLAS_STATUS,
+  PublicationInfo,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TestAtlas } from "./entities";
 import { makeTestUser } from "./utils";
 
@@ -25,6 +28,7 @@ export const ATLAS_DRAFT: TestAtlas = {
   focus: "test-draft",
   id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
   network: "eye",
+  sourceDatasets: [],
   status: ATLAS_STATUS.DRAFT,
   version: "1.2",
 };
@@ -33,6 +37,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   focus: "test-public",
   id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
   network: "lung",
+  sourceDatasets: [],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
 };
@@ -43,3 +48,23 @@ export const ATLAS_NONEXISTENT = {
 
 // Atlases initialized in the database before tests
 export const INITIAL_TEST_ATLASES = [ATLAS_DRAFT, ATLAS_PUBLIC];
+
+export const DOI_NORMAL = "test/test";
+
+export const DOI_NONEXISTENT = "test/nonexistent";
+
+export const PUBLICATION_NORMAL: PublicationInfo = {
+  authors: [
+    {
+      name: "Foo",
+      personalName: null,
+    },
+  ],
+  journal: "Bar",
+  publicationDate: "2024-01-01",
+  title: "A Test",
+};
+
+export const TEST_DOI_PUBLICATIONS = new Map([
+  [DOI_NORMAL, PUBLICATION_NORMAL],
+]);

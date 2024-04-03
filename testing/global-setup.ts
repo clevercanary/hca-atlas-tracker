@@ -21,7 +21,12 @@ export default async function setup(): Promise<void> {
     };
     await pool.query(
       "INSERT INTO hat.atlases (id, overview, source_datasets, status) VALUES ($1, $2, $3, $4)",
-      [atlas.id, JSON.stringify(overview), "[]", atlas.status]
+      [
+        atlas.id,
+        JSON.stringify(overview),
+        JSON.stringify(atlas.sourceDatasets || []),
+        atlas.status,
+      ]
     );
   }
   pool.end();
