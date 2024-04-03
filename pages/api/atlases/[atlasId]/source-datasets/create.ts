@@ -48,7 +48,7 @@ export default handler(
       // Add the new source dataset
       const newDataset = (
         await client.query<HCAAtlasTrackerDBSourceDataset>(
-          "INSERT INTO hat.atlases (doi, sd_info) VALUES ($1, $2) RETURNING *",
+          "INSERT INTO hat.source_datasets (doi, sd_info) VALUES ($1, $2) RETURNING *",
           [doi, JSON.stringify(newInfo)]
         )
       ).rows[0];
