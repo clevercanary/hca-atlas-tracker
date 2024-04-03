@@ -21,7 +21,7 @@ export function normalizeDoi(doi: string): string {
 
 export async function getPublicationInfo(
   doi: string
-): Promise<PublicationInfo | null> {
+): Promise<PublicationInfo> {
   const work = (
     await (
       await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`)
