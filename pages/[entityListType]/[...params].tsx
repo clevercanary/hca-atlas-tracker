@@ -127,6 +127,7 @@ GetStaticPropsContext) => {
         (params as PageUrl).params[PARAMS_INDEX_UUID],
         path,
         undefined,
+        undefined,
         undefined
       );
     }

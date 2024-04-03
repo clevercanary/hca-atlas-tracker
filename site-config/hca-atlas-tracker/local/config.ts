@@ -1,6 +1,5 @@
 import { ELEMENT_ALIGNMENT } from "@clevercanary/data-explorer-ui/lib/common/entities";
 import { ANCHOR_TARGET } from "@clevercanary/data-explorer-ui/lib/components/Links/common/entities";
-import { SiteConfig } from "@clevercanary/data-explorer-ui/lib/config/entities";
 import { tabletUp } from "@clevercanary/data-explorer-ui/lib/theme/common/breakpoints";
 import {
   TEXT_BODY_LARGE_500,
@@ -10,6 +9,7 @@ import {
   TEXT_HEADING_XLARGE,
 } from "@clevercanary/data-explorer-ui/lib/theme/common/typography";
 import * as C from "../../../app/components/index";
+import { SiteConfig } from "../../common/entities";
 import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
@@ -103,6 +103,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
         ],
       },
     ],
+    contentDir: "hca-atlas-tracker",
     dataSource: {
       entityURL: LOCALHOST,
       url: browserUrl,
@@ -132,9 +133,8 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
             label: "Help & Documentation",
             menuItems: [
               {
-                label: C.LabelIconMenuItem({ label: "Guides" }),
-                target: ANCHOR_TARGET.BLANK,
-                url: `${portalUrl}/guides`,
+                label: "Guides",
+                url: "/guides",
               },
               {
                 label: C.LabelIconMenuItem({ label: "Privacy" }),
@@ -147,6 +147,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
         ],
       },
     },
+    portalURL: portalUrl,
     redirectRootToPath: HOME_PAGE_PATH,
     themeOptions: {
       palette: {
