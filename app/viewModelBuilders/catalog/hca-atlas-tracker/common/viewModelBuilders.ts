@@ -50,7 +50,7 @@ export const buildAtlasName = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: atlas.atlasName,
-    url: `/atlases/edit/${encodeURIComponent(atlas.atlasId)}`,
+    url: `/atlases/${encodeURIComponent(atlas.atlasId)}/edit`,
   };
 };
 
