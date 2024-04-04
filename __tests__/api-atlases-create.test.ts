@@ -6,7 +6,7 @@ import createHandler from "../pages/api/atlases/create";
 import { USER_CONTENT_ADMIN, USER_NORMAL } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
-jest.mock("../app/utils/pg-connect-config");
+jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
   focus: "test",

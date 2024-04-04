@@ -1,8 +1,6 @@
 import { MigrationBuilder } from "node-pg-migrate";
 
 export const up = (pgm: MigrationBuilder): void => {
-  pgm.createSchema("hat", { ifNotExists: true });
-
   pgm.createTable(
     { name: "users", schema: "hat" },
     {

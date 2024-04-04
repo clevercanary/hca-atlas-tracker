@@ -40,7 +40,7 @@ export function getPoolConfig(): pg.PoolConfig {
       password: JSON.parse(process.env.PGPASSWORD || "")["PGPASSWORD"] || "",
       port: 5432,
       ssl: true,
-      user: process.env.PGUSER || "",
+      user: "hat_app",
     };
   } else {
     // Development config for local database

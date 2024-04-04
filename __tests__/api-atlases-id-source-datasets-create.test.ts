@@ -14,7 +14,7 @@ import {
 } from "../testing/constants";
 import { TestAtlas, TestUser } from "../testing/entities";
 
-jest.mock("../app/utils/pg-connect-config");
+jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/publications");
 
 const NEW_DATASET_DATA: NewSourceDatasetData = {
