@@ -1,6 +1,6 @@
 import migrate from "node-pg-migrate";
 import pg from "pg";
-import { getPoolConfig } from "../app/utils/__mocks__/pg-connect-config";
+import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 
 const { Pool } = pg;
 

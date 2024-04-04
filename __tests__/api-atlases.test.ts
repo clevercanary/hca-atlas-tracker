@@ -9,7 +9,7 @@ import {
 import { endPgPool } from "../app/utils/api-handler";
 import atlasesHandler from "../pages/api/atlases";
 
-jest.mock("../app/utils/pg-connect-config");
+jest.mock("../app/utils/pg-app-connect-config");
 
 type Atlases = Record<number, HCAAtlasTrackerAtlas>;
 

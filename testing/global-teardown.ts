@@ -1,5 +1,5 @@
 import pg from "pg";
-import { getPoolConfig } from "../app/utils/__mocks__/pg-connect-config";
+import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import { INITIAL_TEST_ATLASES, INITIAL_TEST_USERS } from "./constants";
 
 const { Pool } = pg;
