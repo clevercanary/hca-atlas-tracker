@@ -1,7 +1,7 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import pg from "pg";
-import { getPoolConfig } from "./pg-connect-config";
+import { getPoolConfig } from "./pg-app-connect-config";
 
 const { Pool } = pg;
 

@@ -10,12 +10,15 @@ const runMigrations = async (): Promise<void> => {
   const pool = new Pool(poolConfig);
   const client = await pool.connect();
 
+  await client.query("CREATE SCHEMA IF NOT EXISTS hat");
+
   await migrate({
     count: Infinity,
     dbClient: client,
     dir: "migrations",
     direction: "up",
     migrationsTable: "pgmigrations",
+    schema: "hat",
   });
 
   client.release();
