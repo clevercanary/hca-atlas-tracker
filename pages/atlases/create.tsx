@@ -54,7 +54,7 @@ const CreateAtlasPage = (): JSX.Element => {
         );
       }
       const { id } = await res.json();
-      router.push(`/atlases/edit/${id}`);
+      router.push(`/atlases/${id}/edit`);
     },
     [token, setSubmitDisabled, router]
   );

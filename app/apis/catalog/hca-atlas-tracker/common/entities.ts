@@ -68,7 +68,7 @@ export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
-  source_datasets: [];
+  source_datasets: string[];
   status: ATLAS_STATUS;
   updated_at: Date;
 }
@@ -77,6 +77,23 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   focus: string;
   network: NetworkKey;
   version: string;
+}
+
+export interface HCAAtlasTrackerDBSourceDataset {
+  created_at: Date;
+  id: string;
+  sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBSourceDatasetInfo {
+  publication: PublicationInfo | null;
+  publicationStatus: PUBLICATION_STATUS;
+}
+
+export enum PUBLICATION_STATUS {
+  DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",
+  OK = "OK",
 }
 
 export enum ATLAS_STATUS {
@@ -91,3 +108,15 @@ export interface Network {
 }
 
 export type NetworkKey = (typeof NETWORK_KEYS)[number];
+
+export interface PublicationInfo {
+  authors: Author[];
+  journal: string | null;
+  publicationDate: string;
+  title: string;
+}
+
+export interface Author {
+  name: string;
+  personalName: string | null;
+}

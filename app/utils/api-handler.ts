@@ -122,11 +122,15 @@ async function getAccessTokenInfo(
   return tokenInfo;
 }
 
-export function query(
+export function query<T extends pg.QueryResultRow>(
   queryTextOrConfig: string | pg.QueryConfig<string[]>,
   values?: string[] | undefined
 ): Promise<pg.QueryResult> {
-  return pool.query(queryTextOrConfig, values);
+  return pool.query<T>(queryTextOrConfig, values);
+}
+
+export function getPoolClient(): Promise<pg.PoolClient> {
+  return pool.connect();
 }
 
 export function endPgPool(): void {
