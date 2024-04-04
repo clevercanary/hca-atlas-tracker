@@ -5,6 +5,10 @@ CREATE SCHEMA IF NOT EXISTS hat AUTHORIZATION postgres;
 CREATE ROLE hat_migrate WITH LOGIN PASSWORD 'yourpassword';
 CREATE ROLE hat_app WITH LOGIN PASSWORD 'yourpassword';
 
+-- Grant hat_migrate the ability to create schemas in the hcaatlastracker database
+GRANT CREATE ON DATABASE hcaatlastracker TO hat_migrate;
+
+
 -- Step 2: Grant Permissions to Use the 'hat' Schema
 GRANT USAGE ON SCHEMA hat TO hat_migrate;
 GRANT USAGE ON SCHEMA hat TO hat_app;
