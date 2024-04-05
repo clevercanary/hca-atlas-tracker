@@ -1,17 +1,20 @@
 import { ButtonPrimary } from "@clevercanary/data-explorer-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
+import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
+import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
 import Router from "next/router";
 import {
   NewAtlasData,
   newAtlasSchema,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../common/entities";
-import { ROUTE_ATLASES } from "../../../../constants/routes";
+import { ROUTE_ATLASES, ROUTE_LOGIN } from "../../../../constants/routes";
 import { useForm } from "../../../../hooks/useForm/useForm";
 import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
+import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
@@ -19,13 +22,14 @@ import { FormActions } from "../TrackerForm/trackerForm.styles";
 const REQUEST_URL = "/api/atlases/create";
 
 export const AddAtlas = (): JSX.Element => {
+  const { isAuthenticated } = useAuthentication();
   const form = useForm<NewAtlasData>(
     newAtlasSchema,
     REQUEST_URL,
     METHOD.POST,
     onSuccess
   );
-  return (
+  return isAuthenticated ? (
     <TrackerForm onSubmit={form.onSubmit}>
       <Divider />
       <GeneralInfo {...form} />
@@ -39,6 +43,10 @@ export const AddAtlas = (): JSX.Element => {
         </ButtonPrimary>
       </FormActions>
     </TrackerForm>
+  ) : (
+    <AuthenticationRequired>
+      <Link label={"Sign in"} url={ROUTE_LOGIN} /> to add a new atlas.
+    </AuthenticationRequired>
   );
 };
 
