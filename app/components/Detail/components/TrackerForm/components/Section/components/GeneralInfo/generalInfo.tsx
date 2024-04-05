@@ -12,11 +12,10 @@ import {
   Section,
   SectionCard,
   SectionHero,
-  SectionText,
   SectionTitle,
 } from "../../section.styles";
 
-const FIELD_NAME_ATLAS_NAME = "focus"; //atlasName
+const FIELD_NAME_ATLAS_NAME = "focus"; // TODO convert focus to shortName.
 const FIELD_NAME_NETWORK = "network";
 const FIELD_NAME_VERSION = "version";
 
@@ -34,10 +33,6 @@ export const GeneralInfo = ({
     <Section>
       <SectionHero>
         <SectionTitle>General Info</SectionTitle>
-        <SectionText>
-          Additional info that may come handy. About specific fields or some
-          standards of how to fill the fields.
-        </SectionText>
       </SectionHero>
       <SectionCard>
         <Controller
@@ -51,7 +46,7 @@ export const GeneralInfo = ({
                 error={Boolean(errors[FIELD_NAME_ATLAS_NAME])}
                 helperText={errors[FIELD_NAME_ATLAS_NAME]?.message as string}
                 isDirty={Boolean(field.value)}
-                label="Atlas Name"
+                label="Short Name"
                 placeholder="e.g. Cortex"
                 readOnly={false}
               />
@@ -69,6 +64,7 @@ export const GeneralInfo = ({
               helperText={errors[FIELD_NAME_VERSION]?.message as string}
               isDirty={Boolean(field.value)}
               label="Version"
+              placeholder="e.g. 1.0"
               readOnly={false}
             />
           )}
