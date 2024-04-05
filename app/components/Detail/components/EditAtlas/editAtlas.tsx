@@ -1,6 +1,5 @@
 import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
-import { Button } from "@mui/material";
 import { useCallback } from "react";
 import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
@@ -12,6 +11,7 @@ import {
   onDeleteSuccess as onSuccess,
   REQUEST_URL,
 } from "../../../../views/EditAtlasView/hooks/useEditAtlasForm";
+import { ButtonOutlineError } from "../../../common/Button/components/ButtonOutlineError/buttonOutlineError";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/GeneralInfo/generalInfo";
@@ -42,14 +42,12 @@ export const EditAtlas = ({
       <GeneralInfo {...formMethod} />
       <Divider />
       <FormActions>
-        <Button
-          color="error"
+        <ButtonOutlineError
           disabled={disabled}
           onClick={handleSubmit(onFormDelete)}
-          variant="outlined"
         >
           Delete
-        </Button>
+        </ButtonOutlineError>
       </FormActions>
     </TrackerForm>
   ) : (
