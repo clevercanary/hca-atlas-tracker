@@ -1,59 +1,60 @@
-import { ButtonPrimary } from "@clevercanary/data-explorer-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import { Button } from "@mui/material";
 import { useCallback } from "react";
+import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "../../../../common/entities";
+import { getRequestURL } from "../../../../common/utils";
 import { ROUTE } from "../../../../constants/routes";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import {
-  onSuccess,
-  REQUEST_METHOD,
+  onDeleteSuccess as onSuccess,
   REQUEST_URL,
-} from "../../../../views/AddNewAtlasView/hooks/useAddAtlasForm";
-import {
-  ButtonLink,
-  BUTTON_COLOR,
-} from "../../../common/Button/components/ButtonLink/buttonLink";
+} from "../../../../views/EditAtlasView/hooks/useEditAtlasForm";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
 
-interface AddAtlasProps {
+interface EditAtlasProps {
+  atlasId: AtlasId;
   formMethod: FormMethod<NewAtlasData>;
 }
 
-export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
+export const EditAtlas = ({
+  atlasId,
+  formMethod,
+}: EditAtlasProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-  const { disabled, handleSubmit, onSubmit } = formMethod;
+  const { disabled, handleSubmit, onDelete } = formMethod;
 
-  const onFormSubmit = useCallback(
-    (payload: NewAtlasData): void => {
-      onSubmit(REQUEST_URL, REQUEST_METHOD, payload, {
-        onSuccess,
-      });
-    },
-    [onSubmit]
-  );
+  const onFormDelete = useCallback(() => {
+    onDelete(getRequestURL(REQUEST_URL, atlasId), METHOD.DELETE, {
+      onSuccess,
+    });
+  }, [atlasId, onDelete]);
 
   return isAuthenticated ? (
-    <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
+    <TrackerForm>
       <Divider />
       <GeneralInfo {...formMethod} />
       <Divider />
       <FormActions>
-        <ButtonLink color={BUTTON_COLOR.SECONDARY} href={ROUTE.ATLASES}>
-          Discard
-        </ButtonLink>
-        <ButtonPrimary disabled={disabled} type="submit">
-          Save
-        </ButtonPrimary>
+        <Button
+          color="error"
+          disabled={disabled}
+          onClick={handleSubmit(onFormDelete)}
+          variant="outlined"
+        >
+          Delete
+        </Button>
       </FormActions>
     </TrackerForm>
   ) : (
     <AuthenticationRequired>
-      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to add a new atlas.
+      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to edit an atlas.
     </AuthenticationRequired>
   );
 };
