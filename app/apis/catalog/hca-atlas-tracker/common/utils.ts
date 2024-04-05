@@ -1,4 +1,9 @@
-import { HCAAtlasTrackerAtlas, HCAAtlasTrackerDBAtlas } from "./entities";
+import { NETWORK_KEYS } from "./constants";
+import {
+  HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerDBAtlas,
+  NetworkKey,
+} from "./entities";
 
 export function getAtlasId(atlas: HCAAtlasTrackerAtlas): string {
   return atlas.atlasId;
@@ -29,4 +34,15 @@ export function dbAtlasToListAtlas(
     status: dbAtlas.status,
     version: dbAtlas.overview.version,
   };
+}
+
+/**
+ * Returns true if the given key is a valid network key.
+ * @param key - Key.
+ * @returns true if the key is a valid network key.
+ */
+export function isNetworkKey(key: unknown): key is NetworkKey {
+  return (
+    typeof key === "string" && (NETWORK_KEYS as readonly string[]).includes(key)
+  );
 }

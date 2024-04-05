@@ -20,5 +20,6 @@ export { Link as OverviewKeyValuePairsValueElLink } from "./Detail/components/Ov
 export { Section as OverviewSection } from "./Detail/components/Overview/components/Section/section";
 export { AtlasCell } from "./Index/components/AtlasCell/atlasCell";
 export { BioNetworkCell } from "./Index/components/BioNetworkCell/bioNetworkCell";
+export { Hero } from "./Index/components/Hero/hero";
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";
