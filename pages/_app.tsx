@@ -6,7 +6,7 @@ import { Head } from "@clevercanary/data-explorer-ui/lib/components/Head/head";
 import { AppLayout } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/AppLayout/appLayout.styles";
 import { Floating } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Floating/floating";
 import { Footer } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Footer/footer";
-import { Header } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Header/header";
+import { Header as DXHeader } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Header/header";
 import { Main as DXMain } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Main/main";
 import { AuthProvider } from "@clevercanary/data-explorer-ui/lib/providers/authentication";
 import { ConfigProvider as DXConfigProvider } from "@clevercanary/data-explorer-ui/lib/providers/config";
@@ -56,7 +56,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
             <AuthProvider sessionTimeout={SESSION_TIMEOUT}>
               <LayoutStateProvider>
                 <AppLayout>
-                  <Header {...header} />
+                  <DXHeader {...header} />
                   <ExploreStateProvider entityListType={entityListType}>
                     <FileManifestStateProvider>
                       <Main>

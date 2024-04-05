@@ -116,7 +116,6 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
           orgURL: ORG_URL,
           portalURL: portalUrl,
         }),
-        navLinks: [],
       },
       header: {
         Logo: C.Logo({
