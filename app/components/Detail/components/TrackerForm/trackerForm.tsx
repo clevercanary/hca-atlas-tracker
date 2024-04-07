@@ -3,7 +3,7 @@ import { Form } from "./trackerForm.styles";
 
 export interface TrackerFormProps {
   children: ReactNode | ReactNode[];
-  onSubmit: () => void;
+  onSubmit?: () => void;
 }
 
 export const TrackerForm = ({

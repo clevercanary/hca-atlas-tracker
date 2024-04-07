@@ -1,66 +1,85 @@
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCallback, useState } from "react";
-import {
-  FieldValues,
-  useForm as useReactHookForm,
-  UseFormReturn,
-} from "react-hook-form";
-import { InferType, ObjectSchema } from "yup";
+import { FieldValues, useForm as useReactHookForm } from "react-hook-form";
+import { ObjectSchema } from "yup";
 import { METHOD } from "../../common/entities";
-import { getHeaders } from "./common/utils";
+import {
+  isFetchStatusCreated,
+  isFetchStatusNoContent,
+  isFetchStatusOk,
+} from "../../common/utils";
+import {
+  CustomUseFormReturn,
+  OnDeleteFn,
+  OnSubmitFn,
+  OnSubmitOptions,
+  YupValidatedFormValues,
+} from "./common/entities";
+import { fetchDelete, fetchSubmit, throwError } from "./common/utils";
 
-interface UseForm<T extends FieldValues>
-  extends Pick<
-    UseFormReturn<InferType<ObjectSchema<T>>>,
-    "control" | "formState"
-  > {
+export interface UseForm<T extends FieldValues> extends CustomUseFormReturn<T> {
   disabled: boolean;
-  onSubmit: () => Promise<void>;
+  onDelete: OnDeleteFn;
+  onSubmit: OnSubmitFn<T>;
 }
 
 export const useForm = <T extends FieldValues>(
   schema: ObjectSchema<T>,
-  requestURL: string,
-  requestMethod: METHOD,
-  onSuccess?: (id: string) => void
+  values?: T
 ): UseForm<T> => {
   const { token } = useAuthentication();
-  const formMethods = useReactHookForm<InferType<ObjectSchema<T>>>({
+  const formMethod = useReactHookForm<YupValidatedFormValues<T>>({
     resolver: yupResolver(schema),
+    values: schema.cast(values),
   });
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
 
-  const onSubmit = useCallback(
-    async (data: InferType<ObjectSchema<T>>): Promise<void> => {
+  const onDelete = useCallback(
+    async (
+      requestURL: string,
+      requestMethod: METHOD,
+      options?: OnSubmitOptions
+    ): Promise<void> => {
       setSubmitDisabled(true);
-      const res = await fetch(requestURL, {
-        body: JSON.stringify(data),
-        headers: getHeaders(token),
-        method: requestMethod,
-      });
-      if (res.status !== 201) {
+      const res = await fetchDelete(requestURL, requestMethod, token);
+      if (isFetchStatusNoContent(res.status)) {
+        const { id } = await res.json();
+        options?.onSuccess?.(id);
+      } else {
         setSubmitDisabled(false);
-        // TODO more useful error handling
-        throw new Error(
-          await res
-            .json()
-            .then(({ message }) => message)
-            .catch(() => `Received ${res.status} response`)
-        );
+        await throwError(res); // TODO more useful error handling
       }
-      const { id } = await res.json();
-      onSuccess?.(id);
     },
-    [token, onSuccess, requestMethod, requestURL]
+    [token]
   );
 
-  const handleFormSubmit = formMethods.handleSubmit(onSubmit);
+  const onSubmit = useCallback(
+    async (
+      requestURL: string,
+      requestMethod: METHOD,
+      payload: YupValidatedFormValues<T>,
+      options?: OnSubmitOptions
+    ): Promise<void> => {
+      setSubmitDisabled(true);
+      const res = await fetchSubmit(requestURL, requestMethod, token, payload);
+      if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
+        const { id } = await res.json();
+        options?.onSuccess?.(id);
+      } else {
+        setSubmitDisabled(false);
+        await throwError(res); // TODO more useful error handling
+      }
+    },
+    [token]
+  );
 
   return {
-    control: formMethods.control,
+    control: formMethod.control,
     disabled: submitDisabled,
-    formState: formMethods.formState,
-    onSubmit: handleFormSubmit,
+    formState: formMethod.formState,
+    handleSubmit: formMethod.handleSubmit,
+    onDelete,
+    onSubmit,
   };
 };

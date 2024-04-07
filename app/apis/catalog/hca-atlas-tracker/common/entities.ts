@@ -91,6 +91,8 @@ export interface HCAAtlasTrackerDBSourceDatasetInfo {
   publicationStatus: PUBLICATION_STATUS;
 }
 
+export type AtlasId = HCAAtlasTrackerAtlas["atlasId"];
+
 export enum PUBLICATION_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",
   OK = "OK",
