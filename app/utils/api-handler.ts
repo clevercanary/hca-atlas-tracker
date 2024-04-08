@@ -1,6 +1,7 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import pg from "pg";
+import { METHOD } from "../common/entities";
 import { getPoolConfig } from "./pg-app-connect-config";
 
 const { Pool } = pg;
@@ -38,7 +39,7 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
  * @param methodName - Allowed request method.
  * @returns middleware function restricting requests to the specified method.
  */
-export function method(methodName: "GET" | "POST"): MiddlewareFunction {
+export function method(methodName: METHOD): MiddlewareFunction {
   return async (req, res, next) => {
     if (req.method !== methodName) {
       res.status(405).setHeader("Allow", methodName).end();
