@@ -1,7 +1,7 @@
 import pg from "pg";
-import { HCAAtlasTrackerDBAtlasOverview } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import { INITIAL_TEST_ATLASES, INITIAL_TEST_USERS } from "./constants";
+import { makeTestAtlasOverview } from "./utils";
 
 const { Pool } = pg;
 
@@ -14,11 +14,7 @@ export default async function setup(): Promise<void> {
     );
   }
   for (const atlas of INITIAL_TEST_ATLASES) {
-    const overview: HCAAtlasTrackerDBAtlasOverview = {
-      focus: atlas.focus,
-      network: atlas.network,
-      version: atlas.version,
-    };
+    const overview = makeTestAtlasOverview(atlas);
     await pool.query(
       "INSERT INTO hat.atlases (id, overview, source_datasets, status) VALUES ($1, $2, $3, $4)",
       [

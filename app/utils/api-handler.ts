@@ -35,6 +35,30 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
 }
 
 /**
+ * Creates an API handler function that calls different handlers depending on request method, responding with an error if none match.
+ * @param handlers - Object mapping request method to handler function.
+ * @returns API handler function.
+ */
+export function handleByMethod(
+  handlers: Partial<Record<METHOD, Handler>>
+): Handler {
+  const allowHeaderText = Object.keys(handlers).join(", ");
+  return async (req, res) => {
+    const method = req.method;
+    const handler = hasHandlerForMethod(method) && handlers[method];
+    if (handler) {
+      return await handler(req, res);
+    } else {
+      res.status(405).setHeader("Allow", allowHeaderText).end();
+    }
+  };
+
+  function hasHandlerForMethod(method: string | undefined): method is METHOD {
+    return typeof method === "string" && Object.hasOwn(handlers, method);
+  }
+}
+
+/**
  * Creates a middleware function that rejects requests that don't have the specified request method.
  * @param methodName - Allowed request method.
  * @returns middleware function restricting requests to the specified method.

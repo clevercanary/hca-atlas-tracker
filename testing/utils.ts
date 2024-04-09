@@ -1,4 +1,5 @@
-import { TestUser } from "./entities";
+import { HCAAtlasTrackerDBAtlasOverview } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { TestAtlas, TestUser } from "./entities";
 
 export function makeTestUser(
   nameId: string,
@@ -12,5 +13,15 @@ export function makeTestUser(
     name: nameId,
     role,
     token: nameId,
+  };
+}
+
+export function makeTestAtlasOverview(
+  atlas: TestAtlas
+): HCAAtlasTrackerDBAtlasOverview {
+  return {
+    focus: atlas.focus,
+    network: atlas.network,
+    version: atlas.version,
   };
 }
