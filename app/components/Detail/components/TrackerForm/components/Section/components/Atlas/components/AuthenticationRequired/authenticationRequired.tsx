@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Section, SectionHero, SectionText } from "../../section.styles";
+import { Section, SectionHero, SectionText } from "../../../../section.styles";
 
 interface AuthenticationRequiredProps {
   children: ReactNode | ReactNode[];

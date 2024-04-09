@@ -3,7 +3,7 @@ import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/co
 import { ROUTE } from "../../../routes/constants";
 
 /**
- * Returns the breadcrumbs for the create form view.
+ * Returns the breadcrumbs for the edit atlas view.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
  */

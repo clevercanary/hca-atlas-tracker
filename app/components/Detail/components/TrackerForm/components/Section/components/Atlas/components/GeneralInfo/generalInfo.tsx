@@ -1,20 +1,20 @@
 import { MenuItem as MMenuItem } from "@mui/material";
 import { ReactNode } from "react";
 import { Controller } from "react-hook-form";
-import { NETWORKS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
-import { NewAtlasData } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { isNetworkKey } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { FormMethod } from "../../../../../../../../hooks/useForm/common/entities";
-import { getBioNetworkByKey } from "../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { Input } from "../../../../../../../common/Form/components/Input/input";
-import { Select } from "../../../../../../../common/Form/components/Select/select";
-import { NetworkIconAndName } from "../../../Select/components/NetworkIconAndName/networkIconAndName";
+import { NETWORKS } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
+import { NewAtlasData } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { isNetworkKey } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
+import { getBioNetworkByKey } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { Input } from "../../../../../../../../../common/Form/components/Input/input";
+import { Select } from "../../../../../../../../../common/Form/components/Select/select";
+import { NetworkIconAndName } from "../../../../../Select/components/NetworkIconAndName/networkIconAndName";
 import {
   Section,
   SectionCard,
   SectionHero,
   SectionTitle,
-} from "../../section.styles";
+} from "../../../../section.styles";
 
 export const FIELD_NAME_ATLAS_NAME = "focus"; // TODO convert focus to shortName.
 export const FIELD_NAME_BIO_NETWORK = "network";
