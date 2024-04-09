@@ -21,5 +21,6 @@ export { Section as OverviewSection } from "./Detail/components/Overview/compone
 export { AtlasCell } from "./Index/components/AtlasCell/atlasCell";
 export { BioNetworkCell } from "./Index/components/BioNetworkCell/bioNetworkCell";
 export { Hero } from "./Index/components/Hero/hero";
+export { TaskCompletedIconCell } from "./Index/components/TaskCompletedIconCell/taskCompletedIconCell";
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";
