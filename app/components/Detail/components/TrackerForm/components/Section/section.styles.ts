@@ -49,7 +49,7 @@ export const SectionText = styled.div`
 export const SectionCard = styled(FluidPaper)`
   ${sectionPadding};
   display: grid;
-  gap: 20px 12px;
+  gap: 20px;
   grid-template-columns: 1fr;
 
   ${mediaTabletUp} {
