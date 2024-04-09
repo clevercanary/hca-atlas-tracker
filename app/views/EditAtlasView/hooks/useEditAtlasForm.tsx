@@ -2,8 +2,8 @@ import Router from "next/router";
 import { useMemo } from "react";
 import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  NewAtlasData,
-  newAtlasSchema,
+  AtlasEditData,
+  atlasEditSchema,
 } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { getRouteURL } from "../../../common/utils";
 import {
@@ -15,13 +15,13 @@ import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { ROUTE } from "../../../routes/constants";
 
-const SCHEMA = newAtlasSchema;
+const SCHEMA = atlasEditSchema;
 
 export const useEditAtlasForm = (
   atlas?: HCAAtlasTrackerAtlas
-): FormMethod<NewAtlasData> => {
+): FormMethod<AtlasEditData> => {
   const values = useMemo(() => mapSchemaValues(atlas), [atlas]);
-  return useForm<NewAtlasData>(SCHEMA, values);
+  return useForm<AtlasEditData>(SCHEMA, values);
 };
 
 /**
@@ -29,7 +29,7 @@ export const useEditAtlasForm = (
  * @param atlas - Atlas.
  * @returns schema default values.
  */
-function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): NewAtlasData {
+function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): AtlasEditData {
   return {
     [FIELD_NAME_ATLAS_NAME]: atlas?.focus || "",
     [FIELD_NAME_BIO_NETWORK]: atlas?.bioNetwork || "",

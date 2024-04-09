@@ -24,6 +24,13 @@ export const newAtlasSchema = object({
 export type NewAtlasData = InferType<typeof newAtlasSchema>;
 
 /**
+ * Schema for data used to apply edits to an atlas.
+ */
+export const atlasEditSchema = newAtlasSchema;
+
+export type AtlasEditData = NewAtlasData;
+
+/**
  * Schema for data used to create a new source dataset.
  */
 export const newSourceDatasetSchema = object({

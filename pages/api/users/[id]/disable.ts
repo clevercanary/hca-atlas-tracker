@@ -1,3 +1,4 @@
+import { METHOD } from "../../../../app/common/entities";
 import {
   handler,
   handleRequiredParam,
@@ -10,7 +11,7 @@ import {
  * API route for setting a user as disabled.
  */
 export default handler(
-  method("POST"),
+  method(METHOD.POST),
   role("CONTENT_ADMIN"),
   async (req, res) => {
     const id = handleRequiredParam(req, res, "id", /^\d+$/);

@@ -8,6 +8,7 @@ import {
   NewSourceDatasetData,
   newSourceDatasetSchema,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "../../../../../app/common/entities";
 import {
   getPoolClient,
   handler,
@@ -24,7 +25,7 @@ import {
  * API route for creating a source dataset. Source dataset information is provided as a JSON body.
  */
 export default handler(
-  method("POST"),
+  method(METHOD.POST),
   role("CONTENT_ADMIN"), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;

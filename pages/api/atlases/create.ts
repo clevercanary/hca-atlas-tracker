@@ -8,13 +8,14 @@ import {
   NewAtlasData,
   newAtlasSchema,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "../../../app/common/entities";
 import { handler, method, query, role } from "../../../app/utils/api-handler";
 
 /**
  * API route for creating an atlas. Atlas information is provided as a JSON body.
  */
 export default handler(
-  method("POST"),
+  method(METHOD.POST),
   role("CONTENT_ADMIN"),
   async (req, res) => {
     let newInfo: NewAtlasData;
