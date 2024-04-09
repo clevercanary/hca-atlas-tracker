@@ -2,7 +2,7 @@ import { Breadcrumb } from "@clevercanary/data-explorer-ui/lib/components/common
 import { ROUTE } from "../../../routes/constants";
 
 /**
- * Returns the breadcrumbs for the create form view.
+ * Returns the breadcrumbs for the create atlas view.
  * @returns breadcrumbs.
  */
 export function getBreadcrumbs(): Breadcrumb[] {

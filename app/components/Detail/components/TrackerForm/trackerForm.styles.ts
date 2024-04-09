@@ -1,3 +1,4 @@
+import { mediaTabletUp } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 
 export const Form = styled.form`
@@ -12,4 +13,9 @@ export const FormActions = styled.div`
   gap: 8px;
   grid-column: 1 / -1;
   justify-content: flex-end;
+  padding: 0 16px;
+
+  ${mediaTabletUp} {
+    padding: 0;
+  }
 `;

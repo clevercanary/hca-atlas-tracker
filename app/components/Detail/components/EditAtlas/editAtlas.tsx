@@ -11,8 +11,8 @@ import { ROUTE } from "../../../../routes/constants";
 import { onDeleteSuccess as onSuccess } from "../../../../views/EditAtlasView/hooks/useEditAtlasForm";
 import { ButtonOutlineError } from "../../../common/Button/components/ButtonOutlineError/buttonOutlineError";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/GeneralInfo/generalInfo";
+import { AuthenticationRequired } from "../TrackerForm/components/Section/components/Atlas/components/AuthenticationRequired/authenticationRequired";
+import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
 

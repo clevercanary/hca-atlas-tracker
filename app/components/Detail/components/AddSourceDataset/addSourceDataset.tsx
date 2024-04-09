@@ -3,36 +3,47 @@ import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/compon
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { NewAtlasData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { NewSourceDatasetData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../common/entities";
+import { getRequestURL, getRouteURL } from "../../../../common/utils";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
-import { onSuccess } from "../../../../views/AddNewAtlasView/hooks/useAddAtlasForm";
+import { onSuccess } from "../../../../views/AddNewSourceDatasetView/hooks/useAddSourceDatasetForm";
 import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { AuthenticationRequired } from "../TrackerForm/components/Section/components/Atlas/components/AuthenticationRequired/authenticationRequired";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
+import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
 
-interface AddAtlasProps {
-  formMethod: FormMethod<NewAtlasData>;
+interface AddSourceDatasetProps {
+  atlasId: AtlasId;
+  formMethod: FormMethod<NewSourceDatasetData>;
 }
 
-export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
+export const AddSourceDataset = ({
+  atlasId,
+  formMethod,
+}: AddSourceDatasetProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
   const { disabled, handleSubmit, onSubmit } = formMethod;
 
   const onFormSubmit = useCallback(
-    (payload: NewAtlasData): void => {
-      onSubmit(API.CREATE_ATLAS, METHOD.POST, payload, {
-        onSuccess,
-      });
+    (payload: NewSourceDatasetData): void => {
+      onSubmit(
+        getRequestURL(API.CREATE_ATLAS_SOURCE_DATASET, atlasId),
+        METHOD.POST,
+        payload,
+        {
+          onSuccess: (id) => onSuccess(atlasId, id),
+        }
+      );
     },
-    [onSubmit]
+    [atlasId, onSubmit]
   );
 
   return isAuthenticated ? (
@@ -41,7 +52,10 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
       <GeneralInfo {...formMethod} />
       <Divider />
       <FormActions>
-        <ButtonLink color={BUTTON_COLOR.SECONDARY} href={ROUTE.ATLASES}>
+        <ButtonLink
+          color={BUTTON_COLOR.SECONDARY}
+          href={getRouteURL(ROUTE.VIEW_SOURCE_DATASETS, atlasId)}
+        >
           Discard
         </ButtonLink>
         <ButtonPrimary disabled={disabled} type="submit">
@@ -51,7 +65,7 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
     </TrackerForm>
   ) : (
     <AuthenticationRequired divider={<Divider />}>
-      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to add a new atlas.
+      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to add a new source dataset.
     </AuthenticationRequired>
   );
 };

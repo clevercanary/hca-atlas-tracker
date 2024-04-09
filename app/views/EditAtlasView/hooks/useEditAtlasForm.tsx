@@ -10,7 +10,7 @@ import {
   FIELD_NAME_ATLAS_NAME,
   FIELD_NAME_BIO_NETWORK,
   FIELD_NAME_VERSION,
-} from "../../../components/Detail/components/TrackerForm/components/Section/components/GeneralInfo/generalInfo";
+} from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { ROUTE } from "../../../routes/constants";
