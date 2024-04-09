@@ -49,7 +49,11 @@ export const Statuses = styled.div`
 
 export const HeroActions = styled.div`
   align-items: center;
-  align-self: center;
+  align-self: flex-start;
   display: flex;
   gap: 8px;
+
+  ${mediaDesktopSmallUp} {
+    align-self: center;
+  }
 `;

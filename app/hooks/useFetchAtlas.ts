@@ -1,6 +1,7 @@
 import { useAsync } from "@clevercanary/data-explorer-ui/lib/hooks/useAsync";
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback, useEffect } from "react";
+import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
 import {
   AtlasId,
   HCAAtlasTrackerAtlas,
@@ -12,19 +13,19 @@ import {
   isFetchStatusOk,
 } from "../common/utils";
 
-const REQUEST_METHOD = METHOD.GET;
-const REQUEST_URL = "/api/atlases/[id]";
-
-export type Atlas = HCAAtlasTrackerAtlas | undefined;
-
 interface UseFetchAtlas {
-  atlas: Atlas;
+  atlas?: HCAAtlasTrackerAtlas;
   isLoading: boolean;
 }
 
 export const useFetchAtlas = (atlasId: AtlasId): UseFetchAtlas => {
   const { token } = useAuthentication();
-  const { data: atlas, isIdle, isLoading, run } = useAsync<Atlas>();
+  const {
+    data: atlas,
+    isIdle,
+    isLoading,
+    run,
+  } = useAsync<HCAAtlasTrackerAtlas | undefined>();
 
   const fetchAtlas = useCallback(
     async (
@@ -32,8 +33,8 @@ export const useFetchAtlas = (atlasId: AtlasId): UseFetchAtlas => {
       accessToken: string
     ): Promise<HCAAtlasTrackerAtlas | undefined> => {
       const res = await fetch(
-        getRequestURL(REQUEST_URL, atlasId),
-        getFetchOptions(REQUEST_METHOD, accessToken)
+        getRequestURL(API.ATLAS, atlasId),
+        getFetchOptions(METHOD.GET, accessToken)
       );
       if (isFetchStatusOk(res.status)) {
         return await res.json();

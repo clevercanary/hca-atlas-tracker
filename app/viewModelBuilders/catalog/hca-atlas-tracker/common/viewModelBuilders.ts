@@ -104,7 +104,7 @@ export const buildAtlasDetailViewSourceDatasetsTable = (
   const { sourceDatasets } = atlas;
   return {
     Paper: C.FluidPaper,
-    columns: getAtlasSourceDatasetsTableColumns(),
+    columns: getSourceDatasetsTableColumns(),
     gridTemplateColumns:
       "minmax(340px, 2fr) minmax(236px, 1fr) repeat(5, minmax(136px, 1fr)) minmax(136px, auto) repeat(5, minmax(124px, auto))",
     items: sourceDatasets.sort(sortSourceDatasets),
@@ -330,39 +330,39 @@ export const buildEstimatedCellCount = (
 };
 
 /**
- * Build props for the "in CAP" cell component.
+ * Build props for the "in CAP" TaskCompletedIconCell component.
  * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the cell.
+ * @returns Props to be used for the TaskCompletedIconCell component.
  */
 export const buildInCap = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.TaskCompletedIconCell> => {
   return {
     value: sourceDataset.inCap,
   };
 };
 
 /**
- * Build props for the "in CELLxGENE" cell component.
+ * Build props for the "in CELLxGENE" TaskCompletedIconCell component.
  * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the cell.
+ * @returns Props to be used for the TaskCompletedIconCell component.
  */
 export const buildInCellxGene = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.TaskCompletedIconCell> => {
   return {
     value: sourceDataset.inCellxGene,
   };
 };
 
 /**
- * Build props for the "in HCA data repository" cell component.
+ * Build props for the "in HCA data repository" TaskCompletedIconCell component.
  * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the cell.
+ * @returns Props to be used for the TaskCompletedIconCell component.
  */
 export const buildInHcaDataRepository = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.TaskCompletedIconCell> => {
   return {
     value: sourceDataset.inHcaDataRepository,
   };
@@ -657,7 +657,7 @@ function getAtlasOverviewPublicationKeyValuePairs(
  * Returns the table column definition model for the atlas source datasets table.
  * @returns Table column definition.
  */
-function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+function getSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetProjectTitleColumnDef(),
     getAtlasAtlasTitleColumnDef() as ColumnDef<HCAAtlasTrackerSourceDataset>,
@@ -672,6 +672,19 @@ function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDa
     getSourceDatasetIsPublishedColumnDef(),
     getSourceDatasetInCapColumnDef(),
     getSourceDatasetInHCADataRepositoryColumnDef(),
+  ];
+}
+
+/**
+ * Returns the table column definition model for the atlas (edit mode) source datasets table.
+ * @returns Table column definition.
+ */
+export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [
+    getSourceDatasetProjectTitleColumnDef(),
+    getSourceDatasetInHCADataRepositoryColumnDef(),
+    getSourceDatasetInCELLxGENEColumnDef(),
+    getSourceDatasetInCapColumnDef(),
   ];
 }
 
@@ -819,7 +832,7 @@ function getSourceDatasetEstimatedCellCountColumnDef(): ColumnDef<HCAAtlasTracke
 function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CAP,
-    cell: ({ row }) => C.Cell(buildInCap(row.original)),
+    cell: ({ row }) => C.TaskCompletedIconCell(buildInCap(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CAP,
   };
 }
@@ -831,7 +844,7 @@ function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
 function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CELLXGENE,
-    cell: ({ row }) => C.Cell(buildInCellxGene(row.original)),
+    cell: ({ row }) => C.TaskCompletedIconCell(buildInCellxGene(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CELLXGENE,
   };
 }
@@ -843,7 +856,8 @@ function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSource
 function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_HCA_DATA_REPOSITORY,
-    cell: ({ row }) => C.Cell(buildInHcaDataRepository(row.original)),
+    cell: ({ row }) =>
+      C.TaskCompletedIconCell(buildInHcaDataRepository(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_HCA_DATA_REPOSITORY,
   };
 }

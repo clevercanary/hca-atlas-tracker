@@ -19,6 +19,11 @@ export const Button = styled(Link, {
   }
 `;
 
+export const StartIcon = styled.span`
+  display: flex;
+  margin-left: -4px;
+`;
+
 /**
  * Returns serialized styles for the given button color.
  * @param props - Button props.

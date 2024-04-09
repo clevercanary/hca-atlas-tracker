@@ -1,3 +1,5 @@
+import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
+import { RouteValue } from "../routes/entities";
 import { DEFAULT_HEADERS } from "./constants";
 import { FETCH_STATUS, METHOD } from "./entities";
 
@@ -67,11 +69,21 @@ export function isFetchStatusOk(status: number): boolean {
 }
 
 /**
- * Replaces [id] in URL with the given ID.
- * @param url - request URL.
- * @param id - ID.
- * @returns request URL with ID.
+ * Replaces [atlasId] in the API URL with the given atlas ID.
+ * @param apiURL - Request URL.
+ * @param atlasId - Atlas ID.
+ * @returns request URL with Atlas ID.
  */
-export function getRequestURL(url: string, id: string): string {
-  return url.replace(/\[id]/, id);
+export function getRequestURL(apiURL: API, atlasId: string): string {
+  return apiURL.replace(/\[atlasId]/, atlasId);
+}
+
+/**
+ * Replaces [atlasId] in route with the given atlas ID.
+ * @param route - Route.
+ * @param atlasId - Atlas ID.
+ * @returns route with atlas ID.
+ */
+export function getRouteURL(route: RouteValue, atlasId: string): string {
+  return (route as string).replace(/\[atlasId]/, atlasId);
 }

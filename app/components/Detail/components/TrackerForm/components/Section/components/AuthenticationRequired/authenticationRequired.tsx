@@ -1,17 +1,18 @@
 import { ReactNode } from "react";
-import { Divider } from "../../../Divider/divider.styles";
 import { Section, SectionHero, SectionText } from "../../section.styles";
 
 interface AuthenticationRequiredProps {
   children: ReactNode | ReactNode[];
+  divider?: ReactNode;
 }
 
 export const AuthenticationRequired = ({
   children,
+  divider,
 }: AuthenticationRequiredProps): JSX.Element => {
   return (
     <Section>
-      <Divider />
+      {divider}
       <SectionHero>
         <SectionText>{children}</SectionText>
       </SectionHero>

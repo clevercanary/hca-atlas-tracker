@@ -1,13 +1,13 @@
 import { Breadcrumb } from "@clevercanary/data-explorer-ui/lib/components/common/Breadcrumbs/breadcrumbs";
-import { ROUTE } from "../../../constants/routes";
-import { Atlas } from "../../../hooks/useFetchAtlas";
+import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { ROUTE } from "../../../routes/constants";
 
 /**
  * Returns the breadcrumbs for the create form view.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
  */
-export function getBreadcrumbs(atlas: Atlas): Breadcrumb[] {
+export function getBreadcrumbs(atlas?: HCAAtlasTrackerAtlas): Breadcrumb[] {
   const { atlasName } = atlas || {};
   return [
     {

@@ -2,14 +2,12 @@ import { ButtonPrimary } from "@clevercanary/data-explorer-ui/lib/components/com
 import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback } from "react";
+import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { NewAtlasData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { ROUTE } from "../../../../constants/routes";
+import { METHOD } from "../../../../common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
-import {
-  onSuccess,
-  REQUEST_METHOD,
-  REQUEST_URL,
-} from "../../../../views/AddNewAtlasView/hooks/useAddAtlasForm";
+import { ROUTE } from "../../../../routes/constants";
+import { onSuccess } from "../../../../views/AddNewAtlasView/hooks/useAddAtlasForm";
 import {
   ButtonLink,
   BUTTON_COLOR,
@@ -30,7 +28,7 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
 
   const onFormSubmit = useCallback(
     (payload: NewAtlasData): void => {
-      onSubmit(REQUEST_URL, REQUEST_METHOD, payload, {
+      onSubmit(API.CREATE_ATLAS, METHOD.POST, payload, {
         onSuccess,
       });
     },
@@ -52,7 +50,7 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
       </FormActions>
     </TrackerForm>
   ) : (
-    <AuthenticationRequired>
+    <AuthenticationRequired divider={<Divider />}>
       <Link label={"Sign in"} url={ROUTE.LOGIN} /> to add a new atlas.
     </AuthenticationRequired>
   );

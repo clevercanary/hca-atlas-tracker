@@ -1,26 +1,29 @@
 import { Breadcrumbs } from "@clevercanary/data-explorer-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
-import { Actions } from "../../components/Detail/components/EditAtlas/components/Actions/actions";
 import { Tabs } from "../../components/Detail/components/EditAtlas/components/Tabs/tabs";
-import { EditAtlas } from "../../components/Detail/components/EditAtlas/editAtlas";
+import { ViewSourceDatasets } from "../../components/Detail/components/ViewSourceDatasets/viewSourceDatasets";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { getBreadcrumbs } from "./common/utils";
-import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
+import { getBreadcrumbs } from "../EditAtlasView/common/utils";
 
-interface EditAtlasViewProps {
+interface ViewSourceDatasetsViewProps {
   atlasId: AtlasId;
 }
 
-export const EditAtlasView = ({ atlasId }: EditAtlasViewProps): JSX.Element => {
+export const ViewSourceDatasetsView = ({
+  atlasId,
+}: ViewSourceDatasetsViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
-  const formMethod = useEditAtlasForm(atlas);
   return (
     <DetailView
-      actions={atlas && <Actions atlasId={atlasId} formMethod={formMethod} />}
       breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
-      mainColumn={<EditAtlas atlasId={atlasId} formMethod={formMethod} />}
+      mainColumn={
+        <ViewSourceDatasets
+          atlasId={atlasId}
+          sourceDatasets={atlas?.sourceDatasets}
+        />
+      }
       status={atlas && <AtlasStatus atlasStatus={atlas?.status} />}
       tabs={<Tabs atlas={atlas} atlasId={atlasId} />}
       title={atlas?.atlasName || "Edit Atlas"}
