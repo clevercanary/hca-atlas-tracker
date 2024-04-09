@@ -14,7 +14,8 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../category";
-import { getAuthenticationConfig } from "./authentication/authentication";
+import { announcements } from "./announcements/announcements";
+import { authenticationConfig } from "./authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
 
 // Template constants
@@ -29,7 +30,7 @@ export const PORTAL_URL = "https://data.humancellatlas.dev.clevercanary.com";
 export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
   return {
     appTitle: APP_TITLE,
-    authentication: getAuthenticationConfig(portalUrl),
+    authentication: authenticationConfig,
     browserURL: browserUrl,
     categoryGroupConfigs: [
       {
@@ -118,6 +119,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
         }),
       },
       header: {
+        Announcements: C.RenderComponents({ components: announcements }),
         Logo: C.Logo({
           alt: APP_TITLE,
           height: 32.5,
