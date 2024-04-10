@@ -42,7 +42,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): AtlasEditData {
  * @param id - Atlas ID.
  */
 export function onSuccess(id: string): void {
-  Router.push(getRouteURL(ROUTE.VIEW_ATLAS, id));
+  Router.push(getRouteURL(ROUTE.EDIT_ATLAS, id));
 }
 
 /**
