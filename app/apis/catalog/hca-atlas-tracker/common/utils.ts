@@ -3,37 +3,51 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerSourceDataset,
   NetworkKey,
 } from "./entities";
 
-export function getAtlasId(atlas: HCAAtlasTrackerAtlas): string {
-  return atlas.atlasId;
+export function getAtlasId(atlas: HCAAtlasTrackerListAtlas): string {
+  return atlas.id;
 }
 
-export function dbAtlasToListAtlas(
+export function atlasInputMapper(
+  apiAtlas: HCAAtlasTrackerAtlas
+): HCAAtlasTrackerListAtlas {
+  return {
+    bioNetwork: apiAtlas.bioNetwork,
+    focus: apiAtlas.focus,
+    id: apiAtlas.id,
+    integrationLeadEmail: apiAtlas.integrationLead.email,
+    integrationLeadName: apiAtlas.integrationLead.name,
+    name: getAtlasName(apiAtlas),
+    publicationDoi: apiAtlas.publication.doi,
+    publicationPubString: apiAtlas.publication.pubString,
+    status: apiAtlas.status,
+    title: apiAtlas.title,
+    version: apiAtlas.version,
+  };
+}
+
+export function dbAtlasToApiAtlas(
   dbAtlas: HCAAtlasTrackerDBAtlas
 ): HCAAtlasTrackerAtlas {
   return {
-    atlasId: dbAtlas.id,
-    atlasName: `${dbAtlas.overview.focus} ${dbAtlas.overview.version}`,
-    atlasTitle: "",
     bioNetwork: dbAtlas.overview.network,
-    codeUrl: "",
-    componentAtlases: [],
-    cxgCollectionId: null,
-    description: null,
     focus: dbAtlas.overview.focus,
-    integrationLead: "",
-    integrationLeadEmail: "",
-    networkCoordinator: {
-      coordinatorNames: [],
+    id: dbAtlas.id,
+    integrationLead: {
       email: "",
+      name: "",
     },
-    publication: "",
-    publicationUrl: "",
-    sourceDatasets: [],
+    publication: {
+      doi: "",
+      pubString: "",
+    },
+    sourceDatasetCount: dbAtlas.source_datasets.length,
     status: dbAtlas.status,
+    title: "",
     version: dbAtlas.overview.version,
   };
 }
@@ -56,6 +70,10 @@ export function dbSourceDatasetToApiSourceDataset(
     publicationStatus: dbSourceDataset.sd_info.publicationStatus,
     title: publication?.title ?? null,
   };
+}
+
+export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
+  return `${atlas.focus} ${atlas.version}`;
 }
 
 /**

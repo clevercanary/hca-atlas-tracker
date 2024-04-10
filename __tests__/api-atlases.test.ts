@@ -11,8 +11,6 @@ import atlasesHandler from "../pages/api/atlases";
 
 jest.mock("../app/utils/pg-app-connect-config");
 
-type Atlases = Record<number, HCAAtlasTrackerAtlas>;
-
 afterAll(() => {
   endPgPool();
 });
@@ -25,27 +23,29 @@ describe("/api/atlases", () => {
   });
 
   it("does not return draft atlases for logged out user", async () => {
-    const data = (await doAtlasesRequest())._getJSONData() as Atlases;
+    const data = (
+      await doAtlasesRequest()
+    )._getJSONData() as HCAAtlasTrackerAtlas[];
     expect(
-      Object.values(data).find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
+      data.find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
     ).toBeUndefined();
   });
 
   it("does not return draft atlases for logged in user without CONTENT_ADMIN role", async () => {
     const data = (
       await doAtlasesRequest(USER_NORMAL)
-    )._getJSONData() as Atlases;
+    )._getJSONData() as HCAAtlasTrackerAtlas[];
     expect(
-      Object.values(data).find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
+      data.find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
     ).toBeUndefined();
   });
 
   it("does return draft atlases for logged in user with CONTENT_ADMIN role", async () => {
     const data = (
       await doAtlasesRequest(USER_CONTENT_ADMIN)
-    )._getJSONData() as Atlases;
+    )._getJSONData() as HCAAtlasTrackerAtlas[];
     expect(
-      Object.values(data).find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
+      data.find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
     ).toBeDefined();
   });
 });

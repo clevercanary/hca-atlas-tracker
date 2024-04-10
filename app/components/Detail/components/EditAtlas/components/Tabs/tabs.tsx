@@ -48,8 +48,7 @@ export const Tabs = ({ atlas, atlasId }: TabsProps): JSX.Element => {
  */
 function getSourceDatasetsLabel(atlas?: HCAAtlasTrackerAtlas): ReactNode {
   if (!atlas) return "Source Datasets";
-  const sourceDatasetsCount = atlas.sourceDatasets?.length || 0;
-  return sourceDatasetsCount
-    ? `Source Datasets (${sourceDatasetsCount})`
+  return atlas.sourceDatasetCount
+    ? `Source Datasets (${atlas.sourceDatasetCount})`
     : "Source Datasets";
 }
