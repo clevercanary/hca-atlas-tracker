@@ -1,6 +1,11 @@
+import { HCAAtlasTrackerDBSourceDatasetInfo } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import pg from "pg";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
-import { INITIAL_TEST_ATLASES, INITIAL_TEST_USERS } from "./constants";
+import {
+  INITIAL_TEST_ATLASES,
+  INITIAL_TEST_SOURCE_DATASETS,
+  INITIAL_TEST_USERS,
+} from "./constants";
 import { makeTestAtlasOverview } from "./utils";
 
 const { Pool } = pg;
@@ -13,6 +18,18 @@ export default async function setup(): Promise<void> {
       [user.disabled.toString(), user.email, user.name, user.role]
     );
   }
+
+  for (const dataset of INITIAL_TEST_SOURCE_DATASETS) {
+    const sdInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
+      publication: dataset.publication,
+      publicationStatus: dataset.publicationStatus,
+    };
+    await pool.query(
+      "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",
+      [dataset.doi, dataset.id, JSON.stringify(sdInfo)]
+    );
+  }
+
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview = makeTestAtlasOverview(atlas);
     await pool.query(
@@ -25,5 +42,6 @@ export default async function setup(): Promise<void> {
       ]
     );
   }
+
   pool.end();
 }

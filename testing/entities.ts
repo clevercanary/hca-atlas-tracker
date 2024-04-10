@@ -1,6 +1,8 @@
 import {
   ATLAS_STATUS,
   NetworkKey,
+  PublicationInfo,
+  PUBLICATION_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface TestUser {
@@ -19,4 +21,11 @@ export interface TestAtlas {
   sourceDatasets: string[];
   status: ATLAS_STATUS;
   version: string;
+}
+
+export interface TestSourceDataset {
+  doi: string | null;
+  id: string;
+  publication: PublicationInfo | null;
+  publicationStatus: PUBLICATION_STATUS;
 }
