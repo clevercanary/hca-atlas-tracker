@@ -35,7 +35,6 @@ export function dbAtlasToApiAtlas(
 ): HCAAtlasTrackerAtlas {
   return {
     bioNetwork: dbAtlas.overview.network,
-    componentAtlases: [],
     focus: dbAtlas.overview.focus,
     id: dbAtlas.id,
     integrationLead: {
@@ -46,7 +45,7 @@ export function dbAtlasToApiAtlas(
       doi: "",
       pubString: "",
     },
-    sourceDatasets: [],
+    sourceDatasetCount: dbAtlas.source_datasets.length,
     status: dbAtlas.status,
     title: "",
     version: dbAtlas.overview.version,

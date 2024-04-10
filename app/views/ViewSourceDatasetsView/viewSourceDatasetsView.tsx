@@ -1,5 +1,8 @@
 import { Breadcrumbs } from "@clevercanary/data-explorer-ui/lib/components/common/Breadcrumbs/breadcrumbs";
-import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  AtlasId,
+  HCAAtlasTrackerSourceDataset,
+} from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { Tabs } from "../../components/Detail/components/EditAtlas/components/Tabs/tabs";
 import { ViewSourceDatasets } from "../../components/Detail/components/ViewSourceDatasets/viewSourceDatasets";
@@ -16,14 +19,12 @@ export const ViewSourceDatasetsView = ({
   atlasId,
 }: ViewSourceDatasetsViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
+  const sourceDatasets: HCAAtlasTrackerSourceDataset[] = [];
   return (
     <DetailView
       breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
       mainColumn={
-        <ViewSourceDatasets
-          atlasId={atlasId}
-          sourceDatasets={atlas?.sourceDatasets}
-        />
+        <ViewSourceDatasets atlasId={atlasId} sourceDatasets={sourceDatasets} />
       }
       status={atlas && <AtlasStatus atlasStatus={atlas?.status} />}
       tabs={<Tabs atlas={atlas} atlasId={atlasId} />}

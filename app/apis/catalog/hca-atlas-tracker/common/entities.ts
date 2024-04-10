@@ -16,7 +16,6 @@ export interface HCAAtlasTrackerListAtlas {
 
 export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
-  componentAtlases: HCAAtlasTrackerComponentAtlas[];
   focus: string;
   id: string;
   integrationLead: {
@@ -27,7 +26,7 @@ export interface HCAAtlasTrackerAtlas {
     doi: string;
     pubString: string;
   };
-  sourceDatasets: HCAAtlasTrackerSourceDataset[];
+  sourceDatasetCount: number;
   status: ATLAS_STATUS;
   title: string;
   version: string;
