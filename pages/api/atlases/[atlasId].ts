@@ -7,6 +7,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
 import {
   ATLAS_STATUS,
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   NetworkKey,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -31,11 +32,14 @@ const getHandler = async (
   const queryResult =
     (await getUserRoleFromAuthorization(req.headers.authorization)) ===
     "CONTENT_ADMIN"
-      ? await query("SELECT * FROM hat.atlases WHERE id=$1", [id])
-      : await query("SELECT * FROM hat.atlases WHERE id=$1 AND status=$2", [
-          id,
-          ATLAS_STATUS.PUBLIC,
-        ]);
+      ? await query<HCAAtlasTrackerDBAtlas>(
+          "SELECT * FROM hat.atlases WHERE id=$1",
+          [id]
+        )
+      : await query<HCAAtlasTrackerDBAtlas>(
+          "SELECT * FROM hat.atlases WHERE id=$1 AND status=$2",
+          [id, ATLAS_STATUS.PUBLIC]
+        );
   if (queryResult.rows.length === 0) {
     res.status(404).end();
     return;

@@ -2,6 +2,8 @@ import { NETWORK_KEYS } from "./constants";
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerSourceDataset,
   NetworkKey,
 } from "./entities";
 
@@ -33,6 +35,26 @@ export function dbAtlasToListAtlas(
     sourceDatasets: [],
     status: dbAtlas.status,
     version: dbAtlas.overview.version,
+  };
+}
+
+export function dbSourceDatasetToApiSourceDataset(
+  dbSourceDataset: HCAAtlasTrackerDBSourceDataset
+): HCAAtlasTrackerSourceDataset {
+  const {
+    sd_info: { publication },
+  } = dbSourceDataset;
+  return {
+    doi: dbSourceDataset.doi,
+    firstAuthorPrimaryName: publication?.authors[0]?.name ?? null,
+    id: dbSourceDataset.id,
+    inCap: "No",
+    inCellxGene: "No",
+    inHcaDataRepository: "No",
+    journal: publication?.journal ?? null,
+    publicationDate: publication?.publicationDate ?? null,
+    publicationStatus: dbSourceDataset.sd_info.publicationStatus,
+    title: publication?.title ?? null,
   };
 }
 

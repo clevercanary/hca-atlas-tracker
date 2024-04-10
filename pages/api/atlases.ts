@@ -1,4 +1,7 @@
-import { ATLAS_STATUS } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  ATLAS_STATUS,
+  HCAAtlasTrackerDBAtlas,
+} from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbAtlasToListAtlas } from "../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../app/common/entities";
 import {
@@ -15,10 +18,11 @@ export default handler(method(METHOD.GET), async (req, res) => {
   const queryResult =
     (await getUserRoleFromAuthorization(req.headers.authorization)) ===
     "CONTENT_ADMIN"
-      ? await query("SELECT * FROM hat.atlases")
-      : await query("SELECT * FROM hat.atlases WHERE status=$1", [
-          ATLAS_STATUS.PUBLIC,
-        ]);
+      ? await query<HCAAtlasTrackerDBAtlas>("SELECT * FROM hat.atlases")
+      : await query<HCAAtlasTrackerDBAtlas>(
+          "SELECT * FROM hat.atlases WHERE status=$1",
+          [ATLAS_STATUS.PUBLIC]
+        );
   const atlases = queryResult.rows.map(dbAtlasToListAtlas);
   res.json(Object.fromEntries(Object.entries(atlases)));
 });
