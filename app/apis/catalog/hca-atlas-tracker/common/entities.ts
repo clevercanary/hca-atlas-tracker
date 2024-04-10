@@ -45,29 +45,12 @@ export interface HCAAtlasTrackerNetworkCoordinator {
 }
 
 export interface HCAAtlasTrackerSourceDataset {
-  anatomicalEntity: string[];
-  atlasId: string;
-  atlasTitle: string;
-  bioNetwork: NetworkKey;
-  capUrl: string | null;
-  cxgCollectionId: string | null;
-  donorDisease: string[];
-  estimatedCellCount: number | null;
-  inCap: string;
-  inCellxGene: string;
-  inHcaDataRepository: string;
-  isPublished: string;
-  libraryConstructionMethod: string[];
-  projectId: string | null;
-  projectTitle: string;
-  publicationUrl: string | null;
-  species: string[];
-}
-
-export interface HCAAtlasTrackerAPISourceDataset {
   doi: string | null;
   firstAuthorPrimaryName: string | null;
   id: string;
+  inCap: string;
+  inCellxGene: string;
+  inHcaDataRepository: string;
   journal: string | null;
   publicationDate: string | null;
   publicationStatus: PUBLICATION_STATUS;

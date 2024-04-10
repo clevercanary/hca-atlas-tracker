@@ -13,7 +13,6 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerEntity,
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
@@ -64,7 +63,7 @@ export const buildAtlasDetailViewComponentAtlasesTable = (
  * @returns Props to be used for the cell.
  */
 export const buildAtlasTitle = (
-  entity: HCAAtlasTrackerEntity
+  entity: HCAAtlasTrackerComponentAtlas
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: entity.atlasTitle,
@@ -78,7 +77,7 @@ export const buildAtlasTitle = (
  * @returns Props to be used for the cell.
  */
 export const buildBioNetwork = (
-  entity: HCAAtlasTrackerEntity
+  entity: HCAAtlasTrackerAtlas | HCAAtlasTrackerComponentAtlas
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: entity.bioNetwork,
@@ -200,10 +199,10 @@ export const buildProjectTitle = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.Link> => {
   return {
-    label: sourceDataset.projectTitle,
-    url: sourceDataset.projectId
-      ? `https://explore.data.humancellatlas.org/projects/${sourceDataset.projectId}` // TODO different source for base URL?
-      : sourceDataset.publicationUrl || "",
+    label: sourceDataset.title,
+    url: sourceDataset.doi
+      ? `https://doi.org/${encodeURIComponent(sourceDataset.doi)}`
+      : "",
   };
 };
 
@@ -277,9 +276,7 @@ export const buildVersion = (
  * Returns source dataset or component atlas' atlas title column def.
  * @returns Column def.
  */
-function getAtlasAtlasTitleColumnDef(): ColumnDef<
-  HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
-> {
+function getAtlasAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
     cell: ({ row }) => C.Link(buildAtlasTitle(row.original)),
@@ -291,9 +288,7 @@ function getAtlasAtlasTitleColumnDef(): ColumnDef<
  * Returns source dataset or component atlas' biological network column def.
  * @returns Column def.
  */
-function getAtlasBiologicalNetworkColumnDef(): ColumnDef<
-  HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
-> {
+function getAtlasBiologicalNetworkColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
     cell: ({ row }) => C.BioNetworkCell(buildBioNetwork(row.original)),
