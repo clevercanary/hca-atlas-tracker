@@ -1,6 +1,5 @@
 import { Breadcrumbs } from "@clevercanary/data-explorer-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
-import { Actions } from "../../components/Detail/components/EditAtlas/components/Actions/actions";
 import { Tabs } from "../../components/Detail/components/EditAtlas/components/Tabs/tabs";
 import { EditAtlas } from "../../components/Detail/components/EditAtlas/editAtlas";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
@@ -18,7 +17,6 @@ export const EditAtlasView = ({ atlasId }: EditAtlasViewProps): JSX.Element => {
   const formMethod = useEditAtlasForm(atlas);
   return (
     <DetailView
-      actions={atlas && <Actions atlasId={atlasId} formMethod={formMethod} />}
       breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
       mainColumn={<EditAtlas atlasId={atlasId} formMethod={formMethod} />}
       status={atlas && <AtlasStatus atlasStatus={atlas?.status} />}

@@ -34,6 +34,7 @@ export const useForm = <T extends FieldValues>(
     values: schema.cast(values),
   });
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
+  const { reset } = formMethod;
 
   const onDelete = useCallback(
     async (
@@ -47,9 +48,9 @@ export const useForm = <T extends FieldValues>(
         const { id } = await res.json();
         options?.onSuccess?.(id);
       } else {
-        setSubmitDisabled(false);
         await throwError(res); // TODO more useful error handling
       }
+      setSubmitDisabled(false);
     },
     [token]
   );
@@ -64,14 +65,15 @@ export const useForm = <T extends FieldValues>(
       setSubmitDisabled(true);
       const res = await fetchSubmit(requestURL, requestMethod, token, payload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
+        reset(payload);
         const { id } = await res.json();
         options?.onSuccess?.(id);
       } else {
-        setSubmitDisabled(false);
         await throwError(res); // TODO more useful error handling
       }
+      setSubmitDisabled(false);
     },
-    [token]
+    [reset, token]
   );
 
   return {

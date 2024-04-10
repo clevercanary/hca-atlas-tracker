@@ -24,7 +24,8 @@ interface AddAtlasProps {
 
 export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-  const { disabled, handleSubmit, onSubmit } = formMethod;
+  const { disabled, formState, handleSubmit, onSubmit } = formMethod;
+  const { isDirty } = formState;
 
   const onFormSubmit = useCallback(
     (payload: NewAtlasData): void => {
@@ -44,7 +45,7 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
         <ButtonLink color={BUTTON_COLOR.SECONDARY} href={ROUTE.ATLASES}>
           Discard
         </ButtonLink>
-        <ButtonPrimary disabled={disabled} type="submit">
+        <ButtonPrimary disabled={disabled || !isDirty} type="submit">
           Save
         </ButtonPrimary>
       </FormActions>
