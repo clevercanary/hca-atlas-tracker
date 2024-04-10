@@ -17,13 +17,13 @@ export function atlasInputMapper(
 ): HCAAtlasTrackerListAtlas {
   return {
     bioNetwork: apiAtlas.bioNetwork,
-    focus: apiAtlas.focus,
     id: apiAtlas.id,
     integrationLeadEmail: apiAtlas.integrationLead.email,
     integrationLeadName: apiAtlas.integrationLead.name,
     name: getAtlasName(apiAtlas),
     publicationDoi: apiAtlas.publication.doi,
     publicationPubString: apiAtlas.publication.pubString,
+    shortName: apiAtlas.shortName,
     status: apiAtlas.status,
     title: apiAtlas.title,
     version: apiAtlas.version,
@@ -35,7 +35,6 @@ export function dbAtlasToApiAtlas(
 ): HCAAtlasTrackerAtlas {
   return {
     bioNetwork: dbAtlas.overview.network,
-    focus: dbAtlas.overview.focus,
     id: dbAtlas.id,
     integrationLead: {
       email: "",
@@ -45,6 +44,7 @@ export function dbAtlasToApiAtlas(
       doi: "",
       pubString: "",
     },
+    shortName: dbAtlas.overview.shortName,
     sourceDatasetCount: dbAtlas.source_datasets.length,
     status: dbAtlas.status,
     title: "",
@@ -73,7 +73,7 @@ export function dbSourceDatasetToApiSourceDataset(
 }
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
-  return `${atlas.focus} ${atlas.version}`;
+  return `${atlas.shortName} ${atlas.version}`;
 }
 
 /**

@@ -31,7 +31,7 @@ export const useEditAtlasForm = (
  */
 function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): AtlasEditData {
   return {
-    [FIELD_NAME_ATLAS_NAME]: atlas?.focus || "",
+    [FIELD_NAME_ATLAS_NAME]: atlas?.shortName || "",
     [FIELD_NAME_BIO_NETWORK]: atlas?.bioNetwork || "",
     [FIELD_NAME_VERSION]: atlas?.version || "",
   };

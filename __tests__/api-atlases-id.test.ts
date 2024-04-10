@@ -17,8 +17,8 @@ import { makeTestAtlasOverview } from "../testing/utils";
 jest.mock("../app/utils/pg-app-connect-config");
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
-  focus: "test-public-edited",
   network: ATLAS_PUBLIC.network,
+  shortName: "test-public-edited",
   version: "2.0",
 };
 
@@ -43,14 +43,14 @@ describe("/api/atlases/[id]", () => {
     const res = await doAtlasRequest(ATLAS_PUBLIC.id);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expect(atlas.focus).toEqual(ATLAS_PUBLIC.focus);
+    expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
   });
 
   it("returns public atlas when GET requested by logged in user without CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(ATLAS_PUBLIC.id, USER_NORMAL);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expect(atlas.focus).toEqual(ATLAS_PUBLIC.focus);
+    expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
   });
 
   it("returns error 404 when draft atlas is GET requested by logged out user", async () => {
@@ -69,7 +69,7 @@ describe("/api/atlases/[id]", () => {
     const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expect(atlas.focus).toEqual(ATLAS_DRAFT.focus);
+    expect(atlas.shortName).toEqual(ATLAS_DRAFT.shortName);
   });
 
   it("returns error 401 when public atlas is PUT requested by logged out user", async () => {

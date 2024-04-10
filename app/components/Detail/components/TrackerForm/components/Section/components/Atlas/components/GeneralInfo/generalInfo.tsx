@@ -16,7 +16,7 @@ import {
   SectionTitle,
 } from "../../../../section.styles";
 
-export const FIELD_NAME_ATLAS_NAME = "focus"; // TODO convert focus to shortName.
+export const FIELD_NAME_ATLAS_NAME = "shortName";
 export const FIELD_NAME_BIO_NETWORK = "network";
 export const FIELD_NAME_VERSION = "version";
 

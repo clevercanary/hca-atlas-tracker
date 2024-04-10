@@ -61,8 +61,8 @@ const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {
     }
   }
   const newOverviewValues: HCAAtlasTrackerDBAtlasOverview = {
-    focus: newInfo.focus,
     network: newInfo.network as NetworkKey,
+    shortName: newInfo.shortName,
     version: newInfo.version,
   };
   const queryResult = await query(
