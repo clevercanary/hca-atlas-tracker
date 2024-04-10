@@ -1,28 +1,35 @@
-import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { NETWORK_KEYS } from "./constants";
 
-export type HCAAtlasTrackerEntity =
-  | HCAAtlasTrackerAtlas
-  | HCAAtlasTrackerComponentAtlas
-  | HCAAtlasTrackerSourceDataset;
+export interface HCAAtlasTrackerListAtlas {
+  bioNetwork: NetworkKey;
+  focus: string;
+  id: string;
+  integrationLeadEmail: string;
+  integrationLeadName: string;
+  name: string;
+  publicationDoi: string;
+  publicationPubString: string;
+  status: ATLAS_STATUS;
+  title: string;
+  version: string;
+}
 
 export interface HCAAtlasTrackerAtlas {
-  atlasId: string;
-  atlasName: string;
-  atlasTitle: string;
   bioNetwork: NetworkKey;
-  codeUrl: string;
   componentAtlases: HCAAtlasTrackerComponentAtlas[];
-  cxgCollectionId: string | null;
-  description: MDXRemoteSerializeResult | null;
   focus: string;
-  integrationLead: string;
-  integrationLeadEmail: string;
-  networkCoordinator: HCAAtlasTrackerNetworkCoordinator;
-  publication: string;
-  publicationUrl: string;
+  id: string;
+  integrationLead: {
+    email: string;
+    name: string;
+  };
+  publication: {
+    doi: string;
+    pubString: string;
+  };
   sourceDatasets: HCAAtlasTrackerSourceDataset[];
   status: ATLAS_STATUS;
+  title: string;
   version: string;
 }
 
@@ -85,7 +92,7 @@ export interface HCAAtlasTrackerDBSourceDatasetInfo {
   publicationStatus: PUBLICATION_STATUS;
 }
 
-export type AtlasId = HCAAtlasTrackerAtlas["atlasId"];
+export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
 export enum PUBLICATION_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",

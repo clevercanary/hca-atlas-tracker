@@ -40,12 +40,12 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
           },
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_TITLE,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_TITLE,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TITLE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TITLE,
           },
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAME,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAME,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NAME,
           },
         ],
       },
@@ -84,22 +84,6 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PROJECT_TITLE,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PROJECT_TITLE,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.SPECIES,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SPECIES,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.LIBRARY_CONSTRUCTION_METHOD,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.LIBRARY_CONSTRUCTION_METHOD,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ANATOMICAL_ENTITY,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ANATOMICAL_ENTITY,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DONOR_DISEASE,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DONOR_DISEASE,
           },
         ],
       },

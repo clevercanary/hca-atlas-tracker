@@ -5,8 +5,11 @@ import {
   SORT_DIRECTION,
 } from "@clevercanary/data-explorer-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@clevercanary/data-explorer-ui/lib/hooks/useExploreMode";
-import { HCAAtlasTrackerAtlas } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasId } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { HCAAtlasTrackerListAtlas } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  atlasInputMapper,
+  getAtlasId,
+} from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import * as C from "../../../../app/components";
 import * as V from "../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
@@ -25,6 +28,7 @@ export const atlasEntityConfig: EntityConfig = {
     tabs: [],
     top: [],
   },
+  entityMapper: atlasInputMapper,
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
   getId: getAtlasId,
   label: "Atlases",
@@ -34,9 +38,9 @@ export const atlasEntityConfig: EntityConfig = {
         componentConfig: {
           component: C.Link,
           viewBuilder: V.buildAtlasName,
-        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerAtlas>,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAME,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAME,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NAME,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
         width: { max: "2fr", min: "374px" },
       },
       {
@@ -44,7 +48,7 @@ export const atlasEntityConfig: EntityConfig = {
         componentConfig: {
           component: C.Cell,
           viewBuilder: V.buildPublication,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
         width: { max: "1fr", min: "136px" },
@@ -53,7 +57,7 @@ export const atlasEntityConfig: EntityConfig = {
         componentConfig: {
           component: C.BioNetworkCell,
           viewBuilder: V.buildBioNetwork,
-        } as ComponentConfig<typeof C.BioNetworkCell, HCAAtlasTrackerAtlas>,
+        } as ComponentConfig<typeof C.BioNetworkCell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
         width: { max: "1fr", min: "136px" },
@@ -62,7 +66,7 @@ export const atlasEntityConfig: EntityConfig = {
         componentConfig: {
           component: C.Cell,
           viewBuilder: V.buildVersion,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
         width: { max: "1fr", min: "136px" },
@@ -71,7 +75,7 @@ export const atlasEntityConfig: EntityConfig = {
         componentConfig: {
           component: C.Cell,
           viewBuilder: V.buildIntegrationLead,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerAtlas>,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD,
         width: { max: "1fr", min: "136px" },
@@ -80,7 +84,7 @@ export const atlasEntityConfig: EntityConfig = {
         componentConfig: {
           component: C.StatusBadge,
           viewBuilder: V.buildStatus,
-        } as ComponentConfig<typeof C.StatusBadge, HCAAtlasTrackerAtlas>,
+        } as ComponentConfig<typeof C.StatusBadge, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.STATUS,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.STATUS,
         width: { max: "1fr", min: "136px" },
@@ -88,9 +92,9 @@ export const atlasEntityConfig: EntityConfig = {
     ],
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,
-      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAME,
+      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
     },
-  } as ListConfig<HCAAtlasTrackerAtlas>,
+  } as ListConfig<HCAAtlasTrackerListAtlas>,
   listView: {
     disablePagination: true,
     enableDownload: true,

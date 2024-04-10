@@ -2,7 +2,7 @@ import {
   AtlasEditData,
   atlasEditSchema,
 } from "app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbAtlasToListAtlas } from "app/apis/catalog/hca-atlas-tracker/common/utils";
+import { dbAtlasToApiAtlas } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
 import {
@@ -44,7 +44,7 @@ const getHandler = async (
     res.status(404).end();
     return;
   }
-  res.json(dbAtlasToListAtlas(queryResult.rows[0]));
+  res.json(dbAtlasToApiAtlas(queryResult.rows[0]));
 };
 
 const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {

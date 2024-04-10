@@ -2,7 +2,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { dbAtlasToListAtlas } from "../../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { dbAtlasToApiAtlas } from "../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../app/common/entities";
 import {
   getUserRoleFromAuthorization,
@@ -23,6 +23,5 @@ export default handler(method(METHOD.GET), async (req, res) => {
           "SELECT * FROM hat.atlases WHERE status=$1",
           [ATLAS_STATUS.PUBLIC]
         );
-  const atlases = queryResult.rows.map(dbAtlasToListAtlas);
-  res.json(Object.fromEntries(Object.entries(atlases)));
+  res.json(queryResult.rows.map(dbAtlasToApiAtlas));
 });

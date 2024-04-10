@@ -13,6 +13,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
@@ -27,11 +28,11 @@ import { DISEASE, METADATA_KEY } from "./entities";
  * @returns Props to be used for the cell.
  */
 export const buildAtlasName = (
-  atlas: HCAAtlasTrackerAtlas
+  atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Link> => {
   return {
-    label: atlas.atlasName,
-    url: `/atlases/${encodeURIComponent(atlas.atlasId)}/edit`,
+    label: atlas.name,
+    url: `/atlases/${encodeURIComponent(atlas.id)}/edit`,
   };
 };
 
@@ -77,7 +78,7 @@ export const buildAtlasTitle = (
  * @returns Props to be used for the cell.
  */
 export const buildBioNetwork = (
-  entity: HCAAtlasTrackerAtlas | HCAAtlasTrackerComponentAtlas
+  entity: HCAAtlasTrackerListAtlas | HCAAtlasTrackerComponentAtlas
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: entity.bioNetwork,
@@ -183,10 +184,10 @@ export const buildInHcaDataRepository = (
  * @returns Props to be used for the cell.
  */
 export const buildIntegrationLead = (
-  atlas: HCAAtlasTrackerAtlas
+  atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Cell> => {
   return {
-    value: atlas.integrationLead,
+    value: atlas.integrationLeadName,
   };
 };
 
@@ -212,10 +213,10 @@ export const buildProjectTitle = (
  * @returns Props to be used for the cell.
  */
 export const buildPublication = (
-  atlas: HCAAtlasTrackerAtlas
+  atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Cell> => {
   return {
-    value: atlas.publication,
+    value: atlas.publicationPubString,
   };
 };
 
@@ -225,7 +226,7 @@ export const buildPublication = (
  * @returns Props to be used for the cell.
  */
 export const buildStatus = (
-  atlas: HCAAtlasTrackerAtlas
+  atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.StatusBadge> => {
   let color;
   switch (atlas.status) {
@@ -265,7 +266,7 @@ export const buildTissue = (
  * @returns Props to be used for the cell.
  */
 export const buildVersion = (
-  atlas: HCAAtlasTrackerAtlas
+  atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: atlas.version,
