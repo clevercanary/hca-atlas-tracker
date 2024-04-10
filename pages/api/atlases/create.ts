@@ -30,8 +30,8 @@ export default handler(
       }
     }
     const newOverview: HCAAtlasTrackerDBAtlasOverview = {
-      focus: newInfo.focus,
       network: newInfo.network as NetworkKey,
+      shortName: newInfo.shortName,
       version: newInfo.version,
     };
     const queryResult = await query(

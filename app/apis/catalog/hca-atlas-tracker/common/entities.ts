@@ -2,13 +2,13 @@ import { NETWORK_KEYS } from "./constants";
 
 export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
-  focus: string;
   id: string;
   integrationLeadEmail: string;
   integrationLeadName: string;
   name: string;
   publicationDoi: string;
   publicationPubString: string;
+  shortName: string;
   status: ATLAS_STATUS;
   title: string;
   version: string;
@@ -16,7 +16,6 @@ export interface HCAAtlasTrackerListAtlas {
 
 export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
-  focus: string;
   id: string;
   integrationLead: {
     email: string;
@@ -26,6 +25,7 @@ export interface HCAAtlasTrackerAtlas {
     doi: string;
     pubString: string;
   };
+  shortName: string;
   sourceDatasetCount: number;
   status: ATLAS_STATUS;
   title: string;
@@ -73,8 +73,8 @@ export interface HCAAtlasTrackerDBAtlas {
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
-  focus: string;
   network: NetworkKey;
+  shortName: string;
   version: string;
 }
 

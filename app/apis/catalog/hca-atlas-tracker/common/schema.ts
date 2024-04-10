@@ -10,7 +10,6 @@ const NETWORK_REGEXP = new RegExp(
  * Schema for data used to create a new atlas.
  */
 export const newAtlasSchema = object({
-  focus: string().default("").required("Short name is required"),
   network: string()
     .default("")
     .required("Network is required")
@@ -18,6 +17,7 @@ export const newAtlasSchema = object({
       NETWORK_REGEXP,
       `Network must be one of: ${NETWORK_KEYS.join(", ")}`
     ),
+  shortName: string().default("").required("Short name is required"),
   version: string().default("").required("Version is required"),
 }).strict(true);
 

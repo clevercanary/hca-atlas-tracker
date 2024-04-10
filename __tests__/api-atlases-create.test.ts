@@ -9,8 +9,8 @@ import { TestUser } from "../testing/entities";
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
-  focus: "test",
   network: "eye",
+  shortName: "test",
   version: "1.0",
 };
 

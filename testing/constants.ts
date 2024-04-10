@@ -64,9 +64,9 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
 ];
 
 export const ATLAS_DRAFT: TestAtlas = {
-  focus: "test-draft",
   id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
   network: "eye",
+  shortName: "test-draft",
   sourceDatasets: [
     SOURCE_DATASET_DRAFT_OK.id,
     SOURCE_DATASET_DRAFT_NO_CROSSREF.id,
@@ -76,9 +76,9 @@ export const ATLAS_DRAFT: TestAtlas = {
 };
 
 export const ATLAS_PUBLIC: TestAtlas = {
-  focus: "test-public",
   id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
   network: "lung",
+  shortName: "test-public",
   sourceDatasets: [SOURCE_DATASET_PUBLIC_NO_CROSSREF.id],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
