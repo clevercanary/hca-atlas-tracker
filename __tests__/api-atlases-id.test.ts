@@ -20,6 +20,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
   network: ATLAS_PUBLIC.network,
   shortName: "test-public-edited",
   version: "2.0",
+  wave: 2,
 };
 
 afterAll(async () => {

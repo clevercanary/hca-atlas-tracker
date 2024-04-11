@@ -10,6 +10,7 @@ import {
   FIELD_NAME_ATLAS_NAME,
   FIELD_NAME_BIO_NETWORK,
   FIELD_NAME_VERSION,
+  FIELD_NAME_WAVE,
 } from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
@@ -34,6 +35,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): AtlasEditData {
     [FIELD_NAME_ATLAS_NAME]: atlas?.shortName || "",
     [FIELD_NAME_BIO_NETWORK]: atlas?.bioNetwork || "",
     [FIELD_NAME_VERSION]: atlas?.version || "",
+    [FIELD_NAME_WAVE]: atlas?.wave || 1,
   };
 }
 

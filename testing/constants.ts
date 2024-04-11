@@ -73,6 +73,7 @@ export const ATLAS_DRAFT: TestAtlas = {
   ],
   status: ATLAS_STATUS.DRAFT,
   version: "1.2",
+  wave: 1,
 };
 
 export const ATLAS_PUBLIC: TestAtlas = {
@@ -82,6 +83,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   sourceDatasets: [SOURCE_DATASET_PUBLIC_NO_CROSSREF.id],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
+  wave: 1,
 };
 
 export const ATLAS_NONEXISTENT = {

@@ -21,6 +21,7 @@ export interface TestAtlas {
   sourceDatasets: string[];
   status: ATLAS_STATUS;
   version: string;
+  wave: number;
 }
 
 export interface TestSourceDataset {

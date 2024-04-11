@@ -1,5 +1,8 @@
 import { Network, NetworkKey } from "./entities";
 
+export const MIN_WAVE = 1;
+export const MAX_WAVE = 3;
+
 export const NETWORK_KEYS = [
   "adipose",
   "breast",

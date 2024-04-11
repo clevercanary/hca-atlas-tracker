@@ -1,7 +1,11 @@
 import { MenuItem as MMenuItem } from "@mui/material";
 import { ReactNode } from "react";
 import { Controller } from "react-hook-form";
-import { NETWORKS } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  MAX_WAVE,
+  MIN_WAVE,
+  NETWORKS,
+} from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { NewAtlasData } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { isNetworkKey } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
@@ -19,6 +23,7 @@ import {
 export const FIELD_NAME_ATLAS_NAME = "shortName";
 export const FIELD_NAME_BIO_NETWORK = "network";
 export const FIELD_NAME_VERSION = "version";
+export const FIELD_NAME_WAVE = "wave";
 
 export interface GeneralInfoProps {
   control: FormMethod<NewAtlasData>["control"];
@@ -45,7 +50,7 @@ export const GeneralInfo = ({
                 {...field}
                 error={Boolean(errors[FIELD_NAME_ATLAS_NAME])}
                 helperText={errors[FIELD_NAME_ATLAS_NAME]?.message as string}
-                isDirty={Boolean(field.value)}
+                isDirty={Boolean(formState.dirtyFields.shortName)}
                 label="Short name"
                 placeholder="e.g. Cortex"
                 readOnly={false}
@@ -61,7 +66,7 @@ export const GeneralInfo = ({
               {...field}
               error={Boolean(errors[FIELD_NAME_VERSION])}
               helperText={errors[FIELD_NAME_VERSION]?.message as string}
-              isDirty={Boolean(field.value)}
+              isDirty={Boolean(formState.dirtyFields.version)}
               label="Version"
               placeholder="e.g. 1.0"
               readOnly={false}
@@ -78,10 +83,10 @@ export const GeneralInfo = ({
                 displayEmpty
                 error={Boolean(errors[FIELD_NAME_BIO_NETWORK])}
                 helperText={errors[FIELD_NAME_BIO_NETWORK]?.message as string}
-                isDirty={Boolean(field.value)}
+                isDirty={Boolean(formState.dirtyFields.network)}
                 label="Select network"
                 readOnly={false}
-                renderValue={renderSelectValue}
+                renderValue={renderNetworkSelectValue}
               >
                 {NETWORKS.map(({ key, name }) => (
                   <MMenuItem key={key} value={key}>
@@ -92,17 +97,42 @@ export const GeneralInfo = ({
             );
           }}
         />
+        <Controller
+          control={control}
+          name={FIELD_NAME_WAVE}
+          render={({ field }): JSX.Element => {
+            return (
+              <Select
+                {...field}
+                error={Boolean(errors[FIELD_NAME_WAVE])}
+                helperText={errors[FIELD_NAME_WAVE]?.message as string}
+                isDirty={Boolean(formState.dirtyFields.wave)}
+                label="Select wave"
+                readOnly={false}
+              >
+                {Array.from({ length: MAX_WAVE - MIN_WAVE + 1 }, (v, i) => {
+                  const wave = MIN_WAVE + i;
+                  return (
+                    <MMenuItem key={wave} value={wave}>
+                      {wave}
+                    </MMenuItem>
+                  );
+                })}
+              </Select>
+            );
+          }}
+        />
       </SectionCard>
     </Section>
   );
 };
 
 /**
- * Renders select value.
+ * Renders network select value.
  * @param value - Select value.
  * @returns select value.
  */
-function renderSelectValue(value: unknown): ReactNode {
+function renderNetworkSelectValue(value: unknown): ReactNode {
   if (isNetworkKey(value)) {
     const networkName = getBioNetworkByKey(value)?.name;
     return (

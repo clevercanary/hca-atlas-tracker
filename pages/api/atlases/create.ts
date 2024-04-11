@@ -33,6 +33,7 @@ export default handler(
       network: newInfo.network as NetworkKey,
       shortName: newInfo.shortName,
       version: newInfo.version,
+      wave: newInfo.wave,
     };
     const queryResult = await query(
       "INSERT INTO hat.atlases (overview, source_datasets, status) VALUES ($1, $2, $3) RETURNING *",

@@ -12,6 +12,7 @@ export interface HCAAtlasTrackerListAtlas {
   status: ATLAS_STATUS;
   title: string;
   version: string;
+  wave: number;
 }
 
 export interface HCAAtlasTrackerAtlas {
@@ -30,6 +31,7 @@ export interface HCAAtlasTrackerAtlas {
   status: ATLAS_STATUS;
   title: string;
   version: string;
+  wave: number;
 }
 
 export interface HCAAtlasTrackerComponentAtlas {
@@ -76,6 +78,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   network: NetworkKey;
   shortName: string;
   version: string;
+  wave: number;
 }
 
 export interface HCAAtlasTrackerDBSourceDataset {

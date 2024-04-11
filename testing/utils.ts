@@ -23,5 +23,6 @@ export function makeTestAtlasOverview(
     network: atlas.network,
     shortName: atlas.shortName,
     version: atlas.version,
+    wave: atlas.wave,
   };
 }

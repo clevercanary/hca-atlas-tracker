@@ -12,6 +12,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   network: "eye",
   shortName: "test",
   version: "1.0",
+  wave: 1,
 };
 
 let newAtlasId: string;
