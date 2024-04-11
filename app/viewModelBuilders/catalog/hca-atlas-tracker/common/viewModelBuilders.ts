@@ -1,9 +1,6 @@
 import { STATUS_BADGE_COLOR } from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
-import { MetadataValue } from "@clevercanary/data-explorer-ui/lib/components/Index/components/NTagCell/nTagCell";
-import { formatCountSize } from "@clevercanary/data-explorer-ui/lib/utils/formatCountSize";
 import { ColumnDef } from "@tanstack/react-table";
 import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
-import { MetadataValueTuple } from "app/components/common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
@@ -15,10 +12,9 @@ import {
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
+  PUBLICATION_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
-import { PLURALIZED_METADATA_LABEL } from "./constants";
-import { DISEASE, METADATA_KEY } from "./entities";
 
 /**
  * Build props for the atlas name cell component.
@@ -31,20 +27,6 @@ export const buildAtlasName = (
   return {
     label: atlas.name,
     url: `/atlases/${encodeURIComponent(atlas.id)}/edit`,
-  };
-};
-
-/**
- * Build props for the atlas title cell component.
- * @param entity - Entity.
- * @returns Props to be used for the cell.
- */
-export const buildAtlasTitle = (
-  entity: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.Link> => {
-  return {
-    label: entity.atlasTitle,
-    url: `/atlases/${encodeURIComponent(entity.atlasId)}`,
   };
 };
 
@@ -62,67 +44,13 @@ export const buildBioNetwork = (
 };
 
 /**
- * Build props for the cell count cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildCellCount = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: formatCountSize(componentAtlas.cellCount),
-  };
-};
-
-/**
- * Build props for the explore cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildComponentAtlasExploreLink = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.Link> => {
-  return {
-    label: "CZ CELLxGENE",
-    url: componentAtlas.cxgExploreUrl,
-  };
-};
-
-/**
- * Build props for the component atlas name cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildComponentAtlasName = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: componentAtlas.componentAtlasName,
-  };
-};
-
-/**
- * Build props for the disease cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildDisease = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.PinnedNTagCell> => {
-  return {
-    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
-    values: partitionMetadataValues(componentAtlas.disease, [DISEASE.NORMAL]),
-  };
-};
-
-/**
  * Build props for the "in CAP" TaskCompletedIconCell component.
  * @param sourceDataset - Source dataset entity.
  * @returns Props to be used for the TaskCompletedIconCell component.
  */
 export const buildInCap = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.TaskCompletedIconCell> => {
+): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
     value: sourceDataset.inCap,
   };
@@ -135,7 +63,7 @@ export const buildInCap = (
  */
 export const buildInCellxGene = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.TaskCompletedIconCell> => {
+): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
     value: sourceDataset.inCellxGene,
   };
@@ -148,7 +76,7 @@ export const buildInCellxGene = (
  */
 export const buildInHcaDataRepository = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.TaskCompletedIconCell> => {
+): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
     value: sourceDataset.inHcaDataRepository,
   };
@@ -175,11 +103,10 @@ export const buildIntegrationLead = (
 export const buildProjectTitle = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.Link> => {
+  const { doi, title } = sourceDataset;
   return {
-    label: sourceDataset.title,
-    url: sourceDataset.doi
-      ? `https://doi.org/${encodeURIComponent(sourceDataset.doi)}`
-      : "",
+    label: title,
+    url: getDOILink(doi),
   };
 };
 
@@ -193,6 +120,32 @@ export const buildPublication = (
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: atlas.publicationPubString,
+  };
+};
+
+/**
+ * Build props for the source dataset publication Link component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the Link component.
+ */
+export const buildSourceDatasetPublication = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Link> => {
+  const {
+    doi,
+    firstAuthorPrimaryName,
+    journal,
+    publicationDate,
+    publicationStatus,
+  } = sourceDataset;
+  return {
+    label: getCitation(
+      publicationStatus,
+      firstAuthorPrimaryName,
+      publicationDate,
+      journal
+    ),
+    url: getDOILink(doi),
   };
 };
 
@@ -223,20 +176,6 @@ export const buildStatus = (
 };
 
 /**
- * Build props for the tissue cell component.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildTissue = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.NTagCell> => {
-  return {
-    label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
-    values: componentAtlas.tissue,
-  };
-};
-
-/**
  * Build props for the version cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -256,6 +195,7 @@ export const buildVersion = (
 export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetProjectTitleColumnDef(),
+    getSourceDatasetPublicationColumnDef(),
     getSourceDatasetInHCADataRepositoryColumnDef(),
     getSourceDatasetInCELLxGENEColumnDef(),
     getSourceDatasetInCapColumnDef(),
@@ -281,14 +221,35 @@ export function getBioNetworkName(name: string): string {
 }
 
 /**
- * Returns the pluralized metadata label for the specified metadata.
- * @param metadataKey - Metadata key.
- * @returns string label describing the metadata in plural form.
+ * Returns the DOI link.
+ * @param doi - DOI.
+ * @returns DOI link.
  */
-export function getPluralizedMetadataLabel(
-  metadataKey: keyof typeof METADATA_KEY
+function getDOILink(doi: string | null): string {
+  if (!doi) return "";
+  return `https://doi.org/${encodeURIComponent(doi)}`;
+}
+
+function getCitation(
+  publicationStatus: PUBLICATION_STATUS,
+  author: string | null,
+  date: string | null,
+  journal: string | null
 ): string {
-  return PLURALIZED_METADATA_LABEL[metadataKey];
+  if (publicationStatus === PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF)
+    return "Unpublished";
+  const citation = [];
+  if (author) {
+    citation.push(author);
+  }
+  if (date) {
+    const [year] = date.split("-");
+    citation.push(`(${year})`);
+  }
+  if (journal) {
+    citation.push(journal);
+  }
+  return citation.join(" ");
 }
 
 /**
@@ -298,7 +259,7 @@ export function getPluralizedMetadataLabel(
 function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CAP,
-    cell: ({ row }) => C.TaskCompletedIconCell(buildInCap(row.original)),
+    cell: ({ row }) => C.TaskStatusCell(buildInCap(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CAP,
   };
 }
@@ -310,7 +271,7 @@ function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
 function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CELLXGENE,
-    cell: ({ row }) => C.TaskCompletedIconCell(buildInCellxGene(row.original)),
+    cell: ({ row }) => C.TaskStatusCell(buildInCellxGene(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CELLXGENE,
   };
 }
@@ -322,8 +283,7 @@ function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSource
 function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_HCA_DATA_REPOSITORY,
-    cell: ({ row }) =>
-      C.TaskCompletedIconCell(buildInHcaDataRepository(row.original)),
+    cell: ({ row }) => C.TaskStatusCell(buildInHcaDataRepository(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_HCA_DATA_REPOSITORY,
   };
 }
@@ -341,22 +301,13 @@ function getSourceDatasetProjectTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourc
 }
 
 /**
- * Returns metadata values partitioned into pinned values and non-pinned values.
- * @param values - Values to partition.
- * @param pinned - Values to pin.
- * @returns metadata tuple containing pinned values and non-pinned values.
+ * Returns source dataset publication column def.
+ * @returns Column def.
  */
-function partitionMetadataValues(
-  values: MetadataValue[],
-  pinned: MetadataValue[]
-): MetadataValueTuple {
-  const partitionedValues: MetadataValueTuple = [[], []];
-  return values.reduce((acc, value) => {
-    if (pinned.includes(value)) {
-      acc[0].push(value);
-    } else {
-      acc[1].push(value);
-    }
-    return acc;
-  }, partitionedValues);
+function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "publication", // TODO confirm accessor key.
+    cell: ({ row }) => C.Link(buildSourceDatasetPublication(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+  };
 }
