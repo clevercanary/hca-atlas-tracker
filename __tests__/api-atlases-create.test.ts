@@ -63,6 +63,39 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when wave is not an integer", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, {
+          ...NEW_ATLAS_DATA,
+          wave: 1.2,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when wave is less than 1", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, {
+          ...NEW_ATLAS_DATA,
+          wave: 0,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when wave is greater than 3", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, {
+          ...NEW_ATLAS_DATA,
+          wave: 4,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry", async () => {
     const newAtlas = (
       await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA)

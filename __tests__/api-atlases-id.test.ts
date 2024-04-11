@@ -121,6 +121,39 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when wave is not an integer", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
+          ...ATLAS_PUBLIC_EDIT,
+          wave: 1.2,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("PUT returns error 400 when wave is less than 1", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
+          ...ATLAS_PUBLIC_EDIT,
+          wave: 0,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("PUT returns error 400 when wave is greater than 3", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
+          ...ATLAS_PUBLIC_EDIT,
+          wave: 4,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     const updatedAtlas = (
       await doAtlasRequest(
