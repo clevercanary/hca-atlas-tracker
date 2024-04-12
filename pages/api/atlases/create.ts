@@ -29,6 +29,7 @@ export default handler(
       }
     }
     const newOverview: HCAAtlasTrackerDBAtlasOverview = {
+      integrationLead: newInfo.integrationLead ?? null,
       network: newInfo.network,
       shortName: newInfo.shortName,
       version: newInfo.version,

@@ -8,6 +8,7 @@ import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_IL,
   USER_CONTENT_ADMIN,
   USER_NORMAL,
 } from "../testing/constants";
@@ -17,16 +18,32 @@ import { makeTestAtlasOverview } from "../testing/utils";
 jest.mock("../app/utils/pg-app-connect-config");
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
+  integrationLead: {
+    email: "bar@example.com",
+    name: "Bar",
+  },
   network: ATLAS_PUBLIC.network,
   shortName: "test-public-edited",
   version: "2.0",
   wave: "2",
 };
 
+const ATLAS_WITH_IL_EDIT: AtlasEditData = {
+  integrationLead: null,
+  network: "development",
+  shortName: ATLAS_WITH_IL.shortName,
+  version: "2.1",
+  wave: ATLAS_WITH_IL.wave,
+};
+
 afterAll(async () => {
   await query("UPDATE hat.atlases SET overview=$1 WHERE id=$2", [
     JSON.stringify(makeTestAtlasOverview(ATLAS_PUBLIC)),
     ATLAS_PUBLIC.id,
+  ]);
+  await query("UPDATE hat.atlases SET overview=$1 WHERE id=$2", [
+    JSON.stringify(makeTestAtlasOverview(ATLAS_WITH_IL)),
+    ATLAS_WITH_IL.id,
   ]);
   endPgPool();
 });
@@ -70,7 +87,14 @@ describe("/api/atlases/[id]", () => {
     const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expect(atlas.bioNetwork).toEqual(ATLAS_DRAFT.network);
+    expect(atlas.id).toEqual(ATLAS_DRAFT.id);
+    expect(atlas.integrationLead).toEqual(ATLAS_DRAFT.integrationLead);
     expect(atlas.shortName).toEqual(ATLAS_DRAFT.shortName);
+    expect(atlas.sourceDatasetCount).toEqual(ATLAS_DRAFT.sourceDatasets.length);
+    expect(atlas.status).toEqual(ATLAS_DRAFT.status);
+    expect(atlas.version).toEqual(ATLAS_DRAFT.version);
+    expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);
   });
 
   it("returns error 401 when public atlas is PUT requested by logged out user", async () => {
@@ -132,6 +156,18 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when integration lead is undefined", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
+          ...ATLAS_PUBLIC_EDIT,
+          integrationLead:
+            undefined as unknown as AtlasEditData["integrationLead"],
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     const updatedAtlas = (
       await doAtlasRequest(
@@ -146,6 +182,25 @@ describe("/api/atlases/[id]", () => {
       await query("SELECT * FROM hat.atlases WHERE id=$1", [ATLAS_PUBLIC.id])
     ).rows[0];
     expect(updatedAtlasFromDb.overview).toEqual(ATLAS_PUBLIC_EDIT);
+    expect(updatedAtlasFromDb.updated_at.toISOString()).toEqual(
+      updatedAtlas.updated_at
+    );
+  });
+
+  it("PUT updates and returns atlas entry with integration lead set to null", async () => {
+    const updatedAtlas = (
+      await doAtlasRequest(
+        ATLAS_WITH_IL.id,
+        USER_CONTENT_ADMIN,
+        METHOD.PUT,
+        ATLAS_WITH_IL_EDIT
+      )
+    )._getJSONData();
+    expect(updatedAtlas.overview).toEqual(ATLAS_WITH_IL_EDIT);
+    const updatedAtlasFromDb = (
+      await query("SELECT * FROM hat.atlases WHERE id=$1", [ATLAS_WITH_IL.id])
+    ).rows[0];
+    expect(updatedAtlasFromDb.overview).toEqual(ATLAS_WITH_IL_EDIT);
     expect(updatedAtlasFromDb.updated_at.toISOString()).toEqual(
       updatedAtlas.updated_at
     );

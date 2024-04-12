@@ -65,6 +65,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
 
 export const ATLAS_DRAFT: TestAtlas = {
   id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
+  integrationLead: null,
   network: "eye",
   shortName: "test-draft",
   sourceDatasets: [
@@ -78,6 +79,7 @@ export const ATLAS_DRAFT: TestAtlas = {
 
 export const ATLAS_PUBLIC: TestAtlas = {
   id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
+  integrationLead: null,
   network: "lung",
   shortName: "test-public",
   sourceDatasets: [SOURCE_DATASET_PUBLIC_NO_CROSSREF.id],
@@ -86,12 +88,26 @@ export const ATLAS_PUBLIC: TestAtlas = {
   wave: "1",
 };
 
+export const ATLAS_WITH_IL: TestAtlas = {
+  id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
+  integrationLead: {
+    email: "baz@example.com",
+    name: "Baz",
+  },
+  network: "heart",
+  shortName: "test-with-il",
+  sourceDatasets: [],
+  status: ATLAS_STATUS.DRAFT,
+  version: "2.0",
+  wave: "3",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
 
 // Atlases initialized in the database before tests
-export const INITIAL_TEST_ATLASES = [ATLAS_DRAFT, ATLAS_PUBLIC];
+export const INITIAL_TEST_ATLASES = [ATLAS_DRAFT, ATLAS_PUBLIC, ATLAS_WITH_IL];
 
 export const DOI_NORMAL = "10.123/test";
 
