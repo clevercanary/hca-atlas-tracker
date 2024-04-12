@@ -9,7 +9,6 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
-  NetworkKey,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../app/common/entities";
 import {
@@ -61,7 +60,7 @@ const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {
     }
   }
   const newOverviewValues: HCAAtlasTrackerDBAtlasOverview = {
-    network: newInfo.network as NetworkKey,
+    network: newInfo.network,
     shortName: newInfo.shortName,
     version: newInfo.version,
     wave: newInfo.wave,

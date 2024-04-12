@@ -3,6 +3,7 @@ import {
   NetworkKey,
   PublicationInfo,
   PUBLICATION_STATUS,
+  Wave,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface TestUser {
@@ -21,7 +22,7 @@ export interface TestAtlas {
   sourceDatasets: string[];
   status: ATLAS_STATUS;
   version: string;
-  wave: number;
+  wave: Wave;
 }
 
 export interface TestSourceDataset {

@@ -1,4 +1,4 @@
-import { NETWORK_KEYS } from "./constants";
+import { NETWORK_KEYS, WAVES } from "./constants";
 
 export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
@@ -12,7 +12,7 @@ export interface HCAAtlasTrackerListAtlas {
   status: ATLAS_STATUS;
   title: string;
   version: string;
-  wave: number;
+  wave: Wave;
 }
 
 export interface HCAAtlasTrackerAtlas {
@@ -31,7 +31,7 @@ export interface HCAAtlasTrackerAtlas {
   status: ATLAS_STATUS;
   title: string;
   version: string;
-  wave: number;
+  wave: Wave;
 }
 
 export interface HCAAtlasTrackerComponentAtlas {
@@ -78,7 +78,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   network: NetworkKey;
   shortName: string;
   version: string;
-  wave: number;
+  wave: Wave;
 }
 
 export interface HCAAtlasTrackerDBSourceDataset {
@@ -113,6 +113,8 @@ export interface Network {
 }
 
 export type NetworkKey = (typeof NETWORK_KEYS)[number];
+
+export type Wave = (typeof WAVES)[number];
 
 export interface PublicationInfo {
   authors: Author[];

@@ -12,7 +12,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   network: "eye",
   shortName: "test",
   version: "1.0",
-  wave: 1,
+  wave: "1",
 };
 
 let newAtlasId: string;
@@ -46,7 +46,7 @@ describe("/api/atlases/create", () => {
       (
         await doCreateTest(USER_CONTENT_ADMIN, {
           ...NEW_ATLAS_DATA,
-          network: "notanetwork",
+          network: "notanetwork" as NewAtlasData["network"],
         })
       )._getStatusCode()
     ).toEqual(400);
@@ -63,34 +63,12 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
-  it("returns error 400 when wave is not an integer", async () => {
+  it("returns error 400 when wave is is not a valid wave value", async () => {
     expect(
       (
         await doCreateTest(USER_CONTENT_ADMIN, {
           ...NEW_ATLAS_DATA,
-          wave: 1.2,
-        })
-      )._getStatusCode()
-    ).toEqual(400);
-  });
-
-  it("returns error 400 when wave is less than 1", async () => {
-    expect(
-      (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_DATA,
-          wave: 0,
-        })
-      )._getStatusCode()
-    ).toEqual(400);
-  });
-
-  it("returns error 400 when wave is greater than 3", async () => {
-    expect(
-      (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_DATA,
-          wave: 4,
+          wave: "0" as NewAtlasData["wave"],
         })
       )._getStatusCode()
     ).toEqual(400);
