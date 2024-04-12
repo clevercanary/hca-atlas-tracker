@@ -189,6 +189,19 @@ export const buildVersion = (
 };
 
 /**
+ * Build props for the wave cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildWave = (
+  atlas: HCAAtlasTrackerListAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: atlas.wave,
+  };
+};
+
+/**
  * Returns the table column definition model for the atlas (edit mode) source datasets table.
  * @returns Table column definition.
  */

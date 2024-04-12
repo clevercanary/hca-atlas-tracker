@@ -64,6 +64,7 @@ const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {
     network: newInfo.network as NetworkKey,
     shortName: newInfo.shortName,
     version: newInfo.version,
+    wave: newInfo.wave,
   };
   const queryResult = await query(
     "UPDATE hat.atlases SET overview=overview||$1 WHERE id=$2 RETURNING *",

@@ -40,6 +40,10 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
           },
           {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVE,
+          },
+          {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TITLE,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TITLE,
           },

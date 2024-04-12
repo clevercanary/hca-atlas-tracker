@@ -16,6 +16,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
   TISSUE: "tissue",
   TITLE: "title",
   VERSION: "version",
+  WAVE: "wave",
 };
 
 export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
@@ -36,4 +37,5 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   TISSUE: "Tissue",
   TITLE: "Atlas",
   VERSION: "Atlas Version",
+  WAVE: "Wave",
 };

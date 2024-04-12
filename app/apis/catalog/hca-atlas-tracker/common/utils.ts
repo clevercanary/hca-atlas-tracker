@@ -27,6 +27,7 @@ export function atlasInputMapper(
     status: apiAtlas.status,
     title: apiAtlas.title,
     version: apiAtlas.version,
+    wave: apiAtlas.wave,
   };
 }
 
@@ -49,6 +50,7 @@ export function dbAtlasToApiAtlas(
     status: dbAtlas.status,
     title: "",
     version: dbAtlas.overview.version,
+    wave: dbAtlas.overview.wave,
   };
 }
 
