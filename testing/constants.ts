@@ -26,7 +26,7 @@ export const INITIAL_TEST_USERS = [
 export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT, USER_NEW];
 
 export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
-  doi: "test/sd-draft-ok",
+  doi: "10.123/sd-draft-ok",
   id: "d2932506-0af5-4030-920c-07f6beeb817a",
   publication: {
     authors: [
@@ -43,14 +43,14 @@ export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
 };
 
 export const SOURCE_DATASET_DRAFT_NO_CROSSREF: TestSourceDataset = {
-  doi: "test/sd-draft-no-crossref",
+  doi: "10.123/sd-draft-no-crossref",
   id: "ee67ddcb-e5d8-4240-a8ef-c945657c3321",
   publication: null,
   publicationStatus: PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF,
 };
 
 export const SOURCE_DATASET_PUBLIC_NO_CROSSREF: TestSourceDataset = {
-  doi: "test/sd-public-no-crossref",
+  doi: "10.123/sd-public-no-crossref",
   id: "dae11387-d0c2-4160-8f2e-0be27a3a551a",
   publication: null,
   publicationStatus: PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF,
@@ -93,9 +93,9 @@ export const ATLAS_NONEXISTENT = {
 // Atlases initialized in the database before tests
 export const INITIAL_TEST_ATLASES = [ATLAS_DRAFT, ATLAS_PUBLIC];
 
-export const DOI_NORMAL = "test/test";
+export const DOI_NORMAL = "10.123/test";
 
-export const DOI_NONEXISTENT = "test/nonexistent";
+export const DOI_NONEXISTENT = "10.123/nonexistent";
 
 export const PUBLICATION_NORMAL: PublicationInfo = {
   authors: [
