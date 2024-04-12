@@ -69,6 +69,17 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(404);
   });
 
+  it("returns error 400 when doi is not a string", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_DATA,
+          doi: 123 as unknown as NewSourceDatasetData["doi"],
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("returns error 400 when doi is empty string", async () => {
     expect(
       (
