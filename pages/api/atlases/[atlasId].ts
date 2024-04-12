@@ -60,6 +60,7 @@ const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {
     }
   }
   const newOverviewValues: HCAAtlasTrackerDBAtlasOverview = {
+    integrationLead: newInfo.integrationLead,
     network: newInfo.network,
     shortName: newInfo.shortName,
     version: newInfo.version,

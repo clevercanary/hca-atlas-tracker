@@ -6,6 +6,12 @@ import { NETWORK_KEYS, WAVES } from "./constants";
  * Schema for data used to create a new atlas.
  */
 export const newAtlasSchema = object({
+  integrationLead: object({
+    email: string().default("").required("Integration lead email is requred"),
+    name: string().default("").required("Integration lead name is requred"),
+  })
+    .required()
+    .nullable(),
   network: string()
     .default("")
     .required("Network is required")

@@ -39,6 +39,7 @@ function mapSchemaValues(
       [FIELD_NAME_BIO_NETWORK]: atlas.bioNetwork,
       [FIELD_NAME_VERSION]: atlas.version,
       [FIELD_NAME_WAVE]: atlas.wave,
+      integrationLead: atlas.integrationLead,
     }
   );
 }

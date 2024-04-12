@@ -1,5 +1,6 @@
 import {
   ATLAS_STATUS,
+  IntegrationLead,
   NetworkKey,
   PublicationInfo,
   PUBLICATION_STATUS,
@@ -17,6 +18,7 @@ export interface TestUser {
 
 export interface TestAtlas {
   id: string;
+  integrationLead: IntegrationLead | null;
   network: NetworkKey;
   shortName: string;
   sourceDatasets: string[];

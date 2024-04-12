@@ -19,8 +19,8 @@ export function atlasInputMapper(
   return {
     bioNetwork: apiAtlas.bioNetwork,
     id: apiAtlas.id,
-    integrationLeadEmail: apiAtlas.integrationLead.email,
-    integrationLeadName: apiAtlas.integrationLead.name,
+    integrationLeadEmail: apiAtlas.integrationLead?.email ?? null,
+    integrationLeadName: apiAtlas.integrationLead?.name ?? null,
     name: getAtlasName(apiAtlas),
     publicationDoi: apiAtlas.publication.doi,
     publicationPubString: apiAtlas.publication.pubString,
@@ -38,10 +38,7 @@ export function dbAtlasToApiAtlas(
   return {
     bioNetwork: dbAtlas.overview.network,
     id: dbAtlas.id,
-    integrationLead: {
-      email: "",
-      name: "",
-    },
+    integrationLead: dbAtlas.overview.integrationLead,
     publication: {
       doi: "",
       pubString: "",

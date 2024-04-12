@@ -9,16 +9,28 @@ import { TestUser } from "../testing/entities";
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
+  integrationLead: null,
   network: "eye",
   shortName: "test",
   version: "1.0",
   wave: "1",
 };
 
-let newAtlasId: string;
+const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
+  integrationLead: {
+    email: "foo@example.com",
+    name: "Foo",
+  },
+  network: "eye",
+  shortName: "test2",
+  version: "1.0",
+  wave: "1",
+};
+
+const newAtlasIds: string[] = [];
 
 afterAll(async () => {
-  await query("DELETE FROM hat.atlases WHERE id=$1", [newAtlasId]);
+  await query("DELETE FROM hat.atlases WHERE id=ANY($1)", [newAtlasIds]);
   endPgPool();
 });
 
@@ -74,16 +86,56 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
-  it("creates and returns atlas entry", async () => {
+  it("returns error 400 when integration lead is undefined", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, {
+          ...NEW_ATLAS_DATA,
+          integrationLead:
+            undefined as unknown as NewAtlasData["integrationLead"],
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when integration lead is missing email", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, {
+          ...NEW_ATLAS_WITH_IL_DATA,
+          integrationLead: {
+            name: "Foo",
+          } as NewAtlasData["integrationLead"],
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("creates and returns atlas entry with null integration lead", async () => {
     const newAtlas = (
       await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA)
     )._getJSONData();
-    newAtlasId = newAtlas.id;
+    newAtlasIds.push(newAtlas.id);
     expect(newAtlas.overview).toEqual(NEW_ATLAS_DATA);
     const newAtlasFromDb = (
       await query("SELECT * FROM hat.atlases WHERE id=$1", [newAtlas.id])
     ).rows[0];
     expect(newAtlasFromDb.overview).toEqual(NEW_ATLAS_DATA);
+    expect(newAtlasFromDb.created_at.toISOString()).toEqual(
+      newAtlas.created_at
+    );
+  });
+
+  it("creates and returns atlas entry with specified integration lead", async () => {
+    const newAtlas = (
+      await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_WITH_IL_DATA)
+    )._getJSONData();
+    newAtlasIds.push(newAtlas.id);
+    expect(newAtlas.overview).toEqual(NEW_ATLAS_WITH_IL_DATA);
+    const newAtlasFromDb = (
+      await query("SELECT * FROM hat.atlases WHERE id=$1", [newAtlas.id])
+    ).rows[0];
+    expect(newAtlasFromDb.overview).toEqual(NEW_ATLAS_WITH_IL_DATA);
     expect(newAtlasFromDb.created_at.toISOString()).toEqual(
       newAtlas.created_at
     );

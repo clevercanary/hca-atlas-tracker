@@ -3,8 +3,8 @@ import { NETWORK_KEYS, WAVES } from "./constants";
 export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
   id: string;
-  integrationLeadEmail: string;
-  integrationLeadName: string;
+  integrationLeadEmail: IntegrationLead["email"] | null;
+  integrationLeadName: IntegrationLead["name"] | null;
   name: string;
   publicationDoi: string;
   publicationPubString: string;
@@ -18,10 +18,7 @@ export interface HCAAtlasTrackerListAtlas {
 export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
   id: string;
-  integrationLead: {
-    email: string;
-    name: string;
-  };
+  integrationLead: IntegrationLead | null;
   publication: {
     doi: string;
     pubString: string;
@@ -75,6 +72,7 @@ export interface HCAAtlasTrackerDBAtlas {
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
+  integrationLead: IntegrationLead | null;
   network: NetworkKey;
   shortName: string;
   version: string;
@@ -126,4 +124,9 @@ export interface PublicationInfo {
 export interface Author {
   name: string;
   personalName: string | null;
+}
+
+export interface IntegrationLead {
+  email: string;
+  name: string;
 }

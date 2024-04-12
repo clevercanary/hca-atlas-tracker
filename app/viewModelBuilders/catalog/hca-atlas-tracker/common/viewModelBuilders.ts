@@ -91,7 +91,7 @@ export const buildIntegrationLead = (
   atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Cell> => {
   return {
-    value: atlas.integrationLeadName,
+    value: atlas.integrationLeadName ?? "",
   };
 };
 
