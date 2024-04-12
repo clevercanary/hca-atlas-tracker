@@ -20,7 +20,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
   network: ATLAS_PUBLIC.network,
   shortName: "test-public-edited",
   version: "2.0",
-  wave: 2,
+  wave: "2",
 };
 
 afterAll(async () => {
@@ -104,7 +104,7 @@ describe("/api/atlases/[id]", () => {
       (
         await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
           ...ATLAS_PUBLIC_EDIT,
-          network: "notanetwork",
+          network: "notanetwork" as AtlasEditData["network"],
         })
       )._getStatusCode()
     ).toEqual(400);
@@ -121,34 +121,12 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(400);
   });
 
-  it("PUT returns error 400 when wave is not an integer", async () => {
+  it("PUT returns error 400 when wave is not a valid wave value", async () => {
     expect(
       (
         await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
           ...ATLAS_PUBLIC_EDIT,
-          wave: 1.2,
-        })
-      )._getStatusCode()
-    ).toEqual(400);
-  });
-
-  it("PUT returns error 400 when wave is less than 1", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          wave: 0,
-        })
-      )._getStatusCode()
-    ).toEqual(400);
-  });
-
-  it("PUT returns error 400 when wave is greater than 3", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          wave: 4,
+          wave: "0" as AtlasEditData["wave"],
         })
       )._getStatusCode()
     ).toEqual(400);

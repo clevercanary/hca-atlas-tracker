@@ -2,9 +2,8 @@ import { MenuItem as MMenuItem } from "@mui/material";
 import { ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import {
-  MAX_WAVE,
-  MIN_WAVE,
   NETWORKS,
+  WAVES,
 } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { NewAtlasData } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { isNetworkKey } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
@@ -110,8 +109,7 @@ export const GeneralInfo = ({
                 label="Select wave"
                 readOnly={false}
               >
-                {Array.from({ length: MAX_WAVE - MIN_WAVE + 1 }, (v, i) => {
-                  const wave = MIN_WAVE + i;
+                {WAVES.map((wave) => {
                   return (
                     <MMenuItem key={wave} value={wave}>
                       {wave}

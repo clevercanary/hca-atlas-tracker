@@ -30,13 +30,17 @@ export const useEditAtlasForm = (
  * @param atlas - Atlas.
  * @returns schema default values.
  */
-function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): AtlasEditData {
-  return {
-    [FIELD_NAME_ATLAS_NAME]: atlas?.shortName || "",
-    [FIELD_NAME_BIO_NETWORK]: atlas?.bioNetwork || "",
-    [FIELD_NAME_VERSION]: atlas?.version || "",
-    [FIELD_NAME_WAVE]: atlas?.wave || 1,
-  };
+function mapSchemaValues(
+  atlas?: HCAAtlasTrackerAtlas
+): AtlasEditData | undefined {
+  return (
+    atlas && {
+      [FIELD_NAME_ATLAS_NAME]: atlas.shortName,
+      [FIELD_NAME_BIO_NETWORK]: atlas.bioNetwork,
+      [FIELD_NAME_VERSION]: atlas.version,
+      [FIELD_NAME_WAVE]: atlas.wave,
+    }
+  );
 }
 
 /**

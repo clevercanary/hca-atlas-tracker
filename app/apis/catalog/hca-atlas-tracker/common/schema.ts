@@ -1,10 +1,5 @@
-import { escapeRegExp } from "@clevercanary/data-explorer-ui/lib/common/utils";
-import { boolean, InferType, number, object, string } from "yup";
-import { MAX_WAVE, MIN_WAVE, NETWORK_KEYS } from "./constants";
-
-const NETWORK_REGEXP = new RegExp(
-  `^(?:${NETWORK_KEYS.map(escapeRegExp).join("|")})$`
-);
+import { boolean, InferType, object, string } from "yup";
+import { NETWORK_KEYS, WAVES } from "./constants";
 
 /**
  * Schema for data used to create a new atlas.
@@ -13,18 +8,13 @@ export const newAtlasSchema = object({
   network: string()
     .default("")
     .required("Network is required")
-    .matches(
-      NETWORK_REGEXP,
-      `Network must be one of: ${NETWORK_KEYS.join(", ")}`
-    ),
+    .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
   shortName: string().default("").required("Short name is required"),
   version: string().default("").required("Version is required"),
-  wave: number()
-    .default(1)
+  wave: string()
+    .default("")
     .required("Wave is required")
-    .integer("Wave must be an integer")
-    .min(MIN_WAVE, `Wave must be greater than or equal to ${MIN_WAVE}`)
-    .max(MAX_WAVE, `Wave must be less than or equal to ${MAX_WAVE}`),
+    .oneOf(WAVES, `Wave must be one of: ${WAVES.join(", ")}`),
 }).strict(true);
 
 export type NewAtlasData = InferType<typeof newAtlasSchema>;

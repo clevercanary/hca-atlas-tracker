@@ -2,7 +2,6 @@ import { ValidationError } from "yup";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlasOverview,
-  NetworkKey,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewAtlasData,
@@ -30,7 +29,7 @@ export default handler(
       }
     }
     const newOverview: HCAAtlasTrackerDBAtlasOverview = {
-      network: newInfo.network as NetworkKey,
+      network: newInfo.network,
       shortName: newInfo.shortName,
       version: newInfo.version,
       wave: newInfo.wave,
