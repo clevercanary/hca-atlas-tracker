@@ -168,6 +168,19 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when integration lead is missing name", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
+          ...ATLAS_PUBLIC_EDIT,
+          integrationLead: {
+            email: "bar@example.com",
+          } as AtlasEditData["integrationLead"],
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     const updatedAtlas = (
       await doAtlasRequest(
