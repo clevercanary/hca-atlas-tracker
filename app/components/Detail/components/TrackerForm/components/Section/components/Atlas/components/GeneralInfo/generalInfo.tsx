@@ -6,7 +6,10 @@ import {
   WAVES,
 } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { NewAtlasData } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { isNetworkKey } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import {
+  isNetworkKey,
+  isWaveValue,
+} from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
 import { getBioNetworkByKey } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { Input } from "../../../../../../../../../common/Form/components/Input/input";
@@ -103,11 +106,13 @@ export const GeneralInfo = ({
             return (
               <Select
                 {...field}
+                displayEmpty
                 error={Boolean(errors[FIELD_NAME_WAVE])}
                 helperText={errors[FIELD_NAME_WAVE]?.message as string}
                 isDirty={Boolean(formState.dirtyFields.wave)}
                 label="Select wave"
                 readOnly={false}
+                renderValue={renderWaveSelectValue}
               >
                 {WAVES.map((wave) => {
                   return (
@@ -139,6 +144,18 @@ function renderNetworkSelectValue(value: unknown): ReactNode {
         networkName={networkName ?? value}
       />
     );
+  }
+  return "Choose...";
+}
+
+/**
+ * Renders wave select value.
+ * @param value - Select value.
+ * @returns select value.
+ */
+function renderWaveSelectValue(value: unknown): ReactNode {
+  if (isWaveValue(value)) {
+    return value;
   }
   return "Choose...";
 }

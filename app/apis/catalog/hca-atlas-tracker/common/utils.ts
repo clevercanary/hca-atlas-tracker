@@ -1,4 +1,4 @@
-import { NETWORK_KEYS } from "./constants";
+import { NETWORK_KEYS, WAVES } from "./constants";
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerSourceDataset,
   NetworkKey,
+  Wave,
 } from "./entities";
 
 export function getAtlasId(atlas: HCAAtlasTrackerListAtlas): string {
@@ -86,5 +87,16 @@ export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
 export function isNetworkKey(key: unknown): key is NetworkKey {
   return (
     typeof key === "string" && (NETWORK_KEYS as readonly string[]).includes(key)
+  );
+}
+
+/**
+ * Returns true if the given value is a valid wave.
+ * @param value - Value.
+ * @returns true if the value is a valid wave.
+ */
+export function isWaveValue(value: unknown): value is Wave {
+  return (
+    typeof value === "string" && (WAVES as readonly string[]).includes(value)
   );
 }

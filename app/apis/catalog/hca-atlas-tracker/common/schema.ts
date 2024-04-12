@@ -8,12 +8,14 @@ export const newAtlasSchema = object({
   network: string()
     .default("")
     .required("Network is required")
+    .notOneOf([""], "Network is required")
     .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
   shortName: string().default("").required("Short name is required"),
   version: string().default("").required("Version is required"),
   wave: string()
     .default("")
     .required("Wave is required")
+    .notOneOf([""], "Wave is required")
     .oneOf(WAVES, `Wave must be one of: ${WAVES.join(", ")}`),
 }).strict(true);
 
