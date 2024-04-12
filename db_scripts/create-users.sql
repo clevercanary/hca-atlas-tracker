@@ -22,9 +22,17 @@ GRANT ALL ON TABLES TO hat_migrate;
 
 -- Grant hat_app permission to read, insert, update, and delete data in all current and future tables in the 'hat' schema
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA hat TO hat_app;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA hat
+ALTER DEFAULT PRIVILEGES FOR ROLE hat_migrate IN SCHEMA hat
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO hat_app;
 
 -- Step 4: Grant Connect to the Database
 GRANT CONNECT ON DATABASE hcaatlastracker TO hat_migrate;
 GRANT CONNECT ON DATABASE hcaatlastracker TO hat_app;
+
+-- Additional: Grant EXECUTE on all current and future functions/procedures in 'hat' schema to hat_app
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA hat TO hat_app;
+GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA hat TO hat_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE hat_migrate IN SCHEMA hat
+GRANT EXECUTE ON FUNCTIONS TO hat_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE hat_migrate IN SCHEMA hat
+GRANT EXECUTE ON PROCEDURES TO hat_app;
