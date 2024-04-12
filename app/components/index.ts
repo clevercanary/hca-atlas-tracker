@@ -1,4 +1,5 @@
 export { SessionTimeout } from "@clevercanary/data-explorer-ui/lib/components/common/Banner/components/SessionTimeout/sessionTimeout";
+export { GitHubIcon } from "@clevercanary/data-explorer-ui/lib/components/common/CustomIcon/components/GitHubIcon/gitHubIcon";
 export { FluidPaper } from "@clevercanary/data-explorer-ui/lib/components/common/Paper/paper.styles";
 export { Sections } from "@clevercanary/data-explorer-ui/lib/components/common/Sections/sections";
 export { StatusBadge } from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
