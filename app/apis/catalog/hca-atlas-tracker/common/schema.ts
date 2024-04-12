@@ -1,4 +1,5 @@
 import { boolean, InferType, object, string } from "yup";
+import { isDoi } from "../../../../utils/publications";
 import { NETWORK_KEYS, WAVES } from "./constants";
 
 /**
@@ -32,7 +33,12 @@ export type AtlasEditData = NewAtlasData;
  * Schema for data used to create a new source dataset.
  */
 export const newSourceDatasetSchema = object({
-  doi: string().default("").required("DOI is required"),
+  doi: string()
+    .default("")
+    .required("DOI is required")
+    .test("is-doi", "DOI must be a syntactically-valid DOI", (value) =>
+      isDoi(value)
+    ),
 }).strict(true);
 
 export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;

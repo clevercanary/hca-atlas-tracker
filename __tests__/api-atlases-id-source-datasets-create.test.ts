@@ -69,6 +69,17 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(404);
   });
 
+  it("returns error 400 when doi is not a string", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_DATA,
+          doi: 123 as unknown as NewSourceDatasetData["doi"],
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("returns error 400 when doi is empty string", async () => {
     expect(
       (
@@ -80,10 +91,25 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when doi is syntactically invalid", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_DATA,
+          doi: "10.nota/doi",
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns source dataset entry", async () => {
-    const newDataset: HCAAtlasTrackerDBSourceDataset = (
-      await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, NEW_DATASET_DATA)
-    )._getJSONData();
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      ATLAS_DRAFT,
+      NEW_DATASET_DATA
+    );
+    expect(res._getStatusCode()).toEqual(201);
+    const newDataset: HCAAtlasTrackerDBSourceDataset = res._getJSONData();
     newDatasetId = newDataset.id;
     expect(newDataset.sd_info.publication).toEqual(PUBLICATION_NORMAL);
     const newDatasetFromDb = (
