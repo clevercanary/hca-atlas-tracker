@@ -21,6 +21,7 @@ export default async function setup(): Promise<void> {
 
   for (const dataset of INITIAL_TEST_SOURCE_DATASETS) {
     const sdInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
+      hcaProjectId: null,
       publication: dataset.publication,
       publicationStatus: dataset.publicationStatus,
     };

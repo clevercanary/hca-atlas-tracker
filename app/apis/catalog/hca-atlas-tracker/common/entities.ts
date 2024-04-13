@@ -52,6 +52,7 @@ export interface HCAAtlasTrackerNetworkCoordinator {
 export interface HCAAtlasTrackerSourceDataset {
   doi: string | null;
   firstAuthorPrimaryName: string | null;
+  hcaProjectId: string | null;
   id: string;
   inCap: string;
   inCellxGene: string;
@@ -88,6 +89,7 @@ export interface HCAAtlasTrackerDBSourceDataset {
 }
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
+  hcaProjectId: string | null;
   publication: PublicationInfo | null;
   publicationStatus: PUBLICATION_STATUS;
 }

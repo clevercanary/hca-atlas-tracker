@@ -16,6 +16,7 @@ import { TestAtlas, TestUser } from "../testing/entities";
 
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/publications");
+jest.mock("../app/utils/hca-projects");
 
 const NEW_DATASET_DATA: NewSourceDatasetData = {
   doi: DOI_NORMAL,

@@ -16,6 +16,7 @@ import {
   query,
   role,
 } from "../../../../../app/utils/api-handler";
+import { getProjectIdByDoi } from "../../../../../app/utils/hca-projects";
 import {
   getCrossrefPublicationInfo,
   normalizeDoi,
@@ -54,7 +55,9 @@ export default handler(
 
     const doi = normalizeDoi(newData.doi);
     const publication = await getCrossrefPublicationInfo(doi);
+    const hcaProjectId = await getProjectIdByDoi(doi);
     const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
+      hcaProjectId,
       publication,
       publicationStatus: publication
         ? PUBLICATION_STATUS.OK
