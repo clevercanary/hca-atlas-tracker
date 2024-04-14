@@ -2,7 +2,6 @@ import {
   AzulCatalogResponse,
   AzulEntitiesResponse,
 } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/entities";
-import { fetchAllEntities } from "@clevercanary/data-explorer-ui/lib/entity/api/service";
 import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
 import { normalizeDoi } from "./publications";
 
@@ -54,9 +53,8 @@ async function getRefreshedProjectIdsByDoi(
   catalog: string
 ): Promise<ProjectIdsByDoi> {
   const projectIdsByDoi: ProjectIdsByDoi = new Map();
-  const entitiesResponse: AzulEntitiesResponse<ProjectsResponse> =
-    await fetchAllEntities(API_URL_PROJECTS, undefined, catalog);
-  for (const projectsResponse of entitiesResponse.hits) {
+  const hits = await getAllProjects(catalog);
+  for (const projectsResponse of hits) {
     for (const project of projectsResponse.projects) {
       for (const publication of project.publications) {
         if (publication.doi)
@@ -72,4 +70,21 @@ async function getLatestCatalog(): Promise<string> {
     await fetch(API_URL_CATALOGS)
   ).json();
   return catalogs.default_catalog;
+}
+
+async function getAllProjects(catalog: string): Promise<ProjectsResponse[]> {
+  let url:
+    | string
+    | undefined = `${API_URL_PROJECTS}?catalog=${encodeURIComponent(
+    catalog
+  )}&size=100`;
+  const hits: ProjectsResponse[] = [];
+  while (url) {
+    const responseData: AzulEntitiesResponse<ProjectsResponse> = await (
+      await fetch(url)
+    ).json();
+    hits.push(...responseData.hits);
+    url = responseData.pagination.next;
+  }
+  return hits;
 }
