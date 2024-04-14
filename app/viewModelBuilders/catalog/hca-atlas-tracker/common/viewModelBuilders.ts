@@ -52,7 +52,7 @@ export const buildInCap = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
-    value: sourceDataset.inCap,
+    done: getSourceDatasetInCap(sourceDataset),
   };
 };
 
@@ -65,7 +65,7 @@ export const buildInCellxGene = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
-    value: sourceDataset.inCellxGene,
+    done: getSourceDatasetInCellxGene(sourceDataset),
   };
 };
 
@@ -78,7 +78,7 @@ export const buildInHcaDataRepository = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
-    value: sourceDataset.inHcaDataRepository,
+    done: getSourceDatasetInHcaDataRepository(sourceDataset),
   };
 };
 
@@ -271,9 +271,9 @@ function getCitation(
  */
 function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
-    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CAP,
+    accessorFn: getSourceDatasetInCap,
     cell: ({ row }) => C.TaskStatusCell(buildInCap(row.original)),
-    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CAP,
+    header: "CAP",
   };
 }
 
@@ -283,9 +283,9 @@ function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
  */
 function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
-    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_CELLXGENE,
+    accessorFn: getSourceDatasetInCellxGene,
     cell: ({ row }) => C.TaskStatusCell(buildInCellxGene(row.original)),
-    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_CELLXGENE,
+    header: "CELLxGENE",
   };
 }
 
@@ -295,9 +295,9 @@ function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSource
  */
 function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
-    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.IN_HCA_DATA_REPOSITORY,
+    accessorFn: getSourceDatasetInHcaDataRepository,
     cell: ({ row }) => C.TaskStatusCell(buildInHcaDataRepository(row.original)),
-    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.IN_HCA_DATA_REPOSITORY,
+    header: "HCA Data Repository",
   };
 }
 
@@ -323,4 +323,37 @@ function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSource
     cell: ({ row }) => C.Link(buildSourceDatasetPublication(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
   };
+}
+
+/**
+ * Get boolean describing whether a source dataset is known to be in CAP.
+ * @param sourceDataset - Source dataset.
+ * @returns whether the source dataset is in CAP.
+ */
+function getSourceDatasetInCap(
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): boolean {
+  return Boolean(sourceDataset.capId);
+}
+
+/**
+ * Get boolean describing whether a source dataset is known to be in CELLxGENE.
+ * @param sourceDataset - Source dataset.
+ * @returns whether the source dataset is in CELLxGENE.
+ */
+function getSourceDatasetInCellxGene(
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): boolean {
+  return Boolean(sourceDataset.cellxgeneCollectionId);
+}
+
+/**
+ * Get boolean describing whether a source dataset is known to be in the HCA data repository.
+ * @param sourceDataset - Source dataset.
+ * @returns whether the source dataset is in the HCA data repository.
+ */
+function getSourceDatasetInHcaDataRepository(
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): boolean {
+  return Boolean(sourceDataset.hcaProjectId);
 }

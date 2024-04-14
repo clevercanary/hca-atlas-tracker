@@ -59,13 +59,12 @@ export function dbSourceDatasetToApiSourceDataset(
     sd_info: { hcaProjectId, publication },
   } = dbSourceDataset;
   return {
+    capId: null,
+    cellxgeneCollectionId: null,
     doi: dbSourceDataset.doi,
     firstAuthorPrimaryName: publication?.authors[0]?.name ?? null,
     hcaProjectId,
     id: dbSourceDataset.id,
-    inCap: "No",
-    inCellxGene: "No",
-    inHcaDataRepository: hcaProjectId ? "Yes" : "No",
     journal: publication?.journal ?? null,
     publicationDate: publication?.publicationDate ?? null,
     publicationStatus: dbSourceDataset.sd_info.publicationStatus,
