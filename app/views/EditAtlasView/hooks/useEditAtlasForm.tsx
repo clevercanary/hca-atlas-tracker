@@ -12,6 +12,7 @@ import {
   FIELD_NAME_VERSION,
   FIELD_NAME_WAVE,
 } from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
+import { FIELD_NAME_INTEGRATION_LEAD } from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { ROUTE } from "../../../routes/constants";
@@ -37,9 +38,9 @@ function mapSchemaValues(
     atlas && {
       [FIELD_NAME_ATLAS_NAME]: atlas.shortName,
       [FIELD_NAME_BIO_NETWORK]: atlas.bioNetwork,
+      [FIELD_NAME_INTEGRATION_LEAD]: atlas.integrationLead,
       [FIELD_NAME_VERSION]: atlas.version,
       [FIELD_NAME_WAVE]: atlas.wave,
-      integrationLead: atlas.integrationLead,
     }
   );
 }

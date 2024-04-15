@@ -15,6 +15,7 @@ import {
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { AuthenticationRequired } from "../TrackerForm/components/Section/components/Atlas/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
+import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
 
@@ -40,6 +41,8 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
     <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
       <Divider />
       <GeneralInfo {...formMethod} />
+      <Divider />
+      <IntegrationLead {...formMethod} />
       <Divider />
       <FormActions>
         <ButtonLink color={BUTTON_COLOR.SECONDARY} href={ROUTE.ATLASES}>

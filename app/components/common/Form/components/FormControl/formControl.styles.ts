@@ -10,11 +10,11 @@ import styled from "@emotion/styled";
 import { FormControl as MFormControl } from "@mui/material";
 
 interface Props {
-  isDirty: boolean;
+  isFilled: boolean;
 }
 
 export const FormControl = styled(MFormControl, {
-  shouldForwardProp: (prop) => prop !== "isDirty",
+  shouldForwardProp: (prop) => prop !== "isFilled",
 })<Props>`
   display: flex;
   flex-direction: column;
@@ -41,8 +41,8 @@ export const FormControl = styled(MFormControl, {
       }
     }
 
-    ${({ isDirty, ...props }) =>
-      isDirty &&
+    ${({ isFilled, ...props }) =>
+      isFilled &&
       css`
         & .MuiOutlinedInput-input,
         .MuiSvgIcon-root {

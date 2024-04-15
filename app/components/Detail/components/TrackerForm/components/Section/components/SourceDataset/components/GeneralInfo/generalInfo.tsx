@@ -35,7 +35,7 @@ export const GeneralInfo = ({
               {...field}
               error={Boolean(errors[FIELD_NAME_DOI])}
               helperText={errors[FIELD_NAME_DOI]?.message as string}
-              isDirty={Boolean(field.value)}
+              isFilled={Boolean(field.value)}
               label="DOI"
               placeholder="e.g. 10.1038/s41591-023-02327-2"
               readOnly={false}
