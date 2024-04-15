@@ -128,3 +128,7 @@ export const PUBLICATION_NORMAL: PublicationInfo = {
 export const TEST_DOI_PUBLICATIONS = new Map([
   [DOI_NORMAL, PUBLICATION_NORMAL],
 ]);
+
+export const HCA_ID_NORMAL = "hca-id-normal";
+
+export const TEST_HCA_IDS_BY_DOI = new Map([[DOI_NORMAL, HCA_ID_NORMAL]]);

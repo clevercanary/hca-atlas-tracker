@@ -8,6 +8,7 @@ import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
   DOI_NORMAL,
+  HCA_ID_NORMAL,
   PUBLICATION_NORMAL,
   USER_CONTENT_ADMIN,
   USER_NORMAL,
@@ -121,6 +122,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).rows[0];
     expect(newDatasetFromDb).toBeDefined();
     expect(newDatasetFromDb.sd_info.publication).toEqual(PUBLICATION_NORMAL);
+    expect(newDatasetFromDb.sd_info.hcaProjectId).toEqual(HCA_ID_NORMAL);
     expect(newDatasetFromDb.created_at.toISOString()).toEqual(
       newDataset.created_at
     );
