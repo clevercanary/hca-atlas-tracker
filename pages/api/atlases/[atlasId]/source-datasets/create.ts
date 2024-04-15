@@ -16,7 +16,10 @@ import {
   query,
   role,
 } from "../../../../../app/utils/api-handler";
-import { getProjectIdByDoi } from "../../../../../app/utils/hca-projects";
+import {
+  getProjectIdByDoi,
+  ProjectsNotReadyError,
+} from "../../../../../app/utils/hca-projects";
 import {
   getCrossrefPublicationInfo,
   normalizeDoi,
@@ -55,7 +58,19 @@ export default handler(
 
     const doi = normalizeDoi(newData.doi);
     const publication = await getCrossrefPublicationInfo(doi);
-    const hcaProjectId = await getProjectIdByDoi(doi);
+    let hcaProjectId;
+    try {
+      hcaProjectId = await getProjectIdByDoi(doi);
+    } catch (e) {
+      if (e instanceof ProjectsNotReadyError) {
+        res
+          .status(503)
+          .appendHeader("Retry-After", "20")
+          .json({ message: e.message });
+        return;
+      }
+      throw e;
+    }
     const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
       hcaProjectId,
       publication,
