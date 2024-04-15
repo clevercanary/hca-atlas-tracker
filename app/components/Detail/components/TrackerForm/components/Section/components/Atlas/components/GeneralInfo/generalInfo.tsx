@@ -5,7 +5,10 @@ import {
   NETWORKS,
   WAVES,
 } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
-import { NewAtlasData } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  AtlasEditData,
+  NewAtlasData,
+} from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   isNetworkKey,
   isWaveValue,
@@ -28,8 +31,8 @@ export const FIELD_NAME_VERSION = "version";
 export const FIELD_NAME_WAVE = "wave";
 
 export interface GeneralInfoProps {
-  control: FormMethod<NewAtlasData>["control"];
-  formState: FormMethod<NewAtlasData>["formState"];
+  control: FormMethod<AtlasEditData | NewAtlasData>["control"];
+  formState: FormMethod<AtlasEditData | NewAtlasData>["formState"];
 }
 
 export const GeneralInfo = ({
@@ -52,7 +55,7 @@ export const GeneralInfo = ({
                 {...field}
                 error={Boolean(errors[FIELD_NAME_ATLAS_NAME])}
                 helperText={errors[FIELD_NAME_ATLAS_NAME]?.message as string}
-                isDirty={Boolean(formState.dirtyFields.shortName)}
+                isFilled={Boolean(field.value)}
                 label="Short name"
                 placeholder="e.g. Cortex"
                 readOnly={false}
@@ -68,7 +71,7 @@ export const GeneralInfo = ({
               {...field}
               error={Boolean(errors[FIELD_NAME_VERSION])}
               helperText={errors[FIELD_NAME_VERSION]?.message as string}
-              isDirty={Boolean(formState.dirtyFields.version)}
+              isFilled={Boolean(field.value)}
               label="Version"
               placeholder="e.g. 1.0"
               readOnly={false}
@@ -85,7 +88,7 @@ export const GeneralInfo = ({
                 displayEmpty
                 error={Boolean(errors[FIELD_NAME_BIO_NETWORK])}
                 helperText={errors[FIELD_NAME_BIO_NETWORK]?.message as string}
-                isDirty={Boolean(formState.dirtyFields.network)}
+                isFilled={Boolean(field.value)}
                 label="Select network"
                 readOnly={false}
                 renderValue={renderNetworkSelectValue}
@@ -109,7 +112,7 @@ export const GeneralInfo = ({
                 displayEmpty
                 error={Boolean(errors[FIELD_NAME_WAVE])}
                 helperText={errors[FIELD_NAME_WAVE]?.message as string}
-                isDirty={Boolean(formState.dirtyFields.wave)}
+                isFilled={Boolean(field.value)}
                 label="Select wave"
                 readOnly={false}
                 renderValue={renderWaveSelectValue}

@@ -7,8 +7,8 @@ import { NETWORK_KEYS, WAVES } from "./constants";
  */
 export const newAtlasSchema = object({
   integrationLead: object({
-    email: string().default("").required("Integration lead email is requred"),
-    name: string().default("").required("Integration lead name is requred"),
+    email: string().default("").required("Integration lead email is required"),
+    name: string().default("").required("Integration lead name is required"),
   })
     .required()
     .nullable(),

@@ -10,7 +10,7 @@ import { InputFormControl as FormControl } from "./input.styles";
 export interface InputProps extends MOutlinedInputProps {
   className?: string;
   helperText?: ReactNode;
-  isDirty?: boolean;
+  isFilled?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -19,7 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     disabled,
     error,
     helperText,
-    isDirty = false,
+    isFilled = false,
     label,
     ...props /* Spread props to allow for Mui OutlinedInputProps specific prop overrides e.g. "disabled". */
   }: InputProps,
@@ -31,7 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       color={error ? "warning" : undefined}
       disabled={disabled}
       error={error}
-      isDirty={isDirty}
+      isFilled={isFilled}
     >
       {label && <FormLabel>{label}</FormLabel>}
       <MOutlinedInput
