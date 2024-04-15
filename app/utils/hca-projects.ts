@@ -7,10 +7,11 @@ import { normalizeDoi } from "./publications";
 
 type ProjectIdsByDoi = Map<string, string>;
 
-interface RefreshState {
-  projectIdsByDoiCatalog: string;
-  projectIdsByDoiPromise: Promise<ProjectIdsByDoi>;
-  projectsRefreshing: boolean;
+export interface ProjectsInfo {
+  byDoi: ProjectIdsByDoi;
+  catalog: string | null;
+  initialLoadPromise: Promise<void>;
+  refreshing: boolean | null;
 }
 
 const API_URL_CATALOGS =
@@ -18,35 +19,27 @@ const API_URL_CATALOGS =
 const API_URL_PROJECTS =
   "https://service.azul.data.humancellatlas.org/index/projects";
 
-let refreshState: RefreshState | null = null;
+const projectsInfo = getProjectsInfo();
 
 export async function getProjectIdByDoi(doi: string): Promise<string | null> {
-  return (await getLatestProjectIdsByDoi()).get(normalizeDoi(doi)) ?? null;
+  await projectsInfo.initialLoadPromise;
+  startRefreshIfNeeded();
+  return projectsInfo.byDoi.get(normalizeDoi(doi)) ?? null;
 }
 
-async function getLatestProjectIdsByDoi(): Promise<ProjectIdsByDoi> {
+async function startRefreshIfNeeded(force = false): Promise<void> {
   const catalog = await getLatestCatalog();
-  if (
-    !refreshState?.projectsRefreshing &&
-    (refreshState === null || refreshState.projectIdsByDoiCatalog !== catalog)
-  ) {
-    const newPromise = getRefreshedProjectIdsByDoi(catalog);
-    const newRefreshState = {
-      projectIdsByDoiCatalog: catalog,
-      projectIdsByDoiPromise: newPromise,
-      projectsRefreshing: true,
-    };
-    const prevRefreshState = refreshState;
-    refreshState = newRefreshState;
-    newPromise
-      .then(() => {
-        newRefreshState.projectsRefreshing = false;
-      })
-      .catch(() => {
-        refreshState = prevRefreshState;
-      });
+  if (force || (!projectsInfo.refreshing && projectsInfo.catalog !== catalog)) {
+    projectsInfo.refreshing = true;
+    try {
+      projectsInfo.byDoi = await getRefreshedProjectIdsByDoi(catalog);
+      projectsInfo.catalog = catalog;
+    } catch (e) {
+      console.error(e);
+    } finally {
+      projectsInfo.refreshing = false;
+    }
   }
-  return refreshState.projectIdsByDoiPromise;
 }
 
 async function getRefreshedProjectIdsByDoi(
@@ -87,4 +80,20 @@ async function getAllProjects(catalog: string): Promise<ProjectsResponse[]> {
     url = responseData.pagination.next;
   }
   return hits;
+}
+
+/**
+ * Gets projects info stored on the global object, creating it and starting a refresh if it doesn't already exist.
+ * @returns projects info.
+ */
+function getProjectsInfo(): ProjectsInfo {
+  return (
+    globalThis.hcaAtlasTrackerProjectsInfoCache ||
+    (globalThis.hcaAtlasTrackerProjectsInfoCache = {
+      byDoi: new Map(),
+      catalog: null,
+      initialLoadPromise: startRefreshIfNeeded(true),
+      refreshing: null,
+    })
+  );
 }
