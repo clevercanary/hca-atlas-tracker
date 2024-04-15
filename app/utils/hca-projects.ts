@@ -28,7 +28,13 @@ export async function getProjectIdByDoi(doi: string): Promise<string | null> {
 }
 
 async function startRefreshIfNeeded(force = false): Promise<void> {
-  const catalog = await getLatestCatalog();
+  let catalog: string;
+  try {
+    catalog = await getLatestCatalog();
+  } catch (e) {
+    console.error(e);
+    return;
+  }
   if (force || (!projectsInfo.refreshing && projectsInfo.catalog !== catalog)) {
     projectsInfo.refreshing = true;
     try {
