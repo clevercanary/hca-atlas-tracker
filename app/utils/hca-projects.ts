@@ -21,12 +21,22 @@ const API_URL_PROJECTS =
 
 const projectsInfo = getProjectsInfo();
 
+/**
+ * Get HCA project ID by project DOI, and start a refresh of the DOI-to-ID mappings if needed.
+ * @param doi -- DOI to get project ID for.
+ * @returns HCA project ID, or null if none is found.
+ */
 export async function getProjectIdByDoi(doi: string): Promise<string | null> {
   await projectsInfo.initialLoadPromise;
   startRefreshIfNeeded();
   return projectsInfo.byDoi.get(normalizeDoi(doi)) ?? null;
 }
 
+/**
+ * Start a refresh of the DOI-to-ID mappings if the current ones are out of date and not currently refreshing, or if the `force` argument is true.
+ * @param force -- Whether to override the condition and force a refresh to happen.
+ * @returns promise that succeeds when the refresh ends (whether by completing or by encountering an error).
+ */
 async function startRefreshIfNeeded(force = false): Promise<void> {
   let catalog: string;
   try {
@@ -48,6 +58,11 @@ async function startRefreshIfNeeded(force = false): Promise<void> {
   }
 }
 
+/**
+ * Fetch the given catalog and build DOI-to-ID mapping.
+ * @param catalog - Catalog to fetch projects from.
+ * @returns project IDs by DOI for the given catalog.
+ */
 async function getRefreshedProjectIdsByDoi(
   catalog: string
 ): Promise<ProjectIdsByDoi> {
@@ -64,6 +79,10 @@ async function getRefreshedProjectIdsByDoi(
   return projectIdsByDoi;
 }
 
+/**
+ * Fetch current default HCA catalog name.
+ * @returns catalog name.
+ */
 async function getLatestCatalog(): Promise<string> {
   const catalogs: AzulCatalogResponse = await (
     await fetch(API_URL_CATALOGS)
@@ -71,6 +90,11 @@ async function getLatestCatalog(): Promise<string> {
   return catalogs.default_catalog;
 }
 
+/**
+ * Fetch all projects from given catalog.
+ * @param catalog - Catalog to fetch projects from.
+ * @returns projects responses for all of the catalog's projects.
+ */
 async function getAllProjects(catalog: string): Promise<ProjectsResponse[]> {
   let url:
     | string
