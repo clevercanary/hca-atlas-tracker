@@ -15,6 +15,7 @@ import {
   PUBLICATION_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
+import { TASK_STATUS } from "../../../../components/Index/components/TaskStatusCell/taskStatusCell";
 
 /**
  * Build props for the atlas name cell component.
@@ -52,7 +53,7 @@ export const buildInCap = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
-    done: getSourceDatasetInCap(sourceDataset),
+    value: getSourceDatasetInCap(sourceDataset),
   };
 };
 
@@ -65,7 +66,7 @@ export const buildInCellxGene = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
-    done: getSourceDatasetInCellxGene(sourceDataset),
+    value: getSourceDatasetInCellxGene(sourceDataset),
   };
 };
 
@@ -78,7 +79,7 @@ export const buildInHcaDataRepository = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.TaskStatusCell> => {
   return {
-    done: getSourceDatasetInHcaDataRepository(sourceDataset),
+    value: getSourceDatasetInHcaDataRepository(sourceDataset),
   };
 };
 
@@ -326,34 +327,36 @@ function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSource
 }
 
 /**
- * Get boolean describing whether a source dataset is known to be in CAP.
+ * Get task status describing whether a source dataset is known to be in CAP.
  * @param sourceDataset - Source dataset.
  * @returns whether the source dataset is in CAP.
  */
 function getSourceDatasetInCap(
   sourceDataset: HCAAtlasTrackerSourceDataset
-): boolean {
-  return Boolean(sourceDataset.capId);
+): TASK_STATUS {
+  return sourceDataset.capId ? TASK_STATUS.DONE : TASK_STATUS.REQUIRED;
 }
 
 /**
- * Get boolean describing whether a source dataset is known to be in CELLxGENE.
+ * Get task status describing whether a source dataset is known to be in CELLxGENE.
  * @param sourceDataset - Source dataset.
  * @returns whether the source dataset is in CELLxGENE.
  */
 function getSourceDatasetInCellxGene(
   sourceDataset: HCAAtlasTrackerSourceDataset
-): boolean {
-  return Boolean(sourceDataset.cellxgeneCollectionId);
+): TASK_STATUS {
+  return sourceDataset.cellxgeneCollectionId
+    ? TASK_STATUS.DONE
+    : TASK_STATUS.REQUIRED;
 }
 
 /**
- * Get boolean describing whether a source dataset is known to be in the HCA data repository.
+ * Get task status describing whether a source dataset is known to be in the HCA data repository.
  * @param sourceDataset - Source dataset.
  * @returns whether the source dataset is in the HCA data repository.
  */
 function getSourceDatasetInHcaDataRepository(
   sourceDataset: HCAAtlasTrackerSourceDataset
-): boolean {
-  return Boolean(sourceDataset.hcaProjectId);
+): TASK_STATUS {
+  return sourceDataset.hcaProjectId ? TASK_STATUS.DONE : TASK_STATUS.REQUIRED;
 }
