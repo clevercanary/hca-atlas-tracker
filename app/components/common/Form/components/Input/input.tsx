@@ -11,6 +11,7 @@ export interface InputProps extends MOutlinedInputProps {
   className?: string;
   helperText?: ReactNode;
   isFilled?: boolean;
+  isFullWidth?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -20,6 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     error,
     helperText,
     isFilled = false,
+    isFullWidth = false,
     label,
     ...props /* Spread props to allow for Mui OutlinedInputProps specific prop overrides e.g. "disabled". */
   }: InputProps,
@@ -32,6 +34,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       disabled={disabled}
       error={error}
       isFilled={isFilled}
+      isFullWidth={isFullWidth}
     >
       {label && <FormLabel>{label}</FormLabel>}
       <MOutlinedInput

@@ -7,7 +7,8 @@ import { FormLabel } from "../FormLabel/formLabel";
 export interface SelectProps extends MSelectProps {
   className?: string;
   helperText?: ReactNode;
-  isFilled: boolean;
+  isFilled?: boolean;
+  isFullWidth?: boolean;
 }
 
 export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
@@ -17,7 +18,8 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
     disabled,
     error,
     helperText,
-    isFilled,
+    isFilled = false,
+    isFullWidth = false,
     label,
     onBlur,
     ...props /* Spread props to allow for Mui SelectProps specific prop overrides e.g. "disabled". */
@@ -31,6 +33,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
       disabled={disabled}
       error={error}
       isFilled={isFilled}
+      isFullWidth={isFullWidth}
     >
       {label && <FormLabel>{label}</FormLabel>}
       <MSelect

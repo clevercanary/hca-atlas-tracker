@@ -5,7 +5,7 @@ import { UseForm } from "../useForm";
 
 export type CustomUseFormReturn<T extends FieldValues> = Pick<
   UseFormReturn<YupValidatedFormValues<T>>,
-  "control" | "formState" | "handleSubmit"
+  "control" | "formState" | "getValues" | "handleSubmit"
 >;
 
 export type FormMethod<T extends FieldValues> = UseForm<T>;

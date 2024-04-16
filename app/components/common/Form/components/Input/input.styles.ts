@@ -1,11 +1,15 @@
-import { inkLight } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
+import {
+  inkLight,
+  white,
+} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
 import styled from "@emotion/styled";
 import { FormControl } from "../FormControl/formControl.styles";
 
 export const InputFormControl = styled(FormControl)`
   .MuiOutlinedInput-root {
     .MuiOutlinedInput-input {
-      padding: 10px 10px 10px 0;
+      -webkit-box-shadow: inset 0 40px ${white}; /* autoComplete - email field */
+      padding: 10px 12px 10px 0;
     }
 
     &.MuiInputBase-multiline {

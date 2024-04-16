@@ -74,15 +74,6 @@ export const atlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.Cell,
-          viewBuilder: V.buildVersion,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
-        width: { max: "1fr", min: "136px" },
-      },
-      {
-        componentConfig: {
-          component: C.Cell,
           viewBuilder: V.buildIntegrationLead,
         } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,

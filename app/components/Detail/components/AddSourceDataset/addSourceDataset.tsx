@@ -16,7 +16,7 @@ import {
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { AuthenticationRequired } from "../TrackerForm/components/Section/components/Atlas/components/AuthenticationRequired/authenticationRequired";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/GeneralInfo/generalInfo";
+import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/Add/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
 
@@ -30,7 +30,8 @@ export const AddSourceDataset = ({
   formMethod,
 }: AddSourceDatasetProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-  const { disabled, handleSubmit, onSubmit } = formMethod;
+  const { disabled, formState, handleSubmit, onSubmit } = formMethod;
+  const { isDirty } = formState;
 
   const onFormSubmit = useCallback(
     (payload: NewSourceDatasetData): void => {
@@ -58,7 +59,7 @@ export const AddSourceDataset = ({
         >
           Discard
         </ButtonLink>
-        <ButtonPrimary disabled={disabled} type="submit">
+        <ButtonPrimary disabled={disabled || !isDirty} type="submit">
           Save
         </ButtonPrimary>
       </FormActions>

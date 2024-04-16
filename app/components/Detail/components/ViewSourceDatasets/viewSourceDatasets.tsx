@@ -42,7 +42,7 @@ export const ViewSourceDatasets = ({
         </TableToolbar>
         {sourceDatasets?.length > 0 && (
           <Table
-            columns={getAtlasSourceDatasetsTableColumns()}
+            columns={getAtlasSourceDatasetsTableColumns(atlasId)}
             gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) 100px 110px 70px"
             items={sourceDatasets}
           />

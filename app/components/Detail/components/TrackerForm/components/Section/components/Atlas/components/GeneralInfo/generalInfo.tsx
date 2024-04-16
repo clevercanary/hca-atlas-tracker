@@ -49,19 +49,17 @@ export const GeneralInfo = ({
         <Controller
           control={control}
           name={FIELD_NAME_ATLAS_NAME}
-          render={({ field }): JSX.Element => {
-            return (
-              <Input
-                {...field}
-                error={Boolean(errors[FIELD_NAME_ATLAS_NAME])}
-                helperText={errors[FIELD_NAME_ATLAS_NAME]?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Short name"
-                placeholder="e.g. Cortex"
-                readOnly={false}
-              />
-            );
-          }}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              error={Boolean(errors[FIELD_NAME_ATLAS_NAME])}
+              helperText={errors[FIELD_NAME_ATLAS_NAME]?.message as string}
+              isFilled={Boolean(field.value)}
+              label="Short name"
+              placeholder="e.g. Cortex"
+              readOnly={false}
+            />
+          )}
         />
         <Controller
           control={control}
@@ -81,52 +79,48 @@ export const GeneralInfo = ({
         <Controller
           control={control}
           name={FIELD_NAME_BIO_NETWORK}
-          render={({ field }): JSX.Element => {
-            return (
-              <Select
-                {...field}
-                displayEmpty
-                error={Boolean(errors[FIELD_NAME_BIO_NETWORK])}
-                helperText={errors[FIELD_NAME_BIO_NETWORK]?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Select network"
-                readOnly={false}
-                renderValue={renderNetworkSelectValue}
-              >
-                {NETWORKS.map(({ key, name }) => (
-                  <MMenuItem key={key} value={key}>
-                    <NetworkIconAndName networkKey={key} networkName={name} />
-                  </MMenuItem>
-                ))}
-              </Select>
-            );
-          }}
+          render={({ field }): JSX.Element => (
+            <Select
+              {...field}
+              displayEmpty
+              error={Boolean(errors[FIELD_NAME_BIO_NETWORK])}
+              helperText={errors[FIELD_NAME_BIO_NETWORK]?.message as string}
+              isFilled={Boolean(field.value)}
+              label="Select network"
+              readOnly={false}
+              renderValue={renderNetworkSelectValue}
+            >
+              {NETWORKS.map(({ key, name }) => (
+                <MMenuItem key={key} value={key}>
+                  <NetworkIconAndName networkKey={key} networkName={name} />
+                </MMenuItem>
+              ))}
+            </Select>
+          )}
         />
         <Controller
           control={control}
           name={FIELD_NAME_WAVE}
-          render={({ field }): JSX.Element => {
-            return (
-              <Select
-                {...field}
-                displayEmpty
-                error={Boolean(errors[FIELD_NAME_WAVE])}
-                helperText={errors[FIELD_NAME_WAVE]?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Select wave"
-                readOnly={false}
-                renderValue={renderWaveSelectValue}
-              >
-                {WAVES.map((wave) => {
-                  return (
-                    <MMenuItem key={wave} value={wave}>
-                      {wave}
-                    </MMenuItem>
-                  );
-                })}
-              </Select>
-            );
-          }}
+          render={({ field }): JSX.Element => (
+            <Select
+              {...field}
+              displayEmpty
+              error={Boolean(errors[FIELD_NAME_WAVE])}
+              helperText={errors[FIELD_NAME_WAVE]?.message as string}
+              isFilled={Boolean(field.value)}
+              label="Select wave"
+              readOnly={false}
+              renderValue={renderWaveSelectValue}
+            >
+              {WAVES.map((wave) => {
+                return (
+                  <MMenuItem key={wave} value={wave}>
+                    {wave}
+                  </MMenuItem>
+                );
+              })}
+            </Select>
+          )}
         />
       </SectionCard>
     </Section>

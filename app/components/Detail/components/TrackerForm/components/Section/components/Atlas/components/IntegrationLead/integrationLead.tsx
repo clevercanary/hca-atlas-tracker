@@ -35,34 +35,30 @@ export const IntegrationLead = ({
         <Controller
           control={control}
           name={FIELD_NAME_INTEGRATION_LEAD_NAME}
-          render={({ field }): JSX.Element => {
-            return (
-              <Input
-                {...field}
-                error={Boolean(errors.integrationLead?.name)}
-                helperText={errors.integrationLead?.name?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Full name"
-                readOnly={false}
-              />
-            );
-          }}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              error={Boolean(errors.integrationLead?.name)}
+              helperText={errors.integrationLead?.name?.message as string}
+              isFilled={Boolean(field.value)}
+              label="Full name"
+              readOnly={false}
+            />
+          )}
         />
         <Controller
           control={control}
           name={FIELD_NAME_INTEGRATION_LEAD_EMAIL}
-          render={({ field }): JSX.Element => {
-            return (
-              <Input
-                {...field}
-                error={Boolean(errors.integrationLead?.email)}
-                helperText={errors.integrationLead?.email?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Email"
-                readOnly={false}
-              />
-            );
-          }}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              error={Boolean(errors.integrationLead?.email)}
+              helperText={errors.integrationLead?.email?.message as string}
+              isFilled={Boolean(field.value)}
+              label="Email"
+              readOnly={false}
+            />
+          )}
         />
       </SectionCard>
     </Section>

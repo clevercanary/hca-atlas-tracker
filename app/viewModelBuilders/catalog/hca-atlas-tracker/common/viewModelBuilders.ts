@@ -1,11 +1,9 @@
 import { STATUS_BADGE_COLOR } from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
 import { ColumnDef } from "@tanstack/react-table";
 import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
-  HCA_ATLAS_TRACKER_CATEGORY_KEY,
-  HCA_ATLAS_TRACKER_CATEGORY_LABEL,
-} from "../../../../../site-config/hca-atlas-tracker/category";
-import {
+  AtlasId,
   ATLAS_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
@@ -14,8 +12,10 @@ import {
   NetworkKey,
   PUBLICATION_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { TASK_STATUS } from "../../../../components/Index/components/TaskStatusCell/taskStatusCell";
+import { ROUTE } from "../../../../routes/constants";
 
 /**
  * Build props for the atlas name cell component.
@@ -97,21 +97,6 @@ export const buildIntegrationLead = (
 };
 
 /**
- * Build props for the project title cell component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the cell.
- */
-export const buildProjectTitle = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.Link> => {
-  const { doi, title } = sourceDataset;
-  return {
-    label: title,
-    url: getDOILink(doi),
-  };
-};
-
-/**
  * Build props for the publication cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -151,6 +136,23 @@ export const buildSourceDatasetPublication = (
 };
 
 /**
+ * Build props for the source dataset title Link component.
+ * @param atlasId - Atlas ID.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the Link component.
+ */
+export const buildSourceDatasetTitle = (
+  atlasId: AtlasId,
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.Link> => {
+  const { id, title } = sourceDataset;
+  return {
+    label: title ?? id,
+    url: getRouteURL(ROUTE.EDIT_ATLAS_SOURCE_DATASET, atlasId, id),
+  };
+};
+
+/**
  * Build props for the status cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -177,19 +179,6 @@ export const buildStatus = (
 };
 
 /**
- * Build props for the version cell component.
- * @param atlas - Atlas entity.
- * @returns Props to be used for the cell.
- */
-export const buildVersion = (
-  atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: atlas.version,
-  };
-};
-
-/**
  * Build props for the wave cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -204,11 +193,14 @@ export const buildWave = (
 
 /**
  * Returns the table column definition model for the atlas (edit mode) source datasets table.
+ * @param atlasId - Atlas ID.
  * @returns Table column definition.
  */
-export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+export function getAtlasSourceDatasetsTableColumns(
+  atlasId: AtlasId
+): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
-    getSourceDatasetProjectTitleColumnDef(),
+    getSourceDatasetTitleColumnDef(atlasId),
     getSourceDatasetPublicationColumnDef(),
     getSourceDatasetInHCADataRepositoryColumnDef(),
     getSourceDatasetInCELLxGENEColumnDef(),
@@ -234,16 +226,6 @@ export function getBioNetworkName(name: string): string {
   return name.replace(/(\sNetwork.*)/gi, "");
 }
 
-/**
- * Returns the DOI link.
- * @param doi - DOI.
- * @returns DOI link.
- */
-function getDOILink(doi: string | null): string {
-  if (!doi) return "";
-  return `https://doi.org/${encodeURIComponent(doi)}`;
-}
-
 function getCitation(
   publicationStatus: PUBLICATION_STATUS,
   author: string | null,
@@ -264,6 +246,39 @@ function getCitation(
     citation.push(journal);
   }
   return citation.join(" ");
+}
+
+/**
+ * Returns the DOI link.
+ * @param doi - DOI.
+ * @returns DOI link.
+ */
+function getDOILink(doi: string | null): string {
+  if (!doi) return "";
+  return `https://doi.org/${encodeURIComponent(doi)}`;
+}
+
+/**
+ * Returns the source dataset citation.
+ * @param sourceDataset - Source dataset.
+ * @returns Source dataset citation.
+ */
+export function getSourceDatasetCitation(
+  sourceDataset?: HCAAtlasTrackerSourceDataset
+): string {
+  if (!sourceDataset) return "";
+  const {
+    firstAuthorPrimaryName,
+    journal,
+    publicationDate,
+    publicationStatus,
+  } = sourceDataset;
+  return getCitation(
+    publicationStatus,
+    firstAuthorPrimaryName,
+    publicationDate,
+    journal
+  );
 }
 
 /**
@@ -303,30 +318,6 @@ function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrack
 }
 
 /**
- * Returns source dataset project title column def.
- * @returns Column def.
- */
-function getSourceDatasetProjectTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.PROJECT_TITLE,
-    cell: ({ row }) => C.Link(buildProjectTitle(row.original)),
-    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PROJECT_TITLE,
-  };
-}
-
-/**
- * Returns source dataset publication column def.
- * @returns Column def.
- */
-function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "publication", // TODO confirm accessor key.
-    cell: ({ row }) => C.Link(buildSourceDatasetPublication(row.original)),
-    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
-  };
-}
-
-/**
  * Get task status describing whether a source dataset is known to be in CAP.
  * @param sourceDataset - Source dataset.
  * @returns whether the source dataset is in CAP.
@@ -359,4 +350,31 @@ function getSourceDatasetInHcaDataRepository(
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): TASK_STATUS {
   return sourceDataset.hcaProjectId ? TASK_STATUS.DONE : TASK_STATUS.REQUIRED;
+}
+
+/**
+ * Returns source dataset publication column def.
+ * @returns Column def.
+ */
+function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "publication",
+    cell: ({ row }) => C.Link(buildSourceDatasetPublication(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+  };
+}
+
+/**
+ * Returns source dataset project title column def.
+ * @param atlasId - Atlas ID.
+ * @returns Column def.
+ */
+function getSourceDatasetTitleColumnDef(
+  atlasId: AtlasId
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "title",
+    cell: ({ row }) => C.Link(buildSourceDatasetTitle(atlasId, row.original)),
+    header: "Title",
+  };
 }
