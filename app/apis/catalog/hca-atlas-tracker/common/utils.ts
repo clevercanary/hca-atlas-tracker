@@ -56,15 +56,15 @@ export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset
 ): HCAAtlasTrackerSourceDataset {
   const {
-    sd_info: { publication },
+    sd_info: { hcaProjectId, publication },
   } = dbSourceDataset;
   return {
+    capId: null,
+    cellxgeneCollectionId: null,
     doi: dbSourceDataset.doi,
     firstAuthorPrimaryName: publication?.authors[0]?.name ?? null,
+    hcaProjectId,
     id: dbSourceDataset.id,
-    inCap: "No",
-    inCellxGene: "No",
-    inHcaDataRepository: "No",
     journal: publication?.journal ?? null,
     publicationDate: publication?.publicationDate ?? null,
     publicationStatus: dbSourceDataset.sd_info.publicationStatus,

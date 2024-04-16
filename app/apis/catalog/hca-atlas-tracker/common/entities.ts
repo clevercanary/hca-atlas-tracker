@@ -50,12 +50,12 @@ export interface HCAAtlasTrackerNetworkCoordinator {
 }
 
 export interface HCAAtlasTrackerSourceDataset {
+  capId: string | null;
+  cellxgeneCollectionId: string | null;
   doi: string | null;
   firstAuthorPrimaryName: string | null;
+  hcaProjectId: string | null;
   id: string;
-  inCap: string;
-  inCellxGene: string;
-  inHcaDataRepository: string;
   journal: string | null;
   publicationDate: string | null;
   publicationStatus: PUBLICATION_STATUS;
@@ -88,6 +88,7 @@ export interface HCAAtlasTrackerDBSourceDataset {
 }
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
+  hcaProjectId: string | null;
   publication: PublicationInfo | null;
   publicationStatus: PUBLICATION_STATUS;
 }
