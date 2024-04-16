@@ -7,12 +7,7 @@ import {
   SourceDatasetEditData,
   sourceDatasetEditSchema,
 } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
-import {
-  FIELD_NAME_CITATION,
-  FIELD_NAME_DOI,
-  FIELD_NAME_PUBLICATION_STATUS,
-  FIELD_NAME_TITLE,
-} from "../../../components/Detail/components/TrackerForm/components/Section/components/SourceDataset/common/constants";
+import { FIELD_NAME } from "../../../components/Detail/components/TrackerForm/components/Section/components/SourceDataset/common/constants";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { getSourceDatasetCitation } from "../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -35,11 +30,11 @@ function mapSchemaValues(
   sourceDataset?: HCAAtlasTrackerSourceDataset
 ): SourceDatasetEditData {
   return {
-    [FIELD_NAME_CITATION]: getSourceDatasetCitation(sourceDataset),
-    [FIELD_NAME_DOI]: sourceDataset?.doi || "",
-    [FIELD_NAME_PUBLICATION_STATUS]:
+    [FIELD_NAME.CITATION]: getSourceDatasetCitation(sourceDataset),
+    [FIELD_NAME.DOI]: sourceDataset?.doi || "",
+    [FIELD_NAME.PUBLICATION_STATUS]:
       sourceDataset?.publicationStatus ||
       PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF,
-    [FIELD_NAME_TITLE]: sourceDataset?.title || "",
+    [FIELD_NAME.TITLE]: sourceDataset?.title || "",
   };
 }

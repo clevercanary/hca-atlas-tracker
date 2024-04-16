@@ -6,13 +6,7 @@ import {
   atlasEditSchema,
 } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { getRouteURL } from "../../../common/utils";
-import {
-  FIELD_NAME_ATLAS_NAME,
-  FIELD_NAME_BIO_NETWORK,
-  FIELD_NAME_VERSION,
-  FIELD_NAME_WAVE,
-} from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
-import { FIELD_NAME_INTEGRATION_LEAD } from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
+import { FIELD_NAME } from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/common/constants";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { ROUTE } from "../../../routes/constants";
@@ -36,11 +30,11 @@ function mapSchemaValues(
 ): AtlasEditData | undefined {
   return (
     atlas && {
-      [FIELD_NAME_ATLAS_NAME]: atlas.shortName,
-      [FIELD_NAME_BIO_NETWORK]: atlas.bioNetwork,
-      [FIELD_NAME_INTEGRATION_LEAD]: atlas.integrationLead,
-      [FIELD_NAME_VERSION]: atlas.version,
-      [FIELD_NAME_WAVE]: atlas.wave,
+      [FIELD_NAME.SHORT_NAME]: atlas.shortName,
+      [FIELD_NAME.BIO_NETWORK]: atlas.bioNetwork,
+      integrationLead: atlas.integrationLead,
+      [FIELD_NAME.VERSION]: atlas.version,
+      [FIELD_NAME.WAVE]: atlas.wave,
     }
   );
 }

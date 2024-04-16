@@ -39,6 +39,10 @@ export const FormControl = styled(MFormControl, {
       &.MuiInputBase-colorWarning {
         background-color: ${warningLightest};
 
+        .MuiOutlinedInput-input {
+          -webkit-box-shadow: inset 0 40px ${warningLightest};
+        }
+
         .MuiOutlinedInput-notchedOutline {
           border-color: ${warningMain};
         }

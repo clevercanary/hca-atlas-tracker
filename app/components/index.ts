@@ -16,11 +16,6 @@ export { Logo } from "@clevercanary/data-explorer-ui/lib/components/Layout/compo
 export { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
 export { PinnedNTagCell } from "./common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RenderComponents } from "./common/RenderComponents/renderComponents";
-export { TypographyTextBody400 } from "./common/Typography/components/TypographyTextBody400/typographyTextBody400";
-export { TypographyTextBody500 } from "./common/Typography/components/TypographyTextBody500/typographyTextBody500";
-export { Description as OverviewDescription } from "./Detail/components/Overview/components/Description/description";
-export { Link as OverviewKeyValuePairsValueElLink } from "./Detail/components/Overview/components/Section/components/KeyValuePairs/components/ValueElType/components/Link/link";
-export { Section as OverviewSection } from "./Detail/components/Overview/components/Section/section";
 export { AtlasCell } from "./Index/components/AtlasCell/atlasCell";
 export { BioNetworkCell } from "./Index/components/BioNetworkCell/bioNetworkCell";
 export { Hero } from "./Index/components/Hero/hero";

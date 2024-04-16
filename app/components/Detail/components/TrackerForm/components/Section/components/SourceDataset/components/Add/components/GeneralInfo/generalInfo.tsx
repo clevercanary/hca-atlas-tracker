@@ -8,7 +8,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../../../section.styles";
-import { FIELD_NAME_DOI } from "../../../../common/constants";
+import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../../../common/constants";
 
 export interface GeneralInfoProps {
   control: FormMethod<NewSourceDatasetData>["control"];
@@ -28,17 +28,14 @@ export const GeneralInfo = ({
       <SectionCard>
         <Controller
           control={control}
-          name={FIELD_NAME_DOI}
+          name={FIELD_NAME.DOI}
           render={({ field }): JSX.Element => (
             <Input
               {...field}
-              error={Boolean(errors[FIELD_NAME_DOI])}
-              helperText={errors[FIELD_NAME_DOI]?.message}
+              {...DEFAULT_INPUT_PROPS.DOI}
+              error={Boolean(errors[FIELD_NAME.DOI])}
+              helperText={errors[FIELD_NAME.DOI]?.message}
               isFilled={Boolean(field.value)}
-              isFullWidth
-              label="Publication DOI No."
-              placeholder="e.g. 10.1038/s41591-023-02327-2"
-              readOnly={false}
             />
           )}
         />
