@@ -1,18 +1,18 @@
 import { Fade, Toolbar } from "@mui/material";
 import { ReactNode } from "react";
-import { AppBar } from "./header.styles";
+import { AppBar } from "./banner.styles";
 
-interface HeaderProps {
+interface BannerProps {
   children: ReactNode;
   className?: string;
   isIn?: boolean;
 }
 
-export const Header = ({
+export const Banner = ({
   children,
   className,
   isIn = true,
-}: HeaderProps): JSX.Element => {
+}: BannerProps): JSX.Element => {
   return (
     <Fade appear={false} in={isIn}>
       <AppBar className={className} component="div" position="fixed">

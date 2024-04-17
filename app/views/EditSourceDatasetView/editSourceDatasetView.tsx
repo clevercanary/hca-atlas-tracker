@@ -3,6 +3,7 @@ import {
   AtlasId,
   SourceDatasetId,
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { Banner } from "../../components/Detail/components/EditSourceDataset/components/Banner/banner";
 import { EditSourceDataset } from "../../components/Detail/components/EditSourceDataset/editSourceDataset";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -24,6 +25,7 @@ export const EditSourceDatasetView = ({
   const formMethod = useEditSourceDatasetForm(sourceDataset);
   return (
     <DetailView
+      banner={<Banner atlasId={atlasId} formMethod={formMethod} />}
       breadcrumbs={
         <Breadcrumbs
           breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceDataset)}

@@ -7,8 +7,8 @@ import {
 
 export interface DetailViewProps {
   actions?: ReactNode;
+  banner?: ReactNode;
   breadcrumbs?: ReactNode;
-  header?: ReactNode;
   mainColumn: ReactNode;
   status?: ReactNode;
   tabs?: ReactNode;
@@ -17,8 +17,8 @@ export interface DetailViewProps {
 
 export const DetailView = ({
   actions,
+  banner,
   breadcrumbs,
-  header,
   mainColumn,
   status,
   tabs,
@@ -26,7 +26,7 @@ export const DetailView = ({
 }: DetailViewProps): JSX.Element => {
   return (
     <Fragment>
-      {header}
+      {banner}
       <DetailViewLayout>
         <DetailViewHero
           actions={actions}
