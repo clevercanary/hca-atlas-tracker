@@ -10,6 +10,10 @@ export type CustomUseFormReturn<T extends FieldValues> = Pick<
 
 export type FormMethod<T extends FieldValues, R = undefined> = UseForm<T, R>;
 
+export type FormResponseErrors =
+  | { message: string }
+  | { errors: Record<string, string[]> };
+
 export type MapSchemaValuesFn<T, R> = (apiData?: R) => T | undefined;
 
 export type OnDeleteFn = (
