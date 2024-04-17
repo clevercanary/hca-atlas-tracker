@@ -6,7 +6,6 @@ import {
 import { EditSourceDataset } from "../../components/Detail/components/EditSourceDataset/editSourceDataset";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { useFetchSourceDataset } from "../../hooks/useFetchSourceDataset";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditSourceDatasetForm } from "./hooks/useEditSourceDatasetForm";
 
@@ -20,8 +19,8 @@ export const EditSourceDatasetView = ({
   sdId,
 }: EditSourceDatasetViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
-  const { sourceDataset } = useFetchSourceDataset(atlasId, sdId);
-  const formMethod = useEditSourceDatasetForm(sourceDataset);
+  const formMethod = useEditSourceDatasetForm(atlasId, sdId);
+  const { data: sourceDataset } = formMethod;
   return (
     <DetailView
       breadcrumbs={

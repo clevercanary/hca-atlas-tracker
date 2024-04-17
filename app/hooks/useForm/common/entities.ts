@@ -5,10 +5,12 @@ import { UseForm } from "../useForm";
 
 export type CustomUseFormReturn<T extends FieldValues> = Pick<
   UseFormReturn<YupValidatedFormValues<T>>,
-  "control" | "formState" | "getValues" | "handleSubmit"
+  "control" | "formState" | "handleSubmit"
 >;
 
-export type FormMethod<T extends FieldValues> = UseForm<T>;
+export type FormMethod<T extends FieldValues, R = undefined> = UseForm<T, R>;
+
+export type MapSchemaValuesFn<T, R> = (apiData?: R) => T | undefined;
 
 export type OnDeleteFn = (
   requestURL: string,

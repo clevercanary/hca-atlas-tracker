@@ -11,14 +11,11 @@ import {
 import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../../../common/constants";
 
 export interface GeneralInfoProps {
-  control: FormMethod<NewSourceDatasetData>["control"];
-  formState: FormMethod<NewSourceDatasetData>["formState"];
+  formMethod: FormMethod<NewSourceDatasetData>;
 }
 
-export const GeneralInfo = ({
-  control,
-  formState,
-}: GeneralInfoProps): JSX.Element => {
+export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
+  const { control, formState } = formMethod;
   const { errors } = formState;
   return (
     <Section>

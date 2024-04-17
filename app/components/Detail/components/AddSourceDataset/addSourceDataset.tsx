@@ -50,7 +50,7 @@ export const AddSourceDataset = ({
   return isAuthenticated ? (
     <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
       <Divider />
-      <GeneralInfo {...formMethod} />
+      <GeneralInfo formMethod={formMethod} />
       <Divider />
       <FormActions>
         <ButtonLink

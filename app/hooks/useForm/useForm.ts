@@ -1,6 +1,6 @@
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FieldValues, useForm as useReactHookForm } from "react-hook-form";
 import { ObjectSchema } from "yup";
 import { METHOD } from "../../common/entities";
@@ -11,6 +11,7 @@ import {
 } from "../../common/utils";
 import {
   CustomUseFormReturn,
+  MapSchemaValuesFn,
   OnDeleteFn,
   OnSubmitFn,
   OnSubmitOptions,
@@ -18,21 +19,25 @@ import {
 } from "./common/entities";
 import { fetchDelete, fetchSubmit, throwError } from "./common/utils";
 
-export interface UseForm<T extends FieldValues> extends CustomUseFormReturn<T> {
+export interface UseForm<T extends FieldValues, R = undefined>
+  extends CustomUseFormReturn<T> {
+  data?: R;
   disabled: boolean;
   onDelete: OnDeleteFn;
   onSubmit: OnSubmitFn<T>;
 }
 
-export const useForm = <T extends FieldValues>(
+export const useForm = <T extends FieldValues, R = undefined>(
   schema: ObjectSchema<T>,
-  values?: T
-): UseForm<T> => {
+  apiData?: R,
+  mapSchemaValues?: MapSchemaValuesFn<T, R>
+): UseForm<T, R> => {
   const { token } = useAuthentication();
   const formMethod = useReactHookForm<YupValidatedFormValues<T>>({
     resolver: yupResolver(schema),
-    values: schema.cast(values),
+    values: schema.cast(mapSchemaValues?.(apiData)),
   });
+  const [data, setData] = useState<R | undefined>();
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
   const { reset } = formMethod;
 
@@ -66,7 +71,8 @@ export const useForm = <T extends FieldValues>(
       const res = await fetchSubmit(requestURL, requestMethod, token, payload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
         reset(payload);
-        const { id } = await res.json();
+        const { id, ...other } = await res.json();
+        setData({ id, ...other });
         options?.onSuccess?.(id);
       } else {
         await throwError(res); // TODO more useful error handling
@@ -76,11 +82,17 @@ export const useForm = <T extends FieldValues>(
     [reset, token]
   );
 
+  // Initialize data with given API response.
+  useEffect(() => {
+    if (!apiData) return;
+    setData(apiData);
+  }, [apiData]);
+
   return {
     control: formMethod.control,
+    data,
     disabled: submitDisabled,
     formState: formMethod.formState,
-    getValues: formMethod.getValues,
     handleSubmit: formMethod.handleSubmit,
     onDelete,
     onSubmit,

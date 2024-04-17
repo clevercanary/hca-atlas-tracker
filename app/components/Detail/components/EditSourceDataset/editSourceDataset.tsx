@@ -1,5 +1,6 @@
 import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { SourceDatasetEditData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
@@ -9,7 +10,7 @@ import { GeneralInfo } from "../TrackerForm/components/Section/components/Source
 import { TrackerForm } from "../TrackerForm/trackerForm";
 
 interface EditSourceDatasetProps {
-  formMethod: FormMethod<SourceDatasetEditData>;
+  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>;
 }
 
 export const EditSourceDataset = ({
@@ -19,7 +20,7 @@ export const EditSourceDataset = ({
   return isAuthenticated ? (
     <TrackerForm>
       <Divider />
-      <GeneralInfo {...formMethod} />
+      <GeneralInfo formMethod={formMethod} />
       <Divider />
     </TrackerForm>
   ) : (
