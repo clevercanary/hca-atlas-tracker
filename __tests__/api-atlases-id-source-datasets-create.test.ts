@@ -1,7 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerDBSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerSourceDataset,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/utils/api-handler";
 import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create";
 import {
@@ -111,9 +115,8 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       NEW_DATASET_DATA
     );
     expect(res._getStatusCode()).toEqual(201);
-    const newDataset: HCAAtlasTrackerDBSourceDataset = res._getJSONData();
+    const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
     newDatasetId = newDataset.id;
-    expect(newDataset.sd_info.publication).toEqual(PUBLICATION_NORMAL);
     const newDatasetFromDb = (
       await query<HCAAtlasTrackerDBSourceDataset>(
         "SELECT * FROM hat.source_datasets WHERE id=$1",
@@ -123,8 +126,8 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     expect(newDatasetFromDb).toBeDefined();
     expect(newDatasetFromDb.sd_info.publication).toEqual(PUBLICATION_NORMAL);
     expect(newDatasetFromDb.sd_info.hcaProjectId).toEqual(HCA_ID_NORMAL);
-    expect(newDatasetFromDb.created_at.toISOString()).toEqual(
-      newDataset.created_at
+    expect(dbSourceDatasetToApiSourceDataset(newDatasetFromDb)).toEqual(
+      newDataset
     );
   });
 });

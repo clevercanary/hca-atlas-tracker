@@ -1,6 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import {
+  HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerDBAtlas,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { dbAtlasToApiAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/utils/api-handler";
 import createHandler from "../pages/api/atlases/create";
 import { USER_CONTENT_ADMIN, USER_NORMAL } from "../testing/constants";
@@ -112,33 +117,33 @@ describe("/api/atlases/create", () => {
   });
 
   it("creates and returns atlas entry with null integration lead", async () => {
-    const newAtlas = (
+    const newAtlas: HCAAtlasTrackerAtlas = (
       await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA)
     )._getJSONData();
     newAtlasIds.push(newAtlas.id);
-    expect(newAtlas.overview).toEqual(NEW_ATLAS_DATA);
     const newAtlasFromDb = (
-      await query("SELECT * FROM hat.atlases WHERE id=$1", [newAtlas.id])
+      await query<HCAAtlasTrackerDBAtlas>(
+        "SELECT * FROM hat.atlases WHERE id=$1",
+        [newAtlas.id]
+      )
     ).rows[0];
     expect(newAtlasFromDb.overview).toEqual(NEW_ATLAS_DATA);
-    expect(newAtlasFromDb.created_at.toISOString()).toEqual(
-      newAtlas.created_at
-    );
+    expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
   });
 
   it("creates and returns atlas entry with specified integration lead", async () => {
-    const newAtlas = (
+    const newAtlas: HCAAtlasTrackerAtlas = (
       await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_WITH_IL_DATA)
     )._getJSONData();
     newAtlasIds.push(newAtlas.id);
-    expect(newAtlas.overview).toEqual(NEW_ATLAS_WITH_IL_DATA);
     const newAtlasFromDb = (
-      await query("SELECT * FROM hat.atlases WHERE id=$1", [newAtlas.id])
+      await query<HCAAtlasTrackerDBAtlas>(
+        "SELECT * FROM hat.atlases WHERE id=$1",
+        [newAtlas.id]
+      )
     ).rows[0];
     expect(newAtlasFromDb.overview).toEqual(NEW_ATLAS_WITH_IL_DATA);
-    expect(newAtlasFromDb.created_at.toISOString()).toEqual(
-      newAtlas.created_at
-    );
+    expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
   });
 });
 

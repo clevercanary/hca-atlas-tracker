@@ -66,11 +66,11 @@ const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {
     version: newInfo.version,
     wave: newInfo.wave,
   };
-  const queryResult = await query(
+  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
     "UPDATE hat.atlases SET overview=overview||$1 WHERE id=$2 RETURNING *",
     [JSON.stringify(newOverviewValues), id]
   );
-  res.status(200).json(queryResult.rows[0]);
+  res.status(200).json(dbAtlasToApiAtlas(queryResult.rows[0]));
 });
 
 export default handleByMethod({
