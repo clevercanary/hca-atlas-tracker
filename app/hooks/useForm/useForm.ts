@@ -93,7 +93,6 @@ export const useForm = <T extends FieldValues, R = undefined>(
     data,
     disabled: submitDisabled,
     formState: formMethod.formState,
-    getValues: formMethod.getValues, // TODO remove?
     handleSubmit: formMethod.handleSubmit,
     onDelete,
     onSubmit,
