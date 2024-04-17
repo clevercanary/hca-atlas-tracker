@@ -10,6 +10,7 @@ import {
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
+import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
 import {
   getPoolClient,
   handler,
@@ -59,7 +60,20 @@ export default handler(
     }
 
     const doi = normalizeDoi(newData.doi);
-    const publication = await getCrossrefPublicationInfo(doi);
+    let publication;
+    try {
+      publication = await getCrossrefPublicationInfo(doi);
+    } catch (e) {
+      if (e instanceof ValidationError) {
+        const errors: FormResponseErrors = {
+          errors: {
+            doi: [`Crossref data doesn't fit: ${e.message}`],
+          },
+        };
+        res.status(500).json(errors);
+      }
+      throw e;
+    }
     let hcaProjectId;
     try {
       hcaProjectId = await getProjectIdByDoi(doi);

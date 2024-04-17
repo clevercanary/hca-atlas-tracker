@@ -1,15 +1,70 @@
+import { array, InferType, number, object, string } from "yup";
 import { PublicationInfo } from "../apis/catalog/hca-atlas-tracker/common/entities";
 
-interface CrossrefWork {
-  author: ({ name: string } | { family: string; given?: string })[];
-  "container-title": string[];
-  institution?: { name: string }[];
-  published: {
-    "date-parts": number[][];
-  };
-  "short-container-title": string[];
-  title: string[];
-}
+const crossrefOrganizationAuthorSchema = object({
+  name: string().required(),
+}).strict();
+
+const crossrefPersonAuthorSchema = object({
+  family: string().required(),
+  given: string().optional(),
+}).strict();
+
+const crossrefWorkSchema = object({
+  author: array()
+    .of(
+      object()
+        .required()
+        .test(
+          "author-variants",
+          "Author must match organization or person form",
+          (value) => {
+            try {
+              crossrefOrganizationAuthorSchema.validateSync(value);
+              return true;
+            } catch (e) {
+              try {
+                crossrefPersonAuthorSchema.validateSync(value);
+                return true;
+              } catch (e) {
+                return false;
+              }
+            }
+          }
+        )
+    )
+    .required(),
+  "container-title": array().of(string().required()).required(),
+  institution: array()
+    .of(object({ name: string().required() }).strict().required())
+    .optional(),
+  published: object({
+    "date-parts": array()
+      .of(array().of(number().required()).required().min(1).max(3))
+      .required()
+      .min(1),
+  })
+    .strict()
+    .required(),
+  "short-container-title": array().of(string().required()).required(),
+  subtype: string().optional().oneOf(["preprint"]),
+  title: array().of(string().required()).required().min(1),
+  type: string().optional().oneOf(["journal-article"]),
+})
+  .strict()
+  .test("type-subtype", "Type or subtype must be present", (value) =>
+    Boolean(value.type || value.subtype)
+  );
+
+type CrossrefOrganizationAuthor = InferType<
+  typeof crossrefOrganizationAuthorSchema
+>;
+
+type CrossrefPersonAuthor = InferType<typeof crossrefPersonAuthorSchema>;
+
+type CrossrefWork = Omit<InferType<typeof crossrefWorkSchema>, "author"> & {
+  author: (CrossrefOrganizationAuthor | CrossrefPersonAuthor)[];
+};
 
 /**
  * Checks whether a string matches DOI syntax, including DOI URLs.
@@ -38,7 +93,9 @@ export async function getCrossrefPublicationInfo(
     throw new Error(
       `Received ${crossrefResponse.status} response from Crossref`
     );
-  const work = (await crossrefResponse.json()).message as CrossrefWork;
+  const work = crossrefWorkSchema.validateSync(
+    (await crossrefResponse.json()).message
+  ) as CrossrefWork;
   return {
     authors: work.author.map((author) =>
       "name" in author
@@ -50,7 +107,9 @@ export async function getCrossrefPublicationInfo(
       work["short-container-title"][0] ||
       work.institution?.[0].name ||
       null,
-    publicationDate: work.published["date-parts"][0].join("-"),
+    publicationDate: work.published["date-parts"][0]
+      .map((n) => n.toString().padStart(2, "0"))
+      .join("-"),
     title: work.title[0],
   };
 }
