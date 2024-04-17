@@ -1,7 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerDBAtlas,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { dbAtlasToApiAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/utils/api-handler";
 import atlasHandler from "../pages/api/atlases/[atlasId]";
@@ -182,7 +186,7 @@ describe("/api/atlases/[id]", () => {
   });
 
   it("PUT updates and returns atlas entry", async () => {
-    const updatedAtlas = (
+    const updatedAtlas: HCAAtlasTrackerAtlas = (
       await doAtlasRequest(
         ATLAS_PUBLIC.id,
         USER_CONTENT_ADMIN,
@@ -190,18 +194,18 @@ describe("/api/atlases/[id]", () => {
         ATLAS_PUBLIC_EDIT
       )
     )._getJSONData();
-    expect(updatedAtlas.overview).toEqual(ATLAS_PUBLIC_EDIT);
     const updatedAtlasFromDb = (
-      await query("SELECT * FROM hat.atlases WHERE id=$1", [ATLAS_PUBLIC.id])
+      await query<HCAAtlasTrackerDBAtlas>(
+        "SELECT * FROM hat.atlases WHERE id=$1",
+        [ATLAS_PUBLIC.id]
+      )
     ).rows[0];
     expect(updatedAtlasFromDb.overview).toEqual(ATLAS_PUBLIC_EDIT);
-    expect(updatedAtlasFromDb.updated_at.toISOString()).toEqual(
-      updatedAtlas.updated_at
-    );
+    expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
   });
 
   it("PUT updates and returns atlas entry with integration lead set to null", async () => {
-    const updatedAtlas = (
+    const updatedAtlas: HCAAtlasTrackerAtlas = (
       await doAtlasRequest(
         ATLAS_WITH_IL.id,
         USER_CONTENT_ADMIN,
@@ -209,14 +213,14 @@ describe("/api/atlases/[id]", () => {
         ATLAS_WITH_IL_EDIT
       )
     )._getJSONData();
-    expect(updatedAtlas.overview).toEqual(ATLAS_WITH_IL_EDIT);
     const updatedAtlasFromDb = (
-      await query("SELECT * FROM hat.atlases WHERE id=$1", [ATLAS_WITH_IL.id])
+      await query<HCAAtlasTrackerDBAtlas>(
+        "SELECT * FROM hat.atlases WHERE id=$1",
+        [ATLAS_WITH_IL.id]
+      )
     ).rows[0];
     expect(updatedAtlasFromDb.overview).toEqual(ATLAS_WITH_IL_EDIT);
-    expect(updatedAtlasFromDb.updated_at.toISOString()).toEqual(
-      updatedAtlas.updated_at
-    );
+    expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
   });
 });
 

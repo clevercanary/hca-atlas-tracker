@@ -8,6 +8,7 @@ import {
   NewSourceDatasetData,
   newSourceDatasetSchema,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import {
   getPoolClient,
@@ -95,7 +96,7 @@ export default handler(
         [JSON.stringify([newDataset.id]), atlasId]
       );
       await client.query("COMMIT");
-      res.status(201).json(newDataset);
+      res.status(201).json(dbSourceDatasetToApiSourceDataset(newDataset));
     } catch (e) {
       await client.query("ROLLBACK");
       throw e;

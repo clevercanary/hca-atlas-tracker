@@ -1,12 +1,14 @@
 import { ValidationError } from "yup";
 import {
   ATLAS_STATUS,
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewAtlasData,
   newAtlasSchema,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { dbAtlasToApiAtlas } from "../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../app/common/entities";
 import { handler, method, query, role } from "../../../app/utils/api-handler";
 
@@ -35,10 +37,10 @@ export default handler(
       version: newInfo.version,
       wave: newInfo.wave,
     };
-    const queryResult = await query(
+    const queryResult = await query<HCAAtlasTrackerDBAtlas>(
       "INSERT INTO hat.atlases (overview, source_datasets, status) VALUES ($1, $2, $3) RETURNING *",
       [JSON.stringify(newOverview), "[]", ATLAS_STATUS.DRAFT]
     );
-    res.status(201).json(queryResult.rows[0]);
+    res.status(201).json(dbAtlasToApiAtlas(queryResult.rows[0]));
   }
 );
