@@ -7,7 +7,11 @@ import {
   white,
 } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
 import { textBody500 } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/fonts";
-import { black08 } from "@clevercanary/data-explorer-ui/lib/theme/common/palette";
+import {
+  alpha32,
+  alpha64,
+  black08,
+} from "@clevercanary/data-explorer-ui/lib/theme/common/palette";
 import { ThemeProps } from "@clevercanary/data-explorer-ui/lib/theme/theme";
 import { css } from "@emotion/react";
 
@@ -53,5 +57,18 @@ export const buttonSecondary = (props: ThemeProps) => css`
   &:active {
     background-color: ${smokeLightest(props)};
     box-shadow: inset 0 0 0 1px ${smokeDark(props)};
+  }
+`;
+
+export const buttonSecondaryOutlined = (props: ThemeProps) => css`
+  ${button(props)};
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1px ${white(props)}${alpha32};
+  color: ${white(props)};
+
+  &:hover,
+  &:active {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px ${white(props)}${alpha64};
   }
 `;

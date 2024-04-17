@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import { DetailViewHero } from "./components/DetailViewHero/detailViewHero";
 import {
   DetailView as DetailViewLayout,
@@ -8,6 +8,7 @@ import {
 export interface DetailViewProps {
   actions?: ReactNode;
   breadcrumbs?: ReactNode;
+  header?: ReactNode;
   mainColumn: ReactNode;
   status?: ReactNode;
   tabs?: ReactNode;
@@ -17,21 +18,25 @@ export interface DetailViewProps {
 export const DetailView = ({
   actions,
   breadcrumbs,
+  header,
   mainColumn,
   status,
   tabs,
   title,
 }: DetailViewProps): JSX.Element => {
   return (
-    <DetailViewLayout>
-      <DetailViewHero
-        actions={actions}
-        breadcrumbs={breadcrumbs}
-        status={status}
-        tabs={tabs}
-        title={title}
-      />
-      <DetailViewContent>{mainColumn}</DetailViewContent>
-    </DetailViewLayout>
+    <Fragment>
+      {header}
+      <DetailViewLayout>
+        <DetailViewHero
+          actions={actions}
+          breadcrumbs={breadcrumbs}
+          status={status}
+          tabs={tabs}
+          title={title}
+        />
+        <DetailViewContent>{mainColumn}</DetailViewContent>
+      </DetailViewLayout>
+    </Fragment>
   );
 };

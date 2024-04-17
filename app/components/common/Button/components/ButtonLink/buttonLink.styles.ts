@@ -2,15 +2,20 @@ import { ThemeProps } from "@clevercanary/data-explorer-ui/lib/theme/theme";
 import { SerializedStyles } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";
-import { buttonPrimary, buttonSecondary } from "../../button.styles";
-import { BUTTON_COLOR } from "./buttonLink";
+import {
+  buttonPrimary,
+  buttonSecondary,
+  buttonSecondaryOutlined,
+} from "../../button.styles";
+import { BUTTON_COLOR, BUTTON_VARIANT } from "./buttonLink";
 
 interface Props {
   color?: BUTTON_COLOR;
+  variant?: BUTTON_VARIANT;
 }
 
 export const Button = styled(Link, {
-  shouldForwardProp: (props) => props !== "color",
+  shouldForwardProp: (props) => props !== "color" && props !== "variant",
 })<Props>`
   ${getButtonStyles};
 
@@ -31,6 +36,9 @@ export const StartIcon = styled.span`
  */
 function getButtonStyles(props: Props & ThemeProps): SerializedStyles {
   if (props.color === BUTTON_COLOR.SECONDARY) {
+    if (props.variant === BUTTON_VARIANT.OUTLINED) {
+      return buttonSecondaryOutlined(props);
+    }
     return buttonSecondary(props);
   }
   return buttonPrimary(props);

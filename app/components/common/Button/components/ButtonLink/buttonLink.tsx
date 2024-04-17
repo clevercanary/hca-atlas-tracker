@@ -10,12 +10,17 @@ export enum BUTTON_COLOR {
   SECONDARY = "secondary",
 }
 
+export enum BUTTON_VARIANT {
+  OUTLINED = "outlined",
+}
+
 export interface ButtonLinkProps {
   children: ReactNode;
   className?: string;
   color?: BUTTON_COLOR;
   href: string;
   startIcon?: ReactNode;
+  variant?: BUTTON_VARIANT;
 }
 
 export const ButtonLink = ({
@@ -24,9 +29,10 @@ export const ButtonLink = ({
   color = BUTTON_COLOR.PRIMARY,
   href,
   startIcon,
+  variant,
 }: ButtonLinkProps): JSX.Element => {
   return (
-    <Button className={className} color={color} href={href}>
+    <Button className={className} color={color} href={href} variant={variant}>
       {startIcon && <StartIcon>{startIcon}</StartIcon>}
       {children}
     </Button>
