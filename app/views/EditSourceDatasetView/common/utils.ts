@@ -2,20 +2,23 @@ import { Breadcrumb } from "@clevercanary/data-explorer-ui/lib/components/common
 import {
   AtlasId,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerSourceDataset,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../common/utils";
 import { ROUTE } from "../../../routes/constants";
 
 /**
- * Returns the breadcrumbs for the create source dataset view.
+ * Returns the breadcrumbs for the edit atlas view.
  * @param atlasId - Atlas ID.
  * @param atlas - Atlas.
+ * @param sourceDataset - Source dataset.
  * @returns breadcrumbs.
  */
 export function getBreadcrumbs(
   atlasId: AtlasId,
-  atlas?: HCAAtlasTrackerAtlas
+  atlas?: HCAAtlasTrackerAtlas,
+  sourceDataset?: HCAAtlasTrackerSourceDataset
 ): Breadcrumb[] {
   return [
     {
@@ -24,11 +27,11 @@ export function getBreadcrumbs(
     },
     {
       path: getRouteURL(ROUTE.VIEW_SOURCE_DATASETS, atlasId),
-      text: atlas ? getAtlasName(atlas) : "Edit Atlas",
+      text: atlas ? getAtlasName(atlas) : "Source Datasets",
     },
     {
       path: "",
-      text: "Add Source Dataset",
+      text: sourceDataset?.title || "Edit Source Dataset",
     },
   ];
 }

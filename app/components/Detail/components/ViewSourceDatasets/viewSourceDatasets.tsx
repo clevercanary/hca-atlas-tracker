@@ -14,7 +14,7 @@ import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
-import { AuthenticationRequired } from "../TrackerForm/components/Section/components/Atlas/components/AuthenticationRequired/authenticationRequired";
+import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { Paper, TableToolbar } from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
@@ -42,7 +42,7 @@ export const ViewSourceDatasets = ({
         </TableToolbar>
         {sourceDatasets?.length > 0 && (
           <Table
-            columns={getAtlasSourceDatasetsTableColumns()}
+            columns={getAtlasSourceDatasetsTableColumns(atlasId)}
             gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) 100px 110px 70px"
             items={sourceDatasets}
           />

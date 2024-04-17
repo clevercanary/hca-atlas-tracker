@@ -50,6 +50,19 @@ export const newSourceDatasetSchema = object({
 export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
 
 /**
+ * Schema for data used to apply edits to a source dataset.
+ */
+export const sourceDatasetEditSchema = newSourceDatasetSchema.concat(
+  object({
+    citation: string().notRequired(),
+    publicationStatus: string().notRequired(),
+    title: string().default("").required("Title is required"),
+  })
+);
+
+export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
+
+/**
  * Schema for data used to create a new user.
  */
 export const newUserSchema = object({

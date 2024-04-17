@@ -1,6 +1,5 @@
 import { Breadcrumbs } from "@clevercanary/data-explorer-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { AddSourceDataset } from "../../components/Detail/components/AddSourceDataset/addSourceDataset";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -18,11 +17,7 @@ export const AddNewSourceDatasetView = ({
   const formMethod = useAddSourceDatasetForm();
   return (
     <DetailView
-      breadcrumbs={
-        <Breadcrumbs
-          breadcrumbs={getBreadcrumbs(atlasId, atlas && getAtlasName(atlas))}
-        />
-      }
+      breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlasId, atlas)} />}
       mainColumn={
         <AddSourceDataset atlasId={atlasId} formMethod={formMethod} />
       }

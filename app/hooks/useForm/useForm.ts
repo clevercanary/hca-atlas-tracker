@@ -80,6 +80,7 @@ export const useForm = <T extends FieldValues>(
     control: formMethod.control,
     disabled: submitDisabled,
     formState: formMethod.formState,
+    getValues: formMethod.getValues,
     handleSubmit: formMethod.handleSubmit,
     onDelete,
     onSubmit,

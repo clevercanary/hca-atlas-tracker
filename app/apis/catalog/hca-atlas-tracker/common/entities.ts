@@ -131,3 +131,5 @@ export interface IntegrationLead {
   email: string;
   name: string;
 }
+
+export type SourceDatasetId = string;

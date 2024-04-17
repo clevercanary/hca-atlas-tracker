@@ -73,7 +73,7 @@ export function dbSourceDatasetToApiSourceDataset(
 }
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
-  return `${atlas.shortName} ${atlas.version}`;
+  return `${atlas.shortName} v${atlas.version}`;
 }
 
 /**

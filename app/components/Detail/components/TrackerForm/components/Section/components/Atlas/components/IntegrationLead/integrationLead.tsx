@@ -11,10 +11,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../section.styles";
-
-export const FIELD_NAME_INTEGRATION_LEAD = "integrationLead";
-export const FIELD_NAME_INTEGRATION_LEAD_EMAIL = "integrationLead.email";
-export const FIELD_NAME_INTEGRATION_LEAD_NAME = "integrationLead.name";
+import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../common/constants";
 
 export interface IntegrationLeadProps {
   control: FormMethod<AtlasEditData | NewAtlasData>["control"];
@@ -34,35 +31,29 @@ export const IntegrationLead = ({
       <SectionCard>
         <Controller
           control={control}
-          name={FIELD_NAME_INTEGRATION_LEAD_NAME}
-          render={({ field }): JSX.Element => {
-            return (
-              <Input
-                {...field}
-                error={Boolean(errors.integrationLead?.name)}
-                helperText={errors.integrationLead?.name?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Full name"
-                readOnly={false}
-              />
-            );
-          }}
+          name={FIELD_NAME.INTEGRATION_LEAD_NAME}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_NAME}
+              error={Boolean(errors.integrationLead?.name)}
+              helperText={errors.integrationLead?.name?.message as string}
+              isFilled={Boolean(field.value)}
+            />
+          )}
         />
         <Controller
           control={control}
-          name={FIELD_NAME_INTEGRATION_LEAD_EMAIL}
-          render={({ field }): JSX.Element => {
-            return (
-              <Input
-                {...field}
-                error={Boolean(errors.integrationLead?.email)}
-                helperText={errors.integrationLead?.email?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Email"
-                readOnly={false}
-              />
-            );
-          }}
+          name={FIELD_NAME.INTEGRATION_LEAD_EMAIL}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_EMAIL}
+              error={Boolean(errors.integrationLead?.email)}
+              helperText={errors.integrationLead?.email?.message as string}
+              isFilled={Boolean(field.value)}
+            />
+          )}
         />
       </SectionCard>
     </Section>

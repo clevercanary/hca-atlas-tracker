@@ -24,11 +24,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../section.styles";
-
-export const FIELD_NAME_ATLAS_NAME = "shortName";
-export const FIELD_NAME_BIO_NETWORK = "network";
-export const FIELD_NAME_VERSION = "version";
-export const FIELD_NAME_WAVE = "wave";
+import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../common/constants";
 
 export interface GeneralInfoProps {
   control: FormMethod<AtlasEditData | NewAtlasData>["control"];
@@ -48,85 +44,71 @@ export const GeneralInfo = ({
       <SectionCard>
         <Controller
           control={control}
-          name={FIELD_NAME_ATLAS_NAME}
-          render={({ field }): JSX.Element => {
-            return (
-              <Input
-                {...field}
-                error={Boolean(errors[FIELD_NAME_ATLAS_NAME])}
-                helperText={errors[FIELD_NAME_ATLAS_NAME]?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Short name"
-                placeholder="e.g. Cortex"
-                readOnly={false}
-              />
-            );
-          }}
-        />
-        <Controller
-          control={control}
-          name={FIELD_NAME_VERSION}
+          name={FIELD_NAME.SHORT_NAME}
           render={({ field }): JSX.Element => (
             <Input
               {...field}
-              error={Boolean(errors[FIELD_NAME_VERSION])}
-              helperText={errors[FIELD_NAME_VERSION]?.message as string}
+              {...DEFAULT_INPUT_PROPS.SHORT_NAME}
+              error={Boolean(errors[FIELD_NAME.SHORT_NAME])}
+              helperText={errors[FIELD_NAME.SHORT_NAME]?.message as string}
               isFilled={Boolean(field.value)}
-              label="Version"
-              placeholder="e.g. 1.0"
-              readOnly={false}
             />
           )}
         />
         <Controller
           control={control}
-          name={FIELD_NAME_BIO_NETWORK}
-          render={({ field }): JSX.Element => {
-            return (
-              <Select
-                {...field}
-                displayEmpty
-                error={Boolean(errors[FIELD_NAME_BIO_NETWORK])}
-                helperText={errors[FIELD_NAME_BIO_NETWORK]?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Select network"
-                readOnly={false}
-                renderValue={renderNetworkSelectValue}
-              >
-                {NETWORKS.map(({ key, name }) => (
-                  <MMenuItem key={key} value={key}>
-                    <NetworkIconAndName networkKey={key} networkName={name} />
-                  </MMenuItem>
-                ))}
-              </Select>
-            );
-          }}
+          name={FIELD_NAME.VERSION}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              {...DEFAULT_INPUT_PROPS.VERSION}
+              error={Boolean(errors[FIELD_NAME.VERSION])}
+              helperText={errors[FIELD_NAME.VERSION]?.message as string}
+              isFilled={Boolean(field.value)}
+            />
+          )}
         />
         <Controller
           control={control}
-          name={FIELD_NAME_WAVE}
-          render={({ field }): JSX.Element => {
-            return (
-              <Select
-                {...field}
-                displayEmpty
-                error={Boolean(errors[FIELD_NAME_WAVE])}
-                helperText={errors[FIELD_NAME_WAVE]?.message as string}
-                isFilled={Boolean(field.value)}
-                label="Select wave"
-                readOnly={false}
-                renderValue={renderWaveSelectValue}
-              >
-                {WAVES.map((wave) => {
-                  return (
-                    <MMenuItem key={wave} value={wave}>
-                      {wave}
-                    </MMenuItem>
-                  );
-                })}
-              </Select>
-            );
-          }}
+          name={FIELD_NAME.BIO_NETWORK}
+          render={({ field }): JSX.Element => (
+            <Select
+              {...field}
+              {...DEFAULT_INPUT_PROPS.BIO_NETWORK}
+              error={Boolean(errors[FIELD_NAME.BIO_NETWORK])}
+              helperText={errors[FIELD_NAME.BIO_NETWORK]?.message as string}
+              isFilled={Boolean(field.value)}
+              renderValue={renderNetworkSelectValue}
+            >
+              {NETWORKS.map(({ key, name }) => (
+                <MMenuItem key={key} value={key}>
+                  <NetworkIconAndName networkKey={key} networkName={name} />
+                </MMenuItem>
+              ))}
+            </Select>
+          )}
+        />
+        <Controller
+          control={control}
+          name={FIELD_NAME.WAVE}
+          render={({ field }): JSX.Element => (
+            <Select
+              {...field}
+              {...DEFAULT_INPUT_PROPS.WAVE}
+              error={Boolean(errors[FIELD_NAME.WAVE])}
+              helperText={errors[FIELD_NAME.WAVE]?.message as string}
+              isFilled={Boolean(field.value)}
+              renderValue={renderWaveSelectValue}
+            >
+              {WAVES.map((wave) => {
+                return (
+                  <MMenuItem key={wave} value={wave}>
+                    {wave}
+                  </MMenuItem>
+                );
+              })}
+            </Select>
+          )}
         />
       </SectionCard>
     </Section>
