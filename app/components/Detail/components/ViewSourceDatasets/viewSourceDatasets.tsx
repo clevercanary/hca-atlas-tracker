@@ -27,7 +27,6 @@ export const ViewSourceDatasets = ({
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-
   return isAuthenticated ? (
     <Paper>
       <GridPaper>

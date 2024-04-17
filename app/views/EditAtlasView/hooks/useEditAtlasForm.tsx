@@ -1,12 +1,15 @@
 import Router from "next/router";
-import { useMemo } from "react";
-import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  AtlasId,
+  HCAAtlasTrackerAtlas,
+} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasEditData,
   atlasEditSchema,
 } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { getRouteURL } from "../../../common/utils";
 import { FIELD_NAME } from "../../../components/Detail/components/TrackerForm/components/Section/components/Atlas/common/constants";
+import { useFetchAtlas } from "../../../hooks/useFetchAtlas";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { ROUTE } from "../../../routes/constants";
@@ -14,10 +17,14 @@ import { ROUTE } from "../../../routes/constants";
 const SCHEMA = atlasEditSchema;
 
 export const useEditAtlasForm = (
-  atlas?: HCAAtlasTrackerAtlas
-): FormMethod<AtlasEditData> => {
-  const values = useMemo(() => mapSchemaValues(atlas), [atlas]);
-  return useForm<AtlasEditData>(SCHEMA, values);
+  atlasId: AtlasId
+): FormMethod<AtlasEditData, HCAAtlasTrackerAtlas> => {
+  const { atlas } = useFetchAtlas(atlasId);
+  return useForm<AtlasEditData, HCAAtlasTrackerAtlas>(
+    SCHEMA,
+    atlas,
+    mapSchemaValues
+  );
 };
 
 /**
@@ -28,15 +35,14 @@ export const useEditAtlasForm = (
 function mapSchemaValues(
   atlas?: HCAAtlasTrackerAtlas
 ): AtlasEditData | undefined {
-  return (
-    atlas && {
-      [FIELD_NAME.SHORT_NAME]: atlas.shortName,
-      [FIELD_NAME.BIO_NETWORK]: atlas.bioNetwork,
-      integrationLead: atlas.integrationLead,
-      [FIELD_NAME.VERSION]: atlas.version,
-      [FIELD_NAME.WAVE]: atlas.wave,
-    }
-  );
+  if (!atlas) return;
+  return {
+    [FIELD_NAME.SHORT_NAME]: atlas.shortName,
+    [FIELD_NAME.BIO_NETWORK]: atlas.bioNetwork,
+    [FIELD_NAME.INTEGRATION_LEAD]: atlas.integrationLead,
+    [FIELD_NAME.VERSION]: atlas.version,
+    [FIELD_NAME.WAVE]: atlas.wave,
+  };
 }
 
 /**

@@ -1,9 +1,13 @@
 import { ErrorIcon } from "@clevercanary/data-explorer-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@clevercanary/data-explorer-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Controller } from "react-hook-form";
-import { PUBLICATION_STATUS } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerSourceDataset,
+  PUBLICATION_STATUS,
+} from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { SourceDatasetEditData } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { getSourceDatasetCitation } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import {
   Section,
@@ -14,18 +18,12 @@ import {
 import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../../../common/constants";
 
 export interface GeneralInfoProps {
-  control: FormMethod<SourceDatasetEditData>["control"];
-  formState: FormMethod<SourceDatasetEditData>["formState"];
-  getValues: FormMethod<SourceDatasetEditData>["getValues"];
+  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>;
 }
 
-export const GeneralInfo = ({
-  control,
-  formState,
-  getValues,
-}: GeneralInfoProps): JSX.Element => {
+export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
+  const { control, data: sourceDataset, formState } = formMethod;
   const { errors } = formState;
-  const formValue = getValues();
   return (
     <Section>
       <SectionHero>
@@ -39,10 +37,10 @@ export const GeneralInfo = ({
             <Input
               {...field}
               {...DEFAULT_INPUT_PROPS.DOI}
-              endAdornment={renderDoiEndAdornment(formValue)}
+              endAdornment={renderDoiEndAdornment(sourceDataset)}
               error={Boolean(errors[FIELD_NAME.DOI])}
               helperText={renderDoiHelperText(
-                formValue,
+                sourceDataset,
                 errors[FIELD_NAME.DOI]?.message
               )}
               isFilled={Boolean(field.value)}
@@ -73,11 +71,13 @@ export const GeneralInfo = ({
 
 /**
  * Renders the end adornment for the Publication DOI input.
- * @param value - Form value.
+ * @param sourceDataset - Source dataset.
  * @returns end adornment.
  */
-function renderDoiEndAdornment(value: SourceDatasetEditData): JSX.Element {
-  if (value[FIELD_NAME.PUBLICATION_STATUS] === PUBLICATION_STATUS.OK) {
+function renderDoiEndAdornment(
+  sourceDataset: HCAAtlasTrackerSourceDataset | undefined
+): JSX.Element {
+  if (sourceDataset?.publicationStatus === PUBLICATION_STATUS.OK) {
     return <SuccessIcon color="success" fontSize="small" />;
   }
   return <ErrorIcon color="error" fontSize="small" />;
@@ -85,17 +85,14 @@ function renderDoiEndAdornment(value: SourceDatasetEditData): JSX.Element {
 
 /**
  * Renders the helper text for the publication DOI input.
- * @param value - Form value.
+ * @param sourceDataset - Source dataset.
  * @param errorMessage - Error message.
  * @returns helper text.
  */
 function renderDoiHelperText(
-  value: SourceDatasetEditData,
+  sourceDataset: HCAAtlasTrackerSourceDataset | undefined,
   errorMessage: string | undefined
 ): string | undefined {
   if (errorMessage) return errorMessage;
-  const citation = value[FIELD_NAME.CITATION];
-  if (citation) {
-    return citation;
-  }
+  return getSourceDatasetCitation(sourceDataset);
 }

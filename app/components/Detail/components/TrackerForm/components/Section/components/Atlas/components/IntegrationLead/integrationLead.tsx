@@ -1,4 +1,5 @@
 import { Controller } from "react-hook-form";
+import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasEditData,
   NewAtlasData,
@@ -14,14 +15,15 @@ import {
 import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../common/constants";
 
 export interface IntegrationLeadProps {
-  control: FormMethod<AtlasEditData | NewAtlasData>["control"];
-  formState: FormMethod<AtlasEditData | NewAtlasData>["formState"];
+  formMethod:
+    | FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
+    | FormMethod<NewAtlasData>;
 }
 
 export const IntegrationLead = ({
-  control,
-  formState,
+  formMethod,
 }: IntegrationLeadProps): JSX.Element => {
+  const { control, formState } = formMethod;
   const { errors } = formState;
   return (
     <Section>

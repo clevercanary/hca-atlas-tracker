@@ -5,13 +5,12 @@ import {
 import { ATLAS_STATUS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface AtlasStatusProps {
-  atlasStatus?: ATLAS_STATUS;
+  atlasStatus: ATLAS_STATUS;
 }
 
 export const AtlasStatus = ({
   atlasStatus,
 }: AtlasStatusProps): JSX.Element | null => {
-  if (!atlasStatus) return null;
   return (
     <StatusBadge color={getStatusBadgeColor(atlasStatus)} label={atlasStatus} />
   );

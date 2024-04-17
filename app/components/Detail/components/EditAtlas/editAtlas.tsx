@@ -3,8 +3,14 @@ import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/compon
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewAtlasData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  AtlasId,
+  HCAAtlasTrackerAtlas,
+} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  AtlasEditData,
+  NewAtlasData,
+} from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../common/entities";
 import { getRequestURL } from "../../../../common/utils";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
@@ -23,7 +29,7 @@ import { FormActions } from "../TrackerForm/trackerForm.styles";
 
 interface EditAtlasProps {
   atlasId: AtlasId;
-  formMethod: FormMethod<NewAtlasData>;
+  formMethod: FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>;
 }
 
 export const EditAtlas = ({
@@ -45,9 +51,9 @@ export const EditAtlas = ({
 
   return isAuthenticated ? (
     <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
-      <GeneralInfo {...formMethod} />
+      <GeneralInfo formMethod={formMethod} />
       <Divider />
-      <IntegrationLead {...formMethod} />
+      <IntegrationLead formMethod={formMethod} />
       <Divider />
       <FormActions>
         <ButtonLink color={BUTTON_COLOR.SECONDARY} href={ROUTE.ATLASES}>

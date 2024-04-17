@@ -24,7 +24,7 @@ export const ViewSourceDatasetsView = ({
       mainColumn={
         <ViewSourceDatasets atlasId={atlasId} sourceDatasets={sourceDatasets} />
       }
-      status={atlas && <AtlasStatus atlasStatus={atlas?.status} />}
+      status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
       tabs={<Tabs atlas={atlas} atlasId={atlasId} />}
       title={atlas ? getAtlasName(atlas) : "Edit Atlas"}
     />

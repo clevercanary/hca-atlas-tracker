@@ -40,9 +40,9 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
   return isAuthenticated ? (
     <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
       <Divider />
-      <GeneralInfo {...formMethod} />
+      <GeneralInfo formMethod={formMethod} />
       <Divider />
-      <IntegrationLead {...formMethod} />
+      <IntegrationLead formMethod={formMethod} />
       <Divider />
       <FormActions>
         <ButtonLink color={BUTTON_COLOR.SECONDARY} href={ROUTE.ATLASES}>

@@ -5,6 +5,7 @@ import {
   NETWORKS,
   WAVES,
 } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
+import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasEditData,
   NewAtlasData,
@@ -27,14 +28,13 @@ import {
 import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../common/constants";
 
 export interface GeneralInfoProps {
-  control: FormMethod<AtlasEditData | NewAtlasData>["control"];
-  formState: FormMethod<AtlasEditData | NewAtlasData>["formState"];
+  formMethod:
+    | FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
+    | FormMethod<NewAtlasData>;
 }
 
-export const GeneralInfo = ({
-  control,
-  formState,
-}: GeneralInfoProps): JSX.Element => {
+export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
+  const { control, formState } = formMethod;
   const { errors } = formState;
   return (
     <Section>

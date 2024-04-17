@@ -5,7 +5,6 @@ import { Tabs } from "../../components/Detail/components/EditAtlas/components/Ta
 import { EditAtlas } from "../../components/Detail/components/EditAtlas/editAtlas";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 
@@ -14,13 +13,13 @@ interface EditAtlasViewProps {
 }
 
 export const EditAtlasView = ({ atlasId }: EditAtlasViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(atlasId);
-  const formMethod = useEditAtlasForm(atlas);
+  const formMethod = useEditAtlasForm(atlasId);
+  const { data: atlas } = formMethod;
   return (
     <DetailView
       breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
       mainColumn={<EditAtlas atlasId={atlasId} formMethod={formMethod} />}
-      status={atlas && <AtlasStatus atlasStatus={atlas?.status} />}
+      status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
       tabs={<Tabs atlas={atlas} atlasId={atlasId} />}
       title={atlas ? getAtlasName(atlas) : "Edit Atlas"}
     />
