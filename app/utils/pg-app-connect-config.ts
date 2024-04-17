@@ -1,17 +1,20 @@
 import pg from "pg";
 
 export function getPoolConfig(): pg.PoolConfig {
-  if (process.env.APP_ENV === "aws-dev") {
+  if (process.env.APP_ENV === "aws-dev" || process.env.APP_ENV === "aws-prod") {
+    const user = JSON.parse(process.env.PG_APP_USER || "")["user"] || "";
+    const password =
+      JSON.parse(process.env.PG_APP_USER || "")["password"] || "";
     // Production config with IAM authentication
     return {
       connectionTimeoutMillis: 5000,
       database: process.env.PGDATABASE || "",
       host: process.env.PGHOST || "",
       idleTimeoutMillis: 10000,
-      password: JSON.parse(process.env.PGPASSWORD || "")["PGPASSWORD"] || "",
+      password: password,
       port: 5432,
       ssl: true,
-      user: "hat_app",
+      user: user,
     };
   } else {
     // Development config for local database
