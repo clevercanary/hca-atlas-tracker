@@ -1,7 +1,9 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import pg from "pg";
+import { ValidationError } from "yup";
 import { METHOD } from "../common/entities";
+import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { getPoolConfig } from "./pg-app-connect-config";
 
 const { Pool } = pg;
@@ -145,6 +147,22 @@ async function getAccessTokenInfo(
       (tokenInfo = await authClient.getTokenInfo(token))
     );
   return tokenInfo;
+}
+
+export function respondValidationError(
+  res: NextApiResponse,
+  error: ValidationError
+): void {
+  const errorInfo: FormResponseErrors = error.path
+    ? {
+        errors: {
+          [error.path]: error.errors,
+        },
+      }
+    : {
+        message: error.message,
+      };
+  res.status(400).json(errorInfo);
 }
 
 export function query<T extends pg.QueryResultRow>(

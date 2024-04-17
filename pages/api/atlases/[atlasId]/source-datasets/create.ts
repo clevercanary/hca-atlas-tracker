@@ -15,6 +15,7 @@ import {
   handler,
   method,
   query,
+  respondValidationError,
   role,
 } from "../../../../../app/utils/api-handler";
 import {
@@ -50,7 +51,7 @@ export default handler(
       newData = await newSourceDatasetSchema.validate(req.body);
     } catch (e) {
       if (e instanceof ValidationError) {
-        res.status(400).json({ message: e.message });
+        respondValidationError(res, e);
         return;
       } else {
         throw e;
