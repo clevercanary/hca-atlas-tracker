@@ -6,13 +6,6 @@ const { Pool } = pg;
 
 const runMigrations = async (): Promise<void> => {
   const poolConfig = getPoolConfig();
-
-  // Check and wait for password if it's a function (async generator for the token)
-  if (typeof poolConfig.password === "function") {
-    poolConfig.password = await poolConfig.password();
-    console.log("IAM auth token generated:", poolConfig.password);
-  }
-
   const pool = new Pool(poolConfig);
   const client = await pool.connect();
   console.log`Connected to database: ${poolConfig.database}`;
