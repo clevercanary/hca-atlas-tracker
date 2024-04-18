@@ -96,9 +96,14 @@ export async function getCrossrefPublicationInfo(
         : { name: author.family, personalName: author.given || null }
     ),
     journal,
-    publicationDate: work.published["date-parts"][0]
-      .map((n) => n.toString().padStart(2, "0"))
-      .join("-"),
+    publicationDate: datePartsToString(work.published["date-parts"][0]),
     title: work.title[0],
   };
+}
+
+function datePartsToString(parts: number[]): string {
+  return [
+    parts[0].toString(),
+    ...parts.slice(1, 3).map((n) => n.toString().padStart(2, "0")),
+  ].join("-");
 }
