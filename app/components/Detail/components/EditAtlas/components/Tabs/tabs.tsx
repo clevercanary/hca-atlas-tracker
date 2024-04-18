@@ -1,7 +1,7 @@
 import {
   Tabs as DXTabs,
   TabValue,
-} from "@clevercanary/data-explorer-ui/lib/components/common/Tabs/tabs";
+} from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import Router, { useRouter } from "next/router";
 import { ReactNode, useCallback } from "react";
 import {

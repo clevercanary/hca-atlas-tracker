@@ -1,4 +1,4 @@
-import { smokeDark } from "@clevercanary/data-explorer-ui/lib/theme/common/palette";
+import { smokeDark } from "@databiosphere/findable-ui/lib/theme/common/palette";
 import { SvgIcon } from "@mui/material";
 
 /**

@@ -1,4 +1,4 @@
-import { SuccessIcon } from "@clevercanary/data-explorer-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
+import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Fragment } from "react";
 import { RequiredIcon } from "../../../common/CustomIcon/components/RequiredIcon/requiredIcon";
 

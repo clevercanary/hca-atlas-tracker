@@ -1,7 +1,7 @@
 import {
   LayoutStyle,
   PANEL_BACKGROUND_COLOR,
-} from "@clevercanary/data-explorer-ui/lib/components/Layout/components/ContentLayout/common/entities";
+} from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/common/entities";
 import * as C from "../../components";
 import { Breadcrumbs } from "../../components/common/Content/components/Breadcrumbs/breadcrumbs.styles";
 import { getContentScope, getContentURL } from "./utils";

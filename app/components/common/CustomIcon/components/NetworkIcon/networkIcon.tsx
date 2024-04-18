@@ -1,7 +1,7 @@
 import {
   StaticImage,
   StaticImageProps,
-} from "@clevercanary/data-explorer-ui/lib/components/common/StaticImage/staticImage";
+} from "@databiosphere/findable-ui/lib/components/common/StaticImage/staticImage";
 import { NETWORK_ICONS } from "../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { NetworkKey } from "../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 

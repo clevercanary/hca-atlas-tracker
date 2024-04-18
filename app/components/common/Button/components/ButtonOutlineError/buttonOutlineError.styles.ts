@@ -1,9 +1,9 @@
-import { alertMain } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
+import { alertMain } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import {
   alpha08,
   alpha32,
   alpha64,
-} from "@clevercanary/data-explorer-ui/lib/theme/common/palette";
+} from "@databiosphere/findable-ui/lib/theme/common/palette";
 import styled from "@emotion/styled";
 import { Button as MButton } from "@mui/material";
 import { button } from "../../button.styles";

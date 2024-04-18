@@ -1,21 +1,21 @@
-import "@clevercanary/data-explorer-ui";
-import { AzulEntitiesStaticResponse } from "@clevercanary/data-explorer-ui/lib/apis/azul/common/entities";
-import { Error } from "@clevercanary/data-explorer-ui/lib/components/Error/error";
-import { ErrorBoundary } from "@clevercanary/data-explorer-ui/lib/components/ErrorBoundary";
-import { Head } from "@clevercanary/data-explorer-ui/lib/components/Head/head";
-import { AppLayout } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/AppLayout/appLayout.styles";
-import { Floating } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Floating/floating";
-import { Footer } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Footer/footer";
-import { Header as DXHeader } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Header/header";
-import { Main as DXMain } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Main/main";
-import { AuthProvider } from "@clevercanary/data-explorer-ui/lib/providers/authentication";
-import { ConfigProvider as DXConfigProvider } from "@clevercanary/data-explorer-ui/lib/providers/config";
-import { ExploreStateProvider } from "@clevercanary/data-explorer-ui/lib/providers/exploreState";
-import { FileManifestStateProvider } from "@clevercanary/data-explorer-ui/lib/providers/fileManifestState";
-import { LayoutStateProvider } from "@clevercanary/data-explorer-ui/lib/providers/layoutState";
-import { SystemStatusProvider } from "@clevercanary/data-explorer-ui/lib/providers/systemStatus";
-import { createAppTheme } from "@clevercanary/data-explorer-ui/lib/theme/theme";
-import { DataExplorerError } from "@clevercanary/data-explorer-ui/lib/types/error";
+import "@databiosphere/findable-ui";
+import { AzulEntitiesStaticResponse } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
+import { Error } from "@databiosphere/findable-ui/lib/components/Error/error";
+import { ErrorBoundary } from "@databiosphere/findable-ui/lib/components/ErrorBoundary";
+import { Head } from "@databiosphere/findable-ui/lib/components/Head/head";
+import { AppLayout } from "@databiosphere/findable-ui/lib/components/Layout/components/AppLayout/appLayout.styles";
+import { Floating } from "@databiosphere/findable-ui/lib/components/Layout/components/Floating/floating";
+import { Footer } from "@databiosphere/findable-ui/lib/components/Layout/components/Footer/footer";
+import { Header as DXHeader } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
+import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
+import { AuthProvider } from "@databiosphere/findable-ui/lib/providers/authentication";
+import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
+import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
+import { FileManifestStateProvider } from "@databiosphere/findable-ui/lib/providers/fileManifestState";
+import { LayoutStateProvider } from "@databiosphere/findable-ui/lib/providers/layoutState";
+import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
+import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
+import { DataExplorerError } from "@databiosphere/findable-ui/lib/types/error";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
@@ -23,7 +23,7 @@ import { config } from "app/config/config";
 import { NextPage } from "next";
 import type { AppProps } from "next/app";
 
-const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+const SESSION_TIMEOUT = 0.15 * 60 * 1000; // 15 minutes
 
 export interface PageProps extends AzulEntitiesStaticResponse {
   pageTitle?: string;

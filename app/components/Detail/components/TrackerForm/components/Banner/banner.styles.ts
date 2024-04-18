@@ -1,8 +1,8 @@
-import { AppBar as DXAppBar } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/Header/header.styles";
+import { AppBar as DXAppBar } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header.styles";
 import {
   inkMain,
   white,
-} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import styled from "@emotion/styled";
 
 export const AppBar = styled(DXAppBar)`

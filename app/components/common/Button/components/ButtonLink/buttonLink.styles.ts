@@ -1,4 +1,4 @@
-import { ThemeProps } from "@clevercanary/data-explorer-ui/lib/theme/theme";
+import { ThemeProps } from "@databiosphere/findable-ui/lib/theme/theme";
 import { SerializedStyles } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";

@@ -1,8 +1,8 @@
 import {
   BackPageContent as DXBackPageContent,
   BackPageView as DXBackPageView,
-} from "@clevercanary/data-explorer-ui/lib/components/Layout/components/BackPage/backPageView.styles";
-import { mediaTabletUp } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/breakpoints";
+} from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/backPageView.styles";
+import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 
 export const DetailView = styled(DXBackPageView)`

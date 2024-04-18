@@ -1,8 +1,8 @@
-import { AddIcon } from "@clevercanary/data-explorer-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
-import { GridPaper } from "@clevercanary/data-explorer-ui/lib/components/common/Paper/paper.styles";
-import { Table } from "@clevercanary/data-explorer-ui/lib/components/Detail/components/Table/table";
-import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
+import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import {
   AtlasId,
   HCAAtlasTrackerSourceDataset,

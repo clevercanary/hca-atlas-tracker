@@ -1,4 +1,4 @@
-import { ErrorIcon } from "@clevercanary/data-explorer-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
+import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import {
   FormHelperTextProps as MFormHelperTextProps,
   Typography,

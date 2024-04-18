@@ -1,4 +1,4 @@
-import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { ROUTE } from "../../../../../../routes/constants";
 import { BUTTON_COLOR } from "../../../../../common/Button/components/ButtonLink/buttonLink";
 import { Button } from "./heroActions.styles";

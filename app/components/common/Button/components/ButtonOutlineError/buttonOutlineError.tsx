@@ -1,4 +1,4 @@
-import { ButtonProps } from "@clevercanary/data-explorer-ui/lib/components/common/Button/button";
+import { ButtonProps } from "@databiosphere/findable-ui/lib/components/common/Button/button";
 import { forwardRef } from "react";
 import { ButtonOutlineError as Button } from "./buttonOutlineError.styles";
 

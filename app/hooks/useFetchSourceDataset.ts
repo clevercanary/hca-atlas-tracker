@@ -1,5 +1,5 @@
-import { useAsync } from "@clevercanary/data-explorer-ui/lib/hooks/useAsync";
-import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useAsync } from "@databiosphere/findable-ui/lib/hooks/useAsync";
+import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback, useEffect } from "react";
 import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
 import {

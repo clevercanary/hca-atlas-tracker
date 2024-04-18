@@ -1,9 +1,9 @@
-import { Grid } from "@clevercanary/data-explorer-ui/lib/components/common/Grid/grid";
-import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
+import { Grid } from "@databiosphere/findable-ui/lib/components/common/Grid/grid";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import {
   TEXT_BODY_500,
   TEXT_BODY_SMALL_400,
-} from "@clevercanary/data-explorer-ui/lib/theme/common/typography";
+} from "@databiosphere/findable-ui/lib/theme/common/typography";
 import { Typography } from "@mui/material";
 
 interface AtlasCellProps {

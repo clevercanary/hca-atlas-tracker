@@ -1,7 +1,7 @@
 import {
   StatusBadge,
   STATUS_BADGE_COLOR,
-} from "@clevercanary/data-explorer-ui/lib/components/common/StatusBadge/statusBadge";
+} from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ATLAS_STATUS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface AtlasStatusProps {

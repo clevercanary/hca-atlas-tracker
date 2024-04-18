@@ -1,7 +1,7 @@
 import {
   inkLight,
   white,
-} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import styled from "@emotion/styled";
 import { FormControl } from "../FormControl/formControl.styles";
 
