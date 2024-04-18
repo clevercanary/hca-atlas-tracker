@@ -3,6 +3,7 @@ import {
   PublicationInfo,
   PUBLICATION_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CrossrefWork } from "../app/utils/crossref/crossref";
 import { TestAtlas, TestSourceDataset } from "./entities";
 import { makeTestUser } from "./utils";
 
@@ -125,8 +126,19 @@ export const PUBLICATION_NORMAL: PublicationInfo = {
   title: "A Test",
 };
 
-export const TEST_DOI_PUBLICATIONS = new Map([
-  [DOI_NORMAL, PUBLICATION_NORMAL],
+export const CROSSREF_WORK_NORMAL: CrossrefWork = {
+  author: [{ family: "Foo" }],
+  "container-title": ["Bar"],
+  published: {
+    "date-parts": [[2024, 1, 1]],
+  },
+  "short-container-title": [],
+  title: ["A Test"],
+  type: "journal-article",
+};
+
+export const TEST_DOI_CROSSREF_WORKS = new Map([
+  [DOI_NORMAL, CROSSREF_WORK_NORMAL],
 ]);
 
 export const HCA_ID_NORMAL = "hca-id-normal";

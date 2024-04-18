@@ -19,7 +19,7 @@ import {
   respondValidationError,
   role,
 } from "../../../../../app/utils/api-handler";
-import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref";
+import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref/crossref";
 import { normalizeDoi } from "../../../../../app/utils/doi";
 import {
   getProjectIdByDoi,

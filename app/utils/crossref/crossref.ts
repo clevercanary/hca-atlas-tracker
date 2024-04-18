@@ -1,5 +1,6 @@
 import { array, InferType, number, object, string, ValidationError } from "yup";
-import { PublicationInfo } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { PublicationInfo } from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { fetchCrossrefWork } from "./crossref-api";
 
 const crossrefOrganizationAuthorSchema = object({
   name: string().required(),
@@ -64,24 +65,19 @@ type CrossrefOrganizationAuthor = InferType<
 
 type CrossrefPersonAuthor = InferType<typeof crossrefPersonAuthorSchema>;
 
-type CrossrefWork = Omit<InferType<typeof crossrefWorkSchema>, "author"> & {
+export type CrossrefWork = Omit<
+  InferType<typeof crossrefWorkSchema>,
+  "author"
+> & {
   author: (CrossrefOrganizationAuthor | CrossrefPersonAuthor)[];
 };
 
 export async function getCrossrefPublicationInfo(
   doi: string
 ): Promise<PublicationInfo | null> {
-  const crossrefResponse = await fetch(
-    `https://api.crossref.org/works/${encodeURIComponent(doi)}`
-  );
-  if (crossrefResponse.status === 404) return null;
-  else if (crossrefResponse.status !== 200)
-    throw new Error(
-      `Received ${crossrefResponse.status} response from Crossref`
-    );
-  const work = crossrefWorkSchema.validateSync(
-    (await crossrefResponse.json()).message
-  ) as CrossrefWork;
+  const unvalidatedWork = await fetchCrossrefWork(doi);
+  if (unvalidatedWork === null) return null;
+  const work = crossrefWorkSchema.validateSync(unvalidatedWork) as CrossrefWork;
   let journal =
     work["container-title"][0] ||
     work["short-container-title"][0] ||
