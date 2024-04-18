@@ -28,7 +28,9 @@ export const EditSourceDatasetView = ({
           breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceDataset)}
         />
       }
-      mainColumn={<EditSourceDataset formMethod={formMethod} />}
+      mainColumn={
+        <EditSourceDataset atlasId={atlasId} formMethod={formMethod} />
+      }
       title={sourceDataset?.title || "Edit Source Dataset"}
     />
   );

@@ -30,8 +30,12 @@ export const AddSourceDataset = ({
   formMethod,
 }: AddSourceDatasetProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-  const { disabled, formState, handleSubmit, onSubmit } = formMethod;
-  const { isDirty } = formState;
+  const {
+    disabled,
+    formState: { isDirty },
+    handleSubmit,
+    onSubmit,
+  } = formMethod;
 
   const onFormSubmit = useCallback(
     (payload: NewSourceDatasetData): void => {
