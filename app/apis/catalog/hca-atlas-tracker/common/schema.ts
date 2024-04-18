@@ -54,6 +54,8 @@ export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
  */
 export const sourceDatasetEditSchema = newSourceDatasetSchema.concat(
   object({
+    cellxgeneCollectionId: string().default("").notRequired(),
+    hcaProjectId: string().default("").notRequired(),
     title: string().default("").required("Title is required"),
   })
 );

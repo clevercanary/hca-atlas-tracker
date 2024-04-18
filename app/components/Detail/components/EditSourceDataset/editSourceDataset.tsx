@@ -18,6 +18,7 @@ import { FormManagement } from "../TrackerForm/components/Banner/components/Form
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/Edit/components/GeneralInfo/generalInfo";
+import { Identifiers } from "../TrackerForm/components/Section/components/SourceDataset/components/Edit/components/Identifiers/identifiers";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 
 interface EditSourceDatasetProps {
@@ -47,6 +48,8 @@ export const EditSourceDataset = ({
       />
       <Divider />
       <GeneralInfo formMethod={formMethod} />
+      <Divider />
+      <Identifiers formMethod={formMethod} />
       <Divider />
     </TrackerForm>
   ) : (
