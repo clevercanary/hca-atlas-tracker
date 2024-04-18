@@ -69,6 +69,7 @@ export default handler(
           },
         };
         res.status(500).json(errors);
+        return;
       }
       throw e;
     }
