@@ -47,13 +47,15 @@ const crossrefWorkSchema = object({
     .strict()
     .required(),
   "short-container-title": array().of(string().required()).required(),
-  subtype: string().optional().oneOf(["preprint"]),
+  subtype: string().optional(),
   title: array().of(string().required()).required().min(1),
-  type: string().optional().oneOf(["journal-article"]),
+  type: string().optional(),
 })
   .strict()
-  .test("type-subtype", "Type or subtype must be present", (value) =>
-    Boolean(value.type || value.subtype)
+  .test(
+    "type-subtype",
+    'Must have type "journal-article" or subtype "preprint"',
+    (value) => value.type === "journal-article" || value.subtype === "preprint"
   );
 
 type CrossrefOrganizationAuthor = InferType<
