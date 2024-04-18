@@ -23,6 +23,10 @@ export const FormControl = styled(MFormControl, {
   gap: 4px;
 
   .MuiOutlinedInput-root {
+    &.MuiInputBase-adornedStart {
+      gap: 0;
+    }
+
     &.MuiInputBase-adornedEnd {
       padding: 0 12px;
 

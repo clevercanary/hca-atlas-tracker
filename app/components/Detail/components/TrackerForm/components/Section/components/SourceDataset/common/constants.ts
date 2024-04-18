@@ -1,8 +1,18 @@
 export const DEFAULT_INPUT_PROPS = {
+  CELLXGENE_COLLECTION_ID: {
+    isFullWidth: true,
+    label: "CELLxGENE collection ID",
+    readOnly: false,
+  },
   DOI: {
     isFullWidth: true,
-    label: "Publication DOI No.",
+    label: "Publication DOI no.",
     placeholder: "e.g. 10.1038/s41591-023-02327-2",
+    readOnly: false,
+  },
+  HCA_PROJECT_ID: {
+    isFullWidth: true,
+    label: "HCA repository project ID",
     readOnly: false,
   },
   TITLE: {
@@ -12,8 +22,8 @@ export const DEFAULT_INPUT_PROPS = {
   },
 };
 export const FIELD_NAME = {
-  CITATION: "citation",
+  CELLXGENE_COLLECTION_ID: "cellxgeneCollectionId",
   DOI: "doi",
-  PUBLICATION_STATUS: "publicationStatus",
+  HCA_PROJECT_ID: "hcaProjectId",
   TITLE: "title",
 } as const;
