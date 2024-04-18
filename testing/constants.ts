@@ -114,6 +114,10 @@ export const DOI_NORMAL = "10.123/test";
 
 export const DOI_NONEXISTENT = "10.123/nonexistent";
 
+export const DOI_PREPRINT_NO_JOURNAL = "10.123/preprint-no-journal";
+
+export const DOI_UNSUPPORTED_TYPE = "10.123/unsupported-type";
+
 export const PUBLICATION_NORMAL: PublicationInfo = {
   authors: [
     {
@@ -137,8 +141,45 @@ export const CROSSREF_WORK_NORMAL: CrossrefWork = {
   type: "journal-article",
 };
 
+export const PUBLICATION_PREPRINT_NO_JOURNAL: PublicationInfo = {
+  authors: [
+    {
+      name: "Bar",
+      personalName: "Baz",
+    },
+  ],
+  journal: "Preprint",
+  publicationDate: "2024-04-17",
+  title: "Preprint No Journal",
+};
+
+export const CROSSREF_WORK_PREPRINT_NO_JOURNAL: CrossrefWork = {
+  author: [{ family: "Bar", given: "Baz" }],
+  "container-title": [],
+  published: {
+    "date-parts": [[2024, 4, 17]],
+  },
+  "short-container-title": [],
+  subtype: "preprint",
+  title: ["Preprint No Journal"],
+  type: "posted-content",
+};
+
+export const CROSSREF_WORK_UNSUPPORTED_TYPE: CrossrefWork = {
+  author: [{ name: "Baz" }],
+  "container-title": ["Foo"],
+  published: {
+    "date-parts": [[2024, 4, 16]],
+  },
+  "short-container-title": [],
+  title: ["Unsupported Type"],
+  type: "unsupported-type",
+};
+
 export const TEST_DOI_CROSSREF_WORKS = new Map([
   [DOI_NORMAL, CROSSREF_WORK_NORMAL],
+  [DOI_PREPRINT_NO_JOURNAL, CROSSREF_WORK_PREPRINT_NO_JOURNAL],
+  [DOI_UNSUPPORTED_TYPE, CROSSREF_WORK_UNSUPPORTED_TYPE],
 ]);
 
 export const HCA_ID_NORMAL = "hca-id-normal";
