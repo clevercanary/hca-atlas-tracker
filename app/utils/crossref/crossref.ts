@@ -11,6 +11,9 @@ const crossrefPersonAuthorSchema = object({
   given: string().optional(),
 }).strict();
 
+/**
+ * Schema for the structure of a Crossref work that's expected by other code.
+ */
 const crossrefWorkSchema = object({
   author: array()
     .of(

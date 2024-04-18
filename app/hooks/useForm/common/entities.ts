@@ -10,6 +10,9 @@ export type CustomUseFormReturn<T extends FieldValues> = Pick<
 
 export type FormMethod<T extends FieldValues, R = undefined> = UseForm<T, R>;
 
+/**
+ * JSON body of an error response from an API; may contain a single `message` string, or an `errors` object indexed by field name.
+ */
 export type FormResponseErrors =
   | { message: string }
   | { errors: Record<string, string[]> };

@@ -149,6 +149,11 @@ async function getAccessTokenInfo(
   return tokenInfo;
 }
 
+/**
+ * Send an error response based on a Yup validation error.
+ * @param res - Next API response.
+ * @param error - ValidationError.
+ */
 export function respondValidationError(
   res: NextApiResponse,
   error: ValidationError
