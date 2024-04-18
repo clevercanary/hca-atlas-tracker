@@ -1,14 +1,14 @@
-import { FluidPaper } from "@clevercanary/data-explorer-ui/lib/components/common/Paper/paper.styles";
-import { sectionPadding } from "@clevercanary/data-explorer-ui/lib/components/common/Section/section.styles";
+import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
 import {
   mediaDesktopSmallUp,
   mediaTabletUp,
-} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/breakpoints";
-import { inkLight } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import {
   textBody400,
   textBodyLarge500,
-} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/fonts";
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import styled from "@emotion/styled";
 
 export const Section = styled.div`

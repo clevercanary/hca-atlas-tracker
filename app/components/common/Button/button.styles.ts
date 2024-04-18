@@ -5,10 +5,10 @@ import {
   smokeDark,
   smokeLightest,
   white,
-} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
-import { textBody500 } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/fonts";
-import { black08 } from "@clevercanary/data-explorer-ui/lib/theme/common/palette";
-import { ThemeProps } from "@clevercanary/data-explorer-ui/lib/theme/theme";
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { textBody500 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { black08 } from "@databiosphere/findable-ui/lib/theme/common/palette";
+import { ThemeProps } from "@databiosphere/findable-ui/lib/theme/theme";
 import { css } from "@emotion/react";
 
 export const button = (props: ThemeProps) => css`

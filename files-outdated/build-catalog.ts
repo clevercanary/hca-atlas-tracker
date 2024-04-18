@@ -1,5 +1,5 @@
-import { setConfig } from "@clevercanary/data-explorer-ui/lib/config/config";
-import { fetchAllEntities } from "@clevercanary/data-explorer-ui/lib/entity/api/service";
+import { setConfig } from "@databiosphere/findable-ui/lib/config/config";
+import { fetchAllEntities } from "@databiosphere/findable-ui/lib/entity/api/service";
 import fsp from "fs/promises";
 import path from "path";
 import {

@@ -3,7 +3,7 @@ import {
   textHeading,
   textHeadingLarge,
   textHeadingSmall,
-} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/fonts";
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import styled from "@emotion/styled";
 
 interface Props {

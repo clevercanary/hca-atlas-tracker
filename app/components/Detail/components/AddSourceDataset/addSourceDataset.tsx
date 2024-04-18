@@ -1,6 +1,6 @@
-import { ButtonPrimary } from "@clevercanary/data-explorer-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";

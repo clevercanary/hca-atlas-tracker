@@ -1,6 +1,6 @@
-import { ButtonProps } from "@clevercanary/data-explorer-ui/lib/components/common/Button/button";
-import { ButtonOutline } from "@clevercanary/data-explorer-ui/lib/components/common/Button/components/ButtonOutline/buttonOutline";
-import { ButtonPrimary } from "@clevercanary/data-explorer-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
+import { ButtonProps } from "@databiosphere/findable-ui/lib/components/common/Button/button";
+import { ButtonOutline } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonOutline/buttonOutline";
+import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { Fade } from "@mui/material";
 import { Banner } from "../../banner";
 import { FormActions, FormStatus } from "./formManagement.styles";

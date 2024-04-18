@@ -1,4 +1,4 @@
-import { setConfig } from "@clevercanary/data-explorer-ui/lib/config/config";
+import { setConfig } from "@databiosphere/findable-ui/lib/config/config";
 import { SiteConfig } from "../../site-config/common/entities";
 import hcaAtlasTrackerDev from "../../site-config/hca-atlas-tracker/dev/config";
 import hcaAtlasTrackerLocal from "../../site-config/hca-atlas-tracker/local/config";

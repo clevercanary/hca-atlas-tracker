@@ -1,4 +1,4 @@
-import { textBodyLarge500 } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/fonts";
+import { textBodyLarge500 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import styled from "@emotion/styled";
 
 export const FormStatus = styled.div`

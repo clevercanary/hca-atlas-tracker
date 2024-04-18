@@ -1,4 +1,4 @@
-import { warningMain } from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
+import { warningMain } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import styled from "@emotion/styled";
 import { FormHelperText as MFormHelperText } from "@mui/material";
 

@@ -1,5 +1,5 @@
-import { Title } from "@clevercanary/data-explorer-ui/lib/components/common/Title/title";
-import { BackPageTabs } from "@clevercanary/data-explorer-ui/lib/components/Layout/components/BackPage/backPageView.styles";
+import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/title";
+import { BackPageTabs } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/backPageView.styles";
 import { ReactNode } from "react";
 import {
   DetailViewHero as DetailViewHeroLayout,

@@ -1,4 +1,4 @@
-import { Breadcrumb } from "@clevercanary/data-explorer-ui/lib/components/common/Breadcrumbs/breadcrumbs";
+import { Breadcrumb } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { ROUTE } from "../../../routes/constants";

@@ -5,7 +5,7 @@ import {
   successMain,
   warningLightest,
   warningMain,
-} from "@clevercanary/data-explorer-ui/lib/styles/common/mixins/colors";
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { FormControl as MFormControl } from "@mui/material";

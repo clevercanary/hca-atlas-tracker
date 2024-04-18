@@ -1,7 +1,7 @@
 import {
   AzulCatalogResponse,
   AzulEntitiesResponse,
-} from "@clevercanary/data-explorer-ui/lib/apis/azul/common/entities";
+} from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
 import { normalizeDoi } from "./publications";
 

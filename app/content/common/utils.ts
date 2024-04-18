@@ -1,4 +1,4 @@
-import { getConfig } from "@clevercanary/data-explorer-ui/lib/config/config";
+import { getConfig } from "@databiosphere/findable-ui/lib/config/config";
 import { SiteConfig } from "../../../site-config/common/entities";
 import { config } from "../../config/config";
 import { ContentScope } from "./entities";

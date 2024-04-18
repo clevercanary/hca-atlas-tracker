@@ -1,4 +1,4 @@
-import { ButtonProps } from "@clevercanary/data-explorer-ui/lib/components/common/Button/button";
+import { ButtonProps } from "@databiosphere/findable-ui/lib/components/common/Button/button";
 import { FieldValues } from "react-hook-form";
 import { FormMethod } from "../../../../../../../hooks/useForm/common/entities";
 

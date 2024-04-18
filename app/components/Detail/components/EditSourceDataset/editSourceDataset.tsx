@@ -1,5 +1,5 @@
-import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import Router from "next/router";
 import { useCallback } from "react";
 import {

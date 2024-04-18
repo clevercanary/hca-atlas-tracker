@@ -1,13 +1,13 @@
-import { ELEMENT_ALIGNMENT } from "@clevercanary/data-explorer-ui/lib/common/entities";
-import { ANCHOR_TARGET } from "@clevercanary/data-explorer-ui/lib/components/Links/common/entities";
-import { tabletUp } from "@clevercanary/data-explorer-ui/lib/theme/common/breakpoints";
+import { ELEMENT_ALIGNMENT } from "@databiosphere/findable-ui/lib/common/entities";
+import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import { tabletUp } from "@databiosphere/findable-ui/lib/theme/common/breakpoints";
 import {
   TEXT_BODY_LARGE_500,
   TEXT_HEADING,
   TEXT_HEADING_LARGE,
   TEXT_HEADING_SMALL,
   TEXT_HEADING_XLARGE,
-} from "@clevercanary/data-explorer-ui/lib/theme/common/typography";
+} from "@databiosphere/findable-ui/lib/theme/common/typography";
 import * as C from "../../../app/components/index";
 import { SiteConfig } from "../../common/entities";
 import {
