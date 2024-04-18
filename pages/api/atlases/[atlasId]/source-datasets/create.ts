@@ -19,14 +19,12 @@ import {
   respondValidationError,
   role,
 } from "../../../../../app/utils/api-handler";
+import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref";
+import { normalizeDoi } from "../../../../../app/utils/doi";
 import {
   getProjectIdByDoi,
   ProjectsNotReadyError,
 } from "../../../../../app/utils/hca-projects";
-import {
-  getCrossrefPublicationInfo,
-  normalizeDoi,
-} from "../../../../../app/utils/publications";
 
 /**
  * API route for creating a source dataset. Source dataset information is provided as a JSON body.

@@ -1,7 +1,7 @@
 import { TEST_DOI_PUBLICATIONS } from "../../../testing/constants";
 import { PublicationInfo } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 
-const actualPublications = jest.requireActual("../publications");
+const actualPublications = jest.requireActual("../crossref");
 
 const publications = {
   ...actualPublications,
