@@ -34,8 +34,11 @@ export const EditAtlas = ({
   formMethod,
 }: EditAtlasProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-  const { formState, handleSubmit, onSubmit } = formMethod;
-  const { isDirty } = formState;
+  const {
+    formState: { isDirty },
+    handleSubmit,
+    onSubmit,
+  } = formMethod;
 
   const onDiscard = useCallback(() => {
     Router.push(ROUTE.ATLASES);

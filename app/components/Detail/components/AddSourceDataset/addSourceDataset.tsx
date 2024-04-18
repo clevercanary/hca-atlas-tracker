@@ -1,6 +1,6 @@
-import { ButtonPrimary } from "@clevercanary/data-explorer-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { Link } from "@clevercanary/data-explorer-ui/lib/components/Links/components/Link/link";
 import { useAuthentication } from "@clevercanary/data-explorer-ui/lib/hooks/useAuthentication/useAuthentication";
+import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -11,14 +11,14 @@ import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { onSuccess } from "../../../../views/AddNewSourceDatasetView/hooks/useAddSourceDatasetForm";
 import {
-  ButtonLink,
-  BUTTON_COLOR,
-} from "../../../common/Button/components/ButtonLink/buttonLink";
+  getFormDiscardProps,
+  getFormSaveProps,
+} from "../TrackerForm/components/Banner/common/utils";
+import { FormManagement } from "../TrackerForm/components/Banner/components/FormManagement/formManagement";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/Add/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
-import { FormActions } from "../TrackerForm/trackerForm.styles";
 
 interface AddSourceDatasetProps {
   atlasId: AtlasId;
@@ -30,8 +30,15 @@ export const AddSourceDataset = ({
   formMethod,
 }: AddSourceDatasetProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-  const { disabled, formState, handleSubmit, onSubmit } = formMethod;
-  const { isDirty } = formState;
+  const {
+    formState: { isDirty },
+    handleSubmit,
+    onSubmit,
+  } = formMethod;
+
+  const onDiscard = useCallback(() => {
+    Router.push(getRouteURL(ROUTE.VIEW_SOURCE_DATASETS, atlasId));
+  }, [atlasId]);
 
   const onFormSubmit = useCallback(
     (payload: NewSourceDatasetData): void => {
@@ -49,20 +56,14 @@ export const AddSourceDataset = ({
 
   return isAuthenticated ? (
     <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
+      <FormManagement
+        formDiscardProps={getFormDiscardProps(onDiscard)}
+        formSaveProps={getFormSaveProps(formMethod, handleSubmit(onFormSubmit))}
+        isDirty={isDirty}
+      />
       <Divider />
       <GeneralInfo formMethod={formMethod} />
       <Divider />
-      <FormActions>
-        <ButtonLink
-          color={BUTTON_COLOR.SECONDARY}
-          href={getRouteURL(ROUTE.VIEW_SOURCE_DATASETS, atlasId)}
-        >
-          Discard
-        </ButtonLink>
-        <ButtonPrimary disabled={disabled || !isDirty} type="submit">
-          Save
-        </ButtonPrimary>
-      </FormActions>
     </TrackerForm>
   ) : (
     <AuthenticationRequired divider={<Divider />}>
