@@ -23,7 +23,7 @@ import { config } from "app/config/config";
 import { NextPage } from "next";
 import type { AppProps } from "next/app";
 
-const SESSION_TIMEOUT = 0.15 * 60 * 1000; // 15 minutes
+const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 
 export interface PageProps extends AzulEntitiesStaticResponse {
   pageTitle?: string;
