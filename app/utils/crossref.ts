@@ -1,4 +1,4 @@
-import { array, InferType, number, object, string } from "yup";
+import { array, InferType, number, object, string, ValidationError } from "yup";
 import { PublicationInfo } from "../apis/catalog/hca-atlas-tracker/common/entities";
 
 const crossrefOrganizationAuthorSchema = object({
@@ -80,17 +80,21 @@ export async function getCrossrefPublicationInfo(
   const work = crossrefWorkSchema.validateSync(
     (await crossrefResponse.json()).message
   ) as CrossrefWork;
+  let journal =
+    work["container-title"][0] ||
+    work["short-container-title"][0] ||
+    work.institution?.[0].name;
+  if (!journal) {
+    if (work.subtype === "preprint") journal = "Preprint";
+    else throw new ValidationError("Non-preprint work must have journal value");
+  }
   return {
     authors: work.author.map((author) =>
       "name" in author
         ? { name: author.name, personalName: null }
         : { name: author.family, personalName: author.given || null }
     ),
-    journal:
-      work["container-title"][0] ||
-      work["short-container-title"][0] ||
-      work.institution?.[0].name ||
-      null,
+    journal,
     publicationDate: work.published["date-parts"][0]
       .map((n) => n.toString().padStart(2, "0"))
       .join("-"),
