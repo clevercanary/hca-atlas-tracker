@@ -23,7 +23,7 @@ export function getFormDiscardProps(
  */
 export function getFormSaveProps<T extends FieldValues, R = undefined>(
   formMethod: FormMethod<T, R>,
-  onSave: () => void
+  onSave?: () => void
 ): Partial<ButtonProps> {
   const {
     disabled,

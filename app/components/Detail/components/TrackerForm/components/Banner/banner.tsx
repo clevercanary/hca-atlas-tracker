@@ -14,7 +14,7 @@ export const Banner = ({
   isIn,
 }: BannerProps): JSX.Element => {
   return (
-    <Fade appear={false} in={isIn}>
+    <Fade appear={false} in={isIn} unmountOnExit>
       <AppBar className={className} component="div" position="fixed">
         <Toolbar>{children}</Toolbar>
       </AppBar>
