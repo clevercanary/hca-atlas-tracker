@@ -3,29 +3,42 @@ import {
   AzulEntitiesResponse,
 } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
-import { normalizeDoi } from "./doi";
+import { normalizeDoi } from "../utils/doi";
+import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 
 type ProjectIdsByDoi = Map<string, string>;
 
-export interface ProjectsInfo {
-  byDoi: ProjectIdsByDoi | null;
-  catalog: string | null;
-  refreshing: boolean | null;
+interface ProjectsData {
+  byDoi: ProjectIdsByDoi;
+  catalog: string;
 }
 
-export class ProjectsNotReadyError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+export type ProjectsInfo = RefreshInfo<ProjectsData>;
 
 const API_URL_CATALOGS =
   "https://service.azul.data.humancellatlas.org/index/catalogs";
 const API_URL_PROJECTS =
   "https://service.azul.data.humancellatlas.org/index/projects";
 
-let projectsInfo: ProjectsInfo;
-initProjectsInfo();
+const { getData: getProjectsData } = makeRefreshService({
+  getRefreshParams: getLatestCatalog,
+  async getRefreshedData(catalog) {
+    return {
+      byDoi: await getRefreshedProjectIdsByDoi(catalog),
+      catalog,
+    };
+  },
+  getStoredInfo() {
+    return globalThis.hcaAtlasTrackerProjectsInfoCache;
+  },
+  notReadyMessage: "DOI to HCA project ID mapping not initialized",
+  refreshNeeded(data, catalog) {
+    return data?.catalog !== catalog;
+  },
+  setStoredInfo(info) {
+    globalThis.hcaAtlasTrackerProjectsInfoCache = info;
+  },
+});
 
 /**
  * Get HCA project ID by project DOI, and start a refresh of the DOI-to-ID mappings if needed.
@@ -33,29 +46,7 @@ initProjectsInfo();
  * @returns HCA project ID, or null if none is found.
  */
 export async function getProjectIdByDoi(doi: string): Promise<string | null> {
-  startRefreshIfNeeded();
-  if (!projectsInfo.byDoi)
-    throw new ProjectsNotReadyError(
-      "DOI to HCA project ID mapping not initialized"
-    );
-  return projectsInfo.byDoi.get(normalizeDoi(doi)) ?? null;
-}
-
-/**
- * Start a refresh of the DOI-to-ID mappings if the current ones are out of date and not currently refreshing, or if the `force` argument is true.
- * @param force -- Whether to override the condition and force a refresh to happen.
- */
-async function startRefreshIfNeeded(force = false): Promise<void> {
-  const catalog = await getLatestCatalog();
-  if (force || (!projectsInfo.refreshing && projectsInfo.catalog !== catalog)) {
-    projectsInfo.refreshing = true;
-    try {
-      projectsInfo.byDoi = await getRefreshedProjectIdsByDoi(catalog);
-      projectsInfo.catalog = catalog;
-    } finally {
-      projectsInfo.refreshing = false;
-    }
-  }
+  return getProjectsData().byDoi.get(normalizeDoi(doi)) ?? null;
 }
 
 /**
@@ -110,20 +101,4 @@ async function getAllProjects(catalog: string): Promise<ProjectsResponse[]> {
     url = responseData.pagination.next;
   }
   return hits;
-}
-
-/**
- * Set `projectsInfo` variable to info object stored on the global object, creating it and starting a refresh if it doesn't already exist.
- */
-function initProjectsInfo(): void {
-  if (!globalThis.hcaAtlasTrackerProjectsInfoCache) {
-    projectsInfo = globalThis.hcaAtlasTrackerProjectsInfoCache = {
-      byDoi: null,
-      catalog: null,
-      refreshing: null,
-    };
-    startRefreshIfNeeded(true);
-  } else {
-    projectsInfo = globalThis.hcaAtlasTrackerProjectsInfoCache;
-  }
 }

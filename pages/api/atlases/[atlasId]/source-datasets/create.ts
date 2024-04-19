@@ -11,6 +11,8 @@ import {
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
+import { RefreshDataNotReadyError } from "../../../../../app/services/common/refresh-service";
+import { getProjectIdByDoi } from "../../../../../app/services/hca-projects";
 import {
   getPoolClient,
   handler,
@@ -21,10 +23,6 @@ import {
 } from "../../../../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref/crossref";
 import { normalizeDoi } from "../../../../../app/utils/doi";
-import {
-  getProjectIdByDoi,
-  ProjectsNotReadyError,
-} from "../../../../../app/utils/hca-projects";
 
 /**
  * API route for creating a source dataset. Source dataset information is provided as a JSON body.
@@ -77,7 +75,7 @@ export default handler(
     try {
       hcaProjectId = await getProjectIdByDoi(doi);
     } catch (e) {
-      if (e instanceof ProjectsNotReadyError) {
+      if (e instanceof RefreshDataNotReadyError) {
         res
           .status(503)
           .appendHeader("Retry-After", "20")
