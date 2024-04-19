@@ -1,5 +1,5 @@
 import { boolean, InferType, object, string } from "yup";
-import { isDoi } from "../../../../utils/publications";
+import { isDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 
 /**

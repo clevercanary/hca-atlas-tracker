@@ -3,6 +3,7 @@ import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerSourceDataset,
+  PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
@@ -12,25 +13,38 @@ import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
   DOI_NORMAL,
+  DOI_PREPRINT_NO_JOURNAL,
+  DOI_UNSUPPORTED_TYPE,
   HCA_ID_NORMAL,
   PUBLICATION_NORMAL,
+  PUBLICATION_PREPRINT_NO_JOURNAL,
   USER_CONTENT_ADMIN,
   USER_NORMAL,
 } from "../testing/constants";
 import { TestAtlas, TestUser } from "../testing/entities";
 
 jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/utils/publications");
+jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/utils/hca-projects");
 
 const NEW_DATASET_DATA: NewSourceDatasetData = {
   doi: DOI_NORMAL,
 };
 
-let newDatasetId: string;
+const NEW_DATASET_PREPRINT_NO_JOURNAL_DATA = {
+  doi: DOI_PREPRINT_NO_JOURNAL,
+};
+
+const NEW_DATASET_UNSUPPORTED_TYPE_DATA = {
+  doi: DOI_UNSUPPORTED_TYPE,
+};
+
+const newDatasetIds: string[] = [];
 
 afterAll(async () => {
-  await query("DELETE FROM hat.source_datasets WHERE id=$1", [newDatasetId]);
+  await query("DELETE FROM hat.source_datasets WHERE id=ANY($1)", [
+    newDatasetIds,
+  ]);
   await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
     JSON.stringify(ATLAS_DRAFT.sourceDatasets),
     ATLAS_DRAFT.id,
@@ -108,7 +122,19 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
-  it("creates and returns source dataset entry", async () => {
+  it("returns error 500 for crossref work with unsupported type", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          NEW_DATASET_UNSUPPORTED_TYPE_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(500);
+  });
+
+  it("creates and returns source dataset entry for journal publication", async () => {
     const res = await doCreateTest(
       USER_CONTENT_ADMIN,
       ATLAS_DRAFT,
@@ -116,18 +142,41 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     );
     expect(res._getStatusCode()).toEqual(201);
     const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-    newDatasetId = newDataset.id;
+    newDatasetIds.push(newDataset.id);
     const newDatasetFromDb = (
       await query<HCAAtlasTrackerDBSourceDataset>(
         "SELECT * FROM hat.source_datasets WHERE id=$1",
         [newDataset.id]
       )
     ).rows[0];
-    expect(newDatasetFromDb).toBeDefined();
-    expect(newDatasetFromDb.sd_info.publication).toEqual(PUBLICATION_NORMAL);
-    expect(newDatasetFromDb.sd_info.hcaProjectId).toEqual(HCA_ID_NORMAL);
-    expect(dbSourceDatasetToApiSourceDataset(newDatasetFromDb)).toEqual(
-      newDataset
+    expectDbDatasetToMatch(
+      newDatasetFromDb,
+      newDataset,
+      PUBLICATION_NORMAL,
+      HCA_ID_NORMAL
+    );
+  });
+
+  it("creates and returns source dataset entry for preprint without journal value", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      ATLAS_DRAFT,
+      NEW_DATASET_PREPRINT_NO_JOURNAL_DATA
+    );
+    expect(res._getStatusCode()).toEqual(201);
+    const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
+    newDatasetIds.push(newDataset.id);
+    const newDatasetFromDb = (
+      await query<HCAAtlasTrackerDBSourceDataset>(
+        "SELECT * FROM hat.source_datasets WHERE id=$1",
+        [newDataset.id]
+      )
+    ).rows[0];
+    expectDbDatasetToMatch(
+      newDatasetFromDb,
+      newDataset,
+      PUBLICATION_PREPRINT_NO_JOURNAL,
+      null
     );
   });
 });
@@ -146,4 +195,16 @@ async function doCreateTest(
   });
   await createHandler(req, res);
   return res;
+}
+
+function expectDbDatasetToMatch(
+  dbDataset: HCAAtlasTrackerDBSourceDataset,
+  apiDataset: HCAAtlasTrackerSourceDataset,
+  publication: PublicationInfo,
+  hcaId: string | null
+): void {
+  expect(dbDataset).toBeDefined();
+  expect(dbDataset.sd_info.publication).toEqual(publication);
+  expect(dbDataset.sd_info.hcaProjectId).toEqual(hcaId);
+  expect(dbSourceDatasetToApiSourceDataset(dbDataset)).toEqual(apiDataset);
 }

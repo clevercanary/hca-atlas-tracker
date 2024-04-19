@@ -10,21 +10,21 @@ import {
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
+import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
 import {
   getPoolClient,
   handler,
   method,
   query,
+  respondValidationError,
   role,
 } from "../../../../../app/utils/api-handler";
+import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref/crossref";
+import { normalizeDoi } from "../../../../../app/utils/doi";
 import {
   getProjectIdByDoi,
   ProjectsNotReadyError,
 } from "../../../../../app/utils/hca-projects";
-import {
-  getCrossrefPublicationInfo,
-  normalizeDoi,
-} from "../../../../../app/utils/publications";
 
 /**
  * API route for creating a source dataset. Source dataset information is provided as a JSON body.
@@ -50,7 +50,7 @@ export default handler(
       newData = await newSourceDatasetSchema.validate(req.body);
     } catch (e) {
       if (e instanceof ValidationError) {
-        res.status(400).json({ message: e.message });
+        respondValidationError(res, e);
         return;
       } else {
         throw e;
@@ -58,7 +58,21 @@ export default handler(
     }
 
     const doi = normalizeDoi(newData.doi);
-    const publication = await getCrossrefPublicationInfo(doi);
+    let publication;
+    try {
+      publication = await getCrossrefPublicationInfo(doi);
+    } catch (e) {
+      if (e instanceof ValidationError) {
+        const errors: FormResponseErrors = {
+          errors: {
+            doi: [`Crossref data doesn't fit: ${e.message}`],
+          },
+        };
+        res.status(500).json(errors);
+        return;
+      }
+      throw e;
+    }
     let hcaProjectId;
     try {
       hcaProjectId = await getProjectIdByDoi(doi);

@@ -3,7 +3,7 @@ import {
   AzulEntitiesResponse,
 } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
-import { normalizeDoi } from "./publications";
+import { normalizeDoi } from "./doi";
 
 type ProjectIdsByDoi = Map<string, string>;
 

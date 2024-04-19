@@ -1,7 +1,7 @@
 import { FieldValues } from "react-hook-form";
 import { METHOD } from "../../../common/entities";
 import { getFetchOptions, getHeaderAuthorization } from "../../../common/utils";
-import { YupValidatedFormValues } from "./entities";
+import { FormResponseErrors, YupValidatedFormValues } from "./entities";
 
 /**
  * Delete request.
@@ -42,15 +42,14 @@ export async function fetchSubmit<T extends FieldValues>(
 }
 
 /**
- * Throws an error with the message from the response.
+ * Get error information from the response.
  * @param response - Response.
- * @returns promise (void).
+ * @returns promise (response errors).
  */
-export async function throwError(response: Response): Promise<void> {
-  throw new Error(
-    await response
-      .json()
-      .then(({ message }) => message)
-      .catch(() => `Received ${response.status} response`)
-  );
+export async function getFormResponseErrors(
+  response: Response
+): Promise<FormResponseErrors> {
+  return await response
+    .json()
+    .catch(() => ({ message: `Received ${response.status} response` }));
 }

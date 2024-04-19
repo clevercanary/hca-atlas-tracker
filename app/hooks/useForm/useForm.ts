@@ -1,7 +1,11 @@
 import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCallback, useEffect, useState } from "react";
-import { FieldValues, useForm as useReactHookForm } from "react-hook-form";
+import {
+  FieldValues,
+  Path,
+  useForm as useReactHookForm,
+} from "react-hook-form";
 import { ObjectSchema } from "yup";
 import { METHOD } from "../../common/entities";
 import {
@@ -11,13 +15,18 @@ import {
 } from "../../common/utils";
 import {
   CustomUseFormReturn,
+  FormResponseErrors,
   MapSchemaValuesFn,
   OnDeleteFn,
   OnSubmitFn,
   OnSubmitOptions,
   YupValidatedFormValues,
 } from "./common/entities";
-import { fetchDelete, fetchSubmit, throwError } from "./common/utils";
+import {
+  fetchDelete,
+  fetchSubmit,
+  getFormResponseErrors,
+} from "./common/utils";
 
 export interface UseForm<T extends FieldValues, R = undefined>
   extends CustomUseFormReturn<T> {
@@ -39,7 +48,20 @@ export const useForm = <T extends FieldValues, R = undefined>(
   });
   const [data, setData] = useState<R | undefined>();
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
-  const { reset } = formMethod;
+  const { reset, setError } = formMethod;
+
+  const onError = useCallback(
+    (errors: FormResponseErrors) => {
+      if ("message" in errors) throw new Error(errors.message); // TODO display these errors?
+      for (const [field, messages] of Object.entries(errors.errors)) {
+        setError(field as Path<YupValidatedFormValues<T>>, {
+          message: messages[0],
+          type: "manual",
+        });
+      }
+    },
+    [setError]
+  );
 
   const onDelete = useCallback(
     async (
@@ -53,11 +75,11 @@ export const useForm = <T extends FieldValues, R = undefined>(
         const { id } = await res.json();
         options?.onSuccess?.(id);
       } else {
-        await throwError(res); // TODO more useful error handling
+        onError(await getFormResponseErrors(res));
       }
       setSubmitDisabled(false);
     },
-    [token]
+    [token, onError]
   );
 
   const onSubmit = useCallback(
@@ -75,11 +97,11 @@ export const useForm = <T extends FieldValues, R = undefined>(
         setData({ id, ...other });
         options?.onSuccess?.(id);
       } else {
-        await throwError(res); // TODO more useful error handling
+        onError(await getFormResponseErrors(res));
       }
       setSubmitDisabled(false);
     },
-    [reset, token]
+    [reset, token, onError]
   );
 
   // Initialize data with given API response.

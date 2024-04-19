@@ -117,7 +117,7 @@ export type Wave = (typeof WAVES)[number];
 
 export interface PublicationInfo {
   authors: Author[];
-  journal: string | null;
+  journal: string;
   publicationDate: string;
   title: string;
 }

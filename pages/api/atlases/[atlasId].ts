@@ -16,6 +16,7 @@ import {
   handleByMethod,
   handler,
   query,
+  respondValidationError,
   role,
 } from "../../../app/utils/api-handler";
 
@@ -53,7 +54,7 @@ const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {
     newInfo = await atlasEditSchema.validate(req.body);
   } catch (e) {
     if (e instanceof ValidationError) {
-      res.status(400).json({ message: e.message });
+      respondValidationError(res, e);
       return;
     } else {
       throw e;

@@ -10,7 +10,13 @@ import {
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbAtlasToApiAtlas } from "../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../app/common/entities";
-import { handler, method, query, role } from "../../../app/utils/api-handler";
+import {
+  handler,
+  method,
+  query,
+  respondValidationError,
+  role,
+} from "../../../app/utils/api-handler";
 
 /**
  * API route for creating an atlas. Atlas information is provided as a JSON body.
@@ -24,7 +30,7 @@ export default handler(
       newInfo = await newAtlasSchema.validate(req.body);
     } catch (e) {
       if (e instanceof ValidationError) {
-        res.status(400).json({ message: e.message });
+        respondValidationError(res, e);
         return;
       } else {
         throw e;
