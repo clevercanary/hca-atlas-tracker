@@ -73,7 +73,7 @@ export default handler(
     }
     let hcaProjectId;
     try {
-      hcaProjectId = await getProjectIdByDoi(doi);
+      hcaProjectId = getProjectIdByDoi(doi);
     } catch (e) {
       if (e instanceof RefreshDataNotReadyError) {
         res
