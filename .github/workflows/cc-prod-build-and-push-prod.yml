@@ -1,0 +1,52 @@
+name: HCA Atlas Tracker Prod Deploy
+run-name: 🚀 HCA Atlas Tracker Prod Deploy 🚀
+on:
+  push:
+    branches: [prod]
+
+env:
+  AWS_REGION: ${{ secrets.PROD_AWS_REGION }}
+  IMAGE_TAG: ${{ github.sha }}
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  Build-and-Push-Docker-Image:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - run: echo "🍏 This job's run number is${{ env.IMAGE_TAG }}"
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.PROD_AWS_ACCOUNT_ID }}:role/${{ secrets.PROD_AWS_ROLE_NAME }}
+          role-session-name: ${{ secrets.PROD_ROLE_SESSION_NAME }}
+          aws-region: ${{ secrets.PROD_AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker container
+        id: build-image
+        run: |
+          docker build --build-arg ENVIRONMENT=prod -t hca-tracker-node:${{ env.IMAGE_TAG }} . -f Dockerfile.node
+          docker tag hca-tracker-node:${{ env.IMAGE_TAG }}  ${{ secrets.PROD_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.PROD_AWS_REGION }}.amazonaws.com/${{ secrets.PROD_ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}
+          docker tag hca-tracker-node:${{ env.IMAGE_TAG }}  ${{ secrets.PROD_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.PROD_AWS_REGION }}.amazonaws.com/${{ secrets.PROD_ECR_REPO_NAME }}:latest
+          docker push ${{ secrets.PROD_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.PROD_AWS_REGION }}.amazonaws.com/${{ secrets.PROD_ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}
+          docker push ${{ secrets.PROD_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.PROD_AWS_REGION }}.amazonaws.com/${{ secrets.PROD_ECR_REPO_NAME }}:latest
+          echo "image=${{ secrets.PROD_AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.PROD_AWS_REGION }}.amazonaws.com/${{ secrets.PROD_ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+
+      - name: List ECR Images
+        run: |
+          echo "List of images in ECR repository: $(aws ecr list-images --repository-name ${{ secrets.PROD_ECR_REPO_NAME }} | jq '.imageIds[]')"
+      - name: Invalidate CloudFront distribution
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+      - run: echo "🍏 This job's status is ${{ job.status }}."
