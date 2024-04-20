@@ -1,9 +1,10 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import pg from "pg";
-import { ValidationError } from "yup";
+import { InferType, Schema, ValidationError } from "yup";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
+import { RefreshDataNotReadyError } from "../services/common/refresh-service";
 import { getPoolConfig } from "./pg-app-connect-config";
 
 const { Pool } = pg;
@@ -147,6 +148,54 @@ async function getAccessTokenInfo(
       (tokenInfo = await authClient.getTokenInfo(token))
     );
   return tokenInfo;
+}
+
+/**
+ * Get data validated with a Yup schema, and send an error response if validation fails.
+ * @param res - Next API response.
+ * @param schema - Yup schema.
+ * @param data - Data to validate.
+ * @returns array of data and boolean; if an error response was sent, data is null and boolean is true.
+ */
+export async function handleValidation<T extends Schema>(
+  res: NextApiResponse,
+  schema: T,
+  data: unknown
+): Promise<[InferType<T>, false] | [null, true]> {
+  try {
+    return [await schema.validate(data), false];
+  } catch (e) {
+    if (e instanceof ValidationError) {
+      respondValidationError(res, e);
+      return [null, true];
+    } else {
+      throw e;
+    }
+  }
+}
+
+/**
+ * Get value from data subject to refreshing, and send an error response if the data is not initialized yet.
+ * @param res - Next API response.
+ * @param getValue - Function to get the value.
+ * @returns array of value and boolean; if an error response was sent, value is null and boolean is true.
+ */
+export function handleGetRefreshValue<T>(
+  res: NextApiResponse,
+  getValue: () => T
+): [T, false] | [null, true] {
+  try {
+    return [getValue(), false];
+  } catch (e) {
+    if (e instanceof RefreshDataNotReadyError) {
+      res
+        .status(503)
+        .appendHeader("Retry-After", "20")
+        .json({ message: e.message });
+      return [null, true];
+    }
+    throw e;
+  }
 }
 
 /**

@@ -1,24 +1,22 @@
+import { getCellxGeneIdByDoi } from "app/services/cellxgene";
 import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import {
-  NewSourceDatasetData,
-  newSourceDatasetSchema,
-} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { newSourceDatasetSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
-import { RefreshDataNotReadyError } from "../../../../../app/services/common/refresh-service";
 import { getProjectIdByDoi } from "../../../../../app/services/hca-projects";
 import {
   getPoolClient,
+  handleGetRefreshValue,
   handler,
+  handleValidation,
   method,
   query,
-  respondValidationError,
   role,
 } from "../../../../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref/crossref";
@@ -43,19 +41,17 @@ export default handler(
       return;
     }
 
-    let newData: NewSourceDatasetData;
-    try {
-      newData = await newSourceDatasetSchema.validate(req.body);
-    } catch (e) {
-      if (e instanceof ValidationError) {
-        respondValidationError(res, e);
-        return;
-      } else {
-        throw e;
-      }
-    }
+    const [newData, newDataFailed] = await handleValidation(
+      res,
+      newSourceDatasetSchema,
+      req.body
+    );
+    if (newDataFailed) return;
+
+    // Get DOI-related information
 
     const doi = normalizeDoi(newData.doi);
+
     let publication;
     try {
       publication = await getCrossrefPublicationInfo(doi);
@@ -71,20 +67,22 @@ export default handler(
       }
       throw e;
     }
-    let hcaProjectId;
-    try {
-      hcaProjectId = getProjectIdByDoi(doi);
-    } catch (e) {
-      if (e instanceof RefreshDataNotReadyError) {
-        res
-          .status(503)
-          .appendHeader("Retry-After", "20")
-          .json({ message: e.message });
-        return;
-      }
-      throw e;
-    }
+
+    const [hcaProjectId, hcaProjectIdFailed] = handleGetRefreshValue(res, () =>
+      getProjectIdByDoi(doi)
+    );
+    if (hcaProjectIdFailed) return;
+
+    const [cellxgeneCollectionId, cellxgeneIdFailed] = handleGetRefreshValue(
+      res,
+      () => getCellxGeneIdByDoi(doi)
+    );
+    if (cellxgeneIdFailed) return;
+
+    // Create new source dataset
+
     const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
+      cellxgeneCollectionId,
       hcaProjectId,
       publication,
       publicationStatus: publication

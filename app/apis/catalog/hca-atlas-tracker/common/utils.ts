@@ -56,11 +56,11 @@ export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset
 ): HCAAtlasTrackerSourceDataset {
   const {
-    sd_info: { hcaProjectId, publication },
+    sd_info: { cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceDataset;
   return {
     capId: null,
-    cellxgeneCollectionId: null,
+    cellxgeneCollectionId,
     doi: dbSourceDataset.doi,
     firstAuthorPrimaryName: publication?.authors[0]?.name ?? null,
     hcaProjectId,
