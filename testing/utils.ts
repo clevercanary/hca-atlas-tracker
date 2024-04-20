@@ -1,4 +1,5 @@
-import { HCAAtlasTrackerDBAtlasOverview } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
+import { HCAAtlasTrackerDBAtlasOverview } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TestAtlas, TestUser } from "./entities";
 
 export function makeTestUser(
@@ -26,4 +27,62 @@ export function makeTestAtlasOverview(
     version: atlas.version,
     wave: atlas.wave,
   };
+}
+
+export function makeTestProjectsResponse(
+  id: string,
+  doi: string
+): ProjectsResponse {
+  return {
+    cellSuspensions: [],
+    donorOrganisms: [],
+    fileTypeSummaries: [],
+    projects: [
+      {
+        accessible: true,
+        accessions: [],
+        contributedAnalyses: {},
+        contributors: [],
+        estimatedCellCount: 0,
+        laboratory: [],
+        matrices: {},
+        projectDescription: "",
+        projectId: id,
+        projectShortname: "",
+        projectTitle: "",
+        publications: [
+          {
+            doi,
+            officialHcaPublication: null,
+            publicationTitle: "",
+            publicationUrl: "",
+          },
+        ],
+        supplementaryLinks: [],
+      },
+    ],
+    protocols: [],
+    samples: [],
+    specimens: [],
+  };
+}
+
+// Adapted from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#description
+export function promiseWithResolvers<T>(): [
+  Promise<T>,
+  (v: T) => void,
+  (v: unknown) => void
+] {
+  let resolve: (v: T) => void;
+  let reject: (v: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- The function passed to the Promise constructor is called immediately, guaranteeing that these will be defined.
+  return [promise, resolve!, reject!];
+}
+
+export function delay(ms = 5): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
