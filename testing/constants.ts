@@ -4,6 +4,7 @@ import {
   PublicationInfo,
   PUBLICATION_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
 import { TestAtlas, TestSourceDataset } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
@@ -208,3 +209,24 @@ export const TEST_HCA_CATALOGS: Record<string, ProjectsResponse[]> = {
   [HCA_CATALOG_TEST1]: HCA_PROJECTS_RESPONSES_TEST1,
   [HCA_CATALOG_TEST2]: HCA_PROJECTS_RESPONSES_TEST2,
 };
+
+export const CELLXGENE_ID_NORMAL = "cellxgene-collection-normal";
+
+export const CELLXGENE_ID_NORMAL2 = "cellxgene-collection-normal2";
+
+export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
+  collection_id: CELLXGENE_ID_NORMAL,
+  doi: DOI_NORMAL,
+};
+
+export const TEST_CELLXGENE_COLLECTION_NORMAL2: CellxGeneCollection = {
+  collection_id: CELLXGENE_ID_NORMAL2,
+  doi: DOI_NORMAL2,
+};
+
+export const TEST_CELLXGENE_COLLECTIONS_A = [TEST_CELLXGENE_COLLECTION_NORMAL];
+
+export const TEST_CELLXGENE_COLLECTIONS_B = [
+  TEST_CELLXGENE_COLLECTION_NORMAL,
+  TEST_CELLXGENE_COLLECTION_NORMAL2,
+];

@@ -1,4 +1,4 @@
-interface CellxGeneCollection {
+export interface CellxGeneCollection {
   collection_id: string;
   doi: string | null;
 }
