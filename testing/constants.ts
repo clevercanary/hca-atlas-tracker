@@ -1,11 +1,13 @@
+import { ProjectsResponse } from "app/apis/azul/hca-dcp/common/responses";
 import {
   ATLAS_STATUS,
   PublicationInfo,
   PUBLICATION_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
 import { TestAtlas, TestSourceDataset } from "./entities";
-import { makeTestUser } from "./utils";
+import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
 export const USER_NORMAL = makeTestUser("test-normal", "");
 export const USER_DISABLED = makeTestUser("test-disabled", "", true);
@@ -112,6 +114,8 @@ export const INITIAL_TEST_ATLASES = [ATLAS_DRAFT, ATLAS_PUBLIC, ATLAS_WITH_IL];
 
 export const DOI_NORMAL = "10.123/test";
 
+export const DOI_NORMAL2 = "10.123/test2";
+
 export const DOI_NONEXISTENT = "10.123/nonexistent";
 
 export const DOI_PREPRINT_NO_JOURNAL = "10.123/preprint-no-journal";
@@ -184,4 +188,49 @@ export const TEST_DOI_CROSSREF_WORKS = new Map([
 
 export const HCA_ID_NORMAL = "hca-id-normal";
 
+export const HCA_ID_NORMAL2 = "hca-id-normal2";
+
 export const TEST_HCA_IDS_BY_DOI = new Map([[DOI_NORMAL, HCA_ID_NORMAL]]);
+
+export const HCA_PROJECTS_RESPONSES_TEST1: ProjectsResponse[] = [
+  makeTestProjectsResponse(HCA_ID_NORMAL, DOI_NORMAL),
+];
+
+export const HCA_PROJECTS_RESPONSES_TEST2: ProjectsResponse[] = [
+  makeTestProjectsResponse(HCA_ID_NORMAL, DOI_NORMAL),
+  makeTestProjectsResponse(HCA_ID_NORMAL2, DOI_NORMAL2),
+];
+
+export const HCA_CATALOG_TEST1 = "hca-catalog-test1";
+
+export const HCA_CATALOG_TEST2 = "hca-catalog-test2";
+
+export const TEST_HCA_CATALOGS: Record<string, ProjectsResponse[]> = {
+  [HCA_CATALOG_TEST1]: HCA_PROJECTS_RESPONSES_TEST1,
+  [HCA_CATALOG_TEST2]: HCA_PROJECTS_RESPONSES_TEST2,
+};
+
+export const CELLXGENE_ID_NORMAL = "cellxgene-collection-normal";
+
+export const CELLXGENE_ID_NORMAL2 = "cellxgene-collection-normal2";
+
+export const TEST_CELLXGENE_IDS_BY_DOI = new Map([
+  [DOI_NORMAL, CELLXGENE_ID_NORMAL],
+]);
+
+export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
+  collection_id: CELLXGENE_ID_NORMAL,
+  doi: DOI_NORMAL,
+};
+
+export const TEST_CELLXGENE_COLLECTION_NORMAL2: CellxGeneCollection = {
+  collection_id: CELLXGENE_ID_NORMAL2,
+  doi: DOI_NORMAL2,
+};
+
+export const TEST_CELLXGENE_COLLECTIONS_A = [TEST_CELLXGENE_COLLECTION_NORMAL];
+
+export const TEST_CELLXGENE_COLLECTIONS_B = [
+  TEST_CELLXGENE_COLLECTION_NORMAL,
+  TEST_CELLXGENE_COLLECTION_NORMAL2,
+];

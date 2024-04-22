@@ -3,5 +3,8 @@
  */
 export async function register(): Promise<void> {
   // Initialize HCA projects
-  await import("./app/utils/hca-projects");
+  await import("./app/services/hca-projects");
+
+  // Initialize CELLxGENE collections
+  await import("./app/services/cellxgene");
 }

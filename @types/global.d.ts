@@ -1,4 +1,11 @@
-// eslint-disable-next-line no-var -- var is required to make the variable global
+/* eslint-disable no-var -- var is required to make variables global */
+
 declare var hcaAtlasTrackerProjectsInfoCache:
   | undefined
-  | import("../app/utils/hca-projects").ProjectsInfo;
+  | import("../app/services/hca-projects").ProjectsInfo;
+
+declare var hcaAtlasTrackerCellxGeneInfoCache:
+  | undefined
+  | import("../app/services/cellxgene").CellxGeneInfo;
+
+/* eslint-enable no-var -- Paired enable for above disable */

@@ -88,6 +88,7 @@ export interface HCAAtlasTrackerDBSourceDataset {
 }
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
+  cellxgeneCollectionId: string | null;
   hcaProjectId: string | null;
   publication: PublicationInfo | null;
   publicationStatus: PUBLICATION_STATUS;
