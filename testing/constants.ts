@@ -214,6 +214,10 @@ export const CELLXGENE_ID_NORMAL = "cellxgene-collection-normal";
 
 export const CELLXGENE_ID_NORMAL2 = "cellxgene-collection-normal2";
 
+export const TEST_CELLXGENE_IDS_BY_DOI = new Map([
+  [DOI_NORMAL, CELLXGENE_ID_NORMAL],
+]);
+
 export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
   collection_id: CELLXGENE_ID_NORMAL,
   doi: DOI_NORMAL,

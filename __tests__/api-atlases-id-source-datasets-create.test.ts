@@ -12,6 +12,7 @@ import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
+  CELLXGENE_ID_NORMAL,
   DOI_NORMAL,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_UNSUPPORTED_TYPE,
@@ -154,7 +155,8 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       newDatasetFromDb,
       newDataset,
       PUBLICATION_NORMAL,
-      HCA_ID_NORMAL
+      HCA_ID_NORMAL,
+      CELLXGENE_ID_NORMAL
     );
   });
 
@@ -177,6 +179,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       newDatasetFromDb,
       newDataset,
       PUBLICATION_PREPRINT_NO_JOURNAL,
+      null,
       null
     );
   });
@@ -202,10 +205,12 @@ function expectDbDatasetToMatch(
   dbDataset: HCAAtlasTrackerDBSourceDataset,
   apiDataset: HCAAtlasTrackerSourceDataset,
   publication: PublicationInfo,
-  hcaId: string | null
+  hcaId: string | null,
+  cellxgeneId: string | null
 ): void {
   expect(dbDataset).toBeDefined();
   expect(dbDataset.sd_info.publication).toEqual(publication);
   expect(dbDataset.sd_info.hcaProjectId).toEqual(hcaId);
+  expect(dbDataset.sd_info.cellxgeneCollectionId).toEqual(cellxgeneId);
   expect(dbSourceDatasetToApiSourceDataset(dbDataset)).toEqual(apiDataset);
 }
