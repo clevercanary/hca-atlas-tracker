@@ -12,13 +12,21 @@ import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
+  CELLXGENE_ID_JOURNAL_COUNTERPART,
   CELLXGENE_ID_NORMAL,
+  CELLXGENE_ID_PREPRINT_COUNTERPART,
+  DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
   DOI_NORMAL,
   DOI_PREPRINT_NO_JOURNAL,
+  DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
   DOI_UNSUPPORTED_TYPE,
+  HCA_ID_JOURNAL_COUNTERPART,
   HCA_ID_NORMAL,
+  HCA_ID_PREPRINT_COUNTERPART,
+  PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
   PUBLICATION_NORMAL,
   PUBLICATION_PREPRINT_NO_JOURNAL,
+  PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
   USER_CONTENT_ADMIN,
   USER_NORMAL,
 } from "../testing/constants";
@@ -39,6 +47,14 @@ const NEW_DATASET_PREPRINT_NO_JOURNAL_DATA = {
 
 const NEW_DATASET_UNSUPPORTED_TYPE_DATA = {
   doi: DOI_UNSUPPORTED_TYPE,
+};
+
+const NEW_DATASET_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA = {
+  doi: DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
+};
+
+const NEW_DATASET_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA = {
+  doi: DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
 };
 
 const newDatasetIds: string[] = [];
@@ -137,23 +153,9 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   });
 
   it("creates and returns source dataset entry for journal publication", async () => {
-    const res = await doCreateTest(
-      USER_CONTENT_ADMIN,
+    await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_DATA
-    );
-    expect(res._getStatusCode()).toEqual(201);
-    const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-    newDatasetIds.push(newDataset.id);
-    const newDatasetFromDb = (
-      await query<HCAAtlasTrackerDBSourceDataset>(
-        "SELECT * FROM hat.source_datasets WHERE id=$1",
-        [newDataset.id]
-      )
-    ).rows[0];
-    expectDbDatasetToMatch(
-      newDatasetFromDb,
-      newDataset,
+      NEW_DATASET_DATA,
       PUBLICATION_NORMAL,
       HCA_ID_NORMAL,
       CELLXGENE_ID_NORMAL
@@ -161,29 +163,61 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   });
 
   it("creates and returns source dataset entry for preprint without journal value", async () => {
-    const res = await doCreateTest(
-      USER_CONTENT_ADMIN,
+    await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_PREPRINT_NO_JOURNAL_DATA
-    );
-    expect(res._getStatusCode()).toEqual(201);
-    const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-    newDatasetIds.push(newDataset.id);
-    const newDatasetFromDb = (
-      await query<HCAAtlasTrackerDBSourceDataset>(
-        "SELECT * FROM hat.source_datasets WHERE id=$1",
-        [newDataset.id]
-      )
-    ).rows[0];
-    expectDbDatasetToMatch(
-      newDatasetFromDb,
-      newDataset,
+      NEW_DATASET_PREPRINT_NO_JOURNAL_DATA,
       PUBLICATION_PREPRINT_NO_JOURNAL,
       null,
       null
     );
   });
+
+  it("creates and returns source dataset entry for preprint with journal article counterpart on HCA/CELLxGENE", async () => {
+    await testSuccessfulCreate(
+      ATLAS_DRAFT,
+      NEW_DATASET_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA,
+      PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
+      HCA_ID_JOURNAL_COUNTERPART,
+      CELLXGENE_ID_JOURNAL_COUNTERPART
+    );
+  });
+
+  it("creates and returns source dataset entry for journal article with preprint counterpart on HCA/CELLxGENE", async () => {
+    await testSuccessfulCreate(
+      ATLAS_DRAFT,
+      NEW_DATASET_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA,
+      PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
+      HCA_ID_PREPRINT_COUNTERPART,
+      CELLXGENE_ID_PREPRINT_COUNTERPART
+    );
+  });
 });
+
+async function testSuccessfulCreate(
+  atlas: TestAtlas,
+  newData: NewSourceDatasetData,
+  expectedPublication: PublicationInfo,
+  expectedHcaId: string | null,
+  expectedCellxGeneId: string | null
+): Promise<void> {
+  const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
+  expect(res._getStatusCode()).toEqual(201);
+  const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
+  newDatasetIds.push(newDataset.id);
+  const newDatasetFromDb = (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [newDataset.id]
+    )
+  ).rows[0];
+  expectDbDatasetToMatch(
+    newDatasetFromDb,
+    newDataset,
+    expectedPublication,
+    expectedHcaId,
+    expectedCellxGeneId
+  );
+}
 
 async function doCreateTest(
   user: TestUser | undefined,
