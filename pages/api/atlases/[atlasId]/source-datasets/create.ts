@@ -68,9 +68,11 @@ export default handler(
       throw e;
     }
 
-    const dois = [doi];
-    if (publication?.preprintOfDoi) dois.unshift(publication.preprintOfDoi);
-    if (publication?.hasPreprintDoi) dois.push(publication.hasPreprintDoi);
+    const dois = [
+      ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
+      doi,
+      ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
+    ];
 
     const [hcaProjectId, hcaProjectIdFailed] = handleGetRefreshValue(res, () =>
       getProjectIdByDoi(dois)
