@@ -41,7 +41,7 @@ afterAll(() => {
 
 describe("getProjectIdByDoi", () => {
   it("Throws RefreshDataNotReadyError when called before HCA projects are initially fetched", () => {
-    expect(() => getProjectIdByDoi(DOI_NORMAL)).toThrow(
+    expect(() => getProjectIdByDoi([DOI_NORMAL])).toThrow(
       RefreshDataNotReadyError
     );
   });
@@ -49,26 +49,26 @@ describe("getProjectIdByDoi", () => {
   it("Returns ID for project in initial catalog", async () => {
     resolveGetAllProjectsBlock();
     await delay();
-    expect(getProjectIdByDoi(DOI_NORMAL)).toEqual(HCA_ID_NORMAL);
+    expect(getProjectIdByDoi([DOI_NORMAL])).toEqual(HCA_ID_NORMAL);
   });
 
   it("Returns null for project not in initial catalog and does not refresh", async () => {
     [getAllProjectsBlock, resolveGetAllProjectsBlock] =
       promiseWithResolvers<void>();
-    expect(getProjectIdByDoi(DOI_NORMAL2)).toEqual(null);
+    expect(getProjectIdByDoi([DOI_NORMAL2])).toEqual(null);
     await delay();
     expect(getAllProjects).toHaveBeenCalledTimes(1);
   });
 
   it("Returns null for project not in initial catalog and starts refresh when catalog has updated", async () => {
     getLatestCatalog.mockResolvedValue(HCA_CATALOG_TEST2);
-    expect(getProjectIdByDoi(DOI_NORMAL2)).toEqual(null);
+    expect(getProjectIdByDoi([DOI_NORMAL2])).toEqual(null);
     await delay();
     expect(getAllProjects).toHaveBeenCalledTimes(2);
   });
 
   it("Returns null for project not in initial catalog and does not start new refresh while catalog is refreshing", async () => {
-    expect(getProjectIdByDoi(DOI_NORMAL2)).toEqual(null);
+    expect(getProjectIdByDoi([DOI_NORMAL2])).toEqual(null);
     await delay();
     expect(getAllProjects).toHaveBeenCalledTimes(2);
   });
@@ -76,6 +76,6 @@ describe("getProjectIdByDoi", () => {
   it("Returns ID for project not in initial catalog when refresh finishes", async () => {
     resolveGetAllProjectsBlock();
     await delay();
-    expect(getProjectIdByDoi(DOI_NORMAL2)).toEqual(HCA_ID_NORMAL2);
+    expect(getProjectIdByDoi([DOI_NORMAL2])).toEqual(HCA_ID_NORMAL2);
   });
 });

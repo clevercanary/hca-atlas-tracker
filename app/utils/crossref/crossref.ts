@@ -1,5 +1,6 @@
 import { array, InferType, number, object, string, ValidationError } from "yup";
 import { PublicationInfo } from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { normalizeDoi } from "../doi";
 import { fetchCrossrefWork } from "./crossref-api";
 
 const crossrefOrganizationAuthorSchema = object({
@@ -10,6 +11,15 @@ const crossrefPersonAuthorSchema = object({
   family: string().required(),
   given: string().optional(),
 }).strict();
+
+const crossrefRelationSchema = array()
+  .of(
+    object({
+      id: string().required(),
+      "id-type": string().required(),
+    }).required()
+  )
+  .required();
 
 /**
  * Schema for the structure of a Crossref work that's expected by other code.
@@ -50,6 +60,10 @@ const crossrefWorkSchema = object({
   })
     .strict()
     .required(),
+  relation: object({
+    "has-preprint": crossrefRelationSchema.optional(),
+    "is-preprint-of": crossrefRelationSchema.optional(),
+  }).required(),
   "short-container-title": array().of(string().required()).required(),
   subtype: string().optional(),
   title: array().of(string().required()).required().min(1),
@@ -68,6 +82,8 @@ type CrossrefOrganizationAuthor = InferType<
 
 type CrossrefPersonAuthor = InferType<typeof crossrefPersonAuthorSchema>;
 
+type CrossrefRelation = InferType<typeof crossrefRelationSchema>;
+
 export type CrossrefWork = Omit<
   InferType<typeof crossrefWorkSchema>,
   "author"
@@ -78,7 +94,7 @@ export type CrossrefWork = Omit<
 export async function getCrossrefPublicationInfo(
   doi: string
 ): Promise<PublicationInfo | null> {
-  const unvalidatedWork = await fetchCrossrefWork(doi);
+  const unvalidatedWork = await fetchCrossrefWork(normalizeDoi(doi));
   if (unvalidatedWork === null) return null;
   const work = crossrefWorkSchema.validateSync(unvalidatedWork) as CrossrefWork;
   let journal =
@@ -95,10 +111,18 @@ export async function getCrossrefPublicationInfo(
         ? { name: author.name, personalName: null }
         : { name: author.family, personalName: author.given || null }
     ),
+    hasPreprintDoi: getDoiFromRelation(work.relation["has-preprint"]),
     journal,
+    preprintOfDoi: getDoiFromRelation(work.relation["is-preprint-of"]),
     publicationDate: datePartsToString(work.published["date-parts"][0]),
     title: work.title[0],
   };
+}
+
+function getDoiFromRelation(relation?: CrossrefRelation): string | null {
+  return (
+    relation?.find(({ "id-type": idType }) => idType === "doi")?.id ?? null
+  );
 }
 
 function datePartsToString(parts: number[]): string {

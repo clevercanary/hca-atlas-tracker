@@ -41,7 +41,7 @@ afterAll(() => {
 
 describe("getCellxGeneIdByDoi", () => {
   it("Throws RefreshDataNotReadyError when called before CELLxGENE collections are initially fetched", () => {
-    expect(() => getCellxGeneIdByDoi(DOI_NORMAL)).toThrow(
+    expect(() => getCellxGeneIdByDoi([DOI_NORMAL])).toThrow(
       RefreshDataNotReadyError
     );
   });
@@ -49,27 +49,27 @@ describe("getCellxGeneIdByDoi", () => {
   it("Returns ID for project in initial catalog", async () => {
     resolveGetCollections();
     await delay();
-    expect(getCellxGeneIdByDoi(DOI_NORMAL)).toEqual(CELLXGENE_ID_NORMAL);
+    expect(getCellxGeneIdByDoi([DOI_NORMAL])).toEqual(CELLXGENE_ID_NORMAL);
   });
 
   it("Returns null for project not in initial catalog and does not refresh when 2 hours have passed", async () => {
     cellxgeneCollections = TEST_CELLXGENE_COLLECTIONS_B;
     jest.setSystemTime(jest.now() + 7200000);
     [getCollectionsBlock, resolveGetCollections] = promiseWithResolvers<void>();
-    expect(getCellxGeneIdByDoi(DOI_NORMAL2)).toEqual(null);
+    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(null);
     await delay();
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(1);
   });
 
   it("Returns null for project not in initial catalog and starts refresh when catalog is more than 4 hours out of date", async () => {
     jest.setSystemTime(jest.now() + 7200001);
-    expect(getCellxGeneIdByDoi(DOI_NORMAL2)).toEqual(null);
+    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(null);
     await delay();
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
   });
 
   it("Returns null for project not in initial catalog and does not start new refresh while catalog is refreshing", async () => {
-    expect(getCellxGeneIdByDoi(DOI_NORMAL2)).toEqual(null);
+    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(null);
     await delay();
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
   });
@@ -77,6 +77,6 @@ describe("getCellxGeneIdByDoi", () => {
   it("Returns ID for project not in initial catalog when refresh finishes", async () => {
     resolveGetCollections();
     await delay();
-    expect(getCellxGeneIdByDoi(DOI_NORMAL2)).toEqual(CELLXGENE_ID_NORMAL2);
+    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(CELLXGENE_ID_NORMAL2);
   });
 });

@@ -34,12 +34,17 @@ const { getData: getCellxGeneData } = makeRefreshService({
 });
 
 /**
- * Get CELLxGENE collection ID by DOI, and start a refresh of the DOI-to-ID mappings if needed.
- * @param doi -- DOI to get collection ID for.
+ * Find the first of a list of DOIs that matches a CELLxGENE collection, and return the collection's ID, starting a refresh of the DOI-to-ID mappings if needed.
+ * @param dois -- DOIs to check to find a collection ID.
  * @returns CELLxGENE collection ID, or null if none is found.
  */
-export function getCellxGeneIdByDoi(doi: string): string | null {
-  return getCellxGeneData().collectionIdsByDoi.get(normalizeDoi(doi)) ?? null;
+export function getCellxGeneIdByDoi(dois: string[]): string | null {
+  const { collectionIdsByDoi } = getCellxGeneData();
+  for (const doi of dois) {
+    const collectionId = collectionIdsByDoi.get(normalizeDoi(doi));
+    if (collectionId !== undefined) return collectionId;
+  }
+  return null;
 }
 
 /**

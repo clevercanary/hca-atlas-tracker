@@ -38,7 +38,9 @@ export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
         personalName: null,
       },
     ],
+    hasPreprintDoi: null,
     journal: "draft-ok-journal",
+    preprintOfDoi: null,
     publicationDate: "2024-04-09",
     title: "draft-ok-title",
   },
@@ -129,7 +131,9 @@ export const PUBLICATION_NORMAL: PublicationInfo = {
       personalName: null,
     },
   ],
+  hasPreprintDoi: null,
   journal: "Bar",
+  preprintOfDoi: null,
   publicationDate: "2024-01-01",
   title: "A Test",
 };
@@ -140,6 +144,7 @@ export const CROSSREF_WORK_NORMAL: CrossrefWork = {
   published: {
     "date-parts": [[2024, 1, 1]],
   },
+  relation: {},
   "short-container-title": [],
   title: ["A Test"],
   type: "journal-article",
@@ -152,7 +157,9 @@ export const PUBLICATION_PREPRINT_NO_JOURNAL: PublicationInfo = {
       personalName: "Baz",
     },
   ],
+  hasPreprintDoi: null,
   journal: "Preprint",
+  preprintOfDoi: null,
   publicationDate: "2024-04-17",
   title: "Preprint No Journal",
 };
@@ -163,6 +170,7 @@ export const CROSSREF_WORK_PREPRINT_NO_JOURNAL: CrossrefWork = {
   published: {
     "date-parts": [[2024, 4, 17]],
   },
+  relation: {},
   "short-container-title": [],
   subtype: "preprint",
   title: ["Preprint No Journal"],
@@ -175,6 +183,7 @@ export const CROSSREF_WORK_UNSUPPORTED_TYPE: CrossrefWork = {
   published: {
     "date-parts": [[2024, 4, 16]],
   },
+  relation: {},
   "short-container-title": [],
   title: ["Unsupported Type"],
   type: "unsupported-type",

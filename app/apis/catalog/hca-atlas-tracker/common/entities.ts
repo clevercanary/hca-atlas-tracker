@@ -118,7 +118,9 @@ export type Wave = (typeof WAVES)[number];
 
 export interface PublicationInfo {
   authors: Author[];
+  hasPreprintDoi: string | null;
   journal: string;
+  preprintOfDoi: string | null;
   publicationDate: string;
   title: string;
 }
