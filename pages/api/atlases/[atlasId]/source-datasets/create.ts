@@ -68,14 +68,20 @@ export default handler(
       throw e;
     }
 
+    const dois = [
+      ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
+      doi,
+      ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
+    ];
+
     const [hcaProjectId, hcaProjectIdFailed] = handleGetRefreshValue(res, () =>
-      getProjectIdByDoi(doi)
+      getProjectIdByDoi(dois)
     );
     if (hcaProjectIdFailed) return;
 
     const [cellxgeneCollectionId, cellxgeneIdFailed] = handleGetRefreshValue(
       res,
-      () => getCellxGeneIdByDoi(doi)
+      () => getCellxGeneIdByDoi(dois)
     );
     if (cellxgeneIdFailed) return;
 

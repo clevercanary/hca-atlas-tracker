@@ -9,6 +9,8 @@ import { CrossrefWork } from "../app/utils/crossref/crossref";
 import { TestAtlas, TestSourceDataset } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
+// USERS
+
 export const USER_NORMAL = makeTestUser("test-normal", "");
 export const USER_DISABLED = makeTestUser("test-disabled", "", true);
 export const USER_CONTENT_ADMIN = makeTestUser(
@@ -28,6 +30,8 @@ export const INITIAL_TEST_USERS = [
 
 export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT, USER_NEW];
 
+// SOURCE DATASETS
+
 export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
   doi: "10.123/sd-draft-ok",
   id: "d2932506-0af5-4030-920c-07f6beeb817a",
@@ -38,7 +42,9 @@ export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
         personalName: null,
       },
     ],
+    hasPreprintDoi: null,
     journal: "draft-ok-journal",
+    preprintOfDoi: null,
     publicationDate: "2024-04-09",
     title: "draft-ok-title",
   },
@@ -65,6 +71,8 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_DRAFT_NO_CROSSREF,
   SOURCE_DATASET_PUBLIC_NO_CROSSREF,
 ];
+
+// ATLASES
 
 export const ATLAS_DRAFT: TestAtlas = {
   id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
@@ -112,6 +120,8 @@ export const ATLAS_NONEXISTENT = {
 // Atlases initialized in the database before tests
 export const INITIAL_TEST_ATLASES = [ATLAS_DRAFT, ATLAS_PUBLIC, ATLAS_WITH_IL];
 
+// DOIS
+
 export const DOI_NORMAL = "10.123/test";
 
 export const DOI_NORMAL2 = "10.123/test2";
@@ -122,6 +132,18 @@ export const DOI_PREPRINT_NO_JOURNAL = "10.123/preprint-no-journal";
 
 export const DOI_UNSUPPORTED_TYPE = "10.123/unsupported-type";
 
+export const DOI_PREPRINT_WITH_JOURNAL_COUNTERPART =
+  "10.123/preprint-with-journal-counterpart";
+
+export const DOI_JOURNAL_COUNTERPART = "10.123/journal-counterpart";
+
+export const DOI_JOURNAL_WITH_PREPRINT_COUNTERPART =
+  "10.123/journal-with-preprint-counterpart";
+
+export const DOI_PREPRINT_COUNTERPART = "10.123/preprint-counterpart";
+
+// PUBLICATIONS
+
 export const PUBLICATION_NORMAL: PublicationInfo = {
   authors: [
     {
@@ -129,7 +151,9 @@ export const PUBLICATION_NORMAL: PublicationInfo = {
       personalName: null,
     },
   ],
+  hasPreprintDoi: null,
   journal: "Bar",
+  preprintOfDoi: null,
   publicationDate: "2024-01-01",
   title: "A Test",
 };
@@ -140,6 +164,7 @@ export const CROSSREF_WORK_NORMAL: CrossrefWork = {
   published: {
     "date-parts": [[2024, 1, 1]],
   },
+  relation: {},
   "short-container-title": [],
   title: ["A Test"],
   type: "journal-article",
@@ -152,7 +177,9 @@ export const PUBLICATION_PREPRINT_NO_JOURNAL: PublicationInfo = {
       personalName: "Baz",
     },
   ],
+  hasPreprintDoi: null,
   journal: "Preprint",
+  preprintOfDoi: null,
   publicationDate: "2024-04-17",
   title: "Preprint No Journal",
 };
@@ -163,6 +190,7 @@ export const CROSSREF_WORK_PREPRINT_NO_JOURNAL: CrossrefWork = {
   published: {
     "date-parts": [[2024, 4, 17]],
   },
+  relation: {},
   "short-container-title": [],
   subtype: "preprint",
   title: ["Preprint No Journal"],
@@ -175,22 +203,99 @@ export const CROSSREF_WORK_UNSUPPORTED_TYPE: CrossrefWork = {
   published: {
     "date-parts": [[2024, 4, 16]],
   },
+  relation: {},
   "short-container-title": [],
   title: ["Unsupported Type"],
   type: "unsupported-type",
+};
+
+export const PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART: PublicationInfo = {
+  authors: [
+    {
+      name: "Foobar",
+      personalName: null,
+    },
+  ],
+  hasPreprintDoi: null,
+  journal: "Baz",
+  preprintOfDoi: DOI_JOURNAL_COUNTERPART,
+  publicationDate: "2024-04-21",
+  title: "Preprint With Journal Counterpart",
+};
+
+export const CROSSREF_WORK_PREPRINT_WITH_JOURNAL_COUNTERPART: CrossrefWork = {
+  author: [{ family: "Foobar" }],
+  "container-title": [],
+  institution: [{ name: "Baz" }],
+  published: {
+    "date-parts": [[2024, 4, 21]],
+  },
+  relation: {
+    "is-preprint-of": [{ id: DOI_JOURNAL_COUNTERPART, "id-type": "doi" }],
+  },
+  "short-container-title": [],
+  subtype: "preprint",
+  title: ["Preprint With Journal Counterpart"],
+  type: "posted-content",
+};
+
+export const PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART: PublicationInfo = {
+  authors: [
+    {
+      name: "Foobaz",
+      personalName: null,
+    },
+  ],
+  hasPreprintDoi: DOI_PREPRINT_COUNTERPART,
+  journal: "Bar",
+  preprintOfDoi: null,
+  publicationDate: "2024-04-22",
+  title: "Journal With Preprint Counterpart",
+};
+
+export const CROSSREF_WORK_JOURNAL_WITH_PREPRINT_COUNTERPART: CrossrefWork = {
+  author: [{ family: "Foobaz" }],
+  "container-title": [],
+  published: {
+    "date-parts": [[2024, 4, 22]],
+  },
+  relation: {
+    "has-preprint": [{ id: DOI_PREPRINT_COUNTERPART, "id-type": "doi" }],
+  },
+  "short-container-title": ["Bar"],
+  title: ["Journal With Preprint Counterpart"],
+  type: "journal-article",
 };
 
 export const TEST_DOI_CROSSREF_WORKS = new Map([
   [DOI_NORMAL, CROSSREF_WORK_NORMAL],
   [DOI_PREPRINT_NO_JOURNAL, CROSSREF_WORK_PREPRINT_NO_JOURNAL],
   [DOI_UNSUPPORTED_TYPE, CROSSREF_WORK_UNSUPPORTED_TYPE],
+  [
+    DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
+    CROSSREF_WORK_PREPRINT_WITH_JOURNAL_COUNTERPART,
+  ],
+  [
+    DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
+    CROSSREF_WORK_JOURNAL_WITH_PREPRINT_COUNTERPART,
+  ],
 ]);
+
+// HCA PROJECTS
 
 export const HCA_ID_NORMAL = "hca-id-normal";
 
 export const HCA_ID_NORMAL2 = "hca-id-normal2";
 
-export const TEST_HCA_IDS_BY_DOI = new Map([[DOI_NORMAL, HCA_ID_NORMAL]]);
+export const HCA_ID_JOURNAL_COUNTERPART = "hca-id-journal-counterpart";
+
+export const HCA_ID_PREPRINT_COUNTERPART = "hca-id-preprint-counterpart";
+
+export const TEST_HCA_IDS_BY_DOI = new Map([
+  [DOI_NORMAL, HCA_ID_NORMAL],
+  [DOI_JOURNAL_COUNTERPART, HCA_ID_JOURNAL_COUNTERPART],
+  [DOI_PREPRINT_COUNTERPART, HCA_ID_PREPRINT_COUNTERPART],
+]);
 
 export const HCA_PROJECTS_RESPONSES_TEST1: ProjectsResponse[] = [
   makeTestProjectsResponse(HCA_ID_NORMAL, DOI_NORMAL),
@@ -210,12 +315,22 @@ export const TEST_HCA_CATALOGS: Record<string, ProjectsResponse[]> = {
   [HCA_CATALOG_TEST2]: HCA_PROJECTS_RESPONSES_TEST2,
 };
 
+// CELLXGENE COLLECTIONS
+
 export const CELLXGENE_ID_NORMAL = "cellxgene-collection-normal";
 
 export const CELLXGENE_ID_NORMAL2 = "cellxgene-collection-normal2";
 
+export const CELLXGENE_ID_JOURNAL_COUNTERPART =
+  "cellxgene-collection-journal-counterpart";
+
+export const CELLXGENE_ID_PREPRINT_COUNTERPART =
+  "cellxgene-collection-preprint-counterpart";
+
 export const TEST_CELLXGENE_IDS_BY_DOI = new Map([
   [DOI_NORMAL, CELLXGENE_ID_NORMAL],
+  [DOI_JOURNAL_COUNTERPART, CELLXGENE_ID_JOURNAL_COUNTERPART],
+  [DOI_PREPRINT_COUNTERPART, CELLXGENE_ID_PREPRINT_COUNTERPART],
 ]);
 
 export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
