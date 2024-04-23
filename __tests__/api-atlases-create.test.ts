@@ -116,6 +116,20 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when integration lead email is not an email address", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, {
+          ...NEW_ATLAS_WITH_IL_DATA,
+          integrationLead: {
+            email: "notanemail",
+            name: "Foo",
+          },
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with null integration lead", async () => {
     const newAtlas: HCAAtlasTrackerAtlas = (
       await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA)
