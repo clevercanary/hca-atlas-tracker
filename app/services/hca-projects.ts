@@ -33,13 +33,13 @@ const { getData: getProjectsData } = makeRefreshService({
 
 /**
  * Find the first of a list of DOIs that matches an HCA project, and return the project's ID, starting a refresh of the DOI-to-ID mappings if needed.
- * @param dois -- DOIs to check to find a project ID.
+ * @param dois -- Normalized DOIs to check to find a project ID.
  * @returns HCA project ID, or null if none is found.
  */
 export function getProjectIdByDoi(dois: string[]): string | null {
   const { byDoi } = getProjectsData();
   for (const doi of dois) {
-    const projectId = byDoi.get(normalizeDoi(doi));
+    const projectId = byDoi.get(doi);
     if (projectId !== undefined) return projectId;
   }
   return null;

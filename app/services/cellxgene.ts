@@ -1,4 +1,4 @@
-import { getCellxGeneCollections } from "app/utils/cellxgene-api";
+import { getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 
@@ -35,13 +35,13 @@ const { getData: getCellxGeneData } = makeRefreshService({
 
 /**
  * Find the first of a list of DOIs that matches a CELLxGENE collection, and return the collection's ID, starting a refresh of the DOI-to-ID mappings if needed.
- * @param dois -- DOIs to check to find a collection ID.
+ * @param dois -- Normalized DOIs to check to find a collection ID.
  * @returns CELLxGENE collection ID, or null if none is found.
  */
 export function getCellxGeneIdByDoi(dois: string[]): string | null {
   const { collectionIdsByDoi } = getCellxGeneData();
   for (const doi of dois) {
-    const collectionId = collectionIdsByDoi.get(normalizeDoi(doi));
+    const collectionId = collectionIdsByDoi.get(doi);
     if (collectionId !== undefined) return collectionId;
   }
   return null;
@@ -54,7 +54,7 @@ export function getCellxGeneIdByDoi(dois: string[]): string | null {
 async function getRefreshedCollectionIdsByDoi(): Promise<Map<string, string>> {
   const idsByDoi = new Map<string, string>();
   for (const { collection_id, doi } of await getCellxGeneCollections()) {
-    if (doi) idsByDoi.set(doi, collection_id);
+    if (doi) idsByDoi.set(normalizeDoi(doi), collection_id);
   }
   return idsByDoi;
 }

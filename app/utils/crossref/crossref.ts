@@ -94,7 +94,7 @@ export type CrossrefWork = Omit<
 export async function getCrossrefPublicationInfo(
   doi: string
 ): Promise<PublicationInfo | null> {
-  const unvalidatedWork = await fetchCrossrefWork(normalizeDoi(doi));
+  const unvalidatedWork = await fetchCrossrefWork(doi);
   if (unvalidatedWork === null) return null;
   const work = crossrefWorkSchema.validateSync(unvalidatedWork) as CrossrefWork;
   let journal =
@@ -119,10 +119,14 @@ export async function getCrossrefPublicationInfo(
   };
 }
 
+/**
+ * Get normalized DOI from Crossref relation array.
+ * @param relation - Crossref relation array.
+ * @returns normalized DOI, or null if no DOI was found.
+ */
 function getDoiFromRelation(relation?: CrossrefRelation): string | null {
-  return (
-    relation?.find(({ "id-type": idType }) => idType === "doi")?.id ?? null
-  );
+  const doi = relation?.find(({ "id-type": idType }) => idType === "doi")?.id;
+  return doi === undefined ? null : normalizeDoi(doi);
 }
 
 function datePartsToString(parts: number[]): string {
