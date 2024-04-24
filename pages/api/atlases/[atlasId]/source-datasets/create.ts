@@ -92,6 +92,7 @@ export default handler(
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,
       publication,
+      unpublishedInfo: null,
     };
 
     const client = await getPoolClient();

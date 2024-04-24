@@ -56,20 +56,42 @@ export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset
 ): HCAAtlasTrackerSourceDataset {
   const {
-    sd_info: { cellxgeneCollectionId, hcaProjectId, publication },
+    sd_info: {
+      cellxgeneCollectionId,
+      hcaProjectId,
+      publication,
+      unpublishedInfo,
+    },
   } = dbSourceDataset;
-  return {
-    capId: null,
-    cellxgeneCollectionId,
-    doi: dbSourceDataset.doi,
-    doiStatus: dbSourceDataset.sd_info.doiStatus,
-    hcaProjectId,
-    id: dbSourceDataset.id,
-    journal: publication?.journal ?? null,
-    publicationDate: publication?.publicationDate ?? null,
-    referenceAuthor: publication?.authors[0]?.name ?? null,
-    title: publication?.title ?? null,
-  };
+  if (dbSourceDataset.doi === null) {
+    return {
+      capId: null,
+      cellxgeneCollectionId,
+      contactEmail: unpublishedInfo?.contactEmail ?? "",
+      doi: null,
+      doiStatus: dbSourceDataset.sd_info.doiStatus,
+      hcaProjectId,
+      id: dbSourceDataset.id,
+      journal: null,
+      publicationDate: null,
+      referenceAuthor: unpublishedInfo?.author ?? "",
+      title: unpublishedInfo?.title ?? "",
+    };
+  } else {
+    return {
+      capId: null,
+      cellxgeneCollectionId,
+      contactEmail: null,
+      doi: dbSourceDataset.doi,
+      doiStatus: dbSourceDataset.sd_info.doiStatus,
+      hcaProjectId,
+      id: dbSourceDataset.id,
+      journal: publication?.journal ?? null,
+      publicationDate: publication?.publicationDate ?? null,
+      referenceAuthor: publication?.authors[0]?.name ?? null,
+      title: publication?.title ?? null,
+    };
+  }
 }
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {

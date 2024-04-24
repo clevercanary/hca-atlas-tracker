@@ -49,17 +49,36 @@ export interface HCAAtlasTrackerNetworkCoordinator {
   email: string;
 }
 
-export interface HCAAtlasTrackerSourceDataset {
+export type HCAAtlasTrackerSourceDataset =
+  | HCAAtlasTrackerPublishedSourceDataset
+  | HCAAtlasTrackerUnpublishedSourceDataset;
+
+interface HCAAtlasTrackerSourceDatasetShared {
   capId: string | null;
   cellxgeneCollectionId: string | null;
-  doi: string | null;
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   id: string;
+}
+
+export interface HCAAtlasTrackerPublishedSourceDataset
+  extends HCAAtlasTrackerSourceDatasetShared {
+  contactEmail: null;
+  doi: string;
   journal: string | null;
   publicationDate: string | null;
   referenceAuthor: string | null;
   title: string | null;
+}
+
+export interface HCAAtlasTrackerUnpublishedSourceDataset
+  extends HCAAtlasTrackerSourceDatasetShared {
+  contactEmail: string;
+  doi: null;
+  journal: null;
+  publicationDate: null;
+  referenceAuthor: string;
+  title: string;
 }
 
 export interface HCAAtlasTrackerDBAtlas {
@@ -92,6 +111,11 @@ export interface HCAAtlasTrackerDBSourceDatasetInfo {
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   publication: PublicationInfo | null;
+  unpublishedInfo: null | {
+    author: string;
+    contactEmail: string;
+    title: string;
+  };
 }
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];

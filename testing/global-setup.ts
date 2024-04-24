@@ -25,6 +25,7 @@ export default async function setup(): Promise<void> {
       doiStatus: dataset.doiStatus,
       hcaProjectId: null,
       publication: dataset.publication,
+      unpublishedInfo: null,
     };
     await pool.query(
       "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",
