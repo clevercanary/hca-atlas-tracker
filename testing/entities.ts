@@ -1,9 +1,9 @@
 import {
   ATLAS_STATUS,
+  DOI_STATUS,
   IntegrationLead,
   NetworkKey,
   PublicationInfo,
-  PUBLICATION_STATUS,
   Wave,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
@@ -29,7 +29,7 @@ export interface TestAtlas {
 
 export interface TestSourceDataset {
   doi: string | null;
+  doiStatus: DOI_STATUS;
   id: string;
   publication: PublicationInfo | null;
-  publicationStatus: PUBLICATION_STATUS;
 }

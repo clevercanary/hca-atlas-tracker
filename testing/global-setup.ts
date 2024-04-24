@@ -22,9 +22,9 @@ export default async function setup(): Promise<void> {
   for (const dataset of INITIAL_TEST_SOURCE_DATASETS) {
     const sdInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
       cellxgeneCollectionId: null,
+      doiStatus: dataset.doiStatus,
       hcaProjectId: null,
       publication: dataset.publication,
-      publicationStatus: dataset.publicationStatus,
     };
     await pool.query(
       "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",

@@ -2,8 +2,8 @@ import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/Cust
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Controller } from "react-hook-form";
 import {
+  DOI_STATUS,
   HCAAtlasTrackerSourceDataset,
-  PUBLICATION_STATUS,
 } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { SourceDatasetEditData } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
@@ -77,7 +77,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
 function renderDoiEndAdornment(
   sourceDataset: HCAAtlasTrackerSourceDataset | undefined
 ): JSX.Element {
-  if (sourceDataset?.publicationStatus === PUBLICATION_STATUS.OK) {
+  if (sourceDataset?.doiStatus === DOI_STATUS.OK) {
     return <SuccessIcon color="success" fontSize="small" />;
   }
   return <ErrorIcon color="error" fontSize="small" />;

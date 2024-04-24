@@ -1,8 +1,8 @@
 import { ProjectsResponse } from "app/apis/azul/hca-dcp/common/responses";
 import {
   ATLAS_STATUS,
+  DOI_STATUS,
   PublicationInfo,
-  PUBLICATION_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
@@ -34,6 +34,7 @@ export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT, USER_NEW];
 
 export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
   doi: "10.123/sd-draft-ok",
+  doiStatus: DOI_STATUS.OK,
   id: "d2932506-0af5-4030-920c-07f6beeb817a",
   publication: {
     authors: [
@@ -48,21 +49,20 @@ export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
     publicationDate: "2024-04-09",
     title: "draft-ok-title",
   },
-  publicationStatus: PUBLICATION_STATUS.OK,
 };
 
 export const SOURCE_DATASET_DRAFT_NO_CROSSREF: TestSourceDataset = {
   doi: "10.123/sd-draft-no-crossref",
+  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "ee67ddcb-e5d8-4240-a8ef-c945657c3321",
   publication: null,
-  publicationStatus: PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF,
 };
 
 export const SOURCE_DATASET_PUBLIC_NO_CROSSREF: TestSourceDataset = {
   doi: "10.123/sd-public-no-crossref",
+  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "dae11387-d0c2-4160-8f2e-0be27a3a551a",
   publication: null,
-  publicationStatus: PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF,
 };
 
 // Source datasets initialized in the database before tests

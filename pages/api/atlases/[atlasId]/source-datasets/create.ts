@@ -1,9 +1,9 @@
 import { getCellxGeneIdByDoi } from "app/services/cellxgene";
 import { ValidationError } from "yup";
 import {
+  DOI_STATUS,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
-  PUBLICATION_STATUS,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { newSourceDatasetSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
@@ -89,11 +89,9 @@ export default handler(
 
     const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
       cellxgeneCollectionId,
+      doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,
       publication,
-      publicationStatus: publication
-        ? PUBLICATION_STATUS.OK
-        : PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF,
     };
 
     const client = await getPoolClient();

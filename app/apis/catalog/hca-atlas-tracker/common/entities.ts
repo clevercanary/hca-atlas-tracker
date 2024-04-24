@@ -53,12 +53,12 @@ export interface HCAAtlasTrackerSourceDataset {
   capId: string | null;
   cellxgeneCollectionId: string | null;
   doi: string | null;
+  doiStatus: DOI_STATUS;
   firstAuthorPrimaryName: string | null;
   hcaProjectId: string | null;
   id: string;
   journal: string | null;
   publicationDate: string | null;
-  publicationStatus: PUBLICATION_STATUS;
   title: string | null;
 }
 
@@ -89,14 +89,14 @@ export interface HCAAtlasTrackerDBSourceDataset {
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
   cellxgeneCollectionId: string | null;
+  doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   publication: PublicationInfo | null;
-  publicationStatus: PUBLICATION_STATUS;
 }
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
-export enum PUBLICATION_STATUS {
+export enum DOI_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",
   OK = "OK",
 }

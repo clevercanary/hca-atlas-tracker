@@ -98,7 +98,7 @@ function expectDatasetPropertiesToMatch(
   expect(apiDataset).toBeDefined();
   expect(apiDataset.id).toEqual(testDataset.id);
   expect(apiDataset.doi).toEqual(testDataset.doi);
-  expect(apiDataset.publicationStatus).toEqual(testDataset.publicationStatus);
+  expect(apiDataset.doiStatus).toEqual(testDataset.doiStatus);
   if (testDataset.publication) {
     expect(apiDataset.title).toEqual(testDataset.publication.title);
     expect(apiDataset.journal).toEqual(testDataset.publication.journal);
