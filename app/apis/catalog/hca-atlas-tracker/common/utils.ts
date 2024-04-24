@@ -63,11 +63,11 @@ export function dbSourceDatasetToApiSourceDataset(
     cellxgeneCollectionId,
     doi: dbSourceDataset.doi,
     doiStatus: dbSourceDataset.sd_info.doiStatus,
-    firstAuthorPrimaryName: publication?.authors[0]?.name ?? null,
     hcaProjectId,
     id: dbSourceDataset.id,
     journal: publication?.journal ?? null,
     publicationDate: publication?.publicationDate ?? null,
+    referenceAuthor: publication?.authors[0]?.name ?? null,
     title: publication?.title ?? null,
   };
 }

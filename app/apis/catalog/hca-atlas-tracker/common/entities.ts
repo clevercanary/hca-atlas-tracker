@@ -54,11 +54,11 @@ export interface HCAAtlasTrackerSourceDataset {
   cellxgeneCollectionId: string | null;
   doi: string | null;
   doiStatus: DOI_STATUS;
-  firstAuthorPrimaryName: string | null;
   hcaProjectId: string | null;
   id: string;
   journal: string | null;
   publicationDate: string | null;
+  referenceAuthor: string | null;
   title: string | null;
 }
 

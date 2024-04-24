@@ -105,13 +105,13 @@ function expectDatasetPropertiesToMatch(
     expect(apiDataset.publicationDate).toEqual(
       testDataset.publication.publicationDate
     );
-    expect(apiDataset.firstAuthorPrimaryName).toEqual(
+    expect(apiDataset.referenceAuthor).toEqual(
       testDataset.publication.authors[0]?.name
     );
   } else {
     expect(apiDataset.title).toBeNull();
     expect(apiDataset.journal).toBeNull();
     expect(apiDataset.publicationDate).toBeNull();
-    expect(apiDataset.firstAuthorPrimaryName).toBeNull();
+    expect(apiDataset.referenceAuthor).toBeNull();
   }
 }

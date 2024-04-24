@@ -117,15 +117,9 @@ export const buildPublication = (
 export const buildSourceDatasetPublication = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.Link> => {
-  const { doi, doiStatus, firstAuthorPrimaryName, journal, publicationDate } =
-    sourceDataset;
+  const { doi } = sourceDataset;
   return {
-    label: getCitation(
-      doiStatus,
-      firstAuthorPrimaryName,
-      publicationDate,
-      journal
-    ),
+    label: getSourceDatasetCitation(sourceDataset),
     url: getDOILink(doi),
   };
 };
@@ -261,14 +255,9 @@ export function getSourceDatasetCitation(
   sourceDataset?: HCAAtlasTrackerSourceDataset
 ): string {
   if (!sourceDataset) return "";
-  const { doiStatus, firstAuthorPrimaryName, journal, publicationDate } =
+  const { doiStatus, journal, publicationDate, referenceAuthor } =
     sourceDataset;
-  return getCitation(
-    doiStatus,
-    firstAuthorPrimaryName,
-    publicationDate,
-    journal
-  );
+  return getCitation(doiStatus, referenceAuthor, publicationDate, journal);
 }
 
 /**
