@@ -14,7 +14,7 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
-import { TASK_STATUS } from "../../../../components/Index/components/TaskStatusCell/taskStatusCell";
+import { TASK_STATUS } from "../../../../components/Index/components/Table/components/TaskStatusCell/taskStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 
 /**
