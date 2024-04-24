@@ -227,7 +227,7 @@ function getCitation(
   date: string | null,
   journal: string | null
 ): string {
-  if (doiStatus === DOI_STATUS.DOI_NOT_ON_CROSSREF) return "Unpublished";
+  if (doiStatus !== DOI_STATUS.OK) return "Unpublished";
   const citation = [];
   if (author) {
     citation.push(author);
