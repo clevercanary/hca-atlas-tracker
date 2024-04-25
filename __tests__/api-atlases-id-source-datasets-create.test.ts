@@ -37,7 +37,7 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 
-const NEW_DATASET_DATA: NewSourceDatasetData = {
+const NEW_DATASET_DATA = {
   doi: DOI_NORMAL,
 };
 
@@ -195,7 +195,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
 
 async function testSuccessfulCreate(
   atlas: TestAtlas,
-  newData: NewSourceDatasetData,
+  newData: Record<string, unknown>,
   expectedPublication: PublicationInfo,
   expectedHcaId: string | null,
   expectedCellxGeneId: string | null
@@ -222,7 +222,7 @@ async function testSuccessfulCreate(
 async function doCreateTest(
   user: TestUser | undefined,
   atlas: Pick<TestAtlas, "id">,
-  newData: NewSourceDatasetData,
+  newData: Record<string, unknown>,
   method: "GET" | "POST" = "POST"
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({

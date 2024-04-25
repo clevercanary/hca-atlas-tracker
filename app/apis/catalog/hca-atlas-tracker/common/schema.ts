@@ -1,4 +1,4 @@
-import { boolean, InferType, object, string } from "yup";
+import { boolean, InferType, mixed, object, string } from "yup";
 import { isDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 
@@ -42,12 +42,42 @@ export type AtlasEditData = NewAtlasData;
  * Schema for data used to create a new source dataset.
  */
 export const newSourceDatasetSchema = object({
+  author: string()
+    .default("")
+    .when("doi", {
+      is: undefined,
+      otherwise: () =>
+        mixed().oneOf(
+          [undefined],
+          "Author must be omitted when DOI is present"
+        ),
+      then: (schema) =>
+        schema.required("Author is required when DOI is absent"),
+    }),
+  contactEmail: string()
+    .email()
+    .default("")
+    .when("doi", {
+      is: undefined,
+      otherwise: () =>
+        mixed().oneOf([undefined], "Email must be omitted when DOI is present"),
+      then: (schema) => schema.required("Email is required when DOI is absent"),
+    }),
   doi: string()
     .default("")
-    .required("DOI is required")
-    .test("is-doi", "DOI must be a syntactically-valid DOI", (value) =>
-      isDoi(value)
+    .test(
+      "is-doi",
+      "DOI must be a syntactically-valid DOI",
+      (value) => typeof value !== "string" || isDoi(value)
     ),
+  title: string()
+    .default("")
+    .when("doi", {
+      is: undefined,
+      otherwise: () =>
+        mixed().oneOf([undefined], "Title must be omitted when DOI is present"),
+      then: (schema) => schema.required("Title is required when DOI is absent"),
+    }),
 }).strict(true);
 
 export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;

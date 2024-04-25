@@ -22,7 +22,9 @@ export const DEFAULT_INPUT_PROPS = {
   },
 };
 export const FIELD_NAME = {
+  AUTHOR: "author",
   CELLXGENE_COLLECTION_ID: "cellxgeneCollectionId",
+  CONTACT_EMAIL: "contactEmail",
   DOI: "doi",
   HCA_PROJECT_ID: "hcaProjectId",
   TITLE: "title",
