@@ -53,7 +53,7 @@ export type HCAAtlasTrackerSourceDataset =
   | HCAAtlasTrackerPublishedSourceDataset
   | HCAAtlasTrackerUnpublishedSourceDataset;
 
-interface HCAAtlasTrackerSourceDatasetShared {
+interface HCAAtlasTrackerSourceDatasetCommon {
   capId: string | null;
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
@@ -62,7 +62,7 @@ interface HCAAtlasTrackerSourceDatasetShared {
 }
 
 export interface HCAAtlasTrackerPublishedSourceDataset
-  extends HCAAtlasTrackerSourceDatasetShared {
+  extends HCAAtlasTrackerSourceDatasetCommon {
   contactEmail: null;
   doi: string;
   journal: string | null;
@@ -72,7 +72,7 @@ export interface HCAAtlasTrackerPublishedSourceDataset
 }
 
 export interface HCAAtlasTrackerUnpublishedSourceDataset
-  extends HCAAtlasTrackerSourceDatasetShared {
+  extends HCAAtlasTrackerSourceDatasetCommon {
   contactEmail: string;
   doi: null;
   journal: null;
