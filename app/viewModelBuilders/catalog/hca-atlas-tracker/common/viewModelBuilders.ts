@@ -215,7 +215,7 @@ export function getBioNetworkName(name: string): string {
   return name.replace(/(\sNetwork.*)/gi, "");
 }
 
-function getCitation(
+function getPublishedCitation(
   doiStatus: DOI_STATUS,
   author: string | null,
   date: string | null,
@@ -234,6 +234,10 @@ function getCitation(
     citation.push(journal);
   }
   return citation.join(" ");
+}
+
+function getUnpublishedCitation(author: string, email: string): string {
+  return `${author}, ${email} - Unpublished`;
 }
 
 /**
@@ -255,9 +259,19 @@ export function getSourceDatasetCitation(
   sourceDataset?: HCAAtlasTrackerSourceDataset
 ): string {
   if (!sourceDataset) return "";
-  const { doiStatus, journal, publicationDate, referenceAuthor } =
-    sourceDataset;
-  return getCitation(doiStatus, referenceAuthor, publicationDate, journal);
+  if (sourceDataset.doi === null) {
+    const { contactEmail, referenceAuthor } = sourceDataset;
+    return getUnpublishedCitation(referenceAuthor, contactEmail);
+  } else {
+    const { doiStatus, journal, publicationDate, referenceAuthor } =
+      sourceDataset;
+    return getPublishedCitation(
+      doiStatus,
+      referenceAuthor,
+      publicationDate,
+      journal
+    );
+  }
 }
 
 /**
