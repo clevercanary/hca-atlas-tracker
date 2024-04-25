@@ -2,8 +2,8 @@ import { getCellxGeneIdByDoi } from "app/services/cellxgene";
 import { ValidationError } from "yup";
 import {
   DOI_STATUS,
+  HCAAtlasTrackerDBPublishedSourceDatasetInfo,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetInfo,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { newSourceDatasetSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
@@ -87,7 +87,7 @@ export default handler(
 
     // Create new source dataset
 
-    const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
+    const newInfo: HCAAtlasTrackerDBPublishedSourceDatasetInfo = {
       cellxgeneCollectionId,
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,

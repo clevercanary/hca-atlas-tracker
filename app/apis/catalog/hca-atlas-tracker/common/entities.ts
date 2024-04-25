@@ -98,20 +98,35 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   wave: Wave;
 }
 
-export interface HCAAtlasTrackerDBSourceDataset {
+export type HCAAtlasTrackerDBSourceDataset = {
   created_at: Date;
-  doi: string | null;
   id: string;
-  sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
   updated_at: Date;
-}
+} & (
+  | {
+      doi: string;
+      sd_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
+    }
+  | {
+      doi: null;
+      sd_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
+    }
+);
 
-export interface HCAAtlasTrackerDBSourceDatasetInfo {
+export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   publication: PublicationInfo | null;
-  unpublishedInfo: null | {
+  unpublishedInfo: null;
+}
+
+export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
+  cellxgeneCollectionId: string | null;
+  doiStatus: DOI_STATUS;
+  hcaProjectId: string | null;
+  publication: null;
+  unpublishedInfo: {
     author: string;
     contactEmail: string;
     title: string;

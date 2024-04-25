@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerDBSourceDatasetInfo } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerDBPublishedSourceDatasetInfo } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import pg from "pg";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
@@ -20,7 +20,7 @@ export default async function setup(): Promise<void> {
   }
 
   for (const dataset of INITIAL_TEST_SOURCE_DATASETS) {
-    const sdInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
+    const sdInfo: HCAAtlasTrackerDBPublishedSourceDatasetInfo = {
       cellxgeneCollectionId: null,
       doiStatus: dataset.doiStatus,
       hcaProjectId: null,
