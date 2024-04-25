@@ -1,3 +1,4 @@
+import { Options as KyOptions } from "ky";
 import { normalizeDoi } from "../utils/doi";
 import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
@@ -11,8 +12,30 @@ interface ProjectsData {
 
 export type ProjectsInfo = RefreshInfo<ProjectsData>;
 
+const KY_OPTIONS: KyOptions = {
+  retry: {
+    delay: () => 60000,
+    limit: 2,
+  },
+  timeout: 150000,
+};
+
 const { getData: getProjectsData } = makeRefreshService({
-  getRefreshParams: getLatestCatalog,
+  getRefreshParams: () => {
+    console.log("Requesting HCA catalog");
+    const catalog = getLatestCatalog({
+      hooks: {
+        beforeRetry: [
+          (): void => {
+            console.log("Retrying HCA catalog request");
+          },
+        ],
+      },
+      ...KY_OPTIONS,
+    });
+    console.log("Received HCA catalog");
+    return catalog;
+  },
   async getRefreshedData(catalog) {
     return {
       byDoi: await getRefreshedProjectIdsByDoi(catalog),
@@ -54,7 +77,18 @@ async function getRefreshedProjectIdsByDoi(
   catalog: string
 ): Promise<ProjectIdsByDoi> {
   const projectIdsByDoi: ProjectIdsByDoi = new Map();
-  const hits = await getAllProjects(catalog);
+  console.log("Requesting HCA projects");
+  const hits = await getAllProjects(catalog, {
+    hooks: {
+      beforeRetry: [
+        (): void => {
+          console.log("Retrying HCA projects request");
+        },
+      ],
+    },
+    ...KY_OPTIONS,
+  });
+  console.log("Loaded HCA projects");
   for (const projectsResponse of hits) {
     for (const project of projectsResponse.projects) {
       for (const publication of project.publications) {

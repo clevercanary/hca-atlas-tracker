@@ -2,6 +2,7 @@ import {
   AzulCatalogResponse,
   AzulEntitiesResponse,
 } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
+import ky, { Options as KyOptions } from "ky";
 import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
 
 const API_URL_CATALOGS =
@@ -11,11 +12,13 @@ const API_URL_PROJECTS =
 
 /**
  * Fetch current default HCA catalog name.
+ * @param kyOptions - Options to pass to ky.
  * @returns catalog name.
  */
-export async function getLatestCatalog(): Promise<string> {
-  const catalogs: AzulCatalogResponse = await (
-    await fetch(API_URL_CATALOGS)
+export async function getLatestCatalog(kyOptions?: KyOptions): Promise<string> {
+  const catalogs: AzulCatalogResponse = await ky(
+    API_URL_CATALOGS,
+    kyOptions
   ).json();
   return catalogs.default_catalog;
 }
@@ -23,10 +26,12 @@ export async function getLatestCatalog(): Promise<string> {
 /**
  * Fetch all projects from given catalog.
  * @param catalog - Catalog to fetch projects from.
+ * @param kyOptions - Options to pass to ky.
  * @returns projects responses for all of the catalog's projects.
  */
 export async function getAllProjects(
-  catalog: string
+  catalog: string,
+  kyOptions?: KyOptions
 ): Promise<ProjectsResponse[]> {
   let url:
     | string
@@ -35,8 +40,9 @@ export async function getAllProjects(
   )}&size=100`;
   const hits: ProjectsResponse[] = [];
   while (url) {
-    const responseData: AzulEntitiesResponse<ProjectsResponse> = await (
-      await fetch(url)
+    const responseData: AzulEntitiesResponse<ProjectsResponse> = await ky(
+      url,
+      kyOptions
     ).json();
     hits.push(...responseData.hits);
     url = responseData.pagination.next;
