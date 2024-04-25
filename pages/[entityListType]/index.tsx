@@ -5,11 +5,11 @@ import { getEntityConfig } from "@databiosphere/findable-ui/lib/config/utils";
 import { getEntityService } from "@databiosphere/findable-ui/lib/hooks/useEntityService";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
 import { database } from "@databiosphere/findable-ui/lib/utils/database";
-import { ExploreView } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import { config } from "app/config/config";
 import fsp from "fs/promises";
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
+import { AtlasesView } from "../../app/views/AtlasesView/atlasesView";
 
 interface PageUrl extends ParsedUrlQuery {
   entityListType: string;
@@ -51,17 +51,17 @@ const seedDatabase = async function seedDatabase( // TODO get rid of this duplic
 };
 
 /**
- * Explore view page.
+ * Atlases view page.
  * @param props - Explore view page props.
  * @param props.entityListType - Entity list type.
- * @returns Explore view component.
+ * @returns Atlases view component.
  */
 const IndexPage = ({
   entityListType,
   ...props
 }: ListPageProps): JSX.Element => {
   if (!entityListType) return <></>;
-  return <ExploreView entityListType={entityListType} {...props} />;
+  return <AtlasesView entityListType={entityListType} {...props} />;
 };
 
 /**

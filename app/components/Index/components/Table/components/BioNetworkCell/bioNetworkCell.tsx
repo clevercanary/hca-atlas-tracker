@@ -1,9 +1,9 @@
-import { NetworkKey } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { NetworkKey } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getBioNetworkByKey,
   getBioNetworkName,
-} from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { NetworkIcon } from "../../../common/CustomIcon/components/NetworkIcon/networkIcon";
+} from "../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { NetworkIcon } from "../../../../../common/CustomIcon/components/NetworkIcon/networkIcon";
 import { Cell } from "./bioNetworkCell.styles";
 
 export interface BioNetworkCellProps {

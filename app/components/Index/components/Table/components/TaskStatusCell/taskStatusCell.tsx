@@ -1,6 +1,6 @@
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Fragment } from "react";
-import { RequiredIcon } from "../../../common/CustomIcon/components/RequiredIcon/requiredIcon";
+import { RequiredIcon } from "../../../../../common/CustomIcon/components/RequiredIcon/requiredIcon";
 
 export enum TASK_STATUS {
   DONE = "Yes",
