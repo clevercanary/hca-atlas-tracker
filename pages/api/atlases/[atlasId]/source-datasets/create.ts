@@ -1,11 +1,15 @@
 import { getCellxGeneIdByDoi } from "app/services/cellxgene";
+import { NextApiResponse } from "next";
 import { ValidationError } from "yup";
 import {
   DOI_STATUS,
-  HCAAtlasTrackerDBPublishedSourceDatasetInfo,
   HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceDatasetMinimumColumns,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { newSourceDatasetSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  NewSourceDatasetData,
+  newSourceDatasetSchema,
+} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
@@ -21,6 +25,10 @@ import {
 } from "../../../../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref/crossref";
 import { normalizeDoi } from "../../../../../app/utils/doi";
+
+type HandledSourceDatasetInfo =
+  | [HCAAtlasTrackerDBSourceDatasetMinimumColumns, false]
+  | [null, true];
 
 /**
  * API route for creating a source dataset. Source dataset information is provided as a JSON body.
@@ -48,52 +56,10 @@ export default handler(
     );
     if (newDataFailed) return;
 
-    // Get DOI-related information
-
-    const doi = normalizeDoi(newData.doi);
-
-    let publication;
-    try {
-      publication = await getCrossrefPublicationInfo(doi);
-    } catch (e) {
-      if (e instanceof ValidationError) {
-        const errors: FormResponseErrors = {
-          errors: {
-            doi: [`Crossref data doesn't fit: ${e.message}`],
-          },
-        };
-        res.status(500).json(errors);
-        return;
-      }
-      throw e;
-    }
-
-    const dois = [
-      ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
-      doi,
-      ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
-    ];
-
-    const [hcaProjectId, hcaProjectIdFailed] = handleGetRefreshValue(res, () =>
-      getProjectIdByDoi(dois)
-    );
-    if (hcaProjectIdFailed) return;
-
-    const [cellxgeneCollectionId, cellxgeneIdFailed] = handleGetRefreshValue(
-      res,
-      () => getCellxGeneIdByDoi(dois)
-    );
-    if (cellxgeneIdFailed) return;
-
-    // Create new source dataset
-
-    const newInfo: HCAAtlasTrackerDBPublishedSourceDatasetInfo = {
-      cellxgeneCollectionId,
-      doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
-      hcaProjectId,
-      publication,
-      unpublishedInfo: null,
-    };
+    const [newInfo, newInfoFailed] = newData.doi
+      ? await handleGetPublishedInfo(res, newData)
+      : await handleGetUnpublishedInfo(res, newData);
+    if (newInfoFailed) return;
 
     const client = await getPoolClient();
     try {
@@ -102,7 +68,7 @@ export default handler(
       const newDataset = (
         await client.query<HCAAtlasTrackerDBSourceDataset>(
           "INSERT INTO hat.source_datasets (doi, sd_info) VALUES ($1, $2) RETURNING *",
-          [doi, JSON.stringify(newInfo)]
+          [newInfo.doi, JSON.stringify(newInfo.sd_info)]
         )
       ).rows[0];
       // Update the atlas's list of source datasets
@@ -120,3 +86,80 @@ export default handler(
     }
   }
 );
+
+async function handleGetPublishedInfo(
+  res: NextApiResponse,
+  data: NewSourceDatasetData
+): Promise<HandledSourceDatasetInfo> {
+  const doi = normalizeDoi(data.doi);
+
+  let publication;
+  try {
+    publication = await getCrossrefPublicationInfo(doi);
+  } catch (e) {
+    if (e instanceof ValidationError) {
+      const errors: FormResponseErrors = {
+        errors: {
+          doi: [`Crossref data doesn't fit: ${e.message}`],
+        },
+      };
+      res.status(500).json(errors);
+      return [null, true];
+    }
+    throw e;
+  }
+
+  const dois = [
+    ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
+    doi,
+    ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
+  ];
+
+  const [hcaProjectId, hcaProjectIdFailed] = handleGetRefreshValue(res, () =>
+    getProjectIdByDoi(dois)
+  );
+  if (hcaProjectIdFailed) return [null, true];
+
+  const [cellxgeneCollectionId, cellxgeneIdFailed] = handleGetRefreshValue(
+    res,
+    () => getCellxGeneIdByDoi(dois)
+  );
+  if (cellxgeneIdFailed) return [null, true];
+
+  return [
+    {
+      doi,
+      sd_info: {
+        cellxgeneCollectionId,
+        doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
+        hcaProjectId,
+        publication,
+        unpublishedInfo: null,
+      },
+    },
+    false,
+  ];
+}
+
+async function handleGetUnpublishedInfo(
+  res: NextApiResponse,
+  data: NewSourceDatasetData
+): Promise<HandledSourceDatasetInfo> {
+  return [
+    {
+      doi: null,
+      sd_info: {
+        cellxgeneCollectionId: null,
+        doiStatus: DOI_STATUS.NA,
+        hcaProjectId: null,
+        publication: null,
+        unpublishedInfo: {
+          author: data.author,
+          contactEmail: data.contactEmail,
+          title: data.title,
+        },
+      },
+    },
+    false,
+  ];
+}

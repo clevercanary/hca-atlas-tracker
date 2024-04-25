@@ -98,11 +98,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   wave: Wave;
 }
 
-export type HCAAtlasTrackerDBSourceDataset = {
-  created_at: Date;
-  id: string;
-  updated_at: Date;
-} & (
+export type HCAAtlasTrackerDBSourceDatasetMinimumColumns =
   | {
       doi: string;
       sd_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
@@ -110,8 +106,14 @@ export type HCAAtlasTrackerDBSourceDataset = {
   | {
       doi: null;
       sd_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
-    }
-);
+    };
+
+export type HCAAtlasTrackerDBSourceDataset =
+  HCAAtlasTrackerDBSourceDatasetMinimumColumns & {
+    created_at: Date;
+    id: string;
+    updated_at: Date;
+  };
 
 export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
   cellxgeneCollectionId: string | null;
