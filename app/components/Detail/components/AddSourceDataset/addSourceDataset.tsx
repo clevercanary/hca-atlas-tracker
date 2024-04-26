@@ -4,12 +4,15 @@ import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthe
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewSourceDatasetData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../common/entities";
 import { getRequestURL, getRouteURL } from "../../../../common/utils";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
-import { onSuccess } from "../../../../views/AddNewSourceDatasetView/hooks/useAddSourceDatasetForm";
+import { NewSourceDatasetData } from "../../../../views/AddNewSourceDatasetView/common/entities";
+import {
+  onSuccess,
+  unregisterSourceDatasetFields,
+} from "../../../../views/AddNewSourceDatasetView/hooks/useAddSourceDatasetForm";
 import {
   ButtonLink,
   BUTTON_COLOR,
@@ -30,15 +33,11 @@ export const AddSourceDataset = ({
   formMethod,
 }: AddSourceDatasetProps): JSX.Element => {
   const { isAuthenticated } = useAuthentication();
-  const {
-    disabled,
-    formState: { isDirty },
-    handleSubmit,
-    onSubmit,
-  } = formMethod;
+  const { disabled, handleSubmit, onSubmit, unregister } = formMethod;
 
   const onFormSubmit = useCallback(
     (payload: NewSourceDatasetData): void => {
+      unregister(unregisterSourceDatasetFields(payload));
       onSubmit(
         getRequestURL(API.CREATE_ATLAS_SOURCE_DATASET, atlasId),
         METHOD.POST,
@@ -48,7 +47,7 @@ export const AddSourceDataset = ({
         }
       );
     },
-    [atlasId, onSubmit]
+    [atlasId, onSubmit, unregister]
   );
 
   return isAuthenticated ? (
@@ -63,7 +62,7 @@ export const AddSourceDataset = ({
         >
           Discard
         </ButtonLink>
-        <ButtonPrimary disabled={disabled || !isDirty} type="submit">
+        <ButtonPrimary disabled={disabled} type="submit">
           Save
         </ButtonPrimary>
       </FormActions>

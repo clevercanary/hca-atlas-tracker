@@ -43,6 +43,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
 ): UseForm<T, R> => {
   const { token } = useAuthentication();
   const formMethod = useReactHookForm<YupValidatedFormValues<T>>({
+    reValidateMode: "onSubmit",
     resolver: yupResolver(schema),
     values: schema.cast(mapSchemaValues?.(apiData)),
   });
@@ -111,11 +112,9 @@ export const useForm = <T extends FieldValues, R = undefined>(
   }, [apiData]);
 
   return {
-    control: formMethod.control,
+    ...formMethod,
     data,
     disabled: submitDisabled,
-    formState: formMethod.formState,
-    handleSubmit: formMethod.handleSubmit,
     onDelete,
     onSubmit,
   };
