@@ -129,8 +129,8 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
   hcaProjectId: string | null;
   publication: null;
   unpublishedInfo: {
-    author: string;
     contactEmail: string;
+    referenceAuthor: string;
     title: string;
   };
 }

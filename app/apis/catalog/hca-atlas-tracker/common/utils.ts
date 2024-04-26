@@ -74,7 +74,7 @@ export function dbSourceDatasetToApiSourceDataset(
       id: dbSourceDataset.id,
       journal: null,
       publicationDate: null,
-      referenceAuthor: unpublishedInfo?.author ?? "",
+      referenceAuthor: unpublishedInfo?.referenceAuthor ?? "",
       title: unpublishedInfo?.title ?? "",
     };
   } else {

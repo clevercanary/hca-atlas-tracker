@@ -42,18 +42,6 @@ export type AtlasEditData = NewAtlasData;
  * Schema for data used to create a new source dataset.
  */
 export const newSourceDatasetSchema = object({
-  author: string()
-    .default("")
-    .when("doi", {
-      is: undefined,
-      otherwise: () =>
-        mixed().oneOf(
-          [undefined],
-          "Author must be omitted when DOI is present"
-        ),
-      then: (schema) =>
-        schema.required("Author is required when DOI is absent"),
-    }),
   contactEmail: string()
     .email()
     .default("")
@@ -70,6 +58,18 @@ export const newSourceDatasetSchema = object({
       "DOI must be a syntactically-valid DOI",
       (value) => typeof value !== "string" || isDoi(value)
     ),
+  referenceAuthor: string()
+    .default("")
+    .when("doi", {
+      is: undefined,
+      otherwise: () =>
+        mixed().oneOf(
+          [undefined],
+          "Author must be omitted when DOI is present"
+        ),
+      then: (schema) =>
+        schema.required("Author is required when DOI is absent"),
+    }),
   title: string()
     .default("")
     .when("doi", {

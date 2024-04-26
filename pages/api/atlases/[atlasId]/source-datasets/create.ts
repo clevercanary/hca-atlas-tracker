@@ -154,8 +154,8 @@ async function handleGetUnpublishedInfo(
         hcaProjectId: null,
         publication: null,
         unpublishedInfo: {
-          author: data.author,
           contactEmail: data.contactEmail,
+          referenceAuthor: data.referenceAuthor,
           title: data.title,
         },
       },
