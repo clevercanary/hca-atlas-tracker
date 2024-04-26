@@ -6,7 +6,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { endPgPool } from "../app/utils/api-handler";
+import { endPgPool } from "../app/services/database";
 import atlasesHandler from "../pages/api/atlases";
 
 jest.mock("../app/utils/pg-app-connect-config");

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { endPgPool } from "../app/utils/api-handler";
+import { endPgPool } from "../app/services/database";
 import usersHandler from "../pages/api/users";
 import {
   USER_CONTENT_ADMIN,

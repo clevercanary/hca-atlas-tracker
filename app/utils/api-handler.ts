@@ -1,13 +1,10 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
-import pg from "pg";
 import { InferType, Schema, ValidationError } from "yup";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { RefreshDataNotReadyError } from "../services/common/refresh-service";
-import { getPoolConfig } from "./pg-app-connect-config";
-
-const { Pool } = pg;
+import { query } from "../services/database";
 
 export type MiddlewareFunction = (
   req: NextApiRequest,
@@ -19,8 +16,6 @@ type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
 const authClient = new OAuth2Client();
 const accessTokensInfo = new Map<string, TokenInfo>();
-
-const pool = new Pool(getPoolConfig());
 
 /**
  * Creates an API handler function that calls the provided middleware functions in order for as long as each one calls `next` function passed to it.
@@ -126,10 +121,9 @@ export async function getUserRoleFromAuthorization(
   const accessTokenInfo = await getAccessTokenInfo(authorization);
   const email = accessTokenInfo?.email;
   if (email && accessTokenInfo.email_verified) {
-    const { rows } = await pool.query(
-      "SELECT role FROM hat.users WHERE email=$1",
-      [email]
-    );
+    const { rows } = await query("SELECT role FROM hat.users WHERE email=$1", [
+      email,
+    ]);
     if (rows.length > 0) return rows[0].role;
   }
   return null;
@@ -217,19 +211,4 @@ export function respondValidationError(
         message: error.message,
       };
   res.status(400).json(errorInfo);
-}
-
-export function query<T extends pg.QueryResultRow>(
-  queryTextOrConfig: string | pg.QueryConfig<unknown[]>,
-  values?: unknown[] | undefined
-): Promise<pg.QueryResult<T>> {
-  return pool.query<T>(queryTextOrConfig, values);
-}
-
-export function getPoolClient(): Promise<pg.PoolClient> {
-  return pool.connect();
-}
-
-export function endPgPool(): void {
-  pool.end();
 }

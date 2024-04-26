@@ -5,11 +5,11 @@ import {
 } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../app/common/entities";
+import { query } from "../../../../app/services/database";
 import {
   getUserRoleFromAuthorization,
   handler,
   method,
-  query,
 } from "../../../../app/utils/api-handler";
 
 export default handler(method(METHOD.GET), async (req, res) => {

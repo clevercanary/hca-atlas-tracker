@@ -13,14 +13,13 @@ import {
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
+import { getPoolClient, query } from "../../../../../app/services/database";
 import { getProjectIdByDoi } from "../../../../../app/services/hca-projects";
 import {
-  getPoolClient,
   handleGetRefreshValue,
   handler,
   handleValidation,
   method,
-  query,
   role,
 } from "../../../../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../../../../app/utils/crossref/crossref";

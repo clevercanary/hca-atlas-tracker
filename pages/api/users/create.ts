@@ -4,7 +4,8 @@ import {
   newUserSchema,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../app/common/entities";
-import { handler, method, query, role } from "../../../app/utils/api-handler";
+import { query } from "../../../app/services/database";
+import { handler, method, role } from "../../../app/utils/api-handler";
 
 /**
  * API route for creating a user. New user information is provided as a JSON body.
