@@ -15,9 +15,9 @@ const REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
 const KY_OPTIONS: KyOptions = {
   retry: {
     delay: () => 60000,
-    limit: 2,
+    limit: 5,
   },
-  timeout: 240000,
+  timeout: 120000,
 };
 
 const { getData: getCellxGeneData } = makeRefreshService({

@@ -15,9 +15,9 @@ export type ProjectsInfo = RefreshInfo<ProjectsData>;
 const KY_OPTIONS: KyOptions = {
   retry: {
     delay: () => 60000,
-    limit: 2,
+    limit: 5,
   },
-  timeout: 150000,
+  timeout: 120000,
 };
 
 const { getData: getProjectsData } = makeRefreshService({
