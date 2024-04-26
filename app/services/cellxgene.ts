@@ -1,3 +1,4 @@
+import { Options as KyOptions } from "ky";
 import { getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
@@ -10,6 +11,14 @@ interface CellxGeneData {
 export type CellxGeneInfo = RefreshInfo<CellxGeneData>;
 
 const REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
+
+const KY_OPTIONS: KyOptions = {
+  retry: {
+    delay: () => 60000,
+    limit: 5,
+  },
+  timeout: 120000,
+};
 
 const { getData: getCellxGeneData } = makeRefreshService({
   getRefreshParams: () => undefined,
@@ -53,7 +62,19 @@ export function getCellxGeneIdByDoi(dois: string[]): string | null {
  */
 async function getRefreshedCollectionIdsByDoi(): Promise<Map<string, string>> {
   const idsByDoi = new Map<string, string>();
-  for (const { collection_id, doi } of await getCellxGeneCollections()) {
+  console.log("Requesting CELLxGENE collections");
+  const collections = await getCellxGeneCollections({
+    hooks: {
+      beforeRetry: [
+        (): void => {
+          console.log("Retrying CELLxGENE collections request");
+        },
+      ],
+    },
+    ...KY_OPTIONS,
+  });
+  console.log("Loaded CELLxGENE collections");
+  for (const { collection_id, doi } of collections) {
     if (doi) idsByDoi.set(normalizeDoi(doi), collection_id);
   }
   return idsByDoi;

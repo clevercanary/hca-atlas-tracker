@@ -1,3 +1,5 @@
+import ky, { Options as KyOptions } from "ky";
+
 export interface CellxGeneCollection {
   collection_id: string;
   doi: string | null;
@@ -6,11 +8,8 @@ export interface CellxGeneCollection {
 const API_URL_COLLECTIONS =
   "https://api.cellxgene.cziscience.com/curation/v1/collections";
 
-export async function getCellxGeneCollections(): Promise<
-  CellxGeneCollection[]
-> {
-  const res = await fetch(API_URL_COLLECTIONS);
-  if (res.status !== 200)
-    throw new Error(`Received status ${res.status} from CELLxGENE`);
-  return await res.json();
+export async function getCellxGeneCollections(
+  kyOptions?: KyOptions
+): Promise<CellxGeneCollection[]> {
+  return await ky(API_URL_COLLECTIONS, kyOptions).json();
 }
