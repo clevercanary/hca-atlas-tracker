@@ -47,26 +47,6 @@ jobs:
       - name: List ECR Images
         run: |
           echo "List of images in ECR repository: $(aws ecr list-images --repository-name ${{ secrets.ECR_REPO_NAME }} | jq '.imageIds[]')"
-
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition --task-definition ${{ secrets.DEV_ECS_TASK_NAME }} --query taskDefinition > task-definition.json
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: ${{ secrets.DEV_CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ secrets.DEV_ECS_SERVICE_NAME }}
-          cluster: ${{ secrets.DEV_ECS_CLUSTER_NAME }}
-          wait-for-service-stability: true
       - name: Invalidate CloudFront distribution
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
       - run: echo "🍏 This job's status is ${{ job.status }}."
