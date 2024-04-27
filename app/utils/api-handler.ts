@@ -14,6 +14,10 @@ export type MiddlewareFunction = (
 
 type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
+export class AccessError extends Error {
+  name = "AccessError";
+}
+
 export class NotFoundError extends Error {
   name = "NotFoundError";
 }
