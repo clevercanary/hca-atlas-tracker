@@ -140,7 +140,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
-  it("returns error 500 for crossref work with unsupported type", async () => {
+  it("returns error 400 for crossref work with unsupported type", async () => {
     expect(
       (
         await doCreateTest(
@@ -149,7 +149,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
           NEW_DATASET_UNSUPPORTED_TYPE_DATA
         )
       )._getStatusCode()
-    ).toEqual(500);
+    ).toEqual(400);
   });
 
   it("creates and returns source dataset entry for journal publication", async () => {
