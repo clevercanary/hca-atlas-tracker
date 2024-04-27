@@ -1,7 +1,7 @@
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { SourceDatasetEditData } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { SourceDatasetEditData } from "../../../../../../../../../../../../views/EditSourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import {
   Section,

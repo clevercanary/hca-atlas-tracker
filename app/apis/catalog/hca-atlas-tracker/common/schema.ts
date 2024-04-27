@@ -85,13 +85,7 @@ export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
 /**
  * Schema for data used to apply edits to a source dataset.
  */
-export const sourceDatasetEditSchema = newSourceDatasetSchema.concat(
-  object({
-    cellxgeneCollectionId: string().default("").notRequired(),
-    hcaProjectId: string().default("").notRequired(),
-    title: string().default("").required("Title is required"),
-  })
-);
+export const sourceDatasetEditSchema = newSourceDatasetSchema;
 
 export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
 

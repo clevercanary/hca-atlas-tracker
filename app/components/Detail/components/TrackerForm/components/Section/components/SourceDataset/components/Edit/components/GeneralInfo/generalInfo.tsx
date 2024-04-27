@@ -5,9 +5,9 @@ import {
   DOI_STATUS,
   HCAAtlasTrackerSourceDataset,
 } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { SourceDatasetEditData } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { getSourceDatasetCitation } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { SourceDatasetEditData } from "../../../../../../../../../../../../views/EditSourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import {
   Section,

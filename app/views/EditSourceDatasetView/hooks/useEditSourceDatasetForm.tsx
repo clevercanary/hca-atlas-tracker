@@ -7,14 +7,12 @@ import {
   HCAAtlasTrackerSourceDataset,
   SourceDatasetId,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import {
-  SourceDatasetEditData,
-  sourceDatasetEditSchema,
-} from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FIELD_NAME } from "../../../components/Detail/components/TrackerForm/components/Section/components/SourceDataset/common/constants";
 import { useFetchSourceDataset } from "../../../hooks/useFetchSourceDataset";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
+import { SourceDatasetEditData } from "../common/entities";
+import { sourceDatasetEditSchema } from "../common/schema";
 
 const SCHEMA = sourceDatasetEditSchema;
 
