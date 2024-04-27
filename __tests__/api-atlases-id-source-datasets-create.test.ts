@@ -57,6 +57,12 @@ const NEW_DATASET_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA = {
   doi: DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
 };
 
+const NEW_DATASET_UNPUBLISHED_DATA = {
+  contactEmail: "foo@example.com",
+  referenceAuthor: "Foo",
+  title: "Something",
+};
+
 const newDatasetIds: string[] = [];
 
 afterAll(async () => {
@@ -189,6 +195,56 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
       HCA_ID_PREPRINT_COUNTERPART,
       CELLXGENE_ID_PREPRINT_COUNTERPART
+    );
+  });
+
+  it("returns error 400 when both published and unpublished fields are present", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_DATA,
+          ...NEW_DATASET_UNPUBLISHED_DATA,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when unpublished fields are incomplete", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_UNPUBLISHED_DATA,
+          contactEmail: undefined,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("creates and returns entry for unpublished source dataset", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      ATLAS_DRAFT,
+      NEW_DATASET_UNPUBLISHED_DATA
+    );
+    expect(res._getStatusCode()).toEqual(201);
+    const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
+    newDatasetIds.push(newDataset.id);
+    expect(newDataset.contactEmail).toEqual(
+      NEW_DATASET_UNPUBLISHED_DATA.contactEmail
+    );
+    expect(newDataset.referenceAuthor).toEqual(
+      NEW_DATASET_UNPUBLISHED_DATA.referenceAuthor
+    );
+    expect(newDataset.title).toEqual(NEW_DATASET_UNPUBLISHED_DATA.title);
+    const newDatasetFromDb = (
+      await query<HCAAtlasTrackerDBSourceDataset>(
+        "SELECT * FROM hat.source_datasets WHERE id=$1",
+        [newDataset.id]
+      )
+    ).rows[0];
+    expect(newDatasetFromDb).toBeDefined();
+    expect(newDatasetFromDb.sd_info.unpublishedInfo).toEqual(
+      NEW_DATASET_UNPUBLISHED_DATA
     );
   });
 });
