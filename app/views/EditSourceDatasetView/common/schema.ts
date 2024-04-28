@@ -1,5 +1,5 @@
 import { object, string } from "yup";
-import { newSourceDatasetSchema } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { newSourceDatasetSchema } from "../../AddNewSourceDatasetView/common/schema";
 
 export const sourceDatasetEditSchema = newSourceDatasetSchema.concat(
   object({

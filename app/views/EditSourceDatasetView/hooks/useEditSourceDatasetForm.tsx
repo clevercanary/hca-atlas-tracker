@@ -60,11 +60,9 @@ function mapSchemaValues(
 ): SourceDatasetEditData | undefined {
   if (!sourceDataset) return;
   return {
-    [FIELD_NAME.AUTHOR]: sourceDataset.referenceAuthor ?? "",
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: mapCELLxGENECollectionId(
       sourceDataset.cellxgeneCollectionId
     ),
-    [FIELD_NAME.CONTACT_EMAIL]: sourceDataset.contactEmail ?? "",
     [FIELD_NAME.DOI]: sourceDataset.doi ?? "",
     [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(sourceDataset.hcaProjectId),
     [FIELD_NAME.TITLE]: sourceDataset.title ?? "",

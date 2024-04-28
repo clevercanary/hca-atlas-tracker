@@ -1,12 +1,10 @@
 import Router from "next/router";
-import {
-  NewSourceDatasetData,
-  newSourceDatasetSchema,
-} from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { ROUTE } from "../../../routes/constants";
+import { NewSourceDatasetData } from "../common/entities";
+import { newSourceDatasetSchema } from "../common/schema";
 
 const SCHEMA = newSourceDatasetSchema;
 

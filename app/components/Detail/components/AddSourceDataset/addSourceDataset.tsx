@@ -4,11 +4,11 @@ import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthe
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewSourceDatasetData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../common/entities";
 import { getRequestURL, getRouteURL } from "../../../../common/utils";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
+import { NewSourceDatasetData } from "../../../../views/AddNewSourceDatasetView/common/entities";
 import { onSuccess } from "../../../../views/AddNewSourceDatasetView/hooks/useAddSourceDatasetForm";
 import {
   ButtonLink,
