@@ -37,7 +37,7 @@ async function getHandler(
     );
   } catch (e) {
     if (e instanceof AccessError) {
-      res.status(role ? 403 : 401).json({ message: e.message });
+      res.status(role === null ? 401 : 403).json({ message: e.message });
       return;
     }
     throw e;

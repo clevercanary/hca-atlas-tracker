@@ -69,9 +69,12 @@ describe("/api/atlases/[id]", () => {
     expect(res._getStatusCode()).toEqual(200);
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expect(datasets).toHaveLength(2);
-    expectDatasetPropertiesToMatch(datasets[0], SOURCE_DATASET_DRAFT_OK);
     expectDatasetPropertiesToMatch(
-      datasets[1],
+      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
+      SOURCE_DATASET_DRAFT_OK
+    );
+    expectDatasetPropertiesToMatch(
+      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_NO_CROSSREF.id),
       SOURCE_DATASET_DRAFT_NO_CROSSREF
     );
   });
@@ -92,10 +95,11 @@ async function doDatasetsRequest(
 }
 
 function expectDatasetPropertiesToMatch(
-  apiDataset: HCAAtlasTrackerSourceDataset,
+  apiDataset: HCAAtlasTrackerSourceDataset | undefined,
   testDataset: TestSourceDataset
 ): void {
   expect(apiDataset).toBeDefined();
+  if (!apiDataset) return;
   expect(apiDataset.id).toEqual(testDataset.id);
   expect(apiDataset.doi).toEqual(testDataset.doi);
   expect(apiDataset.doiStatus).toEqual(testDataset.doiStatus);
