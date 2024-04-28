@@ -1,6 +1,7 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
+import { HCAAtlasTrackerDBUser } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { RefreshDataNotReadyError } from "../services/common/refresh-service";
@@ -134,13 +135,20 @@ export function handleRequiredParam(
 export async function getUserRoleFromAuthorization(
   authorization: string | undefined
 ): Promise<string | null> {
+  return (await getUserFromAuthorization(authorization))?.role ?? null;
+}
+
+export async function getUserFromAuthorization(
+  authorization: string | undefined
+): Promise<HCAAtlasTrackerDBUser | null> {
   const accessTokenInfo = await getAccessTokenInfo(authorization);
   const email = accessTokenInfo?.email;
   if (email && accessTokenInfo.email_verified) {
-    const { rows } = await query("SELECT role FROM hat.users WHERE email=$1", [
-      email,
-    ]);
-    if (rows.length > 0) return rows[0].role;
+    const { rows } = await query<HCAAtlasTrackerDBUser>(
+      "SELECT * FROM hat.users WHERE email=$1",
+      [email]
+    );
+    if (rows.length > 0) return rows[0];
   }
   return null;
 }
