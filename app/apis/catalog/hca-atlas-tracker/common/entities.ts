@@ -81,6 +81,12 @@ export interface HCAAtlasTrackerUnpublishedSourceDataset
   title: string;
 }
 
+export interface HCAAtlasTrackerActiveUser {
+  email: string;
+  fullName: string;
+  role: ROLE;
+}
+
 export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
@@ -135,6 +141,15 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
   };
 }
 
+export interface HCAAtlasTrackerDBUser {
+  disabled: boolean;
+  email: string;
+  full_name: string;
+  id: number;
+  last_login: Date;
+  role: ROLE;
+}
+
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
 export enum DOI_STATUS {
@@ -178,3 +193,7 @@ export interface IntegrationLead {
 }
 
 export type SourceDatasetId = string;
+
+export enum ROLE {
+  CONTENT_ADMIN = "CONTENT_ADMIN",
+}
