@@ -10,10 +10,10 @@ import {
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbAtlasToApiAtlas } from "../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../app/common/entities";
+import { query } from "../../../app/services/database";
 import {
   handler,
   method,
-  query,
   respondValidationError,
   role,
 } from "../../../app/utils/api-handler";

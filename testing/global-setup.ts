@@ -1,4 +1,3 @@
-import { HCAAtlasTrackerDBSourceDatasetInfo } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import pg from "pg";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
@@ -6,7 +5,7 @@ import {
   INITIAL_TEST_SOURCE_DATASETS,
   INITIAL_TEST_USERS,
 } from "./constants";
-import { makeTestAtlasOverview } from "./utils";
+import { makeTestAtlasOverview, makeTestSourceDatasetOverview } from "./utils";
 
 const { Pool } = pg;
 
@@ -20,12 +19,7 @@ export default async function setup(): Promise<void> {
   }
 
   for (const dataset of INITIAL_TEST_SOURCE_DATASETS) {
-    const sdInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
-      cellxgeneCollectionId: null,
-      hcaProjectId: null,
-      publication: dataset.publication,
-      publicationStatus: dataset.publicationStatus,
-    };
+    const sdInfo = makeTestSourceDatasetOverview(dataset);
     await pool.query(
       "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",
       [dataset.doi, dataset.id, JSON.stringify(sdInfo)]

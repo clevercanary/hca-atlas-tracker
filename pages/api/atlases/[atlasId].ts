@@ -11,11 +11,11 @@ import {
   HCAAtlasTrackerDBAtlasOverview,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../app/common/entities";
+import { query } from "../../../app/services/database";
 import {
   getUserRoleFromAuthorization,
   handleByMethod,
   handler,
-  query,
   respondValidationError,
   role,
 } from "../../../app/utils/api-handler";

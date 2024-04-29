@@ -49,17 +49,36 @@ export interface HCAAtlasTrackerNetworkCoordinator {
   email: string;
 }
 
-export interface HCAAtlasTrackerSourceDataset {
+export type HCAAtlasTrackerSourceDataset =
+  | HCAAtlasTrackerPublishedSourceDataset
+  | HCAAtlasTrackerUnpublishedSourceDataset;
+
+interface HCAAtlasTrackerSourceDatasetCommon {
   capId: string | null;
   cellxgeneCollectionId: string | null;
-  doi: string | null;
-  firstAuthorPrimaryName: string | null;
+  doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   id: string;
+}
+
+export interface HCAAtlasTrackerPublishedSourceDataset
+  extends HCAAtlasTrackerSourceDatasetCommon {
+  contactEmail: null;
+  doi: string;
   journal: string | null;
   publicationDate: string | null;
-  publicationStatus: PUBLICATION_STATUS;
+  referenceAuthor: string | null;
   title: string | null;
+}
+
+export interface HCAAtlasTrackerUnpublishedSourceDataset
+  extends HCAAtlasTrackerSourceDatasetCommon {
+  contactEmail: string;
+  doi: null;
+  journal: null;
+  publicationDate: null;
+  referenceAuthor: string;
+  title: string;
 }
 
 export interface HCAAtlasTrackerDBAtlas {
@@ -79,25 +98,48 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   wave: Wave;
 }
 
-export interface HCAAtlasTrackerDBSourceDataset {
-  created_at: Date;
-  doi: string | null;
-  id: string;
-  sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
-  updated_at: Date;
-}
+export type HCAAtlasTrackerDBSourceDatasetMinimumColumns =
+  | {
+      doi: string;
+      sd_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
+    }
+  | {
+      doi: null;
+      sd_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
+    };
 
-export interface HCAAtlasTrackerDBSourceDatasetInfo {
+export type HCAAtlasTrackerDBSourceDataset =
+  HCAAtlasTrackerDBSourceDatasetMinimumColumns & {
+    created_at: Date;
+    id: string;
+    updated_at: Date;
+  };
+
+export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
   cellxgeneCollectionId: string | null;
+  doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   publication: PublicationInfo | null;
-  publicationStatus: PUBLICATION_STATUS;
+  unpublishedInfo: null;
+}
+
+export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
+  cellxgeneCollectionId: string | null;
+  doiStatus: DOI_STATUS;
+  hcaProjectId: string | null;
+  publication: null;
+  unpublishedInfo: {
+    contactEmail: string;
+    referenceAuthor: string;
+    title: string;
+  };
 }
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
-export enum PUBLICATION_STATUS {
+export enum DOI_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",
+  NA = "NA",
   OK = "OK",
 }
 

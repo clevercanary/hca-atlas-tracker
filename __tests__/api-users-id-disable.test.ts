@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { endPgPool, query } from "../app/utils/api-handler";
+import { endPgPool, query } from "../app/services/database";
 import disableHandler from "../pages/api/users/[id]/disable";
 import { USER_CONTENT_ADMIN, USER_NORMAL } from "../testing/constants";
 import { TestUser } from "../testing/entities";

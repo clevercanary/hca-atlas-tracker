@@ -1,13 +1,10 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
-import pg from "pg";
-import { InferType, Schema, ValidationError } from "yup";
+import { ValidationError } from "yup";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { RefreshDataNotReadyError } from "../services/common/refresh-service";
-import { getPoolConfig } from "./pg-app-connect-config";
-
-const { Pool } = pg;
+import { query } from "../services/database";
 
 export type MiddlewareFunction = (
   req: NextApiRequest,
@@ -17,10 +14,16 @@ export type MiddlewareFunction = (
 
 type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
+export class AccessError extends Error {
+  name = "AccessError";
+}
+
+export class NotFoundError extends Error {
+  name = "NotFoundError";
+}
+
 const authClient = new OAuth2Client();
 const accessTokensInfo = new Map<string, TokenInfo>();
-
-const pool = new Pool(getPoolConfig());
 
 /**
  * Creates an API handler function that calls the provided middleware functions in order for as long as each one calls `next` function passed to it.
@@ -29,10 +32,14 @@ const pool = new Pool(getPoolConfig());
  */
 export function handler(...funcs: MiddlewareFunction[]): Handler {
   return async (req, res) => {
-    for (const f of funcs) {
-      let done = true;
-      await f(req, res, () => (done = false));
-      if (done) return;
+    try {
+      for (const f of funcs) {
+        let done = true;
+        await f(req, res, () => (done = false));
+        if (done) return;
+      }
+    } catch (e) {
+      respondError(res, e);
     }
   };
 }
@@ -47,12 +54,16 @@ export function handleByMethod(
 ): Handler {
   const allowHeaderText = Object.keys(handlers).join(", ");
   return async (req, res) => {
-    const method = req.method;
-    const handler = hasHandlerForMethod(method) && handlers[method];
-    if (handler) {
-      return await handler(req, res);
-    } else {
-      res.status(405).setHeader("Allow", allowHeaderText).end();
+    try {
+      const method = req.method;
+      const handler = hasHandlerForMethod(method) && handlers[method];
+      if (handler) {
+        return await handler(req, res);
+      } else {
+        res.status(405).setHeader("Allow", allowHeaderText).end();
+      }
+    } catch (e) {
+      respondError(res, e);
     }
   };
 
@@ -126,10 +137,9 @@ export async function getUserRoleFromAuthorization(
   const accessTokenInfo = await getAccessTokenInfo(authorization);
   const email = accessTokenInfo?.email;
   if (email && accessTokenInfo.email_verified) {
-    const { rows } = await pool.query(
-      "SELECT role FROM hat.users WHERE email=$1",
-      [email]
-    );
+    const { rows } = await query("SELECT role FROM hat.users WHERE email=$1", [
+      email,
+    ]);
     if (rows.length > 0) return rows[0].role;
   }
   return null;
@@ -151,51 +161,20 @@ async function getAccessTokenInfo(
 }
 
 /**
- * Get data validated with a Yup schema, and send an error response if validation fails.
+ * Send an error response, setting status and message based on error type.
  * @param res - Next API response.
- * @param schema - Yup schema.
- * @param data - Data to validate.
- * @returns array of data and boolean; if an error response was sent, data is null and boolean is true.
+ * @param error - Error or other thrown value.
  */
-export async function handleValidation<T extends Schema>(
-  res: NextApiResponse,
-  schema: T,
-  data: unknown
-): Promise<[InferType<T>, false] | [null, true]> {
-  try {
-    return [await schema.validate(data), false];
-  } catch (e) {
-    if (e instanceof ValidationError) {
-      respondValidationError(res, e);
-      return [null, true];
-    } else {
-      throw e;
-    }
-  }
-}
-
-/**
- * Get value from data subject to refreshing, and send an error response if the data is not initialized yet.
- * @param res - Next API response.
- * @param getValue - Function to get the value.
- * @returns array of value and boolean; if an error response was sent, value is null and boolean is true.
- */
-export function handleGetRefreshValue<T>(
-  res: NextApiResponse,
-  getValue: () => T
-): [T, false] | [null, true] {
-  try {
-    return [getValue(), false];
-  } catch (e) {
-    if (e instanceof RefreshDataNotReadyError) {
-      res
-        .status(503)
-        .appendHeader("Retry-After", "20")
-        .json({ message: e.message });
-      return [null, true];
-    }
-    throw e;
-  }
+function respondError(res: NextApiResponse, error: unknown): void {
+  if (error instanceof NotFoundError)
+    res.status(404).json({ message: error.message });
+  else if (error instanceof ValidationError) respondValidationError(res, error);
+  else if (error instanceof RefreshDataNotReadyError)
+    res
+      .status(503)
+      .appendHeader("Retry-After", "30")
+      .json({ message: error.message });
+  else res.status(500).json({ message: String(error) });
 }
 
 /**
@@ -217,19 +196,4 @@ export function respondValidationError(
         message: error.message,
       };
   res.status(400).json(errorInfo);
-}
-
-export function query<T extends pg.QueryResultRow>(
-  queryTextOrConfig: string | pg.QueryConfig<unknown[]>,
-  values?: unknown[] | undefined
-): Promise<pg.QueryResult<T>> {
-  return pool.query<T>(queryTextOrConfig, values);
-}
-
-export function getPoolClient(): Promise<pg.PoolClient> {
-  return pool.connect();
-}
-
-export function endPgPool(): void {
-  pool.end();
 }

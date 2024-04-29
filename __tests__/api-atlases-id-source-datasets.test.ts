@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/utils/api-handler";
+import { endPgPool } from "../app/services/database";
 import datasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
 import {
   ATLAS_DRAFT,
@@ -69,9 +69,12 @@ describe("/api/atlases/[id]", () => {
     expect(res._getStatusCode()).toEqual(200);
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expect(datasets).toHaveLength(2);
-    expectDatasetPropertiesToMatch(datasets[0], SOURCE_DATASET_DRAFT_OK);
     expectDatasetPropertiesToMatch(
-      datasets[1],
+      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
+      SOURCE_DATASET_DRAFT_OK
+    );
+    expectDatasetPropertiesToMatch(
+      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_NO_CROSSREF.id),
       SOURCE_DATASET_DRAFT_NO_CROSSREF
     );
   });
@@ -92,26 +95,27 @@ async function doDatasetsRequest(
 }
 
 function expectDatasetPropertiesToMatch(
-  apiDataset: HCAAtlasTrackerSourceDataset,
+  apiDataset: HCAAtlasTrackerSourceDataset | undefined,
   testDataset: TestSourceDataset
 ): void {
   expect(apiDataset).toBeDefined();
+  if (!apiDataset) return;
   expect(apiDataset.id).toEqual(testDataset.id);
   expect(apiDataset.doi).toEqual(testDataset.doi);
-  expect(apiDataset.publicationStatus).toEqual(testDataset.publicationStatus);
+  expect(apiDataset.doiStatus).toEqual(testDataset.doiStatus);
   if (testDataset.publication) {
     expect(apiDataset.title).toEqual(testDataset.publication.title);
     expect(apiDataset.journal).toEqual(testDataset.publication.journal);
     expect(apiDataset.publicationDate).toEqual(
       testDataset.publication.publicationDate
     );
-    expect(apiDataset.firstAuthorPrimaryName).toEqual(
+    expect(apiDataset.referenceAuthor).toEqual(
       testDataset.publication.authors[0]?.name
     );
   } else {
     expect(apiDataset.title).toBeNull();
     expect(apiDataset.journal).toBeNull();
     expect(apiDataset.publicationDate).toBeNull();
-    expect(apiDataset.firstAuthorPrimaryName).toBeNull();
+    expect(apiDataset.referenceAuthor).toBeNull();
   }
 }

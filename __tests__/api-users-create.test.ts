@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { NewUserData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { endPgPool, query } from "../app/utils/api-handler";
+import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/users/create";
 import {
   USER_CONTENT_ADMIN,

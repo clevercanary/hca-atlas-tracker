@@ -7,7 +7,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
-import { endPgPool, query } from "../app/utils/api-handler";
+import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create";
 import {
   ATLAS_DRAFT,
@@ -37,7 +37,7 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 
-const NEW_DATASET_DATA: NewSourceDatasetData = {
+const NEW_DATASET_DATA = {
   doi: DOI_NORMAL,
 };
 
@@ -55,6 +55,12 @@ const NEW_DATASET_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA = {
 
 const NEW_DATASET_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA = {
   doi: DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
+};
+
+const NEW_DATASET_UNPUBLISHED_DATA = {
+  contactEmail: "foo@example.com",
+  referenceAuthor: "Foo",
+  title: "Something",
 };
 
 const newDatasetIds: string[] = [];
@@ -140,7 +146,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
-  it("returns error 500 for crossref work with unsupported type", async () => {
+  it("returns error 400 for crossref work with unsupported type", async () => {
     expect(
       (
         await doCreateTest(
@@ -149,7 +155,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
           NEW_DATASET_UNSUPPORTED_TYPE_DATA
         )
       )._getStatusCode()
-    ).toEqual(500);
+    ).toEqual(400);
   });
 
   it("creates and returns source dataset entry for journal publication", async () => {
@@ -191,11 +197,61 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       CELLXGENE_ID_PREPRINT_COUNTERPART
     );
   });
+
+  it("returns error 400 when both published and unpublished fields are present", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_DATA,
+          ...NEW_DATASET_UNPUBLISHED_DATA,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when unpublished fields are incomplete", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_UNPUBLISHED_DATA,
+          contactEmail: undefined,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("creates and returns entry for unpublished source dataset", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      ATLAS_DRAFT,
+      NEW_DATASET_UNPUBLISHED_DATA
+    );
+    expect(res._getStatusCode()).toEqual(201);
+    const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
+    newDatasetIds.push(newDataset.id);
+    expect(newDataset.contactEmail).toEqual(
+      NEW_DATASET_UNPUBLISHED_DATA.contactEmail
+    );
+    expect(newDataset.referenceAuthor).toEqual(
+      NEW_DATASET_UNPUBLISHED_DATA.referenceAuthor
+    );
+    expect(newDataset.title).toEqual(NEW_DATASET_UNPUBLISHED_DATA.title);
+    const newDatasetFromDb = (
+      await query<HCAAtlasTrackerDBSourceDataset>(
+        "SELECT * FROM hat.source_datasets WHERE id=$1",
+        [newDataset.id]
+      )
+    ).rows[0];
+    expect(newDatasetFromDb).toBeDefined();
+    expect(newDatasetFromDb.sd_info.unpublishedInfo).toEqual(
+      NEW_DATASET_UNPUBLISHED_DATA
+    );
+  });
 });
 
 async function testSuccessfulCreate(
   atlas: TestAtlas,
-  newData: NewSourceDatasetData,
+  newData: Record<string, unknown>,
   expectedPublication: PublicationInfo,
   expectedHcaId: string | null,
   expectedCellxGeneId: string | null
@@ -222,7 +278,7 @@ async function testSuccessfulCreate(
 async function doCreateTest(
   user: TestUser | undefined,
   atlas: Pick<TestAtlas, "id">,
-  newData: NewSourceDatasetData,
+  newData: Record<string, unknown>,
   method: "GET" | "POST" = "POST"
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({

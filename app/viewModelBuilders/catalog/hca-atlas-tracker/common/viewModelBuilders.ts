@@ -5,12 +5,12 @@ import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca
 import {
   AtlasId,
   ATLAS_STATUS,
+  DOI_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
-  PUBLICATION_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
@@ -117,20 +117,9 @@ export const buildPublication = (
 export const buildSourceDatasetPublication = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): React.ComponentProps<typeof C.Link> => {
-  const {
-    doi,
-    firstAuthorPrimaryName,
-    journal,
-    publicationDate,
-    publicationStatus,
-  } = sourceDataset;
+  const { doi } = sourceDataset;
   return {
-    label: getCitation(
-      publicationStatus,
-      firstAuthorPrimaryName,
-      publicationDate,
-      journal
-    ),
+    label: getSourceDatasetCitation(sourceDataset),
     url: getDOILink(doi),
   };
 };
@@ -226,14 +215,13 @@ export function getBioNetworkName(name: string): string {
   return name.replace(/(\sNetwork.*)/gi, "");
 }
 
-function getCitation(
-  publicationStatus: PUBLICATION_STATUS,
+function getPublishedCitation(
+  doiStatus: DOI_STATUS,
   author: string | null,
   date: string | null,
   journal: string | null
 ): string {
-  if (publicationStatus === PUBLICATION_STATUS.DOI_NOT_ON_CROSSREF)
-    return "Unpublished";
+  if (doiStatus !== DOI_STATUS.OK) return "Unpublished";
   const citation = [];
   if (author) {
     citation.push(author);
@@ -246,6 +234,10 @@ function getCitation(
     citation.push(journal);
   }
   return citation.join(" ");
+}
+
+function getUnpublishedCitation(author: string, email: string): string {
+  return `${author}, ${email} - Unpublished`;
 }
 
 /**
@@ -267,18 +259,19 @@ export function getSourceDatasetCitation(
   sourceDataset?: HCAAtlasTrackerSourceDataset
 ): string {
   if (!sourceDataset) return "";
-  const {
-    firstAuthorPrimaryName,
-    journal,
-    publicationDate,
-    publicationStatus,
-  } = sourceDataset;
-  return getCitation(
-    publicationStatus,
-    firstAuthorPrimaryName,
-    publicationDate,
-    journal
-  );
+  if (sourceDataset.doi === null) {
+    const { contactEmail, referenceAuthor } = sourceDataset;
+    return getUnpublishedCitation(referenceAuthor, contactEmail);
+  } else {
+    const { doiStatus, journal, publicationDate, referenceAuthor } =
+      sourceDataset;
+    return getPublishedCitation(
+      doiStatus,
+      referenceAuthor,
+      publicationDate,
+      journal
+    );
+  }
 }
 
 /**

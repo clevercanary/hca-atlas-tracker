@@ -1,9 +1,9 @@
 import { METHOD } from "../../../../app/common/entities";
+import { query } from "../../../../app/services/database";
 import {
   handler,
   handleRequiredParam,
   method,
-  query,
   role,
 } from "../../../../app/utils/api-handler";
 

@@ -6,7 +6,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbAtlasToApiAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
-import { endPgPool, query } from "../app/utils/api-handler";
+import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/create";
 import { USER_CONTENT_ADMIN, USER_NORMAL } from "../testing/constants";
 import { TestUser } from "../testing/entities";

@@ -1,5 +1,6 @@
 import { METHOD } from "../../app/common/entities";
-import { handler, method, query, role } from "../../app/utils/api-handler";
+import { query } from "../../app/services/database";
+import { handler, method, role } from "../../app/utils/api-handler";
 
 /**
  * API route for list of users. Optional `email` query paramter filters by email.

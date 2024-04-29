@@ -6,10 +6,10 @@ import {
   AtlasId,
   HCAAtlasTrackerSourceDataset,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { SourceDatasetEditData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { getRouteURL } from "../../../../common/utils";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
+import { SourceDatasetEditData } from "../../../../views/EditSourceDatasetView/common/entities";
 import {
   getFormDiscardProps,
   getFormSaveProps,

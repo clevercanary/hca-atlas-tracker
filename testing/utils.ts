@@ -1,6 +1,9 @@
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
-import { HCAAtlasTrackerDBAtlasOverview } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { TestAtlas, TestUser } from "./entities";
+import {
+  HCAAtlasTrackerDBAtlasOverview,
+  HCAAtlasTrackerDBPublishedSourceDatasetInfo,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { TestAtlas, TestSourceDataset, TestUser } from "./entities";
 
 export function makeTestUser(
   nameId: string,
@@ -26,6 +29,18 @@ export function makeTestAtlasOverview(
     shortName: atlas.shortName,
     version: atlas.version,
     wave: atlas.wave,
+  };
+}
+
+export function makeTestSourceDatasetOverview(
+  dataset: TestSourceDataset
+): HCAAtlasTrackerDBPublishedSourceDatasetInfo {
+  return {
+    cellxgeneCollectionId: null,
+    doiStatus: dataset.doiStatus,
+    hcaProjectId: null,
+    publication: dataset.publication,
+    unpublishedInfo: null,
   };
 }
 
