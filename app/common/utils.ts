@@ -70,12 +70,20 @@ export function isFetchStatusOk(status: number): boolean {
 }
 
 /**
- * Replaces [atlasId] in the API URL with the given atlas ID.
+ * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [sdId] with the given source dataset ID.
  * @param apiURL - Request URL.
  * @param atlasId - Atlas ID.
+ * @param sdId - Source dataset ID.
  * @returns request URL with Atlas ID.
  */
-export function getRequestURL(apiURL: API, atlasId: string): string {
+export function getRequestURL(
+  apiURL: API,
+  atlasId: string,
+  sdId?: string
+): string {
+  if (/\[sdId]/.test(apiURL) && sdId) {
+    return apiURL.replace(/\[atlasId]/, atlasId).replace(/\[sdId]/, sdId);
+  }
   return apiURL.replace(/\[atlasId]/, atlasId);
 }
 

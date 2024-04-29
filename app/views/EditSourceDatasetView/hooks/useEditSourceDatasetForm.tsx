@@ -1,3 +1,4 @@
+import Router from "next/router";
 import {
   ALTAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
@@ -7,10 +8,13 @@ import {
   HCAAtlasTrackerSourceDataset,
   SourceDatasetId,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FIELD_NAME } from "../../../components/Detail/components/TrackerForm/components/Section/components/SourceDataset/common/constants";
+import { getRouteURL } from "../../../common/utils";
 import { useFetchSourceDataset } from "../../../hooks/useFetchSourceDataset";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
+import { ROUTE } from "../../../routes/constants";
+import { PUBLICATION_STATUS } from "../../AddNewSourceDatasetView/common/entities";
+import { FIELD_NAME } from "../common/constants";
 import { SourceDatasetEditData } from "../common/entities";
 import { sourceDatasetEditSchema } from "../common/schema";
 
@@ -27,6 +31,15 @@ export const useEditSourceDatasetForm = (
     mapSchemaValues
   );
 };
+
+/**
+ * Side effect "onSuccess"; redirects to the edit source dataset page.
+ * @param atlasId - Atlas ID.
+ * @param sdId - Source dataset ID.
+ */
+export function onSuccess(atlasId: string, sdId: string): void {
+  Router.push(getRouteURL(ROUTE.EDIT_ATLAS_SOURCE_DATASET, atlasId, sdId));
+}
 
 /**
  * Maps CELLxGENE collection ID to URL.
@@ -51,6 +64,15 @@ function mapHCAProjectId(hcaProjectId: string | null): string {
 }
 
 /**
+ * Maps publication status.
+ * @param doi - DOI.
+ * @returns publication status.
+ */
+export function mapPublicationStatus(doi?: string | null): PUBLICATION_STATUS {
+  return doi ? PUBLICATION_STATUS.PUBLISHED : PUBLICATION_STATUS.UNPUBLISHED;
+}
+
+/**
  * Returns schema default values mapped from source dataset.
  * @param sourceDataset - Source dataset.
  * @returns schema default values.
@@ -63,8 +85,37 @@ function mapSchemaValues(
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: mapCELLxGENECollectionId(
       sourceDataset.cellxgeneCollectionId
     ),
+    [FIELD_NAME.CONTACT_EMAIL]: sourceDataset.contactEmail ?? "",
     [FIELD_NAME.DOI]: sourceDataset.doi ?? "",
     [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(sourceDataset.hcaProjectId),
+    [FIELD_NAME.PUBLICATION_STATUS]: mapPublicationStatus(sourceDataset.doi),
+    [FIELD_NAME.REFERENCE_AUTHOR]: sourceDataset.referenceAuthor ?? "",
     [FIELD_NAME.TITLE]: sourceDataset.title ?? "",
   };
+}
+
+/**
+ * Returns a list of source dataset fields to be unregistered prior to submission.
+ * @param payload - Source dataset data.
+ * @returns fields to be unregistered.
+ */
+export function unregisterSourceDatasetFields(
+  payload: SourceDatasetEditData
+): (keyof SourceDatasetEditData)[] {
+  if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
+    return [
+      FIELD_NAME.CELLXGENE_COLLECTION_ID,
+      FIELD_NAME.CONTACT_EMAIL,
+      FIELD_NAME.HCA_PROJECT_ID,
+      FIELD_NAME.PUBLICATION_STATUS,
+      FIELD_NAME.REFERENCE_AUTHOR,
+      FIELD_NAME.TITLE,
+    ];
+  }
+  return [
+    FIELD_NAME.CELLXGENE_COLLECTION_ID,
+    FIELD_NAME.DOI,
+    FIELD_NAME.HCA_PROJECT_ID,
+    FIELD_NAME.PUBLICATION_STATUS,
+  ];
 }

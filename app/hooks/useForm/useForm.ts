@@ -1,6 +1,6 @@
 import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FieldValues,
   Path,
@@ -42,9 +42,14 @@ export const useForm = <T extends FieldValues, R = undefined>(
   mapSchemaValues?: MapSchemaValuesFn<T, R>
 ): UseForm<T, R> => {
   const { token } = useAuthentication();
+  const values = useMemo(
+    () => schema.cast(mapSchemaValues?.(apiData)),
+    [apiData, mapSchemaValues, schema]
+  );
   const formMethod = useReactHookForm<YupValidatedFormValues<T>>({
+    reValidateMode: "onSubmit",
     resolver: yupResolver(schema),
-    values: schema.cast(mapSchemaValues?.(apiData)),
+    values,
   });
   const [data, setData] = useState<R | undefined>();
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
@@ -92,16 +97,16 @@ export const useForm = <T extends FieldValues, R = undefined>(
       setSubmitDisabled(true);
       const res = await fetchSubmit(requestURL, requestMethod, token, payload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
-        reset(payload);
         const { id, ...other } = await res.json();
         setData({ id, ...other });
+        reset(schema.cast(mapSchemaValues?.({ id, ...other })));
         options?.onSuccess?.(id);
       } else {
         onError(await getFormResponseErrors(res));
       }
       setSubmitDisabled(false);
     },
-    [reset, token, onError]
+    [mapSchemaValues, reset, schema, token, onError]
   );
 
   // Initialize data with given API response.
@@ -111,11 +116,9 @@ export const useForm = <T extends FieldValues, R = undefined>(
   }, [apiData]);
 
   return {
-    control: formMethod.control,
+    ...formMethod,
     data,
     disabled: submitDisabled,
-    formState: formMethod.formState,
-    handleSubmit: formMethod.handleSubmit,
     onDelete,
     onSubmit,
   };

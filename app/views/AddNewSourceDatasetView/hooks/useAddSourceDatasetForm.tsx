@@ -3,7 +3,8 @@ import { getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { ROUTE } from "../../../routes/constants";
-import { NewSourceDatasetData } from "../common/entities";
+import { FIELD_NAME } from "../common/constants";
+import { NewSourceDatasetData, PUBLICATION_STATUS } from "../common/entities";
 import { newSourceDatasetSchema } from "../common/schema";
 
 const SCHEMA = newSourceDatasetSchema;
@@ -19,4 +20,23 @@ export const useAddSourceDatasetForm = (): FormMethod<NewSourceDatasetData> => {
  */
 export function onSuccess(atlasId: string, sdId: string): void {
   Router.push(getRouteURL(ROUTE.EDIT_ATLAS_SOURCE_DATASET, atlasId, sdId));
+}
+
+/**
+ * Returns a list of source dataset fields to be unregistered prior to submission.
+ * @param payload - Source dataset data.
+ * @returns fields to be unregistered.
+ */
+export function unregisterSourceDatasetFields(
+  payload: NewSourceDatasetData
+): (keyof NewSourceDatasetData)[] {
+  if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
+    return [
+      FIELD_NAME.CONTACT_EMAIL,
+      FIELD_NAME.PUBLICATION_STATUS,
+      FIELD_NAME.REFERENCE_AUTHOR,
+      FIELD_NAME.TITLE,
+    ];
+  }
+  return [FIELD_NAME.DOI, FIELD_NAME.PUBLICATION_STATUS];
 }
