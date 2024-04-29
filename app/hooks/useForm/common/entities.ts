@@ -3,9 +3,8 @@ import { InferType, ObjectSchema } from "yup";
 import { METHOD } from "../../../common/entities";
 import { UseForm } from "../useForm";
 
-export type CustomUseFormReturn<T extends FieldValues> = Pick<
-  UseFormReturn<YupValidatedFormValues<T>>,
-  "control" | "formState" | "handleSubmit"
+export type CustomUseFormReturn<T extends FieldValues> = UseFormReturn<
+  YupValidatedFormValues<T>
 >;
 
 export type FormMethod<T extends FieldValues, R = undefined> = UseForm<T, R>;

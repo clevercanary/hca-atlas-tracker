@@ -22,21 +22,19 @@ export const useFetchSourceDataset = (
   atlasId: AtlasId,
   sdId: string
 ): UseFetchSourceDataset => {
-  const { token } = useAuthentication();
-  const {
-    data: sourceDatasets, // TODO rename to source dataset.
-    isIdle,
-    isLoading,
-    run,
-  } = useAsync<HCAAtlasTrackerSourceDataset[] | undefined>(); // TODO update to singular dataset here and elsewhere.
+  const { isAuthenticated, token } = useAuthentication();
+  const { data: sourceDataset, run } = useAsync<
+    HCAAtlasTrackerSourceDataset | undefined
+  >();
 
   const fetchSourceDataset = useCallback(
     async (
       atlasId: AtlasId,
+      sdId: string,
       accessToken: string
-    ): Promise<HCAAtlasTrackerSourceDataset[] | undefined> => {
+    ): Promise<HCAAtlasTrackerSourceDataset | undefined> => {
       const res = await fetch(
-        getRequestURL(API.ATLAS_SOURCE_DATASETS, atlasId), // TODO update API.
+        getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sdId),
         getFetchOptions(METHOD.GET, accessToken)
       );
       if (isFetchStatusOk(res.status)) {
@@ -55,11 +53,11 @@ export const useFetchSourceDataset = (
 
   useEffect(() => {
     if (!token) return;
-    run(fetchSourceDataset(atlasId, token));
-  }, [atlasId, fetchSourceDataset, run, token]);
+    run(fetchSourceDataset(atlasId, sdId, token));
+  }, [atlasId, fetchSourceDataset, run, sdId, token]);
 
   return {
-    isLoading: isIdle || isLoading,
-    sourceDataset: sourceDatasets?.find(({ id }) => id === sdId),
+    isLoading: isAuthenticated ? !sourceDataset : false,
+    sourceDataset,
   };
 };

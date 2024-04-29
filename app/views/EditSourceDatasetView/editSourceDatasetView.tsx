@@ -7,7 +7,10 @@ import { EditSourceDataset } from "../../components/Detail/components/EditSource
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
-import { useEditSourceDatasetForm } from "./hooks/useEditSourceDatasetForm";
+import {
+  mapPublicationStatus,
+  useEditSourceDatasetForm,
+} from "./hooks/useEditSourceDatasetForm";
 
 interface EditSourceDatasetViewProps {
   atlasId: AtlasId;
@@ -21,6 +24,7 @@ export const EditSourceDatasetView = ({
   const { atlas } = useFetchAtlas(atlasId);
   const formMethod = useEditSourceDatasetForm(atlasId, sdId);
   const { data: sourceDataset } = formMethod;
+  const { doi } = sourceDataset || {};
   return (
     <DetailView
       breadcrumbs={
@@ -29,7 +33,12 @@ export const EditSourceDatasetView = ({
         />
       }
       mainColumn={
-        <EditSourceDataset atlasId={atlasId} formMethod={formMethod} />
+        <EditSourceDataset
+          atlasId={atlasId}
+          formMethod={formMethod}
+          sdId={sdId}
+          sdPublicationStatus={mapPublicationStatus(doi)}
+        />
       }
       title={sourceDataset?.title || "Edit Source Dataset"}
     />

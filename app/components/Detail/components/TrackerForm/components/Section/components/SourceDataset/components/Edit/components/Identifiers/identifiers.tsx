@@ -1,6 +1,7 @@
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { FIELD_NAME } from "../../../../../../../../../../../../views/EditSourceDatasetView/common/constants";
 import { SourceDatasetEditData } from "../../../../../../../../../../../../views/EditSourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import {
@@ -9,7 +10,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../../../section.styles";
-import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../../../common/constants";
+import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 
 export interface IdentifiersProps {
   formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>;
