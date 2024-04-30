@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerSourceDataset,
   PublicationInfo,
@@ -12,21 +13,31 @@ import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
+  ATLAS_PUBLIC,
   CELLXGENE_ID_JOURNAL_COUNTERPART,
   CELLXGENE_ID_NORMAL,
   CELLXGENE_ID_PREPRINT_COUNTERPART,
+  DOI_DRAFT_OK,
   DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
   DOI_NORMAL,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
+  DOI_PUBLIC_WITH_JOURNAL_JOURNAL,
+  DOI_PUBLIC_WITH_PREPRINT_PREPRINT,
   DOI_UNSUPPORTED_TYPE,
   HCA_ID_JOURNAL_COUNTERPART,
   HCA_ID_NORMAL,
   HCA_ID_PREPRINT_COUNTERPART,
+  PUBLICATION_DRAFT_OK,
   PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
   PUBLICATION_NORMAL,
   PUBLICATION_PREPRINT_NO_JOURNAL,
   PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
+  PUBLICATION_PUBLIC_WITH_JOURNAL,
+  PUBLICATION_PUBLIC_WITH_PREPRINT,
+  SOURCE_DATASET_DRAFT_OK,
+  SOURCE_DATASET_PUBLIC_WITH_JOURNAL,
+  SOURCE_DATASET_PUBLIC_WITH_PREPRINT,
   USER_CONTENT_ADMIN,
   USER_NORMAL,
 } from "../testing/constants";
@@ -63,6 +74,18 @@ const NEW_DATASET_UNPUBLISHED_DATA = {
   title: "Something",
 };
 
+const NEW_DATASET_DRAFT_OK = {
+  doi: DOI_DRAFT_OK,
+};
+
+const NEW_DATASET_PUBLIC_WITH_PREPRINT_PREPRINT = {
+  doi: DOI_PUBLIC_WITH_PREPRINT_PREPRINT,
+};
+
+const NEW_DATASET_PUBLIC_WITH_JOURNAL_JOURNAL = {
+  doi: DOI_PUBLIC_WITH_JOURNAL_JOURNAL,
+};
+
 const newDatasetIds: string[] = [];
 
 afterAll(async () => {
@@ -72,6 +95,10 @@ afterAll(async () => {
   await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
     JSON.stringify(ATLAS_DRAFT.sourceDatasets),
     ATLAS_DRAFT.id,
+  ]);
+  await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
+    JSON.stringify(ATLAS_PUBLIC.sourceDatasets),
+    ATLAS_PUBLIC.id,
   ]);
   endPgPool();
 });
@@ -247,6 +274,55 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       NEW_DATASET_UNPUBLISHED_DATA
     );
   });
+
+  it("returns error on DOI field when source dataset already exists in the atlas", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      ATLAS_DRAFT,
+      NEW_DATASET_DRAFT_OK
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    const errors = res._getJSONData();
+    const doiErrors = errors.errors?.doi;
+    expect(doiErrors).toBeDefined();
+    expect(doiErrors).toHaveLength(1);
+  });
+
+  it("adds and returns source dataset that already exists", async () => {
+    const dbDataset = await testSuccessfulCreate(
+      ATLAS_PUBLIC,
+      NEW_DATASET_DRAFT_OK,
+      PUBLICATION_DRAFT_OK,
+      null,
+      null,
+      false
+    );
+    expect(dbDataset.id).toEqual(SOURCE_DATASET_DRAFT_OK.id);
+  });
+
+  it("adds and returns source dataset that already exists via preprint DOI", async () => {
+    const dbDataset = await testSuccessfulCreate(
+      ATLAS_DRAFT,
+      NEW_DATASET_PUBLIC_WITH_PREPRINT_PREPRINT,
+      PUBLICATION_PUBLIC_WITH_PREPRINT,
+      null,
+      null,
+      false
+    );
+    expect(dbDataset.id).toEqual(SOURCE_DATASET_PUBLIC_WITH_PREPRINT.id);
+  });
+
+  it("adds and returns source dataset that already exists via journal DOI", async () => {
+    const dbDataset = await testSuccessfulCreate(
+      ATLAS_DRAFT,
+      NEW_DATASET_PUBLIC_WITH_JOURNAL_JOURNAL,
+      PUBLICATION_PUBLIC_WITH_JOURNAL,
+      null,
+      null,
+      false
+    );
+    expect(dbDataset.id).toEqual(SOURCE_DATASET_PUBLIC_WITH_JOURNAL.id);
+  });
 });
 
 async function testSuccessfulCreate(
@@ -254,12 +330,20 @@ async function testSuccessfulCreate(
   newData: Record<string, unknown>,
   expectedPublication: PublicationInfo,
   expectedHcaId: string | null,
-  expectedCellxGeneId: string | null
-): Promise<void> {
+  expectedCellxGeneId: string | null,
+  isNew = true
+): Promise<HCAAtlasTrackerDBSourceDataset> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
   expect(res._getStatusCode()).toEqual(201);
   const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-  newDatasetIds.push(newDataset.id);
+  if (isNew) newDatasetIds.push(newDataset.id);
+  const { source_datasets: atlasDatasets } = (
+    await query<HCAAtlasTrackerDBAtlas>(
+      "SELECT source_datasets FROM hat.atlases WHERE id=$1",
+      [atlas.id]
+    )
+  ).rows[0];
+  expect(atlasDatasets).toContain(newDataset.id);
   const newDatasetFromDb = (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT * FROM hat.source_datasets WHERE id=$1",
@@ -273,6 +357,7 @@ async function testSuccessfulCreate(
     expectedHcaId,
     expectedCellxGeneId
   );
+  return newDatasetFromDb;
 }
 
 async function doCreateTest(
