@@ -38,10 +38,16 @@ export async function createSourceDataset(
 
   const existingDataset = await getExistingDataset(inputData);
   if (existingDataset) {
-    await query(
+    const queryResult = await query(
       "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2 AND NOT source_datasets @> $1",
       [JSON.stringify([existingDataset.id]), atlasId]
     );
+    if (queryResult.rowCount === 0)
+      throw new ValidationError(
+        "DOI already exists in this atlas",
+        undefined,
+        "doi"
+      );
     return existingDataset;
   }
 
