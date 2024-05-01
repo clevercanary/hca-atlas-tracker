@@ -39,76 +39,75 @@ export const atlasEditSchema = newAtlasSchema;
 export type AtlasEditData = NewAtlasData;
 
 /**
- * Schema for data used to create a new source dataset.
+ * Schemas for data used to create a new source dataset.
  */
-export const newSourceDatasetSchema = object({
-  contactEmail: string()
-    .email()
-    .default("")
-    .when("doi", {
-      is: undefined,
-      otherwise: () =>
-        mixed().oneOf([undefined], "Email must be omitted when DOI is present"),
-      then: (schema) =>
-        schema.required("Email is required when DOI is absent").nullable(),
-    }),
+
+export const newPublishedSourceDatasetSchema = object({
   doi: string()
-    .default("")
+    .required()
     .test(
       "is-doi",
       "DOI must be a syntactically-valid DOI",
       (value) => typeof value !== "string" || isDoi(value)
     ),
-  referenceAuthor: string()
-    .default("")
-    .when("doi", {
-      is: undefined,
-      otherwise: () =>
-        mixed().oneOf(
-          [undefined],
-          "Author must be omitted when DOI is present"
-        ),
-      then: (schema) =>
-        schema.required("Author is required when DOI is absent"),
-    }),
-  title: string()
-    .default("")
-    .when("doi", {
-      is: undefined,
-      otherwise: () =>
-        mixed().oneOf([undefined], "Title must be omitted when DOI is present"),
-      then: (schema) => schema.required("Title is required when DOI is absent"),
-    }),
-}).strict(true);
+})
+  .noUnknown("If DOI is specified, it must be the only field")
+  .strict(true);
 
-export interface NewPublishedSourceDatasetData {
-  doi: string;
-}
+export const newUnpublishedSourceDatasetSchema = object({
+  contactEmail: string()
+    .email()
+    .required("Email is required when DOI is absent")
+    .nullable(),
+  referenceAuthor: string().required("Author is required when DOI is absent"),
+  title: string().required("Title is required when DOI is absent"),
+})
+  .noUnknown(
+    "If DOI is unspecified, only email, author, and name may be present"
+  )
+  .strict(true);
 
-export interface NewUnpublishedSourceDatasetData {
-  contactEmail: string | null;
-  referenceAuthor: string;
-  title: string;
-}
+export const newSourceDatasetSchema = mixed<NewSourceDatasetData>()
+  .required()
+  .test(
+    "published-or-unpublished",
+    "Must match published fields or unpublished fields",
+    (value) => {
+      if (
+        value &&
+        typeof value === "object" &&
+        "doi" in value &&
+        value.doi !== undefined
+      ) {
+        newPublishedSourceDatasetSchema.validateSync(value);
+      } else {
+        newUnpublishedSourceDatasetSchema.validateSync(value);
+      }
+      return true;
+    }
+  );
+
+export type NewPublishedSourceDatasetData = InferType<
+  typeof newPublishedSourceDatasetSchema
+>;
+
+export type NewUnpublishedSourceDatasetData = InferType<
+  typeof newUnpublishedSourceDatasetSchema
+>;
 
 export type NewSourceDatasetData =
   | NewPublishedSourceDatasetData
   | NewUnpublishedSourceDatasetData;
 
 /**
- * Schema for data used to apply edits to a source dataset.
+ * Schemas for data used to apply edits to a source dataset.
  */
+
 export const sourceDatasetEditSchema = newSourceDatasetSchema;
 
-export interface PublishedSourceDatasetEditData {
-  doi: string;
-}
+export type PublishedSourceDatasetEditData = NewPublishedSourceDatasetData;
 
-export interface UnpublishedSourceDatasetEditData {
-  contactEmail: string | null;
-  referenceAuthor: string;
-  title: string;
-}
+export type UnpublishedSourceDatasetEditData = NewUnpublishedSourceDatasetData;
 
 export type SourceDatasetEditData =
   | PublishedSourceDatasetEditData
