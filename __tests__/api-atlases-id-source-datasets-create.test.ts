@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerSourceDataset,
   PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create";
@@ -145,7 +144,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       (
         await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
           ...NEW_DATASET_DATA,
-          doi: 123 as unknown as NewSourceDatasetData["doi"],
+          doi: 123,
         })
       )._getStatusCode()
     ).toEqual(400);
@@ -242,6 +241,17 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
         await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
           ...NEW_DATASET_UNPUBLISHED_DATA,
           contactEmail: undefined,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when contact email is empty string", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_UNPUBLISHED_DATA,
+          contactEmail: "",
         })
       )._getStatusCode()
     ).toEqual(400);

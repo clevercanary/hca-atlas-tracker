@@ -49,7 +49,8 @@ export const newSourceDatasetSchema = object({
       is: undefined,
       otherwise: () =>
         mixed().oneOf([undefined], "Email must be omitted when DOI is present"),
-      then: (schema) => schema.required("Email is required when DOI is absent"),
+      then: (schema) =>
+        schema.required("Email is required when DOI is absent").nullable(),
     }),
   doi: string()
     .default("")
@@ -80,14 +81,38 @@ export const newSourceDatasetSchema = object({
     }),
 }).strict(true);
 
-export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
+export interface NewPublishedSourceDatasetData {
+  doi: string;
+}
+
+export interface NewUnpublishedSourceDatasetData {
+  contactEmail: string | null;
+  referenceAuthor: string;
+  title: string;
+}
+
+export type NewSourceDatasetData =
+  | NewPublishedSourceDatasetData
+  | NewUnpublishedSourceDatasetData;
 
 /**
  * Schema for data used to apply edits to a source dataset.
  */
 export const sourceDatasetEditSchema = newSourceDatasetSchema;
 
-export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
+export interface PublishedSourceDatasetEditData {
+  doi: string;
+}
+
+export interface UnpublishedSourceDatasetEditData {
+  contactEmail: string | null;
+  referenceAuthor: string;
+  title: string;
+}
+
+export type SourceDatasetEditData =
+  | PublishedSourceDatasetEditData
+  | UnpublishedSourceDatasetEditData;
 
 /**
  * Schema for data used to create a new user.
