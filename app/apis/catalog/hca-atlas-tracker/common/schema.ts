@@ -67,8 +67,10 @@ export const newUnpublishedSourceDatasetSchema = object({
   )
   .strict(true);
 
+// Wrapper schema for validating both published and unpublished data
 export const newSourceDatasetSchema = mixed<NewSourceDatasetData>()
   .required()
+  // `transform` is used to allow empty string contactEmail to be converted to null
   .transform((value) => {
     if (
       value &&
@@ -76,8 +78,10 @@ export const newSourceDatasetSchema = mixed<NewSourceDatasetData>()
       "doi" in value &&
       value.doi !== undefined
     ) {
+      // If DOI is present, use published schema
       return newPublishedSourceDatasetSchema.validateSync(value);
     } else {
+      // Otherwise, use unpublished schema, setting contactEmail to null if it's empty
       if (
         value &&
         typeof value === "object" &&
