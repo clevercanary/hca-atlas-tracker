@@ -3,10 +3,10 @@ import { ButtonSecondary } from "@databiosphere/findable-ui/lib/components/commo
 import { Fragment, useCallback } from "react";
 import { API } from "../../../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { AtlasId } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewAtlasData } from "../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../../../common/entities";
 import { getRequestURL } from "../../../../../../common/utils";
 import { FormMethod } from "../../../../../../hooks/useForm/common/entities";
+import { NewAtlasData } from "../../../../../../views/AddNewAtlasView/common/entities";
 import { onSuccess } from "../../../../../../views/EditAtlasView/hooks/useEditAtlasForm";
 import { RefreshIcon } from "../../../../../common/CustomIcon/components/RefreshIcon/refreshIcon";
 

@@ -5,11 +5,11 @@ import {
   AtlasId,
   HCAAtlasTrackerAtlas,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasEditData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../common/entities";
 import { getRequestURL } from "../../../../common/utils";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
+import { AtlasEditData } from "../../../../views/EditAtlasView/common/entities";
 import { onSuccess } from "../../../../views/EditAtlasView/hooks/useEditAtlasForm";
 import {
   getFormDiscardProps,

@@ -1,10 +1,10 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { NewAtlasData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { ROUTE } from "../../../../routes/constants";
+import { NewAtlasData } from "../../../../views/AddNewAtlasView/common/entities";
 import { onSuccess } from "../../../../views/AddNewAtlasView/hooks/useAddAtlasForm";
 import {
   ButtonLink,
