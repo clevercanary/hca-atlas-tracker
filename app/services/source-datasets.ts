@@ -36,6 +36,21 @@ export async function createSourceDataset(
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
   }
 
+  const existingDataset = await getExistingDataset(inputData);
+  if (existingDataset) {
+    const queryResult = await query(
+      "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2 AND NOT source_datasets @> $1",
+      [JSON.stringify([existingDataset.id]), atlasId]
+    );
+    if (queryResult.rowCount === 0)
+      throw new ValidationError(
+        "DOI already exists in this atlas",
+        undefined,
+        "doi"
+      );
+    return existingDataset;
+  }
+
   const newInfo = await sourceDatasetInputDataToDbData(inputData);
 
   const client = await getPoolClient();
@@ -61,6 +76,26 @@ export async function createSourceDataset(
   } finally {
     client.release();
   }
+}
+
+/**
+ * Get existing source dataset matching values submitted to create a source dataset.
+ * @param inputData - Source dataset creation values.
+ * @returns existing dataset or null.
+ */
+async function getExistingDataset(
+  inputData: NewSourceDatasetData
+): Promise<HCAAtlasTrackerDBSourceDataset | null> {
+  if (!inputData.doi) return null;
+  const doi = normalizeDoi(inputData.doi);
+  return (
+    (
+      await query<HCAAtlasTrackerDBSourceDataset>(
+        "SELECT * FROM hat.source_datasets WHERE doi=$1 OR sd_info->'publication'->>'preprintOfDoi'=$1 OR sd_info->'publication'->>'hasPreprintDoi'=$1",
+        [doi]
+      )
+    ).rows[0] ?? null
+  );
 }
 
 /**
