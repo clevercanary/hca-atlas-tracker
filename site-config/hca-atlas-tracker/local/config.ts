@@ -133,6 +133,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
               {
                 icon: C.GitHubIcon({ fontSize: "small" }),
                 label: "GitHub",
+                target: ANCHOR_TARGET.BLANK,
                 url: "https://github.com/clevercanary/hca-atlas-tracker",
               },
             ],
