@@ -187,7 +187,7 @@ describe("/api/atlases/[id]", () => {
     expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 400 for dataset PUT requested with contact email set to empty string", async () => {
+  it("returns error 400 for dataset PUT requested with contact email set to undefined", async () => {
     expect(
       (
         await doDatasetRequest(
@@ -197,7 +197,7 @@ describe("/api/atlases/[id]", () => {
           METHOD.PUT,
           {
             ...SOURCE_DATASET_DRAFT_OK_EDIT,
-            contactEmail: "",
+            contactEmail: undefined,
           }
         )
       )._getStatusCode()

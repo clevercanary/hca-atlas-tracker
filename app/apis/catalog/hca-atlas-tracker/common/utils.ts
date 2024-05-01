@@ -56,26 +56,22 @@ export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset
 ): HCAAtlasTrackerSourceDataset {
   const {
-    sd_info: {
-      cellxgeneCollectionId,
-      hcaProjectId,
-      publication,
-      unpublishedInfo,
-    },
+    sd_info: { cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceDataset;
   if (dbSourceDataset.doi === null) {
+    const unpublishedInfo = dbSourceDataset.sd_info.unpublishedInfo;
     return {
       capId: null,
       cellxgeneCollectionId,
-      contactEmail: unpublishedInfo?.contactEmail ?? "",
+      contactEmail: unpublishedInfo.contactEmail,
       doi: null,
       doiStatus: dbSourceDataset.sd_info.doiStatus,
       hcaProjectId,
       id: dbSourceDataset.id,
       journal: null,
       publicationDate: null,
-      referenceAuthor: unpublishedInfo?.referenceAuthor ?? "",
-      title: unpublishedInfo?.title ?? "",
+      referenceAuthor: unpublishedInfo.referenceAuthor,
+      title: unpublishedInfo.title,
     };
   } else {
     return {

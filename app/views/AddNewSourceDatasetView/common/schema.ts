@@ -6,7 +6,6 @@ import { PUBLICATION_STATUS } from "./entities";
 export const newSourceDatasetSchema = object({
   [FIELD_NAME.CONTACT_EMAIL]: string()
     .default("")
-    .transform((value) => (value === "" ? null : value))
     .when(FIELD_NAME.PUBLICATION_STATUS, {
       is: PUBLICATION_STATUS.PUBLISHED,
       otherwise: (schema) =>

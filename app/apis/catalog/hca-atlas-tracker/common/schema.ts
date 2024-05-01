@@ -57,7 +57,7 @@ export const newPublishedSourceDatasetSchema = object({
 export const newUnpublishedSourceDatasetSchema = object({
   contactEmail: string()
     .email()
-    .required("Email is required when DOI is absent")
+    .defined("Email is required when DOI is absent")
     .nullable(),
   referenceAuthor: string().required("Author is required when DOI is absent"),
   title: string().required("Title is required when DOI is absent"),
@@ -69,23 +69,29 @@ export const newUnpublishedSourceDatasetSchema = object({
 
 export const newSourceDatasetSchema = mixed<NewSourceDatasetData>()
   .required()
-  .test(
-    "published-or-unpublished",
-    "Must match published fields or unpublished fields",
-    (value) => {
+  .transform((value) => {
+    if (
+      value &&
+      typeof value === "object" &&
+      "doi" in value &&
+      value.doi !== undefined
+    ) {
+      return newPublishedSourceDatasetSchema.validateSync(value);
+    } else {
       if (
         value &&
         typeof value === "object" &&
-        "doi" in value &&
-        value.doi !== undefined
+        "contactEmail" in value &&
+        value.contactEmail === ""
       ) {
-        newPublishedSourceDatasetSchema.validateSync(value);
-      } else {
-        newUnpublishedSourceDatasetSchema.validateSync(value);
+        value = {
+          ...value,
+          contactEmail: null,
+        };
       }
-      return true;
+      return newUnpublishedSourceDatasetSchema.validateSync(value);
     }
-  );
+  });
 
 export type NewPublishedSourceDatasetData = InferType<
   typeof newPublishedSourceDatasetSchema

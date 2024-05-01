@@ -246,12 +246,12 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
-  it("returns error 400 when contact email is empty string", async () => {
+  it("returns error 400 when contact email is undefined", async () => {
     expect(
       (
         await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
           ...NEW_DATASET_UNPUBLISHED_DATA,
-          contactEmail: "",
+          contactEmail: undefined,
         })
       )._getStatusCode()
     ).toEqual(400);
