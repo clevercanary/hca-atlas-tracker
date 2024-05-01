@@ -4,7 +4,7 @@ import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthe
 import { useLayoutState } from "@databiosphere/findable-ui/lib/hooks/useLayoutState";
 import { ExploreView } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
-import { AuthenticationRequired } from "../../components/Detail/components/TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
+import { RequestAccess } from "../../components/Detail/components/TrackerForm/components/FormManagement/components/RequestAccess/requestAccess";
 import { ROUTE } from "../../routes/constants";
 import { IndexLayout, IndexView, IndexViewContent } from "./atlasesView.styles";
 
@@ -27,9 +27,9 @@ export const AtlasesView = ({
       <IndexLayout>
         <Title title="Manage Atlases" />
         <IndexViewContent>
-          <AuthenticationRequired divider={<Divider />}>
+          <RequestAccess divider={<Divider />}>
             <Link label="Sign in" url={ROUTE.LOGIN} /> to manage atlases.
-          </AuthenticationRequired>
+          </RequestAccess>
         </IndexViewContent>
       </IndexLayout>
     </IndexView>

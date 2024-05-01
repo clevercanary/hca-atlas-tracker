@@ -1,6 +1,4 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { AtlasId } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -18,10 +16,10 @@ import {
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/Add/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
+import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface AddSourceDatasetProps {
   atlasId: AtlasId;
@@ -32,8 +30,8 @@ export const AddSourceDataset = ({
   atlasId,
   formMethod,
 }: AddSourceDatasetProps): JSX.Element => {
-  const { isAuthenticated } = useAuthentication();
-  const { disabled, handleSubmit, onSubmit, unregister } = formMethod;
+  const { disabled, handleSubmit, isAuthenticated, onSubmit, unregister } =
+    formMethod;
 
   const onFormSubmit = useCallback(
     (payload: NewSourceDatasetData): void => {
@@ -50,7 +48,9 @@ export const AddSourceDataset = ({
     [atlasId, onSubmit, unregister]
   );
 
-  return isAuthenticated ? (
+  if (!isAuthenticated) return <RequestAccess />;
+
+  return (
     <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
       <Divider />
       <GeneralInfo formMethod={formMethod} />
@@ -67,9 +67,5 @@ export const AddSourceDataset = ({
         </ButtonPrimary>
       </FormActions>
     </TrackerForm>
-  ) : (
-    <AuthenticationRequired divider={<Divider />}>
-      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to add a new source dataset.
-    </AuthenticationRequired>
   );
 };

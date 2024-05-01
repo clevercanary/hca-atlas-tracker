@@ -1,5 +1,3 @@
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
@@ -21,8 +19,8 @@ import { FormManagement } from "../TrackerForm/components/Banner/components/Form
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
 import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
-import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { TrackerForm } from "../TrackerForm/trackerForm";
+import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface EditAtlasProps {
   atlasId: AtlasId;
@@ -33,10 +31,10 @@ export const EditAtlas = ({
   atlasId,
   formMethod,
 }: EditAtlasProps): JSX.Element => {
-  const { isAuthenticated } = useAuthentication();
   const {
     formState: { isDirty },
     handleSubmit,
+    isAuthenticated,
     onSubmit,
   } = formMethod;
 
@@ -53,7 +51,9 @@ export const EditAtlas = ({
     [atlasId, onSubmit]
   );
 
-  return isAuthenticated ? (
+  if (!isAuthenticated) return <RequestAccess />;
+
+  return (
     <TrackerForm>
       <FormManagement
         formDiscardProps={getFormDiscardProps(onDiscard)}
@@ -65,9 +65,5 @@ export const EditAtlas = ({
       <IntegrationLead formMethod={formMethod} />
       <Divider />
     </TrackerForm>
-  ) : (
-    <AuthenticationRequired>
-      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to edit an atlas.
-    </AuthenticationRequired>
   );
 };

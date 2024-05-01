@@ -1,8 +1,6 @@
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import {
   AtlasId,
   HCAAtlasTrackerSourceDataset,
@@ -14,20 +12,22 @@ import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
-import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
+import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { Paper, TableToolbar } from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
   atlasId: AtlasId;
+  isAuthenticated: boolean;
   sourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewSourceDatasets = ({
   atlasId,
+  isAuthenticated,
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
-  const { isAuthenticated } = useAuthentication();
-  return isAuthenticated ? (
+  if (!isAuthenticated) return <RequestAccess />;
+  return (
     <Paper>
       <GridPaper>
         <TableToolbar>
@@ -48,9 +48,5 @@ export const ViewSourceDatasets = ({
         )}
       </GridPaper>
     </Paper>
-  ) : (
-    <AuthenticationRequired>
-      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to view the source datasets.
-    </AuthenticationRequired>
   );
 };

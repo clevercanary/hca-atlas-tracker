@@ -1,5 +1,3 @@
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
@@ -24,10 +22,10 @@ import {
 } from "../TrackerForm/components/Banner/common/utils";
 import { FormManagement } from "../TrackerForm/components/Banner/components/FormManagement/formManagement";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/Edit/components/GeneralInfo/generalInfo";
 import { Identifiers } from "../TrackerForm/components/Section/components/SourceDataset/components/Edit/components/Identifiers/identifiers";
 import { TrackerForm } from "../TrackerForm/trackerForm";
+import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface EditSourceDatasetProps {
   atlasId: AtlasId;
@@ -42,10 +40,10 @@ export const EditSourceDataset = ({
   sdId,
   sdPublicationStatus,
 }: EditSourceDatasetProps): JSX.Element => {
-  const { isAuthenticated } = useAuthentication();
   const {
     formState: { isDirty },
     handleSubmit,
+    isAuthenticated,
     onSubmit,
     unregister,
   } = formMethod;
@@ -69,7 +67,9 @@ export const EditSourceDataset = ({
     [atlasId, onSubmit, sdId, unregister]
   );
 
-  return isAuthenticated ? (
+  if (!isAuthenticated) return <RequestAccess />;
+
+  return (
     <TrackerForm>
       <FormManagement
         formDiscardProps={getFormDiscardProps(onDiscard)}
@@ -85,9 +85,5 @@ export const EditSourceDataset = ({
       <Identifiers formMethod={formMethod} />
       <Divider />
     </TrackerForm>
-  ) : (
-    <AuthenticationRequired divider={<Divider />}>
-      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to edit a source dataset.
-    </AuthenticationRequired>
   );
 };

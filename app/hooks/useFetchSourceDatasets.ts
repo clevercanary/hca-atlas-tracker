@@ -14,20 +14,17 @@ import {
 } from "../common/utils";
 
 interface UseFetchSourceDatasets {
-  isLoading: boolean;
+  isAuthenticated: boolean;
   sourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const useFetchSourceDatasets = (
   atlasId: AtlasId
 ): UseFetchSourceDatasets => {
-  const { token } = useAuthentication();
-  const {
-    data: sourceDatasets,
-    isIdle,
-    isLoading,
-    run,
-  } = useAsync<HCAAtlasTrackerSourceDataset[] | undefined>();
+  const { isAuthenticated, token } = useAuthentication();
+  const { data: sourceDatasets, run } = useAsync<
+    HCAAtlasTrackerSourceDataset[] | undefined
+  >();
 
   const fetchSourceDatasets = useCallback(
     async (
@@ -57,5 +54,5 @@ export const useFetchSourceDatasets = (
     run(fetchSourceDatasets(atlasId, token));
   }, [atlasId, fetchSourceDatasets, run, token]);
 
-  return { isLoading: isIdle || isLoading, sourceDatasets };
+  return { isAuthenticated, sourceDatasets };
 };
