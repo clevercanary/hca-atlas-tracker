@@ -187,6 +187,24 @@ describe("/api/atlases/[id]", () => {
     expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
   });
 
+  it("returns error 400 for dataset PUT requested with contact email set to undefined", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_DATASET_DRAFT_OK.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            ...SOURCE_DATASET_DRAFT_OK_EDIT,
+            contactEmail: undefined,
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
+  });
+
   it("updates and returns dataset with published data when PUT requested", async () => {
     const res = await doDatasetRequest(
       ATLAS_PUBLIC.id,
@@ -210,7 +228,7 @@ describe("/api/atlases/[id]", () => {
     );
   });
 
-  it("updates and returns dataset with published data when PUT requested", async () => {
+  it("updates and returns dataset with unpublished data when PUT requested", async () => {
     const res = await doDatasetRequest(
       ATLAS_DRAFT.id,
       SOURCE_DATASET_DRAFT_OK.id,

@@ -7,8 +7,12 @@ import {
   HCAAtlasTrackerDBSourceDatasetMinimumColumns,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
+  NewPublishedSourceDatasetData,
   NewSourceDatasetData,
+  NewUnpublishedSourceDatasetData,
+  PublishedSourceDatasetEditData,
   SourceDatasetEditData,
+  UnpublishedSourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
@@ -86,7 +90,7 @@ export async function createSourceDataset(
 async function getExistingDataset(
   inputData: NewSourceDatasetData
 ): Promise<HCAAtlasTrackerDBSourceDataset | null> {
-  if (!inputData.doi) return null;
+  if (!("doi" in inputData)) return null;
   const doi = normalizeDoi(inputData.doi);
   return (
     (
@@ -133,7 +137,7 @@ export async function updateSourceDataset(
 async function sourceDatasetInputDataToDbData(
   inputData: NewSourceDatasetData | SourceDatasetEditData
 ): Promise<HCAAtlasTrackerDBSourceDatasetMinimumColumns> {
-  return inputData.doi
+  return "doi" in inputData
     ? await makePublishedSourceDatasetDbData(inputData)
     : makeUnpublishedSourceDatasetDbData(inputData);
 }
@@ -144,7 +148,7 @@ async function sourceDatasetInputDataToDbData(
  * @returns database model of values needed to define a source dataset.
  */
 async function makePublishedSourceDatasetDbData(
-  inputData: NewSourceDatasetData | SourceDatasetEditData
+  inputData: NewPublishedSourceDatasetData | PublishedSourceDatasetEditData
 ): Promise<HCAAtlasTrackerDBSourceDatasetMinimumColumns> {
   const doi = normalizeDoi(inputData.doi);
 
@@ -190,7 +194,7 @@ async function makePublishedSourceDatasetDbData(
  * @returns database model of values needed to define a source dataset.
  */
 function makeUnpublishedSourceDatasetDbData(
-  inputData: NewSourceDatasetData | SourceDatasetEditData
+  inputData: NewUnpublishedSourceDatasetData | UnpublishedSourceDatasetEditData
 ): HCAAtlasTrackerDBSourceDatasetMinimumColumns {
   return {
     doi: null,

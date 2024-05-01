@@ -236,8 +236,10 @@ function getPublishedCitation(
   return citation.join(" ");
 }
 
-function getUnpublishedCitation(author: string, email: string): string {
-  return `${author}, ${email} - Unpublished`;
+function getUnpublishedCitation(author: string, email: string | null): string {
+  return email
+    ? `${author}, ${email} - Unpublished`
+    : `${author} - Unpublished`;
 }
 
 /**

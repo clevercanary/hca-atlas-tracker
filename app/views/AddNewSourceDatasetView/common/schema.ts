@@ -9,9 +9,7 @@ export const newSourceDatasetSchema = object({
     .when(FIELD_NAME.PUBLICATION_STATUS, {
       is: PUBLICATION_STATUS.PUBLISHED,
       otherwise: (schema) =>
-        schema
-          .email("Email must be a valid email address")
-          .required("Email is required"),
+        schema.email("Email must be a valid email address").nullable(),
       then: (schema) => schema.notRequired(),
     }),
   [FIELD_NAME.DOI]: string()

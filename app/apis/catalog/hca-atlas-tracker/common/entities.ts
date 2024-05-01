@@ -73,7 +73,7 @@ export interface HCAAtlasTrackerPublishedSourceDataset
 
 export interface HCAAtlasTrackerUnpublishedSourceDataset
   extends HCAAtlasTrackerSourceDatasetCommon {
-  contactEmail: string;
+  contactEmail: string | null;
   doi: null;
   journal: null;
   publicationDate: null;
@@ -135,7 +135,7 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
   hcaProjectId: string | null;
   publication: null;
   unpublishedInfo: {
-    contactEmail: string;
+    contactEmail: string | null;
     referenceAuthor: string;
     title: string;
   };

@@ -39,55 +39,89 @@ export const atlasEditSchema = newAtlasSchema;
 export type AtlasEditData = NewAtlasData;
 
 /**
- * Schema for data used to create a new source dataset.
+ * Schemas for data used to create a new source dataset.
  */
-export const newSourceDatasetSchema = object({
-  contactEmail: string()
-    .email()
-    .default("")
-    .when("doi", {
-      is: undefined,
-      otherwise: () =>
-        mixed().oneOf([undefined], "Email must be omitted when DOI is present"),
-      then: (schema) => schema.required("Email is required when DOI is absent"),
-    }),
+
+export const newPublishedSourceDatasetSchema = object({
   doi: string()
-    .default("")
+    .required()
     .test(
       "is-doi",
       "DOI must be a syntactically-valid DOI",
       (value) => typeof value !== "string" || isDoi(value)
     ),
-  referenceAuthor: string()
-    .default("")
-    .when("doi", {
-      is: undefined,
-      otherwise: () =>
-        mixed().oneOf(
-          [undefined],
-          "Author must be omitted when DOI is present"
-        ),
-      then: (schema) =>
-        schema.required("Author is required when DOI is absent"),
-    }),
-  title: string()
-    .default("")
-    .when("doi", {
-      is: undefined,
-      otherwise: () =>
-        mixed().oneOf([undefined], "Title must be omitted when DOI is present"),
-      then: (schema) => schema.required("Title is required when DOI is absent"),
-    }),
-}).strict(true);
+})
+  .noUnknown("If DOI is specified, it must be the only field")
+  .strict(true);
 
-export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
+export const newUnpublishedSourceDatasetSchema = object({
+  contactEmail: string()
+    .email()
+    .defined("Email is required when DOI is absent")
+    .nullable(),
+  referenceAuthor: string().required("Author is required when DOI is absent"),
+  title: string().required("Title is required when DOI is absent"),
+})
+  .noUnknown(
+    "If DOI is unspecified, only email, author, and name may be present"
+  )
+  .strict(true);
+
+// Wrapper schema for validating both published and unpublished data
+export const newSourceDatasetSchema = mixed<NewSourceDatasetData>()
+  .required()
+  // `transform` is used to allow empty string contactEmail to be converted to null
+  .transform((value) => {
+    if (
+      value &&
+      typeof value === "object" &&
+      "doi" in value &&
+      value.doi !== undefined
+    ) {
+      // If DOI is present, use published schema
+      return newPublishedSourceDatasetSchema.validateSync(value);
+    } else {
+      // Otherwise, use unpublished schema, setting contactEmail to null if it's empty
+      if (
+        value &&
+        typeof value === "object" &&
+        "contactEmail" in value &&
+        value.contactEmail === ""
+      ) {
+        value = {
+          ...value,
+          contactEmail: null,
+        };
+      }
+      return newUnpublishedSourceDatasetSchema.validateSync(value);
+    }
+  });
+
+export type NewPublishedSourceDatasetData = InferType<
+  typeof newPublishedSourceDatasetSchema
+>;
+
+export type NewUnpublishedSourceDatasetData = InferType<
+  typeof newUnpublishedSourceDatasetSchema
+>;
+
+export type NewSourceDatasetData =
+  | NewPublishedSourceDatasetData
+  | NewUnpublishedSourceDatasetData;
 
 /**
- * Schema for data used to apply edits to a source dataset.
+ * Schemas for data used to apply edits to a source dataset.
  */
+
 export const sourceDatasetEditSchema = newSourceDatasetSchema;
 
-export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
+export type PublishedSourceDatasetEditData = NewPublishedSourceDatasetData;
+
+export type UnpublishedSourceDatasetEditData = NewUnpublishedSourceDatasetData;
+
+export type SourceDatasetEditData =
+  | PublishedSourceDatasetEditData
+  | UnpublishedSourceDatasetEditData;
 
 /**
  * Schema for data used to create a new user.

@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerSourceDataset,
   PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create";
@@ -86,6 +85,18 @@ const NEW_DATASET_PUBLIC_WITH_JOURNAL_JOURNAL = {
   doi: DOI_PUBLIC_WITH_JOURNAL_JOURNAL,
 };
 
+const NEW_DATASET_EMPTY_STRING_CONTACT_EMAIL = {
+  contactEmail: "",
+  referenceAuthor: "Bar",
+  title: "Something Bar",
+};
+
+const NEW_DATASET_NULL_CONTACT_EMAIL = {
+  contactEmail: null,
+  referenceAuthor: "Baz",
+  title: "Something Baz",
+};
+
 const newDatasetIds: string[] = [];
 
 afterAll(async () => {
@@ -145,7 +156,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       (
         await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
           ...NEW_DATASET_DATA,
-          doi: 123 as unknown as NewSourceDatasetData["doi"],
+          doi: 123,
         })
       )._getStatusCode()
     ).toEqual(400);
@@ -247,32 +258,33 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when contact email is undefined", async () => {
+    expect(
+      (
+        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
+          ...NEW_DATASET_UNPUBLISHED_DATA,
+          contactEmail: undefined,
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns entry for unpublished source dataset", async () => {
-    const res = await doCreateTest(
-      USER_CONTENT_ADMIN,
-      ATLAS_DRAFT,
-      NEW_DATASET_UNPUBLISHED_DATA
+    await testSuccessfulUnpublishedCreate(NEW_DATASET_UNPUBLISHED_DATA);
+  });
+
+  it("creates and returns entry for unpublished source dataset with empty string email", async () => {
+    await testSuccessfulUnpublishedCreate(
+      NEW_DATASET_EMPTY_STRING_CONTACT_EMAIL,
+      {
+        ...NEW_DATASET_EMPTY_STRING_CONTACT_EMAIL,
+        contactEmail: null,
+      }
     );
-    expect(res._getStatusCode()).toEqual(201);
-    const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-    newDatasetIds.push(newDataset.id);
-    expect(newDataset.contactEmail).toEqual(
-      NEW_DATASET_UNPUBLISHED_DATA.contactEmail
-    );
-    expect(newDataset.referenceAuthor).toEqual(
-      NEW_DATASET_UNPUBLISHED_DATA.referenceAuthor
-    );
-    expect(newDataset.title).toEqual(NEW_DATASET_UNPUBLISHED_DATA.title);
-    const newDatasetFromDb = (
-      await query<HCAAtlasTrackerDBSourceDataset>(
-        "SELECT * FROM hat.source_datasets WHERE id=$1",
-        [newDataset.id]
-      )
-    ).rows[0];
-    expect(newDatasetFromDb).toBeDefined();
-    expect(newDatasetFromDb.sd_info.unpublishedInfo).toEqual(
-      NEW_DATASET_UNPUBLISHED_DATA
-    );
+  });
+
+  it("creates and returns entry for unpublished source dataset with null email", async () => {
+    await testSuccessfulUnpublishedCreate(NEW_DATASET_NULL_CONTACT_EMAIL);
   });
 
   it("returns error on DOI field when source dataset already exists in the atlas", async () => {
@@ -356,6 +368,32 @@ async function testSuccessfulCreate(
     expectedPublication,
     expectedHcaId,
     expectedCellxGeneId
+  );
+  return newDatasetFromDb;
+}
+
+async function testSuccessfulUnpublishedCreate(
+  newData: Record<string, unknown>,
+  expectedUnpublishedInfo = newData
+): Promise<HCAAtlasTrackerDBSourceDataset> {
+  const res = await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, newData);
+  expect(res._getStatusCode()).toEqual(201);
+  const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
+  newDatasetIds.push(newDataset.id);
+  expect(newDataset.contactEmail).toEqual(expectedUnpublishedInfo.contactEmail);
+  expect(newDataset.referenceAuthor).toEqual(
+    expectedUnpublishedInfo.referenceAuthor
+  );
+  expect(newDataset.title).toEqual(expectedUnpublishedInfo.title);
+  const newDatasetFromDb = (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [newDataset.id]
+    )
+  ).rows[0];
+  expect(newDatasetFromDb).toBeDefined();
+  expect(newDatasetFromDb.sd_info.unpublishedInfo).toEqual(
+    expectedUnpublishedInfo
   );
   return newDatasetFromDb;
 }
