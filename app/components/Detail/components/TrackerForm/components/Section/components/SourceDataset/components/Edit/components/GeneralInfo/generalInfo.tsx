@@ -32,7 +32,7 @@ export const GeneralInfo = ({
   sdPublicationStatus,
 }: GeneralInfoProps): JSX.Element => {
   const [publicationStatus, setPublicationStatus] =
-    useState<PUBLICATION_STATUS>(PUBLICATION_STATUS.PUBLISHED);
+    useState<PUBLICATION_STATUS>(sdPublicationStatus);
   const {
     clearErrors,
     control,

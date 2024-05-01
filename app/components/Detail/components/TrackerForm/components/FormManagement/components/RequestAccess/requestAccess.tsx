@@ -1,15 +1,19 @@
 import { ReactNode } from "react";
-import { Section, SectionHero, SectionText } from "../../section.styles";
+import {
+  Section,
+  SectionHero,
+  SectionText,
+} from "../../../Section/section.styles";
 
-interface AuthenticationRequiredProps {
+interface RequestAccessProps {
   children: ReactNode | ReactNode[];
   divider?: ReactNode;
 }
 
-export const AuthenticationRequired = ({
+export const RequestAccess = ({
   children,
   divider,
-}: AuthenticationRequiredProps): JSX.Element => {
+}: RequestAccessProps): JSX.Element => {
   return (
     <Section>
       {divider}

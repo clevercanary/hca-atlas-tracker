@@ -32,6 +32,7 @@ export interface UseForm<T extends FieldValues, R = undefined>
   extends CustomUseFormReturn<T> {
   data?: R;
   disabled: boolean;
+  isAuthenticated: boolean;
   onDelete: OnDeleteFn;
   onSubmit: OnSubmitFn<T>;
 }
@@ -41,7 +42,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
   apiData?: R,
   mapSchemaValues?: MapSchemaValuesFn<T, R>
 ): UseForm<T, R> => {
-  const { token } = useAuthentication();
+  const { isAuthenticated, token } = useAuthentication();
   const values = useMemo(
     () => schema.cast(mapSchemaValues?.(apiData)),
     [apiData, mapSchemaValues, schema]
@@ -119,6 +120,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     ...formMethod,
     data,
     disabled: submitDisabled,
+    isAuthenticated,
     onDelete,
     onSubmit,
   };

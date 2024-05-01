@@ -1,6 +1,4 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { NewAtlasData } from "../../../../apis/catalog/hca-atlas-tracker/common/schema";
@@ -15,17 +13,17 @@ import {
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
 import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
-import { AuthenticationRequired } from "../TrackerForm/components/Section/components/AuthenticationRequired/authenticationRequired";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { FormActions } from "../TrackerForm/trackerForm.styles";
+import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface AddAtlasProps {
   formMethod: FormMethod<NewAtlasData>;
 }
 
 export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
-  const { isAuthenticated } = useAuthentication();
-  const { disabled, formState, handleSubmit, onSubmit } = formMethod;
+  const { disabled, formState, handleSubmit, isAuthenticated, onSubmit } =
+    formMethod;
   const { isDirty } = formState;
 
   const onFormSubmit = useCallback(
@@ -37,7 +35,9 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
     [onSubmit]
   );
 
-  return isAuthenticated ? (
+  if (!isAuthenticated) return <RequestAccess />;
+
+  return (
     <TrackerForm onSubmit={handleSubmit(onFormSubmit)}>
       <Divider />
       <GeneralInfo formMethod={formMethod} />
@@ -53,9 +53,5 @@ export const AddAtlas = ({ formMethod }: AddAtlasProps): JSX.Element => {
         </ButtonPrimary>
       </FormActions>
     </TrackerForm>
-  ) : (
-    <AuthenticationRequired divider={<Divider />}>
-      <Link label={"Sign in"} url={ROUTE.LOGIN} /> to add a new atlas.
-    </AuthenticationRequired>
   );
 };
