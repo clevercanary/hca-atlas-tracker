@@ -1,3 +1,5 @@
+import { NewSourceDatasetDataKeys } from "./entities";
+
 export const FIELD_NAME = {
   CONTACT_EMAIL: "contactEmail",
   DOI: "doi",
@@ -5,3 +7,11 @@ export const FIELD_NAME = {
   REFERENCE_AUTHOR: "referenceAuthor",
   TITLE: "title",
 } as const;
+
+export const PUBLISHED_FIELDS: NewSourceDatasetDataKeys[] = [FIELD_NAME.DOI];
+
+export const UNPUBLISHED_FIELDS: NewSourceDatasetDataKeys[] = [
+  FIELD_NAME.CONTACT_EMAIL,
+  FIELD_NAME.REFERENCE_AUTHOR,
+  FIELD_NAME.TITLE,
+];

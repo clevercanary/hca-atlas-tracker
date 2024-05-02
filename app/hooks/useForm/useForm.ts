@@ -31,8 +31,6 @@ import {
 export interface UseForm<T extends FieldValues, R = undefined>
   extends CustomUseFormReturn<T> {
   data?: R;
-  disabled: boolean;
-  isAuthenticated: boolean;
   onDelete: OnDeleteFn;
   onSubmit: OnSubmitFn<T>;
 }
@@ -42,7 +40,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
   apiData?: R,
   mapSchemaValues?: MapSchemaValuesFn<T, R>
 ): UseForm<T, R> => {
-  const { isAuthenticated, token } = useAuthentication();
+  const { token } = useAuthentication();
   const values = useMemo(
     () => schema.cast(mapSchemaValues?.(apiData)),
     [apiData, mapSchemaValues, schema]
@@ -53,8 +51,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
   });
   const [data, setData] = useState<R | undefined>();
-  const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
-  const { reset, setError } = formMethod;
+  const { setError } = formMethod;
 
   const onError = useCallback(
     (errors: FormResponseErrors) => {
@@ -73,9 +70,8 @@ export const useForm = <T extends FieldValues, R = undefined>(
     async (
       requestURL: string,
       requestMethod: METHOD,
-      options?: OnSubmitOptions
+      options?: OnSubmitOptions<T>
     ): Promise<void> => {
-      setSubmitDisabled(true);
       const res = await fetchDelete(requestURL, requestMethod, token);
       if (isFetchStatusNoContent(res.status)) {
         const { id } = await res.json();
@@ -83,9 +79,8 @@ export const useForm = <T extends FieldValues, R = undefined>(
       } else {
         onError(await getFormResponseErrors(res));
       }
-      setSubmitDisabled(false);
     },
-    [token, onError]
+    [onError, token]
   );
 
   const onSubmit = useCallback(
@@ -93,21 +88,19 @@ export const useForm = <T extends FieldValues, R = undefined>(
       requestURL: string,
       requestMethod: METHOD,
       payload: YupValidatedFormValues<T>,
-      options?: OnSubmitOptions
+      options?: OnSubmitOptions<T>
     ): Promise<void> => {
-      setSubmitDisabled(true);
       const res = await fetchSubmit(requestURL, requestMethod, token, payload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
         const { id, ...other } = await res.json();
         setData({ id, ...other });
-        reset(schema.cast(mapSchemaValues?.({ id, ...other })));
         options?.onSuccess?.(id);
+        options?.onReset?.(schema.cast(mapSchemaValues?.({ id, ...other })));
       } else {
         onError(await getFormResponseErrors(res));
       }
-      setSubmitDisabled(false);
     },
-    [mapSchemaValues, reset, schema, token, onError]
+    [mapSchemaValues, onError, schema, token]
   );
 
   // Initialize data with given API response.
@@ -119,8 +112,6 @@ export const useForm = <T extends FieldValues, R = undefined>(
   return {
     ...formMethod,
     data,
-    disabled: submitDisabled,
-    isAuthenticated,
     onDelete,
     onSubmit,
   };

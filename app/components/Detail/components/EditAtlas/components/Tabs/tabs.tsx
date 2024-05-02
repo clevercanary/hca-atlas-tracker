@@ -2,28 +2,35 @@ import {
   Tabs as DXTabs,
   TabValue,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { ReactNode, useCallback } from "react";
 import {
   AtlasId,
   HCAAtlasTrackerAtlas,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../../../common/utils";
+import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
+import { navigateToRoute } from "../../../../../../hooks/useFormManager/common/utils";
 import { ROUTE } from "../../../../../../routes/constants";
 
 interface TabsProps {
   atlas?: HCAAtlasTrackerAtlas;
   atlasId: AtlasId;
+  onNavigate?: FormManager["onNavigate"];
 }
 
-export const Tabs = ({ atlas, atlasId }: TabsProps): JSX.Element => {
+export const Tabs = ({
+  atlas,
+  atlasId,
+  onNavigate = navigateToRoute,
+}: TabsProps): JSX.Element => {
   const { route } = useRouter();
 
   const onChange = useCallback(
     (tabValue: TabValue): void => {
-      Router.push(getRouteURL(tabValue, atlasId));
+      onNavigate(getRouteURL(tabValue, atlasId));
     },
-    [atlasId]
+    [atlasId, onNavigate]
   );
 
   return (

@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerSourceDataset,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../common/utils";
+import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
@@ -17,16 +18,19 @@ import { Paper, TableToolbar } from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
   atlasId: AtlasId;
-  isAuthenticated: boolean;
+  formManager: FormManager;
   sourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewSourceDatasets = ({
   atlasId,
-  isAuthenticated,
+  formManager,
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
-  if (!isAuthenticated) return <RequestAccess />;
+  const {
+    access: { canView },
+  } = formManager;
+  if (!canView) return <RequestAccess />;
   return (
     <Paper>
       <GridPaper>

@@ -1,10 +1,10 @@
 import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/title";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useLayoutState } from "@databiosphere/findable-ui/lib/hooks/useLayoutState";
 import { ExploreView } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
-import { RequestAccess } from "../../components/Detail/components/TrackerForm/components/FormManagement/components/RequestAccess/requestAccess";
+import { RequestAccess } from "../../components/Detail/components/TrackerForm/components/Section/components/RequestAccess/requestAccess";
+import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../routes/constants";
 import { IndexLayout, IndexView, IndexViewContent } from "./atlasesView.styles";
 
@@ -16,11 +16,13 @@ export const AtlasesView = ({
   entityListType,
   ...props
 }: AtlasesViewProps): JSX.Element => {
-  const { isAuthenticated } = useAuthentication();
+  const {
+    access: { canView },
+  } = useFormManager();
   const {
     layoutState: { headerHeight },
   } = useLayoutState();
-  return isAuthenticated ? (
+  return canView ? (
     <ExploreView entityListType={entityListType} {...props} />
   ) : (
     <IndexView marginTop={headerHeight}>

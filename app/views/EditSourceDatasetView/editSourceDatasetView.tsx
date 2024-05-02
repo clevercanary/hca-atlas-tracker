@@ -1,4 +1,3 @@
-import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import {
   AtlasId,
@@ -6,6 +5,7 @@ import {
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { EditSourceDataset } from "../../components/Detail/components/EditSourceDataset/editSourceDataset";
+import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
@@ -13,6 +13,7 @@ import {
   mapPublicationStatus,
   useEditSourceDatasetForm,
 } from "./hooks/useEditSourceDatasetForm";
+import { useEditSourceDatasetFormManager } from "./hooks/useEditSourceDatasetFormManager";
 
 interface EditSourceDatasetViewProps {
   atlasId: AtlasId;
@@ -25,26 +26,31 @@ export const EditSourceDatasetView = ({
 }: EditSourceDatasetViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
   const formMethod = useEditSourceDatasetForm(atlasId, sdId);
+  const formManager = useEditSourceDatasetFormManager(
+    atlasId,
+    sdId,
+    formMethod
+  );
+  const {
+    access: { canView },
+  } = formManager;
   const { data: sourceDataset } = formMethod;
   const { doi } = sourceDataset || {};
   return (
     <ConditionalComponent
-      isIn={shouldRenderView(
-        formMethod.isAuthenticated,
-        Boolean(atlas && sourceDataset)
-      )}
+      isIn={shouldRenderView(canView, Boolean(atlas && sourceDataset))}
     >
       <DetailView
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceDataset)}
+            onNavigate={formManager.onNavigate}
           />
         }
         mainColumn={
           <EditSourceDataset
-            atlasId={atlasId}
+            formManager={formManager}
             formMethod={formMethod}
-            sdId={sdId}
             sdPublicationStatus={mapPublicationStatus(doi)}
           />
         }

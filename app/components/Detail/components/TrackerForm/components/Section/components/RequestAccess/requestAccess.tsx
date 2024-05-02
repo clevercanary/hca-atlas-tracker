@@ -1,9 +1,5 @@
 import { ReactNode } from "react";
-import {
-  Section,
-  SectionHero,
-  SectionText,
-} from "../../../Section/section.styles";
+import { Section, SectionHero, SectionText } from "../../section.styles";
 
 interface RequestAccessProps {
   children: ReactNode | ReactNode[];

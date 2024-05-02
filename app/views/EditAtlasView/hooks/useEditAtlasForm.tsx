@@ -1,13 +1,10 @@
-import Router from "next/router";
 import {
   AtlasId,
   HCAAtlasTrackerAtlas,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getRouteURL } from "../../../common/utils";
 import { useFetchAtlas } from "../../../hooks/useFetchAtlas";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
-import { ROUTE } from "../../../routes/constants";
 import { FIELD_NAME } from "../common/constants";
 import { AtlasEditData } from "../common/entities";
 import { atlasEditSchema } from "../common/schema";
@@ -41,19 +38,4 @@ function mapSchemaValues(
     [FIELD_NAME.VERSION]: atlas.version,
     [FIELD_NAME.WAVE]: atlas.wave,
   };
-}
-
-/**
- * Side effect "onSuccess"; redirects to the atlas page.
- * @param id - Atlas ID.
- */
-export function onSuccess(id: string): void {
-  Router.push(getRouteURL(ROUTE.EDIT_ATLAS, id));
-}
-
-/**
- * Side effect "onSuccess"; redirects to atlases.
- */
-export function onDeleteSuccess(): void {
-  Router.push(ROUTE.ATLASES);
 }

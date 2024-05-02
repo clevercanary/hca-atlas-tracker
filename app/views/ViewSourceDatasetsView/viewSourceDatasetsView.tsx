@@ -9,6 +9,7 @@ import { AtlasStatus } from "../../components/Layout/components/Detail/component
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFetchSourceDatasets } from "../../hooks/useFetchSourceDatasets";
+import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "../EditAtlasView/common/utils";
 
 interface ViewSourceDatasetsViewProps {
@@ -18,18 +19,22 @@ interface ViewSourceDatasetsViewProps {
 export const ViewSourceDatasetsView = ({
   atlasId,
 }: ViewSourceDatasetsViewProps): JSX.Element => {
-  const { atlas, isAuthenticated } = useFetchAtlas(atlasId);
+  const { atlas } = useFetchAtlas(atlasId);
   const { sourceDatasets } = useFetchSourceDatasets(atlasId);
+  const formManager = useFormManager();
+  const {
+    access: { canView },
+  } = formManager;
   return (
     <ConditionalComponent
-      isIn={shouldRenderView(isAuthenticated, Boolean(atlas && sourceDatasets))}
+      isIn={shouldRenderView(canView, Boolean(atlas && sourceDatasets))}
     >
       <DetailView
         breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
         mainColumn={
           <ViewSourceDatasets
             atlasId={atlasId}
-            isAuthenticated={isAuthenticated}
+            formManager={formManager}
             sourceDatasets={sourceDatasets}
           />
         }
