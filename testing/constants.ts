@@ -3,6 +3,7 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   PublicationInfo,
+  ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
@@ -11,11 +12,15 @@ import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
 // USERS
 
-export const USER_NORMAL = makeTestUser("test-normal", "");
-export const USER_DISABLED = makeTestUser("test-disabled", "", true);
+export const USER_NORMAL = makeTestUser("test-normal", ROLE.UNREGISTERED);
+export const USER_DISABLED = makeTestUser(
+  "test-disabled",
+  ROLE.UNREGISTERED,
+  true
+);
 export const USER_CONTENT_ADMIN = makeTestUser(
   "test-content-admin",
-  "CONTENT_ADMIN"
+  ROLE.CONTENT_ADMIN
 );
 
 export const USER_NONEXISTENT = makeTestUser("test-nonexistant");

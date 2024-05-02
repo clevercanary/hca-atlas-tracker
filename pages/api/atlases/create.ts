@@ -3,6 +3,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
+  ROLE,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewAtlasData,
@@ -23,7 +24,7 @@ import {
  */
 export default handler(
   method(METHOD.POST),
-  role("CONTENT_ADMIN"),
+  role(ROLE.CONTENT_ADMIN),
   async (req, res) => {
     let newInfo: NewAtlasData;
     try {

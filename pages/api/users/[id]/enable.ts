@@ -1,3 +1,4 @@
+import { ROLE } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../../app/common/entities";
 import { query } from "../../../../app/services/database";
 import {
@@ -12,7 +13,7 @@ import {
  */
 export default handler(
   method(METHOD.POST),
-  role("CONTENT_ADMIN"),
+  role(ROLE.CONTENT_ADMIN),
   async (req, res) => {
     const id = handleRequiredParam(req, res, "id", /^\d+$/);
     if (id === null) return;

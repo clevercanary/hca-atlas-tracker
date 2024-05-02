@@ -9,6 +9,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
+  ROLE,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../app/common/entities";
 import { query } from "../../../app/services/database";
@@ -31,7 +32,7 @@ const getHandler = async (
   const id = req.query.atlasId as string;
   const queryResult =
     (await getUserRoleFromAuthorization(req.headers.authorization)) ===
-    "CONTENT_ADMIN"
+    ROLE.CONTENT_ADMIN
       ? await query<HCAAtlasTrackerDBAtlas>(
           "SELECT * FROM hat.atlases WHERE id=$1",
           [id]
@@ -47,7 +48,7 @@ const getHandler = async (
   res.json(dbAtlasToApiAtlas(queryResult.rows[0]));
 };
 
-const putHandler = handler(role("CONTENT_ADMIN"), async (req, res) => {
+const putHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
   const id = req.query.atlasId as string;
   let newInfo: AtlasEditData;
   try {

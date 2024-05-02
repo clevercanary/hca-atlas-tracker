@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBSourceDataset,
+  ROLE,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { sourceDatasetEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
@@ -33,7 +34,7 @@ async function getHandler(
     await confirmSourceDatasetExistsOnAtlas(
       sdId,
       atlasId,
-      role === "CONTENT_ADMIN" ? undefined : [ATLAS_STATUS.PUBLIC]
+      role === ROLE.CONTENT_ADMIN ? undefined : [ATLAS_STATUS.PUBLIC]
     );
   } catch (e) {
     if (e instanceof AccessError) {
@@ -55,7 +56,7 @@ async function getHandler(
 }
 
 const putHandler = handler(
-  role("CONTENT_ADMIN"), // Since the route is restricted to content admins, there are no additional permissions checks
+  role(ROLE.CONTENT_ADMIN), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const sdId = req.query.sdId as string;

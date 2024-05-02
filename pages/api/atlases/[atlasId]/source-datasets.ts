@@ -2,6 +2,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
+  ROLE,
 } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../app/common/entities";
@@ -25,7 +26,7 @@ export default handler(method(METHOD.GET), async (req, res) => {
     return;
   }
   const role = await getUserRoleFromAuthorization(req.headers.authorization);
-  if (atlas.status !== ATLAS_STATUS.PUBLIC && role !== "CONTENT_ADMIN") {
+  if (atlas.status !== ATLAS_STATUS.PUBLIC && role !== ROLE.CONTENT_ADMIN) {
     res.status(role === null ? 401 : 403).end();
     return;
   }

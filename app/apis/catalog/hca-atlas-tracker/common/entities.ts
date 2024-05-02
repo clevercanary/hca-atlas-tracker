@@ -196,4 +196,6 @@ export type SourceDatasetId = string;
 
 export enum ROLE {
   CONTENT_ADMIN = "CONTENT_ADMIN",
+  STAKEHOLDER = "STAKEHOLDER",
+  UNREGISTERED = "UNREGISTERED",
 }

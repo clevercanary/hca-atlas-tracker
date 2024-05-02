@@ -1,7 +1,10 @@
 import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
-import { HCAAtlasTrackerDBUser } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBUser,
+  ROLE,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { RefreshDataNotReadyError } from "../services/common/refresh-service";
@@ -90,13 +93,13 @@ export function method(methodName: METHOD): MiddlewareFunction {
 
 /**
  * Creates a middleware function that rejects requests from users who don't have the specified role.
- * @param roleName - Allowed user role.
+ * @param allowedRole - Allowed user role.
  * @returns middleware function restricting requests to users with the specified role.
  */
-export function role(roleName: string): MiddlewareFunction {
+export function role(allowedRole: ROLE): MiddlewareFunction {
   return async (req, res, next) => {
     const role = await getUserRoleFromAuthorization(req.headers.authorization);
-    if (role !== roleName) {
+    if (role !== allowedRole) {
       res.status(role === null ? 401 : 403).end();
     } else {
       next();
@@ -134,7 +137,7 @@ export function handleRequiredParam(
 
 export async function getUserRoleFromAuthorization(
   authorization: string | undefined
-): Promise<string | null> {
+): Promise<ROLE | null> {
   return (await getUserFromAuthorization(authorization))?.role ?? null;
 }
 

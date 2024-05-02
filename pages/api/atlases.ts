@@ -1,6 +1,7 @@
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
+  ROLE,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbAtlasToApiAtlas } from "../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../app/common/entities";
@@ -17,7 +18,7 @@ import {
 export default handler(method(METHOD.GET), async (req, res) => {
   const queryResult =
     (await getUserRoleFromAuthorization(req.headers.authorization)) ===
-    "CONTENT_ADMIN"
+    ROLE.CONTENT_ADMIN
       ? await query<HCAAtlasTrackerDBAtlas>("SELECT * FROM hat.atlases")
       : await query<HCAAtlasTrackerDBAtlas>(
           "SELECT * FROM hat.atlases WHERE status=$1",
