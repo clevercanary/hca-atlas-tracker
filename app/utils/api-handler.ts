@@ -93,13 +93,16 @@ export function method(methodName: METHOD): MiddlewareFunction {
 
 /**
  * Creates a middleware function that rejects requests from users who don't have the specified role.
- * @param allowedRole - Allowed user role.
+ * @param allowedRoles - Allowed user roles.
  * @returns middleware function restricting requests to users with the specified role.
  */
-export function role(allowedRole: ROLE): MiddlewareFunction {
+export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
+  const allowedRolesArray = Array.isArray(allowedRoles)
+    ? allowedRoles
+    : [allowedRoles];
   return async (req, res, next) => {
     const role = await getUserRoleFromAuthorization(req.headers.authorization);
-    if (role !== allowedRole) {
+    if (!allowedRolesArray.includes(role)) {
       res.status(role === null ? 401 : 403).end();
     } else {
       next();
@@ -137,8 +140,10 @@ export function handleRequiredParam(
 
 export async function getUserRoleFromAuthorization(
   authorization: string | undefined
-): Promise<ROLE | null> {
-  return (await getUserFromAuthorization(authorization))?.role ?? null;
+): Promise<ROLE> {
+  return (
+    (await getUserFromAuthorization(authorization))?.role ?? ROLE.UNREGISTERED
+  );
 }
 
 export async function getUserFromAuthorization(
@@ -156,7 +161,7 @@ export async function getUserFromAuthorization(
   return null;
 }
 
-async function getAccessTokenInfo(
+export async function getAccessTokenInfo(
   authorization: string | undefined
 ): Promise<TokenInfo | null> {
   if (!authorization) return null;

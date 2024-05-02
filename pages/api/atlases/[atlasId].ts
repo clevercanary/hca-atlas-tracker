@@ -5,8 +5,8 @@ import {
 import { dbAtlasToApiAtlas } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
+import { ROLE_GROUP } from "../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   ROLE,
@@ -14,7 +14,6 @@ import {
 import { METHOD } from "../../../app/common/entities";
 import { query } from "../../../app/services/database";
 import {
-  getUserRoleFromAuthorization,
   handleByMethod,
   handler,
   respondValidationError,
@@ -25,28 +24,21 @@ import {
  * API route to get atlas by ID or update atlas by ID.
  */
 
-const getHandler = async (
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> => {
-  const id = req.query.atlasId as string;
-  const queryResult =
-    (await getUserRoleFromAuthorization(req.headers.authorization)) ===
-    ROLE.CONTENT_ADMIN
-      ? await query<HCAAtlasTrackerDBAtlas>(
-          "SELECT * FROM hat.atlases WHERE id=$1",
-          [id]
-        )
-      : await query<HCAAtlasTrackerDBAtlas>(
-          "SELECT * FROM hat.atlases WHERE id=$1 AND status=$2",
-          [id, ATLAS_STATUS.PUBLIC]
-        );
-  if (queryResult.rows.length === 0) {
-    res.status(404).end();
-    return;
+const getHandler = handler(
+  role(ROLE_GROUP.READ),
+  async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+    const id = req.query.atlasId as string;
+    const queryResult = await query<HCAAtlasTrackerDBAtlas>(
+      "SELECT * FROM hat.atlases WHERE id=$1",
+      [id]
+    );
+    if (queryResult.rows.length === 0) {
+      res.status(404).end();
+      return;
+    }
+    res.json(dbAtlasToApiAtlas(queryResult.rows[0]));
   }
-  res.json(dbAtlasToApiAtlas(queryResult.rows[0]));
-};
+);
 
 const putHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
   const id = req.query.atlasId as string;
