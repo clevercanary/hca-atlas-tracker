@@ -1,15 +1,12 @@
 /**
  * The view should be rendered if:
- * - the user is not authenticated, or
- * - the user is authenticated and data is available.
- * @param isAuthenticated - User is authenticated.
+ * - the user cannot view form (user is prompted to log in), or
+ * - the user can view form and data is available (form is rendered with data).
+ * @param canView - User can view form.
  * @param hasData - Data is available.
  * @returns true if the view should be rendered.
  */
-export function shouldRenderView(
-  isAuthenticated: boolean,
-  hasData = true
-): boolean {
-  if (!isAuthenticated) return true;
+export function shouldRenderView(canView: boolean, hasData = true): boolean {
+  if (!canView) return true; // User is prompted to log in.
   return hasData;
 }

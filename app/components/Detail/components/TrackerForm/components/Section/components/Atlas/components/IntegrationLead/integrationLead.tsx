@@ -1,10 +1,9 @@
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import {
-  AtlasEditData,
-  NewAtlasData,
-} from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
+import { NewAtlasData } from "../../../../../../../../../../views/AddNewAtlasView/common/entities";
+import { FIELD_NAME } from "../../../../../../../../../../views/EditAtlasView/common/constants";
+import { AtlasEditData } from "../../../../../../../../../../views/EditAtlasView/common/entities";
 import { Input } from "../../../../../../../../../common/Form/components/Input/input";
 import {
   Section,
@@ -12,7 +11,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../section.styles";
-import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../common/constants";
+import { DEFAULT_INPUT_PROPS } from "../../common/constants";
 
 export interface IntegrationLeadProps {
   formMethod:

@@ -7,15 +7,14 @@ import {
 } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  AtlasEditData,
-  NewAtlasData,
-} from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
-import {
   isNetworkKey,
   isWaveValue,
 } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
 import { getBioNetworkByKey } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { NewAtlasData } from "../../../../../../../../../../views/AddNewAtlasView/common/entities";
+import { FIELD_NAME } from "../../../../../../../../../../views/EditAtlasView/common/constants";
+import { AtlasEditData } from "../../../../../../../../../../views/EditAtlasView/common/entities";
 import { Input } from "../../../../../../../../../common/Form/components/Input/input";
 import { Select } from "../../../../../../../../../common/Form/components/Select/select";
 import { NetworkIconAndName } from "../../../../../Select/components/NetworkIconAndName/networkIconAndName";
@@ -25,7 +24,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../section.styles";
-import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../common/constants";
+import { DEFAULT_INPUT_PROPS } from "../../common/constants";
 
 export interface GeneralInfoProps {
   formMethod:

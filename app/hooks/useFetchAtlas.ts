@@ -15,11 +15,10 @@ import {
 
 interface UseFetchAtlas {
   atlas?: HCAAtlasTrackerAtlas;
-  isAuthenticated: boolean;
 }
 
 export const useFetchAtlas = (atlasId: AtlasId): UseFetchAtlas => {
-  const { isAuthenticated, token } = useAuthentication();
+  const { token } = useAuthentication();
   const { data: atlas, run } = useAsync<HCAAtlasTrackerAtlas | undefined>();
 
   const fetchAtlas = useCallback(
@@ -50,5 +49,5 @@ export const useFetchAtlas = (atlasId: AtlasId): UseFetchAtlas => {
     run(fetchAtlas(atlasId, token));
   }, [atlasId, fetchAtlas, run, token]);
 
-  return { atlas, isAuthenticated };
+  return { atlas };
 };

@@ -1,7 +1,24 @@
-import { FIELD_NAME as NEW_SOURCE_DATASET_FIELD_NAME } from "../../AddNewSourceDatasetView/common/constants";
+import {
+  FIELD_NAME as NEW_SOURCE_DATASET_FIELD_NAME,
+  PUBLISHED_FIELDS as NEW_SOURCE_DATASET_PUBLISHED_FIELDS,
+  UNPUBLISHED_FIELDS as NEW_SOURCE_DATASET_UNPUBLISHED_FIELDS,
+} from "../../AddNewSourceDatasetView/common/constants";
+import { SourceDatasetEditDataKeys } from "./entities";
 
 export const FIELD_NAME = {
   ...NEW_SOURCE_DATASET_FIELD_NAME,
   CELLXGENE_COLLECTION_ID: "cellxgeneCollectionId",
   HCA_PROJECT_ID: "hcaProjectId",
 } as const;
+
+export const PUBLISHED_FIELDS: SourceDatasetEditDataKeys[] = [
+  ...NEW_SOURCE_DATASET_PUBLISHED_FIELDS,
+  FIELD_NAME.CELLXGENE_COLLECTION_ID,
+  FIELD_NAME.HCA_PROJECT_ID,
+];
+
+export const UNPUBLISHED_FIELDS: SourceDatasetEditDataKeys[] = [
+  ...NEW_SOURCE_DATASET_UNPUBLISHED_FIELDS,
+  FIELD_NAME.CELLXGENE_COLLECTION_ID,
+  FIELD_NAME.HCA_PROJECT_ID,
+];

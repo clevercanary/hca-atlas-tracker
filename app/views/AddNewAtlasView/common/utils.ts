@@ -1,4 +1,4 @@
-import { Breadcrumb } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
+import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ROUTE } from "../../../routes/constants";
 
 /**
@@ -9,6 +9,7 @@ export function getBreadcrumbs(): Breadcrumb[] {
   return [
     {
       path: ROUTE.ATLASES,
+      route: ROUTE.ATLASES,
       text: "Atlases",
     },
     {

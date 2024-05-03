@@ -1,4 +1,5 @@
 import { FieldValues, UseFormReturn } from "react-hook-form";
+import { UseFormReset } from "react-hook-form/dist/types/form";
 import { InferType, ObjectSchema } from "yup";
 import { METHOD } from "../../../common/entities";
 import { UseForm } from "../useForm";
@@ -32,10 +33,11 @@ export type OnSubmitFn<T extends FieldValues> = (
   requestURL: string,
   requestMethod: METHOD,
   payload: YupValidatedFormValues<T>,
-  options?: OnSubmitOptions
+  options?: OnSubmitOptions<T>
 ) => Promise<void>;
 
-export interface OnSubmitOptions {
+export interface OnSubmitOptions<T extends FieldValues> {
+  onReset?: UseFormReset<YupValidatedFormValues<T>>;
   onSuccess?: (id: string) => void;
 }
 

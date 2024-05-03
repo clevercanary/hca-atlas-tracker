@@ -1,7 +1,7 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { ROUTE } from "../../../../../../routes/constants";
 import { Divider } from "../../../TrackerForm/components/Divider/divider.styles";
-import { RequestAccess as Section } from "../../../TrackerForm/components/FormManagement/components/RequestAccess/requestAccess";
+import { RequestAccess as Section } from "../../../TrackerForm/components/Section/components/RequestAccess/requestAccess";
 
 export const RequestAccess = (): JSX.Element => {
   return (

@@ -33,7 +33,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
     (value: PUBLICATION_STATUS): void => {
       clearErrors();
       setPublicationStatus(value);
-      setValue(FIELD_NAME.PUBLICATION_STATUS, value);
+      setValue(FIELD_NAME.PUBLICATION_STATUS, value, { shouldDirty: false });
     },
     [clearErrors, setValue]
   );
