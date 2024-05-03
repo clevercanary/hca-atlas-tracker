@@ -43,6 +43,7 @@ import {
 } from "../testing/constants";
 import { TestAtlas, TestUser } from "../testing/entities";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");

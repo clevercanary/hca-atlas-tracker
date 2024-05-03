@@ -13,6 +13,7 @@ import {
 import { endPgPool } from "../app/services/database";
 import atlasesHandler from "../pages/api/atlases";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 afterAll(() => {

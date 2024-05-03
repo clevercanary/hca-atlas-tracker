@@ -20,6 +20,7 @@ import {
 import { TestUser } from "../testing/entities";
 import { makeTestAtlasOverview } from "../testing/utils";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {

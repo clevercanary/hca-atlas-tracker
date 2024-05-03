@@ -16,6 +16,7 @@ import {
 } from "../testing/constants";
 import { TestSourceDataset, TestUser } from "../testing/entities";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 afterAll(async () => {

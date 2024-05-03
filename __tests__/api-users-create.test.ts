@@ -11,6 +11,7 @@ import {
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_USER_DATA = {

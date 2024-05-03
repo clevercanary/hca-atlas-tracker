@@ -10,6 +10,7 @@ import meHandler from "../pages/api/me";
 import { USER_STAKEHOLDER, USER_UNREGISTERED } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 afterAll(() => {
@@ -32,7 +33,7 @@ describe("/api/me", () => {
     expect(res.statusCode).toEqual(200);
     const user: HCAAtlasTrackerActiveUser = res._getJSONData();
     expect(user.email).toEqual(USER_UNREGISTERED.email);
-    expect(user.fullName).toEqual(USER_UNREGISTERED.email);
+    expect(user.fullName).toEqual(USER_UNREGISTERED.name);
     expect(user.role).toEqual(ROLE.UNREGISTERED);
   });
 
