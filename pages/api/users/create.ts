@@ -1,4 +1,5 @@
 import { ValidationError } from "yup";
+import { ROLE } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewUserData,
   newUserSchema,
@@ -12,7 +13,7 @@ import { handler, method, role } from "../../../app/utils/api-handler";
  */
 export default handler(
   method(METHOD.POST),
-  role("CONTENT_ADMIN"),
+  role(ROLE.CONTENT_ADMIN),
   async (req, res) => {
     let newInfo: NewUserData;
     try {

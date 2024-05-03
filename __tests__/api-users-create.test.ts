@@ -6,10 +6,12 @@ import createHandler from "../pages/api/users/create";
 import {
   USER_CONTENT_ADMIN,
   USER_NEW,
-  USER_NORMAL,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_USER_DATA = {
@@ -37,9 +39,15 @@ describe("/api/users/create", () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 for logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doCreateTest(USER_NORMAL, NEW_USER_DATA))._getStatusCode()
+      (await doCreateTest(USER_UNREGISTERED, NEW_USER_DATA))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
+    expect(
+      (await doCreateTest(USER_STAKEHOLDER, NEW_USER_DATA))._getStatusCode()
     ).toEqual(403);
   });
 

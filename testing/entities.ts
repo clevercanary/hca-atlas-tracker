@@ -4,6 +4,7 @@ import {
   IntegrationLead,
   NetworkKey,
   PublicationInfo,
+  ROLE,
   Wave,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
@@ -12,7 +13,7 @@ export interface TestUser {
   disabled: boolean;
   email: string;
   name: string;
-  role: string;
+  role: ROLE;
   token: string;
 }
 

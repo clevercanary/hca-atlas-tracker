@@ -1,11 +1,14 @@
-import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
-import { HCAAtlasTrackerDBUser } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBUser,
+  ROLE,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { RefreshDataNotReadyError } from "../services/common/refresh-service";
 import { query } from "../services/database";
+import { getProvidedUserProfile } from "../services/user-profile";
 
 export type MiddlewareFunction = (
   req: NextApiRequest,
@@ -22,9 +25,6 @@ export class AccessError extends Error {
 export class NotFoundError extends Error {
   name = "NotFoundError";
 }
-
-const authClient = new OAuth2Client();
-const accessTokensInfo = new Map<string, TokenInfo>();
 
 /**
  * Creates an API handler function that calls the provided middleware functions in order for as long as each one calls `next` function passed to it.
@@ -90,14 +90,20 @@ export function method(methodName: METHOD): MiddlewareFunction {
 
 /**
  * Creates a middleware function that rejects requests from users who don't have the specified role.
- * @param roleName - Allowed user role.
+ * @param allowedRoles - Allowed user roles.
  * @returns middleware function restricting requests to users with the specified role.
  */
-export function role(roleName: string): MiddlewareFunction {
+export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
+  const allowedRolesArray = Array.isArray(allowedRoles)
+    ? allowedRoles
+    : [allowedRoles];
   return async (req, res, next) => {
     const role = await getUserRoleFromAuthorization(req.headers.authorization);
-    if (role !== roleName) {
-      res.status(role === null ? 401 : 403).end();
+    if (!allowedRolesArray.includes(role)) {
+      const userProfile = await getProvidedUserProfile(
+        req.headers.authorization
+      );
+      res.status(userProfile ? 403 : 401).end();
     } else {
       next();
     }
@@ -134,16 +140,18 @@ export function handleRequiredParam(
 
 export async function getUserRoleFromAuthorization(
   authorization: string | undefined
-): Promise<string | null> {
-  return (await getUserFromAuthorization(authorization))?.role ?? null;
+): Promise<ROLE> {
+  return (
+    (await getUserFromAuthorization(authorization))?.role ?? ROLE.UNREGISTERED
+  );
 }
 
 export async function getUserFromAuthorization(
   authorization: string | undefined
 ): Promise<HCAAtlasTrackerDBUser | null> {
-  const accessTokenInfo = await getAccessTokenInfo(authorization);
-  const email = accessTokenInfo?.email;
-  if (email && accessTokenInfo.email_verified) {
+  const userProfile = await getProvidedUserProfile(authorization);
+  const email = userProfile?.email;
+  if (email && userProfile.email_verified) {
     const { rows } = await query<HCAAtlasTrackerDBUser>(
       "SELECT * FROM hat.users WHERE email=$1",
       [email]
@@ -151,21 +159,6 @@ export async function getUserFromAuthorization(
     if (rows.length > 0) return rows[0];
   }
   return null;
-}
-
-async function getAccessTokenInfo(
-  authorization: string | undefined
-): Promise<TokenInfo | null> {
-  if (!authorization) return null;
-  const token = /^Bearer (.+)$/.exec(authorization)?.[1];
-  if (!token) return null;
-  let tokenInfo = accessTokensInfo.get(token);
-  if (!tokenInfo)
-    accessTokensInfo.set(
-      token,
-      (tokenInfo = await authClient.getTokenInfo(token))
-    );
-  return tokenInfo;
 }
 
 /**

@@ -3,6 +3,7 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   PublicationInfo,
+  ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
@@ -11,11 +12,19 @@ import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
 // USERS
 
-export const USER_NORMAL = makeTestUser("test-normal", "");
-export const USER_DISABLED = makeTestUser("test-disabled", "", true);
+export const USER_UNREGISTERED = makeTestUser("test-unregistered");
+export const USER_STAKEHOLDER = makeTestUser(
+  "test-stakeholder",
+  ROLE.STAKEHOLDER
+);
+export const USER_DISABLED = makeTestUser(
+  "test-disabled",
+  ROLE.STAKEHOLDER,
+  true
+);
 export const USER_CONTENT_ADMIN = makeTestUser(
   "test-content-admin",
-  "CONTENT_ADMIN"
+  ROLE.CONTENT_ADMIN
 );
 
 export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
@@ -23,12 +32,17 @@ export const USER_NEW = makeTestUser("test-new");
 
 // Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
-  USER_NORMAL,
   USER_DISABLED,
+  USER_STAKEHOLDER,
   USER_CONTENT_ADMIN,
 ];
 
-export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT, USER_NEW];
+export const TEST_USERS = [
+  ...INITIAL_TEST_USERS,
+  USER_UNREGISTERED,
+  USER_NONEXISTENT,
+  USER_NEW,
+];
 
 // DOIS
 

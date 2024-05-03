@@ -1,4 +1,4 @@
-import { Network, NetworkKey } from "./entities";
+import { Network, NetworkKey, ROLE } from "./entities";
 
 export const WAVES = ["1", "2", "3"] as const;
 
@@ -117,4 +117,8 @@ export const NETWORK_ICONS: { [key in NetworkKey]: string } = {
   pancreas: "/hca-bio-networks/icons/pancreas.png",
   reproduction: "/hca-bio-networks/icons/reproduction.png",
   skin: "/hca-bio-networks/icons/skin.png",
+};
+
+export const ROLE_GROUP = {
+  READ: [ROLE.STAKEHOLDER, ROLE.CONTENT_ADMIN],
 };

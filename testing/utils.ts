@@ -2,12 +2,13 @@ import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBPublishedSourceDatasetInfo,
+  ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TestAtlas, TestSourceDataset, TestUser } from "./entities";
 
 export function makeTestUser(
   nameId: string,
-  role = "",
+  role = ROLE.UNREGISTERED,
   disabled = false
 ): TestUser {
   return {
