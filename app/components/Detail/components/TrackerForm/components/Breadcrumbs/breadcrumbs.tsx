@@ -5,17 +5,19 @@ import {
   Typography as MTypography,
 } from "@mui/material";
 import { ReactNode } from "react";
-import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
+import { FormAction } from "../../../../../../hooks/useFormManager/common/entities";
 import { navigateToRoute } from "../../../../../../hooks/useFormManager/common/utils";
+import { RouteValue } from "../../../../../../routes/entities";
 
 export interface Breadcrumb {
   path: string;
+  route?: RouteValue;
   text: ReactNode;
 }
 
 export interface BreadcrumbsProps {
   breadcrumbs: Breadcrumb[];
-  onNavigate?: FormManager["onNavigate"];
+  onNavigate?: FormAction["onNavigate"];
 }
 
 export const Breadcrumbs = ({
@@ -24,11 +26,11 @@ export const Breadcrumbs = ({
 }: BreadcrumbsProps): JSX.Element => {
   return (
     <MBreadcrumbs separator={<ChevronRightRoundedIcon fontSize="xxsmall" />}>
-      {breadcrumbs.map(({ path, text }, b) =>
+      {breadcrumbs.map(({ path, route, text }, b) =>
         path ? (
           <MLink
             key={b}
-            onClick={(): void => onNavigate(path)}
+            onClick={(): void => onNavigate(path, route)}
             sx={{ cursor: "pointer" }}
           >
             {text}

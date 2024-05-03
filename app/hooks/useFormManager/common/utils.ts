@@ -1,9 +1,11 @@
 import Router from "next/router";
+import { RouteValue } from "../../../routes/entities";
 
 /**
  * Default navigation.
- * @param url - URL.
+ * @param path - Path.
+ * @param _route - Route (unused).
  */
-export function navigateToRoute(url: string): void {
-  Router.push(url);
+export function navigateToRoute(path: string, _route?: RouteValue): void {
+  Router.push(path);
 }

@@ -20,6 +20,7 @@ export const EditAtlasView = ({ atlasId }: EditAtlasViewProps): JSX.Element => {
   const formManager = useEditAtlasFormManager(atlasId, formMethod);
   const {
     access: { canView },
+    formAction,
   } = formManager;
   const { data: atlas } = formMethod;
   return (
@@ -28,7 +29,7 @@ export const EditAtlasView = ({ atlasId }: EditAtlasViewProps): JSX.Element => {
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlas)}
-            onNavigate={formManager.onNavigate}
+            onNavigate={formAction?.onNavigate}
           />
         }
         mainColumn={
@@ -39,7 +40,7 @@ export const EditAtlasView = ({ atlasId }: EditAtlasViewProps): JSX.Element => {
           <Tabs
             atlas={atlas}
             atlasId={atlasId}
-            onNavigate={formManager.onNavigate}
+            onNavigate={formAction?.onNavigate}
           />
         }
         title={atlas ? getAtlasName(atlas) : "Edit Atlas"}

@@ -8,12 +8,13 @@ import { useAddAtlasFormManager } from "./hooks/useAddAtlasFormManager";
 export const AddNewAtlasView = (): JSX.Element => {
   const formMethod = useAddAtlasForm();
   const formManager = useAddAtlasFormManager(formMethod);
+  const { formAction } = formManager;
   return (
     <DetailView
       breadcrumbs={
         <Breadcrumbs
           breadcrumbs={getBreadcrumbs()}
-          onNavigate={formManager.onNavigate}
+          onNavigate={formAction?.onNavigate}
         />
       }
       mainColumn={

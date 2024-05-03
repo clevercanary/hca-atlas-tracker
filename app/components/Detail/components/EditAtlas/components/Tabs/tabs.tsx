@@ -9,14 +9,14 @@ import {
   HCAAtlasTrackerAtlas,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../../../common/utils";
-import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
+import { FormAction } from "../../../../../../hooks/useFormManager/common/entities";
 import { navigateToRoute } from "../../../../../../hooks/useFormManager/common/utils";
 import { ROUTE } from "../../../../../../routes/constants";
 
 interface TabsProps {
   atlas?: HCAAtlasTrackerAtlas;
   atlasId: AtlasId;
-  onNavigate?: FormManager["onNavigate"];
+  onNavigate?: FormAction["onNavigate"];
 }
 
 export const Tabs = ({
@@ -28,7 +28,7 @@ export const Tabs = ({
 
   const onChange = useCallback(
     (tabValue: TabValue): void => {
-      onNavigate(getRouteURL(tabValue, atlasId));
+      onNavigate(getRouteURL(tabValue, atlasId), tabValue);
     },
     [atlasId, onNavigate]
   );

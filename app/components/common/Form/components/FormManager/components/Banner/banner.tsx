@@ -6,14 +6,12 @@ import { FormActions, FormStatus } from "../../formManager.styles";
 import { AppBar } from "./banner.styles";
 
 export const Banner = ({
-  isDirty,
-  isDisabled,
-  isLeaving,
-  isSubmitted,
-  isSubmitting,
-  onDiscard,
-  onSave,
+  formAction,
+  formStatus,
 }: FormManager): JSX.Element => {
+  const { onDiscard, onSave } = formAction || {};
+  const { isDirty, isDisabled, isLeaving, isSubmitted, isSubmitting } =
+    formStatus;
   return (
     <Fade
       appear={false}

@@ -1,6 +1,6 @@
-import { Breadcrumb } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ROUTE } from "../../../routes/constants";
 
 /**
@@ -13,6 +13,7 @@ export function getBreadcrumbs(atlas?: HCAAtlasTrackerAtlas): Breadcrumb[] {
   return [
     {
       path: ROUTE.ATLASES,
+      route: ROUTE.ATLASES,
       text: "Atlases",
     },
     {

@@ -1,4 +1,3 @@
-import { Breadcrumb } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import {
   AtlasId,
   HCAAtlasTrackerAtlas,
@@ -6,6 +5,7 @@ import {
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../common/utils";
+import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ROUTE } from "../../../routes/constants";
 
 /**
@@ -23,10 +23,12 @@ export function getBreadcrumbs(
   return [
     {
       path: ROUTE.ATLASES,
+      route: ROUTE.ATLASES,
       text: "Atlases",
     },
     {
       path: getRouteURL(ROUTE.VIEW_SOURCE_DATASETS, atlasId),
+      route: ROUTE.VIEW_SOURCE_DATASETS,
       text: atlas ? getAtlasName(atlas) : "Source Datasets",
     },
     {

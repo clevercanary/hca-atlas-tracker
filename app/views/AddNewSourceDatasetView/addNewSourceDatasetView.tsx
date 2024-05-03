@@ -21,6 +21,7 @@ export const AddNewSourceDatasetView = ({
   const formManager = useAddSourceDatasetFormManager(atlasId, formMethod);
   const {
     access: { canView },
+    formAction,
   } = formManager;
   return (
     <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
@@ -28,7 +29,7 @@ export const AddNewSourceDatasetView = ({
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlasId, atlas)}
-            onNavigate={formManager.onNavigate}
+            onNavigate={formAction?.onNavigate}
           />
         }
         mainColumn={

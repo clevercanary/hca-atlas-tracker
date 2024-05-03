@@ -33,6 +33,7 @@ export const EditSourceDatasetView = ({
   );
   const {
     access: { canView },
+    formAction,
   } = formManager;
   const { data: sourceDataset } = formMethod;
   const { doi } = sourceDataset || {};
@@ -44,7 +45,7 @@ export const EditSourceDatasetView = ({
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceDataset)}
-            onNavigate={formManager.onNavigate}
+            onNavigate={formAction?.onNavigate}
           />
         }
         mainColumn={
