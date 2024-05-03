@@ -40,6 +40,7 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
         if (done) return;
       }
     } catch (e) {
+      console.error(e);
       respondError(res, e);
     }
   };
@@ -64,6 +65,7 @@ export function handleByMethod(
         res.status(405).setHeader("Allow", allowHeaderText).end();
       }
     } catch (e) {
+      console.error(e);
       respondError(res, e);
     }
   };
@@ -175,6 +177,8 @@ function respondError(res: NextApiResponse, error: unknown): void {
       .status(503)
       .appendHeader("Retry-After", "30")
       .json({ message: error.message });
+  else if (error instanceof Error && typeof error.stack === "string")
+    res.status(500).json({ message: error.stack });
   else res.status(500).json({ message: String(error) });
 }
 
