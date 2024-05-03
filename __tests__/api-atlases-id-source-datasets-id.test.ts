@@ -16,7 +16,8 @@ import {
   SOURCE_DATASET_DRAFT_OK,
   SOURCE_DATASET_PUBLIC_NO_CROSSREF,
   USER_CONTENT_ADMIN,
-  USER_NORMAL,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestSourceDataset, TestUser } from "../testing/entities";
 import { makeTestSourceDatasetOverview } from "../testing/utils";
@@ -66,37 +67,27 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(405);
   });
 
-  it("returns dataset from public atlas when GET requested by logged out user", async () => {
-    const res = await doDatasetRequest(
-      ATLAS_PUBLIC.id,
-      SOURCE_DATASET_PUBLIC_NO_CROSSREF.id
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(dataset.doi).toEqual(SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi);
-  });
-
-  it("returns dataset from public atlas when GET requested by logged in user without CONTENT_ADMIN role", async () => {
-    const res = await doDatasetRequest(
-      ATLAS_PUBLIC.id,
-      SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
-      USER_NORMAL
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(dataset.doi).toEqual(SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi);
-  });
-
-  it("returns error 404 when dataset is GET requested by user without CONTENT_ADMIN role via public atlas it doesn't exist on", async () => {
+  it("returns error 401 when dataset is requested from public atlas by logged out user", async () => {
     expect(
       (
         await doDatasetRequest(
           ATLAS_PUBLIC.id,
-          SOURCE_DATASET_DRAFT_OK.id,
-          USER_NORMAL
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF.id
         )
       )._getStatusCode()
-    ).toEqual(404);
+    ).toEqual(401);
+  });
+
+  it("returns error 403 when dataset is requested from public atlas by unregistered user", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+          USER_UNREGISTERED
+        )
+      )._getStatusCode()
+    ).toEqual(403);
   });
 
   it("returns error 401 when dataset is GET requested from draft atlas by logged out user", async () => {
@@ -107,13 +98,13 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 when dataset is GET requested from draft atlas by logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 when dataset is GET requested from draft atlas by unregistered user", async () => {
     expect(
       (
         await doDatasetRequest(
           ATLAS_DRAFT.id,
           SOURCE_DATASET_DRAFT_OK.id,
-          USER_NORMAL
+          USER_UNREGISTERED
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -129,6 +120,28 @@ describe("/api/atlases/[id]", () => {
         )
       )._getStatusCode()
     ).toEqual(404);
+  });
+
+  it("returns dataset from public atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doDatasetRequest(
+      ATLAS_PUBLIC.id,
+      SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+      USER_STAKEHOLDER
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const dataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(dataset.doi).toEqual(SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi);
+  });
+
+  it("returns dataset from draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doDatasetRequest(
+      ATLAS_DRAFT.id,
+      SOURCE_DATASET_DRAFT_OK.id,
+      USER_STAKEHOLDER
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const dataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(dataset.doi).toEqual(SOURCE_DATASET_DRAFT_OK.doi);
   });
 
   it("returns dataset from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
@@ -157,13 +170,28 @@ describe("/api/atlases/[id]", () => {
     expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when dataset is PUT requested from public atlas by logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 when dataset is PUT requested from public atlas by unregistered user", async () => {
     expect(
       (
         await doDatasetRequest(
           ATLAS_PUBLIC.id,
           SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
-          USER_NORMAL,
+          USER_STAKEHOLDER,
+          METHOD.PUT,
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 403 when dataset is PUT requested from public atlas by logged in user with STAKEHOLDER role", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+          USER_STAKEHOLDER,
           METHOD.PUT,
           SOURCE_DATASET_PUBLIC_NO_CROSSREF_EDIT
         )

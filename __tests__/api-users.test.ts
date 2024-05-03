@@ -5,7 +5,8 @@ import usersHandler from "../pages/api/users";
 import {
   USER_CONTENT_ADMIN,
   USER_NONEXISTENT,
-  USER_NORMAL,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
@@ -26,8 +27,16 @@ describe("/api/users", () => {
     expect((await doUsersRequest())._getStatusCode()).toEqual(401);
   });
 
-  it("returns error 403 for logged in user without CONTENT_ADMIN role", async () => {
-    expect((await doUsersRequest(USER_NORMAL))._getStatusCode()).toEqual(403);
+  it("returns error 403 for unregistered user", async () => {
+    expect((await doUsersRequest(USER_UNREGISTERED))._getStatusCode()).toEqual(
+      403
+    );
+  });
+
+  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
+    expect((await doUsersRequest(USER_STAKEHOLDER))._getStatusCode()).toEqual(
+      403
+    );
   });
 
   it("returns multiple users when email parameter is absent", async () => {
@@ -39,7 +48,7 @@ describe("/api/users", () => {
   it("returns singular user when email parameter is set to an existing user's email", async () => {
     expect(
       (
-        await doUsersRequest(USER_CONTENT_ADMIN, USER_NORMAL.email)
+        await doUsersRequest(USER_CONTENT_ADMIN, USER_STAKEHOLDER.email)
       )._getJSONData().length
     ).toEqual(1);
   });

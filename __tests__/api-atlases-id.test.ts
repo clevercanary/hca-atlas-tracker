@@ -14,7 +14,8 @@ import {
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
   USER_CONTENT_ADMIN,
-  USER_NORMAL,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 import { makeTestAtlasOverview } from "../testing/utils";
@@ -61,30 +62,51 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(405);
   });
 
-  it("returns public atlas when GET requested by logged out user", async () => {
-    const res = await doAtlasRequest(ATLAS_PUBLIC.id);
-    expect(res._getStatusCode()).toEqual(200);
-    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
-  });
-
-  it("returns public atlas when GET requested by logged in user without CONTENT_ADMIN role", async () => {
-    const res = await doAtlasRequest(ATLAS_PUBLIC.id, USER_NORMAL);
-    expect(res._getStatusCode()).toEqual(200);
-    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
-  });
-
-  it("returns error 404 when draft atlas is GET requested by logged out user", async () => {
-    expect((await doAtlasRequest(ATLAS_DRAFT.id))._getStatusCode()).toEqual(
-      404
+  it("returns error 401 when public atlas is GET requested by logged out user", async () => {
+    expect((await doAtlasRequest(ATLAS_PUBLIC.id))._getStatusCode()).toEqual(
+      401
     );
   });
 
-  it("returns error 404 when draft atlas is GET requested by logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 when public atlas is GET requested by unregistered user", async () => {
     expect(
-      (await doAtlasRequest(ATLAS_DRAFT.id, USER_NORMAL))._getStatusCode()
-    ).toEqual(404);
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 401 when draft atlas is GET requested by logged out user", async () => {
+    expect((await doAtlasRequest(ATLAS_DRAFT.id))._getStatusCode()).toEqual(
+      401
+    );
+  });
+
+  it("returns error 403 when draft atlas is GET requested by unregistered user", async () => {
+    expect(
+      (await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns public atlas when GET requested by user with STAKEHOLDER role", async () => {
+    const res = await doAtlasRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
+  });
+
+  it("returns draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expect(atlas.bioNetwork).toEqual(ATLAS_DRAFT.network);
+    expect(atlas.id).toEqual(ATLAS_DRAFT.id);
+    expect(atlas.integrationLead).toEqual(ATLAS_DRAFT.integrationLead);
+    expect(atlas.shortName).toEqual(ATLAS_DRAFT.shortName);
+    expect(atlas.sourceDatasetCount).toEqual(ATLAS_DRAFT.sourceDatasets.length);
+    expect(atlas.status).toEqual(ATLAS_DRAFT.status);
+    expect(atlas.version).toEqual(ATLAS_DRAFT.version);
+    expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);
   });
 
   it("returns draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
@@ -114,12 +136,25 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 when public atlas is PUT requested by logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 when public atlas is PUT requested by unregistered user", async () => {
     expect(
       (
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
-          USER_NORMAL,
+          USER_UNREGISTERED,
+          METHOD.PUT,
+          ATLAS_PUBLIC_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when public atlas is PUT requested by logged in user with STAKEHOLDER role", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_STAKEHOLDER,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT
         )

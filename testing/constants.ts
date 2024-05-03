@@ -12,10 +12,14 @@ import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
 // USERS
 
-export const USER_NORMAL = makeTestUser("test-normal", ROLE.UNREGISTERED);
+export const USER_UNREGISTERED = makeTestUser("test-unregistered");
+export const USER_STAKEHOLDER = makeTestUser(
+  "test-stakeholder",
+  ROLE.STAKEHOLDER
+);
 export const USER_DISABLED = makeTestUser(
   "test-disabled",
-  ROLE.UNREGISTERED,
+  ROLE.STAKEHOLDER,
   true
 );
 export const USER_CONTENT_ADMIN = makeTestUser(
@@ -28,12 +32,17 @@ export const USER_NEW = makeTestUser("test-new");
 
 // Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
-  USER_NORMAL,
   USER_DISABLED,
+  USER_STAKEHOLDER,
   USER_CONTENT_ADMIN,
 ];
 
-export const TEST_USERS = [...INITIAL_TEST_USERS, USER_NONEXISTENT, USER_NEW];
+export const TEST_USERS = [
+  ...INITIAL_TEST_USERS,
+  USER_UNREGISTERED,
+  USER_NONEXISTENT,
+  USER_NEW,
+];
 
 // DOIS
 

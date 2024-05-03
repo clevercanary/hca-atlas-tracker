@@ -38,7 +38,8 @@ import {
   SOURCE_DATASET_PUBLIC_WITH_JOURNAL,
   SOURCE_DATASET_PUBLIC_WITH_PREPRINT,
   USER_CONTENT_ADMIN,
-  USER_NORMAL,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestAtlas, TestUser } from "../testing/entities";
 
@@ -131,10 +132,18 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 for logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 for unregistered user", async () => {
     expect(
       (
-        await doCreateTest(USER_NORMAL, ATLAS_DRAFT, NEW_DATASET_DATA)
+        await doCreateTest(USER_UNREGISTERED, ATLAS_DRAFT, NEW_DATASET_DATA)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
+    expect(
+      (
+        await doCreateTest(USER_STAKEHOLDER, ATLAS_DRAFT, NEW_DATASET_DATA)
       )._getStatusCode()
     ).toEqual(403);
   });

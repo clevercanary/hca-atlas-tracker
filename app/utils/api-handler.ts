@@ -103,7 +103,10 @@ export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
   return async (req, res, next) => {
     const role = await getUserRoleFromAuthorization(req.headers.authorization);
     if (!allowedRolesArray.includes(role)) {
-      res.status(role === null ? 401 : 403).end();
+      const accessTokenInfo = await getAccessTokenInfo(
+        req.headers.authorization
+      );
+      res.status(accessTokenInfo ? 403 : 401).end();
     } else {
       next();
     }

@@ -8,7 +8,11 @@ import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schem
 import { dbAtlasToApiAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/create";
-import { USER_CONTENT_ADMIN, USER_NORMAL } from "../testing/constants";
+import {
+  USER_CONTENT_ADMIN,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
+} from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
 jest.mock("../app/utils/pg-app-connect-config");
@@ -52,9 +56,15 @@ describe("/api/atlases/create", () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 for logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doCreateTest(USER_NORMAL, NEW_ATLAS_DATA))._getStatusCode()
+      (await doCreateTest(USER_UNREGISTERED, NEW_ATLAS_DATA))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
+    expect(
+      (await doCreateTest(USER_STAKEHOLDER, NEW_ATLAS_DATA))._getStatusCode()
     ).toEqual(403);
   });
 

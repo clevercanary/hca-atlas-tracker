@@ -5,7 +5,8 @@ import enableHandler from "../pages/api/users/[id]/enable";
 import {
   USER_CONTENT_ADMIN,
   USER_DISABLED,
-  USER_NORMAL,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
 
@@ -45,9 +46,17 @@ describe("/api/users/[id]/enable", () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 for logged in user without CONTENT_ADMIN role", async () => {
+  it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doEnableRequest(USER_NORMAL, userDisabledId))._getStatusCode()
+      (
+        await doEnableRequest(USER_UNREGISTERED, userDisabledId)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
+    expect(
+      (await doEnableRequest(USER_STAKEHOLDER, userDisabledId))._getStatusCode()
     ).toEqual(403);
   });
 

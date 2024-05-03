@@ -1,6 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { USER_CONTENT_ADMIN, USER_NORMAL } from "testing/constants";
+import {
+  USER_CONTENT_ADMIN,
+  USER_STAKEHOLDER,
+  USER_UNREGISTERED,
+} from "testing/constants";
 import { TestUser } from "testing/entities";
 import {
   ATLAS_STATUS,
@@ -22,28 +26,35 @@ describe("/api/atlases", () => {
     ).toEqual(405);
   });
 
-  it("does not return draft atlases for logged out user", async () => {
-    const data = (
-      await doAtlasesRequest()
-    )._getJSONData() as HCAAtlasTrackerAtlas[];
-    expect(
-      data.find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
-    ).toBeUndefined();
+  it("returns error 401 for logged out user", async () => {
+    expect((await doAtlasesRequest())._getStatusCode()).toEqual(401);
   });
 
-  it("does not return draft atlases for logged in user without CONTENT_ADMIN role", async () => {
-    const data = (
-      await doAtlasesRequest(USER_NORMAL)
-    )._getJSONData() as HCAAtlasTrackerAtlas[];
+  it("returns error 403 for unregistered user", async () => {
     expect(
-      data.find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
-    ).toBeUndefined();
+      (await doAtlasesRequest(USER_UNREGISTERED))._getStatusCode()
+    ).toEqual(403);
   });
 
-  it("does return draft atlases for logged in user with CONTENT_ADMIN role", async () => {
+  it("returns both public and draft atlases for logged in user with STAKEHOLDER role", async () => {
+    const data = (
+      await doAtlasesRequest(USER_STAKEHOLDER)
+    )._getJSONData() as HCAAtlasTrackerAtlas[];
+    expect(
+      data.find((atlas) => atlas.status === ATLAS_STATUS.PUBLIC)
+    ).toBeDefined();
+    expect(
+      data.find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
+    ).toBeDefined();
+  });
+
+  it("returns both public and draft atlases for logged in user with CONTENT_ADMIN role", async () => {
     const data = (
       await doAtlasesRequest(USER_CONTENT_ADMIN)
     )._getJSONData() as HCAAtlasTrackerAtlas[];
+    expect(
+      data.find((atlas) => atlas.status === ATLAS_STATUS.PUBLIC)
+    ).toBeDefined();
     expect(
       data.find((atlas) => atlas.status === ATLAS_STATUS.DRAFT)
     ).toBeDefined();
