@@ -3,15 +3,15 @@ import {
   ROLE,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../app/common/entities";
+import { getProvidedUserProfile } from "../../app/services/user-profile";
 import {
-  getAccessTokenInfo,
   getUserFromAuthorization,
   handler,
   method,
 } from "../../app/utils/api-handler";
 
 export default handler(method(METHOD.GET), async (req, res) => {
-  const tokenInfo = await getAccessTokenInfo(req.headers.authorization);
+  const userProfile = await getProvidedUserProfile(req.headers.authorization);
   const user = await getUserFromAuthorization(req.headers.authorization);
   let activeUserInfo: HCAAtlasTrackerActiveUser;
   if (user) {
@@ -20,10 +20,10 @@ export default handler(method(METHOD.GET), async (req, res) => {
       fullName: user.full_name,
       role: user.role,
     };
-  } else if (tokenInfo) {
+  } else if (userProfile) {
     activeUserInfo = {
-      email: tokenInfo.email ?? "",
-      fullName: tokenInfo.email ?? "",
+      email: userProfile.email,
+      fullName: userProfile.name,
       role: ROLE.UNREGISTERED,
     };
   } else {

@@ -1,4 +1,3 @@
-import { OAuth2Client, TokenInfo } from "google-auth-library";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
 import {
@@ -9,6 +8,7 @@ import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { RefreshDataNotReadyError } from "../services/common/refresh-service";
 import { query } from "../services/database";
+import { getProvidedUserProfile } from "../services/user-profile";
 
 export type MiddlewareFunction = (
   req: NextApiRequest,
@@ -25,9 +25,6 @@ export class AccessError extends Error {
 export class NotFoundError extends Error {
   name = "NotFoundError";
 }
-
-const authClient = new OAuth2Client();
-const accessTokensInfo = new Map<string, TokenInfo>();
 
 /**
  * Creates an API handler function that calls the provided middleware functions in order for as long as each one calls `next` function passed to it.
@@ -103,10 +100,10 @@ export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
   return async (req, res, next) => {
     const role = await getUserRoleFromAuthorization(req.headers.authorization);
     if (!allowedRolesArray.includes(role)) {
-      const accessTokenInfo = await getAccessTokenInfo(
+      const userProfile = await getProvidedUserProfile(
         req.headers.authorization
       );
-      res.status(accessTokenInfo ? 403 : 401).end();
+      res.status(userProfile ? 403 : 401).end();
     } else {
       next();
     }
@@ -152,9 +149,9 @@ export async function getUserRoleFromAuthorization(
 export async function getUserFromAuthorization(
   authorization: string | undefined
 ): Promise<HCAAtlasTrackerDBUser | null> {
-  const accessTokenInfo = await getAccessTokenInfo(authorization);
-  const email = accessTokenInfo?.email;
-  if (email && accessTokenInfo.email_verified) {
+  const userProfile = await getProvidedUserProfile(authorization);
+  const email = userProfile?.email;
+  if (email && userProfile.email_verified) {
     const { rows } = await query<HCAAtlasTrackerDBUser>(
       "SELECT * FROM hat.users WHERE email=$1",
       [email]
@@ -162,21 +159,6 @@ export async function getUserFromAuthorization(
     if (rows.length > 0) return rows[0];
   }
   return null;
-}
-
-export async function getAccessTokenInfo(
-  authorization: string | undefined
-): Promise<TokenInfo | null> {
-  if (!authorization) return null;
-  const token = /^Bearer (.+)$/.exec(authorization)?.[1];
-  if (!token) return null;
-  let tokenInfo = accessTokensInfo.get(token);
-  if (!tokenInfo)
-    accessTokensInfo.set(
-      token,
-      (tokenInfo = await authClient.getTokenInfo(token))
-    );
-  return tokenInfo;
 }
 
 /**
