@@ -1,7 +1,8 @@
-import { getConfig } from "@databiosphere/findable-ui/lib/config/config";
 import { getAuthenticationRequestOptions } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/common/utils";
 import { UserProfile } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useFetchGoogleProfile";
 import ky from "ky";
+
+const ENDPOINT = "https://www.googleapis.com/oauth2/v3/userinfo";
 
 const userProfilesCache = new Map<string, UserProfile>();
 
@@ -13,12 +14,8 @@ export async function getProvidedUserProfile(
   if (!token) return null;
   let profileInfo = userProfilesCache.get(token);
   if (!profileInfo) {
-    const authenticationConfig = getConfig().authentication;
-    const endpoint =
-      authenticationConfig?.googleGISAuthConfig?.googleProfileEndpoint;
-    if (!endpoint) throw new Error("Missing Google profile endpoint");
     profileInfo = (await (
-      await ky(endpoint, getAuthenticationRequestOptions(token))
+      await ky(ENDPOINT, getAuthenticationRequestOptions(token))
     ).json()) as UserProfile;
     userProfilesCache.set(token, profileInfo);
   }
