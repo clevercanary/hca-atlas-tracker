@@ -296,6 +296,13 @@ export const SOURCE_DATASET_PUBLIC_WITH_JOURNAL: TestSourceDataset = {
   publication: PUBLICATION_PUBLIC_WITH_JOURNAL,
 };
 
+export const SOURCE_DATASET_SHARED: TestSourceDataset = {
+  doi: "10.123/sd-shared",
+  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
+  id: "b5051dd0-a321-46e9-8728-4a7e1082b3e3",
+  publication: null,
+};
+
 // Source datasets initialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_DRAFT_OK,
@@ -303,6 +310,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_PUBLIC_NO_CROSSREF,
   SOURCE_DATASET_PUBLIC_WITH_PREPRINT,
   SOURCE_DATASET_PUBLIC_WITH_JOURNAL,
+  SOURCE_DATASET_SHARED,
 ];
 
 // ATLASES
@@ -314,6 +322,7 @@ export const ATLAS_DRAFT: TestAtlas = {
   shortName: "test-draft",
   sourceDatasets: [
     SOURCE_DATASET_DRAFT_OK.id,
+    SOURCE_DATASET_SHARED.id,
     SOURCE_DATASET_DRAFT_NO_CROSSREF.id,
   ],
   status: ATLAS_STATUS.DRAFT,
@@ -326,7 +335,10 @@ export const ATLAS_PUBLIC: TestAtlas = {
   integrationLead: null,
   network: "lung",
   shortName: "test-public",
-  sourceDatasets: [SOURCE_DATASET_PUBLIC_NO_CROSSREF.id],
+  sourceDatasets: [
+    SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+    SOURCE_DATASET_SHARED.id,
+  ],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
   wave: "1",
