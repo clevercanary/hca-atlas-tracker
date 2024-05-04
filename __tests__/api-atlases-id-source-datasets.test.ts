@@ -10,6 +10,7 @@ import {
   SOURCE_DATASET_DRAFT_NO_CROSSREF,
   SOURCE_DATASET_DRAFT_OK,
   SOURCE_DATASET_PUBLIC_NO_CROSSREF,
+  SOURCE_DATASET_SHARED,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -63,10 +64,14 @@ describe("/api/atlases/[id]/source-datasets", () => {
     const res = await doDatasetsRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(datasets).toHaveLength(1);
+    expect(datasets).toHaveLength(2);
     expectDatasetPropertiesToMatch(
-      datasets[0],
+      datasets.find((d) => d.id === SOURCE_DATASET_PUBLIC_NO_CROSSREF.id),
       SOURCE_DATASET_PUBLIC_NO_CROSSREF
+    );
+    expectDatasetPropertiesToMatch(
+      datasets.find((d) => d.id === SOURCE_DATASET_SHARED.id),
+      SOURCE_DATASET_SHARED
     );
   });
 
@@ -74,10 +79,14 @@ describe("/api/atlases/[id]/source-datasets", () => {
     const res = await doDatasetsRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(datasets).toHaveLength(2);
+    expect(datasets).toHaveLength(3);
     expectDatasetPropertiesToMatch(
       datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
       SOURCE_DATASET_DRAFT_OK
+    );
+    expectDatasetPropertiesToMatch(
+      datasets.find((d) => d.id === SOURCE_DATASET_SHARED.id),
+      SOURCE_DATASET_SHARED
     );
     expectDatasetPropertiesToMatch(
       datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_NO_CROSSREF.id),
@@ -89,10 +98,14 @@ describe("/api/atlases/[id]/source-datasets", () => {
     const res = await doDatasetsRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(datasets).toHaveLength(2);
+    expect(datasets).toHaveLength(3);
     expectDatasetPropertiesToMatch(
       datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
       SOURCE_DATASET_DRAFT_OK
+    );
+    expectDatasetPropertiesToMatch(
+      datasets.find((d) => d.id === SOURCE_DATASET_SHARED.id),
+      SOURCE_DATASET_SHARED
     );
     expectDatasetPropertiesToMatch(
       datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_NO_CROSSREF.id),

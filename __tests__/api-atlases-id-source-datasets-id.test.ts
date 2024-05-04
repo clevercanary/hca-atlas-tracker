@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -15,6 +16,7 @@ import {
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_DRAFT_OK,
   SOURCE_DATASET_PUBLIC_NO_CROSSREF,
+  SOURCE_DATASET_SHARED,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -39,23 +41,11 @@ const SOURCE_DATASET_DRAFT_OK_EDIT = {
 };
 
 afterAll(async () => {
-  await query("UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3", [
-    SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi,
-    JSON.stringify(
-      makeTestSourceDatasetOverview(SOURCE_DATASET_PUBLIC_NO_CROSSREF)
-    ),
-    SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
-  ]);
-  await query("UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3", [
-    SOURCE_DATASET_DRAFT_OK.doi,
-    JSON.stringify(makeTestSourceDatasetOverview(SOURCE_DATASET_DRAFT_OK)),
-    SOURCE_DATASET_DRAFT_OK.id,
-  ]);
   endPgPool();
 });
 
-describe("/api/atlases/[id]", () => {
-  it("returns error 405 for non-GET, non-PUT request", async () => {
+describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
+  it("returns error 405 for POST request", async () => {
     expect(
       (
         await doDatasetRequest(
@@ -255,6 +245,17 @@ describe("/api/atlases/[id]", () => {
     expect(dbSourceDatasetToApiSourceDataset(datasetFromDb)).toEqual(
       updatedDataset
     );
+
+    await query(
+      "UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3",
+      [
+        SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi,
+        JSON.stringify(
+          makeTestSourceDatasetOverview(SOURCE_DATASET_PUBLIC_NO_CROSSREF)
+        ),
+        SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+      ]
+    );
   });
 
   it("updates and returns dataset with unpublished data when PUT requested", async () => {
@@ -274,6 +275,130 @@ describe("/api/atlases/[id]", () => {
     expect(datasetFromDb.sd_info.unpublishedInfo).toEqual(
       SOURCE_DATASET_DRAFT_OK_EDIT
     );
+
+    await query(
+      "UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3",
+      [
+        SOURCE_DATASET_DRAFT_OK.doi,
+        JSON.stringify(makeTestSourceDatasetOverview(SOURCE_DATASET_DRAFT_OK)),
+        SOURCE_DATASET_DRAFT_OK.id,
+      ]
+    );
+  });
+
+  it("returns error 401 when dataset is DELETE requested from public atlas by logged out user", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+          undefined,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(401);
+    expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 403 when dataset is DELETE requested from public atlas by unregistered user", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+          USER_STAKEHOLDER,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 403 when dataset is DELETE requested from public atlas by logged in user with STAKEHOLDER role", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+          USER_STAKEHOLDER,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 404 when dataset is DELETE requested from atlas it doesn't exist on", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+    expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
+  });
+
+  it("deletes source dataset only from specified atlas when shared by multiple atlases", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_DATASET_SHARED.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    const draftDatasets = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
+      ?.source_datasets;
+    expect(draftDatasets).not.toContain(SOURCE_DATASET_SHARED.id);
+    const publicDatasets = (await getAtlasFromDatabase(ATLAS_PUBLIC.id))
+      ?.source_datasets;
+    expect(publicDatasets).toContain(SOURCE_DATASET_SHARED.id);
+    expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
+
+    await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
+      JSON.stringify(ATLAS_DRAFT.sourceDatasets),
+      ATLAS_DRAFT.id,
+    ]);
+  });
+
+  it("deletes source dataset entirely when only in one atlas", async () => {
+    expect(
+      (
+        await doDatasetRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_DATASET_DRAFT_OK.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    const draftDatasets = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
+      ?.source_datasets;
+    expect(draftDatasets).not.toContain(SOURCE_DATASET_DRAFT_OK.id);
+    const datasetQueryResult = await query(
+      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [SOURCE_DATASET_DRAFT_OK.id]
+    );
+    expect(datasetQueryResult.rows[0]).toBeUndefined();
+
+    await query(
+      "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",
+      [
+        SOURCE_DATASET_DRAFT_OK.doi,
+        SOURCE_DATASET_DRAFT_OK.id,
+        JSON.stringify(makeTestSourceDatasetOverview(SOURCE_DATASET_DRAFT_OK)),
+      ]
+    );
+    await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
+      JSON.stringify(ATLAS_DRAFT.sourceDatasets),
+      ATLAS_DRAFT.id,
+    ]);
   });
 });
 
@@ -311,6 +436,17 @@ async function getDatasetFromDatabase(
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
+}
+
+async function getAtlasFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBAtlas | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBAtlas>(
+      "SELECT * FROM hat.atlases WHERE id=$1",
       [id]
     )
   ).rows[0];

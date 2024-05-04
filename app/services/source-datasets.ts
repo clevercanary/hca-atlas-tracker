@@ -212,6 +212,36 @@ function makeUnpublishedSourceDatasetDbData(
   };
 }
 
+export async function deleteAtlasSourceDataset(
+  atlasId: string,
+  sdId: string
+): Promise<void> {
+  await confirmSourceDatasetExistsOnAtlas(sdId, atlasId);
+
+  const client = await getPoolClient();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      "UPDATE hat.atlases SET source_datasets=source_datasets-$1 WHERE id=$2",
+      [sdId, atlasId]
+    );
+    const sourceDatasetHasAtlases = (
+      await client.query(
+        "SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE source_datasets @> $1)",
+        [JSON.stringify(sdId)]
+      )
+    ).rows[0].exists;
+    if (!sourceDatasetHasAtlases)
+      await client.query("DELETE FROM hat.source_datasets WHERE id=$1", [sdId]);
+    await client.query("COMMIT");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 /**
  * Throw an error if the given source dataset doesn't exist on the given atlas.
  * @param sdId - Source dataset ID.

@@ -10,6 +10,7 @@ import { METHOD } from "../../../../../app/common/entities";
 import { query } from "../../../../../app/services/database";
 import {
   confirmSourceDatasetExistsOnAtlas,
+  deleteAtlasSourceDataset,
   updateSourceDataset,
 } from "../../../../../app/services/source-datasets";
 import {
@@ -62,7 +63,18 @@ const putHandler = handler(
   }
 );
 
+const deleteHandler = handler(
+  role(ROLE.CONTENT_ADMIN), // Since the route is restricted to content admins, there are no additional permissions checks
+  async (req, res) => {
+    const atlasId = req.query.atlasId as string;
+    const sdId = req.query.sdId as string;
+    await deleteAtlasSourceDataset(atlasId, sdId);
+    res.status(200).end();
+  }
+);
+
 export default handleByMethod({
+  [METHOD.DELETE]: deleteHandler,
   [METHOD.GET]: getHandler,
   [METHOD.PUT]: putHandler,
 });
