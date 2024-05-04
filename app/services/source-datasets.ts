@@ -212,6 +212,11 @@ function makeUnpublishedSourceDatasetDbData(
   };
 }
 
+/**
+ * Remove the specified source dataset from the specified atlas, and delete the source dataset if it's not contained in any other atlases.
+ * @param atlasId - Atlas ID.
+ * @param sdId - Source dataset ID.
+ */
 export async function deleteAtlasSourceDataset(
   atlasId: string,
   sdId: string
