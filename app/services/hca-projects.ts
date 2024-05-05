@@ -3,10 +3,15 @@ import { normalizeDoi } from "../utils/doi";
 import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 
-type ProjectIdsByDoi = Map<string, string>;
+export interface ProjectInfo {
+  id: string;
+  title: string;
+}
+
+type ProjectInfoByDoi = Map<string, ProjectInfo>;
 
 interface ProjectsData {
-  byDoi: ProjectIdsByDoi;
+  byDoi: ProjectInfoByDoi;
   catalog: string;
 }
 
@@ -55,15 +60,24 @@ const { getData: getProjectsData } = makeRefreshService({
 });
 
 /**
- * Find the first of a list of DOIs that matches an HCA project, and return the project's ID, starting a refresh of the DOI-to-ID mappings if needed.
- * @param dois -- Normalized DOIs to check to find a project ID.
+ * Find the first of a list of DOIs that matches an HCA project, and return the project's ID, starting a refresh of the DOI-to-project mappings if needed.
+ * @param dois -- Normalized DOIs to check to find a project.
  * @returns HCA project ID, or null if none is found.
  */
 export function getProjectIdByDoi(dois: string[]): string | null {
+  return getProjectInfoByDoi(dois)?.id ?? null;
+}
+
+/**
+ * Find the first of a list of DOIs that matches an HCA project, and return the project's info, starting a refresh of the DOI-to-project mappings if needed.
+ * @param dois -- Normalized DOIs to check to find a project.
+ * @returns HCA project info, or null if none is found.
+ */
+export function getProjectInfoByDoi(dois: string[]): ProjectInfo | null {
   const { byDoi } = getProjectsData();
   for (const doi of dois) {
-    const projectId = byDoi.get(doi);
-    if (projectId !== undefined) return projectId;
+    const projectInfo = byDoi.get(doi);
+    if (projectInfo !== undefined) return projectInfo;
   }
   return null;
 }
@@ -75,8 +89,8 @@ export function getProjectIdByDoi(dois: string[]): string | null {
  */
 async function getRefreshedProjectIdsByDoi(
   catalog: string
-): Promise<ProjectIdsByDoi> {
-  const projectIdsByDoi: ProjectIdsByDoi = new Map();
+): Promise<ProjectInfoByDoi> {
+  const projectIdsByDoi: ProjectInfoByDoi = new Map();
   console.log("Requesting HCA projects");
   const hits = await getAllProjects(catalog, {
     hooks: {
@@ -93,7 +107,10 @@ async function getRefreshedProjectIdsByDoi(
     for (const project of projectsResponse.projects) {
       for (const publication of project.publications) {
         if (publication.doi)
-          projectIdsByDoi.set(normalizeDoi(publication.doi), project.projectId);
+          projectIdsByDoi.set(normalizeDoi(publication.doi), {
+            id: project.projectId,
+            title: project.projectTitle,
+          });
       }
     }
   }
