@@ -3,6 +3,7 @@ import ky, { Options as KyOptions } from "ky";
 export interface CellxGeneCollection {
   collection_id: string;
   doi: string | null;
+  name: string;
 }
 
 const API_URL_COLLECTIONS =

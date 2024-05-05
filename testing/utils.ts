@@ -47,7 +47,8 @@ export function makeTestSourceDatasetOverview(
 
 export function makeTestProjectsResponse(
   id: string,
-  doi: string
+  doi: string,
+  title: string
 ): ProjectsResponse {
   return {
     cellSuspensions: [],
@@ -65,7 +66,7 @@ export function makeTestProjectsResponse(
         projectDescription: "",
         projectId: id,
         projectShortname: "",
-        projectTitle: "",
+        projectTitle: title,
         publications: [
           {
             doi,
