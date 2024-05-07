@@ -87,6 +87,12 @@ export interface HCAAtlasTrackerActiveUser {
   role: ROLE;
 }
 
+export type DBEntityOfType<T extends ENTITY_TYPE> = T extends ENTITY_TYPE.ATLAS
+  ? HCAAtlasTrackerDBAtlas
+  : T extends ENTITY_TYPE.SOURCE_DATASET
+  ? HCAAtlasTrackerDBSourceDataset
+  : never;
+
 export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
@@ -161,48 +167,6 @@ export interface HCAAtlasTrackerValidationResult {
   validationType: VALIDATION_TYPE;
 }
 
-export enum ENTITY_TYPE {
-  ATLAS = "ATLAS",
-  COMPONENT_ATLAS = "COMPONENT_ATLAS",
-  SOURCE_DATASET = "SOURCE_DATASET",
-}
-
-export enum SYSTEM {
-  CAP = "CAP",
-  CELLXGENE = "CELLXGENE",
-  DUOS = "DUOS",
-  HCA_DATA_REPOSITORY = "HCA_DATA_REPOSITORY",
-}
-
-export enum VALIDATION_TYPE {
-  INGEST = "INGEST",
-  METADATA = "METADATA",
-}
-
-export enum VALIDATION_ID {
-  SOURCE_DATASET_IN_CELLXGENE = "SOURCE_DATASET_IN_CELLXGENE",
-  SOURCE_DATASET_IN_HCA_DATA_REPOSITORY = "SOURCE_DATASET_IN_HCA_DATA_REPOSITORY",
-  SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY = "SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY",
-}
-
-export enum VALIDATION_STATUS {
-  INVALID = "INVALID",
-  OVERRIDDEN = "OVERRIDDEN",
-  VALID = "VALID",
-}
-
-export enum TASK_STATUS {
-  DONE = "DONE",
-  IN_PROGRESS = "IN_PROGRESS",
-  TODO = "TODO",
-}
-
-export type DBEntityOfType<T extends ENTITY_TYPE> = T extends ENTITY_TYPE.ATLAS
-  ? HCAAtlasTrackerDBAtlas
-  : T extends ENTITY_TYPE.SOURCE_DATASET
-  ? HCAAtlasTrackerDBSourceDataset
-  : never;
-
 export interface HCAAtlasTrackerDBUser {
   disabled: boolean;
   email: string;
@@ -255,6 +219,42 @@ export interface IntegrationLead {
 }
 
 export type SourceDatasetId = string;
+
+export enum ENTITY_TYPE {
+  ATLAS = "ATLAS",
+  COMPONENT_ATLAS = "COMPONENT_ATLAS",
+  SOURCE_DATASET = "SOURCE_DATASET",
+}
+
+export enum SYSTEM {
+  CAP = "CAP",
+  CELLXGENE = "CELLXGENE",
+  DUOS = "DUOS",
+  HCA_DATA_REPOSITORY = "HCA_DATA_REPOSITORY",
+}
+
+export enum TASK_STATUS {
+  DONE = "DONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  TODO = "TODO",
+}
+
+export enum VALIDATION_TYPE {
+  INGEST = "INGEST",
+  METADATA = "METADATA",
+}
+
+export enum VALIDATION_ID {
+  SOURCE_DATASET_IN_CELLXGENE = "SOURCE_DATASET_IN_CELLXGENE",
+  SOURCE_DATASET_IN_HCA_DATA_REPOSITORY = "SOURCE_DATASET_IN_HCA_DATA_REPOSITORY",
+  SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY = "SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY",
+}
+
+export enum VALIDATION_STATUS {
+  INVALID = "INVALID",
+  OVERRIDDEN = "OVERRIDDEN",
+  VALID = "VALID",
+}
 
 export enum ROLE {
   CONTENT_ADMIN = "CONTENT_ADMIN",
