@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/constants";
 import {
   NewSourceDatasetData,
@@ -18,15 +19,28 @@ import { getSectionTabs } from "./common/utils";
 import { SectionCard, SectionContent } from "./generalInfo.styles";
 
 export interface GeneralInfoProps {
+  formManager: FormManager;
   formMethod: FormMethod<NewSourceDatasetData>;
 }
 
-export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
+export const GeneralInfo = ({
+  formManager,
+  formMethod,
+}: GeneralInfoProps): JSX.Element => {
   const [publicationStatus, setPublicationStatus] =
     useState<PUBLICATION_STATUS>(PUBLICATION_STATUS.PUBLISHED);
-  const { clearErrors, control, formState, setValue, watch } = formMethod;
-  const { errors } = formState;
+  const {
+    access: { canEdit },
+  } = formManager;
+  const {
+    clearErrors,
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+  } = formMethod;
   const hasDoi = Boolean(watch(FIELD_NAME.DOI));
+  const disabled = !canEdit;
 
   // Callback to handle tab change; clears errors, sets publication status, and updates form value.
   const onTabChange = useCallback(
@@ -53,6 +67,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
           {publicationStatus === PUBLICATION_STATUS.PUBLISHED ? (
             <Controller
               control={control}
+              disabled={disabled}
               key={FIELD_NAME.DOI}
               name={FIELD_NAME.DOI}
               render={({ field }): JSX.Element => (
@@ -75,6 +90,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
                   <Input
                     {...field}
                     {...DEFAULT_INPUT_PROPS.REFERENCE_AUTHOR}
+                    disabled={disabled}
                     error={Boolean(errors[FIELD_NAME.REFERENCE_AUTHOR])}
                     helperText={errors[FIELD_NAME.REFERENCE_AUTHOR]?.message}
                     isFilled={Boolean(field.value)}
@@ -83,6 +99,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
               />
               <Controller
                 control={control}
+                disabled={disabled}
                 key={FIELD_NAME.CONTACT_EMAIL}
                 name={FIELD_NAME.CONTACT_EMAIL}
                 render={({ field }): JSX.Element => (
@@ -97,6 +114,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
               />
               <Controller
                 control={control}
+                disabled={disabled}
                 key={FIELD_NAME.TITLE}
                 name={FIELD_NAME.TITLE}
                 render={({ field }): JSX.Element => (

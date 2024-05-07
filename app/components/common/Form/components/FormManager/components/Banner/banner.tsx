@@ -6,16 +6,16 @@ import { FormActions, FormStatus } from "../../formManager.styles";
 import { AppBar } from "./banner.styles";
 
 export const Banner = ({
+  access,
   formAction,
   formStatus,
 }: FormManager): JSX.Element => {
   const { onDiscard, onSave } = formAction || {};
-  const { isDirty, isDisabled, isLeaving, isSubmitted, isSubmitting } =
-    formStatus;
+  const { isDisabled } = formStatus;
   return (
     <Fade
       appear={false}
-      in={(isDirty || isSubmitting || isSubmitted) && !isLeaving}
+      in={shouldRenderBanner({ access, formStatus })}
       unmountOnExit
     >
       <AppBar component="div" position="fixed">
@@ -32,3 +32,22 @@ export const Banner = ({
     </Fade>
   );
 };
+
+/**
+ * The banner should be rendered if:
+ * - the user has edit access to the form and,
+ * - the user is not in the process of leaving the form while,
+ * - the form is dirty or submitting or submitted.
+ * @param formManager - Form manager.
+ * @returns true if the banner should be rendered.
+ */
+function shouldRenderBanner(
+  formManager: Pick<FormManager, "access" | "formStatus">
+): boolean {
+  const {
+    access: { canEdit },
+    formStatus: { isDirty, isLeaving, isSubmitted, isSubmitting },
+  } = formManager;
+  if (!canEdit) return false;
+  return !isLeaving && (isDirty || isSubmitting || isSubmitted);
+}

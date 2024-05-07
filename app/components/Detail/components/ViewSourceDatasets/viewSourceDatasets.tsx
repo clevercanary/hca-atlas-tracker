@@ -1,6 +1,5 @@
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import {
   AtlasId,
   HCAAtlasTrackerSourceDataset,
@@ -14,7 +13,7 @@ import {
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { Paper, TableToolbar } from "./viewSourceDatasets.styles";
+import { Paper, Table, TableToolbar } from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
   atlasId: AtlasId;
@@ -28,21 +27,23 @@ export const ViewSourceDatasets = ({
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
   const {
-    access: { canView },
+    access: { canEdit, canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
     <Paper>
       <GridPaper>
-        <TableToolbar>
-          <ButtonLink
-            color={BUTTON_COLOR.SECONDARY}
-            href={getRouteURL(ROUTE.CREATE_ATLAS_SOURCE_DATASET, atlasId)}
-            startIcon={<AddIcon fontSize="small" />}
-          >
-            Add Source Dataset
-          </ButtonLink>
-        </TableToolbar>
+        {canEdit && (
+          <TableToolbar>
+            <ButtonLink
+              color={BUTTON_COLOR.SECONDARY}
+              href={getRouteURL(ROUTE.CREATE_SOURCE_DATASET, atlasId)}
+              startIcon={<AddIcon fontSize="small" />}
+            >
+              Add Source Dataset
+            </ButtonLink>
+          </TableToolbar>
+        )}
         {sourceDatasets?.length > 0 && (
           <Table
             columns={getAtlasSourceDatasetsTableColumns(atlasId)}

@@ -24,9 +24,9 @@ export function getBreadcrumbs(
       text: "Atlases",
     },
     {
-      path: getRouteURL(ROUTE.VIEW_SOURCE_DATASETS, atlasId),
-      route: ROUTE.VIEW_SOURCE_DATASETS,
-      text: atlas ? getAtlasName(atlas) : "Edit Atlas",
+      path: getRouteURL(ROUTE.SOURCE_DATASETS, atlasId),
+      route: ROUTE.SOURCE_DATASETS,
+      text: atlas ? getAtlasName(atlas) : "Atlas",
     },
     {
       path: "",

@@ -27,7 +27,7 @@ export const buildAtlasName = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: atlas.name,
-    url: `/atlases/${encodeURIComponent(atlas.id)}/edit`,
+    url: `/atlases/${encodeURIComponent(atlas.id)}`,
   };
 };
 
@@ -137,7 +137,7 @@ export const buildSourceDatasetTitle = (
   const { id, title } = sourceDataset;
   return {
     label: title ?? id,
-    url: getRouteURL(ROUTE.EDIT_ATLAS_SOURCE_DATASET, atlasId, id),
+    url: getRouteURL(ROUTE.SOURCE_DATASET, atlasId, id),
   };
 };
 

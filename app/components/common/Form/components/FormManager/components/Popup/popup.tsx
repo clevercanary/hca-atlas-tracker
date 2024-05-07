@@ -15,15 +15,22 @@ interface PopupProps extends FormManager {
 }
 
 export const Popup = ({
+  access,
   content,
   formAction,
   formStatus,
   getNextRoute,
 }: PopupProps): JSX.Element => {
+  const { canEdit } = access;
   const { onCancel, onDiscard, onSave } = formAction || {};
   const { isLeaving } = formStatus;
   return (
-    <Dialog fullWidth maxWidth="xs" onClose={onCancel} open={isLeaving}>
+    <Dialog
+      fullWidth
+      maxWidth="xs"
+      onClose={onCancel}
+      open={canEdit && isLeaving}
+    >
       <DialogTitle onClose={onCancel} title="Unsaved Changes" />
       <DialogContent dividers>
         {content ?? <PopupContent nextRoute={getNextRoute?.()} />}

@@ -29,7 +29,7 @@ export const useAddSourceDatasetFormManager = (
 
   const onDiscard = useCallback(
     (url?: string) => {
-      Router.push(url ?? getRouteURL(ROUTE.VIEW_SOURCE_DATASETS, atlasId));
+      Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASETS, atlasId));
     },
     [atlasId]
   );
@@ -84,15 +84,13 @@ function isFormDirty(
 }
 
 /**
- * Side effect "onSuccess"; redirects to the edit source dataset page, or to the specified URL.
+ * Side effect "onSuccess"; redirects to the source dataset page, or to the specified URL.
  * @param atlasId - Atlas ID.
  * @param sdId - Source dataset ID.
  * @param url - URL to redirect to.
  */
 function onSuccess(atlasId: string, sdId: string, url?: string): void {
-  Router.push(
-    url ?? getRouteURL(ROUTE.EDIT_ATLAS_SOURCE_DATASET, atlasId, sdId)
-  );
+  Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASET, atlasId, sdId));
 }
 
 /**

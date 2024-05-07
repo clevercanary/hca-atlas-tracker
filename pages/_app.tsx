@@ -22,6 +22,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { config } from "app/config/config";
 import { NextPage } from "next";
 import type { AppProps } from "next/app";
+import { AuthorizationProvider } from "../app/providers/authorization";
 
 const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 
@@ -54,37 +55,39 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
           <CssBaseline />
           <SystemStatusProvider>
             <AuthProvider sessionTimeout={SESSION_TIMEOUT}>
-              <LayoutStateProvider>
-                <AppLayout>
-                  <DXHeader {...header} />
-                  <ExploreStateProvider entityListType={entityListType}>
-                    <FileManifestStateProvider>
-                      <Main>
-                        <ErrorBoundary
-                          fallbackRender={({
-                            error,
-                            reset,
-                          }: {
-                            error: DataExplorerError;
-                            reset: () => void;
-                          }): JSX.Element => (
-                            <Error
-                              errorMessage={error.message}
-                              requestUrlMessage={error.requestUrlMessage}
-                              rootPath={redirectRootToPath}
-                              onReset={reset}
-                            />
-                          )}
-                        >
-                          <Component {...pageProps} />
-                          <Floating {...floating} />
-                        </ErrorBoundary>
-                      </Main>
-                    </FileManifestStateProvider>
-                  </ExploreStateProvider>
-                  <Footer {...footer} />
-                </AppLayout>
-              </LayoutStateProvider>
+              <AuthorizationProvider>
+                <LayoutStateProvider>
+                  <AppLayout>
+                    <DXHeader {...header} />
+                    <ExploreStateProvider entityListType={entityListType}>
+                      <FileManifestStateProvider>
+                        <Main>
+                          <ErrorBoundary
+                            fallbackRender={({
+                              error,
+                              reset,
+                            }: {
+                              error: DataExplorerError;
+                              reset: () => void;
+                            }): JSX.Element => (
+                              <Error
+                                errorMessage={error.message}
+                                requestUrlMessage={error.requestUrlMessage}
+                                rootPath={redirectRootToPath}
+                                onReset={reset}
+                              />
+                            )}
+                          >
+                            <Component {...pageProps} />
+                            <Floating {...floating} />
+                          </ErrorBoundary>
+                        </Main>
+                      </FileManifestStateProvider>
+                    </ExploreStateProvider>
+                    <Footer {...footer} />
+                  </AppLayout>
+                </LayoutStateProvider>
+              </AuthorizationProvider>
             </AuthProvider>
           </SystemStatusProvider>
         </DXConfigProvider>

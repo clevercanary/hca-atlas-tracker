@@ -2,7 +2,9 @@ import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthe
 import Router from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { FieldValues } from "react-hook-form";
+import { ROLE } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { RouteValue } from "../../routes/entities";
+import { useAuthorization } from "../useAuthorization";
 import { FormMethod, YupValidatedFormValues } from "../useForm/common/entities";
 import {
   FormAccess,
@@ -16,6 +18,7 @@ export interface UseFormManager {
   formAction?: FormAction;
   formStatus: FormStatus;
   getNextRoute?: GetNextRouteFn;
+  isLoading: boolean;
 }
 
 export const useFormManager = <T extends FieldValues, R = undefined>(
@@ -25,6 +28,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
   isDirty = formMethod?.formState.isDirty ?? false
 ): UseFormManager => {
   const { isAuthenticated } = useAuthentication();
+  const { user } = useAuthorization();
   const [pathRoute, setPathRoute] =
     useState<[string, RouteValue | undefined]>(); // Tuple: path and corresponding route.
   const [nextPath, nextRoute] = pathRoute || [];
@@ -34,9 +38,14 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
     isSubmitted = false,
     isSubmitting = false,
   } = formState || {};
+  const canEdit = user?.role === ROLE.CONTENT_ADMIN;
+  const access: FormAccess = {
+    canEdit,
+    canView: isAuthenticated,
+  };
   const isDisabled =
     !isDirty || isSubmitting || (isSubmitted && isSubmitSuccessful);
-  const access: FormAccess = { canEdit: true, canView: isAuthenticated };
+  const isLoading = isAuthenticated ? !user : false;
 
   const getNextRoute = useCallback((): RouteValue | undefined => {
     return nextRoute;
@@ -63,13 +72,14 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
 
   const onNavigate = useCallback(
     (path: string, route?: RouteValue): void => {
-      if (isDirty) {
+      if (canEdit && isDirty) {
+        // User has access to edit form, and form has unsaved changes.
         setPathRoute([path, route]);
         return;
       }
       Router.push(path);
     },
-    [isDirty]
+    [canEdit, isDirty]
   );
 
   useEffect(() => {
@@ -88,6 +98,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
         isSubmitted: false,
         isSubmitting: false,
       },
+      isLoading,
     };
   }
 
@@ -107,5 +118,6 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
       isSubmitting,
     },
     getNextRoute,
+    isLoading,
   };
 };

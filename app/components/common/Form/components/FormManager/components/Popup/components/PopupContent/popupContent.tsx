@@ -28,17 +28,17 @@ export const PopupContent = ({ nextRoute }: PopupContentProps): JSX.Element => {
  */
 export function renderText(route?: RouteValue): string {
   switch (route) {
+    case ROUTE.ATLAS:
+      return `"Overview" tab`;
     case ROUTE.ATLASES:
       return `"Atlases" page`;
     case ROUTE.CREATE_ATLAS:
       return `"Add New Atlas" page`;
-    case ROUTE.CREATE_ATLAS_SOURCE_DATASET:
+    case ROUTE.CREATE_SOURCE_DATASET:
       return `"Add Source Dataset" page`;
-    case ROUTE.EDIT_ATLAS:
-      return `"Overview" tab`;
-    case ROUTE.EDIT_ATLAS_SOURCE_DATASET:
-      return `"Edit Source Dataset" page`;
-    case ROUTE.VIEW_SOURCE_DATASETS:
+    case ROUTE.SOURCE_DATASET:
+      return `"Source Dataset" page`;
+    case ROUTE.SOURCE_DATASETS:
       return `"Source Datasets" tab`;
     default:
       return "";

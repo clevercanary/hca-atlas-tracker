@@ -36,5 +36,5 @@ export const useAddAtlasFormManager = (
  * @param url - URL to redirect to.
  */
 export function onSuccess(id: string, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.EDIT_ATLAS, id));
+  Router.push(url ?? getRouteURL(ROUTE.ATLAS, id));
 }

@@ -11,10 +11,11 @@ import {
   isWaveValue,
 } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
+import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
 import { getBioNetworkByKey } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { NewAtlasData } from "../../../../../../../../../../views/AddNewAtlasView/common/entities";
-import { FIELD_NAME } from "../../../../../../../../../../views/EditAtlasView/common/constants";
-import { AtlasEditData } from "../../../../../../../../../../views/EditAtlasView/common/entities";
+import { FIELD_NAME } from "../../../../../../../../../../views/AtlasView/common/constants";
+import { AtlasEditData } from "../../../../../../../../../../views/AtlasView/common/entities";
 import { Input } from "../../../../../../../../../common/Form/components/Input/input";
 import { Select } from "../../../../../../../../../common/Form/components/Select/select";
 import { NetworkIconAndName } from "../../../../../Select/components/NetworkIconAndName/networkIconAndName";
@@ -27,14 +28,24 @@ import {
 import { DEFAULT_INPUT_PROPS } from "../../common/constants";
 
 export interface GeneralInfoProps {
+  formManager: FormManager;
   formMethod:
     | FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
     | FormMethod<NewAtlasData>;
 }
 
-export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
-  const { control, formState } = formMethod;
-  const { errors } = formState;
+export const GeneralInfo = ({
+  formManager,
+  formMethod,
+}: GeneralInfoProps): JSX.Element => {
+  const {
+    access: { canEdit },
+  } = formManager;
+  const {
+    control,
+    formState: { errors },
+  } = formMethod;
+  const readOnly = !canEdit;
   return (
     <Section>
       <SectionHero>
@@ -51,6 +62,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
               error={Boolean(errors[FIELD_NAME.SHORT_NAME])}
               helperText={errors[FIELD_NAME.SHORT_NAME]?.message as string}
               isFilled={Boolean(field.value)}
+              readOnly={readOnly}
             />
           )}
         />
@@ -64,6 +76,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
               error={Boolean(errors[FIELD_NAME.VERSION])}
               helperText={errors[FIELD_NAME.VERSION]?.message as string}
               isFilled={Boolean(field.value)}
+              readOnly={readOnly}
             />
           )}
         />
@@ -77,6 +90,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
               error={Boolean(errors[FIELD_NAME.BIO_NETWORK])}
               helperText={errors[FIELD_NAME.BIO_NETWORK]?.message as string}
               isFilled={Boolean(field.value)}
+              readOnly={readOnly}
               renderValue={renderNetworkSelectValue}
             >
               {NETWORKS.map(({ key, name }) => (
@@ -97,6 +111,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
               error={Boolean(errors[FIELD_NAME.WAVE])}
               helperText={errors[FIELD_NAME.WAVE]?.message as string}
               isFilled={Boolean(field.value)}
+              readOnly={readOnly}
               renderValue={renderWaveSelectValue}
             >
               {WAVES.map((wave) => {

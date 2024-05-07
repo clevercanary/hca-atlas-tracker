@@ -15,12 +15,18 @@ export interface TabsProps extends Omit<DXTabsProps, "tabs" | "onTabChange"> {
   tabs: Tab[];
 }
 
-export const Tabs = ({ onTabChange, tabs, value }: TabsProps): JSX.Element => {
+export const Tabs = ({
+  onTabChange,
+  tabs,
+  value,
+  ...props /* Spread props to allow for Mui Tabs specific prop overrides. */
+}: TabsProps): JSX.Element => {
   return (
     <SectionTabs
       onChange={(_, tabValue): void => onTabChange?.(tabValue)}
       scrollButtons={false}
       value={value}
+      {...props}
     >
       {tabs.map((tab, t) => (
         <MTab key={t} {...tab} />

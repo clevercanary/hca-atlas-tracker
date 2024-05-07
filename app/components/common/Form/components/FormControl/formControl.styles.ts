@@ -60,7 +60,11 @@ export const FormControl = styled(MFormControl, {
 
       .MuiOutlinedInput-input {
         -webkit-text-fill-color: ${inkLight};
-        -webkit-box-shadow: inset 0 40px ${smokeLight};
+        -webkit-box-shadow: none;
+      }
+
+      .MuiSelect-select {
+        cursor: default;
       }
     }
 

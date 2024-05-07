@@ -1,9 +1,10 @@
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
+import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
 import { NewAtlasData } from "../../../../../../../../../../views/AddNewAtlasView/common/entities";
-import { FIELD_NAME } from "../../../../../../../../../../views/EditAtlasView/common/constants";
-import { AtlasEditData } from "../../../../../../../../../../views/EditAtlasView/common/entities";
+import { FIELD_NAME } from "../../../../../../../../../../views/AtlasView/common/constants";
+import { AtlasEditData } from "../../../../../../../../../../views/AtlasView/common/entities";
 import { Input } from "../../../../../../../../../common/Form/components/Input/input";
 import {
   Section,
@@ -14,16 +15,24 @@ import {
 import { DEFAULT_INPUT_PROPS } from "../../common/constants";
 
 export interface IntegrationLeadProps {
+  formManager: FormManager;
   formMethod:
     | FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
     | FormMethod<NewAtlasData>;
 }
 
 export const IntegrationLead = ({
+  formManager,
   formMethod,
 }: IntegrationLeadProps): JSX.Element => {
-  const { control, formState } = formMethod;
-  const { errors } = formState;
+  const {
+    access: { canEdit },
+  } = formManager;
+  const {
+    control,
+    formState: { errors },
+  } = formMethod;
+  const readOnly = !canEdit;
   return (
     <Section>
       <SectionHero>
@@ -40,6 +49,7 @@ export const IntegrationLead = ({
               error={Boolean(errors.integrationLead?.name)}
               helperText={errors.integrationLead?.name?.message as string}
               isFilled={Boolean(field.value)}
+              readOnly={readOnly}
             />
           )}
         />
@@ -53,6 +63,7 @@ export const IntegrationLead = ({
               error={Boolean(errors.integrationLead?.email)}
               helperText={errors.integrationLead?.email?.message as string}
               isFilled={Boolean(field.value)}
+              readOnly={readOnly}
             />
           )}
         />
