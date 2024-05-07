@@ -1,3 +1,4 @@
+import pg from "pg";
 import {
   DBEntityOfType,
   ENTITY_TYPE,
@@ -11,7 +12,6 @@ import {
   VALIDATION_TYPE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
@@ -94,10 +94,11 @@ function getValidationResult<T extends ENTITY_TYPE>(
 }
 
 export async function updateSourceDatasetValidations(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset
+  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  client: pg.PoolClient
 ): Promise<void> {
   const title = getSourceDatasetTitle(sourceDataset);
-  const atlasIds = await getSourceDatasetAtlasIds(sourceDataset);
+  const atlasIds = await getSourceDatasetAtlasIds(sourceDataset, client);
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
     if (validation.condition && !validation.condition(sourceDataset)) continue;
     console.log(
@@ -123,9 +124,10 @@ function getSourceDatasetTitle(
 }
 
 async function getSourceDatasetAtlasIds(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset
+  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  client: pg.PoolClient
 ): Promise<string[]> {
-  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+  const queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     "SELECT id FROM hat.atlases WHERE source_datasets @> $1",
     [JSON.stringify(sourceDataset.id)]
   );
