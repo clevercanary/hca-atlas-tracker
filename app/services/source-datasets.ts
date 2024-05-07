@@ -14,6 +14,7 @@ import {
   SourceDatasetEditData,
   UnpublishedSourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -166,11 +167,7 @@ async function makePublishedSourceDatasetDbData(
     throw e;
   }
 
-  const dois = [
-    ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
-    doi,
-    ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
-  ];
+  const dois = publication ? getPublicationDois(doi, publication) : [];
 
   const hcaProjectId = getProjectIdByDoi(dois);
 

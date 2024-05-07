@@ -13,6 +13,7 @@ import {
   deleteAtlasSourceDataset,
   updateSourceDataset,
 } from "../../../../../app/services/source-datasets";
+import { updateSourceDatasetValidations } from "../../../../../app/services/validations";
 import {
   AccessError,
   handleByMethod,
@@ -59,6 +60,7 @@ const putHandler = handler(
       sdId,
       await sourceDatasetEditSchema.validate(req.body)
     );
+    await updateSourceDatasetValidations(newDataset);
     res.json(dbSourceDatasetToApiSourceDataset(newDataset));
   }
 );

@@ -3,6 +3,7 @@ import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/e
 import { newSourceDatasetSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
+import { updateSourceDatasetValidations } from "../../../../../app/services/validations";
 import { handler, method, role } from "../../../../../app/utils/api-handler";
 
 /**
@@ -17,6 +18,7 @@ export default handler(
       atlasId,
       await newSourceDatasetSchema.validate(req.body)
     );
+    await updateSourceDatasetValidations(newDataset);
     res.status(201).json(dbSourceDatasetToApiSourceDataset(newDataset));
   }
 );

@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerSourceDataset,
   NetworkKey,
+  PublicationInfo,
   Wave,
 } from "./entities";
 
@@ -92,6 +93,23 @@ export function dbSourceDatasetToApiSourceDataset(
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
   return `${atlas.shortName} v${atlas.version}`;
+}
+
+/**
+ * Return DOIs associated with a given publication, ordered with journal article first.
+ * @param primaryDoi - DOI for the publication itself.
+ * @param publication - Publication.
+ * @returns DOIs.
+ */
+export function getPublicationDois(
+  primaryDoi: string,
+  publication: PublicationInfo
+): string[] {
+  return [
+    ...(publication.preprintOfDoi ? [publication.preprintOfDoi] : []),
+    primaryDoi,
+    ...(publication.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
+  ];
 }
 
 /**
