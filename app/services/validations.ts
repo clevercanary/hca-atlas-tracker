@@ -36,7 +36,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
     },
     {
       description: "Ingest source dataset.",
-      system: SYSTEM.CELLXGENE,
+      system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): boolean {
         return Boolean(sourceDataset.sd_info.hcaProjectId);
       },
