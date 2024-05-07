@@ -74,8 +74,8 @@ function getValidationResult<T extends ENTITY_TYPE>(
   atlasIds: string[]
 ): HCAAtlasTrackerValidationResult {
   const validationStatus = validation.validate(entity)
-    ? VALIDATION_STATUS.VALID
-    : VALIDATION_STATUS.INVALID;
+    ? VALIDATION_STATUS.PASSED
+    : VALIDATION_STATUS.FAILED;
   return {
     atlasIds,
     description: validation.description,
@@ -84,7 +84,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
     entityType,
     system: validation.system,
     taskStatus:
-      validationStatus === VALIDATION_STATUS.VALID
+      validationStatus === VALIDATION_STATUS.PASSED
         ? TASK_STATUS.DONE
         : TASK_STATUS.TODO,
     validationId: validation.validationId,

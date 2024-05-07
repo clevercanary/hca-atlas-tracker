@@ -251,9 +251,9 @@ export enum VALIDATION_ID {
 }
 
 export enum VALIDATION_STATUS {
-  INVALID = "INVALID",
+  FAILED = "FAILED",
   OVERRIDDEN = "OVERRIDDEN",
-  VALID = "VALID",
+  PASSED = "PASSED",
 }
 
 export enum ROLE {
