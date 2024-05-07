@@ -15,6 +15,7 @@ import { query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
+  condition?: (entity: T) => boolean;
   description: string;
   system: SYSTEM;
   validate: (entity: T) => boolean;
@@ -43,6 +44,9 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
+      condition(sourceDataset): boolean {
+        return Boolean(sourceDataset.sd_info.publication);
+      },
       description: "Update project title to match publication title.",
       system: SYSTEM.CELLXGENE,
       validate(sourceDataset): boolean {
@@ -95,6 +99,7 @@ export async function updateSourceDatasetValidations(
   const title = getSourceDatasetTitle(sourceDataset);
   const atlasIds = await getSourceDatasetAtlasIds(sourceDataset);
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
+    if (validation.condition && !validation.condition(sourceDataset)) continue;
     console.log(
       getValidationResult(
         ENTITY_TYPE.SOURCE_DATASET,
