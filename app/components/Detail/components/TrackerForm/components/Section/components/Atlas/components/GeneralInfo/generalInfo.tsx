@@ -39,13 +39,12 @@ export const GeneralInfo = ({
   formMethod,
 }: GeneralInfoProps): JSX.Element => {
   const {
-    access: { canEdit },
+    formStatus: { isReadOnly },
   } = formManager;
   const {
     control,
     formState: { errors },
   } = formMethod;
-  const readOnly = !canEdit;
   return (
     <Section>
       <SectionHero>
@@ -62,7 +61,7 @@ export const GeneralInfo = ({
               error={Boolean(errors[FIELD_NAME.SHORT_NAME])}
               helperText={errors[FIELD_NAME.SHORT_NAME]?.message as string}
               isFilled={Boolean(field.value)}
-              readOnly={readOnly}
+              readOnly={isReadOnly}
             />
           )}
         />
@@ -76,7 +75,7 @@ export const GeneralInfo = ({
               error={Boolean(errors[FIELD_NAME.VERSION])}
               helperText={errors[FIELD_NAME.VERSION]?.message as string}
               isFilled={Boolean(field.value)}
-              readOnly={readOnly}
+              readOnly={isReadOnly}
             />
           )}
         />
@@ -90,7 +89,7 @@ export const GeneralInfo = ({
               error={Boolean(errors[FIELD_NAME.BIO_NETWORK])}
               helperText={errors[FIELD_NAME.BIO_NETWORK]?.message as string}
               isFilled={Boolean(field.value)}
-              readOnly={readOnly}
+              readOnly={isReadOnly}
               renderValue={renderNetworkSelectValue}
             >
               {NETWORKS.map(({ key, name }) => (
@@ -111,7 +110,7 @@ export const GeneralInfo = ({
               error={Boolean(errors[FIELD_NAME.WAVE])}
               helperText={errors[FIELD_NAME.WAVE]?.message as string}
               isFilled={Boolean(field.value)}
-              readOnly={readOnly}
+              readOnly={isReadOnly}
               renderValue={renderWaveSelectValue}
             >
               {WAVES.map((wave) => {

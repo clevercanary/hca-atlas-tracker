@@ -26,13 +26,12 @@ export const IntegrationLead = ({
   formMethod,
 }: IntegrationLeadProps): JSX.Element => {
   const {
-    access: { canEdit },
+    formStatus: { isReadOnly },
   } = formManager;
   const {
     control,
     formState: { errors },
   } = formMethod;
-  const readOnly = !canEdit;
   return (
     <Section>
       <SectionHero>
@@ -49,7 +48,7 @@ export const IntegrationLead = ({
               error={Boolean(errors.integrationLead?.name)}
               helperText={errors.integrationLead?.name?.message as string}
               isFilled={Boolean(field.value)}
-              readOnly={readOnly}
+              readOnly={isReadOnly}
             />
           )}
         />
@@ -63,7 +62,7 @@ export const IntegrationLead = ({
               error={Boolean(errors.integrationLead?.email)}
               helperText={errors.integrationLead?.email?.message as string}
               isFilled={Boolean(field.value)}
-              readOnly={readOnly}
+              readOnly={isReadOnly}
             />
           )}
         />

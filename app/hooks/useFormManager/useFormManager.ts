@@ -46,6 +46,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
   const isDisabled =
     !isDirty || isSubmitting || (isSubmitted && isSubmitSuccessful);
   const isLoading = isAuthenticated ? !user : false;
+  const isReadOnly = !canEdit;
 
   const getNextRoute = useCallback((): RouteValue | undefined => {
     return nextRoute;
@@ -95,6 +96,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
         isDirty: false,
         isDisabled: false,
         isLeaving: false,
+        isReadOnly: false,
         isSubmitted: false,
         isSubmitting: false,
       },
@@ -114,6 +116,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
       isDirty,
       isDisabled,
       isLeaving: Boolean(nextRoute),
+      isReadOnly,
       isSubmitted,
       isSubmitting,
     },

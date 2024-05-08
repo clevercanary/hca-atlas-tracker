@@ -19,6 +19,7 @@ export interface FormStatus {
   isDirty: boolean;
   isDisabled: boolean;
   isLeaving: boolean;
+  isReadOnly: boolean;
   isSubmitted: boolean;
   isSubmitting: boolean;
 }

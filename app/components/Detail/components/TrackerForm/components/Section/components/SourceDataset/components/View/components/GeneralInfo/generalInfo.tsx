@@ -37,7 +37,7 @@ export const GeneralInfo = ({
   const [publicationStatus, setPublicationStatus] =
     useState<PUBLICATION_STATUS>(sdPublicationStatus);
   const {
-    access: { canEdit },
+    formStatus: { isReadOnly },
   } = formManager;
   const {
     clearErrors,
@@ -49,7 +49,6 @@ export const GeneralInfo = ({
   } = formMethod;
   const hasDoi = Boolean(watch(FIELD_NAME.DOI));
   const isPublished = sdPublicationStatus === PUBLICATION_STATUS.PUBLISHED;
-  const isReadOnly = !canEdit;
 
   // Callback to handle tab change; clears errors, sets publication status, and updates form value.
   const onTabChange = useCallback(
@@ -73,7 +72,7 @@ export const GeneralInfo = ({
       <SectionCard>
         <Tabs
           onTabChange={onTabChange}
-          tabs={getSectionTabs(canEdit, isPublished, hasDoi)}
+          tabs={getSectionTabs(isReadOnly, isPublished, hasDoi)}
           value={publicationStatus}
         />
         <SectionContent>
