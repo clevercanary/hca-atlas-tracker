@@ -37,7 +37,6 @@ export const useFetchSourceDatasets = (
       if (isFetchStatusOk(res.status)) {
         return await res.json();
       }
-      // TODO handle error.
       throw new Error(
         await res
           .json()

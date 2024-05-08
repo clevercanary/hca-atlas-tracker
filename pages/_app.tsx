@@ -11,7 +11,6 @@ import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout
 import { AuthProvider } from "@databiosphere/findable-ui/lib/providers/authentication";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
-import { FileManifestStateProvider } from "@databiosphere/findable-ui/lib/providers/fileManifestState";
 import { LayoutStateProvider } from "@databiosphere/findable-ui/lib/providers/layoutState";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
@@ -55,39 +54,37 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
           <CssBaseline />
           <SystemStatusProvider>
             <AuthProvider sessionTimeout={SESSION_TIMEOUT}>
-              <AuthorizationProvider>
-                <LayoutStateProvider>
-                  <AppLayout>
-                    <DXHeader {...header} />
-                    <ExploreStateProvider entityListType={entityListType}>
-                      <FileManifestStateProvider>
-                        <Main>
-                          <ErrorBoundary
-                            fallbackRender={({
-                              error,
-                              reset,
-                            }: {
-                              error: DataExplorerError;
-                              reset: () => void;
-                            }): JSX.Element => (
-                              <Error
-                                errorMessage={error.message}
-                                requestUrlMessage={error.requestUrlMessage}
-                                rootPath={redirectRootToPath}
-                                onReset={reset}
-                              />
-                            )}
-                          >
-                            <Component {...pageProps} />
-                            <Floating {...floating} />
-                          </ErrorBoundary>
-                        </Main>
-                      </FileManifestStateProvider>
-                    </ExploreStateProvider>
-                    <Footer {...footer} />
-                  </AppLayout>
-                </LayoutStateProvider>
-              </AuthorizationProvider>
+              <LayoutStateProvider>
+                <AppLayout>
+                  <DXHeader {...header} />
+                  <ExploreStateProvider entityListType={entityListType}>
+                    <Main>
+                      <AuthorizationProvider>
+                        <ErrorBoundary
+                          fallbackRender={({
+                            error,
+                            reset,
+                          }: {
+                            error: DataExplorerError;
+                            reset: () => void;
+                          }): JSX.Element => (
+                            <Error
+                              errorMessage={error.message}
+                              requestUrlMessage={error.requestUrlMessage}
+                              rootPath={redirectRootToPath}
+                              onReset={reset}
+                            />
+                          )}
+                        >
+                          <Component {...pageProps} />
+                          <Floating {...floating} />
+                        </ErrorBoundary>
+                      </AuthorizationProvider>
+                    </Main>
+                  </ExploreStateProvider>
+                  <Footer {...footer} />
+                </AppLayout>
+              </LayoutStateProvider>
             </AuthProvider>
           </SystemStatusProvider>
         </DXConfigProvider>
