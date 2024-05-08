@@ -30,7 +30,7 @@ export const GeneralInfo = ({
   const [publicationStatus, setPublicationStatus] =
     useState<PUBLICATION_STATUS>(PUBLICATION_STATUS.PUBLISHED);
   const {
-    access: { canEdit },
+    formStatus: { isReadOnly },
   } = formManager;
   const {
     clearErrors,
@@ -40,7 +40,6 @@ export const GeneralInfo = ({
     watch,
   } = formMethod;
   const hasDoi = Boolean(watch(FIELD_NAME.DOI));
-  const disabled = !canEdit;
 
   // Callback to handle tab change; clears errors, sets publication status, and updates form value.
   const onTabChange = useCallback(
@@ -67,7 +66,6 @@ export const GeneralInfo = ({
           {publicationStatus === PUBLICATION_STATUS.PUBLISHED ? (
             <Controller
               control={control}
-              disabled={disabled}
               key={FIELD_NAME.DOI}
               name={FIELD_NAME.DOI}
               render={({ field }): JSX.Element => (
@@ -77,6 +75,7 @@ export const GeneralInfo = ({
                   error={Boolean(errors[FIELD_NAME.DOI])}
                   helperText={errors[FIELD_NAME.DOI]?.message}
                   isFilled={Boolean(field.value)}
+                  readOnly={isReadOnly}
                 />
               )}
             />
@@ -90,16 +89,15 @@ export const GeneralInfo = ({
                   <Input
                     {...field}
                     {...DEFAULT_INPUT_PROPS.REFERENCE_AUTHOR}
-                    disabled={disabled}
                     error={Boolean(errors[FIELD_NAME.REFERENCE_AUTHOR])}
                     helperText={errors[FIELD_NAME.REFERENCE_AUTHOR]?.message}
                     isFilled={Boolean(field.value)}
+                    readOnly={isReadOnly}
                   />
                 )}
               />
               <Controller
                 control={control}
-                disabled={disabled}
                 key={FIELD_NAME.CONTACT_EMAIL}
                 name={FIELD_NAME.CONTACT_EMAIL}
                 render={({ field }): JSX.Element => (
@@ -109,12 +107,12 @@ export const GeneralInfo = ({
                     error={Boolean(errors[FIELD_NAME.CONTACT_EMAIL])}
                     helperText={errors[FIELD_NAME.CONTACT_EMAIL]?.message}
                     isFilled={Boolean(field.value)}
+                    readOnly={isReadOnly}
                   />
                 )}
               />
               <Controller
                 control={control}
-                disabled={disabled}
                 key={FIELD_NAME.TITLE}
                 name={FIELD_NAME.TITLE}
                 render={({ field }): JSX.Element => (
@@ -125,6 +123,7 @@ export const GeneralInfo = ({
                     helperText={errors[FIELD_NAME.TITLE]?.message}
                     isFilled={Boolean(field.value)}
                     label="Working title"
+                    readOnly={isReadOnly}
                   />
                 )}
               />
