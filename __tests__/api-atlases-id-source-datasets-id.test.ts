@@ -21,7 +21,7 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { TestSourceDataset, TestUser } from "../testing/entities";
+import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
 import { makeTestSourceDatasetOverview } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
@@ -420,7 +420,7 @@ async function doDatasetRequest(
 }
 
 async function expectDatasetToBeUnchanged(
-  dataset: TestSourceDataset
+  dataset: TestPublishedSourceDataset
 ): Promise<void> {
   const datasetFromDb = await getDatasetFromDatabase(dataset.id);
   expect(datasetFromDb).toBeDefined();

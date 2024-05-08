@@ -22,7 +22,11 @@ export default async function setup(): Promise<void> {
     const sdInfo = makeTestSourceDatasetOverview(dataset);
     await pool.query(
       "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",
-      [dataset.doi, dataset.id, JSON.stringify(sdInfo)]
+      [
+        "doi" in dataset ? dataset.doi : null,
+        dataset.id,
+        JSON.stringify(sdInfo),
+      ]
     );
   }
 

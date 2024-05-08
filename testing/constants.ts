@@ -7,7 +7,11 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
-import { TestAtlas, TestSourceDataset } from "./entities";
+import {
+  TestAtlas,
+  TestPublishedSourceDataset,
+  TestUnpublishedSourceDataset,
+} from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
 // USERS
@@ -259,112 +263,6 @@ export const TEST_DOI_CROSSREF_WORKS = new Map([
   ],
 ]);
 
-// SOURCE DATASETS
-
-export const SOURCE_DATASET_DRAFT_OK: TestSourceDataset = {
-  doi: DOI_DRAFT_OK,
-  doiStatus: DOI_STATUS.OK,
-  id: "d2932506-0af5-4030-920c-07f6beeb817a",
-  publication: PUBLICATION_DRAFT_OK,
-};
-
-export const SOURCE_DATASET_DRAFT_NO_CROSSREF: TestSourceDataset = {
-  doi: "10.123/sd-draft-no-crossref",
-  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
-  id: "ee67ddcb-e5d8-4240-a8ef-c945657c3321",
-  publication: null,
-};
-
-export const SOURCE_DATASET_PUBLIC_NO_CROSSREF: TestSourceDataset = {
-  doi: "10.123/sd-public-no-crossref",
-  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
-  id: "dae11387-d0c2-4160-8f2e-0be27a3a551a",
-  publication: null,
-};
-
-export const SOURCE_DATASET_PUBLIC_WITH_PREPRINT: TestSourceDataset = {
-  doi: DOI_PUBLIC_WITH_PREPRINT,
-  doiStatus: DOI_STATUS.OK,
-  id: "babb7839-cf33-4422-b90f-d9ad53d1133d",
-  publication: PUBLICATION_PUBLIC_WITH_PREPRINT,
-};
-
-export const SOURCE_DATASET_PUBLIC_WITH_JOURNAL: TestSourceDataset = {
-  doi: DOI_PUBLIC_WITH_JOURNAL,
-  doiStatus: DOI_STATUS.OK,
-  id: "815a5b58-ce6e-4578-9210-ffb383e6cf78",
-  publication: PUBLICATION_PUBLIC_WITH_JOURNAL,
-};
-
-export const SOURCE_DATASET_SHARED: TestSourceDataset = {
-  doi: "10.123/sd-shared",
-  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
-  id: "b5051dd0-a321-46e9-8728-4a7e1082b3e3",
-  publication: null,
-};
-
-// Source datasets initialized in the database before tests
-export const INITIAL_TEST_SOURCE_DATASETS = [
-  SOURCE_DATASET_DRAFT_OK,
-  SOURCE_DATASET_DRAFT_NO_CROSSREF,
-  SOURCE_DATASET_PUBLIC_NO_CROSSREF,
-  SOURCE_DATASET_PUBLIC_WITH_PREPRINT,
-  SOURCE_DATASET_PUBLIC_WITH_JOURNAL,
-  SOURCE_DATASET_SHARED,
-];
-
-// ATLASES
-
-export const ATLAS_DRAFT: TestAtlas = {
-  id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
-  integrationLead: null,
-  network: "eye",
-  shortName: "test-draft",
-  sourceDatasets: [
-    SOURCE_DATASET_DRAFT_OK.id,
-    SOURCE_DATASET_SHARED.id,
-    SOURCE_DATASET_DRAFT_NO_CROSSREF.id,
-  ],
-  status: ATLAS_STATUS.DRAFT,
-  version: "1.2",
-  wave: "1",
-};
-
-export const ATLAS_PUBLIC: TestAtlas = {
-  id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
-  integrationLead: null,
-  network: "lung",
-  shortName: "test-public",
-  sourceDatasets: [
-    SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
-    SOURCE_DATASET_SHARED.id,
-  ],
-  status: ATLAS_STATUS.PUBLIC,
-  version: "2.3",
-  wave: "1",
-};
-
-export const ATLAS_WITH_IL: TestAtlas = {
-  id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
-  integrationLead: {
-    email: "baz@example.com",
-    name: "Baz",
-  },
-  network: "heart",
-  shortName: "test-with-il",
-  sourceDatasets: [],
-  status: ATLAS_STATUS.DRAFT,
-  version: "2.0",
-  wave: "3",
-};
-
-export const ATLAS_NONEXISTENT = {
-  id: "aa992f01-39ea-4906-ac12-053552561187",
-};
-
-// Atlases initialized in the database before tests
-export const INITIAL_TEST_ATLASES = [ATLAS_DRAFT, ATLAS_PUBLIC, ATLAS_WITH_IL];
-
 // HCA PROJECTS
 
 export const HCA_ID_NORMAL = "hca-id-normal";
@@ -374,6 +272,8 @@ export const HCA_ID_NORMAL2 = "hca-id-normal2";
 export const HCA_ID_JOURNAL_COUNTERPART = "hca-id-journal-counterpart";
 
 export const HCA_ID_PREPRINT_COUNTERPART = "hca-id-preprint-counterpart";
+
+export const HCA_ID_UNPUBLISHED_WITH_HCA = "hca-id-unpublished-with-hca";
 
 export const HCA_PROJECTS_RESPONSE_NORMAL = makeTestProjectsResponse(
   HCA_ID_NORMAL,
@@ -474,4 +374,139 @@ export const TEST_CELLXGENE_COLLECTIONS_A = [TEST_CELLXGENE_COLLECTION_NORMAL];
 export const TEST_CELLXGENE_COLLECTIONS_B = [
   TEST_CELLXGENE_COLLECTION_NORMAL,
   TEST_CELLXGENE_COLLECTION_NORMAL2,
+];
+
+// SOURCE DATASETS
+
+export const SOURCE_DATASET_DRAFT_OK: TestPublishedSourceDataset = {
+  doi: DOI_DRAFT_OK,
+  doiStatus: DOI_STATUS.OK,
+  id: "d2932506-0af5-4030-920c-07f6beeb817a",
+  publication: PUBLICATION_DRAFT_OK,
+};
+
+export const SOURCE_DATASET_DRAFT_NO_CROSSREF: TestPublishedSourceDataset = {
+  doi: "10.123/sd-draft-no-crossref",
+  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
+  id: "ee67ddcb-e5d8-4240-a8ef-c945657c3321",
+  publication: null,
+};
+
+export const SOURCE_DATASET_PUBLIC_NO_CROSSREF: TestPublishedSourceDataset = {
+  doi: "10.123/sd-public-no-crossref",
+  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
+  id: "dae11387-d0c2-4160-8f2e-0be27a3a551a",
+  publication: null,
+};
+
+export const SOURCE_DATASET_PUBLIC_WITH_PREPRINT: TestPublishedSourceDataset = {
+  doi: DOI_PUBLIC_WITH_PREPRINT,
+  doiStatus: DOI_STATUS.OK,
+  id: "babb7839-cf33-4422-b90f-d9ad53d1133d",
+  publication: PUBLICATION_PUBLIC_WITH_PREPRINT,
+};
+
+export const SOURCE_DATASET_PUBLIC_WITH_JOURNAL: TestPublishedSourceDataset = {
+  doi: DOI_PUBLIC_WITH_JOURNAL,
+  doiStatus: DOI_STATUS.OK,
+  id: "815a5b58-ce6e-4578-9210-ffb383e6cf78",
+  publication: PUBLICATION_PUBLIC_WITH_JOURNAL,
+};
+
+export const SOURCE_DATASET_SHARED: TestPublishedSourceDataset = {
+  doi: "10.123/sd-shared",
+  doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
+  id: "b5051dd0-a321-46e9-8728-4a7e1082b3e3",
+  publication: null,
+};
+
+export const SOURCE_DATASET_UNPUBLISHED_WITH_HCA: TestUnpublishedSourceDataset =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: HCA_ID_UNPUBLISHED_WITH_HCA,
+    id: "6d18889a-e4f8-4cb3-8311-f589f0543254",
+    unpublishedInfo: {
+      contactEmail: null,
+      referenceAuthor: "Foo",
+      title: "Unpublished With HCA",
+    },
+  };
+
+// Source datasets initialized in the database before tests
+export const INITIAL_TEST_SOURCE_DATASETS = [
+  SOURCE_DATASET_DRAFT_OK,
+  SOURCE_DATASET_DRAFT_NO_CROSSREF,
+  SOURCE_DATASET_PUBLIC_NO_CROSSREF,
+  SOURCE_DATASET_PUBLIC_WITH_PREPRINT,
+  SOURCE_DATASET_PUBLIC_WITH_JOURNAL,
+  SOURCE_DATASET_SHARED,
+  SOURCE_DATASET_UNPUBLISHED_WITH_HCA,
+];
+
+// ATLASES
+
+export const ATLAS_DRAFT: TestAtlas = {
+  id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
+  integrationLead: null,
+  network: "eye",
+  shortName: "test-draft",
+  sourceDatasets: [
+    SOURCE_DATASET_DRAFT_OK.id,
+    SOURCE_DATASET_SHARED.id,
+    SOURCE_DATASET_DRAFT_NO_CROSSREF.id,
+  ],
+  status: ATLAS_STATUS.DRAFT,
+  version: "1.2",
+  wave: "1",
+};
+
+export const ATLAS_PUBLIC: TestAtlas = {
+  id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
+  integrationLead: null,
+  network: "lung",
+  shortName: "test-public",
+  sourceDatasets: [
+    SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
+    SOURCE_DATASET_SHARED.id,
+  ],
+  status: ATLAS_STATUS.PUBLIC,
+  version: "2.3",
+  wave: "1",
+};
+
+export const ATLAS_WITH_IL: TestAtlas = {
+  id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
+  integrationLead: {
+    email: "baz@example.com",
+    name: "Baz",
+  },
+  network: "heart",
+  shortName: "test-with-il",
+  sourceDatasets: [],
+  status: ATLAS_STATUS.DRAFT,
+  version: "2.0",
+  wave: "3",
+};
+
+export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
+  id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
+  integrationLead: null,
+  network: "organoid",
+  shortName: "test-with-source-dataset-validations-a",
+  sourceDatasets: [SOURCE_DATASET_UNPUBLISHED_WITH_HCA.id],
+  status: ATLAS_STATUS.DRAFT,
+  version: "5.4",
+  wave: "2",
+};
+
+export const ATLAS_NONEXISTENT = {
+  id: "aa992f01-39ea-4906-ac12-053552561187",
+};
+
+// Atlases initialized in the database before tests
+export const INITIAL_TEST_ATLASES = [
+  ATLAS_DRAFT,
+  ATLAS_PUBLIC,
+  ATLAS_WITH_IL,
+  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
 ];

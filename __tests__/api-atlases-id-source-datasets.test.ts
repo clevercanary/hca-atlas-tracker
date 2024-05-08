@@ -15,7 +15,7 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { TestSourceDataset, TestUser } from "../testing/entities";
+import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -130,7 +130,7 @@ async function doDatasetsRequest(
 
 function expectDatasetPropertiesToMatch(
   apiDataset: HCAAtlasTrackerSourceDataset | undefined,
-  testDataset: TestSourceDataset
+  testDataset: TestPublishedSourceDataset
 ): void {
   expect(apiDataset).toBeDefined();
   if (!apiDataset) return;

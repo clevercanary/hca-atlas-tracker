@@ -1,7 +1,9 @@
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
+  DOI_STATUS,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBPublishedSourceDatasetInfo,
+  HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TestAtlas, TestSourceDataset, TestUser } from "./entities";
@@ -35,14 +37,24 @@ export function makeTestAtlasOverview(
 
 export function makeTestSourceDatasetOverview(
   dataset: TestSourceDataset
-): HCAAtlasTrackerDBPublishedSourceDatasetInfo {
-  return {
-    cellxgeneCollectionId: null,
-    doiStatus: dataset.doiStatus,
-    hcaProjectId: null,
-    publication: dataset.publication,
-    unpublishedInfo: null,
-  };
+):
+  | HCAAtlasTrackerDBPublishedSourceDatasetInfo
+  | HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
+  return "unpublishedInfo" in dataset
+    ? {
+        cellxgeneCollectionId: dataset.cellxgeneCollectionId,
+        doiStatus: DOI_STATUS.NA,
+        hcaProjectId: dataset.hcaProjectId,
+        publication: null,
+        unpublishedInfo: dataset.unpublishedInfo,
+      }
+    : {
+        cellxgeneCollectionId: null,
+        doiStatus: dataset.doiStatus,
+        hcaProjectId: null,
+        publication: dataset.publication,
+        unpublishedInfo: null,
+      };
 }
 
 export function makeTestProjectsResponse(
