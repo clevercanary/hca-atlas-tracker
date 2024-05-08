@@ -97,11 +97,19 @@ export async function updateSourceDatasetValidations(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
 ): Promise<void> {
+  console.log(await getSourceDatasetValidationResults(sourceDataset, client));
+}
+
+export async function getSourceDatasetValidationResults(
+  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  client: pg.PoolClient
+): Promise<HCAAtlasTrackerValidationResult[]> {
+  const validationResults: HCAAtlasTrackerValidationResult[] = [];
   const title = getSourceDatasetTitle(sourceDataset);
   const atlasIds = await getSourceDatasetAtlasIds(sourceDataset, client);
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
     if (validation.condition && !validation.condition(sourceDataset)) continue;
-    console.log(
+    validationResults.push(
       getValidationResult(
         ENTITY_TYPE.SOURCE_DATASET,
         validation,
@@ -111,6 +119,7 @@ export async function updateSourceDatasetValidations(
       )
     );
   }
+  return validationResults;
 }
 
 function getSourceDatasetTitle(

@@ -167,6 +167,8 @@ export interface HCAAtlasTrackerValidationResult {
   validationType: VALIDATION_TYPE;
 }
 
+export type HCAAtlasTrackerValidationRecord = HCAAtlasTrackerValidationResult;
+
 export interface HCAAtlasTrackerDBUser {
   disabled: boolean;
   email: string;
