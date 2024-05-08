@@ -5,6 +5,7 @@ import { FormManager } from "../../../common/Form/components/FormManager/formMan
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/Add/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
+import { NoAccess } from "./components/NoAccess/noAccess";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface AddSourceDatasetProps {
@@ -17,14 +18,15 @@ export const AddSourceDataset = ({
   formMethod,
 }: AddSourceDatasetProps): JSX.Element => {
   const {
-    access: { canView },
+    access: { canEdit, canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
+  if (!canEdit) return <NoAccess />;
   return (
     <TrackerForm>
       <FormManager {...formManager} />
       <Divider />
-      <GeneralInfo formMethod={formMethod} />
+      <GeneralInfo formManager={formManager} formMethod={formMethod} />
     </TrackerForm>
   );
 };

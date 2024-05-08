@@ -1,4 +1,5 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { Fragment } from "react";
 import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { AddSourceDataset } from "../../components/Detail/components/AddSourceDataset/addSourceDataset";
@@ -22,7 +23,9 @@ export const AddNewSourceDatasetView = ({
   const {
     access: { canView },
     formAction,
+    isLoading,
   } = formManager;
+  if (isLoading) return <Fragment />;
   return (
     <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
       <DetailView

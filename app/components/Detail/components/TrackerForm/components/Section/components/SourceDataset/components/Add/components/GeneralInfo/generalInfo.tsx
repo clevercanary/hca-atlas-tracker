@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/constants";
 import {
   NewSourceDatasetData,
@@ -18,14 +19,26 @@ import { getSectionTabs } from "./common/utils";
 import { SectionCard, SectionContent } from "./generalInfo.styles";
 
 export interface GeneralInfoProps {
+  formManager: FormManager;
   formMethod: FormMethod<NewSourceDatasetData>;
 }
 
-export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
+export const GeneralInfo = ({
+  formManager,
+  formMethod,
+}: GeneralInfoProps): JSX.Element => {
   const [publicationStatus, setPublicationStatus] =
     useState<PUBLICATION_STATUS>(PUBLICATION_STATUS.PUBLISHED);
-  const { clearErrors, control, formState, setValue, watch } = formMethod;
-  const { errors } = formState;
+  const {
+    formStatus: { isReadOnly },
+  } = formManager;
+  const {
+    clearErrors,
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+  } = formMethod;
   const hasDoi = Boolean(watch(FIELD_NAME.DOI));
 
   // Callback to handle tab change; clears errors, sets publication status, and updates form value.
@@ -62,6 +75,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
                   error={Boolean(errors[FIELD_NAME.DOI])}
                   helperText={errors[FIELD_NAME.DOI]?.message}
                   isFilled={Boolean(field.value)}
+                  readOnly={isReadOnly}
                 />
               )}
             />
@@ -78,6 +92,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
                     error={Boolean(errors[FIELD_NAME.REFERENCE_AUTHOR])}
                     helperText={errors[FIELD_NAME.REFERENCE_AUTHOR]?.message}
                     isFilled={Boolean(field.value)}
+                    readOnly={isReadOnly}
                   />
                 )}
               />
@@ -92,6 +107,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
                     error={Boolean(errors[FIELD_NAME.CONTACT_EMAIL])}
                     helperText={errors[FIELD_NAME.CONTACT_EMAIL]?.message}
                     isFilled={Boolean(field.value)}
+                    readOnly={isReadOnly}
                   />
                 )}
               />
@@ -107,6 +123,7 @@ export const GeneralInfo = ({ formMethod }: GeneralInfoProps): JSX.Element => {
                     helperText={errors[FIELD_NAME.TITLE]?.message}
                     isFilled={Boolean(field.value)}
                     label="Working title"
+                    readOnly={isReadOnly}
                   />
                 )}
               />

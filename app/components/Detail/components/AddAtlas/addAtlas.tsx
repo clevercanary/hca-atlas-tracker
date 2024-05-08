@@ -6,6 +6,7 @@ import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
 import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
 import { TrackerForm } from "../TrackerForm/trackerForm";
+import { NoAccess } from "./components/NoAccess/noAccess";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface AddAtlasProps {
@@ -18,16 +19,17 @@ export const AddAtlas = ({
   formMethod,
 }: AddAtlasProps): JSX.Element => {
   const {
-    access: { canView },
+    access: { canEdit, canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
+  if (!canEdit) return <NoAccess />;
   return (
     <TrackerForm>
       <FormManager {...formManager} />
       <Divider />
-      <GeneralInfo formMethod={formMethod} />
+      <GeneralInfo formManager={formManager} formMethod={formMethod} />
       <Divider />
-      <IntegrationLead formMethod={formMethod} />
+      <IntegrationLead formManager={formManager} formMethod={formMethod} />
     </TrackerForm>
   );
 };
