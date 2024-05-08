@@ -14,12 +14,14 @@ import {
   SourceDatasetEditData,
   UnpublishedSourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import { getPoolClient, query } from "./database";
 import { getProjectIdByDoi } from "./hca-projects";
+import { updateSourceDatasetValidations } from "./validations";
 
 /**
  * Create a new published or unpublished source dataset.
@@ -72,6 +74,7 @@ export async function createSourceDataset(
       "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
       [JSON.stringify([newDataset.id]), atlasId]
     );
+    await updateSourceDatasetValidations(newDataset, client);
     await client.query("COMMIT");
     return newDataset;
   } catch (e) {
@@ -118,15 +121,31 @@ export async function updateSourceDataset(
 
   const newInfo = await sourceDatasetInputDataToDbData(inputData);
 
-  const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
-    "UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3 RETURNING *",
-    [newInfo.doi, JSON.stringify(newInfo.sd_info), sdId]
-  );
+  const client = await getPoolClient();
+  try {
+    await client.query("BEGIN");
 
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Source dataset with ID ${sdId} doesn't exist`);
+    const queryResult = await client.query<HCAAtlasTrackerDBSourceDataset>(
+      "UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3 RETURNING *",
+      [newInfo.doi, JSON.stringify(newInfo.sd_info), sdId]
+    );
 
-  return queryResult.rows[0];
+    if (queryResult.rows.length === 0)
+      throw new NotFoundError(`Source dataset with ID ${sdId} doesn't exist`);
+
+    const newDataset = queryResult.rows[0];
+
+    await updateSourceDatasetValidations(newDataset, client);
+
+    await client.query("COMMIT");
+
+    return newDataset;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 /**
@@ -166,11 +185,7 @@ async function makePublishedSourceDatasetDbData(
     throw e;
   }
 
-  const dois = [
-    ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
-    doi,
-    ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
-  ];
+  const dois = publication ? getPublicationDois(doi, publication) : [];
 
   const hcaProjectId = getProjectIdByDoi(dois);
 

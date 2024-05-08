@@ -87,6 +87,12 @@ export interface HCAAtlasTrackerActiveUser {
   role: ROLE;
 }
 
+export type DBEntityOfType<T extends ENTITY_TYPE> = T extends ENTITY_TYPE.ATLAS
+  ? HCAAtlasTrackerDBAtlas
+  : T extends ENTITY_TYPE.SOURCE_DATASET
+  ? HCAAtlasTrackerDBSourceDataset
+  : never;
+
 export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
@@ -104,22 +110,29 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   wave: Wave;
 }
 
-export type HCAAtlasTrackerDBSourceDatasetMinimumColumns =
-  | {
-      doi: string;
-      sd_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
-    }
-  | {
-      doi: null;
-      sd_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
-    };
+export interface HCAAtlasTrackerDBPublishedSourceDataset {
+  created_at: Date;
+  doi: string;
+  id: string;
+  sd_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBUnpublishedSourceDataset {
+  created_at: Date;
+  doi: null;
+  id: string;
+  sd_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
+  updated_at: Date;
+}
 
 export type HCAAtlasTrackerDBSourceDataset =
-  HCAAtlasTrackerDBSourceDatasetMinimumColumns & {
-    created_at: Date;
-    id: string;
-    updated_at: Date;
-  };
+  | HCAAtlasTrackerDBPublishedSourceDataset
+  | HCAAtlasTrackerDBUnpublishedSourceDataset;
+
+export type HCAAtlasTrackerDBSourceDatasetMinimumColumns =
+  | Pick<HCAAtlasTrackerDBPublishedSourceDataset, "doi" | "sd_info">
+  | Pick<HCAAtlasTrackerDBUnpublishedSourceDataset, "doi" | "sd_info">;
 
 export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
   cellxgeneCollectionId: string | null;
@@ -139,6 +152,19 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
     referenceAuthor: string;
     title: string;
   };
+}
+
+export interface HCAAtlasTrackerValidationResult {
+  atlasIds: string[];
+  description: string;
+  entityId: string;
+  entityTitle: string;
+  entityType: ENTITY_TYPE;
+  system: SYSTEM;
+  taskStatus: TASK_STATUS;
+  validationId: VALIDATION_ID;
+  validationStatus: VALIDATION_STATUS;
+  validationType: VALIDATION_TYPE;
 }
 
 export interface HCAAtlasTrackerDBUser {
@@ -193,6 +219,42 @@ export interface IntegrationLead {
 }
 
 export type SourceDatasetId = string;
+
+export enum ENTITY_TYPE {
+  ATLAS = "ATLAS",
+  COMPONENT_ATLAS = "COMPONENT_ATLAS",
+  SOURCE_DATASET = "SOURCE_DATASET",
+}
+
+export enum SYSTEM {
+  CAP = "CAP",
+  CELLXGENE = "CELLXGENE",
+  DUOS = "DUOS",
+  HCA_DATA_REPOSITORY = "HCA_DATA_REPOSITORY",
+}
+
+export enum TASK_STATUS {
+  DONE = "DONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  TODO = "TODO",
+}
+
+export enum VALIDATION_TYPE {
+  INGEST = "INGEST",
+  METADATA = "METADATA",
+}
+
+export enum VALIDATION_ID {
+  SOURCE_DATASET_IN_CELLXGENE = "SOURCE_DATASET_IN_CELLXGENE",
+  SOURCE_DATASET_IN_HCA_DATA_REPOSITORY = "SOURCE_DATASET_IN_HCA_DATA_REPOSITORY",
+  SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY = "SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY",
+}
+
+export enum VALIDATION_STATUS {
+  FAILED = "FAILED",
+  OVERRIDDEN = "OVERRIDDEN",
+  PASSED = "PASSED",
+}
 
 export enum ROLE {
   CONTENT_ADMIN = "CONTENT_ADMIN",
