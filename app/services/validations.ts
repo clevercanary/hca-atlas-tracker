@@ -27,10 +27,16 @@ interface ValidationDefinition<T> {
   validationType: VALIDATION_TYPE;
 }
 
-type TypeSpecificValidationProperties = Pick<
+type ValidationAtlasProperties = Pick<
   HCAAtlasTrackerValidationResult,
-  "atlasIds" | "entityTitle" | "doi" | "publicationString"
+  "atlasIds" | "atlasShortNames" | "networks" | "waves"
 >;
+
+type TypeSpecificValidationProperties = ValidationAtlasProperties &
+  Pick<
+    HCAAtlasTrackerValidationResult,
+    "entityTitle" | "doi" | "publicationString"
+  >;
 
 export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceDataset>[] =
   [
@@ -57,7 +63,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
         return Boolean(sourceDataset.sd_info.publication);
       },
       description: "Update project title to match publication title.",
-      system: SYSTEM.CELLXGENE,
+      system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): boolean {
         if (!sourceDataset.doi || !sourceDataset.sd_info.publication)
           return false;
@@ -71,7 +77,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       },
       validationId:
         VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
-      validationType: VALIDATION_TYPE.INGEST,
+      validationType: VALIDATION_TYPE.METADATA,
     },
   ];
 
@@ -113,7 +119,10 @@ export async function getSourceDatasetValidationResults(
 ): Promise<HCAAtlasTrackerValidationResult[]> {
   const validationResults: HCAAtlasTrackerValidationResult[] = [];
   const title = getSourceDatasetTitle(sourceDataset);
-  const atlasIds = await getSourceDatasetAtlasIds(sourceDataset, client);
+  const atlasProperties = await getSourceDatasetValidationAtlasProperties(
+    sourceDataset,
+    client
+  );
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
     if (validation.condition && !validation.condition(sourceDataset)) continue;
     validationResults.push(
@@ -122,12 +131,12 @@ export async function getSourceDatasetValidationResults(
         validation,
         sourceDataset,
         {
-          atlasIds,
           doi: sourceDataset.doi,
           entityTitle: title,
           publicationString: getSourceDatasetCitation(
             dbSourceDatasetToApiSourceDataset(sourceDataset)
           ),
+          ...atlasProperties,
         }
       )
     );
@@ -145,13 +154,33 @@ function getSourceDatasetTitle(
   );
 }
 
-async function getSourceDatasetAtlasIds(
+async function getSourceDatasetValidationAtlasProperties(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
-): Promise<string[]> {
-  const queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "SELECT id FROM hat.atlases WHERE source_datasets @> $1",
-    [JSON.stringify(sourceDataset.id)]
-  );
-  return queryResult.rows.map(({ id }) => id);
+): Promise<ValidationAtlasProperties> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBAtlas, "id" | "overview">
+  >("SELECT id, overview FROM hat.atlases WHERE source_datasets @> $1", [
+    JSON.stringify(sourceDataset.id),
+  ]);
+  const properties: ValidationAtlasProperties = {
+    atlasIds: [],
+    atlasShortNames: [],
+    networks: [],
+    waves: [],
+  };
+  for (const {
+    id,
+    overview: { network, shortName, wave },
+  } of queryResult.rows) {
+    addArrayValueIfMissing(properties.atlasIds, id);
+    addArrayValueIfMissing(properties.atlasShortNames, shortName);
+    addArrayValueIfMissing(properties.networks, network);
+    addArrayValueIfMissing(properties.waves, wave);
+  }
+  return properties;
+}
+
+function addArrayValueIfMissing<T>(array: T[], value: T): void {
+  if (!array.includes(value)) array.push(value);
 }

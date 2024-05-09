@@ -26,7 +26,10 @@ export default handler(
           sourceDataset,
           client
         )) {
-          validations.push(validationResult);
+          validations.push({
+            ...validationResult,
+            targetCompletionDate: null,
+          });
         }
       }
       res.json(validations);
