@@ -1,5 +1,6 @@
 import { NETWORK_KEYS, WAVES } from "./constants";
 import {
+  DOI_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
@@ -93,6 +94,57 @@ export function dbSourceDatasetToApiSourceDataset(
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
   return `${atlas.shortName} v${atlas.version}`;
+}
+
+/**
+ * Returns the source dataset citation.
+ * @param sourceDataset - Source dataset.
+ * @returns Source dataset citation.
+ */
+export function getSourceDatasetCitation(
+  sourceDataset?: HCAAtlasTrackerSourceDataset
+): string {
+  if (!sourceDataset) return "";
+  if (sourceDataset.doi === null) {
+    const { contactEmail, referenceAuthor } = sourceDataset;
+    return getUnpublishedCitation(referenceAuthor, contactEmail);
+  } else {
+    const { doiStatus, journal, publicationDate, referenceAuthor } =
+      sourceDataset;
+    return getPublishedCitation(
+      doiStatus,
+      referenceAuthor,
+      publicationDate,
+      journal
+    );
+  }
+}
+
+function getPublishedCitation(
+  doiStatus: DOI_STATUS,
+  author: string | null,
+  date: string | null,
+  journal: string | null
+): string {
+  if (doiStatus !== DOI_STATUS.OK) return "Unpublished";
+  const citation = [];
+  if (author) {
+    citation.push(author);
+  }
+  if (date) {
+    const [year] = date.split("-");
+    citation.push(`(${year})`);
+  }
+  if (journal) {
+    citation.push(journal);
+  }
+  return citation.join(" ");
+}
+
+function getUnpublishedCitation(author: string, email: string | null): string {
+  return email
+    ? `${author}, ${email} - Unpublished`
+    : `${author} - Unpublished`;
 }
 
 /**

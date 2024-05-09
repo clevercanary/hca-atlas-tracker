@@ -14,8 +14,8 @@ import {
 import {
   dbSourceDatasetToApiSourceDataset,
   getPublicationDois,
+  getSourceDatasetCitation,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { getSourceDatasetCitation } from "../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
