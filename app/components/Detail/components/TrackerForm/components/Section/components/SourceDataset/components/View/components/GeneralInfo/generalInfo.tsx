@@ -6,9 +6,9 @@ import {
   DOI_STATUS,
   HCAAtlasTrackerSourceDataset,
 } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceDatasetCitation } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
-import { getSourceDatasetCitation } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { PUBLICATION_STATUS } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceDatasetView/common/constants";
 import { SourceDatasetEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";

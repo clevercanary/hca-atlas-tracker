@@ -5,13 +5,13 @@ import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca
 import {
   AtlasId,
   ATLAS_STATUS,
-  DOI_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { TASK_STATUS } from "../../../../components/Index/components/Table/components/TaskStatusCell/taskStatusCell";
@@ -215,33 +215,6 @@ export function getBioNetworkName(name: string): string {
   return name.replace(/(\sNetwork.*)/gi, "");
 }
 
-function getPublishedCitation(
-  doiStatus: DOI_STATUS,
-  author: string | null,
-  date: string | null,
-  journal: string | null
-): string {
-  if (doiStatus !== DOI_STATUS.OK) return "Unpublished";
-  const citation = [];
-  if (author) {
-    citation.push(author);
-  }
-  if (date) {
-    const [year] = date.split("-");
-    citation.push(`(${year})`);
-  }
-  if (journal) {
-    citation.push(journal);
-  }
-  return citation.join(" ");
-}
-
-function getUnpublishedCitation(author: string, email: string | null): string {
-  return email
-    ? `${author}, ${email} - Unpublished`
-    : `${author} - Unpublished`;
-}
-
 /**
  * Returns the DOI link.
  * @param doi - DOI.
@@ -250,30 +223,6 @@ function getUnpublishedCitation(author: string, email: string | null): string {
 function getDOILink(doi: string | null): string {
   if (!doi) return "";
   return `https://doi.org/${encodeURIComponent(doi)}`;
-}
-
-/**
- * Returns the source dataset citation.
- * @param sourceDataset - Source dataset.
- * @returns Source dataset citation.
- */
-export function getSourceDatasetCitation(
-  sourceDataset?: HCAAtlasTrackerSourceDataset
-): string {
-  if (!sourceDataset) return "";
-  if (sourceDataset.doi === null) {
-    const { contactEmail, referenceAuthor } = sourceDataset;
-    return getUnpublishedCitation(referenceAuthor, contactEmail);
-  } else {
-    const { doiStatus, journal, publicationDate, referenceAuthor } =
-      sourceDataset;
-    return getPublishedCitation(
-      doiStatus,
-      referenceAuthor,
-      publicationDate,
-      journal
-    );
-  }
 }
 
 /**

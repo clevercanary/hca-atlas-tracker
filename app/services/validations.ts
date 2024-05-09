@@ -11,7 +11,11 @@ import {
   VALIDATION_STATUS,
   VALIDATION_TYPE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
+import {
+  dbSourceDatasetToApiSourceDataset,
+  getPublicationDois,
+  getSourceDatasetCitation,
+} from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
@@ -22,6 +26,11 @@ interface ValidationDefinition<T> {
   validationId: VALIDATION_ID;
   validationType: VALIDATION_TYPE;
 }
+
+type TypeSpecificValidationProperties = Pick<
+  HCAAtlasTrackerValidationResult,
+  "atlasIds" | "entityTitle" | "doi" | "publicationString"
+>;
 
 export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceDataset>[] =
   [
@@ -70,17 +79,14 @@ function getValidationResult<T extends ENTITY_TYPE>(
   entityType: T,
   validation: ValidationDefinition<DBEntityOfType<T>>,
   entity: DBEntityOfType<T>,
-  entityTitle: string,
-  atlasIds: string[]
+  typeSpecificProperties: TypeSpecificValidationProperties
 ): HCAAtlasTrackerValidationResult {
   const validationStatus = validation.validate(entity)
     ? VALIDATION_STATUS.PASSED
     : VALIDATION_STATUS.FAILED;
   return {
-    atlasIds,
     description: validation.description,
     entityId: entity.id,
-    entityTitle,
     entityType,
     system: validation.system,
     taskStatus:
@@ -90,6 +96,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
     validationId: validation.validationId,
     validationStatus,
     validationType: validation.validationType,
+    ...typeSpecificProperties,
   };
 }
 
@@ -97,20 +104,35 @@ export async function updateSourceDatasetValidations(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
 ): Promise<void> {
+  console.log(await getSourceDatasetValidationResults(sourceDataset, client));
+}
+
+export async function getSourceDatasetValidationResults(
+  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  client: pg.PoolClient
+): Promise<HCAAtlasTrackerValidationResult[]> {
+  const validationResults: HCAAtlasTrackerValidationResult[] = [];
   const title = getSourceDatasetTitle(sourceDataset);
   const atlasIds = await getSourceDatasetAtlasIds(sourceDataset, client);
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
     if (validation.condition && !validation.condition(sourceDataset)) continue;
-    console.log(
+    validationResults.push(
       getValidationResult(
         ENTITY_TYPE.SOURCE_DATASET,
         validation,
         sourceDataset,
-        title,
-        atlasIds
+        {
+          atlasIds,
+          doi: sourceDataset.doi,
+          entityTitle: title,
+          publicationString: getSourceDatasetCitation(
+            dbSourceDatasetToApiSourceDataset(sourceDataset)
+          ),
+        }
       )
     );
   }
+  return validationResults;
 }
 
 function getSourceDatasetTitle(
