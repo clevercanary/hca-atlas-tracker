@@ -63,7 +63,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
         return Boolean(sourceDataset.sd_info.publication);
       },
       description: "Update project title to match publication title.",
-      system: SYSTEM.CELLXGENE,
+      system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): boolean {
         if (!sourceDataset.doi || !sourceDataset.sd_info.publication)
           return false;
