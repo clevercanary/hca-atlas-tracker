@@ -110,7 +110,7 @@ export async function updateSourceDatasetValidations(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
 ): Promise<void> {
-  console.log(await getSourceDatasetValidationResults(sourceDataset, client));
+  //console.log(await getSourceDatasetValidationResults(sourceDataset, client));
 }
 
 export async function getSourceDatasetValidationResults(

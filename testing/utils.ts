@@ -6,6 +6,10 @@ import {
   HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  TEST_CELLXGENE_COLLECTIONS_BY_DOI,
+  TEST_HCA_PROJECTS_BY_DOI,
+} from "./constants";
 import { TestAtlas, TestSourceDataset, TestUser } from "./entities";
 
 export function makeTestUser(
@@ -49,9 +53,16 @@ export function makeTestSourceDatasetOverview(
         unpublishedInfo: dataset.unpublishedInfo,
       }
     : {
-        cellxgeneCollectionId: null,
+        cellxgeneCollectionId:
+          (dataset.doi &&
+            TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(dataset.doi)
+              ?.collection_id) ??
+          null,
         doiStatus: dataset.doiStatus,
-        hcaProjectId: null,
+        hcaProjectId:
+          (dataset.doi &&
+            TEST_HCA_PROJECTS_BY_DOI.get(dataset.doi)?.projects[0].projectId) ??
+          null,
         publication: dataset.publication,
         unpublishedInfo: null,
       };
