@@ -1,5 +1,6 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import {
@@ -9,10 +10,12 @@ import {
 import { getSourceDatasetCitation } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
+import { getDOILink } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { PUBLICATION_STATUS } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceDatasetView/common/constants";
 import { SourceDatasetEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
+import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import { Tabs } from "../../../../../../../Tabs/tabs";
 import {
   Section,
@@ -93,6 +96,19 @@ export const GeneralInfo = ({
                       errors[FIELD_NAME.DOI]?.message
                     )}
                     isFilled={Boolean(field.value)}
+                    label={
+                      <Fragment>
+                        <TypographyNoWrap>
+                          {DEFAULT_INPUT_PROPS.DOI.label}
+                        </TypographyNoWrap>
+                        {field.value && (
+                          <Link
+                            label="Visit link"
+                            url={getDOILink(field.value)}
+                          />
+                        )}
+                      </Fragment>
+                    }
                     readOnly={isPublished}
                   />
                 )}

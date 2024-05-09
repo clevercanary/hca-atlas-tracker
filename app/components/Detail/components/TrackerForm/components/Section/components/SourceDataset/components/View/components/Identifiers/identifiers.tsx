@@ -1,9 +1,12 @@
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { Fragment } from "react";
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceDatasetView/common/constants";
 import { SourceDatasetEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
+import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import {
   Section,
   SectionCard,
@@ -32,6 +35,14 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
               {...field}
               {...DEFAULT_INPUT_PROPS.HCA_PROJECT_ID}
               isFilled={Boolean(field.value)}
+              label={
+                <Fragment>
+                  <TypographyNoWrap>
+                    {DEFAULT_INPUT_PROPS.HCA_PROJECT_ID.label}
+                  </TypographyNoWrap>
+                  {field.value && <Link label="Visit link" url={field.value} />}
+                </Fragment>
+              }
               readOnly={true}
             />
           )}
@@ -45,6 +56,16 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
                 {...field}
                 {...DEFAULT_INPUT_PROPS.CELLXGENE_COLLECTION_ID}
                 isFilled={Boolean(field.value)}
+                label={
+                  <Fragment>
+                    <TypographyNoWrap>
+                      {DEFAULT_INPUT_PROPS.CELLXGENE_COLLECTION_ID.label}
+                    </TypographyNoWrap>
+                    {field.value && (
+                      <Link label="Visit link" url={field.value} />
+                    )}
+                  </Fragment>
+                }
                 readOnly={true}
               />
             );

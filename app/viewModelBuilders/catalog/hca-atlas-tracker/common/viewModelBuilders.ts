@@ -220,7 +220,7 @@ export function getBioNetworkName(name: string): string {
  * @param doi - DOI.
  * @returns DOI link.
  */
-function getDOILink(doi: string | null): string {
+export function getDOILink(doi: string | null): string {
   if (!doi) return "";
   return `https://doi.org/${encodeURIComponent(doi)}`;
 }
