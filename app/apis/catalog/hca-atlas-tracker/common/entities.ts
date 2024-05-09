@@ -172,7 +172,10 @@ export interface HCAAtlasTrackerValidationResult {
   waves: Wave[];
 }
 
-export type HCAAtlasTrackerValidationRecord = HCAAtlasTrackerValidationResult;
+export interface HCAAtlasTrackerValidationRecord
+  extends HCAAtlasTrackerValidationResult {
+  targetCompletionDate: string | null;
+}
 
 export interface HCAAtlasTrackerDBUser {
   disabled: boolean;
