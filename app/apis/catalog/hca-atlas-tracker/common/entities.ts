@@ -156,17 +156,20 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
 
 export interface HCAAtlasTrackerValidationResult {
   atlasIds: string[];
+  atlasShortNames: string[];
   description: string;
   doi: string | null;
   entityId: string;
   entityTitle: string;
   entityType: ENTITY_TYPE;
+  networks: NetworkKey[];
   publicationString: string | null;
   system: SYSTEM;
   taskStatus: TASK_STATUS;
   validationId: VALIDATION_ID;
   validationStatus: VALIDATION_STATUS;
   validationType: VALIDATION_TYPE;
+  waves: Wave[];
 }
 
 export type HCAAtlasTrackerValidationRecord = HCAAtlasTrackerValidationResult;
