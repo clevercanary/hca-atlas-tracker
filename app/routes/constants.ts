@@ -7,4 +7,5 @@ export const ROUTE = {
   REGISTRATION_REQUIRED: "/registration-required",
   SOURCE_DATASET: "/atlases/[atlasId]/source-datasets/[sdId]",
   SOURCE_DATASETS: "/atlases/[atlasId]/source-datasets",
+  TASKS: "/tasks",
 } as const;

@@ -17,6 +17,7 @@ import {
 import { announcements } from "./announcements/announcements";
 import { authenticationConfig } from "./authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
+import { tasksEntityConfig } from "./index/tasksEntityConfig";
 
 // Template constants
 const LOCALHOST = "http://localhost:3000";
@@ -97,7 +98,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
       entityURL: LOCALHOST,
       url: browserUrl,
     },
-    entities: [atlasEntityConfig],
+    entities: [atlasEntityConfig, tasksEntityConfig],
     explorerTitle: C.Hero(),
     layout: {
       footer: {

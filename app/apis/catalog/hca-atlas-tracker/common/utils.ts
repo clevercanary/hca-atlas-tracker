@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerValidationResult,
   NetworkKey,
   PublicationInfo,
   Wave,
@@ -13,6 +14,10 @@ import {
 
 export function getAtlasId(atlas: HCAAtlasTrackerListAtlas): string {
   return atlas.id;
+}
+
+export function getTaskId(task: HCAAtlasTrackerValidationResult): string {
+  return `${task.entityId}${task.validationId}`;
 }
 
 export function atlasInputMapper(
