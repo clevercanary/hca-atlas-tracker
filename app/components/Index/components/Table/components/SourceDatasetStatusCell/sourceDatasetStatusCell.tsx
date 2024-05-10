@@ -2,29 +2,31 @@ import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/Cu
 import { Fragment } from "react";
 import { RequiredIcon } from "../../../../../common/CustomIcon/components/RequiredIcon/requiredIcon";
 
-export enum TASK_STATUS {
+export enum SOURCE_DATASET_STATUS {
   DONE = "Yes",
   REQUIRED = "No",
 }
 
-interface TaskStatusCellProps {
+interface SourceDatasetStatusCellProps {
   value: string;
 }
 
-export const TaskStatusCell = ({ value }: TaskStatusCellProps): JSX.Element => {
-  return <Fragment>{switchTaskStatusIcon(value)}</Fragment>;
+export const SourceDatasetStatusCell = ({
+  value,
+}: SourceDatasetStatusCellProps): JSX.Element => {
+  return <Fragment>{switchStatusIcon(value)}</Fragment>;
 };
 
 /**
- * Switch task status icon for the given value.
+ * Switch status icon for the given value.
  * @param value - Task value.
- * @returns icon element for the task status value.
+ * @returns icon element for the status value.
  */
-function switchTaskStatusIcon(value: string): JSX.Element {
+function switchStatusIcon(value: string): JSX.Element {
   switch (value) {
-    case TASK_STATUS.DONE:
+    case SOURCE_DATASET_STATUS.DONE:
       return <SuccessIcon color="success" fontSize="small" />;
-    case TASK_STATUS.REQUIRED:
+    case SOURCE_DATASET_STATUS.REQUIRED:
       return <RequiredIcon />;
     default:
       return <span>-</span>;

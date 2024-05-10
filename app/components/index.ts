@@ -19,6 +19,6 @@ export { RenderComponents } from "./common/RenderComponents/renderComponents";
 export { Hero } from "./Index/components/Hero/hero";
 export { BioNetworkCell } from "./Index/components/Table/components/BioNetworkCell/bioNetworkCell";
 export { AtlasCell } from "./Index/components/Table/components/Cell/AtlasCell/atlasCell";
-export { TaskStatusCell } from "./Index/components/Table/components/TaskStatusCell/taskStatusCell";
+export { SourceDatasetStatusCell } from "./Index/components/Table/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";

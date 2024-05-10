@@ -154,6 +154,11 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
   };
 }
 
+export interface HCAAtlasTrackerListValidationResult
+  extends Omit<HCAAtlasTrackerValidationResult, "targetCompletionDate"> {
+  targetCompletionDate: string;
+}
+
 export interface HCAAtlasTrackerValidationResult {
   atlasIds: string[];
   atlasShortNames: string[];

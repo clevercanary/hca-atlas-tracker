@@ -22,6 +22,66 @@ import {
  */
 export const atlasEntityConfig: EntityConfig = {
   apiPath: "api/atlases",
+  categoryGroupConfigs: [
+    {
+      categoryConfigs: [
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVE,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TITLE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TITLE,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NAME,
+        },
+      ],
+    },
+    {
+      categoryConfigs: [
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
+        },
+        // {
+        //   key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
+        //   label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+        // },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,
+        },
+
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.COMPONENT_ATLAS_NAME,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.COMPONENT_ATLAS_NAME,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TISSUE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TISSUE,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
+        },
+
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PROJECT_TITLE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PROJECT_TITLE,
+        },
+      ],
+    },
+  ],
   detail: {
     detailOverviews: [],
     staticLoad: true,
@@ -43,16 +103,16 @@ export const atlasEntityConfig: EntityConfig = {
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
         width: { max: "2fr", min: "374px" },
       },
-      {
-        columnVisible: false,
-        componentConfig: {
-          component: C.Cell,
-          viewBuilder: V.buildPublication,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
-        width: { max: "1fr", min: "136px" },
-      },
+      // {
+      //   columnVisible: false,
+      //   componentConfig: {
+      //     component: C.Cell,
+      //     viewBuilder: V.buildPublication,
+      //   } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+      //   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+      //   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
+      //   width: { max: "1fr", min: "136px" },
+      // },
       {
         componentConfig: {
           component: C.BioNetworkCell,
@@ -85,8 +145,8 @@ export const atlasEntityConfig: EntityConfig = {
           component: C.StatusBadge,
           viewBuilder: V.buildStatus,
         } as ComponentConfig<typeof C.StatusBadge, HCAAtlasTrackerListAtlas>,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.STATUS,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.STATUS,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
         width: { max: "1fr", min: "136px" },
       },
     ],

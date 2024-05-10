@@ -1,20 +1,25 @@
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ColumnDef } from "@tanstack/react-table";
-import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  NETWORKS,
+  SYSTEM_DISPLAY_NAMES,
+} from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   AtlasId,
   ATLAS_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListValidationResult,
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
+  TASK_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
-import { TASK_STATUS } from "../../../../components/Index/components/Table/components/TaskStatusCell/taskStatusCell";
+import { SOURCE_DATASET_STATUS } from "../../../../components/Index/components/Table/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 
 /**
@@ -45,39 +50,65 @@ export const buildBioNetwork = (
 };
 
 /**
- * Build props for the "in CAP" TaskCompletedIconCell component.
+ * Build props for the Cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Cell component.
+ */
+export const buildEntityTitle = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: task.entityTitle,
+  };
+};
+
+/**
+ * Build props for the Cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Cell component.
+ */
+export const buildEntityType = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: task.entityType,
+  };
+};
+
+/**
+ * Build props for the "in CAP" SourceDatasetStatusCell component.
  * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the TaskCompletedIconCell component.
+ * @returns Props to be used for the SourceDatasetStatusCell component.
  */
 export const buildInCap = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.TaskStatusCell> => {
+): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
   return {
     value: getSourceDatasetInCap(sourceDataset),
   };
 };
 
 /**
- * Build props for the "in CELLxGENE" TaskCompletedIconCell component.
+ * Build props for the "in CELLxGENE" SourceDatasetStatusCell component.
  * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the TaskCompletedIconCell component.
+ * @returns Props to be used for the SourceDatasetStatusCell component.
  */
 export const buildInCellxGene = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.TaskStatusCell> => {
+): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
   return {
     value: getSourceDatasetInCellxGene(sourceDataset),
   };
 };
 
 /**
- * Build props for the "in HCA data repository" TaskCompletedIconCell component.
+ * Build props for the "in HCA data repository" SourceDatasetStatusCell component.
  * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the TaskCompletedIconCell component.
+ * @returns Props to be used for the SourceDatasetStatusCell component.
  */
 export const buildInHcaDataRepository = (
   sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.TaskStatusCell> => {
+): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
   return {
     value: getSourceDatasetInHcaDataRepository(sourceDataset),
   };
@@ -101,13 +132,13 @@ export const buildIntegrationLead = (
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
  */
-export const buildPublication = (
-  atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: atlas.publicationPubString,
-  };
-};
+// export const buildPublication = (
+//   atlas: HCAAtlasTrackerListAtlas
+// ): React.ComponentProps<typeof C.Cell> => {
+//   return {
+//     value: atlas.publicationPubString,
+//   };
+// };
 
 /**
  * Build props for the source dataset publication Link component.
@@ -164,6 +195,147 @@ export const buildStatus = (
   return {
     color,
     label: atlas.status,
+  };
+};
+
+/**
+ * Build props for the Cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Cell component.
+ */
+export const buildSystem = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: task.system,
+  };
+};
+
+/**
+ * Build props for the BioNetworkCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the BioNetworkCell component.
+ */
+export const buildTaskBioNetworks = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.BioNetworkCell> => {
+  return {
+    networkKey: task.networks[0],
+  };
+};
+
+/**
+ * Build props for the Cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Cell component.
+ */
+export const buildTaskDescriptionSystem = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: `${task.description.trim().slice(0, -1)} in ${
+      SYSTEM_DISPLAY_NAMES[task.system]
+    }.`,
+  };
+};
+
+/**
+ * Build props for the Link component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Link component.
+ */
+export const buildTaskPublicationString = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Link> => {
+  return {
+    label: task.publicationString ?? "",
+    url: getDOILink(task.doi),
+  };
+};
+
+/**
+ * Build props for the NTagCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the NTagCell component.
+ */
+export const buildTaskShortNames = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: "Atlases",
+    values: task.atlasShortNames.map((shortName) => `${shortName} v1.0`),
+  };
+};
+
+/**
+ * Build props for the StatusBadge component.
+ * @param task - Task entity.
+ * @returns Props to be used for the StatusBadge component.
+ */
+export const buildTaskStatus = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.StatusBadge> => {
+  switch (task.taskStatus) {
+    case TASK_STATUS.DONE:
+      return {
+        color: STATUS_BADGE_COLOR.SUCCESS,
+        label: "Complete",
+      };
+    case TASK_STATUS.IN_PROGRESS:
+      return {
+        color: STATUS_BADGE_COLOR.WARNING,
+        label: "In progress",
+      };
+    case TASK_STATUS.TODO:
+      return {
+        color: STATUS_BADGE_COLOR.INFO,
+        label: "To do",
+      };
+    default:
+      return {
+        color: STATUS_BADGE_COLOR.DEFAULT,
+        label: "Unspecified",
+      };
+  }
+};
+
+/**
+ * Build props for the Cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Cell component.
+ */
+export const buildTaskTargetCompletionDate = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: task.targetCompletionDate,
+  };
+};
+
+/**
+ * Build props for the NTagCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the NTagCell component.
+ */
+export const buildTaskWaves = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: "Waves",
+    values: task.waves,
+  };
+};
+
+/**
+ * Build props for the Cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Cell component.
+ */
+export const buildValidationType = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: task.validationType,
   };
 };
 
@@ -232,7 +404,7 @@ export function getDOILink(doi: string | null): string {
 function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorFn: getSourceDatasetInCap,
-    cell: ({ row }) => C.TaskStatusCell(buildInCap(row.original)),
+    cell: ({ row }) => C.SourceDatasetStatusCell(buildInCap(row.original)),
     header: "CAP",
   };
 }
@@ -244,7 +416,8 @@ function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
 function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorFn: getSourceDatasetInCellxGene,
-    cell: ({ row }) => C.TaskStatusCell(buildInCellxGene(row.original)),
+    cell: ({ row }) =>
+      C.SourceDatasetStatusCell(buildInCellxGene(row.original)),
     header: "CELLxGENE",
   };
 }
@@ -256,44 +429,49 @@ function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSource
 function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorFn: getSourceDatasetInHcaDataRepository,
-    cell: ({ row }) => C.TaskStatusCell(buildInHcaDataRepository(row.original)),
+    cell: ({ row }) =>
+      C.SourceDatasetStatusCell(buildInHcaDataRepository(row.original)),
     header: "HCA Data Repository",
   };
 }
 
 /**
- * Get task status describing whether a source dataset is known to be in CAP.
+ * Get source dataset status describing whether a source dataset is known to be in CAP.
  * @param sourceDataset - Source dataset.
  * @returns whether the source dataset is in CAP.
  */
 function getSourceDatasetInCap(
   sourceDataset: HCAAtlasTrackerSourceDataset
-): TASK_STATUS {
-  return sourceDataset.capId ? TASK_STATUS.DONE : TASK_STATUS.REQUIRED;
+): SOURCE_DATASET_STATUS {
+  return sourceDataset.capId
+    ? SOURCE_DATASET_STATUS.DONE
+    : SOURCE_DATASET_STATUS.REQUIRED;
 }
 
 /**
- * Get task status describing whether a source dataset is known to be in CELLxGENE.
+ * Get source dataset status describing whether a source dataset is known to be in CELLxGENE.
  * @param sourceDataset - Source dataset.
  * @returns whether the source dataset is in CELLxGENE.
  */
 function getSourceDatasetInCellxGene(
   sourceDataset: HCAAtlasTrackerSourceDataset
-): TASK_STATUS {
+): SOURCE_DATASET_STATUS {
   return sourceDataset.cellxgeneCollectionId
-    ? TASK_STATUS.DONE
-    : TASK_STATUS.REQUIRED;
+    ? SOURCE_DATASET_STATUS.DONE
+    : SOURCE_DATASET_STATUS.REQUIRED;
 }
 
 /**
- * Get task status describing whether a source dataset is known to be in the HCA data repository.
+ * Get source dataset status describing whether a source dataset is known to be in the HCA data repository.
  * @param sourceDataset - Source dataset.
  * @returns whether the source dataset is in the HCA data repository.
  */
 function getSourceDatasetInHcaDataRepository(
   sourceDataset: HCAAtlasTrackerSourceDataset
-): TASK_STATUS {
-  return sourceDataset.hcaProjectId ? TASK_STATUS.DONE : TASK_STATUS.REQUIRED;
+): SOURCE_DATASET_STATUS {
+  return sourceDataset.hcaProjectId
+    ? SOURCE_DATASET_STATUS.DONE
+    : SOURCE_DATASET_STATUS.REQUIRED;
 }
 
 /**
