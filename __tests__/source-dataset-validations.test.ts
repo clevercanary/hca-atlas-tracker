@@ -15,6 +15,7 @@ import {
   ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B,
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
   SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+  SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
 } from "../testing/constants";
 import { TestAtlas, TestSourceDataset } from "../testing/entities";
@@ -100,6 +101,24 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
     },
   ];
 
+const VALIDATIONS_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: ExpectedValidationProperties[] =
+  [
+    {
+      system: SYSTEM.CELLXGENE,
+      taskStatus: TASK_STATUS.TODO,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
+      validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      taskStatus: TASK_STATUS.TODO,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
+      validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+  ];
+
 let client: pg.PoolClient;
 
 beforeAll(async () => {
@@ -136,6 +155,14 @@ describe("getSourceDatasetValidationResults", () => {
       SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
       [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH
+    );
+  });
+
+  it("returns validations for published source dataset without HCA project or CELLxGENE collection", async () => {
+    await testValidations(
+      SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
+      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B],
+      VALIDATIONS_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE
     );
   });
 });

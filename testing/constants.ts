@@ -501,6 +501,26 @@ export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH: TestPublishedSour
     },
   };
 
+export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSourceDataset =
+  {
+    doi: "10.123/sd-published-with-no-hca-or-cellxgene",
+    doiStatus: DOI_STATUS.OK,
+    id: "40a569a7-d4a2-4331-9599-5d95a7f09ad5",
+    publication: {
+      authors: [
+        {
+          name: "Bar Foo",
+          personalName: "Bar",
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Foo Bar Foo",
+      preprintOfDoi: null,
+      publicationDate: "2024-05-10",
+      title: "Published With No HCA Or CELLxGENE",
+    },
+  };
+
 // Source datasets initialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_DRAFT_OK,
@@ -512,6 +532,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+  SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
 ];
 
 // ATLASES
@@ -579,7 +600,10 @@ export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B: TestAtlas = {
   integrationLead: null,
   network: "gut",
   shortName: "test-with-source-dataset-validations-b",
-  sourceDatasets: [SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id],
+  sourceDatasets: [
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id,
+    SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE.id,
+  ],
   status: ATLAS_STATUS.DRAFT,
   version: "3.5",
   wave: "1",
