@@ -19,10 +19,9 @@ import {
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
-  condition?: (entity: T) => boolean;
   description: string;
   system: SYSTEM;
-  validate: (entity: T) => boolean;
+  validate: (entity: T) => boolean | null;
   validationId: VALIDATION_ID;
   validationType: VALIDATION_TYPE;
 }
@@ -59,14 +58,16 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      condition(sourceDataset): boolean {
-        return Boolean(sourceDataset.sd_info.publication);
-      },
       description: "Update project title to match publication title.",
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      validate(sourceDataset): boolean {
-        if (!sourceDataset.doi || !sourceDataset.sd_info.publication)
-          return false;
+      validate(sourceDataset): boolean | null {
+        if (
+          !sourceDataset.doi ||
+          !sourceDataset.sd_info.publication ||
+          !sourceDataset.sd_info.hcaProjectId
+        ) {
+          return null;
+        }
         const hcaTitle = getProjectInfoByDoi(
           getPublicationDois(
             sourceDataset.doi,
@@ -86,8 +87,10 @@ function getValidationResult<T extends ENTITY_TYPE>(
   validation: ValidationDefinition<DBEntityOfType<T>>,
   entity: DBEntityOfType<T>,
   typeSpecificProperties: TypeSpecificValidationProperties
-): HCAAtlasTrackerValidationResult {
-  const validationStatus = validation.validate(entity)
+): HCAAtlasTrackerValidationResult | null {
+  const isValid = validation.validate(entity);
+  if (isValid === null) return null;
+  const validationStatus = isValid
     ? VALIDATION_STATUS.PASSED
     : VALIDATION_STATUS.FAILED;
   return {
@@ -110,7 +113,7 @@ export async function updateSourceDatasetValidations(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
 ): Promise<void> {
-  console.log(await getSourceDatasetValidationResults(sourceDataset, client));
+  //console.log(await getSourceDatasetValidationResults(sourceDataset, client));
 }
 
 export async function getSourceDatasetValidationResults(
@@ -124,22 +127,21 @@ export async function getSourceDatasetValidationResults(
     client
   );
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
-    if (validation.condition && !validation.condition(sourceDataset)) continue;
-    validationResults.push(
-      getValidationResult(
-        ENTITY_TYPE.SOURCE_DATASET,
-        validation,
-        sourceDataset,
-        {
-          doi: sourceDataset.doi,
-          entityTitle: title,
-          publicationString: getSourceDatasetCitation(
-            dbSourceDatasetToApiSourceDataset(sourceDataset)
-          ),
-          ...atlasProperties,
-        }
-      )
+    const validationResult = getValidationResult(
+      ENTITY_TYPE.SOURCE_DATASET,
+      validation,
+      sourceDataset,
+      {
+        doi: sourceDataset.doi,
+        entityTitle: title,
+        publicationString: getSourceDatasetCitation(
+          dbSourceDatasetToApiSourceDataset(sourceDataset)
+        ),
+        ...atlasProperties,
+      }
     );
+    if (!validationResult) continue;
+    validationResults.push(validationResult);
   }
   return validationResults;
 }

@@ -1,9 +1,15 @@
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
+  DOI_STATUS,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBPublishedSourceDatasetInfo,
+  HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  TEST_CELLXGENE_COLLECTIONS_BY_DOI,
+  TEST_HCA_PROJECTS_BY_DOI,
+} from "./constants";
 import { TestAtlas, TestSourceDataset, TestUser } from "./entities";
 
 export function makeTestUser(
@@ -35,14 +41,31 @@ export function makeTestAtlasOverview(
 
 export function makeTestSourceDatasetOverview(
   dataset: TestSourceDataset
-): HCAAtlasTrackerDBPublishedSourceDatasetInfo {
-  return {
-    cellxgeneCollectionId: null,
-    doiStatus: dataset.doiStatus,
-    hcaProjectId: null,
-    publication: dataset.publication,
-    unpublishedInfo: null,
-  };
+):
+  | HCAAtlasTrackerDBPublishedSourceDatasetInfo
+  | HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
+  return "unpublishedInfo" in dataset
+    ? {
+        cellxgeneCollectionId: dataset.cellxgeneCollectionId,
+        doiStatus: DOI_STATUS.NA,
+        hcaProjectId: dataset.hcaProjectId,
+        publication: null,
+        unpublishedInfo: dataset.unpublishedInfo,
+      }
+    : {
+        cellxgeneCollectionId:
+          (dataset.doi &&
+            TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(dataset.doi)
+              ?.collection_id) ??
+          null,
+        doiStatus: dataset.doiStatus,
+        hcaProjectId:
+          (dataset.doi &&
+            TEST_HCA_PROJECTS_BY_DOI.get(dataset.doi)?.projects[0].projectId) ??
+          null,
+        publication: dataset.publication,
+        unpublishedInfo: null,
+      };
 }
 
 export function makeTestProjectsResponse(

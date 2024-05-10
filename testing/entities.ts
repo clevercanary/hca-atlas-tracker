@@ -1,6 +1,7 @@
 import {
   ATLAS_STATUS,
   DOI_STATUS,
+  HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
   IntegrationLead,
   NetworkKey,
   PublicationInfo,
@@ -28,9 +29,20 @@ export interface TestAtlas {
   wave: Wave;
 }
 
-export interface TestSourceDataset {
+export type TestSourceDataset =
+  | TestPublishedSourceDataset
+  | TestUnpublishedSourceDataset;
+
+export interface TestPublishedSourceDataset {
   doi: string | null;
   doiStatus: DOI_STATUS;
   id: string;
   publication: PublicationInfo | null;
+}
+
+export interface TestUnpublishedSourceDataset {
+  cellxgeneCollectionId: string | null;
+  hcaProjectId: string | null;
+  id: string;
+  unpublishedInfo: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo["unpublishedInfo"];
 }
