@@ -15,7 +15,7 @@ import {
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
 } from "../testing/constants";
-import { TestSourceDataset } from "../testing/entities";
+import { TestAtlas, TestSourceDataset } from "../testing/entities";
 
 type ExpectedValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
@@ -87,7 +87,7 @@ describe("getSourceDatasetValidationResults", () => {
   it("", async () => {
     await testValidations(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A.id],
+      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_HCA
     );
   });
@@ -95,7 +95,7 @@ describe("getSourceDatasetValidationResults", () => {
   it("", async () => {
     await testValidations(
       SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A.id],
+      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
       VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE
     );
   });
@@ -103,7 +103,7 @@ describe("getSourceDatasetValidationResults", () => {
 
 async function testValidations(
   testDataset: TestSourceDataset,
-  atlasIds: string[],
+  testAtlases: TestAtlas[],
   expectedValidationProperties: ExpectedValidationProperties[]
 ): Promise<void> {
   const sourceDataset = (
@@ -117,9 +117,16 @@ async function testValidations(
     client
   );
   expect(validationResults).toHaveLength(expectedValidationProperties.length);
+  const atlasIds = testAtlases.map((atlas) => atlas.id);
+  const atlasShortNames = testAtlases.map((atlas) => atlas.shortName);
+  const networks = testAtlases.map((atlas) => atlas.network);
+  const waves = testAtlases.map((atlas) => atlas.wave);
   for (const [i, validationResult] of validationResults.entries()) {
     expect(validationResult).toMatchObject(expectedValidationProperties[i]);
     expect(validationResult.atlasIds).toEqual(atlasIds);
+    expect(validationResult.atlasShortNames).toEqual(atlasShortNames);
+    expect(validationResult.networks).toEqual(networks);
+    expect(validationResult.waves).toEqual(waves);
     expect(validationResult.entityId).toEqual(testDataset.id);
     expect(validationResult.entityTitle).toEqual(
       "unpublishedInfo" in testDataset
