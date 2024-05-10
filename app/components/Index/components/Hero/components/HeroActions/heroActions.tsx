@@ -9,7 +9,7 @@ export const HeroActions = (): JSX.Element | null => {
   const {
     access: { canEdit },
   } = useFormManager();
-  return canEdit && asPath === ROUTE.ATLASES ? (
+  return canEdit && asPath.startsWith(ROUTE.ATLASES) ? (
     <Button color={BUTTON_COLOR.PRIMARY} href={ROUTE.CREATE_ATLAS}>
       Add Atlas
     </Button>
