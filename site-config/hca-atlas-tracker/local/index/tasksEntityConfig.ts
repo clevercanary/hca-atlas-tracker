@@ -19,6 +19,36 @@ import {
  */
 export const tasksEntityConfig: EntityConfig = {
   apiPath: "api/tasks",
+  categoryGroupConfigs: [
+    {
+      categoryConfigs: [
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SYSTEM,
+        },
+      ],
+    },
+    {
+      categoryConfigs: [
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TYPE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TYPE,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VALIDATION_TYPE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VALIDATION_TYPE,
+        },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
+        },
+      ],
+    },
+  ],
   detail: {
     detailOverviews: [],
     staticLoad: true,
@@ -83,8 +113,8 @@ export const tasksEntityConfig: EntityConfig = {
           typeof C.StatusBadge,
           HCAAtlasTrackerValidationResult
         >,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.STATUS,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.STATUS,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
         width: { max: "0.5fr", min: "120px" },
       },
     ],
