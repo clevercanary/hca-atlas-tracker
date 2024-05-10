@@ -8,14 +8,14 @@ import {
   VALIDATION_TYPE,
 } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import pg from "pg";
-import {
-  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
-  SOURCE_DATASET_PUBLISHED_WITH_CELLXGENE,
-  SOURCE_DATASET_UNPUBLISHED_WITH_HCA,
-} from "testing/constants";
-import { TestSourceDataset } from "testing/entities";
 import { endPgPool, getPoolClient } from "../app/services/database";
 import { getSourceDatasetValidationResults } from "../app/services/validations";
+import {
+  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
+  SOURCE_DATASET_PUBLISHED_WITH_HCA,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
+} from "../testing/constants";
+import { TestSourceDataset } from "../testing/entities";
 
 type ExpectedValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
@@ -30,7 +30,7 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 
-const VALIDATIONS_UNPUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
+const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
   {
     system: SYSTEM.CELLXGENE,
     taskStatus: TASK_STATUS.TODO,
@@ -44,10 +44,18 @@ const VALIDATIONS_UNPUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
     validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
     validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.INGEST,
+  },
+  {
+    system: SYSTEM.HCA_DATA_REPOSITORY,
+    taskStatus: TASK_STATUS.DONE,
+    validationId:
+      VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
+    validationStatus: VALIDATION_STATUS.PASSED,
+    validationType: VALIDATION_TYPE.METADATA,
   },
 ];
 
-const VALIDATIONS_PUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
+const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
   {
     system: SYSTEM.CELLXGENE,
     taskStatus: TASK_STATUS.DONE,
@@ -61,14 +69,6 @@ const VALIDATIONS_PUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
     validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
     validationStatus: VALIDATION_STATUS.FAILED,
     validationType: VALIDATION_TYPE.INGEST,
-  },
-  {
-    system: SYSTEM.HCA_DATA_REPOSITORY,
-    taskStatus: TASK_STATUS.TODO,
-    validationId:
-      VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
-    validationStatus: VALIDATION_STATUS.FAILED,
-    validationType: VALIDATION_TYPE.METADATA,
   },
 ];
 
@@ -86,17 +86,17 @@ afterAll(() => {
 describe("getSourceDatasetValidationResults", () => {
   it("", async () => {
     await testValidations(
-      SOURCE_DATASET_UNPUBLISHED_WITH_HCA,
+      SOURCE_DATASET_PUBLISHED_WITH_HCA,
       [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A.id],
-      VALIDATIONS_UNPUBLISHED_WITH_HCA
+      VALIDATIONS_PUBLISHED_WITH_HCA
     );
   });
 
   it("", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_CELLXGENE,
+      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
       [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A.id],
-      VALIDATIONS_PUBLISHED_WITH_CELLXGENE
+      VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE
     );
   });
 });

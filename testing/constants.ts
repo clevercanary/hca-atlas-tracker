@@ -82,8 +82,7 @@ export const DOI_PUBLIC_WITH_JOURNAL_JOURNAL =
 
 export const DOI_DRAFT_OK = "10.123/sd-draft-ok";
 
-export const DOI_PUBLISHED_WITH_CELLXGENE =
-  "10.123/sd-published-with-cellxgene";
+export const DOI_PUBLISHED_WITH_HCA = "10.123/sd-published-with-hca";
 
 // PUBLICATIONS
 
@@ -276,7 +275,7 @@ export const HCA_ID_JOURNAL_COUNTERPART = "hca-id-journal-counterpart";
 
 export const HCA_ID_PREPRINT_COUNTERPART = "hca-id-preprint-counterpart";
 
-export const HCA_ID_UNPUBLISHED_WITH_HCA = "hca-id-unpublished-with-hca";
+export const HCA_ID_PUBLISHED_WITH_HCA = "hca-id-published-with-hca";
 
 export const HCA_PROJECTS_RESPONSE_NORMAL = makeTestProjectsResponse(
   HCA_ID_NORMAL,
@@ -304,10 +303,18 @@ export const HCA_PROJECTS_RESPONSE_PREPRINT_COUNTERPART =
     "Preprint Counterpart"
   );
 
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_HCA,
+    DOI_PUBLISHED_WITH_HCA,
+    "Published With HCA"
+  );
+
 export const TEST_HCA_PROJECTS_BY_DOI = new Map([
   [DOI_NORMAL, HCA_PROJECTS_RESPONSE_NORMAL],
   [DOI_JOURNAL_COUNTERPART, HCA_PROJECTS_RESPONSE_JOURNAL_COUNTERPART],
   [DOI_PREPRINT_COUNTERPART, HCA_PROJECTS_RESPONSE_PREPRINT_COUNTERPART],
+  [DOI_PUBLISHED_WITH_HCA, HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA],
 ]);
 
 export const HCA_PROJECTS_RESPONSES_TEST1: ProjectsResponse[] = [
@@ -340,7 +347,7 @@ export const CELLXGENE_ID_JOURNAL_COUNTERPART =
 export const CELLXGENE_ID_PREPRINT_COUNTERPART =
   "cellxgene-collection-preprint-counterpart";
 
-export const CELLXGENE_ID_PUBLISHED_WITH_CELLXGENE =
+export const CELLXGENE_ID_UNPUBLISHED_WITH_CELLXGENE =
   "cellxgene-collection-published-with-cellxgene";
 
 export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
@@ -369,21 +376,10 @@ export const TEST_CELLXGENE_COLLECTION_PREPRINT_COUNTERPART: CellxGeneCollection
     name: "Preprint Counterpart",
   };
 
-export const TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CELLXGENE: CellxGeneCollection =
-  {
-    collection_id: CELLXGENE_ID_PUBLISHED_WITH_CELLXGENE,
-    doi: DOI_PUBLISHED_WITH_CELLXGENE,
-    name: "Published With Cellxgene",
-  };
-
 export const TEST_CELLXGENE_COLLECTIONS_BY_DOI = new Map([
   [DOI_NORMAL, TEST_CELLXGENE_COLLECTION_NORMAL],
   [DOI_JOURNAL_COUNTERPART, TEST_CELLXGENE_COLLECTION_JOURNAL_COUNTERPART],
   [DOI_PREPRINT_COUNTERPART, TEST_CELLXGENE_COLLECTION_PREPRINT_COUNTERPART],
-  [
-    DOI_PUBLISHED_WITH_CELLXGENE,
-    TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CELLXGENE,
-  ],
 ]);
 
 export const TEST_CELLXGENE_COLLECTIONS_A = [TEST_CELLXGENE_COLLECTION_NORMAL];
@@ -437,35 +433,34 @@ export const SOURCE_DATASET_SHARED: TestPublishedSourceDataset = {
   publication: null,
 };
 
-export const SOURCE_DATASET_UNPUBLISHED_WITH_HCA: TestUnpublishedSourceDataset =
+export const SOURCE_DATASET_PUBLISHED_WITH_HCA: TestPublishedSourceDataset = {
+  doi: DOI_PUBLISHED_WITH_HCA,
+  doiStatus: DOI_STATUS.OK,
+  id: "a8a6a337-a4d2-46f6-85e5-d703cfc5f853",
+  publication: {
+    authors: [
+      {
+        name: "Foo Baz",
+        personalName: "Bar",
+      },
+    ],
+    hasPreprintDoi: null,
+    journal: "Bar Baz Foo",
+    preprintOfDoi: null,
+    publicationDate: "2024-05-08",
+    title: "Published With HCA",
+  },
+};
+
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE: TestUnpublishedSourceDataset =
   {
-    cellxgeneCollectionId: null,
-    hcaProjectId: HCA_ID_UNPUBLISHED_WITH_HCA,
+    cellxgeneCollectionId: CELLXGENE_ID_UNPUBLISHED_WITH_CELLXGENE,
+    hcaProjectId: null,
     id: "6d18889a-e4f8-4cb3-8311-f589f0543254",
     unpublishedInfo: {
       contactEmail: null,
       referenceAuthor: "Foo",
       title: "Unpublished With HCA",
-    },
-  };
-
-export const SOURCE_DATASET_PUBLISHED_WITH_CELLXGENE: TestPublishedSourceDataset =
-  {
-    doi: DOI_PUBLISHED_WITH_CELLXGENE,
-    doiStatus: DOI_STATUS.OK,
-    id: "a8a6a337-a4d2-46f6-85e5-d703cfc5f853",
-    publication: {
-      authors: [
-        {
-          name: "Foo Baz",
-          personalName: "Bar",
-        },
-      ],
-      hasPreprintDoi: null,
-      journal: "Bar Baz Foo",
-      preprintOfDoi: null,
-      publicationDate: "2024-05-08",
-      title: "Published With Cellxgene",
     },
   };
 
@@ -477,8 +472,8 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_PUBLIC_WITH_PREPRINT,
   SOURCE_DATASET_PUBLIC_WITH_JOURNAL,
   SOURCE_DATASET_SHARED,
-  SOURCE_DATASET_UNPUBLISHED_WITH_HCA,
-  SOURCE_DATASET_PUBLISHED_WITH_CELLXGENE,
+  SOURCE_DATASET_PUBLISHED_WITH_HCA,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
 ];
 
 // ATLASES
@@ -532,8 +527,8 @@ export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
   network: "organoid",
   shortName: "test-with-source-dataset-validations-a",
   sourceDatasets: [
-    SOURCE_DATASET_UNPUBLISHED_WITH_HCA.id,
-    SOURCE_DATASET_PUBLISHED_WITH_CELLXGENE.id,
+    SOURCE_DATASET_PUBLISHED_WITH_HCA.id,
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id,
   ],
   status: ATLAS_STATUS.DRAFT,
   version: "5.4",
