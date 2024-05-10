@@ -132,13 +132,13 @@ export const buildIntegrationLead = (
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
  */
-export const buildPublication = (
-  atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: atlas.publicationPubString,
-  };
-};
+// export const buildPublication = (
+//   atlas: HCAAtlasTrackerListAtlas
+// ): React.ComponentProps<typeof C.Cell> => {
+//   return {
+//     value: atlas.publicationPubString,
+//   };
+// };
 
 /**
  * Build props for the source dataset publication Link component.

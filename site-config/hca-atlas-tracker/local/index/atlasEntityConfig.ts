@@ -49,10 +49,10 @@ export const atlasEntityConfig: EntityConfig = {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
         },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
-        },
+        // {
+        //   key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
+        //   label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+        // },
         {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
@@ -103,16 +103,16 @@ export const atlasEntityConfig: EntityConfig = {
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
         width: { max: "2fr", min: "374px" },
       },
-      {
-        columnVisible: false,
-        componentConfig: {
-          component: C.Cell,
-          viewBuilder: V.buildPublication,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
-        width: { max: "1fr", min: "136px" },
-      },
+      // {
+      //   columnVisible: false,
+      //   componentConfig: {
+      //     component: C.Cell,
+      //     viewBuilder: V.buildPublication,
+      //   } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+      //   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+      //   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION,
+      //   width: { max: "1fr", min: "136px" },
+      // },
       {
         componentConfig: {
           component: C.BioNetworkCell,
