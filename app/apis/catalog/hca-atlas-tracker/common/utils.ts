@@ -5,7 +5,9 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListValidationResult,
   HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationResult,
   NetworkKey,
   PublicationInfo,
@@ -189,4 +191,18 @@ export function isWaveValue(value: unknown): value is Wave {
   return (
     typeof value === "string" && (WAVES as readonly string[]).includes(value)
   );
+}
+
+/**
+ * Maps the API task to the list task.
+ * @param apiTask - API task.
+ * @returns task.
+ */
+export function taskInputMapper(
+  apiTask: HCAAtlasTrackerValidationRecord
+): HCAAtlasTrackerListValidationResult {
+  return {
+    ...apiTask,
+    targetCompletionDate: apiTask.targetCompletionDate ?? "Unplanned",
+  };
 }

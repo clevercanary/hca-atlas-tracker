@@ -1,4 +1,4 @@
-import { Network, NetworkKey, ROLE } from "./entities";
+import { Network, NetworkKey, ROLE, SYSTEM } from "./entities";
 
 export const WAVES = ["1", "2", "3"] as const;
 
@@ -121,4 +121,11 @@ export const NETWORK_ICONS: { [key in NetworkKey]: string } = {
 
 export const ROLE_GROUP = {
   READ: [ROLE.STAKEHOLDER, ROLE.CONTENT_ADMIN],
+};
+
+export const SYSTEM_DISPLAY_NAMES: { [key in SYSTEM]: string } = {
+  CAP: "CAP",
+  CELLXGENE: "CELLxGENE",
+  DUOS: "DUOS",
+  HCA_DATA_REPOSITORY: "HCA Data Repository",
 };

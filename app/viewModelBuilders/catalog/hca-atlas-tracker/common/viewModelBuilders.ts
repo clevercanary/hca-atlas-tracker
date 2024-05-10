@@ -1,14 +1,17 @@
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ColumnDef } from "@tanstack/react-table";
-import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  NETWORKS,
+  SYSTEM_DISPLAY_NAMES,
+} from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   AtlasId,
   ATLAS_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListValidationResult,
   HCAAtlasTrackerSourceDataset,
-  HCAAtlasTrackerValidationResult,
   Network,
   NetworkKey,
   TASK_STATUS,
@@ -52,7 +55,7 @@ export const buildBioNetwork = (
  * @returns Props to be used for the Cell component.
  */
 export const buildEntityTitle = (
-  task: HCAAtlasTrackerValidationResult
+  task: HCAAtlasTrackerListValidationResult
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.entityTitle,
@@ -65,7 +68,7 @@ export const buildEntityTitle = (
  * @returns Props to be used for the Cell component.
  */
 export const buildEntityType = (
-  task: HCAAtlasTrackerValidationResult
+  task: HCAAtlasTrackerListValidationResult
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.entityType,
@@ -201,10 +204,23 @@ export const buildStatus = (
  * @returns Props to be used for the Cell component.
  */
 export const buildSystem = (
-  task: HCAAtlasTrackerValidationResult
+  task: HCAAtlasTrackerListValidationResult
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.system,
+  };
+};
+
+/**
+ * Build props for the BioNetworkCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the BioNetworkCell component.
+ */
+export const buildTaskBioNetworks = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.BioNetworkCell> => {
+  return {
+    networkKey: task.networks[0],
   };
 };
 
@@ -213,11 +229,41 @@ export const buildSystem = (
  * @param task - Task entity.
  * @returns Props to be used for the Cell component.
  */
-export const buildTaskDescription = (
-  task: HCAAtlasTrackerValidationResult
+export const buildTaskDescriptionSystem = (
+  task: HCAAtlasTrackerListValidationResult
 ): React.ComponentProps<typeof C.Cell> => {
   return {
-    value: task.description,
+    value: `${task.description.trim().slice(0, -1)} in ${
+      SYSTEM_DISPLAY_NAMES[task.system]
+    }.`,
+  };
+};
+
+/**
+ * Build props for the Link component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Link component.
+ */
+export const buildTaskPublicationString = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Link> => {
+  return {
+    label: task.publicationString ?? "",
+    url: getDOILink(task.doi),
+  };
+};
+
+/**
+ * Build props for the NTagCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the NTagCell component.
+ */
+export const buildTaskShortNames = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: "Atlases",
+    values: task.atlasShortNames.map((shortName) => `${shortName} v1.0`),
   };
 };
 
@@ -227,7 +273,7 @@ export const buildTaskDescription = (
  * @returns Props to be used for the StatusBadge component.
  */
 export const buildTaskStatus = (
-  task: HCAAtlasTrackerValidationResult
+  task: HCAAtlasTrackerListValidationResult
 ): React.ComponentProps<typeof C.StatusBadge> => {
   switch (task.taskStatus) {
     case TASK_STATUS.DONE:
@@ -258,8 +304,35 @@ export const buildTaskStatus = (
  * @param task - Task entity.
  * @returns Props to be used for the Cell component.
  */
+export const buildTaskTargetCompletionDate = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: task.targetCompletionDate,
+  };
+};
+
+/**
+ * Build props for the NTagCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the NTagCell component.
+ */
+export const buildTaskWaves = (
+  task: HCAAtlasTrackerListValidationResult
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: "Waves",
+    values: task.waves,
+  };
+};
+
+/**
+ * Build props for the Cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the Cell component.
+ */
 export const buildValidationType = (
-  task: HCAAtlasTrackerValidationResult
+  task: HCAAtlasTrackerListValidationResult
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.validationType,
