@@ -12,7 +12,9 @@ import { endPgPool, getPoolClient } from "../app/services/database";
 import { getSourceDatasetValidationResults } from "../app/services/validations";
 import {
   ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
+  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B,
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
+  SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
 } from "../testing/constants";
 import { TestAtlas, TestSourceDataset } from "../testing/entities";
@@ -29,6 +31,23 @@ type ExpectedValidationProperties = Pick<
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+
+const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
+  {
+    system: SYSTEM.CELLXGENE,
+    taskStatus: TASK_STATUS.DONE,
+    validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
+    validationStatus: VALIDATION_STATUS.PASSED,
+    validationType: VALIDATION_TYPE.INGEST,
+  },
+  {
+    system: SYSTEM.HCA_DATA_REPOSITORY,
+    taskStatus: TASK_STATUS.TODO,
+    validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
+    validationStatus: VALIDATION_STATUS.FAILED,
+    validationType: VALIDATION_TYPE.INGEST,
+  },
+];
 
 const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
   {
@@ -55,22 +74,31 @@ const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
   },
 ];
 
-const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
-  {
-    system: SYSTEM.CELLXGENE,
-    taskStatus: TASK_STATUS.DONE,
-    validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
-    validationStatus: VALIDATION_STATUS.PASSED,
-    validationType: VALIDATION_TYPE.INGEST,
-  },
-  {
-    system: SYSTEM.HCA_DATA_REPOSITORY,
-    taskStatus: TASK_STATUS.TODO,
-    validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
-    validationStatus: VALIDATION_STATUS.FAILED,
-    validationType: VALIDATION_TYPE.INGEST,
-  },
-];
+const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationProperties[] =
+  [
+    {
+      system: SYSTEM.CELLXGENE,
+      taskStatus: TASK_STATUS.TODO,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
+      validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      taskStatus: TASK_STATUS.DONE,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
+      validationStatus: VALIDATION_STATUS.PASSED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      taskStatus: TASK_STATUS.TODO,
+      validationId:
+        VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
+      validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.METADATA,
+    },
+  ];
 
 let client: pg.PoolClient;
 
@@ -84,7 +112,18 @@ afterAll(() => {
 });
 
 describe("getSourceDatasetValidationResults", () => {
-  it("", async () => {
+  it("returns validations for source dataset with CELLxGENE collection and multiple atlases", async () => {
+    await testValidations(
+      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
+      [
+        ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
+        ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B,
+      ],
+      VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE
+    );
+  });
+
+  it("returns validations for source dataset with HCA project with matching title", async () => {
     await testValidations(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
       [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
@@ -92,11 +131,11 @@ describe("getSourceDatasetValidationResults", () => {
     );
   });
 
-  it("", async () => {
+  it("returns validations for source dataset with HCA project with mismatched title", async () => {
     await testValidations(
-      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
+      SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
       [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
-      VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE
+      VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH
     );
   });
 });

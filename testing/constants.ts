@@ -84,6 +84,9 @@ export const DOI_DRAFT_OK = "10.123/sd-draft-ok";
 
 export const DOI_PUBLISHED_WITH_HCA = "10.123/sd-published-with-hca";
 
+export const DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
+  "10.123/sd-published-with-hca-title-mismatch";
+
 // PUBLICATIONS
 
 export const PUBLICATION_DRAFT_OK: PublicationInfo = {
@@ -277,6 +280,9 @@ export const HCA_ID_PREPRINT_COUNTERPART = "hca-id-preprint-counterpart";
 
 export const HCA_ID_PUBLISHED_WITH_HCA = "hca-id-published-with-hca";
 
+export const HCA_ID_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
+  "hca-id-published-with-hca-title-mismatch";
+
 export const HCA_PROJECTS_RESPONSE_NORMAL = makeTestProjectsResponse(
   HCA_ID_NORMAL,
   DOI_NORMAL,
@@ -310,11 +316,22 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
     "Published With HCA"
   );
 
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+    DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+    "Published With HCA Title Mismatch MISMATCHED"
+  );
+
 export const TEST_HCA_PROJECTS_BY_DOI = new Map([
   [DOI_NORMAL, HCA_PROJECTS_RESPONSE_NORMAL],
   [DOI_JOURNAL_COUNTERPART, HCA_PROJECTS_RESPONSE_JOURNAL_COUNTERPART],
   [DOI_PREPRINT_COUNTERPART, HCA_PROJECTS_RESPONSE_PREPRINT_COUNTERPART],
   [DOI_PUBLISHED_WITH_HCA, HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA],
+  [
+    DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+    HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+  ],
 ]);
 
 export const HCA_PROJECTS_RESPONSES_TEST1: ProjectsResponse[] = [
@@ -464,6 +481,26 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE: TestUnpublishedSourceDat
     },
   };
 
+export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH: TestPublishedSourceDataset =
+  {
+    doi: DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+    doiStatus: DOI_STATUS.OK,
+    id: "1e4c0c9c-f29e-4734-8958-7a4ed565530c",
+    publication: {
+      authors: [
+        {
+          name: "Baz Foo",
+          personalName: "Baz",
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Foo Baz Foo",
+      preprintOfDoi: null,
+      publicationDate: "2024-05-09",
+      title: "Published With HCA Title Mismatch",
+    },
+  };
+
 // Source datasets initialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_DRAFT_OK,
@@ -474,6 +511,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_SHARED,
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
+  SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
 ];
 
 // ATLASES
@@ -529,10 +567,22 @@ export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
   sourceDatasets: [
     SOURCE_DATASET_PUBLISHED_WITH_HCA.id,
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id,
+    SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH.id,
   ],
   status: ATLAS_STATUS.DRAFT,
   version: "5.4",
   wave: "2",
+};
+
+export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B: TestAtlas = {
+  id: "9766683a-3c8d-4ec8-b8b5-3fceb8fe0d31",
+  integrationLead: null,
+  network: "gut",
+  shortName: "test-with-source-dataset-validations-b",
+  sourceDatasets: [SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id],
+  status: ATLAS_STATUS.DRAFT,
+  version: "3.5",
+  wave: "1",
 };
 
 export const ATLAS_NONEXISTENT = {
@@ -545,4 +595,5 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
   ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
+  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B,
 ];
