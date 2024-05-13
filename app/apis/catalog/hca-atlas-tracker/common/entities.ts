@@ -81,6 +81,29 @@ export interface HCAAtlasTrackerUnpublishedSourceDataset
   title: string;
 }
 
+export interface HCAAtlasTrackerValidationResult {
+  atlasIds: string[];
+  atlasShortNames: string[];
+  description: string;
+  doi: string | null;
+  entityId: string;
+  entityTitle: string;
+  entityType: ENTITY_TYPE;
+  networks: NetworkKey[];
+  publicationString: string | null;
+  system: SYSTEM;
+  taskStatus: TASK_STATUS;
+  validationId: VALIDATION_ID;
+  validationStatus: VALIDATION_STATUS;
+  validationType: VALIDATION_TYPE;
+  waves: Wave[];
+}
+
+export interface HCAAtlasTrackerValidationRecord
+  extends HCAAtlasTrackerValidationResult {
+  targetCompletionDate: string | null;
+}
+
 export interface HCAAtlasTrackerActiveUser {
   email: string;
   fullName: string;
@@ -159,27 +182,31 @@ export interface HCAAtlasTrackerListValidationResult
   targetCompletionDate: string;
 }
 
-export interface HCAAtlasTrackerValidationResult {
-  atlasIds: string[];
-  atlasShortNames: string[];
+export interface HCAAtlasTrackerDBValidationCreationColumns {
+  atlas_ids: string[];
+  entity_id: string;
+  validation_id: VALIDATION_ID;
+  validation_info: HCAAtlasTrackerDBValidationInfo;
+}
+
+export interface HCAAtlasTrackerDBValidation
+  extends HCAAtlasTrackerDBValidationCreationColumns {
+  created_at: Date;
+  resolved_at: Date | null;
+  target_completion: Date | null;
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBValidationInfo {
   description: string;
   doi: string | null;
-  entityId: string;
   entityTitle: string;
   entityType: ENTITY_TYPE;
-  networks: NetworkKey[];
   publicationString: string | null;
   system: SYSTEM;
   taskStatus: TASK_STATUS;
-  validationId: VALIDATION_ID;
   validationStatus: VALIDATION_STATUS;
   validationType: VALIDATION_TYPE;
-  waves: Wave[];
-}
-
-export interface HCAAtlasTrackerValidationRecord
-  extends HCAAtlasTrackerValidationResult {
-  targetCompletionDate: string | null;
 }
 
 export interface HCAAtlasTrackerDBUser {

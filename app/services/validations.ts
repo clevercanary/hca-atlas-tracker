@@ -4,6 +4,7 @@ import {
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBValidationCreationColumns,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
   TASK_STATUS,
@@ -113,7 +114,38 @@ export async function updateSourceDatasetValidations(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
 ): Promise<void> {
-  //console.log(await getSourceDatasetValidationResults(sourceDataset, client));
+  const validationResults = await getSourceDatasetValidationResults(
+    sourceDataset,
+    client
+  );
+  // TODO check existing records
+  for (const result of validationResults) {
+    const newColumns: HCAAtlasTrackerDBValidationCreationColumns = {
+      atlas_ids: result.atlasIds,
+      entity_id: result.entityId,
+      validation_id: result.validationId,
+      validation_info: {
+        description: result.description,
+        doi: result.doi,
+        entityTitle: result.entityTitle,
+        entityType: result.entityType,
+        publicationString: result.publicationString,
+        system: result.system,
+        taskStatus: result.taskStatus,
+        validationStatus: result.validationStatus,
+        validationType: result.validationType,
+      },
+    };
+    client.query(
+      "INSERT INTO hat.validations (atlas_ids, entity_id, validation_id, validation_info) VALUES ($1, $2, $3, $4)",
+      [
+        newColumns.atlas_ids,
+        newColumns.entity_id,
+        newColumns.validation_id,
+        JSON.stringify(newColumns.validation_info),
+      ]
+    );
+  }
 }
 
 export async function getSourceDatasetValidationResults(
