@@ -6,13 +6,13 @@ import { Content } from "../../app/components/Layout/components/Content/content"
 import { MDX_COMPONENTS } from "../../app/content/common/constants";
 import { getContentStaticProps } from "../../app/content/common/contentPages";
 
-const slug = ["guides"];
+const slug = ["validations-and-tasks"];
 
 export const getStaticProps: GetStaticProps = async () => {
-  return getContentStaticProps({ params: { slug } }, "Guides");
+  return getContentStaticProps({ params: { slug } }, "Validations and Tasks");
 };
 
-const Page = ({
+const ValidationsAndTasksPage = ({
   layoutStyle,
   mdxSource,
 }: InferGetStaticPropsType<typeof getStaticProps>): JSX.Element => {
@@ -28,6 +28,6 @@ const Page = ({
   );
 };
 
-Page.Main = Main;
+ValidationsAndTasksPage.Main = Main;
 
-export default Page;
+export default ValidationsAndTasksPage;
