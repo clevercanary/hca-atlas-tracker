@@ -136,7 +136,7 @@ export async function updateSourceDatasetValidations(
         validationType: result.validationType,
       },
     };
-    client.query(
+    await client.query(
       "INSERT INTO hat.validations (atlas_ids, entity_id, validation_id, validation_info) VALUES ($1, $2, $3, $4)",
       [
         newColumns.atlas_ids,
