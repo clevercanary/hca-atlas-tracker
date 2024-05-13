@@ -9,6 +9,7 @@ import {
   TEXT_HEADING_XLARGE,
 } from "@databiosphere/findable-ui/lib/theme/common/typography";
 import * as C from "../../../app/components/index";
+import { ROUTE } from "../../../app/routes/constants";
 import { SiteConfig } from "../../common/entities";
 import { announcements } from "./announcements/announcements";
 import { authenticationConfig } from "./authentication/authentication";
@@ -20,7 +21,7 @@ const LOCALHOST = "http://localhost:3000";
 const APP_TITLE = "HCA Atlas Tracker";
 const BROWSER_URL = LOCALHOST;
 const FONT_FAMILY_DIN = "'din-2014', sans-serif";
-const HOME_PAGE_PATH = "/atlases";
+const HOME_PAGE_PATH = ROUTE.ATLASES;
 const ORG_URL = "https://www.humancellatlas.org";
 export const PORTAL_URL = "https://data.humancellatlas.dev.clevercanary.com";
 
@@ -59,8 +60,20 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
             label: "Help & Documentation",
             menuItems: [
               {
-                label: "Guides",
-                url: "/guides",
+                label: "Overview",
+                url: ROUTE.OVERVIEW,
+              },
+              {
+                label: "Validations and Tasks",
+                url: ROUTE.VALIDATIONS_AND_TASKS,
+              },
+              {
+                label: "Roadmap",
+                url: ROUTE.ROADMAP,
+              },
+              {
+                label: "Requesting Access",
+                url: ROUTE.REQUESTING_ACCESS,
               },
               {
                 label: C.LabelIconMenuItem({ label: "Privacy" }),

@@ -6,13 +6,13 @@ import { Content } from "../../app/components/Layout/components/Content/content"
 import { MDX_COMPONENTS } from "../../app/content/common/constants";
 import { getContentStaticProps } from "../../app/content/common/contentPages";
 
-const slug = ["registration-required"];
+const slug = ["requesting-access"];
 
 export const getStaticProps: GetStaticProps = async () => {
-  return getContentStaticProps({ params: { slug } }, "Registration Required");
+  return getContentStaticProps({ params: { slug } }, "Requesting Access");
 };
 
-const RegistrationRequiredPage = ({
+const RequestingAccessPage = ({
   layoutStyle,
   mdxSource,
 }: InferGetStaticPropsType<typeof getStaticProps>): JSX.Element => {
@@ -28,6 +28,6 @@ const RegistrationRequiredPage = ({
   );
 };
 
-RegistrationRequiredPage.Main = Main;
+RequestingAccessPage.Main = Main;
 
-export default RegistrationRequiredPage;
+export default RequestingAccessPage;
