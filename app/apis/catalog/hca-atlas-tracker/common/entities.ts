@@ -209,6 +209,13 @@ export interface HCAAtlasTrackerDBValidationInfo {
   validationType: VALIDATION_TYPE;
 }
 
+export interface HCAAtlasTrackerDBValidationWithAtlasProperties
+  extends HCAAtlasTrackerDBValidation {
+  atlas_short_names: string[];
+  networks: NetworkKey[];
+  waves: Wave[];
+}
+
 export interface HCAAtlasTrackerDBUser {
   disabled: boolean;
   email: string;
