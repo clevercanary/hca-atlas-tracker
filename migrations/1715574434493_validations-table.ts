@@ -7,7 +7,7 @@ export const up = (pgm: MigrationBuilder): void => {
       atlas_ids: {
         default: "{}",
         notNull: true,
-        type: "text[]",
+        type: "uuid[]",
       },
       created_at: {
         default: pgm.func("CURRENT_TIMESTAMP"),
