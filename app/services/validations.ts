@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationCreationColumns,
+  HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
   TASK_STATUS,
@@ -18,6 +19,7 @@ import {
   getPublicationDois,
   getSourceDatasetCitation,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
+import { query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
@@ -92,6 +94,27 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.METADATA,
     },
   ];
+
+/**
+ * Get all validation records from the database.
+ * @returns validation records.
+ */
+export async function getValidationRecords(): Promise<
+  HCAAtlasTrackerDBValidationWithAtlasProperties[]
+> {
+  return (
+    await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(`
+      SELECT
+        v.*,
+        ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+        ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
+        ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
+      FROM hat.validations v
+      JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
+      GROUP BY v.entity_id, v.validation_id;
+    `)
+  ).rows;
+}
 
 function getValidationResult<T extends ENTITY_TYPE>(
   entityType: T,

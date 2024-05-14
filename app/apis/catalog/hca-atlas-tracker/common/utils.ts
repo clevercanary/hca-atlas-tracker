@@ -112,6 +112,7 @@ export function dbValidationToApiValidation(
     entityId: validation.entity_id,
     entityTitle: validationInfo.entityTitle,
     entityType: validationInfo.entityType,
+    id: validation.id,
     networks: validation.networks,
     publicationString: validationInfo.publicationString,
     system: validationInfo.system,

@@ -101,6 +101,7 @@ export interface HCAAtlasTrackerValidationResult {
 
 export interface HCAAtlasTrackerValidationRecord
   extends HCAAtlasTrackerValidationResult {
+  id: string;
   targetCompletionDate: string | null;
 }
 
@@ -192,6 +193,7 @@ export interface HCAAtlasTrackerDBValidationCreationColumns {
 export interface HCAAtlasTrackerDBValidation
   extends HCAAtlasTrackerDBValidationCreationColumns {
   created_at: Date;
+  id: string;
   resolved_at: Date | null;
   target_completion: Date | null;
   updated_at: Date;

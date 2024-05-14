@@ -15,6 +15,12 @@ export const up = (pgm: MigrationBuilder): void => {
         type: "timestamp",
       },
       entity_id: { notNull: true, type: "text" },
+      id: {
+        default: pgm.func("gen_random_uuid ()"),
+        notNull: true,
+        type: "uuid",
+        unique: true,
+      },
       resolved_at: {
         default: null,
         type: "timestamp",
