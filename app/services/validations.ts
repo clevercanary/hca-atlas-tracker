@@ -30,16 +30,10 @@ interface ValidationDefinition<T> {
   validationType: VALIDATION_TYPE;
 }
 
-type ValidationAtlasProperties = Pick<
+type TypeSpecificValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
-  "atlasIds" | "atlasShortNames" | "networks" | "waves"
+  "atlasIds" | "entityTitle" | "doi" | "publicationString"
 >;
-
-type TypeSpecificValidationProperties = ValidationAtlasProperties &
-  Pick<
-    HCAAtlasTrackerValidationResult,
-    "entityTitle" | "doi" | "publicationString"
-  >;
 
 const CHANGE_INDICATING_VALIDATION_KEYS = [
   "description",
@@ -257,22 +251,19 @@ export async function getSourceDatasetValidationResults(
 ): Promise<HCAAtlasTrackerValidationResult[]> {
   const validationResults: HCAAtlasTrackerValidationResult[] = [];
   const title = getSourceDatasetTitle(sourceDataset);
-  const atlasProperties = await getSourceDatasetValidationAtlasProperties(
-    sourceDataset,
-    client
-  );
+  const atlasIds = await getSourceDatasetAtlasIds(sourceDataset, client);
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
     const validationResult = getValidationResult(
       ENTITY_TYPE.SOURCE_DATASET,
       validation,
       sourceDataset,
       {
+        atlasIds,
         doi: sourceDataset.doi,
         entityTitle: title,
         publicationString: getSourceDatasetCitation(
           dbSourceDatasetToApiSourceDataset(sourceDataset)
         ),
-        ...atlasProperties,
       }
     );
     if (!validationResult) continue;
@@ -291,33 +282,13 @@ function getSourceDatasetTitle(
   );
 }
 
-async function getSourceDatasetValidationAtlasProperties(
+async function getSourceDatasetAtlasIds(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
-): Promise<ValidationAtlasProperties> {
-  const queryResult = await client.query<
-    Pick<HCAAtlasTrackerDBAtlas, "id" | "overview">
-  >("SELECT id, overview FROM hat.atlases WHERE source_datasets @> $1", [
-    JSON.stringify(sourceDataset.id),
-  ]);
-  const properties: ValidationAtlasProperties = {
-    atlasIds: [],
-    atlasShortNames: [],
-    networks: [],
-    waves: [],
-  };
-  for (const {
-    id,
-    overview: { network, shortName, wave },
-  } of queryResult.rows) {
-    addArrayValueIfMissing(properties.atlasIds, id);
-    addArrayValueIfMissing(properties.atlasShortNames, shortName);
-    addArrayValueIfMissing(properties.networks, network);
-    addArrayValueIfMissing(properties.waves, wave);
-  }
-  return properties;
-}
-
-function addArrayValueIfMissing<T>(array: T[], value: T): void {
-  if (!array.includes(value)) array.push(value);
+): Promise<string[]> {
+  const queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+    "SELECT id FROM hat.atlases WHERE source_datasets @> $1",
+    [JSON.stringify(sourceDataset.id)]
+  );
+  return Array.from(new Set(queryResult.rows.map(({ id }) => id)));
 }

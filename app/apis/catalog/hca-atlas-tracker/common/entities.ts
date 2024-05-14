@@ -83,26 +83,26 @@ export interface HCAAtlasTrackerUnpublishedSourceDataset
 
 export interface HCAAtlasTrackerValidationResult {
   atlasIds: string[];
-  atlasShortNames: string[];
   description: string;
   doi: string | null;
   entityId: string;
   entityTitle: string;
   entityType: ENTITY_TYPE;
-  networks: NetworkKey[];
   publicationString: string | null;
   system: SYSTEM;
   taskStatus: TASK_STATUS;
   validationId: VALIDATION_ID;
   validationStatus: VALIDATION_STATUS;
   validationType: VALIDATION_TYPE;
-  waves: Wave[];
 }
 
 export interface HCAAtlasTrackerValidationRecord
   extends HCAAtlasTrackerValidationResult {
+  atlasShortNames: string[];
   id: string;
+  networks: NetworkKey[];
   targetCompletionDate: string | null;
+  waves: Wave[];
 }
 
 export interface HCAAtlasTrackerActiveUser {
@@ -178,8 +178,8 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
   };
 }
 
-export interface HCAAtlasTrackerListValidationResult
-  extends Omit<HCAAtlasTrackerValidationResult, "targetCompletionDate"> {
+export interface HCAAtlasTrackerListValidationRecord
+  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletionDate"> {
   targetCompletionDate: string;
 }
 

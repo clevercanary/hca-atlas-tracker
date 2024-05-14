@@ -6,7 +6,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
-  HCAAtlasTrackerListValidationResult,
+  HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationResult,
@@ -226,7 +226,7 @@ export function isWaveValue(value: unknown): value is Wave {
  */
 export function taskInputMapper(
   apiTask: HCAAtlasTrackerValidationRecord
-): HCAAtlasTrackerListValidationResult {
+): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
     targetCompletionDate: apiTask.targetCompletionDate ?? "Unplanned",
