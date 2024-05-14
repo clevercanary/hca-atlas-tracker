@@ -4,6 +4,7 @@ import {
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationCreationColumns,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
@@ -37,6 +38,15 @@ type TypeSpecificValidationProperties = ValidationAtlasProperties &
     HCAAtlasTrackerValidationResult,
     "entityTitle" | "doi" | "publicationString"
   >;
+
+const CHANGE_INDICATING_VALIDATION_KEYS = [
+  "description",
+  "doi",
+  "entityTitle",
+  "publicationString",
+  "taskStatus",
+  "validationStatus",
+] as const;
 
 export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceDataset>[] =
   [
@@ -118,8 +128,36 @@ export async function updateSourceDatasetValidations(
     sourceDataset,
     client
   );
-  // TODO check existing records
+
+  await updateValidations(sourceDataset.id, validationResults, client);
+}
+
+async function updateValidations(
+  entityId: string,
+  validationResults: HCAAtlasTrackerValidationResult[],
+  client: pg.PoolClient
+): Promise<void> {
+  const { rows: existingValidations } =
+    await client.query<HCAAtlasTrackerDBValidation>(
+      "SELECT * FROM hat.validations WHERE entity_id=$1",
+      [entityId]
+    );
+
+  const existingValidationsById = new Map(
+    existingValidations.map((validation) => [
+      validation.validation_id,
+      validation,
+    ])
+  );
+
+  const validationIdsToDelete = new Set(
+    existingValidations.map((validation) => validation.validation_id)
+  );
+
+  // Insert and update from new results
   for (const result of validationResults) {
+    // Remove ID from list of validation records to delete
+    validationIdsToDelete.delete(result.validationId);
     const newColumns: HCAAtlasTrackerDBValidationCreationColumns = {
       atlas_ids: result.atlasIds,
       entity_id: result.entityId,
@@ -136,16 +174,58 @@ export async function updateSourceDatasetValidations(
         validationType: result.validationType,
       },
     };
-    await client.query(
-      "INSERT INTO hat.validations (atlas_ids, entity_id, validation_id, validation_info) VALUES ($1, $2, $3, $4)",
-      [
-        newColumns.atlas_ids,
-        newColumns.entity_id,
-        newColumns.validation_id,
-        JSON.stringify(newColumns.validation_info),
-      ]
-    );
+    const existingValidation = existingValidationsById.get(result.validationId);
+    if (existingValidation) {
+      // Update existing validation record if needed
+      if (!shouldUpdateValidation(existingValidation, result)) continue;
+      await client.query(
+        "UPDATE hat.validations SET atlas_ids=$1, validation_info=$2 WHERE entity_id=$3 AND validation_id=$4",
+        [
+          newColumns.atlas_ids,
+          JSON.stringify(newColumns.validation_info),
+          entityId,
+          result.validationId,
+        ]
+      );
+    } else {
+      // Insert new validation record if the record doesn't already exist
+      await client.query(
+        "INSERT INTO hat.validations (atlas_ids, entity_id, validation_id, validation_info) VALUES ($1, $2, $3, $4)",
+        [
+          newColumns.atlas_ids,
+          newColumns.entity_id,
+          newColumns.validation_id,
+          JSON.stringify(newColumns.validation_info),
+        ]
+      );
+    }
   }
+
+  // Delete validation records not present in validation results
+  await client.query(
+    "DELETE FROM hat.validations WHERE entity_id=$1 AND validation_id=ANY($2)",
+    [entityId, Array.from(validationIdsToDelete)]
+  );
+}
+
+function shouldUpdateValidation(
+  existingValidation: HCAAtlasTrackerDBValidation,
+  validationResult: HCAAtlasTrackerValidationResult
+): boolean {
+  if (existingValidation.atlas_ids.length !== validationResult.atlasIds.length)
+    return true;
+  if (
+    !validationResult.atlasIds.every((id) =>
+      existingValidation.atlas_ids.includes(id)
+    )
+  ) {
+    return true;
+  }
+  for (const key of CHANGE_INDICATING_VALIDATION_KEYS) {
+    if (existingValidation.validation_info[key] !== validationResult[key])
+      return true;
+  }
+  return false;
 }
 
 export async function getSourceDatasetValidationResults(
