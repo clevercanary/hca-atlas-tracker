@@ -18,7 +18,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
-import { makeTestAtlasOverview, resetDatabase } from "../testing/utils";
+import { resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -47,14 +47,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await query("UPDATE hat.atlases SET overview=$1 WHERE id=$2", [
-    JSON.stringify(makeTestAtlasOverview(ATLAS_PUBLIC)),
-    ATLAS_PUBLIC.id,
-  ]);
-  await query("UPDATE hat.atlases SET overview=$1 WHERE id=$2", [
-    JSON.stringify(makeTestAtlasOverview(ATLAS_WITH_IL)),
-    ATLAS_WITH_IL.id,
-  ]);
   endPgPool();
 });
 

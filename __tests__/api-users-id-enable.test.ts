@@ -30,9 +30,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await query("UPDATE hat.users SET disabled=true WHERE id=$1", [
-    userDisabledId,
-  ]);
   endPgPool();
 });
 

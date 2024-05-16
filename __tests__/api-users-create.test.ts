@@ -27,7 +27,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await query("DELETE FROM hat.users WHERE email=$1", [USER_NEW.email]);
   endPgPool();
 });
 
