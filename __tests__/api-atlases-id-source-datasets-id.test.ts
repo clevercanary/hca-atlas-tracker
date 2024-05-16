@@ -21,8 +21,9 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
+import { resetDatabase } from "../testing/db-utils";
 import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
-import { makeTestSourceDatasetOverview, resetDatabase } from "../testing/utils";
+import { makeTestSourceDatasetOverview } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
