@@ -5,7 +5,7 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBValidation,
-  HCAAtlasTrackerDBValidationCreationColumns,
+  HCAAtlasTrackerDBValidationUpdateColumns,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
@@ -175,9 +175,18 @@ async function updateValidations(
   for (const result of validationResults) {
     // Remove ID from list of validation records to delete
     validationIdsToDelete.delete(result.validationId);
-    const newColumns: HCAAtlasTrackerDBValidationCreationColumns = {
+
+    const existingValidation = existingValidationsById.get(result.validationId);
+
+    const resolvedAt =
+      result.validationStatus === VALIDATION_STATUS.PASSED
+        ? existingValidation?.resolved_at ?? new Date()
+        : null;
+
+    const newColumns: HCAAtlasTrackerDBValidationUpdateColumns = {
       atlas_ids: result.atlasIds,
       entity_id: result.entityId,
+      resolved_at: resolvedAt,
       validation_id: result.validationId,
       validation_info: {
         description: result.description,
@@ -191,14 +200,15 @@ async function updateValidations(
         validationType: result.validationType,
       },
     };
-    const existingValidation = existingValidationsById.get(result.validationId);
+
     if (existingValidation) {
       // Update existing validation record if needed
       if (!shouldUpdateValidation(existingValidation, result)) continue;
       await client.query(
-        "UPDATE hat.validations SET atlas_ids=$1, validation_info=$2 WHERE entity_id=$3 AND validation_id=$4",
+        "UPDATE hat.validations SET atlas_ids=$1, resolved_at=$2, validation_info=$3 WHERE entity_id=$4 AND validation_id=$5",
         [
           newColumns.atlas_ids,
+          newColumns.resolved_at,
           JSON.stringify(newColumns.validation_info),
           entityId,
           result.validationId,
@@ -207,10 +217,11 @@ async function updateValidations(
     } else {
       // Insert new validation record if the record doesn't already exist
       await client.query(
-        "INSERT INTO hat.validations (atlas_ids, entity_id, validation_id, validation_info) VALUES ($1, $2, $3, $4)",
+        "INSERT INTO hat.validations (atlas_ids, entity_id, resolved_at, validation_id, validation_info) VALUES ($1, $2, $3, $4, $5)",
         [
           newColumns.atlas_ids,
           newColumns.entity_id,
+          newColumns.resolved_at,
           newColumns.validation_id,
           JSON.stringify(newColumns.validation_info),
         ]

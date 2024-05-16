@@ -183,18 +183,18 @@ export interface HCAAtlasTrackerListValidationRecord
   targetCompletionDate: string;
 }
 
-export interface HCAAtlasTrackerDBValidationCreationColumns {
+export interface HCAAtlasTrackerDBValidationUpdateColumns {
   atlas_ids: string[];
   entity_id: string;
+  resolved_at: Date | null;
   validation_id: VALIDATION_ID;
   validation_info: HCAAtlasTrackerDBValidationInfo;
 }
 
 export interface HCAAtlasTrackerDBValidation
-  extends HCAAtlasTrackerDBValidationCreationColumns {
+  extends HCAAtlasTrackerDBValidationUpdateColumns {
   created_at: Date;
   id: string;
-  resolved_at: Date | null;
   target_completion: Date | null;
   updated_at: Date;
 }
