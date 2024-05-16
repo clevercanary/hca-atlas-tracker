@@ -9,6 +9,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
+import { resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -17,6 +18,7 @@ let userDisabledId: string;
 let nonexistentId: string;
 
 beforeAll(async () => {
+  await resetDatabase();
   userDisabledId = (
     await query("SELECT id FROM hat.users WHERE email=$1", [
       USER_DISABLED.email,

@@ -10,6 +10,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
+import { resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -20,6 +21,10 @@ const NEW_USER_DATA = {
   full_name: USER_NEW.name,
   role: "",
 };
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(async () => {
   await query("DELETE FROM hat.users WHERE email=$1", [USER_NEW.email]);

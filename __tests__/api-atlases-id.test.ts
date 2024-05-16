@@ -18,7 +18,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
-import { makeTestAtlasOverview } from "../testing/utils";
+import { makeTestAtlasOverview, resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -41,6 +41,10 @@ const ATLAS_WITH_IL_EDIT: AtlasEditData = {
   version: "2.1",
   wave: ATLAS_WITH_IL.wave,
 };
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(async () => {
   await query("UPDATE hat.atlases SET overview=$1 WHERE id=$2", [

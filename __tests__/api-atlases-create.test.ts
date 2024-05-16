@@ -14,6 +14,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
+import { resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -38,6 +39,10 @@ const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
 };
 
 const newAtlasIds: string[] = [];
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(async () => {
   await query("DELETE FROM hat.atlases WHERE id=ANY($1)", [newAtlasIds]);

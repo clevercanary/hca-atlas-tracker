@@ -22,7 +22,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
-import { makeTestSourceDatasetOverview } from "../testing/utils";
+import { makeTestSourceDatasetOverview, resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -39,6 +39,10 @@ const SOURCE_DATASET_DRAFT_OK_EDIT = {
   referenceAuthor: "Bar",
   title: "Baz",
 };
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(async () => {
   endPgPool();

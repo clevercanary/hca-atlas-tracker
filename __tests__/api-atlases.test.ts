@@ -12,9 +12,14 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool } from "../app/services/database";
 import atlasesHandler from "../pages/api/atlases";
+import { resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(() => {
   endPgPool();

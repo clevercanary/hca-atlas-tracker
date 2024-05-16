@@ -9,9 +9,14 @@ import { endPgPool } from "../app/services/database";
 import meHandler from "../pages/api/me";
 import { USER_STAKEHOLDER, USER_UNREGISTERED } from "../testing/constants";
 import { TestUser } from "../testing/entities";
+import { resetDatabase } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(() => {
   endPgPool();
