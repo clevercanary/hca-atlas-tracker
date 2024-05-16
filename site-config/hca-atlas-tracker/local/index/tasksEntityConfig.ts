@@ -22,48 +22,51 @@ import {
  */
 export const tasksEntityConfig: EntityConfig = {
   apiPath: "api/tasks",
-  categoryGroupConfigs: [
-    {
-      categoryConfigs: [
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
-        },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SYSTEM,
-        },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
-        },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
-        },
-      ],
-    },
-    {
-      categoryConfigs: [
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_SHORT_NAMES,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_SHORT_NAMES,
-        },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
-        },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVES,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVES,
-        },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
-        },
-      ],
-    },
-  ],
+  categoryGroupConfig: {
+    categoryGroups: [
+      {
+        categoryConfigs: [
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SYSTEM,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
+          },
+        ],
+      },
+      {
+        categoryConfigs: [
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_SHORT_NAMES,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_SHORT_NAMES,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVES,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVES,
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
+          },
+        ],
+      },
+    ],
+    key: "tasks",
+  },
   detail: {
     detailOverviews: [],
     staticLoad: true,
