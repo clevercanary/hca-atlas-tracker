@@ -48,6 +48,5 @@ To build the development or production app instead, replace `local` with `dev` o
 In order to run tests, a test database must be created:
 
 - `createdb atlas-tracker-test`
-- `npm run migrate-test`
 
 Once this has been done, tests may be run with `npm run test`.
