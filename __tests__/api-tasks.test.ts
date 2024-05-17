@@ -1,9 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { HCAAtlasTrackerValidationRecord } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import tasksHandler from "../pages/api/tasks";
 import {
+  INITIAL_TEST_SOURCE_DATASETS,
+  TEST_HCA_PROJECTS_BY_DOI,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -24,7 +27,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("/api/me", () => {
+describe("/api/tasks", () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (await doTasksRequest(USER_STAKEHOLDER, METHOD.POST))._getStatusCode()
@@ -43,16 +46,16 @@ describe("/api/me", () => {
 
   // TODO tasks for response content
 
-  it("returns status 200 for user with STAKEHOLDER role", async () => {
-    expect((await doTasksRequest(USER_STAKEHOLDER))._getStatusCode()).toEqual(
-      200
-    );
+  it("returns validations for user with STAKEHOLDER role", async () => {
+    const res = await doTasksRequest(USER_STAKEHOLDER);
+    expect(res._getStatusCode()).toEqual(200);
+    expectInitialValidationsToExist(res._getJSONData());
   });
 
-  it("returns status 200 for user with CONTENT_ADMIN role", async () => {
-    expect((await doTasksRequest(USER_CONTENT_ADMIN))._getStatusCode()).toEqual(
-      200
-    );
+  it("returns validations for user with CONTENT_ADMIN role", async () => {
+    const res = await doTasksRequest(USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    expectInitialValidationsToExist(res._getJSONData());
   });
 });
 
@@ -66,4 +69,19 @@ async function doTasksRequest(
   });
   await tasksHandler(req, res);
   return res;
+}
+
+function expectInitialValidationsToExist(
+  validations: HCAAtlasTrackerValidationRecord[]
+): void {
+  for (const testDataset of INITIAL_TEST_SOURCE_DATASETS) {
+    const datasetValidations = validations.filter(
+      (v) => v.entityId === testDataset.id
+    );
+    const hasHca =
+      "doi" in testDataset &&
+      testDataset.doi !== null &&
+      TEST_HCA_PROJECTS_BY_DOI.has(testDataset.doi);
+    expect(datasetValidations).toHaveLength(hasHca ? 3 : 2);
+  }
 }

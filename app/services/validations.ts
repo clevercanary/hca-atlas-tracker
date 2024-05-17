@@ -104,7 +104,7 @@ export async function getValidationRecords(): Promise<
         ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
         ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
       FROM hat.validations v
-      JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
+      LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
       GROUP BY v.entity_id, v.validation_id;
     `)
   ).rows;
