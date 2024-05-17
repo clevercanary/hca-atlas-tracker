@@ -255,8 +255,14 @@ export async function deleteAtlasSourceDataset(
         [JSON.stringify(sdId)]
       )
     ).rows[0].exists;
-    if (!sourceDatasetHasAtlases)
+    if (sourceDatasetHasAtlases) {
+      await updateSourceDatasetValidationsByEntityId(sdId, client);
+    } else {
       await client.query("DELETE FROM hat.source_datasets WHERE id=$1", [sdId]);
+      await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
+        sdId,
+      ]);
+    }
     await client.query("COMMIT");
   } catch (e) {
     await client.query("ROLLBACK");
@@ -264,6 +270,26 @@ export async function deleteAtlasSourceDataset(
   } finally {
     client.release();
   }
+}
+
+/**
+ * Update validations for the source dataset with the given ID.
+ * @param entityId - Source dataset ID.
+ * @param client - Postgres client to use.
+ */
+export async function updateSourceDatasetValidationsByEntityId(
+  entityId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  const sourceDataset = (
+    await client.query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [entityId]
+    )
+  ).rows[0];
+  if (!sourceDataset)
+    throw new NotFoundError(`Source dataset with ID ${entityId} doesn't exist`);
+  await updateSourceDatasetValidations(sourceDataset, client);
 }
 
 /**
