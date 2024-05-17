@@ -205,13 +205,12 @@ async function updateValidations(
       // Update existing validation record if needed
       if (!shouldUpdateValidation(existingValidation, result)) continue;
       await client.query(
-        "UPDATE hat.validations SET atlas_ids=$1, resolved_at=$2, validation_info=$3 WHERE entity_id=$4 AND validation_id=$5",
+        "UPDATE hat.validations SET atlas_ids=$1, resolved_at=$2, validation_info=$3 WHERE id=$4",
         [
           newColumns.atlas_ids,
           newColumns.resolved_at,
           JSON.stringify(newColumns.validation_info),
-          entityId,
-          result.validationId,
+          existingValidation.id,
         ]
       );
     } else {
