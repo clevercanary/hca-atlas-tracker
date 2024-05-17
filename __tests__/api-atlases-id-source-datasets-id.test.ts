@@ -21,7 +21,7 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
 import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
 import { makeTestSourceDatasetOverview } from "../testing/utils";
 
@@ -229,7 +229,15 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
   });
 
-  it("updates and returns dataset with published data when PUT requested", async () => {
+  it("updates, revalidates, and returns dataset with published data when PUT requested", async () => {
+    const validationsBefore = await getValidationsByEntityId(
+      SOURCE_DATASET_PUBLIC_NO_CROSSREF.id
+    );
+    expect(validationsBefore).not.toHaveLength(0);
+    expect(validationsBefore[0].validation_info.doi).toEqual(
+      SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi
+    );
+
     const res = await doDatasetRequest(
       ATLAS_PUBLIC.id,
       SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
@@ -249,6 +257,14 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expect(datasetFromDb.sd_info.cellxgeneCollectionId).toEqual(null);
     expect(dbSourceDatasetToApiSourceDataset(datasetFromDb)).toEqual(
       updatedDataset
+    );
+
+    const validationsAfter = await getValidationsByEntityId(
+      SOURCE_DATASET_PUBLIC_NO_CROSSREF.id
+    );
+    expect(validationsAfter).not.toHaveLength(0);
+    expect(validationsAfter[0].validation_info.doi).toEqual(
+      SOURCE_DATASET_PUBLIC_NO_CROSSREF_EDIT.doi
     );
 
     await query(
@@ -347,7 +363,13 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
   });
 
-  it("deletes source dataset only from specified atlas when shared by multiple atlases", async () => {
+  it("deletes source dataset only from specified atlas and revalidates when shared by multiple atlases", async () => {
+    const validationsBefore = await getValidationsByEntityId(
+      SOURCE_DATASET_SHARED.id
+    );
+    expect(validationsBefore).not.toHaveLength(0);
+    expect(validationsBefore[0].atlas_ids).toHaveLength(2);
+
     expect(
       (
         await doDatasetRequest(
@@ -366,13 +388,24 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expect(publicDatasets).toContain(SOURCE_DATASET_SHARED.id);
     expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
 
+    const validationsAfter = await getValidationsByEntityId(
+      SOURCE_DATASET_SHARED.id
+    );
+    expect(validationsAfter).not.toHaveLength(0);
+    expect(validationsAfter[0].atlas_ids).toHaveLength(1);
+
     await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
       JSON.stringify(ATLAS_DRAFT.sourceDatasets),
       ATLAS_DRAFT.id,
     ]);
   });
 
-  it("deletes source dataset entirely when only in one atlas", async () => {
+  it("deletes source dataset entirely, including validations, when only in one atlas", async () => {
+    const validationsBefore = await getValidationsByEntityId(
+      SOURCE_DATASET_DRAFT_OK.id
+    );
+    expect(validationsBefore).not.toHaveLength(0);
+
     expect(
       (
         await doDatasetRequest(
@@ -391,6 +424,11 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       [SOURCE_DATASET_DRAFT_OK.id]
     );
     expect(datasetQueryResult.rows[0]).toBeUndefined();
+
+    const validationsAfter = await getValidationsByEntityId(
+      SOURCE_DATASET_DRAFT_OK.id
+    );
+    expect(validationsAfter).toHaveLength(0);
 
     await query(
       "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",

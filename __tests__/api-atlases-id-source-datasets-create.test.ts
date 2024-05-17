@@ -41,7 +41,7 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
@@ -198,14 +198,16 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
-  it("creates and returns source dataset entry for journal publication", async () => {
-    await testSuccessfulCreate(
+  it("creates, validates, and returns source dataset entry for journal publication", async () => {
+    const newDataset = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_DATASET_DATA,
       PUBLICATION_NORMAL,
       HCA_ID_NORMAL,
       CELLXGENE_ID_NORMAL
     );
+    const validations = await getValidationsByEntityId(newDataset.id);
+    expect(validations).not.toHaveLength(0);
   });
 
   it("creates and returns source dataset entry for preprint without journal value", async () => {
@@ -302,7 +304,13 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     expect(doiErrors).toHaveLength(1);
   });
 
-  it("adds and returns source dataset that already exists", async () => {
+  it("adds, revalidates, and returns source dataset that already exists", async () => {
+    const validationsBefore = await getValidationsByEntityId(
+      SOURCE_DATASET_DRAFT_OK.id
+    );
+    expect(validationsBefore).not.toHaveLength(0);
+    expect(validationsBefore[0].atlas_ids).toHaveLength(1);
+    expect(validationsBefore[0].atlas_ids[0]).toEqual(ATLAS_DRAFT.id);
     const dbDataset = await testSuccessfulCreate(
       ATLAS_PUBLIC,
       NEW_DATASET_DRAFT_OK,
@@ -311,6 +319,12 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       null
     );
     expect(dbDataset.id).toEqual(SOURCE_DATASET_DRAFT_OK.id);
+    const validationsAfter = await getValidationsByEntityId(
+      SOURCE_DATASET_DRAFT_OK.id
+    );
+    expect(validationsAfter).not.toHaveLength(0);
+    expect(validationsAfter[0].atlas_ids).toHaveLength(2);
+    expect(validationsAfter[0].atlas_ids[1]).toEqual(ATLAS_PUBLIC.id);
   });
 
   it("adds and returns source dataset that already exists via preprint DOI", async () => {

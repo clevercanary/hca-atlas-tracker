@@ -1,7 +1,11 @@
 import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
-import { HCAAtlasTrackerDBSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBValidation,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { query } from "../app/services/database";
 import { updateSourceDatasetValidations } from "../app/services/validations";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
@@ -80,4 +84,15 @@ async function runMigrations(
     migrationsTable: "pgmigrations",
     schema: "hat",
   });
+}
+
+export async function getValidationsByEntityId(
+  id: string
+): Promise<HCAAtlasTrackerDBValidation[]> {
+  return (
+    await query<HCAAtlasTrackerDBValidation>(
+      "SELECT * FROM hat.validations WHERE entity_id=$1",
+      [id]
+    )
+  ).rows;
 }
