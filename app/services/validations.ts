@@ -149,7 +149,7 @@ export async function updateSourceDatasetValidations(
   await updateValidations(sourceDataset.id, validationResults, client);
 }
 
-async function updateValidations(
+export async function updateValidations(
   entityId: string,
   validationResults: HCAAtlasTrackerValidationResult[],
   client: pg.PoolClient
