@@ -184,15 +184,9 @@ async function testValidations(
   );
   expect(validationResults).toHaveLength(expectedValidationProperties.length);
   const atlasIds = testAtlases.map((atlas) => atlas.id);
-  const atlasShortNames = testAtlases.map((atlas) => atlas.shortName);
-  const networks = testAtlases.map((atlas) => atlas.network);
-  const waves = testAtlases.map((atlas) => atlas.wave);
   for (const [i, validationResult] of validationResults.entries()) {
     expect(validationResult).toMatchObject(expectedValidationProperties[i]);
     expect(validationResult.atlasIds).toEqual(atlasIds);
-    expect(validationResult.atlasShortNames).toEqual(atlasShortNames);
-    expect(validationResult.networks).toEqual(networks);
-    expect(validationResult.waves).toEqual(waves);
     expect(validationResult.entityId).toEqual(testDataset.id);
     expect(validationResult.entityTitle).toEqual(
       "unpublishedInfo" in testDataset

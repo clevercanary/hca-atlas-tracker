@@ -5,7 +5,7 @@ import {
   SORT_DIRECTION,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
-import { HCAAtlasTrackerListValidationResult } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerListValidationRecord } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getTaskId,
   taskInputMapper,
@@ -85,7 +85,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskShortNames,
         } as ComponentConfig<
           typeof C.NTagCell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_SHORT_NAMES,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_SHORT_NAMES,
@@ -97,7 +97,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskBioNetworks,
         } as ComponentConfig<
           typeof C.BioNetworkCell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
@@ -110,7 +110,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskWaves,
         } as ComponentConfig<
           typeof C.NTagCell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVES,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVES,
@@ -122,7 +122,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskPublicationString,
         } as ComponentConfig<
           typeof C.Link,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
@@ -134,7 +134,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskDescriptionSystem,
         } as ComponentConfig<
           typeof C.Cell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
@@ -147,7 +147,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildSystem,
         } as ComponentConfig<
           typeof C.Cell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         disableHiding: true,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SYSTEM,
@@ -161,7 +161,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildEntityType,
         } as ComponentConfig<
           typeof C.Cell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TYPE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TYPE,
@@ -174,7 +174,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildEntityTitle,
         } as ComponentConfig<
           typeof C.Cell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE,
@@ -187,7 +187,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildValidationType,
         } as ComponentConfig<
           typeof C.Cell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VALIDATION_TYPE, // Task Type.
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.VALIDATION_TYPE,
@@ -199,7 +199,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskStatus,
         } as ComponentConfig<
           typeof C.StatusBadge,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
@@ -211,7 +211,7 @@ export const tasksEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskTargetCompletionDate,
         } as ComponentConfig<
           typeof C.Cell,
-          HCAAtlasTrackerListValidationResult
+          HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
@@ -222,7 +222,7 @@ export const tasksEntityConfig: EntityConfig = {
       desc: SORT_DIRECTION.ASCENDING,
       id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_SHORT_NAMES,
     },
-  } as ListConfig<HCAAtlasTrackerListValidationResult>,
+  } as ListConfig<HCAAtlasTrackerListValidationRecord>,
   listView: {
     disablePagination: true,
     enableDownload: true,

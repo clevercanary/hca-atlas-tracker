@@ -8,15 +8,18 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
+import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
+jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 
 let userDisabledId: string;
 let nonexistentId: string;
 
 beforeAll(async () => {
+  await resetDatabase();
   userDisabledId = (
     await query("SELECT id FROM hat.users WHERE email=$1", [
       USER_DISABLED.email,
@@ -28,9 +31,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await query("UPDATE hat.users SET disabled=true WHERE id=$1", [
-    userDisabledId,
-  ]);
   endPgPool();
 });
 

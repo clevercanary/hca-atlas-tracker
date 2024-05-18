@@ -10,7 +10,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
-  HCAAtlasTrackerListValidationResult,
+  HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   Network,
   NetworkKey,
@@ -55,7 +55,7 @@ export const buildBioNetwork = (
  * @returns Props to be used for the Cell component.
  */
 export const buildEntityTitle = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.entityTitle,
@@ -68,7 +68,7 @@ export const buildEntityTitle = (
  * @returns Props to be used for the Cell component.
  */
 export const buildEntityType = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.entityType,
@@ -204,7 +204,7 @@ export const buildStatus = (
  * @returns Props to be used for the Cell component.
  */
 export const buildSystem = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.system,
@@ -217,7 +217,7 @@ export const buildSystem = (
  * @returns Props to be used for the BioNetworkCell component.
  */
 export const buildTaskBioNetworks = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: task.networks[0],
@@ -230,7 +230,7 @@ export const buildTaskBioNetworks = (
  * @returns Props to be used for the Cell component.
  */
 export const buildTaskDescriptionSystem = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: `${task.description.trim().slice(0, -1)} in ${
@@ -245,7 +245,7 @@ export const buildTaskDescriptionSystem = (
  * @returns Props to be used for the Link component.
  */
 export const buildTaskPublicationString = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: task.publicationString ?? "",
@@ -259,7 +259,7 @@ export const buildTaskPublicationString = (
  * @returns Props to be used for the NTagCell component.
  */
 export const buildTaskShortNames = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.NTagCell> => {
   return {
     label: "Atlases",
@@ -273,7 +273,7 @@ export const buildTaskShortNames = (
  * @returns Props to be used for the StatusBadge component.
  */
 export const buildTaskStatus = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.StatusBadge> => {
   switch (task.taskStatus) {
     case TASK_STATUS.DONE:
@@ -305,7 +305,7 @@ export const buildTaskStatus = (
  * @returns Props to be used for the Cell component.
  */
 export const buildTaskTargetCompletionDate = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.targetCompletionDate,
@@ -318,7 +318,7 @@ export const buildTaskTargetCompletionDate = (
  * @returns Props to be used for the NTagCell component.
  */
 export const buildTaskWaves = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.NTagCell> => {
   return {
     label: "Waves",
@@ -332,7 +332,7 @@ export const buildTaskWaves = (
  * @returns Props to be used for the Cell component.
  */
 export const buildValidationType = (
-  task: HCAAtlasTrackerListValidationResult
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.validationType,

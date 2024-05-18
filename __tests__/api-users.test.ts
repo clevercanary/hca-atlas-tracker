@@ -8,10 +8,16 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
+import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
+jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(() => {
   endPgPool();

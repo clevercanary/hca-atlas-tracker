@@ -17,10 +17,11 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
+import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
-import { makeTestAtlasOverview } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
+jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
@@ -42,15 +43,11 @@ const ATLAS_WITH_IL_EDIT: AtlasEditData = {
   wave: ATLAS_WITH_IL.wave,
 };
 
+beforeAll(async () => {
+  await resetDatabase();
+});
+
 afterAll(async () => {
-  await query("UPDATE hat.atlases SET overview=$1 WHERE id=$2", [
-    JSON.stringify(makeTestAtlasOverview(ATLAS_PUBLIC)),
-    ATLAS_PUBLIC.id,
-  ]);
-  await query("UPDATE hat.atlases SET overview=$1 WHERE id=$2", [
-    JSON.stringify(makeTestAtlasOverview(ATLAS_WITH_IL)),
-    ATLAS_WITH_IL.id,
-  ]);
   endPgPool();
 });
 

@@ -4,8 +4,9 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
-  HCAAtlasTrackerListValidationResult,
+  HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationResult,
@@ -97,6 +98,31 @@ export function dbSourceDatasetToApiSourceDataset(
       title: publication?.title ?? null,
     };
   }
+}
+
+export function dbValidationToApiValidation(
+  validation: HCAAtlasTrackerDBValidationWithAtlasProperties
+): HCAAtlasTrackerValidationRecord {
+  const validationInfo = validation.validation_info;
+  return {
+    atlasIds: validation.atlas_ids,
+    atlasShortNames: validation.atlas_short_names,
+    description: validationInfo.description,
+    doi: validationInfo.doi,
+    entityId: validation.entity_id,
+    entityTitle: validationInfo.entityTitle,
+    entityType: validationInfo.entityType,
+    id: validation.id,
+    networks: validation.networks,
+    publicationString: validationInfo.publicationString,
+    system: validationInfo.system,
+    targetCompletionDate: validation.target_completion?.toISOString() ?? null,
+    taskStatus: validationInfo.taskStatus,
+    validationId: validation.validation_id,
+    validationStatus: validationInfo.validationStatus,
+    validationType: validationInfo.validationType,
+    waves: validation.waves,
+  };
 }
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
@@ -200,7 +226,7 @@ export function isWaveValue(value: unknown): value is Wave {
  */
 export function taskInputMapper(
   apiTask: HCAAtlasTrackerValidationRecord
-): HCAAtlasTrackerListValidationResult {
+): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
     targetCompletionDate: apiTask.targetCompletionDate ?? "Unplanned",

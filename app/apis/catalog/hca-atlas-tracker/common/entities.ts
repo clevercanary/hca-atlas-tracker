@@ -81,6 +81,30 @@ export interface HCAAtlasTrackerUnpublishedSourceDataset
   title: string;
 }
 
+export interface HCAAtlasTrackerValidationResult {
+  atlasIds: string[];
+  description: string;
+  doi: string | null;
+  entityId: string;
+  entityTitle: string;
+  entityType: ENTITY_TYPE;
+  publicationString: string | null;
+  system: SYSTEM;
+  taskStatus: TASK_STATUS;
+  validationId: VALIDATION_ID;
+  validationStatus: VALIDATION_STATUS;
+  validationType: VALIDATION_TYPE;
+}
+
+export interface HCAAtlasTrackerValidationRecord
+  extends HCAAtlasTrackerValidationResult {
+  atlasShortNames: string[];
+  id: string;
+  networks: NetworkKey[];
+  targetCompletionDate: string | null;
+  waves: Wave[];
+}
+
 export interface HCAAtlasTrackerActiveUser {
   email: string;
   fullName: string;
@@ -154,32 +178,44 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
   };
 }
 
-export interface HCAAtlasTrackerListValidationResult
-  extends Omit<HCAAtlasTrackerValidationResult, "targetCompletionDate"> {
+export interface HCAAtlasTrackerListValidationRecord
+  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletionDate"> {
   targetCompletionDate: string;
 }
 
-export interface HCAAtlasTrackerValidationResult {
-  atlasIds: string[];
-  atlasShortNames: string[];
+export interface HCAAtlasTrackerDBValidationUpdateColumns {
+  atlas_ids: string[];
+  entity_id: string;
+  resolved_at: Date | null;
+  validation_id: VALIDATION_ID;
+  validation_info: HCAAtlasTrackerDBValidationInfo;
+}
+
+export interface HCAAtlasTrackerDBValidation
+  extends HCAAtlasTrackerDBValidationUpdateColumns {
+  created_at: Date;
+  id: string;
+  target_completion: Date | null;
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBValidationInfo {
   description: string;
   doi: string | null;
-  entityId: string;
   entityTitle: string;
   entityType: ENTITY_TYPE;
-  networks: NetworkKey[];
   publicationString: string | null;
   system: SYSTEM;
   taskStatus: TASK_STATUS;
-  validationId: VALIDATION_ID;
   validationStatus: VALIDATION_STATUS;
   validationType: VALIDATION_TYPE;
-  waves: Wave[];
 }
 
-export interface HCAAtlasTrackerValidationRecord
-  extends HCAAtlasTrackerValidationResult {
-  targetCompletionDate: string | null;
+export interface HCAAtlasTrackerDBValidationWithAtlasProperties
+  extends HCAAtlasTrackerDBValidation {
+  atlas_short_names: string[];
+  networks: NetworkKey[];
+  waves: Wave[];
 }
 
 export interface HCAAtlasTrackerDBUser {

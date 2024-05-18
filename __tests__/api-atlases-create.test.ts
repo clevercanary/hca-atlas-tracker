@@ -13,9 +13,11 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
+import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
+jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
@@ -37,10 +39,11 @@ const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
   wave: "1",
 };
 
-const newAtlasIds: string[] = [];
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(async () => {
-  await query("DELETE FROM hat.atlases WHERE id=ANY($1)", [newAtlasIds]);
   endPgPool();
 });
 
@@ -145,7 +148,6 @@ describe("/api/atlases/create", () => {
     const newAtlas: HCAAtlasTrackerAtlas = (
       await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA)
     )._getJSONData();
-    newAtlasIds.push(newAtlas.id);
     const newAtlasFromDb = (
       await query<HCAAtlasTrackerDBAtlas>(
         "SELECT * FROM hat.atlases WHERE id=$1",
@@ -160,7 +162,6 @@ describe("/api/atlases/create", () => {
     const newAtlas: HCAAtlasTrackerAtlas = (
       await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_WITH_IL_DATA)
     )._getJSONData();
-    newAtlasIds.push(newAtlas.id);
     const newAtlasFromDb = (
       await query<HCAAtlasTrackerDBAtlas>(
         "SELECT * FROM hat.atlases WHERE id=$1",

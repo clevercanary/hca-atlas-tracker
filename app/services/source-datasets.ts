@@ -1,3 +1,4 @@
+import pg from "pg";
 import { ValidationError } from "yup";
 import {
   ATLAS_STATUS,
@@ -42,27 +43,28 @@ export async function createSourceDataset(
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
   }
 
-  const existingDataset = await getExistingDataset(inputData);
-  if (existingDataset) {
-    const queryResult = await query(
-      "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2 AND NOT source_datasets @> $1",
-      [JSON.stringify([existingDataset.id]), atlasId]
-    );
-    if (queryResult.rowCount === 0)
-      throw new ValidationError(
-        "DOI already exists in this atlas",
-        undefined,
-        "doi"
-      );
-    return existingDataset;
-  }
-
-  const newInfo = await sourceDatasetInputDataToDbData(inputData);
-
   const client = await getPoolClient();
   try {
     await client.query("BEGIN");
+    // If dataset already exists, add that instead
+    const existingDataset = await getExistingDataset(inputData, client);
+    if (existingDataset) {
+      const queryResult = await client.query(
+        "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2 AND NOT source_datasets @> $1",
+        [JSON.stringify([existingDataset.id]), atlasId]
+      );
+      if (queryResult.rowCount === 0)
+        throw new ValidationError(
+          "DOI already exists in this atlas",
+          undefined,
+          "doi"
+        );
+      await updateSourceDatasetValidations(existingDataset, client);
+      await client.query("COMMIT");
+      return existingDataset;
+    }
     // Add the new source dataset
+    const newInfo = await sourceDatasetInputDataToDbData(inputData);
     const newDataset = (
       await client.query<HCAAtlasTrackerDBSourceDataset>(
         "INSERT INTO hat.source_datasets (doi, sd_info) VALUES ($1, $2) RETURNING *",
@@ -88,16 +90,18 @@ export async function createSourceDataset(
 /**
  * Get existing source dataset matching values submitted to create a source dataset.
  * @param inputData - Source dataset creation values.
+ * @param client - Postgres client.
  * @returns existing dataset or null.
  */
 async function getExistingDataset(
-  inputData: NewSourceDatasetData
+  inputData: NewSourceDatasetData,
+  client: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDataset | null> {
   if (!("doi" in inputData)) return null;
   const doi = normalizeDoi(inputData.doi);
   return (
     (
-      await query<HCAAtlasTrackerDBSourceDataset>(
+      await client.query<HCAAtlasTrackerDBSourceDataset>(
         "SELECT * FROM hat.source_datasets WHERE doi=$1 OR sd_info->'publication'->>'preprintOfDoi'=$1 OR sd_info->'publication'->>'hasPreprintDoi'=$1",
         [doi]
       )
@@ -251,8 +255,14 @@ export async function deleteAtlasSourceDataset(
         [JSON.stringify(sdId)]
       )
     ).rows[0].exists;
-    if (!sourceDatasetHasAtlases)
+    if (sourceDatasetHasAtlases) {
+      await updateSourceDatasetValidationsByEntityId(sdId, client);
+    } else {
       await client.query("DELETE FROM hat.source_datasets WHERE id=$1", [sdId]);
+      await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
+        sdId,
+      ]);
+    }
     await client.query("COMMIT");
   } catch (e) {
     await client.query("ROLLBACK");
@@ -260,6 +270,26 @@ export async function deleteAtlasSourceDataset(
   } finally {
     client.release();
   }
+}
+
+/**
+ * Update validations for the source dataset with the given ID.
+ * @param entityId - Source dataset ID.
+ * @param client - Postgres client to use.
+ */
+export async function updateSourceDatasetValidationsByEntityId(
+  entityId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  const sourceDataset = (
+    await client.query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [entityId]
+    )
+  ).rows[0];
+  if (!sourceDataset)
+    throw new NotFoundError(`Source dataset with ID ${entityId} doesn't exist`);
+  await updateSourceDatasetValidations(sourceDataset, client);
 }
 
 /**
