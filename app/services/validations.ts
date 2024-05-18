@@ -25,7 +25,7 @@ import { getProjectInfoByDoi } from "./hca-projects";
 interface ValidationDefinition<T> {
   description: string;
   system: SYSTEM;
-  validate: (entity: T) => boolean | null;
+  validate: (entity: T) => boolean | null; // null indicates that the validation doesn't apply to the passed entity
   validationId: VALIDATION_ID;
   validationType: VALIDATION_TYPE;
 }
@@ -35,6 +35,7 @@ type TypeSpecificValidationProperties = Pick<
   "atlasIds" | "entityTitle" | "doi" | "publicationString"
 >;
 
+// Properties to check for equality between a validation result and corresponding record to determine whether the record should be updated
 const CHANGE_INDICATING_VALIDATION_KEYS = [
   "description",
   "doi",
@@ -110,6 +111,14 @@ export async function getValidationRecords(): Promise<
   ).rows;
 }
 
+/**
+ * Apply a given validation to a given entity.
+ * @param entityType - Type of the entity.
+ * @param validation - Validation to apply.
+ * @param entity - Entity to validate.
+ * @param typeSpecificProperties - Properties to add to the validation result that vary by entity type.
+ * @returns validation result for the given entity and validation.
+ */
 function getValidationResult<T extends ENTITY_TYPE>(
   entityType: T,
   validation: ValidationDefinition<DBEntityOfType<T>>,
@@ -137,6 +146,11 @@ function getValidationResult<T extends ENTITY_TYPE>(
   };
 }
 
+/**
+ * Update saved validations for the given source dataset.
+ * @param sourceDataset - Source dataset to validate.
+ * @param client - Postgres client to use.
+ */
 export async function updateSourceDatasetValidations(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
@@ -149,6 +163,12 @@ export async function updateSourceDatasetValidations(
   await updateValidations(sourceDataset.id, validationResults, client);
 }
 
+/**
+ * Update saved validations for the given entity based on the given validation results.
+ * @param entityId - ID of validated entity.
+ * @param validationResults - Validation results to save.
+ * @param client - Postgres client to use.
+ */
 export async function updateValidations(
   entityId: string,
   validationResults: HCAAtlasTrackerValidationResult[],
@@ -235,6 +255,12 @@ export async function updateValidations(
   );
 }
 
+/**
+ * Determine whether the given validation result represents a change to the given validation record.
+ * @param existingValidation - Existing validation record.
+ * @param validationResult - Validation result.
+ * @returns true if the validation record should be updated to match the validation result.
+ */
 function shouldUpdateValidation(
   existingValidation: HCAAtlasTrackerDBValidation,
   validationResult: HCAAtlasTrackerValidationResult
@@ -255,6 +281,12 @@ function shouldUpdateValidation(
   return false;
 }
 
+/**
+ * Get validation results for the given source dataset.
+ * @param sourceDataset - Source dataset to validate.
+ * @param client - Postgres client to use.
+ * @returns validation results.
+ */
 export async function getSourceDatasetValidationResults(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
@@ -282,6 +314,11 @@ export async function getSourceDatasetValidationResults(
   return validationResults;
 }
 
+/**
+ * Get the published, unpublished, or fallback title for the given source dataset.
+ * @param sourceDataset - Source dataset.
+ * @returns source dataset title.
+ */
 function getSourceDatasetTitle(
   sourceDataset: HCAAtlasTrackerDBSourceDataset
 ): string {
@@ -292,6 +329,12 @@ function getSourceDatasetTitle(
   );
 }
 
+/**
+ * Get IDs of atlases containing the given source dataset.
+ * @param sourceDataset - Source dataset.
+ * @param client - Postgres client to use.
+ * @returns atlas IDs.
+ */
 async function getSourceDatasetAtlasIds(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   client: pg.PoolClient
