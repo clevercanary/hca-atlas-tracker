@@ -169,8 +169,28 @@ function getValidationResult<T extends ENTITY_TYPE>(
   };
 }
 
+/**
+ * Update validations for all source datasets in the database.
+ */
 export async function revalidateAllSourceDatasets(): Promise<void> {
-  console.log("revalidate");
+  const client = await getPoolClient();
+  const sourceDatasets = (
+    await client.query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets"
+    )
+  ).rows;
+  for (const dataset of sourceDatasets) {
+    try {
+      await client.query("BEGIN");
+      await updateSourceDatasetValidations(dataset, client);
+      await client.query("COMMIT");
+    } catch (e) {
+      await client.query("ROLLBACK");
+      client.release();
+      throw e;
+    }
+  }
+  client.release();
 }
 
 /**
