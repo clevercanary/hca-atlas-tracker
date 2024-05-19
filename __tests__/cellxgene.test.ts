@@ -41,7 +41,7 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-  globalThis.hcaAtlasTrackerProjectsInfoCache = undefined;
+  globalThis.hcaAtlasTrackerCellxGeneInfoCache = undefined;
 });
 
 describe("getCellxGeneIdByDoi", () => {
