@@ -2,6 +2,8 @@ import { Options as KyOptions } from "ky";
 import { normalizeDoi } from "../utils/doi";
 import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
+import { isAnyServiceRefreshing } from "./refresh-services";
+import { revalidateAllSourceDatasets } from "./validations";
 
 export interface ProjectInfo {
   id: string;
@@ -25,7 +27,7 @@ const KY_OPTIONS: KyOptions = {
   timeout: 120000,
 };
 
-const { getData: getProjectsData } = makeRefreshService({
+const refreshService = makeRefreshService({
   getRefreshParams: () => {
     console.log("Requesting HCA catalog");
     const catalog = getLatestCatalog({
@@ -51,6 +53,9 @@ const { getData: getProjectsData } = makeRefreshService({
     return globalThis.hcaAtlasTrackerProjectsInfoCache;
   },
   notReadyMessage: "DOI to HCA project ID mapping not initialized",
+  onRefreshSuccess() {
+    if (!isAnyServiceRefreshing()) revalidateAllSourceDatasets();
+  },
   refreshNeeded(data, catalog) {
     return data?.catalog !== catalog;
   },
@@ -58,6 +63,8 @@ const { getData: getProjectsData } = makeRefreshService({
     globalThis.hcaAtlasTrackerProjectsInfoCache = info;
   },
 });
+
+export const areProjectsRefreshing = refreshService.isRefreshing;
 
 /**
  * Find the first of a list of DOIs that matches an HCA project, and return the project's ID, starting a refresh of the DOI-to-project mappings if needed.
@@ -74,7 +81,7 @@ export function getProjectIdByDoi(dois: string[]): string | null {
  * @returns HCA project info, or null if none is found.
  */
 export function getProjectInfoByDoi(dois: string[]): ProjectInfo | null {
-  const { byDoi } = getProjectsData();
+  const { byDoi } = refreshService.getData();
   for (const doi of dois) {
     const projectInfo = byDoi.get(doi);
     if (projectInfo !== undefined) return projectInfo;

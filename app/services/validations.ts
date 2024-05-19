@@ -169,6 +169,10 @@ function getValidationResult<T extends ENTITY_TYPE>(
   };
 }
 
+export async function revalidateAllSourceDatasets(): Promise<void> {
+  console.log("revalidate");
+}
+
 /**
  * Update saved validations for the given source dataset.
  * @param sourceDataset - Source dataset to validate.

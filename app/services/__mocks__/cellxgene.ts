@@ -1,6 +1,10 @@
 import { TEST_CELLXGENE_COLLECTIONS_BY_DOI } from "testing/constants";
 import { CollectionInfo } from "../cellxgene";
 
+export function isCellxGeneRefreshing(): boolean {
+  return false;
+}
+
 export function getCellxGeneIdByDoi(dois: string[]): string | null {
   return getCellxGeneInfoByDoi(dois)?.id ?? null;
 }

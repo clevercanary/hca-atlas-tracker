@@ -11,6 +11,11 @@ import {
 } from "../testing/constants";
 import { delay, promiseWithResolvers } from "../testing/utils";
 
+jest.mock("../app/services/cellxgene");
+jest.mock("../app/services/validations", () => ({
+  revalidateAllSourceDatasets: jest.fn(),
+}));
+
 let [getAllProjectsBlock, resolveGetAllProjectsBlock] =
   promiseWithResolvers<void>();
 

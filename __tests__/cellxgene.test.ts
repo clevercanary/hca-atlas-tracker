@@ -10,6 +10,11 @@ import {
 } from "../testing/constants";
 import { delay, promiseWithResolvers } from "../testing/utils";
 
+jest.mock("../app/services/hca-projects");
+jest.mock("../app/services/validations", () => ({
+  revalidateAllSourceDatasets: jest.fn(),
+}));
+
 jest.useFakeTimers({
   doNotFake: ["setTimeout"],
 });

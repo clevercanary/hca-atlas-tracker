@@ -2,6 +2,8 @@ import { Options as KyOptions } from "ky";
 import { getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
+import { isAnyServiceRefreshing } from "./refresh-services";
+import { revalidateAllSourceDatasets } from "./validations";
 
 export interface CollectionInfo {
   id: string;
@@ -25,7 +27,7 @@ const KY_OPTIONS: KyOptions = {
   timeout: 120000,
 };
 
-const { getData: getCellxGeneData } = makeRefreshService({
+const refreshService = makeRefreshService({
   getRefreshParams: () => undefined,
   async getRefreshedData() {
     const time = Date.now();
@@ -38,6 +40,9 @@ const { getData: getCellxGeneData } = makeRefreshService({
     return globalThis.hcaAtlasTrackerCellxGeneInfoCache;
   },
   notReadyMessage: "DOI to CELLxGENE collection ID mapping not initialized",
+  onRefreshSuccess() {
+    if (!isAnyServiceRefreshing()) revalidateAllSourceDatasets();
+  },
   refreshNeeded(data) {
     if (!data) return true;
     return Date.now() - data.lastRefreshTime > REFRESH_INTERVAL;
@@ -46,6 +51,8 @@ const { getData: getCellxGeneData } = makeRefreshService({
     globalThis.hcaAtlasTrackerCellxGeneInfoCache = info;
   },
 });
+
+export const isCellxGeneRefreshing = refreshService.isRefreshing;
 
 /**
  * Find the first of a list of DOIs that matches a CELLxGENE collection, and return the collection's ID, starting a refresh of the DOI-to-collection mappings if needed.
@@ -62,7 +69,7 @@ export function getCellxGeneIdByDoi(dois: string[]): string | null {
  * @returns CELLxGENE collection info, or null if none is found.
  */
 export function getCellxGeneInfoByDoi(dois: string[]): CollectionInfo | null {
-  const { collectionInfoByDoi } = getCellxGeneData();
+  const { collectionInfoByDoi } = refreshService.getData();
   for (const doi of dois) {
     const collectionInfo = collectionInfoByDoi.get(doi);
     if (collectionInfo !== undefined) return collectionInfo;

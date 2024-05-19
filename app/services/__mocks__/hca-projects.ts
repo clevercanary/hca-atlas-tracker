@@ -1,6 +1,10 @@
 import { TEST_HCA_PROJECTS_BY_DOI } from "../../../testing/constants";
 import { ProjectInfo } from "../hca-projects";
 
+export function areProjectsRefreshing(): boolean {
+  return false;
+}
+
 export function getProjectIdByDoi(dois: string[]): string | null {
   return getProjectInfoByDoi(dois)?.id ?? null;
 }
