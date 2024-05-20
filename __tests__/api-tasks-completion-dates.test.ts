@@ -136,6 +136,15 @@ describe("/api/tasks/completion-dates", () => {
     await expectValidationsToBeUnchanged();
   });
 
+  it("returns error 400 when an empty ID array is provided", async () => {
+    expect(
+      (
+        await doCompletionDatesRequest(USER_CONTENT_ADMIN, DATE_VALID, [])
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectValidationsToBeUnchanged();
+  });
+
   it("updates target completion dates for specified validations and returns updated validations", async () => {
     const res = await doCompletionDatesRequest(
       USER_CONTENT_ADMIN,
