@@ -17,7 +17,14 @@ interface ProjectsData {
   catalog: string;
 }
 
-export type ProjectsInfo = RefreshInfo<ProjectsData, string>;
+interface ProjectsRefreshParams {
+  catalog: string;
+  lastCatalogRequestTime: number;
+}
+
+export type ProjectsInfo = RefreshInfo<ProjectsData, ProjectsRefreshParams>;
+
+const CATALOG_REQUEST_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
 
 const KY_OPTIONS: KyOptions = {
   retry: {
@@ -28,9 +35,19 @@ const KY_OPTIONS: KyOptions = {
 };
 
 const refreshService = makeRefreshService({
-  getRefreshParams: () => {
+  async getRefreshParams(
+    data?: ProjectsData,
+    prevRefreshParams?: ProjectsRefreshParams
+  ): Promise<ProjectsRefreshParams> {
+    if (
+      prevRefreshParams &&
+      Date.now() - prevRefreshParams.lastCatalogRequestTime <=
+        CATALOG_REQUEST_INTERVAL
+    ) {
+      return prevRefreshParams;
+    }
     console.log("Requesting HCA catalog");
-    const catalog = getLatestCatalog({
+    const catalog = await getLatestCatalog({
       hooks: {
         beforeRetry: [
           (): void => {
@@ -41,9 +58,12 @@ const refreshService = makeRefreshService({
       ...KY_OPTIONS,
     });
     console.log("Received HCA catalog");
-    return catalog;
+    return {
+      catalog,
+      lastCatalogRequestTime: Date.now(),
+    };
   },
-  async getRefreshedData(catalog) {
+  async getRefreshedData({ catalog }) {
     return {
       byDoi: await getRefreshedProjectIdsByDoi(catalog),
       catalog,
@@ -56,7 +76,7 @@ const refreshService = makeRefreshService({
   onRefreshSuccess() {
     if (!isAnyServiceRefreshing()) revalidateAllSourceDatasets();
   },
-  refreshNeeded(data, catalog) {
+  refreshNeeded(data, { catalog }) {
     return data?.catalog !== catalog;
   },
   setStoredInfo(info) {

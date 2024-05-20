@@ -16,6 +16,10 @@ jest.mock("../app/services/validations", () => ({
   revalidateAllSourceDatasets: jest.fn(),
 }));
 
+jest.useFakeTimers({
+  doNotFake: ["setTimeout"],
+});
+
 let [getAllProjectsBlock, resolveGetAllProjectsBlock] =
   promiseWithResolvers<void>();
 
@@ -65,8 +69,16 @@ describe("getProjectIdByDoi", () => {
     expect(getAllProjects).toHaveBeenCalledTimes(1);
   });
 
-  it("Returns null for project not in initial catalog and starts refresh when catalog has updated", async () => {
+  it("Returns null for project not in initial catalog and does not refresh when catalog has updated but less than 4 hours have passed", async () => {
+    jest.setSystemTime(jest.now() + 7200000);
     getLatestCatalog.mockResolvedValue(HCA_CATALOG_TEST2);
+    expect(getProjectIdByDoi([DOI_NORMAL2])).toEqual(null);
+    await delay();
+    expect(getAllProjects).toHaveBeenCalledTimes(1);
+  });
+
+  it("Returns null for project not in initial catalog and starts refresh when catalog has updated and 4 hours have passed", async () => {
+    jest.setSystemTime(jest.now() + 7200001);
     expect(getProjectIdByDoi([DOI_NORMAL2])).toEqual(null);
     await delay();
     expect(getAllProjects).toHaveBeenCalledTimes(2);
