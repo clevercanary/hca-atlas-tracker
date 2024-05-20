@@ -32,6 +32,7 @@ type ExpectedValidationProperties = Pick<
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+jest.mock("../app/services/user-profile");
 
 const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
   {

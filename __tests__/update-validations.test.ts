@@ -13,6 +13,7 @@ import { endPgPool, getPoolClient, query } from "../app/services/database";
 import { resetDatabase } from "../testing/db-utils";
 
 jest.mock("../app/services/hca-projects");
+jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const ENTITY_TYPE_TEST = "ENTITY_TYPE_TEST" as ENTITY_TYPE;
