@@ -17,7 +17,7 @@ interface ProjectsData {
   catalog: string;
 }
 
-export type ProjectsInfo = RefreshInfo<ProjectsData>;
+export type ProjectsInfo = RefreshInfo<ProjectsData, string>;
 
 const KY_OPTIONS: KyOptions = {
   retry: {
