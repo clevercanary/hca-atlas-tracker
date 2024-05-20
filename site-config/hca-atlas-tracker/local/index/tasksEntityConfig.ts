@@ -88,7 +88,7 @@ export const tasksEntityConfig: EntityConfig = {
         ],
         sort: {
           desc: SORT_DIRECTION.ASCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
         },
         title: "CELLxGENE Ingest Backlog",
       },
