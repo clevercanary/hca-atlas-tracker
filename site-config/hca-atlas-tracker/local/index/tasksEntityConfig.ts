@@ -72,13 +72,20 @@ export const tasksEntityConfig: EntityConfig = {
     key: "tasks",
     savedFilters: [
       {
-        filter: {
-          [HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION]: [
-            "Ingest source dataset.",
-          ],
-          [HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS]: [TASK_STATUS.TODO],
-          [HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM]: [SYSTEM.CELLXGENE],
-        },
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: ["Ingest source dataset."],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.CELLXGENE],
+          },
+        ],
         sort: {
           desc: SORT_DIRECTION.ASCENDING,
           id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
@@ -86,13 +93,20 @@ export const tasksEntityConfig: EntityConfig = {
         title: "CELLxGENE Ingest Backlog",
       },
       {
-        filter: {
-          [HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION]: [
-            "Ingest source dataset.",
-          ],
-          [HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS]: [TASK_STATUS.TODO],
-          [HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM]: [SYSTEM.HCA_DATA_REPOSITORY],
-        },
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: ["Ingest source dataset."],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.HCA_DATA_REPOSITORY],
+          },
+        ],
         sort: {
           desc: SORT_DIRECTION.ASCENDING,
           id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
