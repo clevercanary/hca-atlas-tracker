@@ -8,6 +8,7 @@ export enum FETCH_STATUS {
 export enum METHOD {
   DELETE = "DELETE",
   GET = "GET",
+  PATCH = "PATCH",
   POST = "POST",
   PUT = "PUT",
 }

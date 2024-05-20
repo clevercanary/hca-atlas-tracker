@@ -1,4 +1,4 @@
-import { boolean, InferType, mixed, object, string } from "yup";
+import { array, boolean, InferType, mixed, object, string } from "yup";
 import { isDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 
@@ -136,3 +136,12 @@ export const newUserSchema = object({
 }).strict(true);
 
 export type NewUserData = InferType<typeof newUserSchema>;
+
+export const taskCompletionDatesSchema = object({
+  targetCompletion: string().datetime().required(),
+  taskIds: array(string().required()).required(),
+}).strict(true);
+
+export type TaskCompletionDatesData = InferType<
+  typeof taskCompletionDatesSchema
+>;

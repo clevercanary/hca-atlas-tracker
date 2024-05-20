@@ -19,7 +19,8 @@ import {
   getPublicationDois,
   getSourceDatasetCitation,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { query } from "./database";
+import { NotFoundError } from "../utils/api-handler";
+import { getPoolClient, query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
@@ -91,24 +92,39 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
   ];
 
 /**
- * Get all validation records from the database.
+ * Get validation records from the database.
+ * @param ids - IDs of specific records to get; if omitted, gets all records.
  * @returns validation records.
  */
-export async function getValidationRecords(): Promise<
-  HCAAtlasTrackerDBValidationWithAtlasProperties[]
-> {
-  return (
-    await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(`
-      SELECT
-        v.*,
-        ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
-        ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
-        ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
-      FROM hat.validations v
-      LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
-      GROUP BY v.entity_id, v.validation_id;
-    `)
-  ).rows;
+export async function getValidationRecords(
+  ids?: string[]
+): Promise<HCAAtlasTrackerDBValidationWithAtlasProperties[]> {
+  const queryResult = ids
+    ? await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(
+        `
+          SELECT
+            v.*,
+            ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+            ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
+            ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
+          FROM hat.validations v
+          LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
+          WHERE v.id=ANY($1)
+          GROUP BY v.entity_id, v.validation_id;
+        `,
+        [ids]
+      )
+    : await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(`
+        SELECT
+          v.*,
+          ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+          ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
+          ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
+        FROM hat.validations v
+        LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
+        GROUP BY v.entity_id, v.validation_id;
+      `);
+  return queryResult.rows;
 }
 
 /**
@@ -344,4 +360,36 @@ async function getSourceDatasetAtlasIds(
     [JSON.stringify(sourceDataset.id)]
   );
   return Array.from(new Set(queryResult.rows.map(({ id }) => id)));
+}
+
+/**
+ * Set target completion for the given validations to the given date.
+ * @param targetCompletion - Target completion date.
+ * @param validationIds - Validation IDs.
+ * @returns updated validation records.
+ */
+export async function updateTargetCompletions(
+  targetCompletion: Date,
+  validationIds: string[]
+): Promise<HCAAtlasTrackerDBValidationWithAtlasProperties[]> {
+  const client = await getPoolClient();
+  try {
+    client.query("BEGIN");
+    const queryResult = await client.query(
+      "UPDATE hat.validations SET target_completion=$1 WHERE id=ANY($2)",
+      [targetCompletion, validationIds]
+    );
+    if (queryResult.rowCount !== validationIds.length)
+      throw new NotFoundError(
+        "One or more of the specified validations do not exist"
+      );
+    const results = await getValidationRecords(validationIds);
+    client.query("COMMIT");
+    return results;
+  } catch (e) {
+    client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
 }
