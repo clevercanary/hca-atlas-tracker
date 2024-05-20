@@ -94,10 +94,12 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
 /**
  * Get validation records from the database.
  * @param ids - IDs of specific records to get; if omitted, gets all records.
+ * @param client - If specified, Postgres client to use.
  * @returns validation records.
  */
 export async function getValidationRecords(
-  ids?: string[]
+  ids?: string[],
+  client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBValidationWithAtlasProperties[]> {
   const queryResult = ids
     ? await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(
@@ -112,18 +114,23 @@ export async function getValidationRecords(
           WHERE v.id=ANY($1)
           GROUP BY v.entity_id, v.validation_id;
         `,
-        [ids]
+        [ids],
+        client
       )
-    : await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(`
-        SELECT
-          v.*,
-          ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
-          ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
-          ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
-        FROM hat.validations v
-        LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
-        GROUP BY v.entity_id, v.validation_id;
-      `);
+    : await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(
+        `
+          SELECT
+            v.*,
+            ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+            ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
+            ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
+          FROM hat.validations v
+          LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
+          GROUP BY v.entity_id, v.validation_id;
+        `,
+        undefined,
+        client
+      );
   return queryResult.rows;
 }
 
@@ -383,7 +390,7 @@ export async function updateTargetCompletions(
       throw new NotFoundError(
         "One or more of the specified validations do not exist"
       );
-    const results = await getValidationRecords(validationIds);
+    const results = await getValidationRecords(validationIds, client);
     client.query("COMMIT");
     return results;
   } catch (e) {

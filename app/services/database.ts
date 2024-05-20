@@ -7,9 +7,12 @@ const pool = new Pool(getPoolConfig());
 
 export function query<T extends pg.QueryResultRow>(
   queryTextOrConfig: string | pg.QueryConfig<unknown[]>,
-  values?: unknown[] | undefined
+  values?: unknown[] | undefined,
+  client?: pg.PoolClient
 ): Promise<pg.QueryResult<T>> {
-  return pool.query<T>(queryTextOrConfig, values);
+  return client
+    ? client.query<T>(queryTextOrConfig, values)
+    : pool.query<T>(queryTextOrConfig, values);
 }
 
 export function getPoolClient(): Promise<pg.PoolClient> {
