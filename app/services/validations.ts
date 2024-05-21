@@ -11,9 +11,11 @@ import {
   PublicationInfo,
   SYSTEM,
   TASK_STATUS,
+  ValidationDifference,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
+  VALIDATION_VARIABLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   dbSourceDatasetToApiSourceDataset,
@@ -25,10 +27,16 @@ import { ProjectInfo } from "../utils/hca-projects";
 import { getPoolClient, query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
+interface ValidationStatusInfo {
+  differences?: ValidationDifference[];
+  relatedEntityUrl?: string;
+  valid: boolean;
+}
+
 interface ValidationDefinition<T> {
   description: string;
   system: SYSTEM;
-  validate: (entity: T) => boolean | null; // null indicates that the validation doesn't apply to the passed entity
+  validate: (entity: T) => ValidationStatusInfo | null; // null indicates that the validation doesn't apply to the passed entity
   validationId: VALIDATION_ID;
   validationType: VALIDATION_TYPE;
 }
@@ -53,8 +61,10 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
     {
       description: "Ingest source dataset.",
       system: SYSTEM.CELLXGENE,
-      validate(sourceDataset): boolean {
-        return Boolean(sourceDataset.sd_info.cellxgeneCollectionId);
+      validate(sourceDataset): ValidationStatusInfo {
+        return {
+          valid: Boolean(sourceDataset.sd_info.cellxgeneCollectionId),
+        };
       },
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
       validationType: VALIDATION_TYPE.INGEST,
@@ -62,8 +72,10 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
     {
       description: "Ingest source dataset.",
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      validate(sourceDataset): boolean {
-        return Boolean(sourceDataset.sd_info.hcaProjectId);
+      validate(sourceDataset): ValidationStatusInfo {
+        return {
+          valid: Boolean(sourceDataset.sd_info.hcaProjectId),
+        };
       },
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
       validationType: VALIDATION_TYPE.INGEST,
@@ -71,10 +83,27 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
     {
       description: "Update project title to match publication title.",
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      validate(sourceDataset): boolean | null {
+      validate(sourceDataset): ValidationStatusInfo | null {
         return validateSourceDatasetHcaProjectInfo(
           sourceDataset,
-          (projectInfo, publication) => publication.title === projectInfo?.title
+          (projectInfo, infoProperties, publication) => {
+            const expected = publication.title;
+            const actual = projectInfo?.title ?? null;
+            const valid = expected === actual;
+            const info: ValidationStatusInfo = {
+              ...infoProperties,
+              valid,
+            };
+            if (!valid)
+              info.differences = [
+                {
+                  actual,
+                  expected,
+                  variable: VALIDATION_VARIABLE.TITLE,
+                },
+              ];
+            return info;
+          }
         );
       },
       validationId:
@@ -84,10 +113,13 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
     {
       description: "Add primary data.",
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      validate(sourceDataset): boolean | null {
+      validate(sourceDataset): ValidationStatusInfo | null {
         return validateSourceDatasetHcaProjectInfo(
           sourceDataset,
-          (projectInfo) => Boolean(projectInfo?.hasPrimaryData)
+          (projectInfo, infoProperties) => ({
+            ...infoProperties,
+            valid: Boolean(projectInfo?.hasPrimaryData),
+          })
         );
       },
       validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
@@ -98,16 +130,17 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
 /**
  * Apply a validation that uses a source dataset's HCA project info, skipping the validation if the source dataset's properties indicate it isn't in the HCA Data Repository.
  * @param sourceDataset - Source dataset to validate.
- * @param validate - Validation function that receives the project info (if found) and the source dataset's publication.
+ * @param validate - Validation function that receives the project info (if found), properties for the validation status info, and the source dataset's publication.
  * @returns result of applying the validation function, or null if the source dataset doesn't appear to be in the HCA Data Repository.
  */
 function validateSourceDatasetHcaProjectInfo(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
   validate: (
     projectInfo: ProjectInfo | null,
+    infoProperties: Partial<ValidationStatusInfo>,
     publication: PublicationInfo
-  ) => boolean | null
-): boolean | null {
+  ) => ValidationStatusInfo | null
+): ValidationStatusInfo | null {
   if (
     !sourceDataset.doi ||
     !sourceDataset.sd_info.publication ||
@@ -118,7 +151,16 @@ function validateSourceDatasetHcaProjectInfo(
   const projectInfo = getProjectInfoByDoi(
     getPublicationDois(sourceDataset.doi, sourceDataset.sd_info.publication)
   );
-  return validate(projectInfo, sourceDataset.sd_info.publication);
+  const infoProperties = {
+    relatedEntityUrl: `https://explore.data.humancellatlas.org/projects/${encodeURIComponent(
+      sourceDataset.sd_info.hcaProjectId
+    )}`,
+  };
+  return validate(
+    projectInfo,
+    infoProperties,
+    sourceDataset.sd_info.publication
+  );
 }
 
 /**
@@ -178,15 +220,17 @@ function getValidationResult<T extends ENTITY_TYPE>(
   entity: DBEntityOfType<T>,
   typeSpecificProperties: TypeSpecificValidationProperties
 ): HCAAtlasTrackerValidationResult | null {
-  const isValid = validation.validate(entity);
-  if (isValid === null) return null;
-  const validationStatus = isValid
+  const validationStatusInfo = validation.validate(entity);
+  if (validationStatusInfo === null) return null;
+  const validationStatus = validationStatusInfo.valid
     ? VALIDATION_STATUS.PASSED
     : VALIDATION_STATUS.FAILED;
   return {
     description: validation.description,
+    differences: validationStatusInfo.differences ?? [],
     entityId: entity.id,
     entityType,
+    relatedEntityUrl: validationStatusInfo.relatedEntityUrl ?? null,
     system: validation.system,
     taskStatus:
       validationStatus === VALIDATION_STATUS.PASSED
@@ -287,10 +331,12 @@ export async function updateValidations(
       validation_id: result.validationId,
       validation_info: {
         description: result.description,
+        differences: result.differences,
         doi: result.doi,
         entityTitle: result.entityTitle,
         entityType: result.entityType,
         publicationString: result.publicationString,
+        relatedEntityUrl: result.relatedEntityUrl,
         system: result.system,
         taskStatus: result.taskStatus,
         validationStatus: result.validationStatus,
