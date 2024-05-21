@@ -5,7 +5,11 @@ import {
   SORT_DIRECTION,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
-import { HCAAtlasTrackerListValidationRecord } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerListValidationRecord,
+  SYSTEM,
+  TASK_STATUS,
+} from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getTaskId,
   taskInputMapper,
@@ -66,6 +70,50 @@ export const tasksEntityConfig: EntityConfig = {
       },
     ],
     key: "tasks",
+    savedFilters: [
+      {
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: ["Ingest source dataset."],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.CELLXGENE],
+          },
+        ],
+        sort: {
+          desc: SORT_DIRECTION.ASCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        },
+        title: "CELLxGENE Ingest Backlog",
+      },
+      {
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: ["Ingest source dataset."],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.HCA_DATA_REPOSITORY],
+          },
+        ],
+        sort: {
+          desc: SORT_DIRECTION.ASCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        },
+        title: "HCA Data Repository Ingest Backlog",
+      },
+    ],
   },
   detail: {
     detailOverviews: [],
