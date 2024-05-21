@@ -50,12 +50,16 @@ jest.mock("../app/utils/cellxgene-api", () => ({
 
 let cellxgeneService: typeof import("../app/services/cellxgene");
 
+let consoleLogSpy: jest.SpyInstance;
+
 beforeAll(async () => {
+  consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
   hcaService = await import("../app/services/hca-projects");
   cellxgeneService = await import("../app/services/cellxgene");
 });
 
 afterAll(() => {
+  consoleLogSpy.mockRestore();
   globalThis.hcaAtlasTrackerProjectsInfoCache = undefined;
   globalThis.hcaAtlasTrackerCellxGeneInfoCache = undefined;
 });

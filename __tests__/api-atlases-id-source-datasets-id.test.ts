@@ -23,7 +23,10 @@ import {
 } from "../testing/constants";
 import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
 import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
-import { makeTestSourceDatasetOverview } from "../testing/utils";
+import {
+  makeTestSourceDatasetOverview,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -112,7 +115,10 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
         await doDatasetRequest(
           ATLAS_DRAFT.id,
           SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
-          USER_CONTENT_ADMIN
+          USER_CONTENT_ADMIN,
+          undefined,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
@@ -204,7 +210,8 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
           SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
           USER_CONTENT_ADMIN,
           METHOD.PUT,
-          SOURCE_DATASET_PUBLIC_NO_CROSSREF_EDIT
+          SOURCE_DATASET_PUBLIC_NO_CROSSREF_EDIT,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
@@ -222,7 +229,8 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
           {
             ...SOURCE_DATASET_DRAFT_OK_EDIT,
             contactEmail: undefined,
-          }
+          },
+          true
         )
       )._getStatusCode()
     ).toEqual(400);
@@ -356,7 +364,9 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
           ATLAS_DRAFT.id,
           SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
@@ -450,7 +460,8 @@ async function doDatasetRequest(
   sdId: string,
   user?: TestUser,
   method = METHOD.GET,
-  updatedData?: Record<string, unknown>
+  updatedData?: Record<string, unknown>,
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: updatedData,
@@ -458,7 +469,10 @@ async function doDatasetRequest(
     method,
     query: { atlasId, sdId },
   });
-  await datasetHandler(req, res);
+  await withConsoleErrorHiding(
+    () => datasetHandler(req, res),
+    hideConsoleError
+  );
   return res;
 }
 

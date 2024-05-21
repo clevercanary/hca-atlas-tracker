@@ -15,6 +15,7 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
+import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -50,7 +51,9 @@ afterAll(async () => {
 describe("/api/atlases/create", () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
-      (await doCreateTest(undefined, NEW_ATLAS_DATA, "GET"))._getStatusCode()
+      (
+        await doCreateTest(undefined, NEW_ATLAS_DATA, false, "GET")
+      )._getStatusCode()
     ).toEqual(405);
   });
 
@@ -75,10 +78,14 @@ describe("/api/atlases/create", () => {
   it("returns error 400 when network value is not a valid network key", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_DATA,
-          network: "notanetwork" as NewAtlasData["network"],
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            network: "notanetwork" as NewAtlasData["network"],
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -86,10 +93,14 @@ describe("/api/atlases/create", () => {
   it("returns error 400 when version is a number rather than a string", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_DATA,
-          version: 1 as unknown as NewAtlasData["version"],
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            version: 1 as unknown as NewAtlasData["version"],
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -97,10 +108,14 @@ describe("/api/atlases/create", () => {
   it("returns error 400 when wave is is not a valid wave value", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_DATA,
-          wave: "0" as NewAtlasData["wave"],
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            wave: "0" as NewAtlasData["wave"],
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -108,11 +123,15 @@ describe("/api/atlases/create", () => {
   it("returns error 400 when integration lead is undefined", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_DATA,
-          integrationLead:
-            undefined as unknown as NewAtlasData["integrationLead"],
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            integrationLead:
+              undefined as unknown as NewAtlasData["integrationLead"],
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -120,12 +139,16 @@ describe("/api/atlases/create", () => {
   it("returns error 400 when integration lead is missing email", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_WITH_IL_DATA,
-          integrationLead: {
-            name: "Foo",
-          } as NewAtlasData["integrationLead"],
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_WITH_IL_DATA,
+            integrationLead: {
+              name: "Foo",
+            } as NewAtlasData["integrationLead"],
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -133,13 +156,17 @@ describe("/api/atlases/create", () => {
   it("returns error 400 when integration lead email is not an email address", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_ATLAS_WITH_IL_DATA,
-          integrationLead: {
-            email: "notanemail",
-            name: "Foo",
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_WITH_IL_DATA,
+            integrationLead: {
+              email: "notanemail",
+              name: "Foo",
+            },
           },
-        })
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -176,6 +203,7 @@ describe("/api/atlases/create", () => {
 async function doCreateTest(
   user: TestUser | undefined,
   newData: NewAtlasData,
+  hideConsoleError = false,
   method: "GET" | "POST" = "POST"
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
@@ -183,6 +211,6 @@ async function doCreateTest(
     headers: { authorization: user?.authorization },
     method,
   });
-  await createHandler(req, res);
+  await withConsoleErrorHiding(() => createHandler(req, res), hideConsoleError);
   return res;
 }

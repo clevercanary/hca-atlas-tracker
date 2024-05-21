@@ -116,6 +116,18 @@ export function makeTestProjectsResponse(
   };
 }
 
+export async function withConsoleErrorHiding<T>(
+  fn: () => Promise<T>,
+  hideConsoleError = true
+): Promise<T> {
+  const consoleErrorSpy = hideConsoleError
+    ? jest.spyOn(console, "error").mockImplementation()
+    : null;
+  const result = await fn();
+  consoleErrorSpy?.mockRestore();
+  return result;
+}
+
 // Adapted from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#description
 export function promiseWithResolvers<T>(): [
   Promise<T>,
