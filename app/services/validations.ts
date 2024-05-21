@@ -21,8 +21,9 @@ import {
   getSourceDatasetCitation,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { NotFoundError } from "../utils/api-handler";
+import { ProjectInfo } from "../utils/hca-projects";
 import { getPoolClient, query } from "./database";
-import { getProjectInfoByDoi, ProjectInfo } from "./hca-projects";
+import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationDefinition<T> {
   description: string;
