@@ -16,6 +16,7 @@ import {
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
   SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
   SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
+  SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
 } from "../testing/constants";
 import { TestAtlas, TestSourceDataset } from "../testing/entities";
@@ -76,9 +77,9 @@ const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
   },
   {
     system: SYSTEM.HCA_DATA_REPOSITORY,
-    taskStatus: TASK_STATUS.TODO,
+    taskStatus: TASK_STATUS.DONE,
     validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
-    validationStatus: VALIDATION_STATUS.FAILED,
+    validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.INGEST,
   },
 ];
@@ -105,6 +106,39 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
       validationId:
         VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.METADATA,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      taskStatus: TASK_STATUS.DONE,
+      validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
+      validationStatus: VALIDATION_STATUS.PASSED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+  ];
+
+const VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: ExpectedValidationProperties[] =
+  [
+    {
+      system: SYSTEM.CELLXGENE,
+      taskStatus: TASK_STATUS.TODO,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
+      validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      taskStatus: TASK_STATUS.DONE,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
+      validationStatus: VALIDATION_STATUS.PASSED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      taskStatus: TASK_STATUS.DONE,
+      validationId:
+        VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
+      validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.METADATA,
     },
     {
@@ -170,6 +204,14 @@ describe("getSourceDatasetValidationResults", () => {
       SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
       [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH
+    );
+  });
+
+  it("returns validations for source dataset with HCA project without primary data", async () => {
+    await testValidations(
+      SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
+      VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA
     );
   });
 
