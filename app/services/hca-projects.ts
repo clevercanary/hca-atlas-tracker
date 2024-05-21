@@ -1,14 +1,9 @@
 import { Options as KyOptions } from "ky";
-import { normalizeDoi } from "../utils/doi";
 import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
+import { getProjectsInfo, ProjectInfo } from "../utils/hca-projects";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 import { isAnyServiceRefreshing } from "./refresh-services";
 import { revalidateAllSourceDatasets } from "./validations";
-
-export interface ProjectInfo {
-  id: string;
-  title: string;
-}
 
 type ProjectInfoByDoi = Map<string, ProjectInfo>;
 
@@ -131,14 +126,8 @@ async function getRefreshedProjectIdsByDoi(
   });
   console.log("Loaded HCA projects");
   for (const projectsResponse of hits) {
-    for (const project of projectsResponse.projects) {
-      for (const publication of project.publications) {
-        if (publication.doi)
-          projectIdsByDoi.set(normalizeDoi(publication.doi), {
-            id: project.projectId,
-            title: project.projectTitle,
-          });
-      }
+    for (const projectInfo of getProjectsInfo(projectsResponse)) {
+      if (projectInfo.doi) projectIdsByDoi.set(projectInfo.doi, projectInfo);
     }
   }
   return projectIdsByDoi;

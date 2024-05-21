@@ -87,6 +87,9 @@ export const DOI_PUBLISHED_WITH_HCA = "10.123/sd-published-with-hca";
 export const DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
   "10.123/sd-published-with-hca-title-mismatch";
 
+export const DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
+  "10.123/sd-published-with-no-hca-primary-data";
+
 // PUBLICATIONS
 
 export const PUBLICATION_DRAFT_OK: PublicationInfo = {
@@ -283,6 +286,9 @@ export const HCA_ID_PUBLISHED_WITH_HCA = "hca-id-published-with-hca";
 export const HCA_ID_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
   "hca-id-published-with-hca-title-mismatch";
 
+export const HCA_ID_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
+  "hca-id-published-with-no-hca-primary-data";
+
 export const HCA_PROJECTS_RESPONSE_NORMAL = makeTestProjectsResponse(
   HCA_ID_NORMAL,
   DOI_NORMAL,
@@ -323,6 +329,14 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
     "Published With HCA Title Mismatch MISMATCHED"
   );
 
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+    DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+    "Published With No HCA Primary Data",
+    []
+  );
+
 export const TEST_HCA_PROJECTS_BY_DOI = new Map([
   [DOI_NORMAL, HCA_PROJECTS_RESPONSE_NORMAL],
   [DOI_JOURNAL_COUNTERPART, HCA_PROJECTS_RESPONSE_JOURNAL_COUNTERPART],
@@ -331,6 +345,10 @@ export const TEST_HCA_PROJECTS_BY_DOI = new Map([
   [
     DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
     HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+  ],
+  [
+    DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+    HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
   ],
 ]);
 
@@ -501,6 +519,26 @@ export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH: TestPublishedSour
     },
   };
 
+export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: TestPublishedSourceDataset =
+  {
+    doi: DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+    doiStatus: DOI_STATUS.OK,
+    id: "c28a9f6f-2da7-440d-b6d6-468134f446f6",
+    publication: {
+      authors: [
+        {
+          name: "Baz Foo Foo",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Foo Baz Foo Foo",
+      preprintOfDoi: null,
+      publicationDate: "2024-05-20",
+      title: "Published With No HCA Primary Data",
+    },
+  };
+
 export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSourceDataset =
   {
     doi: "10.123/sd-published-with-no-hca-or-cellxgene",
@@ -532,6 +570,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+  SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
   SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
 ];
 
@@ -589,6 +628,7 @@ export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
     SOURCE_DATASET_PUBLISHED_WITH_HCA.id,
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id,
     SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH.id,
+    SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA.id,
   ],
   status: ATLAS_STATUS.DRAFT,
   version: "5.4",

@@ -71,12 +71,21 @@ export function makeTestSourceDatasetOverview(
 export function makeTestProjectsResponse(
   id: string,
   doi: string,
-  title: string
+  title: string,
+  fileFormats = ["fastq"]
 ): ProjectsResponse {
   return {
     cellSuspensions: [],
     donorOrganisms: [],
-    fileTypeSummaries: [],
+    fileTypeSummaries: fileFormats.map((format) => ({
+      contentDescription: [],
+      count: 0,
+      fileSource: [],
+      format,
+      isIntermediate: false,
+      matrixCellCount: 0,
+      totalSize: 0,
+    })),
     projects: [
       {
         accessible: true,

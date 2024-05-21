@@ -8,6 +8,7 @@ import {
   HCAAtlasTrackerDBValidationUpdateColumns,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerValidationResult,
+  PublicationInfo,
   SYSTEM,
   TASK_STATUS,
   VALIDATION_ID,
@@ -20,6 +21,7 @@ import {
   getSourceDatasetCitation,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { NotFoundError } from "../utils/api-handler";
+import { ProjectInfo } from "../utils/hca-projects";
 import { getPoolClient, query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
@@ -70,26 +72,54 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       description: "Update project title to match publication title.",
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): boolean | null {
-        if (
-          !sourceDataset.doi ||
-          !sourceDataset.sd_info.publication ||
-          !sourceDataset.sd_info.hcaProjectId
-        ) {
-          return null;
-        }
-        const hcaTitle = getProjectInfoByDoi(
-          getPublicationDois(
-            sourceDataset.doi,
-            sourceDataset.sd_info.publication
-          )
-        )?.title;
-        return sourceDataset.sd_info.publication.title === hcaTitle;
+        return validateSourceDatasetHcaProjectInfo(
+          sourceDataset,
+          (projectInfo, publication) => publication.title === projectInfo?.title
+        );
       },
       validationId:
         VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationType: VALIDATION_TYPE.METADATA,
     },
+    {
+      description: "Add primary data.",
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      validate(sourceDataset): boolean | null {
+        return validateSourceDatasetHcaProjectInfo(
+          sourceDataset,
+          (projectInfo) => Boolean(projectInfo?.hasPrimaryData)
+        );
+      },
+      validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
   ];
+
+/**
+ * Apply a validation that uses a source dataset's HCA project info, skipping the validation if the source dataset's properties indicate it isn't in the HCA Data Repository.
+ * @param sourceDataset - Source dataset to validate.
+ * @param validate - Validation function that receives the project info (if found) and the source dataset's publication.
+ * @returns result of applying the validation function, or null if the source dataset doesn't appear to be in the HCA Data Repository.
+ */
+function validateSourceDatasetHcaProjectInfo(
+  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  validate: (
+    projectInfo: ProjectInfo | null,
+    publication: PublicationInfo
+  ) => boolean | null
+): boolean | null {
+  if (
+    !sourceDataset.doi ||
+    !sourceDataset.sd_info.publication ||
+    !sourceDataset.sd_info.hcaProjectId
+  ) {
+    return null;
+  }
+  const projectInfo = getProjectInfoByDoi(
+    getPublicationDois(sourceDataset.doi, sourceDataset.sd_info.publication)
+  );
+  return validate(projectInfo, sourceDataset.sd_info.publication);
+}
 
 /**
  * Get validation records from the database.
