@@ -6,6 +6,7 @@ import { isAnyServiceRefreshing } from "./refresh-services";
 import { revalidateAllSourceDatasets } from "./validations";
 
 export interface ProjectInfo {
+  hasPrimaryData: boolean;
   id: string;
   title: string;
 }
@@ -131,10 +132,14 @@ async function getRefreshedProjectIdsByDoi(
   });
   console.log("Loaded HCA projects");
   for (const projectsResponse of hits) {
+    const hasPrimaryData = projectsResponse.fileTypeSummaries.some((fileType) =>
+      /^fastq(?:\.gz)?$/i.test(fileType.format)
+    );
     for (const project of projectsResponse.projects) {
       for (const publication of project.publications) {
         if (publication.doi)
           projectIdsByDoi.set(normalizeDoi(publication.doi), {
+            hasPrimaryData,
             id: project.projectId,
             title: project.projectTitle,
           });

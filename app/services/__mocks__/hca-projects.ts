@@ -15,6 +15,9 @@ export function getProjectInfoByDoi(dois: string[]): ProjectInfo | null {
     if (projectsResponse) {
       const project = projectsResponse.projects[0];
       return {
+        hasPrimaryData: projectsResponse.fileTypeSummaries.some((fileType) =>
+          /^fastq(?:\.gz)?$/i.test(fileType.format)
+        ),
         id: project.projectId,
         title: project.projectTitle,
       };

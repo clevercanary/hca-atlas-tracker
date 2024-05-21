@@ -82,6 +82,6 @@ function expectInitialValidationsToExist(
       "doi" in testDataset &&
       testDataset.doi !== null &&
       TEST_HCA_PROJECTS_BY_DOI.has(testDataset.doi);
-    expect(datasetValidations).toHaveLength(hasHca ? 3 : 2);
+    expect(datasetValidations).toHaveLength(hasHca ? 4 : 2);
   }
 }

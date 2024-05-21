@@ -74,6 +74,13 @@ const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
     validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.METADATA,
   },
+  {
+    system: SYSTEM.HCA_DATA_REPOSITORY,
+    taskStatus: TASK_STATUS.TODO,
+    validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
+    validationStatus: VALIDATION_STATUS.FAILED,
+    validationType: VALIDATION_TYPE.INGEST,
+  },
 ];
 
 const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationProperties[] =
@@ -99,6 +106,13 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
         VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.METADATA,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      taskStatus: TASK_STATUS.TODO,
+      validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
+      validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.INGEST,
     },
   ];
 
