@@ -15,6 +15,7 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
+import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -57,6 +58,7 @@ describe("/api/tasks/completion-dates", () => {
           USER_CONTENT_ADMIN,
           DATE_VALID,
           validationIds,
+          false,
           METHOD.GET
         )
       )._getStatusCode()
@@ -105,7 +107,8 @@ describe("/api/tasks/completion-dates", () => {
         await doCompletionDatesRequest(
           USER_CONTENT_ADMIN,
           DATE_NON_UTC,
-          validationIds
+          validationIds,
+          true
         )
       )._getStatusCode()
     ).toEqual(400);
@@ -115,10 +118,12 @@ describe("/api/tasks/completion-dates", () => {
   it("returns error 400 when one of the IDs is not a UUID", async () => {
     expect(
       (
-        await doCompletionDatesRequest(USER_CONTENT_ADMIN, DATE_NON_UTC, [
-          ...validationIds,
-          "notauuid",
-        ])
+        await doCompletionDatesRequest(
+          USER_CONTENT_ADMIN,
+          DATE_NON_UTC,
+          [...validationIds, "notauuid"],
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
     await expectValidationsToBeUnchanged();
@@ -127,10 +132,12 @@ describe("/api/tasks/completion-dates", () => {
   it("returns error 404 when one of the IDs doesn't exist", async () => {
     expect(
       (
-        await doCompletionDatesRequest(USER_CONTENT_ADMIN, DATE_VALID, [
-          ...validationIds,
-          VALIDATION_ID_NONEXISTENT,
-        ])
+        await doCompletionDatesRequest(
+          USER_CONTENT_ADMIN,
+          DATE_VALID,
+          [...validationIds, VALIDATION_ID_NONEXISTENT],
+          true
+        )
       )._getStatusCode()
     ).toEqual(404);
     await expectValidationsToBeUnchanged();
@@ -139,7 +146,7 @@ describe("/api/tasks/completion-dates", () => {
   it("returns error 400 when an empty ID array is provided", async () => {
     expect(
       (
-        await doCompletionDatesRequest(USER_CONTENT_ADMIN, DATE_VALID, [])
+        await doCompletionDatesRequest(USER_CONTENT_ADMIN, DATE_VALID, [], true)
       )._getStatusCode()
     ).toEqual(400);
     await expectValidationsToBeUnchanged();
@@ -196,6 +203,7 @@ async function doCompletionDatesRequest(
   user: TestUser | undefined,
   targetCompletion: string,
   taskIds: string[],
+  hideConsoleError = false,
   method = METHOD.PATCH
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
@@ -206,6 +214,9 @@ async function doCompletionDatesRequest(
     headers: { authorization: user?.authorization },
     method,
   });
-  await completionDatesHandler(req, res);
+  await withConsoleErrorHiding(
+    () => completionDatesHandler(req, res),
+    hideConsoleError
+  );
   return res;
 }

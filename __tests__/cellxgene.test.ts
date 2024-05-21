@@ -35,12 +35,16 @@ jest.mock("../app/utils/cellxgene-api", () => ({
 
 let getCellxGeneIdByDoi: typeof import("../app/services/cellxgene").getCellxGeneIdByDoi;
 
+let consoleLogSpy: jest.SpyInstance;
+
 beforeAll(async () => {
+  consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
   getCellxGeneIdByDoi = (await import("../app/services/cellxgene"))
     .getCellxGeneIdByDoi;
 });
 
 afterAll(() => {
+  consoleLogSpy.mockRestore();
   globalThis.hcaAtlasTrackerCellxGeneInfoCache = undefined;
 });
 

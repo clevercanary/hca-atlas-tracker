@@ -39,12 +39,16 @@ jest.mock("../app/utils/hca-api", () => ({
 
 let getProjectIdByDoi: typeof import("../app/services/hca-projects").getProjectIdByDoi;
 
+let consoleLogSpy: jest.SpyInstance;
+
 beforeAll(async () => {
+  consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
   getProjectIdByDoi = (await import("../app/services/hca-projects"))
     .getProjectIdByDoi;
 });
 
 afterAll(() => {
+  consoleLogSpy.mockRestore();
   globalThis.hcaAtlasTrackerProjectsInfoCache = undefined;
 });
 

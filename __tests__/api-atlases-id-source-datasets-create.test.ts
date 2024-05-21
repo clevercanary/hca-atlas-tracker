@@ -43,6 +43,7 @@ import {
 } from "../testing/constants";
 import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
+import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -112,7 +113,13 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
       (
-        await doCreateTest(undefined, ATLAS_DRAFT, NEW_DATASET_DATA, "GET")
+        await doCreateTest(
+          undefined,
+          ATLAS_DRAFT,
+          NEW_DATASET_DATA,
+          false,
+          "GET"
+        )
       )._getStatusCode()
     ).toEqual(405);
   });
@@ -147,7 +154,8 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
         await doCreateTest(
           USER_CONTENT_ADMIN,
           ATLAS_NONEXISTENT,
-          NEW_DATASET_DATA
+          NEW_DATASET_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
@@ -156,10 +164,15 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   it("returns error 400 when doi is not a string", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
-          ...NEW_DATASET_DATA,
-          doi: 123,
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_DATASET_DATA,
+            doi: 123,
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -167,10 +180,15 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   it("returns error 400 when doi is empty string", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
-          ...NEW_DATASET_DATA,
-          doi: "",
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_DATASET_DATA,
+            doi: "",
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -178,10 +196,15 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   it("returns error 400 when doi is syntactically invalid", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
-          ...NEW_DATASET_DATA,
-          doi: "10.nota/doi",
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_DATASET_DATA,
+            doi: "10.nota/doi",
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -192,7 +215,8 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
         await doCreateTest(
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
-          NEW_DATASET_UNSUPPORTED_TYPE_DATA
+          NEW_DATASET_UNSUPPORTED_TYPE_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(400);
@@ -243,10 +267,15 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   it("returns error 400 when both published and unpublished fields are present", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
-          ...NEW_DATASET_DATA,
-          ...NEW_DATASET_UNPUBLISHED_DATA,
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_DATASET_DATA,
+            ...NEW_DATASET_UNPUBLISHED_DATA,
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -254,10 +283,15 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   it("returns error 400 when unpublished fields are incomplete", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
-          ...NEW_DATASET_UNPUBLISHED_DATA,
-          contactEmail: undefined,
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_DATASET_UNPUBLISHED_DATA,
+            contactEmail: undefined,
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -265,10 +299,15 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
   it("returns error 400 when contact email is undefined", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, {
-          ...NEW_DATASET_UNPUBLISHED_DATA,
-          contactEmail: undefined,
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_DATASET_UNPUBLISHED_DATA,
+            contactEmail: undefined,
+          },
+          true
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -295,7 +334,8 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     const res = await doCreateTest(
       USER_CONTENT_ADMIN,
       ATLAS_DRAFT,
-      NEW_DATASET_DRAFT_OK
+      NEW_DATASET_DRAFT_OK,
+      true
     );
     expect(res._getStatusCode()).toEqual(400);
     const errors = res._getJSONData();
@@ -412,6 +452,7 @@ async function doCreateTest(
   user: TestUser | undefined,
   atlas: Pick<TestAtlas, "id">,
   newData: Record<string, unknown>,
+  hideConsoleError = false,
   method: "GET" | "POST" = "POST"
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
@@ -420,7 +461,7 @@ async function doCreateTest(
     method,
     query: { atlasId: atlas.id },
   });
-  await createHandler(req, res);
+  await withConsoleErrorHiding(() => createHandler(req, res), hideConsoleError);
   return res;
 }
 
