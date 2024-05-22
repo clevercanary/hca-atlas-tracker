@@ -90,7 +90,7 @@ export const tasksEntityConfig: EntityConfig = {
           desc: SORT_DIRECTION.ASCENDING,
           id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
         },
-        title: "CELLxGENE Ingest Backlog",
+        title: "CELLxGENE - Ingest backlog",
       },
       {
         filters: [
@@ -111,7 +111,50 @@ export const tasksEntityConfig: EntityConfig = {
           desc: SORT_DIRECTION.ASCENDING,
           id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
         },
-        title: "HCA Data Repository Ingest Backlog",
+        title: "HCA Data Repository -  Ingest backlog",
+      },
+      {
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: ["Add primary data."],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.HCA_DATA_REPOSITORY],
+          },
+        ],
+        sort: {
+          desc: SORT_DIRECTION.ASCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        },
+        title: "HCA Data Repository - no primary data",
+      },
+      {
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: ["Update project title to match publication title."],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.HCA_DATA_REPOSITORY],
+          },
+        ],
+        sort: {
+          desc: SORT_DIRECTION.ASCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        },
+        title:
+          "HCA Data Repository -  project title does not match publication title",
       },
     ],
   },
