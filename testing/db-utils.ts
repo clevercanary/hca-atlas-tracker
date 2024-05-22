@@ -5,6 +5,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBValidation,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { updateTaskCounts } from "../app/services/atlases";
 import { query } from "../app/services/database";
 import { updateSourceDatasetValidations } from "../app/services/validations";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
@@ -69,6 +70,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   for (const dataset of dbSourceDatasets) {
     await updateSourceDatasetValidations(dataset, client);
   }
+
+  await updateTaskCounts();
 }
 
 async function runMigrations(
