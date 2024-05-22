@@ -3,7 +3,7 @@ import { getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 import { isAnyServiceRefreshing } from "./refresh-services";
-import { revalidateAllSourceDatasets } from "./validations";
+import { refreshValidations } from "./validations";
 
 export interface CollectionInfo {
   id: string;
@@ -41,7 +41,7 @@ const refreshService = makeRefreshService({
   },
   notReadyMessage: "DOI to CELLxGENE collection ID mapping not initialized",
   onRefreshSuccess() {
-    if (!isAnyServiceRefreshing()) revalidateAllSourceDatasets();
+    if (!isAnyServiceRefreshing()) refreshValidations();
   },
   refreshNeeded(data) {
     if (!data) return true;

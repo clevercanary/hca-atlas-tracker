@@ -181,7 +181,7 @@ describe("/api/atlases/create", () => {
         [newAtlas.id]
       )
     ).rows[0];
-    expect(newAtlasFromDb.overview).toEqual(NEW_ATLAS_DATA);
+    expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_DATA);
     expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
   });
 
@@ -195,7 +195,7 @@ describe("/api/atlases/create", () => {
         [newAtlas.id]
       )
     ).rows[0];
-    expect(newAtlasFromDb.overview).toEqual(NEW_ATLAS_WITH_IL_DATA);
+    expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_WITH_IL_DATA);
     expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
   });
 });

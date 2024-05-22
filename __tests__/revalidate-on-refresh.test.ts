@@ -8,9 +8,9 @@ import {
   TEST_HCA_CATALOGS,
 } from "../testing/constants";
 
-const revalidateAllSourceDatasets = jest.fn();
+const refreshValidations = jest.fn();
 jest.mock("../app/services/validations", () => ({
-  revalidateAllSourceDatasets,
+  refreshValidations,
 }));
 
 let getAllProjectsBlock: Promise<void>;
@@ -66,13 +66,13 @@ afterAll(() => {
 
 test("source datasets are not revalidated when no refresh happens", async () => {
   await delay();
-  expect(revalidateAllSourceDatasets).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
   hcaService.getProjectIdByDoi([""]);
   cellxgeneService.getCellxGeneIdByDoi([""]);
   await delay();
   expect(hcaService.areProjectsRefreshing()).toBe(false);
   expect(cellxgeneService.isCellxGeneRefreshing()).toBe(false);
-  expect(revalidateAllSourceDatasets).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
 });
 
 test("source datasets are revalidated when last refresh completes", async () => {
@@ -88,11 +88,11 @@ test("source datasets are revalidated when last refresh completes", async () => 
   cellxgeneService.getCellxGeneIdByDoi([""]);
 
   await delay();
-  expect(revalidateAllSourceDatasets).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
   resolveProjects();
   await delay();
-  expect(revalidateAllSourceDatasets).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
   resolveCellxGene();
   await delay();
-  expect(revalidateAllSourceDatasets).toHaveBeenCalledTimes(2);
+  expect(refreshValidations).toHaveBeenCalledTimes(2);
 });

@@ -28,6 +28,7 @@ export function atlasInputMapper(
 ): HCAAtlasTrackerListAtlas {
   return {
     bioNetwork: apiAtlas.bioNetwork,
+    completedTaskCount: apiAtlas.completedTaskCount,
     id: apiAtlas.id,
     integrationLeadEmail: apiAtlas.integrationLead?.email ?? null,
     integrationLeadName: apiAtlas.integrationLead?.name ?? null,
@@ -36,6 +37,7 @@ export function atlasInputMapper(
     publicationPubString: apiAtlas.publication.pubString,
     shortName: apiAtlas.shortName,
     status: apiAtlas.status,
+    taskCount: apiAtlas.taskCount,
     title: apiAtlas.title,
     version: apiAtlas.version,
     wave: apiAtlas.wave,
@@ -47,6 +49,7 @@ export function dbAtlasToApiAtlas(
 ): HCAAtlasTrackerAtlas {
   return {
     bioNetwork: dbAtlas.overview.network,
+    completedTaskCount: dbAtlas.overview.completedTaskCount,
     id: dbAtlas.id,
     integrationLead: dbAtlas.overview.integrationLead,
     publication: {
@@ -56,6 +59,7 @@ export function dbAtlasToApiAtlas(
     shortName: dbAtlas.overview.shortName,
     sourceDatasetCount: dbAtlas.source_datasets.length,
     status: dbAtlas.status,
+    taskCount: dbAtlas.overview.taskCount,
     title: "",
     version: dbAtlas.overview.version,
     wave: dbAtlas.overview.wave,

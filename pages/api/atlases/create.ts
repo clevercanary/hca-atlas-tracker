@@ -38,9 +38,11 @@ export default handler(
       }
     }
     const newOverview: HCAAtlasTrackerDBAtlasOverview = {
+      completedTaskCount: 0,
       integrationLead: newInfo.integrationLead,
       network: newInfo.network,
       shortName: newInfo.shortName,
+      taskCount: 0,
       version: newInfo.version,
       wave: newInfo.wave,
     };

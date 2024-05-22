@@ -3,7 +3,7 @@ import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
 import { getProjectsInfo, ProjectInfo } from "../utils/hca-projects";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 import { isAnyServiceRefreshing } from "./refresh-services";
-import { revalidateAllSourceDatasets } from "./validations";
+import { refreshValidations } from "./validations";
 
 type ProjectInfoByDoi = Map<string, ProjectInfo>;
 
@@ -69,7 +69,7 @@ const refreshService = makeRefreshService({
   },
   notReadyMessage: "DOI to HCA project ID mapping not initialized",
   onRefreshSuccess() {
-    if (!isAnyServiceRefreshing()) revalidateAllSourceDatasets();
+    if (!isAnyServiceRefreshing()) refreshValidations();
   },
   refreshNeeded(data, { catalog }) {
     return data?.catalog !== catalog;

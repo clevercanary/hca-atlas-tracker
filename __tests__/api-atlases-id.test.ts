@@ -233,7 +233,7 @@ describe("/api/atlases/[id]", () => {
         [ATLAS_PUBLIC.id]
       )
     ).rows[0];
-    expect(updatedAtlasFromDb.overview).toEqual(ATLAS_PUBLIC_EDIT);
+    expect(updatedAtlasFromDb.overview).toMatchObject(ATLAS_PUBLIC_EDIT);
     expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
   });
 
@@ -252,7 +252,7 @@ describe("/api/atlases/[id]", () => {
         [ATLAS_WITH_IL.id]
       )
     ).rows[0];
-    expect(updatedAtlasFromDb.overview).toEqual(ATLAS_WITH_IL_EDIT);
+    expect(updatedAtlasFromDb.overview).toMatchObject(ATLAS_WITH_IL_EDIT);
     expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
   });
 });

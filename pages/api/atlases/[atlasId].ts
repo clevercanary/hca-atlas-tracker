@@ -53,7 +53,10 @@ const putHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
       throw e;
     }
   }
-  const newOverviewValues: HCAAtlasTrackerDBAtlasOverview = {
+  const newOverviewValues: Omit<
+    HCAAtlasTrackerDBAtlasOverview,
+    "completedTaskCount" | "taskCount"
+  > = {
     integrationLead: newInfo.integrationLead,
     network: newInfo.network,
     shortName: newInfo.shortName,
