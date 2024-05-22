@@ -31,9 +31,11 @@ export function makeTestAtlasOverview(
   atlas: TestAtlas
 ): HCAAtlasTrackerDBAtlasOverview {
   return {
+    completedTaskCount: 0,
     integrationLead: atlas.integrationLead,
     network: atlas.network,
     shortName: atlas.shortName,
+    taskCount: 0,
     version: atlas.version,
     wave: atlas.wave,
   };
