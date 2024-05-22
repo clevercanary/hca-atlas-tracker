@@ -25,6 +25,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { NotFoundError } from "../utils/api-handler";
 import { ProjectInfo } from "../utils/hca-projects";
+import { updateTaskCounts } from "./atlases";
 import { getPoolClient, query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
@@ -247,9 +248,17 @@ function getValidationResult<T extends ENTITY_TYPE>(
 }
 
 /**
+ * Revalidate all source datasets and update atlas task counts.
+ */
+export async function refreshValidations(): Promise<void> {
+  await revalidateAllSourceDatasets();
+  await updateTaskCounts();
+}
+
+/**
  * Update validations for all source datasets in the database.
  */
-export async function revalidateAllSourceDatasets(): Promise<void> {
+async function revalidateAllSourceDatasets(): Promise<void> {
   const client = await getPoolClient();
   const sourceDatasets = (
     await client.query<HCAAtlasTrackerDBSourceDataset>(

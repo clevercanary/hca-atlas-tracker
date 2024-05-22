@@ -13,7 +13,7 @@ import { delay, promiseWithResolvers } from "../testing/utils";
 
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/services/validations", () => ({
-  revalidateAllSourceDatasets: jest.fn(),
+  refreshValidations: jest.fn(),
 }));
 
 jest.useFakeTimers({

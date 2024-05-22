@@ -12,7 +12,7 @@ import { delay, promiseWithResolvers } from "../testing/utils";
 
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/validations", () => ({
-  revalidateAllSourceDatasets: jest.fn(),
+  refreshValidations: jest.fn(),
 }));
 
 jest.useFakeTimers({
