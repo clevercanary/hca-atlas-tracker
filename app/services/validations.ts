@@ -1,3 +1,4 @@
+import { dequal } from "dequal";
 import pg from "pg";
 import {
   DBEntityOfType,
@@ -49,9 +50,11 @@ type TypeSpecificValidationProperties = Pick<
 // Properties to check for equality between a validation result and corresponding record to determine whether the record should be updated
 const CHANGE_INDICATING_VALIDATION_KEYS = [
   "description",
+  "differences",
   "doi",
   "entityTitle",
   "publicationString",
+  "relatedEntityUrl",
   "taskStatus",
   "validationStatus",
 ] as const;
@@ -388,17 +391,10 @@ function shouldUpdateValidation(
   existingValidation: HCAAtlasTrackerDBValidation,
   validationResult: HCAAtlasTrackerValidationResult
 ): boolean {
-  if (existingValidation.atlas_ids.length !== validationResult.atlasIds.length)
+  if (!dequal(existingValidation.atlas_ids, validationResult.atlasIds))
     return true;
-  if (
-    !validationResult.atlasIds.every((id) =>
-      existingValidation.atlas_ids.includes(id)
-    )
-  ) {
-    return true;
-  }
   for (const key of CHANGE_INDICATING_VALIDATION_KEYS) {
-    if (existingValidation.validation_info[key] !== validationResult[key])
+    if (!dequal(existingValidation.validation_info[key], validationResult[key]))
       return true;
   }
   return false;
