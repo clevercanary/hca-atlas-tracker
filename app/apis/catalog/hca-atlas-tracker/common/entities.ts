@@ -84,11 +84,13 @@ export interface HCAAtlasTrackerUnpublishedSourceDataset
 export interface HCAAtlasTrackerValidationResult {
   atlasIds: string[];
   description: string;
+  differences: ValidationDifference[];
   doi: string | null;
   entityId: string;
   entityTitle: string;
   entityType: ENTITY_TYPE;
   publicationString: string | null;
+  relatedEntityUrl: string | null;
   system: SYSTEM;
   taskStatus: TASK_STATUS;
   validationId: VALIDATION_ID;
@@ -201,10 +203,12 @@ export interface HCAAtlasTrackerDBValidation
 
 export interface HCAAtlasTrackerDBValidationInfo {
   description: string;
+  differences: ValidationDifference[];
   doi: string | null;
   entityTitle: string;
   entityType: ENTITY_TYPE;
   publicationString: string | null;
+  relatedEntityUrl: string | null;
   system: SYSTEM;
   taskStatus: TASK_STATUS;
   validationStatus: VALIDATION_STATUS;
@@ -271,6 +275,12 @@ export interface IntegrationLead {
 
 export type SourceDatasetId = string;
 
+export interface ValidationDifference {
+  actual: string | null;
+  expected: string;
+  variable: VALIDATION_VARIABLE;
+}
+
 export enum ENTITY_TYPE {
   ATLAS = "ATLAS",
   COMPONENT_ATLAS = "COMPONENT_ATLAS",
@@ -306,6 +316,10 @@ export enum VALIDATION_STATUS {
   FAILED = "FAILED",
   OVERRIDDEN = "OVERRIDDEN",
   PASSED = "PASSED",
+}
+
+export enum VALIDATION_VARIABLE {
+  TITLE = "Title",
 }
 
 export enum ROLE {

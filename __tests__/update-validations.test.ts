@@ -8,6 +8,7 @@ import {
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
+  VALIDATION_VARIABLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, getPoolClient, query } from "../app/services/database";
 import { resetDatabase } from "../testing/db-utils";
@@ -19,6 +20,8 @@ jest.mock("../app/utils/pg-app-connect-config");
 const ENTITY_TYPE_TEST = "ENTITY_TYPE_TEST" as ENTITY_TYPE;
 
 const SYSTEM_TEST = "SYSTEM_TEST" as SYSTEM;
+
+const VARIABLE_TEST = "VARIABLE_TEST" as VALIDATION_VARIABLE;
 
 const VALIDATION_ID_VW = "VALIDATION_ID_VW" as VALIDATION_ID;
 
@@ -41,11 +44,13 @@ const PUBLICATION_EX = "publication ex";
 const VALIDATION_VW: HCAAtlasTrackerValidationResult = {
   atlasIds: [ATLAS_ID_AX],
   description: "description vw",
+  differences: [],
   doi: "10.123/ex",
   entityId: ENTITY_ID_EX,
   entityTitle: "title ex",
   entityType: ENTITY_TYPE_TEST,
   publicationString: PUBLICATION_EX,
+  relatedEntityUrl: null,
   system: SYSTEM_TEST,
   taskStatus: TASK_STATUS.TODO,
   validationId: VALIDATION_ID_VW,
@@ -56,11 +61,19 @@ const VALIDATION_VW: HCAAtlasTrackerValidationResult = {
 const VALIDATION_VX: HCAAtlasTrackerValidationResult = {
   atlasIds: [ATLAS_ID_AX],
   description: "description vx",
+  differences: [
+    {
+      actual: "b",
+      expected: "a",
+      variable: VARIABLE_TEST,
+    },
+  ],
   doi: "10.123/ex",
   entityId: ENTITY_ID_EX,
   entityTitle: "title ex",
   entityType: ENTITY_TYPE_TEST,
   publicationString: PUBLICATION_EX,
+  relatedEntityUrl: null,
   system: SYSTEM_TEST,
   taskStatus: TASK_STATUS.TODO,
   validationId: VALIDATION_ID_VX,
@@ -73,14 +86,27 @@ const VALIDATION_VX_UPDATED_ATLASES: HCAAtlasTrackerValidationResult = {
   atlasIds: [ATLAS_ID_AY],
 };
 
+const VALIDATION_VX_UPDATED_DIFFERENCES: HCAAtlasTrackerValidationResult = {
+  ...VALIDATION_VX,
+  differences: [
+    {
+      actual: "c",
+      expected: "a",
+      variable: VARIABLE_TEST,
+    },
+  ],
+};
+
 const VALIDATION_VY: HCAAtlasTrackerValidationResult = {
   atlasIds: [ATLAS_ID_AX],
   description: "description vy",
+  differences: [],
   doi: "10.123/ex",
   entityId: ENTITY_ID_EX,
   entityTitle: "title ex",
   entityType: ENTITY_TYPE_TEST,
   publicationString: PUBLICATION_EX,
+  relatedEntityUrl: null,
   system: SYSTEM_TEST,
   taskStatus: TASK_STATUS.DONE,
   validationId: VALIDATION_ID_VY,
@@ -102,11 +128,13 @@ const VALIDATION_VY_FAILED: HCAAtlasTrackerValidationResult = {
 const VALIDATION_VZ: HCAAtlasTrackerValidationResult = {
   atlasIds: [ATLAS_ID_AX],
   description: "description vz",
+  differences: [],
   doi: "10.123/ex",
   entityId: ENTITY_ID_EX,
   entityTitle: "title ex",
   entityType: ENTITY_TYPE_TEST,
   publicationString: PUBLICATION_EX,
+  relatedEntityUrl: null,
   system: SYSTEM_TEST,
   taskStatus: TASK_STATUS.TODO,
   validationId: VALIDATION_ID_VZ,
@@ -209,6 +237,29 @@ describe("updateValidations", () => {
       VALIDATION_ID_VZ,
     ]);
     expect(vyAfter?.resolved_at).toEqual(vyBefore?.resolved_at);
+    expect(othersAfter).toEqual(othersBefore);
+  });
+
+  it("updates validation when differences have changed and leaves others unchanged", async () => {
+    await resetTestValidations();
+    const vxBefore = await getDbTestValidation(VALIDATION_ID_VX);
+    expect(vxBefore?.validation_info.differences[0].actual).toEqual("b");
+    const othersBefore = await getDbTestValidationsById([
+      VALIDATION_ID_VY,
+      VALIDATION_ID_VZ,
+    ]);
+    await testUpdateValidations([
+      VALIDATION_VX_UPDATED_DIFFERENCES,
+      VALIDATION_VY,
+      VALIDATION_VZ,
+    ]);
+    const vxAfter = await getDbTestValidation(VALIDATION_ID_VX);
+    expect(vxAfter?.validation_info.differences[0].actual).toEqual("c");
+    expect(vxAfter?.updated_at).not.toEqual(vxBefore?.updated_at);
+    const othersAfter = await getDbTestValidationsById([
+      VALIDATION_ID_VY,
+      VALIDATION_ID_VZ,
+    ]);
     expect(othersAfter).toEqual(othersBefore);
   });
 
