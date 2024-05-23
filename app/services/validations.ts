@@ -1,4 +1,5 @@
 import { dequal } from "dequal";
+import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
 import {
   DBEntityOfType,
@@ -517,10 +518,10 @@ function titlesMatch(a: string, b: string): boolean {
   return simplifyString(a) === simplifyString(b);
 
   function simplifyString(s: string): string {
-    return s
+    return DOMPurify.sanitize(s, { ALLOWED_TAGS: ["#text"] })
       .normalize("NFKD")
       .toLowerCase()
-      .replace(/\p{P}/gu, "")
+      .replace(/[\p{P}\p{S}]/gu, "")
       .replace(/\s+/, " ")
       .trim();
   }
