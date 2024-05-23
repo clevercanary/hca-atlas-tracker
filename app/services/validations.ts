@@ -522,7 +522,7 @@ function titlesMatch(a: string, b: string): boolean {
       .normalize("NFKD")
       .toLowerCase()
       .replace(/[\p{P}\p{S}]/gu, "")
-      .replace(/\s+/, " ")
+      .replace(/\s+/g, " ")
       .trim();
   }
 }
