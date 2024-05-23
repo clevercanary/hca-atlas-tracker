@@ -93,7 +93,8 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
           (projectInfo, infoProperties, publication) => {
             const expected = publication.title;
             const actual = projectInfo?.title ?? null;
-            const valid = expected === actual;
+            const valid =
+              actual === null ? false : titlesMatch(expected, actual);
             const info: ValidationStatusInfo = {
               ...infoProperties,
               valid,
@@ -503,5 +504,24 @@ export async function updateTargetCompletions(
     throw e;
   } finally {
     client.release();
+  }
+}
+
+/**
+ * Determine whether two titles are similar enough to be considered the same.
+ * @param a - First title.
+ * @param b - Second title.
+ * @returns true if the titles match.
+ */
+function titlesMatch(a: string, b: string): boolean {
+  return simplifyString(a) === simplifyString(b);
+
+  function simplifyString(s: string): string {
+    return s
+      .normalize("NFKD")
+      .toLowerCase()
+      .replace(/\p{P}/gu, "")
+      .replace(/\s+/, " ")
+      .trim();
   }
 }
