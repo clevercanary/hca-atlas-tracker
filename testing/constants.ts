@@ -339,7 +339,7 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
     DOI_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
-    "Published – With Hca Title Near Match."
+    "Published – With     Hca Title <i>Near</i> Match. "
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
