@@ -35,6 +35,7 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 
 const SOURCE_DATASET_PUBLIC_NO_CROSSREF_EDIT = {
+  capId: null,
   doi: DOI_PREPRINT_NO_JOURNAL,
 };
 
