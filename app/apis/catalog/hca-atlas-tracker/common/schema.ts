@@ -68,10 +68,21 @@ function makeSourceDatasetUnionSchema<T extends { [k: string]: unknown }>(
           "doi" in value &&
           value.doi !== undefined
         ) {
-          // If DOI is present, use published schema
+          // If DOI is present, use published schema, setting CAP ID to null if it's empty string
+          if (
+            value &&
+            typeof value === "object" &&
+            "capId" in value &&
+            value.capId === ""
+          ) {
+            value = {
+              ...value,
+              capId: null,
+            };
+          }
           return publishedSchema.validateSync(value);
         } else {
-          // Otherwise, use unpublished schema, setting contactEmail to null if it's empty
+          // Otherwise, use unpublished schema, setting contactEmail to null if it's empty string
           if (
             value &&
             typeof value === "object" &&
@@ -142,7 +153,7 @@ export type NewSourceDatasetData =
  */
 
 export const publishedSourceDatasetEditSchema = object({
-  capId: string().required("CAP ID is required when DOI is present"),
+  capId: string().defined("CAP ID is required when DOI is present").nullable(),
   doi: string()
     .required()
     .test(
