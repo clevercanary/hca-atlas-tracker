@@ -22,7 +22,11 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
-import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
+import {
+  TestPublishedSourceDataset,
+  TestSourceDataset,
+  TestUser,
+} from "../testing/entities";
 import {
   makeTestSourceDatasetOverview,
   withConsoleErrorHiding,
@@ -43,6 +47,11 @@ const SOURCE_DATASET_DRAFT_OK_EDIT = {
   contactEmail: "bar@example.com",
   referenceAuthor: "Bar",
   title: "Baz",
+};
+
+const SOURCE_DATASET_DRAFT_OK_CAP_ID_EDIT = {
+  capId: "cap-id-source-dataset-draft-ok-edit",
+  doi: SOURCE_DATASET_DRAFT_OK.doi,
 };
 
 beforeAll(async () => {
@@ -276,16 +285,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       SOURCE_DATASET_PUBLIC_NO_CROSSREF_EDIT.doi
     );
 
-    await query(
-      "UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3",
-      [
-        SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi,
-        JSON.stringify(
-          makeTestSourceDatasetOverview(SOURCE_DATASET_PUBLIC_NO_CROSSREF)
-        ),
-        SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
-      ]
-    );
+    await restoreDbDataset(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
   });
 
   it("updates and returns dataset with unpublished data when PUT requested", async () => {
@@ -306,14 +306,30 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       SOURCE_DATASET_DRAFT_OK_EDIT
     );
 
-    await query(
-      "UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3",
-      [
-        SOURCE_DATASET_DRAFT_OK.doi,
-        JSON.stringify(makeTestSourceDatasetOverview(SOURCE_DATASET_DRAFT_OK)),
-        SOURCE_DATASET_DRAFT_OK.id,
-      ]
+    await restoreDbDataset(SOURCE_DATASET_DRAFT_OK);
+  });
+
+  it("updates and returns dataset with CAP ID when PUT requested", async () => {
+    const res = await doDatasetRequest(
+      ATLAS_DRAFT.id,
+      SOURCE_DATASET_DRAFT_OK.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      SOURCE_DATASET_DRAFT_OK_CAP_ID_EDIT
     );
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(updatedDataset.capId).toEqual(
+      SOURCE_DATASET_DRAFT_OK_CAP_ID_EDIT.capId
+    );
+    const datasetFromDb = await getDatasetFromDatabase(updatedDataset.id);
+    expect(datasetFromDb).toBeDefined();
+    if (!datasetFromDb) return;
+    expect(datasetFromDb.sd_info.capId).toEqual(
+      SOURCE_DATASET_DRAFT_OK_CAP_ID_EDIT.capId
+    );
+
+    await restoreDbDataset(SOURCE_DATASET_DRAFT_OK);
   });
 
   it("returns error 401 when dataset is DELETE requested from public atlas by logged out user", async () => {
@@ -475,6 +491,14 @@ async function doDatasetRequest(
     hideConsoleError
   );
   return res;
+}
+
+async function restoreDbDataset(dataset: TestSourceDataset): Promise<void> {
+  await query("UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3", [
+    "doi" in dataset ? dataset.doi : null,
+    JSON.stringify(makeTestSourceDatasetOverview(dataset)),
+    dataset.id,
+  ]);
 }
 
 async function expectDatasetToBeUnchanged(
