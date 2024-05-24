@@ -167,6 +167,7 @@ export type HCAAtlasTrackerDBSourceDatasetMinimumColumns =
   | Pick<HCAAtlasTrackerDBUnpublishedSourceDataset, "doi" | "sd_info">;
 
 export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
+  capId: string | null;
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
@@ -175,6 +176,7 @@ export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
 }
 
 export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
+  capId: string | null;
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
