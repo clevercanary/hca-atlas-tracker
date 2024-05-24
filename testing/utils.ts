@@ -48,6 +48,7 @@ export function makeTestSourceDatasetOverview(
   | HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
   return "unpublishedInfo" in dataset
     ? {
+        capId: null,
         cellxgeneCollectionId: dataset.cellxgeneCollectionId,
         doiStatus: DOI_STATUS.NA,
         hcaProjectId: dataset.hcaProjectId,
@@ -55,6 +56,7 @@ export function makeTestSourceDatasetOverview(
         unpublishedInfo: dataset.unpublishedInfo,
       }
     : {
+        capId: null,
         cellxgeneCollectionId:
           (dataset.doi &&
             TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(dataset.doi)

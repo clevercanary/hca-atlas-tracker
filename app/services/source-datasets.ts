@@ -198,6 +198,7 @@ async function makePublishedSourceDatasetDbData(
   return {
     doi,
     sd_info: {
+      capId: "capId" in inputData ? inputData.capId : null,
       cellxgeneCollectionId,
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,
@@ -218,6 +219,7 @@ function makeUnpublishedSourceDatasetDbData(
   return {
     doi: null,
     sd_info: {
+      capId: null,
       cellxgeneCollectionId: null,
       doiStatus: DOI_STATUS.NA,
       hcaProjectId: null,

@@ -70,12 +70,12 @@ export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset
 ): HCAAtlasTrackerSourceDataset {
   const {
-    sd_info: { cellxgeneCollectionId, hcaProjectId, publication },
+    sd_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceDataset;
   if (dbSourceDataset.doi === null) {
     const unpublishedInfo = dbSourceDataset.sd_info.unpublishedInfo;
     return {
-      capId: null,
+      capId,
       cellxgeneCollectionId,
       contactEmail: unpublishedInfo.contactEmail,
       doi: null,
@@ -89,7 +89,7 @@ export function dbSourceDatasetToApiSourceDataset(
     };
   } else {
     return {
-      capId: null,
+      capId,
       cellxgeneCollectionId,
       contactEmail: null,
       doi: dbSourceDataset.doi,

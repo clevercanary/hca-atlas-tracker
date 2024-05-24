@@ -1,4 +1,13 @@
-import { array, boolean, InferType, mixed, object, string } from "yup";
+import {
+  array,
+  boolean,
+  InferType,
+  mixed,
+  MixedSchema,
+  object,
+  Schema,
+  string,
+} from "yup";
 import { isDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 
@@ -39,6 +48,59 @@ export const atlasEditSchema = newAtlasSchema;
 export type AtlasEditData = NewAtlasData;
 
 /**
+ * Create schema that combines an unpublished source dataset schema and a published source dataset schema.
+ * @param publishedSchema - Published source dataset schema.
+ * @param unpublishedSchema - Unpublished source dataset schema.
+ * @returns schema that validates both published and unpublished source datasets.
+ */
+function makeSourceDatasetUnionSchema<T extends { [k: string]: unknown }>(
+  publishedSchema: Schema,
+  unpublishedSchema: Schema
+): MixedSchema<T> {
+  return (
+    mixed<T>()
+      .required()
+      // `transform` is used to allow empty string contactEmail to be converted to null
+      .transform((value) => {
+        if (
+          value &&
+          typeof value === "object" &&
+          "doi" in value &&
+          value.doi !== undefined
+        ) {
+          // If DOI is present, use published schema, setting CAP ID to null if it's empty string
+          if (
+            value &&
+            typeof value === "object" &&
+            "capId" in value &&
+            value.capId === ""
+          ) {
+            value = {
+              ...value,
+              capId: null,
+            };
+          }
+          return publishedSchema.validateSync(value);
+        } else {
+          // Otherwise, use unpublished schema, setting contactEmail to null if it's empty string
+          if (
+            value &&
+            typeof value === "object" &&
+            "contactEmail" in value &&
+            value.contactEmail === ""
+          ) {
+            value = {
+              ...value,
+              contactEmail: null,
+            };
+          }
+          return unpublishedSchema.validateSync(value);
+        }
+      })
+  );
+}
+
+/**
  * Schemas for data used to create a new source dataset.
  */
 
@@ -67,35 +129,12 @@ export const newUnpublishedSourceDatasetSchema = object({
   )
   .strict(true);
 
-// Wrapper schema for validating both published and unpublished data
-export const newSourceDatasetSchema = mixed<NewSourceDatasetData>()
-  .required()
-  // `transform` is used to allow empty string contactEmail to be converted to null
-  .transform((value) => {
-    if (
-      value &&
-      typeof value === "object" &&
-      "doi" in value &&
-      value.doi !== undefined
-    ) {
-      // If DOI is present, use published schema
-      return newPublishedSourceDatasetSchema.validateSync(value);
-    } else {
-      // Otherwise, use unpublished schema, setting contactEmail to null if it's empty
-      if (
-        value &&
-        typeof value === "object" &&
-        "contactEmail" in value &&
-        value.contactEmail === ""
-      ) {
-        value = {
-          ...value,
-          contactEmail: null,
-        };
-      }
-      return newUnpublishedSourceDatasetSchema.validateSync(value);
-    }
-  });
+// Combined schema for validating both published and unpublished data
+export const newSourceDatasetSchema =
+  makeSourceDatasetUnionSchema<NewSourceDatasetData>(
+    newPublishedSourceDatasetSchema,
+    newUnpublishedSourceDatasetSchema
+  );
 
 export type NewPublishedSourceDatasetData = InferType<
   typeof newPublishedSourceDatasetSchema
@@ -110,14 +149,51 @@ export type NewSourceDatasetData =
   | NewUnpublishedSourceDatasetData;
 
 /**
- * Schemas for data used to apply edits to a source dataset.
+ * Schemas for data used to edit a source dataset.
  */
 
-export const sourceDatasetEditSchema = newSourceDatasetSchema;
+export const publishedSourceDatasetEditSchema = object({
+  capId: string().defined("CAP ID is required when DOI is present").nullable(),
+  doi: string()
+    .required()
+    .test(
+      "is-doi",
+      "DOI must be a syntactically-valid DOI",
+      (value) => typeof value !== "string" || isDoi(value)
+    ),
+})
+  .noUnknown(
+    "If DOI is specified, it must appear alongside CAP ID and no other fields"
+  )
+  .strict(true);
 
-export type PublishedSourceDatasetEditData = NewPublishedSourceDatasetData;
+export const unpublishedSourceDatasetEditSchema = object({
+  contactEmail: string()
+    .email()
+    .defined("Email is required when DOI is absent")
+    .nullable(),
+  referenceAuthor: string().required("Author is required when DOI is absent"),
+  title: string().required("Title is required when DOI is absent"),
+})
+  .noUnknown(
+    "If DOI is unspecified, only email, author, and name may be present"
+  )
+  .strict(true);
 
-export type UnpublishedSourceDatasetEditData = NewUnpublishedSourceDatasetData;
+// Combined schema for validating both published and unpublished data
+export const sourceDatasetEditSchema =
+  makeSourceDatasetUnionSchema<SourceDatasetEditData>(
+    publishedSourceDatasetEditSchema,
+    unpublishedSourceDatasetEditSchema
+  );
+
+export type PublishedSourceDatasetEditData = InferType<
+  typeof publishedSourceDatasetEditSchema
+>;
+
+export type UnpublishedSourceDatasetEditData = InferType<
+  typeof unpublishedSourceDatasetEditSchema
+>;
 
 export type SourceDatasetEditData =
   | PublishedSourceDatasetEditData
