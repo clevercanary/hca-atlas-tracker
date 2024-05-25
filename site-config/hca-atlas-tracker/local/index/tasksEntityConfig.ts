@@ -51,8 +51,8 @@ export const tasksEntityConfig: EntityConfig = {
       {
         categoryConfigs: [
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_SHORT_NAMES,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_SHORT_NAMES,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
           },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
@@ -173,13 +173,13 @@ export const tasksEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.NTagCell,
-          viewBuilder: V.buildTaskShortNames,
+          viewBuilder: V.buildTaskAtlasNames,
         } as ComponentConfig<
           typeof C.NTagCell,
           HCAAtlasTrackerListValidationRecord
         >,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_SHORT_NAMES,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_SHORT_NAMES,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
         width: { max: "0.5fr", min: "120px" },
       },
       {
@@ -311,7 +311,7 @@ export const tasksEntityConfig: EntityConfig = {
     ],
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,
-      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_SHORT_NAMES,
+      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
     },
   } as ListConfig<HCAAtlasTrackerListValidationRecord>,
   listView: {

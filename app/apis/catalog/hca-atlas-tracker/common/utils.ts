@@ -110,6 +110,7 @@ export function dbValidationToApiValidation(
   const validationInfo = validation.validation_info;
   return {
     atlasIds: validation.atlas_ids,
+    atlasNames: validation.atlas_names,
     atlasShortNames: validation.atlas_short_names,
     description: validationInfo.description,
     differences: validationInfo.differences,

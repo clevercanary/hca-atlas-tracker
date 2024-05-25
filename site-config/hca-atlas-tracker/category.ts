@@ -1,5 +1,5 @@
 export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
-  ATLAS_SHORT_NAMES: "atlasShortNames",
+  ATLAS_NAMES: "atlasNames",
   ATLAS_TITLE: "atlasTitle",
   BIONETWORK: "bioNetwork",
   CELL_COUNT: "cellCount",
@@ -28,7 +28,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
 };
 
 export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
-  ATLAS_SHORT_NAMES: "Atlas",
+  ATLAS_NAMES: "Atlas",
   ATLAS_TITLE: "Atlas",
   BIONETWORK: "Biological Network",
   CELL_COUNT: "Cells",
