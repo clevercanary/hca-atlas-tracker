@@ -27,8 +27,7 @@ export const newAtlasSchema = object({
           .required("Integration lead name is required"),
       }).required()
     )
-    .required()
-    .min(1),
+    .required(),
   network: string()
     .default("")
     .required("Network is required")
