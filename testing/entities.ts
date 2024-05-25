@@ -20,7 +20,7 @@ export interface TestUser {
 
 export interface TestAtlas {
   id: string;
-  integrationLead: IntegrationLead | null;
+  integrationLead: IntegrationLead[];
   network: NetworkKey;
   shortName: string;
   sourceDatasets: string[];

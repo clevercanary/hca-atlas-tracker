@@ -22,7 +22,7 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
-  integrationLead: null,
+  integrationLead: [],
   network: "eye",
   shortName: "test",
   version: "1.0",
@@ -30,10 +30,12 @@ const NEW_ATLAS_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
-  integrationLead: {
-    email: "foo@example.com",
-    name: "Foo",
-  },
+  integrationLead: [
+    {
+      email: "foo@example.com",
+      name: "Foo",
+    },
+  ],
   network: "eye",
   shortName: "test2",
   version: "1.0",
@@ -143,9 +145,11 @@ describe("/api/atlases/create", () => {
           USER_CONTENT_ADMIN,
           {
             ...NEW_ATLAS_WITH_IL_DATA,
-            integrationLead: {
-              name: "Foo",
-            } as NewAtlasData["integrationLead"],
+            integrationLead: [
+              {
+                name: "Foo",
+              },
+            ] as NewAtlasData["integrationLead"],
           },
           true
         )
@@ -160,10 +164,12 @@ describe("/api/atlases/create", () => {
           USER_CONTENT_ADMIN,
           {
             ...NEW_ATLAS_WITH_IL_DATA,
-            integrationLead: {
-              email: "notanemail",
-              name: "Foo",
-            },
+            integrationLead: [
+              {
+                email: "notanemail",
+                name: "Foo",
+              },
+            ],
           },
           true
         )

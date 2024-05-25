@@ -362,9 +362,8 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_DATASET_DRAFT_OK.id
     );
-    expect(validationsAfter).not.toHaveLength(0);
     expect(validationsAfter[0].atlas_ids).toHaveLength(2);
-    expect(validationsAfter[0].atlas_ids[1]).toEqual(ATLAS_PUBLIC.id);
+    expect(validationsAfter[0].atlas_ids).toContain(ATLAS_PUBLIC.id);
   });
 
   it("adds and returns source dataset that already exists via preprint DOI", async () => {

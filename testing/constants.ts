@@ -616,7 +616,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
 
 export const ATLAS_DRAFT: TestAtlas = {
   id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
-  integrationLead: null,
+  integrationLead: [],
   network: "eye",
   shortName: "test-draft",
   sourceDatasets: [
@@ -631,7 +631,7 @@ export const ATLAS_DRAFT: TestAtlas = {
 
 export const ATLAS_PUBLIC: TestAtlas = {
   id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
-  integrationLead: null,
+  integrationLead: [],
   network: "lung",
   shortName: "test-public",
   sourceDatasets: [
@@ -645,10 +645,12 @@ export const ATLAS_PUBLIC: TestAtlas = {
 
 export const ATLAS_WITH_IL: TestAtlas = {
   id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
-  integrationLead: {
-    email: "baz@example.com",
-    name: "Baz",
-  },
+  integrationLead: [
+    {
+      email: "baz@example.com",
+      name: "Baz",
+    },
+  ],
   network: "heart",
   shortName: "test-with-il",
   sourceDatasets: [],
@@ -659,7 +661,7 @@ export const ATLAS_WITH_IL: TestAtlas = {
 
 export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
   id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
-  integrationLead: null,
+  integrationLead: [],
   network: "organoid",
   shortName: "test-with-source-dataset-validations-a",
   sourceDatasets: [
@@ -676,7 +678,7 @@ export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
 
 export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B: TestAtlas = {
   id: "9766683a-3c8d-4ec8-b8b5-3fceb8fe0d31",
-  integrationLead: null,
+  integrationLead: [],
   network: "gut",
   shortName: "test-with-source-dataset-validations-b",
   sourceDatasets: [

@@ -25,10 +25,12 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
-  integrationLead: {
-    email: "bar@example.com",
-    name: "Bar",
-  },
+  integrationLead: [
+    {
+      email: "bar@example.com",
+      name: "Bar",
+    },
+  ],
   network: ATLAS_PUBLIC.network,
   shortName: "test-public-edited",
   version: "2.0",
@@ -36,7 +38,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
 };
 
 const ATLAS_WITH_IL_EDIT: AtlasEditData = {
-  integrationLead: null,
+  integrationLead: [],
   network: "development",
   shortName: ATLAS_WITH_IL.shortName,
   version: "2.1",
@@ -210,9 +212,11 @@ describe("/api/atlases/[id]", () => {
       (
         await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
           ...ATLAS_PUBLIC_EDIT,
-          integrationLead: {
-            email: "bar@example.com",
-          } as AtlasEditData["integrationLead"],
+          integrationLead: [
+            {
+              email: "bar@example.com",
+            },
+          ] as AtlasEditData["integrationLead"],
         })
       )._getStatusCode()
     ).toEqual(400);
