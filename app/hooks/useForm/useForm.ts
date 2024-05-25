@@ -16,6 +16,7 @@ import {
 import {
   CustomUseFormReturn,
   FormResponseErrors,
+  MapApiValuesFn,
   MapSchemaValuesFn,
   OnDeleteFn,
   OnSubmitFn,
@@ -38,7 +39,8 @@ export interface UseForm<T extends FieldValues, R = undefined>
 export const useForm = <T extends FieldValues, R = undefined>(
   schema: ObjectSchema<T>,
   apiData?: R,
-  mapSchemaValues?: MapSchemaValuesFn<T, R>
+  mapSchemaValues?: MapSchemaValuesFn<T, R>,
+  mapApiValues: MapApiValuesFn<T> = (p): unknown => p
 ): UseForm<T, R> => {
   const { token } = useAuthentication();
   const values = useMemo(
@@ -90,7 +92,13 @@ export const useForm = <T extends FieldValues, R = undefined>(
       payload: YupValidatedFormValues<T>,
       options?: OnSubmitOptions<T>
     ): Promise<void> => {
-      const res = await fetchSubmit(requestURL, requestMethod, token, payload);
+      const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
+      const res = await fetchSubmit(
+        requestURL,
+        requestMethod,
+        token,
+        apiPayload
+      );
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
         const { id, ...other } = await res.json();
         setData({ id, ...other });
@@ -100,7 +108,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
         onError(await getFormResponseErrors(res));
       }
     },
-    [mapSchemaValues, onError, schema, token]
+    [mapApiValues, mapSchemaValues, onError, schema, token]
   );
 
   // Initialize data with given API response.

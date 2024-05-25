@@ -22,7 +22,7 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
-  integrationLead: null,
+  integrationLead: [],
   network: "eye",
   shortName: "test",
   version: "1.0",
@@ -30,14 +30,37 @@ const NEW_ATLAS_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
-  integrationLead: {
-    email: "foo@example.com",
-    name: "Foo",
-  },
+  integrationLead: [
+    {
+      email: "foo@example.com",
+      name: "Foo",
+    },
+  ],
   network: "eye",
   shortName: "test2",
   version: "1.0",
   wave: "1",
+};
+
+const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
+  integrationLead: [
+    {
+      email: "foofoo@example.com",
+      name: "Foo Foo",
+    },
+    {
+      email: "foobar@example.com",
+      name: "Foo Bar",
+    },
+    {
+      email: "foobaz@example.com",
+      name: "Foo Baz",
+    },
+  ],
+  network: "development",
+  shortName: "test3",
+  version: "1.2",
+  wave: "3",
 };
 
 beforeAll(async () => {
@@ -143,9 +166,11 @@ describe("/api/atlases/create", () => {
           USER_CONTENT_ADMIN,
           {
             ...NEW_ATLAS_WITH_IL_DATA,
-            integrationLead: {
-              name: "Foo",
-            } as NewAtlasData["integrationLead"],
+            integrationLead: [
+              {
+                name: "Foo",
+              },
+            ] as NewAtlasData["integrationLead"],
           },
           true
         )
@@ -160,10 +185,12 @@ describe("/api/atlases/create", () => {
           USER_CONTENT_ADMIN,
           {
             ...NEW_ATLAS_WITH_IL_DATA,
-            integrationLead: {
-              email: "notanemail",
-              name: "Foo",
-            },
+            integrationLead: [
+              {
+                email: "notanemail",
+                name: "Foo",
+              },
+            ],
           },
           true
         )
@@ -171,31 +198,33 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
-  it("creates and returns atlas entry with null integration lead", async () => {
-    const newAtlas: HCAAtlasTrackerAtlas = (
-      await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA)
-    )._getJSONData();
-    const newAtlasFromDb = (
-      await query<HCAAtlasTrackerDBAtlas>(
-        "SELECT * FROM hat.atlases WHERE id=$1",
-        [newAtlas.id]
-      )
-    ).rows[0];
+  it("creates and returns atlas entry with no integration leads", async () => {
+    const res = await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA);
+    expect(res._getStatusCode()).toEqual(201);
+    const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
+    const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
     expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_DATA);
     expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
   });
 
   it("creates and returns atlas entry with specified integration lead", async () => {
-    const newAtlas: HCAAtlasTrackerAtlas = (
-      await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_WITH_IL_DATA)
-    )._getJSONData();
-    const newAtlasFromDb = (
-      await query<HCAAtlasTrackerDBAtlas>(
-        "SELECT * FROM hat.atlases WHERE id=$1",
-        [newAtlas.id]
-      )
-    ).rows[0];
+    const res = await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_WITH_IL_DATA);
+    expect(res._getStatusCode()).toEqual(201);
+    const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
+    const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
     expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_WITH_IL_DATA);
+    expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
+  });
+
+  it("creates and returns atlas entry with multiple integration leads", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      NEW_ATLAS_WITH_MULTIPLE_ILS
+    );
+    expect(res._getStatusCode()).toEqual(201);
+    const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
+    const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
+    expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_WITH_MULTIPLE_ILS);
     expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
   });
 });
@@ -213,4 +242,13 @@ async function doCreateTest(
   });
   await withConsoleErrorHiding(() => createHandler(req, res), hideConsoleError);
   return res;
+}
+
+async function getAtlasFromDb(id: string): Promise<HCAAtlasTrackerDBAtlas> {
+  return (
+    await query<HCAAtlasTrackerDBAtlas>(
+      "SELECT * FROM hat.atlases WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
 }

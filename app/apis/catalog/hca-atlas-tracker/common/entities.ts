@@ -4,8 +4,8 @@ export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
   completedTaskCount: number;
   id: string;
-  integrationLeadEmail: IntegrationLead["email"] | null;
-  integrationLeadName: IntegrationLead["name"] | null;
+  integrationLeadEmail: IntegrationLead["email"][];
+  integrationLeadName: IntegrationLead["name"][];
   name: string;
   publicationDoi: string;
   publicationPubString: string;
@@ -21,7 +21,7 @@ export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
   completedTaskCount: number;
   id: string;
-  integrationLead: IntegrationLead | null;
+  integrationLead: IntegrationLead[];
   publication: {
     doi: string;
     pubString: string;
@@ -134,7 +134,7 @@ export interface HCAAtlasTrackerDBAtlas {
 
 export interface HCAAtlasTrackerDBAtlasOverview {
   completedTaskCount: number;
-  integrationLead: IntegrationLead | null;
+  integrationLead: IntegrationLead[];
   network: NetworkKey;
   shortName: string;
   taskCount: number;

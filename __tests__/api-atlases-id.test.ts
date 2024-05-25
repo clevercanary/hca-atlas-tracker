@@ -18,17 +18,19 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+import { TestAtlas, TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
-  integrationLead: {
-    email: "bar@example.com",
-    name: "Bar",
-  },
+  integrationLead: [
+    {
+      email: "bar@example.com",
+      name: "Bar",
+    },
+  ],
   network: ATLAS_PUBLIC.network,
   shortName: "test-public-edited",
   version: "2.0",
@@ -36,11 +38,32 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
 };
 
 const ATLAS_WITH_IL_EDIT: AtlasEditData = {
-  integrationLead: null,
+  integrationLead: [],
   network: "development",
   shortName: ATLAS_WITH_IL.shortName,
   version: "2.1",
   wave: ATLAS_WITH_IL.wave,
+};
+
+const ATLAS_DRAFT_EDIT: AtlasEditData = {
+  integrationLead: [
+    {
+      email: "foofoo@example.com",
+      name: "Foo Foo",
+    },
+    {
+      email: "foobar@example.com",
+      name: "Foo Bar",
+    },
+    {
+      email: "foobaz@example.com",
+      name: "Foo Baz",
+    },
+  ],
+  network: "development",
+  shortName: "test3",
+  version: "1.2",
+  wave: "3",
 };
 
 beforeAll(async () => {
@@ -210,52 +233,50 @@ describe("/api/atlases/[id]", () => {
       (
         await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
           ...ATLAS_PUBLIC_EDIT,
-          integrationLead: {
-            email: "bar@example.com",
-          } as AtlasEditData["integrationLead"],
+          integrationLead: [
+            {
+              email: "bar@example.com",
+            },
+          ] as AtlasEditData["integrationLead"],
         })
       )._getStatusCode()
     ).toEqual(400);
   });
 
   it("PUT updates and returns atlas entry", async () => {
-    const updatedAtlas: HCAAtlasTrackerAtlas = (
-      await doAtlasRequest(
-        ATLAS_PUBLIC.id,
-        USER_CONTENT_ADMIN,
-        METHOD.PUT,
-        ATLAS_PUBLIC_EDIT
-      )
-    )._getJSONData();
-    const updatedAtlasFromDb = (
-      await query<HCAAtlasTrackerDBAtlas>(
-        "SELECT * FROM hat.atlases WHERE id=$1",
-        [ATLAS_PUBLIC.id]
-      )
-    ).rows[0];
-    expect(updatedAtlasFromDb.overview).toMatchObject(ATLAS_PUBLIC_EDIT);
-    expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
+    await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT);
   });
 
-  it("PUT updates and returns atlas entry with integration lead set to null", async () => {
-    const updatedAtlas: HCAAtlasTrackerAtlas = (
-      await doAtlasRequest(
-        ATLAS_WITH_IL.id,
-        USER_CONTENT_ADMIN,
-        METHOD.PUT,
-        ATLAS_WITH_IL_EDIT
-      )
-    )._getJSONData();
-    const updatedAtlasFromDb = (
-      await query<HCAAtlasTrackerDBAtlas>(
-        "SELECT * FROM hat.atlases WHERE id=$1",
-        [ATLAS_WITH_IL.id]
-      )
-    ).rows[0];
-    expect(updatedAtlasFromDb.overview).toMatchObject(ATLAS_WITH_IL_EDIT);
-    expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
+  it("PUT updates and returns atlas entry with integration lead set to empty array", async () => {
+    await testSuccessfulEdit(ATLAS_WITH_IL, ATLAS_WITH_IL_EDIT);
+  });
+
+  it("PUT updates and returns atlas entry with multiple integration leads", async () => {
+    await testSuccessfulEdit(ATLAS_DRAFT, ATLAS_DRAFT_EDIT);
   });
 });
+
+async function testSuccessfulEdit(
+  testAtlas: TestAtlas,
+  editData: AtlasEditData
+): Promise<void> {
+  const res = await doAtlasRequest(
+    testAtlas.id,
+    USER_CONTENT_ADMIN,
+    METHOD.PUT,
+    editData
+  );
+  expect(res._getStatusCode()).toEqual(200);
+  const updatedAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
+  const updatedAtlasFromDb = (
+    await query<HCAAtlasTrackerDBAtlas>(
+      "SELECT * FROM hat.atlases WHERE id=$1",
+      [testAtlas.id]
+    )
+  ).rows[0];
+  expect(updatedAtlasFromDb.overview).toMatchObject(editData);
+  expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
+}
 
 async function doAtlasRequest(
   atlasId: string,

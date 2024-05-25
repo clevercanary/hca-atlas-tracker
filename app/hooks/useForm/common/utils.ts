@@ -1,7 +1,6 @@
-import { FieldValues } from "react-hook-form";
 import { METHOD } from "../../../common/entities";
 import { getFetchOptions, getHeaderAuthorization } from "../../../common/utils";
-import { FormResponseErrors, YupValidatedFormValues } from "./entities";
+import { FormResponseErrors } from "./entities";
 
 /**
  * Delete request.
@@ -29,11 +28,11 @@ export async function fetchDelete(
  * @param payload - Payload.
  * @returns promise (response).
  */
-export async function fetchSubmit<T extends FieldValues>(
+export async function fetchSubmit<P>(
   requestURL: string,
   requestMethod: METHOD,
   accessToken: string | undefined,
-  payload: YupValidatedFormValues<T>
+  payload: P
 ): Promise<Response> {
   return await fetch(requestURL, {
     ...getFetchOptions(requestMethod, accessToken),

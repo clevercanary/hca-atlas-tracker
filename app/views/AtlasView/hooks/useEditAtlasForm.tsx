@@ -2,6 +2,7 @@ import {
   AtlasId,
   HCAAtlasTrackerAtlas,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { AtlasEditData as APIAtlasEditData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { useFetchAtlas } from "../../../hooks/useFetchAtlas";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
@@ -18,7 +19,8 @@ export const useEditAtlasForm = (
   return useForm<AtlasEditData, HCAAtlasTrackerAtlas>(
     SCHEMA,
     atlas,
-    mapSchemaValues
+    mapSchemaValues,
+    mapApiValues
   );
 };
 
@@ -31,11 +33,29 @@ function mapSchemaValues(
   atlas?: HCAAtlasTrackerAtlas
 ): AtlasEditData | undefined {
   if (!atlas) return;
+  const sortedIntegrationLead = atlas.integrationLead.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
   return {
-    [FIELD_NAME.INTEGRATION_LEAD]: atlas.integrationLead,
+    [FIELD_NAME.INTEGRATION_LEAD_A]: sortedIntegrationLead[0],
+    [FIELD_NAME.INTEGRATION_LEAD_B]: sortedIntegrationLead[1],
     [FIELD_NAME.BIO_NETWORK]: atlas.bioNetwork,
     [FIELD_NAME.SHORT_NAME]: atlas.shortName,
     [FIELD_NAME.VERSION]: atlas.version,
     [FIELD_NAME.WAVE]: atlas.wave,
+  };
+}
+
+/**
+ * Returns API payload mapped from from data.
+ * @param data - Form data.
+ * @returns API payload.
+ */
+function mapApiValues(data: AtlasEditData): APIAtlasEditData {
+  const integrationLead = [data.integrationLeadA];
+  if (data.integrationLeadB.name) integrationLead.push(data.integrationLeadB);
+  return {
+    ...data,
+    integrationLead,
   };
 }

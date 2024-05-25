@@ -121,9 +121,10 @@ export const buildInHcaDataRepository = (
  */
 export const buildIntegrationLead = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.NTagCell> => {
   return {
-    value: atlas.integrationLeadName ?? "",
+    label: "integration leads",
+    values: atlas.integrationLeadName,
   };
 };
 
