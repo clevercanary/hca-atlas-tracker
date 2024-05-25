@@ -659,6 +659,25 @@ export const ATLAS_WITH_IL: TestAtlas = {
   wave: "3",
 };
 
+export const ATLAS_WITH_MISC_SOURCE_DATASETS: TestAtlas = {
+  id: "8259a9b1-c149-4310-83a5-d126b675c0f1",
+  integrationLead: [
+    {
+      email: "bazbaz@example.com",
+      name: "Baz Baz",
+    },
+  ],
+  network: "adipose",
+  shortName: "test-with-misc-source-datasets",
+  sourceDatasets: [
+    SOURCE_DATASET_PUBLIC_WITH_JOURNAL.id,
+    SOURCE_DATASET_PUBLIC_WITH_PREPRINT.id,
+  ],
+  status: ATLAS_STATUS.PUBLIC,
+  version: "2.3",
+  wave: "2",
+};
+
 export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
   id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
   integrationLead: [],
@@ -699,6 +718,17 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
+  ATLAS_WITH_MISC_SOURCE_DATASETS,
   ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B,
 ];
+
+export const INITIAL_TEST_ATLASES_BY_SOURCE_DATASET =
+  INITIAL_TEST_ATLASES.reduce((atlasesByDataset, atlas) => {
+    for (const datasetId of atlas.sourceDatasets) {
+      (atlasesByDataset[datasetId] || (atlasesByDataset[datasetId] = [])).push(
+        atlas
+      );
+    }
+    return atlasesByDataset;
+  }, {} as Record<string, TestAtlas[]>);

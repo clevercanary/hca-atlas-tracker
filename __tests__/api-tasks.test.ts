@@ -5,6 +5,7 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import tasksHandler from "../pages/api/tasks";
 import {
+  INITIAL_TEST_ATLASES_BY_SOURCE_DATASET,
   INITIAL_TEST_SOURCE_DATASETS,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_CONTENT_ADMIN,
@@ -44,8 +45,6 @@ describe("/api/tasks", () => {
     );
   });
 
-  // TODO tasks for response content
-
   it("returns validations for user with STAKEHOLDER role", async () => {
     const res = await doTasksRequest(USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
@@ -83,5 +82,12 @@ function expectInitialValidationsToExist(
       testDataset.doi !== null &&
       TEST_HCA_PROJECTS_BY_DOI.has(testDataset.doi);
     expect(datasetValidations).toHaveLength(hasHca ? 4 : 2);
+    const datasetAtlases =
+      INITIAL_TEST_ATLASES_BY_SOURCE_DATASET[testDataset.id];
+    const { atlasNames } = datasetValidations[0];
+    expect(atlasNames).toHaveLength(datasetAtlases.length);
+    for (const atlas of datasetAtlases) {
+      expect(atlasNames).toContain(`${atlas.shortName} v${atlas.version}`);
+    }
   }
 }
