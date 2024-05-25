@@ -6,15 +6,26 @@ import {
 import { FIELD_NAME } from "./constants";
 
 export const newAtlasSchema = object({
-  [FIELD_NAME.INTEGRATION_LEAD]: object({
+  [FIELD_NAME.INTEGRATION_LEAD_A]: object({
     email: string()
       .email("Integration lead email must be an email address")
       .default("")
       .required("Integration lead email is required"),
     name: string().default("").required("Integration lead name is required"),
-  })
-    .required()
-    .nullable(),
+  }),
+  [FIELD_NAME.INTEGRATION_LEAD_B]: object({
+    email: string()
+      .email("Integration lead email must be an email address")
+      .default("")
+      .when("name", {
+        is: "",
+        otherwise: (schema) =>
+          schema.required("Integration lead email is required"),
+        then: (schema) =>
+          schema.oneOf([""], "Email may be specified only if name is"),
+      }),
+    name: string().default(""),
+  }),
   [FIELD_NAME.BIO_NETWORK]: string()
     .default("")
     .required("Network is required")

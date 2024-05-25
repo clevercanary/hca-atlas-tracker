@@ -3,10 +3,16 @@ export const DEFAULT_INPUT_PROPS = {
     displayEmpty: true,
     label: "Select network",
   },
-  INTEGRATION_LEAD_EMAIL: {
+  INTEGRATION_LEAD_A_EMAIL: {
     label: "Email",
   },
-  INTEGRATION_LEAD_NAME: {
+  INTEGRATION_LEAD_A_NAME: {
+    label: "Full name",
+  },
+  INTEGRATION_LEAD_B_EMAIL: {
+    label: "Email",
+  },
+  INTEGRATION_LEAD_B_NAME: {
     label: "Full name",
   },
   SHORT_NAME: {

@@ -17,6 +17,10 @@ export type FormResponseErrors =
   | { message: string }
   | { errors: Record<string, string[]> };
 
+export type MapApiValuesFn<T extends FieldValues> = (
+  formData: YupValidatedFormValues<T>
+) => unknown;
+
 export type MapSchemaValuesFn<T, R> = (apiData?: R) => T | undefined;
 
 export type OnDeleteFn = (

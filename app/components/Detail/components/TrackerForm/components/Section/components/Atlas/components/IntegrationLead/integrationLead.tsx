@@ -40,13 +40,13 @@ export const IntegrationLead = ({
       <SectionCard>
         <Controller
           control={control}
-          name={FIELD_NAME.INTEGRATION_LEAD_NAME}
+          name={FIELD_NAME.INTEGRATION_LEAD_A_NAME}
           render={({ field }): JSX.Element => (
             <Input
               {...field}
-              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_NAME}
-              error={Boolean(errors.integrationLead?.name)}
-              helperText={errors.integrationLead?.name?.message as string}
+              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_A_NAME}
+              error={Boolean(errors.integrationLeadA?.name)}
+              helperText={errors.integrationLeadA?.name?.message as string}
               isFilled={Boolean(field.value)}
               readOnly={isReadOnly}
             />
@@ -54,13 +54,41 @@ export const IntegrationLead = ({
         />
         <Controller
           control={control}
-          name={FIELD_NAME.INTEGRATION_LEAD_EMAIL}
+          name={FIELD_NAME.INTEGRATION_LEAD_A_EMAIL}
           render={({ field }): JSX.Element => (
             <Input
               {...field}
-              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_EMAIL}
-              error={Boolean(errors.integrationLead?.email)}
-              helperText={errors.integrationLead?.email?.message as string}
+              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_A_EMAIL}
+              error={Boolean(errors.integrationLeadA?.email)}
+              helperText={errors.integrationLeadA?.email?.message as string}
+              isFilled={Boolean(field.value)}
+              readOnly={isReadOnly}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name={FIELD_NAME.INTEGRATION_LEAD_B_NAME}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_B_NAME}
+              error={Boolean(errors.integrationLeadB?.name)}
+              helperText={errors.integrationLeadB?.name?.message as string}
+              isFilled={Boolean(field.value)}
+              readOnly={isReadOnly}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name={FIELD_NAME.INTEGRATION_LEAD_B_EMAIL}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              {...DEFAULT_INPUT_PROPS.INTEGRATION_LEAD_B_EMAIL}
+              error={Boolean(errors.integrationLeadB?.email)}
+              helperText={errors.integrationLeadB?.email?.message as string}
               isFilled={Boolean(field.value)}
               readOnly={isReadOnly}
             />
