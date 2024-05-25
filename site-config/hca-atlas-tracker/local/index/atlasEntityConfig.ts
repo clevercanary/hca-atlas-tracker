@@ -136,9 +136,9 @@ export const atlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
-          component: C.Cell,
+          component: C.NTagCell,
           viewBuilder: V.buildIntegrationLead,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+        } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD,
         width: { max: "1fr", min: "136px" },
