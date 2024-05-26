@@ -8,6 +8,7 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import completionDatesHandler from "../pages/api/tasks/completion-dates";
 import {
+  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
   SOURCE_DATASET_PUBLISHED_WITH_HCA,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
@@ -27,6 +28,10 @@ const DATE_VALID = "2024-05-20T01:16:42.761Z";
 const DATE_NON_UTC = "2024-05-19T18:16:42.761-0700";
 
 const VALIDATION_ID_NONEXISTENT = "8fb38ac8-78fe-4d47-a858-145175819dfe";
+
+const ATLAS_NAMES_PUBLISHED_WITH_HCA = [
+  `${ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A.shortName} v${ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A.version}`,
+];
 
 let validations: HCAAtlasTrackerDBValidation[];
 let validationIds: string[];
@@ -162,9 +167,10 @@ describe("/api/tasks/completion-dates", () => {
     const updatedValidations: HCAAtlasTrackerValidationRecord[] =
       res._getJSONData();
     expect(updatedValidations).toHaveLength(validationIds.length);
-    for (const { id, targetCompletionDate } of updatedValidations) {
+    for (const { atlasNames, id, targetCompletionDate } of updatedValidations) {
       expect(targetCompletionDate).toEqual(DATE_VALID);
       expect(validationIds).toContain(id);
+      expect(atlasNames).toEqual(ATLAS_NAMES_PUBLISHED_WITH_HCA);
     }
     const updatedValidationsFromDb = (
       await query<HCAAtlasTrackerDBValidation>(

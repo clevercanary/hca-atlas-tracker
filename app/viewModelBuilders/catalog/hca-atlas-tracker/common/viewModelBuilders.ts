@@ -12,6 +12,7 @@ import {
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerValidationRecord,
   Network,
   NetworkKey,
   TASK_STATUS,
@@ -213,6 +214,20 @@ export const buildSystem = (
 };
 
 /**
+ * Build props for the task atlas names cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildTaskAtlasNames = (
+  task: HCAAtlasTrackerValidationRecord
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: "atlases",
+    values: task.atlasNames,
+  };
+};
+
+/**
  * Build props for the BioNetworkCell component.
  * @param task - Task entity.
  * @returns Props to be used for the BioNetworkCell component.
@@ -251,20 +266,6 @@ export const buildTaskPublicationString = (
   return {
     label: task.publicationString ?? "",
     url: getDOILink(task.doi),
-  };
-};
-
-/**
- * Build props for the NTagCell component.
- * @param task - Task entity.
- * @returns Props to be used for the NTagCell component.
- */
-export const buildTaskShortNames = (
-  task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.NTagCell> => {
-  return {
-    label: "Atlases",
-    values: task.atlasShortNames.map((shortName) => `${shortName} v1.0`),
   };
 };
 

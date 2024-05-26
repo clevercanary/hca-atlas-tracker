@@ -104,6 +104,7 @@ export interface HCAAtlasTrackerValidationResult {
 
 export interface HCAAtlasTrackerValidationRecord
   extends HCAAtlasTrackerValidationResult {
+  atlasNames: string[];
   atlasShortNames: string[];
   id: string;
   networks: NetworkKey[];
@@ -225,6 +226,7 @@ export interface HCAAtlasTrackerDBValidationInfo {
 
 export interface HCAAtlasTrackerDBValidationWithAtlasProperties
   extends HCAAtlasTrackerDBValidation {
+  atlas_names: string[];
   atlas_short_names: string[];
   networks: NetworkKey[];
   waves: Wave[];
