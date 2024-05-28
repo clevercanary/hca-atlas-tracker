@@ -639,6 +639,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
     SOURCE_DATASET_SHARED.id,
   ],
   status: ATLAS_STATUS.PUBLIC,
+  targetCompletion: new Date("2024-05-28T22:31:45.731Z"),
   version: "2.3",
   wave: "1",
 };

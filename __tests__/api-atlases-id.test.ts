@@ -19,6 +19,7 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
+import { makeTestAtlasOverview } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -33,6 +34,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
   ],
   network: ATLAS_PUBLIC.network,
   shortName: "test-public-edited",
+  targetCompletion: "2024-06-09T12:21:52.277Z",
   version: "2.0",
   wave: "2",
 };
@@ -64,6 +66,14 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
   shortName: "test3",
   version: "1.2",
   wave: "3",
+};
+
+const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION: AtlasEditData = {
+  integrationLead: ATLAS_DRAFT.integrationLead,
+  network: ATLAS_DRAFT.network,
+  shortName: ATLAS_DRAFT.shortName,
+  version: ATLAS_DRAFT.version,
+  wave: ATLAS_DRAFT.wave,
 };
 
 beforeAll(async () => {
@@ -243,6 +253,17 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when target completion is non-UTC", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
+          ...ATLAS_PUBLIC_EDIT,
+          targetCompletion: "2024-06-09T05:21:52.277-0700",
+        })
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT);
   });
@@ -254,12 +275,20 @@ describe("/api/atlases/[id]", () => {
   it("PUT updates and returns atlas entry with multiple integration leads", async () => {
     await testSuccessfulEdit(ATLAS_DRAFT, ATLAS_DRAFT_EDIT);
   });
+
+  it("PUT updates and returns atlas entry with target completion removed", async () => {
+    const updatedAtlas = await testSuccessfulEdit(
+      ATLAS_PUBLIC,
+      ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION
+    );
+    expect(updatedAtlas.target_completion).toBeNull();
+  });
 });
 
 async function testSuccessfulEdit(
   testAtlas: TestAtlas,
   editData: AtlasEditData
-): Promise<void> {
+): Promise<HCAAtlasTrackerDBAtlas> {
   const res = await doAtlasRequest(
     testAtlas.id,
     USER_CONTENT_ADMIN,
@@ -274,8 +303,28 @@ async function testSuccessfulEdit(
       [testAtlas.id]
     )
   ).rows[0];
-  expect(updatedAtlasFromDb.overview).toMatchObject(editData);
+
+  const updatedOverview = updatedAtlasFromDb.overview;
+
+  expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
+  expect(updatedOverview.network).toEqual(editData.network);
+  expect(updatedOverview.shortName).toEqual(editData.shortName);
+  expect(updatedOverview.version).toEqual(editData.version);
+  expect(updatedOverview.wave).toEqual(editData.wave);
+
+  expect(updatedAtlas.targetCompletion).toEqual(
+    editData.targetCompletion ?? null
+  );
+
   expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
+
+  const overview = makeTestAtlasOverview(testAtlas);
+  await query(
+    "UPDATE hat.atlases SET overview=$1, target_completion=$2 WHERE id=$3",
+    [JSON.stringify(overview), testAtlas.targetCompletion ?? null, testAtlas.id]
+  );
+
+  return updatedAtlasFromDb;
 }
 
 async function doAtlasRequest(
