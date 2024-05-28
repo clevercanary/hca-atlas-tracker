@@ -36,6 +36,7 @@ export function atlasInputMapper(
     publicationDoi: apiAtlas.publication.doi,
     publicationPubString: apiAtlas.publication.pubString,
     shortName: apiAtlas.shortName,
+    sourceDatasetCount: apiAtlas.sourceDatasetCount,
     status: apiAtlas.status,
     targetCompletion: apiAtlas.targetCompletion ?? "Unplanned",
     taskCount: apiAtlas.taskCount,
