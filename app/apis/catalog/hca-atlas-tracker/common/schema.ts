@@ -47,9 +47,13 @@ export type NewAtlasData = InferType<typeof newAtlasSchema>;
 /**
  * Schema for data used to apply edits to an atlas.
  */
-export const atlasEditSchema = newAtlasSchema;
+export const atlasEditSchema = newAtlasSchema.concat(
+  object({
+    targetCompletion: string().datetime().nullable(),
+  }).strict()
+);
 
-export type AtlasEditData = NewAtlasData;
+export type AtlasEditData = InferType<typeof atlasEditSchema>;
 
 /**
  * Create schema that combines an unpublished source dataset schema and a published source dataset schema.
