@@ -110,7 +110,7 @@ export interface HCAAtlasTrackerValidationRecord
   atlasShortNames: string[];
   id: string;
   networks: NetworkKey[];
-  targetCompletionDate: string | null;
+  targetCompletion: string | null;
   waves: Wave[];
 }
 
@@ -193,8 +193,8 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
 }
 
 export interface HCAAtlasTrackerListValidationRecord
-  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletionDate"> {
-  targetCompletionDate: string;
+  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion"> {
+  targetCompletion: string;
 }
 
 export interface HCAAtlasTrackerDBValidationUpdateColumns {

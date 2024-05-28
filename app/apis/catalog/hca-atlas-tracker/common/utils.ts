@@ -125,7 +125,7 @@ export function dbValidationToApiValidation(
     publicationString: validationInfo.publicationString,
     relatedEntityUrl: validationInfo.relatedEntityUrl,
     system: validationInfo.system,
-    targetCompletionDate: validation.target_completion?.toISOString() ?? null,
+    targetCompletion: validation.target_completion?.toISOString() ?? null,
     taskStatus: validationInfo.taskStatus,
     validationId: validation.validation_id,
     validationStatus: validationInfo.validationStatus,
@@ -238,6 +238,6 @@ export function taskInputMapper(
 ): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
-    targetCompletionDate: apiTask.targetCompletionDate ?? "Unplanned",
+    targetCompletion: apiTask.targetCompletion ?? "Unplanned",
   };
 }

@@ -306,11 +306,11 @@ export const buildTaskStatus = (
  * @param task - Task entity.
  * @returns Props to be used for the Cell component.
  */
-export const buildTaskTargetCompletionDate = (
+export const buildTaskTargetCompletion = (
   task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
-    value: task.targetCompletionDate,
+    value: task.targetCompletion,
   };
 };
 

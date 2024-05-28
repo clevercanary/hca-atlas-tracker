@@ -17,7 +17,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
   PUBLICATION_STATUS: "status",
   PUBLICATION_STRING: "publicationString",
   SYSTEM: "system",
-  TARGET_COMPLETION_DATE: "targetCompletionDate",
+  TARGET_COMPLETION_DATE: "targetCompletion",
   TASK_STATUS: "taskStatus",
   TISSUE: "tissue",
   TITLE: "title",

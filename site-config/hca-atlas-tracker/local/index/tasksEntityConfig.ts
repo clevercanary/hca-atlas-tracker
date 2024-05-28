@@ -299,7 +299,7 @@ export const tasksEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.Cell,
-          viewBuilder: V.buildTaskTargetCompletionDate,
+          viewBuilder: V.buildTaskTargetCompletion,
         } as ComponentConfig<
           typeof C.Cell,
           HCAAtlasTrackerListValidationRecord
