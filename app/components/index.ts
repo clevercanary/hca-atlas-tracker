@@ -1,3 +1,5 @@
+export { FluidAlert } from "@databiosphere/findable-ui/lib/components/common/Alert/alert.styles";
+export { AlertText } from "@databiosphere/findable-ui/lib/components/common/Alert/components/AlertText/alertText.styles";
 export { SessionTimeout } from "@databiosphere/findable-ui/lib/components/common/Banner/components/SessionTimeout/sessionTimeout";
 export { GitHubIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/GitHubIcon/gitHubIcon";
 export { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
