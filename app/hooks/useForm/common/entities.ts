@@ -33,16 +33,16 @@ export interface OnDeleteOptions {
   onSuccess?: (id: string) => void;
 }
 
-export type OnSubmitFn<T extends FieldValues> = (
+export type OnSubmitFn<T extends FieldValues, R = undefined> = (
   requestURL: string,
   requestMethod: METHOD,
   payload: YupValidatedFormValues<T>,
-  options?: OnSubmitOptions<T>
+  options?: OnSubmitOptions<T, R>
 ) => Promise<void>;
 
-export interface OnSubmitOptions<T extends FieldValues> {
+export interface OnSubmitOptions<T extends FieldValues, R = undefined> {
   onReset?: UseFormReset<YupValidatedFormValues<T>>;
-  onSuccess?: (id: string) => void;
+  onSuccess?: (response: R) => void;
 }
 
 export type YupValidatedFormValues<T extends FieldValues> = InferType<

@@ -1,3 +1,4 @@
+import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { NewAtlasData } from "../../../../views/AddNewAtlasView/common/entities";
@@ -11,7 +12,7 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface AddAtlasProps {
   formManager: FormManagerProps;
-  formMethod: FormMethod<NewAtlasData>;
+  formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>;
 }
 
 export const AddAtlas = ({

@@ -19,6 +19,7 @@ import {
   MapApiValuesFn,
   MapSchemaValuesFn,
   OnDeleteFn,
+  OnDeleteOptions,
   OnSubmitFn,
   OnSubmitOptions,
   YupValidatedFormValues,
@@ -33,7 +34,7 @@ export interface UseForm<T extends FieldValues, R = undefined>
   extends CustomUseFormReturn<T> {
   data?: R;
   onDelete: OnDeleteFn;
-  onSubmit: OnSubmitFn<T>;
+  onSubmit: OnSubmitFn<T, R>;
 }
 
 export const useForm = <T extends FieldValues, R = undefined>(
@@ -72,7 +73,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     async (
       requestURL: string,
       requestMethod: METHOD,
-      options?: OnSubmitOptions<T>
+      options?: OnDeleteOptions
     ): Promise<void> => {
       const res = await fetchDelete(requestURL, requestMethod, token);
       if (isFetchStatusNoContent(res.status)) {
@@ -90,7 +91,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
       requestURL: string,
       requestMethod: METHOD,
       payload: YupValidatedFormValues<T>,
-      options?: OnSubmitOptions<T>
+      options?: OnSubmitOptions<T, R>
     ): Promise<void> => {
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
       const res = await fetchSubmit(
@@ -100,10 +101,10 @@ export const useForm = <T extends FieldValues, R = undefined>(
         apiPayload
       );
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
-        const { id, ...other } = await res.json();
-        setData({ id, ...other });
-        options?.onSuccess?.(id);
-        options?.onReset?.(schema.cast(mapSchemaValues?.({ id, ...other })));
+        const response = await res.json();
+        setData(response);
+        options?.onSuccess?.(response);
+        options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
       } else {
         onError(await getFormResponseErrors(res));
       }

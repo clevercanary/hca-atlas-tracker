@@ -9,7 +9,7 @@ import { config } from "app/config/config";
 import fsp from "fs/promises";
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { AtlasesView } from "../../app/views/AtlasesView/atlasesView";
+import { ExploreView } from "../../app/views/ExploreView/exploreView";
 
 interface PageUrl extends ParsedUrlQuery {
   entityListType: string;
@@ -51,17 +51,17 @@ const seedDatabase = async function seedDatabase( // TODO get rid of this duplic
 };
 
 /**
- * Atlases view page.
+ * Explore view page.
  * @param props - Explore view page props.
  * @param props.entityListType - Entity list type.
- * @returns Atlases view component.
+ * @returns ExploreView component.
  */
 const IndexPage = ({
   entityListType,
   ...props
 }: ListPageProps): JSX.Element => {
   if (!entityListType) return <></>;
-  return <AtlasesView entityListType={entityListType} {...props} />;
+  return <ExploreView entityListType={entityListType} {...props} />;
 };
 
 /**

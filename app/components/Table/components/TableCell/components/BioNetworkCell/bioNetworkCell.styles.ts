@@ -5,6 +5,7 @@ export const Cell = styled.div`
   display: grid;
   gap: 8px;
   grid-auto-flow: column;
+  justify-content: flex-start;
 
   img {
     margin: 4px;

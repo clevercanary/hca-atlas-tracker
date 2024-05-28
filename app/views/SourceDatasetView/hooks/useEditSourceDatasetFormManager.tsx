@@ -48,7 +48,7 @@ export const useEditSourceDatasetFormManager = (
         payload,
         {
           onReset: reset,
-          onSuccess: (id) => onSuccess(atlasId, id, url),
+          onSuccess: (data) => onSuccess(atlasId, data.id, url),
         }
       );
     },
