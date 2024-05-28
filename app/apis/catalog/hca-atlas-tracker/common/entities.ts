@@ -11,6 +11,7 @@ export interface HCAAtlasTrackerListAtlas {
   publicationPubString: string;
   shortName: string;
   status: ATLAS_STATUS;
+  targetCompletion: string | null;
   taskCount: number;
   title: string;
   version: string;
@@ -29,6 +30,7 @@ export interface HCAAtlasTrackerAtlas {
   shortName: string;
   sourceDatasetCount: number;
   status: ATLAS_STATUS;
+  targetCompletion: string | null;
   taskCount: number;
   title: string;
   version: string;
@@ -130,6 +132,7 @@ export interface HCAAtlasTrackerDBAtlas {
   overview: HCAAtlasTrackerDBAtlasOverview;
   source_datasets: string[];
   status: ATLAS_STATUS;
+  target_completion: Date | null;
   updated_at: Date;
 }
 
