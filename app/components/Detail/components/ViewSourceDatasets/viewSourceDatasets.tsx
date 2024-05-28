@@ -11,12 +11,9 @@ import { getRouteURL } from "../../../../common/utils";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import {
-  ButtonLink,
-  BUTTON_COLOR,
-} from "../../../common/Button/components/ButtonLink/buttonLink";
+import { BUTTON_COLOR } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { Paper, Table, TableToolbar } from "./viewSourceDatasets.styles";
+import { ButtonLink, Paper, Table, Toolbar } from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
   atlasId: AtlasId;
@@ -41,7 +38,7 @@ export const ViewSourceDatasets = ({
     <Paper>
       <GridPaper>
         {canEdit && (
-          <TableToolbar>
+          <Toolbar variant="table">
             <ButtonLink
               color={BUTTON_COLOR.SECONDARY}
               href={getRouteURL(ROUTE.CREATE_SOURCE_DATASET, atlasId)}
@@ -49,7 +46,7 @@ export const ViewSourceDatasets = ({
             >
               Add Source Dataset
             </ButtonLink>
-          </TableToolbar>
+          </Toolbar>
         )}
         {sourceDatasets?.length > 0 && (
           <Table

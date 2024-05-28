@@ -8,12 +8,33 @@ interface Props {
 }
 
 export const ExploreView = styled(DXExploreView)`
-  .MuiTableContainer-root {
+  & .MuiToolbar-table {
+    padding: 16px;
+
+    .MuiButton-containedSecondary {
+      padding-bottom: 8px;
+      padding-top: 8px;
+    }
+  }
+
+  & .MuiTableContainer-root {
     .MuiTable-root {
       .MuiTableHead-root {
         .MuiTableRow-root {
-          th {
+          .MuiTableCell-root {
             background-color: ${smokeLightest};
+          }
+        }
+      }
+
+      ${mediaTabletUp} {
+        .MuiTableHead-root,
+        .MuiTableBody-root {
+          .MuiTableRow-root {
+            .MuiTableCell-root {
+              min-height: 56px;
+              padding: 12px 16px;
+            }
           }
         }
       }
