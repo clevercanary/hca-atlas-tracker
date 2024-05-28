@@ -11,7 +11,7 @@ export interface HCAAtlasTrackerListAtlas {
   publicationPubString: string;
   shortName: string;
   status: ATLAS_STATUS;
-  targetCompletion: string | null;
+  targetCompletion: string;
   taskCount: number;
   title: string;
   version: string;

@@ -214,6 +214,19 @@ export const buildSystem = (
 };
 
 /**
+ * Build props for the Cell component.
+ * @param entity - Task or atlas entity.
+ * @returns Props to be used for the Cell component.
+ */
+export const buildTargetCompletion = (
+  entity: HCAAtlasTrackerListValidationRecord | HCAAtlasTrackerListAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: entity.targetCompletion,
+  };
+};
+
+/**
  * Build props for the task atlas names cell component.
  * @param task - Task entity.
  * @returns Props to be used for the cell.
@@ -299,19 +312,6 @@ export const buildTaskStatus = (
         label: "Unspecified",
       };
   }
-};
-
-/**
- * Build props for the Cell component.
- * @param task - Task entity.
- * @returns Props to be used for the Cell component.
- */
-export const buildTaskTargetCompletion = (
-  task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: task.targetCompletion,
-  };
 };
 
 /**
