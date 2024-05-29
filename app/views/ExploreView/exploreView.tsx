@@ -1,29 +1,30 @@
 import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/title";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { useLayoutState } from "@databiosphere/findable-ui/lib/hooks/useLayoutState";
-import { ExploreView } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
+import {
+  ExploreView as DXExploreView,
+  ExploreViewProps as DXExploreViewProps,
+} from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { RequestAccess } from "../../components/Detail/components/TrackerForm/components/Section/components/RequestAccess/requestAccess";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../routes/constants";
-import { IndexLayout, IndexView, IndexViewContent } from "./atlasesView.styles";
+import { IndexLayout, IndexView, IndexViewContent } from "./exploreView.styles";
+import { useUpdateExploreState } from "./hooks/useUpdateExploreState";
 
-interface AtlasesViewProps {
-  entityListType: string;
-}
-
-export const AtlasesView = ({
+export const ExploreView = ({
   entityListType,
   ...props
-}: AtlasesViewProps): JSX.Element => {
+}: DXExploreViewProps): JSX.Element => {
   const {
-    access: { canView },
+    access: { canEdit, canView },
   } = useFormManager();
   const {
     layoutState: { headerHeight },
   } = useLayoutState();
+  useUpdateExploreState(canEdit);
   return canView ? (
-    <ExploreView entityListType={entityListType} {...props} />
+    <DXExploreView entityListType={entityListType} {...props} />
   ) : (
     <IndexView marginTop={headerHeight}>
       <IndexLayout>

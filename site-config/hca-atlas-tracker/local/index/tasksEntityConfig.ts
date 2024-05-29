@@ -220,6 +220,7 @@ export const tasksEntityConfig: EntityConfig = {
         width: { max: "1fr", min: "220px" },
       },
       {
+        columnPinned: true,
         componentConfig: {
           component: C.Cell,
           viewBuilder: V.buildTaskDescriptionSystem,
@@ -227,7 +228,7 @@ export const tasksEntityConfig: EntityConfig = {
           typeof C.Cell,
           HCAAtlasTrackerListValidationRecord
         >,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION, // Task.
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
         width: { max: "1fr", min: "220px" },
       },
@@ -317,6 +318,13 @@ export const tasksEntityConfig: EntityConfig = {
   listView: {
     disablePagination: true,
     enableDownload: true,
+    enableRowSelection: true,
+    rowSelectionView: [
+      {
+        component: C.EditTasks,
+        viewBuilder: V.buildEditTask,
+      } as ComponentConfig<typeof C.EditTasks>,
+    ],
   },
   route: "tasks",
 };

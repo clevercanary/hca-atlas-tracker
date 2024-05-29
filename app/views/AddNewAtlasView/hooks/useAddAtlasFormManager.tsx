@@ -1,6 +1,7 @@
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../common/entities";
 import { getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
@@ -10,7 +11,7 @@ import { ROUTE } from "../../../routes/constants";
 import { NewAtlasData } from "../common/entities";
 
 export const useAddAtlasFormManager = (
-  formMethod: FormMethod<NewAtlasData>
+  formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>
 ): FormManager => {
   const { onSubmit } = formMethod;
 
@@ -21,7 +22,7 @@ export const useAddAtlasFormManager = (
   const onSave = useCallback(
     (payload: NewAtlasData, url?: string) => {
       onSubmit(API.CREATE_ATLAS, METHOD.POST, payload, {
-        onSuccess: (id) => onSuccess(id, url),
+        onSuccess: (data) => onSuccess(data.id, url),
       });
     },
     [onSubmit]

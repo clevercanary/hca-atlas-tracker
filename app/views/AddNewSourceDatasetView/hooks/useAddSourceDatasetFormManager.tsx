@@ -1,7 +1,10 @@
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { AtlasId } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  AtlasId,
+  HCAAtlasTrackerSourceDataset,
+} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../common/entities";
 import { getRequestURL, getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
@@ -21,7 +24,7 @@ import {
 
 export const useAddSourceDatasetFormManager = (
   atlasId: AtlasId,
-  formMethod: FormMethod<NewSourceDatasetData>
+  formMethod: FormMethod<NewSourceDatasetData, HCAAtlasTrackerSourceDataset>
 ): FormManager => {
   const { onSubmit, unregister, watch } = formMethod;
   const publicationStatus = watch(FIELD_NAME.PUBLICATION_STATUS);
@@ -42,7 +45,7 @@ export const useAddSourceDatasetFormManager = (
         METHOD.POST,
         payload,
         {
-          onSuccess: (id) => onSuccess(atlasId, id, url),
+          onSuccess: (data) => onSuccess(atlasId, data.id, url),
         }
       );
     },
@@ -73,7 +76,7 @@ function getSchemaFields(
  * @returns true if the form is dirty.
  */
 function isFormDirty(
-  formMethod: FormMethod<NewSourceDatasetData>,
+  formMethod: FormMethod<NewSourceDatasetData, HCAAtlasTrackerSourceDataset>,
   publicationStatus: PUBLICATION_STATUS
 ): boolean {
   const {

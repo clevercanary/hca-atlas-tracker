@@ -16,9 +16,10 @@ export { Logo } from "@databiosphere/findable-ui/lib/components/Layout/component
 export { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 export { PinnedNTagCell } from "./common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RenderComponents } from "./common/RenderComponents/renderComponents";
-export { Hero } from "./Index/components/Hero/hero";
-export { BioNetworkCell } from "./Index/components/Table/components/BioNetworkCell/bioNetworkCell";
-export { AtlasCell } from "./Index/components/Table/components/Cell/AtlasCell/atlasCell";
-export { SourceDatasetStatusCell } from "./Index/components/Table/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
+export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";
+export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
+export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
+export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
+export { SourceDatasetStatusCell } from "./Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";

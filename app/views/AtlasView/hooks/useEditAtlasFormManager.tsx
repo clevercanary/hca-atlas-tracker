@@ -27,7 +27,7 @@ export const useEditAtlasFormManager = (
     (payload: AtlasEditData, url?: string) => {
       onSubmit(getRequestURL(API.ATLAS, atlasId), METHOD.PUT, payload, {
         onReset: reset,
-        onSuccess: (id) => onSuccess(id, url),
+        onSuccess: (data) => onSuccess(data.id, url),
       });
     },
     [atlasId, reset, onSubmit]

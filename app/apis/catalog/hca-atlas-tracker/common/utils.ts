@@ -1,3 +1,4 @@
+import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { NETWORK_KEYS, WAVES } from "./constants";
 import {
   DOI_STATUS,
@@ -9,7 +10,6 @@ import {
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerValidationRecord,
-  HCAAtlasTrackerValidationResult,
   NetworkKey,
   PublicationInfo,
   Wave,
@@ -19,8 +19,8 @@ export function getAtlasId(atlas: HCAAtlasTrackerListAtlas): string {
   return atlas.id;
 }
 
-export function getTaskId(task: HCAAtlasTrackerValidationResult): string {
-  return `${task.entityId}${task.validationId}`;
+export function getTaskId(task: HCAAtlasTrackerListValidationRecord): string {
+  return task.id;
 }
 
 export function atlasInputMapper(
@@ -239,6 +239,6 @@ export function taskInputMapper(
 ): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
-    targetCompletion: apiTask.targetCompletion ?? "Unplanned",
+    targetCompletion: formatDateToQuarterYear(apiTask.targetCompletion),
   };
 }

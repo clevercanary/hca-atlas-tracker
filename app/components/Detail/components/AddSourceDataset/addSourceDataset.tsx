@@ -1,3 +1,4 @@
+import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { NewSourceDatasetData } from "../../../../views/AddNewSourceDatasetView/common/entities";
@@ -10,7 +11,7 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface AddSourceDatasetProps {
   formManager: FormManagerProps;
-  formMethod: FormMethod<NewSourceDatasetData>;
+  formMethod: FormMethod<NewSourceDatasetData, HCAAtlasTrackerSourceDataset>;
 }
 
 export const AddSourceDataset = ({

@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
+import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/constants";
@@ -20,7 +21,7 @@ import { SectionCard, SectionContent } from "./generalInfo.styles";
 
 export interface GeneralInfoProps {
   formManager: FormManager;
-  formMethod: FormMethod<NewSourceDatasetData>;
+  formMethod: FormMethod<NewSourceDatasetData, HCAAtlasTrackerSourceDataset>;
 }
 
 export const GeneralInfo = ({

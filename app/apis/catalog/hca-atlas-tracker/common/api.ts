@@ -4,5 +4,6 @@ export enum API {
   ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-datasets",
   CREATE_ATLAS = "/api/atlases/create",
   CREATE_ATLAS_SOURCE_DATASET = "/api/atlases/[atlasId]/source-datasets/create",
+  TASKS_COMPLETION_DATES = "/api/tasks/completion-dates",
   USER = "/api/me",
 }

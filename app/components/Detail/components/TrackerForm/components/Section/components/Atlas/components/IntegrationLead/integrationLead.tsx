@@ -18,7 +18,7 @@ export interface IntegrationLeadProps {
   formManager: FormManager;
   formMethod:
     | FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
-    | FormMethod<NewAtlasData>;
+    | FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>;
 }
 
 export const IntegrationLead = ({

@@ -31,7 +31,7 @@ export interface GeneralInfoProps {
   formManager: FormManager;
   formMethod:
     | FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
-    | FormMethod<NewAtlasData>;
+    | FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>;
 }
 
 export const GeneralInfo = ({

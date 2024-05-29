@@ -1,6 +1,6 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { Table as DXTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
-import { TableToolbar as DXTableToolbar } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/tableToolbar.styles";
+import { Toolbar as DXTableToolbar } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/tableToolbar.styles";
 import { smokeLightest } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import styled from "@emotion/styled";
 

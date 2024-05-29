@@ -1,5 +1,5 @@
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import {
   NETWORKS,
   SYSTEM_DISPLAY_NAMES,
@@ -20,7 +20,7 @@ import {
 import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
-import { SOURCE_DATASET_STATUS } from "../../../../components/Index/components/Table/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
+import { SOURCE_DATASET_STATUS } from "../../../../components/Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 
 /**
@@ -47,6 +47,19 @@ export const buildBioNetwork = (
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: entity.bioNetwork,
+  };
+};
+
+/**
+ * Build props for the EditTasks component.
+ * @param rows - Table rows.
+ * @returns Props to be used for the EditTasks component.
+ */
+export const buildEditTask = (
+  rows: Row<HCAAtlasTrackerListValidationRecord>[]
+): React.ComponentProps<typeof C.EditTasks> => {
+  return {
+    rows,
   };
 };
 
