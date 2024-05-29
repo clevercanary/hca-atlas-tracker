@@ -160,7 +160,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.StatusBadge, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
-        width: { max: "1fr", min: "136px" },
+        width: { max: "0.5fr", min: "68px" },
       },
       {
         componentConfig: {
