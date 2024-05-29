@@ -24,7 +24,8 @@ function formatDate(date: Date, formatStr = FORMAT_STR): string {
  * @param dateStr - Date string.
  * @returns quarter year display string.
  */
-export function formatDateToQuarterYear(dateStr: string): string {
+export function formatDateToQuarterYear(dateStr: string | null): string {
+  if (!dateStr) return "Unplanned";
   if (Date.parse(dateStr)) {
     const date = new Date(dateStr);
     const year = date.getUTCFullYear();

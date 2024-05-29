@@ -1,3 +1,4 @@
+import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { NETWORK_KEYS, WAVES } from "./constants";
 import {
   DOI_STATUS,
@@ -238,6 +239,6 @@ export function taskInputMapper(
 ): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
-    targetCompletion: apiTask.targetCompletion ?? "Unplanned",
+    targetCompletion: formatDateToQuarterYear(apiTask.targetCompletion),
   };
 }

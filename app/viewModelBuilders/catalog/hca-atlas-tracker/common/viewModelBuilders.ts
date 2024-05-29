@@ -22,7 +22,6 @@ import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { SOURCE_DATASET_STATUS } from "../../../../components/Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
 import { ROUTE } from "../../../../routes/constants";
-import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 
 /**
  * Build props for the atlas name cell component.
@@ -340,19 +339,6 @@ export const buildTaskStatus = (
         label: "Unspecified",
       };
   }
-};
-
-/**
- * Build props for the Cell component.
- * @param task - Task entity.
- * @returns Props to be used for the Cell component.
- */
-export const buildTaskTargetCompletionDate = (
-  task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
-  return {
-    value: formatDateToQuarterYear(task.targetCompletion),
-  };
 };
 
 /**
