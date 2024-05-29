@@ -281,6 +281,19 @@ export const buildTaskBioNetworks = (
 };
 
 /**
+ * Build props for the task counts cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildTaskCounts = (
+  atlas: HCAAtlasTrackerListAtlas
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: `${atlas.completedTaskCount}/${atlas.taskCount}`,
+  };
+};
+
+/**
  * Build props for the Cell component.
  * @param task - Task entity.
  * @returns Props to be used for the Cell component.
