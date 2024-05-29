@@ -37,6 +37,7 @@ export function atlasInputMapper(
     publicationPubString: apiAtlas.publication.pubString,
     shortName: apiAtlas.shortName,
     status: apiAtlas.status,
+    targetCompletion: apiAtlas.targetCompletion ?? "Unplanned",
     taskCount: apiAtlas.taskCount,
     title: apiAtlas.title,
     version: apiAtlas.version,
@@ -59,6 +60,7 @@ export function dbAtlasToApiAtlas(
     shortName: dbAtlas.overview.shortName,
     sourceDatasetCount: dbAtlas.source_datasets.length,
     status: dbAtlas.status,
+    targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
     taskCount: dbAtlas.overview.taskCount,
     title: "",
     version: dbAtlas.overview.version,
@@ -123,7 +125,7 @@ export function dbValidationToApiValidation(
     publicationString: validationInfo.publicationString,
     relatedEntityUrl: validationInfo.relatedEntityUrl,
     system: validationInfo.system,
-    targetCompletionDate: validation.target_completion?.toISOString() ?? null,
+    targetCompletion: validation.target_completion?.toISOString() ?? null,
     taskStatus: validationInfo.taskStatus,
     validationId: validation.validation_id,
     validationStatus: validationInfo.validationStatus,
@@ -236,6 +238,6 @@ export function taskInputMapper(
 ): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
-    targetCompletionDate: apiTask.targetCompletionDate ?? "Unplanned",
+    targetCompletion: apiTask.targetCompletion ?? "Unplanned",
   };
 }

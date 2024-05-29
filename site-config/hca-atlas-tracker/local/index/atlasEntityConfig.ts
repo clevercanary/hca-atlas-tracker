@@ -152,6 +152,15 @@ export const atlasEntityConfig: EntityConfig = {
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
         width: { max: "1fr", min: "136px" },
       },
+      {
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildTargetCompletion,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        width: { max: "1fr", min: "136px" },
+      },
     ],
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,

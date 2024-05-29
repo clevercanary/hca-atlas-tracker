@@ -63,9 +63,11 @@ const putHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
     version: newInfo.version,
     wave: newInfo.wave,
   };
+  const targetCompletion: HCAAtlasTrackerDBAtlas["target_completion"] =
+    newInfo.targetCompletion ? new Date(newInfo.targetCompletion) : null;
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-    "UPDATE hat.atlases SET overview=overview||$1 WHERE id=$2 RETURNING *",
-    [JSON.stringify(newOverviewValues), id]
+    "UPDATE hat.atlases SET overview=overview||$1, target_completion=$2 WHERE id=$3 RETURNING *",
+    [JSON.stringify(newOverviewValues), targetCompletion, id]
   );
   res.status(200).json(dbAtlasToApiAtlas(queryResult.rows[0]));
 });

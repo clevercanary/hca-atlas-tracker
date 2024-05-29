@@ -11,6 +11,7 @@ export interface HCAAtlasTrackerListAtlas {
   publicationPubString: string;
   shortName: string;
   status: ATLAS_STATUS;
+  targetCompletion: string;
   taskCount: number;
   title: string;
   version: string;
@@ -29,6 +30,7 @@ export interface HCAAtlasTrackerAtlas {
   shortName: string;
   sourceDatasetCount: number;
   status: ATLAS_STATUS;
+  targetCompletion: string | null;
   taskCount: number;
   title: string;
   version: string;
@@ -108,7 +110,7 @@ export interface HCAAtlasTrackerValidationRecord
   atlasShortNames: string[];
   id: string;
   networks: NetworkKey[];
-  targetCompletionDate: string | null;
+  targetCompletion: string | null;
   waves: Wave[];
 }
 
@@ -130,6 +132,7 @@ export interface HCAAtlasTrackerDBAtlas {
   overview: HCAAtlasTrackerDBAtlasOverview;
   source_datasets: string[];
   status: ATLAS_STATUS;
+  target_completion: Date | null;
   updated_at: Date;
 }
 
@@ -190,8 +193,8 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
 }
 
 export interface HCAAtlasTrackerListValidationRecord
-  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletionDate"> {
-  targetCompletionDate: string;
+  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion"> {
+  targetCompletion: string;
 }
 
 export interface HCAAtlasTrackerDBValidationUpdateColumns {

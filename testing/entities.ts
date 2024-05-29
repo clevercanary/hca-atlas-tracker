@@ -25,6 +25,7 @@ export interface TestAtlas {
   shortName: string;
   sourceDatasets: string[];
   status: ATLAS_STATUS;
+  targetCompletion?: Date;
   version: string;
   wave: Wave;
 }

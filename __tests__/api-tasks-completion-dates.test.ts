@@ -167,8 +167,8 @@ describe("/api/tasks/completion-dates", () => {
     const updatedValidations: HCAAtlasTrackerValidationRecord[] =
       res._getJSONData();
     expect(updatedValidations).toHaveLength(validationIds.length);
-    for (const { atlasNames, id, targetCompletionDate } of updatedValidations) {
-      expect(targetCompletionDate).toEqual(DATE_VALID);
+    for (const { atlasNames, id, targetCompletion } of updatedValidations) {
+      expect(targetCompletion).toEqual(DATE_VALID);
       expect(validationIds).toContain(id);
       expect(atlasNames).toEqual(ATLAS_NAMES_PUBLISHED_WITH_HCA);
     }
