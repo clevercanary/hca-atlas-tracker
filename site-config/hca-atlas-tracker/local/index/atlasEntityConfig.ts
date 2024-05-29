@@ -165,6 +165,14 @@ export const atlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.Cell,
+          viewBuilder: V.buildTaskCounts,
+        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_COUNTS,
+        width: { max: "0.5fr", min: "68px" },
+      },
+      {
+        componentConfig: {
+          component: C.Cell,
           viewBuilder: V.buildTargetCompletion,
         } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
