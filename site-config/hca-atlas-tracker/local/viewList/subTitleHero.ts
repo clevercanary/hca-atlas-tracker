@@ -21,7 +21,7 @@ export const subTitleHero: ComponentsConfig = [
     component: C.FluidAlert,
     props: {
       severity: "warning",
-      title: "This tracker is confidential.",
+      title: "This tracker is confidential",
     },
   } as ComponentConfig<typeof C.FluidAlert, HCAAtlasTrackerListAtlas>,
 ];
