@@ -1,9 +1,9 @@
+import { EntityMapper } from "@databiosphere/findable-ui/lib/config/entities";
 import { useEntityService } from "@databiosphere/findable-ui/lib/hooks/useEntityService";
 import { useExploreState } from "@databiosphere/findable-ui/lib/hooks/useExploreState";
 import { ExploreActionKind } from "@databiosphere/findable-ui/lib/providers/exploreState";
 import { useCallback } from "react";
 import { FieldValues } from "react-hook-form";
-import { EntityMapper } from "../../../../../../../../../findable-ui/lib/config/entities";
 import { API } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/api";
 import {
   HCAAtlasTrackerListValidationRecord,
