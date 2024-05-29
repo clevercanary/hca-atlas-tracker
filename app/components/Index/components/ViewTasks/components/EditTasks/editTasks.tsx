@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerValidationRecord,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getTaskId } from "../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { DialogFormValue } from "./common/entities";
 import { DialogForm } from "./components/DialogForm/dialogForm";
 import { TaskCompletionDatesData } from "./components/EditTargetCompletion/common/entities";
@@ -75,5 +74,5 @@ export const EditTasks = <
 function getTaskIds(
   rows: Row<HCAAtlasTrackerListValidationRecord>[]
 ): string[] {
-  return rows.map((row) => row.original).map(getTaskId);
+  return rows.map((row) => row.id);
 }
