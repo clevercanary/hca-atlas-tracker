@@ -1,9 +1,46 @@
 import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { smokeLightest } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { ExploreView as DXExploreView } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import styled from "@emotion/styled";
 
 interface Props {
   marginTop: number;
 }
+
+export const ExploreView = styled(DXExploreView)`
+  & .MuiToolbar-table {
+    padding: 16px;
+
+    .MuiButton-containedSecondary {
+      padding-bottom: 8px;
+      padding-top: 8px;
+    }
+  }
+
+  & .MuiTableContainer-root {
+    .MuiTable-root {
+      .MuiTableHead-root {
+        .MuiTableRow-root {
+          .MuiTableCell-root {
+            background-color: ${smokeLightest};
+          }
+        }
+      }
+
+      ${mediaTabletUp} {
+        .MuiTableHead-root,
+        .MuiTableBody-root {
+          .MuiTableRow-root {
+            .MuiTableCell-root {
+              min-height: 56px;
+              padding: 12px 16px;
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 export const IndexView = styled.div<Props>`
   display: flex;
