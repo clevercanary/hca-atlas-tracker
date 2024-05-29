@@ -95,6 +95,19 @@ export const tasksEntityConfig: EntityConfig = {
       {
         filters: [
           {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.DONE],
+          },
+        ],
+        sort: {
+          desc: SORT_DIRECTION.DESCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RESOLVED_AT,
+        },
+        title: "Completed Tasks",
+      },
+      {
+        filters: [
+          {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
             value: ["Ingest source dataset."],
           },
