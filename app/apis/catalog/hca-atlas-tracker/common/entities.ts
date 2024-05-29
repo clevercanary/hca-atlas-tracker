@@ -10,6 +10,7 @@ export interface HCAAtlasTrackerListAtlas {
   publicationDoi: string;
   publicationPubString: string;
   shortName: string;
+  sourceDatasetCount: number;
   status: ATLAS_STATUS;
   targetCompletion: string;
   taskCount: number;
