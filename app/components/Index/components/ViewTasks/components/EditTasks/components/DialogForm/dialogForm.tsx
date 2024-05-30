@@ -30,9 +30,9 @@ export const DialogForm = <
   const {
     dialog: { actions, content, title },
     formManager: { requestMethod, requestURL },
-    formMethod: { schema },
+    formMethod: { mapApiValues, schema },
   } = formValue;
-  const formMethod = useEditTasksForm<T, R>(schema);
+  const formMethod = useEditTasksForm<T, R>(schema, mapApiValues);
   const formManager = useEditTasksFormManager<T, R>(
     formMethod,
     onClose,

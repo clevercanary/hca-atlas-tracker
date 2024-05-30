@@ -1,8 +1,10 @@
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
 import { API } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/api";
+import { TaskCompletionDatesData as APITaskCompletionDatesData } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../../../../../common/entities";
 import { FormActions } from "../../../../../../../common/Form/components/FormActions/formActions";
 import { OnEditFn } from "../../common/entities";
+import { TARGET_COMPLETION_NULL } from "./common/constants";
 import { TaskCompletionDatesData } from "./common/entities";
 import { taskCompletionDatesSchema } from "./common/schema";
 import { Content } from "./components/Dialog/components/Content/content";
@@ -30,7 +32,10 @@ export const EditTargetCompletion = ({
             requestMethod: METHOD.PATCH,
             requestURL: API.TASKS_COMPLETION_DATES,
           },
-          formMethod: { schema: SCHEMA },
+          formMethod: {
+            mapApiValues,
+            schema: SCHEMA,
+          },
         })
       }
     >
@@ -38,3 +43,11 @@ export const EditTargetCompletion = ({
     </MenuItem>
   );
 };
+
+function mapApiValues(
+  data: TaskCompletionDatesData
+): APITaskCompletionDatesData {
+  return data.targetCompletion === TARGET_COMPLETION_NULL
+    ? { ...data, targetCompletion: null }
+    : data;
+}
