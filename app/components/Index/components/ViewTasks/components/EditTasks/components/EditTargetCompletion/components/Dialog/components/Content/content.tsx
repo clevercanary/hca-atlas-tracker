@@ -3,7 +3,11 @@ import { ReactNode, useEffect, useMemo } from "react";
 import { Controller as FormController } from "react-hook-form";
 import { getFutureQuarterByDateForNextTwoYears } from "../../../../../../../../../../../../utils/date-fns";
 import { ContentProps } from "../../../../../../common/entities";
-import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../../../common/constants";
+import {
+  DEFAULT_INPUT_PROPS,
+  FIELD_NAME,
+  TARGET_COMPLETION_NULL,
+} from "../../../../common/constants";
 import { TaskCompletionDatesData } from "../../../../common/entities";
 import { Select } from "./content.styles";
 
@@ -46,6 +50,7 @@ export const Content = ({
               {quarter}
             </MMenuItem>
           ))}
+          <MMenuItem value={TARGET_COMPLETION_NULL}>Unplanned</MMenuItem>
         </Select>
       )}
     />
@@ -62,8 +67,9 @@ function renderSelectValue(
   value: unknown,
   futureQuarterByDate: Map<string, string>
 ): ReactNode {
-  if (value && typeof value === "string" && futureQuarterByDate.has(value)) {
-    return futureQuarterByDate.get(value);
+  if (value && typeof value === "string") {
+    if (value === TARGET_COMPLETION_NULL) return "Unplanned";
+    if (futureQuarterByDate.has(value)) return futureQuarterByDate.get(value);
   }
   return "Choose...";
 }

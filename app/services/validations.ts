@@ -479,13 +479,13 @@ async function getSourceDatasetAtlasIds(
 }
 
 /**
- * Set target completion for the given validations to the given date.
- * @param targetCompletion - Target completion date.
+ * Set target completion for the given validations to the given date, or to null.
+ * @param targetCompletion - Target completion date or null.
  * @param validationIds - Validation IDs.
  * @returns updated validation records.
  */
 export async function updateTargetCompletions(
-  targetCompletion: Date,
+  targetCompletion: Date | null,
   validationIds: string[]
 ): Promise<HCAAtlasTrackerDBValidationWithAtlasProperties[]> {
   const client = await getPoolClient();

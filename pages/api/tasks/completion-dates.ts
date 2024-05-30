@@ -12,7 +12,7 @@ export default handler(
     const { targetCompletion, taskIds } =
       await taskCompletionDatesSchema.validate(req.body);
     const updatedValidations = await updateTargetCompletions(
-      new Date(targetCompletion),
+      targetCompletion === null ? null : new Date(targetCompletion),
       taskIds
     );
     res.json(updatedValidations.map(dbValidationToApiValidation));
