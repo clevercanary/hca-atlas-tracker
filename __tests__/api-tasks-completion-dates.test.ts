@@ -181,13 +181,24 @@ describe("/api/tasks/completion-dates", () => {
     for (const validation of updatedValidationsFromDb) {
       expect(validation.target_completion?.toISOString()).toEqual(DATE_VALID);
     }
-    const otherValidationFromDb = (
-      await query<HCAAtlasTrackerDBValidation>(
-        "SELECT * FROM hat.validations WHERE id=$1",
-        [otherValidation.id]
-      )
-    ).rows[0];
+    const otherValidationFromDb = await getValidationFromDb(otherValidation.id);
     expect(otherValidationFromDb).toEqual(otherValidation);
+  });
+
+  it("sets target completion to null", async () => {
+    const validationId = validationIds[0];
+    const validationBefore = await getValidationFromDb(validationId);
+    expect(validationBefore.target_completion).not.toBeNull();
+    const res = await doCompletionDatesRequest(USER_CONTENT_ADMIN, null, [
+      validationId,
+    ]);
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedValidations: HCAAtlasTrackerValidationRecord[] =
+      res._getJSONData();
+    expect(updatedValidations).toHaveLength(1);
+    expect(updatedValidations[0].targetCompletion).toBeNull();
+    const validationAfter = await getValidationFromDb(validationId);
+    expect(validationAfter.target_completion).toBeNull();
   });
 });
 
@@ -205,9 +216,20 @@ async function expectValidationsToBeUnchanged(): Promise<void> {
   }
 }
 
+async function getValidationFromDb(
+  id: string
+): Promise<HCAAtlasTrackerDBValidation> {
+  return (
+    await query<HCAAtlasTrackerDBValidation>(
+      "SELECT * FROM hat.validations WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
+}
+
 async function doCompletionDatesRequest(
   user: TestUser | undefined,
-  targetCompletion: string,
+  targetCompletion: string | null,
   taskIds: string[],
   hideConsoleError = false,
   method = METHOD.PATCH

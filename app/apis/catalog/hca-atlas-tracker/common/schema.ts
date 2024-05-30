@@ -222,7 +222,7 @@ export const newUserSchema = object({
 export type NewUserData = InferType<typeof newUserSchema>;
 
 export const taskCompletionDatesSchema = object({
-  targetCompletion: string().datetime().required(),
+  targetCompletion: string().datetime().required().nullable(),
   taskIds: array(string().uuid().required()).required().min(1),
 }).strict(true);
 
