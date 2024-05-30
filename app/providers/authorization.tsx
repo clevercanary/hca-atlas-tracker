@@ -1,3 +1,4 @@
+import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
 import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { createContext, ReactNode, useEffect } from "react";
 import {
@@ -33,7 +34,11 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
 
   return (
     <AuthorizationContext.Provider value={{ user }}>
-      {shouldRenderComponents(isAuthenticated, isAuthorized) ? children : null}
+      {shouldRenderComponents(isAuthenticated, isAuthorized) ? (
+        children
+      ) : (
+        <DXMain>{null}</DXMain>
+      )}
     </AuthorizationContext.Provider>
   );
 }

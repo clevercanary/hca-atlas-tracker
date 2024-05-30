@@ -58,8 +58,8 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
                 <AppLayout>
                   <DXHeader {...header} />
                   <ExploreStateProvider entityListType={entityListType}>
-                    <Main>
-                      <AuthorizationProvider>
+                    <AuthorizationProvider>
+                      <Main>
                         <ErrorBoundary
                           fallbackRender={({
                             error,
@@ -79,8 +79,8 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
                           <Component {...pageProps} />
                           <Floating {...floating} />
                         </ErrorBoundary>
-                      </AuthorizationProvider>
-                    </Main>
+                      </Main>
+                    </AuthorizationProvider>
                   </ExploreStateProvider>
                   <Footer {...footer} />
                 </AppLayout>
