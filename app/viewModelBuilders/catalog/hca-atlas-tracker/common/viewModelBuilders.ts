@@ -51,6 +51,19 @@ export const buildBioNetwork = (
 };
 
 /**
+ * Build props for the "created at" cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildCreatedAt = (
+  task: HCAAtlasTrackerValidationRecord
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: getDateFromIsoString(task.createdAt),
+  };
+};
+
+/**
  * Build props for the EditTasks component.
  * @param rows - Table rows.
  * @returns Props to be used for the EditTasks component.
@@ -139,6 +152,19 @@ export const buildIntegrationLead = (
   return {
     label: "integration leads",
     values: atlas.integrationLeadName,
+  };
+};
+
+/**
+ * Build props for the "resolved at" cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildResolvedAt = (
+  task: HCAAtlasTrackerValidationRecord
+): React.ComponentProps<typeof C.Cell> => {
+  return {
+    value: task.resolvedAt ? getDateFromIsoString(task.resolvedAt) : "",
   };
 };
 
@@ -437,6 +463,15 @@ export function getBioNetworkName(name: string): string {
 export function getDOILink(doi: string | null): string {
   if (!doi) return "";
   return `https://doi.org/${encodeURIComponent(doi)}`;
+}
+
+/**
+ * Get date-only string from ISO datetime with 4-digit year, defaulting to the full string if it's improperly formatted.
+ * @param isoString - ISO datetime.
+ * @returns date in YYYY-MM-DD format.
+ */
+function getDateFromIsoString(isoString: string): string {
+  return /\d{4}-\d{2}-\d{2}/.exec(isoString)?.[0] ?? isoString;
 }
 
 /**

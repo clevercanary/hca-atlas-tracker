@@ -109,9 +109,12 @@ export interface HCAAtlasTrackerValidationRecord
   extends HCAAtlasTrackerValidationResult {
   atlasNames: string[];
   atlasShortNames: string[];
+  createdAt: string;
   id: string;
   networks: NetworkKey[];
+  resolvedAt: string | null;
   targetCompletion: string | null;
+  updatedAt: string;
   waves: Wave[];
 }
 

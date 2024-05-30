@@ -95,6 +95,19 @@ export const tasksEntityConfig: EntityConfig = {
       {
         filters: [
           {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.DONE],
+          },
+        ],
+        sort: {
+          desc: SORT_DIRECTION.DESCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RESOLVED_AT,
+        },
+        title: "Completed Tasks",
+      },
+      {
+        filters: [
+          {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
             value: ["Ingest source dataset."],
           },
@@ -307,6 +320,31 @@ export const tasksEntityConfig: EntityConfig = {
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        width: { max: "0.65fr", min: "120px" },
+      },
+      {
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildResolvedAt,
+        } as ComponentConfig<
+          typeof C.Cell,
+          HCAAtlasTrackerListValidationRecord
+        >,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.RESOLVED_AT,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RESOLVED_AT,
+        width: { max: "0.65fr", min: "120px" },
+      },
+      {
+        columnVisible: false,
+        componentConfig: {
+          component: C.Cell,
+          viewBuilder: V.buildCreatedAt,
+        } as ComponentConfig<
+          typeof C.Cell,
+          HCAAtlasTrackerListValidationRecord
+        >,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CREATED_AT,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.CREATED_AT,
         width: { max: "0.65fr", min: "120px" },
       },
     ],
