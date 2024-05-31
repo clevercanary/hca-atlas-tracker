@@ -31,8 +31,8 @@ export const tasksEntityConfig: EntityConfig = {
       {
         categoryConfigs: [
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
           },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
@@ -43,10 +43,11 @@ export const tasksEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
           },
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
           },
         ],
+        label: "Task",
       },
       {
         categoryConfigs: [
@@ -62,11 +63,25 @@ export const tasksEntityConfig: EntityConfig = {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVES,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVES,
           },
+        ],
+        label: "Atlas",
+      },
+      {
+        categoryConfigs: [
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
+          },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
           },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
+          },
         ],
+        label: "Dataset",
       },
     ],
     key: "tasks",
@@ -233,6 +248,19 @@ export const tasksEntityConfig: EntityConfig = {
         width: { max: "1fr", min: "220px" },
       },
       {
+        columnVisible: false,
+        componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildTaskDoi,
+        } as ComponentConfig<
+          typeof C.Link,
+          HCAAtlasTrackerListValidationRecord
+        >,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
+        width: { max: "1fr", min: "220px" },
+      },
+      {
         columnPinned: true,
         componentConfig: {
           component: C.Cell,
@@ -275,10 +303,10 @@ export const tasksEntityConfig: EntityConfig = {
       {
         columnVisible: false,
         componentConfig: {
-          component: C.Cell,
+          component: C.Link,
           viewBuilder: V.buildEntityTitle,
         } as ComponentConfig<
-          typeof C.Cell,
+          typeof C.Link,
           HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,

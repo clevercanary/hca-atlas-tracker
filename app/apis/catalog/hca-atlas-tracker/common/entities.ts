@@ -197,7 +197,8 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
 }
 
 export interface HCAAtlasTrackerListValidationRecord
-  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion"> {
+  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion" | "doi"> {
+  doi: string;
   targetCompletion: string;
 }
 

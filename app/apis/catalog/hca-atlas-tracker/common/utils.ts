@@ -242,6 +242,7 @@ export function taskInputMapper(
 ): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
+    doi: apiTask.doi === null ? "Unpublished" : apiTask.doi,
     targetCompletion: formatDateToQuarterYear(apiTask.targetCompletion),
   };
 }
