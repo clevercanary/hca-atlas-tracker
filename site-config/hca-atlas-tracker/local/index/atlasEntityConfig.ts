@@ -52,7 +52,6 @@ export const atlasEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVE,
           },
         ],
-        label: "Atlas",
       },
     ],
     key: "atlas",
