@@ -39,7 +39,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   COMPONENT_ATLAS_NAME: "Component Atlas",
   CREATED_AT: "Created At",
   CXG_EXPLORE_URL: "Explore",
-  DESCRIPTION: "Task",
+  DESCRIPTION: "Task Type",
   DISEASE: "Disease",
   DOI: "DOI",
   ENTITY_TITLE: "Title",

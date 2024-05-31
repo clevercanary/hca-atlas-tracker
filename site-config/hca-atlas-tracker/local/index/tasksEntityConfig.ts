@@ -31,8 +31,8 @@ export const tasksEntityConfig: EntityConfig = {
       {
         categoryConfigs: [
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
           },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
@@ -43,20 +43,17 @@ export const tasksEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
           },
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION,
           },
         ],
+        label: "Task",
       },
       {
         categoryConfigs: [
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
           },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
@@ -66,15 +63,25 @@ export const tasksEntityConfig: EntityConfig = {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVES,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVES,
           },
+        ],
+        label: "Atlas",
+      },
+      {
+        categoryConfigs: [
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
+          },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
           },
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
           },
         ],
+        label: "Dataset",
       },
     ],
     key: "tasks",
