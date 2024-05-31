@@ -1,24 +1,21 @@
 import { Controller } from "react-hook-form";
-import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
-import { NewAtlasData } from "../../../../../../../../../../views/AddNewAtlasView/common/entities";
-import { FIELD_NAME } from "../../../../../../../../../../views/AtlasView/common/constants";
-import { AtlasEditData } from "../../../../../../../../../../views/AtlasView/common/entities";
-import { Input } from "../../../../../../../../../common/Form/components/Input/input";
+import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
+import { FIELD_NAME } from "../../../../../../../../../../../../views/AddNewAtlasView/common/constants";
+import { NewAtlasData } from "../../../../../../../../../../../../views/AddNewAtlasView/common/entities";
+import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import {
   Section,
   SectionCard,
   SectionHero,
   SectionTitle,
-} from "../../../../section.styles";
-import { DEFAULT_INPUT_PROPS } from "../../common/constants";
+} from "../../../../../../section.styles";
+import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 
 export interface IntegrationLeadProps {
   formManager: FormManager;
-  formMethod:
-    | FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
-    | FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>;
+  formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>;
 }
 
 export const IntegrationLead = ({

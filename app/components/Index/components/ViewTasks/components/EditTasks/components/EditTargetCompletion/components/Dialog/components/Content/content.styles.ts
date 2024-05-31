@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
-import { Select as FormControl } from "../../../../../../../../../../../common/Form/components/Select/select";
+import { TargetCompletion } from "../../../../../../../../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
 
-export const Select = styled(FormControl)`
+export const Select = styled(TargetCompletion)`
   .MuiOutlinedInput-root {
     min-width: 424px;
   }

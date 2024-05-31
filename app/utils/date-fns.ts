@@ -7,6 +7,7 @@ import {
 } from "date-fns";
 
 const FORMAT_STR = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+const FORMAT_STR_YEAR_QUARTER = "yyyy, QQQ";
 const QUARTERS = [1, 2, 3, 4];
 
 /**
@@ -31,7 +32,7 @@ export function formatDateToQuarterYear(dateStr: string | null): string {
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth();
     const dateUTC = new Date(Date.UTC(year, month));
-    return format(dateUTC, "QQQ, yyyy");
+    return format(dateUTC, FORMAT_STR_YEAR_QUARTER);
   }
   return dateStr;
 }
@@ -83,7 +84,7 @@ export function getFutureQuarterByDateForNextTwoYears(
       if (isFuture(lastMomentOfQuarter)) {
         futureQuarterByDate.set(
           formatDate(lastMomentOfQuarter),
-          formatDate(lastMomentOfQuarter, "QQQ, yyyy")
+          formatDate(lastMomentOfQuarter, FORMAT_STR_YEAR_QUARTER)
         );
       }
     }

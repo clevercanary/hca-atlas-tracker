@@ -4,8 +4,8 @@ import { FormManager as FormManagerProps } from "../../../../hooks/useFormManage
 import { NewAtlasData } from "../../../../views/AddNewAtlasView/common/entities";
 import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
-import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
+import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/Add/components/GeneralInfo/generalInfo";
+import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/Add/components/IntegrationLead/integrationLead";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { NoAccess } from "./components/NoAccess/noAccess";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
