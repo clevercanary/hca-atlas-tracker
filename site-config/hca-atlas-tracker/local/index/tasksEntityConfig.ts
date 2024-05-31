@@ -55,6 +55,10 @@ export const tasksEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
           },
           {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
+          },
+          {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
           },
@@ -292,10 +296,10 @@ export const tasksEntityConfig: EntityConfig = {
       {
         columnVisible: false,
         componentConfig: {
-          component: C.Cell,
+          component: C.Link,
           viewBuilder: V.buildEntityTitle,
         } as ComponentConfig<
-          typeof C.Cell,
+          typeof C.Link,
           HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,

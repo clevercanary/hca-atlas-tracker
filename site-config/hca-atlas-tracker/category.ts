@@ -42,7 +42,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   DESCRIPTION: "Task",
   DISEASE: "Disease",
   DOI: "DOI",
-  ENTITY_TITLE: "Entity Title",
+  ENTITY_TITLE: "Title",
   ENTITY_TYPE: "Entity Type",
   INTEGRATION_LEAD: "Integration Lead",
   NAME: "Atlas",

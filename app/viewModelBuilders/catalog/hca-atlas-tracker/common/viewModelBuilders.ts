@@ -82,9 +82,10 @@ export const buildEditTask = (
  */
 export const buildEntityTitle = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.Link> => {
   return {
-    value: task.entityTitle,
+    label: task.entityTitle,
+    url: getRouteURL(ROUTE.SOURCE_DATASETS, task.atlasIds[0]),
   };
 };
 
