@@ -4,6 +4,7 @@ import {
 } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../app/common/entities";
 import { getProvidedUserProfile } from "../../app/services/user-profile";
+import { updateLastLogin } from "../../app/services/users";
 import {
   getUserFromAuthorization,
   handler,
@@ -15,6 +16,7 @@ export default handler(method(METHOD.GET), async (req, res) => {
   const user = await getUserFromAuthorization(req.headers.authorization);
   let activeUserInfo: HCAAtlasTrackerActiveUser;
   if (user) {
+    await updateLastLogin(user.id);
     activeUserInfo = {
       email: user.email,
       fullName: user.full_name,
