@@ -85,7 +85,7 @@ export const buildEntityTitle = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: task.entityTitle,
-    url: getRouteURL(ROUTE.SOURCE_DATASETS, task.atlasIds[0]),
+    url: getRouteURL(ROUTE.SOURCE_DATASET, task.atlasIds[0], task.entityId),
   };
 };
 
