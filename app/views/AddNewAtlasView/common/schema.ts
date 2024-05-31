@@ -3,7 +3,6 @@ import {
   NETWORK_KEYS,
   WAVES,
 } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
-import { TARGET_COMPLETION_REGEXP } from "../../../components/Form/components/Select/components/TargetCompletion/common/constants";
 import { FIELD_NAME } from "./constants";
 
 export const newAtlasSchema = object({
@@ -35,10 +34,6 @@ export const newAtlasSchema = object({
   [FIELD_NAME.SHORT_NAME]: string()
     .default("")
     .required("Short name is required"),
-  [FIELD_NAME.TARGET_COMPLETION]: string()
-    .matches(TARGET_COMPLETION_REGEXP, "Target completion is required")
-    .default("")
-    .required(),
   [FIELD_NAME.VERSION]: string().default("").required("Version is required"),
   [FIELD_NAME.WAVE]: string()
     .default("")

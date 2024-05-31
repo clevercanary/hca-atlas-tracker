@@ -7,7 +7,6 @@ export const FIELD_NAME = {
   INTEGRATION_LEAD_B_EMAIL: "integrationLeadB.email",
   INTEGRATION_LEAD_B_NAME: "integrationLeadB.name",
   SHORT_NAME: "shortName",
-  TARGET_COMPLETION: "targetCompletion",
   VERSION: "version",
   WAVE: "wave",
 } as const;

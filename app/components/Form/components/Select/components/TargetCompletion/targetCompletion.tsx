@@ -27,7 +27,6 @@ export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(
         renderValue={(value): ReactNode =>
           renderValue(value, futureQuarterByDate)
         }
-        // value={props.value || ""} // Target completion value `null` is not supported by Select component as a valid value.
       >
         {[...futureQuarterByDate].map(([date, quarter]) => (
           <MMenuItem key={quarter} value={date}>
