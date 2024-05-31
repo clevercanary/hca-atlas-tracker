@@ -19,6 +19,10 @@ export const DEFAULT_INPUT_PROPS = {
     label: "Short name",
     placeholder: "e.g. Cortex",
   },
+  TARGET_COMPLETION: {
+    displayEmpty: true,
+    label: "Target completion",
+  },
   VERSION: {
     label: "Version",
     placeholder: "e.g. 1.0",

@@ -18,6 +18,7 @@ import { FIELD_NAME } from "../../../../../../../../../../views/AtlasView/common
 import { AtlasEditData } from "../../../../../../../../../../views/AtlasView/common/entities";
 import { Input } from "../../../../../../../../../common/Form/components/Input/input";
 import { Select } from "../../../../../../../../../common/Form/components/Select/select";
+import { TargetCompletion } from "../../../../../../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
 import { NetworkIconAndName } from "../../../../../Select/components/NetworkIconAndName/networkIconAndName";
 import {
   Section,
@@ -121,6 +122,22 @@ export const GeneralInfo = ({
                 );
               })}
             </Select>
+          )}
+        />
+        <Controller
+          control={control}
+          name={FIELD_NAME.TARGET_COMPLETION}
+          render={({ field }): JSX.Element => (
+            <TargetCompletion
+              {...field}
+              {...DEFAULT_INPUT_PROPS.TARGET_COMPLETION}
+              error={Boolean(errors[FIELD_NAME.TARGET_COMPLETION])}
+              helperText={
+                errors[FIELD_NAME.TARGET_COMPLETION]?.message as string
+              }
+              isFilled={Boolean(field.value)}
+              readOnly={isReadOnly}
+            />
           )}
         />
       </SectionCard>

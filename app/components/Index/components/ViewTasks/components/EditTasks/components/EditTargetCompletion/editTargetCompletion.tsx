@@ -3,8 +3,8 @@ import { API } from "../../../../../../../../apis/catalog/hca-atlas-tracker/comm
 import { TaskCompletionDatesData as APITaskCompletionDatesData } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../../../../../common/entities";
 import { FormActions } from "../../../../../../../common/Form/components/FormActions/formActions";
+import { mapTargetCompletion } from "../../../../../../../Form/components/Select/components/TargetCompletion/common/utils";
 import { OnEditFn } from "../../common/entities";
-import { TARGET_COMPLETION_NULL } from "./common/constants";
 import { TaskCompletionDatesData } from "./common/entities";
 import { taskCompletionDatesSchema } from "./common/schema";
 import { Content } from "./components/Dialog/components/Content/content";
@@ -47,7 +47,8 @@ export const EditTargetCompletion = ({
 function mapApiValues(
   data: TaskCompletionDatesData
 ): APITaskCompletionDatesData {
-  return data.targetCompletion === TARGET_COMPLETION_NULL
-    ? { ...data, targetCompletion: null }
-    : data;
+  return {
+    ...data,
+    targetCompletion: mapTargetCompletion(data.targetCompletion),
+  };
 }
