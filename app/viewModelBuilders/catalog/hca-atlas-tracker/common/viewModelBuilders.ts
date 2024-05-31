@@ -1,3 +1,4 @@
+import { SelectedFilter } from "@databiosphere/findable-ui/lib/common/entities";
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import {
@@ -313,9 +314,18 @@ export const buildTaskBioNetworks = (
  */
 export const buildTaskCounts = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.Link> => {
+  const urlFilters: SelectedFilter[] = [
+    {
+      categoryKey: "atlasNames",
+      value: [atlas.name],
+    },
+  ];
   return {
-    value: `${atlas.completedTaskCount}/${atlas.taskCount}`,
+    label: `${atlas.completedTaskCount}/${atlas.taskCount}`,
+    url: `${ROUTE.TASKS}?filter=${encodeURIComponent(
+      JSON.stringify(urlFilters)
+    )}`,
   };
 };
 

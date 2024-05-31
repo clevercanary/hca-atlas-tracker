@@ -139,9 +139,9 @@ export const atlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
-          component: C.Cell,
+          component: C.Link,
           viewBuilder: V.buildTaskCounts,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_COUNTS,
         width: { max: "0.5fr", min: "68px" },
       },
