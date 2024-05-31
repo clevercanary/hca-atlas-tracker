@@ -30,7 +30,7 @@ export type OnDeleteFn = (
 ) => Promise<void>;
 
 export interface OnDeleteOptions {
-  onSuccess?: (id: string) => void;
+  onSuccess?: () => void;
 }
 
 export type OnSubmitFn<T extends FieldValues, R = undefined> = (

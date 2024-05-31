@@ -6,6 +6,7 @@ import {
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { Actions } from "../../components/Detail/components/ViewSourceDataset/components/Actions/actions";
 import { ViewSourceDataset } from "../../components/Detail/components/ViewSourceDataset/viewSourceDataset";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -33,7 +34,7 @@ export const SourceDatasetView = ({
     formMethod
   );
   const {
-    access: { canView },
+    access: { canEdit, canView },
     formAction,
     isLoading,
   } = formManager;
@@ -45,6 +46,7 @@ export const SourceDatasetView = ({
       isIn={shouldRenderView(canView, Boolean(atlas && sourceDataset))}
     >
       <DetailView
+        actions={canEdit && <Actions formManager={formManager} />}
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceDataset)}

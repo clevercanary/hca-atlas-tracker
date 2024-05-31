@@ -8,11 +8,7 @@ import {
 } from "react-hook-form";
 import { ObjectSchema } from "yup";
 import { METHOD } from "../../common/entities";
-import {
-  isFetchStatusCreated,
-  isFetchStatusNoContent,
-  isFetchStatusOk,
-} from "../../common/utils";
+import { isFetchStatusCreated, isFetchStatusOk } from "../../common/utils";
 import {
   CustomUseFormReturn,
   FormResponseErrors,
@@ -76,9 +72,8 @@ export const useForm = <T extends FieldValues, R = undefined>(
       options?: OnDeleteOptions
     ): Promise<void> => {
       const res = await fetchDelete(requestURL, requestMethod, token);
-      if (isFetchStatusNoContent(res.status)) {
-        const { id } = await res.json();
-        options?.onSuccess?.(id);
+      if (isFetchStatusOk(res.status)) {
+        options?.onSuccess?.();
       } else {
         onError(await getFormResponseErrors(res));
       }

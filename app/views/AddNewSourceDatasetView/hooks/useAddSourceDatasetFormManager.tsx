@@ -52,7 +52,7 @@ export const useAddSourceDatasetFormManager = (
     [atlasId, onSubmit, unregister]
   );
 
-  return useFormManager(formMethod, onDiscard, onSave, isDirty);
+  return useFormManager(formMethod, { onDiscard, onSave }, isDirty);
 };
 
 /**

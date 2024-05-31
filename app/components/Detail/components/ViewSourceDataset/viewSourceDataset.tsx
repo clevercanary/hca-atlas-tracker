@@ -24,10 +24,13 @@ export const ViewSourceDataset = ({
   const {
     access: { canView },
   } = formManager;
+  const {
+    formState: { isDirty },
+  } = formMethod;
   if (!canView) return <RequestAccess />;
   return (
     <TrackerForm>
-      <FormManager {...formManager} />
+      {isDirty && <FormManager {...formManager} />}
       <Divider />
       <GeneralInfo
         formManager={formManager}

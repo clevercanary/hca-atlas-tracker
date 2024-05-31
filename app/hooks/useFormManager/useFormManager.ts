@@ -23,8 +23,15 @@ export interface UseFormManager {
 
 export const useFormManager = <T extends FieldValues, R = undefined>(
   formMethod?: FormMethod<T, R>,
-  onDiscard?: (path?: string) => void,
-  onSave?: (payload: YupValidatedFormValues<T>, path?: string) => void,
+  {
+    onDelete,
+    onDiscard,
+    onSave,
+  }: {
+    onDelete?: (path?: string) => void;
+    onDiscard?: (path?: string) => void;
+    onSave?: (payload: YupValidatedFormValues<T>, path?: string) => void;
+  } = {},
   isDirty = formMethod?.formState.isDirty ?? false
 ): UseFormManager => {
   const { isAuthenticated } = useAuthentication();
@@ -55,6 +62,10 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
   const onCancel = useCallback((): void => {
     setPathRoute(undefined);
   }, []);
+
+  const onFormDelete = useCallback((): void => {
+    onDelete?.(nextPath);
+  }, [onDelete, nextPath]);
 
   const onFormDiscard = useCallback((): void => {
     onDiscard?.(nextPath);
@@ -97,6 +108,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
         isDisabled: false,
         isLeaving: false,
         isReadOnly: false,
+        isSubmitSuccessful: false,
         isSubmitted: false,
         isSubmitting: false,
       },
@@ -108,6 +120,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
     access,
     formAction: {
       onCancel,
+      onDelete: handleSubmit?.(onFormDelete, onFormError),
       onDiscard: onFormDiscard,
       onNavigate,
       onSave: handleSubmit?.(onFormSave, onFormError),
@@ -117,6 +130,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
       isDisabled,
       isLeaving: Boolean(nextRoute),
       isReadOnly,
+      isSubmitSuccessful,
       isSubmitted,
       isSubmitting,
     },

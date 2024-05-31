@@ -9,7 +9,7 @@ import { config } from "app/config/config";
 import fsp from "fs/promises";
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { ExploreView } from "../../app/views/ExploreView/exploreView";
+import { EntitiesView } from "../../app/views/EntitiesView/entitiesView";
 
 interface PageUrl extends ParsedUrlQuery {
   entityListType: string;
@@ -61,7 +61,7 @@ const IndexPage = ({
   ...props
 }: ListPageProps): JSX.Element => {
   if (!entityListType) return <></>;
-  return <ExploreView entityListType={entityListType} {...props} />;
+  return <EntitiesView entityListType={entityListType} {...props} />;
 };
 
 /**

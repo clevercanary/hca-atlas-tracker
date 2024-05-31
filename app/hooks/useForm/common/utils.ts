@@ -1,5 +1,5 @@
 import { METHOD } from "../../../common/entities";
-import { getFetchOptions, getHeaderAuthorization } from "../../../common/utils";
+import { getFetchOptions } from "../../../common/utils";
 import { FormResponseErrors } from "./entities";
 
 /**
@@ -15,8 +15,7 @@ export async function fetchDelete(
   accessToken?: string
 ): Promise<Response> {
   return await fetch(requestURL, {
-    ...getHeaderAuthorization(accessToken),
-    method: requestMethod,
+    ...getFetchOptions(requestMethod, accessToken),
   });
 }
 

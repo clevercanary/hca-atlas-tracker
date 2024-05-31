@@ -15,7 +15,7 @@ export function getFetchOptions(
   accessToken: string | undefined
 ): RequestInit {
   return {
-    headers: getHeaders(accessToken),
+    headers: getHeaders(method, accessToken),
     method,
   };
 }
@@ -25,21 +25,25 @@ export function getFetchOptions(
  * @param accessToken - Access token.
  * @returns HTTP authorization header.
  */
-export function getHeaderAuthorization(
-  accessToken?: string
-): HeadersInit | undefined {
-  if (!accessToken) return;
+export function getHeaderAuthorization(accessToken?: string): HeadersInit {
+  if (!accessToken) return {};
   return { authorization: `Bearer ${accessToken}` };
 }
 
 /**
  * Returns HTTP headers with authorization token.
+ * @param method - Method.
  * @param accessToken - Access token.
+ * @param defaultHeaders - Default headers.
  * @returns HTTP headers.
  */
-export function getHeaders(accessToken?: string): HeadersInit {
-  if (!accessToken) return DEFAULT_HEADERS;
-  return { ...DEFAULT_HEADERS, ...getHeaderAuthorization(accessToken) };
+export function getHeaders(
+  method: METHOD,
+  accessToken?: string,
+  defaultHeaders = method === METHOD.DELETE ? {} : DEFAULT_HEADERS
+): HeadersInit {
+  if (!accessToken) return defaultHeaders;
+  return { ...defaultHeaders, ...getHeaderAuthorization(accessToken) };
 }
 
 /**
