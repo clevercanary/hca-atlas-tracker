@@ -66,6 +66,10 @@ export const tasksEntityConfig: EntityConfig = {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
           },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
+          },
         ],
       },
     ],
@@ -230,6 +234,19 @@ export const tasksEntityConfig: EntityConfig = {
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
+        width: { max: "1fr", min: "220px" },
+      },
+      {
+        columnVisible: false,
+        componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildTaskDoi,
+        } as ComponentConfig<
+          typeof C.Link,
+          HCAAtlasTrackerListValidationRecord
+        >,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
         width: { max: "1fr", min: "220px" },
       },
       {

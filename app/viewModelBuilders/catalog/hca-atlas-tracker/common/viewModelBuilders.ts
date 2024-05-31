@@ -12,7 +12,6 @@ import {
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
-  HCAAtlasTrackerValidationRecord,
   Network,
   NetworkKey,
   TASK_STATUS,
@@ -56,7 +55,7 @@ export const buildBioNetwork = (
  * @returns Props to be used for the cell.
  */
 export const buildCreatedAt = (
-  task: HCAAtlasTrackerValidationRecord
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: getDateFromIsoString(task.createdAt),
@@ -161,7 +160,7 @@ export const buildIntegrationLead = (
  * @returns Props to be used for the cell.
  */
 export const buildResolvedAt = (
-  task: HCAAtlasTrackerValidationRecord
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Cell> => {
   return {
     value: task.resolvedAt ? getDateFromIsoString(task.resolvedAt) : "",
@@ -285,7 +284,7 @@ export const buildTargetCompletion = (
  * @returns Props to be used for the cell.
  */
 export const buildTaskAtlasNames = (
-  task: HCAAtlasTrackerValidationRecord
+  task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.NTagCell> => {
   return {
     label: "atlases",
@@ -345,6 +344,20 @@ export const buildTaskPublicationString = (
   return {
     label: task.publicationString ?? "",
     url: getDOILink(task.doi),
+  };
+};
+
+/**
+ * Build props for the DOI cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildTaskDoi = (
+  task: HCAAtlasTrackerListValidationRecord
+): React.ComponentProps<typeof C.Link> => {
+  return {
+    label: task.doi,
+    url: task.doi === "Unpublished" ? "" : getDOILink(task.doi),
   };
 };
 
