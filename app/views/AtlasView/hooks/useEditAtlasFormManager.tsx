@@ -33,7 +33,7 @@ export const useEditAtlasFormManager = (
     [atlasId, reset, onSubmit]
   );
 
-  return useFormManager(formMethod, onDiscard, onSave);
+  return useFormManager(formMethod, { onDiscard, onSave });
 };
 
 /**

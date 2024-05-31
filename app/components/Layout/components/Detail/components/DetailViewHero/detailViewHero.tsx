@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import {
   DetailViewHero as DetailViewHeroLayout,
   DetailViewHeroHeadline,
-  HeroActions,
   HeroHeader,
   HeroTitle,
   Statuses,
@@ -36,7 +35,7 @@ export const DetailViewHero = ({
               {status && <Statuses>{status}</Statuses>}
             </HeroTitle>
           </HeroHeader>
-          {actions && <HeroActions>{actions}</HeroActions>}
+          {actions}
         </DetailViewHeroHeadline>
       )}
       {tabs && <BackPageTabs>{tabs}</BackPageTabs>}

@@ -54,13 +54,7 @@ export const EditTasks = <
         ]}
       </DropdownMenu>
       <Dialog maxWidth={false} open={open} onClose={onClose}>
-        {formValue && (
-          <DialogForm
-            formValue={formValue}
-            onClose={onClose}
-            taskIds={taskIds}
-          />
-        )}
+        <DialogForm formValue={formValue} onClose={onClose} taskIds={taskIds} />
       </Dialog>
     </Fragment>
   );

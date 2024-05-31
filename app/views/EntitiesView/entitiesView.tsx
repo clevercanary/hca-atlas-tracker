@@ -7,14 +7,14 @@ import { RequestAccess } from "../../components/Detail/components/TrackerForm/co
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../routes/constants";
 import {
-  ExploreView as View,
+  ExploreView,
   IndexLayout,
   IndexView,
   IndexViewContent,
-} from "./exploreView.styles";
+} from "./entitiesView.styles";
 import { useUpdateExploreState } from "./hooks/useUpdateExploreState";
 
-export const ExploreView = ({
+export const EntitiesView = ({
   entityListType,
   ...props
 }: DXExploreViewProps): JSX.Element => {
@@ -26,7 +26,7 @@ export const ExploreView = ({
   } = useLayoutState();
   useUpdateExploreState(canEdit);
   return canView ? (
-    <View entityListType={entityListType} {...props} />
+    <ExploreView entityListType={entityListType} {...props} />
   ) : (
     <IndexView marginTop={headerHeight}>
       <IndexLayout>

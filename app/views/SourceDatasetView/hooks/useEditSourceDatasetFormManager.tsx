@@ -28,9 +28,25 @@ export const useEditSourceDatasetFormManager = (
   sdId: SourceDatasetId,
   formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>
 ): FormManager => {
-  const { onSubmit, reset, unregister, watch } = formMethod;
+  const {
+    onDelete: onDeleteSourceDataset,
+    onSubmit,
+    reset,
+    unregister,
+    watch,
+  } = formMethod;
   const publicationStatus = watch(FIELD_NAME.PUBLICATION_STATUS);
   const isDirty = isFormDirty(formMethod, publicationStatus);
+
+  const onDelete = useCallback(() => {
+    onDeleteSourceDataset(
+      getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sdId),
+      METHOD.DELETE,
+      {
+        onSuccess: () => onDeleteSuccess(atlasId),
+      }
+    );
+  }, [atlasId, onDeleteSourceDataset, sdId]);
 
   const onDiscard = useCallback(
     (url?: string) => {
@@ -55,7 +71,7 @@ export const useEditSourceDatasetFormManager = (
     [atlasId, onSubmit, reset, sdId, unregister]
   );
 
-  return useFormManager(formMethod, onDiscard, onSave, isDirty);
+  return useFormManager(formMethod, { onDelete, onDiscard, onSave }, isDirty);
 };
 
 /**
@@ -90,7 +106,15 @@ function isFormDirty(
 }
 
 /**
- * Side effect "onSuccess"; redirects to the source dataset page, or to the specified URL.
+ * Delete side effect "onSuccess"; redirects to the source datasets page.
+ * @param {string} atlasId - Atlas ID.
+ */
+function onDeleteSuccess(atlasId: string): void {
+  Router.push(getRouteURL(ROUTE.SOURCE_DATASETS, atlasId));
+}
+
+/**
+ * Submit side effect "onSuccess"; redirects to the source dataset page, or to the specified URL.
  * @param atlasId - Atlas ID.
  * @param sdId - Source dataset ID.
  * @param url - URL to redirect to.

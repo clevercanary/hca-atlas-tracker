@@ -8,6 +8,7 @@ export interface FormAccess {
 
 export interface FormAction {
   onCancel?: () => void;
+  onDelete?: () => void;
   onDiscard?: () => void;
   onNavigate?: (path: string, route?: RouteValue) => void;
   onSave?: () => void;
@@ -20,6 +21,7 @@ export interface FormStatus {
   isDisabled: boolean;
   isLeaving: boolean;
   isReadOnly: boolean;
+  isSubmitSuccessful: boolean;
   isSubmitted: boolean;
   isSubmitting: boolean;
 }
