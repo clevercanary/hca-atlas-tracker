@@ -38,6 +38,13 @@ jest.mock("../app/services/user-profile");
 
 const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
   {
+    system: SYSTEM.CAP,
+    taskStatus: TASK_STATUS.TODO,
+    validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+    validationStatus: VALIDATION_STATUS.FAILED,
+    validationType: VALIDATION_TYPE.INGEST,
+  },
+  {
     system: SYSTEM.CELLXGENE,
     taskStatus: TASK_STATUS.DONE,
     validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
@@ -54,6 +61,13 @@ const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
 ];
 
 const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
+  {
+    system: SYSTEM.CAP,
+    taskStatus: TASK_STATUS.BLOCKED,
+    validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+    validationStatus: VALIDATION_STATUS.BLOCKED,
+    validationType: VALIDATION_TYPE.INGEST,
+  },
   {
     system: SYSTEM.CELLXGENE,
     taskStatus: TASK_STATUS.TODO,
@@ -88,6 +102,13 @@ const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
 const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationProperties[] =
   [
     {
+      system: SYSTEM.CAP,
+      taskStatus: TASK_STATUS.BLOCKED,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+      validationStatus: VALIDATION_STATUS.BLOCKED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
       system: SYSTEM.CELLXGENE,
       taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
@@ -120,6 +141,13 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
 
 const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: ExpectedValidationProperties[] =
   [
+    {
+      system: SYSTEM.CAP,
+      taskStatus: TASK_STATUS.BLOCKED,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+      validationStatus: VALIDATION_STATUS.BLOCKED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
     {
       system: SYSTEM.CELLXGENE,
       taskStatus: TASK_STATUS.TODO,
@@ -154,6 +182,13 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: ExpectedValidationPropert
 const VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: ExpectedValidationProperties[] =
   [
     {
+      system: SYSTEM.CAP,
+      taskStatus: TASK_STATUS.BLOCKED,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+      validationStatus: VALIDATION_STATUS.BLOCKED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
       system: SYSTEM.CELLXGENE,
       taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
@@ -186,6 +221,13 @@ const VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: ExpectedValidationProperti
 
 const VALIDATIONS_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: ExpectedValidationProperties[] =
   [
+    {
+      system: SYSTEM.CAP,
+      taskStatus: TASK_STATUS.BLOCKED,
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+      validationStatus: VALIDATION_STATUS.BLOCKED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
     {
       system: SYSTEM.CELLXGENE,
       taskStatus: TASK_STATUS.TODO,
