@@ -33,7 +33,7 @@ import { getProjectInfoByDoi } from "./hca-projects";
 interface ValidationStatusInfo {
   differences?: ValidationDifference[];
   relatedEntityUrl?: string;
-  valid: boolean;
+  status: VALIDATION_STATUS;
 }
 
 interface ValidationDefinition<T> {
@@ -68,7 +68,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       system: SYSTEM.CELLXGENE,
       validate(sourceDataset): ValidationStatusInfo {
         return {
-          valid: Boolean(sourceDataset.sd_info.cellxgeneCollectionId),
+          status: passedIfTruthy(sourceDataset.sd_info.cellxgeneCollectionId),
         };
       },
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
@@ -79,7 +79,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo {
         return {
-          valid: Boolean(sourceDataset.sd_info.hcaProjectId),
+          status: passedIfTruthy(sourceDataset.sd_info.hcaProjectId),
         };
       },
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
@@ -98,7 +98,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
               actual === null ? false : titlesMatch(expected, actual);
             const info: ValidationStatusInfo = {
               ...infoProperties,
-              valid,
+              status: passedIfTruthy(valid),
             };
             if (!valid)
               info.differences = [
@@ -124,7 +124,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
           sourceDataset,
           (projectInfo, infoProperties) => ({
             ...infoProperties,
-            valid: Boolean(projectInfo?.hasPrimaryData),
+            status: passedIfTruthy(projectInfo?.hasPrimaryData),
           })
         );
       },
@@ -230,9 +230,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
 ): HCAAtlasTrackerValidationResult | null {
   const validationStatusInfo = validation.validate(entity);
   if (validationStatusInfo === null) return null;
-  const validationStatus = validationStatusInfo.valid
-    ? VALIDATION_STATUS.PASSED
-    : VALIDATION_STATUS.FAILED;
+  const validationStatus = validationStatusInfo.status;
   return {
     description: validation.description,
     differences: validationStatusInfo.differences ?? [],
@@ -527,4 +525,13 @@ function titlesMatch(a: string, b: string): boolean {
       .replace(/\s+/g, " ")
       .trim();
   }
+}
+
+/**
+ * Returns PASSED if the given value is truthy, or FAILED otherwise.
+ * @param value - Value to check.
+ * @returns validation status.
+ */
+function passedIfTruthy(value: unknown): VALIDATION_STATUS {
+  return value ? VALIDATION_STATUS.PASSED : VALIDATION_STATUS.FAILED;
 }
