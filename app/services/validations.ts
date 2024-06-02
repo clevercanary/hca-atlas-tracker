@@ -1,7 +1,10 @@
 import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
-import { TASK_STATUS_BY_VALIDATION_STATUS } from "../apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  TASK_STATUS_BY_VALIDATION_STATUS,
+  VALIDATION_DESCRIPTION,
+} from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DBEntityOfType,
   ENTITY_TYPE,
@@ -61,17 +64,10 @@ const CHANGE_INDICATING_VALIDATION_KEYS = [
   "validationStatus",
 ] as const;
 
-const DESCRIPTION = {
-  ADD_PRIMARY_DATA: "Add primary data.",
-  INGEST_SOURCE_DATASET: "Ingest source dataset.",
-  UPDATE_TITLE_TO_MATCH_PUBLICATION:
-    "Update project title to match publication title.",
-};
-
 export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceDataset>[] =
   [
     {
-      description: DESCRIPTION.INGEST_SOURCE_DATASET,
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
       system: SYSTEM.CAP,
       validate(sourceDataset): ValidationStatusInfo {
         return {
@@ -84,7 +80,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      description: DESCRIPTION.INGEST_SOURCE_DATASET,
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
       system: SYSTEM.CELLXGENE,
       validate(sourceDataset): ValidationStatusInfo {
         return {
@@ -95,7 +91,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      description: DESCRIPTION.INGEST_SOURCE_DATASET,
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo {
         return {
@@ -106,7 +102,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      description: DESCRIPTION.UPDATE_TITLE_TO_MATCH_PUBLICATION,
+      description: VALIDATION_DESCRIPTION.UPDATE_TITLE_TO_MATCH_PUBLICATION,
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo | null {
         return validateSourceDatasetHcaProjectInfo(
@@ -137,7 +133,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.METADATA,
     },
     {
-      description: DESCRIPTION.ADD_PRIMARY_DATA,
+      description: VALIDATION_DESCRIPTION.ADD_PRIMARY_DATA,
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo | null {
         return validateSourceDatasetHcaProjectInfo(

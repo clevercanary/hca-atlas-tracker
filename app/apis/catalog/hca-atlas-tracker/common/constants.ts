@@ -146,3 +146,10 @@ export const TASK_STATUS_BY_VALIDATION_STATUS: Record<
   [VALIDATION_STATUS.OVERRIDDEN]: TASK_STATUS.TODO,
   [VALIDATION_STATUS.PASSED]: TASK_STATUS.DONE,
 };
+
+export const VALIDATION_DESCRIPTION = {
+  ADD_PRIMARY_DATA: "Add primary data.",
+  INGEST_SOURCE_DATASET: "Ingest source dataset.",
+  UPDATE_TITLE_TO_MATCH_PUBLICATION:
+    "Update project title to match publication title.",
+};

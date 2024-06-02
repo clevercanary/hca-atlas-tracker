@@ -5,6 +5,7 @@ import {
   SORT_DIRECTION,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
+import { VALIDATION_DESCRIPTION } from "../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   HCAAtlasTrackerListValidationRecord,
   SYSTEM,
@@ -90,7 +91,28 @@ export const tasksEntityConfig: EntityConfig = {
         filters: [
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: ["Ingest source dataset."],
+            value: [VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO, TASK_STATUS.BLOCKED],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.CAP],
+          },
+        ],
+        sort: {
+          desc: SORT_DIRECTION.ASCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        },
+        title: "CAP - Ingest backlog",
+      },
+      {
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: [VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET],
           },
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
@@ -124,7 +146,7 @@ export const tasksEntityConfig: EntityConfig = {
         filters: [
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: ["Ingest source dataset."],
+            value: [VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET],
           },
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
@@ -145,7 +167,7 @@ export const tasksEntityConfig: EntityConfig = {
         filters: [
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: ["Add primary data."],
+            value: [VALIDATION_DESCRIPTION.ADD_PRIMARY_DATA],
           },
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
@@ -166,7 +188,7 @@ export const tasksEntityConfig: EntityConfig = {
         filters: [
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: ["Update project title to match publication title."],
+            value: [VALIDATION_DESCRIPTION.UPDATE_TITLE_TO_MATCH_PUBLICATION],
           },
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
