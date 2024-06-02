@@ -56,7 +56,7 @@ export function makeTestSourceDatasetOverview(
         unpublishedInfo: dataset.unpublishedInfo,
       }
     : {
-        capId: null,
+        capId: dataset.capId ?? null,
         cellxgeneCollectionId:
           (dataset.doi &&
             TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(dataset.doi)
