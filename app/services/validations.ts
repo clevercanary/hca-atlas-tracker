@@ -1,6 +1,7 @@
 import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
+import { TASK_STATUS_BY_VALIDATION_STATUS } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DBEntityOfType,
   ENTITY_TYPE,
@@ -12,7 +13,6 @@ import {
   HCAAtlasTrackerValidationResult,
   PublicationInfo,
   SYSTEM,
-  TASK_STATUS,
   ValidationDifference,
   VALIDATION_ID,
   VALIDATION_STATUS,
@@ -238,10 +238,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
     entityType,
     relatedEntityUrl: validationStatusInfo.relatedEntityUrl ?? null,
     system: validation.system,
-    taskStatus:
-      validationStatus === VALIDATION_STATUS.PASSED
-        ? TASK_STATUS.DONE
-        : TASK_STATUS.TODO,
+    taskStatus: TASK_STATUS_BY_VALIDATION_STATUS[validationStatus],
     validationId: validation.validationId,
     validationStatus,
     validationType: validation.validationType,

@@ -313,6 +313,7 @@ export enum SYSTEM {
 }
 
 export enum TASK_STATUS {
+  BLOCKED = "BLOCKED",
   DONE = "DONE",
   IN_PROGRESS = "IN_PROGRESS",
   TODO = "TODO",
@@ -331,6 +332,7 @@ export enum VALIDATION_ID {
 }
 
 export enum VALIDATION_STATUS {
+  BLOCKED = "BLOCKED",
   FAILED = "FAILED",
   OVERRIDDEN = "OVERRIDDEN",
   PASSED = "PASSED",
