@@ -7,12 +7,14 @@ import { SourceDatasetEditDataKeys } from "./entities";
 
 export const FIELD_NAME = {
   ...NEW_SOURCE_DATASET_FIELD_NAME,
+  CAP_ID: "capId",
   CELLXGENE_COLLECTION_ID: "cellxgeneCollectionId",
   HCA_PROJECT_ID: "hcaProjectId",
 } as const;
 
 export const PUBLISHED_FIELDS: SourceDatasetEditDataKeys[] = [
   ...NEW_SOURCE_DATASET_PUBLISHED_FIELDS,
+  FIELD_NAME.CAP_ID,
   FIELD_NAME.CELLXGENE_COLLECTION_ID,
   FIELD_NAME.HCA_PROJECT_ID,
 ];

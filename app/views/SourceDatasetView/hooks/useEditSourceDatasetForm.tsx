@@ -70,6 +70,7 @@ function mapSchemaValues(
 ): SourceDatasetEditData | undefined {
   if (!sourceDataset) return;
   return {
+    [FIELD_NAME.CAP_ID]: sourceDataset.capId ?? "",
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: mapCELLxGENECollectionId(
       sourceDataset.cellxgeneCollectionId
     ),
