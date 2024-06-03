@@ -1,23 +1,9 @@
-import { ValidationError } from "yup";
-import {
-  ATLAS_STATUS,
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBAtlasOverview,
-  ROLE,
-} from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import {
-  NewAtlasData,
-  newAtlasSchema,
-} from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { ROLE } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { newAtlasSchema } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbAtlasToApiAtlas } from "../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../app/common/entities";
-import { query } from "../../../app/services/database";
-import {
-  handler,
-  method,
-  respondValidationError,
-  role,
-} from "../../../app/utils/api-handler";
+import { createAtlas } from "../../../app/services/atlases";
+import { handler, method, role } from "../../../app/utils/api-handler";
 
 /**
  * API route for creating an atlas. Atlas information is provided as a JSON body.
@@ -26,30 +12,7 @@ export default handler(
   method(METHOD.POST),
   role(ROLE.CONTENT_ADMIN),
   async (req, res) => {
-    let newInfo: NewAtlasData;
-    try {
-      newInfo = await newAtlasSchema.validate(req.body);
-    } catch (e) {
-      if (e instanceof ValidationError) {
-        respondValidationError(res, e);
-        return;
-      } else {
-        throw e;
-      }
-    }
-    const newOverview: HCAAtlasTrackerDBAtlasOverview = {
-      completedTaskCount: 0,
-      integrationLead: newInfo.integrationLead,
-      network: newInfo.network,
-      shortName: newInfo.shortName,
-      taskCount: 0,
-      version: newInfo.version,
-      wave: newInfo.wave,
-    };
-    const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-      "INSERT INTO hat.atlases (overview, source_datasets, status) VALUES ($1, $2, $3) RETURNING *",
-      [JSON.stringify(newOverview), "[]", ATLAS_STATUS.DRAFT]
-    );
-    res.status(201).json(dbAtlasToApiAtlas(queryResult.rows[0]));
+    const data = await newAtlasSchema.validate(req.body);
+    res.status(201).json(dbAtlasToApiAtlas(await createAtlas(data)));
   }
 );
