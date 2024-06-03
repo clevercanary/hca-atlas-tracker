@@ -34,6 +34,7 @@ export const newAtlasSchema = object({
     .notOneOf([""], "Network is required")
     .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
   shortName: string().default("").required("Short name is required"),
+  targetCompletion: string().datetime().nullable(),
   version: string().default("").required("Version is required"),
   wave: string()
     .default("")
@@ -47,11 +48,7 @@ export type NewAtlasData = InferType<typeof newAtlasSchema>;
 /**
  * Schema for data used to apply edits to an atlas.
  */
-export const atlasEditSchema = newAtlasSchema.concat(
-  object({
-    targetCompletion: string().datetime().nullable(),
-  }).strict()
-);
+export const atlasEditSchema = newAtlasSchema;
 
 export type AtlasEditData = InferType<typeof atlasEditSchema>;
 

@@ -19,11 +19,16 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
-import { makeTestAtlasOverview } from "../testing/utils";
+import {
+  makeTestAtlasOverview,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
   integrationLead: [
@@ -88,7 +93,7 @@ describe("/api/atlases/[id]", () => {
   it("returns error 405 for non-GET, non-PUT request", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, undefined, METHOD.POST)
+        await doAtlasRequest(ATLAS_PUBLIC.id, undefined, false, METHOD.POST)
       )._getStatusCode()
     ).toEqual(405);
   });
@@ -117,6 +122,14 @@ describe("/api/atlases/[id]", () => {
     expect(
       (await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED))._getStatusCode()
     ).toEqual(403);
+  });
+
+  it("GET returns error 404 when nonexistent atlas is requested", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_ID_NONEXISTENT, USER_CONTENT_ADMIN, true)
+      )._getStatusCode()
+    ).toEqual(404);
   });
 
   it("returns public atlas when GET requested by user with STAKEHOLDER role", async () => {
@@ -160,6 +173,7 @@ describe("/api/atlases/[id]", () => {
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
           undefined,
+          false,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT
         )
@@ -173,6 +187,7 @@ describe("/api/atlases/[id]", () => {
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
           USER_UNREGISTERED,
+          false,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT
         )
@@ -186,6 +201,7 @@ describe("/api/atlases/[id]", () => {
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
           USER_STAKEHOLDER,
+          false,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT
         )
@@ -193,13 +209,33 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(403);
   });
 
+  it("PUT returns error 404 when nonexistent atlas is requested", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_ID_NONEXISTENT,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          ATLAS_PUBLIC_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
   it("PUT returns error 400 when network value is not a valid network key", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          network: "notanetwork" as AtlasEditData["network"],
-        })
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            network: "notanetwork" as AtlasEditData["network"],
+          }
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -207,10 +243,16 @@ describe("/api/atlases/[id]", () => {
   it("PUT returns error 400 when version is a number rather than a string", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          version: 1 as unknown as AtlasEditData["version"],
-        })
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            version: 1 as unknown as AtlasEditData["version"],
+          }
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -218,10 +260,16 @@ describe("/api/atlases/[id]", () => {
   it("PUT returns error 400 when wave is not a valid wave value", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          wave: "0" as AtlasEditData["wave"],
-        })
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            wave: "0" as AtlasEditData["wave"],
+          }
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -229,11 +277,17 @@ describe("/api/atlases/[id]", () => {
   it("PUT returns error 400 when integration lead is undefined", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          integrationLead:
-            undefined as unknown as AtlasEditData["integrationLead"],
-        })
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            integrationLead:
+              undefined as unknown as AtlasEditData["integrationLead"],
+          }
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -241,14 +295,20 @@ describe("/api/atlases/[id]", () => {
   it("PUT returns error 400 when integration lead is missing name", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          integrationLead: [
-            {
-              email: "bar@example.com",
-            },
-          ] as AtlasEditData["integrationLead"],
-        })
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            integrationLead: [
+              {
+                email: "bar@example.com",
+              },
+            ] as AtlasEditData["integrationLead"],
+          }
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -256,10 +316,16 @@ describe("/api/atlases/[id]", () => {
   it("PUT returns error 400 when target completion is non-UTC", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_CONTENT_ADMIN, METHOD.PUT, {
-          ...ATLAS_PUBLIC_EDIT,
-          targetCompletion: "2024-06-09T05:21:52.277-0700",
-        })
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            targetCompletion: "2024-06-09T05:21:52.277-0700",
+          }
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -292,6 +358,7 @@ async function testSuccessfulEdit(
   const res = await doAtlasRequest(
     testAtlas.id,
     USER_CONTENT_ADMIN,
+    false,
     METHOD.PUT,
     editData
   );
@@ -330,6 +397,7 @@ async function testSuccessfulEdit(
 async function doAtlasRequest(
   atlasId: string,
   user?: TestUser,
+  hideConsoleError = false,
   method = METHOD.GET,
   updatedData?: AtlasEditData
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
@@ -339,6 +407,6 @@ async function doAtlasRequest(
     method,
     query: { atlasId },
   });
-  await atlasHandler(req, res);
+  await withConsoleErrorHiding(() => atlasHandler(req, res), hideConsoleError);
   return res;
 }

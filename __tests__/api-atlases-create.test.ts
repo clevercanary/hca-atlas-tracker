@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -61,6 +62,15 @@ const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
   shortName: "test3",
   version: "1.2",
   wave: "3",
+};
+
+const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
+  integrationLead: [],
+  network: "musculoskeletal",
+  shortName: "test4",
+  targetCompletion: "2024-06-03T21:07:22.177Z",
+  version: "3.3",
+  wave: "2",
 };
 
 beforeAll(async () => {
@@ -198,36 +208,59 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when target completion is non-UTC", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_WITH_TARGET_COMPLETION,
+            targetCompletion: "2024-06-03T14:07:22.177-0700",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
-    const res = await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_DATA);
-    expect(res._getStatusCode()).toEqual(201);
-    const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
-    const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
-    expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_DATA);
-    expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
+    await testSuccessfulCreate(NEW_ATLAS_DATA);
   });
 
   it("creates and returns atlas entry with specified integration lead", async () => {
-    const res = await doCreateTest(USER_CONTENT_ADMIN, NEW_ATLAS_WITH_IL_DATA);
-    expect(res._getStatusCode()).toEqual(201);
-    const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
-    const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
-    expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_WITH_IL_DATA);
-    expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
+    await testSuccessfulCreate(NEW_ATLAS_WITH_IL_DATA);
   });
 
   it("creates and returns atlas entry with multiple integration leads", async () => {
-    const res = await doCreateTest(
-      USER_CONTENT_ADMIN,
-      NEW_ATLAS_WITH_MULTIPLE_ILS
-    );
-    expect(res._getStatusCode()).toEqual(201);
-    const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
-    const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
-    expect(newAtlasFromDb.overview).toMatchObject(NEW_ATLAS_WITH_MULTIPLE_ILS);
-    expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
+    await testSuccessfulCreate(NEW_ATLAS_WITH_MULTIPLE_ILS);
+  });
+
+  it("creates and returns atlas entry with target completion", async () => {
+    await testSuccessfulCreate(NEW_ATLAS_WITH_TARGET_COMPLETION);
   });
 });
+
+async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
+  const res = await doCreateTest(USER_CONTENT_ADMIN, atlasData);
+  expect(res._getStatusCode()).toEqual(201);
+  const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
+  const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
+  expect(newAtlasFromDb.source_datasets).toEqual([]);
+  expect(newAtlasFromDb.status).toEqual(ATLAS_STATUS.DRAFT);
+  expect(newAtlasFromDb.target_completion).toEqual(
+    atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
+  );
+  expect(newAtlasFromDb.overview.integrationLead).toEqual(
+    atlasData.integrationLead
+  );
+  expect(newAtlasFromDb.overview.network).toEqual(atlasData.network);
+  expect(newAtlasFromDb.overview.shortName).toEqual(atlasData.shortName);
+  expect(newAtlasFromDb.overview.version).toEqual(atlasData.version);
+  expect(newAtlasFromDb.overview.wave).toEqual(atlasData.wave);
+  expect(newAtlasFromDb.overview.taskCount).toEqual(0);
+  expect(newAtlasFromDb.overview.completedTaskCount).toEqual(0);
+  expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
+}
 
 async function doCreateTest(
   user: TestUser | undefined,
