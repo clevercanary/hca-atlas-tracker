@@ -1,4 +1,11 @@
-import { Network, NetworkKey, ROLE, SYSTEM } from "./entities";
+import {
+  Network,
+  NetworkKey,
+  ROLE,
+  SYSTEM,
+  TASK_STATUS,
+  VALIDATION_STATUS,
+} from "./entities";
 
 export const WAVES = ["1", "2", "3"] as const;
 
@@ -128,4 +135,21 @@ export const SYSTEM_DISPLAY_NAMES: { [key in SYSTEM]: string } = {
   CELLXGENE: "CELLxGENE",
   DUOS: "DUOS",
   HCA_DATA_REPOSITORY: "HCA Data Repository",
+};
+
+export const TASK_STATUS_BY_VALIDATION_STATUS: Record<
+  VALIDATION_STATUS,
+  TASK_STATUS
+> = {
+  [VALIDATION_STATUS.BLOCKED]: TASK_STATUS.BLOCKED,
+  [VALIDATION_STATUS.FAILED]: TASK_STATUS.TODO,
+  [VALIDATION_STATUS.OVERRIDDEN]: TASK_STATUS.TODO,
+  [VALIDATION_STATUS.PASSED]: TASK_STATUS.DONE,
+};
+
+export const VALIDATION_DESCRIPTION = {
+  ADD_PRIMARY_DATA: "Add primary data.",
+  INGEST_SOURCE_DATASET: "Ingest source dataset.",
+  UPDATE_TITLE_TO_MATCH_PUBLICATION:
+    "Update project title to match publication title.",
 };

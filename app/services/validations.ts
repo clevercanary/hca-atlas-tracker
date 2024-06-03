@@ -2,6 +2,10 @@ import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
 import {
+  TASK_STATUS_BY_VALIDATION_STATUS,
+  VALIDATION_DESCRIPTION,
+} from "../apis/catalog/hca-atlas-tracker/common/constants";
+import {
   DBEntityOfType,
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
@@ -12,7 +16,6 @@ import {
   HCAAtlasTrackerValidationResult,
   PublicationInfo,
   SYSTEM,
-  TASK_STATUS,
   ValidationDifference,
   VALIDATION_ID,
   VALIDATION_STATUS,
@@ -33,7 +36,7 @@ import { getProjectInfoByDoi } from "./hca-projects";
 interface ValidationStatusInfo {
   differences?: ValidationDifference[];
   relatedEntityUrl?: string;
-  valid: boolean;
+  status: VALIDATION_STATUS;
 }
 
 interface ValidationDefinition<T> {
@@ -64,29 +67,42 @@ const CHANGE_INDICATING_VALIDATION_KEYS = [
 export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceDataset>[] =
   [
     {
-      description: "Ingest source dataset.",
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
+      system: SYSTEM.CAP,
+      validate(sourceDataset): ValidationStatusInfo {
+        return {
+          status: sourceDataset.sd_info.cellxgeneCollectionId
+            ? passedIfTruthy(sourceDataset.sd_info.capId)
+            : VALIDATION_STATUS.BLOCKED,
+        };
+      },
+      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
       system: SYSTEM.CELLXGENE,
       validate(sourceDataset): ValidationStatusInfo {
         return {
-          valid: Boolean(sourceDataset.sd_info.cellxgeneCollectionId),
+          status: passedIfTruthy(sourceDataset.sd_info.cellxgeneCollectionId),
         };
       },
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      description: "Ingest source dataset.",
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo {
         return {
-          valid: Boolean(sourceDataset.sd_info.hcaProjectId),
+          status: passedIfTruthy(sourceDataset.sd_info.hcaProjectId),
         };
       },
       validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      description: "Update project title to match publication title.",
+      description: VALIDATION_DESCRIPTION.UPDATE_TITLE_TO_MATCH_PUBLICATION,
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo | null {
         return validateSourceDatasetHcaProjectInfo(
@@ -98,7 +114,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
               actual === null ? false : titlesMatch(expected, actual);
             const info: ValidationStatusInfo = {
               ...infoProperties,
-              valid,
+              status: passedIfTruthy(valid),
             };
             if (!valid)
               info.differences = [
@@ -117,14 +133,14 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       validationType: VALIDATION_TYPE.METADATA,
     },
     {
-      description: "Add primary data.",
+      description: VALIDATION_DESCRIPTION.ADD_PRIMARY_DATA,
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo | null {
         return validateSourceDatasetHcaProjectInfo(
           sourceDataset,
           (projectInfo, infoProperties) => ({
             ...infoProperties,
-            valid: Boolean(projectInfo?.hasPrimaryData),
+            status: passedIfTruthy(projectInfo?.hasPrimaryData),
           })
         );
       },
@@ -230,9 +246,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
 ): HCAAtlasTrackerValidationResult | null {
   const validationStatusInfo = validation.validate(entity);
   if (validationStatusInfo === null) return null;
-  const validationStatus = validationStatusInfo.valid
-    ? VALIDATION_STATUS.PASSED
-    : VALIDATION_STATUS.FAILED;
+  const validationStatus = validationStatusInfo.status;
   return {
     description: validation.description,
     differences: validationStatusInfo.differences ?? [],
@@ -240,10 +254,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
     entityType,
     relatedEntityUrl: validationStatusInfo.relatedEntityUrl ?? null,
     system: validation.system,
-    taskStatus:
-      validationStatus === VALIDATION_STATUS.PASSED
-        ? TASK_STATUS.DONE
-        : TASK_STATUS.TODO,
+    taskStatus: TASK_STATUS_BY_VALIDATION_STATUS[validationStatus],
     validationId: validation.validationId,
     validationStatus,
     validationType: validation.validationType,
@@ -527,4 +538,13 @@ function titlesMatch(a: string, b: string): boolean {
       .replace(/\s+/g, " ")
       .trim();
   }
+}
+
+/**
+ * Returns PASSED if the given value is truthy, or FAILED otherwise.
+ * @param value - Value to check.
+ * @returns validation status.
+ */
+function passedIfTruthy(value: unknown): VALIDATION_STATUS {
+  return value ? VALIDATION_STATUS.PASSED : VALIDATION_STATUS.FAILED;
 }

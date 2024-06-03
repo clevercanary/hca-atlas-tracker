@@ -371,6 +371,11 @@ export const buildTaskStatus = (
   task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.StatusBadge> => {
   switch (task.taskStatus) {
+    case TASK_STATUS.BLOCKED:
+      return {
+        color: STATUS_BADGE_COLOR.WARNING,
+        label: "Blocked",
+      };
     case TASK_STATUS.DONE:
       return {
         color: STATUS_BADGE_COLOR.SUCCESS,

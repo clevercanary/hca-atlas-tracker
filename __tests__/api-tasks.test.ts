@@ -81,7 +81,7 @@ function expectInitialValidationsToExist(
       "doi" in testDataset &&
       testDataset.doi !== null &&
       TEST_HCA_PROJECTS_BY_DOI.has(testDataset.doi);
-    expect(datasetValidations).toHaveLength(hasHca ? 4 : 2);
+    expect(datasetValidations).toHaveLength(hasHca ? 5 : 3);
     const datasetAtlases =
       INITIAL_TEST_ATLASES_BY_SOURCE_DATASET[testDataset.id];
     const { atlasNames } = datasetValidations[0];

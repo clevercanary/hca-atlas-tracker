@@ -35,6 +35,7 @@ export type TestSourceDataset =
   | TestUnpublishedSourceDataset;
 
 export interface TestPublishedSourceDataset {
+  capId?: string;
   doi: string | null;
   doiStatus: DOI_STATUS;
   id: string;
