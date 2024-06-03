@@ -7,6 +7,7 @@ import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceData
 import { SourceDatasetEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
+import { CapId } from "../../../../../../../../../../../Form/components/Input/components/CapId/capId";
 import {
   Section,
   SectionCard,
@@ -50,26 +51,35 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
         <Controller
           control={control}
           name={FIELD_NAME.CELLXGENE_COLLECTION_ID}
-          render={({ field }): JSX.Element => {
-            return (
-              <Input
-                {...field}
-                {...DEFAULT_INPUT_PROPS.CELLXGENE_COLLECTION_ID}
-                isFilled={Boolean(field.value)}
-                label={
-                  <Fragment>
-                    <TypographyNoWrap>
-                      {DEFAULT_INPUT_PROPS.CELLXGENE_COLLECTION_ID.label}
-                    </TypographyNoWrap>
-                    {field.value && (
-                      <Link label="Visit link" url={field.value} />
-                    )}
-                  </Fragment>
-                }
-                readOnly={true}
-              />
-            );
-          }}
+          render={({ field }): JSX.Element => (
+            <Input
+              {...field}
+              {...DEFAULT_INPUT_PROPS.CELLXGENE_COLLECTION_ID}
+              isFilled={Boolean(field.value)}
+              label={
+                <Fragment>
+                  <TypographyNoWrap>
+                    {DEFAULT_INPUT_PROPS.CELLXGENE_COLLECTION_ID.label}
+                  </TypographyNoWrap>
+                  {field.value && <Link label="Visit link" url={field.value} />}
+                </Fragment>
+              }
+              readOnly={true}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name={FIELD_NAME.CAP_ID}
+          render={({ field, fieldState: { error, invalid } }): JSX.Element => (
+            <CapId
+              {...field}
+              {...DEFAULT_INPUT_PROPS.CAP_ID}
+              error={invalid}
+              helperText={error?.message}
+              isFilled={Boolean(field.value)}
+            />
+          )}
         />
       </SectionCard>
     </Section>

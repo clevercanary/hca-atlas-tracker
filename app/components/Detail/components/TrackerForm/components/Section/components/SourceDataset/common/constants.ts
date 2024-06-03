@@ -1,4 +1,8 @@
 export const DEFAULT_INPUT_PROPS = {
+  CAP_ID: {
+    isFullWidth: true,
+    label: "CAP ID",
+  },
   CELLXGENE_COLLECTION_ID: {
     isFullWidth: true,
     label: "CELLxGENE collection ID",

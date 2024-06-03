@@ -61,7 +61,7 @@ export const useEditSourceDatasetFormManager = (
       onSubmit(
         getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sdId),
         METHOD.PUT,
-        payload,
+        filterPayload(payload),
         {
           onReset: reset,
           onSuccess: (data) => onSuccess(atlasId, data.id, url),
@@ -73,6 +73,20 @@ export const useEditSourceDatasetFormManager = (
 
   return useFormManager(formMethod, { onDelete, onDiscard, onSave }, isDirty);
 };
+
+/**
+ * Filters the payload to exclude the publication status.
+ * @param payload - Payload.
+ * @returns filtered payload (payload without the publication status).
+ */
+function filterPayload(payload: SourceDatasetEditData): SourceDatasetEditData {
+  return Object.entries(payload).reduce((acc, [key, value]) => {
+    if (key !== FIELD_NAME.PUBLICATION_STATUS) {
+      return { ...acc, [key]: value };
+    }
+    return acc;
+  }, {} as SourceDatasetEditData);
+}
 
 /**
  * Returns schema fields relating to the publication status.
@@ -137,6 +151,5 @@ function unregisterSchemaFields(
   } else {
     fieldKeys.push(...PUBLISHED_FIELDS);
   }
-  fieldKeys.push(FIELD_NAME.PUBLICATION_STATUS);
   return fieldKeys;
 }

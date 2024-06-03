@@ -10,6 +10,10 @@ export const FormHelperText = styled(MFormHelperText)`
 
   &.Mui-error {
     color: ${warningMain};
+
+    .MuiSvgIcon-root {
+      color: inherit;
+    }
   }
 }
 `;
