@@ -5,7 +5,9 @@
  */
 export async function fetchCrossrefWork(doi: string): Promise<unknown | null> {
   const crossrefResponse = await fetch(
-    `https://api.crossref.org/works/${encodeURIComponent(doi)}`
+    `https://api.crossref.org/works/${encodeURIComponent(
+      doi
+    )}?mailto=dave@clevercanary.com`
   );
   if (crossrefResponse.status === 404) return null;
   else if (crossrefResponse.status !== 200)
