@@ -9,6 +9,7 @@ import {
 const FORMAT_STR = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 const FORMAT_STR_YEAR_QUARTER = "yyyy, QQQ";
 const QUARTERS = [1, 2, 3, 4];
+export const GREATEST_UNIX_TIME = "2038-01-19T13:14:07.000Z";
 
 /**
  * Returns date, formatted as a string.
@@ -26,7 +27,7 @@ function formatDate(date: Date, formatStr = FORMAT_STR): string {
  * @returns quarter year display string.
  */
 export function formatDateToQuarterYear(dateStr: string | null): string {
-  if (!dateStr) return "Unplanned";
+  if (!dateStr || dateStr === GREATEST_UNIX_TIME) return "Unplanned";
   if (Date.parse(dateStr)) {
     const date = new Date(dateStr);
     const year = date.getUTCFullYear();

@@ -21,6 +21,7 @@ import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { SOURCE_DATASET_STATUS } from "../../../../components/Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
 import { ROUTE } from "../../../../routes/constants";
+import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 
 /**
  * Build props for the atlas name cell component.
@@ -275,7 +276,7 @@ export const buildTargetCompletion = (
   entity: HCAAtlasTrackerListValidationRecord | HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Cell> => {
   return {
-    value: entity.targetCompletion,
+    value: formatDateToQuarterYear(entity.targetCompletion),
   };
 };
 

@@ -1,4 +1,4 @@
-import { formatDateToQuarterYear } from "../../../../utils/date-fns";
+import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
 import { NETWORK_KEYS, WAVES } from "./constants";
 import {
   DOI_STATUS,
@@ -38,7 +38,7 @@ export function atlasInputMapper(
     shortName: apiAtlas.shortName,
     sourceDatasetCount: apiAtlas.sourceDatasetCount,
     status: apiAtlas.status,
-    targetCompletion: formatDateToQuarterYear(apiAtlas.targetCompletion),
+    targetCompletion: apiAtlas.targetCompletion ?? GREATEST_UNIX_TIME,
     taskCount: apiAtlas.taskCount,
     title: apiAtlas.title,
     version: apiAtlas.version,
@@ -243,6 +243,6 @@ export function taskInputMapper(
   return {
     ...apiTask,
     doi: apiTask.doi === null ? "Unpublished" : apiTask.doi,
-    targetCompletion: formatDateToQuarterYear(apiTask.targetCompletion),
+    targetCompletion: apiTask.targetCompletion ?? GREATEST_UNIX_TIME,
   };
 }
