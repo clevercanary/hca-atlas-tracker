@@ -8,7 +8,7 @@ import {
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
-import datasetHandler from "../pages/api/atlases/[atlasId]/source-datasets/[sdId]";
+import datasetHandler from "../pages/api/atlases/[atlasId]/source-studies/[sdId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -62,7 +62,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
+describe("/api/atlases/[atlasId]/source-studies/[sdId]", () => {
   it("returns error 405 for POST request", async () => {
     expect(
       (

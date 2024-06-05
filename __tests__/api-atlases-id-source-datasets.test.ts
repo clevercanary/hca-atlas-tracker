@@ -3,7 +3,7 @@ import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
-import datasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
+import datasetsHandler from "../pages/api/atlases/[atlasId]/source-studies";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -30,7 +30,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[id]/source-datasets", () => {
+describe("/api/atlases/[id]/source-studies", () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (

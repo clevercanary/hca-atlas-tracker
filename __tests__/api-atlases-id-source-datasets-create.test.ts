@@ -8,7 +8,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/services/database";
-import createHandler from "../pages/api/atlases/[atlasId]/source-datasets/create";
+import createHandler from "../pages/api/atlases/[atlasId]/source-studies/create";
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
@@ -109,7 +109,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/source-datasets/create", () => {
+describe("/api/atlases/[atlasId]/source-studies/create", () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
       (
