@@ -39,8 +39,8 @@ export const Tabs = ({
       tabs={[
         { label: "Overview", value: ROUTE.ATLAS },
         {
-          label: getSourceDatasetsLabel(atlas),
-          value: ROUTE.SOURCE_DATASETS,
+          label: getSourceStudiesLabel(atlas),
+          value: ROUTE.SOURCE_STUDIES,
         },
       ]}
       value={route}
@@ -49,13 +49,13 @@ export const Tabs = ({
 };
 
 /**
- * Returns source datasets label with datasets count.
+ * Returns source studies label with datasets count.
  * @param atlas - Atlas.
- * @returns source datasets label.
+ * @returns source studies label.
  */
-function getSourceDatasetsLabel(atlas?: HCAAtlasTrackerAtlas): ReactNode {
-  if (!atlas) return "Source Datasets";
-  return atlas.sourceDatasetCount
-    ? `Source Datasets (${atlas.sourceDatasetCount})`
-    : "Source Datasets";
+function getSourceStudiesLabel(atlas?: HCAAtlasTrackerAtlas): ReactNode {
+  if (!atlas) return "Source Studies";
+  return atlas.sourceStudyCount
+    ? `Source Studies (${atlas.sourceStudyCount})`
+    : "Source Studies";
 }

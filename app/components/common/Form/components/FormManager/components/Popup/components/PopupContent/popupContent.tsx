@@ -34,12 +34,12 @@ export function renderText(route?: RouteValue): string {
       return `"Atlases" page`;
     case ROUTE.CREATE_ATLAS:
       return `"Add New Atlas" page`;
-    case ROUTE.CREATE_SOURCE_DATASET:
-      return `"Add Source Dataset" page`;
-    case ROUTE.SOURCE_DATASET:
-      return `"Source Dataset" page`;
-    case ROUTE.SOURCE_DATASETS:
-      return `"Source Datasets" tab`;
+    case ROUTE.CREATE_SOURCE_STUDY:
+      return `"Add Source Study" page`;
+    case ROUTE.SOURCE_STUDY:
+      return `"Source Study" page`;
+    case ROUTE.SOURCE_STUDIES:
+      return `"Source Studies" tab`;
     default:
       return "";
   }

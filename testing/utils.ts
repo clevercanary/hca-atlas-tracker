@@ -2,15 +2,15 @@ import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
   HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBPublishedSourceDatasetInfo,
-  HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
+  HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
 } from "./constants";
-import { TestAtlas, TestSourceDataset, TestUser } from "./entities";
+import { TestAtlas, TestSourceStudy, TestUser } from "./entities";
 
 export function makeTestUser(
   nameId: string,
@@ -41,33 +41,32 @@ export function makeTestAtlasOverview(
   };
 }
 
-export function makeTestSourceDatasetOverview(
-  dataset: TestSourceDataset
+export function makeTestSourceStudyOverview(
+  study: TestSourceStudy
 ):
-  | HCAAtlasTrackerDBPublishedSourceDatasetInfo
-  | HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
-  return "unpublishedInfo" in dataset
+  | HCAAtlasTrackerDBPublishedSourceStudyInfo
+  | HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
+  return "unpublishedInfo" in study
     ? {
         capId: null,
-        cellxgeneCollectionId: dataset.cellxgeneCollectionId,
+        cellxgeneCollectionId: study.cellxgeneCollectionId,
         doiStatus: DOI_STATUS.NA,
-        hcaProjectId: dataset.hcaProjectId,
+        hcaProjectId: study.hcaProjectId,
         publication: null,
-        unpublishedInfo: dataset.unpublishedInfo,
+        unpublishedInfo: study.unpublishedInfo,
       }
     : {
-        capId: dataset.capId ?? null,
+        capId: study.capId ?? null,
         cellxgeneCollectionId:
-          (dataset.doi &&
-            TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(dataset.doi)
-              ?.collection_id) ??
+          (study.doi &&
+            TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(study.doi)?.collection_id) ??
           null,
-        doiStatus: dataset.doiStatus,
+        doiStatus: study.doiStatus,
         hcaProjectId:
-          (dataset.doi &&
-            TEST_HCA_PROJECTS_BY_DOI.get(dataset.doi)?.projects[0].projectId) ??
+          (study.doi &&
+            TEST_HCA_PROJECTS_BY_DOI.get(study.doi)?.projects[0].projectId) ??
           null,
-        publication: dataset.publication,
+        publication: study.publication,
         unpublishedInfo: null,
       };
 }

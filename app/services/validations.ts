@@ -9,7 +9,7 @@ import {
   DBEntityOfType,
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationUpdateColumns,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
@@ -23,9 +23,9 @@ import {
   VALIDATION_VARIABLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  dbSourceDatasetToApiSourceDataset,
+  dbSourceStudyToApiSourceStudy,
   getPublicationDois,
-  getSourceDatasetCitation,
+  getSourceStudyCitation,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { NotFoundError } from "../utils/api-handler";
 import { ProjectInfo } from "../utils/hca-projects";
@@ -64,49 +64,49 @@ const CHANGE_INDICATING_VALIDATION_KEYS = [
   "validationStatus",
 ] as const;
 
-export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceDataset>[] =
+export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceStudy>[] =
   [
     {
-      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY,
       system: SYSTEM.CAP,
-      validate(sourceDataset): ValidationStatusInfo {
+      validate(sourceStudy): ValidationStatusInfo {
         return {
-          status: sourceDataset.sd_info.cellxgeneCollectionId
-            ? passedIfTruthy(sourceDataset.sd_info.capId)
+          status: sourceStudy.study_info.cellxgeneCollectionId
+            ? passedIfTruthy(sourceStudy.study_info.capId)
             : VALIDATION_STATUS.BLOCKED,
         };
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY,
       system: SYSTEM.CELLXGENE,
-      validate(sourceDataset): ValidationStatusInfo {
+      validate(sourceStudy): ValidationStatusInfo {
         return {
-          status: passedIfTruthy(sourceDataset.sd_info.cellxgeneCollectionId),
+          status: passedIfTruthy(sourceStudy.study_info.cellxgeneCollectionId),
         };
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
-      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
+      description: VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY,
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      validate(sourceDataset): ValidationStatusInfo {
+      validate(sourceStudy): ValidationStatusInfo {
         return {
-          status: passedIfTruthy(sourceDataset.sd_info.hcaProjectId),
+          status: passedIfTruthy(sourceStudy.study_info.hcaProjectId),
         };
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       description: VALIDATION_DESCRIPTION.UPDATE_TITLE_TO_MATCH_PUBLICATION,
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      validate(sourceDataset): ValidationStatusInfo | null {
-        return validateSourceDatasetHcaProjectInfo(
-          sourceDataset,
+      validate(sourceStudy): ValidationStatusInfo | null {
+        return validateSourceStudyHcaProjectInfo(
+          sourceStudy,
           (projectInfo, infoProperties, publication) => {
             const expected = publication.title;
             const actual = projectInfo?.title ?? null;
@@ -129,34 +129,34 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
         );
       },
       validationId:
-        VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
+        VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationType: VALIDATION_TYPE.METADATA,
     },
     {
       description: VALIDATION_DESCRIPTION.ADD_PRIMARY_DATA,
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      validate(sourceDataset): ValidationStatusInfo | null {
-        return validateSourceDatasetHcaProjectInfo(
-          sourceDataset,
+      validate(sourceStudy): ValidationStatusInfo | null {
+        return validateSourceStudyHcaProjectInfo(
+          sourceStudy,
           (projectInfo, infoProperties) => ({
             ...infoProperties,
             status: passedIfTruthy(projectInfo?.hasPrimaryData),
           })
         );
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
+      validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationType: VALIDATION_TYPE.INGEST,
     },
   ];
 
 /**
- * Apply a validation that uses a source dataset's HCA project info, skipping the validation if the source dataset's properties indicate it isn't in the HCA Data Repository.
- * @param sourceDataset - Source dataset to validate.
- * @param validate - Validation function that receives the project info (if found), properties for the validation status info, and the source dataset's publication.
- * @returns result of applying the validation function, or null if the source dataset doesn't appear to be in the HCA Data Repository.
+ * Apply a validation that uses a source study's HCA project info, skipping the validation if the source study's properties indicate it isn't in the HCA Data Repository.
+ * @param sourceStudy - Source study to validate.
+ * @param validate - Validation function that receives the project info (if found), properties for the validation status info, and the source study's publication.
+ * @returns result of applying the validation function, or null if the source study doesn't appear to be in the HCA Data Repository.
  */
-function validateSourceDatasetHcaProjectInfo(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+function validateSourceStudyHcaProjectInfo(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
   validate: (
     projectInfo: ProjectInfo | null,
     infoProperties: Partial<ValidationStatusInfo>,
@@ -164,24 +164,24 @@ function validateSourceDatasetHcaProjectInfo(
   ) => ValidationStatusInfo | null
 ): ValidationStatusInfo | null {
   if (
-    !sourceDataset.doi ||
-    !sourceDataset.sd_info.publication ||
-    !sourceDataset.sd_info.hcaProjectId
+    !sourceStudy.doi ||
+    !sourceStudy.study_info.publication ||
+    !sourceStudy.study_info.hcaProjectId
   ) {
     return null;
   }
   const projectInfo = getProjectInfoByDoi(
-    getPublicationDois(sourceDataset.doi, sourceDataset.sd_info.publication)
+    getPublicationDois(sourceStudy.doi, sourceStudy.study_info.publication)
   );
   const infoProperties = {
     relatedEntityUrl: `https://explore.data.humancellatlas.org/projects/${encodeURIComponent(
-      sourceDataset.sd_info.hcaProjectId
+      sourceStudy.study_info.hcaProjectId
     )}`,
   };
   return validate(
     projectInfo,
     infoProperties,
-    sourceDataset.sd_info.publication
+    sourceStudy.study_info.publication
   );
 }
 
@@ -263,27 +263,27 @@ function getValidationResult<T extends ENTITY_TYPE>(
 }
 
 /**
- * Revalidate all source datasets and update atlas task counts.
+ * Revalidate all source studies and update atlas task counts.
  */
 export async function refreshValidations(): Promise<void> {
-  await revalidateAllSourceDatasets();
+  await revalidateAllSourceStudies();
   await updateTaskCounts();
 }
 
 /**
- * Update validations for all source datasets in the database.
+ * Update validations for all source studies in the database.
  */
-async function revalidateAllSourceDatasets(): Promise<void> {
+async function revalidateAllSourceStudies(): Promise<void> {
   const client = await getPoolClient();
-  const sourceDatasets = (
-    await client.query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets"
+  const sourceStudies = (
+    await client.query<HCAAtlasTrackerDBSourceStudy>(
+      "SELECT * FROM hat.source_studies"
     )
   ).rows;
-  for (const dataset of sourceDatasets) {
+  for (const study of sourceStudies) {
     try {
       await client.query("BEGIN");
-      await updateSourceDatasetValidations(dataset, client);
+      await updateSourceStudyValidations(study, client);
       await client.query("COMMIT");
     } catch (e) {
       await client.query("ROLLBACK");
@@ -295,20 +295,20 @@ async function revalidateAllSourceDatasets(): Promise<void> {
 }
 
 /**
- * Update saved validations for the given source dataset.
- * @param sourceDataset - Source dataset to validate.
+ * Update saved validations for the given source study.
+ * @param sourceStudy - Source study to validate.
  * @param client - Postgres client to use.
  */
-export async function updateSourceDatasetValidations(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+export async function updateSourceStudyValidations(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
   client: pg.PoolClient
 ): Promise<void> {
-  const validationResults = await getSourceDatasetValidationResults(
-    sourceDataset,
+  const validationResults = await getSourceStudyValidationResults(
+    sourceStudy,
     client
   );
 
-  await updateValidations(sourceDataset.id, validationResults, client);
+  await updateValidations(sourceStudy.id, validationResults, client);
 }
 
 /**
@@ -425,29 +425,29 @@ function shouldUpdateValidation(
 }
 
 /**
- * Get validation results for the given source dataset.
- * @param sourceDataset - Source dataset to validate.
+ * Get validation results for the given source study.
+ * @param sourceStudy - Source study to validate.
  * @param client - Postgres client to use.
  * @returns validation results.
  */
-export async function getSourceDatasetValidationResults(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+export async function getSourceStudyValidationResults(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
   client: pg.PoolClient
 ): Promise<HCAAtlasTrackerValidationResult[]> {
   const validationResults: HCAAtlasTrackerValidationResult[] = [];
-  const title = getSourceDatasetTitle(sourceDataset);
-  const atlasIds = await getSourceDatasetAtlasIds(sourceDataset, client);
-  for (const validation of SOURCE_DATASET_VALIDATIONS) {
+  const title = getSourceStudyTitle(sourceStudy);
+  const atlasIds = await getSourceStudyAtlasIds(sourceStudy, client);
+  for (const validation of SOURCE_STUDY_VALIDATIONS) {
     const validationResult = getValidationResult(
-      ENTITY_TYPE.SOURCE_DATASET,
+      ENTITY_TYPE.SOURCE_STUDY,
       validation,
-      sourceDataset,
+      sourceStudy,
       {
         atlasIds,
-        doi: sourceDataset.doi,
+        doi: sourceStudy.doi,
         entityTitle: title,
-        publicationString: getSourceDatasetCitation(
-          dbSourceDatasetToApiSourceDataset(sourceDataset)
+        publicationString: getSourceStudyCitation(
+          dbSourceStudyToApiSourceStudy(sourceStudy)
         ),
       }
     );
@@ -458,33 +458,33 @@ export async function getSourceDatasetValidationResults(
 }
 
 /**
- * Get the published, unpublished, or fallback title for the given source dataset.
- * @param sourceDataset - Source dataset.
- * @returns source dataset title.
+ * Get the published, unpublished, or fallback title for the given source study.
+ * @param sourceStudy - Source study.
+ * @returns source study title.
  */
-function getSourceDatasetTitle(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset
+function getSourceStudyTitle(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy
 ): string {
   return (
-    sourceDataset.sd_info.publication?.title ??
-    sourceDataset.sd_info.unpublishedInfo?.title ??
-    sourceDataset.id
+    sourceStudy.study_info.publication?.title ??
+    sourceStudy.study_info.unpublishedInfo?.title ??
+    sourceStudy.id
   );
 }
 
 /**
- * Get IDs of atlases containing the given source dataset.
- * @param sourceDataset - Source dataset.
+ * Get IDs of atlases containing the given source study.
+ * @param sourceStudy - Source study.
  * @param client - Postgres client to use.
  * @returns atlas IDs.
  */
-async function getSourceDatasetAtlasIds(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+async function getSourceStudyAtlasIds(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
   client: pg.PoolClient
 ): Promise<string[]> {
   const queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "SELECT id FROM hat.atlases WHERE source_datasets @> $1",
-    [JSON.stringify(sourceDataset.id)]
+    "SELECT id FROM hat.atlases WHERE source_studies @> $1",
+    [JSON.stringify(sourceStudy.id)]
   );
   return Array.from(new Set(queryResult.rows.map(({ id }) => id)));
 }

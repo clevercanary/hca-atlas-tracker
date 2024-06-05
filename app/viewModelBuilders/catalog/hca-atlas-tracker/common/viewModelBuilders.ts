@@ -11,15 +11,15 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
   Network,
   NetworkKey,
   TASK_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
-import { SOURCE_DATASET_STATUS } from "../../../../components/Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
+import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 
@@ -86,7 +86,7 @@ export const buildEntityTitle = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: task.entityTitle,
-    url: getRouteURL(ROUTE.SOURCE_DATASET, task.atlasIds[0], task.entityId),
+    url: getRouteURL(ROUTE.SOURCE_STUDY, task.atlasIds[0], task.entityId),
   };
 };
 
@@ -104,41 +104,41 @@ export const buildEntityType = (
 };
 
 /**
- * Build props for the "in CAP" SourceDatasetStatusCell component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the SourceDatasetStatusCell component.
+ * Build props for the "in CAP" SourceStudyStatusCell component.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the SourceStudyStatusCell component.
  */
 export const buildInCap = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
-    value: getSourceDatasetInCap(sourceDataset),
+    value: getSourceStudyInCap(sourceStudy),
   };
 };
 
 /**
- * Build props for the "in CELLxGENE" SourceDatasetStatusCell component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the SourceDatasetStatusCell component.
+ * Build props for the "in CELLxGENE" SourceStudyStatusCell component.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the SourceStudyStatusCell component.
  */
 export const buildInCellxGene = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
-    value: getSourceDatasetInCellxGene(sourceDataset),
+    value: getSourceStudyInCellxGene(sourceStudy),
   };
 };
 
 /**
- * Build props for the "in HCA data repository" SourceDatasetStatusCell component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the SourceDatasetStatusCell component.
+ * Build props for the "in HCA data repository" SourceStudyStatusCell component.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the SourceStudyStatusCell component.
  */
 export const buildInHcaDataRepository = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
-    value: getSourceDatasetInHcaDataRepository(sourceDataset),
+    value: getSourceStudyInHcaDataRepository(sourceStudy),
   };
 };
 
@@ -183,48 +183,48 @@ export const buildResolvedAt = (
 // };
 
 /**
- * Build props for the source dataset publication Link component.
- * @param sourceDataset - Source dataset entity.
+ * Build props for the source study publication Link component.
+ * @param sourceStudy - Source study entity.
  * @returns Props to be used for the Link component.
  */
-export const buildSourceDatasetPublication = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
+export const buildSourceStudyPublication = (
+  sourceStudy: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.Link> => {
-  const { doi } = sourceDataset;
+  const { doi } = sourceStudy;
   return {
-    label: getSourceDatasetCitation(sourceDataset),
+    label: getSourceStudyCitation(sourceStudy),
     url: getDOILink(doi),
   };
 };
 
 /**
- * Build props for the source dataset title Link component.
+ * Build props for the source study title Link component.
  * @param atlasId - Atlas ID.
- * @param sourceDataset - Source dataset entity.
+ * @param sourceStudy - Source study entity.
  * @returns Props to be used for the Link component.
  */
-export const buildSourceDatasetTitle = (
+export const buildSourceStudyTitle = (
   atlasId: AtlasId,
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceStudy: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.Link> => {
-  const { id, title } = sourceDataset;
+  const { id, title } = sourceStudy;
   return {
     label: title ?? id,
-    url: getRouteURL(ROUTE.SOURCE_DATASET, atlasId, id),
+    url: getRouteURL(ROUTE.SOURCE_STUDY, atlasId, id),
   };
 };
 
 /**
- * Build props for the source datasets cell component.
+ * Build props for the source studies cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
  */
-export const buildSourceDatasetCount = (
+export const buildSourceStudyCount = (
   atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Link> => {
   return {
-    label: atlas.sourceDatasetCount,
-    url: getRouteURL(ROUTE.SOURCE_DATASETS, atlas.id),
+    label: atlas.sourceStudyCount,
+    url: getRouteURL(ROUTE.SOURCE_STUDIES, atlas.id),
   };
 };
 
@@ -441,19 +441,19 @@ export const buildWave = (
 };
 
 /**
- * Returns the table column definition model for the atlas (edit mode) source datasets table.
+ * Returns the table column definition model for the atlas (edit mode) source studies table.
  * @param atlasId - Atlas ID.
  * @returns Table column definition.
  */
-export function getAtlasSourceDatasetsTableColumns(
+export function getAtlasSourceStudiesTableColumns(
   atlasId: AtlasId
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
   return [
-    getSourceDatasetTitleColumnDef(atlasId),
-    getSourceDatasetPublicationColumnDef(),
-    getSourceDatasetInHCADataRepositoryColumnDef(),
-    getSourceDatasetInCELLxGENEColumnDef(),
-    getSourceDatasetInCapColumnDef(),
+    getSourceStudyTitleColumnDef(atlasId),
+    getSourceStudyPublicationColumnDef(),
+    getSourceStudyInHCADataRepositoryColumnDef(),
+    getSourceStudyInCELLxGENEColumnDef(),
+    getSourceStudyInCapColumnDef(),
   ];
 }
 
@@ -495,105 +495,104 @@ function getDateFromIsoString(isoString: string): string {
 }
 
 /**
- * Returns source dataset is in Cap column def.
+ * Returns source study is in Cap column def.
  * @returns Column def.
  */
-function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceStudyInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: getSourceDatasetInCap,
-    cell: ({ row }) => C.SourceDatasetStatusCell(buildInCap(row.original)),
+    accessorFn: getSourceStudyInCap,
+    cell: ({ row }) => C.SourceStudyStatusCell(buildInCap(row.original)),
     header: "CAP",
   };
 }
 
 /**
- * Returns source dataset in CELLxGENE column def.
+ * Returns source study in CELLxGENE column def.
  * @returns Column def.
  */
-function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceStudyInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: getSourceDatasetInCellxGene,
-    cell: ({ row }) =>
-      C.SourceDatasetStatusCell(buildInCellxGene(row.original)),
+    accessorFn: getSourceStudyInCellxGene,
+    cell: ({ row }) => C.SourceStudyStatusCell(buildInCellxGene(row.original)),
     header: "CELLxGENE",
   };
 }
 
 /**
- * Returns source dataset in HCA data repository column def.
+ * Returns source study in HCA data repository column def.
  * @returns Column def.
  */
-function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceStudyInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: getSourceDatasetInHcaDataRepository,
+    accessorFn: getSourceStudyInHcaDataRepository,
     cell: ({ row }) =>
-      C.SourceDatasetStatusCell(buildInHcaDataRepository(row.original)),
+      C.SourceStudyStatusCell(buildInHcaDataRepository(row.original)),
     header: "HCA Data Repository",
   };
 }
 
 /**
- * Get source dataset status describing whether a source dataset is known to be in CAP.
- * @param sourceDataset - Source dataset.
- * @returns whether the source dataset is in CAP.
+ * Get source study status describing whether a source study is known to be in CAP.
+ * @param sourceStudy - Source study.
+ * @returns whether the source study is in CAP.
  */
-function getSourceDatasetInCap(
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): SOURCE_DATASET_STATUS {
-  return sourceDataset.capId
-    ? SOURCE_DATASET_STATUS.DONE
-    : SOURCE_DATASET_STATUS.REQUIRED;
+function getSourceStudyInCap(
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): SOURCE_STUDY_STATUS {
+  return sourceStudy.capId
+    ? SOURCE_STUDY_STATUS.DONE
+    : SOURCE_STUDY_STATUS.REQUIRED;
 }
 
 /**
- * Get source dataset status describing whether a source dataset is known to be in CELLxGENE.
- * @param sourceDataset - Source dataset.
- * @returns whether the source dataset is in CELLxGENE.
+ * Get source study status describing whether a source study is known to be in CELLxGENE.
+ * @param sourceStudy - Source study.
+ * @returns whether the source study is in CELLxGENE.
  */
-function getSourceDatasetInCellxGene(
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): SOURCE_DATASET_STATUS {
-  return sourceDataset.cellxgeneCollectionId
-    ? SOURCE_DATASET_STATUS.DONE
-    : SOURCE_DATASET_STATUS.REQUIRED;
+function getSourceStudyInCellxGene(
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): SOURCE_STUDY_STATUS {
+  return sourceStudy.cellxgeneCollectionId
+    ? SOURCE_STUDY_STATUS.DONE
+    : SOURCE_STUDY_STATUS.REQUIRED;
 }
 
 /**
- * Get source dataset status describing whether a source dataset is known to be in the HCA data repository.
- * @param sourceDataset - Source dataset.
- * @returns whether the source dataset is in the HCA data repository.
+ * Get source study status describing whether a source study is known to be in the HCA data repository.
+ * @param sourceStudy - Source study.
+ * @returns whether the source study is in the HCA data repository.
  */
-function getSourceDatasetInHcaDataRepository(
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): SOURCE_DATASET_STATUS {
-  return sourceDataset.hcaProjectId
-    ? SOURCE_DATASET_STATUS.DONE
-    : SOURCE_DATASET_STATUS.REQUIRED;
+function getSourceStudyInHcaDataRepository(
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): SOURCE_STUDY_STATUS {
+  return sourceStudy.hcaProjectId
+    ? SOURCE_STUDY_STATUS.DONE
+    : SOURCE_STUDY_STATUS.REQUIRED;
 }
 
 /**
- * Returns source dataset publication column def.
+ * Returns source study publication column def.
  * @returns Column def.
  */
-function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "publication",
-    cell: ({ row }) => C.Link(buildSourceDatasetPublication(row.original)),
+    cell: ({ row }) => C.Link(buildSourceStudyPublication(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
   };
 }
 
 /**
- * Returns source dataset project title column def.
+ * Returns source study project title column def.
  * @param atlasId - Atlas ID.
  * @returns Column def.
  */
-function getSourceDatasetTitleColumnDef(
+function getSourceStudyTitleColumnDef(
   atlasId: AtlasId
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
+): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "title",
-    cell: ({ row }) => C.Link(buildSourceDatasetTitle(atlasId, row.original)),
+    cell: ({ row }) => C.Link(buildSourceStudyTitle(atlasId, row.original)),
     header: "Title",
   };
 }

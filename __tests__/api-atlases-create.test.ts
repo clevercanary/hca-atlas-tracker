@@ -245,7 +245,7 @@ async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
   expect(res._getStatusCode()).toEqual(201);
   const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
   const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
-  expect(newAtlasFromDb.source_datasets).toEqual([]);
+  expect(newAtlasFromDb.source_studies).toEqual([]);
   expect(newAtlasFromDb.status).toEqual(ATLAS_STATUS.DRAFT);
   expect(newAtlasFromDb.target_completion).toEqual(
     atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null

@@ -147,7 +147,7 @@ describe("/api/atlases/[id]", () => {
     expect(atlas.id).toEqual(ATLAS_DRAFT.id);
     expect(atlas.integrationLead).toEqual(ATLAS_DRAFT.integrationLead);
     expect(atlas.shortName).toEqual(ATLAS_DRAFT.shortName);
-    expect(atlas.sourceDatasetCount).toEqual(ATLAS_DRAFT.sourceDatasets.length);
+    expect(atlas.sourceStudyCount).toEqual(ATLAS_DRAFT.sourceStudies.length);
     expect(atlas.status).toEqual(ATLAS_DRAFT.status);
     expect(atlas.version).toEqual(ATLAS_DRAFT.version);
     expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);
@@ -161,7 +161,7 @@ describe("/api/atlases/[id]", () => {
     expect(atlas.id).toEqual(ATLAS_DRAFT.id);
     expect(atlas.integrationLead).toEqual(ATLAS_DRAFT.integrationLead);
     expect(atlas.shortName).toEqual(ATLAS_DRAFT.shortName);
-    expect(atlas.sourceDatasetCount).toEqual(ATLAS_DRAFT.sourceDatasets.length);
+    expect(atlas.sourceStudyCount).toEqual(ATLAS_DRAFT.sourceStudies.length);
     expect(atlas.status).toEqual(ATLAS_DRAFT.status);
     expect(atlas.version).toEqual(ATLAS_DRAFT.version);
     expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);

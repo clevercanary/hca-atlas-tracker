@@ -64,7 +64,7 @@ afterAll(() => {
   globalThis.hcaAtlasTrackerCellxGeneInfoCache = undefined;
 });
 
-test("source datasets are not revalidated when no refresh happens", async () => {
+test("source studies are not revalidated when no refresh happens", async () => {
   await delay();
   expect(refreshValidations).toHaveBeenCalledTimes(1);
   hcaService.getProjectIdByDoi([""]);
@@ -75,7 +75,7 @@ test("source datasets are not revalidated when no refresh happens", async () => 
   expect(refreshValidations).toHaveBeenCalledTimes(1);
 });
 
-test("source datasets are revalidated when last refresh completes", async () => {
+test("source studies are revalidated when last refresh completes", async () => {
   const [projectsPromise, resolveProjects] = promiseWithResolvers<void>();
   getAllProjectsBlock = projectsPromise;
   const [cellxgenePromise, resolveCellxGene] = promiseWithResolvers<void>();

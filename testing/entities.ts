@@ -1,7 +1,7 @@
 import {
   ATLAS_STATUS,
   DOI_STATUS,
-  HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
+  HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
   NetworkKey,
   PublicationInfo,
@@ -23,18 +23,18 @@ export interface TestAtlas {
   integrationLead: IntegrationLead[];
   network: NetworkKey;
   shortName: string;
-  sourceDatasets: string[];
+  sourceStudies: string[];
   status: ATLAS_STATUS;
   targetCompletion?: Date;
   version: string;
   wave: Wave;
 }
 
-export type TestSourceDataset =
-  | TestPublishedSourceDataset
-  | TestUnpublishedSourceDataset;
+export type TestSourceStudy =
+  | TestPublishedSourceStudy
+  | TestUnpublishedSourceStudy;
 
-export interface TestPublishedSourceDataset {
+export interface TestPublishedSourceStudy {
   capId?: string;
   doi: string | null;
   doiStatus: DOI_STATUS;
@@ -42,9 +42,9 @@ export interface TestPublishedSourceDataset {
   publication: PublicationInfo | null;
 }
 
-export interface TestUnpublishedSourceDataset {
+export interface TestUnpublishedSourceStudy {
   cellxgeneCollectionId: string | null;
   hcaProjectId: string | null;
   id: string;
-  unpublishedInfo: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo["unpublishedInfo"];
+  unpublishedInfo: HCAAtlasTrackerDBUnpublishedSourceStudyInfo["unpublishedInfo"];
 }

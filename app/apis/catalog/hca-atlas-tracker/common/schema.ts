@@ -53,12 +53,12 @@ export const atlasEditSchema = newAtlasSchema;
 export type AtlasEditData = InferType<typeof atlasEditSchema>;
 
 /**
- * Create schema that combines an unpublished source dataset schema and a published source dataset schema.
- * @param publishedSchema - Published source dataset schema.
- * @param unpublishedSchema - Unpublished source dataset schema.
- * @returns schema that validates both published and unpublished source datasets.
+ * Create schema that combines an unpublished source study schema and a published source study schema.
+ * @param publishedSchema - Published source study schema.
+ * @param unpublishedSchema - Unpublished source study schema.
+ * @returns schema that validates both published and unpublished source studies.
  */
-function makeSourceDatasetUnionSchema<T extends { [k: string]: unknown }>(
+function makeSourceStudyUnionSchema<T extends { [k: string]: unknown }>(
   publishedSchema: Schema,
   unpublishedSchema: Schema
 ): MixedSchema<T> {
@@ -106,10 +106,10 @@ function makeSourceDatasetUnionSchema<T extends { [k: string]: unknown }>(
 }
 
 /**
- * Schemas for data used to create a new source dataset.
+ * Schemas for data used to create a new source study.
  */
 
-export const newPublishedSourceDatasetSchema = object({
+export const newPublishedSourceStudySchema = object({
   doi: string()
     .required()
     .test(
@@ -121,7 +121,7 @@ export const newPublishedSourceDatasetSchema = object({
   .noUnknown("If DOI is specified, it must be the only field")
   .strict(true);
 
-export const newUnpublishedSourceDatasetSchema = object({
+export const newUnpublishedSourceStudySchema = object({
   contactEmail: string()
     .email()
     .defined("Email is required when DOI is absent")
@@ -135,29 +135,29 @@ export const newUnpublishedSourceDatasetSchema = object({
   .strict(true);
 
 // Combined schema for validating both published and unpublished data
-export const newSourceDatasetSchema =
-  makeSourceDatasetUnionSchema<NewSourceDatasetData>(
-    newPublishedSourceDatasetSchema,
-    newUnpublishedSourceDatasetSchema
+export const newSourceStudySchema =
+  makeSourceStudyUnionSchema<NewSourceStudyData>(
+    newPublishedSourceStudySchema,
+    newUnpublishedSourceStudySchema
   );
 
-export type NewPublishedSourceDatasetData = InferType<
-  typeof newPublishedSourceDatasetSchema
+export type NewPublishedSourceStudyData = InferType<
+  typeof newPublishedSourceStudySchema
 >;
 
-export type NewUnpublishedSourceDatasetData = InferType<
-  typeof newUnpublishedSourceDatasetSchema
+export type NewUnpublishedSourceStudyData = InferType<
+  typeof newUnpublishedSourceStudySchema
 >;
 
-export type NewSourceDatasetData =
-  | NewPublishedSourceDatasetData
-  | NewUnpublishedSourceDatasetData;
+export type NewSourceStudyData =
+  | NewPublishedSourceStudyData
+  | NewUnpublishedSourceStudyData;
 
 /**
- * Schemas for data used to edit a source dataset.
+ * Schemas for data used to edit a source stufy.
  */
 
-export const publishedSourceDatasetEditSchema = object({
+export const publishedSourceStudyEditSchema = object({
   capId: string().defined("CAP ID is required when DOI is present").nullable(),
   doi: string()
     .required()
@@ -172,7 +172,7 @@ export const publishedSourceDatasetEditSchema = object({
   )
   .strict(true);
 
-export const unpublishedSourceDatasetEditSchema = object({
+export const unpublishedSourceStudyEditSchema = object({
   contactEmail: string()
     .email()
     .defined("Email is required when DOI is absent")
@@ -186,23 +186,23 @@ export const unpublishedSourceDatasetEditSchema = object({
   .strict(true);
 
 // Combined schema for validating both published and unpublished data
-export const sourceDatasetEditSchema =
-  makeSourceDatasetUnionSchema<SourceDatasetEditData>(
-    publishedSourceDatasetEditSchema,
-    unpublishedSourceDatasetEditSchema
+export const sourceStudyEditSchema =
+  makeSourceStudyUnionSchema<SourceStudyEditData>(
+    publishedSourceStudyEditSchema,
+    unpublishedSourceStudyEditSchema
   );
 
-export type PublishedSourceDatasetEditData = InferType<
-  typeof publishedSourceDatasetEditSchema
+export type PublishedSourceStudyEditData = InferType<
+  typeof publishedSourceStudyEditSchema
 >;
 
-export type UnpublishedSourceDatasetEditData = InferType<
-  typeof unpublishedSourceDatasetEditSchema
+export type UnpublishedSourceStudyEditData = InferType<
+  typeof unpublishedSourceStudyEditSchema
 >;
 
-export type SourceDatasetEditData =
-  | PublishedSourceDatasetEditData
-  | UnpublishedSourceDatasetEditData;
+export type SourceStudyEditData =
+  | PublishedSourceStudyEditData
+  | UnpublishedSourceStudyEditData;
 
 /**
  * Schema for data used to create a new user.

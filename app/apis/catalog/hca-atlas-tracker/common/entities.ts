@@ -10,7 +10,7 @@ export interface HCAAtlasTrackerListAtlas {
   publicationDoi: string;
   publicationPubString: string;
   shortName: string;
-  sourceDatasetCount: number;
+  sourceStudyCount: number;
   status: ATLAS_STATUS;
   targetCompletion: string;
   taskCount: number;
@@ -29,7 +29,7 @@ export interface HCAAtlasTrackerAtlas {
     pubString: string;
   };
   shortName: string;
-  sourceDatasetCount: number;
+  sourceStudyCount: number;
   status: ATLAS_STATUS;
   targetCompletion: string | null;
   taskCount: number;
@@ -56,11 +56,11 @@ export interface HCAAtlasTrackerNetworkCoordinator {
   email: string;
 }
 
-export type HCAAtlasTrackerSourceDataset =
-  | HCAAtlasTrackerPublishedSourceDataset
-  | HCAAtlasTrackerUnpublishedSourceDataset;
+export type HCAAtlasTrackerSourceStudy =
+  | HCAAtlasTrackerPublishedSourceStudy
+  | HCAAtlasTrackerUnpublishedSourceStudy;
 
-interface HCAAtlasTrackerSourceDatasetCommon {
+interface HCAAtlasTrackerSourceStudyCommon {
   capId: string | null;
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
@@ -68,8 +68,8 @@ interface HCAAtlasTrackerSourceDatasetCommon {
   id: string;
 }
 
-export interface HCAAtlasTrackerPublishedSourceDataset
-  extends HCAAtlasTrackerSourceDatasetCommon {
+export interface HCAAtlasTrackerPublishedSourceStudy
+  extends HCAAtlasTrackerSourceStudyCommon {
   contactEmail: null;
   doi: string;
   journal: string | null;
@@ -78,8 +78,8 @@ export interface HCAAtlasTrackerPublishedSourceDataset
   title: string | null;
 }
 
-export interface HCAAtlasTrackerUnpublishedSourceDataset
-  extends HCAAtlasTrackerSourceDatasetCommon {
+export interface HCAAtlasTrackerUnpublishedSourceStudy
+  extends HCAAtlasTrackerSourceStudyCommon {
   contactEmail: string | null;
   doi: null;
   journal: null;
@@ -126,15 +126,15 @@ export interface HCAAtlasTrackerActiveUser {
 
 export type DBEntityOfType<T extends ENTITY_TYPE> = T extends ENTITY_TYPE.ATLAS
   ? HCAAtlasTrackerDBAtlas
-  : T extends ENTITY_TYPE.SOURCE_DATASET
-  ? HCAAtlasTrackerDBSourceDataset
+  : T extends ENTITY_TYPE.SOURCE_STUDY
+  ? HCAAtlasTrackerDBSourceStudy
   : never;
 
 export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
-  source_datasets: string[];
+  source_studies: string[];
   status: ATLAS_STATUS;
   target_completion: Date | null;
   updated_at: Date;
@@ -150,31 +150,31 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   wave: Wave;
 }
 
-export interface HCAAtlasTrackerDBPublishedSourceDataset {
+export interface HCAAtlasTrackerDBPublishedSourceStudy {
   created_at: Date;
   doi: string;
   id: string;
-  sd_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
+  study_info: HCAAtlasTrackerDBPublishedSourceStudyInfo;
   updated_at: Date;
 }
 
-export interface HCAAtlasTrackerDBUnpublishedSourceDataset {
+export interface HCAAtlasTrackerDBUnpublishedSourceStudy {
   created_at: Date;
   doi: null;
   id: string;
-  sd_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
+  study_info: HCAAtlasTrackerDBUnpublishedSourceStudyInfo;
   updated_at: Date;
 }
 
-export type HCAAtlasTrackerDBSourceDataset =
-  | HCAAtlasTrackerDBPublishedSourceDataset
-  | HCAAtlasTrackerDBUnpublishedSourceDataset;
+export type HCAAtlasTrackerDBSourceStudy =
+  | HCAAtlasTrackerDBPublishedSourceStudy
+  | HCAAtlasTrackerDBUnpublishedSourceStudy;
 
-export type HCAAtlasTrackerDBSourceDatasetMinimumColumns =
-  | Pick<HCAAtlasTrackerDBPublishedSourceDataset, "doi" | "sd_info">
-  | Pick<HCAAtlasTrackerDBUnpublishedSourceDataset, "doi" | "sd_info">;
+export type HCAAtlasTrackerDBSourceStudyMinimumColumns =
+  | Pick<HCAAtlasTrackerDBPublishedSourceStudy, "doi" | "study_info">
+  | Pick<HCAAtlasTrackerDBUnpublishedSourceStudy, "doi" | "study_info">;
 
-export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
+export interface HCAAtlasTrackerDBPublishedSourceStudyInfo {
   capId: string | null;
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
@@ -183,7 +183,7 @@ export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
   unpublishedInfo: null;
 }
 
-export interface HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
+export interface HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
   capId: string | null;
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
@@ -291,7 +291,7 @@ export interface IntegrationLead {
   name: string;
 }
 
-export type SourceDatasetId = string;
+export type SourceStudyId = string;
 
 export interface ValidationDifference {
   actual: string | null;
@@ -302,7 +302,7 @@ export interface ValidationDifference {
 export enum ENTITY_TYPE {
   ATLAS = "ATLAS",
   COMPONENT_ATLAS = "COMPONENT_ATLAS",
-  SOURCE_DATASET = "SOURCE_DATASET",
+  SOURCE_STUDY = "SOURCE_STUDY",
 }
 
 export enum SYSTEM {
@@ -325,11 +325,11 @@ export enum VALIDATION_TYPE {
 }
 
 export enum VALIDATION_ID {
-  SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA = "SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA",
-  SOURCE_DATASET_IN_CAP = "SOURCE_DATASET_IN_CAP",
-  SOURCE_DATASET_IN_CELLXGENE = "SOURCE_DATASET_IN_CELLXGENE",
-  SOURCE_DATASET_IN_HCA_DATA_REPOSITORY = "SOURCE_DATASET_IN_HCA_DATA_REPOSITORY",
-  SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY = "SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY",
+  SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA = "SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA",
+  SOURCE_STUDY_IN_CAP = "SOURCE_STUDY_IN_CAP",
+  SOURCE_STUDY_IN_CELLXGENE = "SOURCE_STUDY_IN_CELLXGENE",
+  SOURCE_STUDY_IN_HCA_DATA_REPOSITORY = "SOURCE_STUDY_IN_HCA_DATA_REPOSITORY",
+  SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY = "SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY",
 }
 
 export enum VALIDATION_STATUS {
