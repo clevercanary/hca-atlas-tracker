@@ -149,7 +149,7 @@ export const TASK_STATUS_BY_VALIDATION_STATUS: Record<
 
 export const VALIDATION_DESCRIPTION = {
   ADD_PRIMARY_DATA: "Add primary data.",
-  INGEST_SOURCE_DATASET: "Ingest source study.",
+  INGEST_SOURCE_STUDY: "Ingest source study.",
   UPDATE_TITLE_TO_MATCH_PUBLICATION:
     "Update project title to match publication title.",
 };

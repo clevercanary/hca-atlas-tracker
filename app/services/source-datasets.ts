@@ -22,15 +22,15 @@ import { normalizeDoi } from "../utils/doi";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import { getPoolClient, query } from "./database";
 import { getProjectIdByDoi } from "./hca-projects";
-import { updateSourceDatasetValidations } from "./validations";
+import { updateSourceStudyValidations } from "./validations";
 
 /**
- * Create a new published or unpublished source dataset.
- * @param atlasId - Atlas to add new source dataset to.
- * @param inputData - Values for new source dataset.
- * @returns database model of new source dataset.
+ * Create a new published or unpublished source study.
+ * @param atlasId - Atlas to add new source study to.
+ * @param inputData - Values for new source study.
+ * @returns database model of new source study.
  */
-export async function createSourceDataset(
+export async function createSourceStudy(
   atlasId: string,
   inputData: NewSourceStudyData
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
@@ -59,24 +59,24 @@ export async function createSourceDataset(
           undefined,
           "doi"
         );
-      await updateSourceDatasetValidations(existingDataset, client);
+      await updateSourceStudyValidations(existingDataset, client);
       await client.query("COMMIT");
       return existingDataset;
     }
-    // Add the new source dataset
-    const newInfo = await sourceDatasetInputDataToDbData(inputData);
+    // Add the new source study
+    const newInfo = await sourceStudyInputDataToDbData(inputData);
     const newDataset = (
       await client.query<HCAAtlasTrackerDBSourceStudy>(
         "INSERT INTO hat.source_studies (doi, study_info) VALUES ($1, $2) RETURNING *",
         [newInfo.doi, JSON.stringify(newInfo.study_info)]
       )
     ).rows[0];
-    // Update the atlas's list of source datasets
+    // Update the atlas's list of source studies
     await client.query(
       "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2",
       [JSON.stringify([newDataset.id]), atlasId]
     );
-    await updateSourceDatasetValidations(newDataset, client);
+    await updateSourceStudyValidations(newDataset, client);
     await client.query("COMMIT");
     return newDataset;
   } catch (e) {
@@ -88,10 +88,10 @@ export async function createSourceDataset(
 }
 
 /**
- * Get existing source dataset matching values submitted to create a source dataset.
- * @param inputData - Source dataset creation values.
+ * Get existing source study matching values submitted to create a source study.
+ * @param inputData - Source study creation values.
  * @param client - Postgres client.
- * @returns existing dataset or null.
+ * @returns existing source study or null.
  */
 async function getExistingDataset(
   inputData: NewSourceStudyData,
@@ -110,20 +110,20 @@ async function getExistingDataset(
 }
 
 /**
- * Update a published or unpublished source dataset.
- * @param atlasId - Atlas that the source dataset is accessed through.
- * @param sdId - Source dataset to update.
- * @param inputData - Values to update the source dataset with.
- * @returns database model of updated source dataset.
+ * Update a published or unpublished source study.
+ * @param atlasId - Atlas that the source study is accessed through.
+ * @param sdId - Source study to update.
+ * @param inputData - Values to update the source study with.
+ * @returns database model of updated source study.
  */
-export async function updateSourceDataset(
+export async function updateSourceStudy(
   atlasId: string,
   sdId: string,
   inputData: SourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
-  await confirmSourceDatasetExistsOnAtlas(sdId, atlasId);
+  await confirmSourceStudyExistsOnAtlas(sdId, atlasId);
 
-  const newInfo = await sourceDatasetInputDataToDbData(inputData);
+  const newInfo = await sourceStudyInputDataToDbData(inputData);
 
   const client = await getPoolClient();
   try {
@@ -135,11 +135,11 @@ export async function updateSourceDataset(
     );
 
     if (queryResult.rows.length === 0)
-      throw new NotFoundError(`Source dataset with ID ${sdId} doesn't exist`);
+      throw new NotFoundError(`Source study with ID ${sdId} doesn't exist`);
 
     const newDataset = queryResult.rows[0];
 
-    await updateSourceDatasetValidations(newDataset, client);
+    await updateSourceStudyValidations(newDataset, client);
 
     await client.query("COMMIT");
 
@@ -153,24 +153,24 @@ export async function updateSourceDataset(
 }
 
 /**
- * Derive source dataset information from input values.
- * @param inputData - Values to derive source dataset from.
- * @returns database model of values needed to define a source dataset.
+ * Derive source study information from input values.
+ * @param inputData - Values to derive source study from.
+ * @returns database model of values needed to define a source study.
  */
-async function sourceDatasetInputDataToDbData(
+async function sourceStudyInputDataToDbData(
   inputData: NewSourceStudyData | SourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   return "doi" in inputData
-    ? await makePublishedSourceDatasetDbData(inputData)
-    : makeUnpublishedSourceDatasetDbData(inputData);
+    ? await makePublishedSourceStudyDbData(inputData)
+    : makeUnpublishedSourceStudyDbData(inputData);
 }
 
 /**
- * Derive published source dataset information from input values.
- * @param inputData - Values to derive source dataset from.
- * @returns database model of values needed to define a source dataset.
+ * Derive published source study information from input values.
+ * @param inputData - Values to derive source study from.
+ * @returns database model of values needed to define a source study.
  */
-async function makePublishedSourceDatasetDbData(
+async function makePublishedSourceStudyDbData(
   inputData: NewPublishedSourceStudyData | PublishedSourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   const doi = normalizeDoi(inputData.doi);
@@ -209,11 +209,11 @@ async function makePublishedSourceDatasetDbData(
 }
 
 /**
- * Derive unpublished source dataset information from input values.
- * @param inputData - Values to derive source dataset from.
- * @returns database model of values needed to define a source dataset.
+ * Derive unpublished source study information from input values.
+ * @param inputData - Values to derive source datstudyaset from.
+ * @returns database model of values needed to define a source study.
  */
-function makeUnpublishedSourceDatasetDbData(
+function makeUnpublishedSourceStudyDbData(
   inputData: NewUnpublishedSourceStudyData | UnpublishedSourceStudyEditData
 ): HCAAtlasTrackerDBSourceStudyMinimumColumns {
   return {
@@ -234,15 +234,15 @@ function makeUnpublishedSourceDatasetDbData(
 }
 
 /**
- * Remove the specified source dataset from the specified atlas, and delete the source dataset if it's not contained in any other atlases.
+ * Remove the specified source study from the specified atlas, and delete the source study if it's not contained in any other atlases.
  * @param atlasId - Atlas ID.
- * @param sdId - Source dataset ID.
+ * @param sdId - Source study ID.
  */
-export async function deleteAtlasSourceDataset(
+export async function deleteAtlasSourceStudy(
   atlasId: string,
   sdId: string
 ): Promise<void> {
-  await confirmSourceDatasetExistsOnAtlas(sdId, atlasId);
+  await confirmSourceStudyExistsOnAtlas(sdId, atlasId);
 
   const client = await getPoolClient();
   try {
@@ -251,14 +251,14 @@ export async function deleteAtlasSourceDataset(
       "UPDATE hat.atlases SET source_studies=source_studies-$1 WHERE id=$2",
       [sdId, atlasId]
     );
-    const sourceDatasetHasAtlases = (
+    const sourceStudyHasAtlases = (
       await client.query(
         "SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE source_studies @> $1)",
         [JSON.stringify(sdId)]
       )
     ).rows[0].exists;
-    if (sourceDatasetHasAtlases) {
-      await updateSourceDatasetValidationsByEntityId(sdId, client);
+    if (sourceStudyHasAtlases) {
+      await updateSourceStudyValidationsByEntityId(sdId, client);
     } else {
       await client.query("DELETE FROM hat.source_studies WHERE id=$1", [sdId]);
       await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
@@ -275,32 +275,32 @@ export async function deleteAtlasSourceDataset(
 }
 
 /**
- * Update validations for the source dataset with the given ID.
- * @param entityId - Source dataset ID.
+ * Update validations for the source study with the given ID.
+ * @param entityId - Source study ID.
  * @param client - Postgres client to use.
  */
-export async function updateSourceDatasetValidationsByEntityId(
+export async function updateSourceStudyValidationsByEntityId(
   entityId: string,
   client: pg.PoolClient
 ): Promise<void> {
-  const sourceDataset = (
+  const sourceStudy = (
     await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [entityId]
     )
   ).rows[0];
-  if (!sourceDataset)
-    throw new NotFoundError(`Source dataset with ID ${entityId} doesn't exist`);
-  await updateSourceDatasetValidations(sourceDataset, client);
+  if (!sourceStudy)
+    throw new NotFoundError(`Source study with ID ${entityId} doesn't exist`);
+  await updateSourceStudyValidations(sourceStudy, client);
 }
 
 /**
- * Throw an error if the given source dataset doesn't exist on the given atlas.
- * @param sdId - Source dataset ID.
+ * Throw an error if the given source study doesn't exist on the given atlas.
+ * @param sdId - Source study ID.
  * @param atlasId - Atlas ID.
  * @param limitToStatuses - If specified, statuses that the atlas must have.
  */
-export async function confirmSourceDatasetExistsOnAtlas(
+export async function confirmSourceStudyExistsOnAtlas(
   sdId: string,
   atlasId: string,
   limitToStatuses?: ATLAS_STATUS[]
@@ -315,6 +315,6 @@ export async function confirmSourceDatasetExistsOnAtlas(
     throw new AccessError(`Can't access atlas with ID ${atlasId}`);
   if (!source_studies.includes(sdId))
     throw new NotFoundError(
-      `Source dataset with ID ${sdId} doesn't exist on atlas with ID ${atlasId}`
+      `Source study with ID ${sdId} doesn't exist on atlas with ID ${atlasId}`
     );
 }

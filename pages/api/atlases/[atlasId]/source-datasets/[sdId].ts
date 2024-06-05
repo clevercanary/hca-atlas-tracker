@@ -9,9 +9,9 @@ import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catal
 import { METHOD } from "../../../../../app/common/entities";
 import { query } from "../../../../../app/services/database";
 import {
-  confirmSourceDatasetExistsOnAtlas,
-  deleteAtlasSourceDataset,
-  updateSourceDataset,
+  confirmSourceStudyExistsOnAtlas,
+  deleteAtlasSourceStudy,
+  updateSourceStudy,
 } from "../../../../../app/services/source-datasets";
 import {
   AccessError,
@@ -28,7 +28,7 @@ const getHandler = handler(
     const sdId = req.query.sdId as string;
 
     try {
-      await confirmSourceDatasetExistsOnAtlas(sdId, atlasId);
+      await confirmSourceStudyExistsOnAtlas(sdId, atlasId);
     } catch (e) {
       if (e instanceof AccessError) {
         res.status(403).json({ message: e.message });
@@ -54,7 +54,7 @@ const putHandler = handler(
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const sdId = req.query.sdId as string;
-    const newDataset = await updateSourceDataset(
+    const newDataset = await updateSourceStudy(
       atlasId,
       sdId,
       await sourceStudyEditSchema.validate(req.body)
@@ -68,7 +68,7 @@ const deleteHandler = handler(
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const sdId = req.query.sdId as string;
-    await deleteAtlasSourceDataset(atlasId, sdId);
+    await deleteAtlasSourceStudy(atlasId, sdId);
     res.status(200).end();
   }
 );

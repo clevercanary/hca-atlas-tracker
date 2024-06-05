@@ -9,7 +9,7 @@ import {
 } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import pg from "pg";
 import { endPgPool, getPoolClient } from "../app/services/database";
-import { getSourceDatasetValidationResults } from "../app/services/validations";
+import { getSourceStudyValidationResults } from "../app/services/validations";
 import {
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
@@ -308,7 +308,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("getSourceDatasetValidationResults", () => {
+describe("getSourceStudyValidationResults", () => {
   it("returns validations for source study with CELLxGENE collection and multiple atlases", async () => {
     await testValidations(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
@@ -388,7 +388,7 @@ async function testValidations(
       [testDataset.id]
     )
   ).rows[0];
-  const validationResults = await getSourceDatasetValidationResults(
+  const validationResults = await getSourceStudyValidationResults(
     sourceStudy,
     client
   );

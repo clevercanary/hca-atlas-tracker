@@ -7,7 +7,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
 import { query } from "../app/services/database";
-import { updateSourceDatasetValidations } from "../app/services/validations";
+import { updateSourceStudyValidations } from "../app/services/validations";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
   INITIAL_TEST_ATLASES,
@@ -69,7 +69,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     )
   ).rows;
   for (const dataset of dbSourceStudies) {
-    await updateSourceDatasetValidations(dataset, client);
+    await updateSourceStudyValidations(dataset, client);
   }
 
   await updateTaskCounts();

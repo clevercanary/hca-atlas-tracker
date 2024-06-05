@@ -1,4 +1,4 @@
-import { createSourceDataset } from "app/services/source-datasets";
+import { createSourceStudy } from "app/services/source-datasets";
 import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { newSourceStudySchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
@@ -13,7 +13,7 @@ export default handler(
   role(ROLE.CONTENT_ADMIN), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
-    const newDataset = await createSourceDataset(
+    const newDataset = await createSourceStudy(
       atlasId,
       await newSourceStudySchema.validate(req.body)
     );
