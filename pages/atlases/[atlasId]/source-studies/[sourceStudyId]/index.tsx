@@ -1,6 +1,6 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { SourceStudyView } from "../../../../../app/views/SourceDatasetView/sourceDatasetView";
+import { SourceStudyView } from "../../../../../app/views/SourceStudyView/sourceStudyView";
 
 interface SourceDatasetPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

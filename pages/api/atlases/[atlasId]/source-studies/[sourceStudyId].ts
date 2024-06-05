@@ -12,7 +12,7 @@ import {
   confirmSourceStudyExistsOnAtlas,
   deleteAtlasSourceStudy,
   updateSourceStudy,
-} from "../../../../../app/services/source-datasets";
+} from "../../../../../app/services/source-studies";
 import {
   AccessError,
   handleByMethod,

@@ -1,0 +1,22 @@
+import { PUBLICATION_STATUS } from "../../../../../../../../../../../../../views/AddNewSourceStudyView/common/entities";
+import { TabsProps } from "../../../../../../../../Tabs/tabs";
+
+/**
+ * Returns tabs for the general info section.
+ * @param hasDoi - Whether the source study has a DOI.
+ * @returns tabs.
+ */
+export function getSectionTabs(hasDoi: boolean): TabsProps["tabs"] {
+  return [
+    {
+      disabled: false,
+      label: "Published",
+      value: PUBLICATION_STATUS.PUBLISHED,
+    },
+    {
+      disabled: hasDoi, // Unpublished tab is disabled if the source study has a DOI.
+      label: "Unpublished",
+      value: PUBLICATION_STATUS.UNPUBLISHED,
+    },
+  ];
+}
