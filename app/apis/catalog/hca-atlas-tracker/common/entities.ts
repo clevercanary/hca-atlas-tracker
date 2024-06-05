@@ -134,7 +134,7 @@ export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
-  source_datasets: string[];
+  source_studies: string[];
   status: ATLAS_STATUS;
   target_completion: Date | null;
   updated_at: Date;
@@ -154,7 +154,7 @@ export interface HCAAtlasTrackerDBPublishedSourceDataset {
   created_at: Date;
   doi: string;
   id: string;
-  sd_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
+  study_info: HCAAtlasTrackerDBPublishedSourceDatasetInfo;
   updated_at: Date;
 }
 
@@ -162,7 +162,7 @@ export interface HCAAtlasTrackerDBUnpublishedSourceDataset {
   created_at: Date;
   doi: null;
   id: string;
-  sd_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
+  study_info: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo;
   updated_at: Date;
 }
 
@@ -171,8 +171,8 @@ export type HCAAtlasTrackerDBSourceDataset =
   | HCAAtlasTrackerDBUnpublishedSourceDataset;
 
 export type HCAAtlasTrackerDBSourceDatasetMinimumColumns =
-  | Pick<HCAAtlasTrackerDBPublishedSourceDataset, "doi" | "sd_info">
-  | Pick<HCAAtlasTrackerDBUnpublishedSourceDataset, "doi" | "sd_info">;
+  | Pick<HCAAtlasTrackerDBPublishedSourceDataset, "doi" | "study_info">
+  | Pick<HCAAtlasTrackerDBUnpublishedSourceDataset, "doi" | "study_info">;
 
 export interface HCAAtlasTrackerDBPublishedSourceDatasetInfo {
   capId: string | null;
@@ -302,7 +302,7 @@ export interface ValidationDifference {
 export enum ENTITY_TYPE {
   ATLAS = "ATLAS",
   COMPONENT_ATLAS = "COMPONENT_ATLAS",
-  SOURCE_DATASET = "SOURCE_DATASET",
+  SOURCE_DATASET = "SOURCE_STUDY",
 }
 
 export enum SYSTEM {
@@ -325,11 +325,11 @@ export enum VALIDATION_TYPE {
 }
 
 export enum VALIDATION_ID {
-  SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA = "SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA",
-  SOURCE_DATASET_IN_CAP = "SOURCE_DATASET_IN_CAP",
-  SOURCE_DATASET_IN_CELLXGENE = "SOURCE_DATASET_IN_CELLXGENE",
-  SOURCE_DATASET_IN_HCA_DATA_REPOSITORY = "SOURCE_DATASET_IN_HCA_DATA_REPOSITORY",
-  SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY = "SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY",
+  SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA = "SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA",
+  SOURCE_STUDY_IN_CAP = "SOURCE_STUDY_IN_CAP",
+  SOURCE_STUDY_IN_CELLXGENE = "SOURCE_STUDY_IN_CELLXGENE",
+  SOURCE_STUDY_IN_HCA_DATA_REPOSITORY = "SOURCE_STUDY_IN_HCA_DATA_REPOSITORY",
+  SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY = "SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY",
 }
 
 export enum VALIDATION_STATUS {

@@ -40,7 +40,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   for (const dataset of INITIAL_TEST_SOURCE_DATASETS) {
     const sdInfo = makeTestSourceDatasetOverview(dataset);
     await client.query(
-      "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",
+      "INSERT INTO hat.source_studies (doi, id, study_info) VALUES ($1, $2, $3)",
       [
         "doi" in dataset ? dataset.doi : null,
         dataset.id,
@@ -52,7 +52,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
-      "INSERT INTO hat.atlases (id, overview, source_datasets, status, target_completion) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO hat.atlases (id, overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5)",
       [
         atlas.id,
         JSON.stringify(overview),
@@ -65,7 +65,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
 
   const dbSourceDatasets = (
     await client.query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets"
+      "SELECT * FROM hat.source_studies"
     )
   ).rows;
   for (const dataset of dbSourceDatasets) {

@@ -15,8 +15,8 @@ export default handler(
     const id = req.query.atlasId as string;
     const {
       rows: [atlas],
-    } = await query<Pick<HCAAtlasTrackerDBAtlas, "source_datasets" | "status">>(
-      "SELECT source_datasets, status FROM hat.atlases WHERE id=$1",
+    } = await query<Pick<HCAAtlasTrackerDBAtlas, "source_studies" | "status">>(
+      "SELECT source_studies, status FROM hat.atlases WHERE id=$1",
       [id]
     );
     if (!atlas) {
@@ -24,12 +24,12 @@ export default handler(
       return;
     }
     const sourceDatasets =
-      atlas.source_datasets.length === 0
+      atlas.source_studies.length === 0
         ? []
         : (
             await query<HCAAtlasTrackerDBSourceDataset>(
-              "SELECT * FROM hat.source_datasets WHERE id=ANY($1)",
-              [atlas.source_datasets]
+              "SELECT * FROM hat.source_studies WHERE id=ANY($1)",
+              [atlas.source_studies]
             )
           ).rows;
     res.json(sourceDatasets.map(dbSourceDatasetToApiSourceDataset));

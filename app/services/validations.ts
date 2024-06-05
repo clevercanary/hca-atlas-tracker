@@ -71,12 +71,12 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       system: SYSTEM.CAP,
       validate(sourceDataset): ValidationStatusInfo {
         return {
-          status: sourceDataset.sd_info.cellxgeneCollectionId
-            ? passedIfTruthy(sourceDataset.sd_info.capId)
+          status: sourceDataset.study_info.cellxgeneCollectionId
+            ? passedIfTruthy(sourceDataset.study_info.capId)
             : VALIDATION_STATUS.BLOCKED,
         };
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CAP,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
@@ -84,10 +84,12 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       system: SYSTEM.CELLXGENE,
       validate(sourceDataset): ValidationStatusInfo {
         return {
-          status: passedIfTruthy(sourceDataset.sd_info.cellxgeneCollectionId),
+          status: passedIfTruthy(
+            sourceDataset.study_info.cellxgeneCollectionId
+          ),
         };
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
@@ -95,10 +97,10 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceDataset): ValidationStatusInfo {
         return {
-          status: passedIfTruthy(sourceDataset.sd_info.hcaProjectId),
+          status: passedIfTruthy(sourceDataset.study_info.hcaProjectId),
         };
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
@@ -129,7 +131,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
         );
       },
       validationId:
-        VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY,
+        VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationType: VALIDATION_TYPE.METADATA,
     },
     {
@@ -144,7 +146,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
           })
         );
       },
-      validationId: VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA,
+      validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationType: VALIDATION_TYPE.INGEST,
     },
   ];
@@ -165,23 +167,23 @@ function validateSourceDatasetHcaProjectInfo(
 ): ValidationStatusInfo | null {
   if (
     !sourceDataset.doi ||
-    !sourceDataset.sd_info.publication ||
-    !sourceDataset.sd_info.hcaProjectId
+    !sourceDataset.study_info.publication ||
+    !sourceDataset.study_info.hcaProjectId
   ) {
     return null;
   }
   const projectInfo = getProjectInfoByDoi(
-    getPublicationDois(sourceDataset.doi, sourceDataset.sd_info.publication)
+    getPublicationDois(sourceDataset.doi, sourceDataset.study_info.publication)
   );
   const infoProperties = {
     relatedEntityUrl: `https://explore.data.humancellatlas.org/projects/${encodeURIComponent(
-      sourceDataset.sd_info.hcaProjectId
+      sourceDataset.study_info.hcaProjectId
     )}`,
   };
   return validate(
     projectInfo,
     infoProperties,
-    sourceDataset.sd_info.publication
+    sourceDataset.study_info.publication
   );
 }
 
@@ -277,7 +279,7 @@ async function revalidateAllSourceDatasets(): Promise<void> {
   const client = await getPoolClient();
   const sourceDatasets = (
     await client.query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets"
+      "SELECT * FROM hat.source_studies"
     )
   ).rows;
   for (const dataset of sourceDatasets) {
@@ -466,8 +468,8 @@ function getSourceDatasetTitle(
   sourceDataset: HCAAtlasTrackerDBSourceDataset
 ): string {
   return (
-    sourceDataset.sd_info.publication?.title ??
-    sourceDataset.sd_info.unpublishedInfo?.title ??
+    sourceDataset.study_info.publication?.title ??
+    sourceDataset.study_info.unpublishedInfo?.title ??
     sourceDataset.id
   );
 }
@@ -483,7 +485,7 @@ async function getSourceDatasetAtlasIds(
   client: pg.PoolClient
 ): Promise<string[]> {
   const queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "SELECT id FROM hat.atlases WHERE source_datasets @> $1",
+    "SELECT id FROM hat.atlases WHERE source_studies @> $1",
     [JSON.stringify(sourceDataset.id)]
   );
   return Array.from(new Set(queryResult.rows.map(({ id }) => id)));

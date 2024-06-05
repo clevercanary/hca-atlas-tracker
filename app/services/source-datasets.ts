@@ -50,7 +50,7 @@ export async function createSourceDataset(
     const existingDataset = await getExistingDataset(inputData, client);
     if (existingDataset) {
       const queryResult = await client.query(
-        "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2 AND NOT source_datasets @> $1",
+        "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2 AND NOT source_studies @> $1",
         [JSON.stringify([existingDataset.id]), atlasId]
       );
       if (queryResult.rowCount === 0)
@@ -67,13 +67,13 @@ export async function createSourceDataset(
     const newInfo = await sourceDatasetInputDataToDbData(inputData);
     const newDataset = (
       await client.query<HCAAtlasTrackerDBSourceDataset>(
-        "INSERT INTO hat.source_datasets (doi, sd_info) VALUES ($1, $2) RETURNING *",
-        [newInfo.doi, JSON.stringify(newInfo.sd_info)]
+        "INSERT INTO hat.source_studies (doi, study_info) VALUES ($1, $2) RETURNING *",
+        [newInfo.doi, JSON.stringify(newInfo.study_info)]
       )
     ).rows[0];
     // Update the atlas's list of source datasets
     await client.query(
-      "UPDATE hat.atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
+      "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2",
       [JSON.stringify([newDataset.id]), atlasId]
     );
     await updateSourceDatasetValidations(newDataset, client);
@@ -102,7 +102,7 @@ async function getExistingDataset(
   return (
     (
       await client.query<HCAAtlasTrackerDBSourceDataset>(
-        "SELECT * FROM hat.source_datasets WHERE doi=$1 OR sd_info->'publication'->>'preprintOfDoi'=$1 OR sd_info->'publication'->>'hasPreprintDoi'=$1",
+        "SELECT * FROM hat.source_studies WHERE doi=$1 OR study_info->'publication'->>'preprintOfDoi'=$1 OR study_info->'publication'->>'hasPreprintDoi'=$1",
         [doi]
       )
     ).rows[0] ?? null
@@ -130,8 +130,8 @@ export async function updateSourceDataset(
     await client.query("BEGIN");
 
     const queryResult = await client.query<HCAAtlasTrackerDBSourceDataset>(
-      "UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3 RETURNING *",
-      [newInfo.doi, JSON.stringify(newInfo.sd_info), sdId]
+      "UPDATE hat.source_studies SET doi=$1, study_info=$2 WHERE id=$3 RETURNING *",
+      [newInfo.doi, JSON.stringify(newInfo.study_info), sdId]
     );
 
     if (queryResult.rows.length === 0)
@@ -197,7 +197,7 @@ async function makePublishedSourceDatasetDbData(
 
   return {
     doi,
-    sd_info: {
+    study_info: {
       capId: "capId" in inputData ? inputData.capId : null,
       cellxgeneCollectionId,
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
@@ -218,7 +218,7 @@ function makeUnpublishedSourceDatasetDbData(
 ): HCAAtlasTrackerDBSourceDatasetMinimumColumns {
   return {
     doi: null,
-    sd_info: {
+    study_info: {
       capId: null,
       cellxgeneCollectionId: null,
       doiStatus: DOI_STATUS.NA,
@@ -248,19 +248,19 @@ export async function deleteAtlasSourceDataset(
   try {
     await client.query("BEGIN");
     await client.query(
-      "UPDATE hat.atlases SET source_datasets=source_datasets-$1 WHERE id=$2",
+      "UPDATE hat.atlases SET source_studies=source_studies-$1 WHERE id=$2",
       [sdId, atlasId]
     );
     const sourceDatasetHasAtlases = (
       await client.query(
-        "SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE source_datasets @> $1)",
+        "SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE source_studies @> $1)",
         [JSON.stringify(sdId)]
       )
     ).rows[0].exists;
     if (sourceDatasetHasAtlases) {
       await updateSourceDatasetValidationsByEntityId(sdId, client);
     } else {
-      await client.query("DELETE FROM hat.source_datasets WHERE id=$1", [sdId]);
+      await client.query("DELETE FROM hat.source_studies WHERE id=$1", [sdId]);
       await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
         sdId,
       ]);
@@ -285,7 +285,7 @@ export async function updateSourceDatasetValidationsByEntityId(
 ): Promise<void> {
   const sourceDataset = (
     await client.query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      "SELECT * FROM hat.source_studies WHERE id=$1",
       [entityId]
     )
   ).rows[0];
@@ -306,14 +306,14 @@ export async function confirmSourceDatasetExistsOnAtlas(
   limitToStatuses?: ATLAS_STATUS[]
 ): Promise<void> {
   const queryResult = await query<
-    Pick<HCAAtlasTrackerDBAtlas, "source_datasets" | "status">
-  >("SELECT source_datasets, status FROM hat.atlases WHERE id=$1", [atlasId]);
+    Pick<HCAAtlasTrackerDBAtlas, "source_studies" | "status">
+  >("SELECT source_studies, status FROM hat.atlases WHERE id=$1", [atlasId]);
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  const { source_datasets, status } = queryResult.rows[0];
+  const { source_studies, status } = queryResult.rows[0];
   if (limitToStatuses && !limitToStatuses.includes(status))
     throw new AccessError(`Can't access atlas with ID ${atlasId}`);
-  if (!source_datasets.includes(sdId))
+  if (!source_studies.includes(sdId))
     throw new NotFoundError(
       `Source dataset with ID ${sdId} doesn't exist on atlas with ID ${atlasId}`
     );

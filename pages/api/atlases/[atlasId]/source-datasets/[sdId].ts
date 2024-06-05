@@ -38,7 +38,7 @@ const getHandler = handler(
     }
 
     const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      "SELECT * FROM hat.source_studies WHERE id=$1",
       [sdId]
     );
 

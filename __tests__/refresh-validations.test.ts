@@ -43,24 +43,24 @@ describe("refreshValidations", () => {
 
     const unpublishedWithCellxGeneInCellxGeneBefore = await getSavedValidation(
       SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
-      VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE
+      VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
     );
     const publishedWithHcaInHcaBefore = await getSavedValidation(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY
+      VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY
     );
     const publishedWithHcaHcaTitleBefore = await getSavedValidation(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY
+      VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY
     );
     const publishedWithHcaPrimaryDataBefore = await getSavedValidation(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA
+      VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA
     );
     const publishedWithHcaTitleMismatchHcaTitleBefore =
       await getSavedValidation(
         SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
-        VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY
+        VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY
       );
 
     const {
@@ -91,15 +91,15 @@ describe("refreshValidations", () => {
     ).toEqual(VALIDATION_STATUS.FAILED);
 
     await query(
-      `UPDATE hat.source_datasets SET sd_info=sd_info||'{"cellxgeneCollectionId":null}' WHERE id=$1`,
+      `UPDATE hat.source_studies SET study_info=study_info||'{"cellxgeneCollectionId":null}' WHERE id=$1`,
       [SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id]
     );
     await query(
-      `UPDATE hat.source_datasets SET sd_info=sd_info||'{"hcaProjectId":null}' WHERE id=$1`,
+      `UPDATE hat.source_studies SET study_info=study_info||'{"hcaProjectId":null}' WHERE id=$1`,
       [SOURCE_DATASET_PUBLISHED_WITH_HCA.id]
     );
     await query(
-      `UPDATE hat.source_datasets SET sd_info=jsonb_set(sd_info, '{publication, title}', '"Published With HCA Title Mismatch MISMATCHED"') WHERE id=$1`,
+      `UPDATE hat.source_studies SET study_info=jsonb_set(study_info, '{publication, title}', '"Published With HCA Title Mismatch MISMATCHED"') WHERE id=$1`,
       [SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH.id]
     );
 
@@ -107,23 +107,23 @@ describe("refreshValidations", () => {
 
     const unpublishedWithCellxGeneInCellxGeneAfter = await getSavedValidation(
       SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
-      VALIDATION_ID.SOURCE_DATASET_IN_CELLXGENE
+      VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
     );
     const publishedWithHcaInHcaAfter = await getSavedValidation(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      VALIDATION_ID.SOURCE_DATASET_IN_HCA_DATA_REPOSITORY
+      VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY
     );
     const publishedWithHcaHcaTitleAfter = await getSavedValidation(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY
+      VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY
     );
     const publishedWithHcaPrimaryDataAfter = await getSavedValidation(
       SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      VALIDATION_ID.SOURCE_DATASET_HCA_PROJECT_HAS_PRIMARY_DATA
+      VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA
     );
     const publishedWithHcaTitleMismatchHcaTitleAfter = await getSavedValidation(
       SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
-      VALIDATION_ID.SOURCE_DATASET_TITLE_MATCHES_HCA_DATA_REPOSITORY
+      VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY
     );
 
     const {

@@ -399,16 +399,16 @@ async function testSuccessfulCreate(
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
   expect(res._getStatusCode()).toEqual(201);
   const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-  const { source_datasets: atlasDatasets } = (
+  const { source_studies: atlasDatasets } = (
     await query<HCAAtlasTrackerDBAtlas>(
-      "SELECT source_datasets FROM hat.atlases WHERE id=$1",
+      "SELECT source_studies FROM hat.atlases WHERE id=$1",
       [atlas.id]
     )
   ).rows[0];
   expect(atlasDatasets).toContain(newDataset.id);
   const newDatasetFromDb = (
     await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      "SELECT * FROM hat.source_studies WHERE id=$1",
       [newDataset.id]
     )
   ).rows[0];
@@ -436,12 +436,12 @@ async function testSuccessfulUnpublishedCreate(
   expect(newDataset.title).toEqual(expectedUnpublishedInfo.title);
   const newDatasetFromDb = (
     await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      "SELECT * FROM hat.source_studies WHERE id=$1",
       [newDataset.id]
     )
   ).rows[0];
   expect(newDatasetFromDb).toBeDefined();
-  expect(newDatasetFromDb.sd_info.unpublishedInfo).toEqual(
+  expect(newDatasetFromDb.study_info.unpublishedInfo).toEqual(
     expectedUnpublishedInfo
   );
   return newDatasetFromDb;
@@ -472,8 +472,8 @@ function expectDbDatasetToMatch(
   cellxgeneId: string | null
 ): void {
   expect(dbDataset).toBeDefined();
-  expect(dbDataset.sd_info.publication).toEqual(publication);
-  expect(dbDataset.sd_info.hcaProjectId).toEqual(hcaId);
-  expect(dbDataset.sd_info.cellxgeneCollectionId).toEqual(cellxgeneId);
+  expect(dbDataset.study_info.publication).toEqual(publication);
+  expect(dbDataset.study_info.hcaProjectId).toEqual(hcaId);
+  expect(dbDataset.study_info.cellxgeneCollectionId).toEqual(cellxgeneId);
   expect(dbSourceDatasetToApiSourceDataset(dbDataset)).toEqual(apiDataset);
 }

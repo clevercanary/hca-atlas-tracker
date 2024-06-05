@@ -268,11 +268,11 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     const datasetFromDb = await getDatasetFromDatabase(updatedDataset.id);
     expect(datasetFromDb).toBeDefined();
     if (!datasetFromDb) return;
-    expect(datasetFromDb.sd_info.publication).toEqual(
+    expect(datasetFromDb.study_info.publication).toEqual(
       PUBLICATION_PREPRINT_NO_JOURNAL
     );
-    expect(datasetFromDb.sd_info.hcaProjectId).toEqual(null);
-    expect(datasetFromDb.sd_info.cellxgeneCollectionId).toEqual(null);
+    expect(datasetFromDb.study_info.hcaProjectId).toEqual(null);
+    expect(datasetFromDb.study_info.cellxgeneCollectionId).toEqual(null);
     expect(dbSourceDatasetToApiSourceDataset(datasetFromDb)).toEqual(
       updatedDataset
     );
@@ -302,7 +302,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expect(datasetFromDb).toBeDefined();
     if (!datasetFromDb) return;
     expect(datasetFromDb.doi).toEqual(null);
-    expect(datasetFromDb.sd_info.unpublishedInfo).toEqual(
+    expect(datasetFromDb.study_info.unpublishedInfo).toEqual(
       SOURCE_DATASET_DRAFT_OK_EDIT
     );
 
@@ -325,7 +325,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     const datasetFromDb = await getDatasetFromDatabase(updatedDataset.id);
     expect(datasetFromDb).toBeDefined();
     if (!datasetFromDb) return;
-    expect(datasetFromDb.sd_info.capId).toEqual(
+    expect(datasetFromDb.study_info.capId).toEqual(
       SOURCE_DATASET_DRAFT_OK_CAP_ID_EDIT.capId
     );
 
@@ -408,10 +408,10 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       )._getStatusCode()
     ).toEqual(200);
     const draftDatasets = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
-      ?.source_datasets;
+      ?.source_studies;
     expect(draftDatasets).not.toContain(SOURCE_DATASET_SHARED.id);
     const publicDatasets = (await getAtlasFromDatabase(ATLAS_PUBLIC.id))
-      ?.source_datasets;
+      ?.source_studies;
     expect(publicDatasets).toContain(SOURCE_DATASET_SHARED.id);
     expectDatasetToBeUnchanged(SOURCE_DATASET_PUBLIC_NO_CROSSREF);
 
@@ -421,7 +421,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expect(validationsAfter).not.toHaveLength(0);
     expect(validationsAfter[0].atlas_ids).toHaveLength(1);
 
-    await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
+    await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
       JSON.stringify(ATLAS_DRAFT.sourceDatasets),
       ATLAS_DRAFT.id,
     ]);
@@ -444,10 +444,10 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       )._getStatusCode()
     ).toEqual(200);
     const draftDatasets = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
-      ?.source_datasets;
+      ?.source_studies;
     expect(draftDatasets).not.toContain(SOURCE_DATASET_DRAFT_OK.id);
     const datasetQueryResult = await query(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      "SELECT * FROM hat.source_studies WHERE id=$1",
       [SOURCE_DATASET_DRAFT_OK.id]
     );
     expect(datasetQueryResult.rows[0]).toBeUndefined();
@@ -458,14 +458,14 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expect(validationsAfter).toHaveLength(0);
 
     await query(
-      "INSERT INTO hat.source_datasets (doi, id, sd_info) VALUES ($1, $2, $3)",
+      "INSERT INTO hat.source_studies (doi, id, study_info) VALUES ($1, $2, $3)",
       [
         SOURCE_DATASET_DRAFT_OK.doi,
         SOURCE_DATASET_DRAFT_OK.id,
         JSON.stringify(makeTestSourceDatasetOverview(SOURCE_DATASET_DRAFT_OK)),
       ]
     );
-    await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
+    await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
       JSON.stringify(ATLAS_DRAFT.sourceDatasets),
       ATLAS_DRAFT.id,
     ]);
@@ -494,11 +494,14 @@ async function doDatasetRequest(
 }
 
 async function restoreDbDataset(dataset: TestSourceDataset): Promise<void> {
-  await query("UPDATE hat.source_datasets SET doi=$1, sd_info=$2 WHERE id=$3", [
-    "doi" in dataset ? dataset.doi : null,
-    JSON.stringify(makeTestSourceDatasetOverview(dataset)),
-    dataset.id,
-  ]);
+  await query(
+    "UPDATE hat.source_studies SET doi=$1, study_info=$2 WHERE id=$3",
+    [
+      "doi" in dataset ? dataset.doi : null,
+      JSON.stringify(makeTestSourceDatasetOverview(dataset)),
+      dataset.id,
+    ]
+  );
 }
 
 async function expectDatasetToBeUnchanged(
@@ -508,8 +511,8 @@ async function expectDatasetToBeUnchanged(
   expect(datasetFromDb).toBeDefined();
   if (!datasetFromDb) return;
   expect(datasetFromDb.doi).toEqual(dataset.doi);
-  expect(datasetFromDb.sd_info.doiStatus).toEqual(dataset.doiStatus);
-  expect(datasetFromDb.sd_info.publication).toEqual(dataset.publication);
+  expect(datasetFromDb.study_info.doiStatus).toEqual(dataset.doiStatus);
+  expect(datasetFromDb.study_info.publication).toEqual(dataset.publication);
 }
 
 async function getDatasetFromDatabase(
@@ -517,7 +520,7 @@ async function getDatasetFromDatabase(
 ): Promise<HCAAtlasTrackerDBSourceDataset | undefined> {
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      "SELECT * FROM hat.source_studies WHERE id=$1",
       [id]
     )
   ).rows[0];

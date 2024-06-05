@@ -59,7 +59,7 @@ export function dbAtlasToApiAtlas(
       pubString: "",
     },
     shortName: dbAtlas.overview.shortName,
-    sourceDatasetCount: dbAtlas.source_datasets.length,
+    sourceDatasetCount: dbAtlas.source_studies.length,
     status: dbAtlas.status,
     targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
     taskCount: dbAtlas.overview.taskCount,
@@ -73,16 +73,16 @@ export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset
 ): HCAAtlasTrackerSourceDataset {
   const {
-    sd_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
+    study_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceDataset;
   if (dbSourceDataset.doi === null) {
-    const unpublishedInfo = dbSourceDataset.sd_info.unpublishedInfo;
+    const unpublishedInfo = dbSourceDataset.study_info.unpublishedInfo;
     return {
       capId,
       cellxgeneCollectionId,
       contactEmail: unpublishedInfo.contactEmail,
       doi: null,
-      doiStatus: dbSourceDataset.sd_info.doiStatus,
+      doiStatus: dbSourceDataset.study_info.doiStatus,
       hcaProjectId,
       id: dbSourceDataset.id,
       journal: null,
@@ -96,7 +96,7 @@ export function dbSourceDatasetToApiSourceDataset(
       cellxgeneCollectionId,
       contactEmail: null,
       doi: dbSourceDataset.doi,
-      doiStatus: dbSourceDataset.sd_info.doiStatus,
+      doiStatus: dbSourceDataset.study_info.doiStatus,
       hcaProjectId,
       id: dbSourceDataset.id,
       journal: publication?.journal ?? null,

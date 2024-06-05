@@ -40,7 +40,7 @@ export async function createAtlas(
     taskCount: 0,
   };
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-    "INSERT INTO hat.atlases (overview, source_datasets, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING *",
+    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING *",
     [JSON.stringify(overview), "[]", ATLAS_STATUS.DRAFT, targetCompletion]
   );
   return queryResult.rows[0];
