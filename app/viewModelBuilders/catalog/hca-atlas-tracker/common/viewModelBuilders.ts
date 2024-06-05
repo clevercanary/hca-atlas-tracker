@@ -85,7 +85,7 @@ export const buildEntityTitle = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: task.entityTitle,
-    url: getRouteURL(ROUTE.SOURCE_DATASET, task.atlasIds[0], task.entityId),
+    url: getRouteURL(ROUTE.SOURCE_STUDY, task.atlasIds[0], task.entityId),
   };
 };
 
@@ -209,7 +209,7 @@ export const buildSourceStudyTitle = (
   const { id, title } = sourceStudy;
   return {
     label: title ?? id,
-    url: getRouteURL(ROUTE.SOURCE_DATASET, atlasId, id),
+    url: getRouteURL(ROUTE.SOURCE_STUDY, atlasId, id),
   };
 };
 
@@ -223,7 +223,7 @@ export const buildSourceStudyCount = (
 ): React.ComponentProps<typeof C.Link> => {
   return {
     label: atlas.sourceStudyCount,
-    url: getRouteURL(ROUTE.SOURCE_DATASETS, atlas.id),
+    url: getRouteURL(ROUTE.SOURCE_STUDIES, atlas.id),
   };
 };
 

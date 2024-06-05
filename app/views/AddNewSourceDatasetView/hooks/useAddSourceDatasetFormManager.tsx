@@ -22,7 +22,7 @@ import {
   PUBLICATION_STATUS,
 } from "../common/entities";
 
-export const useAddSourceDatasetFormManager = (
+export const useAddSourceStudyFormManager = (
   atlasId: AtlasId,
   formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>
 ): FormManager => {
@@ -32,7 +32,7 @@ export const useAddSourceDatasetFormManager = (
 
   const onDiscard = useCallback(
     (url?: string) => {
-      Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASETS, atlasId));
+      Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDIES, atlasId));
     },
     [atlasId]
   );
@@ -41,7 +41,7 @@ export const useAddSourceDatasetFormManager = (
     (payload: NewSourceStudyData, url?: string) => {
       unregister(unregisterSchemaFields(payload));
       onSubmit(
-        getRequestURL(API.CREATE_ATLAS_SOURCE_DATASET, atlasId),
+        getRequestURL(API.CREATE_ATLAS_SOURCE_STUDY, atlasId),
         METHOD.POST,
         filterPayload(payload),
         {
@@ -101,13 +101,13 @@ function isFormDirty(
 }
 
 /**
- * Side effect "onSuccess"; redirects to the source dataset page, or to the specified URL.
+ * Side effect "onSuccess"; redirects to the source study page, or to the specified URL.
  * @param atlasId - Atlas ID.
- * @param sourceStudyId - Source dataset ID.
+ * @param sourceStudyId - Source study ID.
  * @param url - URL to redirect to.
  */
 function onSuccess(atlasId: string, sourceStudyId: string, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASET, atlasId, sourceStudyId));
+  Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDY, atlasId, sourceStudyId));
 }
 
 /**

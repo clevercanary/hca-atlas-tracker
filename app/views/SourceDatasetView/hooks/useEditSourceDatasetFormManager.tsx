@@ -23,13 +23,13 @@ import {
   SourceStudyEditDataKeys,
 } from "../common/entities";
 
-export const useEditSourceDatasetFormManager = (
+export const useEditSourceStudyFormManager = (
   atlasId: AtlasId,
   sourceStudyId: SourceStudyId,
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>
 ): FormManager => {
   const {
-    onDelete: onDeleteSourceDataset,
+    onDelete: onDeleteSourceStudy,
     onSubmit,
     reset,
     unregister,
@@ -39,18 +39,18 @@ export const useEditSourceDatasetFormManager = (
   const isDirty = isFormDirty(formMethod, publicationStatus);
 
   const onDelete = useCallback(() => {
-    onDeleteSourceDataset(
-      getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sourceStudyId),
+    onDeleteSourceStudy(
+      getRequestURL(API.ATLAS_SOURCE_STUDY, atlasId, sourceStudyId),
       METHOD.DELETE,
       {
         onSuccess: () => onDeleteSuccess(atlasId),
       }
     );
-  }, [atlasId, onDeleteSourceDataset, sourceStudyId]);
+  }, [atlasId, onDeleteSourceStudy, sourceStudyId]);
 
   const onDiscard = useCallback(
     (url?: string) => {
-      Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASETS, atlasId));
+      Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDIES, atlasId));
     },
     [atlasId]
   );
@@ -59,7 +59,7 @@ export const useEditSourceDatasetFormManager = (
     (payload: SourceStudyEditData, url?: string) => {
       unregister(unregisterSchemaFields(payload));
       onSubmit(
-        getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sourceStudyId),
+        getRequestURL(API.ATLAS_SOURCE_STUDY, atlasId, sourceStudyId),
         METHOD.PUT,
         filterPayload(payload),
         {
@@ -120,21 +120,21 @@ function isFormDirty(
 }
 
 /**
- * Delete side effect "onSuccess"; redirects to the source datasets page.
+ * Delete side effect "onSuccess"; redirects to the source studies page.
  * @param {string} atlasId - Atlas ID.
  */
 function onDeleteSuccess(atlasId: string): void {
-  Router.push(getRouteURL(ROUTE.SOURCE_DATASETS, atlasId));
+  Router.push(getRouteURL(ROUTE.SOURCE_STUDIES, atlasId));
 }
 
 /**
- * Submit side effect "onSuccess"; redirects to the source dataset page, or to the specified URL.
+ * Submit side effect "onSuccess"; redirects to the source studies page, or to the specified URL.
  * @param atlasId - Atlas ID.
- * @param sourceStudyId - Source dataset ID.
+ * @param sourceStudyId - Source study ID.
  * @param url - URL to redirect to.
  */
 function onSuccess(atlasId: string, sourceStudyId: string, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASET, atlasId, sourceStudyId));
+  Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDY, atlasId, sourceStudyId));
 }
 
 /**

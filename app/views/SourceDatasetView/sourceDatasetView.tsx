@@ -13,9 +13,9 @@ import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
 import {
   mapPublicationStatus,
-  useEditSourceDatasetForm,
+  useEditSourceStudyForm,
 } from "./hooks/useEditSourceDatasetForm";
-import { useEditSourceDatasetFormManager } from "./hooks/useEditSourceDatasetFormManager";
+import { useEditSourceStudyFormManager } from "./hooks/useEditSourceDatasetFormManager";
 
 interface SourceStudyViewProps {
   atlasId: AtlasId;
@@ -27,8 +27,8 @@ export const SourceStudyView = ({
   sourceStudyId,
 }: SourceStudyViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
-  const formMethod = useEditSourceDatasetForm(atlasId, sourceStudyId);
-  const formManager = useEditSourceDatasetFormManager(
+  const formMethod = useEditSourceStudyForm(atlasId, sourceStudyId);
+  const formManager = useEditSourceStudyFormManager(
     atlasId,
     sourceStudyId,
     formMethod

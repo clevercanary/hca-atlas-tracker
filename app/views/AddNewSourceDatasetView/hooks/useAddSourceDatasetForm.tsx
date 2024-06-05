@@ -6,7 +6,7 @@ import { newSourceStudySchema } from "../common/schema";
 
 const SCHEMA = newSourceStudySchema;
 
-export const useAddSourceDatasetForm = (): FormMethod<
+export const useAddSourceStudyForm = (): FormMethod<
   NewSourceStudyData,
   HCAAtlasTrackerSourceStudy
 > => {

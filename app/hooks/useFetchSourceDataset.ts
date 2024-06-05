@@ -13,27 +13,27 @@ import {
   isFetchStatusOk,
 } from "../common/utils";
 
-interface UseFetchSourceDataset {
-  sourceDataset?: HCAAtlasTrackerSourceStudy;
+interface UseFetchSourceStudy {
+  sourceStudy?: HCAAtlasTrackerSourceStudy;
 }
 
-export const useFetchSourceDataset = (
+export const useFetchSourceStudy = (
   atlasId: AtlasId,
   sourceStudyId: string
-): UseFetchSourceDataset => {
+): UseFetchSourceStudy => {
   const { token } = useAuthentication();
-  const { data: sourceDataset, run } = useAsync<
+  const { data: sourceStudy, run } = useAsync<
     HCAAtlasTrackerSourceStudy | undefined
   >();
 
-  const fetchSourceDataset = useCallback(
+  const fetchSourceStudy = useCallback(
     async (
       atlasId: AtlasId,
       sourceStudyId: string,
       accessToken: string
     ): Promise<HCAAtlasTrackerSourceStudy | undefined> => {
       const res = await fetch(
-        getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sourceStudyId),
+        getRequestURL(API.ATLAS_SOURCE_STUDY, atlasId, sourceStudyId),
         getFetchOptions(METHOD.GET, accessToken)
       );
       if (isFetchStatusOk(res.status)) {
@@ -51,10 +51,10 @@ export const useFetchSourceDataset = (
 
   useEffect(() => {
     if (!token) return;
-    run(fetchSourceDataset(atlasId, sourceStudyId, token));
-  }, [atlasId, fetchSourceDataset, run, sourceStudyId, token]);
+    run(fetchSourceStudy(atlasId, sourceStudyId, token));
+  }, [atlasId, fetchSourceStudy, run, sourceStudyId, token]);
 
   return {
-    sourceDataset,
+    sourceStudy,
   };
 };

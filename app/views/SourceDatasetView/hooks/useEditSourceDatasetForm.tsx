@@ -7,7 +7,7 @@ import {
   HCAAtlasTrackerSourceStudy,
   SourceStudyId,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { useFetchSourceDataset } from "../../../hooks/useFetchSourceDataset";
+import { useFetchSourceStudy } from "../../../hooks/useFetchSourceDataset";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { PUBLICATION_STATUS } from "../../AddNewSourceDatasetView/common/entities";
@@ -17,14 +17,14 @@ import { sourceStudyEditSchema } from "../common/schema";
 
 const SCHEMA = sourceStudyEditSchema;
 
-export const useEditSourceDatasetForm = (
+export const useEditSourceStudyForm = (
   atlasId: AtlasId,
   sourceStudyId: SourceStudyId
 ): FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy> => {
-  const { sourceDataset } = useFetchSourceDataset(atlasId, sourceStudyId);
+  const { sourceStudy } = useFetchSourceStudy(atlasId, sourceStudyId);
   return useForm<SourceStudyEditData, HCAAtlasTrackerSourceStudy>(
     SCHEMA,
-    sourceDataset,
+    sourceStudy,
     mapSchemaValues
   );
 };
@@ -61,24 +61,24 @@ export function mapPublicationStatus(doi?: string | null): PUBLICATION_STATUS {
 }
 
 /**
- * Returns schema default values mapped from source dataset.
- * @param sourceDataset - Source dataset.
+ * Returns schema default values mapped from source study.
+ * @param sourceStudy - Source study.
  * @returns schema default values.
  */
 function mapSchemaValues(
-  sourceDataset?: HCAAtlasTrackerSourceStudy
+  sourceStudy?: HCAAtlasTrackerSourceStudy
 ): SourceStudyEditData | undefined {
-  if (!sourceDataset) return;
+  if (!sourceStudy) return;
   return {
-    [FIELD_NAME.CAP_ID]: sourceDataset.capId ?? "",
+    [FIELD_NAME.CAP_ID]: sourceStudy.capId ?? "",
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: mapCELLxGENECollectionId(
-      sourceDataset.cellxgeneCollectionId
+      sourceStudy.cellxgeneCollectionId
     ),
-    [FIELD_NAME.CONTACT_EMAIL]: sourceDataset.contactEmail ?? "",
-    [FIELD_NAME.DOI]: sourceDataset.doi ?? "",
-    [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(sourceDataset.hcaProjectId),
-    [FIELD_NAME.PUBLICATION_STATUS]: mapPublicationStatus(sourceDataset.doi),
-    [FIELD_NAME.REFERENCE_AUTHOR]: sourceDataset.referenceAuthor ?? "",
-    [FIELD_NAME.TITLE]: sourceDataset.title ?? "",
+    [FIELD_NAME.CONTACT_EMAIL]: sourceStudy.contactEmail ?? "",
+    [FIELD_NAME.DOI]: sourceStudy.doi ?? "",
+    [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(sourceStudy.hcaProjectId),
+    [FIELD_NAME.PUBLICATION_STATUS]: mapPublicationStatus(sourceStudy.doi),
+    [FIELD_NAME.REFERENCE_AUTHOR]: sourceStudy.referenceAuthor ?? "",
+    [FIELD_NAME.TITLE]: sourceStudy.title ?? "",
   };
 }

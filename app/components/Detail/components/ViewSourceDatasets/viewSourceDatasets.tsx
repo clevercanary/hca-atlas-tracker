@@ -41,7 +41,7 @@ export const ViewSourceStudies = ({
           <Toolbar variant="table">
             <ButtonLink
               color={BUTTON_COLOR.SECONDARY}
-              href={getRouteURL(ROUTE.CREATE_SOURCE_DATASET, atlasId)}
+              href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, atlasId)}
               startIcon={<AddIcon fontSize="small" />}
             >
               Add Source Study

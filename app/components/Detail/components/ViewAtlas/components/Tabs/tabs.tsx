@@ -40,7 +40,7 @@ export const Tabs = ({
         { label: "Overview", value: ROUTE.ATLAS },
         {
           label: getSourceDatasetsLabel(atlas),
-          value: ROUTE.SOURCE_DATASETS,
+          value: ROUTE.SOURCE_STUDIES,
         },
       ]}
       value={route}

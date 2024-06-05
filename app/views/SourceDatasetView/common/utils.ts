@@ -27,8 +27,8 @@ export function getBreadcrumbs(
       text: "Atlases",
     },
     {
-      path: getRouteURL(ROUTE.SOURCE_DATASETS, atlasId),
-      route: ROUTE.SOURCE_DATASETS,
+      path: getRouteURL(ROUTE.SOURCE_STUDIES, atlasId),
+      route: ROUTE.SOURCE_STUDIES,
       text: atlas ? getAtlasName(atlas) : "Source Datasets",
     },
     {

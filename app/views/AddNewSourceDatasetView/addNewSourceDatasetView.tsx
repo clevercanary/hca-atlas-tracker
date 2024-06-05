@@ -7,8 +7,8 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
-import { useAddSourceDatasetForm } from "./hooks/useAddSourceDatasetForm";
-import { useAddSourceDatasetFormManager } from "./hooks/useAddSourceDatasetFormManager";
+import { useAddSourceStudyForm } from "./hooks/useAddSourceDatasetForm";
+import { useAddSourceStudyFormManager } from "./hooks/useAddSourceDatasetFormManager";
 
 interface AddNewSourceStudyViewProps {
   atlasId: AtlasId;
@@ -18,8 +18,8 @@ export const AddNewSourceStudyView = ({
   atlasId,
 }: AddNewSourceStudyViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
-  const formMethod = useAddSourceDatasetForm();
-  const formManager = useAddSourceDatasetFormManager(atlasId, formMethod);
+  const formMethod = useAddSourceStudyForm();
+  const formManager = useAddSourceStudyFormManager(atlasId, formMethod);
   const {
     access: { canView },
     formAction,

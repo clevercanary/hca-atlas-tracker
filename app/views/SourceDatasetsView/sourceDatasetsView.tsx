@@ -8,7 +8,7 @@ import { ViewSourceStudies } from "../../components/Detail/components/ViewSource
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { useFetchSourceDatasets } from "../../hooks/useFetchSourceDatasets";
+import { useFetchSourceStudies } from "../../hooks/useFetchSourceDatasets";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "../AtlasView/common/utils";
 
@@ -20,7 +20,7 @@ export const SourceStudiesView = ({
   atlasId,
 }: SourceStudiesViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
-  const { sourceDatasets: sourceStudies } = useFetchSourceDatasets(atlasId);
+  const { sourceStudies } = useFetchSourceStudies(atlasId);
   const formManager = useFormManager();
   const {
     access: { canView },
