@@ -2,12 +2,12 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { SourceStudyView } from "../../../../../app/views/SourceStudyView/sourceStudyView";
 
-interface SourceDatasetPageUrlParams extends ParsedUrlQuery {
+interface SourceStudyPageUrlParams extends ParsedUrlQuery {
   atlasId: string;
   sourceStudyId: string;
 }
 
-interface SourceDatasetPageProps {
+interface SourceStudyPageProps {
   atlasId: string;
   sourceStudyId: string;
 }
@@ -15,22 +15,21 @@ interface SourceDatasetPageProps {
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const { atlasId, sourceStudyId } =
-    context.params as SourceDatasetPageUrlParams;
+  const { atlasId, sourceStudyId } = context.params as SourceStudyPageUrlParams;
   return {
     props: {
       atlasId,
-      pageTitle: "Source Dataset",
+      pageTitle: "Source Study",
       sourceStudyId,
     },
   };
 };
 
-const SourceDatasetsPage = ({
+const SourceStudiesPage = ({
   atlasId,
   sourceStudyId,
-}: SourceDatasetPageProps): JSX.Element => {
+}: SourceStudyPageProps): JSX.Element => {
   return <SourceStudyView atlasId={atlasId} sourceStudyId={sourceStudyId} />;
 };
 
-export default SourceDatasetsPage;
+export default SourceStudiesPage;
