@@ -1,7 +1,7 @@
 import { ROLE_GROUP } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
 } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../app/common/entities";
@@ -27,7 +27,7 @@ export default handler(
       atlas.source_studies.length === 0
         ? []
         : (
-            await query<HCAAtlasTrackerDBSourceDataset>(
+            await query<HCAAtlasTrackerDBSourceStudy>(
               "SELECT * FROM hat.source_studies WHERE id=ANY($1)",
               [atlas.source_studies]
             )

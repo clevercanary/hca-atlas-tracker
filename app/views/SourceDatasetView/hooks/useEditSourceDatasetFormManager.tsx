@@ -3,8 +3,8 @@ import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import {
   AtlasId,
-  HCAAtlasTrackerSourceDataset,
-  SourceDatasetId,
+  HCAAtlasTrackerSourceStudy,
+  SourceStudyId,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../common/entities";
 import { getRequestURL, getRouteURL } from "../../../common/utils";
@@ -25,8 +25,8 @@ import {
 
 export const useEditSourceDatasetFormManager = (
   atlasId: AtlasId,
-  sdId: SourceDatasetId,
-  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>
+  sdId: SourceStudyId,
+  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>
 ): FormManager => {
   const {
     onDelete: onDeleteSourceDataset,
@@ -109,7 +109,7 @@ function getSchemaFields(
  * @returns true if the form is dirty.
  */
 function isFormDirty(
-  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>,
+  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>,
   publicationStatus: PUBLICATION_STATUS
 ): boolean {
   const {

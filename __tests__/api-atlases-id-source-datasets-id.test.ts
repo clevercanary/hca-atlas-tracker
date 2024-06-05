@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
@@ -141,7 +141,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       USER_STAKEHOLDER
     );
     expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    const dataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(dataset.doi).toEqual(SOURCE_DATASET_PUBLIC_NO_CROSSREF.doi);
   });
 
@@ -152,7 +152,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       USER_STAKEHOLDER
     );
     expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    const dataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(dataset.doi).toEqual(SOURCE_DATASET_DRAFT_OK.doi);
   });
 
@@ -163,7 +163,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    const dataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(dataset.doi).toEqual(SOURCE_DATASET_DRAFT_OK.doi);
   });
 
@@ -318,7 +318,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       SOURCE_DATASET_DRAFT_OK_CAP_ID_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const updatedDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    const updatedDataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(updatedDataset.capId).toEqual(
       SOURCE_DATASET_DRAFT_OK_CAP_ID_EDIT.capId
     );
@@ -517,9 +517,9 @@ async function expectDatasetToBeUnchanged(
 
 async function getDatasetFromDatabase(
   id: string
-): Promise<HCAAtlasTrackerDBSourceDataset | undefined> {
+): Promise<HCAAtlasTrackerDBSourceStudy | undefined> {
   return (
-    await query<HCAAtlasTrackerDBSourceDataset>(
+    await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [id]
     )

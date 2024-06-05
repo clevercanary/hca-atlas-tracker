@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceStudy } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { PUBLICATION_STATUS } from "../../../../views/AddNewSourceDatasetView/common/entities";
@@ -12,7 +12,7 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface ViewSourceDatasetProps {
   formManager: FormManagerProps;
-  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>;
+  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>;
   sdPublicationStatus: PUBLICATION_STATUS;
 }
 

@@ -11,7 +11,7 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
   Network,
   NetworkKey,
   TASK_STATUS,
@@ -108,7 +108,7 @@ export const buildEntityType = (
  * @returns Props to be used for the SourceDatasetStatusCell component.
  */
 export const buildInCap = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
   return {
     value: getSourceDatasetInCap(sourceDataset),
@@ -121,7 +121,7 @@ export const buildInCap = (
  * @returns Props to be used for the SourceDatasetStatusCell component.
  */
 export const buildInCellxGene = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
   return {
     value: getSourceDatasetInCellxGene(sourceDataset),
@@ -134,7 +134,7 @@ export const buildInCellxGene = (
  * @returns Props to be used for the SourceDatasetStatusCell component.
  */
 export const buildInHcaDataRepository = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
   return {
     value: getSourceDatasetInHcaDataRepository(sourceDataset),
@@ -187,7 +187,7 @@ export const buildResolvedAt = (
  * @returns Props to be used for the Link component.
  */
 export const buildSourceDatasetPublication = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.Link> => {
   const { doi } = sourceDataset;
   return {
@@ -204,7 +204,7 @@ export const buildSourceDatasetPublication = (
  */
 export const buildSourceDatasetTitle = (
   atlasId: AtlasId,
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.Link> => {
   const { id, title } = sourceDataset;
   return {
@@ -222,7 +222,7 @@ export const buildSourceDatasetCount = (
   atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Link> => {
   return {
-    label: atlas.sourceDatasetCount,
+    label: atlas.sourceStudyCount,
     url: getRouteURL(ROUTE.SOURCE_DATASETS, atlas.id),
   };
 };
@@ -446,7 +446,7 @@ export const buildWave = (
  */
 export function getAtlasSourceDatasetsTableColumns(
   atlasId: AtlasId
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
   return [
     getSourceDatasetTitleColumnDef(atlasId),
     getSourceDatasetPublicationColumnDef(),
@@ -497,7 +497,7 @@ function getDateFromIsoString(isoString: string): string {
  * Returns source dataset is in Cap column def.
  * @returns Column def.
  */
-function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorFn: getSourceDatasetInCap,
     cell: ({ row }) => C.SourceDatasetStatusCell(buildInCap(row.original)),
@@ -509,7 +509,7 @@ function getSourceDatasetInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
  * Returns source dataset in CELLxGENE column def.
  * @returns Column def.
  */
-function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorFn: getSourceDatasetInCellxGene,
     cell: ({ row }) =>
@@ -522,7 +522,7 @@ function getSourceDatasetInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSource
  * Returns source dataset in HCA data repository column def.
  * @returns Column def.
  */
-function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorFn: getSourceDatasetInHcaDataRepository,
     cell: ({ row }) =>
@@ -537,7 +537,7 @@ function getSourceDatasetInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrack
  * @returns whether the source dataset is in CAP.
  */
 function getSourceDatasetInCap(
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): SOURCE_DATASET_STATUS {
   return sourceDataset.capId
     ? SOURCE_DATASET_STATUS.DONE
@@ -550,7 +550,7 @@ function getSourceDatasetInCap(
  * @returns whether the source dataset is in CELLxGENE.
  */
 function getSourceDatasetInCellxGene(
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): SOURCE_DATASET_STATUS {
   return sourceDataset.cellxgeneCollectionId
     ? SOURCE_DATASET_STATUS.DONE
@@ -563,7 +563,7 @@ function getSourceDatasetInCellxGene(
  * @returns whether the source dataset is in the HCA data repository.
  */
 function getSourceDatasetInHcaDataRepository(
-  sourceDataset: HCAAtlasTrackerSourceDataset
+  sourceDataset: HCAAtlasTrackerSourceStudy
 ): SOURCE_DATASET_STATUS {
   return sourceDataset.hcaProjectId
     ? SOURCE_DATASET_STATUS.DONE
@@ -574,7 +574,7 @@ function getSourceDatasetInHcaDataRepository(
  * Returns source dataset publication column def.
  * @returns Column def.
  */
-function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "publication",
     cell: ({ row }) => C.Link(buildSourceDatasetPublication(row.original)),
@@ -589,7 +589,7 @@ function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSource
  */
 function getSourceDatasetTitleColumnDef(
   atlasId: AtlasId
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
+): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "title",
     cell: ({ row }) => C.Link(buildSourceDatasetTitle(atlasId, row.original)),

@@ -4,7 +4,7 @@ import { useCallback, useEffect } from "react";
 import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
 import {
   AtlasId,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../common/entities";
 import {
@@ -14,7 +14,7 @@ import {
 } from "../common/utils";
 
 interface UseFetchSourceDataset {
-  sourceDataset?: HCAAtlasTrackerSourceDataset;
+  sourceDataset?: HCAAtlasTrackerSourceStudy;
 }
 
 export const useFetchSourceDataset = (
@@ -23,7 +23,7 @@ export const useFetchSourceDataset = (
 ): UseFetchSourceDataset => {
   const { token } = useAuthentication();
   const { data: sourceDataset, run } = useAsync<
-    HCAAtlasTrackerSourceDataset | undefined
+    HCAAtlasTrackerSourceStudy | undefined
   >();
 
   const fetchSourceDataset = useCallback(
@@ -31,7 +31,7 @@ export const useFetchSourceDataset = (
       atlasId: AtlasId,
       sdId: string,
       accessToken: string
-    ): Promise<HCAAtlasTrackerSourceDataset | undefined> => {
+    ): Promise<HCAAtlasTrackerSourceStudy | undefined> => {
       const res = await fetch(
         getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sdId),
         getFetchOptions(METHOD.GET, accessToken)

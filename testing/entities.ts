@@ -1,7 +1,7 @@
 import {
   ATLAS_STATUS,
   DOI_STATUS,
-  HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
+  HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
   NetworkKey,
   PublicationInfo,
@@ -46,5 +46,5 @@ export interface TestUnpublishedSourceDataset {
   cellxgeneCollectionId: string | null;
   hcaProjectId: string | null;
   id: string;
-  unpublishedInfo: HCAAtlasTrackerDBUnpublishedSourceDatasetInfo["unpublishedInfo"];
+  unpublishedInfo: HCAAtlasTrackerDBUnpublishedSourceStudyInfo["unpublishedInfo"];
 }

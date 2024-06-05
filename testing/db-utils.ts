@@ -2,7 +2,7 @@ import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
-  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidation,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
@@ -64,7 +64,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   }
 
   const dbSourceDatasets = (
-    await client.query<HCAAtlasTrackerDBSourceDataset>(
+    await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies"
     )
   ).rows;

@@ -4,8 +4,8 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetMinimumColumns,
+  HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBSourceStudyMinimumColumns,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewPublishedSourceDatasetData,
@@ -33,7 +33,7 @@ import { updateSourceDatasetValidations } from "./validations";
 export async function createSourceDataset(
   atlasId: string,
   inputData: NewSourceDatasetData
-): Promise<HCAAtlasTrackerDBSourceDataset> {
+): Promise<HCAAtlasTrackerDBSourceStudy> {
   const atlasExists = (
     await query("SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE id=$1)", [
       atlasId,
@@ -66,7 +66,7 @@ export async function createSourceDataset(
     // Add the new source dataset
     const newInfo = await sourceDatasetInputDataToDbData(inputData);
     const newDataset = (
-      await client.query<HCAAtlasTrackerDBSourceDataset>(
+      await client.query<HCAAtlasTrackerDBSourceStudy>(
         "INSERT INTO hat.source_studies (doi, study_info) VALUES ($1, $2) RETURNING *",
         [newInfo.doi, JSON.stringify(newInfo.study_info)]
       )
@@ -96,12 +96,12 @@ export async function createSourceDataset(
 async function getExistingDataset(
   inputData: NewSourceDatasetData,
   client: pg.PoolClient
-): Promise<HCAAtlasTrackerDBSourceDataset | null> {
+): Promise<HCAAtlasTrackerDBSourceStudy | null> {
   if (!("doi" in inputData)) return null;
   const doi = normalizeDoi(inputData.doi);
   return (
     (
-      await client.query<HCAAtlasTrackerDBSourceDataset>(
+      await client.query<HCAAtlasTrackerDBSourceStudy>(
         "SELECT * FROM hat.source_studies WHERE doi=$1 OR study_info->'publication'->>'preprintOfDoi'=$1 OR study_info->'publication'->>'hasPreprintDoi'=$1",
         [doi]
       )
@@ -120,7 +120,7 @@ export async function updateSourceDataset(
   atlasId: string,
   sdId: string,
   inputData: SourceDatasetEditData
-): Promise<HCAAtlasTrackerDBSourceDataset> {
+): Promise<HCAAtlasTrackerDBSourceStudy> {
   await confirmSourceDatasetExistsOnAtlas(sdId, atlasId);
 
   const newInfo = await sourceDatasetInputDataToDbData(inputData);
@@ -129,7 +129,7 @@ export async function updateSourceDataset(
   try {
     await client.query("BEGIN");
 
-    const queryResult = await client.query<HCAAtlasTrackerDBSourceDataset>(
+    const queryResult = await client.query<HCAAtlasTrackerDBSourceStudy>(
       "UPDATE hat.source_studies SET doi=$1, study_info=$2 WHERE id=$3 RETURNING *",
       [newInfo.doi, JSON.stringify(newInfo.study_info), sdId]
     );
@@ -159,7 +159,7 @@ export async function updateSourceDataset(
  */
 async function sourceDatasetInputDataToDbData(
   inputData: NewSourceDatasetData | SourceDatasetEditData
-): Promise<HCAAtlasTrackerDBSourceDatasetMinimumColumns> {
+): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   return "doi" in inputData
     ? await makePublishedSourceDatasetDbData(inputData)
     : makeUnpublishedSourceDatasetDbData(inputData);
@@ -172,7 +172,7 @@ async function sourceDatasetInputDataToDbData(
  */
 async function makePublishedSourceDatasetDbData(
   inputData: NewPublishedSourceDatasetData | PublishedSourceDatasetEditData
-): Promise<HCAAtlasTrackerDBSourceDatasetMinimumColumns> {
+): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   const doi = normalizeDoi(inputData.doi);
 
   let publication;
@@ -215,7 +215,7 @@ async function makePublishedSourceDatasetDbData(
  */
 function makeUnpublishedSourceDatasetDbData(
   inputData: NewUnpublishedSourceDatasetData | UnpublishedSourceDatasetEditData
-): HCAAtlasTrackerDBSourceDatasetMinimumColumns {
+): HCAAtlasTrackerDBSourceStudyMinimumColumns {
   return {
     doi: null,
     study_info: {
@@ -284,7 +284,7 @@ export async function updateSourceDatasetValidationsByEntityId(
   client: pg.PoolClient
 ): Promise<void> {
   const sourceDataset = (
-    await client.query<HCAAtlasTrackerDBSourceDataset>(
+    await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [entityId]
     )

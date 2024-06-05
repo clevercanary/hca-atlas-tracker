@@ -1,7 +1,7 @@
 import {
   AtlasId,
   HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../common/utils";
@@ -18,7 +18,7 @@ import { ROUTE } from "../../../routes/constants";
 export function getBreadcrumbs(
   atlasId: AtlasId,
   atlas?: HCAAtlasTrackerAtlas,
-  sourceDataset?: HCAAtlasTrackerSourceDataset
+  sourceDataset?: HCAAtlasTrackerSourceStudy
 ): Breadcrumb[] {
   return [
     {

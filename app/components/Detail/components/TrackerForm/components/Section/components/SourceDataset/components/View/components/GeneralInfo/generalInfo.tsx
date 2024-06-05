@@ -5,7 +5,7 @@ import { Fragment, useCallback, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import {
   DOI_STATUS,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
 } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceDatasetCitation } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
@@ -28,7 +28,7 @@ import { SectionCard, SectionContent } from "./generalInfo.styles";
 
 export interface GeneralInfoProps {
   formManager: FormManager;
-  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>;
+  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>;
   sdPublicationStatus: PUBLICATION_STATUS;
 }
 
@@ -193,7 +193,7 @@ export const GeneralInfo = ({
  * @returns end adornment.
  */
 function renderDoiEndAdornment(
-  sourceDataset: HCAAtlasTrackerSourceDataset | undefined
+  sourceDataset: HCAAtlasTrackerSourceStudy | undefined
 ): JSX.Element | undefined {
   switch (sourceDataset?.doiStatus) {
     case DOI_STATUS.DOI_NOT_ON_CROSSREF:
@@ -214,7 +214,7 @@ function renderDoiEndAdornment(
  * @returns helper text.
  */
 function renderDoiHelperText(
-  sourceDataset: HCAAtlasTrackerSourceDataset | undefined,
+  sourceDataset: HCAAtlasTrackerSourceStudy | undefined,
   errorMessage: string | undefined
 ): string | undefined {
   if (errorMessage) return errorMessage;

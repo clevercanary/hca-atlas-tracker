@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import datasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
@@ -69,7 +69,7 @@ describe("/api/atlases/[id]/source-datasets", () => {
   it("returns public atlas datasets when requested by logged in user with STAKEHOLDER role", async () => {
     const res = await doDatasetsRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
-    const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(datasets).toHaveLength(2);
     expectDatasetPropertiesToMatch(
       datasets.find((d) => d.id === SOURCE_DATASET_PUBLIC_NO_CROSSREF.id),
@@ -84,7 +84,7 @@ describe("/api/atlases/[id]/source-datasets", () => {
   it("returns draft atlas datasets when requested by logged in user with STAKEHOLDER role", async () => {
     const res = await doDatasetsRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
-    const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(datasets).toHaveLength(3);
     expectDatasetPropertiesToMatch(
       datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
@@ -103,7 +103,7 @@ describe("/api/atlases/[id]/source-datasets", () => {
   it("returns draft atlas datasets when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doDatasetsRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
-    const datasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(datasets).toHaveLength(3);
     expectDatasetPropertiesToMatch(
       datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
@@ -135,7 +135,7 @@ async function doDatasetsRequest(
 }
 
 function expectDatasetPropertiesToMatch(
-  apiDataset: HCAAtlasTrackerSourceDataset | undefined,
+  apiDataset: HCAAtlasTrackerSourceStudy | undefined,
   testDataset: TestPublishedSourceDataset
 ): void {
   expect(apiDataset).toBeDefined();

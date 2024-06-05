@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { NewSourceDatasetData } from "../common/entities";
@@ -8,7 +8,7 @@ const SCHEMA = newSourceDatasetSchema;
 
 export const useAddSourceDatasetForm = (): FormMethod<
   NewSourceDatasetData,
-  HCAAtlasTrackerSourceDataset
+  HCAAtlasTrackerSourceStudy
 > => {
-  return useForm<NewSourceDatasetData, HCAAtlasTrackerSourceDataset>(SCHEMA);
+  return useForm<NewSourceDatasetData, HCAAtlasTrackerSourceStudy>(SCHEMA);
 };

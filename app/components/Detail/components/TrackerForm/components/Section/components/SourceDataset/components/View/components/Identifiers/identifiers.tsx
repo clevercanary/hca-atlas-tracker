@@ -1,7 +1,7 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { Fragment } from "react";
 import { Controller } from "react-hook-form";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceDatasetView/common/constants";
 import { SourceDatasetEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
@@ -17,7 +17,7 @@ import {
 import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 
 export interface IdentifiersProps {
-  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>;
+  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>;
 }
 
 export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {

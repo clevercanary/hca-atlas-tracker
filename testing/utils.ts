@@ -2,8 +2,8 @@ import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
   HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBPublishedSourceDatasetInfo,
-  HCAAtlasTrackerDBUnpublishedSourceDatasetInfo,
+  HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -44,8 +44,8 @@ export function makeTestAtlasOverview(
 export function makeTestSourceDatasetOverview(
   dataset: TestSourceDataset
 ):
-  | HCAAtlasTrackerDBPublishedSourceDatasetInfo
-  | HCAAtlasTrackerDBUnpublishedSourceDatasetInfo {
+  | HCAAtlasTrackerDBPublishedSourceStudyInfo
+  | HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
   return "unpublishedInfo" in dataset
     ? {
         capId: null,

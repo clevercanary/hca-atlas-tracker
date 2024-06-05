@@ -4,11 +4,11 @@ import {
   DOI_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerValidationRecord,
   NetworkKey,
   PublicationInfo,
@@ -36,7 +36,7 @@ export function atlasInputMapper(
     publicationDoi: apiAtlas.publication.doi,
     publicationPubString: apiAtlas.publication.pubString,
     shortName: apiAtlas.shortName,
-    sourceDatasetCount: apiAtlas.sourceDatasetCount,
+    sourceStudyCount: apiAtlas.sourceStudyCount,
     status: apiAtlas.status,
     targetCompletion: formatDateToQuarterYear(apiAtlas.targetCompletion),
     taskCount: apiAtlas.taskCount,
@@ -59,7 +59,7 @@ export function dbAtlasToApiAtlas(
       pubString: "",
     },
     shortName: dbAtlas.overview.shortName,
-    sourceDatasetCount: dbAtlas.source_studies.length,
+    sourceStudyCount: dbAtlas.source_studies.length,
     status: dbAtlas.status,
     targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
     taskCount: dbAtlas.overview.taskCount,
@@ -70,8 +70,8 @@ export function dbAtlasToApiAtlas(
 }
 
 export function dbSourceDatasetToApiSourceDataset(
-  dbSourceDataset: HCAAtlasTrackerDBSourceDataset
-): HCAAtlasTrackerSourceDataset {
+  dbSourceDataset: HCAAtlasTrackerDBSourceStudy
+): HCAAtlasTrackerSourceStudy {
   const {
     study_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceDataset;
@@ -148,7 +148,7 @@ export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
  * @returns Source dataset citation.
  */
 export function getSourceDatasetCitation(
-  sourceDataset?: HCAAtlasTrackerSourceDataset
+  sourceDataset?: HCAAtlasTrackerSourceStudy
 ): string {
   if (!sourceDataset) return "";
   if (sourceDataset.doi === null) {

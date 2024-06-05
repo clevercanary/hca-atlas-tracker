@@ -1,5 +1,5 @@
 import {
-  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
   TASK_STATUS,
@@ -383,7 +383,7 @@ async function testValidations(
   expectedValidationProperties: ExpectedValidationProperties[]
 ): Promise<void> {
   const sourceDataset = (
-    await client.query<HCAAtlasTrackerDBSourceDataset>(
+    await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [testDataset.id]
     )

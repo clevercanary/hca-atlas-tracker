@@ -9,7 +9,7 @@ import {
   DBEntityOfType,
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationUpdateColumns,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
@@ -64,7 +64,7 @@ const CHANGE_INDICATING_VALIDATION_KEYS = [
   "validationStatus",
 ] as const;
 
-export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceDataset>[] =
+export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceStudy>[] =
   [
     {
       description: VALIDATION_DESCRIPTION.INGEST_SOURCE_DATASET,
@@ -158,7 +158,7 @@ export const SOURCE_DATASET_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBS
  * @returns result of applying the validation function, or null if the source dataset doesn't appear to be in the HCA Data Repository.
  */
 function validateSourceDatasetHcaProjectInfo(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  sourceDataset: HCAAtlasTrackerDBSourceStudy,
   validate: (
     projectInfo: ProjectInfo | null,
     infoProperties: Partial<ValidationStatusInfo>,
@@ -278,7 +278,7 @@ export async function refreshValidations(): Promise<void> {
 async function revalidateAllSourceDatasets(): Promise<void> {
   const client = await getPoolClient();
   const sourceDatasets = (
-    await client.query<HCAAtlasTrackerDBSourceDataset>(
+    await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies"
     )
   ).rows;
@@ -302,7 +302,7 @@ async function revalidateAllSourceDatasets(): Promise<void> {
  * @param client - Postgres client to use.
  */
 export async function updateSourceDatasetValidations(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  sourceDataset: HCAAtlasTrackerDBSourceStudy,
   client: pg.PoolClient
 ): Promise<void> {
   const validationResults = await getSourceDatasetValidationResults(
@@ -433,7 +433,7 @@ function shouldUpdateValidation(
  * @returns validation results.
  */
 export async function getSourceDatasetValidationResults(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  sourceDataset: HCAAtlasTrackerDBSourceStudy,
   client: pg.PoolClient
 ): Promise<HCAAtlasTrackerValidationResult[]> {
   const validationResults: HCAAtlasTrackerValidationResult[] = [];
@@ -441,7 +441,7 @@ export async function getSourceDatasetValidationResults(
   const atlasIds = await getSourceDatasetAtlasIds(sourceDataset, client);
   for (const validation of SOURCE_DATASET_VALIDATIONS) {
     const validationResult = getValidationResult(
-      ENTITY_TYPE.SOURCE_DATASET,
+      ENTITY_TYPE.SOURCE_STUDY,
       validation,
       sourceDataset,
       {
@@ -465,7 +465,7 @@ export async function getSourceDatasetValidationResults(
  * @returns source dataset title.
  */
 function getSourceDatasetTitle(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset
+  sourceDataset: HCAAtlasTrackerDBSourceStudy
 ): string {
   return (
     sourceDataset.study_info.publication?.title ??
@@ -481,7 +481,7 @@ function getSourceDatasetTitle(
  * @returns atlas IDs.
  */
 async function getSourceDatasetAtlasIds(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  sourceDataset: HCAAtlasTrackerDBSourceStudy,
   client: pg.PoolClient
 ): Promise<string[]> {
   const queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
   ROLE,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { sourceDatasetEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
@@ -37,7 +37,7 @@ const getHandler = handler(
       throw e;
     }
 
-    const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
+    const queryResult = await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [sdId]
     );

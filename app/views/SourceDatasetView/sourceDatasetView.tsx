@@ -2,7 +2,7 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { Fragment } from "react";
 import {
   AtlasId,
-  SourceDatasetId,
+  SourceStudyId,
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
@@ -19,7 +19,7 @@ import { useEditSourceDatasetFormManager } from "./hooks/useEditSourceDatasetFor
 
 interface SourceDatasetViewProps {
   atlasId: AtlasId;
-  sdId: SourceDatasetId;
+  sdId: SourceStudyId;
 }
 
 export const SourceDatasetView = ({

@@ -4,7 +4,7 @@ import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Pape
 import { useMemo } from "react";
 import {
   AtlasId,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
@@ -18,7 +18,7 @@ import { ButtonLink, Paper, Table, Toolbar } from "./viewSourceDatasets.styles";
 interface ViewSourceDatasetsProps {
   atlasId: AtlasId;
   formManager: FormManager;
-  sourceDatasets?: HCAAtlasTrackerSourceDataset[];
+  sourceDatasets?: HCAAtlasTrackerSourceStudy[];
 }
 
 export const ViewSourceDatasets = ({
@@ -67,8 +67,8 @@ export const ViewSourceDatasets = ({
  * @returns number indicating sort precedence of sd0 vs sd1.
  */
 function sortSourceDatasets(
-  sd0: HCAAtlasTrackerSourceDataset,
-  sd1: HCAAtlasTrackerSourceDataset
+  sd0: HCAAtlasTrackerSourceStudy,
+  sd1: HCAAtlasTrackerSourceStudy
 ): number {
   const sortValue = COLLATOR_CASE_INSENSITIVE.compare(
     getSourceDatasetCitation(sd0),

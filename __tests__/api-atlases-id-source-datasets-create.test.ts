@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerSourceStudy,
   PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
@@ -395,10 +395,10 @@ async function testSuccessfulCreate(
   expectedPublication: PublicationInfo,
   expectedHcaId: string | null,
   expectedCellxGeneId: string | null
-): Promise<HCAAtlasTrackerDBSourceDataset> {
+): Promise<HCAAtlasTrackerDBSourceStudy> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
   expect(res._getStatusCode()).toEqual(201);
-  const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
+  const newDataset: HCAAtlasTrackerSourceStudy = res._getJSONData();
   const { source_studies: atlasDatasets } = (
     await query<HCAAtlasTrackerDBAtlas>(
       "SELECT source_studies FROM hat.atlases WHERE id=$1",
@@ -407,7 +407,7 @@ async function testSuccessfulCreate(
   ).rows[0];
   expect(atlasDatasets).toContain(newDataset.id);
   const newDatasetFromDb = (
-    await query<HCAAtlasTrackerDBSourceDataset>(
+    await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [newDataset.id]
     )
@@ -425,17 +425,17 @@ async function testSuccessfulCreate(
 async function testSuccessfulUnpublishedCreate(
   newData: Record<string, unknown>,
   expectedUnpublishedInfo = newData
-): Promise<HCAAtlasTrackerDBSourceDataset> {
+): Promise<HCAAtlasTrackerDBSourceStudy> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, newData);
   expect(res._getStatusCode()).toEqual(201);
-  const newDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
+  const newDataset: HCAAtlasTrackerSourceStudy = res._getJSONData();
   expect(newDataset.contactEmail).toEqual(expectedUnpublishedInfo.contactEmail);
   expect(newDataset.referenceAuthor).toEqual(
     expectedUnpublishedInfo.referenceAuthor
   );
   expect(newDataset.title).toEqual(expectedUnpublishedInfo.title);
   const newDatasetFromDb = (
-    await query<HCAAtlasTrackerDBSourceDataset>(
+    await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [newDataset.id]
     )
@@ -465,8 +465,8 @@ async function doCreateTest(
 }
 
 function expectDbDatasetToMatch(
-  dbDataset: HCAAtlasTrackerDBSourceDataset,
-  apiDataset: HCAAtlasTrackerSourceDataset,
+  dbDataset: HCAAtlasTrackerDBSourceStudy,
+  apiDataset: HCAAtlasTrackerSourceStudy,
   publication: PublicationInfo,
   hcaId: string | null,
   cellxgeneId: string | null

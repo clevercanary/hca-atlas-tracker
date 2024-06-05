@@ -4,8 +4,8 @@ import {
 } from "../../../../site-config/common/constants";
 import {
   AtlasId,
-  HCAAtlasTrackerSourceDataset,
-  SourceDatasetId,
+  HCAAtlasTrackerSourceStudy,
+  SourceStudyId,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { useFetchSourceDataset } from "../../../hooks/useFetchSourceDataset";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
@@ -19,10 +19,10 @@ const SCHEMA = sourceDatasetEditSchema;
 
 export const useEditSourceDatasetForm = (
   atlasId: AtlasId,
-  sdId: SourceDatasetId
-): FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceDataset> => {
+  sdId: SourceStudyId
+): FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy> => {
   const { sourceDataset } = useFetchSourceDataset(atlasId, sdId);
-  return useForm<SourceDatasetEditData, HCAAtlasTrackerSourceDataset>(
+  return useForm<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>(
     SCHEMA,
     sourceDataset,
     mapSchemaValues
@@ -66,7 +66,7 @@ export function mapPublicationStatus(doi?: string | null): PUBLICATION_STATUS {
  * @returns schema default values.
  */
 function mapSchemaValues(
-  sourceDataset?: HCAAtlasTrackerSourceDataset
+  sourceDataset?: HCAAtlasTrackerSourceStudy
 ): SourceDatasetEditData | undefined {
   if (!sourceDataset) return;
   return {
