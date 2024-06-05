@@ -11,16 +11,16 @@ import pg from "pg";
 import { endPgPool, getPoolClient } from "../app/services/database";
 import { getSourceDatasetValidationResults } from "../app/services/validations";
 import {
-  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
-  ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B,
-  SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_CELLXGENE,
-  SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
-  SOURCE_DATASET_PUBLISHED_WITH_HCA,
-  SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
-  SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
-  SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
-  SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
-  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
+  ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+  ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+  SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
+  SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
+  SOURCE_STUDY_PUBLISHED_WITH_HCA,
+  SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+  SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
+  SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
+  SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+  SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestSourceStudy } from "../testing/entities";
@@ -309,69 +309,69 @@ afterAll(() => {
 });
 
 describe("getSourceDatasetValidationResults", () => {
-  it("returns validations for source dataset with CELLxGENE collection and multiple atlases", async () => {
+  it("returns validations for source study with CELLxGENE collection and multiple atlases", async () => {
     await testValidations(
-      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
       [
-        ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A,
-        ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B,
+        ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+        ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
       ],
       VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE
     );
   });
 
-  it("returns validations for source dataset with HCA project with matching title", async () => {
+  it("returns validations for source study with HCA project with matching title", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_HCA,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
+      SOURCE_STUDY_PUBLISHED_WITH_HCA,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_HCA
     );
   });
 
-  it("returns validations for source dataset with HCA project with mismatched title", async () => {
+  it("returns validations for source study with HCA project with mismatched title", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH
     );
   });
 
-  it("returns validations for source dataset with HCA project with approximately-matching title", async () => {
+  it("returns validations for source study with HCA project with approximately-matching title", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH
     );
   });
 
-  it("returns validations for source dataset with HCA project without primary data", async () => {
+  it("returns validations for source study with HCA project without primary data", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A],
+      SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA
     );
   });
 
-  it("returns validations for published source dataset without HCA project or CELLxGENE collection", async () => {
+  it("returns validations for published source study without HCA project or CELLxGENE collection", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B],
+      SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B],
       VALIDATIONS_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE
     );
   });
 
-  it("returns validations for published source dataset with CAP dataset and no CELLxGENE collection", async () => {
+  it("returns validations for published source study with CAP dataset and no CELLxGENE collection", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B],
+      SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B],
       VALIDATIONS_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE
     );
   });
 
-  it("returns validations for published source dataset with CAP dataset and CELLxGENE collection", async () => {
+  it("returns validations for published source study with CAP dataset and CELLxGENE collection", async () => {
     await testValidations(
-      SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_CELLXGENE,
-      [ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B],
+      SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B],
       VALIDATIONS_PUBLISHED_WITH_CAP_AND_CELLXGENE
     );
   });
@@ -382,14 +382,14 @@ async function testValidations(
   testAtlases: TestAtlas[],
   expectedValidationProperties: ExpectedValidationProperties[]
 ): Promise<void> {
-  const sourceDataset = (
+  const sourceStudy = (
     await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [testDataset.id]
     )
   ).rows[0];
   const validationResults = await getSourceDatasetValidationResults(
-    sourceDataset,
+    sourceStudy,
     client
   );
   expect(validationResults).toHaveLength(expectedValidationProperties.length);

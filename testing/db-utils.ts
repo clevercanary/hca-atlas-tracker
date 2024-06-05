@@ -11,10 +11,10 @@ import { updateSourceDatasetValidations } from "../app/services/validations";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
   INITIAL_TEST_ATLASES,
-  INITIAL_TEST_SOURCE_DATASETS,
+  INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
 } from "./constants";
-import { makeTestAtlasOverview, makeTestSourceDatasetOverview } from "./utils";
+import { makeTestAtlasOverview, makeTestSourceStudyOverview } from "./utils";
 
 export async function resetDatabase(): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
@@ -37,8 +37,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     );
   }
 
-  for (const dataset of INITIAL_TEST_SOURCE_DATASETS) {
-    const sdInfo = makeTestSourceDatasetOverview(dataset);
+  for (const dataset of INITIAL_TEST_SOURCE_STUDIES) {
+    const sdInfo = makeTestSourceStudyOverview(dataset);
     await client.query(
       "INSERT INTO hat.source_studies (doi, id, study_info) VALUES ($1, $2, $3)",
       [
@@ -63,12 +63,12 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     );
   }
 
-  const dbSourceDatasets = (
+  const dbSourceStudies = (
     await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies"
     )
   ).rows;
-  for (const dataset of dbSourceDatasets) {
+  for (const dataset of dbSourceStudies) {
     await updateSourceDatasetValidations(dataset, client);
   }
 

@@ -7,10 +7,10 @@ import datasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
-  SOURCE_DATASET_DRAFT_NO_CROSSREF,
-  SOURCE_DATASET_DRAFT_OK,
-  SOURCE_DATASET_PUBLIC_NO_CROSSREF,
-  SOURCE_DATASET_SHARED,
+  SOURCE_STUDY_DRAFT_NO_CROSSREF,
+  SOURCE_STUDY_DRAFT_OK,
+  SOURCE_STUDY_PUBLIC_NO_CROSSREF,
+  SOURCE_STUDY_SHARED,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -72,12 +72,12 @@ describe("/api/atlases/[id]/source-datasets", () => {
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(datasets).toHaveLength(2);
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_PUBLIC_NO_CROSSREF.id),
-      SOURCE_DATASET_PUBLIC_NO_CROSSREF
+      datasets.find((d) => d.id === SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF
     );
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_SHARED.id),
-      SOURCE_DATASET_SHARED
+      datasets.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+      SOURCE_STUDY_SHARED
     );
   });
 
@@ -87,16 +87,16 @@ describe("/api/atlases/[id]/source-datasets", () => {
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(datasets).toHaveLength(3);
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
-      SOURCE_DATASET_DRAFT_OK
+      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+      SOURCE_STUDY_DRAFT_OK
     );
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_SHARED.id),
-      SOURCE_DATASET_SHARED
+      datasets.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+      SOURCE_STUDY_SHARED
     );
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_NO_CROSSREF.id),
-      SOURCE_DATASET_DRAFT_NO_CROSSREF
+      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+      SOURCE_STUDY_DRAFT_NO_CROSSREF
     );
   });
 
@@ -106,16 +106,16 @@ describe("/api/atlases/[id]/source-datasets", () => {
     const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(datasets).toHaveLength(3);
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_OK.id),
-      SOURCE_DATASET_DRAFT_OK
+      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+      SOURCE_STUDY_DRAFT_OK
     );
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_SHARED.id),
-      SOURCE_DATASET_SHARED
+      datasets.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+      SOURCE_STUDY_SHARED
     );
     expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_DATASET_DRAFT_NO_CROSSREF.id),
-      SOURCE_DATASET_DRAFT_NO_CROSSREF
+      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+      SOURCE_STUDY_DRAFT_NO_CROSSREF
     );
   });
 });

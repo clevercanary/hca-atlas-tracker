@@ -41,7 +41,7 @@ export function makeTestAtlasOverview(
   };
 }
 
-export function makeTestSourceDatasetOverview(
+export function makeTestSourceStudyOverview(
   dataset: TestSourceStudy
 ):
   | HCAAtlasTrackerDBPublishedSourceStudyInfo

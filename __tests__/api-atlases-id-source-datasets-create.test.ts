@@ -34,9 +34,9 @@ import {
   PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
   PUBLICATION_PUBLIC_WITH_JOURNAL,
   PUBLICATION_PUBLIC_WITH_PREPRINT,
-  SOURCE_DATASET_DRAFT_OK,
-  SOURCE_DATASET_PUBLIC_WITH_JOURNAL,
-  SOURCE_DATASET_PUBLIC_WITH_PREPRINT,
+  SOURCE_STUDY_DRAFT_OK,
+  SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
+  SOURCE_STUDY_PUBLIC_WITH_PREPRINT,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -222,7 +222,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
-  it("creates, validates, and returns source dataset entry for journal publication", async () => {
+  it("creates, validates, and returns source study entry for journal publication", async () => {
     const newDataset = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_DATASET_DATA,
@@ -234,7 +234,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     expect(validations).not.toHaveLength(0);
   });
 
-  it("creates and returns source dataset entry for preprint without journal value", async () => {
+  it("creates and returns source study entry for preprint without journal value", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_DATASET_PREPRINT_NO_JOURNAL_DATA,
@@ -244,7 +244,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     );
   });
 
-  it("creates and returns source dataset entry for preprint with journal article counterpart on HCA/CELLxGENE", async () => {
+  it("creates and returns source study entry for preprint with journal article counterpart on HCA/CELLxGENE", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_DATASET_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA,
@@ -254,7 +254,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     );
   });
 
-  it("creates and returns source dataset entry for journal article with preprint counterpart on HCA/CELLxGENE", async () => {
+  it("creates and returns source study entry for journal article with preprint counterpart on HCA/CELLxGENE", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_DATASET_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA,
@@ -312,11 +312,11 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     ).toEqual(400);
   });
 
-  it("creates and returns entry for unpublished source dataset", async () => {
+  it("creates and returns entry for unpublished source study", async () => {
     await testSuccessfulUnpublishedCreate(NEW_DATASET_UNPUBLISHED_DATA);
   });
 
-  it("creates and returns entry for unpublished source dataset with empty string email", async () => {
+  it("creates and returns entry for unpublished source study with empty string email", async () => {
     await testSuccessfulUnpublishedCreate(
       NEW_DATASET_EMPTY_STRING_CONTACT_EMAIL,
       {
@@ -326,11 +326,11 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     );
   });
 
-  it("creates and returns entry for unpublished source dataset with null email", async () => {
+  it("creates and returns entry for unpublished source study with null email", async () => {
     await testSuccessfulUnpublishedCreate(NEW_DATASET_NULL_CONTACT_EMAIL);
   });
 
-  it("returns error on DOI field when source dataset already exists in the atlas", async () => {
+  it("returns error on DOI field when source study already exists in the atlas", async () => {
     const res = await doCreateTest(
       USER_CONTENT_ADMIN,
       ATLAS_DRAFT,
@@ -344,9 +344,9 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
     expect(doiErrors).toHaveLength(1);
   });
 
-  it("adds, revalidates, and returns source dataset that already exists", async () => {
+  it("adds, revalidates, and returns source study that already exists", async () => {
     const validationsBefore = await getValidationsByEntityId(
-      SOURCE_DATASET_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id
     );
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(1);
@@ -358,15 +358,15 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       null,
       null
     );
-    expect(dbDataset.id).toEqual(SOURCE_DATASET_DRAFT_OK.id);
+    expect(dbDataset.id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
     const validationsAfter = await getValidationsByEntityId(
-      SOURCE_DATASET_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id
     );
     expect(validationsAfter[0].atlas_ids).toHaveLength(2);
     expect(validationsAfter[0].atlas_ids).toContain(ATLAS_PUBLIC.id);
   });
 
-  it("adds and returns source dataset that already exists via preprint DOI", async () => {
+  it("adds and returns source study that already exists via preprint DOI", async () => {
     const dbDataset = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_DATASET_PUBLIC_WITH_PREPRINT_PREPRINT,
@@ -374,10 +374,10 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       null,
       null
     );
-    expect(dbDataset.id).toEqual(SOURCE_DATASET_PUBLIC_WITH_PREPRINT.id);
+    expect(dbDataset.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id);
   });
 
-  it("adds and returns source dataset that already exists via journal DOI", async () => {
+  it("adds and returns source study that already exists via journal DOI", async () => {
     const dbDataset = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_DATASET_PUBLIC_WITH_JOURNAL_JOURNAL,
@@ -385,7 +385,7 @@ describe("/api/atlases/[atlasId]/source-datasets/create", () => {
       null,
       null
     );
-    expect(dbDataset.id).toEqual(SOURCE_DATASET_PUBLIC_WITH_JOURNAL.id);
+    expect(dbDataset.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id);
   });
 });
 

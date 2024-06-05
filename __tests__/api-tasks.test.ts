@@ -5,8 +5,8 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import tasksHandler from "../pages/api/tasks";
 import {
-  INITIAL_TEST_ATLASES_BY_SOURCE_DATASET,
-  INITIAL_TEST_SOURCE_DATASETS,
+  INITIAL_TEST_ATLASES_BY_SOURCE_STUDY,
+  INITIAL_TEST_SOURCE_STUDIES,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
@@ -73,7 +73,7 @@ async function doTasksRequest(
 function expectInitialValidationsToExist(
   validations: HCAAtlasTrackerValidationRecord[]
 ): void {
-  for (const testDataset of INITIAL_TEST_SOURCE_DATASETS) {
+  for (const testDataset of INITIAL_TEST_SOURCE_STUDIES) {
     const datasetValidations = validations.filter(
       (v) => v.entityId === testDataset.id
     );
@@ -82,8 +82,7 @@ function expectInitialValidationsToExist(
       testDataset.doi !== null &&
       TEST_HCA_PROJECTS_BY_DOI.has(testDataset.doi);
     expect(datasetValidations).toHaveLength(hasHca ? 5 : 3);
-    const datasetAtlases =
-      INITIAL_TEST_ATLASES_BY_SOURCE_DATASET[testDataset.id];
+    const datasetAtlases = INITIAL_TEST_ATLASES_BY_SOURCE_STUDY[testDataset.id];
     const { atlasNames } = datasetValidations[0];
     expect(atlasNames).toHaveLength(datasetAtlases.length);
     for (const atlas of datasetAtlases) {
