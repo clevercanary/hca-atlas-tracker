@@ -1,6 +1,6 @@
 import { createSourceDataset } from "app/services/source-datasets";
 import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { newSourceDatasetSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { newSourceStudySchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { handler, method, role } from "../../../../../app/utils/api-handler";
@@ -15,7 +15,7 @@ export default handler(
     const atlasId = req.query.atlasId as string;
     const newDataset = await createSourceDataset(
       atlasId,
-      await newSourceDatasetSchema.validate(req.body)
+      await newSourceStudySchema.validate(req.body)
     );
     res.status(201).json(dbSourceDatasetToApiSourceDataset(newDataset));
   }

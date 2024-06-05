@@ -4,7 +4,7 @@ import {
   HCAAtlasTrackerDBSourceStudy,
   ROLE,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { sourceDatasetEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { sourceStudyEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { query } from "../../../../../app/services/database";
@@ -57,7 +57,7 @@ const putHandler = handler(
     const newDataset = await updateSourceDataset(
       atlasId,
       sdId,
-      await sourceDatasetEditSchema.validate(req.body)
+      await sourceStudyEditSchema.validate(req.body)
     );
     res.json(dbSourceDatasetToApiSourceDataset(newDataset));
   }

@@ -8,12 +8,12 @@ import {
   HCAAtlasTrackerDBSourceStudyMinimumColumns,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  NewPublishedSourceDatasetData,
-  NewSourceDatasetData,
-  NewUnpublishedSourceDatasetData,
-  PublishedSourceDatasetEditData,
-  SourceDatasetEditData,
-  UnpublishedSourceDatasetEditData,
+  NewPublishedSourceStudyData,
+  NewSourceStudyData,
+  NewUnpublishedSourceStudyData,
+  PublishedSourceStudyEditData,
+  SourceStudyEditData,
+  UnpublishedSourceStudyEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { AccessError, NotFoundError } from "../utils/api-handler";
@@ -32,7 +32,7 @@ import { updateSourceDatasetValidations } from "./validations";
  */
 export async function createSourceDataset(
   atlasId: string,
-  inputData: NewSourceDatasetData
+  inputData: NewSourceStudyData
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   const atlasExists = (
     await query("SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE id=$1)", [
@@ -94,7 +94,7 @@ export async function createSourceDataset(
  * @returns existing dataset or null.
  */
 async function getExistingDataset(
-  inputData: NewSourceDatasetData,
+  inputData: NewSourceStudyData,
   client: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceStudy | null> {
   if (!("doi" in inputData)) return null;
@@ -119,7 +119,7 @@ async function getExistingDataset(
 export async function updateSourceDataset(
   atlasId: string,
   sdId: string,
-  inputData: SourceDatasetEditData
+  inputData: SourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   await confirmSourceDatasetExistsOnAtlas(sdId, atlasId);
 
@@ -158,7 +158,7 @@ export async function updateSourceDataset(
  * @returns database model of values needed to define a source dataset.
  */
 async function sourceDatasetInputDataToDbData(
-  inputData: NewSourceDatasetData | SourceDatasetEditData
+  inputData: NewSourceStudyData | SourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   return "doi" in inputData
     ? await makePublishedSourceDatasetDbData(inputData)
@@ -171,7 +171,7 @@ async function sourceDatasetInputDataToDbData(
  * @returns database model of values needed to define a source dataset.
  */
 async function makePublishedSourceDatasetDbData(
-  inputData: NewPublishedSourceDatasetData | PublishedSourceDatasetEditData
+  inputData: NewPublishedSourceStudyData | PublishedSourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   const doi = normalizeDoi(inputData.doi);
 
@@ -214,7 +214,7 @@ async function makePublishedSourceDatasetDbData(
  * @returns database model of values needed to define a source dataset.
  */
 function makeUnpublishedSourceDatasetDbData(
-  inputData: NewUnpublishedSourceDatasetData | UnpublishedSourceDatasetEditData
+  inputData: NewUnpublishedSourceStudyData | UnpublishedSourceStudyEditData
 ): HCAAtlasTrackerDBSourceStudyMinimumColumns {
   return {
     doi: null,
