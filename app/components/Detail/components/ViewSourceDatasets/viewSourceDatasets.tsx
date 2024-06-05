@@ -10,7 +10,7 @@ import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tra
 import { getRouteURL } from "../../../../common/utils";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
-import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { getAtlasSourceStudiesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { BUTTON_COLOR } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { ButtonLink, Paper, Table, Toolbar } from "./viewSourceDatasets.styles";
@@ -50,7 +50,7 @@ export const ViewSourceDatasets = ({
         )}
         {sourceDatasets?.length > 0 && (
           <Table
-            columns={getAtlasSourceDatasetsTableColumns(atlasId)}
+            columns={getAtlasSourceStudiesTableColumns(atlasId)}
             gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) 100px 110px 70px"
             items={sortedSourceDatasets}
           />
