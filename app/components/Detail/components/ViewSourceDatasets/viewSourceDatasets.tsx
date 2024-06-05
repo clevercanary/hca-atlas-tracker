@@ -15,23 +15,23 @@ import { BUTTON_COLOR } from "../../../common/Button/components/ButtonLink/butto
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { ButtonLink, Paper, Table, Toolbar } from "./viewSourceDatasets.styles";
 
-interface ViewSourceDatasetsProps {
+interface ViewSourceStudiesProps {
   atlasId: AtlasId;
   formManager: FormManager;
-  sourceDatasets?: HCAAtlasTrackerSourceStudy[];
+  sourceStudies?: HCAAtlasTrackerSourceStudy[];
 }
 
-export const ViewSourceDatasets = ({
+export const ViewSourceStudies = ({
   atlasId,
   formManager,
-  sourceDatasets = [],
-}: ViewSourceDatasetsProps): JSX.Element => {
+  sourceStudies = [],
+}: ViewSourceStudiesProps): JSX.Element => {
   const {
     access: { canEdit, canView },
   } = formManager;
-  const sortedSourceDatasets = useMemo(
-    () => sourceDatasets.sort(sortSourceDatasets),
-    [sourceDatasets]
+  const sortedSourceStudies = useMemo(
+    () => sourceStudies.sort(sortSourceStudies),
+    [sourceStudies]
   );
   if (!canView) return <RequestAccess />;
   return (
@@ -44,15 +44,15 @@ export const ViewSourceDatasets = ({
               href={getRouteURL(ROUTE.CREATE_SOURCE_DATASET, atlasId)}
               startIcon={<AddIcon fontSize="small" />}
             >
-              Add Source Dataset
+              Add Source Study
             </ButtonLink>
           </Toolbar>
         )}
-        {sourceDatasets?.length > 0 && (
+        {sourceStudies?.length > 0 && (
           <Table
             columns={getAtlasSourceStudiesTableColumns(atlasId)}
             gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) 100px 110px 70px"
-            items={sortedSourceDatasets}
+            items={sortedSourceStudies}
           />
         )}
       </GridPaper>
@@ -61,12 +61,12 @@ export const ViewSourceDatasets = ({
 };
 
 /**
- * Sorts source datasets by citation, then title, ascending.
- * @param sd0 - First source dataset to compare.
- * @param sd1 - Second source dataset to compare.
+ * Sorts source studies by citation, then title, ascending.
+ * @param sd0 - First source study to compare.
+ * @param sd1 - Second source study to compare.
  * @returns number indicating sort precedence of sd0 vs sd1.
  */
-function sortSourceDatasets(
+function sortSourceStudies(
   sd0: HCAAtlasTrackerSourceStudy,
   sd1: HCAAtlasTrackerSourceStudy
 ): number {

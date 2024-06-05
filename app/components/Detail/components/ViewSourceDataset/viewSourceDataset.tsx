@@ -10,17 +10,17 @@ import { Identifiers } from "../TrackerForm/components/Section/components/Source
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
-interface ViewSourceDatasetProps {
+interface ViewSourceStudyProps {
   formManager: FormManagerProps;
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>;
   sdPublicationStatus: PUBLICATION_STATUS;
 }
 
-export const ViewSourceDataset = ({
+export const ViewSourceStudy = ({
   formManager,
   formMethod,
   sdPublicationStatus,
-}: ViewSourceDatasetProps): JSX.Element => {
+}: ViewSourceStudyProps): JSX.Element => {
   const {
     access: { canView },
   } = formManager;

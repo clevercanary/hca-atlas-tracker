@@ -1,6 +1,6 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { SourceDatasetView } from "../../../../../app/views/SourceDatasetView/sourceDatasetView";
+import { SourceStudyView } from "../../../../../app/views/SourceDatasetView/sourceDatasetView";
 
 interface SourceDatasetPageUrlParams extends ParsedUrlQuery {
   atlasId: string;
@@ -30,7 +30,7 @@ const SourceDatasetsPage = ({
   atlasId,
   sourceStudyId,
 }: SourceDatasetPageProps): JSX.Element => {
-  return <SourceDatasetView atlasId={atlasId} sourceStudyId={sourceStudyId} />;
+  return <SourceStudyView atlasId={atlasId} sourceStudyId={sourceStudyId} />;
 };
 
 export default SourceDatasetsPage;

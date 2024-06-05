@@ -19,7 +19,7 @@ import {
 import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
-import { SOURCE_DATASET_STATUS } from "../../../../components/Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
+import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 
 /**
@@ -103,39 +103,39 @@ export const buildEntityType = (
 };
 
 /**
- * Build props for the "in CAP" SourceDatasetStatusCell component.
+ * Build props for the "in CAP" SourceStudyStatusCell component.
  * @param sourceStudy - Source study entity.
- * @returns Props to be used for the SourceDatasetStatusCell component.
+ * @returns Props to be used for the SourceStudyStatusCell component.
  */
 export const buildInCap = (
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
+): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
     value: getSourceStudyInCap(sourceStudy),
   };
 };
 
 /**
- * Build props for the "in CELLxGENE" SourceDatasetStatusCell component.
+ * Build props for the "in CELLxGENE" SourceStudyStatusCell component.
  * @param sourceStudy - Source study entity.
- * @returns Props to be used for the SourceDatasetStatusCell component.
+ * @returns Props to be used for the SourceStudyStatusCell component.
  */
 export const buildInCellxGene = (
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
+): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
     value: getSourceStudyInCellxGene(sourceStudy),
   };
 };
 
 /**
- * Build props for the "in HCA data repository" SourceDatasetStatusCell component.
+ * Build props for the "in HCA data repository" SourceStudyStatusCell component.
  * @param sourceStudy - Source study entity.
- * @returns Props to be used for the SourceDatasetStatusCell component.
+ * @returns Props to be used for the SourceStudyStatusCell component.
  */
 export const buildInHcaDataRepository = (
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.SourceDatasetStatusCell> => {
+): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
     value: getSourceStudyInHcaDataRepository(sourceStudy),
   };
@@ -500,7 +500,7 @@ function getDateFromIsoString(isoString: string): string {
 function getSourceStudyInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorFn: getSourceStudyInCap,
-    cell: ({ row }) => C.SourceDatasetStatusCell(buildInCap(row.original)),
+    cell: ({ row }) => C.SourceStudyStatusCell(buildInCap(row.original)),
     header: "CAP",
   };
 }
@@ -512,8 +512,7 @@ function getSourceStudyInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
 function getSourceStudyInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorFn: getSourceStudyInCellxGene,
-    cell: ({ row }) =>
-      C.SourceDatasetStatusCell(buildInCellxGene(row.original)),
+    cell: ({ row }) => C.SourceStudyStatusCell(buildInCellxGene(row.original)),
     header: "CELLxGENE",
   };
 }
@@ -526,7 +525,7 @@ function getSourceStudyInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTracker
   return {
     accessorFn: getSourceStudyInHcaDataRepository,
     cell: ({ row }) =>
-      C.SourceDatasetStatusCell(buildInHcaDataRepository(row.original)),
+      C.SourceStudyStatusCell(buildInHcaDataRepository(row.original)),
     header: "HCA Data Repository",
   };
 }
@@ -538,10 +537,10 @@ function getSourceStudyInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTracker
  */
 function getSourceStudyInCap(
   sourceStudy: HCAAtlasTrackerSourceStudy
-): SOURCE_DATASET_STATUS {
+): SOURCE_STUDY_STATUS {
   return sourceStudy.capId
-    ? SOURCE_DATASET_STATUS.DONE
-    : SOURCE_DATASET_STATUS.REQUIRED;
+    ? SOURCE_STUDY_STATUS.DONE
+    : SOURCE_STUDY_STATUS.REQUIRED;
 }
 
 /**
@@ -551,10 +550,10 @@ function getSourceStudyInCap(
  */
 function getSourceStudyInCellxGene(
   sourceStudy: HCAAtlasTrackerSourceStudy
-): SOURCE_DATASET_STATUS {
+): SOURCE_STUDY_STATUS {
   return sourceStudy.cellxgeneCollectionId
-    ? SOURCE_DATASET_STATUS.DONE
-    : SOURCE_DATASET_STATUS.REQUIRED;
+    ? SOURCE_STUDY_STATUS.DONE
+    : SOURCE_STUDY_STATUS.REQUIRED;
 }
 
 /**
@@ -564,10 +563,10 @@ function getSourceStudyInCellxGene(
  */
 function getSourceStudyInHcaDataRepository(
   sourceStudy: HCAAtlasTrackerSourceStudy
-): SOURCE_DATASET_STATUS {
+): SOURCE_STUDY_STATUS {
   return sourceStudy.hcaProjectId
-    ? SOURCE_DATASET_STATUS.DONE
-    : SOURCE_DATASET_STATUS.REQUIRED;
+    ? SOURCE_STUDY_STATUS.DONE
+    : SOURCE_STUDY_STATUS.REQUIRED;
 }
 
 /**

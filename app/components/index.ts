@@ -24,4 +24,4 @@ export { LabelIconMenuItem } from "./Layout/components/Header/components/Content
 export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
-export { SourceDatasetStatusCell } from "./Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
+export { SourceStudyStatusCell } from "./Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";

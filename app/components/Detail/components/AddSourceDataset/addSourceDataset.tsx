@@ -9,15 +9,15 @@ import { TrackerForm } from "../TrackerForm/trackerForm";
 import { NoAccess } from "./components/NoAccess/noAccess";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
-interface AddSourceDatasetProps {
+interface AddSourceStudyProps {
   formManager: FormManagerProps;
   formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>;
 }
 
-export const AddSourceDataset = ({
+export const AddSourceStudy = ({
   formManager,
   formMethod,
-}: AddSourceDatasetProps): JSX.Element => {
+}: AddSourceStudyProps): JSX.Element => {
   const {
     access: { canEdit, canView },
   } = formManager;

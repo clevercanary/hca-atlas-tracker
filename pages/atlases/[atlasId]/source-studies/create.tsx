@@ -1,31 +1,31 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { AddNewSourceDatasetView } from "../../../../app/views/AddNewSourceDatasetView/addNewSourceDatasetView";
+import { AddNewSourceStudyView } from "../../../../app/views/AddNewSourceDatasetView/addNewSourceDatasetView";
 
-interface CreateSourceDatasetPageUrlParams extends ParsedUrlQuery {
+interface CreateSourceStudyPageUrlParams extends ParsedUrlQuery {
   atlasId: string;
 }
 
-interface CreateSourceDatasetPageProps {
+interface CreateSourceStudyPageProps {
   atlasId: string;
 }
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const { atlasId } = context.params as CreateSourceDatasetPageUrlParams;
+  const { atlasId } = context.params as CreateSourceStudyPageUrlParams;
   return {
     props: {
       atlasId,
-      pageTitle: "Add New Source Dataset",
+      pageTitle: "Add New Source Study",
     },
   };
 };
 
-const CreateSourceDatasetPage = ({
+const CreateSourceStudyPage = ({
   atlasId,
-}: CreateSourceDatasetPageProps): JSX.Element => {
-  return <AddNewSourceDatasetView atlasId={atlasId} />;
+}: CreateSourceStudyPageProps): JSX.Element => {
+  return <AddNewSourceStudyView atlasId={atlasId} />;
 };
 
-export default CreateSourceDatasetPage;
+export default CreateSourceStudyPage;

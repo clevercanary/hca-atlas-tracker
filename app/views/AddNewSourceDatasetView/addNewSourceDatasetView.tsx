@@ -2,7 +2,7 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { Fragment } from "react";
 import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
-import { AddSourceDataset } from "../../components/Detail/components/AddSourceDataset/addSourceDataset";
+import { AddSourceStudy } from "../../components/Detail/components/AddSourceDataset/addSourceDataset";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -10,13 +10,13 @@ import { getBreadcrumbs } from "./common/utils";
 import { useAddSourceDatasetForm } from "./hooks/useAddSourceDatasetForm";
 import { useAddSourceDatasetFormManager } from "./hooks/useAddSourceDatasetFormManager";
 
-interface AddNewSourceDatasetViewProps {
+interface AddNewSourceStudyViewProps {
   atlasId: AtlasId;
 }
 
-export const AddNewSourceDatasetView = ({
+export const AddNewSourceStudyView = ({
   atlasId,
-}: AddNewSourceDatasetViewProps): JSX.Element => {
+}: AddNewSourceStudyViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
   const formMethod = useAddSourceDatasetForm();
   const formManager = useAddSourceDatasetFormManager(atlasId, formMethod);
@@ -36,9 +36,9 @@ export const AddNewSourceDatasetView = ({
           />
         }
         mainColumn={
-          <AddSourceDataset formManager={formManager} formMethod={formMethod} />
+          <AddSourceStudy formManager={formManager} formMethod={formMethod} />
         }
-        title="Add Source Dataset"
+        title="Add Source Study"
       />
     </ConditionalComponent>
   );

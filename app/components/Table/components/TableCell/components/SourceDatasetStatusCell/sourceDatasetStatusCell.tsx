@@ -2,18 +2,18 @@ import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/Cu
 import { Fragment } from "react";
 import { RequiredIcon } from "../../../../../common/CustomIcon/components/RequiredIcon/requiredIcon";
 
-export enum SOURCE_DATASET_STATUS {
+export enum SOURCE_STUDY_STATUS {
   DONE = "Yes",
   REQUIRED = "No",
 }
 
-interface SourceDatasetStatusCellProps {
+interface SourceStudyStatusCellProps {
   value: string;
 }
 
-export const SourceDatasetStatusCell = ({
+export const SourceStudyStatusCell = ({
   value,
-}: SourceDatasetStatusCellProps): JSX.Element => {
+}: SourceStudyStatusCellProps): JSX.Element => {
   return <Fragment>{switchStatusIcon(value)}</Fragment>;
 };
 
@@ -24,9 +24,9 @@ export const SourceDatasetStatusCell = ({
  */
 function switchStatusIcon(value: string): JSX.Element {
   switch (value) {
-    case SOURCE_DATASET_STATUS.DONE:
+    case SOURCE_STUDY_STATUS.DONE:
       return <SuccessIcon color="success" fontSize="small" />;
-    case SOURCE_DATASET_STATUS.REQUIRED:
+    case SOURCE_STUDY_STATUS.REQUIRED:
       return <RequiredIcon />;
     default:
       return <span>-</span>;

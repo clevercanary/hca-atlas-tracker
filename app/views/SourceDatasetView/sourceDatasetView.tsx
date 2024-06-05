@@ -7,7 +7,7 @@ import {
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Actions } from "../../components/Detail/components/ViewSourceDataset/components/Actions/actions";
-import { ViewSourceDataset } from "../../components/Detail/components/ViewSourceDataset/viewSourceDataset";
+import { ViewSourceStudy } from "../../components/Detail/components/ViewSourceDataset/viewSourceDataset";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
@@ -17,15 +17,15 @@ import {
 } from "./hooks/useEditSourceDatasetForm";
 import { useEditSourceDatasetFormManager } from "./hooks/useEditSourceDatasetFormManager";
 
-interface SourceDatasetViewProps {
+interface SourceStudyViewProps {
   atlasId: AtlasId;
   sourceStudyId: SourceStudyId;
 }
 
-export const SourceDatasetView = ({
+export const SourceStudyView = ({
   atlasId,
   sourceStudyId,
-}: SourceDatasetViewProps): JSX.Element => {
+}: SourceStudyViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
   const formMethod = useEditSourceDatasetForm(atlasId, sourceStudyId);
   const formManager = useEditSourceDatasetFormManager(
@@ -38,29 +38,29 @@ export const SourceDatasetView = ({
     formAction,
     isLoading,
   } = formManager;
-  const { data: sourceDataset } = formMethod;
-  const { doi } = sourceDataset || {};
+  const { data: sourceStudy } = formMethod;
+  const { doi } = sourceStudy || {};
   if (isLoading) return <Fragment />;
   return (
     <ConditionalComponent
-      isIn={shouldRenderView(canView, Boolean(atlas && sourceDataset))}
+      isIn={shouldRenderView(canView, Boolean(atlas && sourceStudy))}
     >
       <DetailView
         actions={canEdit && <Actions formManager={formManager} />}
         breadcrumbs={
           <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceDataset)}
+            breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceStudy)}
             onNavigate={formAction?.onNavigate}
           />
         }
         mainColumn={
-          <ViewSourceDataset
+          <ViewSourceStudy
             formManager={formManager}
             formMethod={formMethod}
             sdPublicationStatus={mapPublicationStatus(doi)}
           />
         }
-        title={sourceDataset?.title || "Source Dataset"}
+        title={sourceStudy?.title || "Source Dataset"}
       />
     </ConditionalComponent>
   );
