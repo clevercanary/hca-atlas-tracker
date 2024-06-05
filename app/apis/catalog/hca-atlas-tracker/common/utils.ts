@@ -69,22 +69,22 @@ export function dbAtlasToApiAtlas(
   };
 }
 
-export function dbSourceDatasetToApiSourceDataset(
-  dbSourceDataset: HCAAtlasTrackerDBSourceStudy
+export function dbSourceStudyToApiSourceStudy(
+  dbSourceStudy: HCAAtlasTrackerDBSourceStudy
 ): HCAAtlasTrackerSourceStudy {
   const {
     study_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
-  } = dbSourceDataset;
-  if (dbSourceDataset.doi === null) {
-    const unpublishedInfo = dbSourceDataset.study_info.unpublishedInfo;
+  } = dbSourceStudy;
+  if (dbSourceStudy.doi === null) {
+    const unpublishedInfo = dbSourceStudy.study_info.unpublishedInfo;
     return {
       capId,
       cellxgeneCollectionId,
       contactEmail: unpublishedInfo.contactEmail,
       doi: null,
-      doiStatus: dbSourceDataset.study_info.doiStatus,
+      doiStatus: dbSourceStudy.study_info.doiStatus,
       hcaProjectId,
-      id: dbSourceDataset.id,
+      id: dbSourceStudy.id,
       journal: null,
       publicationDate: null,
       referenceAuthor: unpublishedInfo.referenceAuthor,
@@ -95,10 +95,10 @@ export function dbSourceDatasetToApiSourceDataset(
       capId,
       cellxgeneCollectionId,
       contactEmail: null,
-      doi: dbSourceDataset.doi,
-      doiStatus: dbSourceDataset.study_info.doiStatus,
+      doi: dbSourceStudy.doi,
+      doiStatus: dbSourceStudy.study_info.doiStatus,
       hcaProjectId,
-      id: dbSourceDataset.id,
+      id: dbSourceStudy.id,
       journal: publication?.journal ?? null,
       publicationDate: publication?.publicationDate ?? null,
       referenceAuthor: publication?.authors[0]?.name ?? null,
@@ -143,20 +143,20 @@ export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
 }
 
 /**
- * Returns the source dataset citation.
- * @param sourceDataset - Source dataset.
- * @returns Source dataset citation.
+ * Returns the source study citation.
+ * @param sourceStudy - Source study.
+ * @returns Source study citation.
  */
-export function getSourceDatasetCitation(
-  sourceDataset?: HCAAtlasTrackerSourceStudy
+export function getSourceStudyCitation(
+  sourceStudy?: HCAAtlasTrackerSourceStudy
 ): string {
-  if (!sourceDataset) return "";
-  if (sourceDataset.doi === null) {
-    const { contactEmail, referenceAuthor } = sourceDataset;
+  if (!sourceStudy) return "";
+  if (sourceStudy.doi === null) {
+    const { contactEmail, referenceAuthor } = sourceStudy;
     return getUnpublishedCitation(referenceAuthor, contactEmail);
   } else {
     const { doiStatus, journal, publicationDate, referenceAuthor } =
-      sourceDataset;
+      sourceStudy;
     return getPublishedCitation(
       doiStatus,
       referenceAuthor,

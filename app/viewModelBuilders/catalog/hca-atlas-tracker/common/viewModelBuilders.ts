@@ -16,7 +16,7 @@ import {
   NetworkKey,
   TASK_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { SOURCE_DATASET_STATUS } from "../../../../components/Table/components/TableCell/components/SourceDatasetStatusCell/sourceDatasetStatusCell";
@@ -191,7 +191,7 @@ export const buildSourceStudyPublication = (
 ): React.ComponentProps<typeof C.Link> => {
   const { doi } = sourceStudy;
   return {
-    label: getSourceDatasetCitation(sourceStudy),
+    label: getSourceStudyCitation(sourceStudy),
     url: getDOILink(doi),
   };
 };

@@ -3,7 +3,7 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceStudy,
 } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { dbSourceDatasetToApiSourceDataset } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { dbSourceStudyToApiSourceStudy } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../app/common/entities";
 import { query } from "../../../../app/services/database";
 import { handler, method, role } from "../../../../app/utils/api-handler";
@@ -32,6 +32,6 @@ export default handler(
               [atlas.source_studies]
             )
           ).rows;
-    res.json(sourceDatasets.map(dbSourceDatasetToApiSourceDataset));
+    res.json(sourceDatasets.map(dbSourceStudyToApiSourceStudy));
   }
 );

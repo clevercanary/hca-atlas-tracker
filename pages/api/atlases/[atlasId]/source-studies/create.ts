@@ -1,7 +1,7 @@
 import { createSourceStudy } from "app/services/source-datasets";
 import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { newSourceStudySchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { dbSourceStudyToApiSourceStudy } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { handler, method, role } from "../../../../../app/utils/api-handler";
 
@@ -17,6 +17,6 @@ export default handler(
       atlasId,
       await newSourceStudySchema.validate(req.body)
     );
-    res.status(201).json(dbSourceDatasetToApiSourceDataset(newDataset));
+    res.status(201).json(dbSourceStudyToApiSourceStudy(newDataset));
   }
 );

@@ -6,7 +6,7 @@ import {
   HCAAtlasTrackerSourceStudy,
   PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { dbSourceStudyToApiSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/source-studies/create";
 import {
@@ -475,5 +475,5 @@ function expectDbDatasetToMatch(
   expect(dbDataset.study_info.publication).toEqual(publication);
   expect(dbDataset.study_info.hcaProjectId).toEqual(hcaId);
   expect(dbDataset.study_info.cellxgeneCollectionId).toEqual(cellxgeneId);
-  expect(dbSourceDatasetToApiSourceDataset(dbDataset)).toEqual(apiDataset);
+  expect(dbSourceStudyToApiSourceStudy(dbDataset)).toEqual(apiDataset);
 }

@@ -7,7 +7,7 @@ import {
   DOI_STATUS,
   HCAAtlasTrackerSourceStudy,
 } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceDatasetCitation } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { getSourceStudyCitation } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { getDOILink } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -218,5 +218,5 @@ function renderDoiHelperText(
   errorMessage: string | undefined
 ): string | undefined {
   if (errorMessage) return errorMessage;
-  return getSourceDatasetCitation(sourceDataset);
+  return getSourceStudyCitation(sourceDataset);
 }

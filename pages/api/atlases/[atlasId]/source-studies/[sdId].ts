@@ -5,7 +5,7 @@ import {
   ROLE,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { sourceStudyEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { dbSourceStudyToApiSourceStudy } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { query } from "../../../../../app/services/database";
 import {
@@ -45,7 +45,7 @@ const getHandler = handler(
     if (queryResult.rows.length === 0)
       throw new NotFoundError(`Source dataset with ID ${sdId} doesn't exist`);
 
-    res.json(dbSourceDatasetToApiSourceDataset(queryResult.rows[0]));
+    res.json(dbSourceStudyToApiSourceStudy(queryResult.rows[0]));
   }
 );
 
@@ -59,7 +59,7 @@ const putHandler = handler(
       sdId,
       await sourceStudyEditSchema.validate(req.body)
     );
-    res.json(dbSourceDatasetToApiSourceDataset(newDataset));
+    res.json(dbSourceStudyToApiSourceStudy(newDataset));
   }
 );
 

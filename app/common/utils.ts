@@ -74,28 +74,30 @@ export function isFetchStatusOk(status: number): boolean {
 }
 
 /**
- * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [sdId] with the given source dataset ID.
+ * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [sdId] with the given source study ID.
  * @param apiURL - Request URL.
  * @param atlasId - Atlas ID.
- * @param sdId - Source dataset ID.
+ * @param sourceStudyId - Source study ID.
  * @returns request URL with Atlas ID.
  */
 export function getRequestURL(
   apiURL: API,
   atlasId: string,
-  sdId?: string
+  sourceStudyId?: string
 ): string {
-  if (/\[sdId]/.test(apiURL) && sdId) {
-    return apiURL.replace(/\[atlasId]/, atlasId).replace(/\[sdId]/, sdId);
+  if (/\[sdId]/.test(apiURL) && sourceStudyId) {
+    return apiURL
+      .replace(/\[atlasId]/, atlasId)
+      .replace(/\[sdId]/, sourceStudyId);
   }
   return apiURL.replace(/\[atlasId]/, atlasId);
 }
 
 /**
- * Replaces [atlasId] in route with the given atlas ID and optionally replaces [sdId] with the given source dataset ID.
+ * Replaces [atlasId] in route with the given atlas ID and optionally replaces [sdId] with the given source study ID.
  * @param route - Route.
  * @param atlasId - Atlas ID.
- * @param sdId - Source dataset ID.
+ * @param sdId - Source study ID.
  * @returns route with atlas ID.
  */
 export function getRouteURL(

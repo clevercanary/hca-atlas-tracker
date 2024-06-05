@@ -6,7 +6,7 @@ import {
   AtlasId,
   HCAAtlasTrackerSourceStudy,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceDatasetCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
@@ -71,8 +71,8 @@ function sortSourceDatasets(
   sd1: HCAAtlasTrackerSourceStudy
 ): number {
   const sortValue = COLLATOR_CASE_INSENSITIVE.compare(
-    getSourceDatasetCitation(sd0),
-    getSourceDatasetCitation(sd1)
+    getSourceStudyCitation(sd0),
+    getSourceStudyCitation(sd1)
   );
   if (sortValue === 0) {
     return COLLATOR_CASE_INSENSITIVE.compare(sd0.title ?? "", sd1.title ?? "");

@@ -23,9 +23,9 @@ import {
   VALIDATION_VARIABLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  dbSourceDatasetToApiSourceDataset,
+  dbSourceStudyToApiSourceStudy,
   getPublicationDois,
-  getSourceDatasetCitation,
+  getSourceStudyCitation,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { NotFoundError } from "../utils/api-handler";
 import { ProjectInfo } from "../utils/hca-projects";
@@ -446,8 +446,8 @@ export async function getSourceStudyValidationResults(
         atlasIds,
         doi: sourceStudy.doi,
         entityTitle: title,
-        publicationString: getSourceDatasetCitation(
-          dbSourceDatasetToApiSourceDataset(sourceStudy)
+        publicationString: getSourceStudyCitation(
+          dbSourceStudyToApiSourceStudy(sourceStudy)
         ),
       }
     );
