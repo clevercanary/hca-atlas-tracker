@@ -37,15 +37,11 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     );
   }
 
-  for (const dataset of INITIAL_TEST_SOURCE_STUDIES) {
-    const sdInfo = makeTestSourceStudyOverview(dataset);
+  for (const study of INITIAL_TEST_SOURCE_STUDIES) {
+    const sdInfo = makeTestSourceStudyOverview(study);
     await client.query(
       "INSERT INTO hat.source_studies (doi, id, study_info) VALUES ($1, $2, $3)",
-      [
-        "doi" in dataset ? dataset.doi : null,
-        dataset.id,
-        JSON.stringify(sdInfo),
-      ]
+      ["doi" in study ? study.doi : null, study.id, JSON.stringify(sdInfo)]
     );
   }
 
@@ -68,8 +64,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
       "SELECT * FROM hat.source_studies"
     )
   ).rows;
-  for (const dataset of dbSourceStudies) {
-    await updateSourceStudyValidations(dataset, client);
+  for (const study of dbSourceStudies) {
+    await updateSourceStudyValidations(study, client);
   }
 
   await updateTaskCounts();

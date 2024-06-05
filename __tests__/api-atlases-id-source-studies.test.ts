@@ -3,7 +3,7 @@ import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
-import datasetsHandler from "../pages/api/atlases/[atlasId]/source-studies";
+import studiesHandler from "../pages/api/atlases/[atlasId]/source-studies";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -34,93 +34,93 @@ describe("/api/atlases/[id]/source-studies", () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (
-        await doDatasetsRequest(ATLAS_PUBLIC.id, undefined, METHOD.POST)
+        await doStudiesRequest(ATLAS_PUBLIC.id, undefined, METHOD.POST)
       )._getStatusCode()
     ).toEqual(405);
   });
 
-  it("returns error 401 when public atlas datasets are requested by logged out user", async () => {
-    expect((await doDatasetsRequest(ATLAS_PUBLIC.id))._getStatusCode()).toEqual(
+  it("returns error 401 when public atlas studies are requested by logged out user", async () => {
+    expect((await doStudiesRequest(ATLAS_PUBLIC.id))._getStatusCode()).toEqual(
       401
     );
   });
-  it("returns error 403 when public atlas datasets are requested by unregistered user", async () => {
+  it("returns error 403 when public atlas studies are requested by unregistered user", async () => {
     expect(
       (
-        await doDatasetsRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED)
+        await doStudiesRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED)
       )._getStatusCode()
     ).toEqual(403);
   });
 
-  it("returns error 401 when draft atlas datasets are requested by logged out user", async () => {
-    expect((await doDatasetsRequest(ATLAS_DRAFT.id))._getStatusCode()).toEqual(
+  it("returns error 401 when draft atlas studies are requested by logged out user", async () => {
+    expect((await doStudiesRequest(ATLAS_DRAFT.id))._getStatusCode()).toEqual(
       401
     );
   });
 
-  it("returns error 403 when draft atlas datasets are requested by unregistered user", async () => {
+  it("returns error 403 when draft atlas studies are requested by unregistered user", async () => {
     expect(
       (
-        await doDatasetsRequest(ATLAS_DRAFT.id, USER_UNREGISTERED)
+        await doStudiesRequest(ATLAS_DRAFT.id, USER_UNREGISTERED)
       )._getStatusCode()
     ).toEqual(403);
   });
 
-  it("returns public atlas datasets when requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doDatasetsRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
+  it("returns public atlas studies when requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doStudiesRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
-    const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
-    expect(datasets).toHaveLength(2);
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(2);
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
       SOURCE_STUDY_PUBLIC_NO_CROSSREF
     );
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
       SOURCE_STUDY_SHARED
     );
   });
 
-  it("returns draft atlas datasets when requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doDatasetsRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
+  it("returns draft atlas studies when requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doStudiesRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
-    const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
-    expect(datasets).toHaveLength(3);
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(3);
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
       SOURCE_STUDY_DRAFT_OK
     );
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
       SOURCE_STUDY_SHARED
     );
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
       SOURCE_STUDY_DRAFT_NO_CROSSREF
     );
   });
 
-  it("returns draft atlas datasets when requested by logged in user with CONTENT_ADMIN role", async () => {
-    const res = await doDatasetsRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
+  it("returns draft atlas studies when requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doStudiesRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
-    const datasets = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
-    expect(datasets).toHaveLength(3);
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(3);
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
       SOURCE_STUDY_DRAFT_OK
     );
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
       SOURCE_STUDY_SHARED
     );
-    expectDatasetPropertiesToMatch(
-      datasets.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
       SOURCE_STUDY_DRAFT_NO_CROSSREF
     );
   });
 });
 
-async function doDatasetsRequest(
+async function doStudiesRequest(
   atlasId: string,
   user?: TestUser,
   method = METHOD.GET
@@ -130,32 +130,32 @@ async function doDatasetsRequest(
     method,
     query: { atlasId },
   });
-  await datasetsHandler(req, res);
+  await studiesHandler(req, res);
   return res;
 }
 
-function expectDatasetPropertiesToMatch(
-  apiDataset: HCAAtlasTrackerSourceStudy | undefined,
-  testDataset: TestPublishedSourceStudy
+function expectStudyPropertiesToMatch(
+  apiStudy: HCAAtlasTrackerSourceStudy | undefined,
+  testStudy: TestPublishedSourceStudy
 ): void {
-  expect(apiDataset).toBeDefined();
-  if (!apiDataset) return;
-  expect(apiDataset.id).toEqual(testDataset.id);
-  expect(apiDataset.doi).toEqual(testDataset.doi);
-  expect(apiDataset.doiStatus).toEqual(testDataset.doiStatus);
-  if (testDataset.publication) {
-    expect(apiDataset.title).toEqual(testDataset.publication.title);
-    expect(apiDataset.journal).toEqual(testDataset.publication.journal);
-    expect(apiDataset.publicationDate).toEqual(
-      testDataset.publication.publicationDate
+  expect(apiStudy).toBeDefined();
+  if (!apiStudy) return;
+  expect(apiStudy.id).toEqual(testStudy.id);
+  expect(apiStudy.doi).toEqual(testStudy.doi);
+  expect(apiStudy.doiStatus).toEqual(testStudy.doiStatus);
+  if (testStudy.publication) {
+    expect(apiStudy.title).toEqual(testStudy.publication.title);
+    expect(apiStudy.journal).toEqual(testStudy.publication.journal);
+    expect(apiStudy.publicationDate).toEqual(
+      testStudy.publication.publicationDate
     );
-    expect(apiDataset.referenceAuthor).toEqual(
-      testDataset.publication.authors[0]?.name
+    expect(apiStudy.referenceAuthor).toEqual(
+      testStudy.publication.authors[0]?.name
     );
   } else {
-    expect(apiDataset.title).toBeNull();
-    expect(apiDataset.journal).toBeNull();
-    expect(apiDataset.publicationDate).toBeNull();
-    expect(apiDataset.referenceAuthor).toBeNull();
+    expect(apiStudy.title).toBeNull();
+    expect(apiStudy.journal).toBeNull();
+    expect(apiStudy.publicationDate).toBeNull();
+    expect(apiStudy.referenceAuthor).toBeNull();
   }
 }

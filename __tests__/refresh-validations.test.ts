@@ -183,13 +183,13 @@ async function getSavedAtlasOverview(
 }
 
 async function getSavedValidation(
-  dataset: TestSourceStudy,
+  study: TestSourceStudy,
   validationId: VALIDATION_ID
 ): Promise<HCAAtlasTrackerDBValidation | undefined> {
   return (
     await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE entity_id=$1 AND validation_id=$2",
-      [dataset.id, validationId]
+      [study.id, validationId]
     )
   ).rows[0];
 }

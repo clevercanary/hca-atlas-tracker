@@ -784,13 +784,11 @@ export const INITIAL_TEST_ATLASES = [
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
-  (atlasesByDataset, atlas) => {
-    for (const datasetId of atlas.sourceStudies) {
-      (atlasesByDataset[datasetId] || (atlasesByDataset[datasetId] = [])).push(
-        atlas
-      );
+  (atlasesByStudy, atlas) => {
+    for (const studyId of atlas.sourceStudies) {
+      (atlasesByStudy[studyId] || (atlasesByStudy[studyId] = [])).push(atlas);
     }
-    return atlasesByDataset;
+    return atlasesByStudy;
   },
   {} as Record<string, TestAtlas[]>
 );

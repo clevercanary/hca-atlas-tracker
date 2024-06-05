@@ -378,14 +378,14 @@ describe("getSourceStudyValidationResults", () => {
 });
 
 async function testValidations(
-  testDataset: TestSourceStudy,
+  testStudy: TestSourceStudy,
   testAtlases: TestAtlas[],
   expectedValidationProperties: ExpectedValidationProperties[]
 ): Promise<void> {
   const sourceStudy = (
     await client.query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [testDataset.id]
+      [testStudy.id]
     )
   ).rows[0];
   const validationResults = await getSourceStudyValidationResults(
@@ -397,11 +397,11 @@ async function testValidations(
   for (const [i, validationResult] of validationResults.entries()) {
     expect(validationResult).toMatchObject(expectedValidationProperties[i]);
     expect(validationResult.atlasIds).toEqual(atlasIds);
-    expect(validationResult.entityId).toEqual(testDataset.id);
+    expect(validationResult.entityId).toEqual(testStudy.id);
     expect(validationResult.entityTitle).toEqual(
-      "unpublishedInfo" in testDataset
-        ? testDataset.unpublishedInfo.title
-        : testDataset.publication?.title ?? testDataset.id
+      "unpublishedInfo" in testStudy
+        ? testStudy.unpublishedInfo.title
+        : testStudy.publication?.title ?? testStudy.id
     );
   }
 }

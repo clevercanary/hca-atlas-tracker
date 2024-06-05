@@ -73,19 +73,19 @@ async function doTasksRequest(
 function expectInitialValidationsToExist(
   validations: HCAAtlasTrackerValidationRecord[]
 ): void {
-  for (const testDataset of INITIAL_TEST_SOURCE_STUDIES) {
-    const datasetValidations = validations.filter(
-      (v) => v.entityId === testDataset.id
+  for (const testStudy of INITIAL_TEST_SOURCE_STUDIES) {
+    const studyValidations = validations.filter(
+      (v) => v.entityId === testStudy.id
     );
     const hasHca =
-      "doi" in testDataset &&
-      testDataset.doi !== null &&
-      TEST_HCA_PROJECTS_BY_DOI.has(testDataset.doi);
-    expect(datasetValidations).toHaveLength(hasHca ? 5 : 3);
-    const datasetAtlases = INITIAL_TEST_ATLASES_BY_SOURCE_STUDY[testDataset.id];
-    const { atlasNames } = datasetValidations[0];
-    expect(atlasNames).toHaveLength(datasetAtlases.length);
-    for (const atlas of datasetAtlases) {
+      "doi" in testStudy &&
+      testStudy.doi !== null &&
+      TEST_HCA_PROJECTS_BY_DOI.has(testStudy.doi);
+    expect(studyValidations).toHaveLength(hasHca ? 5 : 3);
+    const studyAtlases = INITIAL_TEST_ATLASES_BY_SOURCE_STUDY[testStudy.id];
+    const { atlasNames } = studyValidations[0];
+    expect(atlasNames).toHaveLength(studyAtlases.length);
+    for (const atlas of studyAtlases) {
       expect(atlasNames).toContain(`${atlas.shortName} v${atlas.version}`);
     }
   }

@@ -51,51 +51,51 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 
-const NEW_DATASET_DATA = {
+const NEW_STUDY_DATA = {
   doi: DOI_NORMAL,
 };
 
-const NEW_DATASET_PREPRINT_NO_JOURNAL_DATA = {
+const NEW_STUDY_PREPRINT_NO_JOURNAL_DATA = {
   doi: DOI_PREPRINT_NO_JOURNAL,
 };
 
-const NEW_DATASET_UNSUPPORTED_TYPE_DATA = {
+const NEW_STUDY_UNSUPPORTED_TYPE_DATA = {
   doi: DOI_UNSUPPORTED_TYPE,
 };
 
-const NEW_DATASET_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA = {
+const NEW_STUDY_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA = {
   doi: DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
 };
 
-const NEW_DATASET_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA = {
+const NEW_STUDY_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA = {
   doi: DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
 };
 
-const NEW_DATASET_UNPUBLISHED_DATA = {
+const NEW_STUDY_UNPUBLISHED_DATA = {
   contactEmail: "foo@example.com",
   referenceAuthor: "Foo",
   title: "Something",
 };
 
-const NEW_DATASET_DRAFT_OK = {
+const NEW_STUDY_DRAFT_OK = {
   doi: DOI_DRAFT_OK,
 };
 
-const NEW_DATASET_PUBLIC_WITH_PREPRINT_PREPRINT = {
+const NEW_STUDY_PUBLIC_WITH_PREPRINT_PREPRINT = {
   doi: DOI_PUBLIC_WITH_PREPRINT_PREPRINT,
 };
 
-const NEW_DATASET_PUBLIC_WITH_JOURNAL_JOURNAL = {
+const NEW_STUDY_PUBLIC_WITH_JOURNAL_JOURNAL = {
   doi: DOI_PUBLIC_WITH_JOURNAL_JOURNAL,
 };
 
-const NEW_DATASET_EMPTY_STRING_CONTACT_EMAIL = {
+const NEW_STUDY_EMPTY_STRING_CONTACT_EMAIL = {
   contactEmail: "",
   referenceAuthor: "Bar",
   title: "Something Bar",
 };
 
-const NEW_DATASET_NULL_CONTACT_EMAIL = {
+const NEW_STUDY_NULL_CONTACT_EMAIL = {
   contactEmail: null,
   referenceAuthor: "Baz",
   title: "Something Baz",
@@ -113,13 +113,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
       (
-        await doCreateTest(
-          undefined,
-          ATLAS_DRAFT,
-          NEW_DATASET_DATA,
-          false,
-          "GET"
-        )
+        await doCreateTest(undefined, ATLAS_DRAFT, NEW_STUDY_DATA, false, "GET")
       )._getStatusCode()
     ).toEqual(405);
   });
@@ -127,7 +121,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   it("returns error 401 for logged out user", async () => {
     expect(
       (
-        await doCreateTest(undefined, ATLAS_DRAFT, NEW_DATASET_DATA)
+        await doCreateTest(undefined, ATLAS_DRAFT, NEW_STUDY_DATA)
       )._getStatusCode()
     ).toEqual(401);
   });
@@ -135,7 +129,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   it("returns error 403 for unregistered user", async () => {
     expect(
       (
-        await doCreateTest(USER_UNREGISTERED, ATLAS_DRAFT, NEW_DATASET_DATA)
+        await doCreateTest(USER_UNREGISTERED, ATLAS_DRAFT, NEW_STUDY_DATA)
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -143,7 +137,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
     expect(
       (
-        await doCreateTest(USER_STAKEHOLDER, ATLAS_DRAFT, NEW_DATASET_DATA)
+        await doCreateTest(USER_STAKEHOLDER, ATLAS_DRAFT, NEW_STUDY_DATA)
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -154,7 +148,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
         await doCreateTest(
           USER_CONTENT_ADMIN,
           ATLAS_NONEXISTENT,
-          NEW_DATASET_DATA,
+          NEW_STUDY_DATA,
           true
         )
       )._getStatusCode()
@@ -168,7 +162,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
           {
-            ...NEW_DATASET_DATA,
+            ...NEW_STUDY_DATA,
             doi: 123,
           },
           true
@@ -184,7 +178,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
           {
-            ...NEW_DATASET_DATA,
+            ...NEW_STUDY_DATA,
             doi: "",
           },
           true
@@ -200,7 +194,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
           {
-            ...NEW_DATASET_DATA,
+            ...NEW_STUDY_DATA,
             doi: "10.nota/doi",
           },
           true
@@ -215,7 +209,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
         await doCreateTest(
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
-          NEW_DATASET_UNSUPPORTED_TYPE_DATA,
+          NEW_STUDY_UNSUPPORTED_TYPE_DATA,
           true
         )
       )._getStatusCode()
@@ -223,21 +217,21 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   });
 
   it("creates, validates, and returns source study entry for journal publication", async () => {
-    const newDataset = await testSuccessfulCreate(
+    const newStudy = await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_DATA,
+      NEW_STUDY_DATA,
       PUBLICATION_NORMAL,
       HCA_ID_NORMAL,
       CELLXGENE_ID_NORMAL
     );
-    const validations = await getValidationsByEntityId(newDataset.id);
+    const validations = await getValidationsByEntityId(newStudy.id);
     expect(validations).not.toHaveLength(0);
   });
 
   it("creates and returns source study entry for preprint without journal value", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_PREPRINT_NO_JOURNAL_DATA,
+      NEW_STUDY_PREPRINT_NO_JOURNAL_DATA,
       PUBLICATION_PREPRINT_NO_JOURNAL,
       null,
       null
@@ -247,7 +241,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   it("creates and returns source study entry for preprint with journal article counterpart on HCA/CELLxGENE", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA,
+      NEW_STUDY_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA,
       PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
       HCA_ID_JOURNAL_COUNTERPART,
       CELLXGENE_ID_JOURNAL_COUNTERPART
@@ -257,7 +251,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   it("creates and returns source study entry for journal article with preprint counterpart on HCA/CELLxGENE", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA,
+      NEW_STUDY_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA,
       PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
       HCA_ID_PREPRINT_COUNTERPART,
       CELLXGENE_ID_PREPRINT_COUNTERPART
@@ -271,8 +265,8 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
           {
-            ...NEW_DATASET_DATA,
-            ...NEW_DATASET_UNPUBLISHED_DATA,
+            ...NEW_STUDY_DATA,
+            ...NEW_STUDY_UNPUBLISHED_DATA,
           },
           true
         )
@@ -287,7 +281,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
           {
-            ...NEW_DATASET_UNPUBLISHED_DATA,
+            ...NEW_STUDY_UNPUBLISHED_DATA,
             contactEmail: undefined,
           },
           true
@@ -303,7 +297,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
           {
-            ...NEW_DATASET_UNPUBLISHED_DATA,
+            ...NEW_STUDY_UNPUBLISHED_DATA,
             contactEmail: undefined,
           },
           true
@@ -313,28 +307,28 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   });
 
   it("creates and returns entry for unpublished source study", async () => {
-    await testSuccessfulUnpublishedCreate(NEW_DATASET_UNPUBLISHED_DATA);
+    await testSuccessfulUnpublishedCreate(NEW_STUDY_UNPUBLISHED_DATA);
   });
 
   it("creates and returns entry for unpublished source study with empty string email", async () => {
     await testSuccessfulUnpublishedCreate(
-      NEW_DATASET_EMPTY_STRING_CONTACT_EMAIL,
+      NEW_STUDY_EMPTY_STRING_CONTACT_EMAIL,
       {
-        ...NEW_DATASET_EMPTY_STRING_CONTACT_EMAIL,
+        ...NEW_STUDY_EMPTY_STRING_CONTACT_EMAIL,
         contactEmail: null,
       }
     );
   });
 
   it("creates and returns entry for unpublished source study with null email", async () => {
-    await testSuccessfulUnpublishedCreate(NEW_DATASET_NULL_CONTACT_EMAIL);
+    await testSuccessfulUnpublishedCreate(NEW_STUDY_NULL_CONTACT_EMAIL);
   });
 
   it("returns error on DOI field when source study already exists in the atlas", async () => {
     const res = await doCreateTest(
       USER_CONTENT_ADMIN,
       ATLAS_DRAFT,
-      NEW_DATASET_DRAFT_OK,
+      NEW_STUDY_DRAFT_OK,
       true
     );
     expect(res._getStatusCode()).toEqual(400);
@@ -351,14 +345,14 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(1);
     expect(validationsBefore[0].atlas_ids[0]).toEqual(ATLAS_DRAFT.id);
-    const dbDataset = await testSuccessfulCreate(
+    const dbStudy = await testSuccessfulCreate(
       ATLAS_PUBLIC,
-      NEW_DATASET_DRAFT_OK,
+      NEW_STUDY_DRAFT_OK,
       PUBLICATION_DRAFT_OK,
       null,
       null
     );
-    expect(dbDataset.id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
+    expect(dbStudy.id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_STUDY_DRAFT_OK.id
     );
@@ -367,25 +361,25 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   });
 
   it("adds and returns source study that already exists via preprint DOI", async () => {
-    const dbDataset = await testSuccessfulCreate(
+    const dbStudy = await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_PUBLIC_WITH_PREPRINT_PREPRINT,
+      NEW_STUDY_PUBLIC_WITH_PREPRINT_PREPRINT,
       PUBLICATION_PUBLIC_WITH_PREPRINT,
       null,
       null
     );
-    expect(dbDataset.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id);
+    expect(dbStudy.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id);
   });
 
   it("adds and returns source study that already exists via journal DOI", async () => {
-    const dbDataset = await testSuccessfulCreate(
+    const dbStudy = await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_DATASET_PUBLIC_WITH_JOURNAL_JOURNAL,
+      NEW_STUDY_PUBLIC_WITH_JOURNAL_JOURNAL,
       PUBLICATION_PUBLIC_WITH_JOURNAL,
       null,
       null
     );
-    expect(dbDataset.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id);
+    expect(dbStudy.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id);
   });
 });
 
@@ -398,28 +392,28 @@ async function testSuccessfulCreate(
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
   expect(res._getStatusCode()).toEqual(201);
-  const newDataset: HCAAtlasTrackerSourceStudy = res._getJSONData();
-  const { source_studies: atlasDatasets } = (
+  const newStudy: HCAAtlasTrackerSourceStudy = res._getJSONData();
+  const { source_studies: atlasStudies } = (
     await query<HCAAtlasTrackerDBAtlas>(
       "SELECT source_studies FROM hat.atlases WHERE id=$1",
       [atlas.id]
     )
   ).rows[0];
-  expect(atlasDatasets).toContain(newDataset.id);
-  const newDatasetFromDb = (
+  expect(atlasStudies).toContain(newStudy.id);
+  const newStudyFromDb = (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [newDataset.id]
+      [newStudy.id]
     )
   ).rows[0];
-  expectDbDatasetToMatch(
-    newDatasetFromDb,
-    newDataset,
+  expectDbStudyToMatch(
+    newStudyFromDb,
+    newStudy,
     expectedPublication,
     expectedHcaId,
     expectedCellxGeneId
   );
-  return newDatasetFromDb;
+  return newStudyFromDb;
 }
 
 async function testSuccessfulUnpublishedCreate(
@@ -428,23 +422,23 @@ async function testSuccessfulUnpublishedCreate(
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, newData);
   expect(res._getStatusCode()).toEqual(201);
-  const newDataset: HCAAtlasTrackerSourceStudy = res._getJSONData();
-  expect(newDataset.contactEmail).toEqual(expectedUnpublishedInfo.contactEmail);
-  expect(newDataset.referenceAuthor).toEqual(
+  const newStudy: HCAAtlasTrackerSourceStudy = res._getJSONData();
+  expect(newStudy.contactEmail).toEqual(expectedUnpublishedInfo.contactEmail);
+  expect(newStudy.referenceAuthor).toEqual(
     expectedUnpublishedInfo.referenceAuthor
   );
-  expect(newDataset.title).toEqual(expectedUnpublishedInfo.title);
-  const newDatasetFromDb = (
+  expect(newStudy.title).toEqual(expectedUnpublishedInfo.title);
+  const newStudyFromDb = (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [newDataset.id]
+      [newStudy.id]
     )
   ).rows[0];
-  expect(newDatasetFromDb).toBeDefined();
-  expect(newDatasetFromDb.study_info.unpublishedInfo).toEqual(
+  expect(newStudyFromDb).toBeDefined();
+  expect(newStudyFromDb.study_info.unpublishedInfo).toEqual(
     expectedUnpublishedInfo
   );
-  return newDatasetFromDb;
+  return newStudyFromDb;
 }
 
 async function doCreateTest(
@@ -464,16 +458,16 @@ async function doCreateTest(
   return res;
 }
 
-function expectDbDatasetToMatch(
-  dbDataset: HCAAtlasTrackerDBSourceStudy,
-  apiDataset: HCAAtlasTrackerSourceStudy,
+function expectDbStudyToMatch(
+  dbStudy: HCAAtlasTrackerDBSourceStudy,
+  apiStudy: HCAAtlasTrackerSourceStudy,
   publication: PublicationInfo,
   hcaId: string | null,
   cellxgeneId: string | null
 ): void {
-  expect(dbDataset).toBeDefined();
-  expect(dbDataset.study_info.publication).toEqual(publication);
-  expect(dbDataset.study_info.hcaProjectId).toEqual(hcaId);
-  expect(dbDataset.study_info.cellxgeneCollectionId).toEqual(cellxgeneId);
-  expect(dbSourceStudyToApiSourceStudy(dbDataset)).toEqual(apiDataset);
+  expect(dbStudy).toBeDefined();
+  expect(dbStudy.study_info.publication).toEqual(publication);
+  expect(dbStudy.study_info.hcaProjectId).toEqual(hcaId);
+  expect(dbStudy.study_info.cellxgeneCollectionId).toEqual(cellxgeneId);
+  expect(dbSourceStudyToApiSourceStudy(dbStudy)).toEqual(apiStudy);
 }

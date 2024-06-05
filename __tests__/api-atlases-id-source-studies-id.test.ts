@@ -8,7 +8,7 @@ import {
 import { dbSourceStudyToApiSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
-import datasetHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
+import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -66,7 +66,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
   it("returns error 405 for POST request", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           undefined,
@@ -76,10 +76,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when dataset is requested from public atlas by logged out user", async () => {
+  it("returns error 401 when study is requested from public atlas by logged out user", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
         )
@@ -87,10 +87,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 when dataset is requested from public atlas by unregistered user", async () => {
+  it("returns error 403 when study is requested from public atlas by unregistered user", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_UNREGISTERED
@@ -99,18 +99,18 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     ).toEqual(403);
   });
 
-  it("returns error 401 when dataset is GET requested from draft atlas by logged out user", async () => {
+  it("returns error 401 when study is GET requested from draft atlas by logged out user", async () => {
     expect(
       (
-        await doDatasetRequest(ATLAS_DRAFT.id, SOURCE_STUDY_DRAFT_OK.id)
+        await doStudyRequest(ATLAS_DRAFT.id, SOURCE_STUDY_DRAFT_OK.id)
       )._getStatusCode()
     ).toEqual(401);
   });
 
-  it("returns error 403 when dataset is GET requested from draft atlas by unregistered user", async () => {
+  it("returns error 403 when study is GET requested from draft atlas by unregistered user", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_DRAFT_OK.id,
           USER_UNREGISTERED
@@ -119,10 +119,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     ).toEqual(403);
   });
 
-  it("returns error 404 when dataset is GET requested by user with CONTENT_ADMIN role via atlas it doesn't exist on", async () => {
+  it("returns error 404 when study is GET requested by user with CONTENT_ADMIN role via atlas it doesn't exist on", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_CONTENT_ADMIN,
@@ -134,43 +134,43 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     ).toEqual(404);
   });
 
-  it("returns dataset from public atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doDatasetRequest(
+  it("returns study from public atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doStudyRequest(
       ATLAS_PUBLIC.id,
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
       USER_STAKEHOLDER
     );
     expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(dataset.doi).toEqual(SOURCE_STUDY_PUBLIC_NO_CROSSREF.doi);
+    const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+    expect(study.doi).toEqual(SOURCE_STUDY_PUBLIC_NO_CROSSREF.doi);
   });
 
-  it("returns dataset from draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doDatasetRequest(
+  it("returns study from draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
       USER_STAKEHOLDER
     );
     expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(dataset.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
+    const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+    expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
   });
 
-  it("returns dataset from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
-    const res = await doDatasetRequest(
+  it("returns study from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
-    const dataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(dataset.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
+    const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+    expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
   });
 
-  it("returns error 401 when dataset is PUT requested from public atlas by logged out user", async () => {
+  it("returns error 401 when study is PUT requested from public atlas by logged out user", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           undefined,
@@ -179,13 +179,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when dataset is PUT requested from public atlas by unregistered user", async () => {
+  it("returns error 403 when study is PUT requested from public atlas by unregistered user", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
@@ -194,13 +194,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when dataset is PUT requested from public atlas by logged in user with STAKEHOLDER role", async () => {
+  it("returns error 403 when study is PUT requested from public atlas by logged in user with STAKEHOLDER role", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
@@ -209,13 +209,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 404 when dataset is PUT requested from atlas it doesn't exist on", async () => {
+  it("returns error 404 when study is PUT requested from atlas it doesn't exist on", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_CONTENT_ADMIN,
@@ -225,13 +225,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 400 for dataset PUT requested with contact email set to undefined", async () => {
+  it("returns error 400 for study PUT requested with contact email set to undefined", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_DRAFT_OK.id,
           USER_CONTENT_ADMIN,
@@ -244,10 +244,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("updates, revalidates, and returns dataset with published data when PUT requested", async () => {
+  it("updates, revalidates, and returns study with published data when PUT requested", async () => {
     const validationsBefore = await getValidationsByEntityId(
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
     );
@@ -256,7 +256,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.doi
     );
 
-    const res = await doDatasetRequest(
+    const res = await doStudyRequest(
       ATLAS_PUBLIC.id,
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
       USER_CONTENT_ADMIN,
@@ -264,18 +264,16 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const updatedDataset = res._getJSONData();
-    const datasetFromDb = await getDatasetFromDatabase(updatedDataset.id);
-    expect(datasetFromDb).toBeDefined();
-    if (!datasetFromDb) return;
-    expect(datasetFromDb.study_info.publication).toEqual(
+    const updatedStudy = res._getJSONData();
+    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    expect(studyFromDb).toBeDefined();
+    if (!studyFromDb) return;
+    expect(studyFromDb.study_info.publication).toEqual(
       PUBLICATION_PREPRINT_NO_JOURNAL
     );
-    expect(datasetFromDb.study_info.hcaProjectId).toEqual(null);
-    expect(datasetFromDb.study_info.cellxgeneCollectionId).toEqual(null);
-    expect(dbSourceStudyToApiSourceStudy(datasetFromDb)).toEqual(
-      updatedDataset
-    );
+    expect(studyFromDb.study_info.hcaProjectId).toEqual(null);
+    expect(studyFromDb.study_info.cellxgeneCollectionId).toEqual(null);
+    expect(dbSourceStudyToApiSourceStudy(studyFromDb)).toEqual(updatedStudy);
 
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
@@ -285,11 +283,11 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT.doi
     );
 
-    await restoreDbDataset(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await restoreDbStudy(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("updates and returns dataset with unpublished data when PUT requested", async () => {
-    const res = await doDatasetRequest(
+  it("updates and returns study with unpublished data when PUT requested", async () => {
+    const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN,
@@ -297,20 +295,20 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_DRAFT_OK_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const updatedDataset = res._getJSONData();
-    const datasetFromDb = await getDatasetFromDatabase(updatedDataset.id);
-    expect(datasetFromDb).toBeDefined();
-    if (!datasetFromDb) return;
-    expect(datasetFromDb.doi).toEqual(null);
-    expect(datasetFromDb.study_info.unpublishedInfo).toEqual(
+    const updatedStudy = res._getJSONData();
+    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    expect(studyFromDb).toBeDefined();
+    if (!studyFromDb) return;
+    expect(studyFromDb.doi).toEqual(null);
+    expect(studyFromDb.study_info.unpublishedInfo).toEqual(
       SOURCE_STUDY_DRAFT_OK_EDIT
     );
 
-    await restoreDbDataset(SOURCE_STUDY_DRAFT_OK);
+    await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
-  it("updates and returns dataset with CAP ID when PUT requested", async () => {
-    const res = await doDatasetRequest(
+  it("updates and returns study with CAP ID when PUT requested", async () => {
+    const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN,
@@ -318,24 +316,22 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const updatedDataset = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(updatedDataset.capId).toEqual(
-      SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId
-    );
-    const datasetFromDb = await getDatasetFromDatabase(updatedDataset.id);
-    expect(datasetFromDb).toBeDefined();
-    if (!datasetFromDb) return;
-    expect(datasetFromDb.study_info.capId).toEqual(
+    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+    expect(updatedStudy.capId).toEqual(SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId);
+    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    expect(studyFromDb).toBeDefined();
+    if (!studyFromDb) return;
+    expect(studyFromDb.study_info.capId).toEqual(
       SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId
     );
 
-    await restoreDbDataset(SOURCE_STUDY_DRAFT_OK);
+    await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
-  it("returns error 401 when dataset is DELETE requested from public atlas by logged out user", async () => {
+  it("returns error 401 when study is DELETE requested from public atlas by logged out user", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           undefined,
@@ -343,13 +339,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when dataset is DELETE requested from public atlas by unregistered user", async () => {
+  it("returns error 403 when study is DELETE requested from public atlas by unregistered user", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
@@ -357,13 +353,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when dataset is DELETE requested from public atlas by logged in user with STAKEHOLDER role", async () => {
+  it("returns error 403 when study is DELETE requested from public atlas by logged in user with STAKEHOLDER role", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
@@ -371,13 +367,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 404 when dataset is DELETE requested from atlas it doesn't exist on", async () => {
+  it("returns error 404 when study is DELETE requested from atlas it doesn't exist on", async () => {
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_CONTENT_ADMIN,
@@ -387,7 +383,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("deletes source study only from specified atlas and revalidates when shared by multiple atlases", async () => {
@@ -399,7 +395,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
 
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_SHARED.id,
           USER_CONTENT_ADMIN,
@@ -407,13 +403,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(200);
-    const draftDatasets = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
+    const draftStudys = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
       ?.source_studies;
-    expect(draftDatasets).not.toContain(SOURCE_STUDY_SHARED.id);
-    const publicDatasets = (await getAtlasFromDatabase(ATLAS_PUBLIC.id))
+    expect(draftStudys).not.toContain(SOURCE_STUDY_SHARED.id);
+    const publicStudys = (await getAtlasFromDatabase(ATLAS_PUBLIC.id))
       ?.source_studies;
-    expect(publicDatasets).toContain(SOURCE_STUDY_SHARED.id);
-    expectDatasetToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    expect(publicStudys).toContain(SOURCE_STUDY_SHARED.id);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
 
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_STUDY_SHARED.id
@@ -435,7 +431,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
 
     expect(
       (
-        await doDatasetRequest(
+        await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_DRAFT_OK.id,
           USER_CONTENT_ADMIN,
@@ -443,14 +439,14 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(200);
-    const draftDatasets = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
+    const draftStudys = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
       ?.source_studies;
-    expect(draftDatasets).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
-    const datasetQueryResult = await query(
+    expect(draftStudys).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
+    const studyQueryResult = await query(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [SOURCE_STUDY_DRAFT_OK.id]
     );
-    expect(datasetQueryResult.rows[0]).toBeUndefined();
+    expect(studyQueryResult.rows[0]).toBeUndefined();
 
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_STUDY_DRAFT_OK.id
@@ -472,7 +468,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
   });
 });
 
-async function doDatasetRequest(
+async function doStudyRequest(
   atlasId: string,
   sourceStudyId: string,
   user?: TestUser,
@@ -486,36 +482,33 @@ async function doDatasetRequest(
     method,
     query: { atlasId, sourceStudyId },
   });
-  await withConsoleErrorHiding(
-    () => datasetHandler(req, res),
-    hideConsoleError
-  );
+  await withConsoleErrorHiding(() => studyHandler(req, res), hideConsoleError);
   return res;
 }
 
-async function restoreDbDataset(dataset: TestSourceStudy): Promise<void> {
+async function restoreDbStudy(study: TestSourceStudy): Promise<void> {
   await query(
     "UPDATE hat.source_studies SET doi=$1, study_info=$2 WHERE id=$3",
     [
-      "doi" in dataset ? dataset.doi : null,
-      JSON.stringify(makeTestSourceStudyOverview(dataset)),
-      dataset.id,
+      "doi" in study ? study.doi : null,
+      JSON.stringify(makeTestSourceStudyOverview(study)),
+      study.id,
     ]
   );
 }
 
-async function expectDatasetToBeUnchanged(
-  dataset: TestPublishedSourceStudy
+async function expectStudyToBeUnchanged(
+  study: TestPublishedSourceStudy
 ): Promise<void> {
-  const datasetFromDb = await getDatasetFromDatabase(dataset.id);
-  expect(datasetFromDb).toBeDefined();
-  if (!datasetFromDb) return;
-  expect(datasetFromDb.doi).toEqual(dataset.doi);
-  expect(datasetFromDb.study_info.doiStatus).toEqual(dataset.doiStatus);
-  expect(datasetFromDb.study_info.publication).toEqual(dataset.publication);
+  const studyFromDb = await getStudyFromDatabase(study.id);
+  expect(studyFromDb).toBeDefined();
+  if (!studyFromDb) return;
+  expect(studyFromDb.doi).toEqual(study.doi);
+  expect(studyFromDb.study_info.doiStatus).toEqual(study.doiStatus);
+  expect(studyFromDb.study_info.publication).toEqual(study.publication);
 }
 
-async function getDatasetFromDatabase(
+async function getStudyFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBSourceStudy | undefined> {
   return (
