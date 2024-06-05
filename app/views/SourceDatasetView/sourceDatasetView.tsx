@@ -19,18 +19,18 @@ import { useEditSourceDatasetFormManager } from "./hooks/useEditSourceDatasetFor
 
 interface SourceDatasetViewProps {
   atlasId: AtlasId;
-  sdId: SourceStudyId;
+  sourceStudyId: SourceStudyId;
 }
 
 export const SourceDatasetView = ({
   atlasId,
-  sdId,
+  sourceStudyId,
 }: SourceDatasetViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(atlasId);
-  const formMethod = useEditSourceDatasetForm(atlasId, sdId);
+  const formMethod = useEditSourceDatasetForm(atlasId, sourceStudyId);
   const formManager = useEditSourceDatasetFormManager(
     atlasId,
-    sdId,
+    sourceStudyId,
     formMethod
   );
   const {

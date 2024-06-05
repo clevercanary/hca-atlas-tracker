@@ -4,32 +4,33 @@ import { SourceDatasetView } from "../../../../../app/views/SourceDatasetView/so
 
 interface SourceDatasetPageUrlParams extends ParsedUrlQuery {
   atlasId: string;
-  sdId: string;
+  sourceStudyId: string;
 }
 
 interface SourceDatasetPageProps {
   atlasId: string;
-  sdId: string;
+  sourceStudyId: string;
 }
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const { atlasId, sdId } = context.params as SourceDatasetPageUrlParams;
+  const { atlasId, sourceStudyId } =
+    context.params as SourceDatasetPageUrlParams;
   return {
     props: {
       atlasId,
       pageTitle: "Source Dataset",
-      sdId,
+      sourceStudyId,
     },
   };
 };
 
 const SourceDatasetsPage = ({
   atlasId,
-  sdId,
+  sourceStudyId,
 }: SourceDatasetPageProps): JSX.Element => {
-  return <SourceDatasetView atlasId={atlasId} sdId={sdId} />;
+  return <SourceDatasetView atlasId={atlasId} sourceStudyId={sourceStudyId} />;
 };
 
 export default SourceDatasetsPage;

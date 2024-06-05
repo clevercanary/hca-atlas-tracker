@@ -19,7 +19,7 @@ interface UseFetchSourceDataset {
 
 export const useFetchSourceDataset = (
   atlasId: AtlasId,
-  sdId: string
+  sourceStudyId: string
 ): UseFetchSourceDataset => {
   const { token } = useAuthentication();
   const { data: sourceDataset, run } = useAsync<
@@ -29,11 +29,11 @@ export const useFetchSourceDataset = (
   const fetchSourceDataset = useCallback(
     async (
       atlasId: AtlasId,
-      sdId: string,
+      sourceStudyId: string,
       accessToken: string
     ): Promise<HCAAtlasTrackerSourceStudy | undefined> => {
       const res = await fetch(
-        getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sdId),
+        getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sourceStudyId),
         getFetchOptions(METHOD.GET, accessToken)
       );
       if (isFetchStatusOk(res.status)) {
@@ -51,8 +51,8 @@ export const useFetchSourceDataset = (
 
   useEffect(() => {
     if (!token) return;
-    run(fetchSourceDataset(atlasId, sdId, token));
-  }, [atlasId, fetchSourceDataset, run, sdId, token]);
+    run(fetchSourceDataset(atlasId, sourceStudyId, token));
+  }, [atlasId, fetchSourceDataset, run, sourceStudyId, token]);
 
   return {
     sourceDataset,

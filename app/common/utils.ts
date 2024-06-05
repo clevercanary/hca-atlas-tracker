@@ -74,7 +74,7 @@ export function isFetchStatusOk(status: number): boolean {
 }
 
 /**
- * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [sdId] with the given source study ID.
+ * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [sourceStudyId] with the given source study ID.
  * @param apiURL - Request URL.
  * @param atlasId - Atlas ID.
  * @param sourceStudyId - Source study ID.
@@ -85,31 +85,31 @@ export function getRequestURL(
   atlasId: string,
   sourceStudyId?: string
 ): string {
-  if (/\[sdId]/.test(apiURL) && sourceStudyId) {
+  if (/\[sourceStudyId]/.test(apiURL) && sourceStudyId) {
     return apiURL
       .replace(/\[atlasId]/, atlasId)
-      .replace(/\[sdId]/, sourceStudyId);
+      .replace(/\[sourceStudyId]/, sourceStudyId);
   }
   return apiURL.replace(/\[atlasId]/, atlasId);
 }
 
 /**
- * Replaces [atlasId] in route with the given atlas ID and optionally replaces [sdId] with the given source study ID.
+ * Replaces [atlasId] in route with the given atlas ID and optionally replaces [sourceStudyId] with the given source study ID.
  * @param route - Route.
  * @param atlasId - Atlas ID.
- * @param sdId - Source study ID.
+ * @param sourceStudyId - Source study ID.
  * @returns route with atlas ID.
  */
 export function getRouteURL(
   route: RouteValue,
   atlasId: string,
-  sdId?: string
+  sourceStudyId?: string
 ): string {
-  if (/\[sdId]/.test(route)) {
-    if (sdId) {
+  if (/\[sourceStudyId]/.test(route)) {
+    if (sourceStudyId) {
       return (route as string)
         .replace(/\[atlasId]/, atlasId)
-        .replace(/\[sdId]/, sdId);
+        .replace(/\[sourceStudyId]/, sourceStudyId);
     }
   } else {
     return (route as string).replace(/\[atlasId]/, atlasId);

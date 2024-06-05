@@ -19,9 +19,9 @@ const SCHEMA = sourceDatasetEditSchema;
 
 export const useEditSourceDatasetForm = (
   atlasId: AtlasId,
-  sdId: SourceStudyId
+  sourceStudyId: SourceStudyId
 ): FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy> => {
-  const { sourceDataset } = useFetchSourceDataset(atlasId, sdId);
+  const { sourceDataset } = useFetchSourceDataset(atlasId, sourceStudyId);
   return useForm<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>(
     SCHEMA,
     sourceDataset,

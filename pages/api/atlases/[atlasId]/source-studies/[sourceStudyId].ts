@@ -25,10 +25,10 @@ const getHandler = handler(
   role(ROLE_GROUP.READ),
   async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
     const atlasId = req.query.atlasId as string;
-    const sdId = req.query.sdId as string;
+    const sourceStudyId = req.query.sourceStudyId as string;
 
     try {
-      await confirmSourceStudyExistsOnAtlas(sdId, atlasId);
+      await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
     } catch (e) {
       if (e instanceof AccessError) {
         res.status(403).json({ message: e.message });
@@ -39,11 +39,13 @@ const getHandler = handler(
 
     const queryResult = await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [sdId]
+      [sourceStudyId]
     );
 
     if (queryResult.rows.length === 0)
-      throw new NotFoundError(`Source dataset with ID ${sdId} doesn't exist`);
+      throw new NotFoundError(
+        `Source dataset with ID ${sourceStudyId} doesn't exist`
+      );
 
     res.json(dbSourceStudyToApiSourceStudy(queryResult.rows[0]));
   }
@@ -53,10 +55,10 @@ const putHandler = handler(
   role(ROLE.CONTENT_ADMIN), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
-    const sdId = req.query.sdId as string;
+    const sourceStudyId = req.query.sourceStudyId as string;
     const newDataset = await updateSourceStudy(
       atlasId,
-      sdId,
+      sourceStudyId,
       await sourceStudyEditSchema.validate(req.body)
     );
     res.json(dbSourceStudyToApiSourceStudy(newDataset));
@@ -67,8 +69,8 @@ const deleteHandler = handler(
   role(ROLE.CONTENT_ADMIN), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
-    const sdId = req.query.sdId as string;
-    await deleteAtlasSourceStudy(atlasId, sdId);
+    const sourceStudyId = req.query.sourceStudyId as string;
+    await deleteAtlasSourceStudy(atlasId, sourceStudyId);
     res.status(200).end();
   }
 );

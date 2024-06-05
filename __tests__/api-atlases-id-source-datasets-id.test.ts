@@ -8,7 +8,7 @@ import {
 import { dbSourceStudyToApiSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
-import datasetHandler from "../pages/api/atlases/[atlasId]/source-studies/[sdId]";
+import datasetHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -62,7 +62,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/source-studies/[sdId]", () => {
+describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
   it("returns error 405 for POST request", async () => {
     expect(
       (
@@ -474,7 +474,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sdId]", () => {
 
 async function doDatasetRequest(
   atlasId: string,
-  sdId: string,
+  sourceStudyId: string,
   user?: TestUser,
   method = METHOD.GET,
   updatedData?: Record<string, unknown>,
@@ -484,7 +484,7 @@ async function doDatasetRequest(
     body: updatedData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId, sdId },
+    query: { atlasId, sourceStudyId },
   });
   await withConsoleErrorHiding(
     () => datasetHandler(req, res),

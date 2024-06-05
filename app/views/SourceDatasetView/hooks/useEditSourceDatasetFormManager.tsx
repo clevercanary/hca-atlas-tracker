@@ -25,7 +25,7 @@ import {
 
 export const useEditSourceDatasetFormManager = (
   atlasId: AtlasId,
-  sdId: SourceStudyId,
+  sourceStudyId: SourceStudyId,
   formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>
 ): FormManager => {
   const {
@@ -40,13 +40,13 @@ export const useEditSourceDatasetFormManager = (
 
   const onDelete = useCallback(() => {
     onDeleteSourceDataset(
-      getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sdId),
+      getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sourceStudyId),
       METHOD.DELETE,
       {
         onSuccess: () => onDeleteSuccess(atlasId),
       }
     );
-  }, [atlasId, onDeleteSourceDataset, sdId]);
+  }, [atlasId, onDeleteSourceDataset, sourceStudyId]);
 
   const onDiscard = useCallback(
     (url?: string) => {
@@ -59,7 +59,7 @@ export const useEditSourceDatasetFormManager = (
     (payload: SourceDatasetEditData, url?: string) => {
       unregister(unregisterSchemaFields(payload));
       onSubmit(
-        getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sdId),
+        getRequestURL(API.ATLAS_SOURCE_DATASET, atlasId, sourceStudyId),
         METHOD.PUT,
         filterPayload(payload),
         {
@@ -68,7 +68,7 @@ export const useEditSourceDatasetFormManager = (
         }
       );
     },
-    [atlasId, onSubmit, reset, sdId, unregister]
+    [atlasId, onSubmit, reset, sourceStudyId, unregister]
   );
 
   return useFormManager(formMethod, { onDelete, onDiscard, onSave }, isDirty);
@@ -130,11 +130,11 @@ function onDeleteSuccess(atlasId: string): void {
 /**
  * Submit side effect "onSuccess"; redirects to the source dataset page, or to the specified URL.
  * @param atlasId - Atlas ID.
- * @param sdId - Source dataset ID.
+ * @param sourceStudyId - Source dataset ID.
  * @param url - URL to redirect to.
  */
-function onSuccess(atlasId: string, sdId: string, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASET, atlasId, sdId));
+function onSuccess(atlasId: string, sourceStudyId: string, url?: string): void {
+  Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASET, atlasId, sourceStudyId));
 }
 
 /**

@@ -112,16 +112,16 @@ async function getExistingDataset(
 /**
  * Update a published or unpublished source study.
  * @param atlasId - Atlas that the source study is accessed through.
- * @param sdId - Source study to update.
+ * @param sourceStudyId - Source study to update.
  * @param inputData - Values to update the source study with.
  * @returns database model of updated source study.
  */
 export async function updateSourceStudy(
   atlasId: string,
-  sdId: string,
+  sourceStudyId: string,
   inputData: SourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
-  await confirmSourceStudyExistsOnAtlas(sdId, atlasId);
+  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
 
   const newInfo = await sourceStudyInputDataToDbData(inputData);
 
@@ -131,11 +131,13 @@ export async function updateSourceStudy(
 
     const queryResult = await client.query<HCAAtlasTrackerDBSourceStudy>(
       "UPDATE hat.source_studies SET doi=$1, study_info=$2 WHERE id=$3 RETURNING *",
-      [newInfo.doi, JSON.stringify(newInfo.study_info), sdId]
+      [newInfo.doi, JSON.stringify(newInfo.study_info), sourceStudyId]
     );
 
     if (queryResult.rows.length === 0)
-      throw new NotFoundError(`Source study with ID ${sdId} doesn't exist`);
+      throw new NotFoundError(
+        `Source study with ID ${sourceStudyId} doesn't exist`
+      );
 
     const newDataset = queryResult.rows[0];
 
@@ -236,33 +238,35 @@ function makeUnpublishedSourceStudyDbData(
 /**
  * Remove the specified source study from the specified atlas, and delete the source study if it's not contained in any other atlases.
  * @param atlasId - Atlas ID.
- * @param sdId - Source study ID.
+ * @param sourceStudyId - Source study ID.
  */
 export async function deleteAtlasSourceStudy(
   atlasId: string,
-  sdId: string
+  sourceStudyId: string
 ): Promise<void> {
-  await confirmSourceStudyExistsOnAtlas(sdId, atlasId);
+  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
 
   const client = await getPoolClient();
   try {
     await client.query("BEGIN");
     await client.query(
       "UPDATE hat.atlases SET source_studies=source_studies-$1 WHERE id=$2",
-      [sdId, atlasId]
+      [sourceStudyId, atlasId]
     );
     const sourceStudyHasAtlases = (
       await client.query(
         "SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE source_studies @> $1)",
-        [JSON.stringify(sdId)]
+        [JSON.stringify(sourceStudyId)]
       )
     ).rows[0].exists;
     if (sourceStudyHasAtlases) {
-      await updateSourceStudyValidationsByEntityId(sdId, client);
+      await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
-      await client.query("DELETE FROM hat.source_studies WHERE id=$1", [sdId]);
+      await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
+        sourceStudyId,
+      ]);
       await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
-        sdId,
+        sourceStudyId,
       ]);
     }
     await client.query("COMMIT");
@@ -296,12 +300,12 @@ export async function updateSourceStudyValidationsByEntityId(
 
 /**
  * Throw an error if the given source study doesn't exist on the given atlas.
- * @param sdId - Source study ID.
+ * @param sourceStudyId - Source study ID.
  * @param atlasId - Atlas ID.
  * @param limitToStatuses - If specified, statuses that the atlas must have.
  */
 export async function confirmSourceStudyExistsOnAtlas(
-  sdId: string,
+  sourceStudyId: string,
   atlasId: string,
   limitToStatuses?: ATLAS_STATUS[]
 ): Promise<void> {
@@ -313,8 +317,8 @@ export async function confirmSourceStudyExistsOnAtlas(
   const { source_studies, status } = queryResult.rows[0];
   if (limitToStatuses && !limitToStatuses.includes(status))
     throw new AccessError(`Can't access atlas with ID ${atlasId}`);
-  if (!source_studies.includes(sdId))
+  if (!source_studies.includes(sourceStudyId))
     throw new NotFoundError(
-      `Source study with ID ${sdId} doesn't exist on atlas with ID ${atlasId}`
+      `Source study with ID ${sourceStudyId} doesn't exist on atlas with ID ${atlasId}`
     );
 }

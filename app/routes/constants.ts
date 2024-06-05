@@ -8,7 +8,7 @@ export const ROUTE = {
   REGISTRATION_REQUIRED: "/registration-required",
   REQUESTING_ACCESS: "/requesting-access",
   ROADMAP: "/roadmap",
-  SOURCE_DATASET: "/atlases/[atlasId]/source-studies/[sdId]",
+  SOURCE_DATASET: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
   SOURCE_DATASETS: "/atlases/[atlasId]/source-studies",
   TASKS: "/tasks",
   VALIDATIONS_AND_TASKS: "/validations-and-tasks",

@@ -103,11 +103,11 @@ function isFormDirty(
 /**
  * Side effect "onSuccess"; redirects to the source dataset page, or to the specified URL.
  * @param atlasId - Atlas ID.
- * @param sdId - Source dataset ID.
+ * @param sourceStudyId - Source dataset ID.
  * @param url - URL to redirect to.
  */
-function onSuccess(atlasId: string, sdId: string, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASET, atlasId, sdId));
+function onSuccess(atlasId: string, sourceStudyId: string, url?: string): void {
+  Router.push(url ?? getRouteURL(ROUTE.SOURCE_DATASET, atlasId, sourceStudyId));
 }
 
 /**
