@@ -15,7 +15,7 @@ import {
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestAtlas, TestSourceDataset } from "../testing/entities";
+import { TestAtlas, TestSourceStudy } from "../testing/entities";
 
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/user-profile");
@@ -183,7 +183,7 @@ async function getSavedAtlasOverview(
 }
 
 async function getSavedValidation(
-  dataset: TestSourceDataset,
+  dataset: TestSourceStudy,
   validationId: VALIDATION_ID
 ): Promise<HCAAtlasTrackerDBValidation | undefined> {
   return (

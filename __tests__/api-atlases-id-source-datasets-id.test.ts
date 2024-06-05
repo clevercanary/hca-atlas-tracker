@@ -23,8 +23,8 @@ import {
 } from "../testing/constants";
 import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
 import {
-  TestPublishedSourceDataset,
-  TestSourceDataset,
+  TestPublishedSourceStudy,
+  TestSourceStudy,
   TestUser,
 } from "../testing/entities";
 import {
@@ -422,7 +422,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
     expect(validationsAfter[0].atlas_ids).toHaveLength(1);
 
     await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
-      JSON.stringify(ATLAS_DRAFT.sourceDatasets),
+      JSON.stringify(ATLAS_DRAFT.sourceStudies),
       ATLAS_DRAFT.id,
     ]);
   });
@@ -466,7 +466,7 @@ describe("/api/atlases/[atlasId]/source-datasets/[sdId]", () => {
       ]
     );
     await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
-      JSON.stringify(ATLAS_DRAFT.sourceDatasets),
+      JSON.stringify(ATLAS_DRAFT.sourceStudies),
       ATLAS_DRAFT.id,
     ]);
   });
@@ -493,7 +493,7 @@ async function doDatasetRequest(
   return res;
 }
 
-async function restoreDbDataset(dataset: TestSourceDataset): Promise<void> {
+async function restoreDbDataset(dataset: TestSourceStudy): Promise<void> {
   await query(
     "UPDATE hat.source_studies SET doi=$1, study_info=$2 WHERE id=$3",
     [
@@ -505,7 +505,7 @@ async function restoreDbDataset(dataset: TestSourceDataset): Promise<void> {
 }
 
 async function expectDatasetToBeUnchanged(
-  dataset: TestPublishedSourceDataset
+  dataset: TestPublishedSourceStudy
 ): Promise<void> {
   const datasetFromDb = await getDatasetFromDatabase(dataset.id);
   expect(datasetFromDb).toBeDefined();

@@ -56,7 +56,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
       [
         atlas.id,
         JSON.stringify(overview),
-        JSON.stringify(atlas.sourceDatasets || []),
+        JSON.stringify(atlas.sourceStudies || []),
         atlas.status,
         atlas.targetCompletion ?? null,
       ]

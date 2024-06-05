@@ -9,8 +9,8 @@ import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
 import {
   TestAtlas,
-  TestPublishedSourceDataset,
-  TestUnpublishedSourceDataset,
+  TestPublishedSourceStudy,
+  TestUnpublishedSourceStudy,
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
@@ -460,49 +460,49 @@ export const TEST_CELLXGENE_COLLECTIONS_B = [
 
 // SOURCE DATASETS
 
-export const SOURCE_DATASET_DRAFT_OK: TestPublishedSourceDataset = {
+export const SOURCE_DATASET_DRAFT_OK: TestPublishedSourceStudy = {
   doi: DOI_DRAFT_OK,
   doiStatus: DOI_STATUS.OK,
   id: "d2932506-0af5-4030-920c-07f6beeb817a",
   publication: PUBLICATION_DRAFT_OK,
 };
 
-export const SOURCE_DATASET_DRAFT_NO_CROSSREF: TestPublishedSourceDataset = {
+export const SOURCE_DATASET_DRAFT_NO_CROSSREF: TestPublishedSourceStudy = {
   doi: "10.123/sd-draft-no-crossref",
   doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "ee67ddcb-e5d8-4240-a8ef-c945657c3321",
   publication: null,
 };
 
-export const SOURCE_DATASET_PUBLIC_NO_CROSSREF: TestPublishedSourceDataset = {
+export const SOURCE_DATASET_PUBLIC_NO_CROSSREF: TestPublishedSourceStudy = {
   doi: "10.123/sd-public-no-crossref",
   doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "dae11387-d0c2-4160-8f2e-0be27a3a551a",
   publication: null,
 };
 
-export const SOURCE_DATASET_PUBLIC_WITH_PREPRINT: TestPublishedSourceDataset = {
+export const SOURCE_DATASET_PUBLIC_WITH_PREPRINT: TestPublishedSourceStudy = {
   doi: DOI_PUBLIC_WITH_PREPRINT,
   doiStatus: DOI_STATUS.OK,
   id: "babb7839-cf33-4422-b90f-d9ad53d1133d",
   publication: PUBLICATION_PUBLIC_WITH_PREPRINT,
 };
 
-export const SOURCE_DATASET_PUBLIC_WITH_JOURNAL: TestPublishedSourceDataset = {
+export const SOURCE_DATASET_PUBLIC_WITH_JOURNAL: TestPublishedSourceStudy = {
   doi: DOI_PUBLIC_WITH_JOURNAL,
   doiStatus: DOI_STATUS.OK,
   id: "815a5b58-ce6e-4578-9210-ffb383e6cf78",
   publication: PUBLICATION_PUBLIC_WITH_JOURNAL,
 };
 
-export const SOURCE_DATASET_SHARED: TestPublishedSourceDataset = {
+export const SOURCE_DATASET_SHARED: TestPublishedSourceStudy = {
   doi: "10.123/sd-shared",
   doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "b5051dd0-a321-46e9-8728-4a7e1082b3e3",
   publication: null,
 };
 
-export const SOURCE_DATASET_PUBLISHED_WITH_HCA: TestPublishedSourceDataset = {
+export const SOURCE_DATASET_PUBLISHED_WITH_HCA: TestPublishedSourceStudy = {
   doi: DOI_PUBLISHED_WITH_HCA,
   doiStatus: DOI_STATUS.OK,
   id: "a8a6a337-a4d2-46f6-85e5-d703cfc5f853",
@@ -521,7 +521,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_HCA: TestPublishedSourceDataset = {
   },
 };
 
-export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE: TestUnpublishedSourceDataset =
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE: TestUnpublishedSourceStudy =
   {
     cellxgeneCollectionId: CELLXGENE_ID_UNPUBLISHED_WITH_CELLXGENE,
     hcaProjectId: null,
@@ -533,7 +533,7 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE: TestUnpublishedSourceDat
     },
   };
 
-export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH: TestPublishedSourceDataset =
+export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH: TestPublishedSourceStudy =
   {
     doi: DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
     doiStatus: DOI_STATUS.OK,
@@ -553,7 +553,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH: TestPublishedSour
     },
   };
 
-export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: TestPublishedSourceDataset =
+export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: TestPublishedSourceStudy =
   {
     doi: DOI_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
     doiStatus: DOI_STATUS.OK,
@@ -573,7 +573,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: TestPublishedSo
     },
   };
 
-export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: TestPublishedSourceDataset =
+export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: TestPublishedSourceStudy =
   {
     doi: DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
     doiStatus: DOI_STATUS.OK,
@@ -593,7 +593,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: TestPublishedSou
     },
   };
 
-export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSourceDataset =
+export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSourceStudy =
   {
     doi: "10.123/sd-published-with-no-hca-or-cellxgene",
     doiStatus: DOI_STATUS.OK,
@@ -613,7 +613,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSou
     },
   };
 
-export const SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: TestPublishedSourceDataset =
+export const SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: TestPublishedSourceStudy =
   {
     doi: "10.123/sd-published-with-cap-and-no-cellxgene",
     doiStatus: DOI_STATUS.OK,
@@ -633,7 +633,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: TestPublishedSo
     },
   };
 
-export const SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_CELLXGENE: TestPublishedSourceDataset =
+export const SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_CELLXGENE: TestPublishedSourceStudy =
   {
     capId: "cap-id-published-with-cap-and-cellxgene",
     doi: DOI_PUBLISHED_WITH_CAP_AND_CELLXGENE,
@@ -679,7 +679,7 @@ export const ATLAS_DRAFT: TestAtlas = {
   integrationLead: [],
   network: "eye",
   shortName: "test-draft",
-  sourceDatasets: [
+  sourceStudies: [
     SOURCE_DATASET_DRAFT_OK.id,
     SOURCE_DATASET_SHARED.id,
     SOURCE_DATASET_DRAFT_NO_CROSSREF.id,
@@ -694,7 +694,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   integrationLead: [],
   network: "lung",
   shortName: "test-public",
-  sourceDatasets: [
+  sourceStudies: [
     SOURCE_DATASET_PUBLIC_NO_CROSSREF.id,
     SOURCE_DATASET_SHARED.id,
   ],
@@ -714,7 +714,7 @@ export const ATLAS_WITH_IL: TestAtlas = {
   ],
   network: "heart",
   shortName: "test-with-il",
-  sourceDatasets: [],
+  sourceStudies: [],
   status: ATLAS_STATUS.DRAFT,
   version: "2.0",
   wave: "3",
@@ -730,7 +730,7 @@ export const ATLAS_WITH_MISC_SOURCE_DATASETS: TestAtlas = {
   ],
   network: "adipose",
   shortName: "test-with-misc-source-datasets",
-  sourceDatasets: [
+  sourceStudies: [
     SOURCE_DATASET_PUBLIC_WITH_JOURNAL.id,
     SOURCE_DATASET_PUBLIC_WITH_PREPRINT.id,
   ],
@@ -744,7 +744,7 @@ export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_A: TestAtlas = {
   integrationLead: [],
   network: "organoid",
   shortName: "test-with-source-dataset-validations-a",
-  sourceDatasets: [
+  sourceStudies: [
     SOURCE_DATASET_PUBLISHED_WITH_HCA.id,
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id,
     SOURCE_DATASET_PUBLISHED_WITH_HCA_TITLE_MISMATCH.id,
@@ -761,7 +761,7 @@ export const ATLAS_WITH_SOURCE_DATASET_VALIDATIONS_B: TestAtlas = {
   integrationLead: [],
   network: "gut",
   shortName: "test-with-source-dataset-validations-b",
-  sourceDatasets: [
+  sourceStudies: [
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE.id,
     SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE.id,
     SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE.id,
@@ -788,7 +788,7 @@ export const INITIAL_TEST_ATLASES = [
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_DATASET =
   INITIAL_TEST_ATLASES.reduce((atlasesByDataset, atlas) => {
-    for (const datasetId of atlas.sourceDatasets) {
+    for (const datasetId of atlas.sourceStudies) {
       (atlasesByDataset[datasetId] || (atlasesByDataset[datasetId] = [])).push(
         atlas
       );

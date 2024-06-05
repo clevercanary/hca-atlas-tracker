@@ -16,7 +16,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestPublishedSourceDataset, TestUser } from "../testing/entities";
+import { TestPublishedSourceStudy, TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -136,7 +136,7 @@ async function doDatasetsRequest(
 
 function expectDatasetPropertiesToMatch(
   apiDataset: HCAAtlasTrackerSourceStudy | undefined,
-  testDataset: TestPublishedSourceDataset
+  testDataset: TestPublishedSourceStudy
 ): void {
   expect(apiDataset).toBeDefined();
   if (!apiDataset) return;

@@ -23,7 +23,7 @@ import {
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestAtlas, TestSourceDataset } from "../testing/entities";
+import { TestAtlas, TestSourceStudy } from "../testing/entities";
 
 type ExpectedValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
@@ -378,7 +378,7 @@ describe("getSourceDatasetValidationResults", () => {
 });
 
 async function testValidations(
-  testDataset: TestSourceDataset,
+  testDataset: TestSourceStudy,
   testAtlases: TestAtlas[],
   expectedValidationProperties: ExpectedValidationProperties[]
 ): Promise<void> {

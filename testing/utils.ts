@@ -10,7 +10,7 @@ import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
 } from "./constants";
-import { TestAtlas, TestSourceDataset, TestUser } from "./entities";
+import { TestAtlas, TestSourceStudy, TestUser } from "./entities";
 
 export function makeTestUser(
   nameId: string,
@@ -42,7 +42,7 @@ export function makeTestAtlasOverview(
 }
 
 export function makeTestSourceDatasetOverview(
-  dataset: TestSourceDataset
+  dataset: TestSourceStudy
 ):
   | HCAAtlasTrackerDBPublishedSourceStudyInfo
   | HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
