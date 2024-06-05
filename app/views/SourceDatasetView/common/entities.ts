@@ -1,6 +1,6 @@
 import { InferType } from "yup";
-import { sourceDatasetEditSchema } from "./schema";
+import { sourceStudyEditSchema } from "./schema";
 
-export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
+export type SourceStudyEditData = InferType<typeof sourceStudyEditSchema>;
 
-export type SourceDatasetEditDataKeys = keyof SourceDatasetEditData;
+export type SourceStudyEditDataKeys = keyof SourceStudyEditData;

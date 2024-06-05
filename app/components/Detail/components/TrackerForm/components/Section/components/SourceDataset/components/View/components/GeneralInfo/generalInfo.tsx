@@ -13,7 +13,7 @@ import { FormManager } from "../../../../../../../../../../../../hooks/useFormMa
 import { getDOILink } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { PUBLICATION_STATUS } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceDatasetView/common/constants";
-import { SourceDatasetEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
+import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import { Tabs } from "../../../../../../../Tabs/tabs";
@@ -28,7 +28,7 @@ import { SectionCard, SectionContent } from "./generalInfo.styles";
 
 export interface GeneralInfoProps {
   formManager: FormManager;
-  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>;
+  formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>;
   sdPublicationStatus: PUBLICATION_STATUS;
 }
 

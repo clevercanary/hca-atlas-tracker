@@ -4,7 +4,7 @@ import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceDatasetView/common/constants";
-import { SourceDatasetEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
+import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import { CapId } from "../../../../../../../../../../../Form/components/Input/components/CapId/capId";
@@ -17,7 +17,7 @@ import {
 import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 
 export interface IdentifiersProps {
-  formMethod: FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>;
+  formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>;
 }
 
 export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {

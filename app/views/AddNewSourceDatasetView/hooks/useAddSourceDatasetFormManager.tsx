@@ -17,14 +17,14 @@ import {
   UNPUBLISHED_FIELDS,
 } from "../common/constants";
 import {
-  NewSourceDatasetData,
-  NewSourceDatasetDataKeys,
+  NewSourceStudyData,
+  NewSourceStudyDataKeys,
   PUBLICATION_STATUS,
 } from "../common/entities";
 
 export const useAddSourceDatasetFormManager = (
   atlasId: AtlasId,
-  formMethod: FormMethod<NewSourceDatasetData, HCAAtlasTrackerSourceStudy>
+  formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>
 ): FormManager => {
   const { onSubmit, unregister, watch } = formMethod;
   const publicationStatus = watch(FIELD_NAME.PUBLICATION_STATUS);
@@ -38,7 +38,7 @@ export const useAddSourceDatasetFormManager = (
   );
 
   const onSave = useCallback(
-    (payload: NewSourceDatasetData, url?: string) => {
+    (payload: NewSourceStudyData, url?: string) => {
       unregister(unregisterSchemaFields(payload));
       onSubmit(
         getRequestURL(API.CREATE_ATLAS_SOURCE_DATASET, atlasId),
@@ -60,13 +60,13 @@ export const useAddSourceDatasetFormManager = (
  * @param payload - Payload.
  * @returns filtered payload (payload without the publication status).
  */
-function filterPayload(payload: NewSourceDatasetData): NewSourceDatasetData {
+function filterPayload(payload: NewSourceStudyData): NewSourceStudyData {
   return Object.entries(payload).reduce((acc, [key, value]) => {
     if (key !== FIELD_NAME.PUBLICATION_STATUS) {
       return { ...acc, [key]: value };
     }
     return acc;
-  }, {} as NewSourceDatasetData);
+  }, {} as NewSourceStudyData);
 }
 
 /**
@@ -76,7 +76,7 @@ function filterPayload(payload: NewSourceDatasetData): NewSourceDatasetData {
  */
 function getSchemaFields(
   publicationStatus: PUBLICATION_STATUS
-): NewSourceDatasetDataKeys[] {
+): NewSourceStudyDataKeys[] {
   if (publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
     return PUBLISHED_FIELDS;
   }
@@ -90,7 +90,7 @@ function getSchemaFields(
  * @returns true if the form is dirty.
  */
 function isFormDirty(
-  formMethod: FormMethod<NewSourceDatasetData, HCAAtlasTrackerSourceStudy>,
+  formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>,
   publicationStatus: PUBLICATION_STATUS
 ): boolean {
   const {
@@ -116,9 +116,9 @@ function onSuccess(atlasId: string, sourceStudyId: string, url?: string): void {
  * @returns fields to be unregistered.
  */
 function unregisterSchemaFields(
-  payload: NewSourceDatasetData
-): NewSourceDatasetDataKeys[] {
-  const fieldKeys: NewSourceDatasetDataKeys[] = [];
+  payload: NewSourceStudyData
+): NewSourceStudyDataKeys[] {
+  const fieldKeys: NewSourceStudyDataKeys[] = [];
   if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
     fieldKeys.push(...UNPUBLISHED_FIELDS);
   } else {

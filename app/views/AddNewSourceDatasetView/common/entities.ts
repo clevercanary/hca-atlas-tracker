@@ -1,9 +1,9 @@
 import { InferType } from "yup";
-import { newSourceDatasetSchema } from "./schema";
+import { newSourceStudySchema } from "./schema";
 
-export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
+export type NewSourceStudyData = InferType<typeof newSourceStudySchema>;
 
-export type NewSourceDatasetDataKeys = keyof NewSourceDatasetData;
+export type NewSourceStudyDataKeys = keyof NewSourceStudyData;
 
 export enum PUBLICATION_STATUS {
   PUBLISHED = 1,

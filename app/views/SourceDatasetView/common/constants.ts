@@ -3,7 +3,7 @@ import {
   PUBLISHED_FIELDS as NEW_SOURCE_DATASET_PUBLISHED_FIELDS,
   UNPUBLISHED_FIELDS as NEW_SOURCE_DATASET_UNPUBLISHED_FIELDS,
 } from "../../AddNewSourceDatasetView/common/constants";
-import { SourceDatasetEditDataKeys } from "./entities";
+import { SourceStudyEditDataKeys } from "./entities";
 
 export const FIELD_NAME = {
   ...NEW_SOURCE_DATASET_FIELD_NAME,
@@ -12,14 +12,14 @@ export const FIELD_NAME = {
   HCA_PROJECT_ID: "hcaProjectId",
 } as const;
 
-export const PUBLISHED_FIELDS: SourceDatasetEditDataKeys[] = [
+export const PUBLISHED_FIELDS: SourceStudyEditDataKeys[] = [
   ...NEW_SOURCE_DATASET_PUBLISHED_FIELDS,
   FIELD_NAME.CAP_ID,
   FIELD_NAME.CELLXGENE_COLLECTION_ID,
   FIELD_NAME.HCA_PROJECT_ID,
 ];
 
-export const UNPUBLISHED_FIELDS: SourceDatasetEditDataKeys[] = [
+export const UNPUBLISHED_FIELDS: SourceStudyEditDataKeys[] = [
   ...NEW_SOURCE_DATASET_UNPUBLISHED_FIELDS,
   FIELD_NAME.CELLXGENE_COLLECTION_ID,
   FIELD_NAME.HCA_PROJECT_ID,

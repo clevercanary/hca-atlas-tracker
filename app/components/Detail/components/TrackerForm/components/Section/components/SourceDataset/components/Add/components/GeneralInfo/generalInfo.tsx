@@ -5,7 +5,7 @@ import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/co
 import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/constants";
 import {
-  NewSourceDatasetData,
+  NewSourceStudyData,
   PUBLICATION_STATUS,
 } from "../../../../../../../../../../../../views/AddNewSourceDatasetView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
@@ -21,7 +21,7 @@ import { SectionCard, SectionContent } from "./generalInfo.styles";
 
 export interface GeneralInfoProps {
   formManager: FormManager;
-  formMethod: FormMethod<NewSourceDatasetData, HCAAtlasTrackerSourceStudy>;
+  formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>;
 }
 
 export const GeneralInfo = ({

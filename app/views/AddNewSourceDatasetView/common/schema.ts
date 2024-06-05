@@ -3,7 +3,7 @@ import { isDoi } from "../../../utils/doi";
 import { FIELD_NAME } from "./constants";
 import { PUBLICATION_STATUS } from "./entities";
 
-export const newSourceDatasetSchema = object({
+export const newSourceStudySchema = object({
   [FIELD_NAME.CONTACT_EMAIL]: string()
     .default("")
     .when(FIELD_NAME.PUBLICATION_STATUS, {

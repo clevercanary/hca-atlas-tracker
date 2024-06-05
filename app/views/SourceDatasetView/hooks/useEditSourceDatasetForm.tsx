@@ -12,17 +12,17 @@ import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { PUBLICATION_STATUS } from "../../AddNewSourceDatasetView/common/entities";
 import { FIELD_NAME } from "../common/constants";
-import { SourceDatasetEditData } from "../common/entities";
-import { sourceDatasetEditSchema } from "../common/schema";
+import { SourceStudyEditData } from "../common/entities";
+import { sourceStudyEditSchema } from "../common/schema";
 
-const SCHEMA = sourceDatasetEditSchema;
+const SCHEMA = sourceStudyEditSchema;
 
 export const useEditSourceDatasetForm = (
   atlasId: AtlasId,
   sourceStudyId: SourceStudyId
-): FormMethod<SourceDatasetEditData, HCAAtlasTrackerSourceStudy> => {
+): FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy> => {
   const { sourceDataset } = useFetchSourceDataset(atlasId, sourceStudyId);
-  return useForm<SourceDatasetEditData, HCAAtlasTrackerSourceStudy>(
+  return useForm<SourceStudyEditData, HCAAtlasTrackerSourceStudy>(
     SCHEMA,
     sourceDataset,
     mapSchemaValues
@@ -67,7 +67,7 @@ export function mapPublicationStatus(doi?: string | null): PUBLICATION_STATUS {
  */
 function mapSchemaValues(
   sourceDataset?: HCAAtlasTrackerSourceStudy
-): SourceDatasetEditData | undefined {
+): SourceStudyEditData | undefined {
   if (!sourceDataset) return;
   return {
     [FIELD_NAME.CAP_ID]: sourceDataset.capId ?? "",

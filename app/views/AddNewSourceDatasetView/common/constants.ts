@@ -1,4 +1,4 @@
-import { NewSourceDatasetDataKeys } from "./entities";
+import { NewSourceStudyDataKeys } from "./entities";
 
 export const FIELD_NAME = {
   CONTACT_EMAIL: "contactEmail",
@@ -8,9 +8,9 @@ export const FIELD_NAME = {
   TITLE: "title",
 } as const;
 
-export const PUBLISHED_FIELDS: NewSourceDatasetDataKeys[] = [FIELD_NAME.DOI];
+export const PUBLISHED_FIELDS: NewSourceStudyDataKeys[] = [FIELD_NAME.DOI];
 
-export const UNPUBLISHED_FIELDS: NewSourceDatasetDataKeys[] = [
+export const UNPUBLISHED_FIELDS: NewSourceStudyDataKeys[] = [
   FIELD_NAME.CONTACT_EMAIL,
   FIELD_NAME.REFERENCE_AUTHOR,
   FIELD_NAME.TITLE,
