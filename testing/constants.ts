@@ -80,21 +80,21 @@ export const DOI_PUBLIC_WITH_JOURNAL = "10.123/public-with-journal";
 export const DOI_PUBLIC_WITH_JOURNAL_JOURNAL =
   "10.123/public-with-journal-journal";
 
-export const DOI_DRAFT_OK = "10.123/sd-draft-ok";
+export const DOI_DRAFT_OK = "10.123/draft-ok";
 
-export const DOI_PUBLISHED_WITH_HCA = "10.123/sd-published-with-hca";
+export const DOI_PUBLISHED_WITH_HCA = "10.123/published-with-hca";
 
 export const DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
-  "10.123/sd-published-with-hca-title-mismatch";
+  "10.123/published-with-hca-title-mismatch";
 
 export const DOI_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH =
-  "10.123/sd-published-with-hca-title-near-match";
+  "10.123/published-with-hca-title-near-match";
 
 export const DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
-  "10.123/sd-published-with-no-hca-primary-data";
+  "10.123/published-with-no-hca-primary-data";
 
 export const DOI_PUBLISHED_WITH_CAP_AND_CELLXGENE =
-  "10.123/sd-published-with-cap-and-cellxgene";
+  "10.123/published-with-cap-and-cellxgene";
 
 // PUBLICATIONS
 
@@ -468,14 +468,14 @@ export const SOURCE_DATASET_DRAFT_OK: TestPublishedSourceStudy = {
 };
 
 export const SOURCE_DATASET_DRAFT_NO_CROSSREF: TestPublishedSourceStudy = {
-  doi: "10.123/sd-draft-no-crossref",
+  doi: "10.123/draft-no-crossref",
   doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "ee67ddcb-e5d8-4240-a8ef-c945657c3321",
   publication: null,
 };
 
 export const SOURCE_DATASET_PUBLIC_NO_CROSSREF: TestPublishedSourceStudy = {
-  doi: "10.123/sd-public-no-crossref",
+  doi: "10.123/public-no-crossref",
   doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "dae11387-d0c2-4160-8f2e-0be27a3a551a",
   publication: null,
@@ -496,7 +496,7 @@ export const SOURCE_DATASET_PUBLIC_WITH_JOURNAL: TestPublishedSourceStudy = {
 };
 
 export const SOURCE_DATASET_SHARED: TestPublishedSourceStudy = {
-  doi: "10.123/sd-shared",
+  doi: "10.123/shared",
   doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
   id: "b5051dd0-a321-46e9-8728-4a7e1082b3e3",
   publication: null,
@@ -595,7 +595,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: TestPublishedSou
 
 export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSourceStudy =
   {
-    doi: "10.123/sd-published-with-no-hca-or-cellxgene",
+    doi: "10.123/published-with-no-hca-or-cellxgene",
     doiStatus: DOI_STATUS.OK,
     id: "40a569a7-d4a2-4331-9599-5d95a7f09ad5",
     publication: {
@@ -615,7 +615,7 @@ export const SOURCE_DATASET_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSou
 
 export const SOURCE_DATASET_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: TestPublishedSourceStudy =
   {
-    doi: "10.123/sd-published-with-cap-and-no-cellxgene",
+    doi: "10.123/published-with-cap-and-no-cellxgene",
     doiStatus: DOI_STATUS.OK,
     id: "0461d2ee-e41c-4f91-97a2-fcb0cb62d6d9",
     publication: {
