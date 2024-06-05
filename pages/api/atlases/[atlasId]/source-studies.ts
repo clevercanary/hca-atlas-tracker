@@ -23,7 +23,7 @@ export default handler(
       res.status(404).end();
       return;
     }
-    const sourceDatasets =
+    const sourceStudies =
       atlas.source_studies.length === 0
         ? []
         : (
@@ -32,6 +32,6 @@ export default handler(
               [atlas.source_studies]
             )
           ).rows;
-    res.json(sourceDatasets.map(dbSourceStudyToApiSourceStudy));
+    res.json(sourceStudies.map(dbSourceStudyToApiSourceStudy));
   }
 );

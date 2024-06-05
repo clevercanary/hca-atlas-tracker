@@ -17,7 +17,7 @@ export const DropdownMenu = ({
     <MoreDropdownMenu disabled={isDirty}>
       {({ closeMenu }): JSX.Element[] => [
         <MenuItem
-          key="delete-source-dataset"
+          key="delete-source-study"
           onClick={(): void => {
             closeMenu();
             onDelete?.();

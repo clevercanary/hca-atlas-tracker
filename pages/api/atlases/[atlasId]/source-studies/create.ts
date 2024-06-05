@@ -6,7 +6,7 @@ import { METHOD } from "../../../../../app/common/entities";
 import { handler, method, role } from "../../../../../app/utils/api-handler";
 
 /**
- * API route for creating a source dataset. Source dataset information is provided as a JSON body.
+ * API route for creating a source study. Source study information is provided as a JSON body.
  */
 export default handler(
   method(METHOD.POST),

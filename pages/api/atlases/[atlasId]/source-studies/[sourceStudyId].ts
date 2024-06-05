@@ -44,7 +44,7 @@ const getHandler = handler(
 
     if (queryResult.rows.length === 0)
       throw new NotFoundError(
-        `Source dataset with ID ${sourceStudyId} doesn't exist`
+        `Source study with ID ${sourceStudyId} doesn't exist`
       );
 
     res.json(dbSourceStudyToApiSourceStudy(queryResult.rows[0]));

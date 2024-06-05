@@ -45,7 +45,7 @@ export const GeneralInfo = ({
   const {
     clearErrors,
     control,
-    data: sourceDataset,
+    data: sourceStudy,
     formState: { errors },
     setValue,
     watch,
@@ -89,10 +89,10 @@ export const GeneralInfo = ({
                   <Input
                     {...field}
                     {...DEFAULT_INPUT_PROPS.DOI}
-                    endAdornment={renderDoiEndAdornment(sourceDataset)}
+                    endAdornment={renderDoiEndAdornment(sourceStudy)}
                     error={Boolean(errors[FIELD_NAME.DOI])}
                     helperText={renderDoiHelperText(
-                      sourceDataset,
+                      sourceStudy,
                       errors[FIELD_NAME.DOI]?.message
                     )}
                     isFilled={Boolean(field.value)}
@@ -189,13 +189,13 @@ export const GeneralInfo = ({
 
 /**
  * Renders the end adornment for the Publication DOI input.
- * @param sourceDataset - Source dataset.
+ * @param sourceStudy - Source study.
  * @returns end adornment.
  */
 function renderDoiEndAdornment(
-  sourceDataset: HCAAtlasTrackerSourceStudy | undefined
+  sourceStudy: HCAAtlasTrackerSourceStudy | undefined
 ): JSX.Element | undefined {
-  switch (sourceDataset?.doiStatus) {
+  switch (sourceStudy?.doiStatus) {
     case DOI_STATUS.DOI_NOT_ON_CROSSREF:
       return <ErrorIcon color="error" fontSize="small" />;
     case DOI_STATUS.NA:
@@ -209,14 +209,14 @@ function renderDoiEndAdornment(
 
 /**
  * Renders the helper text for the publication DOI input.
- * @param sourceDataset - Source dataset.
+ * @param sourceStudy - Source study.
  * @param errorMessage - Error message.
  * @returns helper text.
  */
 function renderDoiHelperText(
-  sourceDataset: HCAAtlasTrackerSourceStudy | undefined,
+  sourceStudy: HCAAtlasTrackerSourceStudy | undefined,
   errorMessage: string | undefined
 ): string | undefined {
   if (errorMessage) return errorMessage;
-  return getSourceStudyCitation(sourceDataset);
+  return getSourceStudyCitation(sourceStudy);
 }

@@ -8,7 +8,7 @@ import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/co
 import { ROUTE } from "../../../routes/constants";
 
 /**
- * Returns the breadcrumbs for the create source dataset view.
+ * Returns the breadcrumbs for the create source study view.
  * @param atlasId - Atlas ID.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
@@ -30,7 +30,7 @@ export function getBreadcrumbs(
     },
     {
       path: "",
-      text: "Add Source Dataset",
+      text: "Add Source Study",
     },
   ];
 }

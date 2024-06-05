@@ -12,13 +12,13 @@ import { ROUTE } from "../../../routes/constants";
  * Returns the breadcrumbs for the atlas view.
  * @param atlasId - Atlas ID.
  * @param atlas - Atlas.
- * @param sourceDataset - Source dataset.
+ * @param sourceStudy - Source study.
  * @returns breadcrumbs.
  */
 export function getBreadcrumbs(
   atlasId: AtlasId,
   atlas?: HCAAtlasTrackerAtlas,
-  sourceDataset?: HCAAtlasTrackerSourceStudy
+  sourceStudy?: HCAAtlasTrackerSourceStudy
 ): Breadcrumb[] {
   return [
     {
@@ -29,11 +29,11 @@ export function getBreadcrumbs(
     {
       path: getRouteURL(ROUTE.SOURCE_STUDIES, atlasId),
       route: ROUTE.SOURCE_STUDIES,
-      text: atlas ? getAtlasName(atlas) : "Source Datasets",
+      text: atlas ? getAtlasName(atlas) : "Source Studies",
     },
     {
       path: "",
-      text: sourceDataset?.title || "Source Dataset",
+      text: sourceStudy?.title || "Source Study",
     },
   ];
 }

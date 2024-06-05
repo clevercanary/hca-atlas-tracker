@@ -60,7 +60,7 @@ export const SourceStudyView = ({
             sdPublicationStatus={mapPublicationStatus(doi)}
           />
         }
-        title={sourceStudy?.title || "Source Dataset"}
+        title={sourceStudy?.title || "Source Study"}
       />
     </ConditionalComponent>
   );
