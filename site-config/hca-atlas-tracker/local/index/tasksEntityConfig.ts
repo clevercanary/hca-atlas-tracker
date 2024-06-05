@@ -82,7 +82,7 @@ export const tasksEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
           },
         ],
-        label: "Dataset",
+        label: "Study",
       },
     ],
     key: "tasks",

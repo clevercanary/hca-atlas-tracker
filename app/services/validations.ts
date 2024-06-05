@@ -280,10 +280,10 @@ async function revalidateAllSourceStudies(): Promise<void> {
       "SELECT * FROM hat.source_studies"
     )
   ).rows;
-  for (const dataset of sourceStudies) {
+  for (const study of sourceStudies) {
     try {
       await client.query("BEGIN");
-      await updateSourceStudyValidations(dataset, client);
+      await updateSourceStudyValidations(study, client);
       await client.query("COMMIT");
     } catch (e) {
       await client.query("ROLLBACK");

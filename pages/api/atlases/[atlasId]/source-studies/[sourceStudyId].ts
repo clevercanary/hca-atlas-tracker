@@ -56,12 +56,12 @@ const putHandler = handler(
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const sourceStudyId = req.query.sourceStudyId as string;
-    const newDataset = await updateSourceStudy(
+    const newStudy = await updateSourceStudy(
       atlasId,
       sourceStudyId,
       await sourceStudyEditSchema.validate(req.body)
     );
-    res.json(dbSourceStudyToApiSourceStudy(newDataset));
+    res.json(dbSourceStudyToApiSourceStudy(newStudy));
   }
 );
 

@@ -13,10 +13,10 @@ export default handler(
   role(ROLE.CONTENT_ADMIN), // Since the route is restricted to content admins, there are no additional permissions checks
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
-    const newDataset = await createSourceStudy(
+    const newStudy = await createSourceStudy(
       atlasId,
       await newSourceStudySchema.validate(req.body)
     );
-    res.status(201).json(dbSourceStudyToApiSourceStudy(newDataset));
+    res.status(201).json(dbSourceStudyToApiSourceStudy(newStudy));
   }
 );

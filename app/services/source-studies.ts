@@ -46,12 +46,12 @@ export async function createSourceStudy(
   const client = await getPoolClient();
   try {
     await client.query("BEGIN");
-    // If dataset already exists, add that instead
-    const existingDataset = await getExistingDataset(inputData, client);
-    if (existingDataset) {
+    // If study already exists, add that instead
+    const existingStudy = await getExistingStudy(inputData, client);
+    if (existingStudy) {
       const queryResult = await client.query(
         "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2 AND NOT source_studies @> $1",
-        [JSON.stringify([existingDataset.id]), atlasId]
+        [JSON.stringify([existingStudy.id]), atlasId]
       );
       if (queryResult.rowCount === 0)
         throw new ValidationError(
@@ -59,13 +59,13 @@ export async function createSourceStudy(
           undefined,
           "doi"
         );
-      await updateSourceStudyValidations(existingDataset, client);
+      await updateSourceStudyValidations(existingStudy, client);
       await client.query("COMMIT");
-      return existingDataset;
+      return existingStudy;
     }
     // Add the new source study
     const newInfo = await sourceStudyInputDataToDbData(inputData);
-    const newDataset = (
+    const newStudy = (
       await client.query<HCAAtlasTrackerDBSourceStudy>(
         "INSERT INTO hat.source_studies (doi, study_info) VALUES ($1, $2) RETURNING *",
         [newInfo.doi, JSON.stringify(newInfo.study_info)]
@@ -74,11 +74,11 @@ export async function createSourceStudy(
     // Update the atlas's list of source studies
     await client.query(
       "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2",
-      [JSON.stringify([newDataset.id]), atlasId]
+      [JSON.stringify([newStudy.id]), atlasId]
     );
-    await updateSourceStudyValidations(newDataset, client);
+    await updateSourceStudyValidations(newStudy, client);
     await client.query("COMMIT");
-    return newDataset;
+    return newStudy;
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -93,7 +93,7 @@ export async function createSourceStudy(
  * @param client - Postgres client.
  * @returns existing source study or null.
  */
-async function getExistingDataset(
+async function getExistingStudy(
   inputData: NewSourceStudyData,
   client: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceStudy | null> {
@@ -139,13 +139,13 @@ export async function updateSourceStudy(
         `Source study with ID ${sourceStudyId} doesn't exist`
       );
 
-    const newDataset = queryResult.rows[0];
+    const newStudy = queryResult.rows[0];
 
-    await updateSourceStudyValidations(newDataset, client);
+    await updateSourceStudyValidations(newStudy, client);
 
     await client.query("COMMIT");
 
-    return newDataset;
+    return newStudy;
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
