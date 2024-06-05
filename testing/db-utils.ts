@@ -25,7 +25,7 @@ export async function resetDatabase(): Promise<void> {
   await runMigrations("up", client);
   await initDatabaseEntries(client);
   client.release();
-  pool.end();
+  await pool.end();
   consoleInfoSpy.mockRestore();
 }
 
