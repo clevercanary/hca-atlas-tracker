@@ -4,7 +4,7 @@ import {
   HCAAtlasTrackerDBComponentAtlasInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  ComponentAtlasUpdateData,
+  ComponentAtlasEditData,
   NewComponentAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { atlasExists } from "./atlases";
@@ -75,7 +75,7 @@ export async function createComponentAtlas(
 export async function updateComponentAtlas(
   atlasId: string,
   componentAtlasId: string,
-  inputData: ComponentAtlasUpdateData
+  inputData: ComponentAtlasEditData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   const info = await componentAtlasInputDataToDbData(inputData);
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
@@ -93,7 +93,7 @@ export async function updateComponentAtlas(
  * @returns database model of values needed to define a component atlas.
  */
 async function componentAtlasInputDataToDbData(
-  inputData: NewComponentAtlasData | ComponentAtlasUpdateData
+  inputData: NewComponentAtlasData | ComponentAtlasEditData
 ): Promise<HCAAtlasTrackerDBComponentAtlasInfo> {
   return {
     cellxgeneDatasetId: null,

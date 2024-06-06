@@ -64,11 +64,9 @@ export type NewComponentAtlasData = InferType<typeof newComponentAtlasSchema>;
 /**
  * Schema for data used to apply edits to a component atlas.
  */
-export const componentAtlasUpdateSchema = newComponentAtlasSchema;
+export const componentAtlasEditSchema = newComponentAtlasSchema;
 
-export type ComponentAtlasUpdateData = InferType<
-  typeof componentAtlasUpdateSchema
->;
+export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
 
 /**
  * Create schema that combines an unpublished source study schema and a published source study schema.

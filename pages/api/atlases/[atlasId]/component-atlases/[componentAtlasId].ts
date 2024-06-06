@@ -1,7 +1,7 @@
 import { dbComponentAtlasToApiComponentAtlas } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { componentAtlasUpdateSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { componentAtlasEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../../app/common/entities";
 import {
   deleteComponentAtlas,
@@ -32,7 +32,7 @@ const patchHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
   const updatedComponentAtlas = await updateComponentAtlas(
     atlasId,
     componentAtlasId,
-    await componentAtlasUpdateSchema.validate(req.body)
+    await componentAtlasEditSchema.validate(req.body)
   );
   res
     .status(200)
