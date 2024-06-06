@@ -315,17 +315,19 @@ export const buildTaskBioNetworks = (
 export const buildTaskCounts = (
   atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Link> => {
-  const urlFilters: SelectedFilter[] = [
+  const filter: SelectedFilter[] = [
     {
       categoryKey: "atlasNames",
       value: [atlas.name],
     },
   ];
+  const params = { filter };
   return {
     label: `${atlas.completedTaskCount}/${atlas.taskCount}`,
-    url: `${ROUTE.TASKS}?filter=${encodeURIComponent(
-      JSON.stringify(urlFilters)
-    )}`,
+    url: {
+      href: ROUTE.TASKS,
+      query: encodeURIComponent(JSON.stringify(params)),
+    },
   };
 };
 
