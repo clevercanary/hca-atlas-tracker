@@ -7,7 +7,7 @@ import {
   ComponentAtlasEditData,
   NewComponentAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
-import { atlasExists } from "./atlases";
+import { confirmAtlasExists } from "./atlases";
 import { query } from "./database";
 
 /**
@@ -18,8 +18,7 @@ import { query } from "./database";
 export async function getAtlasComponentAtlases(
   atlasId: string
 ): Promise<HCAAtlasTrackerDBComponentAtlas[]> {
-  if (!(await atlasExists(atlasId)))
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  await confirmAtlasExists(atlasId);
   return (
     await query<HCAAtlasTrackerDBComponentAtlas>(
       "SELECT * FROM hat.component_atlases WHERE atlas_id=$1",
@@ -57,6 +56,7 @@ export async function createComponentAtlas(
   atlasId: string,
   inputData: NewComponentAtlasData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  await confirmAtlasExists(atlasId);
   const info = await componentAtlasInputDataToDbData(inputData);
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
     "INSERT INTO hat.component_atlases (atlas_id, component_info) VALUES ($1, $2) RETURNING *",

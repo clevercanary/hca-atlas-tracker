@@ -101,6 +101,15 @@ export async function updateTaskCounts(): Promise<void> {
 }
 
 /**
+ * Throw a NotFoundError if the specified atlas doesn't exist.
+ * @param atlasId - ID of the atlas to check for.
+ */
+export async function confirmAtlasExists(atlasId: string): Promise<void> {
+  if (!(await atlasExists(atlasId)))
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+}
+
+/**
  * Determine whether the atlas with the given ID exists.
  * @param atlasId - Atlas ID to check for.
  * @returns true if the atlas exists.
