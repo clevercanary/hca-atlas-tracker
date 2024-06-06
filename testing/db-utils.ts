@@ -2,6 +2,7 @@ import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidation,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -11,6 +12,7 @@ import { updateSourceStudyValidations } from "../app/services/validations";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
   INITIAL_TEST_ATLASES,
+  INITIAL_TEST_COMPONENT_ATLASES,
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
 } from "./constants";
@@ -56,6 +58,18 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
         atlas.status,
         atlas.targetCompletion ?? null,
       ]
+    );
+  }
+
+  for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
+    const info: HCAAtlasTrackerDBComponentAtlasInfo = {
+      cellxgeneDatasetId: null,
+      cellxgeneDatasetVersion: null,
+      title: componentAtlas.title,
+    };
+    await client.query(
+      "INSERT INTO hat.component_atlases (atlas_id, component_info, id) VALUES ($1, $2, $3)",
+      [componentAtlas.atlasId, info, componentAtlas.id]
     );
   }
 
