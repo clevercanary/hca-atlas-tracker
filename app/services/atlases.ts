@@ -99,3 +99,16 @@ export async function updateTaskCounts(): Promise<void> {
     WHERE a.id = counts.atlas_id;
   `);
 }
+
+/**
+ * Determine whether the atlas with the given ID exists.
+ * @param atlasId - Atlas ID to check for.
+ * @returns true if the atlas exists.
+ */
+export async function atlasExists(atlasId: string): Promise<boolean> {
+  return (
+    await query("SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE id=$1)", [
+      atlasId,
+    ])
+  ).rows[0].exists;
+}

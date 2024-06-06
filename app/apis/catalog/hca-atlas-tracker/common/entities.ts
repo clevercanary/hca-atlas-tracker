@@ -40,15 +40,10 @@ export interface HCAAtlasTrackerAtlas {
 
 export interface HCAAtlasTrackerComponentAtlas {
   atlasId: string;
-  atlasTitle: string;
-  bioNetwork: NetworkKey;
-  cellCount: number;
-  componentAtlasName: string;
-  cxgCollectionId: string;
-  cxgDatasetId: string;
-  cxgExploreUrl: string;
-  disease: string[];
-  tissue: string[];
+  cellxgeneDatasetId: string | null;
+  cellxgeneDatasetVersion: string | null;
+  id: string;
+  title: string;
 }
 
 export interface HCAAtlasTrackerNetworkCoordinator {
@@ -148,6 +143,21 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   taskCount: number;
   version: string;
   wave: Wave;
+}
+
+export interface HCAAtlasTrackerDBComponentAtlas {
+  atlas_id: string;
+  component_info: HCAAtlasTrackerDBComponentAtlasInfo;
+  created_at: Date;
+  id: string;
+  source_datasets: string[];
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBComponentAtlasInfo {
+  cellxgeneDatasetId: string | null;
+  cellxgeneDatasetVersion: string | null;
+  title: string;
 }
 
 export interface HCAAtlasTrackerDBPublishedSourceStudy {
