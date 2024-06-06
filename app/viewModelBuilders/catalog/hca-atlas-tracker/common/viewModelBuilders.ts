@@ -1,5 +1,5 @@
-import { SelectedFilter } from "@databiosphere/findable-ui/lib/common/entities";
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
+import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import {
   NETWORKS,
@@ -308,26 +308,17 @@ export const buildTaskBioNetworks = (
 };
 
 /**
- * Build props for the task counts cell component.
+ * Build props for the task counts TaskCountsCell component.
  * @param atlas - Atlas entity.
- * @returns Props to be used for the cell.
+ * @returns Props to be used for the TaskCountsCell.
  */
 export const buildTaskCounts = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Link> => {
-  const filter: SelectedFilter[] = [
-    {
-      categoryKey: "atlasNames",
-      value: [atlas.name],
-    },
-  ];
-  const params = { filter };
+): React.ComponentProps<typeof C.TaskCountsCell> => {
   return {
     label: `${atlas.completedTaskCount}/${atlas.taskCount}`,
-    url: {
-      href: ROUTE.TASKS,
-      query: encodeURIComponent(JSON.stringify(params)),
-    },
+    url: getTaskCountUrlObject(atlas),
+    value: getProgressValue(atlas.completedTaskCount, atlas.taskCount),
   };
 };
 
@@ -506,6 +497,17 @@ function getDateFromIsoString(isoString: string): string {
 }
 
 /**
+ * Returns the progress value as a percentage.
+ * @param numerator - Numerator.
+ * @param denominator - Denominator.
+ * @returns Progress value as a percentage.
+ */
+function getProgressValue(numerator: number, denominator: number): number {
+  if (denominator === 0) return 0;
+  return (numerator / denominator) * 100;
+}
+
+/**
  * Returns source study is in Cap column def.
  * @returns Column def.
  */
@@ -605,5 +607,27 @@ function getSourceStudyTitleColumnDef(
     accessorKey: "title",
     cell: ({ row }) => C.Link(buildSourceStudyTitle(atlasId, row.original)),
     header: "Title",
+  };
+}
+
+/**
+ * Returns the URL object for the task count link.
+ * @param atlas - Atlas entity.
+ * @returns URL object for the task count link.
+ */
+function getTaskCountUrlObject(
+  atlas: HCAAtlasTrackerListAtlas
+): LinkProps["url"] {
+  const params = {
+    filter: [
+      {
+        categoryKey: "atlasNames",
+        value: [atlas.name],
+      },
+    ],
+  };
+  return {
+    href: ROUTE.TASKS,
+    query: encodeURIComponent(JSON.stringify(params)),
   };
 }
