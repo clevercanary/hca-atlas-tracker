@@ -3,7 +3,9 @@ import { NETWORK_KEYS, WAVES } from "./constants";
 import {
   DOI_STATUS,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
@@ -66,6 +68,19 @@ export function dbAtlasToApiAtlas(
     title: "",
     version: dbAtlas.overview.version,
     wave: dbAtlas.overview.wave,
+  };
+}
+
+export function dbComponentAtlasToApiComponentAtlas(
+  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlas
+): HCAAtlasTrackerComponentAtlas {
+  return {
+    atlasId: dbComponentAtlas.atlas_id,
+    cellxgeneDatasetId: dbComponentAtlas.component_info.cellxgeneDatasetId,
+    cellxgeneDatasetVersion:
+      dbComponentAtlas.component_info.cellxgeneDatasetVersion,
+    id: dbComponentAtlas.id,
+    title: dbComponentAtlas.component_info.title,
   };
 }
 

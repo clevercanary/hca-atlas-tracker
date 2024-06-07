@@ -9,6 +9,7 @@ import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
 import {
   TestAtlas,
+  TestComponentAtlas,
   TestPublishedSourceStudy,
   TestUnpublishedSourceStudy,
 } from "./entities";
@@ -792,3 +793,23 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
   },
   {} as Record<string, TestAtlas[]>
 );
+
+// COMPONENT ATLASES
+
+export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
+  atlasId: ATLAS_DRAFT.id,
+  id: "b1820416-5886-4585-b0fe-7f70487331d8",
+  title: "Component Atlas Draft Foo",
+};
+
+export const COMPONENT_ATLAS_DRAFT_BAR: TestComponentAtlas = {
+  atlasId: ATLAS_DRAFT.id,
+  id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
+  title: "Component Atlas Draft Bar",
+};
+
+// Component atlases to initialize in the database before tests
+export const INITIAL_TEST_COMPONENT_ATLASES = [
+  COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_DRAFT_BAR,
+];

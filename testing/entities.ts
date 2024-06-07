@@ -30,6 +30,12 @@ export interface TestAtlas {
   wave: Wave;
 }
 
+export interface TestComponentAtlas {
+  atlasId: string;
+  id: string;
+  title: string;
+}
+
 export type TestSourceStudy =
   | TestPublishedSourceStudy
   | TestUnpublishedSourceStudy;

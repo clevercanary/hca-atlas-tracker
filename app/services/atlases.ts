@@ -99,3 +99,25 @@ export async function updateTaskCounts(): Promise<void> {
     WHERE a.id = counts.atlas_id;
   `);
 }
+
+/**
+ * Throw a NotFoundError if the specified atlas doesn't exist.
+ * @param atlasId - ID of the atlas to check for.
+ */
+export async function confirmAtlasExists(atlasId: string): Promise<void> {
+  if (!(await atlasExists(atlasId)))
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+}
+
+/**
+ * Determine whether the atlas with the given ID exists.
+ * @param atlasId - Atlas ID to check for.
+ * @returns true if the atlas exists.
+ */
+export async function atlasExists(atlasId: string): Promise<boolean> {
+  return (
+    await query("SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE id=$1)", [
+      atlasId,
+    ])
+  ).rows[0].exists;
+}
