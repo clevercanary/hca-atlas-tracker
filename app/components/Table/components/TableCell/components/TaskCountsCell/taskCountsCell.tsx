@@ -39,7 +39,7 @@ export const TaskCountsCell = ({
  * @returns circular progress color.
  */
 function getProgressColor(value = 0): CircularProgressProps["color"] {
-  if (value < 75) {
+  if (value < 50) {
     return "warning";
   }
   return "success";
