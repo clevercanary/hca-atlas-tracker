@@ -290,10 +290,10 @@ export const tasksEntityConfig: EntityConfig = {
       {
         columnPinned: true,
         componentConfig: {
-          component: C.Cell,
+          component: C.TaskDescriptionSystemCell,
           viewBuilder: V.buildTaskDescriptionSystem,
         } as ComponentConfig<
-          typeof C.Cell,
+          typeof C.TaskDescriptionSystemCell,
           HCAAtlasTrackerListValidationRecord
         >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION, // Task.
