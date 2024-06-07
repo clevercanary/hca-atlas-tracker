@@ -1,10 +1,7 @@
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import {
-  NETWORKS,
-  SYSTEM_DISPLAY_NAMES,
-} from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   AtlasId,
@@ -340,17 +337,15 @@ export const buildTaskCounts = (
 };
 
 /**
- * Build props for the Cell component.
+ * Build props for the TaskDescriptionSystemCell component.
  * @param task - Task entity.
- * @returns Props to be used for the Cell component.
+ * @returns Props to be used for the TaskDescriptionSystemCell component.
  */
 export const buildTaskDescriptionSystem = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.TaskDescriptionSystemCell> => {
   return {
-    value: `${task.description.trim().slice(0, -1)} in ${
-      SYSTEM_DISPLAY_NAMES[task.system]
-    }.`,
+    task,
   };
 };
 

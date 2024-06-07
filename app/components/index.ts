@@ -26,3 +26,4 @@ export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetwo
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
 export { SourceStudyStatusCell } from "./Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
+export { TaskDescriptionSystemCell } from "./Table/components/TableCell/components/TaskDescriptionSystemCell/taskDescriptionSystemCell";
