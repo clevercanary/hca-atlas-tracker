@@ -24,13 +24,10 @@ export const ViewSourceStudy = ({
   const {
     access: { canView },
   } = formManager;
-  const {
-    formState: { isDirty },
-  } = formMethod;
   if (!canView) return <RequestAccess />;
   return (
     <TrackerForm>
-      {isDirty && <FormManager {...formManager} />}
+      <FormManager {...formManager} />
       <Divider />
       <GeneralInfo
         formManager={formManager}

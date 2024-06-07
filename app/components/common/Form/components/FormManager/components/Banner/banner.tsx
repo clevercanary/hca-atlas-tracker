@@ -37,7 +37,7 @@ export const Banner = ({
  * The banner should be rendered if:
  * - the user has edit access to the form and,
  * - the user is not in the process of leaving the form while,
- * - the form is dirty or submitting or submitted.
+ * - the form is dirty.
  * @param formManager - Form manager.
  * @returns true if the banner should be rendered.
  */
@@ -46,8 +46,8 @@ function shouldRenderBanner(
 ): boolean {
   const {
     access: { canEdit },
-    formStatus: { isDirty, isLeaving, isSubmitted, isSubmitting },
+    formStatus: { isDirty, isLeaving },
   } = formManager;
   if (!canEdit) return false;
-  return !isLeaving && (isDirty || isSubmitting || isSubmitted);
+  return !isLeaving && isDirty;
 }
