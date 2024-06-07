@@ -303,15 +303,21 @@ export async function updateSourceStudyValidationsByEntityId(
  * @param sourceStudyId - Source study ID.
  * @param atlasId - Atlas ID.
  * @param limitToStatuses - If specified, statuses that the atlas must have.
+ * @param client - Postgres client to use.
  */
 export async function confirmSourceStudyExistsOnAtlas(
   sourceStudyId: string,
   atlasId: string,
-  limitToStatuses?: ATLAS_STATUS[]
+  limitToStatuses?: ATLAS_STATUS[],
+  client?: pg.PoolClient
 ): Promise<void> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBAtlas, "source_studies" | "status">
-  >("SELECT source_studies, status FROM hat.atlases WHERE id=$1", [atlasId]);
+  >(
+    "SELECT source_studies, status FROM hat.atlases WHERE id=$1",
+    [atlasId],
+    client
+  );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
   const { source_studies, status } = queryResult.rows[0];
