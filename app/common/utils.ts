@@ -74,42 +74,42 @@ export function isFetchStatusOk(status: number): boolean {
 }
 
 /**
- * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [sourceStudyId] with the given source study ID.
+ * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [relatedEntityId] with the given ID.
  * @param apiURL - Request URL.
  * @param atlasId - Atlas ID.
- * @param sourceStudyId - Source study ID.
+ * @param relatedEntityId - Related entity ID.
  * @returns request URL with Atlas ID.
  */
 export function getRequestURL(
   apiURL: API,
   atlasId: string,
-  sourceStudyId?: string
+  relatedEntityId?: string
 ): string {
-  if (/\[sourceStudyId]/.test(apiURL) && sourceStudyId) {
+  if (/\[sourceStudyId]|\[componentAtlasId]/.test(apiURL) && relatedEntityId) {
     return apiURL
       .replace(/\[atlasId]/, atlasId)
-      .replace(/\[sourceStudyId]/, sourceStudyId);
+      .replace(/\[sourceStudyId]|\[componentAtlasId]/, relatedEntityId);
   }
   return apiURL.replace(/\[atlasId]/, atlasId);
 }
 
 /**
- * Replaces [atlasId] in route with the given atlas ID and optionally replaces [sourceStudyId] with the given source study ID.
+ * Replaces [atlasId] in route with the given atlas ID and optionally replaces [relatedEntityId] with the given ID.
  * @param route - Route.
  * @param atlasId - Atlas ID.
- * @param sourceStudyId - Source study ID.
+ * @param relatedEntityId - Related entity ID.
  * @returns route with atlas ID.
  */
 export function getRouteURL(
   route: RouteValue,
   atlasId: string,
-  sourceStudyId?: string
+  relatedEntityId?: string
 ): string {
-  if (/\[sourceStudyId]/.test(route)) {
-    if (sourceStudyId) {
+  if (/\[sourceStudyId]|\[componentAtlasId]/.test(route)) {
+    if (relatedEntityId) {
       return (route as string)
         .replace(/\[atlasId]/, atlasId)
-        .replace(/\[sourceStudyId]/, sourceStudyId);
+        .replace(/\[sourceStudyId]|\[componentAtlasId]/, relatedEntityId);
     }
   } else {
     return (route as string).replace(/\[atlasId]/, atlasId);

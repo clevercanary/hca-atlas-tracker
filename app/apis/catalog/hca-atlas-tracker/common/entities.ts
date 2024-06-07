@@ -261,6 +261,8 @@ export interface HCAAtlasTrackerDBUser {
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
+export type ComponentAtlasId = string;
+
 export enum DOI_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",
   NA = "NA",

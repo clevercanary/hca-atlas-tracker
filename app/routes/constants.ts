@@ -1,7 +1,10 @@
 export const ROUTE = {
   ATLAS: "/atlases/[atlasId]",
   ATLASES: "/atlases",
+  COMPONENT_ATLAS: "/atlases/[atlasId]/component-atlases/[componentAtlasId]",
+  COMPONENT_ATLASES: "/atlases/[atlasId]/component-atlases",
   CREATE_ATLAS: "/atlases/create",
+  CREATE_COMPONENT_ATLAS: "/atlases/[atlasId]/component-atlases/create",
   CREATE_SOURCE_STUDY: "/atlases/[atlasId]/source-studies/create",
   LOGIN: "/login",
   OVERVIEW: "/overview",
