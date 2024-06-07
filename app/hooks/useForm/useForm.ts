@@ -50,7 +50,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
   });
   const [data, setData] = useState<R | undefined>();
-  const { setError } = formMethod;
+  const { reset, setError } = formMethod;
 
   const onError = useCallback(
     (errors: FormResponseErrors) => {
@@ -60,9 +60,14 @@ export const useForm = <T extends FieldValues, R = undefined>(
           message: messages[0],
           type: "manual",
         });
+        reset(undefined, {
+          keepDirty: true,
+          keepErrors: true,
+          keepValues: true,
+        });
       }
     },
-    [setError]
+    [reset, setError]
   );
 
   const onDelete = useCallback(
