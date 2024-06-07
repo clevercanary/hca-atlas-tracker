@@ -9,6 +9,7 @@ import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca
 import {
   AtlasId,
   ATLAS_STATUS,
+  HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceStudy,
@@ -47,6 +48,22 @@ export const buildBioNetwork = (
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: entity.bioNetwork,
+  };
+};
+
+/**
+ * Build props for the component atlas title Link component.
+ * @param atlasId - Atlas ID.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the Link component.
+ */
+export const buildComponentAtlasTitle = (
+  atlasId: AtlasId,
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.Link> => {
+  return {
+    label: componentAtlas.title,
+    url: getRouteURL(ROUTE.COMPONENT_ATLAS, atlasId, componentAtlas.id),
   };
 };
 
@@ -443,6 +460,17 @@ export const buildWave = (
 };
 
 /**
+ * Returns the table column definition model for the atlas (edit mode) component atlases table.
+ * @param atlasId - Atlas ID.
+ * @returns Table column definition.
+ */
+export function getAtlasComponentAtlasesTableColumns(
+  atlasId: AtlasId
+): ColumnDef<HCAAtlasTrackerComponentAtlas>[] {
+  return [getComponentAtlasesColumnDef(atlasId)];
+}
+
+/**
  * Returns the table column definition model for the atlas (edit mode) source studies table.
  * @param atlasId - Atlas ID.
  * @returns Table column definition.
@@ -475,6 +503,21 @@ export function getBioNetworkByKey(key: NetworkKey): Network | undefined {
  */
 export function getBioNetworkName(name: string): string {
   return name.replace(/(\sNetwork.*)/gi, "");
+}
+
+/**
+ * Returns component atlases column def.
+ * @param atlasId - Atlas ID.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasesColumnDef(
+  atlasId: AtlasId
+): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: "title",
+    cell: ({ row }) => C.Link(buildComponentAtlasTitle(atlasId, row.original)),
+    header: "Component atlases",
+  };
 }
 
 /**

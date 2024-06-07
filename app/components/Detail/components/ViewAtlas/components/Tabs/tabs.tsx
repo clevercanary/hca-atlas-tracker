@@ -25,6 +25,7 @@ export const Tabs = ({
   onNavigate = navigateToRoute,
 }: TabsProps): JSX.Element => {
   const { route } = useRouter();
+  const { sourceStudyCount } = atlas || {};
 
   const onChange = useCallback(
     (tabValue: TabValue): void => {
@@ -39,8 +40,16 @@ export const Tabs = ({
       tabs={[
         { label: "Overview", value: ROUTE.ATLAS },
         {
-          label: getSourceStudiesLabel(atlas),
+          label: getTabLabelWithCount(
+            "Source Studies",
+            atlas,
+            sourceStudyCount
+          ),
           value: ROUTE.SOURCE_STUDIES,
+        },
+        {
+          label: getTabLabelWithCount("Component Atlases", atlas),
+          value: ROUTE.COMPONENT_ATLASES,
         },
       ]}
       value={route}
@@ -49,13 +58,17 @@ export const Tabs = ({
 };
 
 /**
- * Returns source studies label with datasets count.
+ * Returns tab label with count.
+ * @param label - Label.
  * @param atlas - Atlas.
- * @returns source studies label.
+ * @param count - Count.
+ * @returns tab label with count.
  */
-function getSourceStudiesLabel(atlas?: HCAAtlasTrackerAtlas): ReactNode {
-  if (!atlas) return "Source Studies";
-  return atlas.sourceStudyCount
-    ? `Source Studies (${atlas.sourceStudyCount})`
-    : "Source Studies";
+function getTabLabelWithCount(
+  label: string,
+  atlas?: HCAAtlasTrackerAtlas,
+  count?: number
+): ReactNode {
+  if (!atlas) return label;
+  return count ? `${label} (${count})` : label;
 }

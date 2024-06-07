@@ -25,11 +25,11 @@ export const getServerSideProps: GetServerSideProps = async (
   };
 };
 
-const SourceStudiesPage = ({
+const SourceStudyPage = ({
   atlasId,
   sourceStudyId,
 }: SourceStudyPageProps): JSX.Element => {
   return <SourceStudyView atlasId={atlasId} sourceStudyId={sourceStudyId} />;
 };
 
-export default SourceStudiesPage;
+export default SourceStudyPage;
