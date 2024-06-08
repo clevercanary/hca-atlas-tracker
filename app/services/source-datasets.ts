@@ -109,20 +109,23 @@ export async function updateSourceDataset(
   inputData: SourceDatasetEditData
 ): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
+  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "edit");
   const info = sourceDatasetInputDataToDbData(inputData);
   return await doTransaction(async (client) => {
     const updateResult = await client.query<
-      Pick<HCAAtlasTrackerDBSourceDataset, "id" | "sd_info">
-    >(
-      "UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2 RETURNING id, sd_info",
-      [JSON.stringify(info), sourceDatasetId]
-    );
+      Pick<HCAAtlasTrackerDBSourceDataset, "id">
+    >("UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2 RETURNING id", [
+      JSON.stringify(info),
+      sourceDatasetId,
+    ]);
     if (updateResult.rows.length === 0)
       throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
-    const dataset = updateResult.rows[0];
-    if (dataset.sd_info.cellxgeneDatasetId !== null)
-      throw new InvalidOperationError("Can't edit CELLxGENE source dataset");
-    return await getSourceDataset(atlasId, sourceStudyId, dataset.id, client);
+    return await getSourceDataset(
+      atlasId,
+      sourceStudyId,
+      updateResult.rows[0].id,
+      client
+    );
   });
 }
 
@@ -149,17 +152,14 @@ export async function deleteSourceDataset(
   sourceDatasetId: string
 ): Promise<void> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
+  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete");
   await doTransaction(async (client) => {
-    const queryResult = await client.query<
-      Pick<HCAAtlasTrackerDBSourceDataset, "sd_info">
-    >(
-      "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2 RETURNING sd_info",
+    const queryResult = await client.query(
+      "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
       [sourceDatasetId, sourceStudyId]
     );
     if (queryResult.rowCount === 0)
       throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
-    if (queryResult.rows[0].sd_info.cellxgeneDatasetId !== null)
-      throw new InvalidOperationError("Can't delete CELLxGENE dataset");
   });
 }
 
@@ -226,6 +226,27 @@ function getCellxGeneSourceDatasetInfo(
     cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
     title: cxgDataset.title,
   };
+}
+
+/**
+ * Throw an error if the given source dataset is a CELLxGENE dataset.
+ * @param sourceDatasetId - ID of the source dataset to check.
+ * @param attemptedOperationVerb - Word to use in the error message describing the operation attempted on the source dataset.
+ */
+async function confirmSourceDatasetIsNonCellxGene(
+  sourceDatasetId: string,
+  attemptedOperationVerb: string
+): Promise<void> {
+  const { is_cellxgene } = (
+    await query<{ is_cellxgene: boolean }>(
+      "SELECT NOT sd_info->'cellxgeneDatasetId' = 'null' as is_cellxgene FROM hat.source_datasets WHERE id=$1",
+      [sourceDatasetId]
+    )
+  ).rows[0];
+  if (is_cellxgene)
+    throw new InvalidOperationError(
+      `Can't ${attemptedOperationVerb} CELLxGENE source dataset`
+    );
 }
 
 function getSourceDatasetNotFoundError(
