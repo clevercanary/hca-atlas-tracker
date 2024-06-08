@@ -25,7 +25,7 @@ export async function getSourceStudyDatasets(
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.study_id = s.id WHERE s.id = $1",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE s.id = $1",
       [sourceStudyId]
     );
   return queryResult.rows;
@@ -53,7 +53,7 @@ export async function getSourceDataset(
   );
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.study_id = s.id WHERE d.id = $1",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
       [sourceDatasetId],
       client
     );
