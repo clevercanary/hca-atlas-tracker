@@ -8,7 +8,7 @@ import {
   NewSourceDatasetData,
   SourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
-import { NotFoundError } from "../utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -106,24 +106,21 @@ export async function updateSourceDataset(
   sourceDatasetId: string,
   inputData: SourceDatasetEditData
 ): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
-  // TODO disallow for CELLxGENE datasets
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   const info = sourceDatasetInputDataToDbData(inputData);
   return await doTransaction(async (client) => {
     const updateResult = await client.query<
-      Pick<HCAAtlasTrackerDBSourceDataset, "id">
-    >("UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2 RETURNING id", [
-      JSON.stringify(info),
-      sourceDatasetId,
-    ]);
+      Pick<HCAAtlasTrackerDBSourceDataset, "id" | "sd_info">
+    >(
+      "UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2 RETURNING id, sd_info",
+      [JSON.stringify(info), sourceDatasetId]
+    );
     if (updateResult.rows.length === 0)
       throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
-    return await getSourceDataset(
-      atlasId,
-      sourceStudyId,
-      updateResult.rows[0].id,
-      client
-    );
+    const dataset = updateResult.rows[0];
+    if (dataset.sd_info.cellxgeneDatasetId !== null)
+      throw new InvalidOperationError("Can't edit CELLxGENE source dataset");
+    return await getSourceDataset(atlasId, sourceStudyId, dataset.id, client);
   });
 }
 
@@ -149,14 +146,19 @@ export async function deleteSourceDataset(
   sourceStudyId: string,
   sourceDatasetId: string
 ): Promise<void> {
-  // TODO disallow for CELLxGENE datasets
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  const queryResult = await query(
-    "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
-    [sourceDatasetId, sourceStudyId]
-  );
-  if (queryResult.rowCount === 0)
-    throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
+  await doTransaction(async (client) => {
+    const queryResult = await client.query<
+      Pick<HCAAtlasTrackerDBSourceDataset, "sd_info">
+    >(
+      "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2 RETURNING sd_info",
+      [sourceDatasetId, sourceStudyId]
+    );
+    if (queryResult.rowCount === 0)
+      throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
+    if (queryResult.rows[0].sd_info.cellxgeneDatasetId !== null)
+      throw new InvalidOperationError("Can't delete CELLxGENE dataset");
+  });
 }
 
 function getSourceDatasetNotFoundError(
