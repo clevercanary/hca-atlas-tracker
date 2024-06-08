@@ -11,6 +11,7 @@ import {
   TestAtlas,
   TestComponentAtlas,
   TestPublishedSourceStudy,
+  TestSourceDataset,
   TestUnpublishedSourceStudy,
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
@@ -655,6 +656,17 @@ export const SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE: TestPublishedSourceS
     },
   };
 
+export const SOURCE_STUDY_WITH_SOURCE_DATASETS: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "aa6a5a69-7d68-4dc1-b5ac-7ef0d55fc125",
+  unpublishedInfo: {
+    contactEmail: "bazfoo@example.com",
+    referenceAuthor: "Baz Foo",
+    title: "Source Study With Source Datasets",
+  },
+};
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -671,6 +683,27 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
+  SOURCE_STUDY_WITH_SOURCE_DATASETS,
+];
+
+// SOURCE DATASETS
+
+export const SOURCE_DATASET_FOO: TestSourceDataset = {
+  id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Foo",
+};
+
+export const SOURCE_DATASET_BAR: TestSourceDataset = {
+  id: "cd053619-8b50-4e2d-ba62-96fbbcad6011",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Bar",
+};
+
+// Source datasets intitialized in the database before tests
+export const INITIAL_TEST_SOURCE_DATASETS = [
+  SOURCE_DATASET_FOO,
+  SOURCE_DATASET_BAR,
 ];
 
 // ATLASES
@@ -731,6 +764,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   sourceStudies: [
     SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
     SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id,
+    SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   ],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",

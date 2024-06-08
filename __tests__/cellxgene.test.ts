@@ -10,9 +10,11 @@ import {
 } from "../testing/constants";
 import { delay, promiseWithResolvers } from "../testing/utils";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/validations", () => ({
-  refreshValidations: jest.fn(),
+jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("../app/services/refresh-services", () => ({
+  doUpdatesIfRefreshesComplete: jest.fn(),
 }));
 
 jest.useFakeTimers({
@@ -31,6 +33,7 @@ const getCellxGeneCollections = jest
 
 jest.mock("../app/utils/cellxgene-api", () => ({
   getCellxGeneCollections,
+  getCellxGeneDatasets: jest.fn().mockResolvedValue([]), // TODO test datasets
 }));
 
 let getCellxGeneIdByDoi: typeof import("../app/services/cellxgene").getCellxGeneIdByDoi;

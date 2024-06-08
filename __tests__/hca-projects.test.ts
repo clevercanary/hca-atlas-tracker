@@ -1,5 +1,6 @@
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import { RefreshDataNotReadyError } from "../app/services/common/refresh-service";
+import { endPgPool } from "../app/services/database";
 import {
   DOI_NORMAL,
   DOI_NORMAL2,
@@ -11,7 +12,9 @@ import {
 } from "../testing/constants";
 import { delay, promiseWithResolvers } from "../testing/utils";
 
+jest.mock("../app/services/user-profile");
 jest.mock("../app/services/cellxgene");
+jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/validations", () => ({
   refreshValidations: jest.fn(),
 }));
@@ -50,6 +53,7 @@ beforeAll(async () => {
 afterAll(() => {
   consoleLogSpy.mockRestore();
   globalThis.hcaAtlasTrackerProjectsInfoCache = undefined;
+  endPgPool();
 });
 
 describe("getProjectIdByDoi", () => {

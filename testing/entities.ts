@@ -54,3 +54,9 @@ export interface TestUnpublishedSourceStudy {
   id: string;
   unpublishedInfo: HCAAtlasTrackerDBUnpublishedSourceStudyInfo["unpublishedInfo"];
 }
+
+export interface TestSourceDataset {
+  id: string;
+  sourceStudyId: string;
+  title: string;
+}
