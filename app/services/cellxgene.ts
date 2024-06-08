@@ -1,9 +1,8 @@
 import { Options as KyOptions } from "ky";
-import { getCellxGeneCollections } from "../utils/cellxgene-api";
+import { CellxGeneDataset, getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
-import { isAnyServiceRefreshing } from "./refresh-services";
-import { refreshValidations } from "./validations";
+import { doUpdatesIfRefreshesComplete } from "./refresh-services";
 
 export interface CollectionInfo {
   id: string;
@@ -41,7 +40,7 @@ const refreshService = makeRefreshService({
   },
   notReadyMessage: "DOI to CELLxGENE collection ID mapping not initialized",
   onRefreshSuccess() {
-    if (!isAnyServiceRefreshing()) refreshValidations();
+    doUpdatesIfRefreshesComplete();
   },
   refreshNeeded(data) {
     if (!data) return true;
@@ -61,6 +60,10 @@ export const isCellxGeneRefreshing = refreshService.isRefreshing;
  */
 export function getCellxGeneIdByDoi(dois: string[]): string | null {
   return getCellxGeneInfoByDoi(dois)?.id ?? null;
+}
+
+export function getCellxGeneDatasetsByCollectionId(): Map<string, CellxGeneDataset[]> {
+
 }
 
 /**

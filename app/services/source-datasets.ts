@@ -1,14 +1,17 @@
+import { CellxGeneDataset } from "app/utils/cellxgene-api";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
+  HCAAtlasTrackerDBSourceStudy,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewSourceDatasetData,
   SourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -159,6 +162,74 @@ export async function deleteSourceDataset(
     if (queryResult.rows[0].sd_info.cellxgeneDatasetId !== null)
       throw new InvalidOperationError("Can't delete CELLxGENE dataset");
   });
+}
+
+export async function updateCellxGeneSourceDatasets(): Promise<void> {
+  const existingDatasets = (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE NOT sd_info->'cellxgeneDatasetId' = 'null'"
+    )
+  ).rows;
+
+  const existingDatasetsByCxgId = new Map(
+    existingDatasets.map((dataset) => [
+      dataset.sd_info.cellxgeneDatasetId,
+      dataset,
+    ])
+  );
+
+  const sourceStudies = (
+    await query<HCAAtlasTrackerDBSourceStudy>(
+      "SELECT * FROM hat.source_studies WHEREN NOT study_info->'cellxgeneCollectionId' = 'null'"
+    )
+  ).rows;
+
+  const cxgDatasetsByCollectionId = getCellxGeneDatasetsByCollectionId();
+
+  for (const sourceStudy of sourceStudies) {
+    const collectionDatasets = cxgDatasetsByCollectionId.get(
+      sourceStudy.study_info.cellxgeneCollectionId
+    );
+
+    if (!collectionDatasets) continue;
+
+    for (const cxgDataset of collectionDatasets) {
+      const existingDataset = existingDatasetsByCxgId.get(
+        cxgDataset.dataset_id
+      );
+
+      if (
+        existingDataset?.sd_info.cellxgeneDatasetVersion ===
+        cxgDataset.dataset_version_id
+      ) {
+        continue;
+      }
+
+      const infoJson = JSON.stringify(
+        getCellxGeneSourceDatasetInfo(cxgDataset)
+      );
+
+      if (existingDataset) {
+        await query("UPDATE hat.source_datasets SET sd_info=$1", [infoJson]);
+      } else {
+        await query(
+          "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2)",
+          [infoJson, sourceStudy.id]
+        );
+      }
+    }
+  }
+}
+
+async function getCellxGeneSourceDatasetInfo(
+  cxgDataset: CellxGeneDataset
+): Promise<HCAAtlasTrackerDBSourceDatasetInfo> {
+  return {
+    cellCount: cxgDataset.cell_count,
+    cellxgeneDatasetId: cxgDataset.dataset_id,
+    cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
+    title: cxgDataset.title,
+  };
 }
 
 function getSourceDatasetNotFoundError(
