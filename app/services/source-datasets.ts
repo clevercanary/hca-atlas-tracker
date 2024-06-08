@@ -4,7 +4,6 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
-  HCAAtlasTrackerDBSourceStudy,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewSourceDatasetData,
@@ -179,15 +178,13 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
   );
 
   const sourceStudies = (
-    await query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies WHEREN NOT study_info->'cellxgeneCollectionId' = 'null'"
+    await query<{ id: string; study_info: { cellxgeneCollectionId: string } }>(
+      "SELECT id, study_info FROM hat.source_studies WHEREN NOT study_info->'cellxgeneCollectionId' = 'null'"
     )
   ).rows;
 
-  const cxgDatasetsByCollectionId = getCellxGeneDatasetsByCollectionId();
-
   for (const sourceStudy of sourceStudies) {
-    const collectionDatasets = cxgDatasetsByCollectionId.get(
+    const collectionDatasets = getCellxGeneDatasetsByCollectionId(
       sourceStudy.study_info.cellxgeneCollectionId
     );
 
