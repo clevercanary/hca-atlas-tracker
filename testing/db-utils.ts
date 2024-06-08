@@ -52,8 +52,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
     const info: HCAAtlasTrackerDBSourceDatasetInfo = {
       cellCount: 0,
-      cellxgeneDatasetId: null,
-      cellxgeneDatasetVersion: null,
+      cellxgeneDatasetId: sourceDataset.cellxgeneDatasetId ?? null,
+      cellxgeneDatasetVersion: sourceDataset.cellxgeneDatasetVersion ?? null,
       title: sourceDataset.title,
     };
     await client.query(

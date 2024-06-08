@@ -13,6 +13,7 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-studies/
 import {
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
@@ -137,6 +138,20 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     expect(sourceDataset.title).toEqual(SOURCE_DATASET_FOO.title);
   });
 
+  it("returns CELLxGENE source dataset when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.title).toEqual(
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.title
+    );
+  });
+
   it("returns error 401 when source dataset is PATCH requested from draft atlas by logged out user", async () => {
     expect(
       (
@@ -237,6 +252,23 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       )._getStatusCode()
     ).toEqual(400);
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+  });
+
+  it("returns error 400 when CELLxGENE dataset is PATCH requested", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+          SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          SOURCE_DATASET_FOO_EDIT,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE);
   });
 
   it("updates and returns source dataset when PATCH requested", async () => {
@@ -344,6 +376,23 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       )._getStatusCode()
     ).toEqual(404);
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+  });
+
+  it("returns error 400 when CELLxGENE source dataset is DELETE requested", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
+          SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE);
   });
 
   it("deletes source dataset", async () => {

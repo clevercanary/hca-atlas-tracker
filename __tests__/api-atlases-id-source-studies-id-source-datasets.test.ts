@@ -7,6 +7,8 @@ import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-studies
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   SOURCE_DATASET_BAR,
+  SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+  SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
@@ -73,10 +75,12 @@ describe("/api/atlases/[id]/source-studies/[sourceStudyId]/source-datasets", () 
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(sourceDatasets).toHaveLength(2);
+    expect(sourceDatasets).toHaveLength(4);
     expectSourceDatasetsToMatch(sourceDatasets, [
       SOURCE_DATASET_FOO,
       SOURCE_DATASET_BAR,
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
     ]);
   });
 
@@ -88,10 +92,12 @@ describe("/api/atlases/[id]/source-studies/[sourceStudyId]/source-datasets", () 
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(sourceDatasets).toHaveLength(2);
+    expect(sourceDatasets).toHaveLength(4);
     expectSourceDatasetsToMatch(sourceDatasets, [
       SOURCE_DATASET_FOO,
       SOURCE_DATASET_BAR,
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
     ]);
   });
 });

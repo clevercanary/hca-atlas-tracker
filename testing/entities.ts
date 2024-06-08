@@ -56,6 +56,8 @@ export interface TestUnpublishedSourceStudy {
 }
 
 export interface TestSourceDataset {
+  cellxgeneDatasetId?: string;
+  cellxgeneDatasetVersion?: string;
   id: string;
   sourceStudyId: string;
   title: string;
