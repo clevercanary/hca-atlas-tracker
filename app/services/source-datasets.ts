@@ -55,8 +55,8 @@ export async function getSourceDataset(
   );
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
-      [sourceDatasetId],
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1 AND s.id = $2",
+      [sourceDatasetId, sourceStudyId],
       client
     );
   if (queryResult.rows.length === 0)
