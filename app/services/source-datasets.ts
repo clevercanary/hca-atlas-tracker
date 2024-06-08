@@ -114,10 +114,10 @@ export async function updateSourceDataset(
   return await doTransaction(async (client) => {
     const updateResult = await client.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "id">
-    >("UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2 RETURNING id", [
-      JSON.stringify(info),
-      sourceDatasetId,
-    ]);
+    >(
+      "UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2 AND source_study_id=$3 RETURNING id",
+      [JSON.stringify(info), sourceDatasetId, sourceStudyId]
+    );
     if (updateResult.rows.length === 0)
       throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
     return await getSourceDataset(
@@ -153,14 +153,12 @@ export async function deleteSourceDataset(
 ): Promise<void> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete");
-  await doTransaction(async (client) => {
-    const queryResult = await client.query(
-      "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
-      [sourceDatasetId, sourceStudyId]
-    );
-    if (queryResult.rowCount === 0)
-      throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
-  });
+  const queryResult = await query(
+    "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
+    [sourceDatasetId, sourceStudyId]
+  );
+  if (queryResult.rowCount === 0)
+    throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
 }
 
 export async function updateCellxGeneSourceDatasets(): Promise<void> {
