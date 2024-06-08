@@ -179,7 +179,7 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
 
   const sourceStudies = (
     await query<{ id: string; study_info: { cellxgeneCollectionId: string } }>(
-      "SELECT id, study_info FROM hat.source_studies WHEREN NOT study_info->'cellxgeneCollectionId' = 'null'"
+      "SELECT id, study_info FROM hat.source_studies WHERE NOT study_info->'cellxgeneCollectionId' = 'null'"
     )
   ).rows;
 
@@ -201,7 +201,6 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
       ) {
         continue;
       }
-
       const infoJson = JSON.stringify(
         getCellxGeneSourceDatasetInfo(cxgDataset)
       );
@@ -218,9 +217,9 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
   }
 }
 
-async function getCellxGeneSourceDatasetInfo(
+function getCellxGeneSourceDatasetInfo(
   cxgDataset: CellxGeneDataset
-): Promise<HCAAtlasTrackerDBSourceDatasetInfo> {
+): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
     cellCount: cxgDataset.cell_count,
     cellxgeneDatasetId: cxgDataset.dataset_id,
