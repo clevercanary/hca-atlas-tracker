@@ -33,6 +33,7 @@ export interface TestAtlas {
 export interface TestComponentAtlas {
   atlasId: string;
   id: string;
+  sourceDatasets?: string[];
   title: string;
 }
 

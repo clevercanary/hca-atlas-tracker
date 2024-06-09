@@ -32,7 +32,7 @@ describe("updateCellxGeneSourceDatasets", () => {
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id
     );
 
-    expect(sourceDatasetsBefore).toHaveLength(4);
+    expect(sourceDatasetsBefore).toHaveLength(8);
 
     expectSourceDatasetToMatch(
       findSourceDatasetById(
@@ -61,7 +61,7 @@ describe("updateCellxGeneSourceDatasets", () => {
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id
     );
 
-    expect(sourceDatasetsAfter).toHaveLength(5);
+    expect(sourceDatasetsAfter).toHaveLength(9);
 
     expectSourceDatasetToMatch(
       findSourceDatasetById(
