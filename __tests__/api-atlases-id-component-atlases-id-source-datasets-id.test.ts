@@ -1,6 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerDBComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerSourceDataset,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets/[sourceDatasetId]";
@@ -13,8 +16,10 @@ import {
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
+  TEST_SOURCE_STUDIES,
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import {
@@ -40,7 +45,7 @@ afterAll(async () => {
 });
 
 describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets/[sourceDatasetId]", () => {
-  it("returns error 405 for GET request", async () => {
+  it("returns error 405 for PUT request", async () => {
     expect(
       (
         await doSourceDatasetRequest(
@@ -48,10 +53,59 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           undefined,
-          METHOD.GET
+          METHOD.PUT
         )
       )._getStatusCode()
     ).toEqual(405);
+  });
+
+  it("returns error 401 when source dataset is requested by logged out user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOOBAZ.id
+        )
+      )._getStatusCode()
+    ).toEqual(401);
+  });
+
+  it("returns error 403 when source dataset is requested by unregistered user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOOBAZ.id,
+          USER_UNREGISTERED
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns source dataset when requested by logged in user with STAKEHOLDER role", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      SOURCE_DATASET_FOOBAZ.id,
+      USER_STAKEHOLDER
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
+  });
+
+  it("returns source dataset when requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      SOURCE_DATASET_FOOBAZ.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
   });
 
   it("returns error 401 when POST requested from draft atlas by logged out user", async () => {
@@ -338,6 +392,32 @@ async function expectComponentAtlasToHaveSourceDatasets(
   expect(sourceDatasets).toHaveLength(expectedSourceDatasets.length);
   for (const expectedDataset of expectedSourceDatasets) {
     expect(sourceDatasets).toContain(expectedDataset.id);
+  }
+}
+
+function expectSourceDatasetsToMatch(
+  sourceDatasets: HCAAtlasTrackerSourceDataset[],
+  expectedTestSourceDatasets: TestSourceDataset[]
+): void {
+  for (const testSourceDataset of expectedTestSourceDatasets) {
+    const sourceDataset = sourceDatasets.find(
+      (c) => c.id === testSourceDataset.id
+    );
+    expect(sourceDataset).toBeDefined();
+    if (!sourceDataset) continue;
+    expect(sourceDataset.sourceStudyId).toEqual(
+      testSourceDataset.sourceStudyId
+    );
+    expect(sourceDataset.title).toEqual(testSourceDataset.title);
+    const sourceStudy = TEST_SOURCE_STUDIES.find(
+      (s) => s.id === testSourceDataset.sourceStudyId
+    );
+    if (sourceStudy)
+      expect(sourceDataset.sourceStudyTitle).toEqual(
+        "publication" in sourceStudy
+          ? sourceStudy.publication?.title
+          : sourceStudy.unpublishedInfo?.title ?? null
+      );
   }
 }
 

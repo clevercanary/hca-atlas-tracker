@@ -94,6 +94,43 @@ export async function getSourceDataset(
 }
 
 /**
+ * Get a source dataset of a component atlas.
+ * @param atlasId - ID of the atlas that the source dataset is accessed through.
+ * @param componentAtlasId - ID of the component atlas that the source dataset is accessed through.
+ * @param sourceDatasetId - Source dataset ID.
+ * @param client - Postgres client to use.
+ * @returns database model of the source dataset.
+ */
+export async function getComponentAtlasSourceDataset(
+  atlasId: string,
+  componentAtlasId: string,
+  sourceDatasetId: string,
+  client?: pg.PoolClient
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+  const { exists } = (
+    await query<{ exists: boolean }>(
+      "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND id=$2 AND atlas_id=$3)",
+      [sourceDatasetId, componentAtlasId, atlasId]
+    )
+  ).rows[0];
+  if (!exists)
+    throw new NotFoundError(
+      `Source dataset with ID ${sourceDatasetId} doesn't exist on component atlas with ID ${componentAtlasId} on atlas with ID ${atlasId}`
+    );
+  const queryResult =
+    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
+      [sourceDatasetId],
+      client
+    );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Source dataset with ID ${sourceDatasetId} doesn't exist`
+    );
+  return queryResult.rows[0];
+}
+
+/**
  * Create a source dataset for the given source study.
  * @param atlasId - ID of the atlas that the source study is accessed through.
  * @param sourceStudyId - Source study ID.
