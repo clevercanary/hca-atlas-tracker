@@ -189,7 +189,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
 ): Promise<void> {
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
-  const mimssingDatasetsResult = await query<{ array: string[] }>(
+  const missingDatasetsResult = await query<{ array: string[] }>(
     `
       SELECT ARRAY(
         SELECT sd_id FROM unnest($1::uuid[]) AS sd_id WHERE NOT sd_id=ANY(source_datasets)
@@ -198,10 +198,10 @@ export async function deleteSourceDatasetsFromComponentAtlas(
     [sourceDatasetIds, componentAtlasId, atlasId]
   );
 
-  if (mimssingDatasetsResult.rows.length === 0)
+  if (missingDatasetsResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
 
-  const missingDatasets = mimssingDatasetsResult.rows[0].array;
+  const missingDatasets = missingDatasetsResult.rows[0].array;
 
   if (missingDatasets.length !== 0)
     throw new InvalidOperationError(
