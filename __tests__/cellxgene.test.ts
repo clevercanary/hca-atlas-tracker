@@ -1,5 +1,8 @@
 import { RefreshDataNotReadyError } from "../app/services/common/refresh-service";
-import { CellxGeneCollection } from "../app/utils/cellxgene-api";
+import {
+  CellxGeneCollection,
+  CellxGeneDataset,
+} from "../app/utils/cellxgene-api";
 import {
   CELLXGENE_ID_NORMAL,
   CELLXGENE_ID_NORMAL2,
@@ -22,6 +25,7 @@ jest.useFakeTimers({
 });
 
 let [getCollectionsBlock, resolveGetCollections] = promiseWithResolvers<void>();
+const [getDatasetsBlock, resolveGetDatasets] = promiseWithResolvers<void>();
 let cellxgeneCollections = TEST_CELLXGENE_COLLECTIONS_A;
 
 const getCellxGeneCollections = jest
@@ -31,9 +35,16 @@ const getCellxGeneCollections = jest
     return cellxgeneCollections;
   });
 
+const getCellxGeneDatasets = jest
+  .fn()
+  .mockImplementation(async (): Promise<CellxGeneDataset[]> => {
+    await getDatasetsBlock;
+    return [];
+  });
+
 jest.mock("../app/utils/cellxgene-api", () => ({
   getCellxGeneCollections,
-  getCellxGeneDatasets: jest.fn().mockResolvedValue([]), // TODO test datasets
+  getCellxGeneDatasets,
 }));
 
 let getCellxGeneIdByDoi: typeof import("../app/services/cellxgene").getCellxGeneIdByDoi;
@@ -52,14 +63,22 @@ afterAll(() => {
 });
 
 describe("getCellxGeneIdByDoi", () => {
-  it("Throws RefreshDataNotReadyError when called before CELLxGENE collections are initially fetched", () => {
+  it("Throws RefreshDataNotReadyError when called before CELLxGENE data is initially fetched", () => {
+    expect(() => getCellxGeneIdByDoi([DOI_NORMAL])).toThrow(
+      RefreshDataNotReadyError
+    );
+  });
+
+  it("Throws RefreshDataNotReadyError when called after collections initially resolve but datasets have not resolved", async () => {
+    resolveGetCollections();
+    await delay();
     expect(() => getCellxGeneIdByDoi([DOI_NORMAL])).toThrow(
       RefreshDataNotReadyError
     );
   });
 
   it("Returns ID for project in initial catalog", async () => {
-    resolveGetCollections();
+    resolveGetDatasets();
     await delay();
     expect(getCellxGeneIdByDoi([DOI_NORMAL])).toEqual(CELLXGENE_ID_NORMAL);
   });
