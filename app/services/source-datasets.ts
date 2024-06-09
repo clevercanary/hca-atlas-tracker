@@ -204,7 +204,10 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
       );
 
       if (existingDataset) {
-        await query("UPDATE hat.source_datasets SET sd_info=$1", [infoJson]);
+        await query("UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2", [
+          infoJson,
+          existingDataset.id,
+        ]);
       } else {
         await query(
           "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2)",
