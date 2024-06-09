@@ -483,6 +483,8 @@ export const CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE =
 
 export const CELLXGENE_ID_DATASET_WITH_UPDATE = "cellxgene-dataset-with-update";
 
+export const CELLXGENE_ID_DATASET_NEW = "cellxgene-dataset-new";
+
 export const CELLXGENE_DATASET_WITHOUT_UPDATE: CellxGeneDataset = {
   cell_count: 123,
   collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
@@ -499,10 +501,22 @@ export const CELLXGENE_DATASET_WITH_UPDATE_UPDATED: CellxGeneDataset = {
   title: "Dataset With Update Updated",
 };
 
+export const CELLXGENE_DATASET_NEW: CellxGeneDataset = {
+  cell_count: 789,
+  collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
+  dataset_id: CELLXGENE_ID_DATASET_NEW,
+  dataset_version_id: "cellxgene-version-dataset-new",
+  title: "Dataset New",
+};
+
 export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
   [
     CELLXGENE_ID_WITH_SOURCE_DATASETS,
-    [CELLXGENE_DATASET_WITHOUT_UPDATE, CELLXGENE_DATASET_WITH_UPDATE_UPDATED],
+    [
+      CELLXGENE_DATASET_WITHOUT_UPDATE,
+      CELLXGENE_DATASET_WITH_UPDATE_UPDATED,
+      CELLXGENE_DATASET_NEW,
+    ],
   ],
 ]);
 
@@ -759,7 +773,7 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
   cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
   id: "04ccf7fd-22eb-4236-829c-9a0058580d36",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  title: "Source Dataset CELLxGENE Without Update",
+  title: "Source Dataset CELLxGENE With Update",
 };
 
 // Source datasets intitialized in the database before tests

@@ -1,4 +1,8 @@
-import { TEST_CELLXGENE_COLLECTIONS_BY_DOI } from "testing/constants";
+import { CellxGeneDataset } from "../../../app/utils/cellxgene-api";
+import {
+  TEST_CELLXGENE_COLLECTIONS_BY_DOI,
+  TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID,
+} from "../../../testing/constants";
 import { CollectionInfo } from "../cellxgene";
 
 export function isCellxGeneRefreshing(): boolean {
@@ -19,4 +23,10 @@ export function getCellxGeneInfoByDoi(dois: string[]): CollectionInfo | null {
       };
   }
   return null;
+}
+
+export function getCellxGeneDatasetsByCollectionId(
+  id: string
+): CellxGeneDataset[] | undefined {
+  return TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID.get(id);
 }
