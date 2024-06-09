@@ -98,14 +98,12 @@ export async function getSourceDataset(
  * @param atlasId - ID of the atlas that the source dataset is accessed through.
  * @param componentAtlasId - ID of the component atlas that the source dataset is accessed through.
  * @param sourceDatasetId - Source dataset ID.
- * @param client - Postgres client to use.
  * @returns database model of the source dataset.
  */
 export async function getComponentAtlasSourceDataset(
   atlasId: string,
   componentAtlasId: string,
-  sourceDatasetId: string,
-  client?: pg.PoolClient
+  sourceDatasetId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
   const { exists } = (
     await query<{ exists: boolean }>(
@@ -120,8 +118,7 @@ export async function getComponentAtlasSourceDataset(
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
       "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
-      [sourceDatasetId],
-      client
+      [sourceDatasetId]
     );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
