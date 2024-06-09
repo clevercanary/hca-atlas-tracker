@@ -83,8 +83,13 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
       title: componentAtlas.title,
     };
     await client.query(
-      "INSERT INTO hat.component_atlases (atlas_id, component_info, id) VALUES ($1, $2, $3)",
-      [componentAtlas.atlasId, info, componentAtlas.id]
+      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets) VALUES ($1, $2, $3, $4)",
+      [
+        componentAtlas.atlasId,
+        info,
+        componentAtlas.id,
+        componentAtlas.sourceDatasets ?? [],
+      ]
     );
   }
 

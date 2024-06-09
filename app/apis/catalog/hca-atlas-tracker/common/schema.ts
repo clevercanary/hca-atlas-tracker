@@ -69,6 +69,27 @@ export const componentAtlasEditSchema = newComponentAtlasSchema;
 export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
 
 /**
+ * Schema for data used to add source datasets to a component atlas.
+ */
+export const componentAtlasAddSourceDatasetsSchema = object({
+  sourceDatasetIds: array(string().required()).required(),
+}).strict();
+
+export type ComponentAtlasAddSourceDatasetsData = InferType<
+  typeof componentAtlasAddSourceDatasetsSchema
+>;
+
+/**
+ * Schema for data used to remove source datasets from a component atlas.
+ */
+export const componentAtlasDeleteSourceDatasetsSchema =
+  componentAtlasAddSourceDatasetsSchema;
+
+export type ComponentAtlasDeleteSourceDatasetsData = InferType<
+  typeof componentAtlasDeleteSourceDatasetsSchema
+>;
+
+/**
  * Create schema that combines an unpublished source study schema and a published source study schema.
  * @param publishedSchema - Published source study schema.
  * @param unpublishedSchema - Unpublished source study schema.

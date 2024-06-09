@@ -1,6 +1,7 @@
 import { CellxGeneDataset } from "app/utils/cellxgene-api";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
@@ -11,6 +12,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
+import { getComponentAtlasNotFoundError } from "./component-atlases";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -29,6 +31,33 @@ export async function getSourceStudyDatasets(
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
       "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE s.id = $1",
       [sourceStudyId]
+    );
+  return queryResult.rows;
+}
+
+/**
+ * Get all source datasets of the given component atlas.
+ * @param atlasId - ID of the atlas that the component atlas is accesed through.
+ * @param componentAtlasId - Component atlas ID.
+ * @returns database-model source datasets.
+ */
+export async function getComponentAtlasDatasets(
+  atlasId: string,
+  componentAtlasId: string
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+  const componentAtlasResult = await query<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
+  >(
+    "SELECT source_datasets FROM hat.component_atlases WHERE id=$1 AND atlas_id=$2",
+    [componentAtlasId, atlasId]
+  );
+  if (componentAtlasResult.rows.length === 0)
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+  const sourceDatasetIds = componentAtlasResult.rows[0].source_datasets;
+  const queryResult =
+    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      [sourceDatasetIds]
     );
   return queryResult.rows;
 }
@@ -61,6 +90,40 @@ export async function getSourceDataset(
     );
   if (queryResult.rows.length === 0)
     throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
+  return queryResult.rows[0];
+}
+
+/**
+ * Get a source dataset of a component atlas.
+ * @param atlasId - ID of the atlas that the source dataset is accessed through.
+ * @param componentAtlasId - ID of the component atlas that the source dataset is accessed through.
+ * @param sourceDatasetId - Source dataset ID.
+ * @returns database model of the source dataset.
+ */
+export async function getComponentAtlasSourceDataset(
+  atlasId: string,
+  componentAtlasId: string,
+  sourceDatasetId: string
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+  const { exists } = (
+    await query<{ exists: boolean }>(
+      "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND id=$2 AND atlas_id=$3)",
+      [sourceDatasetId, componentAtlasId, atlasId]
+    )
+  ).rows[0];
+  if (!exists)
+    throw new NotFoundError(
+      `Source dataset with ID ${sourceDatasetId} doesn't exist on component atlas with ID ${componentAtlasId} on atlas with ID ${atlasId}`
+    );
+  const queryResult =
+    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
+      [sourceDatasetId]
+    );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Source dataset with ID ${sourceDatasetId} doesn't exist`
+    );
   return queryResult.rows[0];
 }
 
@@ -248,6 +311,26 @@ async function confirmSourceDatasetIsNonCellxGene(
     throw new InvalidOperationError(
       `Can't ${attemptedOperationVerb} CELLxGENE source dataset`
     );
+}
+
+/**
+ * Check whether a list of dataset IDs exist, and throw an error if any don't.
+ * @param sourceDatasetIds - Source dataset IDs to check for.
+ */
+export async function confirmSourceDatasetsExist(
+  sourceDatasetIds: string[]
+): Promise<void> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
+    "SELECT id FROM hat.source_datasets WHERE id=ANY($1)",
+    [sourceDatasetIds]
+  );
+  if (queryResult.rows.length < sourceDatasetIds.length) {
+    const foundIds = queryResult.rows.map((r) => r.id);
+    const missingIds = sourceDatasetIds.filter((id) => !foundIds.includes(id));
+    throw new InvalidOperationError(
+      `No source datasets exist with IDs: ${missingIds.join(", ")}`
+    );
+  }
 }
 
 function getSourceDatasetNotFoundError(

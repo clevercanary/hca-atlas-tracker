@@ -75,7 +75,7 @@ describe("/api/atlases/[id]/source-studies/[sourceStudyId]/source-datasets", () 
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(sourceDatasets).toHaveLength(4);
+    expect(sourceDatasets).toHaveLength(8);
     expectSourceDatasetsToMatch(sourceDatasets, [
       SOURCE_DATASET_FOO,
       SOURCE_DATASET_BAR,
@@ -92,7 +92,7 @@ describe("/api/atlases/[id]/source-studies/[sourceStudyId]/source-datasets", () 
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(sourceDatasets).toHaveLength(4);
+    expect(sourceDatasets).toHaveLength(8);
     expectSourceDatasetsToMatch(sourceDatasets, [
       SOURCE_DATASET_FOO,
       SOURCE_DATASET_BAR,

@@ -746,6 +746,8 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
 ];
 
+export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
+
 // SOURCE DATASETS
 
 export const SOURCE_DATASET_FOO: TestSourceDataset = {
@@ -760,6 +762,29 @@ export const SOURCE_DATASET_BAR: TestSourceDataset = {
   title: "Source Dataset Bar",
 };
 
+export const SOURCE_DATASET_BAZ: TestSourceDataset = {
+  id: "3682751a-7a97-48e1-a43e-d355c1707e26",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Baz",
+};
+
+export const SOURCE_DATASET_FOOFOO: TestSourceDataset = {
+  id: "5c42bc65-93ad-4191-95bc-a40d56f2bb6b",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Foofoo",
+};
+
+export const SOURCE_DATASET_FOOBAR: TestSourceDataset = {
+  id: "4de3dadd-a35c-4386-be62-4536934e9179",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Foobar",
+};
+
+export const SOURCE_DATASET_FOOBAZ: TestSourceDataset = {
+  id: "7ac2afd8-493d-46e5-b9d8-cadc512bb2cc",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Foobar",
+};
 export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE: TestSourceDataset = {
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
   cellxgeneDatasetVersion: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
@@ -780,6 +805,10 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_BAR,
+  SOURCE_DATASET_BAZ,
+  SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_FOOBAR,
+  SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
 ];
@@ -911,6 +940,11 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
 export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
   atlasId: ATLAS_DRAFT.id,
   id: "b1820416-5886-4585-b0fe-7f70487331d8",
+  sourceDatasets: [
+    SOURCE_DATASET_FOOFOO.id,
+    SOURCE_DATASET_FOOBAR.id,
+    SOURCE_DATASET_FOOBAZ.id,
+  ],
   title: "Component Atlas Draft Foo",
 };
 
