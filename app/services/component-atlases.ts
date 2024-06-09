@@ -142,26 +142,10 @@ export async function addSourceDatasetsToComponentAtlas(
     [sourceDatasetIds, componentAtlasId, atlasId]
   );
 
-  /*
-  const existingDatasetsResult = await query<
-    Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
-  >(
-    "SELECT source_datasets FROM hat.component_atlases WHERE id=$1 AND atlas_id=$2",
-    [componentAtlasId, atlasId]
-  );
-  */
-
   if (existingDatasetsResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
 
   const existingSpecifiedDatasets = existingDatasetsResult.rows[0].array;
-
-  /*
-  const existingSpecifiedDatasets =
-    existingDatasetsResult.rows[0].source_datasets.filter((id) =>
-      sourceDatasetIds.includes(id)
-    );
-  */
 
   if (existingSpecifiedDatasets.length !== 0)
     throw new InvalidOperationError(
