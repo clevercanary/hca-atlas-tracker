@@ -1,4 +1,4 @@
-import { NotFoundError } from "app/utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "app/utils/api-handler";
 import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
@@ -9,6 +9,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { confirmAtlasExists } from "./atlases";
 import { query } from "./database";
+import { confirmSourceDatasetsExist } from "./source-datasets";
 
 /**
  * Get all component atlases of the given atlas.
@@ -117,6 +118,106 @@ export async function deleteComponentAtlas(
   );
   if (queryResult.rowCount === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+}
+
+/**
+ * Add the given source datasets to the specified comonent atlas.
+ * @param atlasId - Atlas that the component atlas is accessed through.
+ * @param componentAtlasId - Component atlas ID.
+ * @param sourceDatasetIds - IDs of source datasets to add.
+ */
+export async function addSourceDatasetsToComponentAtlas(
+  atlasId: string,
+  componentAtlasId: string,
+  sourceDatasetIds: string[]
+): Promise<void> {
+  await confirmSourceDatasetsExist(sourceDatasetIds);
+
+  const existingDatasetsResult = await query<{ array: string[] }>(
+    `
+      SELECT ARRAY(
+        SELECT sd_id FROM unnest(source_datasets) AS sd_id WHERE sd_id=ANY($1)
+      ) FROM hat.component_atlases WHERE id=$2 AND atlas_id=$3
+    `,
+    [sourceDatasetIds, componentAtlasId, atlasId]
+  );
+
+  /*
+  const existingDatasetsResult = await query<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
+  >(
+    "SELECT source_datasets FROM hat.component_atlases WHERE id=$1 AND atlas_id=$2",
+    [componentAtlasId, atlasId]
+  );
+  */
+
+  if (existingDatasetsResult.rows.length === 0)
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+
+  const existingSpecifiedDatasets = existingDatasetsResult.rows[0].array;
+
+  /*
+  const existingSpecifiedDatasets =
+    existingDatasetsResult.rows[0].source_datasets.filter((id) =>
+      sourceDatasetIds.includes(id)
+    );
+  */
+
+  if (existingSpecifiedDatasets.length !== 0)
+    throw new InvalidOperationError(
+      `Component atlas with ID ${componentAtlasId} already has source datasets with IDs: ${existingSpecifiedDatasets.join(
+        ", "
+      )}`
+    );
+
+  await query(
+    "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
+    [sourceDatasetIds, componentAtlasId]
+  );
+}
+
+/**
+ * Remove the given source datasets from the specified comonent atlas.
+ * @param atlasId - Atlas that the component atlas is accessed through.
+ * @param componentAtlasId - Component atlas ID.
+ * @param sourceDatasetIds - IDs of source datasets to remove.
+ */
+export async function deleteSourceDatasetsFromComponentAtlas(
+  atlasId: string,
+  componentAtlasId: string,
+  sourceDatasetIds: string[]
+): Promise<void> {
+  await confirmSourceDatasetsExist(sourceDatasetIds);
+
+  const mimssingDatasetsResult = await query<{ array: string[] }>(
+    `
+      SELECT ARRAY(
+        SELECT sd_id FROM unnest($1::uuid[]) AS sd_id WHERE NOT sd_id=ANY(source_datasets)
+      ) FROM hat.component_atlases WHERE id=$2 AND atlas_id=$3
+    `,
+    [sourceDatasetIds, componentAtlasId, atlasId]
+  );
+
+  if (mimssingDatasetsResult.rows.length === 0)
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+
+  const missingDatasets = mimssingDatasetsResult.rows[0].array;
+
+  if (missingDatasets.length !== 0)
+    throw new InvalidOperationError(
+      `Component atlas with ID ${componentAtlasId} doesn't have source datasets with IDs: ${missingDatasets.join(
+        ", "
+      )}`
+    );
+
+  await query(
+    `
+      UPDATE hat.component_atlases
+      SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
+      WHERE id=$2
+    `,
+    [sourceDatasetIds, componentAtlasId]
+  );
 }
 
 function getComponentAtlasNotFoundError(

@@ -250,6 +250,26 @@ async function confirmSourceDatasetIsNonCellxGene(
     );
 }
 
+/**
+ * Check whether a list of dataset IDs exist, and throw an error if any don't.
+ * @param sourceDatasetIds - Source dataset IDs to check for.
+ */
+export async function confirmSourceDatasetsExist(
+  sourceDatasetIds: string[]
+): Promise<void> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
+    "SELECT id FROM hat.source_datasets WHERE id=ANY($1)",
+    [sourceDatasetIds]
+  );
+  if (queryResult.rows.length < sourceDatasetIds.length) {
+    const foundIds = queryResult.rows.map((r) => r.id);
+    const missingIds = sourceDatasetIds.filter((id) => !foundIds.includes(id));
+    throw new InvalidOperationError(
+      `No source datasets exist with IDs: ${missingIds.join(", ")}`
+    );
+  }
+}
+
 function getSourceDatasetNotFoundError(
   sourceStudyId: string,
   sourceDatasetId: string
