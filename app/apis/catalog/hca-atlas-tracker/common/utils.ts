@@ -6,10 +6,12 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
+  HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerValidationRecord,
   NetworkKey,
@@ -122,6 +124,26 @@ export function dbSourceStudyToApiSourceStudy(
   }
 }
 
+export function dbSourceDatasetToApiSourceDataset(
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties
+): HCAAtlasTrackerSourceDataset {
+  const studyInfo = dbSourceDataset.study_info;
+  return {
+    cellCount: dbSourceDataset.sd_info.cellCount,
+    cellxgeneDatasetId: dbSourceDataset.sd_info.cellxgeneDatasetId,
+    cellxgeneDatasetVersion: dbSourceDataset.sd_info.cellxgeneDatasetVersion,
+    createdAt: dbSourceDataset.created_at.toISOString(),
+    doi: dbSourceDataset.doi,
+    id: dbSourceDataset.id,
+    publicationString: getDbSourceDatasetCitation(dbSourceDataset),
+    sourceStudyId: dbSourceDataset.source_study_id,
+    sourceStudyTitle:
+      studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
+    title: dbSourceDataset.sd_info.title,
+    updatedAt: dbSourceDataset.updated_at.toISOString(),
+  };
+}
+
 export function dbValidationToApiValidation(
   validation: HCAAtlasTrackerDBValidationWithAtlasProperties
 ): HCAAtlasTrackerValidationRecord {
@@ -155,6 +177,30 @@ export function dbValidationToApiValidation(
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
   return `${atlas.shortName} v${atlas.version}`;
+}
+
+/**
+ * Returns the source dataset citation.
+ * @param sourceDataset - Database model of source dataset with source study properties.
+ * @returns Source dataset citation.
+ */
+function getDbSourceDatasetCitation(
+  sourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties
+): string {
+  if (sourceDataset.doi === null) {
+    const { contactEmail, referenceAuthor } =
+      sourceDataset.study_info.unpublishedInfo;
+    return getUnpublishedCitation(referenceAuthor, contactEmail);
+  } else {
+    const studyInfo = sourceDataset.study_info;
+    const publication = studyInfo.publication;
+    return getPublishedCitation(
+      studyInfo.doiStatus,
+      publication?.authors[0].name ?? null,
+      publication?.publicationDate ?? null,
+      publication?.journal ?? null
+    );
+  }
 }
 
 /**

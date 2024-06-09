@@ -83,6 +83,20 @@ export interface HCAAtlasTrackerUnpublishedSourceStudy
   title: string;
 }
 
+export interface HCAAtlasTrackerSourceDataset {
+  cellCount: number;
+  cellxgeneDatasetId: string | null;
+  cellxgeneDatasetVersion: string | null;
+  createdAt: string;
+  doi: string | null;
+  id: string;
+  publicationString: string;
+  sourceStudyId: string;
+  sourceStudyTitle: string | null;
+  title: string;
+  updatedAt: string;
+}
+
 export interface HCAAtlasTrackerValidationResult {
   atlasIds: string[];
   description: string;
@@ -199,12 +213,30 @@ export interface HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   publication: null;
-  unpublishedInfo: {
-    contactEmail: string | null;
-    referenceAuthor: string;
-    title: string;
-  };
+  unpublishedInfo: UnpublishedInfo;
 }
+
+export interface HCAAtlasTrackerDBSourceDataset {
+  created_at: Date;
+  id: string;
+  sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
+  source_study_id: string;
+  updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBSourceDatasetInfo {
+  cellCount: number;
+  cellxgeneDatasetId: string | null;
+  cellxgeneDatasetVersion: string | null;
+  title: string;
+}
+
+export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
+  HCAAtlasTrackerDBSourceDataset &
+    (
+      | Pick<HCAAtlasTrackerDBPublishedSourceStudy, "doi" | "study_info">
+      | Pick<HCAAtlasTrackerDBUnpublishedSourceStudy, "doi" | "study_info">
+    );
 
 export interface HCAAtlasTrackerListValidationRecord
   extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion" | "doi"> {
@@ -290,6 +322,12 @@ export interface PublicationInfo {
   journal: string;
   preprintOfDoi: string | null;
   publicationDate: string;
+  title: string;
+}
+
+export interface UnpublishedInfo {
+  contactEmail: string | null;
+  referenceAuthor: string;
   title: string;
 }
 

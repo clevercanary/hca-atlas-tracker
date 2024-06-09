@@ -5,12 +5,16 @@ import {
   PublicationInfo,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { CellxGeneCollection } from "../app/utils/cellxgene-api";
+import {
+  CellxGeneCollection,
+  CellxGeneDataset,
+} from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
 import {
   TestAtlas,
   TestComponentAtlas,
   TestPublishedSourceStudy,
+  TestSourceDataset,
   TestUnpublishedSourceStudy,
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
@@ -409,6 +413,9 @@ export const CELLXGENE_ID_UNPUBLISHED_WITH_CELLXGENE =
 export const CELLXGENE_ID_PUBLISHED_WITH_CAP_AND_CELLXGENE =
   "cellxgene-collection-published-with-cap-and-cellxgene";
 
+export const CELLXGENE_ID_WITH_SOURCE_DATASETS =
+  "cellxgene-collection-with-source-datasets";
+
 export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
   collection_id: CELLXGENE_ID_NORMAL,
   doi: DOI_NORMAL,
@@ -442,6 +449,13 @@ export const TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CAP_AND_CELLXGENE: CellxGe
     name: "Published With CAP And CELLxGENE",
   };
 
+export const TEST_CELLXGENE_COLLECTION_WITH_SOURCE_DATASETS: CellxGeneCollection =
+  {
+    collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
+    doi: null,
+    name: "With Source Datasets",
+  };
+
 export const TEST_CELLXGENE_COLLECTIONS_BY_DOI = new Map([
   [DOI_NORMAL, TEST_CELLXGENE_COLLECTION_NORMAL],
   [DOI_JOURNAL_COUNTERPART, TEST_CELLXGENE_COLLECTION_JOURNAL_COUNTERPART],
@@ -458,6 +472,53 @@ export const TEST_CELLXGENE_COLLECTIONS_B = [
   TEST_CELLXGENE_COLLECTION_NORMAL,
   TEST_CELLXGENE_COLLECTION_NORMAL2,
 ];
+
+// CELLXGENE DATASETS
+
+export const CELLXGENE_ID_DATASET_WITHOUT_UPDATE =
+  "cellxgene-dataset-without-update";
+
+export const CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE =
+  "cellxgene-version-dataset-without-update";
+
+export const CELLXGENE_ID_DATASET_WITH_UPDATE = "cellxgene-dataset-with-update";
+
+export const CELLXGENE_ID_DATASET_NEW = "cellxgene-dataset-new";
+
+export const CELLXGENE_DATASET_WITHOUT_UPDATE: CellxGeneDataset = {
+  cell_count: 123,
+  collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
+  dataset_id: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
+  dataset_version_id: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
+  title: "Dataset Without Update",
+};
+
+export const CELLXGENE_DATASET_WITH_UPDATE_UPDATED: CellxGeneDataset = {
+  cell_count: 456,
+  collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
+  dataset_id: CELLXGENE_ID_DATASET_WITH_UPDATE,
+  dataset_version_id: "cellxgene-version-dataset-with-update-b",
+  title: "Dataset With Update Updated",
+};
+
+export const CELLXGENE_DATASET_NEW: CellxGeneDataset = {
+  cell_count: 789,
+  collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
+  dataset_id: CELLXGENE_ID_DATASET_NEW,
+  dataset_version_id: "cellxgene-version-dataset-new",
+  title: "Dataset New",
+};
+
+export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
+  [
+    CELLXGENE_ID_WITH_SOURCE_DATASETS,
+    [
+      CELLXGENE_DATASET_WITHOUT_UPDATE,
+      CELLXGENE_DATASET_WITH_UPDATE_UPDATED,
+      CELLXGENE_DATASET_NEW,
+    ],
+  ],
+]);
 
 // SOURCE STUDIES
 
@@ -655,6 +716,17 @@ export const SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE: TestPublishedSourceS
     },
   };
 
+export const SOURCE_STUDY_WITH_SOURCE_DATASETS: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: CELLXGENE_ID_WITH_SOURCE_DATASETS,
+  hcaProjectId: null,
+  id: "aa6a5a69-7d68-4dc1-b5ac-7ef0d55fc125",
+  unpublishedInfo: {
+    contactEmail: "bazfoo@example.com",
+    referenceAuthor: "Baz Foo",
+    title: "Source Study With Source Datasets",
+  },
+};
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -671,6 +743,45 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
+  SOURCE_STUDY_WITH_SOURCE_DATASETS,
+];
+
+// SOURCE DATASETS
+
+export const SOURCE_DATASET_FOO: TestSourceDataset = {
+  id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Foo",
+};
+
+export const SOURCE_DATASET_BAR: TestSourceDataset = {
+  id: "cd053619-8b50-4e2d-ba62-96fbbcad6011",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset Bar",
+};
+
+export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE: TestSourceDataset = {
+  cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
+  cellxgeneDatasetVersion: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
+  id: "afcb9181-5a6b-45a8-89c0-1790def2d7dc",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset CELLxGENE Without Update",
+};
+
+export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
+  cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITH_UPDATE,
+  cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
+  id: "04ccf7fd-22eb-4236-829c-9a0058580d36",
+  sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  title: "Source Dataset CELLxGENE With Update",
+};
+
+// Source datasets intitialized in the database before tests
+export const INITIAL_TEST_SOURCE_DATASETS = [
+  SOURCE_DATASET_FOO,
+  SOURCE_DATASET_BAR,
+  SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+  SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
 ];
 
 // ATLASES
@@ -731,6 +842,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   sourceStudies: [
     SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
     SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id,
+    SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   ],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",

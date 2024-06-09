@@ -8,6 +8,10 @@ import {
   TEST_HCA_CATALOGS,
 } from "../testing/constants";
 
+jest.mock("../app/services/source-datasets");
+jest.mock("../app/services/user-profile");
+jest.mock("../app/utils/pg-app-connect-config");
+
 const refreshValidations = jest.fn();
 jest.mock("../app/services/validations", () => ({
   refreshValidations,
@@ -46,6 +50,7 @@ const getCellxGeneCollections = jest
 
 jest.mock("../app/utils/cellxgene-api", () => ({
   getCellxGeneCollections,
+  getCellxGeneDatasets: jest.fn().mockResolvedValue([]),
 }));
 
 let cellxgeneService: typeof import("../app/services/cellxgene");
@@ -54,8 +59,17 @@ let consoleLogSpy: jest.SpyInstance;
 
 beforeAll(async () => {
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
+
+  const [projectsPromise, resolveProjects] = promiseWithResolvers<void>();
+  getAllProjectsBlock = projectsPromise;
+  const [cellxgenePromise, resolveCellxGene] = promiseWithResolvers<void>();
+  getCollectionsBlock = cellxgenePromise;
+
   hcaService = await import("../app/services/hca-projects");
   cellxgeneService = await import("../app/services/cellxgene");
+
+  resolveProjects();
+  resolveCellxGene();
 });
 
 afterAll(() => {

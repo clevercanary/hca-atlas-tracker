@@ -221,6 +221,21 @@ export type SourceStudyEditData =
   | UnpublishedSourceStudyEditData;
 
 /**
+ * Schema for data used to create a new source dataset.
+ */
+export const newSourceDatasetSchema = object({
+  title: string().required(),
+}).strict();
+
+export type NewSourceDatasetData = InferType<typeof newSourceDatasetSchema>;
+
+export const sourceDatasetEditSchema = object({
+  title: string().required(),
+}).strict();
+
+export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
+
+/**
  * Schema for data used to create a new user.
  */
 export const newUserSchema = object({

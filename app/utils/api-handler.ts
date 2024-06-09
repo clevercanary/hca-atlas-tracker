@@ -18,6 +18,10 @@ export type MiddlewareFunction = (
 
 type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 
+export class InvalidOperationError extends Error {
+  name = "InvalidOperationError";
+}
+
 export class AccessError extends Error {
   name = "AccessError";
 }
@@ -169,7 +173,9 @@ export async function getUserFromAuthorization(
  * @param error - Error or other thrown value.
  */
 function respondError(res: NextApiResponse, error: unknown): void {
-  if (error instanceof NotFoundError)
+  if (error instanceof InvalidOperationError)
+    res.status(400).json({ message: error.message });
+  else if (error instanceof NotFoundError)
     res.status(404).json({ message: error.message });
   else if (error instanceof ValidationError) respondValidationError(res, error);
   else if (error instanceof RefreshDataNotReadyError)
