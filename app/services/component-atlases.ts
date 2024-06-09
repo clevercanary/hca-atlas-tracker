@@ -204,7 +204,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
   );
 }
 
-function getComponentAtlasNotFoundError(
+export function getComponentAtlasNotFoundError(
   atlasId: string,
   componentAtlasId: string
 ): NotFoundError {

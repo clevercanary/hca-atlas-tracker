@@ -1,6 +1,7 @@
 import { CellxGeneDataset } from "app/utils/cellxgene-api";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
@@ -11,6 +12,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
+import { getComponentAtlasNotFoundError } from "./component-atlases";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -29,6 +31,33 @@ export async function getSourceStudyDatasets(
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
       "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE s.id = $1",
       [sourceStudyId]
+    );
+  return queryResult.rows;
+}
+
+/**
+ * Get all source datasets of the given component atlas.
+ * @param atlasId - ID of the atlas that the component atlas is accesed through.
+ * @param componentAtlasId - Component atlas ID.
+ * @returns database-model source datasets.
+ */
+export async function getComponentAtlasDatasets(
+  atlasId: string,
+  componentAtlasId: string
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+  const componentAtlasResult = await query<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
+  >(
+    "SELECT source_datasets FROM hat.component_atlases WHERE id=$1 AND atlas_id=$2",
+    [componentAtlasId, atlasId]
+  );
+  if (componentAtlasResult.rows.length === 0)
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+  const sourceDatasetIds = componentAtlasResult.rows[0].source_datasets;
+  const queryResult =
+    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      [sourceDatasetIds]
     );
   return queryResult.rows;
 }
