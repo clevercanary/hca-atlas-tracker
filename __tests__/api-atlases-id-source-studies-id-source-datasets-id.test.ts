@@ -13,6 +13,7 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-studies/
 import {
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  SOURCE_DATASET_BAR,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
@@ -296,6 +297,8 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       updatedSourceDataset
     );
 
+    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
+
     await restoreDbSourceDataset(SOURCE_DATASET_FOO);
   });
 
@@ -412,6 +415,8 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       [SOURCE_DATASET_FOO.id]
     );
     expect(sourceDatasetQueryResult.rows[0]).toBeUndefined();
+
+    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
 
     await query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
