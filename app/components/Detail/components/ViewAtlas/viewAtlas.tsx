@@ -4,8 +4,12 @@ import { FormManager as FormManagerProps } from "../../../../hooks/useFormManage
 import { AtlasEditData } from "../../../../views/AtlasView/common/entities";
 import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/View/components/GeneralInfo/generalInfo";
-import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/View/components/IntegrationLead/integrationLead";
+import {
+  GENERAL_INFO_VIEW_ATLAS_CONTROLLERS,
+  INTEGRATION_LEAD_VIEW_ATLAS_CONTROLLERS,
+} from "../TrackerForm/components/Section/components/Atlas/common/constants";
+import { GeneralInfo } from "../TrackerForm/components/Section/components/Atlas/components/GeneralInfo/generalInfo";
+import { IntegrationLead } from "../TrackerForm/components/Section/components/Atlas/components/IntegrationLead/integrationLead";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
@@ -25,9 +29,17 @@ export const ViewAtlas = ({
   return (
     <TrackerForm>
       <FormManager {...formManager} />
-      <GeneralInfo formManager={formManager} formMethod={formMethod} />
+      <GeneralInfo<AtlasEditData>
+        controllerConfigs={GENERAL_INFO_VIEW_ATLAS_CONTROLLERS}
+        formManager={formManager}
+        formMethod={formMethod}
+      />
       <Divider />
-      <IntegrationLead formManager={formManager} formMethod={formMethod} />
+      <IntegrationLead<AtlasEditData>
+        controllerConfigs={INTEGRATION_LEAD_VIEW_ATLAS_CONTROLLERS}
+        formManager={formManager}
+        formMethod={formMethod}
+      />
     </TrackerForm>
   );
 };

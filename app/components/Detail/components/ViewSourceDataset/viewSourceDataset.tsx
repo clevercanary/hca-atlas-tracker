@@ -3,6 +3,7 @@ import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, PathParameter } from "../../../../common/entities";
 import { getRequestURL } from "../../../../common/utils";
+import { GENERAL_INFO_VIEW_SOURCE_DATASET_CONTROLLERS } from "../TrackerForm/components/Section/components/SourceDataset/common/constants";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/GeneralInfo/generalInfo";
 import { FIELD_NAME } from "./common/constants";
 import { SourceDatasetEditData } from "./common/entities";
@@ -41,6 +42,7 @@ export const ViewSourceDataset = ({
         <GeneralInfo<SourceDatasetEditData>
           apiData={sourceDataset}
           canDelete={true}
+          controllerConfigs={GENERAL_INFO_VIEW_SOURCE_DATASET_CONTROLLERS}
           mapSchemaValues={mapSchemaValues}
           method={METHOD.PATCH}
           onClose={onClose}
