@@ -36,8 +36,12 @@ export const Popup = ({
         {content ?? <PopupContent nextRoute={getNextRoute?.()} />}
       </DialogContent>
       <DialogActions>
-        <ButtonSecondary onClick={onDiscard}>Discard changes</ButtonSecondary>
-        <ButtonPrimary onClick={onSave}>Save changes</ButtonPrimary>
+        <ButtonSecondary onClick={onDiscard} size="small">
+          Discard changes
+        </ButtonSecondary>
+        <ButtonPrimary onClick={onSave} size="small">
+          Save changes
+        </ButtonPrimary>
       </DialogActions>
     </Dialog>
   );

@@ -1,5 +1,6 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
+import { PathParameter } from "../../../../app/common/entities";
 import { AddNewComponentAtlasView } from "../../../../app/views/AddNewComponentAtlasView/addNewComponentAtlasView";
 
 interface CreateComponentAtlasPageUrlParams extends ParsedUrlQuery {
@@ -7,7 +8,7 @@ interface CreateComponentAtlasPageUrlParams extends ParsedUrlQuery {
 }
 
 interface CreateComponentAtlasPageProps {
-  atlasId: string;
+  pathParameter: PathParameter;
 }
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -16,16 +17,16 @@ export const getServerSideProps: GetServerSideProps = async (
   const { atlasId } = context.params as CreateComponentAtlasPageUrlParams;
   return {
     props: {
-      atlasId,
       pageTitle: "Add New Component Atlas",
+      pathParameter: { atlasId },
     },
   };
 };
 
 const CreateComponentAtlasPage = ({
-  atlasId,
+  pathParameter,
 }: CreateComponentAtlasPageProps): JSX.Element => {
-  return <AddNewComponentAtlasView atlasId={atlasId} />;
+  return <AddNewComponentAtlasView pathParameter={pathParameter} />;
 };
 
 export default CreateComponentAtlasPage;

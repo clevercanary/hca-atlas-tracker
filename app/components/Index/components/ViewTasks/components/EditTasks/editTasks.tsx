@@ -6,11 +6,11 @@ import {
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerValidationRecord,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { Dialog } from "../../../../../common/Dialog/dialog.styles";
 import { DialogFormValue } from "./common/entities";
 import { DialogForm } from "./components/DialogForm/dialogForm";
 import { TaskCompletionDatesData } from "./components/EditTargetCompletion/common/entities";
 import { EditTargetCompletion } from "./components/EditTargetCompletion/editTargetCompletion";
-import { Dialog } from "./editTasks.styles";
 
 export interface EditTasksProps {
   rows: Row<HCAAtlasTrackerListValidationRecord>[];

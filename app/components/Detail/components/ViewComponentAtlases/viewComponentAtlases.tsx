@@ -1,32 +1,28 @@
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import {
-  AtlasId,
-  HCAAtlasTrackerComponentAtlas,
-} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerComponentAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { getAtlasComponentAtlasesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { BUTTON_COLOR } from "../../../common/Button/components/ButtonLink/buttonLink";
-import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import {
   ButtonLink,
-  Paper,
-  Table,
-  Toolbar,
-} from "./viewComponentAtlases.styles";
+  BUTTON_COLOR,
+} from "../../../common/Button/components/ButtonLink/buttonLink";
+import { RequestAccess } from "./components/RequestAccess/requestAccess";
+import { Paper, Table, Toolbar } from "./viewComponentAtlases.styles";
 
 interface ViewComponentAtlasesProps {
-  atlasId: AtlasId;
   componentAtlases?: HCAAtlasTrackerComponentAtlas[];
   formManager: FormManager;
+  pathParameter: PathParameter;
 }
 
 export const ViewComponentAtlases = ({
-  atlasId,
   componentAtlases = [],
   formManager,
+  pathParameter,
 }: ViewComponentAtlasesProps): JSX.Element => {
   const {
     access: { canEdit, canView },
@@ -39,7 +35,7 @@ export const ViewComponentAtlases = ({
           <Toolbar variant="table">
             <ButtonLink
               color={BUTTON_COLOR.SECONDARY}
-              href={getRouteURL(ROUTE.CREATE_COMPONENT_ATLAS, atlasId)}
+              href={getRouteURL(ROUTE.CREATE_COMPONENT_ATLAS, pathParameter)}
               startIcon={<AddIcon fontSize="small" />}
             >
               Add Component Atlas
@@ -48,7 +44,7 @@ export const ViewComponentAtlases = ({
         )}
         {componentAtlases?.length > 0 && (
           <Table
-            columns={getAtlasComponentAtlasesTableColumns(atlasId)}
+            columns={getAtlasComponentAtlasesTableColumns(pathParameter)}
             gridTemplateColumns="minmax(260px, 1fr)"
             items={componentAtlases}
           />

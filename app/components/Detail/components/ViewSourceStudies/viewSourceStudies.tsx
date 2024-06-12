@@ -2,28 +2,29 @@ import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useMemo } from "react";
-import {
-  AtlasId,
-  HCAAtlasTrackerSourceStudy,
-} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceStudy } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { getAtlasSourceStudiesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { BUTTON_COLOR } from "../../../common/Button/components/ButtonLink/buttonLink";
+import {
+  ButtonLink,
+  BUTTON_COLOR,
+} from "../../../common/Button/components/ButtonLink/buttonLink";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { ButtonLink, Paper, Table, Toolbar } from "./viewSourceStudies.styles";
+import { Paper, Table, Toolbar } from "./viewSourceStudies.styles";
 
 interface ViewSourceStudiesProps {
-  atlasId: AtlasId;
   formManager: FormManager;
+  pathParameter: PathParameter;
   sourceStudies?: HCAAtlasTrackerSourceStudy[];
 }
 
 export const ViewSourceStudies = ({
-  atlasId,
   formManager,
+  pathParameter,
   sourceStudies = [],
 }: ViewSourceStudiesProps): JSX.Element => {
   const {
@@ -41,7 +42,7 @@ export const ViewSourceStudies = ({
           <Toolbar variant="table">
             <ButtonLink
               color={BUTTON_COLOR.SECONDARY}
-              href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, atlasId)}
+              href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, pathParameter)}
               startIcon={<AddIcon fontSize="small" />}
             >
               Add Source Study
@@ -50,7 +51,7 @@ export const ViewSourceStudies = ({
         )}
         {sourceStudies?.length > 0 && (
           <Table
-            columns={getAtlasSourceStudiesTableColumns(atlasId)}
+            columns={getAtlasSourceStudiesTableColumns(pathParameter)}
             gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) 100px 110px 70px"
             items={sortedSourceStudies}
           />
@@ -62,20 +63,20 @@ export const ViewSourceStudies = ({
 
 /**
  * Sorts source studies by citation, then title, ascending.
- * @param sd0 - First source study to compare.
- * @param sd1 - Second source study to compare.
- * @returns number indicating sort precedence of sd0 vs sd1.
+ * @param ss0 - First source study to compare.
+ * @param ss1 - Second source study to compare.
+ * @returns number indicating sort precedence of ss0 vs ss1.
  */
 function sortSourceStudies(
-  sd0: HCAAtlasTrackerSourceStudy,
-  sd1: HCAAtlasTrackerSourceStudy
+  ss0: HCAAtlasTrackerSourceStudy,
+  ss1: HCAAtlasTrackerSourceStudy
 ): number {
   const sortValue = COLLATOR_CASE_INSENSITIVE.compare(
-    getSourceStudyCitation(sd0),
-    getSourceStudyCitation(sd1)
+    getSourceStudyCitation(ss0),
+    getSourceStudyCitation(ss1)
   );
   if (sortValue === 0) {
-    return COLLATOR_CASE_INSENSITIVE.compare(sd0.title ?? "", sd1.title ?? "");
+    return COLLATOR_CASE_INSENSITIVE.compare(ss0.title ?? "", ss1.title ?? "");
   }
   return sortValue;
 }

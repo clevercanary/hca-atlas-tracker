@@ -4,7 +4,6 @@ import { Toolbar as DXTToolbar } from "@databiosphere/findable-ui/lib/components
 import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { smokeLightest } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import styled from "@emotion/styled";
-import { ButtonLink as Button } from "../../../common/Button/components/ButtonLink/buttonLink";
 
 export const Paper = styled(FluidPaper)`
   &.MuiPaper-root {
@@ -46,8 +45,3 @@ export const Table = styled(DXTable)`
     }
   }
 ` as typeof DXTable;
-
-export const ButtonLink = styled(Button)`
-  padding-bottom: 8px;
-  padding-top: 8px;
-`;

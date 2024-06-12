@@ -28,7 +28,6 @@ export const ViewSourceStudy = ({
   return (
     <TrackerForm>
       <FormManager {...formManager} />
-      <Divider />
       <GeneralInfo
         formManager={formManager}
         formMethod={formMethod}

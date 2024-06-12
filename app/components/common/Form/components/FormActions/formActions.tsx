@@ -1,3 +1,4 @@
+import { Button } from "@databiosphere/findable-ui/lib/components/common/Button/button";
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { ButtonSecondary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonSecondary/buttonSecondary";
 import { FormManager } from "../../../../../hooks/useFormManager/common/entities";
@@ -13,11 +14,21 @@ export const FormActions = ({
   formManager,
 }: FormActionsProps): JSX.Element => {
   const {
-    formAction: { onDiscard, onSave } = {},
+    formAction: { onDelete, onDiscard, onSave } = {},
     formStatus: { isDisabled },
   } = formManager;
   return (
     <Actions className={className}>
+      {onDelete && (
+        <Button
+          color="error"
+          onClick={onDelete}
+          size="small"
+          variant="contained"
+        >
+          Delete
+        </Button>
+      )}
       <ButtonSecondary onClick={onDiscard} size="small">
         Discard
       </ButtonSecondary>

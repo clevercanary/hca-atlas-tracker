@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { FormEvent, ReactNode } from "react";
 import { Form } from "./trackerForm.styles";
 
 export interface TrackerFormProps {
@@ -12,8 +12,12 @@ export const TrackerForm = ({
   className,
   onSubmit,
 }: TrackerFormProps): JSX.Element => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    onSubmit?.();
+  };
   return (
-    <Form className={className} onSubmit={onSubmit}>
+    <Form className={className} onSubmit={handleSubmit}>
       {children}
     </Form>
   );

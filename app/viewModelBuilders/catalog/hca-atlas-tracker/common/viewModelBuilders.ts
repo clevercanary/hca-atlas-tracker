@@ -4,17 +4,18 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
-  AtlasId,
   ATLAS_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
+  HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   Network,
   NetworkKey,
   TASK_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
@@ -50,17 +51,21 @@ export const buildBioNetwork = (
 
 /**
  * Build props for the component atlas title Link component.
- * @param atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the Link component.
  */
 export const buildComponentAtlasTitle = (
-  atlasId: AtlasId,
+  pathParameter: PathParameter,
   componentAtlas: HCAAtlasTrackerComponentAtlas
 ): React.ComponentProps<typeof C.Link> => {
+  const { id: componentAtlasId } = componentAtlas;
   return {
     label: componentAtlas.title,
-    url: getRouteURL(ROUTE.COMPONENT_ATLAS, atlasId, componentAtlas.id),
+    url: getRouteURL(ROUTE.COMPONENT_ATLAS, {
+      ...pathParameter,
+      componentAtlasId,
+    }),
   };
 };
 
@@ -98,9 +103,11 @@ export const buildEditTask = (
 export const buildEntityTitle = (
   task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Link> => {
+  const { atlasIds, entityId: sourceStudyId } = task;
+  const atlasId = atlasIds[0];
   return {
     label: task.entityTitle,
-    url: getRouteURL(ROUTE.SOURCE_STUDY, task.atlasIds[0], task.entityId),
+    url: getRouteURL(ROUTE.SOURCE_STUDY, { atlasId, sourceStudyId }),
   };
 };
 
@@ -213,18 +220,21 @@ export const buildSourceStudyPublication = (
 
 /**
  * Build props for the source study title Link component.
- * @param atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  * @param sourceStudy - Source study entity.
  * @returns Props to be used for the Link component.
  */
 export const buildSourceStudyTitle = (
-  atlasId: AtlasId,
+  pathParameter: PathParameter,
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): React.ComponentProps<typeof C.Link> => {
-  const { id, title } = sourceStudy;
+  const { id: sourceStudyId, title } = sourceStudy;
   return {
-    label: title ?? id,
-    url: getRouteURL(ROUTE.SOURCE_STUDY, atlasId, id),
+    label: title ?? sourceStudyId,
+    url: getRouteURL(ROUTE.SOURCE_STUDY, {
+      ...pathParameter,
+      sourceStudyId,
+    }),
   };
 };
 
@@ -236,9 +246,10 @@ export const buildSourceStudyTitle = (
 export const buildSourceStudyCount = (
   atlas: HCAAtlasTrackerListAtlas
 ): React.ComponentProps<typeof C.Link> => {
+  const { id: atlasId } = atlas;
   return {
     label: atlas.sourceStudyCount,
-    url: getRouteURL(ROUTE.SOURCE_STUDIES, atlas.id),
+    url: getRouteURL(ROUTE.SOURCE_STUDIES, { atlasId }),
   };
 };
 
@@ -456,25 +467,42 @@ export const buildWave = (
 
 /**
  * Returns the table column definition model for the atlas (edit mode) component atlases table.
- * @param atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  * @returns Table column definition.
  */
 export function getAtlasComponentAtlasesTableColumns(
-  atlasId: AtlasId
+  pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerComponentAtlas>[] {
-  return [getComponentAtlasesColumnDef(atlasId)];
+  return [getComponentAtlasesColumnDef(pathParameter)];
+}
+
+/**
+ * Returns the table column definition model for the atlas (edit mode) source datasets table.
+ * @param pathParameter - Path parameter.
+ * @returns Table column definition.
+ */
+export function getAtlasSourceDatasetsTableColumns(
+  pathParameter: PathParameter
+): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [
+    getSourceDatasetTitleColumnDef(pathParameter),
+    getSourceDatasetAssayColumnDef(),
+    getSourceDatasetTissueColumnDef(),
+    getSourceDatasetDiseaseColumnDef(),
+    getSourceDatasetCellCountColumnDef(),
+  ];
 }
 
 /**
  * Returns the table column definition model for the atlas (edit mode) source studies table.
- * @param atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  * @returns Table column definition.
  */
 export function getAtlasSourceStudiesTableColumns(
-  atlasId: AtlasId
+  pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
   return [
-    getSourceStudyTitleColumnDef(atlasId),
+    getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
     getSourceStudyInHCADataRepositoryColumnDef(),
     getSourceStudyInCELLxGENEColumnDef(),
@@ -502,15 +530,16 @@ export function getBioNetworkName(name: string): string {
 
 /**
  * Returns component atlases column def.
- * @param atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  * @returns ColumnDef.
  */
 function getComponentAtlasesColumnDef(
-  atlasId: AtlasId
+  pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerComponentAtlas> {
   return {
     accessorKey: "title",
-    cell: ({ row }) => C.Link(buildComponentAtlasTitle(atlasId, row.original)),
+    cell: ({ row }) =>
+      C.Link(buildComponentAtlasTitle(pathParameter, row.original)),
     header: "Component atlases",
   };
 }
@@ -543,6 +572,74 @@ function getDateFromIsoString(isoString: string): string {
 function getProgressValue(numerator: number, denominator: number): number {
   if (denominator === 0) return 0;
   return (numerator / denominator) * 100;
+}
+
+/**
+ * Returns source dataset assay column def.
+ * @returns Column def.
+ */
+function getSourceDatasetAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "assay",
+    cell: () => C.Cell({ value: "TODO" }),
+    header: "Assay",
+  };
+}
+
+/**
+ * Returns source dataset cell count column def.
+ * @returns Column def.
+ */
+function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "cellCount",
+    cell: ({ row }) =>
+      C.Cell({ value: row.original.cellCount.toLocaleString() }),
+    header: "Cell Count",
+  };
+}
+
+/**
+ * Returns source dataset disease column def.
+ * @returns Column def.
+ */
+function getSourceDatasetDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "disease",
+    cell: () => C.Cell({ value: "TODO" }),
+    header: "Disease",
+  };
+}
+
+/**
+ * Returns source dataset tissue column def.
+ * @returns Column def.
+ */
+function getSourceDatasetTissueColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "tissue",
+    cell: () => C.Cell({ value: "TODO" }),
+    header: "Tissue",
+  };
+}
+
+/**
+ * Returns source dataset title column def.
+ * @param pathParameter - Path parameter.
+ * @returns Column def.
+ */
+function getSourceDatasetTitleColumnDef(
+  pathParameter: PathParameter
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "title",
+    cell: ({ row }) =>
+      C.ViewSourceDataset({
+        pathParameter,
+        sourceDataset: row.original,
+      }),
+    header: "Title",
+  };
 }
 
 /**
@@ -635,15 +732,16 @@ function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceSt
 
 /**
  * Returns source study project title column def.
- * @param atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  * @returns Column def.
  */
 function getSourceStudyTitleColumnDef(
-  atlasId: AtlasId
+  pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "title",
-    cell: ({ row }) => C.Link(buildSourceStudyTitle(atlasId, row.original)),
+    cell: ({ row }) =>
+      C.Link(buildSourceStudyTitle(pathParameter, row.original)),
     header: "Title",
   };
 }

@@ -1,7 +1,7 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewSourceStudies } from "../../components/Detail/components/ViewSourceStudies/viewSourceStudies";
@@ -13,14 +13,14 @@ import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "../AtlasView/common/utils";
 
 interface SourceStudiesViewProps {
-  atlasId: AtlasId;
+  pathParameter: PathParameter;
 }
 
 export const SourceStudiesView = ({
-  atlasId,
+  pathParameter,
 }: SourceStudiesViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(atlasId);
-  const { sourceStudies } = useFetchSourceStudies(atlasId);
+  const { atlas } = useFetchAtlas(pathParameter);
+  const { sourceStudies } = useFetchSourceStudies(pathParameter);
   const formManager = useFormManager();
   const {
     access: { canView },
@@ -33,13 +33,13 @@ export const SourceStudiesView = ({
         breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
         mainColumn={
           <ViewSourceStudies
-            atlasId={atlasId}
             formManager={formManager}
+            pathParameter={pathParameter}
             sourceStudies={sourceStudies}
           />
         }
         status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
-        tabs={<Tabs atlas={atlas} atlasId={atlasId} />}
+        tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
         title={atlas ? getAtlasName(atlas) : "View Source Studies"}
       />
     </ConditionalComponent>

@@ -8,9 +8,16 @@ export const Dialog = styled(DXDialog)`
     border-radius: 8px;
   }
 
+  & .MuiDialogActions-root,
+  & .MuiDialogContent-root,
+  & .MuiDialogTitle-root {
+    padding: 16px;
+  }
+
   & .MuiDialogTitle-root {
     ${textBodyLarge500};
     gap: 8px;
+    grid-template-columns: 1fr auto;
     line-height: 26px;
 
     .MuiButtonBase-root {
@@ -25,11 +32,5 @@ export const Dialog = styled(DXDialog)`
 
   & .MuiDialogActions-root {
     gap: 8px;
-  }
-
-  & .MuiDialogTitle-root,
-  & .MuiDialogContent-root,
-  & .MuiDialogActions-root {
-    padding: 16px;
   }
 `;

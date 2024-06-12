@@ -1,4 +1,8 @@
+import { API } from "./api";
 import { NETWORK_KEYS, WAVES } from "./constants";
+
+export type APIKey = keyof typeof API;
+export type APIValue = (typeof API)[APIKey];
 
 export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
@@ -340,6 +344,8 @@ export interface IntegrationLead {
   email: string;
   name: string;
 }
+
+export type SourceDatasetId = string;
 
 export type SourceStudyId = string;
 

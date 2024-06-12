@@ -1,8 +1,6 @@
-import {
-  AtlasId,
-  HCAAtlasTrackerAtlas,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasEditData as APIAtlasEditData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { PathParameter } from "../../../common/entities";
 import { TARGET_COMPLETION_NULL } from "../../../components/Form/components/Select/components/TargetCompletion/common/constants";
 import { mapTargetCompletion } from "../../../components/Form/components/Select/components/TargetCompletion/common/utils";
 import { useFetchAtlas } from "../../../hooks/useFetchAtlas";
@@ -15,9 +13,9 @@ import { atlasEditSchema } from "../common/schema";
 const SCHEMA = atlasEditSchema;
 
 export const useEditAtlasForm = (
-  atlasId: AtlasId
+  pathParameter: PathParameter
 ): FormMethod<AtlasEditData, HCAAtlasTrackerAtlas> => {
-  const { atlas } = useFetchAtlas(atlasId);
+  const { atlas } = useFetchAtlas(pathParameter);
   return useForm<AtlasEditData, HCAAtlasTrackerAtlas>(
     SCHEMA,
     atlas,

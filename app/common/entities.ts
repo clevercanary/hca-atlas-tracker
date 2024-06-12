@@ -1,3 +1,10 @@
+import {
+  AtlasId,
+  ComponentAtlasId,
+  SourceDatasetId,
+  SourceStudyId,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
+
 export enum FETCH_STATUS {
   CREATED = 201,
   OK = 200,
@@ -11,4 +18,11 @@ export enum METHOD {
   PATCH = "PATCH",
   POST = "POST",
   PUT = "PUT",
+}
+
+export interface PathParameter {
+  atlasId?: AtlasId;
+  componentAtlasId?: ComponentAtlasId;
+  sourceDatasetId?: SourceDatasetId;
+  sourceStudyId?: SourceStudyId;
 }

@@ -22,6 +22,7 @@ import { config } from "app/config/config";
 import { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { AuthorizationProvider } from "../app/providers/authorization";
+import { mergeAppTheme } from "../app/theme/theme";
 
 const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 
@@ -42,13 +43,13 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
   const appConfig = config();
   const { layout, redirectRootToPath, themeOptions } = appConfig;
   const { floating, footer, header } = layout || {};
-  const theme = createAppTheme(themeOptions);
+  const defaultTheme = createAppTheme(themeOptions);
+  const appTheme = mergeAppTheme(defaultTheme);
   const { entityListType, pageTitle } = pageProps as PageProps;
   const Main = Component.Main || DXMain;
-
   return (
-    <EmotionThemeProvider theme={theme}>
-      <ThemeProvider theme={theme}>
+    <EmotionThemeProvider theme={appTheme}>
+      <ThemeProvider theme={appTheme}>
         <DXConfigProvider config={appConfig} entityListType={entityListType}>
           <Head pageTitle={pageTitle} />
           <CssBaseline />

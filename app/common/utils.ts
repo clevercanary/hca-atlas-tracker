@@ -1,8 +1,7 @@
-import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
-import { ROUTE } from "../routes/constants";
+import { APIValue } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { RouteValue } from "../routes/entities";
 import { DEFAULT_HEADERS } from "./constants";
-import { FETCH_STATUS, METHOD } from "./entities";
+import { FETCH_STATUS, METHOD, PathParameter } from "./entities";
 
 /**
  * Returns fetch request options.
@@ -56,15 +55,6 @@ export function isFetchStatusCreated(status: number): boolean {
 }
 
 /**
- * Returns true if the fetch status is "No Content".
- * @param status - Status.
- * @returns true if the fetch status is "No Content".
- */
-export function isFetchStatusNoContent(status: number): boolean {
-  return status === FETCH_STATUS.CREATED;
-}
-
-/**
  * Returns true if the fetch status is "Ok".
  * @param status - Status.
  * @returns true if the fetch status is "Ok".
@@ -74,45 +64,50 @@ export function isFetchStatusOk(status: number): boolean {
 }
 
 /**
- * Replaces [atlasId] in the API URL with the given atlas ID and optionally replaces [relatedEntityId] with the given ID.
+ * Replaces API URL path parameters e.g. [atlasId] with the given corresponding ID.
  * @param apiURL - Request URL.
- * @param atlasId - Atlas ID.
- * @param relatedEntityId - Related entity ID.
- * @returns request URL with Atlas ID.
+ * @param pathParameter - API path parameter.
+ * @returns request URL.
  */
 export function getRequestURL(
-  apiURL: API,
-  atlasId: string,
-  relatedEntityId?: string
+  apiURL: APIValue,
+  pathParameter: PathParameter = {}
 ): string {
-  if (/\[sourceStudyId]|\[componentAtlasId]/.test(apiURL) && relatedEntityId) {
-    return apiURL
-      .replace(/\[atlasId]/, atlasId)
-      .replace(/\[sourceStudyId]|\[componentAtlasId]/, relatedEntityId);
-  }
-  return apiURL.replace(/\[atlasId]/, atlasId);
+  return replacePathParameters(apiURL, pathParameter);
 }
 
 /**
- * Replaces [atlasId] in route with the given atlas ID and optionally replaces [relatedEntityId] with the given ID.
+ * Replaces Route URL path parameters e.g. [atlasId] with the given corresponding ID.
  * @param route - Route.
- * @param atlasId - Atlas ID.
- * @param relatedEntityId - Related entity ID.
- * @returns route with atlas ID.
+ * @param pathParameter - Route path parameter.
+ * @returns route URL.
  */
 export function getRouteURL(
   route: RouteValue,
-  atlasId: string,
-  relatedEntityId?: string
+  pathParameter: PathParameter = {}
 ): string {
-  if (/\[sourceStudyId]|\[componentAtlasId]/.test(route)) {
-    if (relatedEntityId) {
-      return (route as string)
-        .replace(/\[atlasId]/, atlasId)
-        .replace(/\[sourceStudyId]|\[componentAtlasId]/, relatedEntityId);
-    }
-  } else {
-    return (route as string).replace(/\[atlasId]/, atlasId);
+  return replacePathParameters(route, pathParameter);
+}
+
+/**
+ * Replaces path parameters in the given API or URL string with the corresponding ID.
+ * @param str - API or URL string, with parameters.
+ * @param pathParameter - Path parameter.
+ * @returns string with path parameters replaced.
+ */
+function replacePathParameters(
+  str: string,
+  pathParameter: PathParameter
+): string {
+  const result = Object.entries(pathParameter).reduce(
+    (acc, [parameter, parameterId]) => {
+      const regex = new RegExp(`\\[${parameter}]`, "g");
+      return acc.replace(regex, parameterId);
+    },
+    str
+  );
+  if (/\[\w+]/.test(result)) {
+    throw new Error(`URL still contains path parameters: ${result}`);
   }
-  return ROUTE.ATLASES;
+  return result;
 }

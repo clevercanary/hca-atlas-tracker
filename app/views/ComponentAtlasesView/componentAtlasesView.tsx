@@ -1,7 +1,7 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewComponentAtlases } from "../../components/Detail/components/ViewComponentAtlases/viewComponentAtlases";
@@ -13,14 +13,14 @@ import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "../AtlasView/common/utils";
 
 interface ComponentAtlasesViewProps {
-  atlasId: AtlasId;
+  pathParameter: PathParameter;
 }
 
 export const ComponentAtlasesView = ({
-  atlasId,
+  pathParameter,
 }: ComponentAtlasesViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(atlasId);
-  const { componentAtlases } = useFetchComponentAtlases(atlasId);
+  const { atlas } = useFetchAtlas(pathParameter);
+  const { componentAtlases } = useFetchComponentAtlases(pathParameter);
   const formManager = useFormManager();
   const {
     access: { canView },
@@ -33,13 +33,13 @@ export const ComponentAtlasesView = ({
         breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
         mainColumn={
           <ViewComponentAtlases
-            atlasId={atlasId}
             formManager={formManager}
             componentAtlases={componentAtlases}
+            pathParameter={pathParameter}
           />
         }
         status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
-        tabs={<Tabs atlas={atlas} atlasId={atlasId} />}
+        tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
         title={atlas ? getAtlasName(atlas) : "View Component Atlases"}
       />
     </ConditionalComponent>

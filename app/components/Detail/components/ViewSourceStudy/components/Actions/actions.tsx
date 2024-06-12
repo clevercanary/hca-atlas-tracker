@@ -1,15 +1,20 @@
-import { FormManager as FormManagerProps } from "../../../../../../hooks/useFormManager/common/entities";
+import { PathParameter } from "../../../../../../common/entities";
+import { FormStatus } from "../../../../../../hooks/useFormManager/common/entities";
 import { HeroActions } from "./actions.styles";
 import { DropdownMenu } from "./components/DropdownMenu/dropdownMenu";
 
 interface ActionsProps {
-  formManager: FormManagerProps;
+  isDirty?: FormStatus["isDirty"];
+  pathParameter: PathParameter;
 }
 
-export const Actions = ({ formManager }: ActionsProps): JSX.Element => {
+export const Actions = ({
+  isDirty = false,
+  pathParameter,
+}: ActionsProps): JSX.Element => {
   return (
     <HeroActions>
-      <DropdownMenu formManager={formManager} />
+      <DropdownMenu isDirty={isDirty} pathParameter={pathParameter} />
     </HeroActions>
   );
 };

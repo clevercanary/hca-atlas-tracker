@@ -3,35 +3,34 @@ import {
   TabValue,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
-import { ReactNode, useCallback } from "react";
-import {
-  AtlasId,
-  HCAAtlasTrackerAtlas,
-} from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { useCallback } from "react";
+import { HCAAtlasTrackerAtlas } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../../../../../common/entities";
 import { getRouteURL } from "../../../../../../common/utils";
 import { FormAction } from "../../../../../../hooks/useFormManager/common/entities";
 import { navigateToRoute } from "../../../../../../hooks/useFormManager/common/utils";
 import { ROUTE } from "../../../../../../routes/constants";
+import { getTabLabelWithCount } from "../../../TrackerForm/components/Tabs/common/utils";
 
 interface TabsProps {
   atlas?: HCAAtlasTrackerAtlas;
-  atlasId: AtlasId;
   onNavigate?: FormAction["onNavigate"];
+  pathParameter: PathParameter;
 }
 
 export const Tabs = ({
   atlas,
-  atlasId,
   onNavigate = navigateToRoute,
+  pathParameter,
 }: TabsProps): JSX.Element => {
   const { route } = useRouter();
   const { sourceStudyCount } = atlas || {};
 
   const onChange = useCallback(
     (tabValue: TabValue): void => {
-      onNavigate(getRouteURL(tabValue, atlasId), tabValue);
+      onNavigate(getRouteURL(tabValue, pathParameter), tabValue);
     },
-    [atlasId, onNavigate]
+    [onNavigate, pathParameter]
   );
 
   return (
@@ -40,15 +39,11 @@ export const Tabs = ({
       tabs={[
         { label: "Overview", value: ROUTE.ATLAS },
         {
-          label: getTabLabelWithCount(
-            "Source Studies",
-            atlas,
-            sourceStudyCount
-          ),
+          label: getTabLabelWithCount("Source Studies", sourceStudyCount),
           value: ROUTE.SOURCE_STUDIES,
         },
         {
-          label: getTabLabelWithCount("Component Atlases", atlas),
+          label: getTabLabelWithCount("Component Atlases", 0),
           value: ROUTE.COMPONENT_ATLASES,
         },
       ]}
@@ -56,19 +51,3 @@ export const Tabs = ({
     />
   );
 };
-
-/**
- * Returns tab label with count.
- * @param label - Label.
- * @param atlas - Atlas.
- * @param count - Count.
- * @returns tab label with count.
- */
-function getTabLabelWithCount(
-  label: string,
-  atlas?: HCAAtlasTrackerAtlas,
-  count?: number
-): ReactNode {
-  if (!atlas) return label;
-  return count ? `${label} (${count})` : label;
-}

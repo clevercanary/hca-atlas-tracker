@@ -1,11 +1,10 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { ROUTE } from "../../../../../../routes/constants";
-import { Divider } from "../../../TrackerForm/components/Divider/divider.styles";
 import { RequestAccess as Section } from "../../../TrackerForm/components/Section/components/RequestAccess/requestAccess";
 
 export const RequestAccess = (): JSX.Element => {
   return (
-    <Section divider={<Divider />}>
+    <Section>
       <Link label="Sign in" url={ROUTE.LOGIN} /> to view the source study.
     </Section>
   );

@@ -10,6 +10,7 @@ export interface DetailViewProps {
   breadcrumbs?: ReactNode;
   mainColumn: ReactNode;
   status?: ReactNode;
+  subTitle?: ReactNode;
   tabs?: ReactNode;
   title?: ReactNode;
 }
@@ -19,6 +20,7 @@ export const DetailView = ({
   breadcrumbs,
   mainColumn,
   status,
+  subTitle,
   tabs,
   title,
 }: DetailViewProps): JSX.Element => {
@@ -28,6 +30,7 @@ export const DetailView = ({
         actions={actions}
         breadcrumbs={breadcrumbs}
         status={status}
+        subTitle={subTitle}
         tabs={tabs}
         title={title}
       />

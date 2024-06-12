@@ -1,18 +1,19 @@
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
-import { FormManager as FormManagerProps } from "../../../../../../../../hooks/useFormManager/common/entities";
+import { PathParameter } from "../../../../../../../../common/entities";
+import { FormStatus } from "../../../../../../../../hooks/useFormManager/common/entities";
+import { useDeleteSourceStudy } from "../../../../../../../../views/SourceStudyView/hooks/useDeleteSourceStudy";
 import { DropdownMenu as MoreDropdownMenu } from "../../../../../TrackerForm/components/DropdownMenu/dropdownMenu";
 
 export interface DropdownMenuProps {
-  formManager: FormManagerProps;
+  isDirty: FormStatus["isDirty"];
+  pathParameter: PathParameter;
 }
 
 export const DropdownMenu = ({
-  formManager,
+  isDirty,
+  pathParameter,
 }: DropdownMenuProps): JSX.Element => {
-  const {
-    formAction: { onDelete } = {},
-    formStatus: { isDirty },
-  } = formManager;
+  const { onDelete } = useDeleteSourceStudy(pathParameter);
   return (
     <MoreDropdownMenu disabled={isDirty}>
       {({ closeMenu }): JSX.Element[] => [
@@ -20,7 +21,7 @@ export const DropdownMenu = ({
           key="delete-source-study"
           onClick={(): void => {
             closeMenu();
-            onDelete?.();
+            onDelete();
           }}
         >
           Delete

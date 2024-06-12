@@ -2,11 +2,8 @@ import { useAsync } from "@databiosphere/findable-ui/lib/hooks/useAsync";
 import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback, useEffect } from "react";
 import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
-import {
-  AtlasId,
-  HCAAtlasTrackerAtlas,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../common/entities";
+import { HCAAtlasTrackerAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "../common/entities";
 import {
   getFetchOptions,
   getRequestURL,
@@ -17,17 +14,14 @@ interface UseFetchAtlas {
   atlas?: HCAAtlasTrackerAtlas;
 }
 
-export const useFetchAtlas = (atlasId: AtlasId): UseFetchAtlas => {
+export const useFetchAtlas = (pathParameter: PathParameter): UseFetchAtlas => {
   const { token } = useAuthentication();
   const { data: atlas, run } = useAsync<HCAAtlasTrackerAtlas | undefined>();
 
   const fetchAtlas = useCallback(
-    async (
-      atlasId: AtlasId,
-      accessToken: string
-    ): Promise<HCAAtlasTrackerAtlas | undefined> => {
+    async (accessToken: string): Promise<HCAAtlasTrackerAtlas | undefined> => {
       const res = await fetch(
-        getRequestURL(API.ATLAS, atlasId),
+        getRequestURL(API.ATLAS, pathParameter),
         getFetchOptions(METHOD.GET, accessToken)
       );
       if (isFetchStatusOk(res.status)) {
@@ -40,13 +34,13 @@ export const useFetchAtlas = (atlasId: AtlasId): UseFetchAtlas => {
           .catch(() => `Received ${res.status} response`)
       );
     },
-    []
+    [pathParameter]
   );
 
   useEffect(() => {
     if (!token) return;
-    run(fetchAtlas(atlasId, token));
-  }, [atlasId, fetchAtlas, run, token]);
+    run(fetchAtlas(token));
+  }, [fetchAtlas, run, token]);
 
   return { atlas };
 };
