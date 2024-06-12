@@ -1,6 +1,6 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment } from "react";
-import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { AddSourceStudy } from "../../components/Detail/components/AddSourceStudy/addSourceStudy";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
@@ -11,15 +11,15 @@ import { useAddSourceStudyForm } from "./hooks/useAddSourceStudyForm";
 import { useAddSourceStudyFormManager } from "./hooks/useAddSourceStudyFormManager";
 
 interface AddNewSourceStudyViewProps {
-  atlasId: AtlasId;
+  pathParameter: PathParameter;
 }
 
 export const AddNewSourceStudyView = ({
-  atlasId,
+  pathParameter,
 }: AddNewSourceStudyViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(atlasId);
+  const { atlas } = useFetchAtlas(pathParameter);
   const formMethod = useAddSourceStudyForm();
-  const formManager = useAddSourceStudyFormManager(atlasId, formMethod);
+  const formManager = useAddSourceStudyFormManager(pathParameter, formMethod);
   const {
     access: { canView },
     formAction,
@@ -31,7 +31,7 @@ export const AddNewSourceStudyView = ({
       <DetailView
         breadcrumbs={
           <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(atlasId, atlas)}
+            breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
             onNavigate={formAction?.onNavigate}
           />
         }

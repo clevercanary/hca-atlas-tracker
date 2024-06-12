@@ -1,55 +1,53 @@
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import {
-  AtlasId,
-  HCAAtlasTrackerSourceStudy,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../common/entities";
+import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL, getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../../routes/constants";
+import { PUBLICATION_STATUS } from "../../AddNewSourceStudyView/common/entities";
 import {
   FIELD_NAME,
   PUBLISHED_FIELDS,
   UNPUBLISHED_FIELDS,
 } from "../common/constants";
 import {
-  NewSourceStudyData,
-  NewSourceStudyDataKeys,
-  PUBLICATION_STATUS,
+  SourceStudyEditData,
+  SourceStudyEditDataKeys,
 } from "../common/entities";
 
-export const useAddSourceStudyFormManager = (
-  atlasId: AtlasId,
-  formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>
+export const useEditSourceStudyFormManager = (
+  pathParameter: PathParameter,
+  formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>
 ): FormManager => {
-  const { onSubmit, unregister, watch } = formMethod;
+  const { onSubmit, reset, unregister, watch } = formMethod;
   const publicationStatus = watch(FIELD_NAME.PUBLICATION_STATUS);
   const isDirty = isFormDirty(formMethod, publicationStatus);
 
   const onDiscard = useCallback(
     (url?: string) => {
-      Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDIES, atlasId));
+      Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDIES, pathParameter));
     },
-    [atlasId]
+    [pathParameter]
   );
 
   const onSave = useCallback(
-    (payload: NewSourceStudyData, url?: string) => {
+    (payload: SourceStudyEditData, url?: string) => {
       unregister(unregisterSchemaFields(payload));
       onSubmit(
-        getRequestURL(API.CREATE_ATLAS_SOURCE_STUDY, atlasId),
-        METHOD.POST,
+        getRequestURL(API.ATLAS_SOURCE_STUDY, pathParameter),
+        METHOD.PUT,
         filterPayload(payload),
         {
-          onSuccess: (data) => onSuccess(atlasId, data.id, url),
+          onReset: reset,
+          onSuccess: (data) => onSuccess(pathParameter, data.id, url),
         }
       );
     },
-    [atlasId, onSubmit, unregister]
+    [onSubmit, pathParameter, reset, unregister]
   );
 
   return useFormManager(formMethod, { onDiscard, onSave }, isDirty);
@@ -60,13 +58,13 @@ export const useAddSourceStudyFormManager = (
  * @param payload - Payload.
  * @returns filtered payload (payload without the publication status).
  */
-function filterPayload(payload: NewSourceStudyData): NewSourceStudyData {
+function filterPayload(payload: SourceStudyEditData): SourceStudyEditData {
   return Object.entries(payload).reduce((acc, [key, value]) => {
     if (key !== FIELD_NAME.PUBLICATION_STATUS) {
       return { ...acc, [key]: value };
     }
     return acc;
-  }, {} as NewSourceStudyData);
+  }, {} as SourceStudyEditData);
 }
 
 /**
@@ -76,7 +74,7 @@ function filterPayload(payload: NewSourceStudyData): NewSourceStudyData {
  */
 function getSchemaFields(
   publicationStatus: PUBLICATION_STATUS
-): NewSourceStudyDataKeys[] {
+): SourceStudyEditDataKeys[] {
   if (publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
     return PUBLISHED_FIELDS;
   }
@@ -90,7 +88,7 @@ function getSchemaFields(
  * @returns true if the form is dirty.
  */
 function isFormDirty(
-  formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>,
+  formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>,
   publicationStatus: PUBLICATION_STATUS
 ): boolean {
   const {
@@ -101,13 +99,19 @@ function isFormDirty(
 }
 
 /**
- * Side effect "onSuccess"; redirects to the source study page, or to the specified URL.
- * @param atlasId - Atlas ID.
+ * Submit side effect "onSuccess"; redirects to the source studies page, or to the specified URL.
+ * @param pathParameter - Path parameter.
  * @param sourceStudyId - Source study ID.
  * @param url - URL to redirect to.
  */
-function onSuccess(atlasId: string, sourceStudyId: string, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDY, atlasId, sourceStudyId));
+function onSuccess(
+  pathParameter: PathParameter,
+  sourceStudyId: string,
+  url?: string
+): void {
+  Router.push(
+    url ?? getRouteURL(ROUTE.SOURCE_STUDY, { ...pathParameter, sourceStudyId })
+  );
 }
 
 /**
@@ -116,9 +120,9 @@ function onSuccess(atlasId: string, sourceStudyId: string, url?: string): void {
  * @returns fields to be unregistered.
  */
 function unregisterSchemaFields(
-  payload: NewSourceStudyData
-): NewSourceStudyDataKeys[] {
-  const fieldKeys: NewSourceStudyDataKeys[] = [];
+  payload: SourceStudyEditData
+): SourceStudyEditDataKeys[] {
+  const fieldKeys: SourceStudyEditDataKeys[] = [];
   if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
     fieldKeys.push(...UNPUBLISHED_FIELDS);
   } else {

@@ -1,36 +1,31 @@
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import {
-  AtlasId,
-  HCAAtlasTrackerAtlas,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../common/entities";
-import { getRequestURL, getRouteURL } from "../../../common/utils";
+import { getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../../routes/constants";
-import { AtlasEditData } from "../common/entities";
+import { NewAtlasData } from "../common/entities";
 
-export const useEditAtlasFormManager = (
-  atlasId: AtlasId,
-  formMethod: FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
+export const useAddAtlasFormManager = (
+  formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>
 ): FormManager => {
-  const { onSubmit, reset } = formMethod;
+  const { onSubmit } = formMethod;
 
   const onDiscard = useCallback((url?: string) => {
     Router.push(url ?? ROUTE.ATLASES);
   }, []);
 
   const onSave = useCallback(
-    (payload: AtlasEditData, url?: string) => {
-      onSubmit(getRequestURL(API.ATLAS, atlasId), METHOD.PUT, payload, {
-        onReset: reset,
+    (payload: NewAtlasData, url?: string) => {
+      onSubmit(API.CREATE_ATLAS, METHOD.POST, payload, {
         onSuccess: (data) => onSuccess(data.id, url),
       });
     },
-    [atlasId, reset, onSubmit]
+    [onSubmit]
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });
@@ -38,9 +33,9 @@ export const useEditAtlasFormManager = (
 
 /**
  * Side effect "onSuccess"; redirects to the atlas page, or to the specified URL.
- * @param id - Atlas ID.
+ * @param atlasId - Atlas ID.
  * @param url - URL to redirect to.
  */
-export function onSuccess(id: string, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.ATLAS, id));
+export function onSuccess(atlasId: string, url?: string): void {
+  Router.push(url ?? getRouteURL(ROUTE.ATLAS, { atlasId }));
 }

@@ -22,8 +22,10 @@ export const Banner = ({
         <Toolbar>
           <FormStatus>Unsaved Changes</FormStatus>
           <FormActions>
-            <ButtonOutline onClick={onDiscard}>Discard</ButtonOutline>
-            <ButtonPrimary disabled={isDisabled} onClick={onSave}>
+            <ButtonOutline onClick={onDiscard} size="small">
+              Discard
+            </ButtonOutline>
+            <ButtonPrimary disabled={isDisabled} onClick={onSave} size="small">
               Save
             </ButtonPrimary>
           </FormActions>

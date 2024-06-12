@@ -42,6 +42,11 @@ export const HeroTitle = styled.div`
   }
 `;
 
+export const Titles = styled.div`
+  display: grid;
+  gap: 4px;
+`;
+
 export const Statuses = styled.div`
   display: flex;
   gap: 8px;

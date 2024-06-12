@@ -1,12 +1,8 @@
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import {
-  AtlasId,
-  ComponentAtlasId,
-  HCAAtlasTrackerComponentAtlas,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../common/entities";
+import { HCAAtlasTrackerComponentAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL, getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../hooks/useFormManager/common/entities";
@@ -15,42 +11,41 @@ import { ROUTE } from "../../../routes/constants";
 import { ComponentAtlasEditData } from "../common/entities";
 
 export const useEditComponentAtlasFormManager = (
-  atlasId: AtlasId,
-  componentAtlasId: ComponentAtlasId,
+  pathParameter: PathParameter,
   formMethod: FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>
 ): FormManager => {
   const { onDelete: onDeleteComponentAtlas, onSubmit, reset } = formMethod;
 
   const onDelete = useCallback(() => {
     onDeleteComponentAtlas(
-      getRequestURL(API.ATLAS_COMPONENT_ATLAS, atlasId, componentAtlasId),
+      getRequestURL(API.ATLAS_COMPONENT_ATLAS, pathParameter),
       METHOD.DELETE,
       {
-        onSuccess: () => onDeleteSuccess(atlasId),
+        onSuccess: () => onDeleteSuccess(pathParameter),
       }
     );
-  }, [atlasId, componentAtlasId, onDeleteComponentAtlas]);
+  }, [onDeleteComponentAtlas, pathParameter]);
 
   const onDiscard = useCallback(
     (url?: string) => {
-      Router.push(url ?? getRouteURL(ROUTE.COMPONENT_ATLASES, atlasId));
+      Router.push(url ?? getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter));
     },
-    [atlasId]
+    [pathParameter]
   );
 
   const onSave = useCallback(
     (payload: ComponentAtlasEditData, url?: string) => {
       onSubmit(
-        getRequestURL(API.ATLAS_COMPONENT_ATLAS, atlasId, componentAtlasId),
+        getRequestURL(API.ATLAS_COMPONENT_ATLAS, pathParameter),
         METHOD.PATCH,
         payload,
         {
           onReset: reset,
-          onSuccess: (data) => onSuccess(atlasId, data.id, url),
+          onSuccess: (data) => onSuccess(pathParameter, data.id, url),
         }
       );
     },
-    [atlasId, componentAtlasId, onSubmit, reset]
+    [onSubmit, pathParameter, reset]
   );
 
   return useFormManager(formMethod, { onDelete, onDiscard, onSave });
@@ -58,24 +53,25 @@ export const useEditComponentAtlasFormManager = (
 
 /**
  * Delete side effect "onSuccess"; redirects to the component atlases page.
- * @param {string} atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  */
-function onDeleteSuccess(atlasId: string): void {
-  Router.push(getRouteURL(ROUTE.COMPONENT_ATLASES, atlasId));
+function onDeleteSuccess(pathParameter: PathParameter): void {
+  Router.push(getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter));
 }
 
 /**
  * Submit side effect "onSuccess"; redirects to the component atlas page, or to the specified URL.
- * @param atlasId - Atlas ID.
+ * @param pathParameter - Path parameter.
  * @param componentAtlasId - Component atlas ID.
  * @param url - URL to redirect to.
  */
 function onSuccess(
-  atlasId: string,
+  pathParameter: PathParameter,
   componentAtlasId: string,
   url?: string
 ): void {
   Router.push(
-    url ?? getRouteURL(ROUTE.COMPONENT_ATLAS, atlasId, componentAtlasId)
+    url ??
+      getRouteURL(ROUTE.COMPONENT_ATLAS, { ...pathParameter, componentAtlasId })
   );
 }

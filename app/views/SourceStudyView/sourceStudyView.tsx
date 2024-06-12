@@ -1,12 +1,11 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment } from "react";
-import {
-  AtlasId,
-  SourceStudyId,
-} from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceStudyCitation } from "../../apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Actions } from "../../components/Detail/components/ViewSourceStudy/components/Actions/actions";
+import { Tabs } from "../../components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
 import { ViewSourceStudy } from "../../components/Detail/components/ViewSourceStudy/viewSourceStudy";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -18,24 +17,19 @@ import {
 import { useEditSourceStudyFormManager } from "./hooks/useEditSourceStudyFormManager";
 
 interface SourceStudyViewProps {
-  atlasId: AtlasId;
-  sourceStudyId: SourceStudyId;
+  pathParameter: PathParameter;
 }
 
 export const SourceStudyView = ({
-  atlasId,
-  sourceStudyId,
+  pathParameter,
 }: SourceStudyViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(atlasId);
-  const formMethod = useEditSourceStudyForm(atlasId, sourceStudyId);
-  const formManager = useEditSourceStudyFormManager(
-    atlasId,
-    sourceStudyId,
-    formMethod
-  );
+  const { atlas } = useFetchAtlas(pathParameter);
+  const formMethod = useEditSourceStudyForm(pathParameter);
+  const formManager = useEditSourceStudyFormManager(pathParameter, formMethod);
   const {
     access: { canEdit, canView },
     formAction,
+    formStatus: { isDirty },
     isLoading,
   } = formManager;
   const { data: sourceStudy } = formMethod;
@@ -46,10 +40,12 @@ export const SourceStudyView = ({
       isIn={shouldRenderView(canView, Boolean(atlas && sourceStudy))}
     >
       <DetailView
-        actions={canEdit && <Actions formManager={formManager} />}
+        actions={
+          canEdit && <Actions isDirty={isDirty} pathParameter={pathParameter} />
+        }
         breadcrumbs={
           <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(atlasId, atlas, sourceStudy)}
+            breadcrumbs={getBreadcrumbs(pathParameter, atlas, sourceStudy)}
             onNavigate={formAction?.onNavigate}
           />
         }
@@ -60,6 +56,8 @@ export const SourceStudyView = ({
             sdPublicationStatus={mapPublicationStatus(doi)}
           />
         }
+        subTitle={getSourceStudyCitation(sourceStudy)}
+        tabs={<Tabs pathParameter={pathParameter} />}
         title={sourceStudy?.title || "Source Study"}
       />
     </ConditionalComponent>

@@ -2,26 +2,22 @@ import {
   ALTAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
 } from "../../../../site-config/common/constants";
-import {
-  AtlasId,
-  HCAAtlasTrackerSourceStudy,
-  SourceStudyId,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { useFetchSourceStudy } from "../../../hooks/useFetchSourceStudy";
+import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../../common/entities";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { PUBLICATION_STATUS } from "../../AddNewSourceStudyView/common/entities";
 import { FIELD_NAME } from "../common/constants";
 import { SourceStudyEditData } from "../common/entities";
 import { sourceStudyEditSchema } from "../common/schema";
+import { useFetchSourceStudy } from "./useFetchSourceStudy";
 
 const SCHEMA = sourceStudyEditSchema;
 
 export const useEditSourceStudyForm = (
-  atlasId: AtlasId,
-  sourceStudyId: SourceStudyId
+  pathParameter: PathParameter
 ): FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy> => {
-  const { sourceStudy } = useFetchSourceStudy(atlasId, sourceStudyId);
+  const { sourceStudy } = useFetchSourceStudy(pathParameter);
   return useForm<SourceStudyEditData, HCAAtlasTrackerSourceStudy>(
     SCHEMA,
     sourceStudy,

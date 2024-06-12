@@ -1,7 +1,7 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment } from "react";
-import { AtlasId } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
@@ -13,12 +13,12 @@ import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
 
 interface AtlasViewProps {
-  atlasId: AtlasId;
+  pathParameter: PathParameter;
 }
 
-export const AtlasView = ({ atlasId }: AtlasViewProps): JSX.Element => {
-  const formMethod = useEditAtlasForm(atlasId);
-  const formManager = useEditAtlasFormManager(atlasId, formMethod);
+export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
+  const formMethod = useEditAtlasForm(pathParameter);
+  const formManager = useEditAtlasFormManager(pathParameter, formMethod);
   const {
     access: { canView },
     formAction,
@@ -42,8 +42,8 @@ export const AtlasView = ({ atlasId }: AtlasViewProps): JSX.Element => {
         tabs={
           <Tabs
             atlas={atlas}
-            atlasId={atlasId}
             onNavigate={formAction?.onNavigate}
+            pathParameter={pathParameter}
           />
         }
         title={atlas ? getAtlasName(atlas) : "View Atlas"}

@@ -1,5 +1,6 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
+import { PathParameter } from "../../../../app/common/entities";
 import { SourceStudiesView } from "../../../../app/views/SourceStudiesView/sourceStudiesView";
 
 interface SourceStudiesPageUrlParams extends ParsedUrlQuery {
@@ -7,7 +8,7 @@ interface SourceStudiesPageUrlParams extends ParsedUrlQuery {
 }
 
 interface SourceStudiesPageProps {
-  atlasId: string;
+  pathParameter: PathParameter;
 }
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -16,16 +17,16 @@ export const getServerSideProps: GetServerSideProps = async (
   const { atlasId } = context.params as SourceStudiesPageUrlParams;
   return {
     props: {
-      atlasId,
       pageTitle: "Source Studies",
+      pathParameter: { atlasId },
     },
   };
 };
 
 const ViewSourceStudiesPage = ({
-  atlasId,
+  pathParameter,
 }: SourceStudiesPageProps): JSX.Element => {
-  return <SourceStudiesView atlasId={atlasId} />;
+  return <SourceStudiesView pathParameter={pathParameter} />;
 };
 
 export default ViewSourceStudiesPage;

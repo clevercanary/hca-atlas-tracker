@@ -19,7 +19,7 @@ export const button = (props: ThemeProps) => css`
   gap: 4px;
   justify-content: center;
   letter-spacing: normal;
-  padding: 10px 16px;
+  padding: 8px 16px;
 `;
 
 export const buttonPrimary = (props: ThemeProps) => css`

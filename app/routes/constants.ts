@@ -11,6 +11,8 @@ export const ROUTE = {
   REGISTRATION_REQUIRED: "/registration-required",
   REQUESTING_ACCESS: "/requesting-access",
   ROADMAP: "/roadmap",
+  SOURCE_DATASETS:
+    "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   SOURCE_STUDIES: "/atlases/[atlasId]/source-studies",
   SOURCE_STUDY: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
   TASKS: "/tasks",

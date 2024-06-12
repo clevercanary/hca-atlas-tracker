@@ -18,6 +18,7 @@ export { Logo } from "@databiosphere/findable-ui/lib/components/Layout/component
 export { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 export { PinnedNTagCell } from "./common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RenderComponents } from "./common/RenderComponents/renderComponents";
+export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";

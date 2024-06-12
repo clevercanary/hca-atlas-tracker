@@ -1,9 +1,6 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment } from "react";
-import {
-  AtlasId,
-  ComponentAtlasId,
-} from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Actions } from "../../components/Detail/components/ViewComponentAtlas/components/Actions/actions";
@@ -15,19 +12,16 @@ import { useEditComponentAtlasForm } from "./hooks/useEditComponentAtlasForm";
 import { useEditComponentAtlasFormManager } from "./hooks/useEditComponentAtlasFormManager";
 
 interface ComponentAtlasViewProps {
-  atlasId: AtlasId;
-  componentAtlasId: ComponentAtlasId;
+  pathParameter: PathParameter;
 }
 
 export const ComponentAtlasView = ({
-  atlasId,
-  componentAtlasId,
+  pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(atlasId);
-  const formMethod = useEditComponentAtlasForm(atlasId, componentAtlasId);
+  const { atlas } = useFetchAtlas(pathParameter);
+  const formMethod = useEditComponentAtlasForm(pathParameter);
   const formManager = useEditComponentAtlasFormManager(
-    atlasId,
-    componentAtlasId,
+    pathParameter,
     formMethod
   );
   const {
@@ -45,7 +39,7 @@ export const ComponentAtlasView = ({
         actions={canEdit && <Actions formManager={formManager} />}
         breadcrumbs={
           <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(atlasId, atlas, componentAtlas)}
+            breadcrumbs={getBreadcrumbs(pathParameter, atlas, componentAtlas)}
             onNavigate={formAction?.onNavigate}
           />
         }

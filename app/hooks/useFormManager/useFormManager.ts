@@ -120,7 +120,9 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
     access,
     formAction: {
       onCancel,
-      onDelete: handleSubmit?.(onFormDelete, onFormError),
+      onDelete: onDelete
+        ? handleSubmit?.(onFormDelete, onFormError)
+        : undefined,
       onDiscard: onFormDiscard,
       onNavigate,
       onSave: handleSubmit?.(onFormSave, onFormError),
