@@ -7,7 +7,7 @@ import { SvgIcon } from "@mui/material";
 
 export const RequiredIcon = (): JSX.Element => {
   return (
-    <SvgIcon viewBox="0 0 20 20">
+    <SvgIcon viewBox="0 0 20 20" fontSize="small">
       <circle
         cx="10"
         cy="10"
