@@ -10,7 +10,9 @@ export const DropdownMenu = styled(DXDropdownMenu)`
 `;
 
 export const IconButton = styled(DXIconButton)`
-  .MuiSvgIcon-root {
-    color: ${inkLight};
+  &.MuiIconButton-root {
+    .MuiSvgIcon-root {
+      color: ${inkLight};
+    }
   }
 `;
