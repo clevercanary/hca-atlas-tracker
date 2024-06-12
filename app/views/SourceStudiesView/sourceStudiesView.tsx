@@ -8,9 +8,9 @@ import { ViewSourceStudies } from "../../components/Detail/components/ViewSource
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { useFetchSourceStudies } from "../../hooks/useFetchSourceStudies";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "../AtlasView/common/utils";
+import { useFetchSourceStudies } from "./hooks/useFetchSourceStudies";
 
 interface SourceStudiesViewProps {
   pathParameter: PathParameter;
