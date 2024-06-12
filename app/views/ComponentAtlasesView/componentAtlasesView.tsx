@@ -8,9 +8,9 @@ import { ViewComponentAtlases } from "../../components/Detail/components/ViewCom
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { useFetchComponentAtlases } from "../../hooks/useFetchComponentAtlases";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "../AtlasView/common/utils";
+import { useFetchComponentAtlases } from "./hooks/useFetchComponentAtlases";
 
 interface ComponentAtlasesViewProps {
   pathParameter: PathParameter;
