@@ -1,4 +1,5 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { GridPaperSection as DXGridPaperSection } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
 import { Table as DXTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { Toolbar as DXTToolbar } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/tableToolbar.styles";
 import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
@@ -45,3 +46,9 @@ export const Table = styled(DXTable)`
     }
   }
 ` as typeof DXTable;
+
+export const GridPaperSection = styled(DXGridPaperSection)`
+  & {
+    padding: 16px;
+  }
+`;

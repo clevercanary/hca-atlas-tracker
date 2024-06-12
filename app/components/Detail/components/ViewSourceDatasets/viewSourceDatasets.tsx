@@ -4,9 +4,15 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas
 import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { TypographyTextBody400 } from "../../../common/Typography/components/TypographyTextBody400/typographyTextBody400";
 import { AddSourceDataset } from "../AddSourceDataset/addSourceDataset";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { Paper, Table, Toolbar } from "./viewSourceDatasets.styles";
+import {
+  GridPaperSection,
+  Paper,
+  Table,
+  Toolbar,
+} from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
   formManager: FormManagerProps;
@@ -25,6 +31,7 @@ export const ViewSourceDatasets = ({
     access: { canEdit, canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
+  const isSourceDatasets = sourceDatasets?.length > 0;
   return (
     <Paper>
       <GridPaper>
@@ -33,12 +40,17 @@ export const ViewSourceDatasets = ({
             <AddSourceDataset pathParameter={pathParameter} />
           </Toolbar>
         )}
-        {sourceDatasets?.length > 0 && (
+        {isSourceDatasets && (
           <Table
             columns={getAtlasSourceDatasetsTableColumns(pathParameter)}
             gridTemplateColumns="minmax(260px, 1fr) repeat(3, minmax(88px, 0.2fr)) auto"
             items={sourceDatasets.sort(sortSourceDataset)}
           />
+        )}
+        {!isSourceDatasets && isCELLXGENECollection && (
+          <GridPaperSection>
+            <TypographyTextBody400>No source datasets</TypographyTextBody400>
+          </GridPaperSection>
         )}
       </GridPaper>
     </Paper>
