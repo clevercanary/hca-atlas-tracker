@@ -4,8 +4,8 @@ import { ObjectSchema } from "yup";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../../../../../../../../common/entities";
 import { MapSchemaValuesFn } from "../../../../../../../../../../hooks/useForm/common/entities";
-import { ControllerProps } from "../../../../../../../../../common/Form/components/Controller/common/entities";
-import { Controller } from "../../../../../../../../../common/Form/components/Controller/controller";
+import { ControllerConfig } from "../../../../../../../../../common/Form/components/Controllers/common/entities";
+import { Controllers } from "../../../../../../../../../common/Form/components/Controllers/controllers";
 import {
   DialogBody,
   DialogBodyProps,
@@ -19,7 +19,7 @@ export interface GeneralInfoProps<T extends FieldValues> {
   actions?: DialogBodyProps<T, HCAAtlasTrackerSourceDataset>["actions"];
   apiData?: HCAAtlasTrackerSourceDataset;
   canDelete?: boolean;
-  controllerConfigs: ControllerProps<T>[];
+  controllerConfigs: ControllerConfig<T>[];
   mapSchemaValues?: MapSchemaValuesFn<T, HCAAtlasTrackerSourceDataset>;
   method: METHOD;
   onClose: () => void;
@@ -53,7 +53,7 @@ export const GeneralInfo = <T extends FieldValues>({
       <DialogBody<T, HCAAtlasTrackerSourceDataset>
         actions={actions}
         content={({ formManager, formMethod }): JSX.Element => (
-          <Controller
+          <Controllers
             controllerConfigs={controllerConfigs}
             formManager={formManager}
             formMethod={formMethod}

@@ -4,16 +4,18 @@ import { InputProps } from "../../Input/input";
 import { SelectProps } from "../../Select/select";
 import { SelectControllerProps } from "../components/SelectController/selectController";
 
-type DefaultInputProps = "label" | "placeholder";
-type DefaultSelectProps = "displayEmpty" | "label";
+export type ControllerInputConfig = Pick<InputProps, PickedInputProps>;
 
-type ControllerSelectProps<T extends FieldValues> = Pick<
+export type ControllerSelectConfig<T extends FieldValues> = Pick<
   SelectProps,
-  DefaultSelectProps
+  PickedSelectProps
 > & { SelectComponent: SelectControllerProps<T>["SelectComponent"] };
 
-export interface ControllerProps<T extends FieldValues> {
-  inputProps?: Pick<InputProps, DefaultInputProps>;
+type PickedInputProps = "label" | "placeholder";
+type PickedSelectProps = "displayEmpty" | "label";
+
+export interface ControllerConfig<T extends FieldValues> {
+  inputProps?: ControllerInputConfig;
   name: Path<YupValidatedFormValues<T>>;
-  selectProps?: ControllerSelectProps<T>;
+  selectProps?: ControllerSelectConfig<T>;
 }

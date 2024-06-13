@@ -1,21 +1,21 @@
-import { ControllerProps } from "../../../../../../../../common/Form/components/Controller/common/entities";
+import { ControllerConfig } from "../../../../../../../../common/Form/components/Controllers/common/entities";
 import { NewSourceDatasetData } from "../../../../../../AddSourceDataset/common/entities";
 import { FIELD_NAME } from "../../../../../../ViewSourceDataset/common/constants";
 import { SourceDatasetEditData } from "../../../../../../ViewSourceDataset/common/entities";
 
-type CommonControllerProps = ControllerProps<
+type CommonControllerConfig = ControllerConfig<
   NewSourceDatasetData | SourceDatasetEditData
 >;
 
-const TITLE: CommonControllerProps = {
+const TITLE: CommonControllerConfig = {
   inputProps: {
     label: "Title",
   },
   name: FIELD_NAME.TITLE,
 };
 
-export const GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS: ControllerProps<NewSourceDatasetData>[] =
+export const GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS: ControllerConfig<NewSourceDatasetData>[] =
   [TITLE];
 
-export const GENERAL_INFO_VIEW_SOURCE_DATASET_CONTROLLERS: ControllerProps<SourceDatasetEditData>[] =
+export const GENERAL_INFO_VIEW_SOURCE_DATASET_CONTROLLERS: ControllerConfig<SourceDatasetEditData>[] =
   GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS;

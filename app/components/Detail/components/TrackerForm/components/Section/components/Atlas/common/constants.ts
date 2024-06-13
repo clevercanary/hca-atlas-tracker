@@ -1,14 +1,14 @@
 import { NewAtlasData } from "../../../../../../../../../views/AddNewAtlasView/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../views/AtlasView/common/constants";
 import { AtlasEditData } from "../../../../../../../../../views/AtlasView/common/entities";
-import { ControllerProps } from "../../../../../../../../common/Form/components/Controller/common/entities";
+import { ControllerConfig } from "../../../../../../../../common/Form/components/Controllers/common/entities";
 import { BioNetwork } from "../../../../../../../../Form/components/Select/components/BioNetwork/bioNetwork";
 import { TargetCompletion } from "../../../../../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
 import { Wave } from "../../../../../../../../Form/components/Select/components/Wave/wave";
 
-type CommonControllerProps = ControllerProps<NewAtlasData | AtlasEditData>;
+type CommonControllerConfig = ControllerConfig<NewAtlasData | AtlasEditData>;
 
-const BIO_NETWORK: CommonControllerProps = {
+const BIO_NETWORK: CommonControllerConfig = {
   name: FIELD_NAME.BIO_NETWORK,
   selectProps: {
     SelectComponent: BioNetwork,
@@ -17,29 +17,29 @@ const BIO_NETWORK: CommonControllerProps = {
   },
 };
 
-const INTEGRATION_LEAD_A_EMAIL: CommonControllerProps = {
+const INTEGRATION_LEAD_A_EMAIL: CommonControllerConfig = {
   inputProps: { label: "Email" },
   name: FIELD_NAME.INTEGRATION_LEAD_A_EMAIL,
 };
 
-const INTEGRATION_LEAD_B_EMAIL: CommonControllerProps = {
+const INTEGRATION_LEAD_B_EMAIL: CommonControllerConfig = {
   inputProps: {
     label: "Email",
   },
   name: FIELD_NAME.INTEGRATION_LEAD_B_EMAIL,
 };
 
-const INTEGRATION_LEAD_A_NAME: CommonControllerProps = {
+const INTEGRATION_LEAD_A_NAME: CommonControllerConfig = {
   inputProps: { label: "Full name" },
   name: FIELD_NAME.INTEGRATION_LEAD_A_NAME,
 };
 
-const INTEGRATION_LEAD_B_NAME: CommonControllerProps = {
+const INTEGRATION_LEAD_B_NAME: CommonControllerConfig = {
   inputProps: { label: "Full name" },
   name: FIELD_NAME.INTEGRATION_LEAD_B_NAME,
 };
 
-const SHORT_NAME: CommonControllerProps = {
+const SHORT_NAME: CommonControllerConfig = {
   inputProps: {
     label: "Short name",
     placeholder: "e.g. Cortex",
@@ -47,7 +47,7 @@ const SHORT_NAME: CommonControllerProps = {
   name: FIELD_NAME.SHORT_NAME,
 };
 
-const TARGET_COMPLETION: ControllerProps<AtlasEditData> = {
+const TARGET_COMPLETION: ControllerConfig<AtlasEditData> = {
   name: FIELD_NAME.TARGET_COMPLETION,
   selectProps: {
     SelectComponent: TargetCompletion,
@@ -56,7 +56,7 @@ const TARGET_COMPLETION: ControllerProps<AtlasEditData> = {
   },
 };
 
-const VERSION: CommonControllerProps = {
+const VERSION: CommonControllerConfig = {
   inputProps: {
     label: "Version",
     placeholder: "e.g. 1.0",
@@ -64,7 +64,7 @@ const VERSION: CommonControllerProps = {
   name: FIELD_NAME.VERSION,
 };
 
-const WAVE: CommonControllerProps = {
+const WAVE: CommonControllerConfig = {
   name: FIELD_NAME.WAVE,
   selectProps: {
     SelectComponent: Wave,
@@ -73,10 +73,10 @@ const WAVE: CommonControllerProps = {
   },
 };
 
-export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerProps<NewAtlasData>[] =
+export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
   [SHORT_NAME, VERSION, BIO_NETWORK, WAVE];
 
-export const INTEGRATION_LEAD_NEW_ATLAS_CONTROLLERS: ControllerProps<NewAtlasData>[] =
+export const INTEGRATION_LEAD_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
   [
     INTEGRATION_LEAD_A_NAME,
     INTEGRATION_LEAD_A_EMAIL,
@@ -84,8 +84,8 @@ export const INTEGRATION_LEAD_NEW_ATLAS_CONTROLLERS: ControllerProps<NewAtlasDat
     INTEGRATION_LEAD_B_EMAIL,
   ];
 
-export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerProps<AtlasEditData>[] =
+export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
   [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, TARGET_COMPLETION];
 
-export const INTEGRATION_LEAD_VIEW_ATLAS_CONTROLLERS: ControllerProps<AtlasEditData>[] =
+export const INTEGRATION_LEAD_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
   INTEGRATION_LEAD_NEW_ATLAS_CONTROLLERS;

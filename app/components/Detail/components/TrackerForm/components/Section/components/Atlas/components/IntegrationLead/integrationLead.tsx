@@ -2,8 +2,8 @@ import { FieldValues } from "react-hook-form";
 import { HCAAtlasTrackerAtlas } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
-import { ControllerProps } from "../../../../../../../../../common/Form/components/Controller/common/entities";
-import { Controller } from "../../../../../../../../../common/Form/components/Controller/controller";
+import { ControllerConfig } from "../../../../../../../../../common/Form/components/Controllers/common/entities";
+import { Controllers } from "../../../../../../../../../common/Form/components/Controllers/controllers";
 import {
   Section,
   SectionCard,
@@ -12,7 +12,7 @@ import {
 } from "../../../../section.styles";
 
 export interface IntegrationLeadProps<T extends FieldValues> {
-  controllerConfigs: ControllerProps<T>[];
+  controllerConfigs: ControllerConfig<T>[];
   formManager: FormManager;
   formMethod: FormMethod<T, HCAAtlasTrackerAtlas>;
 }
@@ -28,7 +28,7 @@ export const IntegrationLead = <T extends FieldValues>({
         <SectionTitle>Integration lead</SectionTitle>
       </SectionHero>
       <SectionCard>
-        <Controller
+        <Controllers
           controllerConfigs={controllerConfigs}
           formManager={formManager}
           formMethod={formMethod}
