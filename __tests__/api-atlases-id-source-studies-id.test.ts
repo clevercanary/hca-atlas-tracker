@@ -15,6 +15,7 @@ import {
   ATLAS_PUBLIC,
   DOI_PREPRINT_NO_JOURNAL,
   PUBLICATION_PREPRINT_NO_JOURNAL,
+  SOURCE_DATASET_FOO,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
@@ -430,6 +431,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expect(datasetsAfter).toHaveLength(2);
     expect(datasetsAfter[0].source_study_id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
 
+    expect(
+      await getSourceDatasetFromDatabase(SOURCE_DATASET_FOO.id)
+    ).toBeDefined();
+
     await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
       JSON.stringify(ATLAS_DRAFT.sourceStudies),
       ATLAS_DRAFT.id,
@@ -516,6 +521,17 @@ async function expectStudyToBeUnchanged(
   expect(studyFromDb.doi).toEqual(study.doi);
   expect(studyFromDb.study_info.doiStatus).toEqual(study.doiStatus);
   expect(studyFromDb.study_info.publication).toEqual(study.publication);
+}
+
+async function getSourceDatasetFromDatabase(
+  sourceDatasetId: string | undefined
+): Promise<HCAAtlasTrackerDBSourceDataset> {
+  return (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [sourceDatasetId]
+    )
+  ).rows[0];
 }
 
 async function getSourceDatasetsFromDatabase(
