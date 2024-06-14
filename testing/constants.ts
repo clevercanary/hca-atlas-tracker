@@ -801,6 +801,18 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
   title: "Source Dataset CELLxGENE With Update",
 };
 
+export const SOURCE_DATASET_DRAFT_OK_FOO: TestSourceDataset = {
+  id: "edf62340-8180-4206-87f2-d95e388a3a4c",
+  sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+  title: "Source Dataset Draft OK Foo",
+};
+
+export const SOURCE_DATASET_DRAFT_OK_BAR: TestSourceDataset = {
+  id: "3b41d607-05ff-48a7-92bd-9d257a230b3d",
+  sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+  title: "Source Dataset Draft OK Bar",
+};
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_FOO,
@@ -811,6 +823,8 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+  SOURCE_DATASET_DRAFT_OK_FOO,
+  SOURCE_DATASET_DRAFT_OK_BAR,
 ];
 
 // ATLASES
