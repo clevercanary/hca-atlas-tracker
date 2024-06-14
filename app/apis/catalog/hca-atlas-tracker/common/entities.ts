@@ -155,15 +155,9 @@ export interface HCAAtlasTrackerDBAtlas {
   updated_at: Date;
 }
 
-export interface HCAAtlasTrackerDBAtlasWithComponentAtlases {
+export interface HCAAtlasTrackerDBAtlasWithComponentAtlases
+  extends HCAAtlasTrackerDBAtlas {
   component_atlas_count: number;
-  created_at: Date;
-  id: string;
-  overview: HCAAtlasTrackerDBAtlasOverview;
-  source_studies: string[];
-  status: ATLAS_STATUS;
-  target_completion: Date | null;
-  updated_at: Date;
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
