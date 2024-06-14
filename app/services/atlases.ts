@@ -3,6 +3,7 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
+  HCAAtlasTrackerDBAtlasWithComponentAtlases,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasEditData,
@@ -18,9 +19,20 @@ interface AtlasInputDbData {
   targetCompletion: HCAAtlasTrackerDBAtlas["target_completion"];
 }
 
-export async function getAtlas(id: string): Promise<HCAAtlasTrackerDBAtlas> {
-  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-    "SELECT * FROM hat.atlases WHERE id=$1",
+export async function getAllAtlases(): Promise<
+  HCAAtlasTrackerDBAtlasWithComponentAtlases[]
+> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
+    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id GROUP BY a.id"
+  );
+  return queryResult.rows;
+}
+
+export async function getAtlas(
+  id: string
+): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
+    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id WHERE a.id=$1 GROUP BY a.id",
     [id]
   );
   if (queryResult.rows.length === 0)
@@ -30,7 +42,7 @@ export async function getAtlas(id: string): Promise<HCAAtlasTrackerDBAtlas> {
 
 export async function createAtlas(
   inputData: NewAtlasData
-): Promise<HCAAtlasTrackerDBAtlas> {
+): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
   const { overviewData, targetCompletion } = await atlasInputDataToDbData(
     inputData
   );
@@ -39,17 +51,18 @@ export async function createAtlas(
     completedTaskCount: 0,
     taskCount: 0,
   };
-  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING *",
+  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING id",
     [JSON.stringify(overview), "[]", ATLAS_STATUS.DRAFT, targetCompletion]
   );
-  return queryResult.rows[0];
+  const newId = queryResult.rows[0].id;
+  return await getAtlas(newId);
 }
 
 export async function updateAtlas(
   id: string,
   inputData: AtlasEditData
-): Promise<HCAAtlasTrackerDBAtlas> {
+): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
   const { overviewData, targetCompletion } = await atlasInputDataToDbData(
     inputData
   );
@@ -59,7 +72,7 @@ export async function updateAtlas(
   );
   if (queryResult.rowCount === 0)
     throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
-  return queryResult.rows[0];
+  return await getAtlas(id);
 }
 
 export async function atlasInputDataToDbData(

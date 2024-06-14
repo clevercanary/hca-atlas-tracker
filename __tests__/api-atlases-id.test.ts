@@ -5,7 +5,6 @@ import {
   HCAAtlasTrackerDBAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbAtlasToApiAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import atlasHandler from "../pages/api/atlases/[atlasId]";
@@ -151,6 +150,7 @@ describe("/api/atlases/[id]", () => {
     expect(atlas.status).toEqual(ATLAS_DRAFT.status);
     expect(atlas.version).toEqual(ATLAS_DRAFT.version);
     expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);
+    expect(atlas.componentAtlasCount).toEqual(2);
   });
 
   it("returns draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
@@ -165,6 +165,7 @@ describe("/api/atlases/[id]", () => {
     expect(atlas.status).toEqual(ATLAS_DRAFT.status);
     expect(atlas.version).toEqual(ATLAS_DRAFT.version);
     expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);
+    expect(atlas.componentAtlasCount).toEqual(2);
   });
 
   it("returns error 401 when public atlas is PUT requested by logged out user", async () => {
@@ -331,21 +332,22 @@ describe("/api/atlases/[id]", () => {
   });
 
   it("PUT updates and returns atlas entry", async () => {
-    await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT);
+    await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0);
   });
 
   it("PUT updates and returns atlas entry with integration lead set to empty array", async () => {
-    await testSuccessfulEdit(ATLAS_WITH_IL, ATLAS_WITH_IL_EDIT);
+    await testSuccessfulEdit(ATLAS_WITH_IL, ATLAS_WITH_IL_EDIT, 0);
   });
 
   it("PUT updates and returns atlas entry with multiple integration leads", async () => {
-    await testSuccessfulEdit(ATLAS_DRAFT, ATLAS_DRAFT_EDIT);
+    await testSuccessfulEdit(ATLAS_DRAFT, ATLAS_DRAFT_EDIT, 2);
   });
 
   it("PUT updates and returns atlas entry with target completion removed", async () => {
     const updatedAtlas = await testSuccessfulEdit(
       ATLAS_PUBLIC,
-      ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION
+      ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION,
+      0
     );
     expect(updatedAtlas.target_completion).toBeNull();
   });
@@ -353,7 +355,8 @@ describe("/api/atlases/[id]", () => {
 
 async function testSuccessfulEdit(
   testAtlas: TestAtlas,
-  editData: AtlasEditData
+  editData: AtlasEditData,
+  expectedComponentAtlasCount: number
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const res = await doAtlasRequest(
     testAtlas.id,
@@ -383,7 +386,11 @@ async function testSuccessfulEdit(
     editData.targetCompletion ?? null
   );
 
-  expect(dbAtlasToApiAtlas(updatedAtlasFromDb)).toEqual(updatedAtlas);
+  expectAtlasPropertiesToMatch(
+    updatedAtlasFromDb,
+    updatedAtlas,
+    expectedComponentAtlasCount
+  );
 
   const overview = makeTestAtlasOverview(testAtlas);
   await query(
@@ -392,6 +399,29 @@ async function testSuccessfulEdit(
   );
 
   return updatedAtlasFromDb;
+}
+
+function expectAtlasPropertiesToMatch(
+  dbAtlas: HCAAtlasTrackerDBAtlas,
+  apiAtlas: HCAAtlasTrackerAtlas,
+  expectedComponentAtlasCount: number
+): void {
+  expect(dbAtlas.overview.network).toEqual(apiAtlas.bioNetwork);
+  expect(dbAtlas.overview.completedTaskCount).toEqual(
+    apiAtlas.completedTaskCount
+  );
+  expect(dbAtlas.id).toEqual(apiAtlas.id);
+  expect(dbAtlas.overview.integrationLead).toEqual(apiAtlas.integrationLead);
+  expect(dbAtlas.overview.shortName).toEqual(apiAtlas.shortName);
+  expect(dbAtlas.source_studies).toHaveLength(apiAtlas.sourceStudyCount);
+  expect(dbAtlas.status).toEqual(apiAtlas.status);
+  expect(dbAtlas.target_completion?.toISOString() ?? null).toEqual(
+    apiAtlas.targetCompletion
+  );
+  expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
+  expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
+  expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
+  expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
 }
 
 async function doAtlasRequest(
