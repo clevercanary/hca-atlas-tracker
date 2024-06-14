@@ -50,6 +50,21 @@ export const buildBioNetwork = (
 };
 
 /**
+ * Build props for the component atlases cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildComponentAtlasCount = (
+  atlas: HCAAtlasTrackerListAtlas
+): React.ComponentProps<typeof C.Link> => {
+  const { id: atlasId } = atlas;
+  return {
+    label: atlas.componentAtlasCount,
+    url: getRouteURL(ROUTE.COMPONENT_ATLASES, { atlasId }),
+  };
+};
+
+/**
  * Build props for the component atlas title Link component.
  * @param pathParameter - Path parameter.
  * @param componentAtlas - Component atlas entity.

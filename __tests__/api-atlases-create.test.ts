@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerDBAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbAtlasToApiAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/create";
 import {
@@ -259,7 +258,28 @@ async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
   expect(newAtlasFromDb.overview.wave).toEqual(atlasData.wave);
   expect(newAtlasFromDb.overview.taskCount).toEqual(0);
   expect(newAtlasFromDb.overview.completedTaskCount).toEqual(0);
-  expect(dbAtlasToApiAtlas(newAtlasFromDb)).toEqual(newAtlas);
+  expectAtlasPropertiesToMatch(newAtlasFromDb, newAtlas);
+}
+
+function expectAtlasPropertiesToMatch(
+  dbAtlas: HCAAtlasTrackerDBAtlas,
+  apiAtlas: HCAAtlasTrackerAtlas
+): void {
+  expect(dbAtlas.overview.network).toEqual(apiAtlas.bioNetwork);
+  expect(dbAtlas.overview.completedTaskCount).toEqual(
+    apiAtlas.completedTaskCount
+  );
+  expect(dbAtlas.id).toEqual(apiAtlas.id);
+  expect(dbAtlas.overview.integrationLead).toEqual(apiAtlas.integrationLead);
+  expect(dbAtlas.overview.shortName).toEqual(apiAtlas.shortName);
+  expect(dbAtlas.source_studies).toHaveLength(apiAtlas.sourceStudyCount);
+  expect(dbAtlas.status).toEqual(apiAtlas.status);
+  expect(dbAtlas.target_completion?.toISOString() ?? null).toEqual(
+    apiAtlas.targetCompletion
+  );
+  expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
+  expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
+  expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
 }
 
 async function doCreateTest(

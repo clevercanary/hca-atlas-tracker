@@ -7,6 +7,7 @@ export type APIValue = (typeof API)[APIKey];
 export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
   completedTaskCount: number;
+  componentAtlasCount: number;
   id: string;
   integrationLeadEmail: IntegrationLead["email"][];
   integrationLeadName: IntegrationLead["name"][];
@@ -26,6 +27,7 @@ export interface HCAAtlasTrackerListAtlas {
 export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
   completedTaskCount: number;
+  componentAtlasCount: number;
   id: string;
   integrationLead: IntegrationLead[];
   publication: {
@@ -151,6 +153,11 @@ export interface HCAAtlasTrackerDBAtlas {
   status: ATLAS_STATUS;
   target_completion: Date | null;
   updated_at: Date;
+}
+
+export interface HCAAtlasTrackerDBAtlasWithComponentAtlases
+  extends HCAAtlasTrackerDBAtlas {
+  component_atlas_count: number;
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
