@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -393,6 +394,12 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(2);
 
+    const datasetsBefore = await getSourceDatasetsFromDatabase(
+      SOURCE_STUDY_DRAFT_OK.id
+    );
+    expect(datasetsBefore).toHaveLength(2);
+    expect(datasetsBefore[0].source_study_id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
+
     expect(
       (
         await doStudyRequest(
@@ -417,19 +424,30 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expect(validationsAfter).not.toHaveLength(0);
     expect(validationsAfter[0].atlas_ids).toHaveLength(1);
 
+    const datasetsAfter = await getSourceDatasetsFromDatabase(
+      SOURCE_STUDY_DRAFT_OK.id
+    );
+    expect(datasetsAfter).toHaveLength(2);
+    expect(datasetsAfter[0].source_study_id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
+
     await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
       JSON.stringify(ATLAS_DRAFT.sourceStudies),
       ATLAS_DRAFT.id,
     ]);
   });
 
-  it("deletes source study entirely, including validations, when only in one atlas", async () => {
+  it("deletes source study entirely, including validations and source datasets, when only in one atlas", async () => {
     const validationsBefore = await getValidationsByEntityId(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(validationsBefore).not.toHaveLength(0);
 
-    expect(
+    const datasetsBefore = await getSourceDatasetsFromDatabase(
+      SOURCE_STUDY_DRAFT_OK.id
+    );
+    expect(datasetsBefore).toHaveLength(2);
+
+    await expect(
       (
         await doStudyRequest(
           ATLAS_DRAFT.id,
@@ -439,9 +457,9 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(200);
-    const draftStudys = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
+    const draftStudies = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
       ?.source_studies;
-    expect(draftStudys).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
+    expect(draftStudies).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
     const studyQueryResult = await query(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [SOURCE_STUDY_DRAFT_OK.id]
@@ -453,18 +471,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     );
     expect(validationsAfter).toHaveLength(0);
 
-    await query(
-      "INSERT INTO hat.source_studies (doi, id, study_info) VALUES ($1, $2, $3)",
-      [
-        SOURCE_STUDY_DRAFT_OK.doi,
-        SOURCE_STUDY_DRAFT_OK.id,
-        JSON.stringify(makeTestSourceStudyOverview(SOURCE_STUDY_DRAFT_OK)),
-      ]
+    const datasetsAfter = await getSourceDatasetsFromDatabase(
+      SOURCE_STUDY_DRAFT_OK.id
     );
-    await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
-      JSON.stringify(ATLAS_DRAFT.sourceStudies),
-      ATLAS_DRAFT.id,
-    ]);
+    expect(datasetsAfter).toHaveLength(0);
   });
 });
 
@@ -506,6 +516,17 @@ async function expectStudyToBeUnchanged(
   expect(studyFromDb.doi).toEqual(study.doi);
   expect(studyFromDb.study_info.doiStatus).toEqual(study.doiStatus);
   expect(studyFromDb.study_info.publication).toEqual(study.publication);
+}
+
+async function getSourceDatasetsFromDatabase(
+  sourceStudyId: string
+): Promise<HCAAtlasTrackerDBSourceDataset[]> {
+  return (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
+      [sourceStudyId]
+    )
+  ).rows;
 }
 
 async function getStudyFromDatabase(

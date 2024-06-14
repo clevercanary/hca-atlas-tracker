@@ -262,6 +262,10 @@ export async function deleteAtlasSourceStudy(
     if (sourceStudyHasAtlases) {
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
+      await client.query(
+        "DELETE FROM hat.source_datasets WHERE source_study_id=$1",
+        [sourceStudyId]
+      );
       await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
         sourceStudyId,
       ]);
