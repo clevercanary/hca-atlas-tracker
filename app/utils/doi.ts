@@ -8,12 +8,13 @@ export function isDoi(value: string): boolean {
 }
 
 export function normalizeDoi(doi: string): string {
+  doi = doi.trim();
   const urlMatch = /^(?:https?:\/\/)?(doi\.org\/.*$)/i.exec(doi);
   if (urlMatch) {
     const [, nonProtocolPart] = urlMatch;
     doi = decodeURIComponent(
       new URL("https://" + nonProtocolPart).pathname.replace(/^\//, "")
-    );
+    ).trim();
   }
   return doi.toLowerCase();
 }
