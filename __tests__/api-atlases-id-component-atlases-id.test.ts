@@ -207,7 +207,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
     );
     expect(componentAtlasFromDb).toBeDefined();
     if (!componentAtlasFromDb) return;
-    expect(componentAtlasFromDb.component_info.title).toEqual(
+    expect(componentAtlasFromDb.title).toEqual(
       COMPONENT_ATLAS_DRAFT_FOO_EDIT.title
     );
     expect(dbComponentAtlasToApiComponentAtlas(componentAtlasFromDb)).toEqual(
@@ -293,15 +293,15 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
     expect(componentAtlasQueryResult.rows[0]).toBeUndefined();
 
     await query(
-      "INSERT INTO hat.component_atlases (atlas_id, component_info, id) VALUES ($1, $2, $3)",
+      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, title) VALUES ($1, $2, $3, $4)",
       [
         ATLAS_DRAFT.id,
         JSON.stringify({
           cellxgeneDatasetId: null,
           cellxgeneDatasetVersion: null,
-          title: COMPONENT_ATLAS_DRAFT_FOO.title,
         }),
         COMPONENT_ATLAS_DRAFT_FOO.id,
+        COMPONENT_ATLAS_DRAFT_FOO.title,
       ]
     );
   });
@@ -332,13 +332,13 @@ async function restoreDbComponentAtlas(
   componentAtlas: TestComponentAtlas
 ): Promise<void> {
   await query(
-    "UPDATE hat.component_atlases SET component_info=$1 WHERE id=$2",
+    "UPDATE hat.component_atlases SET component_info=$1, title=$2 WHERE id=$3",
     [
       JSON.stringify({
         cellxgeneDatasetId: null,
         cellxgeneDatasetVersion: null,
-        title: componentAtlas.title,
       }),
+      componentAtlas.title,
       componentAtlas.id,
     ]
   );
@@ -353,9 +353,7 @@ async function expectComponentAtlasToBeUnchanged(
   expect(componentAtlasFromDb).toBeDefined();
   if (!componentAtlasFromDb) return;
   expect(componentAtlasFromDb.atlas_id).toEqual(componentAtlas.atlasId);
-  expect(componentAtlasFromDb.component_info.title).toEqual(
-    componentAtlas.title
-  );
+  expect(componentAtlasFromDb.title).toEqual(componentAtlas.title);
 }
 
 async function getComponentAtlasFromDatabase(

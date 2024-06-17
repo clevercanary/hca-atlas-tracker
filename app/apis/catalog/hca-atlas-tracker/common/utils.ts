@@ -84,7 +84,7 @@ export function dbComponentAtlasToApiComponentAtlas(
     cellxgeneDatasetVersion:
       dbComponentAtlas.component_info.cellxgeneDatasetVersion,
     id: dbComponentAtlas.id,
-    title: dbComponentAtlas.component_info.title,
+    title: dbComponentAtlas.title,
   };
 }
 

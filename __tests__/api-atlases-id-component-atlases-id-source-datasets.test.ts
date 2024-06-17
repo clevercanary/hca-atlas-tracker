@@ -415,9 +415,7 @@ async function expectComponentAtlasToBeUnchanged(
   expect(componentAtlasFromDb).toBeDefined();
   if (!componentAtlasFromDb) return;
   expect(componentAtlasFromDb.atlas_id).toEqual(componentAtlas.atlasId);
-  expect(componentAtlasFromDb.component_info.title).toEqual(
-    componentAtlas.title
-  );
+  expect(componentAtlasFromDb.title).toEqual(componentAtlas.title);
 }
 
 async function expectComponentAtlasToHaveSourceDatasets(

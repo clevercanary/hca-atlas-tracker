@@ -11,6 +11,11 @@ import { confirmAtlasExists } from "./atlases";
 import { query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
 
+interface ComponentAtlasInputDbData {
+  componentInfo: HCAAtlasTrackerDBComponentAtlasInfo;
+  title: HCAAtlasTrackerDBComponentAtlas["title"];
+}
+
 /**
  * Get all component atlases of the given atlas.
  * @param atlasId - ID of the atlas to get component atlases for.
@@ -58,10 +63,12 @@ export async function createComponentAtlas(
   inputData: NewComponentAtlasData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   await confirmAtlasExists(atlasId);
-  const info = await componentAtlasInputDataToDbData(inputData);
+  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+    inputData
+  );
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "INSERT INTO hat.component_atlases (atlas_id, component_info) VALUES ($1, $2) RETURNING *",
-    [atlasId, info]
+    "INSERT INTO hat.component_atlases (atlas_id, component_info, title) VALUES ($1, $2, $3) RETURNING *",
+    [atlasId, componentInfo, title]
   );
   return queryResult.rows[0];
 }
@@ -78,10 +85,12 @@ export async function updateComponentAtlas(
   componentAtlasId: string,
   inputData: ComponentAtlasEditData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const info = await componentAtlasInputDataToDbData(inputData);
+  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+    inputData
+  );
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "UPDATE hat.component_atlases SET component_info=$1 WHERE id=$2 AND atlas_id=$3 RETURNING *",
-    [JSON.stringify(info), componentAtlasId, atlasId]
+    "UPDATE hat.component_atlases SET component_info=$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
+    [JSON.stringify(componentInfo), title, componentAtlasId, atlasId]
   );
   if (queryResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
@@ -95,10 +104,12 @@ export async function updateComponentAtlas(
  */
 async function componentAtlasInputDataToDbData(
   inputData: NewComponentAtlasData | ComponentAtlasEditData
-): Promise<HCAAtlasTrackerDBComponentAtlasInfo> {
+): Promise<ComponentAtlasInputDbData> {
   return {
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
+    componentInfo: {
+      cellxgeneDatasetId: null,
+      cellxgeneDatasetVersion: null,
+    },
     title: inputData.title,
   };
 }
