@@ -7,10 +7,14 @@ export interface CellxGeneCollection {
 }
 
 export interface CellxGeneDataset {
+  assay: { label: string }[];
   cell_count: number;
   collection_id: string;
   dataset_id: string;
   dataset_version_id: string;
+  disease: { label: string }[];
+  explorer_url: string;
+  tissue: { label: string }[];
   title: string;
 }
 

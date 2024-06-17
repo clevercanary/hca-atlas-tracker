@@ -90,15 +90,19 @@ export interface HCAAtlasTrackerUnpublishedSourceStudy
 }
 
 export interface HCAAtlasTrackerSourceDataset {
+  assay: string[];
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
+  cellxgeneExplorerUrl: string | null;
   createdAt: string;
+  disease: string[];
   doi: string | null;
   id: string;
   publicationString: string;
   sourceStudyId: string;
   sourceStudyTitle: string | null;
+  tissue: string[];
   title: string;
   updatedAt: string;
 }
@@ -236,9 +240,13 @@ export interface HCAAtlasTrackerDBSourceDataset {
 }
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
+  assay: string[];
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
+  cellxgeneExplorerUrl: string | null;
+  disease: string[];
+  tissue: string[];
   title: string;
 }
 

@@ -121,12 +121,24 @@ function expectSourceDatasetToMatchCellxGeneDataset(
   expect(sourceDataset).toBeDefined();
   if (!sourceDataset) return;
   expect(sourceDataset.source_study_id).toEqual(expectedSourceStudyId);
+  expect(sourceDataset.sd_info.assay).toEqual(
+    cxgDataset.assay.map((a) => a.label)
+  );
   expect(sourceDataset.sd_info.cellCount).toEqual(cxgDataset.cell_count);
   expect(sourceDataset.sd_info.cellxgeneDatasetId).toEqual(
     cxgDataset.dataset_id
   );
   expect(sourceDataset.sd_info.cellxgeneDatasetVersion).toEqual(
     cxgDataset.dataset_version_id
+  );
+  expect(sourceDataset.sd_info.disease).toEqual(
+    cxgDataset.disease.map((d) => d.label)
+  );
+  expect(sourceDataset.sd_info.cellxgeneExplorerUrl).toEqual(
+    cxgDataset.explorer_url
+  );
+  expect(sourceDataset.sd_info.tissue).toEqual(
+    cxgDataset.tissue.map((t) => t.label)
   );
   expect(sourceDataset.sd_info.title).toEqual(cxgDataset.title);
 }
