@@ -183,20 +183,9 @@ function respondError(res: NextApiResponse, error: unknown): void {
       .status(503)
       .appendHeader("Retry-After", "30")
       .json({ message: error.message });
-  else if (error instanceof Error) {
-    if (
-      "constraint" in error &&
-      error.constraint === "unique_component_atlases_title_atlas_id"
-    ) {
-      res
-        .status(400)
-        .json({ errors: { title: ["Title already exists in this atlas"] } });
-    } else if (typeof error.stack === "string")
-      res.status(500).json({ message: error.stack });
-    else res.status(500).json({ message: String(error) });
-  } else {
-    res.status(500).json({ message: String(error) });
-  }
+  else if (error instanceof Error && typeof error.stack === "string")
+    res.status(500).json({ message: error.stack });
+  else res.status(500).json({ message: String(error) });
 }
 
 /**

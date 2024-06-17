@@ -1,4 +1,5 @@
 import { InvalidOperationError, NotFoundError } from "app/utils/api-handler";
+import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
@@ -66,9 +67,12 @@ export async function createComponentAtlas(
   const { componentInfo, title } = await componentAtlasInputDataToDbData(
     inputData
   );
-  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "INSERT INTO hat.component_atlases (atlas_id, component_info, title) VALUES ($1, $2, $3) RETURNING *",
-    [atlasId, componentInfo, title]
+  const queryResult = await withTitleConflictHandling(
+    async () =>
+      await query<HCAAtlasTrackerDBComponentAtlas>(
+        "INSERT INTO hat.component_atlases (atlas_id, component_info, title) VALUES ($1, $2, $3) RETURNING *",
+        [atlasId, componentInfo, title]
+      )
   );
   return queryResult.rows[0];
 }
@@ -88,9 +92,12 @@ export async function updateComponentAtlas(
   const { componentInfo, title } = await componentAtlasInputDataToDbData(
     inputData
   );
-  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "UPDATE hat.component_atlases SET component_info=$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
-    [JSON.stringify(componentInfo), title, componentAtlasId, atlasId]
+  const queryResult = await withTitleConflictHandling(
+    async () =>
+      await query<HCAAtlasTrackerDBComponentAtlas>(
+        "UPDATE hat.component_atlases SET component_info=$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
+        [JSON.stringify(componentInfo), title, componentAtlasId, atlasId]
+      )
   );
   if (queryResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
@@ -213,6 +220,30 @@ export async function deleteSourceDatasetsFromComponentAtlas(
     `,
     [sourceDatasetIds, componentAtlasId]
   );
+}
+
+/**
+ * Call a function that sets a component atlas title in the database, and throw an appropriate error if a conflict occurs.
+ * @param f - Function to call.
+ * @returns result of calling the function.
+ */
+async function withTitleConflictHandling<T>(f: () => Promise<T>): Promise<T> {
+  try {
+    return await f();
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      "constraint" in err &&
+      err.constraint === "unique_component_atlases_title_atlas_id"
+    ) {
+      throw new ValidationError(
+        "Title already exists in this atlas",
+        undefined,
+        "title"
+      );
+    }
+    throw err;
+  }
 }
 
 export function getComponentAtlasNotFoundError(
