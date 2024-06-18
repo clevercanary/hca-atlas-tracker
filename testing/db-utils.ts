@@ -80,15 +80,15 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
-      title: componentAtlas.title,
     };
     await client.query(
-      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets) VALUES ($1, $2, $3, $4)",
+      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets, title) VALUES ($1, $2, $3, $4, $5)",
       [
         componentAtlas.atlasId,
         info,
         componentAtlas.id,
         componentAtlas.sourceDatasets ?? [],
+        componentAtlas.title,
       ]
     );
   }

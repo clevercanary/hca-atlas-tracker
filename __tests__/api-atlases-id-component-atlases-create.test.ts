@@ -186,7 +186,7 @@ function expectDbComponentAtlasToMatch(
 ): void {
   expect(dbComponentAtlas).toBeDefined();
   expect(dbComponentAtlas.atlas_id).toEqual(atlasId);
-  expect(dbComponentAtlas.component_info.title).toEqual(title);
+  expect(dbComponentAtlas.title).toEqual(title);
   expect(dbComponentAtlasToApiComponentAtlas(dbComponentAtlas)).toEqual(
     apiComponentAtlas
   );

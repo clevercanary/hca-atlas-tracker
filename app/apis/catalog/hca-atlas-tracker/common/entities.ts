@@ -176,13 +176,13 @@ export interface HCAAtlasTrackerDBComponentAtlas {
   created_at: Date;
   id: string;
   source_datasets: string[];
+  title: string;
   updated_at: Date;
 }
 
 export interface HCAAtlasTrackerDBComponentAtlasInfo {
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
-  title: string;
 }
 
 export interface HCAAtlasTrackerDBPublishedSourceStudy {

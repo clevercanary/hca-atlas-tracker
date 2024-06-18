@@ -1,4 +1,5 @@
 import { InvalidOperationError, NotFoundError } from "app/utils/api-handler";
+import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
@@ -10,6 +11,11 @@ import {
 import { confirmAtlasExists } from "./atlases";
 import { query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
+
+interface ComponentAtlasInputDbData {
+  componentInfo: HCAAtlasTrackerDBComponentAtlasInfo;
+  title: HCAAtlasTrackerDBComponentAtlas["title"];
+}
 
 /**
  * Get all component atlases of the given atlas.
@@ -58,10 +64,15 @@ export async function createComponentAtlas(
   inputData: NewComponentAtlasData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   await confirmAtlasExists(atlasId);
-  const info = await componentAtlasInputDataToDbData(inputData);
-  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "INSERT INTO hat.component_atlases (atlas_id, component_info) VALUES ($1, $2) RETURNING *",
-    [atlasId, info]
+  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+    inputData
+  );
+  const queryResult = await withTitleConflictHandling(
+    async () =>
+      await query<HCAAtlasTrackerDBComponentAtlas>(
+        "INSERT INTO hat.component_atlases (atlas_id, component_info, title) VALUES ($1, $2, $3) RETURNING *",
+        [atlasId, componentInfo, title]
+      )
   );
   return queryResult.rows[0];
 }
@@ -78,10 +89,15 @@ export async function updateComponentAtlas(
   componentAtlasId: string,
   inputData: ComponentAtlasEditData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const info = await componentAtlasInputDataToDbData(inputData);
-  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "UPDATE hat.component_atlases SET component_info=$1 WHERE id=$2 AND atlas_id=$3 RETURNING *",
-    [JSON.stringify(info), componentAtlasId, atlasId]
+  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+    inputData
+  );
+  const queryResult = await withTitleConflictHandling(
+    async () =>
+      await query<HCAAtlasTrackerDBComponentAtlas>(
+        "UPDATE hat.component_atlases SET component_info=$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
+        [JSON.stringify(componentInfo), title, componentAtlasId, atlasId]
+      )
   );
   if (queryResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
@@ -95,10 +111,12 @@ export async function updateComponentAtlas(
  */
 async function componentAtlasInputDataToDbData(
   inputData: NewComponentAtlasData | ComponentAtlasEditData
-): Promise<HCAAtlasTrackerDBComponentAtlasInfo> {
+): Promise<ComponentAtlasInputDbData> {
   return {
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
+    componentInfo: {
+      cellxgeneDatasetId: null,
+      cellxgeneDatasetVersion: null,
+    },
     title: inputData.title,
   };
 }
@@ -202,6 +220,30 @@ export async function deleteSourceDatasetsFromComponentAtlas(
     `,
     [sourceDatasetIds, componentAtlasId]
   );
+}
+
+/**
+ * Call a function that sets a component atlas title in the database, and throw an appropriate error if a conflict occurs.
+ * @param f - Function to call.
+ * @returns result of calling the function.
+ */
+async function withTitleConflictHandling<T>(f: () => Promise<T>): Promise<T> {
+  try {
+    return await f();
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      "constraint" in err &&
+      err.constraint === "unique_component_atlases_title_atlas_id"
+    ) {
+      throw new ValidationError(
+        "Title already exists in this atlas",
+        undefined,
+        "title"
+      );
+    }
+    throw err;
+  }
 }
 
 export function getComponentAtlasNotFoundError(
