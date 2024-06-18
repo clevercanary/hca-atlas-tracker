@@ -4,6 +4,7 @@ import { Fragment, useState } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD, PathParameter } from "../../../../common/entities";
 import { getRequestURL } from "../../../../common/utils";
+import { GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS } from "../TrackerForm/components/Section/components/SourceDataset/common/constants";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceDataset/components/GeneralInfo/generalInfo";
 import { Dialog } from "./addSourceDataset.styles";
 import { NewSourceDatasetData } from "./common/entities";
@@ -32,6 +33,7 @@ export const AddSourceDataset = ({
       </ButtonSecondary>
       <Dialog onClose={onClose} open={open}>
         <GeneralInfo<NewSourceDatasetData>
+          controllerConfigs={GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS}
           method={METHOD.POST}
           onClose={onClose}
           requestUrl={getRequestURL(API.CREATE_SOURCE_DATASET, pathParameter)}
