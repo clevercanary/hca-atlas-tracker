@@ -1,14 +1,14 @@
 import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback, useEffect, useState } from "react";
-import { API } from "../../../../../apis/catalog/hca-atlas-tracker/common/api";
+import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import {
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   SourceStudyId,
-} from "../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD, PathParameter } from "../../../../../common/entities";
-import { getFetchOptions, getRequestURL } from "../../../../../common/utils";
-import { useFetchData } from "../../../../../hooks/useFetchData";
+} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "../../../common/entities";
+import { getFetchOptions, getRequestURL } from "../../../common/utils";
+import { useFetchData } from "../../../hooks/useFetchData";
 
 export const useFetchSourceStudiesSourceDatasets = (
   pathParameter: PathParameter

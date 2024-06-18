@@ -1,43 +1,4 @@
-import { METHOD } from "../../../common/entities";
-import { getFetchOptions } from "../../../common/utils";
 import { FormResponseErrors } from "./entities";
-
-/**
- * Delete request.
- * @param requestURL - Request URL.
- * @param requestMethod - Request method.
- * @param accessToken - Access token.
- * @returns promise (response).
- */
-export async function fetchDelete(
-  requestURL: string,
-  requestMethod: METHOD,
-  accessToken?: string
-): Promise<Response> {
-  return await fetch(requestURL, {
-    ...getFetchOptions(requestMethod, accessToken),
-  });
-}
-
-/**
- * Submit request.
- * @param requestURL - Request URL.
- * @param requestMethod - Request method.
- * @param accessToken - Access token.
- * @param payload - Payload.
- * @returns promise (response).
- */
-export async function fetchSubmit<P>(
-  requestURL: string,
-  requestMethod: METHOD,
-  accessToken: string | undefined,
-  payload: P
-): Promise<Response> {
-  return await fetch(requestURL, {
-    ...getFetchOptions(requestMethod, accessToken),
-    body: JSON.stringify(payload),
-  });
-}
 
 /**
  * Get error information from the response.

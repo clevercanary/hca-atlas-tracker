@@ -4,11 +4,11 @@ import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD, PathParameter } from "../../../common/entities";
 import {
+  fetchResource,
   getRequestURL,
   getRouteURL,
   isFetchStatusOk,
 } from "../../../common/utils";
-import { fetchDelete } from "../../../hooks/useForm/common/utils";
 import { ROUTE } from "../../../routes/constants";
 
 export interface UseDeleteSourceStudy {
@@ -21,7 +21,7 @@ export const useDeleteSourceStudy = (
   const { token } = useAuthentication();
 
   const onDelete = useCallback(async (): Promise<void> => {
-    const res = await fetchDelete(
+    const res = await fetchResource(
       getRequestURL(API.ATLAS_SOURCE_STUDY, pathParameter),
       METHOD.DELETE,
       token

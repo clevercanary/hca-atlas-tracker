@@ -19,6 +19,7 @@ interface ViewComponentAtlasProps {
   formManager: FormManagerProps;
   formMethod: FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>;
   pathParameter: PathParameter;
+  sourceStudiesSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewComponentAtlas = ({
@@ -26,6 +27,7 @@ export const ViewComponentAtlas = ({
   formManager,
   formMethod,
   pathParameter,
+  sourceStudiesSourceDatasets = [],
 }: ViewComponentAtlasProps): JSX.Element => {
   const {
     access: { canView },
@@ -45,6 +47,7 @@ export const ViewComponentAtlas = ({
         componentAtlasSourceDatasets={componentAtlasSourceDatasets}
         formManager={formManager}
         pathParameter={pathParameter}
+        sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
       />
     </TrackerForm>
   );

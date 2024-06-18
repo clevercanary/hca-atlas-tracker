@@ -2,6 +2,7 @@ export { FluidAlert } from "@databiosphere/findable-ui/lib/components/common/Ale
 export { AlertText } from "@databiosphere/findable-ui/lib/components/common/Alert/components/AlertText/alertText.styles";
 export { SessionTimeout } from "@databiosphere/findable-ui/lib/components/common/Banner/components/SessionTimeout/sessionTimeout";
 export { GitHubIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/GitHubIcon/gitHubIcon";
+export { UnLinkIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/UnLinkIcon/unLinkIcon";
 export { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 export { Sections } from "@databiosphere/findable-ui/lib/components/common/Sections/sections";
 export { StatusBadge } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
@@ -16,6 +17,7 @@ export {
 export { BackPageHero } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/components/BackPageHero/backPageHero";
 export { Logo } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
 export { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+export { IconButtonSecondary } from "./common/Button/components/IconButtonSecondary/iconButtonSecondary";
 export { PinnedNTagCell } from "./common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RenderComponents } from "./common/RenderComponents/renderComponents";
 export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
