@@ -101,10 +101,14 @@ export const useForm = <T extends FieldValues, R = undefined>(
         apiPayload
       );
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
-        const response = await res.json();
-        setData(response);
-        options?.onSuccess?.(response);
-        options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
+        try {
+          const response = await res.json();
+          setData(response);
+          options?.onSuccess?.(response);
+          options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
+        } catch (e) {
+          options?.onSuccess?.(undefined as R);
+        }
       } else {
         onError(await getFormResponseErrors(res));
       }

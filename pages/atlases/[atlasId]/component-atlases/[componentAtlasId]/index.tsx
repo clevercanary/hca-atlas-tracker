@@ -1,6 +1,7 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { PathParameter } from "../../../../../app/common/entities";
+import { FetchDataStateProvider } from "../../../../../app/providers/fetchDataState/fetchDataState";
 import { ComponentAtlasView } from "../../../../../app/views/ComponentAtlasView/componentAtlasView";
 
 interface ComponentAtlasPageUrlParams extends ParsedUrlQuery {
@@ -28,7 +29,11 @@ export const getServerSideProps: GetServerSideProps = async (
 const ComponentAtlasPage = ({
   pathParameter,
 }: ComponentAtlasPageProps): JSX.Element => {
-  return <ComponentAtlasView pathParameter={pathParameter} />;
+  return (
+    <FetchDataStateProvider>
+      <ComponentAtlasView pathParameter={pathParameter} />
+    </FetchDataStateProvider>
+  );
 };
 
 export default ComponentAtlasPage;

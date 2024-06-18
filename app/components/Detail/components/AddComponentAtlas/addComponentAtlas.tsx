@@ -4,7 +4,8 @@ import { FormManager as FormManagerProps } from "../../../../hooks/useFormManage
 import { NewComponentAtlasData } from "../../../../views/AddNewComponentAtlasView/common/entities";
 import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/ComponentAtlas/components/Add/components/GeneralInfo/generalInfo";
+import { GENERAL_INFO_NEW_COMPONENT_ATLAS_CONTROLLERS } from "../TrackerForm/components/Section/components/ComponentAtlas/common/constants";
+import { GeneralInfo } from "../TrackerForm/components/Section/components/ComponentAtlas/components/GeneralInfo/generalInfo";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { NoAccess } from "./components/NoAccess/noAccess";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -27,7 +28,11 @@ export const AddComponentAtlas = ({
     <TrackerForm>
       <FormManager {...formManager} />
       <Divider />
-      <GeneralInfo formManager={formManager} formMethod={formMethod} />
+      <GeneralInfo<NewComponentAtlasData>
+        controllerConfigs={GENERAL_INFO_NEW_COMPONENT_ATLAS_CONTROLLERS}
+        formManager={formManager}
+        formMethod={formMethod}
+      />
     </TrackerForm>
   );
 };

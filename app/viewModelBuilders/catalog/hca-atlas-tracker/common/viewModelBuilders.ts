@@ -1,6 +1,6 @@
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { ColumnDef, Row } from "@tanstack/react-table";
+import { CellContext, ColumnDef, Row } from "@tanstack/react-table";
 import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
@@ -488,7 +488,15 @@ export const buildWave = (
 export function getAtlasComponentAtlasesTableColumns(
   pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerComponentAtlas>[] {
-  return [getComponentAtlasesColumnDef(pathParameter)];
+  return [getComponentAtlasTitleColumnDef(pathParameter)];
+}
+
+/**
+ * Returns the table column definition model for the atlas component source datasets table.
+ * @returns Table column definition.
+ */
+export function getAtlasComponentSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [getComponentAtlasSourceDatasetTitleColumnDef()];
 }
 
 /**
@@ -505,6 +513,97 @@ export function getAtlasSourceDatasetsTableColumns(
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
     getSourceDatasetCellCountColumnDef(),
+  ];
+}
+
+/**
+ * Returns the source studies source datasets assay column definition model.
+ * @returns Column definition.
+ */
+function getAtlasSourceStudiesSourceDatasetsAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "assay",
+    cell: () => C.Cell({ value: "TODO" }),
+    header: "Assay",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns the source studies source datasets cell count column definition model.
+ * @returns Column definition.
+ */
+function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "cellCount",
+    cell: ({ row }) =>
+      C.Cell({ value: row.original.cellCount.toLocaleString() }),
+    header: "Cell Count",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns the source studies source datasets disease column definition model.
+ * @returns Column definition.
+ */
+function getAtlasSourceStudiesSourceDatasetsDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "disease",
+    cell: () => C.Cell({ value: "TODO" }),
+    header: "Disease",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns the source studies source datasets publication string column definition model.
+ * @returns Column definition.
+ */
+function getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "publicationString",
+    cell: ({
+      row,
+      table,
+    }: CellContext<HCAAtlasTrackerSourceDataset, unknown>) =>
+      C.GroupedRowSelectionCell({
+        label: row.original.publicationString,
+        row,
+        table,
+      }),
+    meta: { columnPinned: true, enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns the source studies source datasets title column definition model.
+ * @returns Column definition.
+ */
+function getAtlasSourceStudiesSourceDatasetsTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "title",
+    cell: ({ row }: CellContext<HCAAtlasTrackerSourceDataset, unknown>) =>
+      C.RowSelectionCell({
+        label: row.original.title,
+        row,
+      }),
+    header: "Title",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns the table column definition model for the atlas source studies source datasets table.
+ * @returns Table column definition.
+ */
+export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [
+    getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(),
+    getAtlasSourceStudiesSourceDatasetsTitleColumnDef(),
+    getAtlasSourceStudiesSourceDatasetsAssayColumnDef(),
+    getAtlasSourceStudiesSourceDatasetsDiseaseColumnDef(),
+    getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(),
   ];
 }
 
@@ -544,11 +643,23 @@ export function getBioNetworkName(name: string): string {
 }
 
 /**
- * Returns component atlases column def.
+ * Returns component atlas source dataset title column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "title",
+    cell: ({ row }) => C.Cell({ value: row.original.title }),
+    header: "Title",
+  };
+}
+
+/**
+ * Returns component atlas title column def.
  * @param pathParameter - Path parameter.
  * @returns ColumnDef.
  */
-function getComponentAtlasesColumnDef(
+function getComponentAtlasTitleColumnDef(
   pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerComponentAtlas> {
   return {

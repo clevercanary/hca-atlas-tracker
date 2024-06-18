@@ -11,6 +11,10 @@ import {
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import styled from "@emotion/styled";
 
+interface SectionProps {
+  fullWidth?: boolean;
+}
+
 export const Section = styled.div`
   align-items: flex-start;
   display: grid;
@@ -23,13 +27,13 @@ export const Section = styled.div`
   }
 `;
 
-export const SectionHero = styled.div`
+export const SectionHero = styled("div")<SectionProps>`
   display: grid;
   gap: 8px;
   padding: 0 16px;
 
   ${mediaTabletUp} {
-    grid-column: span 4;
+    grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "span 4")};
     padding: 0;
   }
 `;

@@ -1,6 +1,7 @@
 export enum API {
   ATLAS = "/api/atlases/[atlasId]",
   ATLAS_COMPONENT_ATLAS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]",
+  ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets",
   ATLAS_COMPONENT_ATLASES = "/api/atlases/[atlasId]/component-atlases",
   ATLAS_SOURCE_DATASET = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/[sourceDatasetId]",
   ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
