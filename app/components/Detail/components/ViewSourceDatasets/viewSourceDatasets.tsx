@@ -5,14 +5,12 @@ import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { TypographyTextBody400 } from "../../../common/Typography/components/TypographyTextBody400/typographyTextBody400";
+import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
+import { Table } from "../../../Table/table.styles";
 import { AddSourceDataset } from "../AddSourceDataset/addSourceDataset";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import {
-  GridPaperSection,
-  Paper,
-  Table,
-  Toolbar,
-} from "./viewSourceDatasets.styles";
+import { GridPaperSection } from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
   formManager: FormManagerProps;

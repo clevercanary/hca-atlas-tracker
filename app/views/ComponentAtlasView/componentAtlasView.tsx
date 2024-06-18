@@ -10,6 +10,7 @@ import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditComponentAtlasForm } from "./hooks/useEditComponentAtlasForm";
 import { useEditComponentAtlasFormManager } from "./hooks/useEditComponentAtlasFormManager";
+import { useFetchComponentAtlasSourceDatasets } from "./hooks/useFetchComponentAtlasSourceDatasets";
 
 interface ComponentAtlasViewProps {
   pathParameter: PathParameter;
@@ -19,6 +20,8 @@ export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(pathParameter);
+  const { componentAtlasSourceDatasets } =
+    useFetchComponentAtlasSourceDatasets(pathParameter);
   const formMethod = useEditComponentAtlasForm(pathParameter);
   const formManager = useEditComponentAtlasFormManager(
     pathParameter,
@@ -33,7 +36,10 @@ export const ComponentAtlasView = ({
   if (isLoading) return <Fragment />;
   return (
     <ConditionalComponent
-      isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
+      isIn={shouldRenderView(
+        canView,
+        Boolean(atlas && componentAtlas && componentAtlasSourceDatasets)
+      )}
     >
       <DetailView
         actions={canEdit && <Actions formManager={formManager} />}
@@ -45,8 +51,10 @@ export const ComponentAtlasView = ({
         }
         mainColumn={
           <ViewComponentAtlas
+            componentAtlasSourceDatasets={componentAtlasSourceDatasets}
             formManager={formManager}
             formMethod={formMethod}
+            pathParameter={pathParameter}
           />
         }
         title={componentAtlas?.title || "Component Atlas"}

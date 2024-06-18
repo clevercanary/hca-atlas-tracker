@@ -13,8 +13,10 @@ import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
+import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
+import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { Paper, Table, Toolbar } from "./viewSourceStudies.styles";
 
 interface ViewSourceStudiesProps {
   formManager: FormManager;
@@ -43,7 +45,7 @@ export const ViewSourceStudies = ({
             <ButtonLink
               color={BUTTON_COLOR.SECONDARY}
               href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, pathParameter)}
-              startIcon={<AddIcon fontSize="small" />}
+              startIcon={<AddIcon color="inkLight" fontSize="small" />}
             >
               Add Source Study
             </ButtonLink>

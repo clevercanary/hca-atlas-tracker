@@ -10,8 +10,10 @@ import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
+import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
+import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { Paper, Table, Toolbar } from "./viewComponentAtlases.styles";
 
 interface ViewComponentAtlasesProps {
   componentAtlases?: HCAAtlasTrackerComponentAtlas[];
@@ -36,7 +38,7 @@ export const ViewComponentAtlases = ({
             <ButtonLink
               color={BUTTON_COLOR.SECONDARY}
               href={getRouteURL(ROUTE.CREATE_COMPONENT_ATLAS, pathParameter)}
-              startIcon={<AddIcon fontSize="small" />}
+              startIcon={<AddIcon color="inkLight" fontSize="small" />}
             >
               Add Component Atlas
             </ButtonLink>

@@ -25,6 +25,8 @@ export { LabelIconMenuItem } from "./Layout/components/Header/components/Content
 export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
+export { GroupedRowSelectionCell } from "./Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
+export { RowSelectionCell } from "./Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 export { SourceStudyStatusCell } from "./Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
 export { TaskDescriptionSystemCell } from "./Table/components/TableCell/components/TaskDescriptionSystemCell/taskDescriptionSystemCell";

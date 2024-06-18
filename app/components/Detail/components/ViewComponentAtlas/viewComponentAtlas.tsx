@@ -1,21 +1,31 @@
-import { HCAAtlasTrackerComponentAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerSourceDataset,
+} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../../../common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { ComponentAtlasEditData } from "../../../../views/ComponentAtlasView/common/entities";
 import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/ComponentAtlas/components/View/components/GeneralInfo/generalInfo";
+import { GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS } from "../TrackerForm/components/Section/components/ComponentAtlas/common/constants";
+import { GeneralInfo } from "../TrackerForm/components/Section/components/ComponentAtlas/components/GeneralInfo/generalInfo";
+import { LinkedSourceDatasets } from "../TrackerForm/components/Section/components/ComponentAtlas/components/LinkedSourceDatasets/linkedSourceDatasets";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface ViewComponentAtlasProps {
+  componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
   formMethod: FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>;
+  pathParameter: PathParameter;
 }
 
 export const ViewComponentAtlas = ({
+  componentAtlasSourceDatasets = [],
   formManager,
   formMethod,
+  pathParameter,
 }: ViewComponentAtlasProps): JSX.Element => {
   const {
     access: { canView },
@@ -25,7 +35,17 @@ export const ViewComponentAtlas = ({
     <TrackerForm>
       <FormManager {...formManager} />
       <Divider />
-      <GeneralInfo formManager={formManager} formMethod={formMethod} />
+      <GeneralInfo<ComponentAtlasEditData>
+        controllerConfigs={GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS}
+        formManager={formManager}
+        formMethod={formMethod}
+      />
+      <Divider />
+      <LinkedSourceDatasets
+        componentAtlasSourceDatasets={componentAtlasSourceDatasets}
+        formManager={formManager}
+        pathParameter={pathParameter}
+      />
     </TrackerForm>
   );
 };

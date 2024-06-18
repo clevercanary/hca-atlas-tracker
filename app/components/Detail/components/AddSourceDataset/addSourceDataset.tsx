@@ -27,7 +27,7 @@ export const AddSourceDataset = ({
       <ButtonSecondary
         onClick={onOpen}
         size="small"
-        startIcon={<AddIcon fontSize="small" />}
+        startIcon={<AddIcon color="inkLight" fontSize="small" />}
       >
         Add Source Dataset
       </ButtonSecondary>
