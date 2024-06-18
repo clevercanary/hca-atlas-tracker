@@ -4,6 +4,8 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBPublishedSourceStudy,
+  HCAAtlasTrackerDBPublishedSourceStudyInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyMinimumColumns,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -279,6 +281,50 @@ export async function deleteAtlasSourceStudy(
     throw e;
   } finally {
     client.release();
+  }
+}
+
+/**
+ * Read all source studies and update their HCA project IDs and CELLxGENE collection IDs as necessary.
+ */
+export async function updateSourceStudyExternalIds(): Promise<void> {
+  const existingSourceStudies = (
+    await query<HCAAtlasTrackerDBPublishedSourceStudy>(
+      "SELECT * FROM hat.source_studies WHERE NOT doi IS NULL"
+    )
+  ).rows;
+
+  for (const sourceStudy of existingSourceStudies) {
+    const dois = sourceStudy.study_info.publication
+      ? getPublicationDois(sourceStudy.doi, sourceStudy.study_info.publication)
+      : [];
+    const newHcaProjectId = getProjectIdByDoi(dois);
+    const newCellxGeneCollectionId = getCellxGeneIdByDoi(dois);
+
+    const updatedFields: Partial<HCAAtlasTrackerDBPublishedSourceStudyInfo> =
+      {};
+    let shouldUpdate = false;
+
+    if (
+      newHcaProjectId !== null &&
+      newHcaProjectId !== sourceStudy.study_info.hcaProjectId
+    ) {
+      updatedFields.hcaProjectId = newHcaProjectId;
+      shouldUpdate = true;
+    }
+
+    if (
+      newCellxGeneCollectionId !== sourceStudy.study_info.cellxgeneCollectionId
+    ) {
+      updatedFields.cellxgeneCollectionId = newCellxGeneCollectionId;
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate)
+      await query(
+        "UPDATE hat.source_studies SET study_info=study_info||$1 WHERE id=$2",
+        [JSON.stringify(updatedFields), sourceStudy.id]
+      );
   }
 }
 

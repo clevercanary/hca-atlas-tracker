@@ -58,14 +58,20 @@ export function makeTestSourceStudyOverview(
     : {
         capId: study.capId ?? null,
         cellxgeneCollectionId:
-          (study.doi &&
-            TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(study.doi)?.collection_id) ??
-          null,
+          study.cellxgeneCollectionId === undefined
+            ? (study.doi &&
+                TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(study.doi)
+                  ?.collection_id) ??
+              null
+            : study.cellxgeneCollectionId,
         doiStatus: study.doiStatus,
         hcaProjectId:
-          (study.doi &&
-            TEST_HCA_PROJECTS_BY_DOI.get(study.doi)?.projects[0].projectId) ??
-          null,
+          study.hcaProjectId === undefined
+            ? (study.doi &&
+                TEST_HCA_PROJECTS_BY_DOI.get(study.doi)?.projects[0]
+                  .projectId) ??
+              null
+            : study.hcaProjectId,
         publication: study.publication,
         unpublishedInfo: null,
       };

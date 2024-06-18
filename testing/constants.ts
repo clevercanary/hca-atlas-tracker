@@ -101,6 +101,29 @@ export const DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
 export const DOI_PUBLISHED_WITH_CAP_AND_CELLXGENE =
   "10.123/published-with-cap-and-cellxgene";
 
+export const DOI_PUBLISHED_WITH_UNCHANGING_IDS =
+  "10.123/published-with-unchanging-ids";
+
+export const DOI_PUBLISHED_WITH_NEW_HCA_ID = "10.123/published-with-new-hca-id";
+
+export const DOI_PUBLISHED_WITH_UPDATED_HCA_ID =
+  "10.123/published-with-updated-hca-id";
+
+export const DOI_PUBLISHED_WITH_REMOVED_HCA_ID =
+  "10.123/published-with-removed-hca-id";
+
+export const DOI_PUBLISHED_WITH_NEW_CELLXGENE_ID =
+  "10.123/published-with-new-cellxgene-id";
+
+export const DOI_PUBLISHED_WITH_UPDATED_CELLXGENE_ID =
+  "10.123/published-with-updated-cellxgene-id";
+
+export const DOI_PUBLISHED_WITH_REMOVED_CELLXGENE_ID =
+  "10.123/published-with-removed-cellxgene-id";
+
+export const DOI_PUBLISHED_WITH_CHANGING_IDS =
+  "10.123/published-with-changing-ids";
+
 // PUBLICATIONS
 
 export const PUBLICATION_DRAFT_OK: PublicationInfo = {
@@ -268,6 +291,20 @@ export const PUBLICATION_PUBLIC_WITH_JOURNAL: PublicationInfo = {
   title: "Public With Journal",
 };
 
+export const PUBLICATION_PUBLISHED_WITH_UNCHANGING_IDS: PublicationInfo = {
+  authors: [
+    {
+      name: "Foo",
+      personalName: null,
+    },
+  ],
+  hasPreprintDoi: null,
+  journal: "Journal Published With Unchanging IDs",
+  preprintOfDoi: null,
+  publicationDate: "2024-06-10",
+  title: "Published With Unchanging IDs",
+};
+
 export const TEST_DOI_CROSSREF_WORKS = new Map([
   [DOI_NORMAL, CROSSREF_WORK_NORMAL],
   [DOI_PREPRINT_NO_JOURNAL, CROSSREF_WORK_PREPRINT_NO_JOURNAL],
@@ -302,6 +339,24 @@ export const HCA_ID_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH =
 
 export const HCA_ID_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
   "hca-id-published-with-no-hca-primary-data";
+
+export const HCA_ID_PUBLISHED_WITH_UNCHANGING_IDS =
+  "hca-id-published-with-unchanging-ids";
+
+export const HCA_ID_PUBLISHED_WITH_NEW_HCA_ID =
+  "hca-id-published-with-new-hca-id";
+
+export const HCA_ID_PUBLISHED_WITH_UPDATED_HCA_ID_A =
+  "hca-id-published-with-updated-hca-id-a";
+
+export const HCA_ID_PUBLISHED_WITH_UPDATED_HCA_ID_B =
+  "hca-id-published-with-updated-hca-id-b";
+
+export const HCA_ID_PUBLISHED_WITH_REMOVED_HCA_ID =
+  "hca-id-published-with-removed-hca-id";
+
+export const HCA_ID_PUBLISHED_WITH_CHANGING_IDS =
+  "hca-id-published-with-changing-ids";
 
 export const HCA_PROJECTS_RESPONSE_NORMAL = makeTestProjectsResponse(
   HCA_ID_NORMAL,
@@ -358,6 +413,34 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
     []
   );
 
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UNCHANGING_IDS =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_UNCHANGING_IDS,
+    DOI_PUBLISHED_WITH_UNCHANGING_IDS,
+    PUBLICATION_PUBLISHED_WITH_UNCHANGING_IDS.title
+  );
+
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NEW_HCA_ID =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_NEW_HCA_ID,
+    DOI_PUBLISHED_WITH_NEW_HCA_ID,
+    "Published With New HCA ID"
+  );
+
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UPDATED_HCA_ID =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_UPDATED_HCA_ID_B,
+    DOI_PUBLISHED_WITH_UPDATED_HCA_ID,
+    "Published With Updated HCA ID"
+  );
+
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_CHANGING_IDS =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_CHANGING_IDS,
+    DOI_PUBLISHED_WITH_CHANGING_IDS,
+    "Published With "
+  );
+
 export const TEST_HCA_PROJECTS_BY_DOI = new Map([
   [DOI_NORMAL, HCA_PROJECTS_RESPONSE_NORMAL],
   [DOI_JOURNAL_COUNTERPART, HCA_PROJECTS_RESPONSE_JOURNAL_COUNTERPART],
@@ -374,6 +457,22 @@ export const TEST_HCA_PROJECTS_BY_DOI = new Map([
   [
     DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
     HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
+  ],
+  [
+    DOI_PUBLISHED_WITH_UNCHANGING_IDS,
+    HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UNCHANGING_IDS,
+  ],
+  [
+    DOI_PUBLISHED_WITH_NEW_HCA_ID,
+    HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NEW_HCA_ID,
+  ],
+  [
+    DOI_PUBLISHED_WITH_UPDATED_HCA_ID,
+    HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UPDATED_HCA_ID,
+  ],
+  [
+    DOI_PUBLISHED_WITH_CHANGING_IDS,
+    HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_CHANGING_IDS,
   ],
 ]);
 
@@ -416,6 +515,24 @@ export const CELLXGENE_ID_PUBLISHED_WITH_CAP_AND_CELLXGENE =
 export const CELLXGENE_ID_WITH_SOURCE_DATASETS =
   "cellxgene-collection-with-source-datasets";
 
+export const CELLXGENE_ID_PUBLISHED_WITH_UNCHANGING_IDS =
+  "cellxgene-collection-with-unchanging-ids";
+
+export const CELLXGENE_ID_PUBLISHED_WITH_NEW_CELLXGENE_ID =
+  "cellxgene-collection-with-new-cellxgene-id";
+
+export const CELLXGENE_ID_PUBLISHED_WITH_UPDATED_CELLXGENE_ID_A =
+  "cellxgene-collection-with-updated-cellxgene-id-a";
+
+export const CELLXGENE_ID_PUBLISHED_WITH_UPDATED_CELLXGENE_ID_B =
+  "cellxgene-collection-with-updated-cellxgene-id-b";
+
+export const CELLXGENE_ID_PUBLISHED_WITH_REMOVED_CELLXGENE_ID =
+  "cellxgene-collection-with-removed-cellxgene-id";
+
+export const CELLXGENE_ID_PUBLISHED_WITH_CHANGING_IDS =
+  "cellxgene-collection-with-changing-ids";
+
 export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
   collection_id: CELLXGENE_ID_NORMAL,
   doi: DOI_NORMAL,
@@ -456,6 +573,34 @@ export const TEST_CELLXGENE_COLLECTION_WITH_SOURCE_DATASETS: CellxGeneCollection
     name: "With Source Datasets",
   };
 
+export const TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_UNCHANGING_IDS: CellxGeneCollection =
+  {
+    collection_id: CELLXGENE_ID_PUBLISHED_WITH_UNCHANGING_IDS,
+    doi: DOI_PUBLISHED_WITH_UNCHANGING_IDS,
+    name: PUBLICATION_PUBLISHED_WITH_UNCHANGING_IDS.title,
+  };
+
+export const TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_NEW_CELLXGENE_ID: CellxGeneCollection =
+  {
+    collection_id: CELLXGENE_ID_PUBLISHED_WITH_NEW_CELLXGENE_ID,
+    doi: DOI_PUBLISHED_WITH_NEW_CELLXGENE_ID,
+    name: "Published With New CELLxGENE ID",
+  };
+
+export const TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_UPDATED_CELLXGENE_ID: CellxGeneCollection =
+  {
+    collection_id: CELLXGENE_ID_PUBLISHED_WITH_UPDATED_CELLXGENE_ID_B,
+    doi: DOI_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
+    name: "Published With Updated CELLxGENE ID",
+  };
+
+export const TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CHANGING_IDS: CellxGeneCollection =
+  {
+    collection_id: CELLXGENE_ID_PUBLISHED_WITH_CHANGING_IDS,
+    doi: DOI_PUBLISHED_WITH_CHANGING_IDS,
+    name: "Published With Changing IDs",
+  };
+
 export const TEST_CELLXGENE_COLLECTIONS_BY_DOI = new Map([
   [DOI_NORMAL, TEST_CELLXGENE_COLLECTION_NORMAL],
   [DOI_JOURNAL_COUNTERPART, TEST_CELLXGENE_COLLECTION_JOURNAL_COUNTERPART],
@@ -463,6 +608,22 @@ export const TEST_CELLXGENE_COLLECTIONS_BY_DOI = new Map([
   [
     DOI_PUBLISHED_WITH_CAP_AND_CELLXGENE,
     TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CAP_AND_CELLXGENE,
+  ],
+  [
+    DOI_PUBLISHED_WITH_UNCHANGING_IDS,
+    TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_UNCHANGING_IDS,
+  ],
+  [
+    DOI_PUBLISHED_WITH_NEW_CELLXGENE_ID,
+    TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_NEW_CELLXGENE_ID,
+  ],
+  [
+    DOI_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
+    TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
+  ],
+  [
+    DOI_PUBLISHED_WITH_CHANGING_IDS,
+    TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CHANGING_IDS,
   ],
 ]);
 
@@ -727,6 +888,170 @@ export const SOURCE_STUDY_WITH_SOURCE_DATASETS: TestUnpublishedSourceStudy = {
   },
 };
 
+export const SOURCE_STUDY_PUBLISHED_WITH_UNCHANGING_IDS: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: CELLXGENE_ID_PUBLISHED_WITH_UNCHANGING_IDS,
+    doi: DOI_PUBLISHED_WITH_UNCHANGING_IDS,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: HCA_ID_PUBLISHED_WITH_UNCHANGING_IDS,
+    id: "c84db1e2-56ec-4e83-956a-ad41c96e1dfb",
+    publication: PUBLICATION_PUBLISHED_WITH_UNCHANGING_IDS,
+  };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_NEW_HCA_ID: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    doi: DOI_PUBLISHED_WITH_NEW_HCA_ID,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: null,
+    id: "832731ec-e9cb-460e-9ba6-850ea62f99da",
+    publication: {
+      authors: [
+        {
+          name: "Bar",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal Published With New HCA ID",
+      preprintOfDoi: null,
+      publicationDate: "2024-06-11",
+      title: "Published With New HCA ID",
+    },
+  };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_UPDATED_HCA_ID: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    doi: DOI_PUBLISHED_WITH_UPDATED_HCA_ID,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: HCA_ID_PUBLISHED_WITH_UPDATED_HCA_ID_A,
+    id: "9fbc732f-a7da-4e91-b7c3-686d9e3e236a",
+    publication: {
+      authors: [
+        {
+          name: "Baz",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal Published With Updating HCA ID",
+      preprintOfDoi: null,
+      publicationDate: "2024-06-12",
+      title: "Published With Updating HCA ID",
+    },
+  };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_REMOVED_HCA_ID: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    doi: DOI_PUBLISHED_WITH_REMOVED_HCA_ID,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: HCA_ID_PUBLISHED_WITH_REMOVED_HCA_ID,
+    id: "1105c6fa-fa22-4eaf-907d-b4f82c686af8",
+    publication: {
+      authors: [
+        {
+          name: "Foofoo",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal Published With Removed HCA ID",
+      preprintOfDoi: null,
+      publicationDate: "2024-06-13",
+      title: "Published With Removed HCA ID",
+    },
+  };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_NEW_CELLXGENE_ID: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    doi: DOI_PUBLISHED_WITH_NEW_CELLXGENE_ID,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: null,
+    id: "80aa64d7-175a-4432-b04d-42c1a5f6c799",
+    publication: {
+      authors: [
+        {
+          name: "Foobar",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal Published With New CELLxGENE ID",
+      preprintOfDoi: null,
+      publicationDate: "2024-06-14",
+      title: "Published With New CELLxGENE ID",
+    },
+  };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_UPDATED_CELLXGENE_ID: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: CELLXGENE_ID_PUBLISHED_WITH_UPDATED_CELLXGENE_ID_A,
+    doi: DOI_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: null,
+    id: "f2ada434-6504-47d7-97cf-cd524c2293d2",
+    publication: {
+      authors: [
+        {
+          name: "Foobaz",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal Published With Updating CELLxGENE ID",
+      preprintOfDoi: null,
+      publicationDate: "2024-06-15",
+      title: "Published With Updating CELLxGENE ID",
+    },
+  };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_REMOVED_CELLXGENE_ID: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: CELLXGENE_ID_PUBLISHED_WITH_REMOVED_CELLXGENE_ID,
+    doi: DOI_PUBLISHED_WITH_REMOVED_CELLXGENE_ID,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: null,
+    id: "fc836ee5-5474-4520-b7b9-3dd8c1224bd7",
+    publication: {
+      authors: [
+        {
+          name: "Barfoo",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal Published With Removed CELLxGENE ID",
+      preprintOfDoi: null,
+      publicationDate: "2024-06-16",
+      title: "Published With Removed CELLxGENE ID",
+    },
+  };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    doi: DOI_PUBLISHED_WITH_CHANGING_IDS,
+    doiStatus: DOI_STATUS.OK,
+    hcaProjectId: null,
+    id: "468fc429-cbe1-4626-ae8a-daef4bafa993",
+    publication: {
+      authors: [
+        {
+          name: "Barbar",
+          personalName: null,
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal Published With Changing IDs",
+      preprintOfDoi: null,
+      publicationDate: "2024-06-17",
+      title: "Published With Changing IDs",
+    },
+  };
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -744,6 +1069,14 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
+  SOURCE_STUDY_PUBLISHED_WITH_UNCHANGING_IDS,
+  SOURCE_STUDY_PUBLISHED_WITH_NEW_HCA_ID,
+  SOURCE_STUDY_PUBLISHED_WITH_UPDATED_HCA_ID,
+  SOURCE_STUDY_PUBLISHED_WITH_REMOVED_HCA_ID,
+  SOURCE_STUDY_PUBLISHED_WITH_NEW_CELLXGENE_ID,
+  SOURCE_STUDY_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
+  SOURCE_STUDY_PUBLISHED_WITH_REMOVED_CELLXGENE_ID,
+  SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];

@@ -120,6 +120,19 @@ async function runMigrations(
   });
 }
 
+export async function getExistingSourceStudyFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBSourceStudy> {
+  const result = (
+    await query<HCAAtlasTrackerDBSourceStudy>(
+      "SELECT * FROM hat.source_studies WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
+  if (!result) throw new Error(`Source dataset ${id} doesn't exist`);
+  return result;
+}
+
 export async function getValidationsByEntityId(
   id: string
 ): Promise<HCAAtlasTrackerDBValidation[]> {
