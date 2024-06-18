@@ -1,3 +1,4 @@
+import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { CellContext, ColumnDef, Row } from "@tanstack/react-table";
@@ -19,8 +20,10 @@ import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
+import { UseDeleteData } from "../../../../hooks/useDeleteData";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
+import { ComponentAtlasDeleteSourceDatasetsData } from "../../../../views/ComponentAtlasView/common/entities";
 
 /**
  * Build props for the atlas name cell component.
@@ -493,10 +496,18 @@ export function getAtlasComponentAtlasesTableColumns(
 
 /**
  * Returns the table column definition model for the atlas component source datasets table.
+ * @param onDelete - Delete source datasets function.
  * @returns Table column definition.
  */
-export function getAtlasComponentSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [getComponentAtlasSourceDatasetTitleColumnDef()];
+export function getAtlasComponentSourceDatasetsTableColumns(
+  onDelete: UseDeleteData<ComponentAtlasDeleteSourceDatasetsData>["onDelete"]
+): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [
+    getComponentAtlasSourceDatasetTitleColumnDef(),
+    getComponentAtlasSourceDatasetSourceStudyTitleColumnDef(),
+    getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
+    getComponentAtlasSourceDatasetDeleteColumnDef(onDelete),
+  ];
 }
 
 /**
@@ -643,6 +654,57 @@ export function getBioNetworkName(name: string): string {
 }
 
 /**
+ * Returns component atlas source dataset cell count column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "cellCount",
+    cell: ({ row }) =>
+      C.Cell({ value: row.original.cellCount.toLocaleString() }),
+    header: "Cell count",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns component atlas source dataset delete column def.
+ * @param onDelete - Delete source datasets function.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetDeleteColumnDef(
+  onDelete: UseDeleteData<ComponentAtlasDeleteSourceDatasetsData>["onDelete"]
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "delete",
+    cell: ({ row }) =>
+      C.IconButtonSecondary({
+        children: C.UnLinkIcon({ color: "inkLight", fontSize: "small" }),
+        onClick: () =>
+          onDelete({
+            sourceDatasetIds: [row.original.id],
+          }),
+      }),
+    header: "",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns component atlas source dataset source study title column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetSourceStudyTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "sourceStudyTitle",
+    cell: ({ row }) =>
+      C.Cell({ value: row.original.sourceStudyTitle ?? LABEL.UNSPECIFIED }),
+    header: "Source study",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
  * Returns component atlas source dataset title column def.
  * @returns ColumnDef.
  */
@@ -651,6 +713,7 @@ function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrack
     accessorKey: "title",
     cell: ({ row }) => C.Cell({ value: row.original.title }),
     header: "Title",
+    meta: { columnPinned: true, enableSortingInteraction: false },
   };
 }
 

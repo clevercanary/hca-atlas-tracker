@@ -21,7 +21,7 @@ export const tableStyles = (props: ThemeProps) => css`
         .MuiTableRow-root {
           .MuiTableCell-root {
             min-height: 56px;
-            padding: 12px 16px;
+            padding: 10px 16px;
 
             &.MuiTableCell-paddingCheckbox {
               padding-right: 0;

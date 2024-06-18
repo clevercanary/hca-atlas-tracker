@@ -6,11 +6,10 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { Actions } from "../../components/Detail/components/ViewComponentAtlas/components/Actions/actions";
 import { ViewComponentAtlas } from "../../components/Detail/components/ViewComponentAtlas/viewComponentAtlas";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditComponentAtlasForm } from "./hooks/useEditComponentAtlasForm";
 import { useEditComponentAtlasFormManager } from "./hooks/useEditComponentAtlasFormManager";
-import { useFetchComponentAtlasSourceDatasets } from "./hooks/useFetchComponentAtlasSourceDatasets";
+import { useFetchComponentAtlasData } from "./hooks/useFetchComponentAtlasData";
 
 interface ComponentAtlasViewProps {
   pathParameter: PathParameter;
@@ -19,9 +18,7 @@ interface ComponentAtlasViewProps {
 export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { componentAtlasSourceDatasets } =
-    useFetchComponentAtlasSourceDatasets(pathParameter);
+  const componentAtlasData = useFetchComponentAtlasData(pathParameter);
   const formMethod = useEditComponentAtlasForm(pathParameter);
   const formManager = useEditComponentAtlasFormManager(
     pathParameter,
@@ -33,12 +30,19 @@ export const ComponentAtlasView = ({
     isLoading,
   } = formManager;
   const { data: componentAtlas } = formMethod;
+  const { atlas, componentAtlasSourceDatasets, sourceStudiesSourceDatasets } =
+    componentAtlasData;
   if (isLoading) return <Fragment />;
   return (
     <ConditionalComponent
       isIn={shouldRenderView(
         canView,
-        Boolean(atlas && componentAtlas && componentAtlasSourceDatasets)
+        Boolean(
+          atlas &&
+            componentAtlas &&
+            componentAtlasSourceDatasets &&
+            sourceStudiesSourceDatasets
+        )
       )}
     >
       <DetailView
@@ -55,6 +59,7 @@ export const ComponentAtlasView = ({
             formManager={formManager}
             formMethod={formMethod}
             pathParameter={pathParameter}
+            sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
           />
         }
         title={componentAtlas?.title || "Component Atlas"}

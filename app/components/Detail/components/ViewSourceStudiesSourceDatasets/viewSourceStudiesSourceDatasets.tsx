@@ -9,11 +9,13 @@ import { Dialog } from "./viewSourceStudiesSourceDatasets.styles";
 export interface ViewSourceStudiesSourceDatasetsProps {
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   pathParameter: PathParameter;
+  sourceStudiesSourceDatasets: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewSourceStudiesSourceDatasets = ({
   componentAtlasSourceDatasets,
   pathParameter,
+  sourceStudiesSourceDatasets,
 }: ViewSourceStudiesSourceDatasetsProps): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const onClose = (): void => setOpen(false);
@@ -21,6 +23,7 @@ export const ViewSourceStudiesSourceDatasets = ({
   return (
     <Fragment>
       <ButtonSecondary
+        disabled={sourceStudiesSourceDatasets.length === 0}
         onClick={onOpen}
         size="small"
         startIcon={<AddLinkIcon color="inkLight" fontSize="small" />}
@@ -30,8 +33,9 @@ export const ViewSourceStudiesSourceDatasets = ({
       <Dialog fullWidth onClose={onClose} open={open}>
         <SourceStudiesSourceDatasets
           componentAtlasSourceDatasets={componentAtlasSourceDatasets}
-          pathParameter={pathParameter}
           onClose={onClose}
+          pathParameter={pathParameter}
+          sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
         />
       </Dialog>
     </Fragment>

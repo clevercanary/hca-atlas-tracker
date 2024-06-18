@@ -13,7 +13,13 @@ export const useSourceStudiesSourceDatasetsForm = (
   SourceStudiesSourceDatasetsEditData,
   HCAAtlasTrackerSourceDataset[]
 > => {
-  return useForm(SCHEMA, componentAtlasSourceDatasets, mapSchemaValues);
+  return useForm(
+    SCHEMA,
+    componentAtlasSourceDatasets,
+    mapSchemaValues,
+    undefined,
+    { defaultValues: mapSchemaValues(componentAtlasSourceDatasets) }
+  );
 };
 
 /**

@@ -1,8 +1,12 @@
 import { FieldValues, UseFormReturn } from "react-hook-form";
-import { UseFormReset } from "react-hook-form/dist/types/form";
+import { UseFormProps, UseFormReset } from "react-hook-form/dist/types/form";
 import { InferType, ObjectSchema } from "yup";
 import { METHOD } from "../../../common/entities";
 import { UseForm } from "../useForm";
+
+export interface CustomUseFormOptions<T extends FieldValues> {
+  defaultValues?: UseFormProps<YupValidatedFormValues<T>>["defaultValues"];
+}
 
 export type CustomUseFormReturn<T extends FieldValues> = UseFormReturn<
   YupValidatedFormValues<T>

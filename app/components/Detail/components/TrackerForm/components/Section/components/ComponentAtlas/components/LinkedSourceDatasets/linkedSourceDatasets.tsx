@@ -2,23 +2,24 @@ import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Pape
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../../../../../common/entities";
 import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
-import { getAtlasComponentSourceDatasetsTableColumns } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { Paper } from "../../../../../../../../../Table/components/TablePaper/tablePaper.styles";
 import { Toolbar } from "../../../../../../../../../Table/components/TableToolbar/tableToolbar.styles";
-import { Table } from "../../../../../../../../../Table/table.styles";
 import { ViewSourceStudiesSourceDatasets } from "../../../../../../../ViewSourceStudiesSourceDatasets/viewSourceStudiesSourceDatasets";
 import { Section, SectionHero, SectionTitle } from "../../../../section.styles";
+import { Table } from "./components/Table/table";
 
 export interface LinkedSourceDatasetsProps {
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   formManager: FormManager;
   pathParameter: PathParameter;
+  sourceStudiesSourceDatasets: HCAAtlasTrackerSourceDataset[];
 }
 
 export const LinkedSourceDatasets = ({
   componentAtlasSourceDatasets,
   formManager,
   pathParameter,
+  sourceStudiesSourceDatasets,
 }: LinkedSourceDatasetsProps): JSX.Element => {
   const { access: canEdit } = formManager;
   return (
@@ -33,16 +34,14 @@ export const LinkedSourceDatasets = ({
               <ViewSourceStudiesSourceDatasets
                 componentAtlasSourceDatasets={componentAtlasSourceDatasets}
                 pathParameter={pathParameter}
+                sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
               />
             </Toolbar>
           )}
-          {componentAtlasSourceDatasets.length > 0 && (
-            <Table
-              columns={getAtlasComponentSourceDatasetsTableColumns()}
-              gridTemplateColumns="minmax(260px, 1fr)"
-              items={componentAtlasSourceDatasets}
-            />
-          )}
+          <Table
+            componentAtlasSourceDatasets={componentAtlasSourceDatasets}
+            pathParameter={pathParameter}
+          />
         </GridPaper>
       </Paper>
     </Section>

@@ -2,25 +2,24 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../apis/catal
 import { PathParameter } from "../../../../../../../../common/entities";
 import { DialogBody } from "../../../../../../../common/Form/components/Dialog/components/DialogBody/dialogBody";
 import { FIELD_NAME } from "../../../../../ViewSourceStudiesSourceDatasets/common/constants";
-import { useFetchSourceStudiesSourceDatasets } from "../../../../../ViewSourceStudiesSourceDatasets/hooks/useFetchSourceStudiesSourceDatasets";
 import { useSourceStudiesSourceDatasetsForm } from "../../../../../ViewSourceStudiesSourceDatasets/hooks/useSourceStudiesSourceDatasetsForm";
 import { useSourceStudiesSourceDatasetsFormManager } from "../../../../../ViewSourceStudiesSourceDatasets/hooks/useSourceStudiesSourceDatasetsFormManager";
 import { FormActions } from "./components/FormActions/formActions";
-import { FormContent } from "./components/FormContent/formContent";
+import { Table } from "./components/FormContent/components/Table/table";
 
 export interface SourceStudiesSourceDatasetsProps {
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   onClose: () => void;
   pathParameter: PathParameter;
+  sourceStudiesSourceDatasets: HCAAtlasTrackerSourceDataset[];
 }
 
 export const SourceStudiesSourceDatasets = ({
   componentAtlasSourceDatasets,
   onClose,
   pathParameter,
+  sourceStudiesSourceDatasets,
 }: SourceStudiesSourceDatasetsProps): JSX.Element => {
-  const sourceStudiesSourceDatasets =
-    useFetchSourceStudiesSourceDatasets(pathParameter);
   const formMethod = useSourceStudiesSourceDatasetsForm(
     componentAtlasSourceDatasets
   );
@@ -40,7 +39,7 @@ export const SourceStudiesSourceDatasets = ({
         />
       )}
       content={({ formMethod }): JSX.Element => (
-        <FormContent
+        <Table
           formMethod={formMethod}
           sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
         />

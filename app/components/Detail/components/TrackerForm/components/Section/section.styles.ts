@@ -4,12 +4,16 @@ import {
   mediaDesktopSmallUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
-import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import {
+  inkLight,
+  smokeMain,
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import {
   textBody400,
   textBodyLarge500,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import styled from "@emotion/styled";
+import { Table as CommonTable } from "../../../../../Table/table.styles";
 
 interface SectionProps {
   fullWidth?: boolean;
@@ -64,3 +68,17 @@ export const SectionCard = styled(FluidPaper)`
     grid-template-columns: 1fr 1fr;
   }
 `;
+
+export const SectionTable = styled(CommonTable)`
+  background-color: ${smokeMain};
+
+  .MuiTable-root {
+    .MuiTableBody-root {
+      .MuiTableRow-root[id^="sub-row"] {
+        .MuiTableCell-root:first-of-type {
+          padding-left: 46px;
+        }
+      }
+    }
+  }
+` as typeof CommonTable;

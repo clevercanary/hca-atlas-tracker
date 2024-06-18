@@ -5,5 +5,18 @@ export const Toolbar = styled(DXTToolbar)`
   &.MuiToolbar-table {
     justify-content: flex-end;
     padding: 16px;
+
+    .MuiButton-root {
+      &.MuiButton-containedSecondary {
+        .MuiButton-iconSizeSmall {
+          font-size: 20px;
+          margin-left: -4px;
+
+          .MuiSvgIcon-root {
+            font-size: inherit;
+          }
+        }
+      }
+    }
   }
 `;
