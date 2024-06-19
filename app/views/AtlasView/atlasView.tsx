@@ -2,12 +2,15 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { Fragment } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
+import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
-import { ViewAtlas } from "../../components/Detail/components/ViewAtlas/viewAtlas";
+import { AtlasForm } from "../../components/Forms/components/Atlas/atlas";
+import { VIEW_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
@@ -36,7 +39,12 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
           />
         }
         mainColumn={
-          <ViewAtlas formManager={formManager} formMethod={formMethod} />
+          <AtlasForm
+            accessFallback={renderAccessFallback(formManager)}
+            formManager={formManager}
+            formMethod={formMethod}
+            sectionConfigs={VIEW_ATLAS_SECTION_CONFIGS}
+          />
         }
         status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
         tabs={
@@ -51,3 +59,16 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     </ConditionalComponent>
   );
 };
+
+/**
+ * Returns the access fallback component from the form manager access state.
+ * @param formManager - Form manager.
+ * @returns access fallback component.
+ */
+function renderAccessFallback(formManager: FormManager): JSX.Element | null {
+  const {
+    access: { canView },
+  } = formManager;
+  if (!canView) return <AccessPrompt text="to view the atlas" />;
+  return null;
+}
