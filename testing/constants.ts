@@ -124,6 +124,8 @@ export const DOI_PUBLISHED_WITH_REMOVED_CELLXGENE_ID =
 export const DOI_PUBLISHED_WITH_CHANGING_IDS =
   "10.123/published-with-changing-ids";
 
+export const DOI_WITH_NEW_SOURCE_DATASETS = "10.123/with-new-source-datasets";
+
 // PUBLICATIONS
 
 export const PUBLICATION_DRAFT_OK: PublicationInfo = {
@@ -533,6 +535,9 @@ export const CELLXGENE_ID_PUBLISHED_WITH_REMOVED_CELLXGENE_ID =
 export const CELLXGENE_ID_PUBLISHED_WITH_CHANGING_IDS =
   "cellxgene-collection-with-changing-ids";
 
+export const CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS =
+  "cellxgene-collection-with-new-source-datasets";
+
 export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
   collection_id: CELLXGENE_ID_NORMAL,
   doi: DOI_NORMAL,
@@ -601,6 +606,13 @@ export const TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CHANGING_IDS: CellxGeneCol
     name: "Published With Changing IDs",
   };
 
+export const TEST_CELLXGENE_COLLECTION_WITH_NEW_SOURCE_DATASETS: CellxGeneCollection =
+  {
+    collection_id: CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
+    doi: DOI_WITH_NEW_SOURCE_DATASETS,
+    name: "With New Source Datasets",
+  };
+
 export const TEST_CELLXGENE_COLLECTIONS_BY_DOI = new Map([
   [DOI_NORMAL, TEST_CELLXGENE_COLLECTION_NORMAL],
   [DOI_JOURNAL_COUNTERPART, TEST_CELLXGENE_COLLECTION_JOURNAL_COUNTERPART],
@@ -624,6 +636,10 @@ export const TEST_CELLXGENE_COLLECTIONS_BY_DOI = new Map([
   [
     DOI_PUBLISHED_WITH_CHANGING_IDS,
     TEST_CELLXGENE_COLLECTION_PUBLISHED_WITH_CHANGING_IDS,
+  ],
+  [
+    DOI_WITH_NEW_SOURCE_DATASETS,
+    TEST_CELLXGENE_COLLECTION_WITH_NEW_SOURCE_DATASETS,
   ],
 ]);
 
@@ -670,6 +686,24 @@ export const CELLXGENE_DATASET_NEW: CellxGeneDataset = {
   title: "Dataset New",
 };
 
+export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO: CellxGeneDataset =
+  {
+    cell_count: 100,
+    collection_id: CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
+    dataset_id: "cellxgene-dataset-with-new-source-datasets-foo",
+    dataset_version_id: "cellxgene-version-with-new-source-datasets-foo",
+    title: "Dataset With New Source Datasets Foo",
+  };
+
+export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR: CellxGeneDataset =
+  {
+    cell_count: 200,
+    collection_id: CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
+    dataset_id: "cellxgene-dataset-with-new-source-datasets-bar",
+    dataset_version_id: "cellxgene-version-with-new-source-datasets-bar",
+    title: "Dataset With New Source Datasets Bar",
+  };
+
 export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
   [
     CELLXGENE_ID_WITH_SOURCE_DATASETS,
@@ -677,6 +711,13 @@ export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
       CELLXGENE_DATASET_WITHOUT_UPDATE,
       CELLXGENE_DATASET_WITH_UPDATE_UPDATED,
       CELLXGENE_DATASET_NEW,
+    ],
+  ],
+  [
+    CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
+    [
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
     ],
   ],
 ]);
