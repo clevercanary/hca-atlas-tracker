@@ -1,14 +1,18 @@
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
-import { UseDeleteData, useDeleteData } from "../../../hooks/useDeleteData";
+import { useDeleteData } from "../../../hooks/useDeleteData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { FetchDataActionKind } from "../../../providers/fetchDataState/fetchDataState";
 import { ComponentAtlasDeleteSourceDatasetsData } from "../common/entities";
 
-export const useDeleteComponentAtlasSourceDatasets = (
+export interface UseUnlinkComponentAtlasSourceDatasets {
+  onUnlink: (payload?: ComponentAtlasDeleteSourceDatasetsData) => Promise<void>;
+}
+
+export const useUnlinkComponentAtlasSourceDatasets = (
   pathParameter: PathParameter
-): UseDeleteData<ComponentAtlasDeleteSourceDatasetsData> => {
+): UseUnlinkComponentAtlasSourceDatasets => {
   const { fetchDataDispatch } = useFetchDataState();
   const { onDelete } = useDeleteData<ComponentAtlasDeleteSourceDatasetsData>(
     getRequestURL(API.ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS, pathParameter),
@@ -24,6 +28,6 @@ export const useDeleteComponentAtlasSourceDatasets = (
   );
 
   return {
-    onDelete,
+    onUnlink: onDelete,
   };
 };

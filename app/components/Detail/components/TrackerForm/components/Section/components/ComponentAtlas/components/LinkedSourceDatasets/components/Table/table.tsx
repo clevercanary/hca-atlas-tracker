@@ -1,7 +1,7 @@
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../../../../../../../common/entities";
 import { getAtlasComponentSourceDatasetsTableColumns } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { useDeleteComponentAtlasSourceDatasets } from "../../../../../../../../../../../../views/ComponentAtlasView/hooks/useDeleteComponentAtlasSourceDatasets";
+import { useUnlinkComponentAtlasSourceDatasets } from "../../../../../../../../../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 import { SectionTable } from "../../../../../../section.styles";
 import { TABLE_OPTIONS } from "./common/constants";
 
@@ -14,11 +14,11 @@ export const Table = ({
   componentAtlasSourceDatasets = [],
   pathParameter,
 }: TableProps): JSX.Element | null => {
-  const { onDelete } = useDeleteComponentAtlasSourceDatasets(pathParameter);
+  const { onUnlink } = useUnlinkComponentAtlasSourceDatasets(pathParameter);
   if (componentAtlasSourceDatasets.length === 0) return null;
   return (
     <SectionTable
-      columns={getAtlasComponentSourceDatasetsTableColumns(onDelete)}
+      columns={getAtlasComponentSourceDatasetsTableColumns(onUnlink)}
       gridTemplateColumns="minmax(272px, 1fr) minmax(202px, 1fr) minmax(200px, auto) auto"
       items={componentAtlasSourceDatasets}
       tableOptions={TABLE_OPTIONS}

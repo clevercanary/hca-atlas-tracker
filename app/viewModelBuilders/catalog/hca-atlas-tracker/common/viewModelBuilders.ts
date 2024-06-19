@@ -19,10 +19,9 @@ import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
-import { UseDeleteData } from "../../../../hooks/useDeleteData";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
-import { ComponentAtlasDeleteSourceDatasetsData } from "../../../../views/ComponentAtlasView/common/entities";
+import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 
 /**
  * Build props for the atlas name cell component.
@@ -495,17 +494,17 @@ export function getAtlasComponentAtlasesTableColumns(
 
 /**
  * Returns the table column definition model for the atlas component source datasets table.
- * @param onDelete - Delete source datasets function.
+ * @param onUnlink - Unlink source datasets function.
  * @returns Table column definition.
  */
 export function getAtlasComponentSourceDatasetsTableColumns(
-  onDelete: UseDeleteData<ComponentAtlasDeleteSourceDatasetsData>["onDelete"]
+  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"]
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getComponentAtlasSourceDatasetTitleColumnDef(),
     getComponentAtlasSourceDatasetPublicationColumnDef(),
     getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
-    getComponentAtlasSourceDatasetDeleteColumnDef(onDelete),
+    getComponentAtlasSourceDatasetUnlinkColumnDef(onUnlink),
   ];
 }
 
@@ -667,29 +666,6 @@ function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDe
 }
 
 /**
- * Returns component atlas source dataset delete column def.
- * @param onDelete - Delete source datasets function.
- * @returns ColumnDef.
- */
-function getComponentAtlasSourceDatasetDeleteColumnDef(
-  onDelete: UseDeleteData<ComponentAtlasDeleteSourceDatasetsData>["onDelete"]
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "delete",
-    cell: ({ row }) =>
-      C.IconButtonSecondary({
-        children: C.UnLinkIcon({ color: "inkLight", fontSize: "small" }),
-        onClick: () =>
-          onDelete({
-            sourceDatasetIds: [row.original.id],
-          }),
-      }),
-    header: "",
-    meta: { enableSortingInteraction: false },
-  };
-}
-
-/**
  * Returns component atlas source dataset publication column def.
  * @returns ColumnDef.
  */
@@ -712,6 +688,29 @@ function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrack
     cell: ({ row }) => C.Cell({ value: row.original.title }),
     header: "Title",
     meta: { columnPinned: true, enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns component atlas source dataset unlink column def.
+ * @param onUnlink - Unlink source datasets function.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetUnlinkColumnDef(
+  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"]
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "delete",
+    cell: ({ row }) =>
+      C.IconButtonSecondary({
+        children: C.UnLinkIcon({ color: "inkLight", fontSize: "small" }),
+        onClick: () =>
+          onUnlink({
+            sourceDatasetIds: [row.original.id],
+          }),
+      }),
+    header: "",
+    meta: { enableSortingInteraction: false },
   };
 }
 
