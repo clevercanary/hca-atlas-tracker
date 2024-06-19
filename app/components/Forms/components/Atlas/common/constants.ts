@@ -1,10 +1,10 @@
-import { NewAtlasData } from "../../../../../../../../../views/AddNewAtlasView/common/entities";
-import { FIELD_NAME } from "../../../../../../../../../views/AtlasView/common/constants";
-import { AtlasEditData } from "../../../../../../../../../views/AtlasView/common/entities";
-import { ControllerConfig } from "../../../../../../../../common/Form/components/Controllers/common/entities";
-import { BioNetwork } from "../../../../../../../../Form/components/Select/components/BioNetwork/bioNetwork";
-import { TargetCompletion } from "../../../../../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
-import { Wave } from "../../../../../../../../Form/components/Select/components/Wave/wave";
+import { NewAtlasData } from "../../../../../views/AddNewAtlasView/common/entities";
+import { FIELD_NAME } from "../../../../../views/AtlasView/common/constants";
+import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
+import { ControllerConfig } from "../../../../common/Form/components/Controllers/common/entities";
+import { BioNetwork } from "../../../../Form/components/Select/components/BioNetwork/bioNetwork";
+import { TargetCompletion } from "../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
+import { Wave } from "../../../../Form/components/Select/components/Wave/wave";
 
 type CommonControllerConfig = ControllerConfig<NewAtlasData | AtlasEditData>;
 

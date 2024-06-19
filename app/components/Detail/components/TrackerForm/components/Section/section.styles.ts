@@ -19,12 +19,12 @@ interface SectionProps {
   fullWidth?: boolean;
 }
 
-export const Section = styled.div`
+export const Section = styled.div<SectionProps>`
   align-items: flex-start;
   display: grid;
   gap: 16px;
   grid-column: 1 / -1;
-  grid-template-columns: inherit;
+  grid-template-columns: ${({ fullWidth }) => (fullWidth ? "1fr" : "inherit")};
 
   ${mediaTabletUp} {
     gap: inherit;
@@ -54,14 +54,14 @@ export const SectionText = styled.div`
   font-size: 13px;
 `;
 
-export const SectionCard = styled(FluidPaper)`
+export const SectionCard = styled(FluidPaper)<SectionProps>`
   ${sectionPadding};
   display: grid;
   gap: 20px;
   grid-template-columns: 1fr;
 
   ${mediaTabletUp} {
-    grid-column: 6 / span 7;
+    grid-column: ${({ fullWidth }) => (fullWidth ? "1fr" : "6 / span 7")};
   }
 
   ${mediaDesktopSmallUp} {

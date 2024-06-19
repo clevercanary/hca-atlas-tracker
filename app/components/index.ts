@@ -18,7 +18,6 @@ export { BackPageHero } from "@databiosphere/findable-ui/lib/components/Layout/c
 export { Logo } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
 export { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 export { IconButtonSecondary } from "./common/Button/components/IconButtonSecondary/iconButtonSecondary";
-export { PinnedNTagCell } from "./common/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RenderComponents } from "./common/RenderComponents/renderComponents";
 export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
@@ -28,6 +27,7 @@ export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
 export { GroupedRowSelectionCell } from "./Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
+export { PinnedNTagCell } from "./Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RowSelectionCell } from "./Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 export { SourceStudyStatusCell } from "./Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
