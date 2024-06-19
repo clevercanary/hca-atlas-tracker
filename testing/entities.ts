@@ -43,8 +43,10 @@ export type TestSourceStudy =
 
 export interface TestPublishedSourceStudy {
   capId?: string;
+  cellxgeneCollectionId?: string | null;
   doi: string | null;
   doiStatus: DOI_STATUS;
+  hcaProjectId?: string | null;
   id: string;
   publication: PublicationInfo | null;
 }
