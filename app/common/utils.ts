@@ -7,16 +7,42 @@ import { FETCH_STATUS, METHOD, PathParameter } from "./entities";
  * Returns fetch request options.
  * @param method - Method.
  * @param accessToken - Access token.
+ * @param defaultHeaders - Default headers.
  * @returns fetch request options.
  */
 export function getFetchOptions(
   method: METHOD,
-  accessToken: string | undefined
+  accessToken: string | undefined,
+  defaultHeaders?: HeadersInit
 ): RequestInit {
   return {
-    headers: getHeaders(method, accessToken),
+    headers: getHeaders(method, accessToken, defaultHeaders),
     method,
   };
+}
+
+/**
+ * Fetch request.
+ * @param requestURL - Request URL.
+ * @param requestMethod - Request method.
+ * @param accessToken - Access token.
+ * @param payload - Payload.
+ * @returns promise (response).
+ */
+export async function fetchResource<P>(
+  requestURL: string,
+  requestMethod: METHOD,
+  accessToken?: string,
+  payload?: P
+): Promise<Response> {
+  return await fetch(requestURL, {
+    ...getFetchOptions(
+      requestMethod,
+      accessToken,
+      payload ? DEFAULT_HEADERS : undefined
+    ),
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
 }
 
 /**

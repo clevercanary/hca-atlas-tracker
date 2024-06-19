@@ -2,9 +2,9 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../.
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { getAtlasSourceStudiesSourceDatasetsTableColumns } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { SourceStudiesSourceDatasetsEditData } from "../../../../../../../../../ViewSourceStudiesSourceDatasets/common/entities";
+import { SectionTable } from "../../../../../../section.styles";
 import { useSourceStudiesSourceDatasetsTableOptions } from "../../../../hooks/useSourceStudiesSourceDatasetsTableOptions";
 import { useUpdateSourceStudiesSourceDatasetsFormState } from "../../../../hooks/useUpdateSourceStudiesSourceDatasetsFormState";
-import { DetailTable } from "./table.styles";
 
 export interface TableProps {
   formMethod: FormMethod<
@@ -21,7 +21,7 @@ export const Table = ({
   const tableOptions = useSourceStudiesSourceDatasetsTableOptions(formMethod);
   useUpdateSourceStudiesSourceDatasetsFormState(formMethod, tableOptions);
   return (
-    <DetailTable
+    <SectionTable
       columns={getAtlasSourceStudiesSourceDatasetsTableColumns()}
       gridTemplateColumns="minmax(260px, 1fr) minmax(200px, auto) minmax(200px, auto) auto"
       items={sourceStudiesSourceDatasets || []}

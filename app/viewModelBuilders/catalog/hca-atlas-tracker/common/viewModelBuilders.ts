@@ -21,6 +21,7 @@ import * as C from "../../../../components";
 import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
+import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 
 /**
  * Build props for the atlas name cell component.
@@ -493,10 +494,18 @@ export function getAtlasComponentAtlasesTableColumns(
 
 /**
  * Returns the table column definition model for the atlas component source datasets table.
+ * @param onUnlink - Unlink source datasets function.
  * @returns Table column definition.
  */
-export function getAtlasComponentSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [getComponentAtlasSourceDatasetTitleColumnDef()];
+export function getAtlasComponentSourceDatasetsTableColumns(
+  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"]
+): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [
+    getComponentAtlasSourceDatasetTitleColumnDef(),
+    getComponentAtlasSourceDatasetPublicationColumnDef(),
+    getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
+    getComponentAtlasSourceDatasetUnlinkColumnDef(onUnlink),
+  ];
 }
 
 /**
@@ -643,6 +652,33 @@ export function getBioNetworkName(name: string): string {
 }
 
 /**
+ * Returns component atlas source dataset cell count column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "cellCount",
+    cell: ({ row }) =>
+      C.Cell({ value: row.original.cellCount.toLocaleString() }),
+    header: "Cell count",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns component atlas source dataset publication column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "publicationString",
+    cell: ({ row }) => C.Cell({ value: row.original.publicationString }),
+    header: "Source study",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
  * Returns component atlas source dataset title column def.
  * @returns ColumnDef.
  */
@@ -651,6 +687,30 @@ function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrack
     accessorKey: "title",
     cell: ({ row }) => C.Cell({ value: row.original.title }),
     header: "Title",
+    meta: { columnPinned: true, enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns component atlas source dataset unlink column def.
+ * @param onUnlink - Unlink source datasets function.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetUnlinkColumnDef(
+  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"]
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "delete",
+    cell: ({ row }) =>
+      C.IconButtonSecondary({
+        children: C.UnLinkIcon({ color: "inkLight", fontSize: "small" }),
+        onClick: () =>
+          onUnlink({
+            sourceDatasetIds: [row.original.id],
+          }),
+      }),
+    header: "",
+    meta: { enableSortingInteraction: false },
   };
 }
 

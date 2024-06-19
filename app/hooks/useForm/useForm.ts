@@ -8,8 +8,13 @@ import {
 } from "react-hook-form";
 import { ObjectSchema } from "yup";
 import { METHOD } from "../../common/entities";
-import { isFetchStatusCreated, isFetchStatusOk } from "../../common/utils";
 import {
+  fetchResource,
+  isFetchStatusCreated,
+  isFetchStatusOk,
+} from "../../common/utils";
+import {
+  CustomUseFormOptions,
   CustomUseFormReturn,
   FormResponseErrors,
   MapApiValuesFn,
@@ -20,11 +25,7 @@ import {
   OnSubmitOptions,
   YupValidatedFormValues,
 } from "./common/entities";
-import {
-  fetchDelete,
-  fetchSubmit,
-  getFormResponseErrors,
-} from "./common/utils";
+import { getFormResponseErrors } from "./common/utils";
 
 export interface UseForm<T extends FieldValues, R = undefined>
   extends CustomUseFormReturn<T> {
@@ -37,7 +38,8 @@ export const useForm = <T extends FieldValues, R = undefined>(
   schema: ObjectSchema<T>,
   apiData?: R,
   mapSchemaValues?: MapSchemaValuesFn<T, R>,
-  mapApiValues: MapApiValuesFn<T> = (p): unknown => p
+  mapApiValues: MapApiValuesFn<T> = (p): unknown => p,
+  options: CustomUseFormOptions<T> = {}
 ): UseForm<T, R> => {
   const { token } = useAuthentication();
   const values = useMemo(
@@ -48,6 +50,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     reValidateMode: "onSubmit",
     resolver: yupResolver(schema),
     values,
+    ...options,
   });
   const [data, setData] = useState<R | undefined>();
   const { reset, setError } = formMethod;
@@ -76,7 +79,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
       requestMethod: METHOD,
       options?: OnDeleteOptions
     ): Promise<void> => {
-      const res = await fetchDelete(requestURL, requestMethod, token);
+      const res = await fetchResource(requestURL, requestMethod, token);
       if (isFetchStatusOk(res.status)) {
         options?.onSuccess?.();
       } else {
@@ -94,7 +97,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
       options?: OnSubmitOptions<T, R>
     ): Promise<void> => {
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
-      const res = await fetchSubmit(
+      const res = await fetchResource(
         requestURL,
         requestMethod,
         token,
