@@ -193,7 +193,7 @@ async function makePublishedSourceStudyDbData(
     throw e;
   }
 
-  const dois = publication ? getPublicationDois(doi, publication) : [];
+  const dois = getPublicationDois(doi, publication);
 
   const hcaProjectId = getProjectIdByDoi(dois);
 
@@ -295,9 +295,10 @@ export async function updateSourceStudyExternalIds(): Promise<void> {
   ).rows;
 
   for (const sourceStudy of existingPublishedSourceStudies) {
-    const dois = sourceStudy.study_info.publication
-      ? getPublicationDois(sourceStudy.doi, sourceStudy.study_info.publication)
-      : [];
+    const dois = getPublicationDois(
+      sourceStudy.doi,
+      sourceStudy.study_info.publication
+    );
     const newHcaProjectId = getProjectIdByDoi(dois);
     const newCellxGeneCollectionId = getCellxGeneIdByDoi(dois);
 

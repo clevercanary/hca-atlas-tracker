@@ -264,12 +264,12 @@ function getUnpublishedCitation(author: string, email: string | null): string {
  */
 export function getPublicationDois(
   primaryDoi: string,
-  publication: PublicationInfo
+  publication: PublicationInfo | null
 ): string[] {
   return [
-    ...(publication.preprintOfDoi ? [publication.preprintOfDoi] : []),
+    ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
     primaryDoi,
-    ...(publication.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
+    ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
   ];
 }
 
