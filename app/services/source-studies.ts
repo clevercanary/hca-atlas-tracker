@@ -288,13 +288,13 @@ export async function deleteAtlasSourceStudy(
  * Read all source studies and update their HCA project IDs and CELLxGENE collection IDs as necessary.
  */
 export async function updateSourceStudyExternalIds(): Promise<void> {
-  const existingSourceStudies = (
+  const existingPublishedSourceStudies = (
     await query<HCAAtlasTrackerDBPublishedSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE NOT doi IS NULL"
     )
   ).rows;
 
-  for (const sourceStudy of existingSourceStudies) {
+  for (const sourceStudy of existingPublishedSourceStudies) {
     const dois = sourceStudy.study_info.publication
       ? getPublicationDois(sourceStudy.doi, sourceStudy.study_info.publication)
       : [];
