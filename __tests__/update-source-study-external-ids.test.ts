@@ -18,6 +18,7 @@ import {
   SOURCE_STUDY_PUBLISHED_WITH_UNCHANGING_IDS,
   SOURCE_STUDY_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
   SOURCE_STUDY_PUBLISHED_WITH_UPDATED_HCA_ID,
+  SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
 } from "../testing/constants";
 import {
   getExistingSourceStudyFromDatabase,
@@ -65,6 +66,9 @@ describe("updateSourceStudyExternalIds", () => {
     const withChangingIdsBefore = await getExistingSourceStudyFromDatabase(
       SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS.id
     );
+    const unpublishedWithHcaBefore = await getExistingSourceStudyFromDatabase(
+      SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id
+    );
 
     await updateSourceStudyExternalIds();
 
@@ -93,6 +97,9 @@ describe("updateSourceStudyExternalIds", () => {
       );
     const withChangingIdsAfter = await getExistingSourceStudyFromDatabase(
       SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS.id
+    );
+    const unpublishedWithHcaAfter = await getExistingSourceStudyFromDatabase(
+      SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id
     );
 
     expect(withUnchangingIdsAfter).toEqual(withUnchangingIdsBefore);
@@ -155,5 +162,7 @@ describe("updateSourceStudyExternalIds", () => {
     expect(withChangingIdsAfter.study_info.cellxgeneCollectionId).toEqual(
       CELLXGENE_ID_PUBLISHED_WITH_CHANGING_IDS
     );
+
+    expect(unpublishedWithHcaAfter).toEqual(unpublishedWithHcaBefore);
   });
 });

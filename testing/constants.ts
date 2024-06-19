@@ -1052,6 +1052,17 @@ export const SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS: TestPublishedSourceStudy 
     },
   };
 
+export const SOURCE_STUDY_UNPUBLISHED_WITH_HCA: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: "hca-id-unpublished-with-hca",
+  id: "94b106b8-ff57-4e73-8e29-2a86a6e7f2fe",
+  unpublishedInfo: {
+    contactEmail: "barbaz@example.com",
+    referenceAuthor: "Barbaz",
+    title: "Unpublished With HCA",
+  },
+};
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1077,6 +1088,7 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
   SOURCE_STUDY_PUBLISHED_WITH_REMOVED_CELLXGENE_ID,
   SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS,
+  SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -1227,6 +1239,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_STUDY_PUBLISHED_WITH_UPDATED_CELLXGENE_ID.id,
     SOURCE_STUDY_PUBLISHED_WITH_REMOVED_CELLXGENE_ID.id,
     SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS.id,
+    SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id,
   ],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
