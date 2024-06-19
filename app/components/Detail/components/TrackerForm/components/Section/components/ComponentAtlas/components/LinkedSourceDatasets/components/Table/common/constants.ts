@@ -6,11 +6,11 @@ import {
 } from "@tanstack/table-core";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
-const SOURCE_STUDY_TITLE = "sourceStudyTitle";
+const PUBLICATION_STRING = "publicationString";
 const TITLE = "title";
 
 const SORTING: SortingState = [
-  { desc: SORT_DIRECTION.ASCENDING, id: SOURCE_STUDY_TITLE },
+  { desc: SORT_DIRECTION.ASCENDING, id: PUBLICATION_STRING },
   { desc: SORT_DIRECTION.ASCENDING, id: TITLE },
 ];
 

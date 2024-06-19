@@ -1,4 +1,3 @@
-import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { CellContext, ColumnDef, Row } from "@tanstack/react-table";
@@ -504,7 +503,7 @@ export function getAtlasComponentSourceDatasetsTableColumns(
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getComponentAtlasSourceDatasetTitleColumnDef(),
-    getComponentAtlasSourceDatasetSourceStudyTitleColumnDef(),
+    getComponentAtlasSourceDatasetPublicationColumnDef(),
     getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
     getComponentAtlasSourceDatasetDeleteColumnDef(onDelete),
   ];
@@ -691,14 +690,13 @@ function getComponentAtlasSourceDatasetDeleteColumnDef(
 }
 
 /**
- * Returns component atlas source dataset source study title column def.
+ * Returns component atlas source dataset publication column def.
  * @returns ColumnDef.
  */
-function getComponentAtlasSourceDatasetSourceStudyTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getComponentAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
-    accessorKey: "sourceStudyTitle",
-    cell: ({ row }) =>
-      C.Cell({ value: row.original.sourceStudyTitle ?? LABEL.UNSPECIFIED }),
+    accessorKey: "publicationString",
+    cell: ({ row }) => C.Cell({ value: row.original.publicationString }),
     header: "Source study",
     meta: { enableSortingInteraction: false },
   };

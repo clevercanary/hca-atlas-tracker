@@ -19,7 +19,7 @@ export const Table = ({
   return (
     <SectionTable
       columns={getAtlasComponentSourceDatasetsTableColumns(onDelete)}
-      gridTemplateColumns="minmax(272px, 1fr) minmax(202px, 1fr) auto auto"
+      gridTemplateColumns="minmax(272px, 1fr) minmax(202px, 1fr) minmax(200px, auto) auto"
       items={componentAtlasSourceDatasets}
       tableOptions={TABLE_OPTIONS}
     />
