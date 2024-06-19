@@ -24,6 +24,7 @@ import { normalizeDoi } from "../utils/doi";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import { getPoolClient, query } from "./database";
 import { getProjectIdByDoi } from "./hca-projects";
+import { updateSourceStudyCellxGeneDatasets } from "./source-datasets";
 import { updateSourceStudyValidations } from "./validations";
 
 /**
@@ -78,6 +79,8 @@ export async function createSourceStudy(
       "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2",
       [JSON.stringify([newStudy.id]), atlasId]
     );
+    // Add source datasets and validations
+    await updateSourceStudyCellxGeneDatasets(newStudy, client);
     await updateSourceStudyValidations(newStudy, client);
     await client.query("COMMIT");
     return newStudy;
@@ -143,6 +146,7 @@ export async function updateSourceStudy(
 
     const newStudy = queryResult.rows[0];
 
+    await updateSourceStudyCellxGeneDatasets(newStudy, client);
     await updateSourceStudyValidations(newStudy, client);
 
     await client.query("COMMIT");

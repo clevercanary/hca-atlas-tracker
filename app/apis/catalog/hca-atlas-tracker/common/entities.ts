@@ -242,6 +242,13 @@ export interface HCAAtlasTrackerDBSourceDatasetInfo {
   title: string;
 }
 
+export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
+  HCAAtlasTrackerDBSourceDataset & {
+    sd_info: HCAAtlasTrackerDBSourceDatasetInfo & {
+      cellxgeneDatasetId: string;
+    };
+  };
+
 export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
   HCAAtlasTrackerDBSourceDataset &
     (
