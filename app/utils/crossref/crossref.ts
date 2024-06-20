@@ -1,3 +1,4 @@
+import DOMPurify from "isomorphic-dompurify";
 import { array, InferType, number, object, string, ValidationError } from "yup";
 import { PublicationInfo } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { normalizeDoi } from "../doi";
@@ -105,6 +106,7 @@ export async function getCrossrefPublicationInfo(
     if (work.subtype === "preprint") journal = "Preprint";
     else throw new ValidationError("Non-preprint work must have journal value");
   }
+  const title = DOMPurify.sanitize(work.title[0], { ALLOWED_TAGS: ["#text"] });
   return {
     authors: work.author.map((author) =>
       "name" in author
@@ -115,7 +117,7 @@ export async function getCrossrefPublicationInfo(
     journal,
     preprintOfDoi: getDoiFromRelation(work.relation["is-preprint-of"]),
     publicationDate: datePartsToString(work.published["date-parts"][0]),
-    title: work.title[0],
+    title,
   };
 }
 
