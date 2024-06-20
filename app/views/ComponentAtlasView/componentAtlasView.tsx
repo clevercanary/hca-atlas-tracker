@@ -49,7 +49,7 @@ export const ComponentAtlasView = ({
         actions={canEdit && <Actions formManager={formManager} />}
         breadcrumbs={
           <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(pathParameter, atlas, componentAtlas)}
+            breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
             onNavigate={formAction?.onNavigate}
           />
         }

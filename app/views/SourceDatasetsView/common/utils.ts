@@ -4,10 +4,11 @@ import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/co
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
+  getSourceStudyBreadcrumb,
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
- * Returns the breadcrumbs for the create component atlas view.
+ * Returns the breadcrumbs for the source datasets view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
@@ -16,5 +17,9 @@ export function getBreadcrumbs(
   pathParameter: PathParameter,
   atlas?: HCAAtlasTrackerAtlas
 ): Breadcrumb[] {
-  return [getAtlasesBreadcrumb(), getAtlasBreadcrumb(pathParameter, atlas)];
+  return [
+    getAtlasesBreadcrumb(),
+    getAtlasBreadcrumb(pathParameter, atlas),
+    getSourceStudyBreadcrumb(pathParameter),
+  ];
 }

@@ -1,39 +1,25 @@
-import {
-  HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerSourceStudy,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasName } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
+import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
-import { getRouteURL } from "../../../common/utils";
 import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
-import { ROUTE } from "../../../routes/constants";
+import {
+  getAtlasBreadcrumb,
+  getAtlasesBreadcrumb,
+  getSourceStudyBreadcrumb,
+} from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
- * Returns the breadcrumbs for the atlas view.
+ * Returns the breadcrumbs for the source study view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
- * @param sourceStudy - Source study.
  * @returns breadcrumbs.
  */
 export function getBreadcrumbs(
   pathParameter: PathParameter,
-  atlas?: HCAAtlasTrackerAtlas,
-  sourceStudy?: HCAAtlasTrackerSourceStudy
+  atlas?: HCAAtlasTrackerAtlas
 ): Breadcrumb[] {
   return [
-    {
-      path: ROUTE.ATLASES,
-      route: ROUTE.ATLASES,
-      text: "Atlases",
-    },
-    {
-      path: getRouteURL(ROUTE.SOURCE_STUDIES, pathParameter),
-      route: ROUTE.SOURCE_STUDIES,
-      text: atlas ? getAtlasName(atlas) : "Source Studies",
-    },
-    {
-      path: "",
-      text: sourceStudy?.title || "Source Study",
-    },
+    getAtlasesBreadcrumb(),
+    getAtlasBreadcrumb(pathParameter, atlas),
+    getSourceStudyBreadcrumb(),
   ];
 }

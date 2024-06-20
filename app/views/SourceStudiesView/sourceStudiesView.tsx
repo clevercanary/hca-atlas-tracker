@@ -9,7 +9,7 @@ import { AtlasStatus } from "../../components/Layout/components/Detail/component
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
-import { getBreadcrumbs } from "../AtlasView/common/utils";
+import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceStudies } from "./hooks/useFetchSourceStudies";
 
 interface SourceStudiesViewProps {
@@ -30,7 +30,9 @@ export const SourceStudiesView = ({
       isIn={shouldRenderView(canView, Boolean(atlas && sourceStudies))}
     >
       <DetailView
-        breadcrumbs={<Breadcrumbs breadcrumbs={getBreadcrumbs(atlas)} />}
+        breadcrumbs={
+          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+        }
         mainColumn={
           <ViewSourceStudies
             formManager={formManager}

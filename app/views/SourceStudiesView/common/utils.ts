@@ -7,7 +7,7 @@ import {
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
- * Returns the breadcrumbs for the create component atlas view.
+ * Returns the breadcrumbs for the source studies view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
  * @returns breadcrumbs.

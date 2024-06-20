@@ -13,7 +13,7 @@ export const RequestAccess = ({
   return (
     <Section>
       {divider}
-      <SectionHero>
+      <SectionHero fullWidth>
         <SectionText>{children}</SectionText>
       </SectionHero>
     </Section>
