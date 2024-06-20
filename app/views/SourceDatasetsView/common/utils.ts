@@ -1,32 +1,32 @@
 import {
   HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerSourceStudy,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
 import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
-  getComponentAtlasBreadcrumb,
-  getComponentAtlasesBreadcrumb,
+  getSourceStudiesBreadcrumb,
+  getSourceStudyBreadcrumb,
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
- * Returns the breadcrumbs for the component atlas view.
+ * Returns the breadcrumbs for the source datasets view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
- * @param componentAtlas - Component atlas.
+ * @param sourceStudy - Source study.
  * @returns breadcrumbs.
  */
 export function getBreadcrumbs(
   pathParameter: PathParameter,
   atlas?: HCAAtlasTrackerAtlas,
-  componentAtlas?: HCAAtlasTrackerComponentAtlas
+  sourceStudy?: HCAAtlasTrackerSourceStudy
 ): Breadcrumb[] {
   return [
     getAtlasesBreadcrumb(),
     getAtlasBreadcrumb(pathParameter, atlas),
-    getComponentAtlasesBreadcrumb(pathParameter),
-    getComponentAtlasBreadcrumb(undefined, componentAtlas),
+    getSourceStudiesBreadcrumb(pathParameter),
+    getSourceStudyBreadcrumb(undefined, sourceStudy),
   ];
 }

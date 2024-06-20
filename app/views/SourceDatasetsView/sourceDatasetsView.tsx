@@ -9,8 +9,8 @@ import { Tabs } from "../../components/Detail/components/ViewSourceStudy/compone
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
-import { getBreadcrumbs } from "../SourceStudyView/common/utils";
 import { useFetchSourceStudy } from "../SourceStudyView/hooks/useFetchSourceStudy";
+import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
 
 interface SourceDatasetsViewProps {

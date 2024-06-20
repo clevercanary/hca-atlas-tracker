@@ -1,7 +1,9 @@
 import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasName } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
-import { ROUTE } from "../../../routes/constants";
+import {
+  getAtlasBreadcrumb,
+  getAtlasesBreadcrumb,
+} from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
  * Returns the breadcrumbs for the atlas view.
@@ -9,16 +11,5 @@ import { ROUTE } from "../../../routes/constants";
  * @returns breadcrumbs.
  */
 export function getBreadcrumbs(atlas?: HCAAtlasTrackerAtlas): Breadcrumb[] {
-  const atlasName = atlas && getAtlasName(atlas);
-  return [
-    {
-      path: ROUTE.ATLASES,
-      route: ROUTE.ATLASES,
-      text: "Atlases",
-    },
-    {
-      path: "",
-      text: atlasName || "Atlas",
-    },
-  ];
+  return [getAtlasesBreadcrumb(), getAtlasBreadcrumb(undefined, atlas)];
 }
