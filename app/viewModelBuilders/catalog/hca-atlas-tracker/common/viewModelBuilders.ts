@@ -505,6 +505,10 @@ export function getAtlasComponentSourceDatasetsTableColumns(
   return [
     getComponentAtlasSourceDatasetTitleColumnDef(),
     getComponentAtlasSourceDatasetPublicationColumnDef(),
+    getSourceDatasetExploreColumnDef(),
+    getSourceDatasetAssayColumnDef(),
+    getSourceDatasetTissueColumnDef(),
+    getSourceDatasetDiseaseColumnDef(),
     getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
     getComponentAtlasSourceDatasetUnlinkColumnDef(onUnlink),
   ];
@@ -529,19 +533,6 @@ export function getAtlasSourceDatasetsTableColumns(
 }
 
 /**
- * Returns the source studies source datasets assay column definition model.
- * @returns Column definition.
- */
-function getAtlasSourceStudiesSourceDatasetsAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "assay",
-    cell: () => C.Cell({ value: "TODO" }),
-    header: "Assay",
-    meta: { enableSortingInteraction: false },
-  };
-}
-
-/**
  * Returns the source studies source datasets cell count column definition model.
  * @returns Column definition.
  */
@@ -551,19 +542,6 @@ function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAA
     cell: ({ row }) =>
       C.Cell({ value: row.original.cellCount.toLocaleString() }),
     header: "Cell Count",
-    meta: { enableSortingInteraction: false },
-  };
-}
-
-/**
- * Returns the source studies source datasets disease column definition model.
- * @returns Column definition.
- */
-function getAtlasSourceStudiesSourceDatasetsDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "disease",
-    cell: () => C.Cell({ value: "TODO" }),
-    header: "Disease",
     meta: { enableSortingInteraction: false },
   };
 }
@@ -613,8 +591,10 @@ export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCA
   return [
     getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(),
     getAtlasSourceStudiesSourceDatasetsTitleColumnDef(),
-    getAtlasSourceStudiesSourceDatasetsAssayColumnDef(),
-    getAtlasSourceStudiesSourceDatasetsDiseaseColumnDef(),
+    getSourceDatasetExploreColumnDef(),
+    getSourceDatasetAssayColumnDef(),
+    getSourceDatasetTissueColumnDef(),
+    getSourceDatasetDiseaseColumnDef(),
     getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(),
   ];
 }
@@ -765,9 +745,12 @@ function getProgressValue(numerator: number, denominator: number): number {
 
 /**
  * Returns source dataset assay column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetAssayColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "assay",
     cell: ({ row }) =>
@@ -776,6 +759,7 @@ function getSourceDatasetAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
         values: row.original.assay,
       }),
     header: "Assay",
+    meta: { enableSortingInteraction },
   };
 }
 
@@ -794,9 +778,12 @@ function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDa
 
 /**
  * Returns source dataset disease column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetDiseaseColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "disease",
     cell: ({ row }) =>
@@ -805,14 +792,18 @@ function getSourceDatasetDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
         values: partitionMetadataValues(row.original.disease, [DISEASE.NORMAL]),
       }),
     header: "Disease",
+    meta: { enableSortingInteraction },
   };
 }
 
 /**
  * Returns source dataset explore column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetExploreColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "explore",
     cell: ({ row }): JSX.Element => {
@@ -832,14 +823,18 @@ function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
       });
     },
     header: "Explore",
+    meta: { enableSortingInteraction },
   };
 }
 
 /**
  * Returns source dataset tissue column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetTissueColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetTissueColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "tissue",
     cell: ({ row }) =>
@@ -848,6 +843,7 @@ function getSourceDatasetTissueColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatas
         values: row.original.tissue,
       }),
     header: "Tissue",
+    meta: { enableSortingInteraction },
   };
 }
 

@@ -23,7 +23,7 @@ export const Table = ({
   return (
     <SectionTable
       columns={getAtlasSourceStudiesSourceDatasetsTableColumns()}
-      gridTemplateColumns="minmax(260px, 1fr) minmax(200px, auto) minmax(200px, auto) auto"
+      gridTemplateColumns="minmax(260px, 1fr) minmax(200px, 0.5fr) repeat(3, minmax(120px, 0.4fr)) minmax(100px, 0.4fr)"
       items={sourceStudiesSourceDatasets || []}
       tableOptions={{
         ...tableOptions,
