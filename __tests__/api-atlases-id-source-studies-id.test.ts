@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { dbSourceStudyToApiSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
@@ -38,6 +37,7 @@ import {
   TestUser,
 } from "../testing/entities";
 import {
+  expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -288,7 +288,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     );
     expect(studyFromDb.study_info.hcaProjectId).toEqual(null);
     expect(studyFromDb.study_info.cellxgeneCollectionId).toEqual(null);
-    expect(dbSourceStudyToApiSourceStudy(studyFromDb)).toEqual(updatedStudy);
+    expectSourceStudyToMatch(studyFromDb, updatedStudy);
 
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
@@ -368,6 +368,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
+
+    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+
+    expect(updatedStudy.sourceDatasetCount).toEqual(4);
 
     const studyDatasetsAfter = await getStudySourceDatasets(
       SOURCE_STUDY_DRAFT_OK.id

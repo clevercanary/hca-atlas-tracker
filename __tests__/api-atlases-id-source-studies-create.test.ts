@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerSourceStudy,
   PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { dbSourceStudyToApiSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/source-studies/create";
 import {
@@ -52,7 +51,10 @@ import {
   resetDatabase,
 } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import {
+  expectSourceStudyToMatch,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -230,14 +232,14 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   });
 
   it("creates, validates, and returns source study entry for journal publication", async () => {
-    const newStudy = await testSuccessfulCreate(
+    const { dbStudy } = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_STUDY_DATA,
       PUBLICATION_NORMAL,
       HCA_ID_NORMAL,
       CELLXGENE_ID_NORMAL
     );
-    const validations = await getValidationsByEntityId(newStudy.id);
+    const validations = await getValidationsByEntityId(dbStudy.id);
     expect(validations).not.toHaveLength(0);
   });
 
@@ -358,7 +360,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(1);
     expect(validationsBefore[0].atlas_ids[0]).toEqual(ATLAS_DRAFT.id);
-    const dbStudy = await testSuccessfulCreate(
+    const { dbStudy } = await testSuccessfulCreate(
       ATLAS_PUBLIC,
       NEW_STUDY_DRAFT_OK,
       PUBLICATION_DRAFT_OK,
@@ -374,7 +376,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   });
 
   it("adds and returns source study that already exists via preprint DOI", async () => {
-    const dbStudy = await testSuccessfulCreate(
+    const { dbStudy } = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_STUDY_PUBLIC_WITH_PREPRINT_PREPRINT,
       PUBLICATION_PUBLIC_WITH_PREPRINT,
@@ -385,7 +387,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
   });
 
   it("adds and returns source study that already exists via journal DOI", async () => {
-    const dbStudy = await testSuccessfulCreate(
+    const { dbStudy } = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_STUDY_PUBLIC_WITH_JOURNAL_JOURNAL,
       PUBLICATION_PUBLIC_WITH_JOURNAL,
@@ -406,7 +408,7 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
     expect(fooBefore).toBeNull();
     expect(barBefore).toBeNull();
 
-    const dbStudy = await testSuccessfulCreate(
+    const { apiStudy } = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_STUDY_WITH_NEW_SOURCE_DATASETS,
       null,
@@ -414,7 +416,9 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
       CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS
     );
 
-    const studyDatasets = await getStudySourceDatasets(dbStudy.id);
+    expect(apiStudy.sourceDatasetCount).toEqual(2);
+
+    const studyDatasets = await getStudySourceDatasets(apiStudy.id);
 
     expect(studyDatasets).toHaveLength(2);
 
@@ -448,7 +452,10 @@ async function testSuccessfulCreate(
   expectedPublication: PublicationInfo | null,
   expectedHcaId: string | null,
   expectedCellxGeneId: string | null
-): Promise<HCAAtlasTrackerDBSourceStudy> {
+): Promise<{
+  apiStudy: HCAAtlasTrackerSourceStudy;
+  dbStudy: HCAAtlasTrackerDBSourceStudy;
+}> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
   expect(res._getStatusCode()).toEqual(201);
   const newStudy: HCAAtlasTrackerSourceStudy = res._getJSONData();
@@ -472,7 +479,10 @@ async function testSuccessfulCreate(
     expectedHcaId,
     expectedCellxGeneId
   );
-  return newStudyFromDb;
+  return {
+    apiStudy: newStudy,
+    dbStudy: newStudyFromDb,
+  };
 }
 
 async function testSuccessfulUnpublishedCreate(
@@ -528,5 +538,5 @@ function expectDbStudyToMatch(
   expect(dbStudy.study_info.publication).toEqual(publication);
   expect(dbStudy.study_info.hcaProjectId).toEqual(hcaId);
   expect(dbStudy.study_info.cellxgeneCollectionId).toEqual(cellxgeneId);
-  expect(dbSourceStudyToApiSourceStudy(dbStudy)).toEqual(apiStudy);
+  expectSourceStudyToMatch(dbStudy, apiStudy);
 }
