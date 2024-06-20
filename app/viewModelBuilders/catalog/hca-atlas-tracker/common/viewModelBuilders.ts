@@ -22,6 +22,8 @@ import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/Tab
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
+import { DISEASE, METADATA_KEY } from "./entities";
+import { getPluralizedMetadataLabel, partitionMetadataValues } from "./utils";
 
 /**
  * Build props for the atlas name cell component.
@@ -518,6 +520,7 @@ export function getAtlasSourceDatasetsTableColumns(
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetTitleColumnDef(pathParameter),
+    getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
@@ -767,7 +770,11 @@ function getProgressValue(numerator: number, denominator: number): number {
 function getSourceDatasetAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "assay",
-    cell: () => C.Cell({ value: "TODO" }),
+    cell: ({ row }) =>
+      C.NTagCell({
+        label: getPluralizedMetadataLabel(METADATA_KEY.ASSAY),
+        values: row.original.assay,
+      }),
     header: "Assay",
   };
 }
@@ -792,8 +799,39 @@ function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDa
 function getSourceDatasetDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "disease",
-    cell: () => C.Cell({ value: "TODO" }),
+    cell: ({ row }) =>
+      C.PinnedNTagCell({
+        label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
+        values: partitionMetadataValues(row.original.disease, [DISEASE.NORMAL]),
+      }),
     header: "Disease",
+  };
+}
+
+/**
+ * Returns source dataset explore column def.
+ * @returns Column def.
+ */
+function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "explore",
+    cell: ({ row }): JSX.Element => {
+      const { cellxgeneExplorerUrl } = row.original;
+      const analysisPortals = cellxgeneExplorerUrl
+        ? [
+            {
+              icon: "/icons/cxg.png",
+              label: "CZ CELLxGENE",
+              name: "cellxgene",
+              url: cellxgeneExplorerUrl,
+            },
+          ]
+        : [];
+      return C.AnalysisPortalCell({
+        analysisPortals,
+      });
+    },
+    header: "Explore",
   };
 }
 
@@ -804,7 +842,11 @@ function getSourceDatasetDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
 function getSourceDatasetTissueColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "tissue",
-    cell: () => C.Cell({ value: "TODO" }),
+    cell: ({ row }) =>
+      C.NTagCell({
+        label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
+        values: row.original.tissue,
+      }),
     header: "Tissue",
   };
 }
