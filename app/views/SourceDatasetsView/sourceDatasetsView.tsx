@@ -37,9 +37,7 @@ export const SourceDatasetsView = ({
       <DetailView
         actions={canEdit && <Actions pathParameter={pathParameter} />}
         breadcrumbs={
-          <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(pathParameter, atlas, sourceStudy)}
-          />
+          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
         }
         mainColumn={
           <ViewSourceDatasets

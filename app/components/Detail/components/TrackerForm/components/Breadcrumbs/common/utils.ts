@@ -11,13 +11,10 @@ import { Breadcrumb } from "../breadcrumbs";
 import {
   BREADCRUMB_ATLAS,
   BREADCRUMB_ATLASES,
-  BREADCRUMB_ATLAS_CREATE,
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_COMPONENT_ATLASES,
-  BREADCRUMB_COMPONENT_ATLAS_CREATE,
   BREADCRUMB_SOURCE_STUDIES,
   BREADCRUMB_SOURCE_STUDY,
-  BREADCRUMB_SOURCE_STUDY_CREATE,
 } from "./constants";
 
 /**
@@ -77,30 +74,6 @@ export function getComponentAtlasesBreadcrumb(
   );
   if (!atlas) return breadcrumb;
   return { ...breadcrumb, text: getAtlasName(atlas) };
-}
-
-/**
- * Returns the breadcrumb for the create atlas view.
- * @returns create atlas view breadcrumb.
- */
-export function getCreateAtlasBreadcrumb(): Breadcrumb {
-  return BREADCRUMB_ATLAS_CREATE;
-}
-
-/**
- * Returns the breadcrumb for the create component atlas view.
- * @returns create component atlas view breadcrumb.
- */
-export function getCreateComponentAtlasBreadcrumb(): Breadcrumb {
-  return BREADCRUMB_COMPONENT_ATLAS_CREATE;
-}
-
-/**
- * Returns the breadcrumb for the create source study view.
- * @returns create source study view breadcrumb.
- */
-export function getCreateSourceStudyBreadcrumb(): Breadcrumb {
-  return BREADCRUMB_SOURCE_STUDY_CREATE;
 }
 
 /**

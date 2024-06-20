@@ -7,11 +7,6 @@ export const BREADCRUMB_ATLAS: Breadcrumb = {
   text: "Atlas",
 };
 
-export const BREADCRUMB_ATLAS_CREATE: Breadcrumb = {
-  path: "",
-  text: "Add New Atlas",
-};
-
 export const BREADCRUMB_ATLASES: Breadcrumb = {
   path: ROUTE.ATLASES,
   route: ROUTE.ATLASES,
@@ -22,11 +17,6 @@ export const BREADCRUMB_COMPONENT_ATLAS: Breadcrumb = {
   path: ROUTE.COMPONENT_ATLAS,
   route: ROUTE.COMPONENT_ATLAS,
   text: "Component Atlas",
-};
-
-export const BREADCRUMB_COMPONENT_ATLAS_CREATE: Breadcrumb = {
-  path: "",
-  text: "Add Component Atlas",
 };
 
 export const BREADCRUMB_COMPONENT_ATLASES: Breadcrumb = {
@@ -45,9 +35,4 @@ export const BREADCRUMB_SOURCE_STUDY: Breadcrumb = {
   path: ROUTE.SOURCE_STUDY,
   route: ROUTE.SOURCE_STUDY,
   text: "Source Study",
-};
-
-export const BREADCRUMB_SOURCE_STUDY_CREATE: Breadcrumb = {
-  path: "",
-  text: "Add Source Study",
 };

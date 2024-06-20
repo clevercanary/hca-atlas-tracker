@@ -45,7 +45,7 @@ export const SourceStudyView = ({
         }
         breadcrumbs={
           <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(pathParameter, atlas, sourceStudy)}
+            breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
             onNavigate={formAction?.onNavigate}
           />
         }

@@ -4,8 +4,8 @@ import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/co
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
+  getComponentAtlasBreadcrumb,
   getComponentAtlasesBreadcrumb,
-  getCreateComponentAtlasBreadcrumb,
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
@@ -22,6 +22,6 @@ export function getBreadcrumbs(
     getAtlasesBreadcrumb(),
     getAtlasBreadcrumb(pathParameter, atlas),
     getComponentAtlasesBreadcrumb(pathParameter),
-    getCreateComponentAtlasBreadcrumb(),
+    getComponentAtlasBreadcrumb(),
   ];
 }

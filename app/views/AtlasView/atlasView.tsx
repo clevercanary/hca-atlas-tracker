@@ -34,7 +34,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
       <DetailView
         breadcrumbs={
           <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(atlas)}
+            breadcrumbs={getBreadcrumbs()}
             onNavigate={formAction?.onNavigate}
           />
         }
