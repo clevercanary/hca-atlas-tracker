@@ -17,7 +17,7 @@ export const AccessDeniedPrompt = ({
   return (
     <Section>
       {divider}
-      <SectionHero>
+      <SectionHero fullWidth>
         <SectionText>{text}</SectionText>
       </SectionHero>
     </Section>

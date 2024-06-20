@@ -2,6 +2,7 @@ import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/ti
 import { BackPageTabs } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/backPageView.styles";
 import { SubTitle } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/components/BackPageHero/components/SubTitle/subTitle";
 import { ReactNode } from "react";
+import { BackButton } from "./components/BackButton/backButton";
 import {
   DetailViewHero as DetailViewHeroLayout,
   DetailViewHeroHeadline,
@@ -32,6 +33,7 @@ export const DetailViewHero = ({
     <DetailViewHeroLayout>
       {(actions || breadcrumbs || title) && (
         <DetailViewHeroHeadline>
+          <BackButton />
           <HeroHeader>
             {breadcrumbs}
             <HeroTitle>

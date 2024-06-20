@@ -19,7 +19,7 @@ export const AccessPrompt = ({
   return (
     <Section>
       {divider}
-      <SectionHero>
+      <SectionHero fullWidth>
         <SectionText>
           <Link label="Sign in" url={ROUTE.LOGIN} /> {text}.
         </SectionText>
