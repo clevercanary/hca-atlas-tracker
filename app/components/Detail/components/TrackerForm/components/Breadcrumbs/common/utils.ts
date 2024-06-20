@@ -12,8 +12,6 @@ import {
   BREADCRUMB_ATLAS,
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
-  BREADCRUMB_COMPONENT_ATLASES,
-  BREADCRUMB_SOURCE_STUDIES,
   BREADCRUMB_SOURCE_STUDY,
 } from "./constants";
 
@@ -56,42 +54,6 @@ export function getComponentAtlasBreadcrumb(
   );
   if (!componentAtlas) return breadcrumb;
   return { ...breadcrumb, text: componentAtlas.title };
-}
-
-/**
- * Returns the breadcrumb for the component atlases view.
- * @param pathParameter - Path parameter.
- * @param atlas - Atlas.
- * @returns component atlases view breadcrumb.
- */
-export function getComponentAtlasesBreadcrumb(
-  pathParameter?: PathParameter,
-  atlas?: HCAAtlasTrackerAtlas
-): Breadcrumb {
-  const breadcrumb = resolveBreadcrumbPath(
-    BREADCRUMB_COMPONENT_ATLASES,
-    pathParameter
-  );
-  if (!atlas) return breadcrumb;
-  return { ...breadcrumb, text: getAtlasName(atlas) };
-}
-
-/**
- * Returns the breadcrumb for the source studies view.
- * @param pathParameter - Path parameter.
- * @param atlas - Atlas.
- * @returns source studies view breadcrumb.
- */
-export function getSourceStudiesBreadcrumb(
-  pathParameter?: PathParameter,
-  atlas?: HCAAtlasTrackerAtlas
-): Breadcrumb {
-  const breadcrumb = resolveBreadcrumbPath(
-    BREADCRUMB_SOURCE_STUDIES,
-    pathParameter
-  );
-  if (!atlas) return breadcrumb;
-  return { ...breadcrumb, text: getAtlasName(atlas) };
 }
 
 /**

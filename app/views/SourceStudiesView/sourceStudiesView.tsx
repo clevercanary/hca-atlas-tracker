@@ -31,7 +31,7 @@ export const SourceStudiesView = ({
     >
       <DetailView
         breadcrumbs={
-          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter)} />
+          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
         }
         mainColumn={
           <ViewSourceStudies

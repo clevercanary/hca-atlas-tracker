@@ -31,7 +31,7 @@ export const ComponentAtlasesView = ({
     >
       <DetailView
         breadcrumbs={
-          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter)} />
+          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
         }
         mainColumn={
           <ViewComponentAtlases
