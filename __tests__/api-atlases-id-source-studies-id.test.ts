@@ -13,7 +13,10 @@ import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceS
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
+  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
   DOI_PREPRINT_NO_JOURNAL,
+  DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_FOO,
   SOURCE_STUDY_DRAFT_OK,
@@ -23,7 +26,12 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
+import {
+  getCellxGeneSourceDatasetFromDatabase,
+  getStudySourceDatasets,
+  getValidationsByEntityId,
+  resetDatabase,
+} from "../testing/db-utils";
 import {
   TestPublishedSourceStudy,
   TestSourceStudy,
@@ -54,6 +62,10 @@ const SOURCE_STUDY_DRAFT_OK_EDIT = {
 const SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT = {
   capId: "cap-id-source-study-draft-ok-edit",
   doi: SOURCE_STUDY_DRAFT_OK.doi,
+};
+
+const SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT = {
+  doi: DOI_WITH_NEW_SOURCE_DATASETS,
 };
 
 beforeAll(async () => {
@@ -325,6 +337,56 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     if (!studyFromDb) return;
     expect(studyFromDb.study_info.capId).toEqual(
       SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId
+    );
+
+    await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
+  });
+
+  it("updates CELLxGENE datasets when source study is PUT requested", async () => {
+    const fooBefore = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
+    );
+    const barBefore = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
+    );
+
+    expect(fooBefore).toBeNull();
+    expect(barBefore).toBeNull();
+
+    const res = await doStudyRequest(
+      ATLAS_DRAFT.id,
+      SOURCE_STUDY_DRAFT_OK.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+
+    const studyDatasets = await getStudySourceDatasets(updatedStudy.id);
+
+    expect(studyDatasets).toHaveLength(2);
+
+    const fooAfter = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
+    );
+    const barAfter = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
+    );
+
+    expect(fooAfter).toEqual(
+      studyDatasets.find(
+        (d) =>
+          d.sd_info.cellxgeneDatasetId ===
+          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
+      )
+    );
+    expect(barAfter).toEqual(
+      studyDatasets.find(
+        (d) =>
+          d.sd_info.cellxgeneDatasetId ===
+          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
+      )
     );
 
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);

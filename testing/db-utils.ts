@@ -3,6 +3,7 @@ import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBComponentAtlasInfo,
+  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidation,
@@ -129,8 +130,31 @@ export async function getExistingSourceStudyFromDatabase(
       [id]
     )
   ).rows[0];
-  if (!result) throw new Error(`Source dataset ${id} doesn't exist`);
+  if (!result) throw new Error(`Source study ${id} doesn't exist`);
   return result;
+}
+
+export async function getCellxGeneSourceDatasetFromDatabase(
+  cellxgeneId: string
+): Promise<HCAAtlasTrackerDBSourceDataset | null> {
+  const result = (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE sd_info->>'cellxgeneDatasetId'=$1",
+      [cellxgeneId]
+    )
+  ).rows[0];
+  return result ?? null;
+}
+
+export async function getStudySourceDatasets(
+  studyId: string
+): Promise<HCAAtlasTrackerDBSourceDataset[]> {
+  return (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
+      [studyId]
+    )
+  ).rows;
 }
 
 export async function getValidationsByEntityId(

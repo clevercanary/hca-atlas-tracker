@@ -13,9 +13,12 @@ import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
   ATLAS_PUBLIC,
+  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
+  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
   CELLXGENE_ID_JOURNAL_COUNTERPART,
   CELLXGENE_ID_NORMAL,
   CELLXGENE_ID_PREPRINT_COUNTERPART,
+  CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
   DOI_DRAFT_OK,
   DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
   DOI_NORMAL,
@@ -24,6 +27,7 @@ import {
   DOI_PUBLIC_WITH_JOURNAL_JOURNAL,
   DOI_PUBLIC_WITH_PREPRINT_PREPRINT,
   DOI_UNSUPPORTED_TYPE,
+  DOI_WITH_NEW_SOURCE_DATASETS,
   HCA_ID_JOURNAL_COUNTERPART,
   HCA_ID_NORMAL,
   HCA_ID_PREPRINT_COUNTERPART,
@@ -41,7 +45,12 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { getValidationsByEntityId, resetDatabase } from "../testing/db-utils";
+import {
+  getCellxGeneSourceDatasetFromDatabase,
+  getStudySourceDatasets,
+  getValidationsByEntityId,
+  resetDatabase,
+} from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
@@ -99,6 +108,10 @@ const NEW_STUDY_NULL_CONTACT_EMAIL = {
   contactEmail: null,
   referenceAuthor: "Baz",
   title: "Something Baz",
+};
+
+const NEW_STUDY_WITH_NEW_SOURCE_DATASETS = {
+  doi: DOI_WITH_NEW_SOURCE_DATASETS,
 };
 
 beforeAll(async () => {
@@ -381,12 +394,58 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
     );
     expect(dbStudy.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id);
   });
+
+  it("updates CELLxGENE source datasets with source study is created", async () => {
+    const fooBefore = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
+    );
+    const barBefore = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
+    );
+
+    expect(fooBefore).toBeNull();
+    expect(barBefore).toBeNull();
+
+    const dbStudy = await testSuccessfulCreate(
+      ATLAS_DRAFT,
+      NEW_STUDY_WITH_NEW_SOURCE_DATASETS,
+      null,
+      null,
+      CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS
+    );
+
+    const studyDatasets = await getStudySourceDatasets(dbStudy.id);
+
+    expect(studyDatasets).toHaveLength(2);
+
+    const fooAfter = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
+    );
+    const barAfter = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
+    );
+
+    expect(fooAfter).toEqual(
+      studyDatasets.find(
+        (d) =>
+          d.sd_info.cellxgeneDatasetId ===
+          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
+      )
+    );
+    expect(barAfter).toEqual(
+      studyDatasets.find(
+        (d) =>
+          d.sd_info.cellxgeneDatasetId ===
+          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
+      )
+    );
+  });
 });
 
 async function testSuccessfulCreate(
   atlas: TestAtlas,
   newData: Record<string, unknown>,
-  expectedPublication: PublicationInfo,
+  expectedPublication: PublicationInfo | null,
   expectedHcaId: string | null,
   expectedCellxGeneId: string | null
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
@@ -461,7 +520,7 @@ async function doCreateTest(
 function expectDbStudyToMatch(
   dbStudy: HCAAtlasTrackerDBSourceStudy,
   apiStudy: HCAAtlasTrackerSourceStudy,
-  publication: PublicationInfo,
+  publication: PublicationInfo | null,
   hcaId: string | null,
   cellxgeneId: string | null
 ): void {
