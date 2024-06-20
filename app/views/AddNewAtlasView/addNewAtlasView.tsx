@@ -1,9 +1,9 @@
 import { Fragment } from "react";
+import { EntityForm } from "../../components/common/Form/components/EntityForm/entityForm";
 import { AccessDeniedPrompt } from "../../components/common/Form/components/FormManager/components/AccessDeniedPrompt/accessDeniedPrompt";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
-import { AtlasForm } from "../../components/Forms/components/Atlas/atlas";
 import { ADD_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
@@ -25,7 +25,7 @@ export const AddNewAtlasView = (): JSX.Element => {
         />
       }
       mainColumn={
-        <AtlasForm
+        <EntityForm
           accessFallback={renderAccessFallback(formManager)}
           formManager={formManager}
           formMethod={formMethod}
