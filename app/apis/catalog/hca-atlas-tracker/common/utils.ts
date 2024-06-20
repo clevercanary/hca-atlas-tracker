@@ -131,16 +131,20 @@ export function dbSourceDatasetToApiSourceDataset(
 ): HCAAtlasTrackerSourceDataset {
   const studyInfo = dbSourceDataset.study_info;
   return {
+    assay: dbSourceDataset.sd_info.assay,
     cellCount: dbSourceDataset.sd_info.cellCount,
     cellxgeneDatasetId: dbSourceDataset.sd_info.cellxgeneDatasetId,
     cellxgeneDatasetVersion: dbSourceDataset.sd_info.cellxgeneDatasetVersion,
+    cellxgeneExplorerUrl: dbSourceDataset.sd_info.cellxgeneExplorerUrl,
     createdAt: dbSourceDataset.created_at.toISOString(),
+    disease: dbSourceDataset.sd_info.disease,
     doi: dbSourceDataset.doi,
     id: dbSourceDataset.id,
     publicationString: getDbSourceDatasetCitation(dbSourceDataset),
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:
       studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
+    tissue: dbSourceDataset.sd_info.tissue,
     title: dbSourceDataset.sd_info.title,
     updatedAt: dbSourceDataset.updated_at.toISOString(),
   };

@@ -663,44 +663,64 @@ export const CELLXGENE_ID_DATASET_WITH_UPDATE = "cellxgene-dataset-with-update";
 export const CELLXGENE_ID_DATASET_NEW = "cellxgene-dataset-new";
 
 export const CELLXGENE_DATASET_WITHOUT_UPDATE: CellxGeneDataset = {
+  assay: [{ label: "foo" }],
   cell_count: 123,
   collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
   dataset_id: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
   dataset_version_id: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
+  disease: [{ label: "bar" }],
+  explorer_url: "explorer-url-cellxgene-dataset-without-update",
+  tissue: [{ label: "baz" }],
   title: "Dataset Without Update",
 };
 
 export const CELLXGENE_DATASET_WITH_UPDATE_UPDATED: CellxGeneDataset = {
+  assay: [{ label: "foobar" }],
   cell_count: 456,
   collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
   dataset_id: CELLXGENE_ID_DATASET_WITH_UPDATE,
   dataset_version_id: "cellxgene-version-dataset-with-update-b",
+  disease: [{ label: "barbar" }],
+  explorer_url: "explorer-url-cellxgene-dataset-with-update",
+  tissue: [{ label: "bazbar" }],
   title: "Dataset With Update Updated",
 };
 
 export const CELLXGENE_DATASET_NEW: CellxGeneDataset = {
+  assay: [{ label: "foobaz" }],
   cell_count: 789,
   collection_id: CELLXGENE_ID_WITH_SOURCE_DATASETS,
   dataset_id: CELLXGENE_ID_DATASET_NEW,
   dataset_version_id: "cellxgene-version-dataset-new",
+  disease: [{ label: "barbaz" }],
+  explorer_url: "explorer-url-cellxgene-dataset-new",
+  tissue: [{ label: "bazbaz" }],
   title: "Dataset New",
 };
 
 export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO: CellxGeneDataset =
   {
+    assay: [{ label: "barfoo" }],
     cell_count: 100,
     collection_id: CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
     dataset_id: "cellxgene-dataset-with-new-source-datasets-foo",
     dataset_version_id: "cellxgene-version-with-new-source-datasets-foo",
+    disease: [{ label: "bazfoo" }],
+    explorer_url: "explorer-url-cellxgene-dataset-with-new-source-datasets-foo",
+    tissue: [{ label: "foofoo" }],
     title: "Dataset With New Source Datasets Foo",
   };
 
 export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR: CellxGeneDataset =
   {
+    assay: [{ label: "bazfoo" }],
     cell_count: 200,
     collection_id: CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
     dataset_id: "cellxgene-dataset-with-new-source-datasets-bar",
     dataset_version_id: "cellxgene-version-with-new-source-datasets-bar",
+    disease: [{ label: "foobaz" }],
+    explorer_url: "explorer-url-cellxgene-dataset-with-new-source-datasets-bar",
+    tissue: [{ label: "foofoo" }],
     title: "Dataset With New Source Datasets Bar",
   };
 

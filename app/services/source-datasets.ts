@@ -198,9 +198,13 @@ function sourceDatasetInputDataToDbData(
   inputData: NewSourceDatasetData | SourceDatasetEditData
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
+    assay: [],
     cellCount: 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,
+    cellxgeneExplorerUrl: null,
+    disease: [],
+    tissue: [],
     title: inputData.title,
   };
 }
@@ -342,9 +346,13 @@ function getCellxGeneSourceDatasetInfo(
   cxgDataset: CellxGeneDataset
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
+    assay: cxgDataset.assay.map((a) => a.label),
     cellCount: cxgDataset.cell_count,
     cellxgeneDatasetId: cxgDataset.dataset_id,
     cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
+    cellxgeneExplorerUrl: cxgDataset.explorer_url,
+    disease: cxgDataset.disease.map((d) => d.label),
+    tissue: cxgDataset.tissue.map((t) => t.label),
     title: cxgDataset.title,
   };
 }
