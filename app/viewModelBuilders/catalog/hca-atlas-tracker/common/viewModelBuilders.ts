@@ -22,6 +22,8 @@ import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/Tab
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
+import { DISEASE, METADATA_KEY } from "./entities";
+import { getPluralizedMetadataLabel, partitionMetadataValues } from "./utils";
 
 /**
  * Build props for the atlas name cell component.
@@ -503,6 +505,10 @@ export function getAtlasComponentSourceDatasetsTableColumns(
   return [
     getComponentAtlasSourceDatasetTitleColumnDef(),
     getComponentAtlasSourceDatasetPublicationColumnDef(),
+    getSourceDatasetExploreColumnDef(),
+    getSourceDatasetAssayColumnDef(),
+    getSourceDatasetTissueColumnDef(),
+    getSourceDatasetDiseaseColumnDef(),
     getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
     getComponentAtlasSourceDatasetUnlinkColumnDef(onUnlink),
   ];
@@ -518,24 +524,12 @@ export function getAtlasSourceDatasetsTableColumns(
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetTitleColumnDef(pathParameter),
+    getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
     getSourceDatasetCellCountColumnDef(),
   ];
-}
-
-/**
- * Returns the source studies source datasets assay column definition model.
- * @returns Column definition.
- */
-function getAtlasSourceStudiesSourceDatasetsAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "assay",
-    cell: () => C.Cell({ value: "TODO" }),
-    header: "Assay",
-    meta: { enableSortingInteraction: false },
-  };
 }
 
 /**
@@ -548,19 +542,6 @@ function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAA
     cell: ({ row }) =>
       C.Cell({ value: row.original.cellCount.toLocaleString() }),
     header: "Cell Count",
-    meta: { enableSortingInteraction: false },
-  };
-}
-
-/**
- * Returns the source studies source datasets disease column definition model.
- * @returns Column definition.
- */
-function getAtlasSourceStudiesSourceDatasetsDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "disease",
-    cell: () => C.Cell({ value: "TODO" }),
-    header: "Disease",
     meta: { enableSortingInteraction: false },
   };
 }
@@ -610,8 +591,10 @@ export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCA
   return [
     getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(),
     getAtlasSourceStudiesSourceDatasetsTitleColumnDef(),
-    getAtlasSourceStudiesSourceDatasetsAssayColumnDef(),
-    getAtlasSourceStudiesSourceDatasetsDiseaseColumnDef(),
+    getSourceDatasetExploreColumnDef(),
+    getSourceDatasetAssayColumnDef(),
+    getSourceDatasetTissueColumnDef(),
+    getSourceDatasetDiseaseColumnDef(),
     getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(),
   ];
 }
@@ -762,13 +745,21 @@ function getProgressValue(numerator: number, denominator: number): number {
 
 /**
  * Returns source dataset assay column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetAssayColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetAssayColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "assay",
-    cell: () => C.Cell({ value: "TODO" }),
+    cell: ({ row }) =>
+      C.NTagCell({
+        label: getPluralizedMetadataLabel(METADATA_KEY.ASSAY),
+        values: row.original.assay,
+      }),
     header: "Assay",
+    meta: { enableSortingInteraction },
   };
 }
 
@@ -787,25 +778,72 @@ function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDa
 
 /**
  * Returns source dataset disease column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetDiseaseColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "disease",
-    cell: () => C.Cell({ value: "TODO" }),
+    cell: ({ row }) =>
+      C.PinnedNTagCell({
+        label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
+        values: partitionMetadataValues(row.original.disease, [DISEASE.NORMAL]),
+      }),
     header: "Disease",
+    meta: { enableSortingInteraction },
+  };
+}
+
+/**
+ * Returns source dataset explore column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
+ * @returns Column def.
+ */
+function getSourceDatasetExploreColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "explore",
+    cell: ({ row }): JSX.Element => {
+      const { cellxgeneExplorerUrl } = row.original;
+      const analysisPortals = cellxgeneExplorerUrl
+        ? [
+            {
+              icon: "/icons/cxg.png",
+              label: "CZ CELLxGENE",
+              name: "cellxgene",
+              url: cellxgeneExplorerUrl,
+            },
+          ]
+        : [];
+      return C.AnalysisPortalCell({
+        analysisPortals,
+      });
+    },
+    header: "Explore",
+    meta: { enableSortingInteraction },
   };
 }
 
 /**
  * Returns source dataset tissue column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetTissueColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetTissueColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "tissue",
-    cell: () => C.Cell({ value: "TODO" }),
+    cell: ({ row }) =>
+      C.NTagCell({
+        label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
+        values: row.original.tissue,
+      }),
     header: "Tissue",
+    meta: { enableSortingInteraction },
   };
 }
 

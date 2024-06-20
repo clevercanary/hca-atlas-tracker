@@ -41,7 +41,7 @@ export const ViewSourceDatasets = ({
         {isSourceDatasets && (
           <Table
             columns={getAtlasSourceDatasetsTableColumns(pathParameter)}
-            gridTemplateColumns="minmax(260px, 1fr) repeat(3, minmax(88px, 0.2fr)) auto"
+            gridTemplateColumns="minmax(200px, 1fr) minmax(180px, auto) repeat(3, minmax(88px, 0.4fr)) auto"
             items={sourceDatasets.sort(sortSourceDataset)}
           />
         )}
