@@ -24,7 +24,7 @@ export const Tabs = ({
   pathParameter,
 }: TabsProps): JSX.Element => {
   const { route } = useRouter();
-  const { sourceStudyCount } = atlas || {};
+  const { componentAtlasCount, sourceStudyCount } = atlas || {};
 
   const onChange = useCallback(
     (tabValue: TabValue): void => {
@@ -43,7 +43,7 @@ export const Tabs = ({
           value: ROUTE.SOURCE_STUDIES,
         },
         {
-          label: getTabLabelWithCount("Component Atlases", 0),
+          label: getTabLabelWithCount("Component Atlases", componentAtlasCount),
           value: ROUTE.COMPONENT_ATLASES,
         },
       ]}
