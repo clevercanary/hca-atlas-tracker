@@ -65,6 +65,7 @@ const SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT = {
 };
 
 const SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT = {
+  capId: null,
   doi: DOI_WITH_NEW_SOURCE_DATASETS,
 };
 
@@ -343,6 +344,12 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
   });
 
   it("updates CELLxGENE datasets when source study is PUT requested", async () => {
+    const studyDatasetsBefore = await getStudySourceDatasets(
+      SOURCE_STUDY_DRAFT_OK.id
+    );
+
+    expect(studyDatasetsBefore).toHaveLength(2);
+
     const fooBefore = await getCellxGeneSourceDatasetFromDatabase(
       CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
     );
@@ -361,11 +368,12 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
 
-    const studyDatasets = await getStudySourceDatasets(updatedStudy.id);
+    const studyDatasetsAfter = await getStudySourceDatasets(
+      SOURCE_STUDY_DRAFT_OK.id
+    );
 
-    expect(studyDatasets).toHaveLength(2);
+    expect(studyDatasetsAfter).toHaveLength(4);
 
     const fooAfter = await getCellxGeneSourceDatasetFromDatabase(
       CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
@@ -375,20 +383,23 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     );
 
     expect(fooAfter).toEqual(
-      studyDatasets.find(
+      studyDatasetsAfter.find(
         (d) =>
           d.sd_info.cellxgeneDatasetId ===
           CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
       )
     );
     expect(barAfter).toEqual(
-      studyDatasets.find(
+      studyDatasetsAfter.find(
         (d) =>
           d.sd_info.cellxgeneDatasetId ===
           CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
       )
     );
 
+    await query("DELETE FROM hat.source_datasets WHERE id=ANY($1)", [
+      [fooAfter?.id, barAfter?.id],
+    ]);
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
