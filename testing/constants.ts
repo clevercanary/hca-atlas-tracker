@@ -700,19 +700,27 @@ export const CELLXGENE_DATASET_NEW: CellxGeneDataset = {
 
 export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO: CellxGeneDataset =
   {
+    assay: [{ label: "barfoo" }],
     cell_count: 100,
     collection_id: CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
     dataset_id: "cellxgene-dataset-with-new-source-datasets-foo",
     dataset_version_id: "cellxgene-version-with-new-source-datasets-foo",
+    disease: [{ label: "bazfoo" }],
+    explorer_url: "explorer-url-cellxgene-dataset-with-new-source-datasets-foo",
+    tissue: [{ label: "foofoo" }],
     title: "Dataset With New Source Datasets Foo",
   };
 
 export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR: CellxGeneDataset =
   {
+    assay: [{ label: "bazfoo" }],
     cell_count: 200,
     collection_id: CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
     dataset_id: "cellxgene-dataset-with-new-source-datasets-bar",
     dataset_version_id: "cellxgene-version-with-new-source-datasets-bar",
+    disease: [{ label: "foobaz" }],
+    explorer_url: "explorer-url-cellxgene-dataset-with-new-source-datasets-bar",
+    tissue: [{ label: "foofoo" }],
     title: "Dataset With New Source Datasets Bar",
   };
 
