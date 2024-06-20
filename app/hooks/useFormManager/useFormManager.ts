@@ -21,7 +21,7 @@ export interface UseFormManager {
   isLoading: boolean;
 }
 
-export const useFormManager = <T extends FieldValues, R = undefined>(
+export const useFormManager = <T extends FieldValues, R = unknown>(
   formMethod?: FormMethod<T, R>,
   {
     onDelete,

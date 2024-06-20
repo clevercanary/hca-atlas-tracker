@@ -16,13 +16,13 @@ import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceStud
 import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
+import { DEFAULT_INPUT_PROPS } from "../../../../../../../../../../../Forms/components/SourceStudy/common/constants";
 import { Tabs } from "../../../../../../../Tabs/tabs";
 import {
   Section,
   SectionHero,
   SectionTitle,
 } from "../../../../../../section.styles";
-import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 import { getSectionTabs } from "./common/utils";
 import { SectionCard, SectionContent } from "./generalInfo.styles";
 

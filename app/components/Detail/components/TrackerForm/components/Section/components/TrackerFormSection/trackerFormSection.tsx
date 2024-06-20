@@ -39,7 +39,11 @@ export const TrackerFormSection = <T extends FieldValues, R = undefined>({
         <SectionTitle>{sectionTitle}</SectionTitle>
         {sectionText && <SectionText>{sectionText}</SectionText>}
       </SectionHero>
-      <SectionCard fullWidth={fullWidth}>
+      <SectionCard
+        formManager={formManager}
+        formMethod={formMethod}
+        fullWidth={fullWidth}
+      >
         <Controllers
           controllerConfigs={controllerConfigs}
           formManager={formManager}

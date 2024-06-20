@@ -6,6 +6,7 @@ export const FIELD_NAME = {
   PUBLICATION_STATUS: "publicationStatus",
   REFERENCE_AUTHOR: "referenceAuthor",
   TITLE: "title",
+  WORKING_TITLE: "title",
 } as const;
 
 export const PUBLISHED_FIELDS: NewSourceStudyDataKeys[] = [FIELD_NAME.DOI];

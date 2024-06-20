@@ -27,14 +27,14 @@ import {
 } from "./common/entities";
 import { getFormResponseErrors } from "./common/utils";
 
-export interface UseForm<T extends FieldValues, R = undefined>
+export interface UseForm<T extends FieldValues, R = unknown>
   extends CustomUseFormReturn<T> {
   data?: R;
   onDelete: OnDeleteFn;
   onSubmit: OnSubmitFn<T, R>;
 }
 
-export const useForm = <T extends FieldValues, R = undefined>(
+export const useForm = <T extends FieldValues, R = unknown>(
   schema: ObjectSchema<T>,
   apiData?: R,
   mapSchemaValues?: MapSchemaValuesFn<T, R>,
@@ -52,7 +52,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
     ...options,
   });
-  const [data, setData] = useState<R | undefined>();
+  const [data, setData] = useState<R>();
   const { reset, setError } = formMethod;
 
   const onError = useCallback(

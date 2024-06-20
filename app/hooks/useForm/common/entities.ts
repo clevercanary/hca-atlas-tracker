@@ -12,7 +12,7 @@ export type CustomUseFormReturn<T extends FieldValues> = UseFormReturn<
   YupValidatedFormValues<T>
 >;
 
-export type FormMethod<T extends FieldValues, R = undefined> = UseForm<T, R>;
+export type FormMethod<T extends FieldValues, R = unknown> = UseForm<T, R>;
 
 /**
  * JSON body of an error response from an API; may contain a single `message` string, or an `errors` object indexed by field name.
@@ -25,7 +25,7 @@ export type MapApiValuesFn<T extends FieldValues> = (
   formData: YupValidatedFormValues<T>
 ) => unknown;
 
-export type MapSchemaValuesFn<T, R> = (apiData?: R) => T | undefined;
+export type MapSchemaValuesFn<T, R = unknown> = (apiData?: R) => T | undefined;
 
 export type OnDeleteFn = (
   requestURL: string,
@@ -37,14 +37,14 @@ export interface OnDeleteOptions {
   onSuccess?: () => void;
 }
 
-export type OnSubmitFn<T extends FieldValues, R = undefined> = (
+export type OnSubmitFn<T extends FieldValues, R = unknown> = (
   requestURL: string,
   requestMethod: METHOD,
   payload: YupValidatedFormValues<T>,
   options?: OnSubmitOptions<T, R>
 ) => Promise<void>;
 
-export interface OnSubmitOptions<T extends FieldValues, R = undefined> {
+export interface OnSubmitOptions<T extends FieldValues, R = unknown> {
   onReset?: UseFormReset<YupValidatedFormValues<T>>;
   onSuccess?: (response: R) => void;
 }

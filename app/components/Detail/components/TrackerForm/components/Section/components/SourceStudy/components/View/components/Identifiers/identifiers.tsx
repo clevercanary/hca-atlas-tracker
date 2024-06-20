@@ -8,13 +8,13 @@ import { SourceStudyEditData } from "../../../../../../../../../../../../views/S
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import { CapId } from "../../../../../../../../../../../Form/components/Input/components/CapId/capId";
+import { DEFAULT_INPUT_PROPS } from "../../../../../../../../../../../Forms/components/SourceStudy/common/constants";
 import {
   Section,
   SectionCard,
   SectionHero,
   SectionTitle,
 } from "../../../../../../section.styles";
-import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 
 export interface IdentifiersProps {
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>;
