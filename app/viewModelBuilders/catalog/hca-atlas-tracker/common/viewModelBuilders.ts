@@ -610,6 +610,7 @@ export function getAtlasSourceStudiesTableColumns(
   return [
     getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
+    getSourceStudySourceDatasetCountColumnDef(pathParameter),
     getSourceStudyInHCADataRepositoryColumnDef(),
     getSourceStudyInCELLxGENEColumnDef(),
     getSourceStudyInCapColumnDef(),
@@ -951,6 +952,28 @@ function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceSt
     accessorKey: "publication",
     cell: ({ row }) => C.Link(buildSourceStudyPublication(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
+  };
+}
+
+/**
+ * Returns source study source datasets count column def.
+ * @param pathParameter - Path parameter.
+ * @returns Column def.
+ */
+function getSourceStudySourceDatasetCountColumnDef(
+  pathParameter: PathParameter
+): ColumnDef<HCAAtlasTrackerSourceStudy> {
+  return {
+    accessorKey: "sourceDatasetCount",
+    cell: ({ row }) =>
+      C.Link({
+        label: row.original.sourceDatasetCount.toLocaleString(),
+        url: getRouteURL(ROUTE.SOURCE_DATASETS, {
+          ...pathParameter,
+          sourceStudyId: row.original.id,
+        }),
+      }),
+    header: "Source Datasets",
   };
 }
 

@@ -48,7 +48,7 @@ export const SourceDatasetsView = ({
           />
         }
         subTitle={getSourceStudyCitation(sourceStudy)}
-        tabs={<Tabs pathParameter={pathParameter} />}
+        tabs={<Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />}
         title={sourceStudy?.title || "Source Study"}
       />
     </ConditionalComponent>
