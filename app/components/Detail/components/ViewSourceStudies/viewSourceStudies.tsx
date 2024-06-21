@@ -54,7 +54,7 @@ export const ViewSourceStudies = ({
         {sourceStudies?.length > 0 && (
           <Table
             columns={getAtlasSourceStudiesTableColumns(pathParameter)}
-            gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) 100px 110px 70px"
+            gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) 110px 110px 110px 80px"
             items={sortedSourceStudies}
           />
         )}
