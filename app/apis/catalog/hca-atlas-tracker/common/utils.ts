@@ -8,6 +8,7 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
@@ -89,7 +90,7 @@ export function dbComponentAtlasToApiComponentAtlas(
 }
 
 export function dbSourceStudyToApiSourceStudy(
-  dbSourceStudy: HCAAtlasTrackerDBSourceStudy
+  dbSourceStudy: HCAAtlasTrackerDBSourceStudyWithSourceDatasets
 ): HCAAtlasTrackerSourceStudy {
   const {
     study_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
@@ -107,6 +108,7 @@ export function dbSourceStudyToApiSourceStudy(
       journal: null,
       publicationDate: null,
       referenceAuthor: unpublishedInfo.referenceAuthor,
+      sourceDatasetCount: dbSourceStudy.source_dataset_count,
       title: unpublishedInfo.title,
     };
   } else {
@@ -121,6 +123,7 @@ export function dbSourceStudyToApiSourceStudy(
       journal: publication?.journal ?? null,
       publicationDate: publication?.publicationDate ?? null,
       referenceAuthor: publication?.authors[0]?.name ?? null,
+      sourceDatasetCount: dbSourceStudy.source_dataset_count,
       title: publication?.title ?? null,
     };
   }
@@ -140,7 +143,7 @@ export function dbSourceDatasetToApiSourceDataset(
     disease: dbSourceDataset.sd_info.disease,
     doi: dbSourceDataset.doi,
     id: dbSourceDataset.id,
-    publicationString: getDbSourceDatasetCitation(dbSourceDataset),
+    publicationString: getDbEntityCitation(dbSourceDataset),
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:
       studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
@@ -186,19 +189,20 @@ export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
 }
 
 /**
- * Returns the source dataset citation.
- * @param sourceDataset - Database model of source dataset with source study properties.
- * @returns Source dataset citation.
+ * Returns the entity's citation.
+ * @param entity - Database model of entity with source study properties.
+ * @returns citation for the associated source study.
  */
-function getDbSourceDatasetCitation(
-  sourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties
+export function getDbEntityCitation(
+  entity:
+    | HCAAtlasTrackerDBSourceStudy
+    | HCAAtlasTrackerDBSourceDatasetWithStudyProperties
 ): string {
-  if (sourceDataset.doi === null) {
-    const { contactEmail, referenceAuthor } =
-      sourceDataset.study_info.unpublishedInfo;
+  if (entity.doi === null) {
+    const { contactEmail, referenceAuthor } = entity.study_info.unpublishedInfo;
     return getUnpublishedCitation(referenceAuthor, contactEmail);
   } else {
-    const studyInfo = sourceDataset.study_info;
+    const studyInfo = entity.study_info;
     const publication = studyInfo.publication;
     return getPublishedCitation(
       studyInfo.doiStatus,

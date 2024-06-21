@@ -20,6 +20,7 @@ import { TestPublishedSourceStudy, TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
+jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 beforeAll(async () => {

@@ -3,7 +3,9 @@ import {
   DOI_STATUS,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
+  HCAAtlasTrackerSourceStudy,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -155,4 +157,40 @@ export function promiseWithResolvers<T>(): [
 
 export function delay(ms = 5): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function expectSourceStudyToMatch(
+  dbStudy: HCAAtlasTrackerDBSourceStudy,
+  apiStudy: HCAAtlasTrackerSourceStudy
+): void {
+  expect(dbStudy.doi).toEqual(apiStudy.doi);
+  expect(dbStudy.id).toEqual(apiStudy.id);
+  expect(dbStudy.study_info.capId).toEqual(apiStudy.capId);
+  expect(dbStudy.study_info.cellxgeneCollectionId).toEqual(
+    apiStudy.cellxgeneCollectionId
+  );
+  expect(dbStudy.study_info.doiStatus).toEqual(apiStudy.doiStatus);
+  expect(dbStudy.study_info.hcaProjectId).toEqual(apiStudy.hcaProjectId);
+  if (dbStudy.doi === null) {
+    expect(apiStudy.journal).toBeNull();
+    expect(apiStudy.publicationDate).toBeNull();
+    const { unpublishedInfo } = dbStudy.study_info;
+    expect(unpublishedInfo.contactEmail).toEqual(apiStudy.contactEmail);
+    expect(unpublishedInfo.referenceAuthor).toEqual(apiStudy.referenceAuthor);
+    expect(unpublishedInfo.title).toEqual(apiStudy.title);
+  } else {
+    const { publication } = dbStudy.study_info;
+    if (publication) {
+      expect(publication.authors[0]?.name).toEqual(apiStudy.referenceAuthor);
+      expect(publication.journal).toEqual(apiStudy.journal);
+      expect(publication.publicationDate).toEqual(apiStudy.publicationDate);
+      expect(publication.title).toEqual(apiStudy.title);
+    } else {
+      expect(apiStudy.journal).toBeNull();
+      expect(apiStudy.publicationDate).toBeNull();
+      expect(apiStudy.referenceAuthor).toBeNull();
+      expect(apiStudy.title).toBeNull();
+    }
+    expect(apiStudy.contactEmail).toBeNull();
+  }
 }

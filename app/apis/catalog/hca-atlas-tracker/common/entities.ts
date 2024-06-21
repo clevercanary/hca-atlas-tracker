@@ -67,6 +67,7 @@ interface HCAAtlasTrackerSourceStudyCommon {
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   id: string;
+  sourceDatasetCount: number;
 }
 
 export interface HCAAtlasTrackerPublishedSourceStudy
@@ -230,6 +231,11 @@ export interface HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
   publication: null;
   unpublishedInfo: UnpublishedInfo;
 }
+
+export type HCAAtlasTrackerDBSourceStudyWithSourceDatasets =
+  HCAAtlasTrackerDBSourceStudy & {
+    source_dataset_count: number;
+  };
 
 export interface HCAAtlasTrackerDBSourceDataset {
   created_at: Date;
