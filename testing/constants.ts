@@ -670,6 +670,7 @@ export const CELLXGENE_DATASET_WITHOUT_UPDATE: CellxGeneDataset = {
   dataset_version_id: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
   disease: [{ label: "bar" }],
   explorer_url: "explorer-url-cellxgene-dataset-without-update",
+  suspension_type: ["foobarbaz"],
   tissue: [{ label: "baz" }],
   title: "Dataset Without Update",
 };
@@ -682,6 +683,7 @@ export const CELLXGENE_DATASET_WITH_UPDATE_UPDATED: CellxGeneDataset = {
   dataset_version_id: "cellxgene-version-dataset-with-update-b",
   disease: [{ label: "barbar" }],
   explorer_url: "explorer-url-cellxgene-dataset-with-update",
+  suspension_type: ["foobazbar"],
   tissue: [{ label: "bazbar" }],
   title: "Dataset With Update Updated",
 };
@@ -694,6 +696,7 @@ export const CELLXGENE_DATASET_NEW: CellxGeneDataset = {
   dataset_version_id: "cellxgene-version-dataset-new",
   disease: [{ label: "barbaz" }],
   explorer_url: "explorer-url-cellxgene-dataset-new",
+  suspension_type: ["bazfoobar"],
   tissue: [{ label: "bazbaz" }],
   title: "Dataset New",
 };
@@ -707,6 +710,7 @@ export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO: CellxGeneDataset =
     dataset_version_id: "cellxgene-version-with-new-source-datasets-foo",
     disease: [{ label: "bazfoo" }],
     explorer_url: "explorer-url-cellxgene-dataset-with-new-source-datasets-foo",
+    suspension_type: ["bazbarfoo"],
     tissue: [{ label: "foofoo" }],
     title: "Dataset With New Source Datasets Foo",
   };
@@ -720,6 +724,7 @@ export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR: CellxGeneDataset =
     dataset_version_id: "cellxgene-version-with-new-source-datasets-bar",
     disease: [{ label: "foobaz" }],
     explorer_url: "explorer-url-cellxgene-dataset-with-new-source-datasets-bar",
+    suspension_type: ["barbazfoo"],
     tissue: [{ label: "foofoo" }],
     title: "Dataset With New Source Datasets Bar",
   };

@@ -204,6 +204,7 @@ function sourceDatasetInputDataToDbData(
     cellxgeneDatasetVersion: null,
     cellxgeneExplorerUrl: null,
     disease: [],
+    suspensionType: [],
     tissue: [],
     title: inputData.title,
   };
@@ -352,6 +353,7 @@ function getCellxGeneSourceDatasetInfo(
     cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
     cellxgeneExplorerUrl: cxgDataset.explorer_url,
     disease: cxgDataset.disease.map((d) => d.label),
+    suspensionType: cxgDataset.suspension_type,
     tissue: cxgDataset.tissue.map((t) => t.label),
     title: cxgDataset.title,
   };

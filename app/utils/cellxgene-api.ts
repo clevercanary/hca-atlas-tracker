@@ -14,6 +14,7 @@ export interface CellxGeneDataset {
   dataset_version_id: string;
   disease: { label: string }[];
   explorer_url: string;
+  suspension_type: string[];
   tissue: { label: string }[];
   title: string;
 }

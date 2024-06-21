@@ -137,6 +137,9 @@ function expectSourceDatasetToMatchCellxGeneDataset(
   expect(sourceDataset.sd_info.cellxgeneExplorerUrl).toEqual(
     cxgDataset.explorer_url
   );
+  expect(sourceDataset.sd_info.suspensionType).toEqual(
+    cxgDataset.suspension_type
+  );
   expect(sourceDataset.sd_info.tissue).toEqual(
     cxgDataset.tissue.map((t) => t.label)
   );

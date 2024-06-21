@@ -60,6 +60,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
         ? `explorer-url-${sourceDataset.cellxgeneDatasetId}`
         : null,
       disease: [],
+      suspensionType: [],
       tissue: [],
       title: sourceDataset.title,
     };

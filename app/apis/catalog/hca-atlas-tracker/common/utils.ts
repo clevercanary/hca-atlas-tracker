@@ -147,6 +147,7 @@ export function dbSourceDatasetToApiSourceDataset(
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:
       studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
+    suspensionType: dbSourceDataset.sd_info.suspensionType,
     tissue: dbSourceDataset.sd_info.tissue,
     title: dbSourceDataset.sd_info.title,
     updatedAt: dbSourceDataset.updated_at.toISOString(),
