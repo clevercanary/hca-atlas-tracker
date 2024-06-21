@@ -1,3 +1,4 @@
+import { stripHtml } from "string-strip-html";
 import { array, InferType, number, object, string, ValidationError } from "yup";
 import { PublicationInfo } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { normalizeDoi } from "../doi";
@@ -108,14 +109,17 @@ export async function getCrossrefPublicationInfo(
   return {
     authors: work.author.map((author) =>
       "name" in author
-        ? { name: author.name, personalName: null }
-        : { name: author.family, personalName: author.given || null }
+        ? { name: htmlToPlainText(author.name), personalName: null }
+        : {
+            name: htmlToPlainText(author.family),
+            personalName: author.given ? htmlToPlainText(author.given) : null,
+          }
     ),
     hasPreprintDoi: getDoiFromRelation(work.relation["has-preprint"]),
-    journal,
+    journal: htmlToPlainText(journal),
     preprintOfDoi: getDoiFromRelation(work.relation["is-preprint-of"]),
     publicationDate: datePartsToString(work.published["date-parts"][0]),
-    title: work.title[0],
+    title: htmlToPlainText(work.title[0]),
   };
 }
 
@@ -134,4 +138,8 @@ function datePartsToString(parts: number[]): string {
     parts[0].toString(),
     ...parts.slice(1, 3).map((n) => n.toString().padStart(2, "0")),
   ].join("-");
+}
+
+function htmlToPlainText(htmlText: string): string {
+  return stripHtml(htmlText).result;
 }
