@@ -2,6 +2,18 @@ import nextMDX from "@next/mdx";
 import withPlugins from "next-compose-plugins";
 import path from "path";
 
+const ESM_PACKAGES = [
+  "codsen-utils",
+  "lodash-es",
+  "ranges-apply",
+  "ranges-merge",
+  "ranges-push",
+  "ranges-sort",
+  "string-collapse-leading-whitespace",
+  "string-left-right",
+  "string-strip-html",
+];
+
 const withMDX = nextMDX({
   extension: /\.mdx?$/,
 });
@@ -17,6 +29,7 @@ export default withPlugins(
       unoptimized: true,
     },
     reactStrictMode: true,
+    transpilePackages: [...ESM_PACKAGES],
     webpack: (config) => {
       // Add the alias for the peer dependency
       config.resolve.alias["@emotion/react"] = path.resolve(
