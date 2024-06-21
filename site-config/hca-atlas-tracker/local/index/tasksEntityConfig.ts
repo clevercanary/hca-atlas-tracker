@@ -23,6 +23,7 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../category";
+import { SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE } from "./common/constants";
 
 /**
  * Entity config object responsible to config anything related to the /tasks route.
@@ -107,10 +108,7 @@ export const tasksEntityConfig: EntityConfig = {
             value: [SYSTEM.CAP],
           },
         ],
-        sort: {
-          desc: SORT_DIRECTION.ASCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-        },
+        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
         title: "CAP - Ingest backlog",
       },
       {
@@ -128,10 +126,7 @@ export const tasksEntityConfig: EntityConfig = {
             value: [SYSTEM.CELLXGENE],
           },
         ],
-        sort: {
-          desc: SORT_DIRECTION.ASCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-        },
+        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
         title: "CELLxGENE - Ingest backlog",
       },
       {
@@ -141,10 +136,12 @@ export const tasksEntityConfig: EntityConfig = {
             value: [TASK_STATUS.DONE],
           },
         ],
-        sort: {
-          desc: SORT_DIRECTION.DESCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RESOLVED_AT,
-        },
+        sorting: [
+          {
+            desc: SORT_DIRECTION.DESCENDING,
+            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RESOLVED_AT,
+          },
+        ],
         title: "Completed Tasks",
       },
       {
@@ -162,10 +159,7 @@ export const tasksEntityConfig: EntityConfig = {
             value: [SYSTEM.HCA_DATA_REPOSITORY],
           },
         ],
-        sort: {
-          desc: SORT_DIRECTION.ASCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-        },
+        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
         title: "HCA Data Repository -  Ingest backlog",
       },
       {
@@ -183,10 +177,7 @@ export const tasksEntityConfig: EntityConfig = {
             value: [SYSTEM.HCA_DATA_REPOSITORY],
           },
         ],
-        sort: {
-          desc: SORT_DIRECTION.ASCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-        },
+        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
         title: "HCA Data Repository - no primary data",
       },
       {
@@ -204,10 +195,7 @@ export const tasksEntityConfig: EntityConfig = {
             value: [SYSTEM.HCA_DATA_REPOSITORY],
           },
         ],
-        sort: {
-          desc: SORT_DIRECTION.ASCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-        },
+        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
         title:
           "HCA Data Repository -  project title does not match publication title",
       },
