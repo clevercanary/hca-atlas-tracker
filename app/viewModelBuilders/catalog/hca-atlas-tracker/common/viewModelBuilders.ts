@@ -507,6 +507,7 @@ export function getAtlasComponentSourceDatasetsTableColumns(
     getComponentAtlasSourceDatasetPublicationColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
+    getSourceDatasetSuspensionTypeColumnDef(),
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
     getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
@@ -526,6 +527,7 @@ export function getAtlasSourceDatasetsTableColumns(
     getSourceDatasetTitleColumnDef(pathParameter),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
+    getSourceDatasetSuspensionTypeColumnDef(),
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
     getSourceDatasetCellCountColumnDef(),
@@ -593,6 +595,7 @@ export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCA
     getAtlasSourceStudiesSourceDatasetsTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
+    getSourceDatasetSuspensionTypeColumnDef(),
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
     getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(),
@@ -824,6 +827,26 @@ function getSourceDatasetExploreColumnDef(
       });
     },
     header: "Explore",
+    meta: { enableSortingInteraction },
+  };
+}
+
+/**
+ * Returns source dataset suspension type column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
+ * @returns Column def.
+ */
+function getSourceDatasetSuspensionTypeColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "suspensionType",
+    cell: ({ row }) =>
+      C.NTagCell({
+        label: getPluralizedMetadataLabel(METADATA_KEY.SUSPENSION_TYPE),
+        values: row.original.suspensionType,
+      }),
+    header: "Suspension Type",
     meta: { enableSortingInteraction },
   };
 }
