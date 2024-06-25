@@ -5,8 +5,7 @@ import {
   Checkbox as MCheckbox,
   FormControlLabel as DXFormControlLabel,
 } from "@mui/material";
-import { Row, RowData, Table } from "@tanstack/react-table";
-import { RowSelectionState } from "@tanstack/table-core";
+import { Row, RowData, RowSelectionState, Table } from "@tanstack/react-table";
 import { ChangeEvent, ReactNode, useCallback } from "react";
 
 export interface GroupedRowSelectionCellProps<T extends RowData> {

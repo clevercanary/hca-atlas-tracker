@@ -8,6 +8,6 @@ export const Cell = styled.div`
   justify-content: flex-start;
 
   img {
-    margin: 4px;
+    margin: 0;
   }
 `;

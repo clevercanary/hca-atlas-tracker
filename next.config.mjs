@@ -48,14 +48,14 @@ export default withPlugins(
         process.cwd(),
         "node_modules/@mui/material"
       );
-      config.resolve.alias["@tanstack/react-table"] = path.resolve(
-        process.cwd(),
-        "node_modules/@tanstack/react-table"
-      );
-      config.resolve.alias["axios"] = path.resolve(
-        process.cwd(),
-        "node_modules/axios"
-      );
+      // config.resolve.alias["@tanstack/react-table"] = path.resolve(
+      //   process.cwd(),
+      //   "node_modules/@tanstack/react-table"
+      // );
+      // config.resolve.alias["axios"] = path.resolve(
+      //   process.cwd(),
+      //   "node_modules/axios"
+      // );
       config.resolve.alias["react-dropzone"] = path.resolve(
         process.cwd(),
         "node_modules/react-dropzone"

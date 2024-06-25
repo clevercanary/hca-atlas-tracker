@@ -1,6 +1,13 @@
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { CellContext, ColumnDef, Row } from "@tanstack/react-table";
+import { ColumnConfig } from "@databiosphere/findable-ui/lib/config/entities";
+import {
+  CellContext,
+  ColumnDef,
+  Row,
+  RowData,
+  Table,
+} from "@tanstack/react-table";
 import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
@@ -14,7 +21,10 @@ import {
   NetworkKey,
   TASK_STATUS,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
+import {
+  getSourceStudyCitation,
+  isTask,
+} from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
@@ -88,13 +98,13 @@ export const buildComponentAtlasTitle = (
 };
 
 /**
- * Build props for the "created at" cell component.
+ * Build props for the "created at" BasicCell component.
  * @param task - Task entity.
- * @returns Props to be used for the cell.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildCreatedAt = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: getDateFromIsoString(task.createdAt),
   };
@@ -130,13 +140,13 @@ export const buildEntityTitle = (
 };
 
 /**
- * Build props for the Cell component.
+ * Build props for the BasicCell component.
  * @param task - Task entity.
- * @returns Props to be used for the Cell component.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildEntityType = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.entityType,
   };
@@ -196,13 +206,13 @@ export const buildIntegrationLead = (
 };
 
 /**
- * Build props for the "resolved at" cell component.
+ * Build props for the "resolved at" BasicCell component.
  * @param task - Task entity.
- * @returns Props to be used for the cell.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildResolvedAt = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.resolvedAt ? getDateFromIsoString(task.resolvedAt) : "",
   };
@@ -298,26 +308,26 @@ export const buildStatus = (
 };
 
 /**
- * Build props for the Cell component.
+ * Build props for the BasicCell component.
  * @param task - Task entity.
- * @returns Props to be used for the Cell component.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildSystem = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.system,
   };
 };
 
 /**
- * Build props for the Cell component.
+ * Build props for the BasicCell component.
  * @param entity - Task or atlas entity.
- * @returns Props to be used for the Cell component.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildTargetCompletion = (
   entity: HCAAtlasTrackerListValidationRecord | HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: formatDateToQuarterYear(entity.targetCompletion),
   };
@@ -338,19 +348,6 @@ export const buildTaskAtlasNames = (
 };
 
 /**
- * Build props for the BioNetworkCell component.
- * @param task - Task entity.
- * @returns Props to be used for the BioNetworkCell component.
- */
-export const buildTaskBioNetworks = (
-  task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BioNetworkCell> => {
-  return {
-    networkKey: task.networks[0],
-  };
-};
-
-/**
  * Build props for the task counts TaskCountsCell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the TaskCountsCell.
@@ -366,15 +363,62 @@ export const buildTaskCounts = (
 };
 
 /**
- * Build props for the TaskDescriptionSystemCell component.
+ * Build props for the TaskDescriptionCell component.
  * @param task - Task entity.
- * @returns Props to be used for the TaskDescriptionSystemCell component.
+ * @returns Props to be used for the TaskDescriptionCell component.
  */
-export const buildTaskDescriptionSystem = (
+export const buildTaskDescription = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.TaskDescriptionSystemCell> => {
+): React.ComponentProps<typeof C.TaskDescriptionCell> => {
   return {
     task,
+  };
+};
+
+/**
+ * Build props for the BioNetworkCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the BioNetworkCell component.
+ */
+export const buildTaskNetworks = (
+  task: HCAAtlasTrackerListValidationRecord
+): React.ComponentProps<typeof C.BioNetworkCell> => {
+  return {
+    networkKey: task.networks[0],
+  };
+};
+
+/**
+ * Build props for the RowDrawer component.
+ * @param tableInstance - Table.
+ * @returns Props to be used for the RowDrawer component.
+ */
+export const buildTaskRowPreview = (
+  tableInstance: Table<HCAAtlasTrackerListValidationRecord>
+): React.ComponentProps<
+  typeof C.RowDrawer<HCAAtlasTrackerListValidationRecord>
+> => {
+  const { getPreviewRowData } = tableInstance;
+  return {
+    tableInstance,
+    title: getEntityFromRowData(getPreviewRowData(), isTask)?.description,
+  };
+};
+
+/**
+ * Build props for the PreviewTask component.
+ * @param tableInstance - Table.
+ * @param columns - Column config.
+ * @returns Props to be used for the PreviewTask component.
+ */
+export const buildTaskPreviewDetails = (
+  tableInstance: Table<HCAAtlasTrackerListValidationRecord>,
+  columns: ColumnConfig<HCAAtlasTrackerListValidationRecord>[]
+): React.ComponentProps<typeof C.PreviewTask> => {
+  const { getPreviewRowData } = tableInstance;
+  return {
+    columns,
+    rowData: getEntityFromRowData(getPreviewRowData(), isTask),
   };
 };
 
@@ -458,26 +502,26 @@ export const buildTaskWaves = (
 };
 
 /**
- * Build props for the Cell component.
+ * Build props for the BasicCell component.
  * @param task - Task entity.
- * @returns Props to be used for the Cell component.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildValidationType = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.validationType,
   };
 };
 
 /**
- * Build props for the wave cell component.
+ * Build props for the wave BasicCell component.
  * @param atlas - Atlas entity.
- * @returns Props to be used for the cell.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildWave = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Cell> => {
+): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: atlas.wave,
   };
@@ -540,7 +584,7 @@ function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAA
   return {
     accessorKey: "cellCount",
     cell: ({ row }) =>
-      C.Cell({ value: row.original.cellCount.toLocaleString() }),
+      C.BasicCell({ value: row.original.cellCount.toLocaleString() }),
     header: "Cell Count",
     meta: { enableSortingInteraction: false },
   };
@@ -643,7 +687,7 @@ function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDe
   return {
     accessorKey: "cellCount",
     cell: ({ row }) =>
-      C.Cell({ value: row.original.cellCount.toLocaleString() }),
+      C.BasicCell({ value: row.original.cellCount.toLocaleString() }),
     header: "Cell count",
     meta: { enableSortingInteraction: false },
   };
@@ -656,7 +700,7 @@ function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDe
 function getComponentAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "publicationString",
-    cell: ({ row }) => C.Cell({ value: row.original.publicationString }),
+    cell: ({ row }) => C.BasicCell({ value: row.original.publicationString }),
     header: "Source study",
     meta: { enableSortingInteraction: false },
   };
@@ -669,7 +713,7 @@ function getComponentAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtla
 function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "title",
-    cell: ({ row }) => C.Cell({ value: row.original.title }),
+    cell: ({ row }) => C.BasicCell({ value: row.original.title }),
     header: "Title",
     meta: { columnPinned: true, enableSortingInteraction: false },
   };
@@ -772,7 +816,7 @@ function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDa
   return {
     accessorKey: "cellCount",
     cell: ({ row }) =>
-      C.Cell({ value: row.original.cellCount.toLocaleString() }),
+      C.BasicCell({ value: row.original.cellCount.toLocaleString() }),
     header: "Cell Count",
   };
 }
@@ -1013,4 +1057,20 @@ function getTaskCountUrlObject(
     href: ROUTE.TASKS,
     query: encodeURIComponent(JSON.stringify(params)),
   };
+}
+
+/**
+ * Returns the entity model from the table row data.
+ * @param rowData - Row data.
+ * @param isEntity - Entity type guard.
+ * @returns entity.
+ */
+function getEntityFromRowData<T extends RowData>(
+  rowData: RowData,
+  isEntity: (rowData: RowData) => rowData is T
+): T | undefined {
+  if (!rowData) return;
+  if (isEntity(rowData)) {
+    return rowData;
+  }
 }

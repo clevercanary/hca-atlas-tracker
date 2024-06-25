@@ -16,3 +16,5 @@ export enum METADATA_KEY {
 export enum DISEASE {
   NORMAL = "normal",
 }
+
+export type Unused = unknown;

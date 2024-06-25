@@ -4,7 +4,7 @@ import {
   RowSelectionState,
   TableOptions,
   Updater,
-} from "@tanstack/table-core";
+} from "@tanstack/react-table";
 import { useCallback, useState } from "react";
 
 export type PartialTableOptions<T extends RowData> = Partial<TableOptions<T>>;
