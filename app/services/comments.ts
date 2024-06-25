@@ -3,8 +3,8 @@ import {
   HCAAtlasTrackerDBUser,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  NewCommentSchema,
-  NewCommentThreadSchema,
+  NewCommentData,
+  NewCommentThreadData,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { ForbiddenError, NotFoundError } from "../../app/utils/api-handler";
 import { doTransaction, query } from "./database";
@@ -56,7 +56,7 @@ export async function getComment(
  * @returns database model of new comment.
  */
 export async function createCommentThread(
-  inputData: NewCommentThreadSchema,
+  inputData: NewCommentThreadData,
   user: HCAAtlasTrackerDBUser
 ): Promise<HCAAtlasTrackerDBComment> {
   const newRowFields: Pick<
@@ -85,7 +85,7 @@ export async function createCommentThread(
  */
 export async function createComment(
   threadId: string,
-  inputData: NewCommentSchema,
+  inputData: NewCommentData,
   user: HCAAtlasTrackerDBUser
 ): Promise<HCAAtlasTrackerDBComment> {
   const newRowFields: Pick<
@@ -123,7 +123,7 @@ export async function createComment(
 export async function updateComment(
   threadId: string,
   commentId: string,
-  inputData: NewCommentSchema,
+  inputData: NewCommentData,
   user: HCAAtlasTrackerDBUser,
   limitToOwnComments: boolean
 ): Promise<HCAAtlasTrackerDBComment> {

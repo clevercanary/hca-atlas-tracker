@@ -263,21 +263,21 @@ export const newCommentSchema = object({
   text: string().required(),
 }).strict();
 
-export type NewCommentSchema = InferType<typeof newCommentSchema>;
+export type NewCommentData = InferType<typeof newCommentSchema>;
 
 /**
  * Schema for data used to edit a comment.
  */
 export const commentEditSchema = newCommentSchema;
 
-export type CommentEditSchema = InferType<typeof commentEditSchema>;
+export type CommentEditData = InferType<typeof commentEditSchema>;
 
 /**
  * Schema for data used to create a comment thread.
  */
 export const newCommentThreadSchema = newCommentSchema;
 
-export type NewCommentThreadSchema = InferType<typeof newCommentThreadSchema>;
+export type NewCommentThreadData = InferType<typeof newCommentThreadSchema>;
 
 /**
  * Schema for data used to create a new user.
