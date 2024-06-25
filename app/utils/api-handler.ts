@@ -22,6 +22,14 @@ export class InvalidOperationError extends Error {
   name = "InvalidOperationError";
 }
 
+export class UnauthenticatedError extends Error {
+  name = "UnauthenticatedError";
+}
+
+export class ForbiddenError extends Error {
+  name = "ForbiddenError";
+}
+
 export class AccessError extends Error {
   name = "AccessError";
 }
@@ -93,6 +101,21 @@ export function method(methodName: METHOD): MiddlewareFunction {
     }
   };
 }
+
+/**
+ * Middleware function that rejects requests from users who aren't registered.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @param next - Middleware next function.
+ */
+export const registeredUser: MiddlewareFunction = async (req, res, next) => {
+  const user = await getUserFromAuthorization(req.headers.authorization);
+  if (!user) {
+    res.status(401).json({ message: "User must be registered" });
+  } else {
+    next();
+  }
+};
 
 /**
  * Creates a middleware function that rejects requests from users who don't have the specified role.
@@ -167,6 +190,14 @@ export async function getUserFromAuthorization(
   return null;
 }
 
+export async function getRegisteredUserFromAuthorization(
+  authorization: string | undefined
+): Promise<HCAAtlasTrackerDBUser> {
+  const user = await getUserFromAuthorization(authorization);
+  if (!user) throw new UnauthenticatedError("User must be registered");
+  return user;
+}
+
 /**
  * Send an error response, setting status and message based on error type.
  * @param res - Next API response.
@@ -175,6 +206,10 @@ export async function getUserFromAuthorization(
 function respondError(res: NextApiResponse, error: unknown): void {
   if (error instanceof InvalidOperationError)
     res.status(400).json({ message: error.message });
+  else if (error instanceof UnauthenticatedError)
+    res.status(401).json({ message: error.message });
+  else if (error instanceof ForbiddenError)
+    res.status(403).json({ message: error.message });
   else if (error instanceof NotFoundError)
     res.status(404).json({ message: error.message });
   else if (error instanceof ValidationError) respondValidationError(res, error);

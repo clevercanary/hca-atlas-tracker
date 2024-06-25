@@ -257,6 +257,29 @@ export const sourceDatasetEditSchema = object({
 export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
 
 /**
+ * Schema for data used to create a comment.
+ */
+export const newCommentSchema = object({
+  text: string().required(),
+}).strict();
+
+export type NewCommentSchema = InferType<typeof newCommentSchema>;
+
+/**
+ * Schema for data used to edit a comment.
+ */
+export const commentEditSchema = newCommentSchema;
+
+export type CommentEditSchema = InferType<typeof commentEditSchema>;
+
+/**
+ * Schema for data used to create a comment thread.
+ */
+export const newCommentThreadSchema = newCommentSchema;
+
+export type NewCommentThreadSchema = InferType<typeof newCommentThreadSchema>;
+
+/**
  * Schema for data used to create a new user.
  */
 export const newUserSchema = object({

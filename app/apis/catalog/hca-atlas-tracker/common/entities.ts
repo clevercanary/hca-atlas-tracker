@@ -139,6 +139,16 @@ export interface HCAAtlasTrackerValidationRecord
   waves: Wave[];
 }
 
+export interface HCAAtlasTrackerComment {
+  createdAt: string;
+  createdBy: number;
+  id: string;
+  text: string;
+  threadId: string;
+  updatedAt: string;
+  updatedBy: number;
+}
+
 export interface HCAAtlasTrackerActiveUser {
   email: string;
   fullName: string;
@@ -314,6 +324,16 @@ export interface HCAAtlasTrackerDBValidationWithAtlasProperties
   atlas_short_names: string[];
   networks: NetworkKey[];
   waves: Wave[];
+}
+
+export interface HCAAtlasTrackerDBComment {
+  created_at: Date;
+  created_by: number;
+  id: string;
+  text: string;
+  thread_id: string;
+  updated_at: Date;
+  updated_by: number;
 }
 
 export interface HCAAtlasTrackerDBUser {
