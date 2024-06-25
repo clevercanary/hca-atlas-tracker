@@ -111,7 +111,10 @@ export function method(methodName: METHOD): MiddlewareFunction {
 export const registeredUser: MiddlewareFunction = async (req, res, next) => {
   const user = await getUserFromAuthorization(req.headers.authorization);
   if (!user) {
-    res.status(401).json({ message: "User must be registered" });
+    const userProfile = await getProvidedUserProfile(req.headers.authorization);
+    res
+      .status(userProfile ? 403 : 401)
+      .json({ message: "User must be registered" });
   } else {
     next();
   }
