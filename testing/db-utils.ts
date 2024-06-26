@@ -2,10 +2,12 @@ import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
@@ -14,6 +16,7 @@ import { updateSourceStudyValidations } from "../app/services/validations";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
   INITIAL_TEST_ATLASES,
+  INITIAL_TEST_COMMENTS,
   INITIAL_TEST_COMPONENT_ATLASES,
   INITIAL_TEST_SOURCE_DATASETS,
   INITIAL_TEST_SOURCE_STUDIES,
@@ -42,6 +45,31 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     );
   }
 
+  const dbUsersByEmail = await getDbUsersByEmail();
+
+  await initSourceStudies(client);
+
+  await initSourceDatasets(client);
+
+  await initAtlases(client);
+
+  await initComponentAtlases(client);
+
+  await initComments(client, dbUsersByEmail);
+
+  const dbSourceStudies = (
+    await client.query<HCAAtlasTrackerDBSourceStudy>(
+      "SELECT * FROM hat.source_studies"
+    )
+  ).rows;
+  for (const study of dbSourceStudies) {
+    await updateSourceStudyValidations(study, client);
+  }
+
+  await updateTaskCounts();
+}
+
+async function initSourceStudies(client: pg.PoolClient): Promise<void> {
   for (const study of INITIAL_TEST_SOURCE_STUDIES) {
     const sdInfo = makeTestSourceStudyOverview(study);
     await client.query(
@@ -49,7 +77,9 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
       ["doi" in study ? study.doi : null, study.id, JSON.stringify(sdInfo)]
     );
   }
+}
 
+async function initSourceDatasets(client: pg.PoolClient): Promise<void> {
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
     const info: HCAAtlasTrackerDBSourceDatasetInfo = {
       assay: [],
@@ -69,7 +99,9 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
       [sourceDataset.sourceStudyId, info, sourceDataset.id]
     );
   }
+}
 
+async function initAtlases(client: pg.PoolClient): Promise<void> {
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
@@ -83,7 +115,9 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
       ]
     );
   }
+}
 
+async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
       cellxgeneDatasetId: null,
@@ -100,17 +134,37 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
       ]
     );
   }
+}
 
-  const dbSourceStudies = (
-    await client.query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies"
-    )
-  ).rows;
-  for (const study of dbSourceStudies) {
-    await updateSourceStudyValidations(study, client);
+async function initComments(
+  client: pg.PoolClient,
+  dbUsersByEmail: Record<string, HCAAtlasTrackerDBUser>
+): Promise<void> {
+  for (const comment of INITIAL_TEST_COMMENTS) {
+    const createdAt = new Date(comment.createdAt);
+    const createdBy = dbUsersByEmail[comment.createdBy.email].id;
+    const fields: HCAAtlasTrackerDBComment = {
+      created_at: createdAt,
+      created_by: createdBy,
+      id: comment.id,
+      text: comment.text,
+      thread_id: comment.threadId,
+      updated_at: createdAt,
+      updated_by: createdBy,
+    };
+    await client.query(
+      "INSERT INTO hat.comments (created_at, created_by, id, text, thread_id, updated_at, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+      [
+        fields.created_at,
+        fields.created_by,
+        fields.id,
+        fields.text,
+        fields.thread_id,
+        fields.updated_at,
+        fields.updated_by,
+      ]
+    );
   }
-
-  await updateTaskCounts();
 }
 
 async function runMigrations(
@@ -126,6 +180,16 @@ async function runMigrations(
     migrationsTable: "pgmigrations",
     schema: "hat",
   });
+}
+
+export async function getDbUsersByEmail(): Promise<
+  Record<string, HCAAtlasTrackerDBUser>
+> {
+  return Object.fromEntries(
+    (await query<HCAAtlasTrackerDBUser>("SELECT * FROM hat.users")).rows.map(
+      (u) => [u.email, u]
+    )
+  );
 }
 
 export async function getExistingSourceStudyFromDatabase(

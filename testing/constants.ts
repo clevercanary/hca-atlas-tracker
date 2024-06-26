@@ -12,6 +12,7 @@ import {
 import { CrossrefWork } from "../app/utils/crossref/crossref";
 import {
   TestAtlas,
+  TestComment,
   TestComponentAtlas,
   TestPublishedSourceStudy,
   TestSourceDataset,
@@ -1393,3 +1394,80 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
 ];
+
+// COMMENTS
+
+export const THREAD_ID_BY_STAKEHOLDER = "5eaf0a40-e603-46d6-b38d-45f0f1664295";
+
+export const THREAD_ID_BY_CONTENT_ADMIN =
+  "48cb0273-7a3b-449b-9f61-5418be01d6cf";
+
+export const COMMENT_BY_STAKEHOLDER_ROOT: TestComment = {
+  createdAt: "2024-06-25T21:13:49.725Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "9b0a28a3-1fed-4f02-9850-39d60e2d88b2",
+  text: "foo barfoo baz",
+  threadId: THREAD_ID_BY_STAKEHOLDER,
+};
+
+export const COMMENT_BY_STAKEHOLDER_REPLY1: TestComment = {
+  createdAt: "2024-06-25T21:14:11.153Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "9925b9ab-2e4c-45c5-b0b0-40dd0043f0f3",
+  text: "barbar foo baz foo",
+  threadId: THREAD_ID_BY_STAKEHOLDER,
+};
+
+export const COMMENT_BY_STAKEHOLDER_REPLY2: TestComment = {
+  createdAt: "2024-06-25T21:15:24.460Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "816e4a41-cc56-4232-9bf7-35401b91370c",
+  text: "foo baz bar bazbaz",
+  threadId: THREAD_ID_BY_STAKEHOLDER,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_ROOT: TestComment = {
+  createdAt: "2024-06-26T05:17:42.555Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "ce7437eb-db21-497a-b1d3-cef333097b8c",
+  text: "bar foobar barbazbaz",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_REPLY1: TestComment = {
+  createdAt: "2024-06-26T05:18:29.875Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "f031b429-0234-4798-aaaf-2a5743e30c17",
+  text: "barfoofoo foobar baz foo",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_REPLY2: TestComment = {
+  createdAt: "2024-06-26T05:19:13.480Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "7c6b6e70-883f-4256-8b94-3c4fc863fdb2",
+  text: "baz foofoo foo",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN,
+};
+
+// Comments to initialize in the database before tests
+export const INITIAL_TEST_COMMENTS = [
+  COMMENT_BY_STAKEHOLDER_ROOT,
+  COMMENT_BY_STAKEHOLDER_REPLY1,
+  COMMENT_BY_STAKEHOLDER_REPLY2,
+  COMMENT_BY_CONTENT_ADMIN_ROOT,
+  COMMENT_BY_CONTENT_ADMIN_REPLY1,
+  COMMENT_BY_CONTENT_ADMIN_REPLY2,
+];
+
+export const TEST_COMMENTS = [...INITIAL_TEST_COMMENTS];
+
+export const TEST_COMMENTS_BY_THREAD_ID = TEST_COMMENTS.reduce(
+  (byThread, comment) => {
+    (byThread[comment.threadId] || (byThread[comment.threadId] = [])).push(
+      comment
+    );
+    return byThread;
+  },
+  {} as Record<string, TestComment[]>
+);
