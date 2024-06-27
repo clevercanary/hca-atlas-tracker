@@ -266,6 +266,12 @@ describe("/api/comments/[threadId]/comments", () => {
   });
 
   it("PATCH updates another user's comment when requested by user with CONTENT_ADMIN role", async () => {
+    const commentBefore = await getCommentFromDatabase(
+      COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER.id
+    );
+    expect(commentBefore?.updated_by).toEqual(
+      dbUsersByEmail[USER_STAKEHOLDER.email].id
+    );
     const res = await doCommentTest(
       USER_CONTENT_ADMIN,
       THREAD_ID_BY_CONTENT_ADMIN,
@@ -285,6 +291,14 @@ describe("/api/comments/[threadId]/comments", () => {
     expect(updatedCommentFromDb).toBeDefined();
     if (updatedCommentFromDb === undefined) return;
     expectDbCommentToMatch(updatedCommentFromDb, updatedComment);
+
+    expect(updatedCommentFromDb.updated_by).toEqual(
+      dbUsersByEmail[USER_CONTENT_ADMIN.email].id
+    );
+    expect(updatedCommentFromDb.created_by).toEqual(
+      dbUsersByEmail[USER_STAKEHOLDER.email].id
+    );
+
     await expectCommentToBeUnchanged(COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN);
   });
 
