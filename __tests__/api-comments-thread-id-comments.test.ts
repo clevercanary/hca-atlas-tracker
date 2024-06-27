@@ -26,6 +26,8 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
+const THREAD_ID_NONEXISTENT = "f1d7ee3c-34ac-4d2e-86bb-d45f86d84fe4";
+
 const NEW_COMMENT_FOO_DATA: NewCommentData = {
   text: "New comment foo",
 };
@@ -74,6 +76,19 @@ describe("/api/comments/[threadId]/comments", () => {
         await doCommentsTest(USER_UNREGISTERED, THREAD_ID_BY_STAKEHOLDER)
       )._getStatusCode()
     ).toEqual(403);
+  });
+
+  it("GET returns error 404 for nonexistent thread", async () => {
+    expect(
+      (
+        await doCommentsTest(
+          USER_STAKEHOLDER,
+          THREAD_ID_NONEXISTENT,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
   });
 
   it("GET returns thread comments when requested by user with STAKEHOLDER role", async () => {
@@ -128,6 +143,20 @@ describe("/api/comments/[threadId]/comments", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
+  });
+
+  it("POST returns error 404 for nonexistent thread", async () => {
+    expect(
+      (
+        await doCommentsTest(
+          USER_STAKEHOLDER,
+          THREAD_ID_NONEXISTENT,
+          NEW_COMMENT_FOO_DATA,
+          true,
+          METHOD.POST
+        )
+      )._getStatusCode()
+    ).toEqual(404);
   });
 
   it("POST returns error 400 when text is not a string", async () => {
