@@ -88,6 +88,16 @@ export async function createComment(
   inputData: NewCommentData,
   user: HCAAtlasTrackerDBUser
 ): Promise<HCAAtlasTrackerDBComment> {
+  const { exists: threadExists } = (
+    await query<{ exists: boolean }>(
+      "SELECT EXISTS(SELECT 1 FROM hat.comments WHERE thread_id=$1)",
+      [threadId]
+    )
+  ).rows[0];
+
+  if (!threadExists)
+    throw new NotFoundError(`Thread with id ${threadId} doesn't exist`);
+
   const newRowFields: Pick<
     HCAAtlasTrackerDBComment,
     "created_by" | "text" | "thread_id" | "updated_by"
