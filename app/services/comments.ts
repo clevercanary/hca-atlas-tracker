@@ -7,7 +7,7 @@ import {
   NewCommentThreadData,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { ForbiddenError, NotFoundError } from "../../app/utils/api-handler";
-import { doTransaction, query } from "./database";
+import { query } from "./database";
 
 /**
  * Get comments in a given thread.
@@ -137,6 +137,17 @@ export async function updateComment(
   user: HCAAtlasTrackerDBUser,
   limitToOwnComments: boolean
 ): Promise<HCAAtlasTrackerDBComment> {
+  if (limitToOwnComments) {
+    const existingComment = (
+      await query<HCAAtlasTrackerDBComment>(
+        "SELECT * FROM hat.comments WHERE id=$2 AND thread_id=$1",
+        [threadId, commentId]
+      )
+    ).rows[0];
+    if (existingComment && existingComment.created_by !== user.id)
+      throw new ForbiddenError(`Must be user's own comment`);
+  }
+
   const updatedRowFields: Pick<
     HCAAtlasTrackerDBComment,
     "text" | "updated_by"
@@ -145,22 +156,15 @@ export async function updateComment(
     updated_by: user.id,
   };
 
-  return await doTransaction(async (client) => {
-    const queryResult = await client.query<HCAAtlasTrackerDBComment>(
-      "UPDATE hat.comments SET text=$1, updated_by=$2 WHERE id=$3 AND thread_id=$4 RETURNING *",
-      [updatedRowFields.text, updatedRowFields.updated_by, commentId, threadId]
-    );
+  const queryResult = await query<HCAAtlasTrackerDBComment>(
+    "UPDATE hat.comments SET text=$1, updated_by=$2 WHERE id=$3 AND thread_id=$4 RETURNING *",
+    [updatedRowFields.text, updatedRowFields.updated_by, commentId, threadId]
+  );
 
-    if (queryResult.rows.length === 0)
-      throw getCommentNotFoundError(threadId, commentId);
+  if (queryResult.rows.length === 0)
+    throw getCommentNotFoundError(threadId, commentId);
 
-    const updatedComment = queryResult.rows[0];
-
-    if (limitToOwnComments && updatedComment.created_by !== user.id)
-      throw new ForbiddenError(`Must be user's own comment`);
-
-    return updatedComment;
-  });
+  return queryResult.rows[0];
 }
 
 /**
