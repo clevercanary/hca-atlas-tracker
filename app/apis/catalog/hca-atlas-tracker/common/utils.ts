@@ -3,8 +3,10 @@ import { NETWORK_KEYS, WAVES } from "./constants";
 import {
   DOI_STATUS,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerComment,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlasWithComponentAtlases,
+  HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
@@ -182,6 +184,20 @@ export function dbValidationToApiValidation(
     validationStatus: validationInfo.validationStatus,
     validationType: validationInfo.validationType,
     waves: validation.waves,
+  };
+}
+
+export function dbCommentToApiComment(
+  dbComment: HCAAtlasTrackerDBComment
+): HCAAtlasTrackerComment {
+  return {
+    createdAt: dbComment.created_at.toISOString(),
+    createdBy: dbComment.created_by,
+    id: dbComment.id,
+    text: dbComment.text,
+    threadId: dbComment.thread_id,
+    updatedAt: dbComment.updated_at.toISOString(),
+    updatedBy: dbComment.updated_by,
   };
 }
 

@@ -65,3 +65,11 @@ export interface TestSourceDataset {
   sourceStudyId: string;
   title: string;
 }
+
+export interface TestComment {
+  createdAt: string;
+  createdBy: TestUser;
+  id: string;
+  text: string;
+  threadId: string;
+}

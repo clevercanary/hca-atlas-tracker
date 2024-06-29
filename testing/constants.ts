@@ -12,6 +12,7 @@ import {
 import { CrossrefWork } from "../app/utils/crossref/crossref";
 import {
   TestAtlas,
+  TestComment,
   TestComponentAtlas,
   TestPublishedSourceStudy,
   TestSourceDataset,
@@ -24,6 +25,10 @@ import { makeTestProjectsResponse, makeTestUser } from "./utils";
 export const USER_UNREGISTERED = makeTestUser("test-unregistered");
 export const USER_STAKEHOLDER = makeTestUser(
   "test-stakeholder",
+  ROLE.STAKEHOLDER
+);
+export const USER_STAKEHOLDER2 = makeTestUser(
+  "test-stakeholder2",
   ROLE.STAKEHOLDER
 );
 export const USER_DISABLED = makeTestUser(
@@ -43,6 +48,7 @@ export const USER_NEW = makeTestUser("test-new");
 export const INITIAL_TEST_USERS = [
   USER_DISABLED,
   USER_STAKEHOLDER,
+  USER_STAKEHOLDER2,
   USER_CONTENT_ADMIN,
 ];
 
@@ -1393,3 +1399,169 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
 ];
+
+// COMMENTS
+
+export const THREAD_ID_BY_STAKEHOLDER = "5eaf0a40-e603-46d6-b38d-45f0f1664295";
+
+export const THREAD_ID_BY_CONTENT_ADMIN =
+  "48cb0273-7a3b-449b-9f61-5418be01d6cf";
+
+export const THREAD_ID_BY_STAKEHOLDER_FOO =
+  "590f3a6a-68d8-457d-a6a2-c43b26a083be";
+
+export const THREAD_ID_BY_CONTENT_ADMIN_FOO =
+  "2bf5ac46-4e9e-4b5d-b507-9cd3103cf7f8";
+
+export const THREAD_ID_BY_STAKEHOLDER2 = "3e5a735e-b055-410d-a8d4-5ce9ef64352d";
+
+export const COMMENT_BY_STAKEHOLDER_ROOT: TestComment = {
+  createdAt: "2024-06-25T21:13:49.725Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "9b0a28a3-1fed-4f02-9850-39d60e2d88b2",
+  text: "foo barfoo baz",
+  threadId: THREAD_ID_BY_STAKEHOLDER,
+};
+
+export const COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER: TestComment = {
+  createdAt: "2024-06-25T21:14:11.153Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "9925b9ab-2e4c-45c5-b0b0-40dd0043f0f3",
+  text: "barbar foo baz foo",
+  threadId: THREAD_ID_BY_STAKEHOLDER,
+};
+
+export const COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN: TestComment = {
+  createdAt: "2024-06-25T21:15:24.460Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "816e4a41-cc56-4232-9bf7-35401b91370c",
+  text: "foo baz bar bazbaz",
+  threadId: THREAD_ID_BY_STAKEHOLDER,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_ROOT: TestComment = {
+  createdAt: "2024-06-26T05:17:42.555Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "ce7437eb-db21-497a-b1d3-cef333097b8c",
+  text: "bar foobar barbazbaz",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER: TestComment = {
+  createdAt: "2024-06-26T05:18:29.875Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "f031b429-0234-4798-aaaf-2a5743e30c17",
+  text: "barfoofoo foobar baz foo",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN: TestComment = {
+  createdAt: "2024-06-26T05:19:13.480Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "7c6b6e70-883f-4256-8b94-3c4fc863fdb2",
+  text: "baz foofoo foo",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN,
+};
+
+export const COMMENT_BY_STAKEHOLDER_FOO_ROOT: TestComment = {
+  createdAt: "2024-06-26T19:59:13.734Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "54c3ecdb-63b0-49eb-ba70-e06e7fe4817f",
+  text: "baz foobaz bazbar",
+  threadId: THREAD_ID_BY_STAKEHOLDER_FOO,
+};
+
+export const COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN: TestComment = {
+  createdAt: "2024-06-26T19:59:54.303Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "2a748245-08bb-4ddb-adf5-1514ec915eb3",
+  text: "foobar foo bar baz",
+  threadId: THREAD_ID_BY_STAKEHOLDER_FOO,
+};
+
+export const COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2: TestComment = {
+  createdAt: "2024-06-26T20:00:28.019Z",
+  createdBy: USER_STAKEHOLDER2,
+  id: "0a1203c3-0b03-46f1-b55d-8309e21b3581",
+  text: "barfoo foobarbaz bazbar",
+  threadId: THREAD_ID_BY_STAKEHOLDER_FOO,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_FOO_ROOT: TestComment = {
+  createdAt: "2024-06-26T20:01:05.629Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "a9f4ac87-4760-49d2-bafb-a86c245e0772",
+  text: "baz baz foo barfoo",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN_FOO,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER: TestComment = {
+  createdAt: "2024-06-26T20:01:38.746Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "c0c4f831-d5d1-4020-b778-75208a88b150",
+  text: "barfoofoo foo",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN_FOO,
+};
+
+export const COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2: TestComment = {
+  createdAt: "2024-06-26T20:02:15.665Z",
+  createdBy: USER_STAKEHOLDER2,
+  id: "30353723-cf92-4262-a73b-b3fc02993de5",
+  text: "baz foo barbar",
+  threadId: THREAD_ID_BY_CONTENT_ADMIN_FOO,
+};
+
+export const COMMENT_BY_STAKEHOLDER2_ROOT: TestComment = {
+  createdAt: "2024-06-26T20:02:45.374Z",
+  createdBy: USER_STAKEHOLDER2,
+  id: "eed98c8d-bc18-4f9c-88c4-41086c11b85a",
+  text: "baz barfoo bar barbar",
+  threadId: THREAD_ID_BY_STAKEHOLDER2,
+};
+
+export const COMMENT_BY_STAKEHOLDER2_REPLY1_ADMIN: TestComment = {
+  createdAt: "2024-06-26T20:03:28.628Z",
+  createdBy: USER_CONTENT_ADMIN,
+  id: "48056eb8-e6c5-4e95-9abb-3f9824af758a",
+  text: "foo barbazfoo bar",
+  threadId: THREAD_ID_BY_STAKEHOLDER2,
+};
+
+export const COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER: TestComment = {
+  createdAt: "2024-06-26T20:04:03.038Z",
+  createdBy: USER_STAKEHOLDER,
+  id: "0b55a00a-aede-455f-97be-0f948fd43a81",
+  text: "bar foo foo barfoo",
+  threadId: THREAD_ID_BY_STAKEHOLDER2,
+};
+
+// Comments to initialize in the database before tests
+export const INITIAL_TEST_COMMENTS = [
+  COMMENT_BY_STAKEHOLDER_ROOT,
+  COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER,
+  COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
+  COMMENT_BY_CONTENT_ADMIN_ROOT,
+  COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER,
+  COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN,
+  COMMENT_BY_STAKEHOLDER_FOO_ROOT,
+  COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN,
+  COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2,
+  COMMENT_BY_CONTENT_ADMIN_FOO_ROOT,
+  COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER,
+  COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2,
+  COMMENT_BY_STAKEHOLDER2_ROOT,
+  COMMENT_BY_STAKEHOLDER2_REPLY1_ADMIN,
+  COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
+];
+
+export const TEST_COMMENTS = [...INITIAL_TEST_COMMENTS];
+
+export const TEST_COMMENTS_BY_THREAD_ID = TEST_COMMENTS.reduce(
+  (byThread, comment) => {
+    (byThread[comment.threadId] || (byThread[comment.threadId] = [])).push(
+      comment
+    );
+    return byThread;
+  },
+  {} as Record<string, TestComment[]>
+);
