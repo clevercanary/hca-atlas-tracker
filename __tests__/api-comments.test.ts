@@ -54,14 +54,16 @@ describe("/api/comments", () => {
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doCommentsTest(undefined, NEW_COMMENT_FOO_DATA))._getStatusCode()
+      (
+        await doCommentsTest(undefined, NEW_COMMENT_FOO_DATA, true)
+      )._getStatusCode()
     ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
       (
-        await doCommentsTest(USER_UNREGISTERED, NEW_COMMENT_FOO_DATA)
+        await doCommentsTest(USER_UNREGISTERED, NEW_COMMENT_FOO_DATA, true)
       )._getStatusCode()
     ).toEqual(403);
   });

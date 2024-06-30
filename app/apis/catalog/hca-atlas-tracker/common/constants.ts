@@ -127,7 +127,7 @@ export const NETWORK_ICONS: { [key in NetworkKey]: string } = {
 };
 
 export const ROLE_GROUP = {
-  READ: [ROLE.STAKEHOLDER, ROLE.CONTENT_ADMIN],
+  READ: [ROLE.STAKEHOLDER, ROLE.INTEGRATION_LEAD, ROLE.CONTENT_ADMIN],
 };
 
 export const SYSTEM_DISPLAY_NAMES: { [key in SYSTEM]: string } = {

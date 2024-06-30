@@ -71,7 +71,12 @@ describe("/api/comments/[threadId]/comments", () => {
   it("GET returns error 401 for logged out user", async () => {
     expect(
       (
-        await doCommentsTest(undefined, THREAD_ID_BY_STAKEHOLDER)
+        await doCommentsTest(
+          undefined,
+          THREAD_ID_BY_STAKEHOLDER,
+          undefined,
+          true
+        )
       )._getStatusCode()
     ).toEqual(401);
   });
@@ -79,7 +84,12 @@ describe("/api/comments/[threadId]/comments", () => {
   it("GET returns error 403 for unregistered user", async () => {
     expect(
       (
-        await doCommentsTest(USER_UNREGISTERED, THREAD_ID_BY_STAKEHOLDER)
+        await doCommentsTest(
+          USER_UNREGISTERED,
+          THREAD_ID_BY_STAKEHOLDER,
+          undefined,
+          true
+        )
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -142,7 +152,7 @@ describe("/api/comments/[threadId]/comments", () => {
           undefined,
           THREAD_ID_BY_STAKEHOLDER,
           NEW_COMMENT_FOO_DATA,
-          false,
+          true,
           METHOD.POST
         )
       )._getStatusCode()
@@ -156,7 +166,7 @@ describe("/api/comments/[threadId]/comments", () => {
           USER_UNREGISTERED,
           THREAD_ID_BY_STAKEHOLDER,
           NEW_COMMENT_FOO_DATA,
-          false,
+          true,
           METHOD.POST
         )
       )._getStatusCode()

@@ -90,7 +90,9 @@ describe("/api/comments/[threadId]/comments", () => {
         await doCommentTest(
           undefined,
           THREAD_ID_BY_STAKEHOLDER,
-          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -102,7 +104,9 @@ describe("/api/comments/[threadId]/comments", () => {
         await doCommentTest(
           USER_UNREGISTERED,
           THREAD_ID_BY_STAKEHOLDER,
-          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -172,7 +176,7 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
-          false,
+          true,
           COMMENT_BY_STAKEHOLDER_ROOT_EDIT
         )
       )._getStatusCode()
@@ -188,7 +192,7 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
-          false,
+          true,
           COMMENT_BY_STAKEHOLDER_ROOT_EDIT
         )
       )._getStatusCode()
@@ -370,7 +374,8 @@ describe("/api/comments/[threadId]/comments", () => {
           undefined,
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -386,7 +391,8 @@ describe("/api/comments/[threadId]/comments", () => {
           USER_UNREGISTERED,
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
