@@ -41,6 +41,7 @@ import {
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_PUBLIC_WITH_PREPRINT,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -153,6 +154,14 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
     expect(
       (
         await doCreateTest(USER_STAKEHOLDER, ATLAS_DRAFT, NEW_STUDY_DATA)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doCreateTest(USER_UNREGISTERED, ATLAS_DRAFT, NEW_STUDY_DATA)
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -321,8 +330,26 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
     ).toEqual(400);
   });
 
-  it("creates and returns entry for unpublished source study", async () => {
-    await testSuccessfulUnpublishedCreate(NEW_STUDY_UNPUBLISHED_DATA);
+  it("returns error on DOI field when source study already exists in the atlas", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      ATLAS_DRAFT,
+      NEW_STUDY_DRAFT_OK,
+      true
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    const errors = res._getJSONData();
+    const doiErrors = errors.errors?.doi;
+    expect(doiErrors).toBeDefined();
+    expect(doiErrors).toHaveLength(1);
+  });
+
+  it("creates and returns entry for unpublished source study for user with INTEGRATION_LEAD role for the atlas", async () => {
+    await testSuccessfulUnpublishedCreate(
+      NEW_STUDY_UNPUBLISHED_DATA,
+      undefined,
+      USER_INTEGRATION_LEAD_DRAFT
+    );
   });
 
   it("creates and returns entry for unpublished source study with empty string email", async () => {
@@ -337,20 +364,6 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
 
   it("creates and returns entry for unpublished source study with null email", async () => {
     await testSuccessfulUnpublishedCreate(NEW_STUDY_NULL_CONTACT_EMAIL);
-  });
-
-  it("returns error on DOI field when source study already exists in the atlas", async () => {
-    const res = await doCreateTest(
-      USER_CONTENT_ADMIN,
-      ATLAS_DRAFT,
-      NEW_STUDY_DRAFT_OK,
-      true
-    );
-    expect(res._getStatusCode()).toEqual(400);
-    const errors = res._getJSONData();
-    const doiErrors = errors.errors?.doi;
-    expect(doiErrors).toBeDefined();
-    expect(doiErrors).toHaveLength(1);
   });
 
   it("adds, revalidates, and returns source study that already exists", async () => {
@@ -487,9 +500,10 @@ async function testSuccessfulCreate(
 
 async function testSuccessfulUnpublishedCreate(
   newData: Record<string, unknown>,
-  expectedUnpublishedInfo = newData
+  expectedUnpublishedInfo = newData,
+  user = USER_CONTENT_ADMIN
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
-  const res = await doCreateTest(USER_CONTENT_ADMIN, ATLAS_DRAFT, newData);
+  const res = await doCreateTest(user, ATLAS_DRAFT, newData);
   expect(res._getStatusCode()).toEqual(201);
   const newStudy: HCAAtlasTrackerSourceStudy = res._getJSONData();
   expect(newStudy.contactEmail).toEqual(expectedUnpublishedInfo.contactEmail);

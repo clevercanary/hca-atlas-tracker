@@ -20,44 +20,8 @@ import {
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
-// USERS
-
-export const USER_UNREGISTERED = makeTestUser("test-unregistered");
-export const USER_STAKEHOLDER = makeTestUser(
-  "test-stakeholder",
-  ROLE.STAKEHOLDER
-);
-export const USER_STAKEHOLDER2 = makeTestUser(
-  "test-stakeholder2",
-  ROLE.STAKEHOLDER
-);
-export const USER_DISABLED = makeTestUser(
-  "test-disabled",
-  ROLE.STAKEHOLDER,
-  true
-);
-export const USER_CONTENT_ADMIN = makeTestUser(
-  "test-content-admin",
-  ROLE.CONTENT_ADMIN
-);
-
 export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
 export const USER_NEW = makeTestUser("test-new");
-
-// Users initialized in the database before tests
-export const INITIAL_TEST_USERS = [
-  USER_DISABLED,
-  USER_STAKEHOLDER,
-  USER_STAKEHOLDER2,
-  USER_CONTENT_ADMIN,
-];
-
-export const TEST_USERS = [
-  ...INITIAL_TEST_USERS,
-  USER_UNREGISTERED,
-  USER_NONEXISTENT,
-  USER_NEW,
-];
 
 // DOIS
 
@@ -1400,6 +1364,63 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_BAR,
 ];
 
+// USERS
+
+export const USER_UNREGISTERED = makeTestUser("test-unregistered");
+export const USER_STAKEHOLDER = makeTestUser(
+  "test-stakeholder",
+  ROLE.STAKEHOLDER
+);
+export const USER_STAKEHOLDER2 = makeTestUser(
+  "test-stakeholder2",
+  ROLE.STAKEHOLDER
+);
+export const USER_DISABLED = makeTestUser(
+  "test-disabled",
+  ROLE.STAKEHOLDER,
+  true
+);
+export const USER_CONTENT_ADMIN = makeTestUser(
+  "test-content-admin",
+  ROLE.CONTENT_ADMIN
+);
+export const USER_INTEGRATION_LEAD_DRAFT = makeTestUser(
+  "test-integration-lead-draft",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_DRAFT.id]
+);
+export const USER_INTEGRATION_LEAD_PUBLIC = makeTestUser(
+  "test-integration-lead-public",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_PUBLIC.id]
+);
+export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES = makeTestUser(
+  "test-integration-lead-with-misc-source-studies",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_WITH_MISC_SOURCE_STUDIES.id]
+);
+
+// Users initialized in the database before tests
+export const INITIAL_TEST_USERS = [
+  USER_DISABLED,
+  USER_STAKEHOLDER,
+  USER_STAKEHOLDER2,
+  USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
+  USER_INTEGRATION_LEAD_PUBLIC,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+];
+
+export const TEST_USERS = [
+  ...INITIAL_TEST_USERS,
+  USER_UNREGISTERED,
+  USER_NONEXISTENT,
+  USER_NEW,
+];
+
 // COMMENTS
 
 export const THREAD_ID_BY_STAKEHOLDER = "5eaf0a40-e603-46d6-b38d-45f0f1664295";
@@ -1438,6 +1459,15 @@ export const COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN: TestComment = {
   text: "foo baz bar bazbaz",
   threadId: THREAD_ID_BY_STAKEHOLDER,
 };
+
+export const COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT: TestComment =
+  {
+    createdAt: "2024-06-30T04:03:41.350Z",
+    createdBy: USER_INTEGRATION_LEAD_DRAFT,
+    id: "9ba92533-a53d-4683-8117-d4ccf0164215",
+    text: "bar barbar baz foo",
+    threadId: THREAD_ID_BY_STAKEHOLDER,
+  };
 
 export const COMMENT_BY_CONTENT_ADMIN_ROOT: TestComment = {
   createdAt: "2024-06-26T05:17:42.555Z",
@@ -1486,6 +1516,15 @@ export const COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2: TestComment = {
   text: "barfoo foobarbaz bazbar",
   threadId: THREAD_ID_BY_STAKEHOLDER_FOO,
 };
+
+export const COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT: TestComment =
+  {
+    createdAt: "2024-06-30T04:11:49.751Z",
+    createdBy: USER_INTEGRATION_LEAD_DRAFT,
+    id: "549d81db-7b54-43d8-bea7-28fe15401161",
+    text: "foobaz baz foo baz",
+    threadId: THREAD_ID_BY_STAKEHOLDER_FOO,
+  };
 
 export const COMMENT_BY_CONTENT_ADMIN_FOO_ROOT: TestComment = {
   createdAt: "2024-06-26T20:01:05.629Z",
@@ -1540,12 +1579,14 @@ export const INITIAL_TEST_COMMENTS = [
   COMMENT_BY_STAKEHOLDER_ROOT,
   COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER,
   COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
+  COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT,
   COMMENT_BY_CONTENT_ADMIN_ROOT,
   COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER,
   COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN,
   COMMENT_BY_STAKEHOLDER_FOO_ROOT,
   COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN,
   COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2,
+  COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT,
   COMMENT_BY_CONTENT_ADMIN_FOO_ROOT,
   COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER,
   COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2,

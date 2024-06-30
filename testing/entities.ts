@@ -15,6 +15,7 @@ export interface TestUser {
   email: string;
   name: string;
   role: ROLE;
+  roleAssociatedResourceIds: string[];
   token: string;
 }
 

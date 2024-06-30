@@ -9,6 +9,7 @@ import {
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -54,6 +55,21 @@ describe("/api/atlases/[id]/component-atlases", () => {
     const res = await doComponentAtlasesRequest(
       ATLAS_DRAFT.id,
       USER_STAKEHOLDER
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expect(componentAtlases).toHaveLength(2);
+    expectComponentAtlasesToMatch(componentAtlases, [
+      COMPONENT_ATLAS_DRAFT_FOO,
+      COMPONENT_ATLAS_DRAFT_BAR,
+    ]);
+  });
+
+  it("returns draft atlas component atlases when requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    const res = await doComponentAtlasesRequest(
+      ATLAS_DRAFT.id,
+      USER_INTEGRATION_LEAD_PUBLIC
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =

@@ -10,6 +10,7 @@ import { endPgPool, query } from "../app/services/database";
 import commentsHandler from "../pages/api/comments";
 import {
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -28,6 +29,10 @@ const NEW_COMMENT_FOO_DATA: NewCommentThreadData = {
 
 const NEW_COMMENT_BAR_DATA: NewCommentThreadData = {
   text: "New comment bar",
+};
+
+const NEW_COMMENT_BAZ_DATA: NewCommentThreadData = {
+  text: "New comment baz",
 };
 
 beforeAll(async () => {
@@ -93,6 +98,13 @@ describe("/api/comments", () => {
 
   it("creates and returns comment for user with STAKEHOLDER role", async () => {
     await testSuccessfulCreate(NEW_COMMENT_FOO_DATA, USER_STAKEHOLDER);
+  });
+
+  it("creates and returns comment for user with INTEGRATION_LEAD role", async () => {
+    await testSuccessfulCreate(
+      NEW_COMMENT_BAZ_DATA,
+      USER_INTEGRATION_LEAD_DRAFT
+    );
   });
 
   it("creates and returns comment for user with CONTENT_ADMIN role", async () => {

@@ -40,8 +40,14 @@ export async function resetDatabase(): Promise<void> {
 async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   for (const user of INITIAL_TEST_USERS) {
     await client.query(
-      "INSERT INTO hat.users (disabled, email, full_name, role) VALUES ($1, $2, $3, $4)",
-      [user.disabled.toString(), user.email, user.name, user.role]
+      "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
+      [
+        user.disabled.toString(),
+        user.email,
+        user.name,
+        user.role,
+        user.roleAssociatedResourceIds,
+      ]
     );
   }
 
@@ -195,14 +201,20 @@ export async function getDbUsersByEmail(): Promise<
 export async function getExistingSourceStudyFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
-  const result = (
+  const result = await getSourceStudyFromDatabase(id);
+  if (!result) throw new Error(`Source study ${id} doesn't exist`);
+  return result;
+}
+
+export async function getSourceStudyFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBSourceStudy | undefined> {
+  return (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
       [id]
     )
   ).rows[0];
-  if (!result) throw new Error(`Source study ${id} doesn't exist`);
-  return result;
 }
 
 export async function getCellxGeneSourceDatasetFromDatabase(

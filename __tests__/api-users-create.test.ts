@@ -9,6 +9,7 @@ import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/users/create";
 import {
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_NEW,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -58,6 +59,14 @@ describe("/api/users/create", () => {
   it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
     expect(
       (await doCreateTest(USER_STAKEHOLDER, NEW_USER_DATA))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
+    expect(
+      (
+        await doCreateTest(USER_INTEGRATION_LEAD_DRAFT, NEW_USER_DATA)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

@@ -13,7 +13,9 @@ import {
   TEST_COMMENTS_BY_THREAD_ID,
   THREAD_ID_BY_CONTENT_ADMIN,
   THREAD_ID_BY_STAKEHOLDER,
+  THREAD_ID_BY_STAKEHOLDER2,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -34,6 +36,10 @@ const NEW_COMMENT_FOO_DATA: NewCommentData = {
 
 const NEW_COMMENT_BAR_DATA: NewCommentData = {
   text: "New comment bar",
+};
+
+const NEW_COMMENT_BAZ_DATA: NewCommentData = {
+  text: "New comment baz",
 };
 
 let dbUsersByEmail: Record<string, HCAAtlasTrackerDBUser>;
@@ -104,6 +110,18 @@ describe("/api/comments/[threadId]/comments", () => {
     );
   });
 
+  it("GET returns thread comments when requested by user with INTEGRATION_LEAD role", async () => {
+    const res = await doCommentsTest(
+      USER_INTEGRATION_LEAD_DRAFT,
+      THREAD_ID_BY_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const comments = res._getJSONData();
+    expectApiCommentsToMatchTest(
+      comments,
+      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN]
+    );
+  });
   it("GET returns thread comments when requested by user with CONTENT_ADMIN role", async () => {
     const res = await doCommentsTest(
       USER_CONTENT_ADMIN,
@@ -198,6 +216,14 @@ describe("/api/comments/[threadId]/comments", () => {
       THREAD_ID_BY_CONTENT_ADMIN,
       NEW_COMMENT_FOO_DATA,
       USER_STAKEHOLDER
+    );
+  });
+
+  it("POST creates and returns comment for user with INTEGRATION_LEAD role", async () => {
+    await testSuccessfulCreate(
+      THREAD_ID_BY_STAKEHOLDER2,
+      NEW_COMMENT_BAZ_DATA,
+      USER_INTEGRATION_LEAD_DRAFT
     );
   });
 

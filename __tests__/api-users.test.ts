@@ -4,6 +4,7 @@ import { endPgPool } from "../app/services/database";
 import usersHandler from "../pages/api/users";
 import {
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_NONEXISTENT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -44,6 +45,12 @@ describe("/api/users", () => {
     expect((await doUsersRequest(USER_STAKEHOLDER))._getStatusCode()).toEqual(
       403
     );
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
+    expect(
+      (await doUsersRequest(USER_INTEGRATION_LEAD_DRAFT))._getStatusCode()
+    ).toEqual(403);
   });
 
   it("returns multiple users when email parameter is absent", async () => {
