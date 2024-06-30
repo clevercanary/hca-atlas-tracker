@@ -10,6 +10,7 @@ import {
 } from "yup";
 import { isDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
+import { ROLE } from "./entities";
 
 /**
  * Schema for data used to create a new atlas.
@@ -285,10 +286,9 @@ export type NewCommentThreadData = InferType<typeof newCommentThreadSchema>;
 export const newUserSchema = object({
   disabled: boolean().required(),
   email: string().required().email(),
-  full_name: string().required(),
-  role: string()
-    .defined()
-    .matches(/^(?:CONTENT_ADMIN|)$/),
+  fullName: string().required(),
+  role: string().defined().oneOf(Object.values(ROLE)),
+  roleAssociatedResourceIds: array().of(string().uuid().required()).required(),
 }).strict(true);
 
 export type NewUserData = InferType<typeof newUserSchema>;

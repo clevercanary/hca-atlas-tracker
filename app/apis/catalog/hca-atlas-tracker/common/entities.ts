@@ -153,6 +153,7 @@ export interface HCAAtlasTrackerActiveUser {
   email: string;
   fullName: string;
   role: ROLE;
+  roleAssociatedResourceIds: string[];
 }
 
 export type DBEntityOfType<T extends ENTITY_TYPE> = T extends ENTITY_TYPE.ATLAS
@@ -343,6 +344,7 @@ export interface HCAAtlasTrackerDBUser {
   id: number;
   last_login: Date;
   role: ROLE;
+  role_associated_resource_ids: string[];
 }
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
@@ -451,6 +453,7 @@ export enum VALIDATION_VARIABLE {
 
 export enum ROLE {
   CONTENT_ADMIN = "CONTENT_ADMIN",
+  INTEGRATION_LEAD = "INTEGRATION_LEAD",
   STAKEHOLDER = "STAKEHOLDER",
   UNREGISTERED = "UNREGISTERED",
 }
