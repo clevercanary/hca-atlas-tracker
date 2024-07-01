@@ -12,6 +12,7 @@ import commentHandler from "../pages/api/comments/[threadId]/comments/[commentId
 import {
   COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER,
   COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2,
+  COMMENT_BY_CONTENT_ADMIN_FOO_ROOT,
   COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER,
   COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN,
   COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
@@ -24,7 +25,6 @@ import {
   COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
   COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT,
   COMMENT_BY_STAKEHOLDER_ROOT,
-  TEST_COMMENTS_BY_THREAD_ID,
   THREAD_ID_BY_CONTENT_ADMIN,
   THREAD_ID_BY_CONTENT_ADMIN_FOO,
   THREAD_ID_BY_STAKEHOLDER,
@@ -418,7 +418,7 @@ describe("/api/comments/[threadId]/comments", () => {
     );
   });
 
-  it("DELETE returns error 403 when user with STAKEHOLDER role attempts to delete their own root comment", async () => {
+  it("DELETE returns error 400 when user with STAKEHOLDER role attempts to delete their own root comment", async () => {
     expect(
       (
         await doCommentTest(
@@ -429,7 +429,7 @@ describe("/api/comments/[threadId]/comments", () => {
           true
         )
       )._getStatusCode()
-    ).toEqual(403);
+    ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER2_ROOT);
   });
 
@@ -450,7 +450,7 @@ describe("/api/comments/[threadId]/comments", () => {
     );
   });
 
-  it("DELETE returns error 403 when user with STAKEHOLDER role attempts to delete another user's root comment", async () => {
+  it("DELETE returns error 400 when user with STAKEHOLDER role attempts to delete another user's root comment", async () => {
     expect(
       (
         await doCommentTest(
@@ -461,11 +461,28 @@ describe("/api/comments/[threadId]/comments", () => {
           true
         )
       )._getStatusCode()
-    ).toEqual(403);
+    ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_ROOT);
   });
 
-  it("DELETE returns error 403 when user with INTEGRATION_LEAD role attempts to delete another user's root comment", async () => {
+  it("DELETE returns error 403 when user with INTEGRATION_LEAD role attempts to delete another user's non-root comment", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_INTEGRATION_LEAD_DRAFT,
+          THREAD_ID_BY_STAKEHOLDER2,
+          COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectCommentToBeUnchanged(
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+    );
+  });
+
+  it("DELETE returns error 400 when user with INTEGRATION_LEAD role attempts to delete another user's root comment", async () => {
     expect(
       (
         await doCommentTest(
@@ -476,8 +493,23 @@ describe("/api/comments/[threadId]/comments", () => {
           true
         )
       )._getStatusCode()
-    ).toEqual(403);
+    ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_ROOT);
+  });
+
+  it("DELETE returns error 400 when user with CONTENT_ADMIN role attempts to delete their own root comment", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_CONTENT_ADMIN,
+          THREAD_ID_BY_CONTENT_ADMIN_FOO,
+          COMMENT_BY_CONTENT_ADMIN_FOO_ROOT.id,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectCommentToBeUnchanged(COMMENT_BY_CONTENT_ADMIN_FOO_ROOT);
   });
 
   it("DELETE deletes user's own non-root comment when requested by user with STAKEHOLDER role", async () => {
@@ -550,33 +582,7 @@ describe("/api/comments/[threadId]/comments", () => {
       COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2
     );
   });
-
-  it("DELETE deletes another user's thread via root comment when requested by user with CONTENT_ADMIN role", async () => {
-    await expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER2);
-    expect(
-      (
-        await doCommentTest(
-          USER_CONTENT_ADMIN,
-          THREAD_ID_BY_STAKEHOLDER2,
-          COMMENT_BY_STAKEHOLDER2_ROOT.id,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-    expect(
-      await getThreadCommentsFromDatabase(THREAD_ID_BY_STAKEHOLDER2)
-    ).toHaveLength(0);
-    expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
-  });
 });
-
-async function expectThreadToBeUnchanged(threadId: string): Promise<void> {
-  expectDbCommentsToMatchTest(
-    await getThreadCommentsFromDatabase(threadId),
-    TEST_COMMENTS_BY_THREAD_ID[threadId]
-  );
-}
 
 async function expectCommentToBeUnchanged(
   testComment: TestComment
@@ -602,16 +608,6 @@ function expectApiCommentToMatchTest(
   expect(dbComment.updatedBy).toEqual(
     dbUsersByEmail[testComment.createdBy.email].id
   );
-}
-
-function expectDbCommentsToMatchTest(
-  dbComments: HCAAtlasTrackerDBComment[],
-  testComments: TestComment[]
-): void {
-  expect(dbComments).toHaveLength(testComments.length);
-  for (const [i, dbComment] of dbComments.entries()) {
-    expectDbCommentToMatchTest(dbComment, testComments[i]);
-  }
 }
 
 function expectDbCommentToMatchTest(
@@ -666,17 +662,6 @@ async function doCommentTest(
     hideConsoleError
   );
   return res;
-}
-
-async function getThreadCommentsFromDatabase(
-  threadId: string
-): Promise<HCAAtlasTrackerDBComment[]> {
-  return (
-    await query<HCAAtlasTrackerDBComment>(
-      "SELECT * FROM hat.comments WHERE thread_id=$1",
-      [threadId]
-    )
-  ).rows;
 }
 
 async function getCommentFromDatabase(
