@@ -1,3 +1,4 @@
+import pg from "pg";
 import {
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBUser,
@@ -57,11 +58,13 @@ export async function getComment(
  * Create a comment thread.
  * @param inputData - Values for the new comment thread.
  * @param user - User creating the comment thread.
+ * @param client - Postgres client to use.
  * @returns database model of new comment.
  */
 export async function createCommentThread(
   inputData: NewCommentThreadData,
-  user: HCAAtlasTrackerDBUser
+  user: HCAAtlasTrackerDBUser,
+  client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBComment> {
   const newRowFields: Pick<
     HCAAtlasTrackerDBComment,
@@ -74,7 +77,8 @@ export async function createCommentThread(
 
   const queryResult = await query<HCAAtlasTrackerDBComment>(
     "INSERT INTO hat.comments (created_by, text, updated_by) VALUES ($1, $2, $3) RETURNING *",
-    [newRowFields.created_by, newRowFields.text, newRowFields.updated_by]
+    [newRowFields.created_by, newRowFields.text, newRowFields.updated_by],
+    client
   );
 
   return queryResult.rows[0];
@@ -204,6 +208,18 @@ export async function deleteComment(
   }
 
   await query("DELETE FROM hat.comments WHERE id=$1", [commentId]);
+}
+
+/**
+ * Delete all comments in a given thread.
+ * @param threadId - ID of the thread to delete.
+ * @param client - Postgres client to use.
+ */
+export async function deleteCommentThread(
+  threadId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await client.query("DELETE FROM hat.comments WHERE thread_id=$1", [threadId]);
 }
 
 function getCommentNotFoundError(

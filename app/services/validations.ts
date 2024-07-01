@@ -1,3 +1,4 @@
+import { NewCommentThreadData } from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
@@ -9,7 +10,9 @@ import {
   DBEntityOfType,
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationUpdateColumns,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
@@ -26,10 +29,11 @@ import {
   getDbEntityCitation,
   getPublicationDois,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { NotFoundError } from "../utils/api-handler";
+import { ForbiddenError, NotFoundError } from "../utils/api-handler";
 import { ProjectInfo } from "../utils/hca-projects";
 import { updateTaskCounts } from "./atlases";
-import { getPoolClient, query } from "./database";
+import { createCommentThread, deleteCommentThread } from "./comments";
+import { doTransaction, getPoolClient, query } from "./database";
 import { getProjectInfoByDoi } from "./hca-projects";
 
 interface ValidationStatusInfo {
@@ -484,6 +488,69 @@ async function getSourceStudyAtlasIds(
     [JSON.stringify(sourceStudy.id)]
   );
   return Array.from(new Set(queryResult.rows.map(({ id }) => id)));
+}
+
+/**
+ * Create a new comment thread and add it to the given validation.
+ * @param validationId - ID of the validation to add the comment thread to.
+ * @param inputData - Values for the new comment thread.
+ * @param user - User creating the comment thread.
+ * @returns database model of new comment.
+ */
+export async function createValidationComment(
+  validationId: string,
+  inputData: NewCommentThreadData,
+  user: HCAAtlasTrackerDBUser
+): Promise<HCAAtlasTrackerDBComment> {
+  return await doTransaction(async (client) => {
+    const existingThreadResult = await client.query<
+      Pick<HCAAtlasTrackerDBValidation, "comment_thread_id">
+    >("SELECT comment_thread_id FROM hat.validations WHERE id=$1", [
+      validationId,
+    ]);
+    if (existingThreadResult.rows.length === 0)
+      throw new NotFoundError(
+        `Validation with ID ${validationId} doesn't exist`
+      );
+    const existingThreadId = existingThreadResult.rows[0].comment_thread_id;
+    if (existingThreadId !== null)
+      throw new ForbiddenError("Comment thread already exists");
+    const newComment = await createCommentThread(inputData, user, client);
+    await client.query(
+      "UPDATE hat.validations SET comment_thread_id=$1 WHERE id=$2",
+      [newComment.thread_id, validationId]
+    );
+    return newComment;
+  });
+}
+
+/**
+ * Delete the comment thread associated with a given validation.
+ * @param validationId - ID of the validation to delete the comment thread from.
+ * @returns promise.
+ */
+export async function deleteValidationComment(
+  validationId: string
+): Promise<void> {
+  return await doTransaction(async (client) => {
+    const existingThreadResult = await client.query<
+      Pick<HCAAtlasTrackerDBValidation, "comment_thread_id">
+    >("SELECT comment_thread_id FROM hat.validations WHERE id=$1", [
+      validationId,
+    ]);
+    if (existingThreadResult.rows.length === 0)
+      throw new NotFoundError(
+        `Validation with ID ${validationId} doesn't exist`
+      );
+    const existingThreadId = existingThreadResult.rows[0].comment_thread_id;
+    if (existingThreadId === null)
+      throw new NotFoundError("No comment thread exists for the validation");
+    await client.query(
+      "UPDATE hat.validations SET comment_thread_id=NULL WHERE id=$1",
+      [validationId]
+    );
+    await deleteCommentThread(existingThreadId, client);
+  });
 }
 
 /**
