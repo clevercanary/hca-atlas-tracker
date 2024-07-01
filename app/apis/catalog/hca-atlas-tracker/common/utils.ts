@@ -164,6 +164,7 @@ export function dbValidationToApiValidation(
     atlasIds: validation.atlas_ids,
     atlasNames: validation.atlas_names,
     atlasShortNames: validation.atlas_short_names,
+    commentThreadId: validation.comment_thread_id,
     createdAt: validation.created_at.toISOString(),
     description: validationInfo.description,
     differences: validationInfo.differences,
