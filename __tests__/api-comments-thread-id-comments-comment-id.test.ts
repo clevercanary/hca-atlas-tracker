@@ -69,7 +69,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/comments/[threadId]/comments", () => {
+describe("/api/comments/[threadId]/comments/[commentId]", () => {
   it("returns error 405 for PUT request", async () => {
     expect(
       (
