@@ -5,6 +5,7 @@ import enableHandler from "../pages/api/users/[id]/enable";
 import {
   USER_CONTENT_ADMIN,
   USER_DISABLED,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -58,6 +59,14 @@ describe("/api/users/[id]/enable", () => {
   it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
     expect(
       (await doEnableRequest(USER_STAKEHOLDER, userDisabledId))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
+    expect(
+      (
+        await doEnableRequest(USER_INTEGRATION_LEAD_DRAFT, userDisabledId)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

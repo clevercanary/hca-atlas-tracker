@@ -27,12 +27,13 @@ export default handler(
       }
     }
     await query(
-      "INSERT INTO hat.users (disabled, email, full_name, role) VALUES ($1, $2, $3, $4)",
+      "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
       [
         newInfo.disabled.toString(),
         newInfo.email,
-        newInfo.full_name,
+        newInfo.fullName,
         newInfo.role,
+        newInfo.roleAssociatedResourceIds,
       ]
     );
     res.status(201).end();

@@ -13,12 +13,14 @@ import {
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import {
+  expectApiAtlasToMatchTest,
   makeTestAtlasOverview,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -135,6 +137,7 @@ describe("/api/atlases/[id]", () => {
     const res = await doAtlasRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_PUBLIC);
     expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
   });
 
@@ -142,14 +145,18 @@ describe("/api/atlases/[id]", () => {
     const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expect(atlas.bioNetwork).toEqual(ATLAS_DRAFT.network);
-    expect(atlas.id).toEqual(ATLAS_DRAFT.id);
-    expect(atlas.integrationLead).toEqual(ATLAS_DRAFT.integrationLead);
-    expect(atlas.shortName).toEqual(ATLAS_DRAFT.shortName);
-    expect(atlas.sourceStudyCount).toEqual(ATLAS_DRAFT.sourceStudies.length);
-    expect(atlas.status).toEqual(ATLAS_DRAFT.status);
-    expect(atlas.version).toEqual(ATLAS_DRAFT.version);
-    expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);
+    expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
+    expect(atlas.componentAtlasCount).toEqual(2);
+  });
+
+  it("returns draft atlas when GET requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    const res = await doAtlasRequest(
+      ATLAS_DRAFT.id,
+      USER_INTEGRATION_LEAD_PUBLIC
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
     expect(atlas.componentAtlasCount).toEqual(2);
   });
 
@@ -157,14 +164,7 @@ describe("/api/atlases/[id]", () => {
     const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expect(atlas.bioNetwork).toEqual(ATLAS_DRAFT.network);
-    expect(atlas.id).toEqual(ATLAS_DRAFT.id);
-    expect(atlas.integrationLead).toEqual(ATLAS_DRAFT.integrationLead);
-    expect(atlas.shortName).toEqual(ATLAS_DRAFT.shortName);
-    expect(atlas.sourceStudyCount).toEqual(ATLAS_DRAFT.sourceStudies.length);
-    expect(atlas.status).toEqual(ATLAS_DRAFT.status);
-    expect(atlas.version).toEqual(ATLAS_DRAFT.version);
-    expect(atlas.wave).toEqual(ATLAS_DRAFT.wave);
+    expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
     expect(atlas.componentAtlasCount).toEqual(2);
   });
 
@@ -202,6 +202,20 @@ describe("/api/atlases/[id]", () => {
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
           USER_STAKEHOLDER,
+          false,
+          METHOD.PUT,
+          ATLAS_PUBLIC_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when public atlas is PUT requested by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
           false,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT

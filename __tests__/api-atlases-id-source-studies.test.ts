@@ -12,6 +12,7 @@ import {
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -84,6 +85,28 @@ describe("/api/atlases/[id]/source-studies", () => {
 
   it("returns draft atlas studies when requested by logged in user with STAKEHOLDER role", async () => {
     const res = await doStudiesRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
+    expect(res._getStatusCode()).toEqual(200);
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(3);
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+      SOURCE_STUDY_DRAFT_OK
+    );
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+      SOURCE_STUDY_SHARED
+    );
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+      SOURCE_STUDY_DRAFT_NO_CROSSREF
+    );
+  });
+
+  it("returns draft atlas studies when requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    const res = await doStudiesRequest(
+      ATLAS_DRAFT.id,
+      USER_INTEGRATION_LEAD_PUBLIC
+    );
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(studies).toHaveLength(3);

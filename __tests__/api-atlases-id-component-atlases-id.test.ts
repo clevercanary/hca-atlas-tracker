@@ -14,6 +14,8 @@ import {
   ATLAS_PUBLIC,
   COMPONENT_ATLAS_DRAFT_FOO,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -101,6 +103,17 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
     expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
   });
 
+  it("returns component atlas from draft atlas when GET requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      USER_INTEGRATION_LEAD_PUBLIC
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
+    expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
+  });
+
   it("returns component atlas from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
@@ -149,6 +162,21 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_STAKEHOLDER,
+          METHOD.PATCH,
+          COMPONENT_ATLAS_DRAFT_FOO_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when component atlas is PATCH requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_INTEGRATION_LEAD_DRAFT,
           METHOD.PATCH,
           COMPONENT_ATLAS_DRAFT_FOO_EDIT
         )
@@ -252,6 +280,20 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_STAKEHOLDER,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when component atlas is DELETE requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_INTEGRATION_LEAD_DRAFT,
           METHOD.DELETE
         )
       )._getStatusCode()

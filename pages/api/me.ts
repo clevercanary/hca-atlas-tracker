@@ -21,12 +21,14 @@ export default handler(method(METHOD.GET), async (req, res) => {
       email: user.email,
       fullName: user.full_name,
       role: user.role,
+      roleAssociatedResourceIds: user.role_associated_resource_ids,
     };
   } else if (userProfile) {
     activeUserInfo = {
       email: userProfile.email,
       fullName: userProfile.name,
       role: ROLE.UNREGISTERED,
+      roleAssociatedResourceIds: [],
     };
   } else {
     res.status(401).json({ message: "Not authenticated" });

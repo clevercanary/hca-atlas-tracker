@@ -18,15 +18,19 @@ import {
   DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_FOO,
+  SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
   getCellxGeneSourceDatasetFromDatabase,
+  getSourceStudyFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
   resetDatabase,
@@ -171,6 +175,17 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
   });
 
+  it("returns study from draft atlas when GET requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    const res = await doStudyRequest(
+      ATLAS_DRAFT.id,
+      SOURCE_STUDY_DRAFT_OK.id,
+      USER_INTEGRATION_LEAD_PUBLIC
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+    expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
+  });
+
   it("returns study from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doStudyRequest(
       ATLAS_DRAFT.id,
@@ -219,6 +234,21 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
+          METHOD.PUT,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 403 when study is PUT requested from public atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.PUT,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
         )
@@ -449,6 +479,20 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
+  it("returns error 403 when study is DELETE requested from public atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
+          USER_INTEGRATION_LEAD_DRAFT,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+  });
+
   it("returns error 404 when study is DELETE requested from atlas it doesn't exist on", async () => {
     expect(
       (
@@ -542,11 +586,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     const draftStudies = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
       ?.source_studies;
     expect(draftStudies).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
-    const studyQueryResult = await query(
-      "SELECT * FROM hat.source_studies WHERE id=$1",
-      [SOURCE_STUDY_DRAFT_OK.id]
+    const studyFromDb = await getSourceStudyFromDatabase(
+      SOURCE_STUDY_DRAFT_OK.id
     );
-    expect(studyQueryResult.rows[0]).toBeUndefined();
+    expect(studyFromDb).toBeUndefined();
 
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_STUDY_DRAFT_OK.id
@@ -557,6 +600,26 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsAfter).toHaveLength(0);
+  });
+
+  it("deletes source study when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    await expect(
+      (
+        await doStudyRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_STUDY_DRAFT_NO_CROSSREF.id,
+          USER_INTEGRATION_LEAD_DRAFT,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    const draftStudies = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
+      ?.source_studies;
+    expect(draftStudies).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
+    const studyFromDb = await getSourceStudyFromDatabase(
+      SOURCE_STUDY_DRAFT_OK.id
+    );
+    expect(studyFromDb).toBeUndefined();
   });
 });
 

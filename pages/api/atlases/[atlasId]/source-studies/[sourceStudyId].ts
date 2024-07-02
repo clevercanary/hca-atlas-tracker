@@ -12,6 +12,7 @@ import {
 import {
   handleByMethod,
   handler,
+  integrationLeadAssociatedAtlasOnly,
   role,
 } from "../../../../../app/utils/api-handler";
 
@@ -44,7 +45,8 @@ const putHandler = handler(
 );
 
 const deleteHandler = handler(
-  role(ROLE.CONTENT_ADMIN), // Since the route is restricted to content admins, there are no additional permissions checks
+  role([ROLE.INTEGRATION_LEAD, ROLE.CONTENT_ADMIN]),
+  integrationLeadAssociatedAtlasOnly,
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const sourceStudyId = req.query.sourceStudyId as string;

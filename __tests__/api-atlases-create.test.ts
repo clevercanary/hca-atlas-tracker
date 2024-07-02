@@ -10,6 +10,7 @@ import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/create";
 import {
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -104,6 +105,14 @@ describe("/api/atlases/create", () => {
   it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
     expect(
       (await doCreateTest(USER_STAKEHOLDER, NEW_ATLAS_DATA))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
+    expect(
+      (
+        await doCreateTest(USER_INTEGRATION_LEAD_DRAFT, NEW_ATLAS_DATA)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

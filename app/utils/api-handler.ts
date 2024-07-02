@@ -103,21 +103,14 @@ export function method(methodName: METHOD): MiddlewareFunction {
 }
 
 /**
- * Middleware function that rejects requests from users who aren't registered.
+ * Middleware function that throws an error for requests from users who aren't registered.
  * @param req - Next API request.
  * @param res - Next API response.
  * @param next - Middleware next function.
  */
 export const registeredUser: MiddlewareFunction = async (req, res, next) => {
-  const user = await getUserFromAuthorization(req.headers.authorization);
-  if (!user) {
-    const userProfile = await getProvidedUserProfile(req.headers.authorization);
-    res
-      .status(userProfile ? 403 : 401)
-      .json({ message: "User must be registered" });
-  } else {
-    next();
-  }
+  await getRegisteredUserFromAuthorization(req.headers.authorization);
+  next();
 };
 
 /**
@@ -141,6 +134,30 @@ export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
     }
   };
 }
+
+/**
+ * Middleware function that throws an error for a request from an integration lead who is not associated with the atlas from the atlasId URL parameter.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @param next - Middleware next function.
+ */
+export const integrationLeadAssociatedAtlasOnly: MiddlewareFunction = async (
+  req,
+  res,
+  next
+) => {
+  const user = await getRegisteredUserFromAuthorization(
+    req.headers.authorization
+  );
+  if (user.role === ROLE.INTEGRATION_LEAD) {
+    const atlasId = req.query.atlasId as string;
+    if (!user.role_associated_resource_ids.includes(atlasId)) {
+      res.status(403).json({ message: "Must be user's associated atlas" });
+      return;
+    }
+  }
+  next();
+};
 
 /**
  * Retrieves a string-valued query parameter from a request, sending an error response if the parameter doesn't exist or doesn't match a given regular expression.
@@ -197,7 +214,12 @@ export async function getRegisteredUserFromAuthorization(
   authorization: string | undefined
 ): Promise<HCAAtlasTrackerDBUser> {
   const user = await getUserFromAuthorization(authorization);
-  if (!user) throw new UnauthenticatedError("User must be registered");
+  if (!user) {
+    const userProfile = await getProvidedUserProfile(authorization);
+    throw new (userProfile ? ForbiddenError : UnauthenticatedError)(
+      "User must be registered"
+    );
+  }
   return user;
 }
 

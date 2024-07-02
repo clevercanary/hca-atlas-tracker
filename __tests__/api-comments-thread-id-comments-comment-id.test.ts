@@ -18,9 +18,11 @@ import {
   COMMENT_BY_STAKEHOLDER2_ROOT,
   COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN,
   COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2,
+  COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT,
   COMMENT_BY_STAKEHOLDER_FOO_ROOT,
   COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER,
   COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
+  COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT,
   COMMENT_BY_STAKEHOLDER_ROOT,
   TEST_COMMENTS_BY_THREAD_ID,
   THREAD_ID_BY_CONTENT_ADMIN,
@@ -29,6 +31,7 @@ import {
   THREAD_ID_BY_STAKEHOLDER2,
   THREAD_ID_BY_STAKEHOLDER_FOO,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_STAKEHOLDER2,
   USER_UNREGISTERED,
@@ -45,6 +48,11 @@ jest.mock("../app/utils/pg-app-connect-config");
 const COMMENT_BY_STAKEHOLDER_ROOT_EDIT: CommentEditData = {
   text: "comment by stakeholder root edit",
 };
+
+const COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT: CommentEditData =
+  {
+    text: "comment by stakeholder repl3 edit",
+  };
 
 const COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER_EDIT: CommentEditData = {
   text: "comment by content admin reply1 edit",
@@ -82,7 +90,9 @@ describe("/api/comments/[threadId]/comments", () => {
         await doCommentTest(
           undefined,
           THREAD_ID_BY_STAKEHOLDER,
-          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -94,7 +104,9 @@ describe("/api/comments/[threadId]/comments", () => {
         await doCommentTest(
           USER_UNREGISTERED,
           THREAD_ID_BY_STAKEHOLDER,
-          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -128,6 +140,20 @@ describe("/api/comments/[threadId]/comments", () => {
     );
   });
 
+  it("GET returns comment when requested by user with INTEGRATION_LEAD role", async () => {
+    const res = await doCommentTest(
+      USER_INTEGRATION_LEAD_DRAFT,
+      THREAD_ID_BY_STAKEHOLDER,
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const comment = res._getJSONData();
+    expectApiCommentToMatchTest(
+      comment,
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER
+    );
+  });
+
   it("GET returns comment when requested by user with CONTENT_ADMIN role", async () => {
     const res = await doCommentTest(
       USER_CONTENT_ADMIN,
@@ -150,7 +176,7 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
-          false,
+          true,
           COMMENT_BY_STAKEHOLDER_ROOT_EDIT
         )
       )._getStatusCode()
@@ -166,7 +192,7 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
-          false,
+          true,
           COMMENT_BY_STAKEHOLDER_ROOT_EDIT
         )
       )._getStatusCode()
@@ -244,6 +270,22 @@ describe("/api/comments/[threadId]/comments", () => {
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
   });
 
+  it("PATCH returns error 403 when user with INTEGRATION_LEAD role attempts to edit another user's comment", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_INTEGRATION_LEAD_DRAFT,
+          THREAD_ID_BY_STAKEHOLDER,
+          COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN.id,
+          METHOD.PATCH,
+          true,
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
+  });
+
   it("PATCH updates user's own comment when requested by user with STAKEHOLDER role", async () => {
     const res = await doCommentTest(
       USER_STAKEHOLDER,
@@ -258,6 +300,29 @@ describe("/api/comments/[threadId]/comments", () => {
     expect(updatedComment.text).toEqual(COMMENT_BY_STAKEHOLDER_ROOT_EDIT.text);
     const updatedCommentFromDb = await getCommentFromDatabase(
       COMMENT_BY_STAKEHOLDER_ROOT.id
+    );
+    expect(updatedCommentFromDb).toBeDefined();
+    if (updatedCommentFromDb === undefined) return;
+    expectDbCommentToMatch(updatedCommentFromDb, updatedComment);
+    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
+  });
+
+  it("PATCH updates user's own comment when requested by user with INTEGRATION_LEAD role", async () => {
+    const res = await doCommentTest(
+      USER_INTEGRATION_LEAD_DRAFT,
+      THREAD_ID_BY_STAKEHOLDER,
+      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT.id,
+      METHOD.PATCH,
+      true,
+      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedComment = res._getJSONData() as HCAAtlasTrackerComment;
+    expect(updatedComment.text).toEqual(
+      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT.text
+    );
+    const updatedCommentFromDb = await getCommentFromDatabase(
+      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT.id
     );
     expect(updatedCommentFromDb).toBeDefined();
     if (updatedCommentFromDb === undefined) return;
@@ -309,7 +374,8 @@ describe("/api/comments/[threadId]/comments", () => {
           undefined,
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -325,7 +391,8 @@ describe("/api/comments/[threadId]/comments", () => {
           USER_UNREGISTERED,
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -398,6 +465,21 @@ describe("/api/comments/[threadId]/comments", () => {
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_ROOT);
   });
 
+  it("DELETE returns error 403 when user with INTEGRATION_LEAD role attempts to delete another user's root comment", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_INTEGRATION_LEAD_DRAFT,
+          THREAD_ID_BY_STAKEHOLDER_FOO,
+          COMMENT_BY_STAKEHOLDER_FOO_ROOT.id,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_ROOT);
+  });
+
   it("DELETE deletes user's own non-root comment when requested by user with STAKEHOLDER role", async () => {
     await expectCommentToBeUnchanged(
       COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2
@@ -416,6 +498,29 @@ describe("/api/comments/[threadId]/comments", () => {
     expect(
       await getCommentFromDatabase(
         COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2.id
+      )
+    ).toBeUndefined();
+    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN);
+  });
+
+  it("DELETE deletes user's own non-root comment when requested by user with INTEGRATION_LEAD role", async () => {
+    await expectCommentToBeUnchanged(
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT
+    );
+    expect(
+      (
+        await doCommentTest(
+          USER_INTEGRATION_LEAD_DRAFT,
+          THREAD_ID_BY_STAKEHOLDER_FOO,
+          COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT.id,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    expect(
+      await getCommentFromDatabase(
+        COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT.id
       )
     ).toBeUndefined();
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN);

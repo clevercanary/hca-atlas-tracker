@@ -9,6 +9,7 @@ import {
   INITIAL_TEST_SOURCE_STUDIES,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -47,6 +48,12 @@ describe("/api/tasks", () => {
 
   it("returns validations for user with STAKEHOLDER role", async () => {
     const res = await doTasksRequest(USER_STAKEHOLDER);
+    expect(res._getStatusCode()).toEqual(200);
+    expectInitialValidationsToExist(res._getJSONData());
+  });
+
+  it("returns validations for user with INTEGRATION_LEAD role", async () => {
+    const res = await doTasksRequest(USER_INTEGRATION_LEAD_DRAFT);
     expect(res._getStatusCode()).toEqual(200);
     expectInitialValidationsToExist(res._getJSONData());
   });

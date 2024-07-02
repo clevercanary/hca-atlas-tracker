@@ -18,6 +18,8 @@ import {
   SOURCE_DATASET_FOOFOO,
   TEST_SOURCE_STUDIES,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -96,6 +98,18 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
     expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
   });
 
+  it("returns source dataset when requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      SOURCE_DATASET_FOOBAZ.id,
+      USER_INTEGRATION_LEAD_PUBLIC
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
+  });
+
   it("returns source dataset when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_DRAFT.id,
@@ -146,6 +160,21 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_STAKEHOLDER,
+          METHOD.POST
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when POST requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOO.id,
+          USER_INTEGRATION_LEAD_DRAFT,
           METHOD.POST
         )
       )._getStatusCode()
@@ -265,6 +294,21 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_STAKEHOLDER,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when DELETE requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOOFOO.id,
+          USER_INTEGRATION_LEAD_DRAFT,
           METHOD.DELETE
         )
       )._getStatusCode()

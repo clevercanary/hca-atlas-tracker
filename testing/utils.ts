@@ -1,6 +1,7 @@
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
+  HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
   HCAAtlasTrackerDBSourceStudy,
@@ -17,7 +18,8 @@ import { TestAtlas, TestSourceStudy, TestUser } from "./entities";
 export function makeTestUser(
   nameId: string,
   role = ROLE.UNREGISTERED,
-  disabled = false
+  disabled = false,
+  roleAssociatedResourceIds: string[] = []
 ): TestUser {
   return {
     authorization: `Bearer ${nameId}`,
@@ -25,6 +27,7 @@ export function makeTestUser(
     email: `${nameId}@example.com`,
     name: nameId,
     role,
+    roleAssociatedResourceIds,
     token: nameId,
   };
 }
@@ -157,6 +160,23 @@ export function promiseWithResolvers<T>(): [
 
 export function delay(ms = 5): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function expectApiAtlasToMatchTest(
+  apiAtlas: HCAAtlasTrackerAtlas,
+  testAtlas: TestAtlas
+): void {
+  expect(apiAtlas.id).toEqual(testAtlas.id);
+  expect(apiAtlas.integrationLead).toEqual(testAtlas.integrationLead);
+  expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);
+  expect(apiAtlas.shortName).toEqual(testAtlas.shortName);
+  expect(apiAtlas.sourceStudyCount).toEqual(testAtlas.sourceStudies.length);
+  expect(apiAtlas.status).toEqual(testAtlas.status);
+  expect(apiAtlas.targetCompletion).toEqual(
+    testAtlas.targetCompletion?.toISOString() ?? null
+  );
+  expect(apiAtlas.version).toEqual(testAtlas.version);
+  expect(apiAtlas.wave).toEqual(testAtlas.wave);
 }
 
 export function expectSourceStudyToMatch(

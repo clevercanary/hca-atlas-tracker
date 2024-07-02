@@ -12,6 +12,7 @@ import {
   SOURCE_DATASET_FOO,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -72,6 +73,23 @@ describe("/api/atlases/[id]/source-studies/[sourceStudyId]/source-datasets", () 
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
       USER_STAKEHOLDER
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expect(sourceDatasets).toHaveLength(8);
+    expectSourceDatasetsToMatch(sourceDatasets, [
+      SOURCE_DATASET_FOO,
+      SOURCE_DATASET_BAR,
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+    ]);
+  });
+
+  it("returns source datasets when requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+      USER_INTEGRATION_LEAD_DRAFT
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];

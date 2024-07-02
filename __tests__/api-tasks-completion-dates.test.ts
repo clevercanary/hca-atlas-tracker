@@ -11,6 +11,7 @@ import {
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   SOURCE_STUDY_PUBLISHED_WITH_HCA,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -98,6 +99,19 @@ describe("/api/tasks/completion-dates", () => {
       (
         await doCompletionDatesRequest(
           USER_STAKEHOLDER,
+          DATE_VALID,
+          validationIds
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectValidationsToBeUnchanged();
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
+    expect(
+      (
+        await doCompletionDatesRequest(
+          USER_INTEGRATION_LEAD_DRAFT,
           DATE_VALID,
           validationIds
         )

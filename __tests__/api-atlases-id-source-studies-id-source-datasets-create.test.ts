@@ -16,6 +16,7 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -87,6 +88,19 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       (
         await doCreateTest(
           USER_STAKEHOLDER,
+          ATLAS_WITH_MISC_SOURCE_STUDIES,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS,
+          NEW_SOURCE_DATASET_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
           ATLAS_WITH_MISC_SOURCE_STUDIES,
           SOURCE_STUDY_WITH_SOURCE_DATASETS,
           NEW_SOURCE_DATASET_DATA

@@ -13,6 +13,7 @@ import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -77,6 +78,18 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
       (
         await doCreateTest(
           USER_STAKEHOLDER,
+          ATLAS_DRAFT,
+          NEW_COMPONENT_ATLAS_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_INTEGRATION_LEAD_DRAFT,
           ATLAS_DRAFT,
           NEW_COMPONENT_ATLAS_DATA
         )
