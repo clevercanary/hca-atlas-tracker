@@ -130,6 +130,7 @@ export interface HCAAtlasTrackerValidationRecord
   extends HCAAtlasTrackerValidationResult {
   atlasNames: string[];
   atlasShortNames: string[];
+  commentThreadId: string | null;
   createdAt: string;
   id: string;
   networks: NetworkKey[];
@@ -299,6 +300,7 @@ export interface HCAAtlasTrackerDBValidationUpdateColumns {
 
 export interface HCAAtlasTrackerDBValidation
   extends HCAAtlasTrackerDBValidationUpdateColumns {
+  comment_thread_id: string | null;
   created_at: Date;
   id: string;
   target_completion: Date | null;

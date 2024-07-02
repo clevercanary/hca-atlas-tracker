@@ -1,6 +1,7 @@
 import { updateValidations } from "app/services/validations";
 import {
   ENTITY_TYPE,
+  HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
@@ -11,6 +12,10 @@ import {
   VALIDATION_VARIABLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, getPoolClient, query } from "../app/services/database";
+import {
+  THREAD_ID_BY_CONTENT_ADMIN,
+  THREAD_ID_BY_STAKEHOLDER2,
+} from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 
 jest.mock("../app/services/hca-projects");
@@ -150,6 +155,17 @@ const VALIDATION_VZ_PASSED: HCAAtlasTrackerValidationResult = {
 
 const INITIAL_TEST_VALIDATIONS = [VALIDATION_VX, VALIDATION_VY, VALIDATION_VZ];
 
+const THREAD_IDS_WITH_VALIDATION_IDS = [
+  {
+    threadId: THREAD_ID_BY_CONTENT_ADMIN,
+    validationId: VALIDATION_ID_VX,
+  },
+  {
+    threadId: THREAD_ID_BY_STAKEHOLDER2,
+    validationId: VALIDATION_ID_VZ,
+  },
+];
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -176,23 +192,36 @@ describe("updateValidations", () => {
     expect(othersAfter).toEqual(othersBefore);
   });
 
-  it("deletes newly-absent validation and leaves others unchanged", async () => {
+  it("deletes newly-absent validation, along with comment thread, and leaves others unchanged", async () => {
     await resetTestValidations();
     const othersBefore = await getDbTestValidationsById([
       VALIDATION_ID_VX,
       VALIDATION_ID_VY,
     ]);
     expect(await getDbTestValidation(VALIDATION_ID_VZ)).toBeDefined();
+    const threadBefore = await getThreadCommentsFromDatabase(
+      THREAD_ID_BY_STAKEHOLDER2
+    );
+    expect(threadBefore).not.toEqual([]);
     await testUpdateValidations([VALIDATION_VX, VALIDATION_VY]);
     const othersAfter = await getDbTestValidationsById();
     expect(othersAfter[VALIDATION_ID_VZ]).toBeUndefined();
     expect(othersAfter).toEqual(othersBefore);
+    const threadAfter = await getThreadCommentsFromDatabase(
+      THREAD_ID_BY_STAKEHOLDER2
+    );
+    expect(threadAfter).toEqual([]);
+    const otherThreadAfter = await getThreadCommentsFromDatabase(
+      THREAD_ID_BY_CONTENT_ADMIN
+    );
+    expect(otherThreadAfter).not.toEqual([]);
   });
 
-  it("updates validation when atlas IDs have changed and leaves others unchanged", async () => {
+  it("updates validation when atlas IDs have changed, leaving comment thread ID in place, and leaves others unchanged", async () => {
     await resetTestValidations();
     const vxBefore = await getDbTestValidation(VALIDATION_ID_VX);
     expect(vxBefore?.atlas_ids).toEqual([ATLAS_ID_AX]);
+    expect(vxBefore?.comment_thread_id).toEqual(THREAD_ID_BY_CONTENT_ADMIN);
     const othersBefore = await getDbTestValidationsById([
       VALIDATION_ID_VY,
       VALIDATION_ID_VZ,
@@ -205,6 +234,7 @@ describe("updateValidations", () => {
     const vxAfter = await getDbTestValidation(VALIDATION_ID_VX);
     expect(vxAfter?.atlas_ids).toEqual([ATLAS_ID_AY]);
     expect(vxAfter?.updated_at).not.toEqual(vxBefore?.updated_at);
+    expect(vxAfter?.comment_thread_id).toEqual(THREAD_ID_BY_CONTENT_ADMIN);
     const othersAfter = await getDbTestValidationsById([
       VALIDATION_ID_VY,
       VALIDATION_ID_VZ,
@@ -336,9 +366,26 @@ async function getDbTestValidation(
   ).rows[0];
 }
 
+async function getThreadCommentsFromDatabase(
+  threadId: string
+): Promise<HCAAtlasTrackerDBComment[]> {
+  return (
+    await query<HCAAtlasTrackerDBComment>(
+      "SELECT * FROM hat.comments WHERE thread_id=$1",
+      [threadId]
+    )
+  ).rows;
+}
+
 async function resetTestValidations(): Promise<void> {
   await query("DELETE FROM hat.validations WHERE entity_id=$1", [ENTITY_ID_EX]);
   await testUpdateValidations(INITIAL_TEST_VALIDATIONS);
+  for (const { threadId, validationId } of THREAD_IDS_WITH_VALIDATION_IDS) {
+    await query(
+      "UPDATE hat.validations SET comment_thread_id=$1 WHERE validation_id=$2",
+      [threadId, validationId]
+    );
+  }
 }
 
 async function testUpdateValidations(

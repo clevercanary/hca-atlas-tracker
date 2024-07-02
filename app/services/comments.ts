@@ -1,3 +1,4 @@
+import pg from "pg";
 import {
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBUser,
@@ -6,7 +7,11 @@ import {
   NewCommentData,
   NewCommentThreadData,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { ForbiddenError, NotFoundError } from "../../app/utils/api-handler";
+import {
+  ForbiddenError,
+  InvalidOperationError,
+  NotFoundError,
+} from "../../app/utils/api-handler";
 import { query } from "./database";
 
 /**
@@ -53,11 +58,13 @@ export async function getComment(
  * Create a comment thread.
  * @param inputData - Values for the new comment thread.
  * @param user - User creating the comment thread.
+ * @param client - Postgres client to use.
  * @returns database model of new comment.
  */
 export async function createCommentThread(
   inputData: NewCommentThreadData,
-  user: HCAAtlasTrackerDBUser
+  user: HCAAtlasTrackerDBUser,
+  client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBComment> {
   const newRowFields: Pick<
     HCAAtlasTrackerDBComment,
@@ -70,7 +77,8 @@ export async function createCommentThread(
 
   const queryResult = await query<HCAAtlasTrackerDBComment>(
     "INSERT INTO hat.comments (created_by, text, updated_by) VALUES ($1, $2, $3) RETURNING *",
-    [newRowFields.created_by, newRowFields.text, newRowFields.updated_by]
+    [newRowFields.created_by, newRowFields.text, newRowFields.updated_by],
+    client
   );
 
   return queryResult.rows[0];
@@ -172,13 +180,13 @@ export async function updateComment(
  * @param threadId - ID of the thread that the comment is accessed through.
  * @param commentId - ID of the comment to delete.
  * @param user - User deleting the comment.
- * @param limitToOwnNonRootComments - Whether the comment must be one created by the user who's deleting it and not the first in a thread.
+ * @param limitToOwnComments - Whether the comment must be one created by the user who's deleting it.
  */
 export async function deleteComment(
   threadId: string,
   commentId: string,
   user: HCAAtlasTrackerDBUser,
-  limitToOwnNonRootComments: boolean
+  limitToOwnComments: boolean
 ): Promise<void> {
   const commentResult = await query<
     HCAAtlasTrackerDBComment & { is_root: boolean }
@@ -192,18 +200,26 @@ export async function deleteComment(
 
   const comment = commentResult.rows[0];
 
-  if (
-    limitToOwnNonRootComments &&
-    (comment.created_by !== user.id || comment.is_root)
-  ) {
-    throw new ForbiddenError("Must be user's own non-root comment");
+  if (comment.is_root)
+    throw new InvalidOperationError("Cannot delete root comment of a thread");
+
+  if (limitToOwnComments && comment.created_by !== user.id) {
+    throw new ForbiddenError("Must be user's own comment");
   }
 
-  if (comment.is_root) {
-    await query("DELETE FROM hat.comments WHERE thread_id=$1", [threadId]);
-  } else {
-    await query("DELETE FROM hat.comments WHERE id=$1", [commentId]);
-  }
+  await query("DELETE FROM hat.comments WHERE id=$1", [commentId]);
+}
+
+/**
+ * Delete all comments in a given thread.
+ * @param threadId - ID of the thread to delete.
+ * @param client - Postgres client to use.
+ */
+export async function deleteCommentThread(
+  threadId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await client.query("DELETE FROM hat.comments WHERE thread_id=$1", [threadId]);
 }
 
 function getCommentNotFoundError(
