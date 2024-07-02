@@ -401,11 +401,16 @@ export async function updateValidations(
     }
   }
 
-  // Delete validation records not present in validation results
-  await client.query(
-    "DELETE FROM hat.validations WHERE entity_id=$1 AND validation_id=ANY($2)",
-    [entityId, Array.from(validationIdsToDelete)]
-  );
+  // Delete validation records not present in validation results, as well as any associated comment threads
+  const deletedValidationsInfo = (
+    await client.query<Pick<HCAAtlasTrackerDBValidation, "comment_thread_id">>(
+      "DELETE FROM hat.validations WHERE entity_id=$1 AND validation_id=ANY($2) RETURNING comment_thread_id",
+      [entityId, Array.from(validationIdsToDelete)]
+    )
+  ).rows;
+  for (const { comment_thread_id: threadId } of deletedValidationsInfo) {
+    if (threadId !== null) await deleteCommentThread(threadId, client);
+  }
 }
 
 /**
