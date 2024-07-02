@@ -28,6 +28,8 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
+const VALIDATION_RECORD_ID_NONEXISTENT = "67c71957-402d-4933-b602-10c8d1ad2198";
+
 const NEW_COMMENT_FOO_DATA: NewCommentThreadData = {
   text: "New comment foo",
 };
@@ -114,6 +116,21 @@ describe("/api/tasks/[validationId]/comment", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
+    await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
+  });
+
+  it("POST returns error 404 for nonexistent validation", async () => {
+    expect(
+      (
+        await doCommentRequest(
+          VALIDATION_RECORD_ID_NONEXISTENT,
+          USER_STAKEHOLDER,
+          METHOD.POST,
+          NEW_COMMENT_FOO_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
     await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
   });
 
@@ -214,6 +231,18 @@ describe("/api/tasks/[validationId]/comment", () => {
       )._getStatusCode()
     ).toEqual(403);
     expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
+  });
+
+  it("DELETE returns error 404 for nonexistent validation", async () => {
+    expect(
+      (
+        await doCommentRequest(
+          VALIDATION_RECORD_ID_NONEXISTENT,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(404);
   });
 
   it("DELETE returns error 403 for user with STAKEHOLDER role", async () => {
