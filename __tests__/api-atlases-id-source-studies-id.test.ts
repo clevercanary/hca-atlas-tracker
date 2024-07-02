@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { SourceStudyEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
@@ -14,6 +15,7 @@ import {
   ATLAS_PUBLIC,
   CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
   CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
+  CELLXGENE_ID_NORMAL,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
@@ -57,8 +59,11 @@ const SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT = {
   doi: DOI_PREPRINT_NO_JOURNAL,
 };
 
-const SOURCE_STUDY_DRAFT_OK_EDIT = {
+const SOURCE_STUDY_DRAFT_OK_EDIT: SourceStudyEditData = {
+  capId: "https://celltype.info/project/12345/dataset/54321",
+  cellxgeneCollectionId: null,
   contactEmail: "bar@example.com",
+  hcaProjectId: null,
   referenceAuthor: "Bar",
   title: "Baz",
 };
@@ -273,7 +278,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 400 for study PUT requested with contact email set to undefined", async () => {
+  it("returns error 400 for unpublished study PUT requested with contact email set to undefined", async () => {
     expect(
       (
         await doStudyRequest(
@@ -284,6 +289,44 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
           {
             ...SOURCE_STUDY_DRAFT_OK_EDIT,
             contactEmail: undefined,
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
+  });
+
+  it("returns error 400 for unpublished study PUT requested with CELLxGENE ID set to undefined", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_STUDY_DRAFT_OK.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            ...SOURCE_STUDY_DRAFT_OK_EDIT,
+            cellxgeneCollectionId: undefined,
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
+  });
+
+  it("returns error 400 for published study PUT requested with CELLxGENE ID specified", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            ...SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
+            cellxgeneCollectionId: CELLXGENE_ID_NORMAL,
           },
           true
         )
@@ -345,8 +388,23 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(studyFromDb.doi).toEqual(null);
-    expect(studyFromDb.study_info.unpublishedInfo).toEqual(
-      SOURCE_STUDY_DRAFT_OK_EDIT
+
+    const { unpublishedInfo } = studyFromDb.study_info;
+    expect(unpublishedInfo?.contactEmail).toEqual(
+      SOURCE_STUDY_DRAFT_OK_EDIT.contactEmail
+    );
+    expect(unpublishedInfo?.referenceAuthor).toEqual(
+      SOURCE_STUDY_DRAFT_OK_EDIT.referenceAuthor
+    );
+    expect(unpublishedInfo?.title).toEqual(SOURCE_STUDY_DRAFT_OK_EDIT.title);
+    expect(studyFromDb.study_info.capId).toEqual(
+      SOURCE_STUDY_DRAFT_OK_EDIT.capId
+    );
+    expect(studyFromDb.study_info.cellxgeneCollectionId).toEqual(
+      SOURCE_STUDY_DRAFT_OK_EDIT.cellxgeneCollectionId
+    );
+    expect(studyFromDb.study_info.hcaProjectId).toEqual(
+      SOURCE_STUDY_DRAFT_OK_EDIT.hcaProjectId
     );
 
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
