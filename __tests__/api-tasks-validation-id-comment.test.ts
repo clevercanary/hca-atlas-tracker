@@ -239,7 +239,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           VALIDATION_RECORD_ID_NONEXISTENT,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
