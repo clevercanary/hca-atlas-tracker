@@ -263,7 +263,7 @@ async function makePublishedSourceStudyDbData(
   return {
     doi,
     study_info: {
-      capId: "capId" in inputData ? inputData.capId : null,
+      capId: ("capId" in inputData && inputData.capId) || null,
       cellxgeneCollectionId,
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,
@@ -284,9 +284,9 @@ function makeUnpublishedSourceStudyDbData(
   const externalIds =
     "capId" in inputData
       ? {
-          capId: inputData.capId,
-          cellxgeneCollectionId: inputData.cellxgeneCollectionId,
-          hcaProjectId: inputData.hcaProjectId,
+          capId: inputData.capId || null,
+          cellxgeneCollectionId: inputData.cellxgeneCollectionId || null,
+          hcaProjectId: inputData.hcaProjectId || null,
         }
       : {
           capId: null,
