@@ -1,4 +1,7 @@
-import { TEST_HCA_PROJECTS_BY_DOI } from "../../../testing/constants";
+import {
+  TEST_HCA_PROJECTS_BY_DOI,
+  TEST_HCA_PROJECTS_BY_ID,
+} from "../../../testing/constants";
 import { getProjectsInfo, ProjectInfo } from "../../utils/hca-projects";
 
 export function areProjectsRefreshing(): boolean {
@@ -17,4 +20,9 @@ export function getProjectInfoByDoi(dois: string[]): ProjectInfo | null {
     }
   }
   return null;
+}
+
+export function getProjectInfoById(id: string): ProjectInfo | null {
+  const projectsResponse = TEST_HCA_PROJECTS_BY_ID.get(id);
+  return projectsResponse ? getProjectsInfo(projectsResponse)[0] : null;
 }

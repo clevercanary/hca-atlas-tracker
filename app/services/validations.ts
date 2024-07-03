@@ -25,16 +25,13 @@ import {
   VALIDATION_TYPE,
   VALIDATION_VARIABLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import {
-  getDbEntityCitation,
-  getPublicationDois,
-} from "../apis/catalog/hca-atlas-tracker/common/utils";
+import { getDbEntityCitation } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { ForbiddenError, NotFoundError } from "../utils/api-handler";
 import { ProjectInfo } from "../utils/hca-projects";
 import { updateTaskCounts } from "./atlases";
 import { createCommentThread, deleteCommentThread } from "./comments";
 import { doTransaction, getPoolClient, query } from "./database";
-import { getProjectInfoByDoi } from "./hca-projects";
+import { getProjectInfoById } from "./hca-projects";
 
 interface ValidationStatusInfo {
   differences?: ValidationDifference[];
@@ -111,6 +108,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
         return validateSourceStudyHcaProjectInfo(
           sourceStudy,
           (projectInfo, infoProperties, publication) => {
+            if (!publication) return null;
             const expected = publication.title;
             const actual = projectInfo?.title ?? null;
             const valid =
@@ -163,19 +161,13 @@ function validateSourceStudyHcaProjectInfo(
   validate: (
     projectInfo: ProjectInfo | null,
     infoProperties: Partial<ValidationStatusInfo>,
-    publication: PublicationInfo
+    publication: PublicationInfo | null
   ) => ValidationStatusInfo | null
 ): ValidationStatusInfo | null {
-  if (
-    !sourceStudy.doi ||
-    !sourceStudy.study_info.publication ||
-    !sourceStudy.study_info.hcaProjectId
-  ) {
+  if (!sourceStudy.study_info.hcaProjectId) {
     return null;
   }
-  const projectInfo = getProjectInfoByDoi(
-    getPublicationDois(sourceStudy.doi, sourceStudy.study_info.publication)
-  );
+  const projectInfo = getProjectInfoById(sourceStudy.study_info.hcaProjectId);
   const infoProperties = {
     relatedEntityUrl: `https://explore.data.humancellatlas.org/projects/${encodeURIComponent(
       sourceStudy.study_info.hcaProjectId

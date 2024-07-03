@@ -4,10 +4,9 @@ import { getProjectsInfo, ProjectInfo } from "../utils/hca-projects";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
 
-type ProjectInfoByDoi = Map<string, ProjectInfo>;
-
 interface ProjectsData {
-  byDoi: ProjectInfoByDoi;
+  byDoi: Map<string, ProjectInfo>;
+  byId: Map<string, ProjectInfo>;
   catalog: string;
 }
 
@@ -59,7 +58,7 @@ const refreshService = makeRefreshService({
   },
   async getRefreshedData({ catalog }) {
     return {
-      byDoi: await getRefreshedProjectIdsByDoi(catalog),
+      ...(await getRefreshedProjectIdsByDoi(catalog)),
       catalog,
     };
   },
@@ -104,14 +103,25 @@ export function getProjectInfoByDoi(dois: string[]): ProjectInfo | null {
 }
 
 /**
+ * Get an HCA project's info by project ID, starting a refresh of the DOI-to-project mappings if needed.
+ * @param id -- HCA project ID.
+ * @returns HCA project info, or null if none is found.
+ */
+export function getProjectInfoById(id: string): ProjectInfo | null {
+  const { byId } = refreshService.getData();
+  return byId.get(id) ?? null;
+}
+
+/**
  * Fetch the given catalog and build DOI-to-ID mapping.
  * @param catalog - Catalog to fetch projects from.
  * @returns project IDs by DOI for the given catalog.
  */
 async function getRefreshedProjectIdsByDoi(
   catalog: string
-): Promise<ProjectInfoByDoi> {
-  const projectIdsByDoi: ProjectInfoByDoi = new Map();
+): Promise<Pick<ProjectsData, "byDoi" | "byId">> {
+  const projectsInfoByDoi = new Map<string, ProjectInfo>();
+  const projectsInfoById = new Map<string, ProjectInfo>();
   console.log("Requesting HCA projects");
   const hits = await getAllProjects(catalog, {
     hooks: {
@@ -126,8 +136,12 @@ async function getRefreshedProjectIdsByDoi(
   console.log("Loaded HCA projects");
   for (const projectsResponse of hits) {
     for (const projectInfo of getProjectsInfo(projectsResponse)) {
-      if (projectInfo.doi) projectIdsByDoi.set(projectInfo.doi, projectInfo);
+      if (projectInfo.doi) projectsInfoByDoi.set(projectInfo.doi, projectInfo);
+      projectsInfoById.set(projectInfo.id, projectInfo);
     }
   }
-  return projectIdsByDoi;
+  return {
+    byDoi: projectsInfoByDoi,
+    byId: projectsInfoById,
+  };
 }
