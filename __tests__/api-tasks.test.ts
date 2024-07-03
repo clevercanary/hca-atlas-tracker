@@ -84,13 +84,17 @@ function expectInitialValidationsToExist(
     const studyValidations = validations.filter(
       (v) => v.entityId === testStudy.id
     );
-    const hasHca =
-      "doi" in testStudy &&
-      testStudy.doi !== null &&
-      (testStudy.hcaProjectId === undefined
-        ? TEST_HCA_PROJECTS_BY_DOI.has(testStudy.doi)
-        : testStudy.hcaProjectId !== null);
-    expect(studyValidations).toHaveLength(hasHca ? 5 : 3);
+    let expectedValidationCount = 3;
+    if (
+      "doi" in testStudy && testStudy.hcaProjectId === undefined
+        ? testStudy.doi !== null && TEST_HCA_PROJECTS_BY_DOI.has(testStudy.doi)
+        : testStudy.hcaProjectId !== null
+    ) {
+      expectedValidationCount++;
+      if ("doi" in testStudy && testStudy.doi !== null)
+        expectedValidationCount++;
+    }
+    expect(studyValidations).toHaveLength(expectedValidationCount);
     const studyAtlases = INITIAL_TEST_ATLASES_BY_SOURCE_STUDY[testStudy.id];
     const { atlasNames } = studyValidations[0];
     expect(atlasNames).toHaveLength(studyAtlases.length);

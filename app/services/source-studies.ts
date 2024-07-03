@@ -263,7 +263,7 @@ async function makePublishedSourceStudyDbData(
   return {
     doi,
     study_info: {
-      capId: "capId" in inputData ? inputData.capId : null,
+      capId: ("capId" in inputData && inputData.capId) || null,
       cellxgeneCollectionId,
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,
@@ -275,25 +275,35 @@ async function makePublishedSourceStudyDbData(
 
 /**
  * Derive unpublished source study information from input values.
- * @param inputData - Values to derive source datstudyaset from.
+ * @param inputData - Values to derive source study from.
  * @returns database model of values needed to define a source study.
  */
 function makeUnpublishedSourceStudyDbData(
   inputData: NewUnpublishedSourceStudyData | UnpublishedSourceStudyEditData
 ): HCAAtlasTrackerDBSourceStudyMinimumColumns {
+  const externalIds =
+    "capId" in inputData
+      ? {
+          capId: inputData.capId || null,
+          cellxgeneCollectionId: inputData.cellxgeneCollectionId || null,
+          hcaProjectId: inputData.hcaProjectId || null,
+        }
+      : {
+          capId: null,
+          cellxgeneCollectionId: null,
+          hcaProjectId: null,
+        };
   return {
     doi: null,
     study_info: {
-      capId: null,
-      cellxgeneCollectionId: null,
       doiStatus: DOI_STATUS.NA,
-      hcaProjectId: null,
       publication: null,
       unpublishedInfo: {
         contactEmail: inputData.contactEmail,
         referenceAuthor: inputData.referenceAuthor,
         title: inputData.title,
       },
+      ...externalIds,
     },
   };
 }

@@ -196,7 +196,7 @@ export type NewSourceStudyData =
  */
 
 export const publishedSourceStudyEditSchema = object({
-  capId: string().defined("CAP ID is required when DOI is present").nullable(),
+  capId: string().defined("CAP ID is required").nullable(),
   doi: string()
     .required()
     .test(
@@ -211,15 +211,22 @@ export const publishedSourceStudyEditSchema = object({
   .strict(true);
 
 export const unpublishedSourceStudyEditSchema = object({
+  capId: string().defined("CAP ID is required").nullable(),
+  cellxgeneCollectionId: string()
+    .defined("CELLxGENE collection ID is required when DOI is absent")
+    .nullable(),
   contactEmail: string()
     .email()
     .defined("Email is required when DOI is absent")
+    .nullable(),
+  hcaProjectId: string()
+    .defined("HCA project ID is required when DOI is absent")
     .nullable(),
   referenceAuthor: string().required("Author is required when DOI is absent"),
   title: string().required("Title is required when DOI is absent"),
 })
   .noUnknown(
-    "If DOI is unspecified, only email, author, and name may be present"
+    "If DOI is unspecified, only CAP ID, CELLxGENE ID, email, HCA ID, author, and title may be present"
   )
   .strict(true);
 

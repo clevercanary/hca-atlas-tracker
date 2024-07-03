@@ -122,11 +122,10 @@ function onSuccess(
 function unregisterSchemaFields(
   payload: SourceStudyEditData
 ): SourceStudyEditDataKeys[] {
-  const fieldKeys: SourceStudyEditDataKeys[] = [];
-  if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
-    fieldKeys.push(...UNPUBLISHED_FIELDS);
-  } else {
-    fieldKeys.push(...PUBLISHED_FIELDS);
-  }
-  return fieldKeys;
+  const [keysForThisStatus, keysForOtherStatus] =
+    payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED
+      ? [PUBLISHED_FIELDS, UNPUBLISHED_FIELDS]
+      : [UNPUBLISHED_FIELDS, PUBLISHED_FIELDS];
+
+  return keysForOtherStatus.filter((key) => !keysForThisStatus.includes(key));
 }
