@@ -16,6 +16,7 @@ import {
   NETWORKS,
   UNPUBLISHED,
 } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import { BaseSyntheticEvent } from "react";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   ATLAS_STATUS,
@@ -381,19 +382,23 @@ export const buildTaskCounts = (
 };
 
 /**
- * Build props for the TaskDescriptionCell component.
+ * Build props for the ButtonTextPrimaryCell component.
  * @param task - Task entity.
  * @param viewContext - View context.
- * @returns Props to be used for the TaskDescriptionCell component.
+ * @returns Props to be used for the ButtonTextPrimaryCell component.
  */
 export const buildTaskDescription = (
   task: HCAAtlasTrackerListValidationRecord,
   viewContext: ViewContext<HCAAtlasTrackerListValidationRecord>
-): React.ComponentProps<typeof C.TaskDescriptionCell> => {
+): React.ComponentProps<typeof C.ButtonTextPrimaryCell> => {
+  const { description } = task;
   const { cellContext } = viewContext;
   return {
-    cellContext,
-    task,
+    children: description,
+    onClick: (e: BaseSyntheticEvent): void => {
+      e.preventDefault();
+      cellContext?.row.togglePreview();
+    },
   };
 };
 

@@ -28,10 +28,10 @@ export { LabelIconMenuItem } from "./Layout/components/Header/components/Content
 export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
 export { AnalysisPortalCell } from "./Table/components/TableCell/components/AnalysisPortalCell/analysisPortalCell";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
+export { ButtonTextPrimaryCell } from "./Table/components/TableCell/components/ButtonTextPrimaryCell/buttonTextPrimaryCell.styles";
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
 export { GroupedRowSelectionCell } from "./Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
 export { PinnedNTagCell } from "./Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RowSelectionCell } from "./Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 export { SourceStudyStatusCell } from "./Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
-export { TaskDescriptionCell } from "./Table/components/TableCell/components/TaskDescriptionCell/taskDescriptionCell";

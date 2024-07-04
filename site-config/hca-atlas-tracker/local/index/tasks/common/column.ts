@@ -34,10 +34,10 @@ export const CREATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 export const DESCRIPTION: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
   columnPinned: true,
   componentConfig: {
-    component: C.TaskDescriptionCell,
+    component: C.ButtonTextPrimaryCell,
     viewBuilder: V.buildTaskDescription,
   } as ComponentConfig<
-    typeof C.TaskDescriptionCell,
+    typeof C.ButtonTextPrimaryCell,
     HCAAtlasTrackerListValidationRecord
   >,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION, // Task.
