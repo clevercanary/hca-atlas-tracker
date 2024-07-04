@@ -1,4 +1,4 @@
-import { RowSelectionState } from "@tanstack/table-core";
+import { RowSelectionState } from "@tanstack/react-table";
 import { useEffect, useMemo } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../hooks/useForm/common/entities";

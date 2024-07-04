@@ -311,6 +311,23 @@ export function isNetworkKey(key: unknown): key is NetworkKey {
 }
 
 /**
+ * Returns true if the given value is typed task.
+ * @param value - Value.
+ * @returns true if the value is a task.
+ */
+export function isTask(
+  value: unknown
+): value is HCAAtlasTrackerListValidationRecord {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    "differences" in value &&
+    "targetCompletion" in value &&
+    "validationId" in value
+  );
+}
+
+/**
  * Returns true if the given value is a valid wave.
  * @param value - Value.
  * @returns true if the value is a valid wave.

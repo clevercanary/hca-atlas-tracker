@@ -21,7 +21,7 @@ export const Table = ({
       columns={getAtlasComponentSourceDatasetsTableColumns(onUnlink)}
       gridTemplateColumns="minmax(272px, 1fr) repeat(2, minmax(180px, 0.4fr)) repeat(5, minmax(88px, 128px)) auto"
       items={componentAtlasSourceDatasets}
-      tableOptions={TABLE_OPTIONS}
+      tableOptions={{ ...TABLE_OPTIONS, getRowId: (row) => row.id }}
     />
   );
 };

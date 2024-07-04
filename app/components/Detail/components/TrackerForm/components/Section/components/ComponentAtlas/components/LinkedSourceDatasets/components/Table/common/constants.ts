@@ -3,7 +3,7 @@ import {
   getSortedRowModel,
   SortingState,
   TableOptions,
-} from "@tanstack/table-core";
+} from "@tanstack/react-table";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
 const PUBLICATION_STRING = "publicationString";

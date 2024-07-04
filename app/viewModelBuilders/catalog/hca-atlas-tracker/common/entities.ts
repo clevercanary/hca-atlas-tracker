@@ -1,3 +1,12 @@
+export enum COMPONENT_NAME {
+  BASIC_CELL = "BasicCell",
+  BIO_NETWORK_CELL = "BioNetworkCell",
+  LINK = "Link",
+  N_TAG_CELL = "NTagCell",
+}
+
+export type ExtraProps = Record<string, unknown>;
+
 /**
  * Set of possible metadata keys.
  */
@@ -17,3 +26,7 @@ export enum METADATA_KEY {
 export enum DISEASE {
   NORMAL = "normal",
 }
+
+export type ExtraPropsByComponentName = Map<COMPONENT_NAME, ExtraProps>;
+
+export type Unused = unknown;
