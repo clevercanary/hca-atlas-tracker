@@ -12,7 +12,10 @@ import {
   RowData,
   Table,
 } from "@tanstack/react-table";
-import { NETWORKS } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  NETWORKS,
+  UNPUBLISHED,
+} from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   ATLAS_STATUS,
@@ -145,11 +148,10 @@ export const buildEditTask = (
 export const buildEntityTitle = (
   task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Link> => {
-  const { atlasIds, entityId: sourceStudyId } = task;
-  const atlasId = atlasIds[0];
+  const { doi } = task;
   return {
     label: task.entityTitle,
-    url: getRouteURL(ROUTE.SOURCE_STUDY, { atlasId, sourceStudyId }),
+    url: getDOILink(doi),
   };
 };
 
@@ -451,9 +453,11 @@ export const buildTaskPreviewDetails = (
 export const buildTaskPublicationString = (
   task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Link> => {
+  const { atlasIds, entityId: sourceStudyId } = task;
+  const atlasId = atlasIds[0];
   return {
     label: task.publicationString ?? "",
-    url: getDOILink(task.doi),
+    url: getRouteURL(ROUTE.SOURCE_STUDY, { atlasId, sourceStudyId }),
   };
 };
 
@@ -465,9 +469,10 @@ export const buildTaskPublicationString = (
 export const buildTaskDoi = (
   task: HCAAtlasTrackerListValidationRecord
 ): React.ComponentProps<typeof C.Link> => {
+  const { doi } = task;
   return {
-    label: task.doi,
-    url: task.doi === "Unpublished" ? "" : getDOILink(task.doi),
+    label: doi,
+    url: getDOILink(doi),
   };
 };
 
@@ -803,7 +808,7 @@ function getComponentAtlasTitleColumnDef(
  * @returns DOI link.
  */
 export function getDOILink(doi: string | null): string {
-  if (!doi) return "";
+  if (!doi || doi === UNPUBLISHED) return "";
   return `https://doi.org/${encodeURIComponent(doi)}`;
 }
 
