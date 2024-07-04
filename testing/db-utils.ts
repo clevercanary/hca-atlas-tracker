@@ -126,8 +126,13 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
 async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
+      assay: [],
+      cellCount: 0,
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
+      disease: [],
+      suspensionType: [],
+      tissue: [],
     };
     await client.query(
       "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets, title) VALUES ($1, $2, $3, $4, $5)",

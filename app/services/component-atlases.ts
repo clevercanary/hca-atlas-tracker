@@ -12,7 +12,15 @@ import { confirmAtlasExists } from "./atlases";
 import { query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
 
-interface ComponentAtlasInputDbData {
+interface ComponentAtlasDbEditData {
+  componentInfoEdit: Pick<
+    HCAAtlasTrackerDBComponentAtlasInfo,
+    "cellxgeneDatasetId" | "cellxgeneDatasetVersion"
+  >;
+  title: HCAAtlasTrackerDBComponentAtlas["title"];
+}
+
+interface NewComponentAtlasDbData {
   componentInfo: HCAAtlasTrackerDBComponentAtlasInfo;
   title: HCAAtlasTrackerDBComponentAtlas["title"];
 }
@@ -64,7 +72,7 @@ export async function createComponentAtlas(
   inputData: NewComponentAtlasData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   await confirmAtlasExists(atlasId);
-  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+  const { componentInfo, title } = await newComponentAtlasDataToDbData(
     inputData
   );
   const queryResult = await withTitleConflictHandling(
@@ -89,14 +97,14 @@ export async function updateComponentAtlas(
   componentAtlasId: string,
   inputData: ComponentAtlasEditData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+  const { componentInfoEdit, title } = await componentAtlasEditDataToDbData(
     inputData
   );
   const queryResult = await withTitleConflictHandling(
     async () =>
       await query<HCAAtlasTrackerDBComponentAtlas>(
-        "UPDATE hat.component_atlases SET component_info=$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
-        [JSON.stringify(componentInfo), title, componentAtlasId, atlasId]
+        "UPDATE hat.component_atlases SET component_info=component_info||$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
+        [JSON.stringify(componentInfoEdit), title, componentAtlasId, atlasId]
       )
   );
   if (queryResult.rows.length === 0)
@@ -105,15 +113,37 @@ export async function updateComponentAtlas(
 }
 
 /**
- * Derive component atlas information from input values.
+ * Derive new component atlas information from input values.
  * @param inputData - Values to derive component atlas from.
- * @returns database model of values needed to define a component atlas.
+ * @returns database model of values needed to create a component atlas.
  */
-async function componentAtlasInputDataToDbData(
-  inputData: NewComponentAtlasData | ComponentAtlasEditData
-): Promise<ComponentAtlasInputDbData> {
+async function newComponentAtlasDataToDbData(
+  inputData: NewComponentAtlasData
+): Promise<NewComponentAtlasDbData> {
   return {
     componentInfo: {
+      assay: [],
+      cellCount: 0,
+      cellxgeneDatasetId: null,
+      cellxgeneDatasetVersion: null,
+      disease: [],
+      suspensionType: [],
+      tissue: [],
+    },
+    title: inputData.title,
+  };
+}
+
+/**
+ * Derive updated component atlas information from input values.
+ * @param inputData - Values to derive component atlas from.
+ * @returns database model of values needed to update a component atlas.
+ */
+async function componentAtlasEditDataToDbData(
+  inputData: ComponentAtlasEditData
+): Promise<ComponentAtlasDbEditData> {
+  return {
+    componentInfoEdit: {
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
     },
