@@ -1,7 +1,7 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback } from "react";
 import { Controller } from "react-hook-form";
 import {
   DOI_STATUS,
@@ -29,16 +29,12 @@ import { SectionCard, SectionContent } from "./generalInfo.styles";
 export interface GeneralInfoProps {
   formManager: FormManager;
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>;
-  sdPublicationStatus: PUBLICATION_STATUS;
 }
 
 export const GeneralInfo = ({
   formManager,
   formMethod,
-  sdPublicationStatus,
 }: GeneralInfoProps): JSX.Element => {
-  const [publicationStatus, setPublicationStatus] =
-    useState<PUBLICATION_STATUS>(sdPublicationStatus);
   const {
     formStatus: { isReadOnly },
   } = formManager;
@@ -50,23 +46,19 @@ export const GeneralInfo = ({
     setValue,
     watch,
   } = formMethod;
-  const hasDoi = Boolean(watch(FIELD_NAME.DOI));
-  const isPublishedPreprint =
-    sdPublicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT;
+  const watchedFields = watch([FIELD_NAME.DOI, FIELD_NAME.PUBLICATION_STATUS]);
+  const [doi, publicationStatus] = watchedFields;
+  const defaultDoi = formMethod.formState.defaultValues?.[FIELD_NAME.DOI];
+  const hasDoi = Boolean(doi);
 
   // Callback to handle tab change; clears errors, sets publication status, and updates form value.
   const onTabChange = useCallback(
     (value: PUBLICATION_STATUS): void => {
       clearErrors();
-      setPublicationStatus(value);
       setValue(FIELD_NAME.PUBLICATION_STATUS, value, { shouldDirty: false });
     },
     [clearErrors, setValue]
   );
-
-  useEffect(() => {
-    setPublicationStatus(sdPublicationStatus);
-  }, [sdPublicationStatus]);
 
   return (
     <Section>
@@ -76,7 +68,7 @@ export const GeneralInfo = ({
       <SectionCard>
         <Tabs
           onTabChange={onTabChange}
-          tabs={getSectionTabs(isReadOnly, isPublishedPreprint, hasDoi)}
+          tabs={getSectionTabs(isReadOnly, hasDoi)}
           value={publicationStatus}
         />
         <SectionContent>
@@ -110,7 +102,7 @@ export const GeneralInfo = ({
                         )}
                       </Fragment>
                     }
-                    readOnly={isPublishedPreprint}
+                    readOnly={Boolean(defaultDoi)}
                   />
                 )}
               />

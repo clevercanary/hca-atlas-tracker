@@ -21,7 +21,9 @@ export const useEditSourceStudyForm = (
   return useForm<SourceStudyEditData, HCAAtlasTrackerSourceStudy>(
     SCHEMA,
     sourceStudy,
-    mapSchemaValues
+    mapSchemaValues,
+    undefined,
+    { defaultValues: mapSchemaValues(sourceStudy) }
   );
 };
 
