@@ -143,17 +143,16 @@ export const buildEditTask = (
 };
 
 /**
- * Build props for the Cell component.
+ * Build props for the BasicCell component.
  * @param task - Task entity.
- * @returns Props to be used for the Cell component.
+ * @returns Props to be used for the BasicCell component.
  */
 export const buildEntityTitle = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Link> => {
-  const { doi } = task;
+): React.ComponentProps<typeof C.BasicCell> => {
+  const { entityTitle } = task;
   return {
-    label: task.entityTitle,
-    url: getDOILink(doi),
+    value: entityTitle,
   };
 };
 

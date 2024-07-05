@@ -13,6 +13,7 @@ const ESM_PACKAGES = [
   "string-collapse-leading-whitespace",
   "string-left-right",
   "string-strip-html",
+  "@databiosphere/findable-ui",
   "@tanstack/react-table",
 ];
 
