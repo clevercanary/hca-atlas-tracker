@@ -46,6 +46,7 @@ import {
   DISEASE,
   ExtraPropsByComponentName,
   METADATA_KEY,
+  Unused,
 } from "./entities";
 import {
   getPluralizedMetadataLabel,
@@ -417,14 +418,17 @@ export const buildTaskNetworks = (
 
 /**
  * Build props for the RowDrawer component.
- * @param tableInstance - Table.
+ * @param _ - Unused.
+ * @param viewContext - View context.
  * @returns Props to be used for the RowDrawer component.
  */
 export const buildTaskRowPreview = (
-  tableInstance: Table<HCAAtlasTrackerListValidationRecord>
+  _: Unused,
+  viewContext: ViewContext<HCAAtlasTrackerListValidationRecord>
 ): React.ComponentProps<
   typeof C.RowDrawer<HCAAtlasTrackerListValidationRecord>
 > => {
+  const { tableInstance } = viewContext;
   return {
     tableInstance,
     title: getTaskRowPreviewTitle(tableInstance),
@@ -433,12 +437,12 @@ export const buildTaskRowPreview = (
 
 /**
  * Build props for the PreviewTask component.
- * @param tableInstance - Table.
+ * @param task - Task entity.
  * @param columns - Column config.
  * @returns Props to be used for the PreviewTask component.
  */
 export const buildTaskPreviewDetails = (
-  tableInstance: Table<HCAAtlasTrackerListValidationRecord>,
+  task: HCAAtlasTrackerListValidationRecord,
   columns: ColumnConfig<HCAAtlasTrackerListValidationRecord>[]
 ): React.ComponentProps<typeof C.PreviewTask> => {
   return {
@@ -446,7 +450,7 @@ export const buildTaskPreviewDetails = (
       columns,
       getTaskRowPreviewExtraPropsByComponentName()
     ),
-    tableInstance,
+    task,
   };
 };
 
@@ -1163,9 +1167,9 @@ function getTaskRowPreviewExtraPropsByComponentName(): ExtraPropsByComponentName
  * @returns title.
  */
 function getTaskRowPreviewTitle(
-  tableInstance: Table<HCAAtlasTrackerListValidationRecord>
+  tableInstance?: Table<HCAAtlasTrackerListValidationRecord>
 ): string | undefined {
-  const { getRowPreviewRow } = tableInstance;
-  const task = getEntityFromRowData(getRowPreviewRow(), isTask);
+  const { getRowPreviewRow } = tableInstance || {};
+  const task = getEntityFromRowData(getRowPreviewRow?.(), isTask);
   return task?.description;
 }
