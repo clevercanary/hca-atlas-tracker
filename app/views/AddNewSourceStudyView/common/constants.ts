@@ -8,10 +8,12 @@ export const FIELD_NAME = {
   TITLE: "title",
 } as const;
 
-export const PUBLISHED_FIELDS: NewSourceStudyDataKeys[] = [FIELD_NAME.DOI];
-
-export const UNPUBLISHED_FIELDS: NewSourceStudyDataKeys[] = [
+export const NO_DOI_FIELDS: NewSourceStudyDataKeys[] = [
   FIELD_NAME.CONTACT_EMAIL,
   FIELD_NAME.REFERENCE_AUTHOR,
   FIELD_NAME.TITLE,
+];
+
+export const PUBLISHED_PREPRINT_FIELDS: NewSourceStudyDataKeys[] = [
+  FIELD_NAME.DOI,
 ];

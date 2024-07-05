@@ -11,8 +11,8 @@ import { ROUTE } from "../../../routes/constants";
 import { PUBLICATION_STATUS } from "../../AddNewSourceStudyView/common/entities";
 import {
   FIELD_NAME,
-  PUBLISHED_FIELDS,
-  UNPUBLISHED_FIELDS,
+  NO_DOI_FIELDS,
+  PUBLISHED_PREPRINT_FIELDS,
 } from "../common/constants";
 import {
   SourceStudyEditData,
@@ -75,10 +75,10 @@ function filterPayload(payload: SourceStudyEditData): SourceStudyEditData {
 function getSchemaFields(
   publicationStatus: PUBLICATION_STATUS
 ): SourceStudyEditDataKeys[] {
-  if (publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
-    return PUBLISHED_FIELDS;
+  if (publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT) {
+    return PUBLISHED_PREPRINT_FIELDS;
   }
-  return UNPUBLISHED_FIELDS;
+  return NO_DOI_FIELDS;
 }
 
 /**
@@ -123,9 +123,9 @@ function unregisterSchemaFields(
   payload: SourceStudyEditData
 ): SourceStudyEditDataKeys[] {
   const [keysForThisStatus, keysForOtherStatus] =
-    payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED
-      ? [PUBLISHED_FIELDS, UNPUBLISHED_FIELDS]
-      : [UNPUBLISHED_FIELDS, PUBLISHED_FIELDS];
+    payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT
+      ? [PUBLISHED_PREPRINT_FIELDS, NO_DOI_FIELDS]
+      : [NO_DOI_FIELDS, PUBLISHED_PREPRINT_FIELDS];
 
   return keysForOtherStatus.filter((key) => !keysForThisStatus.includes(key));
 }

@@ -10,13 +10,13 @@ export function getSectionTabs(hasDoi: boolean): TabsProps["tabs"] {
   return [
     {
       disabled: false,
-      label: "Published",
-      value: PUBLICATION_STATUS.PUBLISHED,
+      label: "Published / Preprint",
+      value: PUBLICATION_STATUS.PUBLISHED_PREPRINT,
     },
     {
-      disabled: hasDoi, // Unpublished tab is disabled if the source study has a DOI.
-      label: "Unpublished",
-      value: PUBLICATION_STATUS.UNPUBLISHED,
+      disabled: hasDoi, // "No DOI" tab is disabled if the source study has a DOI.
+      label: "No DOI",
+      value: PUBLICATION_STATUS.NO_DOI,
     },
   ];
 }

@@ -10,8 +10,8 @@ import { useFormManager } from "../../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../../routes/constants";
 import {
   FIELD_NAME,
-  PUBLISHED_FIELDS,
-  UNPUBLISHED_FIELDS,
+  NO_DOI_FIELDS,
+  PUBLISHED_PREPRINT_FIELDS,
 } from "../common/constants";
 import {
   NewSourceStudyData,
@@ -74,10 +74,10 @@ function filterPayload(payload: NewSourceStudyData): NewSourceStudyData {
 function getSchemaFields(
   publicationStatus: PUBLICATION_STATUS
 ): NewSourceStudyDataKeys[] {
-  if (publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
-    return PUBLISHED_FIELDS;
+  if (publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT) {
+    return PUBLISHED_PREPRINT_FIELDS;
   }
-  return UNPUBLISHED_FIELDS;
+  return NO_DOI_FIELDS;
 }
 
 /**
@@ -122,10 +122,10 @@ function unregisterSchemaFields(
   payload: NewSourceStudyData
 ): NewSourceStudyDataKeys[] {
   const fieldKeys: NewSourceStudyDataKeys[] = [];
-  if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED) {
-    fieldKeys.push(...UNPUBLISHED_FIELDS);
+  if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT) {
+    fieldKeys.push(...NO_DOI_FIELDS);
   } else {
-    fieldKeys.push(...PUBLISHED_FIELDS);
+    fieldKeys.push(...PUBLISHED_PREPRINT_FIELDS);
   }
   return fieldKeys;
 }

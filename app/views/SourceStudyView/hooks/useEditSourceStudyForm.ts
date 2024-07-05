@@ -53,7 +53,9 @@ function mapHCAProjectId(hcaProjectId: string | null): string {
  * @returns publication status.
  */
 export function mapPublicationStatus(doi?: string | null): PUBLICATION_STATUS {
-  return doi ? PUBLICATION_STATUS.PUBLISHED : PUBLICATION_STATUS.UNPUBLISHED;
+  return doi
+    ? PUBLICATION_STATUS.PUBLISHED_PREPRINT
+    : PUBLICATION_STATUS.NO_DOI;
 }
 
 /**
