@@ -14,13 +14,13 @@ import { SiteConfig } from "../../common/entities";
 import { announcements } from "./announcements/announcements";
 import { authenticationConfig } from "./authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
-import { tasksEntityConfig } from "./index/tasksEntityConfig";
+import { tasksEntityConfig } from "./index/tasks/tasksEntityConfig";
 
 // Template constants
 const LOCALHOST = "http://localhost:3000";
 const APP_TITLE = "HCA Atlas Tracker";
 const BROWSER_URL = LOCALHOST;
-const FONT_FAMILY_DIN = "'din-2014', sans-serif";
+export const FONT_FAMILY_DIN = "'din-2014', sans-serif";
 const HOME_PAGE_PATH = ROUTE.ATLASES;
 const ORG_URL = "https://www.humancellatlas.org";
 export const PORTAL_URL = "https://data.humancellatlas.dev.clevercanary.com";

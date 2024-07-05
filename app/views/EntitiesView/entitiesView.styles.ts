@@ -1,4 +1,7 @@
-import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import {
+  mediaTabletDown,
+  mediaTabletUp,
+} from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { ExploreView as DXExploreView } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import styled from "@emotion/styled";
 import { tableStyles } from "../../components/Table/table.styles";
@@ -18,7 +21,13 @@ export const ExploreView = styled(DXExploreView)`
   }
 
   & .MuiTableContainer-root {
-    ${tableStyles}
+    ${tableStyles};
+  }
+
+  ${mediaTabletDown} {
+    .MuiPaper-table {
+      min-height: 64px;
+    }
   }
 `;
 

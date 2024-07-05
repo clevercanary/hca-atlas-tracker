@@ -80,7 +80,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NAME,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
-        width: { max: "2fr", min: "374px" },
+        width: { max: "1fr", min: "160px" },
       },
       // {
       //   columnVisible: false,
@@ -99,16 +99,16 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.BioNetworkCell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
-        width: { max: "1fr", min: "136px" },
+        width: { max: "1fr", min: "212px" },
       },
       {
         componentConfig: {
-          component: C.Cell,
+          component: C.BasicCell,
           viewBuilder: V.buildWave,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+        } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE,
-        width: { max: "0.5fr", min: "68px" },
+        width: { max: "0.5fr", min: "112px" },
       },
       {
         componentConfig: {
@@ -117,7 +117,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SOURCE_STUDY_COUNT,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_STUDY_COUNT,
-        width: { max: "0.5fr", min: "68px" },
+        width: { max: "0.5fr", min: "112px" },
       },
       {
         componentConfig: {
@@ -126,7 +126,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.COMPONENT_ATLAS_COUNT,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.COMPONENT_ATLAS_COUNT,
-        width: { max: "0.5fr", min: "68px" },
+        width: { max: "0.5fr", min: "112px" },
       },
       {
         componentConfig: {
@@ -135,7 +135,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD,
-        width: { max: "1fr", min: "136px" },
+        width: { max: "220px", min: "136px" },
       },
       {
         componentConfig: {
@@ -144,7 +144,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.StatusBadge, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
-        width: { max: "0.5fr", min: "68px" },
+        width: { max: "128px", min: "128px" },
       },
       {
         componentConfig: {
@@ -152,16 +152,16 @@ export const atlasEntityConfig: EntityConfig = {
           viewBuilder: V.buildTaskCounts,
         } as ComponentConfig<typeof C.TaskCountsCell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_COUNTS,
-        width: { max: "0.5fr", min: "68px" },
+        width: { max: "128px", min: "128px" },
       },
       {
         componentConfig: {
-          component: C.Cell,
+          component: C.BasicCell,
           viewBuilder: V.buildTargetCompletion,
-        } as ComponentConfig<typeof C.Cell, HCAAtlasTrackerListAtlas>,
+        } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-        width: { max: "1fr", min: "136px" },
+        width: { max: "0.5fr", min: "168px" },
       },
     ],
     defaultSort: {

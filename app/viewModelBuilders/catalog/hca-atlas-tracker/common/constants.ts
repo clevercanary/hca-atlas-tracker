@@ -1,5 +1,11 @@
 import { METADATA_KEY as M } from "./entities";
 
+export const EXTRA_PROPS = {
+  BIO_NETWORK_CELL: {
+    TypographyProps: { alignSelf: "center" },
+  },
+};
+
 /**
  * Value for displaying pluralized metadata labels, for example, "tissues" or "diseases".
  */

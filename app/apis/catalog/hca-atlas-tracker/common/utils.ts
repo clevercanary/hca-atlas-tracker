@@ -1,5 +1,5 @@
 import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
-import { NETWORK_KEYS, WAVES } from "./constants";
+import { NETWORK_KEYS, UNPUBLISHED, WAVES } from "./constants";
 import {
   DOI_STATUS,
   HCAAtlasTrackerAtlas,
@@ -261,7 +261,7 @@ function getPublishedCitation(
   date: string | null,
   journal: string | null
 ): string {
-  if (doiStatus !== DOI_STATUS.OK) return "Unpublished";
+  if (doiStatus !== DOI_STATUS.OK) return UNPUBLISHED;
   const citation = [];
   if (author) {
     citation.push(author);
@@ -311,6 +311,23 @@ export function isNetworkKey(key: unknown): key is NetworkKey {
 }
 
 /**
+ * Returns true if the given value is typed task.
+ * @param value - Value.
+ * @returns true if the value is a task.
+ */
+export function isTask(
+  value: unknown
+): value is HCAAtlasTrackerListValidationRecord {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    "differences" in value &&
+    "targetCompletion" in value &&
+    "validationId" in value
+  );
+}
+
+/**
  * Returns true if the given value is a valid wave.
  * @param value - Value.
  * @returns true if the value is a valid wave.
@@ -331,7 +348,7 @@ export function taskInputMapper(
 ): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,
-    doi: apiTask.doi === null ? "Unpublished" : apiTask.doi,
+    doi: apiTask.doi === null ? UNPUBLISHED : apiTask.doi,
     targetCompletion: apiTask.targetCompletion ?? GREATEST_UNIX_TIME,
   };
 }
