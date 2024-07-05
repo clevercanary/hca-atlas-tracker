@@ -40,7 +40,7 @@ export const useEditSourceStudyFormManager = (
       onSubmit(
         getRequestURL(API.ATLAS_SOURCE_STUDY, pathParameter),
         METHOD.PUT,
-        filterPayload(payload),
+        mapPayload(filterPayload(payload)),
         {
           onReset: reset,
           onSuccess: (data) => onSuccess(pathParameter, data.id, url),
@@ -65,6 +65,17 @@ function filterPayload(payload: SourceStudyEditData): SourceStudyEditData {
     }
     return acc;
   }, {} as SourceStudyEditData);
+}
+
+/**
+ * Returns the identifier URL's ID.
+ * @param identifierUrl - Identifier URL.
+ * @returns identifier ID.
+ */
+function getIdentifierId(identifierUrl: string | null): string {
+  if (!identifierUrl) return "";
+  const paths = identifierUrl.split("/");
+  return paths.pop() || "";
 }
 
 /**
@@ -96,6 +107,20 @@ function isFormDirty(
   } = formMethod;
   const schemaFields = getSchemaFields(publicationStatus);
   return schemaFields.some((key) => key in dirtyFields);
+}
+
+/**
+ * Maps the payload.
+ * Strips ID from identifiers CELLxGENE collection and HCA project.
+ * @param payload - Payload.
+ * @returns payload.
+ */
+function mapPayload(payload: SourceStudyEditData): SourceStudyEditData {
+  return {
+    ...payload,
+    cellxgeneCollectionId: getIdentifierId(payload.cellxgeneCollectionId),
+    hcaProjectId: getIdentifierId(payload.hcaProjectId),
+  };
 }
 
 /**

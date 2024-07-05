@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { PUBLICATION_STATUS } from "../../../../../../../../../../../../views/AddNewSourceStudyView/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceStudyView/common/constants";
 import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
@@ -21,7 +22,11 @@ export interface IdentifiersProps {
 }
 
 export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
-  const { control } = formMethod;
+  const { control, watch } = formMethod;
+  const watchedFields = watch([FIELD_NAME.PUBLICATION_STATUS]);
+  const [publicationStatus] = watchedFields;
+  const isPublishedPreprint =
+    publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT;
   return (
     <Section>
       <SectionHero>
@@ -44,7 +49,7 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
                   {field.value && <Link label="Visit link" url={field.value} />}
                 </Fragment>
               }
-              readOnly={true}
+              readOnly={isPublishedPreprint}
             />
           )}
         />
@@ -64,7 +69,7 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
                   {field.value && <Link label="Visit link" url={field.value} />}
                 </Fragment>
               }
-              readOnly={true}
+              readOnly={isPublishedPreprint}
             />
           )}
         />

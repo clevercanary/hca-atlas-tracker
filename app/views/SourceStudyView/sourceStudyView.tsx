@@ -10,10 +10,7 @@ import { ViewSourceStudy } from "../../components/Detail/components/ViewSourceSt
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
-import {
-  mapPublicationStatus,
-  useEditSourceStudyForm,
-} from "./hooks/useEditSourceStudyForm";
+import { useEditSourceStudyForm } from "./hooks/useEditSourceStudyForm";
 import { useEditSourceStudyFormManager } from "./hooks/useEditSourceStudyFormManager";
 
 interface SourceStudyViewProps {
@@ -33,7 +30,6 @@ export const SourceStudyView = ({
     isLoading,
   } = formManager;
   const { data: sourceStudy } = formMethod;
-  const { doi } = sourceStudy || {};
   if (isLoading) return <Fragment />;
   return (
     <ConditionalComponent
@@ -50,11 +46,7 @@ export const SourceStudyView = ({
           />
         }
         mainColumn={
-          <ViewSourceStudy
-            formManager={formManager}
-            formMethod={formMethod}
-            sdPublicationStatus={mapPublicationStatus(doi)}
-          />
+          <ViewSourceStudy formManager={formManager} formMethod={formMethod} />
         }
         subTitle={getSourceStudyCitation(sourceStudy)}
         tabs={<Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />}

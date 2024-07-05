@@ -1,7 +1,6 @@
 import { HCAAtlasTrackerSourceStudy } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { PUBLICATION_STATUS } from "../../../../views/AddNewSourceStudyView/common/entities";
 import { SourceStudyEditData } from "../../../../views/SourceStudyView/common/entities";
 import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
@@ -13,13 +12,11 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 interface ViewSourceStudyProps {
   formManager: FormManagerProps;
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>;
-  sdPublicationStatus: PUBLICATION_STATUS;
 }
 
 export const ViewSourceStudy = ({
   formManager,
   formMethod,
-  sdPublicationStatus,
 }: ViewSourceStudyProps): JSX.Element => {
   const {
     access: { canView },
@@ -28,11 +25,7 @@ export const ViewSourceStudy = ({
   return (
     <TrackerForm>
       <FormManager {...formManager} />
-      <GeneralInfo
-        formManager={formManager}
-        formMethod={formMethod}
-        sdPublicationStatus={sdPublicationStatus}
-      />
+      <GeneralInfo formManager={formManager} formMethod={formMethod} />
       <Divider />
       <Identifiers formMethod={formMethod} />
     </TrackerForm>
