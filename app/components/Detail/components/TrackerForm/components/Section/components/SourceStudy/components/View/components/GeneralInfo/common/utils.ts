@@ -4,25 +4,25 @@ import { TabsProps } from "../../../../../../../../Tabs/tabs";
 /**
  * Returns tabs for the general info section.
  * @param isReadOnly - Form is read-only.
- * @param isPublished - Whether the source study is published.
+ * @param isPublishedPreprint - Whether the source study is published / preprint.
  * @param hasDoi - Whether the source study has a DOI.
  * @returns tabs.
  */
 export function getSectionTabs(
   isReadOnly: boolean,
-  isPublished: boolean,
+  isPublishedPreprint: boolean,
   hasDoi: boolean
 ): TabsProps["tabs"] {
   return [
     {
       disabled: isReadOnly,
-      label: "Published",
-      value: PUBLICATION_STATUS.PUBLISHED,
+      label: "Published / Preprint",
+      value: PUBLICATION_STATUS.PUBLISHED_PREPRINT,
     },
     {
-      disabled: isReadOnly || isPublished || hasDoi, // Unpublished tab is disabled if the source study is published or a DOI is defined.
-      label: "Unpublished",
-      value: PUBLICATION_STATUS.UNPUBLISHED,
+      disabled: isReadOnly || isPublishedPreprint || hasDoi, // "No DOI" tab is disabled if the source study is published / preprint or a DOI is defined.
+      label: "No DOI",
+      value: PUBLICATION_STATUS.NO_DOI,
     },
   ];
 }

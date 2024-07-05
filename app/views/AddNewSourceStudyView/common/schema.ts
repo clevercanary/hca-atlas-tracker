@@ -7,7 +7,7 @@ export const newSourceStudySchema = object({
   [FIELD_NAME.CONTACT_EMAIL]: string()
     .default("")
     .when(FIELD_NAME.PUBLICATION_STATUS, {
-      is: PUBLICATION_STATUS.PUBLISHED,
+      is: PUBLICATION_STATUS.PUBLISHED_PREPRINT,
       otherwise: (schema) =>
         schema.email("Email must be a valid email address").nullable(),
       then: (schema) => schema.notRequired(),
@@ -15,7 +15,7 @@ export const newSourceStudySchema = object({
   [FIELD_NAME.DOI]: string()
     .default("")
     .when(FIELD_NAME.PUBLICATION_STATUS, {
-      is: PUBLICATION_STATUS.PUBLISHED,
+      is: PUBLICATION_STATUS.PUBLISHED_PREPRINT,
       otherwise: (schema) => schema.notRequired(),
       then: (schema) =>
         schema
@@ -25,19 +25,19 @@ export const newSourceStudySchema = object({
           ),
     }),
   [FIELD_NAME.PUBLICATION_STATUS]: mixed<PUBLICATION_STATUS>().default(
-    PUBLICATION_STATUS.PUBLISHED
+    PUBLICATION_STATUS.PUBLISHED_PREPRINT
   ),
   [FIELD_NAME.REFERENCE_AUTHOR]: string()
     .default("")
     .when(FIELD_NAME.PUBLICATION_STATUS, {
-      is: PUBLICATION_STATUS.PUBLISHED,
+      is: PUBLICATION_STATUS.PUBLISHED_PREPRINT,
       otherwise: (schema) => schema.required("Author is required"),
       then: (schema) => schema.notRequired(),
     }),
   [FIELD_NAME.TITLE]: string()
     .default("")
     .when(FIELD_NAME.PUBLICATION_STATUS, {
-      is: PUBLICATION_STATUS.PUBLISHED,
+      is: PUBLICATION_STATUS.PUBLISHED_PREPRINT,
       otherwise: (schema) => schema.required("Title is required"),
       then: (schema) => schema.notRequired(),
     }),

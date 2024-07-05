@@ -29,7 +29,7 @@ export const GeneralInfo = ({
   formMethod,
 }: GeneralInfoProps): JSX.Element => {
   const [publicationStatus, setPublicationStatus] =
-    useState<PUBLICATION_STATUS>(PUBLICATION_STATUS.PUBLISHED);
+    useState<PUBLICATION_STATUS>(PUBLICATION_STATUS.PUBLISHED_PREPRINT);
   const {
     formStatus: { isReadOnly },
   } = formManager;
@@ -64,7 +64,7 @@ export const GeneralInfo = ({
           value={publicationStatus}
         />
         <SectionContent>
-          {publicationStatus === PUBLICATION_STATUS.PUBLISHED ? (
+          {publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT ? (
             <Controller
               control={control}
               key={FIELD_NAME.DOI}

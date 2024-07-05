@@ -51,7 +51,8 @@ export const GeneralInfo = ({
     watch,
   } = formMethod;
   const hasDoi = Boolean(watch(FIELD_NAME.DOI));
-  const isPublished = sdPublicationStatus === PUBLICATION_STATUS.PUBLISHED;
+  const isPublishedPreprint =
+    sdPublicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT;
 
   // Callback to handle tab change; clears errors, sets publication status, and updates form value.
   const onTabChange = useCallback(
@@ -75,7 +76,7 @@ export const GeneralInfo = ({
       <SectionCard>
         <Tabs
           onTabChange={onTabChange}
-          tabs={getSectionTabs(isReadOnly, isPublished, hasDoi)}
+          tabs={getSectionTabs(isReadOnly, isPublishedPreprint, hasDoi)}
           value={publicationStatus}
         />
         <SectionContent>
@@ -109,7 +110,7 @@ export const GeneralInfo = ({
                         )}
                       </Fragment>
                     }
-                    readOnly={isPublished}
+                    readOnly={isPublishedPreprint}
                   />
                 )}
               />

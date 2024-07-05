@@ -6,6 +6,6 @@ export type NewSourceStudyData = InferType<typeof newSourceStudySchema>;
 export type NewSourceStudyDataKeys = keyof NewSourceStudyData;
 
 export enum PUBLICATION_STATUS {
-  PUBLISHED = 1,
-  UNPUBLISHED = 0,
+  NO_DOI = 0,
+  PUBLISHED_PREPRINT = 1,
 }
