@@ -3,6 +3,7 @@ import withPlugins from "next-compose-plugins";
 import path from "path";
 
 const ESM_PACKAGES = [
+  "axios",
   "codsen-utils",
   "lodash-es",
   "ranges-apply",
@@ -12,6 +13,7 @@ const ESM_PACKAGES = [
   "string-collapse-leading-whitespace",
   "string-left-right",
   "string-strip-html",
+  "@tanstack/react-table",
 ];
 
 const withMDX = nextMDX({
@@ -47,14 +49,6 @@ export default withPlugins(
       config.resolve.alias["@mui/material"] = path.resolve(
         process.cwd(),
         "node_modules/@mui/material"
-      );
-      config.resolve.alias["@tanstack/react-table"] = path.resolve(
-        process.cwd(),
-        "node_modules/@tanstack/react-table"
-      );
-      config.resolve.alias["axios"] = path.resolve(
-        process.cwd(),
-        "node_modules/axios"
       );
       config.resolve.alias["react-dropzone"] = path.resolve(
         process.cwd(),
