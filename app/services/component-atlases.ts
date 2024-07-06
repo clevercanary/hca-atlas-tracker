@@ -1,4 +1,4 @@
-import { InvalidOperationError, NotFoundError } from "app/utils/api-handler";
+import pg from "pg";
 import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBComponentAtlas,
@@ -8,8 +8,9 @@ import {
   ComponentAtlasEditData,
   NewComponentAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
-import { query } from "./database";
+import { doTransaction, query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
 
 interface ComponentAtlasDbEditData {
@@ -202,10 +203,13 @@ export async function addSourceDatasetsToComponentAtlas(
       )}`
     );
 
-  await query(
-    "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
-    [sourceDatasetIds, componentAtlasId]
-  );
+  await doTransaction(async (client) => {
+    await client.query(
+      "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
+      [sourceDatasetIds, componentAtlasId]
+    );
+    await updateComponentAtlasFieldsFromDatasets([componentAtlasId], client);
+  });
 }
 
 /**
@@ -242,14 +246,73 @@ export async function deleteSourceDatasetsFromComponentAtlas(
       )}`
     );
 
+  await doTransaction(async (client) => {
+    await client.query(
+      `
+        UPDATE hat.component_atlases
+        SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
+        WHERE id=$2
+      `,
+      [sourceDatasetIds, componentAtlasId]
+    );
+    await updateComponentAtlasFieldsFromDatasets([componentAtlasId], client);
+  });
+}
+
+/**
+ * Update fields aggregated from source datasets on the specified component atlases.
+ * @param componentAtlasIds - IDs of the component atlases to update fields on.
+ * @param client - Postgres client to use.
+ */
+export async function updateComponentAtlasFieldsFromDatasets(
+  componentAtlasIds: string[],
+  client?: pg.PoolClient
+): Promise<void> {
   await query(
     `
-      UPDATE hat.component_atlases
-      SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
-      WHERE id=$2
+      UPDATE hat.component_atlases c
+      SET component_info = c.component_info || jsonb_build_object(
+        'assay', cd.assay,
+        'disease', cd.disease,
+        'cellCount', cd.cell_count,
+        'suspensionType', cd.suspension_type,
+        'tissue', cd.tissue
+      )
+      FROM (
+        SELECT
+          csub.id AS id,
+          coalesce(sum((d.sd_info->>'cellCount')::int), 0) AS cell_count,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'assay')) v(x), jsonb_array_elements(x) e) AS assay,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'disease')) v(x), jsonb_array_elements(x) e) AS disease,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'suspensionType')) v(x), jsonb_array_elements(x) e) AS suspension_type,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'tissue')) v(x), jsonb_array_elements(x) e) AS tissue
+        FROM
+          hat.component_atlases csub
+          LEFT JOIN hat.source_datasets d
+        ON d.id=ANY(csub.source_datasets)
+        GROUP BY csub.id
+      ) AS cd
+      WHERE c.id=cd.id AND c.id=ANY($1)
     `,
-    [sourceDatasetIds, componentAtlasId]
+    [componentAtlasIds],
+    client
   );
+}
+
+/**
+ * Get IDs of component atlases that have any of the specified source datasets.
+ * @param sourceDatasetIds - IDs of source datasets to get component atlas IDs for.
+ * @returns component atlas IDs.
+ */
+export async function getComponentAtlasIdsHavingSourceDatasets(
+  sourceDatasetIds: string[]
+): Promise<string[]> {
+  return (
+    await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
+      "SELECT id FROM hat.component_atlases WHERE source_datasets && $1",
+      [sourceDatasetIds]
+    )
+  ).rows.map(({ id }) => id);
 }
 
 /**

@@ -233,8 +233,9 @@ export async function deleteSourceDataset(
 
 /**
  * Create and update CELLxGENE source datasets for all source studies with CELLxGENE IDs.
+ * @returns IDs of any source datasets that were created or updated.
  */
-export async function updateCellxGeneSourceDatasets(): Promise<void> {
+export async function updateCellxGeneSourceDatasets(): Promise<string[]> {
   const existingDatasets = (
     await query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
       "SELECT * FROM hat.source_datasets WHERE NOT sd_info->'cellxgeneDatasetId' = 'null'"
@@ -254,13 +255,18 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
     )
   ).rows;
 
+  const updatedDatasetIds: string[] = [];
+
   for (const sourceStudy of sourceStudies) {
-    await updateCellxGeneSourceDatasetsForStudy(
+    const studyUpdatedDatasetIds = await updateCellxGeneSourceDatasetsForStudy(
       sourceStudy.id,
       sourceStudy.study_info.cellxgeneCollectionId,
       existingDatasetsByCxgId
     );
+    updatedDatasetIds.push(...studyUpdatedDatasetIds);
   }
+
+  return updatedDatasetIds;
 }
 
 /**
@@ -303,18 +309,21 @@ export async function updateSourceStudyCellxGeneDatasets(
  * @param cellxgeneCollectionId - ID of the source study's CELLxGENE collection, to get datasets from.
  * @param existingDatasetsByCxgId - Map of existing CELLxGENE source datasets of the source study.
  * @param client - Postgres client to use.
+ * @returns IDs of any source datasets that were created or updated.
  */
 async function updateCellxGeneSourceDatasetsForStudy(
   sourceStudyId: string,
   cellxgeneCollectionId: string,
   existingDatasetsByCxgId: Map<string, HCAAtlasTrackerDBSourceDataset>,
   client?: pg.PoolClient
-): Promise<void> {
+): Promise<string[]> {
   const collectionDatasets = getCellxGeneDatasetsByCollectionId(
     cellxgeneCollectionId
   );
 
-  if (!collectionDatasets) return;
+  if (!collectionDatasets) return [];
+
+  const updatedDatasetIds: string[] = [];
 
   for (const cxgDataset of collectionDatasets) {
     const existingDataset = existingDatasetsByCxgId.get(cxgDataset.dataset_id);
@@ -333,14 +342,20 @@ async function updateCellxGeneSourceDatasetsForStudy(
         [infoJson, existingDataset.id],
         client
       );
+      updatedDatasetIds.push(existingDataset.id);
     } else {
-      await query(
-        "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2)",
-        [infoJson, sourceStudyId],
-        client
-      );
+      const { id: newId } = (
+        await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
+          "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2) RETURNING id",
+          [infoJson, sourceStudyId],
+          client
+        )
+      ).rows[0];
+      updatedDatasetIds.push(newId);
     }
   }
+
+  return updatedDatasetIds;
 }
 
 function getCellxGeneSourceDatasetInfo(
