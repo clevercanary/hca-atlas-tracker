@@ -3,6 +3,7 @@ import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBComment,
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
@@ -22,7 +23,11 @@ import {
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
 } from "./constants";
-import { makeTestAtlasOverview, makeTestSourceStudyOverview } from "./utils";
+import {
+  aggregateSourceDatasetArrayField,
+  makeTestAtlasOverview,
+  makeTestSourceStudyOverview,
+} from "./utils";
 
 export async function resetDatabase(): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
@@ -88,16 +93,16 @@ async function initSourceStudies(client: pg.PoolClient): Promise<void> {
 async function initSourceDatasets(client: pg.PoolClient): Promise<void> {
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
     const info: HCAAtlasTrackerDBSourceDatasetInfo = {
-      assay: [],
-      cellCount: 0,
+      assay: sourceDataset.assay ?? [],
+      cellCount: sourceDataset.cellCount ?? 0,
       cellxgeneDatasetId: sourceDataset.cellxgeneDatasetId ?? null,
       cellxgeneDatasetVersion: sourceDataset.cellxgeneDatasetVersion ?? null,
       cellxgeneExplorerUrl: sourceDataset.cellxgeneDatasetId
         ? `explorer-url-${sourceDataset.cellxgeneDatasetId}`
         : null,
-      disease: [],
-      suspensionType: [],
-      tissue: [],
+      disease: sourceDataset.disease ?? [],
+      suspensionType: sourceDataset.suspensionType ?? [],
+      tissue: sourceDataset.tissue ?? [],
       title: sourceDataset.title,
     };
     await client.query(
@@ -126,13 +131,29 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
 async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
-      assay: [],
-      cellCount: 0,
+      assay: aggregateSourceDatasetArrayField(
+        componentAtlas.sourceDatasets,
+        "assay"
+      ),
+      cellCount:
+        componentAtlas.sourceDatasets?.reduce(
+          (sum, d) => sum + (d.cellCount ?? 0),
+          0
+        ) ?? 0,
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
-      disease: [],
-      suspensionType: [],
-      tissue: [],
+      disease: aggregateSourceDatasetArrayField(
+        componentAtlas.sourceDatasets,
+        "disease"
+      ),
+      suspensionType: aggregateSourceDatasetArrayField(
+        componentAtlas.sourceDatasets,
+        "suspensionType"
+      ),
+      tissue: aggregateSourceDatasetArrayField(
+        componentAtlas.sourceDatasets,
+        "tissue"
+      ),
     };
     await client.query(
       "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets, title) VALUES ($1, $2, $3, $4, $5)",
@@ -140,7 +161,7 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.atlasId,
         info,
         componentAtlas.id,
-        componentAtlas.sourceDatasets ?? [],
+        componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
         componentAtlas.title,
       ]
     );
@@ -201,6 +222,17 @@ export async function getDbUsersByEmail(): Promise<
       (u) => [u.email, u]
     )
   );
+}
+
+export async function getComponentAtlasFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBComponentAtlas | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBComponentAtlas>(
+      "SELECT * FROM hat.component_atlases WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
 }
 
 export async function getExistingSourceStudyFromDatabase(

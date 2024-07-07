@@ -34,7 +34,7 @@ export interface TestAtlas {
 export interface TestComponentAtlas {
   atlasId: string;
   id: string;
-  sourceDatasets?: string[];
+  sourceDatasets?: TestSourceDataset[];
   title: string;
 }
 
@@ -60,10 +60,15 @@ export interface TestUnpublishedSourceStudy {
 }
 
 export interface TestSourceDataset {
+  assay?: string[];
+  cellCount?: number;
   cellxgeneDatasetId?: string;
   cellxgeneDatasetVersion?: string;
+  disease?: string[];
   id: string;
   sourceStudyId: string;
+  suspensionType?: string[];
+  tissue?: string[];
   title: string;
 }
 

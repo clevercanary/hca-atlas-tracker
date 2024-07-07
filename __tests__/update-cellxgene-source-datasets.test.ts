@@ -103,7 +103,17 @@ function expectSourceDatasetToMatch(
   expect(sourceDataset.source_study_id).toEqual(
     testSourceDataset.sourceStudyId
   );
-  expect(sourceDataset.sd_info.cellCount).toEqual(0);
+  expect(sourceDataset.sd_info.assay).toEqual(testSourceDataset.assay ?? []);
+  expect(sourceDataset.sd_info.cellCount).toEqual(
+    testSourceDataset.cellCount ?? 0
+  );
+  expect(sourceDataset.sd_info.disease).toEqual(
+    testSourceDataset.disease ?? []
+  );
+  expect(sourceDataset.sd_info.suspensionType).toEqual(
+    testSourceDataset.suspensionType ?? []
+  );
+  expect(sourceDataset.sd_info.tissue).toEqual(testSourceDataset.tissue ?? []);
   expect(sourceDataset.sd_info.cellxgeneDatasetId).toEqual(
     testSourceDataset.cellxgeneDatasetId ?? null
   );

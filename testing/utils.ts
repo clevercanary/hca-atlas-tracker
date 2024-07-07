@@ -13,7 +13,12 @@ import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
 } from "./constants";
-import { TestAtlas, TestSourceStudy, TestUser } from "./entities";
+import {
+  TestAtlas,
+  TestSourceDataset,
+  TestSourceStudy,
+  TestUser,
+} from "./entities";
 
 export function makeTestUser(
   nameId: string,
@@ -130,6 +135,14 @@ export function makeTestProjectsResponse(
   };
 }
 
+export function aggregateSourceDatasetArrayField(
+  sourceDatasets: TestSourceDataset[] | undefined,
+  field: "assay" | "disease" | "suspensionType" | "tissue"
+): string[] {
+  if (!sourceDatasets) return [];
+  return Array.from(new Set(sourceDatasets.map((d) => d[field] ?? []).flat()));
+}
+
 export async function withConsoleErrorHiding<T>(
   fn: () => Promise<T>,
   hideConsoleError = true
@@ -213,4 +226,9 @@ export function expectSourceStudyToMatch(
     }
     expect(apiStudy.contactEmail).toBeNull();
   }
+}
+
+export function expectIsDefined<T>(value: T | undefined): value is T {
+  expect(value).toBeDefined();
+  return value !== undefined;
 }

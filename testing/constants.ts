@@ -1125,8 +1125,13 @@ export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
 // SOURCE DATASETS
 
 export const SOURCE_DATASET_FOO: TestSourceDataset = {
+  assay: ["assay foo"],
+  cellCount: 354,
+  disease: ["disease foo"],
   id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["suspension type foo"],
+  tissue: ["tissue foo"],
   title: "Source Dataset Foo",
 };
 
@@ -1143,8 +1148,13 @@ export const SOURCE_DATASET_BAZ: TestSourceDataset = {
 };
 
 export const SOURCE_DATASET_FOOFOO: TestSourceDataset = {
+  assay: ["assay foofoo"],
+  cellCount: 534,
+  disease: ["disease foofoo"],
   id: "5c42bc65-93ad-4191-95bc-a40d56f2bb6b",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["suspension type foofoo"],
+  tissue: ["tissue foofoo"],
   title: "Source Dataset Foofoo",
 };
 
@@ -1160,18 +1170,28 @@ export const SOURCE_DATASET_FOOBAZ: TestSourceDataset = {
   title: "Source Dataset Foobar",
 };
 export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE: TestSourceDataset = {
+  assay: ["foo"],
+  cellCount: 123,
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
   cellxgeneDatasetVersion: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
+  disease: ["bar"],
   id: "afcb9181-5a6b-45a8-89c0-1790def2d7dc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["foobarbaz"],
+  tissue: ["baz"],
   title: "Source Dataset CELLxGENE Without Update",
 };
 
 export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
+  assay: ["foobarfoo"],
+  cellCount: 4567,
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITH_UPDATE,
   cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
+  disease: ["barbarfoo"],
   id: "04ccf7fd-22eb-4236-829c-9a0058580d36",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["foobazbarfoo"],
+  tissue: ["bazbarfoo"],
   title: "Source Dataset CELLxGENE With Update",
 };
 
@@ -1338,9 +1358,9 @@ export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
   atlasId: ATLAS_DRAFT.id,
   id: "b1820416-5886-4585-b0fe-7f70487331d8",
   sourceDatasets: [
-    SOURCE_DATASET_FOOFOO.id,
-    SOURCE_DATASET_FOOBAR.id,
-    SOURCE_DATASET_FOOBAZ.id,
+    SOURCE_DATASET_FOOFOO,
+    SOURCE_DATASET_FOOBAR,
+    SOURCE_DATASET_FOOBAZ,
   ],
   title: "Component Atlas Draft Foo",
 };
@@ -1348,6 +1368,10 @@ export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
 export const COMPONENT_ATLAS_DRAFT_BAR: TestComponentAtlas = {
   atlasId: ATLAS_DRAFT.id,
   id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
+  sourceDatasets: [
+    SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+    SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+  ],
   title: "Component Atlas Draft Bar",
 };
 
