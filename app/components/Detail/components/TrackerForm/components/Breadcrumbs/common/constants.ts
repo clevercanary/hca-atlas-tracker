@@ -16,7 +16,7 @@ export const BREADCRUMB_ATLASES: Breadcrumb = {
 export const BREADCRUMB_COMPONENT_ATLAS: Breadcrumb = {
   path: ROUTE.COMPONENT_ATLAS,
   route: ROUTE.COMPONENT_ATLAS,
-  text: "Component Atlas",
+  text: "Integration Object",
 };
 
 export const BREADCRUMB_SOURCE_STUDY: Breadcrumb = {

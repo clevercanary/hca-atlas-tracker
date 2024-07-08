@@ -806,7 +806,7 @@ function getComponentAtlasTitleColumnDef(
     accessorKey: "title",
     cell: ({ row }) =>
       C.Link(buildComponentAtlasTitle(pathParameter, row.original)),
-    header: "Component atlases",
+    header: "Integration object",
   };
 }
 

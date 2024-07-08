@@ -44,7 +44,7 @@ export const AddNewComponentAtlasView = ({
             formMethod={formMethod}
           />
         }
-        title="Add Component Atlas"
+        title="Add Integration Object"
       />
     </ConditionalComponent>
   );

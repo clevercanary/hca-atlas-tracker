@@ -62,7 +62,7 @@ export const ComponentAtlasView = ({
             sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
           />
         }
-        title={componentAtlas?.title || "Component Atlas"}
+        title={componentAtlas?.title || "Integration Object"}
       />
     </ConditionalComponent>
   );

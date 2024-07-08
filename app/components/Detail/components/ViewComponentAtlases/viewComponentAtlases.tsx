@@ -40,7 +40,7 @@ export const ViewComponentAtlases = ({
               href={getRouteURL(ROUTE.CREATE_COMPONENT_ATLAS, pathParameter)}
               startIcon={<AddIcon color="inkLight" fontSize="small" />}
             >
-              Add Component Atlas
+              Add Integration Object
             </ButtonLink>
           </Toolbar>
         )}
