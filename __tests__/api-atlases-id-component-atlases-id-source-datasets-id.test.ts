@@ -32,7 +32,11 @@ import {
   TestSourceDataset,
   TestUser,
 } from "../testing/entities";
-import { expectIsDefined, withConsoleErrorHiding } from "../testing/utils";
+import {
+  expectComponentAtlasDatasetsToHaveDifference,
+  expectIsDefined,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -459,44 +463,6 @@ async function doSourceDatasetRequest(
     hideConsoleError
   );
   return res;
-}
-
-function expectComponentAtlasDatasetsToHaveDifference(
-  componentAtlasWithout: HCAAtlasTrackerDBComponentAtlas,
-  componentAtlasWith: HCAAtlasTrackerDBComponentAtlas,
-  sourceDatasets: TestSourceDataset[]
-): void {
-  const infoWithout = componentAtlasWithout.component_info;
-  const infoWith = componentAtlasWith.component_info;
-  const expectedCellCountDiff = sourceDatasets.reduce(
-    (sum, d) => sum + (d.cellCount ?? 0),
-    0
-  );
-  expect(infoWith.cellCount - infoWithout.cellCount).toEqual(
-    expectedCellCountDiff
-  );
-  expectArrayToContainItems(infoWith.assay, infoWithout.assay);
-  expectArrayToContainItems(infoWith.disease, infoWithout.disease);
-  expectArrayToContainItems(
-    infoWith.suspensionType,
-    infoWithout.suspensionType
-  );
-  expectArrayToContainItems(infoWith.tissue, infoWithout.tissue);
-  for (const sourceDataset of sourceDatasets) {
-    expectArrayToContainItems(infoWith.assay, sourceDataset.assay ?? []);
-    expectArrayToContainItems(infoWith.disease, sourceDataset.disease ?? []);
-    expectArrayToContainItems(
-      infoWith.suspensionType,
-      sourceDataset.suspensionType ?? []
-    );
-    expectArrayToContainItems(infoWith.tissue, sourceDataset.tissue ?? []);
-  }
-}
-
-function expectArrayToContainItems(array: unknown[], items: unknown[]): void {
-  for (const item of items) {
-    expect(array).toContain(item);
-  }
 }
 
 async function expectComponentAtlasToBeUnchanged(
