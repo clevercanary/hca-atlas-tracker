@@ -707,9 +707,9 @@ export function getAtlasSourceStudiesTableColumns(
     getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
     getSourceStudySourceDatasetCountColumnDef(pathParameter),
-    getSourceStudyInHCADataRepositoryColumnDef(),
     getSourceStudyInCELLxGENEColumnDef(),
     getSourceStudyInCapColumnDef(),
+    getSourceStudyInHCADataRepositoryColumnDef(),
   ];
 }
 
