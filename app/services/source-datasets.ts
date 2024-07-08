@@ -14,7 +14,11 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
-import { getComponentAtlasNotFoundError } from "./component-atlases";
+import {
+  getComponentAtlasIdsHavingSourceDatasets,
+  getComponentAtlasNotFoundError,
+  updateComponentAtlasFieldsFromDatasets,
+} from "./component-atlases";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -233,9 +237,8 @@ export async function deleteSourceDataset(
 
 /**
  * Create and update CELLxGENE source datasets for all source studies with CELLxGENE IDs.
- * @returns IDs of any source datasets that were created or updated.
  */
-export async function updateCellxGeneSourceDatasets(): Promise<string[]> {
+export async function updateCellxGeneSourceDatasets(): Promise<void> {
   const existingDatasets = (
     await query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
       "SELECT * FROM hat.source_datasets WHERE NOT sd_info->'cellxgeneDatasetId' = 'null'"
@@ -266,7 +269,9 @@ export async function updateCellxGeneSourceDatasets(): Promise<string[]> {
     updatedDatasetIds.push(...studyUpdatedDatasetIds);
   }
 
-  return updatedDatasetIds;
+  await updateComponentAtlasFieldsFromDatasets(
+    await getComponentAtlasIdsHavingSourceDatasets(updatedDatasetIds)
+  );
 }
 
 /**
