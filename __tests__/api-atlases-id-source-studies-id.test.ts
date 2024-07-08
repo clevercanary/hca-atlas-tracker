@@ -1,12 +1,16 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  DOI_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { SourceStudyEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  SourceStudyEditData,
+  UnpublishedSourceStudyEditData,
+} from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
@@ -29,10 +33,12 @@ import {
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
+  SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -84,6 +90,15 @@ const SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT = {
 const SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT = {
   capId: null,
   doi: DOI_WITH_NEW_SOURCE_DATASETS,
+};
+
+const SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT = {
+  capId: null,
+  cellxgeneCollectionId: null,
+  contactEmail: "barfoo@example.com",
+  hcaProjectId: null,
+  referenceAuthor: "Barfoo",
+  title: "Unpublished With HCA Edit",
 };
 
 beforeAll(async () => {
@@ -255,13 +270,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when study is PUT requested from public atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("returns error 403 when study is PUT requested from public atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
       (
         await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
-          USER_INTEGRATION_LEAD_PUBLIC,
+          USER_INTEGRATION_LEAD_DRAFT,
           METHOD.PUT,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
         )
@@ -395,24 +410,10 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
-    expect(studyFromDb.doi).toEqual(null);
 
-    const { unpublishedInfo } = studyFromDb.study_info;
-    expect(unpublishedInfo?.contactEmail).toEqual(
-      SOURCE_STUDY_DRAFT_OK_EDIT.contactEmail
-    );
-    expect(unpublishedInfo?.referenceAuthor).toEqual(
-      SOURCE_STUDY_DRAFT_OK_EDIT.referenceAuthor
-    );
-    expect(unpublishedInfo?.title).toEqual(SOURCE_STUDY_DRAFT_OK_EDIT.title);
-    expect(studyFromDb.study_info.capId).toEqual(
-      SOURCE_STUDY_DRAFT_OK_EDIT.capId
-    );
-    expect(studyFromDb.study_info.cellxgeneCollectionId).toEqual(
-      SOURCE_STUDY_DRAFT_OK_EDIT.cellxgeneCollectionId
-    );
-    expect(studyFromDb.study_info.hcaProjectId).toEqual(
-      SOURCE_STUDY_DRAFT_OK_EDIT.hcaProjectId
+    expectDbSourceStudyToMatchUnpublishedEdit(
+      studyFromDb,
+      SOURCE_STUDY_DRAFT_OK_EDIT
     );
 
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
@@ -437,6 +438,28 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     );
 
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
+  });
+
+  it("updates and returns study with unpublished data when PUT requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const res = await doStudyRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      METHOD.PUT,
+      SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedStudy = res._getJSONData();
+    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    expect(studyFromDb).toBeDefined();
+    if (!studyFromDb) return;
+
+    expectDbSourceStudyToMatchUnpublishedEdit(
+      studyFromDb,
+      SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT
+    );
+
+    await restoreDbStudy(SOURCE_STUDY_UNPUBLISHED_WITH_HCA);
   });
 
   it("updates CELLxGENE datasets when source study is PUT requested", async () => {
@@ -751,6 +774,25 @@ async function restoreDbStudy(study: TestSourceStudy): Promise<void> {
       study.id,
     ]
   );
+}
+
+function expectDbSourceStudyToMatchUnpublishedEdit(
+  studyFromDb: HCAAtlasTrackerDBSourceStudy,
+  editData: UnpublishedSourceStudyEditData
+): void {
+  expect(studyFromDb.doi).toEqual(null);
+  expect(studyFromDb.study_info.publication).toEqual(null);
+  expect(studyFromDb.study_info.doiStatus).toEqual(DOI_STATUS.NA);
+
+  const { unpublishedInfo } = studyFromDb.study_info;
+  expect(unpublishedInfo?.contactEmail).toEqual(editData.contactEmail);
+  expect(unpublishedInfo?.referenceAuthor).toEqual(editData.referenceAuthor);
+  expect(unpublishedInfo?.title).toEqual(editData.title);
+  expect(studyFromDb.study_info.capId).toEqual(editData.capId);
+  expect(studyFromDb.study_info.cellxgeneCollectionId).toEqual(
+    editData.cellxgeneCollectionId
+  );
+  expect(studyFromDb.study_info.hcaProjectId).toEqual(editData.hcaProjectId);
 }
 
 async function expectStudyToBeUnchanged(
