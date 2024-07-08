@@ -43,7 +43,10 @@ export const Tabs = ({
           value: ROUTE.SOURCE_STUDIES,
         },
         {
-          label: getTabLabelWithCount("Component Atlases", componentAtlasCount),
+          label: getTabLabelWithCount(
+            "Integration Objects",
+            componentAtlasCount
+          ),
           value: ROUTE.COMPONENT_ATLASES,
         },
       ]}

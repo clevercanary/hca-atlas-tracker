@@ -55,7 +55,7 @@ export async function getComponentAtlas(
 
 /**
  * Create a new component atlas.
- * @param atlasId - ID of the the associated atlas.
+ * @param atlasId - ID of the associated atlas.
  * @param inputData - Values for the new component atlas.
  * @returns database model of new component atlas.
  */
