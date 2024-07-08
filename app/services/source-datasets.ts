@@ -15,9 +15,9 @@ import {
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
-  getComponentAtlasIdsHavingSourceDatasets,
   getComponentAtlasNotFoundError,
-  updateComponentAtlasFieldsFromDatasets,
+  removeSourceDatasetsFromAllComponentAtlases,
+  updateFieldsForComponentAtlasesHavingSourceDatasets,
 } from "./component-atlases";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
@@ -189,6 +189,10 @@ export async function updateSourceDataset(
     );
     if (updateResult.rows.length === 0)
       throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
+    await updateFieldsForComponentAtlasesHavingSourceDatasets(
+      [sourceDatasetId],
+      client
+    );
     return await getSourceDataset(
       atlasId,
       sourceStudyId,
@@ -227,12 +231,39 @@ export async function deleteSourceDataset(
 ): Promise<void> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete");
-  const queryResult = await query(
-    "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
-    [sourceDatasetId, sourceStudyId]
+  await doTransaction(async (client) => {
+    const queryResult = await client.query(
+      "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
+      [sourceDatasetId, sourceStudyId]
+    );
+    if (queryResult.rowCount === 0)
+      throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
+    await removeSourceDatasetsFromAllComponentAtlases(
+      [sourceDatasetId],
+      client
+    );
+  });
+}
+
+/**
+ * Delete all source datasets of the specified source study.
+ * @param sourceStudyId - Source study ID.
+ * @param client - Postgres client to use.
+ */
+export async function deleteSourceDatasetsOfSourceStudy(
+  sourceStudyId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBSourceDataset, "id">
+  >("DELETE FROM hat.source_datasets WHERE source_study_id=$1 RETURNING id", [
+    sourceStudyId,
+  ]);
+  const deletedSourceDatasetIds = queryResult.rows.map(({ id }) => id);
+  await removeSourceDatasetsFromAllComponentAtlases(
+    deletedSourceDatasetIds,
+    client
   );
-  if (queryResult.rowCount === 0)
-    throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
 }
 
 /**
@@ -269,9 +300,7 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
     updatedDatasetIds.push(...studyUpdatedDatasetIds);
   }
 
-  await updateComponentAtlasFieldsFromDatasets(
-    await getComponentAtlasIdsHavingSourceDatasets(updatedDatasetIds)
-  );
+  await updateFieldsForComponentAtlasesHavingSourceDatasets(updatedDatasetIds);
 }
 
 /**
@@ -300,10 +329,15 @@ export async function updateSourceStudyCellxGeneDatasets(
     ])
   );
 
-  await updateCellxGeneSourceDatasetsForStudy(
+  const updatedDatasetIds = await updateCellxGeneSourceDatasetsForStudy(
     sourceStudy.id,
     sourceStudy.study_info.cellxgeneCollectionId,
     existingDatasetsByCxgId,
+    client
+  );
+
+  await updateFieldsForComponentAtlasesHavingSourceDatasets(
+    updatedDatasetIds,
     client
   );
 }
