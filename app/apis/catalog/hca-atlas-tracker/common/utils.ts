@@ -82,11 +82,17 @@ export function dbComponentAtlasToApiComponentAtlas(
   dbComponentAtlas: HCAAtlasTrackerDBComponentAtlas
 ): HCAAtlasTrackerComponentAtlas {
   return {
+    assay: dbComponentAtlas.component_info.assay,
     atlasId: dbComponentAtlas.atlas_id,
+    cellCount: dbComponentAtlas.component_info.cellCount,
     cellxgeneDatasetId: dbComponentAtlas.component_info.cellxgeneDatasetId,
     cellxgeneDatasetVersion:
       dbComponentAtlas.component_info.cellxgeneDatasetVersion,
+    disease: dbComponentAtlas.component_info.disease,
     id: dbComponentAtlas.id,
+    sourceDatasetCount: dbComponentAtlas.source_datasets.length,
+    suspensionType: dbComponentAtlas.component_info.suspensionType,
+    tissue: dbComponentAtlas.component_info.tissue,
     title: dbComponentAtlas.title,
   };
 }

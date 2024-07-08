@@ -23,13 +23,20 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  getComponentAtlasFromDatabase,
+  resetDatabase,
+} from "../testing/db-utils";
 import {
   TestComponentAtlas,
   TestSourceDataset,
   TestUser,
 } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import {
+  expectComponentAtlasDatasetsToHaveDifference,
+  expectIsDefined,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -230,7 +237,11 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
     expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("adds source dataset when POST requested", async () => {
+  it("adds source dataset when POST requested and updates related fields", async () => {
+    const componentAtlasBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
       COMPONENT_ATLAS_DRAFT_FOO.id
     );
@@ -243,17 +254,38 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
       METHOD.POST
     );
     expect(res._getStatusCode()).toEqual(201);
+
+    const componentAtlasAfter = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+
     expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
       SOURCE_DATASET_FOOFOO,
       SOURCE_DATASET_FOOBAR,
       SOURCE_DATASET_FOOBAZ,
       SOURCE_DATASET_FOO,
     ]);
+
+    if (
+      expectIsDefined(componentAtlasBefore) &&
+      expectIsDefined(componentAtlasAfter)
+    ) {
+      expectComponentAtlasDatasetsToHaveDifference(
+        componentAtlasBefore,
+        componentAtlasAfter,
+        [SOURCE_DATASET_FOO]
+      );
+    }
+
     expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
 
-    await query("UPDATE hat.component_atlases SET source_datasets=$1", [
-      sourceDatasetsBefore,
-    ]);
+    await query(
+      "UPDATE hat.component_atlases SET source_datasets=$1, component_info=$2",
+      [
+        sourceDatasetsBefore,
+        JSON.stringify(componentAtlasBefore?.component_info),
+      ]
+    );
   });
 
   it("returns error 401 when DELETE requested from draft atlas by logged out user", async () => {
@@ -364,7 +396,11 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
     expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("deletes source dataset", async () => {
+  it("deletes source dataset and updates related fields", async () => {
+    const componentAtlasBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
       COMPONENT_ATLAS_DRAFT_FOO.id
     );
@@ -380,10 +416,27 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(200);
+
+    const componentAtlasAfter = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+
     expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
       SOURCE_DATASET_FOOBAR,
       SOURCE_DATASET_FOOBAZ,
     ]);
+
+    if (
+      expectIsDefined(componentAtlasBefore) &&
+      expectIsDefined(componentAtlasAfter)
+    ) {
+      expectComponentAtlasDatasetsToHaveDifference(
+        componentAtlasAfter,
+        componentAtlasBefore,
+        [SOURCE_DATASET_FOOFOO]
+      );
+    }
+
     expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
 
     await query("UPDATE hat.component_atlases SET source_datasets=$1", [
@@ -461,17 +514,6 @@ function expectSourceDatasetsToMatch(
           : sourceStudy.unpublishedInfo?.title ?? null
       );
   }
-}
-
-async function getComponentAtlasFromDatabase(
-  id: string
-): Promise<HCAAtlasTrackerDBComponentAtlas | undefined> {
-  return (
-    await query<HCAAtlasTrackerDBComponentAtlas>(
-      "SELECT * FROM hat.component_atlases WHERE id=$1",
-      [id]
-    )
-  ).rows[0];
 }
 
 async function getComponentAtlasSourceDatasets(id: string): Promise<string[]> {

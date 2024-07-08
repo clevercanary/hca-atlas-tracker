@@ -13,9 +13,11 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-studies/
 import {
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  COMPONENT_ATLAS_DRAFT_FOO,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_FOOFOO,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
@@ -24,9 +26,15 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  getExistingComponentAtlasFromDatabase,
+  resetDatabase,
+} from "../testing/db-utils";
 import { TestSourceDataset, TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import {
+  makeTestSourceDatasetInfo,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -444,12 +452,19 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
   });
 
   it("deletes source dataset", async () => {
+    const caDraftFooBefore = await getExistingComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+    expect(caDraftFooBefore.source_datasets).toContain(
+      SOURCE_DATASET_FOOFOO.id
+    );
+
     expect(
       (
         await doSourceDatasetRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          SOURCE_DATASET_FOO.id,
+          SOURCE_DATASET_FOOFOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE
         )
@@ -457,9 +472,16 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     ).toEqual(200);
     const sourceDatasetQueryResult = await query(
       "SELECT * FROM hat.source_datasets WHERE id=$1",
-      [SOURCE_DATASET_FOO.id]
+      [SOURCE_DATASET_FOOFOO.id]
     );
     expect(sourceDatasetQueryResult.rows[0]).toBeUndefined();
+
+    const caDraftFooAfter = await getExistingComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+    expect(caDraftFooAfter.source_datasets).not.toContain(
+      SOURCE_DATASET_FOOFOO.id
+    );
 
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
 
@@ -467,13 +489,8 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
       [
         SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-        JSON.stringify({
-          cellCount: 0,
-          cellxgeneDatasetId: null,
-          cellxgeneDatasetVersion: null,
-          title: SOURCE_DATASET_FOO.title,
-        }),
-        SOURCE_DATASET_FOO.id,
+        JSON.stringify(makeTestSourceDatasetInfo(SOURCE_DATASET_FOOFOO)),
+        SOURCE_DATASET_FOOFOO.id,
       ]
     );
   });

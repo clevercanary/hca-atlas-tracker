@@ -1092,6 +1092,18 @@ export const SOURCE_STUDY_UNPUBLISHED_WITH_HCA: TestUnpublishedSourceStudy = {
   },
 };
 
+export const SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "3e57fb9a-b2c0-4f5d-9109-62fe18c16891",
+    unpublishedInfo: {
+      contactEmail: "bazfoobar@example.com",
+      referenceAuthor: "Baz Foo Bar",
+      title: "Source Study With Other Source Datasets",
+    },
+  };
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1118,6 +1130,7 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLISHED_WITH_REMOVED_CELLXGENE_ID,
   SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
+  SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -1125,8 +1138,13 @@ export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
 // SOURCE DATASETS
 
 export const SOURCE_DATASET_FOO: TestSourceDataset = {
+  assay: ["assay foo"],
+  cellCount: 354,
+  disease: ["disease foo"],
   id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["suspension type foo"],
+  tissue: ["tissue foo"],
   title: "Source Dataset Foo",
 };
 
@@ -1143,8 +1161,13 @@ export const SOURCE_DATASET_BAZ: TestSourceDataset = {
 };
 
 export const SOURCE_DATASET_FOOFOO: TestSourceDataset = {
+  assay: ["assay foofoo"],
+  cellCount: 534,
+  disease: ["disease foofoo"],
   id: "5c42bc65-93ad-4191-95bc-a40d56f2bb6b",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["suspension type foofoo"],
+  tissue: ["tissue foofoo"],
   title: "Source Dataset Foofoo",
 };
 
@@ -1159,19 +1182,30 @@ export const SOURCE_DATASET_FOOBAZ: TestSourceDataset = {
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Foobar",
 };
+
 export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE: TestSourceDataset = {
+  assay: ["foo"],
+  cellCount: 123,
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
   cellxgeneDatasetVersion: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
+  disease: ["bar"],
   id: "afcb9181-5a6b-45a8-89c0-1790def2d7dc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["foobarbaz"],
+  tissue: ["baz"],
   title: "Source Dataset CELLxGENE Without Update",
 };
 
 export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
+  assay: ["foobarfoo"],
+  cellCount: 4567,
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITH_UPDATE,
   cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
+  disease: ["barbarfoo"],
   id: "04ccf7fd-22eb-4236-829c-9a0058580d36",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  suspensionType: ["foobazbarfoo"],
+  tissue: ["bazbarfoo"],
   title: "Source Dataset CELLxGENE With Update",
 };
 
@@ -1187,6 +1221,28 @@ export const SOURCE_DATASET_DRAFT_OK_BAR: TestSourceDataset = {
   title: "Source Dataset Draft OK Bar",
 };
 
+export const SOURCE_DATASET_OTHER_FOO: TestSourceDataset = {
+  assay: ["assay other foo"],
+  cellCount: 23424,
+  disease: ["disease other foo"],
+  id: "d85cf1fd-3b70-4f6a-812c-583941362117",
+  sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
+  suspensionType: ["suspension type other foo"],
+  tissue: ["tissue other foo"],
+  title: "Source Dataset Other Foo",
+};
+
+export const SOURCE_DATASET_OTHER_BAR: TestSourceDataset = {
+  assay: ["assay other bar"],
+  cellCount: 23424,
+  disease: ["disease other bar"],
+  id: "e3878dde-ffe5-4193-9b7f-5a395541ba25",
+  sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
+  suspensionType: ["suspension type other bar"],
+  tissue: ["tissue other bar"],
+  title: "Source Dataset Other Bar",
+};
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_FOO,
@@ -1199,6 +1255,8 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_DRAFT_OK_FOO,
   SOURCE_DATASET_DRAFT_OK_BAR,
+  SOURCE_DATASET_OTHER_FOO,
+  SOURCE_DATASET_OTHER_BAR,
 ];
 
 // ATLASES
@@ -1269,6 +1327,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_STUDY_PUBLISHED_WITH_REMOVED_CELLXGENE_ID.id,
     SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS.id,
     SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id,
+    SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
   ],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
@@ -1338,9 +1397,9 @@ export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
   atlasId: ATLAS_DRAFT.id,
   id: "b1820416-5886-4585-b0fe-7f70487331d8",
   sourceDatasets: [
-    SOURCE_DATASET_FOOFOO.id,
-    SOURCE_DATASET_FOOBAR.id,
-    SOURCE_DATASET_FOOBAZ.id,
+    SOURCE_DATASET_FOOFOO,
+    SOURCE_DATASET_FOOBAR,
+    SOURCE_DATASET_FOOBAZ,
   ],
   title: "Component Atlas Draft Foo",
 };
@@ -1348,13 +1407,30 @@ export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
 export const COMPONENT_ATLAS_DRAFT_BAR: TestComponentAtlas = {
   atlasId: ATLAS_DRAFT.id,
   id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
+  sourceDatasets: [
+    SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+    SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+  ],
   title: "Component Atlas Draft Bar",
+};
+
+export const COMPONENT_ATLAS_MISC_FOO: TestComponentAtlas = {
+  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+  id: "b95614cc-5356-4f47-b3a2-da05d23e86ce",
+  sourceDatasets: [
+    SOURCE_DATASET_FOO,
+    SOURCE_DATASET_FOOFOO,
+    SOURCE_DATASET_OTHER_FOO,
+    SOURCE_DATASET_OTHER_BAR,
+  ],
+  title: "Component Atlas Misc Foo",
 };
 
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
+  COMPONENT_ATLAS_MISC_FOO,
 ];
 
 // USERS

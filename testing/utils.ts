@@ -3,7 +3,9 @@ import {
   DOI_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlasOverview,
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   HCAAtlasTrackerSourceStudy,
@@ -13,7 +15,12 @@ import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
 } from "./constants";
-import { TestAtlas, TestSourceStudy, TestUser } from "./entities";
+import {
+  TestAtlas,
+  TestSourceDataset,
+  TestSourceStudy,
+  TestUser,
+} from "./entities";
 
 export function makeTestUser(
   nameId: string,
@@ -82,6 +89,24 @@ export function makeTestSourceStudyOverview(
       };
 }
 
+export function makeTestSourceDatasetInfo(
+  sourceDataset: TestSourceDataset
+): HCAAtlasTrackerDBSourceDatasetInfo {
+  return {
+    assay: sourceDataset.assay ?? [],
+    cellCount: sourceDataset.cellCount ?? 0,
+    cellxgeneDatasetId: sourceDataset.cellxgeneDatasetId ?? null,
+    cellxgeneDatasetVersion: sourceDataset.cellxgeneDatasetVersion ?? null,
+    cellxgeneExplorerUrl: sourceDataset.cellxgeneDatasetId
+      ? `explorer-url-${sourceDataset.cellxgeneDatasetId}`
+      : null,
+    disease: sourceDataset.disease ?? [],
+    suspensionType: sourceDataset.suspensionType ?? [],
+    tissue: sourceDataset.tissue ?? [],
+    title: sourceDataset.title,
+  };
+}
+
 export function makeTestProjectsResponse(
   id: string,
   doi: string,
@@ -128,6 +153,14 @@ export function makeTestProjectsResponse(
     samples: [],
     specimens: [],
   };
+}
+
+export function aggregateSourceDatasetArrayField(
+  sourceDatasets: TestSourceDataset[] | undefined,
+  field: "assay" | "disease" | "suspensionType" | "tissue"
+): string[] {
+  if (!sourceDatasets) return [];
+  return Array.from(new Set(sourceDatasets.map((d) => d[field] ?? []).flat()));
 }
 
 export async function withConsoleErrorHiding<T>(
@@ -213,4 +246,47 @@ export function expectSourceStudyToMatch(
     }
     expect(apiStudy.contactEmail).toBeNull();
   }
+}
+
+export function expectComponentAtlasDatasetsToHaveDifference(
+  componentAtlasWithout: HCAAtlasTrackerDBComponentAtlas,
+  componentAtlasWith: HCAAtlasTrackerDBComponentAtlas,
+  sourceDatasets: TestSourceDataset[]
+): void {
+  const infoWithout = componentAtlasWithout.component_info;
+  const infoWith = componentAtlasWith.component_info;
+  const expectedCellCountDiff = sourceDatasets.reduce(
+    (sum, d) => sum + (d.cellCount ?? 0),
+    0
+  );
+  expect(infoWith.cellCount - infoWithout.cellCount).toEqual(
+    expectedCellCountDiff
+  );
+  expectArrayToContainItems(infoWith.assay, infoWithout.assay);
+  expectArrayToContainItems(infoWith.disease, infoWithout.disease);
+  expectArrayToContainItems(
+    infoWith.suspensionType,
+    infoWithout.suspensionType
+  );
+  expectArrayToContainItems(infoWith.tissue, infoWithout.tissue);
+  for (const sourceDataset of sourceDatasets) {
+    expectArrayToContainItems(infoWith.assay, sourceDataset.assay ?? []);
+    expectArrayToContainItems(infoWith.disease, sourceDataset.disease ?? []);
+    expectArrayToContainItems(
+      infoWith.suspensionType,
+      sourceDataset.suspensionType ?? []
+    );
+    expectArrayToContainItems(infoWith.tissue, sourceDataset.tissue ?? []);
+  }
+}
+
+function expectArrayToContainItems(array: unknown[], items: unknown[]): void {
+  for (const item of items) {
+    expect(array).toContain(item);
+  }
+}
+
+export function expectIsDefined<T>(value: T | undefined): value is T {
+  expect(value).toBeDefined();
+  return value !== undefined;
 }

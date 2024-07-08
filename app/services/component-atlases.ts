@@ -1,4 +1,4 @@
-import { InvalidOperationError, NotFoundError } from "app/utils/api-handler";
+import pg from "pg";
 import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBComponentAtlas,
@@ -8,11 +8,20 @@ import {
   ComponentAtlasEditData,
   NewComponentAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
-import { query } from "./database";
+import { doTransaction, query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
 
-interface ComponentAtlasInputDbData {
+interface ComponentAtlasDbEditData {
+  componentInfoEdit: Pick<
+    HCAAtlasTrackerDBComponentAtlasInfo,
+    "cellxgeneDatasetId" | "cellxgeneDatasetVersion"
+  >;
+  title: HCAAtlasTrackerDBComponentAtlas["title"];
+}
+
+interface NewComponentAtlasDbData {
   componentInfo: HCAAtlasTrackerDBComponentAtlasInfo;
   title: HCAAtlasTrackerDBComponentAtlas["title"];
 }
@@ -64,7 +73,7 @@ export async function createComponentAtlas(
   inputData: NewComponentAtlasData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   await confirmAtlasExists(atlasId);
-  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+  const { componentInfo, title } = await newComponentAtlasDataToDbData(
     inputData
   );
   const queryResult = await withTitleConflictHandling(
@@ -89,14 +98,14 @@ export async function updateComponentAtlas(
   componentAtlasId: string,
   inputData: ComponentAtlasEditData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const { componentInfo, title } = await componentAtlasInputDataToDbData(
+  const { componentInfoEdit, title } = await componentAtlasEditDataToDbData(
     inputData
   );
   const queryResult = await withTitleConflictHandling(
     async () =>
       await query<HCAAtlasTrackerDBComponentAtlas>(
-        "UPDATE hat.component_atlases SET component_info=$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
-        [JSON.stringify(componentInfo), title, componentAtlasId, atlasId]
+        "UPDATE hat.component_atlases SET component_info=component_info||$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
+        [JSON.stringify(componentInfoEdit), title, componentAtlasId, atlasId]
       )
   );
   if (queryResult.rows.length === 0)
@@ -105,15 +114,37 @@ export async function updateComponentAtlas(
 }
 
 /**
- * Derive component atlas information from input values.
+ * Derive new component atlas information from input values.
  * @param inputData - Values to derive component atlas from.
- * @returns database model of values needed to define a component atlas.
+ * @returns database model of values needed to create a component atlas.
  */
-async function componentAtlasInputDataToDbData(
-  inputData: NewComponentAtlasData | ComponentAtlasEditData
-): Promise<ComponentAtlasInputDbData> {
+async function newComponentAtlasDataToDbData(
+  inputData: NewComponentAtlasData
+): Promise<NewComponentAtlasDbData> {
   return {
     componentInfo: {
+      assay: [],
+      cellCount: 0,
+      cellxgeneDatasetId: null,
+      cellxgeneDatasetVersion: null,
+      disease: [],
+      suspensionType: [],
+      tissue: [],
+    },
+    title: inputData.title,
+  };
+}
+
+/**
+ * Derive updated component atlas information from input values.
+ * @param inputData - Values to derive component atlas from.
+ * @returns database model of values needed to update a component atlas.
+ */
+async function componentAtlasEditDataToDbData(
+  inputData: ComponentAtlasEditData
+): Promise<ComponentAtlasDbEditData> {
+  return {
+    componentInfoEdit: {
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
     },
@@ -172,10 +203,13 @@ export async function addSourceDatasetsToComponentAtlas(
       )}`
     );
 
-  await query(
-    "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
-    [sourceDatasetIds, componentAtlasId]
-  );
+  await doTransaction(async (client) => {
+    await client.query(
+      "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
+      [sourceDatasetIds, componentAtlasId]
+    );
+    await updateComponentAtlasFieldsFromDatasets([componentAtlasId], client);
+  });
 }
 
 /**
@@ -212,14 +246,120 @@ export async function deleteSourceDatasetsFromComponentAtlas(
       )}`
     );
 
-  await query(
+  await doTransaction(async (client) => {
+    await client.query(
+      `
+        UPDATE hat.component_atlases
+        SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
+        WHERE id=$2
+      `,
+      [sourceDatasetIds, componentAtlasId]
+    );
+    await updateComponentAtlasFieldsFromDatasets([componentAtlasId], client);
+  });
+}
+
+/**
+ * Remove the given source datasets from all component atlases that have any of them, and updated the aggregated properties of those component atlases.
+ * @param sourceDatasetIds - IDs of source datasets to remove.
+ * @param client - Postgres client to use.
+ */
+export async function removeSourceDatasetsFromAllComponentAtlases(
+  sourceDatasetIds: string[],
+  client: pg.PoolClient
+): Promise<void> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "id">
+  >(
     `
       UPDATE hat.component_atlases
       SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
-      WHERE id=$2
+      WHERE source_datasets && $1
+      RETURNING id
     `,
-    [sourceDatasetIds, componentAtlasId]
+    [sourceDatasetIds]
   );
+  const updatedComponentAtlasIds = queryResult.rows.map(({ id }) => id);
+  await updateComponentAtlasFieldsFromDatasets(
+    updatedComponentAtlasIds,
+    client
+  );
+}
+
+/**
+ * Update fields aggregated from source datasets on component atlases that have any of the specified source datasets.
+ * @param sourceDatasetIds - IDs of source datasets to update the component atlases of.
+ * @param client - Postgres client to use.
+ */
+export async function updateFieldsForComponentAtlasesHavingSourceDatasets(
+  sourceDatasetIds: string[],
+  client?: pg.PoolClient
+): Promise<void> {
+  await updateComponentAtlasFieldsFromDatasets(
+    await getComponentAtlasIdsHavingSourceDatasets(sourceDatasetIds, client),
+    client
+  );
+}
+
+/**
+ * Update fields aggregated from source datasets on the specified component atlases.
+ * @param componentAtlasIds - IDs of the component atlases to update fields on.
+ * @param client - Postgres client to use.
+ */
+export async function updateComponentAtlasFieldsFromDatasets(
+  componentAtlasIds: string[],
+  client?: pg.PoolClient
+): Promise<void> {
+  if (componentAtlasIds.length === 0) return;
+  await query(
+    `
+      UPDATE hat.component_atlases c
+      SET component_info = c.component_info || jsonb_build_object(
+        'assay', cd.assay,
+        'disease', cd.disease,
+        'cellCount', cd.cell_count,
+        'suspensionType', cd.suspension_type,
+        'tissue', cd.tissue
+      )
+      FROM (
+        SELECT
+          csub.id AS id,
+          coalesce(sum((d.sd_info->>'cellCount')::int), 0) AS cell_count,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'assay')) v(x), jsonb_array_elements(x) e) AS assay,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'disease')) v(x), jsonb_array_elements(x) e) AS disease,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'suspensionType')) v(x), jsonb_array_elements(x) e) AS suspension_type,
+          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'tissue')) v(x), jsonb_array_elements(x) e) AS tissue
+        FROM
+          hat.component_atlases csub
+          LEFT JOIN hat.source_datasets d
+        ON d.id=ANY(csub.source_datasets)
+        GROUP BY csub.id
+      ) AS cd
+      WHERE c.id=cd.id AND c.id=ANY($1)
+    `,
+    [componentAtlasIds],
+    client
+  );
+}
+
+/**
+ * Get IDs of component atlases that have any of the specified source datasets.
+ * @param sourceDatasetIds - IDs of source datasets to get component atlas IDs for.
+ * @param client - Postgres client to use.
+ * @returns component atlas IDs.
+ */
+export async function getComponentAtlasIdsHavingSourceDatasets(
+  sourceDatasetIds: string[],
+  client?: pg.PoolClient
+): Promise<string[]> {
+  if (sourceDatasetIds.length === 0) return [];
+  return (
+    await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
+      "SELECT id FROM hat.component_atlases WHERE source_datasets && $1",
+      [sourceDatasetIds],
+      client
+    )
+  ).rows.map(({ id }) => id);
 }
 
 /**

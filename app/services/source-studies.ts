@@ -25,7 +25,10 @@ import { normalizeDoi } from "../utils/doi";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import { getPoolClient, query } from "./database";
 import { getProjectIdByDoi } from "./hca-projects";
-import { updateSourceStudyCellxGeneDatasets } from "./source-datasets";
+import {
+  deleteSourceDatasetsOfSourceStudy,
+  updateSourceStudyCellxGeneDatasets,
+} from "./source-datasets";
 import { updateSourceStudyValidations } from "./validations";
 
 export async function getAtlasSourceStudies(
@@ -335,10 +338,7 @@ export async function deleteAtlasSourceStudy(
     if (sourceStudyHasAtlases) {
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
-      await client.query(
-        "DELETE FROM hat.source_datasets WHERE source_study_id=$1",
-        [sourceStudyId]
-      );
+      await deleteSourceDatasetsOfSourceStudy(sourceStudyId, client);
       await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
         sourceStudyId,
       ]);

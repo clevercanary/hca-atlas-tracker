@@ -13,17 +13,23 @@ import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceS
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_MISC_SOURCE_STUDIES,
   CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
   CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
   CELLXGENE_ID_NORMAL,
+  COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_MISC_FOO,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_OTHER_BAR,
+  SOURCE_DATASET_OTHER_FOO,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
+  SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
@@ -32,6 +38,7 @@ import {
 } from "../testing/constants";
 import {
   getCellxGeneSourceDatasetFromDatabase,
+  getExistingComponentAtlasFromDatabase,
   getSourceStudyFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
@@ -43,6 +50,7 @@ import {
   TestUser,
 } from "../testing/entities";
 import {
+  expectComponentAtlasDatasetsToHaveDifference,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
   withConsoleErrorHiding,
@@ -678,6 +686,41 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(studyFromDb).toBeUndefined();
+  });
+
+  it("updates component atlas that had relevent source datasets when source study is deleted", async () => {
+    const caMiscFooBefore = await getExistingComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_MISC_FOO.id
+    );
+    const caDraftFooBefore = await getExistingComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+
+    await expect(
+      (
+        await doStudyRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+
+    const caMiscFooAfter = await getExistingComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_MISC_FOO.id
+    );
+    const caDraftFooAfter = await getExistingComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_FOO.id
+    );
+
+    expectComponentAtlasDatasetsToHaveDifference(
+      caMiscFooAfter,
+      caMiscFooBefore,
+      [SOURCE_DATASET_OTHER_FOO, SOURCE_DATASET_OTHER_BAR]
+    );
+
+    expect(caDraftFooAfter).toEqual(caDraftFooBefore);
   });
 });
 

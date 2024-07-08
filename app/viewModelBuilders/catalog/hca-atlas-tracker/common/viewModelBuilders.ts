@@ -55,6 +55,20 @@ import {
 } from "./utils";
 
 /**
+ * Build props for the assay cell component.
+ * @param entity - Component atlas or source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildAssay = (
+  entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.ASSAY),
+    values: entity.assay,
+  };
+};
+
+/**
  * Build props for the atlas name cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -78,6 +92,19 @@ export const buildBioNetwork = (
 ): React.ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: entity.bioNetwork,
+  };
+};
+
+/**
+ * Build props for the cell count cell component.
+ * @param entity - Component atlas or source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildCellCount = (
+  entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: entity.cellCount.toLocaleString(),
   };
 };
 
@@ -126,6 +153,20 @@ export const buildCreatedAt = (
 ): React.ComponentProps<typeof C.BasicCell> => {
   return {
     value: getDateFromIsoString(task.createdAt),
+  };
+};
+
+/**
+ * Build props for the disease cell component.
+ * @param entity - Component atlas or source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildDisease = (
+  entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.PinnedNTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
+    values: partitionMetadataValues(entity.disease, [DISEASE.NORMAL]),
   };
 };
 
@@ -251,6 +292,19 @@ export const buildResolvedAt = (
 // };
 
 /**
+ * Build props for the source dataset count cell component.
+ * @param componentAtlas - Component atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildSourceDatasetCount = (
+  componentAtlas: HCAAtlasTrackerComponentAtlas
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: componentAtlas.sourceDatasetCount.toLocaleString(),
+  };
+};
+
+/**
  * Build props for the source study publication Link component.
  * @param sourceStudy - Source study entity.
  * @returns Props to be used for the Link component.
@@ -323,6 +377,20 @@ export const buildStatus = (
   return {
     color,
     label: atlas.status,
+  };
+};
+
+/**
+ * Build props for the suspension type cell component.
+ * @param entity - Component atlas or source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildSuspensionType = (
+  entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.SUSPENSION_TYPE),
+    values: entity.suspensionType,
   };
 };
 
@@ -551,6 +619,20 @@ export const buildTaskWaves = (
 };
 
 /**
+ * Build props for the tissue cell component.
+ * @param entity - Component atlas or source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildTissue = (
+  entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
+    values: entity.tissue,
+  };
+};
+
+/**
  * Build props for the BasicCell component.
  * @param task - Task entity.
  * @returns Props to be used for the BasicCell component.
@@ -584,7 +666,15 @@ export const buildWave = (
 export function getAtlasComponentAtlasesTableColumns(
   pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerComponentAtlas>[] {
-  return [getComponentAtlasTitleColumnDef(pathParameter)];
+  return [
+    getComponentAtlasTitleColumnDef(pathParameter),
+    getComponentAtlasSourceDatasetCountColumnDef(),
+    getComponentAtlasAssayColumnDef(),
+    getComponentAtlasSuspensionTypeColumnDef(),
+    getComponentAtlasTissueColumnDef(),
+    getComponentAtlasDiseaseColumnDef(),
+    getCellCountColumnDef(),
+  ];
 }
 
 /**
@@ -623,7 +713,7 @@ export function getAtlasSourceDatasetsTableColumns(
     getSourceDatasetSuspensionTypeColumnDef(),
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
-    getSourceDatasetCellCountColumnDef(),
+    getCellCountColumnDef(),
   ];
 }
 
@@ -634,8 +724,7 @@ export function getAtlasSourceDatasetsTableColumns(
 function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "cellCount",
-    cell: ({ row }) =>
-      C.BasicCell({ value: row.original.cellCount.toLocaleString() }),
+    cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
     meta: { enableSortingInteraction: false },
   };
@@ -738,8 +827,7 @@ export function getBioNetworkName(name: string): string {
 function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "cellCount",
-    cell: ({ row }) =>
-      C.BasicCell({ value: row.original.cellCount.toLocaleString() }),
+    cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell count",
     meta: { enableSortingInteraction: false },
   };
@@ -791,6 +879,66 @@ function getComponentAtlasSourceDatasetUnlinkColumnDef(
       }),
     header: "",
     meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns component atlas assay column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasAssayColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: "assay",
+    cell: ({ row }) => C.NTagCell(buildAssay(row.original)),
+    header: "Assay",
+  };
+}
+
+/**
+ * Returns component atlas disease column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: "disease",
+    cell: ({ row }) => C.PinnedNTagCell(buildDisease(row.original)),
+    header: "Disease",
+  };
+}
+
+/**
+ * Returns component atlas suspension type column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSuspensionTypeColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: "suspensionType",
+    cell: ({ row }) => C.NTagCell(buildSuspensionType(row.original)),
+    header: "Suspension Type",
+  };
+}
+
+/**
+ * Returns component atlas source dataset count column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: "sourceDatasetCount",
+    cell: ({ row }) => C.BasicCell(buildSourceDatasetCount(row.original)),
+    header: "Source Datasets",
+  };
+}
+
+/**
+ * Returns component atlas tissue column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasTissueColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+  return {
+    accessorKey: "tissue",
+    cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
+    header: "Tissue",
   };
 }
 
@@ -866,25 +1014,22 @@ function getSourceDatasetAssayColumnDef(
 ): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "assay",
-    cell: ({ row }) =>
-      C.NTagCell({
-        label: getPluralizedMetadataLabel(METADATA_KEY.ASSAY),
-        values: row.original.assay,
-      }),
+    cell: ({ row }) => C.NTagCell(buildAssay(row.original)),
     header: "Assay",
     meta: { enableSortingInteraction },
   };
 }
 
 /**
- * Returns source dataset cell count column def.
+ * Returns source dataset or component atlas cell count column def.
  * @returns Column def.
  */
-function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getCellCountColumnDef<
+  T extends HCAAtlasTrackerSourceDataset | HCAAtlasTrackerComponentAtlas
+>(): ColumnDef<T> {
   return {
     accessorKey: "cellCount",
-    cell: ({ row }) =>
-      C.BasicCell({ value: row.original.cellCount.toLocaleString() }),
+    cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
   };
 }
@@ -899,11 +1044,7 @@ function getSourceDatasetDiseaseColumnDef(
 ): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "disease",
-    cell: ({ row }) =>
-      C.PinnedNTagCell({
-        label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
-        values: partitionMetadataValues(row.original.disease, [DISEASE.NORMAL]),
-      }),
+    cell: ({ row }) => C.PinnedNTagCell(buildDisease(row.original)),
     header: "Disease",
     meta: { enableSortingInteraction },
   };
@@ -950,11 +1091,7 @@ function getSourceDatasetSuspensionTypeColumnDef(
 ): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "suspensionType",
-    cell: ({ row }) =>
-      C.NTagCell({
-        label: getPluralizedMetadataLabel(METADATA_KEY.SUSPENSION_TYPE),
-        values: row.original.suspensionType,
-      }),
+    cell: ({ row }) => C.NTagCell(buildSuspensionType(row.original)),
     header: "Suspension Type",
     meta: { enableSortingInteraction },
   };
@@ -970,11 +1107,7 @@ function getSourceDatasetTissueColumnDef(
 ): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "tissue",
-    cell: ({ row }) =>
-      C.NTagCell({
-        label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
-        values: row.original.tissue,
-      }),
+    cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
     meta: { enableSortingInteraction },
   };
