@@ -5,6 +5,7 @@ import {
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   HCAAtlasTrackerSourceStudy,
@@ -86,6 +87,24 @@ export function makeTestSourceStudyOverview(
         publication: study.publication,
         unpublishedInfo: null,
       };
+}
+
+export function makeTestSourceDatasetInfo(
+  sourceDataset: TestSourceDataset
+): HCAAtlasTrackerDBSourceDatasetInfo {
+  return {
+    assay: sourceDataset.assay ?? [],
+    cellCount: sourceDataset.cellCount ?? 0,
+    cellxgeneDatasetId: sourceDataset.cellxgeneDatasetId ?? null,
+    cellxgeneDatasetVersion: sourceDataset.cellxgeneDatasetVersion ?? null,
+    cellxgeneExplorerUrl: sourceDataset.cellxgeneDatasetId
+      ? `explorer-url-${sourceDataset.cellxgeneDatasetId}`
+      : null,
+    disease: sourceDataset.disease ?? [],
+    suspensionType: sourceDataset.suspensionType ?? [],
+    tissue: sourceDataset.tissue ?? [],
+    title: sourceDataset.title,
+  };
 }
 
 export function makeTestProjectsResponse(

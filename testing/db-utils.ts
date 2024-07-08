@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
@@ -26,6 +25,7 @@ import {
 import {
   aggregateSourceDatasetArrayField,
   makeTestAtlasOverview,
+  makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
 } from "./utils";
 
@@ -92,19 +92,7 @@ async function initSourceStudies(client: pg.PoolClient): Promise<void> {
 
 async function initSourceDatasets(client: pg.PoolClient): Promise<void> {
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
-    const info: HCAAtlasTrackerDBSourceDatasetInfo = {
-      assay: sourceDataset.assay ?? [],
-      cellCount: sourceDataset.cellCount ?? 0,
-      cellxgeneDatasetId: sourceDataset.cellxgeneDatasetId ?? null,
-      cellxgeneDatasetVersion: sourceDataset.cellxgeneDatasetVersion ?? null,
-      cellxgeneExplorerUrl: sourceDataset.cellxgeneDatasetId
-        ? `explorer-url-${sourceDataset.cellxgeneDatasetId}`
-        : null,
-      disease: sourceDataset.disease ?? [],
-      suspensionType: sourceDataset.suspensionType ?? [],
-      tissue: sourceDataset.tissue ?? [],
-      title: sourceDataset.title,
-    };
+    const info = makeTestSourceDatasetInfo(sourceDataset);
     await client.query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
       [sourceDataset.sourceStudyId, info, sourceDataset.id]
