@@ -4,6 +4,9 @@ import {
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR,
+  SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+  SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
 } from "testing/constants";
 import { HCAAtlasTrackerDBSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -27,12 +30,16 @@ afterAll(() => {
 });
 
 describe("updateCellxGeneSourceDatasets", () => {
-  it("updates and adds source datasets as appropriate", async () => {
+  it("updates, adds, and deletes source datasets as appropriate", async () => {
     const sourceDatasetsBefore = await getStudySourceDatasets(
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id
     );
+    const pwciSourceDatasetsBefore = await getStudySourceDatasets(
+      SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id
+    );
 
     expect(sourceDatasetsBefore).toHaveLength(8);
+    expect(pwciSourceDatasetsBefore).toHaveLength(2);
 
     expectSourceDatasetToMatch(
       findSourceDatasetById(
@@ -55,13 +62,32 @@ describe("updateCellxGeneSourceDatasets", () => {
       )
     ).toBeUndefined();
 
+    expectSourceDatasetToMatch(
+      findSourceDatasetById(
+        pwciSourceDatasetsBefore,
+        SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.id
+      ),
+      SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO
+    );
+    expectSourceDatasetToMatch(
+      findSourceDatasetById(
+        pwciSourceDatasetsBefore,
+        SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR.id
+      ),
+      SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR
+    );
+
     await updateCellxGeneSourceDatasets();
 
     const sourceDatasetsAfter = await getStudySourceDatasets(
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id
     );
+    const pwciSourceDatasetsAfter = await getStudySourceDatasets(
+      SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id
+    );
 
     expect(sourceDatasetsAfter).toHaveLength(9);
+    expect(pwciSourceDatasetsAfter).toHaveLength(1);
 
     expectSourceDatasetToMatch(
       findSourceDatasetById(
@@ -85,6 +111,20 @@ describe("updateCellxGeneSourceDatasets", () => {
       ),
       CELLXGENE_DATASET_NEW,
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id
+    );
+
+    expect(
+      findSourceDatasetById(
+        pwciSourceDatasetsAfter,
+        SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.id
+      )
+    ).toBeUndefined();
+    expectSourceDatasetToMatch(
+      findSourceDatasetById(
+        pwciSourceDatasetsAfter,
+        SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR.id
+      ),
+      SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR
     );
 
     expectSourceDatasetToMatch(

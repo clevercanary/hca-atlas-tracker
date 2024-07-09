@@ -90,12 +90,16 @@ async function initSourceStudies(client: pg.PoolClient): Promise<void> {
   }
 }
 
-async function initSourceDatasets(client: pg.PoolClient): Promise<void> {
-  for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
+export async function initSourceDatasets(
+  client?: pg.PoolClient,
+  testSourceDatasets = INITIAL_TEST_SOURCE_DATASETS
+): Promise<void> {
+  for (const sourceDataset of testSourceDatasets) {
     const info = makeTestSourceDatasetInfo(sourceDataset);
-    await client.query(
+    await query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
-      [sourceDataset.sourceStudyId, info, sourceDataset.id]
+      [sourceDataset.sourceStudyId, info, sourceDataset.id],
+      client
     );
   }
 }

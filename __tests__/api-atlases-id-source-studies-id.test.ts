@@ -18,6 +18,9 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+  CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+  CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
   CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
   CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
   CELLXGENE_ID_NORMAL,
@@ -26,13 +29,18 @@ import {
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
+  SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_OTHER_BAR,
   SOURCE_DATASET_OTHER_FOO,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
+  SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
@@ -48,6 +56,7 @@ import {
   getSourceStudyFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
+  initSourceDatasets,
   resetDatabase,
 } from "../testing/db-utils";
 import {
@@ -99,6 +108,15 @@ const SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT = {
   hcaProjectId: null,
   referenceAuthor: "Barfoo",
   title: "Unpublished With HCA Edit",
+};
+
+const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT = {
+  capId: null,
+  cellxgeneCollectionId: null,
+  contactEmail: null,
+  hcaProjectId: null,
+  referenceAuthor: "Foo",
+  title: "Unpublished With CELLxGENE",
 };
 
 beforeAll(async () => {
@@ -522,6 +540,80 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
 
     await query("DELETE FROM hat.source_datasets WHERE id=ANY($1)", [
       [fooAfter?.id, barAfter?.id],
+    ]);
+    await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
+  });
+
+  it("deletes CELLxGENE datasets when source study is PUT requested with CELLxGENE ID removed", async () => {
+    const studyDatasetsBefore = await getStudySourceDatasets(
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
+    );
+
+    expect(studyDatasetsBefore).toHaveLength(3);
+
+    const fooBefore = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.dataset_id
+    );
+    const barBefore = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR.dataset_id
+    );
+
+    expect(fooBefore).toEqual(
+      studyDatasetsBefore.find(
+        (d) =>
+          d.sd_info.cellxgeneDatasetId ===
+          CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.dataset_id
+      )
+    );
+    expect(barBefore).toEqual(
+      studyDatasetsBefore.find(
+        (d) =>
+          d.sd_info.cellxgeneDatasetId ===
+          CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR.dataset_id
+      )
+    );
+
+    const res = await doStudyRequest(
+      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+
+    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+
+    expect(updatedStudy.sourceDatasetCount).toEqual(1);
+
+    const studyDatasetsAfter = await getStudySourceDatasets(
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
+    );
+
+    expect(studyDatasetsAfter).toHaveLength(1);
+    expect(studyDatasetsAfter[0].id).toEqual(
+      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ.id
+    );
+
+    const fooAfter = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.dataset_id
+    );
+    const barAfter = await getCellxGeneSourceDatasetFromDatabase(
+      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR.dataset_id
+    );
+
+    expect(fooAfter).toBeNull();
+    expect(barAfter).toBeNull();
+
+    expect(
+      await getSourceDatasetFromDatabase(
+        SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.id
+      )
+    ).toBeTruthy();
+
+    await initSourceDatasets(undefined, [
+      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
     ]);
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });

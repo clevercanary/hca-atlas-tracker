@@ -501,6 +501,9 @@ export const CELLXGENE_ID_PUBLISHED_WITH_CHANGING_IDS =
 export const CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS =
   "cellxgene-collection-with-new-source-datasets";
 
+export const CELLXGENE_ID_PUBLISHED_WITHOUT_CELLXGENE_ID =
+  "cellxgene-collection-published-without-cellxgene-id";
+
 export const TEST_CELLXGENE_COLLECTION_NORMAL: CellxGeneCollection = {
   collection_id: CELLXGENE_ID_NORMAL,
   doi: DOI_NORMAL,
@@ -625,6 +628,24 @@ export const CELLXGENE_ID_DATASET_WITH_UPDATE = "cellxgene-dataset-with-update";
 
 export const CELLXGENE_ID_DATASET_NEW = "cellxgene-dataset-new";
 
+export const CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO =
+  "cellxgene-dataset-unpublished-with-cellxgene-foo";
+
+export const CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO =
+  "cellxgene-version-dataset-unpublished-with-cellxgene-foo";
+
+export const CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR =
+  "cellxgene-dataset-unpublished-with-cellxgene-bar";
+
+export const CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR =
+  "cellxgene-version-dataset-unpublished-with-cellxgene-bar";
+
+export const CELLXGENE_ID_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO =
+  "cellxgene-dataset-published-without-cellxgene-id-foo";
+
+export const CELLXGENE_VERSION_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO =
+  "cellxgene-version-dataset-published-without-cellxgene-id-foo";
+
 export const CELLXGENE_DATASET_WITHOUT_UPDATE: CellxGeneDataset = {
   assay: [{ label: "foo" }],
   cell_count: 123,
@@ -692,6 +713,54 @@ export const CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR: CellxGeneDataset =
     title: "Dataset With New Source Datasets Bar",
   };
 
+export const CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO: CellxGeneDataset =
+  {
+    assay: [{ label: "assay unpublished with cellxgene foo" }],
+    cell_count: 5464,
+    collection_id: CELLXGENE_ID_UNPUBLISHED_WITH_CELLXGENE,
+    dataset_id: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+    dataset_version_id:
+      CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+    disease: [{ label: "disease unpublished with cellxgene foo" }],
+    explorer_url:
+      "explorer-url-cellxgene-dataset-unpublished-with-cellxgene-foo",
+    suspension_type: ["suspension type unpublished with cellxgene foo"],
+    tissue: [{ label: "tissue unpublished with cellxgene foo" }],
+    title: "Source Dataset Unpublished With CELLxGENE Foo",
+  };
+
+export const CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR: CellxGeneDataset =
+  {
+    assay: [{ label: "assay unpublished with cellxgene bar" }],
+    cell_count: 3493,
+    collection_id: CELLXGENE_ID_UNPUBLISHED_WITH_CELLXGENE,
+    dataset_id: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+    dataset_version_id:
+      CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+    disease: [{ label: "disease unpublished with cellxgene bar" }],
+    explorer_url:
+      "explorer-url-cellxgene-dataset-unpublished-with-cellxgene-bar",
+    suspension_type: ["suspension type unpublished with cellxgene bar"],
+    tissue: [{ label: "tissue unpublished with cellxgene bar" }],
+    title: "Source Dataset Unpublished With CELLxGENE Bar",
+  };
+
+export const CELLXGENE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO: CellxGeneDataset =
+  {
+    assay: [{ label: "assay published without cellxgene id foo" }],
+    cell_count: 34538,
+    collection_id: CELLXGENE_ID_PUBLISHED_WITHOUT_CELLXGENE_ID,
+    dataset_id: CELLXGENE_ID_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+    dataset_version_id:
+      CELLXGENE_VERSION_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+    disease: [{ label: "disease published without cellxgene id foo" }],
+    explorer_url:
+      "exporer-url-cellxgene-dataset-published-without-cellxgene-id-foo",
+    suspension_type: ["suspension type published without cellxgene id foo"],
+    tissue: [{ label: "tissue published without cellxgene id foo" }],
+    title: "Source Dataset Published Without CELLxGENE ID Foo",
+  };
+
 export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
   [
     CELLXGENE_ID_WITH_SOURCE_DATASETS,
@@ -707,6 +776,17 @@ export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
       CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
       CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
     ],
+  ],
+  [
+    CELLXGENE_ID_UNPUBLISHED_WITH_CELLXGENE,
+    [
+      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+    ],
+  ],
+  [
+    CELLXGENE_ID_PUBLISHED_WITHOUT_CELLXGENE_ID,
+    [CELLXGENE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO],
   ],
 ]);
 
@@ -781,7 +861,7 @@ export const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE: TestUnpublishedSourceStudy
     unpublishedInfo: {
       contactEmail: null,
       referenceAuthor: "Foo",
-      title: "Unpublished With HCA",
+      title: "Unpublished With CELLxGENE",
     },
   };
 
@@ -1104,6 +1184,15 @@ export const SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS: TestUnpublishedSourceStudy
     },
   };
 
+export const SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID: TestPublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    doi: "10.123/published-without-cellxgene-id",
+    doiStatus: DOI_STATUS.DOI_NOT_ON_CROSSREF,
+    id: "d593d79b-ce3e-42fd-a5e0-c8052f3acabd",
+    publication: null,
+  };
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1131,6 +1220,7 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
+  SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -1243,6 +1333,75 @@ export const SOURCE_DATASET_OTHER_BAR: TestSourceDataset = {
   title: "Source Dataset Other Bar",
 };
 
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO: TestSourceDataset =
+  {
+    assay: ["assay unpublished with cellxgene foo"],
+    cellCount: 5464,
+    cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+    cellxgeneDatasetVersion:
+      CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+    disease: ["disease unpublished with cellxgene foo"],
+    id: "1d872ee4-cfb3-4893-a275-fe0f105697c4",
+    sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+    suspensionType: ["suspension type unpublished with cellxgene foo"],
+    tissue: ["tissue unpublished with cellxgene foo"],
+    title: "Source Dataset Unpublished With CELLxGENE Foo",
+  };
+
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR: TestSourceDataset =
+  {
+    assay: ["assay unpublished with cellxgene bar"],
+    cellCount: 3493,
+    cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+    cellxgeneDatasetVersion:
+      CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+    disease: ["disease unpublished with cellxgene bar"],
+    id: "30bd81d7-1db7-4f28-b6d3-6afa73066f99",
+    sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+    suspensionType: ["suspension type unpublished with cellxgene bar"],
+    tissue: ["tissue unpublished with cellxgene bar"],
+    title: "Source Dataset Unpublished With CELLxGENE Bar",
+  };
+
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ: TestSourceDataset =
+  {
+    assay: ["assay unpublished with cellxgene baz"],
+    cellCount: 64345,
+    disease: ["disease unpublished with cellxgene baz"],
+    id: "4b7acc76-89f2-4839-a15c-fc79183c1ed7",
+    sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+    suspensionType: ["suspension type unpublished with cellxgene baz"],
+    tissue: ["tissue unpublished with cellxgene baz"],
+    title: "Source Dataset Unpublished With CELLxGENE Baz",
+  };
+
+export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO: TestSourceDataset =
+  {
+    assay: ["assay published without cellxgene id foo"],
+    cellCount: 34538,
+    cellxgeneDatasetId: CELLXGENE_ID_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+    cellxgeneDatasetVersion:
+      CELLXGENE_VERSION_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+    disease: ["disease published without cellxgene id foo"],
+    id: "68dbf3ec-45a5-43a4-b806-97923de1df2c",
+    sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
+    suspensionType: ["suspension type published without cellxgene id foo"],
+    tissue: ["tissue published without cellxgene id foo"],
+    title: "Source Dataset Published Without CELLxGENE ID Foo",
+  };
+
+export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR: TestSourceDataset =
+  {
+    assay: ["assay published without cellxgene id bar"],
+    cellCount: 2348,
+    disease: ["disease published without cellxgene id bar"],
+    id: "2d4f2d93-7c2c-4c1f-94af-566f3d3ed8ec",
+    sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
+    suspensionType: ["suspension type published without cellxgene id bar"],
+    tissue: ["tissue published without cellxgene id bar"],
+    title: "Source Dataset Published Without CELLxGENE ID Bar",
+  };
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_FOO,
@@ -1257,6 +1416,11 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_DRAFT_OK_BAR,
   SOURCE_DATASET_OTHER_FOO,
   SOURCE_DATASET_OTHER_BAR,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
+  SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+  SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR,
 ];
 
 // ATLASES
@@ -1328,6 +1492,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_STUDY_PUBLISHED_WITH_CHANGING_IDS.id,
     SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id,
     SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
+    SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
   ],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
