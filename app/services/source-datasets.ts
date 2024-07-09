@@ -17,10 +17,17 @@ import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
   getComponentAtlasNotFoundError,
   removeSourceDatasetsFromAllComponentAtlases,
+  updateComponentAtlasesForUpdatedSourceDatasets,
   updateFieldsForComponentAtlasesHavingSourceDatasets,
 } from "./component-atlases";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
+
+export interface UpdatedSourceDatasetsInfo {
+  created: string[];
+  deleted: string[];
+  modified: string[];
+}
 
 /**
  * Get all source datasets of the given source study.
@@ -270,37 +277,50 @@ export async function deleteSourceDatasetsOfSourceStudy(
  * Create and update CELLxGENE source datasets for all source studies with CELLxGENE IDs.
  */
 export async function updateCellxGeneSourceDatasets(): Promise<void> {
-  const existingDatasets = (
-    await query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
-      "SELECT * FROM hat.source_datasets WHERE NOT sd_info->'cellxgeneDatasetId' = 'null'"
-    )
-  ).rows;
+  await doTransaction(async (client) => {
+    const existingDatasets = (
+      await client.query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
+        "SELECT * FROM hat.source_datasets WHERE NOT sd_info->'cellxgeneDatasetId' = 'null'"
+      )
+    ).rows;
 
-  const existingDatasetsByCxgId = new Map(
-    existingDatasets.map((dataset) => [
-      dataset.sd_info.cellxgeneDatasetId,
-      dataset,
-    ])
-  );
-
-  const sourceStudies = (
-    await query<{ id: string; study_info: { cellxgeneCollectionId: string } }>(
-      "SELECT id, study_info FROM hat.source_studies WHERE NOT study_info->'cellxgeneCollectionId' = 'null'"
-    )
-  ).rows;
-
-  const updatedDatasetIds: string[] = [];
-
-  for (const sourceStudy of sourceStudies) {
-    const studyUpdatedDatasetIds = await updateCellxGeneSourceDatasetsForStudy(
-      sourceStudy.id,
-      sourceStudy.study_info.cellxgeneCollectionId,
-      existingDatasetsByCxgId
+    const existingDatasetsByCxgId = new Map(
+      existingDatasets.map((dataset) => [
+        dataset.sd_info.cellxgeneDatasetId,
+        dataset,
+      ])
     );
-    updatedDatasetIds.push(...studyUpdatedDatasetIds);
-  }
 
-  await updateFieldsForComponentAtlasesHavingSourceDatasets(updatedDatasetIds);
+    const sourceStudies = (
+      await client.query<
+        Pick<HCAAtlasTrackerDBSourceStudy, "id" | "study_info">
+      >("SELECT id, study_info FROM hat.source_studies")
+    ).rows;
+
+    const updatedDatasetsInfo: UpdatedSourceDatasetsInfo = {
+      created: [],
+      deleted: [],
+      modified: [],
+    };
+
+    for (const sourceStudy of sourceStudies) {
+      const studyUpdatedDatasetsInfo =
+        await updateCellxGeneSourceDatasetsForStudy(
+          sourceStudy.id,
+          sourceStudy.study_info.cellxgeneCollectionId,
+          client,
+          existingDatasetsByCxgId
+        );
+      updatedDatasetsInfo.created.push(...studyUpdatedDatasetsInfo.created);
+      updatedDatasetsInfo.deleted.push(...studyUpdatedDatasetsInfo.deleted);
+      updatedDatasetsInfo.modified.push(...studyUpdatedDatasetsInfo.modified);
+    }
+
+    await updateComponentAtlasesForUpdatedSourceDatasets(
+      updatedDatasetsInfo,
+      client
+    );
+  });
 }
 
 /**
@@ -310,34 +330,16 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
  */
 export async function updateSourceStudyCellxGeneDatasets(
   sourceStudy: HCAAtlasTrackerDBSourceStudy,
-  client?: pg.PoolClient
+  client: pg.PoolClient
 ): Promise<void> {
-  if (!sourceStudy.study_info.cellxgeneCollectionId) return;
-
-  const existingDatasets = (
-    await query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
-      "SELECT * FROM hat.source_datasets WHERE source_study_id=$1 AND NOT sd_info->'cellxgeneDatasetId' = 'null'",
-      [sourceStudy.id],
-      client
-    )
-  ).rows;
-
-  const existingDatasetsByCxgId = new Map(
-    existingDatasets.map((dataset) => [
-      dataset.sd_info.cellxgeneDatasetId,
-      dataset,
-    ])
-  );
-
-  const updatedDatasetIds = await updateCellxGeneSourceDatasetsForStudy(
+  const updatedDatasetsInfo = await updateCellxGeneSourceDatasetsForStudy(
     sourceStudy.id,
     sourceStudy.study_info.cellxgeneCollectionId,
-    existingDatasetsByCxgId,
     client
   );
 
-  await updateFieldsForComponentAtlasesHavingSourceDatasets(
-    updatedDatasetIds,
+  await updateComponentAtlasesForUpdatedSourceDatasets(
+    updatedDatasetsInfo,
     client
   );
 }
@@ -346,23 +348,57 @@ export async function updateSourceStudyCellxGeneDatasets(
  * Create missing source datasets and update outdated source datasets for a given source study from a given CELLxGENE collection.
  * @param sourceStudyId - ID of the source study to update source datasets for.
  * @param cellxgeneCollectionId - ID of the source study's CELLxGENE collection, to get datasets from.
- * @param existingDatasetsByCxgId - Map of existing CELLxGENE source datasets of the source study.
  * @param client - Postgres client to use.
+ * @param existingDatasetsByCxgId - Map of existing CELLxGENE source datasets of the source study.
  * @returns IDs of any source datasets that were created or updated.
  */
 async function updateCellxGeneSourceDatasetsForStudy(
   sourceStudyId: string,
-  cellxgeneCollectionId: string,
-  existingDatasetsByCxgId: Map<string, HCAAtlasTrackerDBSourceDataset>,
-  client?: pg.PoolClient
-): Promise<string[]> {
+  cellxgeneCollectionId: string | null,
+  client?: pg.PoolClient,
+  existingDatasetsByCxgId?: Map<string, HCAAtlasTrackerDBSourceDataset>
+): Promise<UpdatedSourceDatasetsInfo> {
+  if (!cellxgeneCollectionId) {
+    const queryResult = await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
+      "DELETE FROM hat.source_datasets WHERE source_study_id=$1 AND NOT sd_info->'cellxgeneDatasetId' = 'null' RETURNING id",
+      [sourceStudyId],
+      client
+    );
+    return {
+      created: [],
+      deleted: queryResult.rows.map(({ id }) => id),
+      modified: [],
+    };
+  }
+
+  if (!existingDatasetsByCxgId) {
+    const existingDatasets = (
+      await query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
+        "SELECT * FROM hat.source_datasets WHERE source_study_id=$1 AND NOT sd_info->'cellxgeneDatasetId' = 'null'",
+        [sourceStudyId],
+        client
+      )
+    ).rows;
+
+    existingDatasetsByCxgId = new Map(
+      existingDatasets.map((dataset) => [
+        dataset.sd_info.cellxgeneDatasetId,
+        dataset,
+      ])
+    );
+  }
+
+  const updatedDatasetsInfo: UpdatedSourceDatasetsInfo = {
+    created: [],
+    deleted: [],
+    modified: [],
+  };
+
   const collectionDatasets = getCellxGeneDatasetsByCollectionId(
     cellxgeneCollectionId
   );
 
-  if (!collectionDatasets) return [];
-
-  const updatedDatasetIds: string[] = [];
+  if (!collectionDatasets) return updatedDatasetsInfo;
 
   for (const cxgDataset of collectionDatasets) {
     const existingDataset = existingDatasetsByCxgId.get(cxgDataset.dataset_id);
@@ -381,7 +417,7 @@ async function updateCellxGeneSourceDatasetsForStudy(
         [infoJson, existingDataset.id],
         client
       );
-      updatedDatasetIds.push(existingDataset.id);
+      updatedDatasetsInfo.modified.push(existingDataset.id);
     } else {
       const { id: newId } = (
         await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
@@ -390,11 +426,11 @@ async function updateCellxGeneSourceDatasetsForStudy(
           client
         )
       ).rows[0];
-      updatedDatasetIds.push(newId);
+      updatedDatasetsInfo.created.push(newId);
     }
   }
 
-  return updatedDatasetIds;
+  return updatedDatasetsInfo;
 }
 
 function getCellxGeneSourceDatasetInfo(

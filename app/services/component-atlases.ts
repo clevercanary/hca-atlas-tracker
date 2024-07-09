@@ -11,7 +11,10 @@ import {
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doTransaction, query } from "./database";
-import { confirmSourceDatasetsExist } from "./source-datasets";
+import {
+  confirmSourceDatasetsExist,
+  UpdatedSourceDatasetsInfo,
+} from "./source-datasets";
 
 interface ComponentAtlasDbEditData {
   componentInfoEdit: Pick<
@@ -260,14 +263,41 @@ export async function deleteSourceDatasetsFromComponentAtlas(
 }
 
 /**
- * Remove the given source datasets from all component atlases that have any of them, and updated the aggregated properties of those component atlases.
+ * Update component atlases' aggregate fields and source dataset lists based on lists of created, modified, and deleted source datasets.
+ * @param updatedDatasetsInfo - Object containing lists of IDs of source datasets to update component atlases of.
+ * @param client - Postgres client to use.
+ */
+export async function updateComponentAtlasesForUpdatedSourceDatasets(
+  updatedDatasetsInfo: UpdatedSourceDatasetsInfo,
+  client: pg.PoolClient
+): Promise<void> {
+  const componentAtlasIds = await getComponentAtlasIdsHavingSourceDatasets(
+    updatedDatasetsInfo.created.concat(
+      updatedDatasetsInfo.modified,
+      updatedDatasetsInfo.deleted
+    ),
+    client
+  );
+  await removeSourceDatasetsFromAllComponentAtlases(
+    updatedDatasetsInfo.deleted,
+    client,
+    false
+  );
+  await updateComponentAtlasFieldsFromDatasets(componentAtlasIds, client);
+}
+
+/**
+ * Remove the given source datasets from all component atlases that have any of them, and, unless otherwise specified, update the aggregated properties of those component atlases.
  * @param sourceDatasetIds - IDs of source datasets to remove.
  * @param client - Postgres client to use.
+ * @param updateAggregateProperties - Whether to update the component atlas properties aggregated from source datasets (default true).
  */
 export async function removeSourceDatasetsFromAllComponentAtlases(
   sourceDatasetIds: string[],
-  client: pg.PoolClient
+  client: pg.PoolClient,
+  updateAggregateProperties = true
 ): Promise<void> {
+  if (sourceDatasetIds.length === 0) return;
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "id">
   >(
@@ -279,11 +309,13 @@ export async function removeSourceDatasetsFromAllComponentAtlases(
     `,
     [sourceDatasetIds]
   );
-  const updatedComponentAtlasIds = queryResult.rows.map(({ id }) => id);
-  await updateComponentAtlasFieldsFromDatasets(
-    updatedComponentAtlasIds,
-    client
-  );
+  if (updateAggregateProperties) {
+    const updatedComponentAtlasIds = queryResult.rows.map(({ id }) => id);
+    await updateComponentAtlasFieldsFromDatasets(
+      updatedComponentAtlasIds,
+      client
+    );
+  }
 }
 
 /**
