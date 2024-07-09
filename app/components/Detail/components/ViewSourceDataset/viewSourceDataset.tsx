@@ -13,11 +13,13 @@ import { ButtonTextPrimary, Dialog } from "./viewSourceDataset.styles";
 const SCHEMA = sourceDatasetEditSchema;
 
 interface ViewSourceDatasetProps {
+  canEdit: boolean;
   pathParameter: PathParameter;
   sourceDataset: HCAAtlasTrackerSourceDataset;
 }
 
 export const ViewSourceDataset = ({
+  canEdit,
   pathParameter,
   sourceDataset,
 }: ViewSourceDatasetProps): JSX.Element => {
@@ -33,7 +35,7 @@ export const ViewSourceDataset = ({
   return (
     <Fragment>
       <ButtonTextPrimary
-        disabled={Boolean(cellxgeneDatasetId)}
+        disabled={!canEdit || Boolean(cellxgeneDatasetId)}
         onClick={onOpen}
       >
         {title}

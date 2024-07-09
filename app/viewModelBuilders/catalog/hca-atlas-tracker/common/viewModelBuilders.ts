@@ -680,12 +680,14 @@ export function getAtlasComponentAtlasesTableColumns(
 /**
  * Returns the table column definition model for the atlas component source datasets table.
  * @param onUnlink - Unlink source datasets function.
+ * @param canEdit - Edit state for user.
  * @returns Table column definition.
  */
 export function getAtlasComponentSourceDatasetsTableColumns(
-  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"]
+  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"],
+  canEdit: boolean
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [
+  const columnDefs = [
     getComponentAtlasSourceDatasetTitleColumnDef(),
     getComponentAtlasSourceDatasetPublicationColumnDef(),
     getSourceDatasetExploreColumnDef(),
@@ -694,20 +696,25 @@ export function getAtlasComponentSourceDatasetsTableColumns(
     getSourceDatasetTissueColumnDef(),
     getSourceDatasetDiseaseColumnDef(),
     getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
-    getComponentAtlasSourceDatasetUnlinkColumnDef(onUnlink),
   ];
+  if (canEdit) {
+    columnDefs.push(getComponentAtlasSourceDatasetUnlinkColumnDef(onUnlink));
+  }
+  return columnDefs;
 }
 
 /**
  * Returns the table column definition model for the atlas (edit mode) source datasets table.
  * @param pathParameter - Path parameter.
+ * @param canEdit - Edit state for user.
  * @returns Table column definition.
  */
 export function getAtlasSourceDatasetsTableColumns(
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
+  canEdit: boolean
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
-    getSourceDatasetTitleColumnDef(pathParameter),
+    getSourceDatasetTitleColumnDef(pathParameter, canEdit),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
     getSourceDatasetSuspensionTypeColumnDef(),
@@ -1116,15 +1123,18 @@ function getSourceDatasetTissueColumnDef(
 /**
  * Returns source dataset title column def.
  * @param pathParameter - Path parameter.
+ * @param canEdit - Edit state for user.
  * @returns Column def.
  */
 function getSourceDatasetTitleColumnDef(
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
+  canEdit: boolean
 ): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "title",
     cell: ({ row }) =>
       C.ViewSourceDataset({
+        canEdit,
         pathParameter,
         sourceDataset: row.original,
       }),

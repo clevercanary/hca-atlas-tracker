@@ -4,22 +4,24 @@ import { getAtlasComponentSourceDatasetsTableColumns } from "../../../../../../.
 import { useUnlinkComponentAtlasSourceDatasets } from "../../../../../../../../../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 import { SectionTable } from "../../../../../../section.styles";
 import { TABLE_OPTIONS } from "./common/constants";
+import { getGridTemplateColumns } from "./common/utils";
 
 export interface TableProps {
+  canEdit: boolean;
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   pathParameter: PathParameter;
 }
 
 export const Table = ({
+  canEdit,
   componentAtlasSourceDatasets = [],
   pathParameter,
-}: TableProps): JSX.Element | null => {
+}: TableProps): JSX.Element => {
   const { onUnlink } = useUnlinkComponentAtlasSourceDatasets(pathParameter);
-  if (componentAtlasSourceDatasets.length === 0) return null;
   return (
     <SectionTable
-      columns={getAtlasComponentSourceDatasetsTableColumns(onUnlink)}
-      gridTemplateColumns="minmax(272px, 1fr) repeat(2, minmax(180px, 0.4fr)) repeat(5, minmax(88px, 128px)) auto"
+      columns={getAtlasComponentSourceDatasetsTableColumns(onUnlink, canEdit)}
+      gridTemplateColumns={getGridTemplateColumns(canEdit)}
       items={componentAtlasSourceDatasets}
       tableOptions={{ ...TABLE_OPTIONS, getRowId: (row) => row.id }}
     />

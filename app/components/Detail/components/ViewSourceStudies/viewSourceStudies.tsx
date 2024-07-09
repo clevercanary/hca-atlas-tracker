@@ -14,6 +14,7 @@ import {
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { TableSection } from "../../../Table/components/TableSection/tableSection";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -51,12 +52,15 @@ export const ViewSourceStudies = ({
             </ButtonLink>
           </Toolbar>
         )}
-        {sourceStudies?.length > 0 && (
+        {sourceStudies.length > 0 && (
           <Table
             columns={getAtlasSourceStudiesTableColumns(pathParameter)}
             gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) minmax(80px, 130px) repeat(3, minmax(100px, 118px))"
             items={sortedSourceStudies}
           />
+        )}
+        {!canEdit && sourceStudies.length === 0 && (
+          <TableSection>No source studies</TableSection>
         )}
       </GridPaper>
     </Paper>
