@@ -17,6 +17,7 @@ import {
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOFOO,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
@@ -43,6 +44,10 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 const SOURCE_DATASET_FOO_EDIT: SourceDatasetEditData = {
   title: "Source Dataset Foo Edited",
+};
+
+const SOURCE_DATASET_BAR_EDIT: SourceDatasetEditData = {
+  title: "Source Dataset Bar Edited",
 };
 
 beforeAll(async () => {
@@ -223,14 +228,14 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
-  it("returns error 403 when source dataset is PATCH requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("returns error 403 when source dataset is PATCH requested from draft atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
       (
         await doSourceDatasetRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           SOURCE_DATASET_FOO.id,
-          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          USER_INTEGRATION_LEAD_DRAFT,
           METHOD.PATCH,
           SOURCE_DATASET_FOO_EDIT
         )
@@ -310,7 +315,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE);
   });
 
-  it("updates and returns source dataset when PATCH requested", async () => {
+  it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
@@ -338,6 +343,34 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
 
     await restoreDbSourceDataset(SOURCE_DATASET_FOO);
+  });
+
+  it("updates and returns source dataset when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+      SOURCE_DATASET_BAR.id,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      METHOD.PATCH,
+      SOURCE_DATASET_BAR_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedSourceDataset = res._getJSONData();
+    const sourceDatasetFromDb = await getSourceDataset(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+      updatedSourceDataset.id
+    );
+    expect(sourceDatasetFromDb).toBeDefined();
+    if (!sourceDatasetFromDb) return;
+    expect(sourceDatasetFromDb.sd_info.title).toEqual(
+      SOURCE_DATASET_BAR_EDIT.title
+    );
+    expect(dbSourceDatasetToApiSourceDataset(sourceDatasetFromDb)).toEqual(
+      updatedSourceDataset
+    );
+
+    await restoreDbSourceDataset(SOURCE_DATASET_BAR);
   });
 
   it("returns error 401 when source dataset is DELETE requested from draft atlas by logged out user", async () => {
@@ -385,14 +418,14 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
-  it("returns error 403 when source dataset is DELETE requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("returns error 403 when source dataset is DELETE requested from draft atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
       (
         await doSourceDatasetRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           SOURCE_DATASET_FOO.id,
-          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          USER_INTEGRATION_LEAD_DRAFT,
           METHOD.DELETE
         )
       )._getStatusCode()
@@ -451,7 +484,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     expectSourceDatasetToBeUnchanged(SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE);
   });
 
-  it("deletes source dataset", async () => {
+  it("deletes source dataset when requested by user with CONTENT_ADMIN role", async () => {
     const caDraftFooBefore = await getExistingComponentAtlasFromDatabase(
       COMPONENT_ATLAS_DRAFT_FOO.id
     );
@@ -470,11 +503,9 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(200);
-    const sourceDatasetQueryResult = await query(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
-      [SOURCE_DATASET_FOOFOO.id]
-    );
-    expect(sourceDatasetQueryResult.rows[0]).toBeUndefined();
+    expect(
+      await getSourceDatasetFromDatabase(SOURCE_DATASET_FOOFOO.id)
+    ).toBeUndefined();
 
     const caDraftFooAfter = await getExistingComponentAtlasFromDatabase(
       COMPONENT_ATLAS_DRAFT_FOO.id
@@ -491,6 +522,32 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
         JSON.stringify(makeTestSourceDatasetInfo(SOURCE_DATASET_FOOFOO)),
         SOURCE_DATASET_FOOFOO.id,
+      ]
+    );
+  });
+
+  it("deletes source dataset when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+          SOURCE_DATASET_FOOBAR.id,
+          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    expect(
+      await getSourceDatasetFromDatabase(SOURCE_DATASET_FOOBAR.id)
+    ).toBeUndefined();
+
+    await query(
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
+      [
+        SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+        JSON.stringify(makeTestSourceDatasetInfo(SOURCE_DATASET_FOOBAR)),
+        SOURCE_DATASET_FOOBAR.id,
       ]
     );
   });

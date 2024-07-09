@@ -12,8 +12,10 @@ import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas
 import { endPgPool } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create";
 import {
+  ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
@@ -31,6 +33,10 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_SOURCE_DATASET_DATA: NewSourceDatasetData = {
   title: "New Source Dataset",
+};
+
+const NEW_SOURCE_DATASET_DATA_FOO: NewSourceDatasetData = {
+  title: "New Source Dataset Foo",
 };
 
 beforeAll(async () => {
@@ -96,13 +102,13 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     ).toEqual(403);
   });
 
-  it("returns error 403 for logged in user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("returns error 403 for logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
       (
         await doCreateTest(
           USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-          ATLAS_WITH_MISC_SOURCE_STUDIES,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS,
+          ATLAS_DRAFT,
+          SOURCE_STUDY_DRAFT_OK,
           NEW_SOURCE_DATASET_DATA
         )
       )._getStatusCode()
@@ -157,12 +163,22 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     ).toEqual(400);
   });
 
-  it("creates and returns source dataset entry", async () => {
+  it("creates and returns source dataset entry when requested by user with CONTENT_ADMIN role", async () => {
     await testSuccessfulCreate(
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       SOURCE_STUDY_WITH_SOURCE_DATASETS,
       NEW_SOURCE_DATASET_DATA,
       NEW_SOURCE_DATASET_DATA.title
+    );
+  });
+
+  it("creates and returns source dataset entry when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    await testSuccessfulCreate(
+      ATLAS_WITH_MISC_SOURCE_STUDIES,
+      SOURCE_STUDY_WITH_SOURCE_DATASETS,
+      NEW_SOURCE_DATASET_DATA_FOO,
+      NEW_SOURCE_DATASET_DATA_FOO.title,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES
     );
   });
 });
@@ -171,14 +187,10 @@ async function testSuccessfulCreate(
   atlas: TestAtlas,
   sourceStudy: TestSourceStudy,
   newData: Record<string, unknown>,
-  expectedTitle: string
+  expectedTitle: string,
+  user = USER_CONTENT_ADMIN
 ): Promise<HCAAtlasTrackerDBSourceDataset> {
-  const res = await doCreateTest(
-    USER_CONTENT_ADMIN,
-    atlas,
-    sourceStudy,
-    newData
-  );
+  const res = await doCreateTest(user, atlas, sourceStudy, newData);
   expect(res._getStatusCode()).toEqual(201);
   const newSourceDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
   const newSourceDatasetFromDb = await getSourceDataset(
