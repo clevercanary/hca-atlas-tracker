@@ -3,6 +3,7 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis
 import { PathParameter } from "../../../../../../../../../../common/entities";
 import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
 import { Paper } from "../../../../../../../../../Table/components/TablePaper/tablePaper.styles";
+import { TablePlaceholder } from "../../../../../../../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../../../../../../../Table/components/TableToolbar/tableToolbar.styles";
 import { ViewSourceStudiesSourceDatasets } from "../../../../../../../ViewSourceStudiesSourceDatasets/viewSourceStudiesSourceDatasets";
 import { Section, SectionHero, SectionTitle } from "../../../../section.styles";
@@ -21,7 +22,9 @@ export const LinkedSourceDatasets = ({
   pathParameter,
   sourceStudiesSourceDatasets,
 }: LinkedSourceDatasetsProps): JSX.Element => {
-  const { access: canEdit } = formManager;
+  const {
+    access: { canEdit },
+  } = formManager;
   return (
     <Section>
       <SectionHero fullWidth>
@@ -38,9 +41,17 @@ export const LinkedSourceDatasets = ({
               />
             </Toolbar>
           )}
-          <Table
-            componentAtlasSourceDatasets={componentAtlasSourceDatasets}
-            pathParameter={pathParameter}
+          {componentAtlasSourceDatasets.length > 0 && (
+            <Table
+              canEdit={canEdit}
+              componentAtlasSourceDatasets={componentAtlasSourceDatasets}
+              pathParameter={pathParameter}
+            />
+          )}
+          <TablePlaceholder
+            canEdit={canEdit}
+            message="No linked source datasets"
+            rowCount={componentAtlasSourceDatasets.length}
           />
         </GridPaper>
       </Paper>

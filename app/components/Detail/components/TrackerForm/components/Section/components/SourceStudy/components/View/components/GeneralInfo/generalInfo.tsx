@@ -102,7 +102,7 @@ export const GeneralInfo = ({
                         )}
                       </Fragment>
                     }
-                    readOnly={Boolean(defaultDoi)}
+                    readOnly={Boolean(defaultDoi) || isReadOnly}
                   />
                 )}
               />

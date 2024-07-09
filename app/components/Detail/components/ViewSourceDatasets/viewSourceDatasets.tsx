@@ -4,13 +4,12 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas
 import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { TypographyTextBody400 } from "../../../common/Typography/components/TypographyTextBody400/typographyTextBody400";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { AddSourceDataset } from "../AddSourceDataset/addSourceDataset";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { GridPaperSection } from "./viewSourceDatasets.styles";
 
 interface ViewSourceDatasetsProps {
   formManager: FormManagerProps;
@@ -29,7 +28,6 @@ export const ViewSourceDatasets = ({
     access: { canEdit, canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
-  const isSourceDatasets = sourceDatasets?.length > 0;
   return (
     <Paper>
       <GridPaper>
@@ -38,18 +36,18 @@ export const ViewSourceDatasets = ({
             <AddSourceDataset pathParameter={pathParameter} />
           </Toolbar>
         )}
-        {isSourceDatasets && (
+        {sourceDatasets.length > 0 && (
           <Table
-            columns={getAtlasSourceDatasetsTableColumns(pathParameter)}
+            columns={getAtlasSourceDatasetsTableColumns(pathParameter, canEdit)}
             gridTemplateColumns="minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
             items={sourceDatasets.sort(sortSourceDataset)}
           />
         )}
-        {!isSourceDatasets && isCELLXGENECollection && (
-          <GridPaperSection>
-            <TypographyTextBody400>No source datasets</TypographyTextBody400>
-          </GridPaperSection>
-        )}
+        <TablePlaceholder
+          canEdit={canEdit}
+          message="No source datasets"
+          rowCount={sourceDatasets.length}
+        />
       </GridPaper>
     </Paper>
   );

@@ -2,10 +2,10 @@ import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthe
 import Router from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { ROLE } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { RouteValue } from "../../routes/entities";
 import { useAuthorization } from "../useAuthorization";
 import { FormMethod, YupValidatedFormValues } from "../useForm/common/entities";
+import { useUserHasEditAuthorization } from "../useUserHasEditAuthorization/useUserHasEditAuthorization";
 import {
   FormAccess,
   FormAction,
@@ -36,6 +36,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
 ): UseFormManager => {
   const { isAuthenticated } = useAuthentication();
   const { user } = useAuthorization();
+  const { canEdit } = useUserHasEditAuthorization();
   const [pathRoute, setPathRoute] =
     useState<[string, RouteValue | undefined]>(); // Tuple: path and corresponding route.
   const [nextPath, nextRoute] = pathRoute || [];
@@ -45,7 +46,6 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
     isSubmitted = false,
     isSubmitting = false,
   } = formState || {};
-  const canEdit = user?.role === ROLE.CONTENT_ADMIN;
   const access: FormAccess = {
     canEdit,
     canView: isAuthenticated,

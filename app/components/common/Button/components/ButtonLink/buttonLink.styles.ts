@@ -1,5 +1,5 @@
 import { ThemeProps } from "@databiosphere/findable-ui/lib/theme/theme";
-import { SerializedStyles } from "@emotion/react";
+import { css, SerializedStyles } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";
 import { buttonPrimary, buttonSecondary } from "../../button.styles";
@@ -7,12 +7,20 @@ import { BUTTON_COLOR } from "./buttonLink";
 
 interface Props {
   color?: BUTTON_COLOR;
+  disabled: boolean;
 }
 
 export const Button = styled(Link, {
-  shouldForwardProp: (props) => props !== "color",
+  shouldForwardProp: (props) => props !== "color" && props !== "disabled",
 })<Props>`
   ${getButtonStyles};
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      opacity: 0.5;
+      pointer-events: none;
+    `};
 
   :hover {
     text-decoration: none;

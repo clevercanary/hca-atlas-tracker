@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
+import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { PUBLICATION_STATUS } from "../../../../../../../../../../../../views/AddNewSourceStudyView/common/entities";
 import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceStudyView/common/constants";
 import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
@@ -18,10 +19,17 @@ import {
 import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 
 export interface IdentifiersProps {
+  formManager: FormManager;
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>;
 }
 
-export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
+export const Identifiers = ({
+  formManager,
+  formMethod,
+}: IdentifiersProps): JSX.Element => {
+  const {
+    formStatus: { isReadOnly },
+  } = formManager;
   const { control, watch } = formMethod;
   const watchedFields = watch([FIELD_NAME.PUBLICATION_STATUS]);
   const [publicationStatus] = watchedFields;
@@ -49,7 +57,7 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
                   {field.value && <Link label="Visit link" url={field.value} />}
                 </Fragment>
               }
-              readOnly={isPublishedPreprint}
+              readOnly={isReadOnly || isPublishedPreprint}
             />
           )}
         />
@@ -69,7 +77,7 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
                   {field.value && <Link label="Visit link" url={field.value} />}
                 </Fragment>
               }
-              readOnly={isPublishedPreprint}
+              readOnly={isReadOnly || isPublishedPreprint}
             />
           )}
         />
@@ -83,6 +91,7 @@ export const Identifiers = ({ formMethod }: IdentifiersProps): JSX.Element => {
               error={invalid}
               helperText={error?.message}
               isFilled={Boolean(field.value)}
+              readOnly={isReadOnly}
             />
           )}
         />

@@ -11,6 +11,7 @@ import {
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -44,13 +45,18 @@ export const ViewComponentAtlases = ({
             </ButtonLink>
           </Toolbar>
         )}
-        {componentAtlases?.length > 0 && (
+        {componentAtlases.length > 0 && (
           <Table
             columns={getAtlasComponentAtlasesTableColumns(pathParameter)}
             gridTemplateColumns="minmax(260px, 1fr) repeat(5, minmax(88px, 128px)) auto"
             items={componentAtlases}
           />
         )}
+        <TablePlaceholder
+          canEdit={canEdit}
+          message="No integration objects"
+          rowCount={componentAtlases.length}
+        />
       </GridPaper>
     </Paper>
   );
