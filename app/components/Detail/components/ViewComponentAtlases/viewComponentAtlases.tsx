@@ -52,7 +52,7 @@ export const ViewComponentAtlases = ({
             items={componentAtlases}
           />
         )}
-        {componentAtlases.length === 0 && (
+        {!canEdit && componentAtlases.length === 0 && (
           <TableSection>No integration objects</TableSection>
         )}
       </GridPaper>
