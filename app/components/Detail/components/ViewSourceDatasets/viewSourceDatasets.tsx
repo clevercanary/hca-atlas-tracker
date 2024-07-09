@@ -4,8 +4,8 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas
 import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { TableEmpty } from "../../../Table/components/TableEmpty/tableEmpty";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
-import { TableSection } from "../../../Table/components/TableSection/tableSection";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { AddSourceDataset } from "../AddSourceDataset/addSourceDataset";
@@ -43,9 +43,11 @@ export const ViewSourceDatasets = ({
             items={sourceDatasets.sort(sortSourceDataset)}
           />
         )}
-        {!canEdit && sourceDatasets.length === 0 && (
-          <TableSection>No source datasets</TableSection>
-        )}
+        <TableEmpty
+          canEdit={canEdit}
+          message="No source datasets"
+          rowCount={sourceDatasets.length}
+        />
       </GridPaper>
     </Paper>
   );

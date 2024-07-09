@@ -10,8 +10,8 @@ import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
+import { TableEmpty } from "../../../Table/components/TableEmpty/tableEmpty";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
-import { TableSection } from "../../../Table/components/TableSection/tableSection";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -52,9 +52,11 @@ export const ViewComponentAtlases = ({
             items={componentAtlases}
           />
         )}
-        {!canEdit && componentAtlases.length === 0 && (
-          <TableSection>No integration objects</TableSection>
-        )}
+        <TableEmpty
+          canEdit={canEdit}
+          message="No integration objects"
+          rowCount={componentAtlases.length}
+        />
       </GridPaper>
     </Paper>
   );
