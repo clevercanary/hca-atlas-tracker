@@ -2,8 +2,8 @@ import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Pape
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../../../../../common/entities";
 import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
-import { TableEmpty } from "../../../../../../../../../Table/components/TableEmpty/tableEmpty";
 import { Paper } from "../../../../../../../../../Table/components/TablePaper/tablePaper.styles";
+import { TablePlaceholder } from "../../../../../../../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../../../../../../../Table/components/TableToolbar/tableToolbar.styles";
 import { ViewSourceStudiesSourceDatasets } from "../../../../../../../ViewSourceStudiesSourceDatasets/viewSourceStudiesSourceDatasets";
 import { Section, SectionHero, SectionTitle } from "../../../../section.styles";
@@ -48,7 +48,7 @@ export const LinkedSourceDatasets = ({
               pathParameter={pathParameter}
             />
           )}
-          <TableEmpty
+          <TablePlaceholder
             canEdit={canEdit}
             message="No linked source datasets"
             rowCount={componentAtlasSourceDatasets.length}

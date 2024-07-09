@@ -13,8 +13,8 @@ import {
   ButtonLink,
   BUTTON_COLOR,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
-import { TableEmpty } from "../../../Table/components/TableEmpty/tableEmpty";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -59,7 +59,7 @@ export const ViewSourceStudies = ({
             items={sortedSourceStudies}
           />
         )}
-        <TableEmpty
+        <TablePlaceholder
           canEdit={canEdit}
           message="No source studies"
           rowCount={sourceStudies.length}

@@ -1,18 +1,18 @@
 import { ReactNode } from "react";
 import { TypographyTextBody400 } from "../../../common/Typography/components/TypographyTextBody400/typographyTextBody400";
-import { GridPaperSection } from "./tableEmpty.styles";
+import { GridPaperSection } from "./tablePlaceholder.styles";
 
-interface TableEmptyProps {
+interface TablePlaceholderProps {
   canEdit: boolean;
   message: ReactNode | ReactNode[];
   rowCount: number;
 }
 
-export const TableEmpty = ({
+export const TablePlaceholder = ({
   canEdit,
   message,
   rowCount,
-}: TableEmptyProps): JSX.Element | null => {
+}: TablePlaceholderProps): JSX.Element | null => {
   if (canEdit || rowCount > 0) return null;
   return (
     <GridPaperSection>
