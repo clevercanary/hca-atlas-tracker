@@ -12,7 +12,9 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 
 jest.mock("../app/services/user-profile");
+jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
+jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 let userStakeholderId: string;

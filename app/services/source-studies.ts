@@ -173,6 +173,24 @@ async function getExistingStudyId(
 }
 
 /**
+ * Get all source studies that have any of the specified DOIs.
+ * @param dois - DOIs to get source studies of.
+ * @param client - Postgres client.
+ * @returns source studies.
+ */
+export async function getSourceStudiesByDois(
+  dois: string[],
+  client: pg.PoolClient
+): Promise<HCAAtlasTrackerDBSourceStudy[]> {
+  return (
+    await client.query<HCAAtlasTrackerDBSourceStudy>(
+      "SELECT * FROM hat.source_studies WHERE doi=ANY($1) OR study_info->'publication'->>'preprintOfDoi'=ANY($1) OR study_info->'publication'->>'hasPreprintDoi'=ANY($1)",
+      [dois]
+    )
+  ).rows;
+}
+
+/**
  * Update a published or unpublished source study.
  * @param atlasId - Atlas that the source study is accessed through.
  * @param sourceStudyId - Source study to update.

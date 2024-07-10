@@ -126,7 +126,6 @@ export interface HCAAtlasTrackerValidationResult {
   publicationString: string | null;
   relatedEntityUrl: string | null;
   system: SYSTEM;
-  taskStatus: TASK_STATUS;
   validationId: VALIDATION_ID;
   validationStatus: VALIDATION_STATUS;
   validationType: VALIDATION_TYPE;
@@ -142,6 +141,7 @@ export interface HCAAtlasTrackerValidationRecord
   networks: NetworkKey[];
   resolvedAt: string | null;
   targetCompletion: string | null;
+  taskStatus: TASK_STATUS;
   updatedAt: string;
   waves: Wave[];
 }
@@ -161,6 +161,12 @@ export interface HCAAtlasTrackerActiveUser {
   fullName: string;
   role: ROLE;
   roleAssociatedResourceIds: string[];
+}
+
+export interface TaskStatusesUpdatedByDOIResult {
+  notFound: string[];
+  notUpdated: Record<TASK_STATUS, string[]>;
+  updated: string[];
 }
 
 export type DBEntityOfType<T extends ENTITY_TYPE> = T extends ENTITY_TYPE.ATLAS
@@ -456,7 +462,6 @@ export enum VALIDATION_ID {
 export enum VALIDATION_STATUS {
   BLOCKED = "BLOCKED",
   FAILED = "FAILED",
-  OVERRIDDEN = "OVERRIDDEN",
   PASSED = "PASSED",
 }
 

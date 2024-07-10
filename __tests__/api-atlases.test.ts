@@ -15,7 +15,9 @@ import { resetDatabase } from "../testing/db-utils";
 import { expectApiAtlasToMatchTest } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
+jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
+jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 beforeAll(async () => {

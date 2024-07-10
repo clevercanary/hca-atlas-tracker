@@ -2,7 +2,6 @@ import {
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
-  TASK_STATUS,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
@@ -27,11 +26,7 @@ import { TestAtlas, TestSourceStudy } from "../testing/entities";
 
 type ExpectedValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
-  | "system"
-  | "taskStatus"
-  | "validationId"
-  | "validationStatus"
-  | "validationType"
+  "system" | "validationId" | "validationStatus" | "validationType"
 >;
 
 jest.mock("../app/utils/pg-app-connect-config");
@@ -42,21 +37,18 @@ jest.mock("../app/services/user-profile");
 const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
   {
     system: SYSTEM.CAP,
-    taskStatus: TASK_STATUS.TODO,
     validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
     validationStatus: VALIDATION_STATUS.FAILED,
     validationType: VALIDATION_TYPE.INGEST,
   },
   {
     system: SYSTEM.CELLXGENE,
-    taskStatus: TASK_STATUS.DONE,
     validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
     validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.INGEST,
   },
   {
     system: SYSTEM.HCA_DATA_REPOSITORY,
-    taskStatus: TASK_STATUS.TODO,
     validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
     validationStatus: VALIDATION_STATUS.FAILED,
     validationType: VALIDATION_TYPE.INGEST,
@@ -66,35 +58,30 @@ const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
 const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
   {
     system: SYSTEM.CAP,
-    taskStatus: TASK_STATUS.BLOCKED,
     validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
     validationStatus: VALIDATION_STATUS.BLOCKED,
     validationType: VALIDATION_TYPE.INGEST,
   },
   {
     system: SYSTEM.CELLXGENE,
-    taskStatus: TASK_STATUS.TODO,
     validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
     validationStatus: VALIDATION_STATUS.FAILED,
     validationType: VALIDATION_TYPE.INGEST,
   },
   {
     system: SYSTEM.HCA_DATA_REPOSITORY,
-    taskStatus: TASK_STATUS.DONE,
     validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
     validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.INGEST,
   },
   {
     system: SYSTEM.HCA_DATA_REPOSITORY,
-    taskStatus: TASK_STATUS.DONE,
     validationId: VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
     validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.METADATA,
   },
   {
     system: SYSTEM.HCA_DATA_REPOSITORY,
-    taskStatus: TASK_STATUS.DONE,
     validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
     validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.INGEST,
@@ -105,28 +92,24 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
   [
     {
       system: SYSTEM.CAP,
-      taskStatus: TASK_STATUS.BLOCKED,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationStatus: VALIDATION_STATUS.BLOCKED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.CELLXGENE,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.DONE,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.TODO,
       validationId:
         VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.FAILED,
@@ -134,7 +117,6 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.DONE,
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
@@ -145,28 +127,24 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: ExpectedValidationPropert
   [
     {
       system: SYSTEM.CAP,
-      taskStatus: TASK_STATUS.BLOCKED,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationStatus: VALIDATION_STATUS.BLOCKED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.CELLXGENE,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.DONE,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.DONE,
       validationId:
         VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.PASSED,
@@ -174,7 +152,6 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: ExpectedValidationPropert
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.DONE,
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
@@ -185,28 +162,24 @@ const VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: ExpectedValidationProperti
   [
     {
       system: SYSTEM.CAP,
-      taskStatus: TASK_STATUS.BLOCKED,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationStatus: VALIDATION_STATUS.BLOCKED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.CELLXGENE,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.DONE,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.DONE,
       validationId:
         VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.PASSED,
@@ -214,7 +187,6 @@ const VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: ExpectedValidationProperti
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
@@ -225,21 +197,18 @@ const VALIDATIONS_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: ExpectedValidationProperti
   [
     {
       system: SYSTEM.CAP,
-      taskStatus: TASK_STATUS.BLOCKED,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationStatus: VALIDATION_STATUS.BLOCKED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.CELLXGENE,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
@@ -250,21 +219,18 @@ const VALIDATIONS_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: ExpectedValidationPropert
   [
     {
       system: SYSTEM.CAP,
-      taskStatus: TASK_STATUS.BLOCKED,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationStatus: VALIDATION_STATUS.BLOCKED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.CELLXGENE,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
@@ -275,21 +241,18 @@ const VALIDATIONS_PUBLISHED_WITH_CAP_AND_CELLXGENE: ExpectedValidationProperties
   [
     {
       system: SYSTEM.CAP,
-      taskStatus: TASK_STATUS.DONE,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.CELLXGENE,
-      taskStatus: TASK_STATUS.DONE,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
       system: SYSTEM.HCA_DATA_REPOSITORY,
-      taskStatus: TASK_STATUS.TODO,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
       validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
