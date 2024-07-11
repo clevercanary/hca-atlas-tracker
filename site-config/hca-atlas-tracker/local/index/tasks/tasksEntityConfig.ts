@@ -210,6 +210,7 @@ export const tasksEntityConfig: EntityConfig = {
   },
   entityMapper: taskInputMapper,
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
+  explorerTitle: "Tasks",
   getId: getTaskId,
   label: "Tasks",
   list: {
@@ -224,6 +225,7 @@ export const tasksEntityConfig: EntityConfig = {
     enableDownload: true,
     enableRowPreview: true,
     enableRowSelection: true,
+    enableTab: false,
     rowPreviewView: [
       {
         children: [

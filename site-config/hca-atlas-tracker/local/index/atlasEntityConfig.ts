@@ -172,6 +172,7 @@ export const atlasEntityConfig: EntityConfig = {
   listView: {
     disablePagination: true,
     enableDownload: true,
+    enableTab: false,
     subTitleHero,
   },
   route: "atlases",

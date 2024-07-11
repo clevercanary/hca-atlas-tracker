@@ -5,7 +5,7 @@ import { HeroActions } from "./components/HeroActions/heroActions";
 export const Hero = (): JSX.Element => {
   return (
     <Fragment>
-      <Title title="Manage Atlases" />
+      <Title title="Atlases" />
       <HeroActions />
     </Fragment>
   );
