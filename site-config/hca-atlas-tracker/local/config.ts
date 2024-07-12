@@ -1,4 +1,3 @@
-import { ELEMENT_ALIGNMENT } from "@databiosphere/findable-ui/lib/common/entities";
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { tabletUp } from "@databiosphere/findable-ui/lib/theme/common/breakpoints";
 import {
@@ -11,7 +10,7 @@ import {
 import * as C from "../../../app/components/index";
 import { ROUTE } from "../../../app/routes/constants";
 import { SiteConfig } from "../../common/entities";
-import { announcements } from "./announcements/announcements";
+import { announcementsConfig } from "./announcements/announcementsConfig";
 import { authenticationConfig } from "./authentication/authentication";
 import { atlasEntityConfig } from "./index/atlasEntityConfig";
 import { tasksEntityConfig } from "./index/tasks/tasksEntityConfig";
@@ -45,50 +44,58 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
         }),
       },
       header: {
-        Announcements: C.RenderComponents({ components: announcements }),
-        Logo: C.Logo({
+        announcements: announcementsConfig,
+        authenticationEnabled: true,
+        logo: C.Logo({
           alt: APP_TITLE,
           height: 32.5,
           link: HOME_PAGE_PATH,
           src: "/images/hcaAtlasTracker.svg",
         }),
-        authenticationEnabled: true,
-        navAlignment: ELEMENT_ALIGNMENT.RIGHT,
-        navLinks: [
-          {
-            flatten: true,
-            label: "Help & Documentation",
-            menuItems: [
-              {
-                label: "Overview",
-                url: ROUTE.OVERVIEW,
-              },
-              {
-                label: "Validations and Tasks",
-                url: ROUTE.VALIDATIONS_AND_TASKS,
-              },
-              {
-                label: "Roadmap",
-                url: ROUTE.ROADMAP,
-              },
-              {
-                label: "Requesting Access",
-                url: ROUTE.REQUESTING_ACCESS,
-              },
-              {
-                label: C.LabelIconMenuItem({ label: "Privacy" }),
-                target: ANCHOR_TARGET.BLANK,
-                url: `${portalUrl}/privacy`,
-              },
-              {
-                icon: C.GitHubIcon({ fontSize: "small" }),
-                label: "GitHub",
-                target: ANCHOR_TARGET.BLANK,
-                url: "https://github.com/clevercanary/hca-atlas-tracker",
-              },
-            ],
-            url: "",
-          },
+        navigation: [
+          undefined,
+          [
+            {
+              label: "Atlases",
+              url: ROUTE.ATLASES,
+            },
+            { label: "Tasks", url: ROUTE.TASKS },
+          ],
+          [
+            {
+              label: "Help & Documentation",
+              menuItems: [
+                {
+                  label: "Overview",
+                  url: ROUTE.OVERVIEW,
+                },
+                {
+                  label: "Validations and Tasks",
+                  url: ROUTE.VALIDATIONS_AND_TASKS,
+                },
+                {
+                  label: "Roadmap",
+                  url: ROUTE.ROADMAP,
+                },
+                {
+                  label: "Requesting Access",
+                  url: ROUTE.REQUESTING_ACCESS,
+                },
+                {
+                  label: C.LabelIconMenuItem({ label: "Privacy" }),
+                  target: ANCHOR_TARGET.BLANK,
+                  url: `${portalUrl}/privacy`,
+                },
+                {
+                  icon: C.GitHubIcon({ fontSize: "small" }),
+                  label: "GitHub",
+                  target: ANCHOR_TARGET.BLANK,
+                  url: "https://github.com/clevercanary/hca-atlas-tracker",
+                },
+              ],
+              url: "",
+            },
+          ],
         ],
       },
     },
