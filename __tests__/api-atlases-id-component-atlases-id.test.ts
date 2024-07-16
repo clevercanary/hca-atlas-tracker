@@ -13,20 +13,22 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   COMPONENT_ATLAS_DRAFT_FOO,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
-  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestComponentAtlas, TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE =
+  "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
 
 const COMPONENT_ATLAS_DRAFT_FOO_EDIT: ComponentAtlasEditData = {
   title: "Component Atlas Draft Foo Edited",
@@ -40,7 +42,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for PUT request", async () => {
     expect(
       (
@@ -92,27 +94,24 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
     ).toEqual(404);
   });
 
-  it("returns component atlas from draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doComponentAtlasRequest(
-      ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.id,
-      USER_STAKEHOLDER
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns component atlas",
+      TEST_ROUTE,
+      componentAtlasHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.id),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const componentAtlas =
+          res._getJSONData() as HCAAtlasTrackerComponentAtlas;
+        expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
+      }
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
-    expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
-  });
-
-  it("returns component atlas from draft atlas when GET requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
-    const res = await doComponentAtlasRequest(
-      ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.id,
-      USER_INTEGRATION_LEAD_PUBLIC
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
-    expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
-  });
+  }
 
   it("returns component atlas from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
@@ -137,7 +136,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 403 when component atlas is PATCH requested from draft atlas by unregistered user", async () => {
@@ -152,38 +151,25 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 403 when component atlas is PATCH requested from draft atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_STAKEHOLDER,
-          METHOD.PATCH,
-          COMPONENT_ATLAS_DRAFT_FOO_EDIT
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
-
-  it("returns error 403 when component atlas is PATCH requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.PATCH,
-          COMPONENT_ATLAS_DRAFT_FOO_EDIT
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      componentAtlasHandler,
+      METHOD.PATCH,
+      role,
+      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.id),
+      COMPONENT_ATLAS_DRAFT_FOO_EDIT,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+      }
+    );
+  }
 
   it("returns error 404 when component atlas is PATCH requested from atlas it doesn't exist on", async () => {
     expect(
@@ -198,7 +184,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 400 for component atlas PATCH requested with title set to undefined", async () => {
@@ -217,7 +203,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("updates and returns component atlas when PATCH requested", async () => {
@@ -256,7 +242,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 403 when component atlas is DELETE requested from draft atlas by unregistered user", async () => {
@@ -270,36 +256,25 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 403 when component atlas is DELETE requested from draft atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_STAKEHOLDER,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
-
-  it("returns error 403 when component atlas is DELETE requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      componentAtlasHandler,
+      METHOD.DELETE,
+      role,
+      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.id),
+      undefined,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+      }
+    );
+  }
 
   it("returns error 404 when component atlas is DELETE requested from atlas it doesn't exist on", async () => {
     expect(
@@ -314,7 +289,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]", () => {
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("deletes component atlas", async () => {
@@ -361,13 +336,20 @@ async function doComponentAtlasRequest(
     body: updatedData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId, componentAtlasId },
+    query: getQueryValues(atlasId, componentAtlasId),
   });
   await withConsoleErrorHiding(
     () => componentAtlasHandler(req, res),
     hideConsoleError
   );
   return res;
+}
+
+function getQueryValues(
+  atlasId: string,
+  componentAtlasId: string
+): Record<string, string> {
+  return { atlasId, componentAtlasId };
 }
 
 async function restoreDbComponentAtlas(

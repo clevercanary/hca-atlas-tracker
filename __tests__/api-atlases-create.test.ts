@@ -6,17 +6,17 @@ import {
   HCAAtlasTrackerDBAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/create";
 import {
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -104,19 +104,19 @@ describe("/api/atlases/create", () => {
     ).toEqual(403);
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (await doCreateTest(USER_STAKEHOLDER, NEW_ATLAS_DATA))._getStatusCode()
-    ).toEqual(403);
-  });
-
-  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
-    expect(
-      (
-        await doCreateTest(USER_INTEGRATION_LEAD_DRAFT, NEW_ATLAS_DATA)
-      )._getStatusCode()
-    ).toEqual(403);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      "/api/atlases/create",
+      createHandler,
+      METHOD.POST,
+      role,
+      undefined,
+      NEW_ATLAS_DATA,
+      false,
+      (res) => expect(res._getStatusCode()).toEqual(403)
+    );
+  }
 
   it("returns error 400 when network value is not a valid network key", async () => {
     expect(

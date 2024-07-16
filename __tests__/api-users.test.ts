@@ -1,10 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { testApiRole } from "testing/utils";
+import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import usersHandler from "../pages/api/users";
 import {
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
   USER_NONEXISTENT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -18,6 +20,8 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
+const TEST_ROUTE = "/api/users";
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -26,7 +30,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("/api/users", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (await doUsersRequest(undefined, undefined, "POST"))._getStatusCode()
@@ -43,17 +47,21 @@ describe("/api/users", () => {
     );
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect((await doUsersRequest(USER_STAKEHOLDER))._getStatusCode()).toEqual(
-      403
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      role,
+      usersHandler,
+      METHOD.GET,
+      role,
+      undefined,
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+      }
     );
-  });
-
-  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
-    expect(
-      (await doUsersRequest(USER_INTEGRATION_LEAD_DRAFT))._getStatusCode()
-    ).toEqual(403);
-  });
+  }
 
   it("returns multiple users when email parameter is absent", async () => {
     expect(

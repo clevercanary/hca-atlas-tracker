@@ -8,18 +8,20 @@ import {
   ATLAS_DRAFT,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_PUBLIC,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestComponentAtlas, TestUser } from "../testing/entities";
+import { testApiRole } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/atlases/[id]/component-atlases";
 
 beforeAll(async () => {
   await resetDatabase();
@@ -29,7 +31,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[id]/component-atlases", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (
@@ -51,35 +53,28 @@ describe("/api/atlases/[id]/component-atlases", () => {
     ).toEqual(403);
   });
 
-  it("returns draft atlas component atlases when requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doComponentAtlasesRequest(
-      ATLAS_DRAFT.id,
-      USER_STAKEHOLDER
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns component atlases",
+      TEST_ROUTE,
+      componentAtlasesHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(ATLAS_DRAFT.id),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const componentAtlases =
+          res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+        expect(componentAtlases).toHaveLength(2);
+        expectComponentAtlasesToMatch(componentAtlases, [
+          COMPONENT_ATLAS_DRAFT_FOO,
+          COMPONENT_ATLAS_DRAFT_BAR,
+        ]);
+      }
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const componentAtlases =
-      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-    expect(componentAtlases).toHaveLength(2);
-    expectComponentAtlasesToMatch(componentAtlases, [
-      COMPONENT_ATLAS_DRAFT_FOO,
-      COMPONENT_ATLAS_DRAFT_BAR,
-    ]);
-  });
-
-  it("returns draft atlas component atlases when requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
-    const res = await doComponentAtlasesRequest(
-      ATLAS_DRAFT.id,
-      USER_INTEGRATION_LEAD_PUBLIC
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const componentAtlases =
-      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-    expect(componentAtlases).toHaveLength(2);
-    expectComponentAtlasesToMatch(componentAtlases, [
-      COMPONENT_ATLAS_DRAFT_FOO,
-      COMPONENT_ATLAS_DRAFT_BAR,
-    ]);
-  });
+  }
 
   it("returns draft atlas component atlases when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasesRequest(
@@ -105,10 +100,14 @@ async function doComponentAtlasesRequest(
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId },
+    query: getQueryValues(atlasId),
   });
   await componentAtlasesHandler(req, res);
   return res;
+}
+
+function getQueryValues(atlasId: string): Record<string, string> {
+  return { atlasId };
 }
 
 function expectComponentAtlasesToMatch(

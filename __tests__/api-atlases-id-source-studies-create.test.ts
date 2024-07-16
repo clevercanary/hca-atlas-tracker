@@ -6,6 +6,7 @@ import {
   HCAAtlasTrackerSourceStudy,
   PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/source-studies/create";
 import {
@@ -40,9 +41,9 @@ import {
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_PUBLIC_WITH_PREPRINT,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
@@ -54,6 +55,7 @@ import {
 import { TestAtlas, TestUser } from "../testing/entities";
 import {
   expectSourceStudyToMatch,
+  testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
 
@@ -62,6 +64,8 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+
+const TEST_ROUTE = "/api/atlases/[atlasId]/source-studies/create";
 
 const NEW_STUDY_DATA = {
   doi: DOI_NORMAL,
@@ -125,7 +129,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/source-studies/create", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
       (
@@ -150,13 +154,21 @@ describe("/api/atlases/[atlasId]/source-studies/create", () => {
     ).toEqual(403);
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doCreateTest(USER_STAKEHOLDER, ATLAS_DRAFT, NEW_STUDY_DATA)
-      )._getStatusCode()
-    ).toEqual(403);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      createHandler,
+      METHOD.POST,
+      role,
+      getQueryValues(ATLAS_DRAFT),
+      NEW_STUDY_DATA,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+      }
+    );
+  }
 
   it("returns error 403 for logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
@@ -535,10 +547,14 @@ async function doCreateTest(
     body: newData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId: atlas.id },
+    query: getQueryValues(atlas),
   });
   await withConsoleErrorHiding(() => createHandler(req, res), hideConsoleError);
   return res;
+}
+
+function getQueryValues(atlas: Pick<TestAtlas, "id">): Record<string, string> {
+  return { atlasId: atlas.id };
 }
 
 function expectDbStudyToMatch(

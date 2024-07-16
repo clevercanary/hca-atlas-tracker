@@ -1,24 +1,26 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import {
-  INITIAL_TEST_ATLASES,
-  USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
-  USER_STAKEHOLDER,
-  USER_UNREGISTERED,
-} from "testing/constants";
-import { TestAtlas, TestUser } from "testing/entities";
 import { HCAAtlasTrackerAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import atlasesHandler from "../pages/api/atlases";
+import {
+  INITIAL_TEST_ATLASES,
+  STAKEHOLDER_ANALOGOUS_ROLES,
+  USER_CONTENT_ADMIN,
+  USER_UNREGISTERED,
+} from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { expectApiAtlasToMatchTest } from "../testing/utils";
+import { TestAtlas, TestUser } from "../testing/entities";
+import { expectApiAtlasToMatchTest, testApiRole } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/atlases";
 
 beforeAll(async () => {
   await resetDatabase();
@@ -28,7 +30,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("/api/atlases", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (await doAtlasesRequest(undefined, "POST"))._getStatusCode()
@@ -45,19 +47,23 @@ describe("/api/atlases", () => {
     ).toEqual(403);
   });
 
-  it("returns all atlases for logged in user with STAKEHOLDER role", async () => {
-    const res = await doAtlasesRequest(USER_STAKEHOLDER);
-    const data = res._getJSONData() as HCAAtlasTrackerAtlas[];
-    expect(res._getStatusCode()).toEqual(200);
-    expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
-  });
-
-  it("returns all atlases for logged in user with INTEGRATION_LEAD role", async () => {
-    const res = await doAtlasesRequest(USER_INTEGRATION_LEAD_DRAFT);
-    const data = res._getJSONData() as HCAAtlasTrackerAtlas[];
-    expect(res._getStatusCode()).toEqual(200);
-    expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns all atlases",
+      TEST_ROUTE,
+      atlasesHandler,
+      METHOD.GET,
+      role,
+      undefined,
+      undefined,
+      false,
+      (res) => {
+        const data = res._getJSONData() as HCAAtlasTrackerAtlas[];
+        expect(res._getStatusCode()).toEqual(200);
+        expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
+      }
+    );
+  }
 
   it("returns all atlases for logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasesRequest(USER_CONTENT_ADMIN);

@@ -16,7 +16,10 @@ export type MiddlewareFunction = (
   next: () => void
 ) => Promise<void>;
 
-type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
+export type Handler = (
+  req: NextApiRequest,
+  res: NextApiResponse
+) => Promise<void>;
 
 export class InvalidOperationError extends Error {
   name = "InvalidOperationError";

@@ -10,19 +10,20 @@ import completionDatesHandler from "../pages/api/tasks/completion-dates";
 import {
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   SOURCE_STUDY_PUBLISHED_WITH_HCA,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/tasks/completion-dates";
 
 const DATE_VALID = "2024-05-20T01:16:42.761Z";
 
@@ -56,7 +57,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/tasks/completion-dates", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-PATCH request", async () => {
     expect(
       (
@@ -94,31 +95,22 @@ describe("/api/tasks/completion-dates", () => {
     await expectValidationsToBeUnchanged();
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doCompletionDatesRequest(
-          USER_STAKEHOLDER,
-          DATE_VALID,
-          validationIds
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectValidationsToBeUnchanged();
-  });
-
-  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
-    expect(
-      (
-        await doCompletionDatesRequest(
-          USER_INTEGRATION_LEAD_DRAFT,
-          DATE_VALID,
-          validationIds
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectValidationsToBeUnchanged();
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      completionDatesHandler,
+      METHOD.PATCH,
+      role,
+      undefined,
+      getBody(DATE_VALID, validationIds),
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectValidationsToBeUnchanged();
+      }
+    );
+  }
 
   it("returns error 400 when date is non-UTC", async () => {
     expect(
@@ -249,10 +241,7 @@ async function doCompletionDatesRequest(
   method = METHOD.PATCH
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
-    body: {
-      targetCompletion,
-      taskIds,
-    },
+    body: getBody(targetCompletion, taskIds),
     headers: { authorization: user?.authorization },
     method,
   });
@@ -261,4 +250,11 @@ async function doCompletionDatesRequest(
     hideConsoleError
   );
   return res;
+}
+
+function getBody(targetCompletion: string | null, taskIds: string[]): object {
+  return {
+    targetCompletion,
+    taskIds,
+  };
 }

@@ -21,6 +21,8 @@ import {
   SOURCE_DATASET_FOOFOO,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
+  STAKEHOLDER_ANALOGOUS_ROLES,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
@@ -34,6 +36,7 @@ import {
 import { TestSourceDataset, TestUser } from "../testing/entities";
 import {
   makeTestSourceDatasetInfo,
+  testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
 
@@ -41,6 +44,9 @@ jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE =
+  "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/[sourceDatasetId]";
 
 const SOURCE_DATASET_FOO_EDIT: SourceDatasetEditData = {
   title: "Source Dataset Foo Edited",
@@ -58,7 +64,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/[sourceDatasetId]", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for PUT request", async () => {
     expect(
       (
@@ -130,29 +136,28 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     ).toEqual(404);
   });
 
-  it("returns source dataset from draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doSourceDatasetRequest(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-      SOURCE_DATASET_FOO.id,
-      USER_STAKEHOLDER
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns source dataset",
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+        SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+        SOURCE_DATASET_FOO.id
+      ),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const sourceDataset =
+          res._getJSONData() as HCAAtlasTrackerSourceDataset;
+        expect(sourceDataset.title).toEqual(SOURCE_DATASET_FOO.title);
+      }
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.title).toEqual(SOURCE_DATASET_FOO.title);
-  });
-
-  it("returns source dataset from draft atlas when GET requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
-    const res = await doSourceDatasetRequest(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-      SOURCE_DATASET_FOO.id,
-      USER_INTEGRATION_LEAD_DRAFT
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.title).toEqual(SOURCE_DATASET_FOO.title);
-  });
+  }
 
   it("returns source dataset from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetRequest(
@@ -193,7 +198,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 403 when source dataset is PATCH requested from draft atlas by unregistered user", async () => {
@@ -209,24 +214,29 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
-  it("returns error 403 when source dataset is PATCH requested from draft atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          SOURCE_DATASET_FOO.id,
-          USER_STAKEHOLDER,
-          METHOD.PATCH,
-          SOURCE_DATASET_FOO_EDIT
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.PATCH,
+      role,
+      getQueryValues(
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+        SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+        SOURCE_DATASET_FOO.id
+      ),
+      SOURCE_DATASET_FOO_EDIT,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+      }
+    );
+  }
 
   it("returns error 403 when source dataset is PATCH requested from draft atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
@@ -241,7 +251,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 404 when source dataset is PATCH requested from atlas it doesn't exist on", async () => {
@@ -258,7 +268,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 404 when source dataset is PATCH requested from source study it doesn't exist on", async () => {
@@ -275,7 +285,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 400 for source dataset PATCH requested with title set to undefined", async () => {
@@ -295,7 +305,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 400 when CELLxGENE dataset is PATCH requested", async () => {
@@ -312,7 +322,9 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE);
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE
+    );
   });
 
   it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {
@@ -340,7 +352,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       updatedSourceDataset
     );
 
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
 
     await restoreDbSourceDataset(SOURCE_DATASET_FOO);
   });
@@ -385,7 +397,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 403 when source dataset is DELETE requested from draft atlas by unregistered user", async () => {
@@ -400,23 +412,29 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
-  it("returns error 403 when source dataset is DELETE requested from draft atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          SOURCE_DATASET_FOO.id,
-          USER_STAKEHOLDER,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.DELETE,
+      role,
+      getQueryValues(
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+        SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+        SOURCE_DATASET_FOO.id
+      ),
+      undefined,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+      }
+    );
+  }
 
   it("returns error 403 when source dataset is DELETE requested from draft atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
@@ -430,7 +448,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 404 when source dataset is DELETE requested from atlas it doesn't exist on", async () => {
@@ -447,7 +465,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 404 when source dataset is DELETE requested from source study it doesn't exist on", async () => {
@@ -464,7 +482,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
   it("returns error 400 when CELLxGENE source dataset is DELETE requested", async () => {
@@ -481,7 +499,9 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE);
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE
+    );
   });
 
   it("deletes source dataset when requested by user with CONTENT_ADMIN role", async () => {
@@ -514,7 +534,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
       SOURCE_DATASET_FOOFOO.id
     );
 
-    expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
 
     await query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
@@ -566,13 +586,21 @@ async function doSourceDatasetRequest(
     body: updatedData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId, sourceDatasetId, sourceStudyId },
+    query: getQueryValues(atlasId, sourceStudyId, sourceDatasetId),
   });
   await withConsoleErrorHiding(
     () => sourceDatasetHandler(req, res),
     hideConsoleError
   );
   return res;
+}
+
+function getQueryValues(
+  atlasId: string,
+  sourceStudyId: string,
+  sourceDatasetId: string
+): Record<string, string> {
+  return { atlasId, sourceDatasetId, sourceStudyId };
 }
 
 async function restoreDbSourceDataset(

@@ -9,19 +9,22 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import meHandler from "../pages/api/me";
 import {
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
+import { testApiRole } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/me";
 
 let initialUsers: HCAAtlasTrackerDBUser[];
 
@@ -35,7 +38,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("/api/me", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (await doMeRequest(USER_STAKEHOLDER, METHOD.POST))._getStatusCode()
@@ -61,34 +64,45 @@ describe("/api/me", () => {
 
   it("returns information for logged in user", async () => {
     const requestTime = Date.now();
-    const res = await doMeRequest(USER_STAKEHOLDER);
+    const res = await doMeRequest(USER_CONTENT_ADMIN);
     expect(res.statusCode).toEqual(200);
     const user: HCAAtlasTrackerActiveUser = res._getJSONData();
-    expectActiveUserToMatchTest(user, USER_STAKEHOLDER);
-    const userStakeholderFromDb = (
-      await query<HCAAtlasTrackerDBUser>(
-        "SELECT * FROM hat.users WHERE email=$1",
-        [USER_STAKEHOLDER.email]
-      )
-    ).rows[0];
-    const lastLoginTime = userStakeholderFromDb.last_login.getTime();
-    expect(Math.abs(lastLoginTime - requestTime)).toBeLessThan(1000);
-
+    expectActiveUserToMatchTest(user, USER_CONTENT_ADMIN);
     const userContentAdminFromDb = (
       await query<HCAAtlasTrackerDBUser>(
         "SELECT * FROM hat.users WHERE email=$1",
         [USER_CONTENT_ADMIN.email]
       )
     ).rows[0];
-    expect(userContentAdminFromDb.last_login.getFullYear()).toEqual(1970);
+    const lastLoginTime = userContentAdminFromDb.last_login.getTime();
+    expect(Math.abs(lastLoginTime - requestTime)).toBeLessThan(1000);
+
+    const userStakeholderFromDb = (
+      await query<HCAAtlasTrackerDBUser>(
+        "SELECT * FROM hat.users WHERE email=$1",
+        [USER_STAKEHOLDER.email]
+      )
+    ).rows[0];
+    expect(userStakeholderFromDb.last_login.getFullYear()).toEqual(1970);
   });
 
-  it("returns information for logged in user with INTEGRATION_LEAD role", async () => {
-    const res = await doMeRequest(USER_INTEGRATION_LEAD_DRAFT);
-    expect(res.statusCode).toEqual(200);
-    const user: HCAAtlasTrackerActiveUser = res._getJSONData();
-    expectActiveUserToMatchTest(user, USER_INTEGRATION_LEAD_DRAFT);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns own user information",
+      TEST_ROUTE,
+      meHandler,
+      METHOD.GET,
+      role,
+      undefined,
+      undefined,
+      false,
+      (res, testUser) => {
+        expect(res.statusCode).toEqual(200);
+        const user: HCAAtlasTrackerActiveUser = res._getJSONData();
+        expectActiveUserToMatchTest(user, testUser);
+      }
+    );
+  }
 });
 
 async function expectUsersToBeUnchanged(): Promise<void> {

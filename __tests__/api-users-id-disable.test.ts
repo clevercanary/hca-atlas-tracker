@@ -1,10 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { testApiRole } from "testing/utils";
+import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import disableHandler from "../pages/api/users/[id]/disable";
 import {
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -16,6 +18,8 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/users/[id]/disable";
 
 let userStakeholderId: string;
 let nonexistentId: string;
@@ -36,7 +40,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/users/[id]/disable", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
       (
@@ -59,21 +63,21 @@ describe("/api/users/[id]/disable", () => {
     ).toEqual(403);
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doDisableRequest(USER_STAKEHOLDER, userStakeholderId)
-      )._getStatusCode()
-    ).toEqual(403);
-  });
-
-  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
-    expect(
-      (
-        await doDisableRequest(USER_INTEGRATION_LEAD_DRAFT, userStakeholderId)
-      )._getStatusCode()
-    ).toEqual(403);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      disableHandler,
+      METHOD.POST,
+      role,
+      getQueryValues(userStakeholderId),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+      }
+    );
+  }
 
   it("returns error 400 when specified ID is non-numeric", async () => {
     expect(
@@ -108,10 +112,12 @@ async function doDisableRequest(
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: {
-      id: targetId,
-    },
+    query: getQueryValues(targetId),
   });
   await disableHandler(req, res);
   return res;
+}
+
+function getQueryValues(id: string): Record<string, string> {
+  return { id };
 }

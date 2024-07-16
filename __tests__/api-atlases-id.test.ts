@@ -12,9 +12,8 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_PUBLIC,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -22,6 +21,7 @@ import { TestAtlas, TestUser } from "../testing/entities";
 import {
   expectApiAtlasToMatchTest,
   makeTestAtlasOverview,
+  testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
 
@@ -30,6 +30,8 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/atlases/[id]";
 
 const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
 
@@ -92,7 +94,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[id]", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET, non-PUT request", async () => {
     expect(
       (
@@ -135,32 +137,41 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(404);
   });
 
-  it("returns public atlas when GET requested by user with STAKEHOLDER role", async () => {
-    const res = await doAtlasRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
-    expect(res._getStatusCode()).toEqual(200);
-    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expectApiAtlasToMatchTest(atlas, ATLAS_PUBLIC);
-    expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
-  });
-
-  it("returns draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
-    expect(res._getStatusCode()).toEqual(200);
-    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
-    expect(atlas.componentAtlasCount).toEqual(2);
-  });
-
-  it("returns draft atlas when GET requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
-    const res = await doAtlasRequest(
-      ATLAS_DRAFT.id,
-      USER_INTEGRATION_LEAD_PUBLIC
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns public atlas",
+      TEST_ROUTE,
+      atlasHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(ATLAS_PUBLIC.id),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+        expectApiAtlasToMatchTest(atlas, ATLAS_PUBLIC);
+        expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
+      }
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
-    expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
-    expect(atlas.componentAtlasCount).toEqual(2);
-  });
+
+    testApiRole(
+      "returns draft atlas",
+      TEST_ROUTE,
+      atlasHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(ATLAS_DRAFT.id),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+        expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
+        expect(atlas.componentAtlasCount).toEqual(2);
+      }
+    );
+  }
 
   it("returns draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
@@ -198,33 +209,21 @@ describe("/api/atlases/[id]", () => {
     ).toEqual(403);
   });
 
-  it("returns error 403 when public atlas is PUT requested by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doAtlasRequest(
-          ATLAS_PUBLIC.id,
-          USER_STAKEHOLDER,
-          false,
-          METHOD.PUT,
-          ATLAS_PUBLIC_EDIT
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-  });
-
-  it("returns error 403 when public atlas is PUT requested by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
-    expect(
-      (
-        await doAtlasRequest(
-          ATLAS_PUBLIC.id,
-          USER_INTEGRATION_LEAD_PUBLIC,
-          false,
-          METHOD.PUT,
-          ATLAS_PUBLIC_EDIT
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      atlasHandler,
+      METHOD.PUT,
+      role,
+      getQueryValues(ATLAS_PUBLIC.id),
+      ATLAS_PUBLIC_EDIT,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+      }
+    );
+  }
 
   it("PUT returns error 404 when nonexistent atlas is requested", async () => {
     expect(
@@ -451,8 +450,12 @@ async function doAtlasRequest(
     body: updatedData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId },
+    query: getQueryValues(atlasId),
   });
   await withConsoleErrorHiding(() => atlasHandler(req, res), hideConsoleError);
   return res;
+}
+
+function getQueryValues(atlasId: string): Record<string, string> {
+  return { atlasId };
 }

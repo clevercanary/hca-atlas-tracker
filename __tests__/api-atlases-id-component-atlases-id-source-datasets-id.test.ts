@@ -16,10 +16,9 @@ import {
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   TEST_SOURCE_STUDIES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
-  USER_INTEGRATION_LEAD_PUBLIC,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -35,6 +34,7 @@ import {
 import {
   expectComponentAtlasDatasetsToHaveDifference,
   expectIsDefined,
+  testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
 
@@ -42,6 +42,9 @@ jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE =
+  "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets/[sourceDatasetId]";
 
 const SOURCE_DATASET_ID_NONEXISTENT = "52281fde-232c-4481-8b45-cc986570e7b9";
 
@@ -53,7 +56,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets/[sourceDatasetId]", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for PUT request", async () => {
     expect(
       (
@@ -93,29 +96,28 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
     ).toEqual(403);
   });
 
-  it("returns source dataset when requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doSourceDatasetRequest(
-      ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.id,
-      SOURCE_DATASET_FOOBAZ.id,
-      USER_STAKEHOLDER
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns source dataset",
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(
+        ATLAS_DRAFT.id,
+        COMPONENT_ATLAS_DRAFT_FOO.id,
+        SOURCE_DATASET_FOOBAZ.id
+      ),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const sourceDataset =
+          res._getJSONData() as HCAAtlasTrackerSourceDataset;
+        expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
+      }
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
-  });
-
-  it("returns source dataset when requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
-    const res = await doSourceDatasetRequest(
-      ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.id,
-      SOURCE_DATASET_FOOBAZ.id,
-      USER_INTEGRATION_LEAD_PUBLIC
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
-  });
+  }
 
   it("returns source dataset when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetRequest(
@@ -141,7 +143,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 403 when POST requested from draft atlas by unregistered user", async () => {
@@ -156,38 +158,29 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 403 when POST requested from draft atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOO.id,
-          USER_STAKEHOLDER,
-          METHOD.POST
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
-
-  it("returns error 403 when POST requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOO.id,
-          USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.POST
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.POST,
+      role,
+      getQueryValues(
+        ATLAS_DRAFT.id,
+        COMPONENT_ATLAS_DRAFT_FOO.id,
+        SOURCE_DATASET_FOO.id
+      ),
+      undefined,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+      }
+    );
+  }
 
   it("returns error 404 when POST requested from atlas the component atlas doesn't exist on", async () => {
     expect(
@@ -202,7 +195,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 400 when POST requested from component atlas that already has the source dataset", async () => {
@@ -218,7 +211,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 400 when POST requested with nonexistent source dataset", async () => {
@@ -234,7 +227,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("adds source dataset when POST requested and updates related fields", async () => {
@@ -277,7 +270,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
       );
     }
 
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
 
     await query(
       "UPDATE hat.component_atlases SET source_datasets=$1, component_info=$2",
@@ -300,7 +293,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 403 when DELETE requested from draft atlas by unregistered user", async () => {
@@ -315,38 +308,29 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 403 when DELETE requested from draft atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOOFOO.id,
-          USER_STAKEHOLDER,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
-
-  it("returns error 403 when DELETE requested from draft atlas by logged in user with INTEGRATION_LEAD role for the atlas", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOOFOO.id,
-          USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.DELETE,
+      role,
+      getQueryValues(
+        ATLAS_DRAFT.id,
+        COMPONENT_ATLAS_DRAFT_FOO.id,
+        SOURCE_DATASET_FOOFOO.id
+      ),
+      undefined,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+      }
+    );
+  }
 
   it("returns error 404 when DELETE requested from atlas the component atlas doesn't exist on", async () => {
     expect(
@@ -361,7 +345,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 400 when DELETE requested with nonexistent source dataset", async () => {
@@ -377,7 +361,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("returns error 400 when DELETE requested from component atlas the source dataset doesn't exist on", async () => {
@@ -393,7 +377,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
   it("deletes source dataset and updates related fields", async () => {
@@ -437,7 +421,7 @@ describe("/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-dat
       );
     }
 
-    expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
 
     await query("UPDATE hat.component_atlases SET source_datasets=$1", [
       sourceDatasetsBefore,
@@ -456,13 +440,21 @@ async function doSourceDatasetRequest(
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId, componentAtlasId, sourceDatasetId },
+    query: getQueryValues(atlasId, componentAtlasId, sourceDatasetId),
   });
   await withConsoleErrorHiding(
     () => sourceDatasetHandler(req, res),
     hideConsoleError
   );
   return res;
+}
+
+function getQueryValues(
+  atlasId: string,
+  componentAtlasId: string,
+  sourceDatasetId: string
+): Record<string, string> {
+  return { atlasId, componentAtlasId, sourceDatasetId };
 }
 
 async function expectComponentAtlasToBeUnchanged(

@@ -1,17 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { testApiRole } from "testing/utils";
 import {
   HCAAtlasTrackerDBUser,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewUserData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/users/create";
 import {
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
   USER_NEW,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -22,6 +23,8 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/users/create";
 
 const NEW_USER_DATA: NewUserData = {
   disabled: false,
@@ -39,7 +42,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/users/create", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
       (await doCreateTest(undefined, NEW_USER_DATA, "GET"))._getStatusCode()
@@ -58,19 +61,21 @@ describe("/api/users/create", () => {
     ).toEqual(403);
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (await doCreateTest(USER_STAKEHOLDER, NEW_USER_DATA))._getStatusCode()
-    ).toEqual(403);
-  });
-
-  it("returns error 403 for logged in user with INTEGRATION_LEAD role", async () => {
-    expect(
-      (
-        await doCreateTest(USER_INTEGRATION_LEAD_DRAFT, NEW_USER_DATA)
-      )._getStatusCode()
-    ).toEqual(403);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      createHandler,
+      METHOD.POST,
+      role,
+      undefined,
+      NEW_USER_DATA,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+      }
+    );
+  }
 
   it("returns error 400 when email value is not an email", async () => {
     expect(

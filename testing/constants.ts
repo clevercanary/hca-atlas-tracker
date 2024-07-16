@@ -20,8 +20,13 @@ import {
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
-export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
-export const USER_NEW = makeTestUser("test-new");
+export const STAKEHOLDER_ANALOGOUS_ROLES = [
+  ROLE.STAKEHOLDER,
+  ROLE.INTEGRATION_LEAD,
+];
+
+export const STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD =
+  STAKEHOLDER_ANALOGOUS_ROLES.filter((r) => r !== ROLE.INTEGRATION_LEAD);
 
 // DOIS
 
@@ -1600,6 +1605,9 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
 
 // USERS
 
+export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
+export const USER_NEW = makeTestUser("test-new");
+
 export const USER_UNREGISTERED = makeTestUser("test-unregistered");
 export const USER_STAKEHOLDER = makeTestUser(
   "test-stakeholder",
@@ -1654,6 +1662,20 @@ export const TEST_USERS = [
   USER_NONEXISTENT,
   USER_NEW,
 ];
+
+export const DEFAULT_USERS_BY_ROLE = {
+  [ROLE.CONTENT_ADMIN]: USER_CONTENT_ADMIN,
+  [ROLE.INTEGRATION_LEAD]: USER_INTEGRATION_LEAD_DRAFT,
+  [ROLE.STAKEHOLDER]: USER_STAKEHOLDER,
+  [ROLE.UNREGISTERED]: USER_UNREGISTERED,
+};
+
+export const INTEGRATION_LEADS_BY_ATLAS_ID = {
+  [ATLAS_DRAFT.id]: USER_INTEGRATION_LEAD_DRAFT,
+  [ATLAS_PUBLIC.id]: USER_INTEGRATION_LEAD_PUBLIC,
+  [ATLAS_WITH_MISC_SOURCE_STUDIES.id]:
+    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+};
 
 // COMMENTS
 

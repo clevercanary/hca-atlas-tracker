@@ -1,4 +1,3 @@
-import { METHOD } from "app/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
@@ -7,19 +6,19 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewComponentAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbComponentAtlasToApiComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/[atlasId]/component-atlases/create";
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
@@ -73,29 +72,19 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
     ).toEqual(403);
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doCreateTest(
-          USER_STAKEHOLDER,
-          ATLAS_DRAFT,
-          NEW_COMPONENT_ATLAS_DATA
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-  });
-
-  it("returns error 403 for logged in user with INTEGRATION_LEAD role for the atlas", async () => {
-    expect(
-      (
-        await doCreateTest(
-          USER_INTEGRATION_LEAD_DRAFT,
-          ATLAS_DRAFT,
-          NEW_COMPONENT_ATLAS_DATA
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns error 403",
+      "/api/atlases/[atlasId]/component-atlases/create",
+      createHandler,
+      METHOD.POST,
+      role,
+      getQueryValues(ATLAS_DRAFT),
+      NEW_COMPONENT_ATLAS_DATA,
+      false,
+      (res) => expect(res._getStatusCode()).toEqual(403)
+    );
+  }
 
   it("returns error 404 when specified atlas doesn't exist", async () => {
     expect(
@@ -185,10 +174,14 @@ async function doCreateTest(
     body: newData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId: atlas.id },
+    query: getQueryValues(atlas),
   });
   await withConsoleErrorHiding(() => createHandler(req, res), hideConsoleError);
   return res;
+}
+
+function getQueryValues(atlas: Pick<TestAtlas, "id">): Record<string, string> {
+  return { atlasId: atlas.id };
 }
 
 function expectDbComponentAtlasToMatch(

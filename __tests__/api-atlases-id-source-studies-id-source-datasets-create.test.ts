@@ -1,5 +1,3 @@
-import { METHOD } from "app/common/entities";
-import { getSourceDataset } from "app/services/source-datasets";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
@@ -9,7 +7,9 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
+import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
+import { getSourceDataset } from "../app/services/source-datasets";
 import createHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create";
 import {
   ATLAS_DRAFT,
@@ -17,19 +17,22 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestSourceStudy, TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE =
+  "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create";
 
 const NEW_SOURCE_DATASET_DATA: NewSourceDatasetData = {
   title: "New Source Dataset",
@@ -47,7 +50,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
       (
@@ -89,18 +92,24 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/
     ).toEqual(403);
   });
 
-  it("returns error 403 for logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doCreateTest(
-          USER_STAKEHOLDER,
-          ATLAS_WITH_MISC_SOURCE_STUDIES,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS,
-          NEW_SOURCE_DATASET_DATA
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      createHandler,
+      METHOD.POST,
+      role,
+      getQueryValues(
+        ATLAS_WITH_MISC_SOURCE_STUDIES,
+        SOURCE_STUDY_WITH_SOURCE_DATASETS
+      ),
+      NEW_SOURCE_DATASET_DATA,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+      }
+    );
+  }
 
   it("returns error 403 for logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
@@ -219,10 +228,17 @@ async function doCreateTest(
     body: newData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId: atlas.id, sourceStudyId: sourceStudy.id },
+    query: getQueryValues(atlas, sourceStudy),
   });
   await withConsoleErrorHiding(() => createHandler(req, res), hideConsoleError);
   return res;
+}
+
+function getQueryValues(
+  atlas: Pick<TestAtlas, "id">,
+  sourceStudy: TestSourceStudy
+): Record<string, string> {
+  return { atlasId: atlas.id, sourceStudyId: sourceStudy.id };
 }
 
 function expectDbSourceDatasetToMatch(
