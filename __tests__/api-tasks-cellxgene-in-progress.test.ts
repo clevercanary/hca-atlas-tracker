@@ -12,7 +12,7 @@ import { endPgPool, query } from "../app/services/database";
 import cellxgeneInProgressHandler from "../pages/api/tasks/cellxgene-in-progress";
 import {
   DOI_DRAFT_OK,
-  DOI_PUBLIC_WITH_PREPRINT,
+  DOI_PUBLIC_WITH_PREPRINT_PREPRINT,
   DOI_PUBLISHED_WITH_CAP_AND_CELLXGENE,
   DOI_PUBLISHED_WITH_HCA,
   DOI_PUBLISHED_WITH_UNCHANGING_IDS,
@@ -46,7 +46,7 @@ const DOIS = [
   DOI_PUBLISHED_WITH_CAP_AND_CELLXGENE,
   DOI_PUBLISHED_WITH_UNCHANGING_IDS,
   DOI_DRAFT_OK_URL,
-  DOI_PUBLIC_WITH_PREPRINT,
+  DOI_PUBLIC_WITH_PREPRINT_PREPRINT,
   DOI_PUBLISHED_WITH_HCA,
   DOI_NOT_PRESENT,
 ];
@@ -247,7 +247,7 @@ function expectCorrectUpdatedInfo(info: TaskStatusesUpdatedByDOIResult): void {
   expect(info.notUpdated.TODO).toHaveLength(0);
   expect(info.updated).toHaveLength(2);
   expect(info.updated).toContain(DOI_DRAFT_OK);
-  expect(info.updated).toContain(DOI_PUBLIC_WITH_PREPRINT);
+  expect(info.updated).toContain(DOI_PUBLIC_WITH_PREPRINT_PREPRINT);
 }
 
 async function expectValidationsToHaveUpdatedStatuses(): Promise<void> {
