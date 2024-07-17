@@ -127,7 +127,12 @@ export const NETWORK_ICONS: { [key in NetworkKey]: string } = {
 };
 
 export const ROLE_GROUP = {
-  READ: [ROLE.STAKEHOLDER, ROLE.INTEGRATION_LEAD, ROLE.CONTENT_ADMIN],
+  READ: [
+    ROLE.CELLXGENE_ADMIN,
+    ROLE.CONTENT_ADMIN,
+    ROLE.INTEGRATION_LEAD,
+    ROLE.STAKEHOLDER,
+  ],
 };
 
 export const SYSTEM_DISPLAY_NAMES: { [key in SYSTEM]: string } = {
