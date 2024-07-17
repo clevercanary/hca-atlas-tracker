@@ -14,6 +14,7 @@ import {
   COMMENT_BY_STAKEHOLDER2_ROOT,
   TEST_COMMENTS_BY_THREAD_ID,
   THREAD_ID_BY_STAKEHOLDER,
+  USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
@@ -42,12 +43,17 @@ const NEW_COMMENT_BAZ_DATA: NewCommentThreadData = {
   text: "New comment baz",
 };
 
+const NEW_COMMENT_FOOFOO_DATA: NewCommentThreadData = {
+  text: "New comment foofoo",
+};
+
 let dbUsersByEmail: Record<string, HCAAtlasTrackerDBUser>;
 
 let validationWithoutCommentA: HCAAtlasTrackerDBValidation;
 let validationWithoutCommentB: HCAAtlasTrackerDBValidation;
 let validationWithoutCommentC: HCAAtlasTrackerDBValidation;
 let validationWithoutCommentD: HCAAtlasTrackerDBValidation;
+let validationWithoutCommentE: HCAAtlasTrackerDBValidation;
 let validationWithComment: HCAAtlasTrackerDBValidation;
 
 beforeAll(async () => {
@@ -58,12 +64,13 @@ beforeAll(async () => {
   const allValidations = (
     await query<HCAAtlasTrackerDBValidation>("SELECT * FROM hat.validations")
   ).rows;
-  if (allValidations.length < 4) throw new Error("Not enough validations");
+  if (allValidations.length < 6) throw new Error("Not enough validations");
   [
     validationWithoutCommentA,
     validationWithoutCommentB,
     validationWithoutCommentC,
     validationWithoutCommentD,
+    validationWithoutCommentE,
     validationWithComment,
   ] = allValidations;
   await query("UPDATE hat.validations SET comment_thread_id=$1 WHERE id=$2", [
@@ -199,6 +206,14 @@ describe("/api/tasks/[validationId]/comment", () => {
     );
   });
 
+  it("POST adds and returns comment thread for user with CELLXGENE_ADMIN role", async () => {
+    await testSuccessfulCreate(
+      validationWithoutCommentE.id,
+      NEW_COMMENT_FOOFOO_DATA,
+      USER_CELLXGENE_ADMIN
+    );
+  });
+
   it("POST adds and returns comment thread for user with CONTENT_ADMIN role", async () => {
     await testSuccessfulCreate(
       validationWithoutCommentB.id,
@@ -266,6 +281,19 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_INTEGRATION_LEAD_DRAFT,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
+  });
+
+  it("DELETE returns error 403 for user with CELLXGENE_ADMIN role", async () => {
+    expect(
+      (
+        await doCommentRequest(
+          validationWithComment.id,
+          USER_CELLXGENE_ADMIN,
           METHOD.DELETE
         )
       )._getStatusCode()

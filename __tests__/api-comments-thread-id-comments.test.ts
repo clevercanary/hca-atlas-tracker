@@ -14,6 +14,8 @@ import {
   THREAD_ID_BY_CONTENT_ADMIN,
   THREAD_ID_BY_STAKEHOLDER,
   THREAD_ID_BY_STAKEHOLDER2,
+  THREAD_ID_BY_STAKEHOLDER_FOO,
+  USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
@@ -40,6 +42,10 @@ const NEW_COMMENT_BAR_DATA: NewCommentData = {
 
 const NEW_COMMENT_BAZ_DATA: NewCommentData = {
   text: "New comment baz",
+};
+
+const NEW_COMMENT_FOOFOO_DATA: NewCommentData = {
+  text: "New comment foofoo",
 };
 
 let dbUsersByEmail: Record<string, HCAAtlasTrackerDBUser>;
@@ -132,6 +138,20 @@ describe("/api/comments/[threadId]/comments", () => {
       TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN]
     );
   });
+
+  it("GET returns thread comments when requested by user with CELLXGENE_ADMIN role", async () => {
+    const res = await doCommentsTest(
+      USER_CELLXGENE_ADMIN,
+      THREAD_ID_BY_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const comments = res._getJSONData();
+    expectApiCommentsToMatchTest(
+      comments,
+      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN]
+    );
+  });
+
   it("GET returns thread comments when requested by user with CONTENT_ADMIN role", async () => {
     const res = await doCommentsTest(
       USER_CONTENT_ADMIN,
@@ -242,6 +262,14 @@ describe("/api/comments/[threadId]/comments", () => {
       THREAD_ID_BY_STAKEHOLDER,
       NEW_COMMENT_BAR_DATA,
       USER_CONTENT_ADMIN
+    );
+  });
+
+  it("POST creates and returns comment for user with CELLXGENE_ADMIN role", async () => {
+    await testSuccessfulCreate(
+      THREAD_ID_BY_STAKEHOLDER_FOO,
+      NEW_COMMENT_FOOFOO_DATA,
+      USER_CELLXGENE_ADMIN
     );
   });
 });

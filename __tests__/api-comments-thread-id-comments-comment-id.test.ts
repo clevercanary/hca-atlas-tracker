@@ -10,12 +10,15 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import commentHandler from "../pages/api/comments/[threadId]/comments/[commentId]";
 import {
+  COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN,
+  COMMENT_BY_CELLXGENE_ADMIN_ROOT,
   COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER,
   COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2,
   COMMENT_BY_CONTENT_ADMIN_FOO_ROOT,
   COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER,
   COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN,
   COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
+  COMMENT_BY_STAKEHOLDER2_REPLY3_CELLXGENE_ADMIN,
   COMMENT_BY_STAKEHOLDER2_ROOT,
   COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN,
   COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2,
@@ -25,11 +28,13 @@ import {
   COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
   COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT,
   COMMENT_BY_STAKEHOLDER_ROOT,
+  THREAD_ID_BY_CELLXGENE_ADMIN,
   THREAD_ID_BY_CONTENT_ADMIN,
   THREAD_ID_BY_CONTENT_ADMIN_FOO,
   THREAD_ID_BY_STAKEHOLDER,
   THREAD_ID_BY_STAKEHOLDER2,
   THREAD_ID_BY_STAKEHOLDER_FOO,
+  USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
@@ -57,6 +62,11 @@ const COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT: CommentEditData
 const COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER_EDIT: CommentEditData = {
   text: "comment by content admin reply1 edit",
 };
+
+const COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN_EDIT: CommentEditData =
+  {
+    text: "comment by cellxgene admin reply2 edit",
+  };
 
 let dbUsersByEmail: Record<string, HCAAtlasTrackerDBUser>;
 
@@ -143,6 +153,20 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
   it("GET returns comment when requested by user with INTEGRATION_LEAD role", async () => {
     const res = await doCommentTest(
       USER_INTEGRATION_LEAD_DRAFT,
+      THREAD_ID_BY_STAKEHOLDER,
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const comment = res._getJSONData();
+    expectApiCommentToMatchTest(
+      comment,
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER
+    );
+  });
+
+  it("GET returns comment when requested by user with CELLXGENE_ADMIN role", async () => {
+    const res = await doCommentTest(
+      USER_CELLXGENE_ADMIN,
       THREAD_ID_BY_STAKEHOLDER,
       COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
     );
@@ -286,48 +310,50 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
   });
 
-  it("PATCH updates user's own comment when requested by user with STAKEHOLDER role", async () => {
-    const res = await doCommentTest(
-      USER_STAKEHOLDER,
-      THREAD_ID_BY_STAKEHOLDER,
-      COMMENT_BY_STAKEHOLDER_ROOT.id,
-      METHOD.PATCH,
-      true,
-      COMMENT_BY_STAKEHOLDER_ROOT_EDIT
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const updatedComment = res._getJSONData() as HCAAtlasTrackerComment;
-    expect(updatedComment.text).toEqual(COMMENT_BY_STAKEHOLDER_ROOT_EDIT.text);
-    const updatedCommentFromDb = await getCommentFromDatabase(
-      COMMENT_BY_STAKEHOLDER_ROOT.id
-    );
-    expect(updatedCommentFromDb).toBeDefined();
-    if (updatedCommentFromDb === undefined) return;
-    expectDbCommentToMatch(updatedCommentFromDb, updatedComment);
+  it("PATCH returns error 403 when user with CELLXGENE_ADMIN role attempts to edit another user's comment", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_CELLXGENE_ADMIN,
+          THREAD_ID_BY_STAKEHOLDER,
+          COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN.id,
+          METHOD.PATCH,
+          true,
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
   });
 
+  it("PATCH updates user's own comment when requested by user with STAKEHOLDER role", async () => {
+    await testSuccessfulEdit(
+      USER_STAKEHOLDER,
+      THREAD_ID_BY_STAKEHOLDER,
+      COMMENT_BY_STAKEHOLDER_ROOT.id,
+      COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
+      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN
+    );
+  });
+
   it("PATCH updates user's own comment when requested by user with INTEGRATION_LEAD role", async () => {
-    const res = await doCommentTest(
+    await testSuccessfulEdit(
       USER_INTEGRATION_LEAD_DRAFT,
       THREAD_ID_BY_STAKEHOLDER,
       COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT.id,
-      METHOD.PATCH,
-      true,
-      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT
+      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT,
+      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const updatedComment = res._getJSONData() as HCAAtlasTrackerComment;
-    expect(updatedComment.text).toEqual(
-      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT.text
+  });
+
+  it("PATCH updates user's own comment when requested by user with CELLXGENE_ADMIN role", async () => {
+    await testSuccessfulEdit(
+      USER_CELLXGENE_ADMIN,
+      THREAD_ID_BY_CELLXGENE_ADMIN,
+      COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN.id,
+      COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN_EDIT,
+      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN
     );
-    const updatedCommentFromDb = await getCommentFromDatabase(
-      COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT.id
-    );
-    expect(updatedCommentFromDb).toBeDefined();
-    if (updatedCommentFromDb === undefined) return;
-    expectDbCommentToMatch(updatedCommentFromDb, updatedComment);
-    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
   });
 
   it("PATCH updates another user's comment when requested by user with CONTENT_ADMIN role", async () => {
@@ -337,25 +363,14 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     expect(commentBefore?.updated_by).toEqual(
       dbUsersByEmail[USER_STAKEHOLDER.email].id
     );
-    const res = await doCommentTest(
+
+    const updatedCommentFromDb = await testSuccessfulEdit(
       USER_CONTENT_ADMIN,
       THREAD_ID_BY_CONTENT_ADMIN,
       COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER.id,
-      METHOD.PATCH,
-      true,
-      COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER_EDIT
+      COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER_EDIT,
+      COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const updatedComment = res._getJSONData() as HCAAtlasTrackerComment;
-    expect(updatedComment.text).toEqual(
-      COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER_EDIT.text
-    );
-    const updatedCommentFromDb = await getCommentFromDatabase(
-      COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER.id
-    );
-    expect(updatedCommentFromDb).toBeDefined();
-    if (updatedCommentFromDb === undefined) return;
-    expectDbCommentToMatch(updatedCommentFromDb, updatedComment);
 
     expect(updatedCommentFromDb.updated_by).toEqual(
       dbUsersByEmail[USER_CONTENT_ADMIN.email].id
@@ -363,8 +378,6 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     expect(updatedCommentFromDb.created_by).toEqual(
       dbUsersByEmail[USER_STAKEHOLDER.email].id
     );
-
-    await expectCommentToBeUnchanged(COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN);
   });
 
   it("DELETE returns error 401 for logged out user", async () => {
@@ -497,6 +510,38 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_ROOT);
   });
 
+  it("DELETE returns error 403 when user with CELLXGENE_ADMIN role attempts to delete another user's non-root comment", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_CELLXGENE_ADMIN,
+          THREAD_ID_BY_STAKEHOLDER2,
+          COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectCommentToBeUnchanged(
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+    );
+  });
+
+  it("DELETE returns error 400 when user with CELLXGENE_ADMIN role attempts to delete their own root comment", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_CELLXGENE_ADMIN,
+          THREAD_ID_BY_CELLXGENE_ADMIN,
+          COMMENT_BY_CELLXGENE_ADMIN_ROOT.id,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectCommentToBeUnchanged(COMMENT_BY_CELLXGENE_ADMIN_ROOT);
+  });
+
   it("DELETE returns error 400 when user with CONTENT_ADMIN role attempts to delete their own root comment", async () => {
     expect(
       (
@@ -513,72 +558,37 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
   });
 
   it("DELETE deletes user's own non-root comment when requested by user with STAKEHOLDER role", async () => {
-    await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2
+    await testSuccessfulDelete(
+      USER_STAKEHOLDER2,
+      THREAD_ID_BY_STAKEHOLDER_FOO,
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2,
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN
     );
-    expect(
-      (
-        await doCommentTest(
-          USER_STAKEHOLDER2,
-          THREAD_ID_BY_STAKEHOLDER_FOO,
-          COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2.id,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-    expect(
-      await getCommentFromDatabase(
-        COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2.id
-      )
-    ).toBeUndefined();
-    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN);
   });
 
   it("DELETE deletes user's own non-root comment when requested by user with INTEGRATION_LEAD role", async () => {
-    await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT
+    await testSuccessfulDelete(
+      USER_INTEGRATION_LEAD_DRAFT,
+      THREAD_ID_BY_STAKEHOLDER_FOO,
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT,
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN
     );
-    expect(
-      (
-        await doCommentTest(
-          USER_INTEGRATION_LEAD_DRAFT,
-          THREAD_ID_BY_STAKEHOLDER_FOO,
-          COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT.id,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-    expect(
-      await getCommentFromDatabase(
-        COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT.id
-      )
-    ).toBeUndefined();
-    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN);
+  });
+
+  it("DELETE deletes user's own non-root comment when requested by user with CELLXGENE_ADMIN role", async () => {
+    await testSuccessfulDelete(
+      USER_CELLXGENE_ADMIN,
+      THREAD_ID_BY_STAKEHOLDER2,
+      COMMENT_BY_STAKEHOLDER2_REPLY3_CELLXGENE_ADMIN,
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN
+    );
   });
 
   it("DELETE deletes another user's non-root comment when requested by user with CONTENT_ADMIN role", async () => {
-    await expectCommentToBeUnchanged(
-      COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER
-    );
-    expect(
-      (
-        await doCommentTest(
-          USER_CONTENT_ADMIN,
-          THREAD_ID_BY_CONTENT_ADMIN_FOO,
-          COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER.id,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-    expect(
-      await getCommentFromDatabase(
-        COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER.id
-      )
-    ).toBeUndefined();
-    await expectCommentToBeUnchanged(
+    await testSuccessfulDelete(
+      USER_CONTENT_ADMIN,
+      THREAD_ID_BY_CONTENT_ADMIN_FOO,
+      COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER,
       COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2
     );
   });
@@ -638,6 +648,48 @@ function expectDbCommentToMatch(
   expect(dbComment.thread_id).toEqual(apiComment.threadId);
   expect(dbComment.updated_at.toISOString()).toEqual(apiComment.updatedAt);
   expect(dbComment.updated_by).toEqual(apiComment.updatedBy);
+}
+
+async function testSuccessfulEdit(
+  user: TestUser,
+  threadId: string,
+  commentId: string,
+  editData: CommentEditData,
+  unchangedComment: TestComment
+): Promise<HCAAtlasTrackerDBComment> {
+  const res = await doCommentTest(
+    user,
+    threadId,
+    commentId,
+    METHOD.PATCH,
+    false,
+    editData
+  );
+  expect(res._getStatusCode()).toEqual(200);
+  const updatedComment = res._getJSONData() as HCAAtlasTrackerComment;
+  expect(updatedComment.text).toEqual(editData.text);
+  const updatedCommentFromDb = await getCommentFromDatabase(commentId);
+  expect(updatedCommentFromDb).toBeDefined();
+  if (updatedCommentFromDb === undefined) throw new Error("Comment missing");
+  expectDbCommentToMatch(updatedCommentFromDb, updatedComment);
+  await expectCommentToBeUnchanged(unchangedComment);
+  return updatedCommentFromDb;
+}
+
+async function testSuccessfulDelete(
+  user: TestUser,
+  threadId: string,
+  comment: TestComment,
+  unchangedComment: TestComment
+): Promise<void> {
+  await expectCommentToBeUnchanged(comment);
+  expect(
+    (
+      await doCommentTest(user, threadId, comment.id, METHOD.DELETE, true)
+    )._getStatusCode()
+  ).toEqual(200);
+  expect(await getCommentFromDatabase(comment.id)).toBeUndefined();
+  await expectCommentToBeUnchanged(unchangedComment);
 }
 
 async function doCommentTest(
