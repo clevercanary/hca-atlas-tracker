@@ -11,7 +11,7 @@ import { normalizeDoi } from "../../../app/utils/doi";
 
 export default handler(
   method(METHOD.PATCH),
-  role(ROLE.CONTENT_ADMIN),
+  role([ROLE.CONTENT_ADMIN, ROLE.CELLXGENE_ADMIN]),
   async (req, res) => {
     const dois = (await taskCellxGeneInProgressSchema.validate(req.body)).map(
       normalizeDoi
