@@ -291,7 +291,15 @@ export type NewCommentThreadData = InferType<typeof newCommentThreadSchema>;
  * Schema for data used to set CELLxGENE ingest tasks to in-progress.
  */
 export const taskCellxGeneInProgressSchema = array()
-  .of(string().required())
+  .of(
+    string()
+      .required()
+      .test(
+        "is-doi",
+        "DOIs must be syntactically-valid",
+        (value) => typeof value !== "string" || isDoi(value)
+      )
+  )
   .strict()
   .required();
 
