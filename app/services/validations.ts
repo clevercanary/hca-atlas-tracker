@@ -524,7 +524,6 @@ export async function updateSourceStudyTaskStatusesByDois(
     // Get source studies with the given DOIs
 
     const sourceStudies = await getSourceStudiesByDois(dois, client);
-    console.log(sourceStudies);
     const sourceStudyIds = sourceStudies.map(({ id }) => id);
 
     // Calculate info about found and not found DOIs
