@@ -172,6 +172,14 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when DOI array is empty", async () => {
+    expect(
+      (
+        await doCellxGeneInProgressRequest([], USER_CONTENT_ADMIN, true)
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("returns error 400 when DOIs contain a number", async () => {
     expect(
       (

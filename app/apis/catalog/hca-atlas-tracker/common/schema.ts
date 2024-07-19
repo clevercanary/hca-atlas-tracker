@@ -301,7 +301,8 @@ export const taskCellxGeneInProgressSchema = array()
       )
   )
   .strict()
-  .required();
+  .required()
+  .min(1);
 
 export type TaskCellxGeneInProgressData = InferType<
   typeof taskCellxGeneInProgressSchema
