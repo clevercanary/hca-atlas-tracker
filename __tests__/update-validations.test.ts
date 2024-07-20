@@ -5,7 +5,6 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
-  TASK_STATUS,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
@@ -18,9 +17,11 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 
-jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("../app/utils/crossref/crossref-api");
+jest.mock("../app/services/hca-projects");
+jest.mock("../app/services/cellxgene");
 
 const ENTITY_TYPE_TEST = "ENTITY_TYPE_TEST" as ENTITY_TYPE;
 
@@ -57,7 +58,6 @@ const VALIDATION_VW: HCAAtlasTrackerValidationResult = {
   publicationString: PUBLICATION_EX,
   relatedEntityUrl: null,
   system: SYSTEM_TEST,
-  taskStatus: TASK_STATUS.TODO,
   validationId: VALIDATION_ID_VW,
   validationStatus: VALIDATION_STATUS.FAILED,
   validationType: VALIDATION_TYPE_TEST,
@@ -80,7 +80,6 @@ const VALIDATION_VX: HCAAtlasTrackerValidationResult = {
   publicationString: PUBLICATION_EX,
   relatedEntityUrl: null,
   system: SYSTEM_TEST,
-  taskStatus: TASK_STATUS.TODO,
   validationId: VALIDATION_ID_VX,
   validationStatus: VALIDATION_STATUS.FAILED,
   validationType: VALIDATION_TYPE_TEST,
@@ -113,7 +112,6 @@ const VALIDATION_VY: HCAAtlasTrackerValidationResult = {
   publicationString: PUBLICATION_EX,
   relatedEntityUrl: null,
   system: SYSTEM_TEST,
-  taskStatus: TASK_STATUS.DONE,
   validationId: VALIDATION_ID_VY,
   validationStatus: VALIDATION_STATUS.PASSED,
   validationType: VALIDATION_TYPE_TEST,
@@ -126,7 +124,6 @@ const VALIDATION_VY_UPDATED_TITLE: HCAAtlasTrackerValidationResult = {
 
 const VALIDATION_VY_FAILED: HCAAtlasTrackerValidationResult = {
   ...VALIDATION_VY,
-  taskStatus: TASK_STATUS.TODO,
   validationStatus: VALIDATION_STATUS.FAILED,
 };
 
@@ -141,7 +138,6 @@ const VALIDATION_VZ: HCAAtlasTrackerValidationResult = {
   publicationString: PUBLICATION_EX,
   relatedEntityUrl: null,
   system: SYSTEM_TEST,
-  taskStatus: TASK_STATUS.TODO,
   validationId: VALIDATION_ID_VZ,
   validationStatus: VALIDATION_STATUS.FAILED,
   validationType: VALIDATION_TYPE_TEST,
@@ -149,7 +145,6 @@ const VALIDATION_VZ: HCAAtlasTrackerValidationResult = {
 
 const VALIDATION_VZ_PASSED: HCAAtlasTrackerValidationResult = {
   ...VALIDATION_VZ,
-  taskStatus: TASK_STATUS.DONE,
   validationStatus: VALIDATION_STATUS.PASSED,
 };
 

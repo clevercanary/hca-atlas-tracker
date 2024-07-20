@@ -11,18 +11,20 @@ import {
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_PUBLIC,
-  USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestPublishedSourceStudy, TestUser } from "../testing/entities";
+import { testApiRole } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+const TEST_ROUTE = "/api/atlases/[id]/source-studies";
 
 beforeAll(async () => {
   await resetDatabase();
@@ -32,7 +34,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[id]/source-studies", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (
@@ -68,61 +70,59 @@ describe("/api/atlases/[id]/source-studies", () => {
     ).toEqual(403);
   });
 
-  it("returns public atlas studies when requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doStudiesRequest(ATLAS_PUBLIC.id, USER_STAKEHOLDER);
-    expect(res._getStatusCode()).toEqual(200);
-    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
-    expect(studies).toHaveLength(2);
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns public atlas studies",
+      TEST_ROUTE,
+      studiesHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(ATLAS_PUBLIC.id),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+        expect(studies).toHaveLength(2);
+        expectStudyPropertiesToMatch(
+          studies.find((d) => d.id === SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF
+        );
+        expectStudyPropertiesToMatch(
+          studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+          SOURCE_STUDY_SHARED
+        );
+      }
     );
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
-      SOURCE_STUDY_SHARED
-    );
-  });
 
-  it("returns draft atlas studies when requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doStudiesRequest(ATLAS_DRAFT.id, USER_STAKEHOLDER);
-    expect(res._getStatusCode()).toEqual(200);
-    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
-    expect(studies).toHaveLength(3);
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
-      SOURCE_STUDY_DRAFT_OK
+    testApiRole(
+      "returns draft atlas studies",
+      TEST_ROUTE,
+      studiesHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(ATLAS_DRAFT.id),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+        expect(studies).toHaveLength(3);
+        expectStudyPropertiesToMatch(
+          studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+          SOURCE_STUDY_DRAFT_OK
+        );
+        expectStudyPropertiesToMatch(
+          studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+          SOURCE_STUDY_SHARED
+        );
+        expectStudyPropertiesToMatch(
+          studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+          SOURCE_STUDY_DRAFT_NO_CROSSREF
+        );
+      }
     );
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
-      SOURCE_STUDY_SHARED
-    );
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
-      SOURCE_STUDY_DRAFT_NO_CROSSREF
-    );
-  });
-
-  it("returns draft atlas studies when requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
-    const res = await doStudiesRequest(
-      ATLAS_DRAFT.id,
-      USER_INTEGRATION_LEAD_PUBLIC
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
-    expect(studies).toHaveLength(3);
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
-      SOURCE_STUDY_DRAFT_OK
-    );
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
-      SOURCE_STUDY_SHARED
-    );
-    expectStudyPropertiesToMatch(
-      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
-      SOURCE_STUDY_DRAFT_NO_CROSSREF
-    );
-  });
+  }
 
   it("returns draft atlas studies when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doStudiesRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
@@ -152,10 +152,14 @@ async function doStudiesRequest(
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId },
+    query: getQueryValues(atlasId),
   });
   await studiesHandler(req, res);
   return res;
+}
+
+function getQueryValues(atlasId: string): Record<string, string> {
+  return { atlasId };
 }
 
 function expectStudyPropertiesToMatch(

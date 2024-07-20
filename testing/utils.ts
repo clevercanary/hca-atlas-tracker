@@ -1,3 +1,5 @@
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
@@ -11,9 +13,16 @@ import {
   HCAAtlasTrackerSourceStudy,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "../app/common/entities";
+import { Handler } from "../app/utils/api-handler";
 import {
+  ATLAS_DRAFT,
+  DEFAULT_USERS_BY_ROLE,
+  INTEGRATION_LEADS_BY_ATLAS_ID,
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
+  USER_INTEGRATION_LEAD_DRAFT,
+  USER_INTEGRATION_LEAD_PUBLIC,
 } from "./constants";
 import {
   TestAtlas,
@@ -193,6 +202,52 @@ export function promiseWithResolvers<T>(): [
 
 export function delay(ms = 5): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function testApiRole(
+  testNameBase: string,
+  route: string,
+  handler: Handler,
+  method: METHOD,
+  role: ROLE,
+  query: Record<string, string> | undefined,
+  body: httpMocks.Body | undefined,
+  hideConsoleError: boolean,
+  callback: (
+    res: httpMocks.MockResponse<NextApiResponse>,
+    user: TestUser
+  ) => void | Promise<void>
+): void {
+  let user: TestUser;
+  let testName: string;
+  if (role === ROLE.INTEGRATION_LEAD && query && "atlasId" in query) {
+    if (method === METHOD.GET) {
+      user =
+        query.atlasId === ATLAS_DRAFT.id
+          ? USER_INTEGRATION_LEAD_PUBLIC
+          : USER_INTEGRATION_LEAD_DRAFT;
+      testName = `${testNameBase} when GET requested by user with INTEGRATION_LEAD role for another atlas`;
+    } else {
+      user = INTEGRATION_LEADS_BY_ATLAS_ID[query.atlasId];
+      if (!user) throw new Error("No appropriate user found for test");
+      testName = `${testNameBase} when ${method} requested by user with INTEGRATION_LEAD role for the atlas`;
+    }
+  } else {
+    user = DEFAULT_USERS_BY_ROLE[role];
+    testName = `${testNameBase} when ${method} requested by user with ${role} role`;
+  }
+  it(testName, async () => {
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body,
+        headers: { authorization: user.authorization },
+        method,
+        query,
+      }
+    );
+    await withConsoleErrorHiding(() => handler(req, res), hideConsoleError);
+    await callback(res, user);
+  });
 }
 
 export function expectApiAtlasToMatchTest(

@@ -43,9 +43,10 @@ import {
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
+  STAKEHOLDER_ANALOGOUS_ROLES,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
-  USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -68,6 +69,7 @@ import {
   expectComponentAtlasDatasetsToHaveDifference,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
+  testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
 
@@ -76,6 +78,8 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+
+const TEST_ROUTE = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 
 const SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT = {
   capId: null,
@@ -127,7 +131,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for POST request", async () => {
     expect(
       (
@@ -210,27 +214,23 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     expect(study.doi).toEqual(SOURCE_STUDY_PUBLIC_NO_CROSSREF.doi);
   });
 
-  it("returns study from draft atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
-    const res = await doStudyRequest(
-      ATLAS_DRAFT.id,
-      SOURCE_STUDY_DRAFT_OK.id,
-      USER_STAKEHOLDER
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns study",
+      TEST_ROUTE,
+      studyHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(ATLAS_DRAFT.id, SOURCE_STUDY_DRAFT_OK.id),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+        expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
+      }
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
-  });
-
-  it("returns study from draft atlas when GET requested by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
-    const res = await doStudyRequest(
-      ATLAS_DRAFT.id,
-      SOURCE_STUDY_DRAFT_OK.id,
-      USER_INTEGRATION_LEAD_PUBLIC
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
-  });
+  }
 
   it("returns study from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doStudyRequest(
@@ -255,7 +255,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("returns error 403 when study is PUT requested from public atlas by unregistered user", async () => {
@@ -270,23 +270,25 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when study is PUT requested from public atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doStudyRequest(
-          ATLAS_PUBLIC.id,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
-          USER_STAKEHOLDER,
-          METHOD.PUT,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      studyHandler,
+      METHOD.PUT,
+      role,
+      getQueryValues(ATLAS_PUBLIC.id, SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+      }
+    );
+  }
 
   it("returns error 403 when study is PUT requested from public atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
@@ -300,7 +302,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("returns error 404 when study is PUT requested from atlas it doesn't exist on", async () => {
@@ -316,7 +318,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("returns error 400 for unpublished study PUT requested with contact email set to undefined", async () => {
@@ -335,7 +337,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
   });
 
   it("returns error 400 for unpublished study PUT requested with CELLxGENE ID set to undefined", async () => {
@@ -354,7 +356,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
   });
 
   it("returns error 400 for published study PUT requested with CELLxGENE ID specified", async () => {
@@ -373,7 +375,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(400);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("updates, revalidates, and returns study with published data when PUT requested", async () => {
@@ -629,7 +631,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(401);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("returns error 403 when study is DELETE requested from public atlas by unregistered user", async () => {
@@ -643,22 +645,25 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("returns error 403 when study is DELETE requested from public atlas by logged in user with STAKEHOLDER role", async () => {
-    expect(
-      (
-        await doStudyRequest(
-          ATLAS_PUBLIC.id,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
-          USER_STAKEHOLDER,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      studyHandler,
+      METHOD.DELETE,
+      role,
+      getQueryValues(ATLAS_PUBLIC.id, SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
+      undefined,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+      }
+    );
+  }
 
   it("returns error 403 when study is DELETE requested from public atlas by logged in user with INTEGRATION_LEAD role for another atlas", async () => {
     expect(
@@ -671,7 +676,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(403);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("returns error 404 when study is DELETE requested from atlas it doesn't exist on", async () => {
@@ -687,7 +692,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
         )
       )._getStatusCode()
     ).toEqual(404);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("deletes source study only from specified atlas and revalidates when shared by multiple atlases", async () => {
@@ -719,7 +724,7 @@ describe("/api/atlases/[atlasId]/source-studies/[sourceStudyId]", () => {
     const publicStudys = (await getAtlasFromDatabase(ATLAS_PUBLIC.id))
       ?.source_studies;
     expect(publicStudys).toContain(SOURCE_STUDY_SHARED.id);
-    expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
 
     const validationsAfter = await getValidationsByEntityId(
       SOURCE_STUDY_SHARED.id
@@ -851,10 +856,17 @@ async function doStudyRequest(
     body: updatedData,
     headers: { authorization: user?.authorization },
     method,
-    query: { atlasId, sourceStudyId },
+    query: getQueryValues(atlasId, sourceStudyId),
   });
   await withConsoleErrorHiding(() => studyHandler(req, res), hideConsoleError);
   return res;
+}
+
+function getQueryValues(
+  atlasId: string,
+  sourceStudyId: string
+): Record<string, string> {
+  return { atlasId, sourceStudyId };
 }
 
 async function restoreDbStudy(study: TestSourceStudy): Promise<void> {

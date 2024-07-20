@@ -20,8 +20,14 @@ import {
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
-export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
-export const USER_NEW = makeTestUser("test-new");
+export const STAKEHOLDER_ANALOGOUS_ROLES = [
+  ROLE.STAKEHOLDER,
+  ROLE.INTEGRATION_LEAD,
+  ROLE.CELLXGENE_ADMIN,
+];
+
+export const STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD =
+  STAKEHOLDER_ANALOGOUS_ROLES.filter((r) => r !== ROLE.INTEGRATION_LEAD);
 
 // DOIS
 
@@ -1600,6 +1606,9 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
 
 // USERS
 
+export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
+export const USER_NEW = makeTestUser("test-new");
+
 export const USER_UNREGISTERED = makeTestUser("test-unregistered");
 export const USER_STAKEHOLDER = makeTestUser(
   "test-stakeholder",
@@ -1636,6 +1645,10 @@ export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES = makeTestUser(
   false,
   [ATLAS_WITH_MISC_SOURCE_STUDIES.id]
 );
+export const USER_CELLXGENE_ADMIN = makeTestUser(
+  "test-cellxgene-admin",
+  ROLE.CELLXGENE_ADMIN
+);
 
 // Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
@@ -1646,6 +1659,7 @@ export const INITIAL_TEST_USERS = [
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+  USER_CELLXGENE_ADMIN,
 ];
 
 export const TEST_USERS = [
@@ -1654,6 +1668,21 @@ export const TEST_USERS = [
   USER_NONEXISTENT,
   USER_NEW,
 ];
+
+export const DEFAULT_USERS_BY_ROLE = {
+  [ROLE.CELLXGENE_ADMIN]: USER_CELLXGENE_ADMIN,
+  [ROLE.CONTENT_ADMIN]: USER_CONTENT_ADMIN,
+  [ROLE.INTEGRATION_LEAD]: USER_INTEGRATION_LEAD_DRAFT,
+  [ROLE.STAKEHOLDER]: USER_STAKEHOLDER,
+  [ROLE.UNREGISTERED]: USER_UNREGISTERED,
+};
+
+export const INTEGRATION_LEADS_BY_ATLAS_ID = {
+  [ATLAS_DRAFT.id]: USER_INTEGRATION_LEAD_DRAFT,
+  [ATLAS_PUBLIC.id]: USER_INTEGRATION_LEAD_PUBLIC,
+  [ATLAS_WITH_MISC_SOURCE_STUDIES.id]:
+    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+};
 
 // COMMENTS
 
@@ -1669,6 +1698,9 @@ export const THREAD_ID_BY_CONTENT_ADMIN_FOO =
   "2bf5ac46-4e9e-4b5d-b507-9cd3103cf7f8";
 
 export const THREAD_ID_BY_STAKEHOLDER2 = "3e5a735e-b055-410d-a8d4-5ce9ef64352d";
+
+export const THREAD_ID_BY_CELLXGENE_ADMIN =
+  "279a2806-63bb-4b46-9045-6a0d01abf794";
 
 export const COMMENT_BY_STAKEHOLDER_ROOT: TestComment = {
   createdAt: "2024-06-25T21:13:49.725Z",
@@ -1808,6 +1840,39 @@ export const COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER: TestComment = {
   threadId: THREAD_ID_BY_STAKEHOLDER2,
 };
 
+export const COMMENT_BY_STAKEHOLDER2_REPLY3_CELLXGENE_ADMIN: TestComment = {
+  createdAt: "2024-07-17T02:09:52.948Z",
+  createdBy: USER_CELLXGENE_ADMIN,
+  id: "c659e9d4-f057-474a-8f77-217892975542",
+  text: "foobaz barbaz foofoo",
+  threadId: THREAD_ID_BY_STAKEHOLDER2,
+};
+
+export const COMMENT_BY_CELLXGENE_ADMIN_ROOT: TestComment = {
+  createdAt: "2024-07-17T01:52:51.799Z",
+  createdBy: USER_CELLXGENE_ADMIN,
+  id: "c39eb054-57db-439f-9e31-9a7dbcc2107b",
+  text: "foo barfoobar bar",
+  threadId: THREAD_ID_BY_CELLXGENE_ADMIN,
+};
+
+export const COMMENT_BY_CELLXGENE_ADMIN_REPLY1_INTEGRATION_LEAD_DRAFT: TestComment =
+  {
+    createdAt: "2024-07-17T01:53:07.699Z",
+    createdBy: USER_INTEGRATION_LEAD_DRAFT,
+    id: "1dd6eb4f-5b0c-44a3-8a0b-8114fcb4d0f9",
+    text: "bazbar baz foo bar",
+    threadId: THREAD_ID_BY_CELLXGENE_ADMIN,
+  };
+
+export const COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN: TestComment = {
+  createdAt: "2024-07-17T01:53:20.699Z",
+  createdBy: USER_CELLXGENE_ADMIN,
+  id: "77e58bdd-90b4-4005-b450-27dab32c2b37",
+  text: "foo bazbazbaz bar foobar",
+  threadId: THREAD_ID_BY_CELLXGENE_ADMIN,
+};
+
 // Comments to initialize in the database before tests
 export const INITIAL_TEST_COMMENTS = [
   COMMENT_BY_STAKEHOLDER_ROOT,
@@ -1827,6 +1892,10 @@ export const INITIAL_TEST_COMMENTS = [
   COMMENT_BY_STAKEHOLDER2_ROOT,
   COMMENT_BY_STAKEHOLDER2_REPLY1_ADMIN,
   COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
+  COMMENT_BY_STAKEHOLDER2_REPLY3_CELLXGENE_ADMIN,
+  COMMENT_BY_CELLXGENE_ADMIN_ROOT,
+  COMMENT_BY_CELLXGENE_ADMIN_REPLY1_INTEGRATION_LEAD_DRAFT,
+  COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN,
 ];
 
 export const TEST_COMMENTS = [...INITIAL_TEST_COMMENTS];

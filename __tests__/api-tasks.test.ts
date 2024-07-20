@@ -7,19 +7,22 @@ import tasksHandler from "../pages/api/tasks";
 import {
   INITIAL_TEST_ATLASES_BY_SOURCE_STUDY,
   INITIAL_TEST_SOURCE_STUDIES,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
+import { testApiRole } from "../testing/utils";
 
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+
+const TEST_ROUTE = "/api/tasks";
 
 beforeAll(async () => {
   await resetDatabase();
@@ -29,7 +32,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("/api/tasks", () => {
+describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (await doTasksRequest(USER_STAKEHOLDER, METHOD.POST))._getStatusCode()
@@ -46,17 +49,22 @@ describe("/api/tasks", () => {
     );
   });
 
-  it("returns validations for user with STAKEHOLDER role", async () => {
-    const res = await doTasksRequest(USER_STAKEHOLDER);
-    expect(res._getStatusCode()).toEqual(200);
-    expectInitialValidationsToExist(res._getJSONData());
-  });
-
-  it("returns validations for user with INTEGRATION_LEAD role", async () => {
-    const res = await doTasksRequest(USER_INTEGRATION_LEAD_DRAFT);
-    expect(res._getStatusCode()).toEqual(200);
-    expectInitialValidationsToExist(res._getJSONData());
-  });
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns validations",
+      TEST_ROUTE,
+      tasksHandler,
+      METHOD.GET,
+      role,
+      undefined,
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        expectInitialValidationsToExist(res._getJSONData());
+      }
+    );
+  }
 
   it("returns validations for user with CONTENT_ADMIN role", async () => {
     const res = await doTasksRequest(USER_CONTENT_ADMIN);

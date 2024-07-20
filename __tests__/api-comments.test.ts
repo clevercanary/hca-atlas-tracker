@@ -9,6 +9,7 @@ import { NewCommentThreadData } from "../app/apis/catalog/hca-atlas-tracker/comm
 import { endPgPool, query } from "../app/services/database";
 import commentsHandler from "../pages/api/comments";
 import {
+  USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
@@ -35,6 +36,9 @@ const NEW_COMMENT_BAZ_DATA: NewCommentThreadData = {
   text: "New comment baz",
 };
 
+const NEW_COMMENT_FOOFOO_DATA: NewCommentThreadData = {
+  text: "New comment foofoo",
+};
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -107,6 +111,10 @@ describe("/api/comments", () => {
       NEW_COMMENT_BAZ_DATA,
       USER_INTEGRATION_LEAD_DRAFT
     );
+  });
+
+  it("creates and returns comment for user with CELLXGENE_ADMIN role", async () => {
+    await testSuccessfulCreate(NEW_COMMENT_FOOFOO_DATA, USER_CELLXGENE_ADMIN);
   });
 
   it("creates and returns comment for user with CONTENT_ADMIN role", async () => {

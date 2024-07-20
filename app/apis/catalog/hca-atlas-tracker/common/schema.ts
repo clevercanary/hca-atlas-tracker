@@ -288,6 +288,27 @@ export const newCommentThreadSchema = newCommentSchema;
 export type NewCommentThreadData = InferType<typeof newCommentThreadSchema>;
 
 /**
+ * Schema for data used to set CELLxGENE ingest tasks to in-progress.
+ */
+export const taskCellxGeneInProgressSchema = array()
+  .of(
+    string()
+      .required()
+      .test(
+        "is-doi",
+        "DOIs must be syntactically-valid",
+        (value) => typeof value !== "string" || isDoi(value)
+      )
+  )
+  .strict()
+  .required()
+  .min(1);
+
+export type TaskCellxGeneInProgressData = InferType<
+  typeof taskCellxGeneInProgressSchema
+>;
+
+/**
  * Schema for data used to create a new user.
  */
 export const newUserSchema = object({

@@ -3,8 +3,10 @@ import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
 import {
-  TASK_STATUS_BY_VALIDATION_STATUS,
+  ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS,
+  DEFAULT_TASK_STATUS_BY_VALIDATION_STATUS,
   VALIDATION_DESCRIPTION,
+  VALIDATION_STATUS_BY_TASK_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DBEntityOfType,
@@ -19,6 +21,8 @@ import {
   HCAAtlasTrackerValidationResult,
   PublicationInfo,
   SYSTEM,
+  TaskStatusesUpdatedByDOIResult,
+  TASK_STATUS,
   ValidationDifference,
   VALIDATION_ID,
   VALIDATION_STATUS,
@@ -32,6 +36,7 @@ import { updateTaskCounts } from "./atlases";
 import { createCommentThread, deleteCommentThread } from "./comments";
 import { doTransaction, getPoolClient, query } from "./database";
 import { getProjectInfoById } from "./hca-projects";
+import { getSourceStudiesByDois } from "./source-studies";
 
 interface ValidationStatusInfo {
   differences?: ValidationDifference[];
@@ -60,7 +65,6 @@ const CHANGE_INDICATING_VALIDATION_KEYS = [
   "entityTitle",
   "publicationString",
   "relatedEntityUrl",
-  "taskStatus",
   "validationStatus",
 ] as const;
 
@@ -249,7 +253,6 @@ function getValidationResult<T extends ENTITY_TYPE>(
     entityType,
     relatedEntityUrl: validationStatusInfo.relatedEntityUrl ?? null,
     system: validation.system,
-    taskStatus: TASK_STATUS_BY_VALIDATION_STATUS[validationStatus],
     validationId: validation.validationId,
     validationStatus,
     validationType: validation.validationType,
@@ -340,57 +343,7 @@ export async function updateValidations(
     validationIdsToDelete.delete(result.validationId);
 
     const existingValidation = existingValidationsById.get(result.validationId);
-
-    const resolvedAt =
-      result.validationStatus === VALIDATION_STATUS.PASSED
-        ? existingValidation?.resolved_at ?? new Date()
-        : null;
-
-    const newColumns: HCAAtlasTrackerDBValidationUpdateColumns = {
-      atlas_ids: result.atlasIds,
-      entity_id: result.entityId,
-      resolved_at: resolvedAt,
-      validation_id: result.validationId,
-      validation_info: {
-        description: result.description,
-        differences: result.differences,
-        doi: result.doi,
-        entityTitle: result.entityTitle,
-        entityType: result.entityType,
-        publicationString: result.publicationString,
-        relatedEntityUrl: result.relatedEntityUrl,
-        system: result.system,
-        taskStatus: result.taskStatus,
-        validationStatus: result.validationStatus,
-        validationType: result.validationType,
-      },
-    };
-
-    if (existingValidation) {
-      // Update existing validation record if needed
-      if (!shouldUpdateValidation(existingValidation, result)) continue;
-      await client.query(
-        "UPDATE hat.validations SET atlas_ids=$1, resolved_at=$2, validation_info=$3 WHERE id=$4",
-        [
-          newColumns.atlas_ids,
-          newColumns.resolved_at,
-          JSON.stringify(newColumns.validation_info),
-          existingValidation.id,
-        ]
-      );
-    } else {
-      // Insert new validation record if the record doesn't already exist
-      await client.query(
-        "INSERT INTO hat.validations (atlas_ids, entity_id, resolved_at, validation_id, validation_info) VALUES ($1, $2, $3, $4, $5)",
-        [
-          newColumns.atlas_ids,
-          newColumns.entity_id,
-          newColumns.resolved_at,
-          newColumns.validation_id,
-          JSON.stringify(newColumns.validation_info),
-        ]
-      );
-    }
+    await updateValidation(result, existingValidation, client);
   }
 
   // Delete validation records not present in validation results, as well as any associated comment threads
@@ -402,6 +355,73 @@ export async function updateValidations(
   ).rows;
   for (const { comment_thread_id: threadId } of deletedValidationsInfo) {
     if (threadId !== null) await deleteCommentThread(threadId, client);
+  }
+}
+
+async function updateValidation(
+  result: HCAAtlasTrackerValidationResult,
+  existingValidation: HCAAtlasTrackerDBValidation | undefined,
+  client: pg.PoolClient
+): Promise<void> {
+  const existingTaskStatus = existingValidation?.validation_info.taskStatus;
+
+  const resolvedAt =
+    result.validationStatus === VALIDATION_STATUS.PASSED
+      ? existingValidation?.resolved_at ?? new Date()
+      : null;
+
+  const taskStatus =
+    existingTaskStatus &&
+    ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS[
+      result.validationStatus
+    ].includes(existingTaskStatus)
+      ? existingTaskStatus
+      : DEFAULT_TASK_STATUS_BY_VALIDATION_STATUS[result.validationStatus];
+
+  const newColumns: HCAAtlasTrackerDBValidationUpdateColumns = {
+    atlas_ids: result.atlasIds,
+    entity_id: result.entityId,
+    resolved_at: resolvedAt,
+    validation_id: result.validationId,
+    validation_info: {
+      description: result.description,
+      differences: result.differences,
+      doi: result.doi,
+      entityTitle: result.entityTitle,
+      entityType: result.entityType,
+      publicationString: result.publicationString,
+      relatedEntityUrl: result.relatedEntityUrl,
+      system: result.system,
+      taskStatus,
+      validationStatus: result.validationStatus,
+      validationType: result.validationType,
+    },
+  };
+
+  if (existingValidation) {
+    // Update existing validation record if needed
+    if (!shouldUpdateValidation(existingValidation, result)) return;
+    await client.query(
+      "UPDATE hat.validations SET atlas_ids=$1, resolved_at=$2, validation_info=$3 WHERE id=$4",
+      [
+        newColumns.atlas_ids,
+        newColumns.resolved_at,
+        JSON.stringify(newColumns.validation_info),
+        existingValidation.id,
+      ]
+    );
+  } else {
+    // Insert new validation record if the record doesn't already exist
+    await client.query(
+      "INSERT INTO hat.validations (atlas_ids, entity_id, resolved_at, validation_id, validation_info) VALUES ($1, $2, $3, $4, $5)",
+      [
+        newColumns.atlas_ids,
+        newColumns.entity_id,
+        newColumns.resolved_at,
+        newColumns.validation_id,
+        JSON.stringify(newColumns.validation_info),
+      ]
+    );
   }
 }
 
@@ -421,6 +441,7 @@ function shouldUpdateValidation(
     if (!dequal(existingValidation.validation_info[key], validationResult[key]))
       return true;
   }
+
   return false;
 }
 
@@ -485,6 +506,108 @@ async function getSourceStudyAtlasIds(
     [JSON.stringify(sourceStudy.id)]
   );
   return Array.from(new Set(queryResult.rows.map(({ id }) => id)));
+}
+
+/**
+ * Where possible, set the task statuses of validations of the given type for source studies with any of the given DOIs to the given task status.
+ * @param dois - DOIs to update source study validations for.
+ * @param validationId - Type of validation to update.
+ * @param status - Task status to set.
+ * @returns lists of updated, not updated, and not found DOIs.
+ */
+export async function updateSourceStudyTaskStatusesByDois(
+  dois: string[],
+  validationId: VALIDATION_ID,
+  status: TASK_STATUS
+): Promise<TaskStatusesUpdatedByDOIResult> {
+  return await doTransaction(async (client) => {
+    // Get source studies with the given DOIs
+
+    const sourceStudies = await getSourceStudiesByDois(dois, client);
+    const sourceStudyIds = sourceStudies.map(({ id }) => id);
+
+    // Calculate info about found and not found DOIs
+
+    const foundDoiBySourceStudyId = new Map<string, string>();
+    const notFoundDois = new Set(dois);
+    for (const sourceStudy of sourceStudies) {
+      const studyDois = [
+        sourceStudy.doi,
+        sourceStudy.study_info.publication?.hasPreprintDoi,
+        sourceStudy.study_info.publication?.preprintOfDoi,
+      ];
+      for (const doi of studyDois) {
+        if (doi && notFoundDois.has(doi)) {
+          foundDoiBySourceStudyId.set(sourceStudy.id, doi);
+          notFoundDois.delete(doi);
+        }
+      }
+    }
+
+    // Update validations
+
+    const allowedValidationStatus = VALIDATION_STATUS_BY_TASK_STATUS[status];
+
+    const updatedValidationSourceStudyIds = (
+      await client.query<Pick<HCAAtlasTrackerDBValidation, "entity_id">>(
+        `
+          UPDATE hat.validations
+          SET validation_info=validation_info||jsonb_build_object('taskStatus', $1)
+          WHERE
+            validation_info->>'entityType'='SOURCE_STUDY'
+            AND validation_id=$2
+            AND validation_info->>'validationStatus'=$3
+            AND NOT validation_info->>'taskStatus'=$1
+            AND entity_id=ANY($4)
+          RETURNING entity_id
+        `,
+        [status, validationId, allowedValidationStatus, sourceStudyIds]
+      )
+    ).rows.map((v) => v.entity_id);
+
+    // Calculate info about non-updated validations
+
+    const notUpdatedSourceStudyIds = sourceStudyIds.filter(
+      (id) => !updatedValidationSourceStudyIds.includes(id)
+    );
+
+    const unchangedValidationsInfo = (
+      await client.query<{ id: string; task_status: TASK_STATUS }>(
+        `
+          SELECT
+            entity_id AS id,
+            validation_info->>'taskStatus' AS task_status
+          FROM hat.validations
+          WHERE validation_id=$1 AND entity_id=ANY($2)
+        `,
+        [validationId, notUpdatedSourceStudyIds]
+      )
+    ).rows;
+
+    // Create result
+
+    const result: TaskStatusesUpdatedByDOIResult = {
+      notFound: Array.from(notFoundDois),
+      notUpdated: {
+        [TASK_STATUS.BLOCKED]: [],
+        [TASK_STATUS.DONE]: [],
+        [TASK_STATUS.IN_PROGRESS]: [],
+        [TASK_STATUS.TODO]: [],
+      },
+      updated: updatedValidationSourceStudyIds.reduce((dois, id) => {
+        const doi = foundDoiBySourceStudyId.get(id);
+        if (doi !== undefined) dois.push(doi);
+        return dois;
+      }, [] as string[]),
+    };
+
+    for (const { id, task_status: taskStatus } of unchangedValidationsInfo) {
+      const doi = foundDoiBySourceStudyId.get(id);
+      if (doi !== undefined) result.notUpdated[taskStatus].push(doi);
+    }
+
+    return result;
+  });
 }
 
 /**
