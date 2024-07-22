@@ -1312,7 +1312,7 @@ function getTaskCountUrlObject(
     ],
   };
   return {
-    href: ROUTE.TASKS,
+    href: ROUTE.REPORTS,
     query: encodeURIComponent(JSON.stringify(params)),
   };
 }
