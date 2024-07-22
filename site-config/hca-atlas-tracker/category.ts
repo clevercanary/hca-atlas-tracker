@@ -66,7 +66,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   TISSUE: "Tissue",
   TITLE: "Title",
   VALIDATION_TYPE: "Task Type",
-  VERSION: "Version",
+  VERSION: "Atlas Version",
   WAVE: "Wave",
   WAVES: "Wave",
 };

@@ -34,6 +34,10 @@ export const atlasEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NAME,
           },
           {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
+          },
+          {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
           },
@@ -51,10 +55,6 @@ export const atlasEntityConfig: EntityConfig = {
             mapSelectCategoryValue: mapSelectCategoryValue(
               formatDateToQuarterYear
             ),
-          },
-          {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
           },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE,
