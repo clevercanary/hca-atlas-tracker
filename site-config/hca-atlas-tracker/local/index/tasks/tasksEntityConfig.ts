@@ -64,6 +64,10 @@ export const tasksEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
           },
           {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_VERSIONS,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_VERSIONS,
+          },
+          {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
           },

@@ -1,6 +1,7 @@
 export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
   ATLAS_NAMES: "atlasNames",
   ATLAS_TITLE: "atlasTitle",
+  ATLAS_VERSIONS: "atlasVersions",
   BIONETWORK: "bioNetwork",
   CELL_COUNT: "cellCount",
   COMPONENT_ATLAS_COUNT: "componentAtlasCount",
@@ -36,6 +37,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
 export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   ATLAS_NAMES: "Atlas",
   ATLAS_TITLE: "Atlas",
+  ATLAS_VERSIONS: "Atlas Version",
   BIONETWORK: "Biological Network",
   CELL_COUNT: "Cells",
   COMPONENT_ATLAS_COUNT: "Integration Objects",
@@ -64,7 +66,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   TISSUE: "Tissue",
   TITLE: "Title",
   VALIDATION_TYPE: "Task Type",
-  VERSION: "Atlas Version",
+  VERSION: "Version",
   WAVE: "Wave",
   WAVES: "Wave",
 };

@@ -201,6 +201,7 @@ export async function getValidationRecords(
             v.*,
             ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS atlas_names,
             ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+            ARRAY_AGG(DISTINCT a.overview->>'version') AS atlas_versions,
             ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
             ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
           FROM hat.validations v
@@ -217,6 +218,7 @@ export async function getValidationRecords(
             v.*,
             ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS atlas_names,
             ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+            ARRAY_AGG(DISTINCT a.overview->>'version') AS atlas_versions,
             ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
             ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
           FROM hat.validations v

@@ -20,6 +20,21 @@ export const ATLAS_NAMES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
   width: { max: "0.5fr", min: "120px" },
 };
 
+export const ATLAS_VERSIONS: ColumnConfig<HCAAtlasTrackerListValidationRecord> =
+  {
+    columnVisible: false,
+    componentConfig: {
+      component: C.NTagCell,
+      viewBuilder: V.buildTaskAtlasVersions,
+    } as ComponentConfig<
+      typeof C.NTagCell,
+      HCAAtlasTrackerListValidationRecord
+    >,
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_VERSIONS,
+    id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_VERSIONS,
+    width: { max: "0.5fr", min: "120px" },
+  };
+
 export const CREATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
   columnVisible: false,
   componentConfig: {
