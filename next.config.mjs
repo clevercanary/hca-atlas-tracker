@@ -32,6 +32,15 @@ export default withPlugins(
       unoptimized: true,
     },
     reactStrictMode: true,
+    async redirects() {
+      return [
+        {
+          destination: "/reports",
+          permanent: true,
+          source: "/tasks",
+        },
+      ];
+    },
     transpilePackages: [...ESM_PACKAGES],
     webpack: (config) => {
       // Add the alias for the peer dependency
