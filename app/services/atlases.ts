@@ -1,4 +1,5 @@
-import { NotFoundError } from "app/utils/api-handler";
+import pg from "pg";
+import { NotFoundError } from "../../app/utils/api-handler";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerDBAtlas,
@@ -19,11 +20,13 @@ interface AtlasInputDbData {
   targetCompletion: HCAAtlasTrackerDBAtlas["target_completion"];
 }
 
-export async function getAllAtlases(): Promise<
-  HCAAtlasTrackerDBAtlasWithComponentAtlases[]
-> {
+export async function getAllAtlases(
+  client?: pg.PoolClient
+): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases[]> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
-    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id GROUP BY a.id"
+    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id GROUP BY a.id",
+    undefined,
+    client
   );
   return queryResult.rows;
 }
