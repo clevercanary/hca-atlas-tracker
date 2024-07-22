@@ -17,6 +17,7 @@ import {
   TestPublishedSourceStudy,
   TestSourceDataset,
   TestUnpublishedSourceStudy,
+  TestUser,
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
@@ -1429,11 +1430,124 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR,
 ];
 
+// ATLAS IDS
+
+const ATLAS_ID_DRAFT = "823dcc68-340b-4a61-8883-c61dc4975ce3";
+const ATLAS_ID_PUBLIC = "94f62ad0-99cb-4f01-a1cf-cce2d56a8850";
+const ATLAS_ID_WITH_MISC_SOURCE_STUDIES =
+  "8259a9b1-c149-4310-83a5-d126b675c0f1";
+
+// USERS
+
+export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
+export const USER_NEW = makeTestUser("test-new");
+
+export const USER_UNREGISTERED = makeTestUser("test-unregistered");
+export const USER_STAKEHOLDER = makeTestUser(
+  "test-stakeholder",
+  ROLE.STAKEHOLDER
+);
+export const USER_STAKEHOLDER2 = makeTestUser(
+  "test-stakeholder2",
+  ROLE.STAKEHOLDER
+);
+export const USER_DISABLED = makeTestUser(
+  "test-disabled",
+  ROLE.STAKEHOLDER,
+  true
+);
+export const USER_CONTENT_ADMIN = makeTestUser(
+  "test-content-admin",
+  ROLE.CONTENT_ADMIN
+);
+export const USER_INTEGRATION_LEAD_DRAFT = makeTestUser(
+  "test-integration-lead-draft",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_ID_DRAFT]
+);
+export const USER_INTEGRATION_LEAD_PUBLIC = makeTestUser(
+  "test-integration-lead-public",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_ID_PUBLIC]
+);
+export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES = makeTestUser(
+  "test-integration-lead-with-misc-source-studies",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES]
+);
+export const USER_INTEGRATION_LEAD_WITH_NEW_ATLAS = makeTestUser(
+  "test-integration-lead-with-new-atlas",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_ID_DRAFT]
+);
+export const USER_CELLXGENE_ADMIN = makeTestUser(
+  "test-cellxgene-admin",
+  ROLE.CELLXGENE_ADMIN
+);
+
+// Users initialized in the database before tests
+export const INITIAL_TEST_USERS = [
+  USER_DISABLED,
+  USER_STAKEHOLDER,
+  USER_STAKEHOLDER2,
+  USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_DRAFT,
+  USER_INTEGRATION_LEAD_PUBLIC,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+  USER_INTEGRATION_LEAD_WITH_NEW_ATLAS,
+  USER_CELLXGENE_ADMIN,
+];
+
+export const TEST_USERS = [
+  ...INITIAL_TEST_USERS,
+  USER_UNREGISTERED,
+  USER_NONEXISTENT,
+  USER_NEW,
+];
+
+export const DEFAULT_USERS_BY_ROLE = {
+  [ROLE.CELLXGENE_ADMIN]: USER_CELLXGENE_ADMIN,
+  [ROLE.CONTENT_ADMIN]: USER_CONTENT_ADMIN,
+  [ROLE.INTEGRATION_LEAD]: USER_INTEGRATION_LEAD_DRAFT,
+  [ROLE.STAKEHOLDER]: USER_STAKEHOLDER,
+  [ROLE.UNREGISTERED]: USER_UNREGISTERED,
+};
+
+export const INTEGRATION_LEADS_BY_ATLAS_ID: Record<string, TestUser> = {
+  [ATLAS_ID_DRAFT]: USER_INTEGRATION_LEAD_DRAFT,
+  [ATLAS_ID_PUBLIC]: USER_INTEGRATION_LEAD_PUBLIC,
+  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES]:
+    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+};
+
 // ATLASES
 
+export const INTEGRATION_LEAD_BAZ = {
+  email: "baz@example.com",
+  name: "Baz",
+};
+
+export const INTEGRATION_LEAD_BAZ_BAZ = {
+  email: "bazbaz@example.com",
+  name: "Baz Baz",
+};
+
 export const ATLAS_DRAFT: TestAtlas = {
-  id: "823dcc68-340b-4a61-8883-c61dc4975ce3",
-  integrationLead: [],
+  id: ATLAS_ID_DRAFT,
+  integrationLead: [
+    {
+      email: USER_INTEGRATION_LEAD_DRAFT.email,
+      name: USER_INTEGRATION_LEAD_DRAFT.name,
+    },
+    {
+      email: USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.email,
+      name: USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.name,
+    },
+  ],
   network: "eye",
   shortName: "test-draft",
   sourceStudies: [
@@ -1447,8 +1561,17 @@ export const ATLAS_DRAFT: TestAtlas = {
 };
 
 export const ATLAS_PUBLIC: TestAtlas = {
-  id: "94f62ad0-99cb-4f01-a1cf-cce2d56a8850",
-  integrationLead: [],
+  id: ATLAS_ID_PUBLIC,
+  integrationLead: [
+    {
+      email: USER_INTEGRATION_LEAD_PUBLIC.email,
+      name: USER_INTEGRATION_LEAD_PUBLIC.name,
+    },
+    {
+      email: USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.email,
+      name: USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.name,
+    },
+  ],
   network: "lung",
   shortName: "test-public",
   sourceStudies: [SOURCE_STUDY_PUBLIC_NO_CROSSREF.id, SOURCE_STUDY_SHARED.id],
@@ -1460,12 +1583,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
 
 export const ATLAS_WITH_IL: TestAtlas = {
   id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
-  integrationLead: [
-    {
-      email: "baz@example.com",
-      name: "Baz",
-    },
-  ],
+  integrationLead: [INTEGRATION_LEAD_BAZ],
   network: "heart",
   shortName: "test-with-il",
   sourceStudies: [],
@@ -1475,13 +1593,8 @@ export const ATLAS_WITH_IL: TestAtlas = {
 };
 
 export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
-  id: "8259a9b1-c149-4310-83a5-d126b675c0f1",
-  integrationLead: [
-    {
-      email: "bazbaz@example.com",
-      name: "Baz Baz",
-    },
-  ],
+  id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES,
+  integrationLead: [INTEGRATION_LEAD_BAZ_BAZ],
   network: "adipose",
   shortName: "test-with-misc-source-studies",
   sourceStudies: [
@@ -1603,86 +1716,6 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_MISC_FOO,
 ];
-
-// USERS
-
-export const USER_NONEXISTENT = makeTestUser("test-nonexistant");
-export const USER_NEW = makeTestUser("test-new");
-
-export const USER_UNREGISTERED = makeTestUser("test-unregistered");
-export const USER_STAKEHOLDER = makeTestUser(
-  "test-stakeholder",
-  ROLE.STAKEHOLDER
-);
-export const USER_STAKEHOLDER2 = makeTestUser(
-  "test-stakeholder2",
-  ROLE.STAKEHOLDER
-);
-export const USER_DISABLED = makeTestUser(
-  "test-disabled",
-  ROLE.STAKEHOLDER,
-  true
-);
-export const USER_CONTENT_ADMIN = makeTestUser(
-  "test-content-admin",
-  ROLE.CONTENT_ADMIN
-);
-export const USER_INTEGRATION_LEAD_DRAFT = makeTestUser(
-  "test-integration-lead-draft",
-  ROLE.INTEGRATION_LEAD,
-  false,
-  [ATLAS_DRAFT.id]
-);
-export const USER_INTEGRATION_LEAD_PUBLIC = makeTestUser(
-  "test-integration-lead-public",
-  ROLE.INTEGRATION_LEAD,
-  false,
-  [ATLAS_PUBLIC.id]
-);
-export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES = makeTestUser(
-  "test-integration-lead-with-misc-source-studies",
-  ROLE.INTEGRATION_LEAD,
-  false,
-  [ATLAS_WITH_MISC_SOURCE_STUDIES.id]
-);
-export const USER_CELLXGENE_ADMIN = makeTestUser(
-  "test-cellxgene-admin",
-  ROLE.CELLXGENE_ADMIN
-);
-
-// Users initialized in the database before tests
-export const INITIAL_TEST_USERS = [
-  USER_DISABLED,
-  USER_STAKEHOLDER,
-  USER_STAKEHOLDER2,
-  USER_CONTENT_ADMIN,
-  USER_INTEGRATION_LEAD_DRAFT,
-  USER_INTEGRATION_LEAD_PUBLIC,
-  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-  USER_CELLXGENE_ADMIN,
-];
-
-export const TEST_USERS = [
-  ...INITIAL_TEST_USERS,
-  USER_UNREGISTERED,
-  USER_NONEXISTENT,
-  USER_NEW,
-];
-
-export const DEFAULT_USERS_BY_ROLE = {
-  [ROLE.CELLXGENE_ADMIN]: USER_CELLXGENE_ADMIN,
-  [ROLE.CONTENT_ADMIN]: USER_CONTENT_ADMIN,
-  [ROLE.INTEGRATION_LEAD]: USER_INTEGRATION_LEAD_DRAFT,
-  [ROLE.STAKEHOLDER]: USER_STAKEHOLDER,
-  [ROLE.UNREGISTERED]: USER_UNREGISTERED,
-};
-
-export const INTEGRATION_LEADS_BY_ATLAS_ID = {
-  [ATLAS_DRAFT.id]: USER_INTEGRATION_LEAD_DRAFT,
-  [ATLAS_PUBLIC.id]: USER_INTEGRATION_LEAD_PUBLIC,
-  [ATLAS_WITH_MISC_SOURCE_STUDIES.id]:
-    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-};
 
 // COMMENTS
 
