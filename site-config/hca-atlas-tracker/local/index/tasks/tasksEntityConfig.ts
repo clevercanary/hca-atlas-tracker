@@ -27,7 +27,7 @@ import { SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE } from "../common/constant
 import { COLUMNS, ROW_PREVIEW_COLUMNS } from "./common/columns";
 
 /**
- * Entity config object responsible to config anything related to the /tasks route.
+ * Entity config object responsible to config anything related to the /reports route.
  */
 export const tasksEntityConfig: EntityConfig = {
   apiPath: "api/tasks",
@@ -214,9 +214,9 @@ export const tasksEntityConfig: EntityConfig = {
   },
   entityMapper: taskInputMapper,
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
-  explorerTitle: "Tasks",
+  explorerTitle: "Reports",
   getId: getTaskId,
-  label: "Tasks",
+  label: "Reports",
   list: {
     columns: COLUMNS,
     defaultSort: {
@@ -252,5 +252,5 @@ export const tasksEntityConfig: EntityConfig = {
       } as ComponentConfig<typeof C.EditTasks>,
     ],
   },
-  route: "tasks",
+  route: "reports",
 };
