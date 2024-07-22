@@ -120,7 +120,7 @@ export const tasksEntityConfig: EntityConfig = {
           },
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.TODO],
+            value: [TASK_STATUS.IN_PROGRESS, TASK_STATUS.TODO],
           },
           {
             categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
