@@ -53,6 +53,10 @@ export const atlasEntityConfig: EntityConfig = {
             ),
           },
           {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
+          },
+          {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVE,
           },
@@ -100,6 +104,16 @@ export const atlasEntityConfig: EntityConfig = {
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.BIONETWORK,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.BIONETWORK,
         width: { max: "1fr", min: "212px" },
+      },
+      {
+        columnVisible: false,
+        componentConfig: {
+          component: C.BasicCell,
+          viewBuilder: V.buildAtlasVersion,
+        } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VERSION,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION,
+        width: { max: "0.5fr", min: "112px" },
       },
       {
         componentConfig: {

@@ -83,6 +83,19 @@ export const buildAtlasName = (
 };
 
 /**
+ * Build props for the atlas version cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildAtlasVersion = (
+  atlas: HCAAtlasTrackerListAtlas
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: atlas.version,
+  };
+};
+
+/**
  * Build props for the biological network cell component.
  * @param entity - Entity.
  * @returns Props to be used for the cell.
@@ -431,6 +444,20 @@ export const buildTaskAtlasNames = (
   return {
     label: "atlases",
     values: task.atlasNames,
+  };
+};
+
+/**
+ * Build props for the atlas version cell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildTaskAtlasVersions = (
+  task: HCAAtlasTrackerListValidationRecord
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(METADATA_KEY.ATLAS_VERSION),
+    values: task.atlasVersions,
   };
 };
 
