@@ -64,6 +64,18 @@ export const atlasEntityConfig: EntityConfig = {
       },
     ],
     key: "atlas",
+    savedFilters: [
+      {
+        filters: [],
+        sorting: [
+          {
+            desc: SORT_DIRECTION.ASCENDING,
+            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+          },
+        ],
+        title: "Atlas Roadmap",
+      },
+    ],
   },
   detail: {
     detailOverviews: [],
