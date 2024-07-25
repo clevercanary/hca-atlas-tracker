@@ -74,6 +74,7 @@ interface HCAAtlasTrackerSourceStudyCommon {
   hcaProjectId: string | null;
   id: string;
   sourceDatasetCount: number;
+  validations: HCAAtlasTrackerValidationRecordWithoutAtlases[];
 }
 
 export interface HCAAtlasTrackerPublishedSourceStudy
@@ -146,6 +147,16 @@ export interface HCAAtlasTrackerValidationRecord
   updatedAt: string;
   waves: Wave[];
 }
+
+export type HCAAtlasTrackerValidationRecordWithoutAtlases = Omit<
+  HCAAtlasTrackerValidationRecord,
+  | "atlasIds"
+  | "atlasNames"
+  | "atlasShortNames"
+  | "atlasVersions"
+  | "networks"
+  | "waves"
+>;
 
 export interface HCAAtlasTrackerComment {
   createdAt: string;
@@ -266,6 +277,11 @@ export interface HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
 export type HCAAtlasTrackerDBSourceStudyWithSourceDatasets =
   HCAAtlasTrackerDBSourceStudy & {
     source_dataset_count: number;
+  };
+
+export type HCAAtlasTrackerDBSourceStudyWithRelatedEntities =
+  HCAAtlasTrackerDBSourceStudyWithSourceDatasets & {
+    validations: HCAAtlasTrackerDBValidation[];
   };
 
 export interface HCAAtlasTrackerDBSourceDataset {

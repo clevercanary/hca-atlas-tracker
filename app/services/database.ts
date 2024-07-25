@@ -43,6 +43,20 @@ export async function doTransaction<T>(
   }
 }
 
+/**
+ * Call a given function using the given client if specified, or in a new transaction otherwise.
+ * @param client - Postgres client or undefined.
+ * @param func - Function to call.
+ * @returns result of evaluating the function.
+ */
+export function doOrContinueTransaction<T>(
+  client: pg.PoolClient | undefined,
+  func: (client: pg.PoolClient) => Promise<T>
+): Promise<T> {
+  if (client) return func(client);
+  else return doTransaction(func);
+}
+
 export function getPoolClient(): Promise<pg.PoolClient> {
   return pool.connect();
 }
