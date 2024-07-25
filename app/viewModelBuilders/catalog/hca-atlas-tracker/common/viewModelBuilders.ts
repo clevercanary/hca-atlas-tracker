@@ -28,6 +28,7 @@ import {
   Network,
   NetworkKey,
   TASK_STATUS,
+  VALIDATION_ID,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getSourceStudyCitation,
@@ -1214,9 +1215,10 @@ function getSourceStudyInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTracker
 function getSourceStudyInCap(
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): SOURCE_STUDY_STATUS {
-  return sourceStudy.capId
-    ? SOURCE_STUDY_STATUS.DONE
-    : SOURCE_STUDY_STATUS.REQUIRED;
+  return getSourceStudyStatusFromValidation(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_CAP
+  );
 }
 
 /**
@@ -1227,9 +1229,10 @@ function getSourceStudyInCap(
 function getSourceStudyInCellxGene(
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): SOURCE_STUDY_STATUS {
-  return sourceStudy.cellxgeneCollectionId
-    ? SOURCE_STUDY_STATUS.DONE
-    : SOURCE_STUDY_STATUS.REQUIRED;
+  return getSourceStudyStatusFromValidation(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+  );
 }
 
 /**
@@ -1240,8 +1243,29 @@ function getSourceStudyInCellxGene(
 function getSourceStudyInHcaDataRepository(
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): SOURCE_STUDY_STATUS {
-  return sourceStudy.hcaProjectId
+  return getSourceStudyStatusFromValidation(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY
+  );
+}
+
+/**
+ * Get source study status reflecting the status of a given task for the specified source study.
+ * @param sourceStudy - Source study.
+ * @param validationId - Validation ID to get task status for.
+ * @returns source study status.
+ */
+function getSourceStudyStatusFromValidation(
+  sourceStudy: HCAAtlasTrackerSourceStudy,
+  validationId: VALIDATION_ID
+): SOURCE_STUDY_STATUS {
+  const taskStatus = sourceStudy.validations.find(
+    (v) => v.validationId === validationId
+  )?.taskStatus;
+  return taskStatus === TASK_STATUS.DONE
     ? SOURCE_STUDY_STATUS.DONE
+    : taskStatus === TASK_STATUS.IN_PROGRESS
+    ? SOURCE_STUDY_STATUS.IN_PROGRESS
     : SOURCE_STUDY_STATUS.REQUIRED;
 }
 
