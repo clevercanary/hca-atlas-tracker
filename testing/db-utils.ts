@@ -9,6 +9,7 @@ import {
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
+  HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
 import { query } from "../app/services/database";
@@ -24,6 +25,7 @@ import {
 } from "./constants";
 import {
   aggregateSourceDatasetArrayField,
+  expectApiValidationsToMatchDb,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
@@ -286,4 +288,11 @@ export async function getValidationsByEntityId(
       [id]
     )
   ).rows;
+}
+
+export async function expectApiSourceStudyToHaveMatchingDbValidations(
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): Promise<void> {
+  const validations = await getValidationsByEntityId(sourceStudy.id);
+  expectApiValidationsToMatchDb(sourceStudy.validations, validations);
 }

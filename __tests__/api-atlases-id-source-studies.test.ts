@@ -15,7 +15,10 @@ import {
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  expectApiSourceStudyToHaveMatchingDbValidations,
+  resetDatabase,
+} from "../testing/db-utils";
 import { TestPublishedSourceStudy, TestUser } from "../testing/entities";
 import { testApiRole } from "../testing/utils";
 
@@ -124,7 +127,7 @@ describe(TEST_ROUTE, () => {
     );
   }
 
-  it("returns draft atlas studies when requested by logged in user with CONTENT_ADMIN role", async () => {
+  it("returns draft atlas studies, including validations, when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doStudiesRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
@@ -141,6 +144,9 @@ describe(TEST_ROUTE, () => {
       studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
       SOURCE_STUDY_DRAFT_NO_CROSSREF
     );
+    for (const study of studies) {
+      await expectApiSourceStudyToHaveMatchingDbValidations(study);
+    }
   });
 });
 

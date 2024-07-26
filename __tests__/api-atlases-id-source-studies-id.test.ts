@@ -52,6 +52,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
+  expectApiSourceStudyToHaveMatchingDbValidations,
   getCellxGeneSourceDatasetFromDatabase,
   getExistingComponentAtlasFromDatabase,
   getSourceStudyFromDatabase,
@@ -66,6 +67,7 @@ import {
   TestUser,
 } from "../testing/entities";
 import {
+  expectApiValidationsToMatchDb,
   expectComponentAtlasDatasetsToHaveDifference,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
@@ -203,7 +205,7 @@ describe(TEST_ROUTE, () => {
     ).toEqual(404);
   });
 
-  it("returns study from public atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
+  it("returns study, including validations, from public atlas when GET requested by logged in user with STAKEHOLDER role", async () => {
     const res = await doStudyRequest(
       ATLAS_PUBLIC.id,
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
@@ -212,6 +214,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(study.doi).toEqual(SOURCE_STUDY_PUBLIC_NO_CROSSREF.doi);
+    await expectApiSourceStudyToHaveMatchingDbValidations(study);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -378,7 +381,7 @@ describe(TEST_ROUTE, () => {
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
-  it("updates, revalidates, and returns study with published data when PUT requested", async () => {
+  it("updates, revalidates, and returns study with published data, including validations, when PUT requested", async () => {
     const validationsBefore = await getValidationsByEntityId(
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
     );
@@ -395,7 +398,7 @@ describe(TEST_ROUTE, () => {
       SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const updatedStudy = res._getJSONData();
+    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
@@ -413,6 +416,8 @@ describe(TEST_ROUTE, () => {
     expect(validationsAfter[0].validation_info.doi).toEqual(
       SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT.doi
     );
+
+    expectApiValidationsToMatchDb(updatedStudy.validations, validationsAfter);
 
     await restoreDbStudy(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
