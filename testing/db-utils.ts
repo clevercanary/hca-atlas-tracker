@@ -294,5 +294,5 @@ export async function expectApiSourceStudyToHaveMatchingDbValidations(
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): Promise<void> {
   const validations = await getValidationsByEntityId(sourceStudy.id);
-  expectApiValidationsToMatchDb(sourceStudy.validations, validations);
+  expectApiValidationsToMatchDb(sourceStudy.tasks, validations);
 }

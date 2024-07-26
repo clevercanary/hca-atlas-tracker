@@ -74,7 +74,7 @@ interface HCAAtlasTrackerSourceStudyCommon {
   hcaProjectId: string | null;
   id: string;
   sourceDatasetCount: number;
-  validations: HCAAtlasTrackerValidationRecordWithoutAtlases[];
+  tasks: HCAAtlasTrackerValidationRecordWithoutAtlases[];
 }
 
 export interface HCAAtlasTrackerPublishedSourceStudy

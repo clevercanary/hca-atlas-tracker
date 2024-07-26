@@ -417,7 +417,7 @@ describe(TEST_ROUTE, () => {
       SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT.doi
     );
 
-    expectApiValidationsToMatchDb(updatedStudy.validations, validationsAfter);
+    expectApiValidationsToMatchDb(updatedStudy.tasks, validationsAfter);
 
     await restoreDbStudy(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });

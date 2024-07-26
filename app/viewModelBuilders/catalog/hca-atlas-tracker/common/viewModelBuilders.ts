@@ -1259,7 +1259,7 @@ function getSourceStudyStatusFromValidation(
   sourceStudy: HCAAtlasTrackerSourceStudy,
   validationId: VALIDATION_ID
 ): SOURCE_STUDY_STATUS {
-  const taskStatus = sourceStudy.validations.find(
+  const taskStatus = sourceStudy.tasks.find(
     (v) => v.validationId === validationId
   )?.taskStatus;
   return taskStatus === TASK_STATUS.DONE

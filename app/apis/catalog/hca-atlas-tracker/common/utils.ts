@@ -105,7 +105,7 @@ export function dbSourceStudyToApiSourceStudy(
   const {
     study_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceStudy;
-  const validations = dbSourceStudy.validations.map(
+  const tasks = dbSourceStudy.validations.map(
     dbValidationToApiValidationWithoutAtlasProperties
   );
   if (dbSourceStudy.doi === null) {
@@ -122,8 +122,8 @@ export function dbSourceStudyToApiSourceStudy(
       publicationDate: null,
       referenceAuthor: unpublishedInfo.referenceAuthor,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
+      tasks,
       title: unpublishedInfo.title,
-      validations,
     };
   } else {
     return {
@@ -138,8 +138,8 @@ export function dbSourceStudyToApiSourceStudy(
       publicationDate: publication?.publicationDate ?? null,
       referenceAuthor: publication?.authors[0]?.name ?? null,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
+      tasks,
       title: publication?.title ?? null,
-      validations,
     };
   }
 }

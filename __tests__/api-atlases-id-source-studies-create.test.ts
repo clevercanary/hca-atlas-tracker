@@ -263,7 +263,7 @@ describe(TEST_ROUTE, () => {
     );
     const validations = await getValidationsByEntityId(dbStudy.id);
     expect(validations).not.toHaveLength(0);
-    expectApiValidationsToMatchDb(apiStudy.validations, validations);
+    expectApiValidationsToMatchDb(apiStudy.tasks, validations);
   });
 
   it("creates and returns source study entry for preprint without journal value", async () => {
