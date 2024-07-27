@@ -3,6 +3,7 @@ import httpMocks from "node-mocks-http";
 import { testApiRole } from "testing/utils";
 import {
   HCAAtlasTrackerDBUser,
+  HCAAtlasTrackerUser,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewUserData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
@@ -110,8 +111,17 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
-  it("creates user entry", async () => {
-    await doCreateTest(USER_CONTENT_ADMIN, NEW_USER_DATA);
+  it("creates and returns user entry", async () => {
+    const res = await doCreateTest(USER_CONTENT_ADMIN, NEW_USER_DATA);
+    expect(res._getStatusCode()).toEqual(201);
+    const newUser = res._getJSONData() as HCAAtlasTrackerUser;
+    expect(newUser.disabled).toEqual(NEW_USER_DATA.disabled);
+    expect(newUser.email).toEqual(NEW_USER_DATA.email);
+    expect(newUser.fullName).toEqual(NEW_USER_DATA.fullName);
+    expect(newUser.role).toEqual(NEW_USER_DATA.role);
+    expect(newUser.roleAssociatedResourceIds).toEqual(
+      NEW_USER_DATA.roleAssociatedResourceIds
+    );
     const newUserFromDb = (
       await query<HCAAtlasTrackerDBUser>(
         "SELECT * FROM hat.users WHERE email=$1",

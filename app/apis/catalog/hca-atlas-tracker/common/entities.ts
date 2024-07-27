@@ -175,6 +175,16 @@ export interface HCAAtlasTrackerActiveUser {
   roleAssociatedResourceIds: string[];
 }
 
+export interface HCAAtlasTrackerUser {
+  disabled: boolean;
+  email: string;
+  fullName: string;
+  id: number;
+  lastLogin: string;
+  role: ROLE;
+  roleAssociatedResourceIds: string[];
+}
+
 export interface TaskStatusesUpdatedByDOIResult {
   notFound: string[];
   notUpdated: Record<TASK_STATUS, string[]>;

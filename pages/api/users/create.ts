@@ -1,9 +1,13 @@
 import { ValidationError } from "yup";
-import { ROLE } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBUser,
+  ROLE,
+} from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewUserData,
   newUserSchema,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
+import { dbUserToApiUser } from "../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../app/common/entities";
 import { query } from "../../../app/services/database";
 import { handler, method, role } from "../../../app/utils/api-handler";
@@ -26,8 +30,8 @@ export default handler(
         throw e;
       }
     }
-    await query(
-      "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
+    const queryResult = await query<HCAAtlasTrackerDBUser>(
+      "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [
         newInfo.disabled.toString(),
         newInfo.email,
@@ -36,6 +40,6 @@ export default handler(
         newInfo.roleAssociatedResourceIds,
       ]
     );
-    res.status(201).end();
+    res.status(201).json(dbUserToApiUser(queryResult.rows[0]));
   }
 );

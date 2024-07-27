@@ -1,10 +1,16 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { testApiRole } from "testing/utils";
+import {
+  expectApiUserToMatchTest,
+  expectIsDefined,
+  testApiRole,
+} from "testing/utils";
+import { HCAAtlasTrackerUser } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import usersHandler from "../pages/api/users";
 import {
+  INITIAL_TEST_USERS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_NONEXISTENT,
@@ -63,18 +69,26 @@ describe(TEST_ROUTE, () => {
     );
   }
 
-  it("returns multiple users when email parameter is absent", async () => {
-    expect(
-      (await doUsersRequest(USER_CONTENT_ADMIN))._getJSONData().length
-    ).toBeGreaterThan(1);
+  it("returns all users when email parameter is absent", async () => {
+    const res = await doUsersRequest(USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const users = res._getJSONData() as HCAAtlasTrackerUser[];
+    for (const testUser of INITIAL_TEST_USERS) {
+      const user = users.find((u) => u.email === testUser.email);
+      if (!expectIsDefined(user)) continue;
+      expectApiUserToMatchTest(user, testUser);
+    }
   });
 
   it("returns singular user when email parameter is set to an existing user's email", async () => {
-    expect(
-      (
-        await doUsersRequest(USER_CONTENT_ADMIN, USER_STAKEHOLDER.email)
-      )._getJSONData().length
-    ).toEqual(1);
+    const res = await doUsersRequest(
+      USER_CONTENT_ADMIN,
+      USER_STAKEHOLDER.email
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const users = res._getJSONData() as HCAAtlasTrackerUser[];
+    expect(users).toHaveLength(1);
+    expectApiUserToMatchTest(users[0], USER_STAKEHOLDER);
   });
 
   it("returns no users when email parameter is set to a nonexistent user's email", async () => {
