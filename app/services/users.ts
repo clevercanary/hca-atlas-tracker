@@ -1,10 +1,78 @@
+import { NewUserData } from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   HCAAtlasTrackerDBUser,
+  HCAAtlasTrackerDBUserWithAssociatedResources,
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "../utils/api-handler";
 import { getAllAtlases } from "./atlases";
 import { doTransaction, query } from "./database";
+
+/**
+ * Get all users.
+ * @returns users.
+ */
+export async function getAllUsers(): Promise<
+  HCAAtlasTrackerDBUserWithAssociatedResources[]
+> {
+  const queryResult = await query<HCAAtlasTrackerDBUserWithAssociatedResources>(
+    `
+      SELECT
+        u.*,
+        ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS role_associated_resource_names,
+      FROM hat.users u
+      LEFT JOIN hat.atlases a ON a.id=ANY(u.role_associated_resource_ids)
+      GROUP BY u.id
+    `
+  );
+  return queryResult.rows;
+}
+
+/**
+ * Get a user by email address.
+ * @param email - Email of user to get.
+ * @returns user.
+ */
+export async function getUserByEmail(
+  email: string
+): Promise<HCAAtlasTrackerDBUserWithAssociatedResources> {
+  const queryResult = await query<HCAAtlasTrackerDBUserWithAssociatedResources>(
+    `
+      SELECT
+        u.*,
+        ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS role_associated_resource_names,
+      FROM hat.users u
+      LEFT JOIN hat.atlases a ON a.id=ANY(u.role_associated_resource_ids)
+      WHERE u.email=$1
+      GROUP BY u.id
+    `,
+    [email]
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`User with email ${email} doesn't exist`);
+  return queryResult.rows[0];
+}
+
+/**
+ * Create a user.
+ * @param inputData - Values used to create the new user.
+ * @returns new user.
+ */
+export async function createUser(
+  inputData: NewUserData
+): Promise<HCAAtlasTrackerDBUserWithAssociatedResources> {
+  await query<HCAAtlasTrackerDBUser>(
+    "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
+    [
+      inputData.disabled.toString(),
+      inputData.email,
+      inputData.fullName,
+      inputData.role,
+      inputData.roleAssociatedResourceIds,
+    ]
+  );
+  return await getUserByEmail(inputData.email);
+}
 
 /**
  * Update the last login of the specified user to the current time.

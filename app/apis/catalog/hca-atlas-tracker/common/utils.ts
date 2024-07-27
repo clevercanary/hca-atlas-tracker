@@ -11,7 +11,7 @@ import {
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
-  HCAAtlasTrackerDBUser,
+  HCAAtlasTrackerDBUserWithAssociatedResources,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
@@ -227,7 +227,7 @@ export function dbCommentToApiComment(
 }
 
 export function dbUserToApiUser(
-  dbUser: HCAAtlasTrackerDBUser
+  dbUser: HCAAtlasTrackerDBUserWithAssociatedResources
 ): HCAAtlasTrackerUser {
   return {
     disabled: dbUser.disabled,
@@ -237,6 +237,7 @@ export function dbUserToApiUser(
     lastLogin: dbUser.last_login.toISOString(),
     role: dbUser.role,
     roleAssociatedResourceIds: dbUser.role_associated_resource_ids,
+    roleAssociatedResourceNames: dbUser.role_associated_resource_names,
   };
 }
 
