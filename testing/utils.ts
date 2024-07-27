@@ -10,7 +10,9 @@ import {
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
+  HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
+  HCAAtlasTrackerValidationRecordWithoutAtlases,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
@@ -332,6 +334,63 @@ export function expectComponentAtlasDatasetsToHaveDifference(
       sourceDataset.suspensionType ?? []
     );
     expectArrayToContainItems(infoWith.tissue, sourceDataset.tissue ?? []);
+  }
+}
+
+export function expectApiValidationsToMatchDb(
+  apiValidations: HCAAtlasTrackerValidationRecordWithoutAtlases[],
+  dbValidations: HCAAtlasTrackerDBValidation[]
+): void {
+  expect(apiValidations).toHaveLength(dbValidations.length);
+  for (const apiValidation of apiValidations) {
+    const dbValidation = dbValidations.find((v) => v.id === apiValidation.id);
+    if (!expectIsDefined(dbValidation)) continue;
+    expect(apiValidation.commentThreadId).toEqual(
+      dbValidation.comment_thread_id
+    );
+    expect(apiValidation.createdAt).toEqual(
+      dbValidation.created_at.toISOString()
+    );
+    expect(apiValidation.description).toEqual(
+      dbValidation.validation_info.description
+    );
+    expect(apiValidation.differences).toEqual(
+      dbValidation.validation_info.differences
+    );
+    expect(apiValidation.doi).toEqual(dbValidation.validation_info.doi);
+    expect(apiValidation.entityId).toEqual(dbValidation.entity_id);
+    expect(apiValidation.entityTitle).toEqual(
+      dbValidation.validation_info.entityTitle
+    );
+    expect(apiValidation.entityType).toEqual(
+      dbValidation.validation_info.entityType
+    );
+    expect(apiValidation.publicationString).toEqual(
+      dbValidation.validation_info.publicationString
+    );
+    expect(apiValidation.relatedEntityUrl).toEqual(
+      dbValidation.validation_info.relatedEntityUrl
+    );
+    expect(apiValidation.resolvedAt).toEqual(
+      dbValidation.resolved_at?.toISOString() ?? null
+    );
+    expect(apiValidation.system).toEqual(dbValidation.validation_info.system);
+    expect(apiValidation.targetCompletion).toEqual(
+      dbValidation.target_completion?.toISOString() ?? null
+    );
+    expect(apiValidation.taskStatus).toEqual(
+      dbValidation.validation_info.taskStatus
+    );
+    expect(apiValidation.updatedAt).toEqual(
+      dbValidation.updated_at.toISOString()
+    );
+    expect(apiValidation.validationId).toEqual(dbValidation.validation_id);
+    expect(apiValidation.validationStatus).toEqual(
+      dbValidation.validation_info.validationStatus
+    );
+    expect(apiValidation.validationType).toEqual(
+      dbValidation.validation_info.validationType
+    );
   }
 }
 

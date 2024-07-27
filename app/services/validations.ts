@@ -232,6 +232,24 @@ export async function getValidationRecords(
 }
 
 /**
+ * Get basic validation records for the given entities.
+ * @param entityIds - Entities to get validations for.
+ * @param client - Postgres client to use.
+ * @returns validation records.
+ */
+export async function getValidationRecordsWithoutAtlasPropertiesForEntities(
+  entityIds: string[],
+  client: pg.PoolClient
+): Promise<HCAAtlasTrackerDBValidation[]> {
+  return (
+    await client.query<HCAAtlasTrackerDBValidation>(
+      "SELECT * FROM hat.validations WHERE entity_id=ANY($1)",
+      [entityIds]
+    )
+  ).rows;
+}
+
+/**
  * Apply a given validation to a given entity.
  * @param entityType - Type of the entity.
  * @param validation - Validation to apply.

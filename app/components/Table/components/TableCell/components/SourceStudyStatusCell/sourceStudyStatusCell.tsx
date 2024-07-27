@@ -4,6 +4,7 @@ import { RequiredIcon } from "../../../../../common/CustomIcon/components/Requir
 
 export enum SOURCE_STUDY_STATUS {
   DONE = "Yes",
+  IN_PROGRESS = "In progress",
   REQUIRED = "No",
 }
 
@@ -26,6 +27,8 @@ function switchStatusIcon(value: string): JSX.Element {
   switch (value) {
     case SOURCE_STUDY_STATUS.DONE:
       return <SuccessIcon color="success" fontSize="small" />;
+    case SOURCE_STUDY_STATUS.IN_PROGRESS:
+      return <SuccessIcon color="warning" fontSize="small" />;
     case SOURCE_STUDY_STATUS.REQUIRED:
       return <RequiredIcon />;
     default:

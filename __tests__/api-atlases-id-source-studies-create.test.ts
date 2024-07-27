@@ -54,6 +54,7 @@ import {
 } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import {
+  expectApiValidationsToMatchDb,
   expectSourceStudyToMatch,
   testApiRole,
   withConsoleErrorHiding,
@@ -252,8 +253,8 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
-  it("creates, validates, and returns source study entry for journal publication", async () => {
-    const { dbStudy } = await testSuccessfulCreate(
+  it("creates, validates, and returns source study entry, including validations, for journal publication", async () => {
+    const { apiStudy, dbStudy } = await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_STUDY_DATA,
       PUBLICATION_NORMAL,
@@ -262,6 +263,7 @@ describe(TEST_ROUTE, () => {
     );
     const validations = await getValidationsByEntityId(dbStudy.id);
     expect(validations).not.toHaveLength(0);
+    expectApiValidationsToMatchDb(apiStudy.tasks, validations);
   });
 
   it("creates and returns source study entry for preprint without journal value", async () => {

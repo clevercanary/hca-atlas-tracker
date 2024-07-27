@@ -10,13 +10,15 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
-  HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
+  HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
+  HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerValidationRecord,
+  HCAAtlasTrackerValidationRecordWithoutAtlases,
   NetworkKey,
   PublicationInfo,
   Wave,
@@ -98,11 +100,14 @@ export function dbComponentAtlasToApiComponentAtlas(
 }
 
 export function dbSourceStudyToApiSourceStudy(
-  dbSourceStudy: HCAAtlasTrackerDBSourceStudyWithSourceDatasets
+  dbSourceStudy: HCAAtlasTrackerDBSourceStudyWithRelatedEntities
 ): HCAAtlasTrackerSourceStudy {
   const {
     study_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceStudy;
+  const tasks = dbSourceStudy.validations.map(
+    dbValidationToApiValidationWithoutAtlasProperties
+  );
   if (dbSourceStudy.doi === null) {
     const unpublishedInfo = dbSourceStudy.study_info.unpublishedInfo;
     return {
@@ -117,6 +122,7 @@ export function dbSourceStudyToApiSourceStudy(
       publicationDate: null,
       referenceAuthor: unpublishedInfo.referenceAuthor,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
+      tasks,
       title: unpublishedInfo.title,
     };
   } else {
@@ -132,6 +138,7 @@ export function dbSourceStudyToApiSourceStudy(
       publicationDate: publication?.publicationDate ?? null,
       referenceAuthor: publication?.authors[0]?.name ?? null,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
+      tasks,
       title: publication?.title ?? null,
     };
   }
@@ -165,12 +172,22 @@ export function dbSourceDatasetToApiSourceDataset(
 export function dbValidationToApiValidation(
   validation: HCAAtlasTrackerDBValidationWithAtlasProperties
 ): HCAAtlasTrackerValidationRecord {
-  const validationInfo = validation.validation_info;
   return {
+    ...dbValidationToApiValidationWithoutAtlasProperties(validation),
     atlasIds: validation.atlas_ids,
     atlasNames: validation.atlas_names,
     atlasShortNames: validation.atlas_short_names,
     atlasVersions: validation.atlas_versions,
+    networks: validation.networks,
+    waves: validation.waves,
+  };
+}
+
+function dbValidationToApiValidationWithoutAtlasProperties(
+  validation: HCAAtlasTrackerDBValidation
+): HCAAtlasTrackerValidationRecordWithoutAtlases {
+  const validationInfo = validation.validation_info;
+  return {
     commentThreadId: validation.comment_thread_id,
     createdAt: validation.created_at.toISOString(),
     description: validationInfo.description,
@@ -180,7 +197,6 @@ export function dbValidationToApiValidation(
     entityTitle: validationInfo.entityTitle,
     entityType: validationInfo.entityType,
     id: validation.id,
-    networks: validation.networks,
     publicationString: validationInfo.publicationString,
     relatedEntityUrl: validationInfo.relatedEntityUrl,
     resolvedAt: validation.resolved_at?.toISOString() ?? null,
@@ -191,7 +207,6 @@ export function dbValidationToApiValidation(
     validationId: validation.validation_id,
     validationStatus: validationInfo.validationStatus,
     validationType: validationInfo.validationType,
-    waves: validation.waves,
   };
 }
 

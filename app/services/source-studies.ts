@@ -8,7 +8,9 @@ import {
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyMinimumColumns,
+  HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
+  HCAAtlasTrackerDBValidation,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewPublishedSourceStudyData,
@@ -23,61 +25,114 @@ import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
 import { getCellxGeneIdByDoi } from "./cellxgene";
-import { getPoolClient, query } from "./database";
+import {
+  doOrContinueTransaction,
+  doTransaction,
+  getPoolClient,
+  query,
+} from "./database";
 import { getProjectIdByDoi } from "./hca-projects";
 import {
   deleteSourceDatasetsOfSourceStudy,
   updateSourceStudyCellxGeneDatasets,
 } from "./source-datasets";
-import { updateSourceStudyValidations } from "./validations";
+import {
+  getValidationRecordsWithoutAtlasPropertiesForEntities,
+  updateSourceStudyValidations,
+} from "./validations";
 
 export async function getAtlasSourceStudies(
   atlasId: string
-): Promise<HCAAtlasTrackerDBSourceStudyWithSourceDatasets[]> {
-  const {
-    rows: [atlas],
-  } = await query<Pick<HCAAtlasTrackerDBAtlas, "source_studies">>(
-    "SELECT source_studies FROM hat.atlases WHERE id=$1",
-    [atlasId]
-  );
-  if (!atlas) {
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  }
-  return atlas.source_studies.length === 0
-    ? []
-    : (
-        await query<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>(
-          "SELECT s.*, COUNT(d.*)::int AS source_dataset_count FROM hat.source_studies s LEFT JOIN hat.source_datasets d ON d.source_study_id=s.id WHERE s.id=ANY($1) GROUP BY s.id",
-          [atlas.source_studies]
-        )
-      ).rows;
+): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities[]> {
+  return await doTransaction(async (client) => {
+    const {
+      rows: [atlas],
+    } = await query<Pick<HCAAtlasTrackerDBAtlas, "source_studies">>(
+      "SELECT source_studies FROM hat.atlases WHERE id=$1",
+      [atlasId]
+    );
+
+    if (!atlas) {
+      throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+    }
+
+    const sourceStudies =
+      atlas.source_studies.length === 0
+        ? []
+        : (
+            await query<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>(
+              "SELECT s.*, COUNT(d.*)::int AS source_dataset_count FROM hat.source_studies s LEFT JOIN hat.source_datasets d ON d.source_study_id=s.id WHERE s.id=ANY($1) GROUP BY s.id",
+              [atlas.source_studies]
+            )
+          ).rows;
+
+    return await addValidationsToSourceStudiesInfo(sourceStudies, client);
+  });
 }
 
 export async function getSourceStudy(
   atlasId: string,
   sourceStudyId: string,
   client?: pg.PoolClient
-): Promise<HCAAtlasTrackerDBSourceStudyWithSourceDatasets> {
-  await confirmSourceStudyExistsOnAtlas(
-    sourceStudyId,
-    atlasId,
-    undefined,
-    client
-  );
-
-  const queryResult =
-    await query<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>(
-      "SELECT s.*, COUNT(d.*)::int AS source_dataset_count FROM hat.source_studies s LEFT JOIN hat.source_datasets d ON d.source_study_id=s.id WHERE s.id=$1 GROUP BY s.id",
-      [sourceStudyId],
+): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
+  return await doOrContinueTransaction(client, async (client) => {
+    await confirmSourceStudyExistsOnAtlas(
+      sourceStudyId,
+      atlasId,
+      undefined,
       client
     );
 
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(
-      `Source study with ID ${sourceStudyId} doesn't exist`
-    );
+    const queryResult =
+      await query<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>(
+        "SELECT s.*, COUNT(d.*)::int AS source_dataset_count FROM hat.source_studies s LEFT JOIN hat.source_datasets d ON d.source_study_id=s.id WHERE s.id=$1 GROUP BY s.id",
+        [sourceStudyId],
+        client
+      );
 
-  return queryResult.rows[0];
+    if (queryResult.rows.length === 0)
+      throw new NotFoundError(
+        `Source study with ID ${sourceStudyId} doesn't exist`
+      );
+
+    return (
+      await addValidationsToSourceStudiesInfo(queryResult.rows, client)
+    )[0];
+  });
+}
+
+/**
+ * Take an array of source studies, get the validation records for those source studies, and return the source studies with validation records added.
+ * @param sourceStudies - Source studies to get validations for.
+ * @param client - Postgres client to use.
+ * @returns sources studies with validation lists added.
+ */
+async function addValidationsToSourceStudiesInfo(
+  sourceStudies: HCAAtlasTrackerDBSourceStudyWithSourceDatasets[],
+  client: pg.PoolClient
+): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities[]> {
+  const validations =
+    await getValidationRecordsWithoutAtlasPropertiesForEntities(
+      sourceStudies.map((s) => s.id),
+      client
+    );
+  const validationsBySourceStudyId = new Map<
+    string,
+    HCAAtlasTrackerDBValidation[]
+  >();
+  for (const validation of validations) {
+    let studyValidations = validationsBySourceStudyId.get(validation.entity_id);
+    if (!studyValidations)
+      validationsBySourceStudyId.set(
+        validation.entity_id,
+        (studyValidations = [])
+      );
+    studyValidations.push(validation);
+  }
+  return sourceStudies.map((sourceStudy) => ({
+    ...sourceStudy,
+    validations: validationsBySourceStudyId.get(sourceStudy.id) ?? [],
+  }));
 }
 
 /**
@@ -89,7 +144,7 @@ export async function getSourceStudy(
 export async function createSourceStudy(
   atlasId: string,
   inputData: NewSourceStudyData
-): Promise<HCAAtlasTrackerDBSourceStudyWithSourceDatasets> {
+): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
   const atlasExists = (
     await query("SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE id=$1)", [
       atlasId,
@@ -201,7 +256,7 @@ export async function updateSourceStudy(
   atlasId: string,
   sourceStudyId: string,
   inputData: SourceStudyEditData
-): Promise<HCAAtlasTrackerDBSourceStudyWithSourceDatasets> {
+): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
 
   const newInfo = await sourceStudyInputDataToDbData(inputData);
