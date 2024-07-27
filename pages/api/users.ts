@@ -1,3 +1,4 @@
+import { dbUserToApiUser } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 import { ROLE } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../app/common/entities";
 import { getAllUsers, getUserByEmail } from "../../app/services/users";
@@ -14,6 +15,6 @@ export default handler(
       typeof req.query.email === "string"
         ? [await getUserByEmail(req.query.email)]
         : await getAllUsers();
-    res.json(users);
+    res.json(users.map(dbUserToApiUser));
   }
 );

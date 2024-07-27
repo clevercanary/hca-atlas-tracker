@@ -19,7 +19,11 @@ export async function getAllUsers(): Promise<
     `
       SELECT
         u.*,
-        ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS role_associated_resource_names,
+        (
+          CASE WHEN cardinality(u.role_associated_resource_ids) = 0 THEN '{}'::text[]
+          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version'))
+          END
+        ) AS role_associated_resource_names
       FROM hat.users u
       LEFT JOIN hat.atlases a ON a.id=ANY(u.role_associated_resource_ids)
       GROUP BY u.id
@@ -40,7 +44,11 @@ export async function getUserByEmail(
     `
       SELECT
         u.*,
-        ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS role_associated_resource_names,
+        (
+          CASE WHEN cardinality(u.role_associated_resource_ids) = 0 THEN '{}'::text[]
+          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version'))
+          END
+        ) AS role_associated_resource_names
       FROM hat.users u
       LEFT JOIN hat.atlases a ON a.id=ANY(u.role_associated_resource_ids)
       WHERE u.email=$1
