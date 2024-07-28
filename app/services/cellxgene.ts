@@ -61,6 +61,10 @@ const refreshService = makeRefreshService({
   },
 });
 
+export const forceCellxGeneRefresh = refreshService.forceRefresh;
+
+export const getCellxGeneStatus = refreshService.getStatus;
+
 export const isCellxGeneRefreshing = refreshService.isRefreshing;
 
 /**
