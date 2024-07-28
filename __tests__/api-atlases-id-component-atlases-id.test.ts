@@ -12,10 +12,14 @@ import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atla
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_MISC_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
-  USER_STAKEHOLDER,
+  USER_INTEGRATION_LEAD_PUBLIC,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -32,6 +36,10 @@ const TEST_ROUTE =
 
 const COMPONENT_ATLAS_DRAFT_FOO_EDIT: ComponentAtlasEditData = {
   title: "Component Atlas Draft Foo Edited",
+};
+
+const COMPONENT_ATLAS_MISC_FOO_EDIT: ComponentAtlasEditData = {
+  title: "Component Atlas Misc Foo Edited",
 };
 
 beforeAll(async () => {
@@ -145,7 +153,7 @@ describe(TEST_ROUTE, () => {
         await doComponentAtlasRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_STAKEHOLDER,
+          USER_UNREGISTERED,
           METHOD.PATCH,
           COMPONENT_ATLAS_DRAFT_FOO_EDIT
         )
@@ -154,7 +162,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
     testApiRole(
       "returns error 403",
       TEST_ROUTE,
@@ -170,6 +178,21 @@ describe(TEST_ROUTE, () => {
       }
     );
   }
+
+  it("returns error 403 when component atlas is PATCH requested by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
+          METHOD.PATCH,
+          COMPONENT_ATLAS_DRAFT_FOO_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
 
   it("returns error 404 when component atlas is PATCH requested from atlas it doesn't exist on", async () => {
     expect(
@@ -206,7 +229,32 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("updates and returns component atlas when PATCH requested", async () => {
+  it("updates and returns component atlas when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_FOO.id,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      METHOD.PATCH,
+      COMPONENT_ATLAS_MISC_FOO_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedComponentAtlas = res._getJSONData();
+    const componentAtlasFromDb = await getComponentAtlasFromDatabase(
+      updatedComponentAtlas.id
+    );
+    expect(componentAtlasFromDb).toBeDefined();
+    if (!componentAtlasFromDb) return;
+    expect(componentAtlasFromDb.title).toEqual(
+      COMPONENT_ATLAS_MISC_FOO_EDIT.title
+    );
+    expect(dbComponentAtlasToApiComponentAtlas(componentAtlasFromDb)).toEqual(
+      updatedComponentAtlas
+    );
+
+    await restoreDbComponentAtlas(COMPONENT_ATLAS_MISC_FOO);
+  });
+
+  it("updates and returns component atlas when PATCH requested by user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
       COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -251,7 +299,7 @@ describe(TEST_ROUTE, () => {
         await doComponentAtlasRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_STAKEHOLDER,
+          USER_UNREGISTERED,
           METHOD.DELETE
         )
       )._getStatusCode()
@@ -259,7 +307,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
     testApiRole(
       "returns error 403",
       TEST_ROUTE,
@@ -275,6 +323,20 @@ describe(TEST_ROUTE, () => {
       }
     );
   }
+
+  it("returns error 403 when component atlas is DELETE requested by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
 
   it("returns error 404 when component atlas is DELETE requested from atlas it doesn't exist on", async () => {
     expect(
@@ -292,7 +354,36 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("deletes component atlas", async () => {
+  it("deletes component atlas when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_FOO.id,
+          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    expect(
+      await getComponentAtlasFromDatabase(COMPONENT_ATLAS_MISC_FOO.id)
+    ).toBeUndefined();
+
+    await query(
+      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, title) VALUES ($1, $2, $3, $4)",
+      [
+        ATLAS_DRAFT.id,
+        JSON.stringify({
+          cellxgeneDatasetId: null,
+          cellxgeneDatasetVersion: null,
+        }),
+        COMPONENT_ATLAS_MISC_FOO.id,
+        COMPONENT_ATLAS_MISC_FOO.title,
+      ]
+    );
+  });
+
+  it("deletes component atlas when requested by user with CONTENT_ADMIN role", async () => {
     expect(
       (
         await doComponentAtlasRequest(
@@ -303,11 +394,9 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode()
     ).toEqual(200);
-    const componentAtlasQueryResult = await query(
-      "SELECT * FROM hat.component_atlases WHERE id=$1",
-      [COMPONENT_ATLAS_DRAFT_FOO.id]
-    );
-    expect(componentAtlasQueryResult.rows[0]).toBeUndefined();
+    expect(
+      await getComponentAtlasFromDatabase(COMPONENT_ATLAS_DRAFT_FOO.id)
+    ).toBeUndefined();
 
     await query(
       "INSERT INTO hat.component_atlases (atlas_id, component_info, id, title) VALUES ($1, $2, $3, $4)",

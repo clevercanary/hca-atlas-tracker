@@ -12,14 +12,19 @@ import {
   ATLAS_PUBLIC,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_MISC_FOO,
+  SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+  SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   TEST_SOURCE_STUDIES,
   USER_CONTENT_ADMIN,
-  USER_STAKEHOLDER,
+  USER_INTEGRATION_LEAD_DRAFT,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
@@ -153,7 +158,7 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
-          USER_STAKEHOLDER,
+          USER_UNREGISTERED,
           METHOD.POST
         )
       )._getStatusCode()
@@ -161,7 +166,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
     testApiRole(
       "returns error 403",
       TEST_ROUTE,
@@ -181,6 +186,21 @@ describe(TEST_ROUTE, () => {
       }
     );
   }
+
+  it("returns error 403 when POST requested from draft atlas by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOO.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
+          METHOD.POST
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
 
   it("returns error 404 when POST requested from atlas the component atlas doesn't exist on", async () => {
     expect(
@@ -230,7 +250,58 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("adds source dataset when POST requested and updates related fields", async () => {
+  it("adds source dataset and updates related fields when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const componentAtlasBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+
+    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+
+    const res = await doSourceDatasetRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_BAR.id,
+      SOURCE_DATASET_FOO.id,
+      USER_INTEGRATION_LEAD_DRAFT,
+      METHOD.POST
+    );
+    expect(res._getStatusCode()).toEqual(201);
+
+    const componentAtlasAfter = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+
+    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+      SOURCE_DATASET_FOO,
+    ]);
+
+    if (
+      expectIsDefined(componentAtlasBefore) &&
+      expectIsDefined(componentAtlasAfter)
+    ) {
+      expectComponentAtlasDatasetsToHaveDifference(
+        componentAtlasBefore,
+        componentAtlasAfter,
+        [SOURCE_DATASET_FOO]
+      );
+    }
+
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
+
+    await query(
+      "UPDATE hat.component_atlases SET source_datasets=$1, component_info=$2 WHERE id=$3",
+      [
+        sourceDatasetsBefore,
+        JSON.stringify(componentAtlasBefore?.component_info),
+        COMPONENT_ATLAS_DRAFT_BAR.id,
+      ]
+    );
+  });
+
+  it("adds source dataset and updates related fields when POST requested by user with CONTENT_ADMIN role", async () => {
     const componentAtlasBefore = await getComponentAtlasFromDatabase(
       COMPONENT_ATLAS_DRAFT_FOO.id
     );
@@ -270,13 +341,14 @@ describe(TEST_ROUTE, () => {
       );
     }
 
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
 
     await query(
-      "UPDATE hat.component_atlases SET source_datasets=$1, component_info=$2",
+      "UPDATE hat.component_atlases SET source_datasets=$1, component_info=$2 WHERE id=$3",
       [
         sourceDatasetsBefore,
         JSON.stringify(componentAtlasBefore?.component_info),
+        COMPONENT_ATLAS_DRAFT_FOO.id,
       ]
     );
   });
@@ -303,7 +375,7 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
-          USER_STAKEHOLDER,
+          USER_UNREGISTERED,
           METHOD.DELETE
         )
       )._getStatusCode()
@@ -311,7 +383,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
     testApiRole(
       "returns error 403",
       TEST_ROUTE,
@@ -331,6 +403,21 @@ describe(TEST_ROUTE, () => {
       }
     );
   }
+
+  it("returns error 403 when DELETE requested from draft atlas by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOOFOO.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
 
   it("returns error 404 when DELETE requested from atlas the component atlas doesn't exist on", async () => {
     expect(
@@ -380,7 +467,55 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("deletes source dataset and updates related fields", async () => {
+  it("deletes source dataset and updates related fields when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const componentAtlasBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+
+    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_BAR.id,
+          SOURCE_DATASET_CELLXGENE_WITH_UPDATE.id,
+          USER_INTEGRATION_LEAD_DRAFT,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+
+    const componentAtlasAfter = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+
+    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+    ]);
+
+    if (
+      expectIsDefined(componentAtlasBefore) &&
+      expectIsDefined(componentAtlasAfter)
+    ) {
+      expectComponentAtlasDatasetsToHaveDifference(
+        componentAtlasAfter,
+        componentAtlasBefore,
+        [SOURCE_DATASET_CELLXGENE_WITH_UPDATE]
+      );
+    }
+
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
+
+    await query(
+      "UPDATE hat.component_atlases SET source_datasets=$1 WHERE id=$2",
+      [sourceDatasetsBefore, COMPONENT_ATLAS_DRAFT_BAR.id]
+    );
+  });
+
+  it("deletes source dataset and updates related fields when requested by user with CONTENT_ADMIN role", async () => {
     const componentAtlasBefore = await getComponentAtlasFromDatabase(
       COMPONENT_ATLAS_DRAFT_FOO.id
     );
@@ -421,11 +556,12 @@ describe(TEST_ROUTE, () => {
       );
     }
 
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
 
-    await query("UPDATE hat.component_atlases SET source_datasets=$1", [
-      sourceDatasetsBefore,
-    ]);
+    await query(
+      "UPDATE hat.component_atlases SET source_datasets=$1 WHERE id=$2",
+      [sourceDatasetsBefore, COMPONENT_ATLAS_DRAFT_FOO.id]
+    );
   });
 });
 

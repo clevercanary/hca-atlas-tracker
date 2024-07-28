@@ -12,8 +12,9 @@ import createHandler from "../pages/api/atlases/[atlasId]/component-atlases/crea
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
-  STAKEHOLDER_ANALOGOUS_ROLES,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_PUBLIC,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -27,6 +28,10 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_COMPONENT_ATLAS_DATA: NewComponentAtlasData = {
   title: "New Component Atlas",
+};
+
+const NEW_COMPONENT_ATLAS_FOO_DATA: NewComponentAtlasData = {
+  title: "New Component Atlas Foo",
 };
 
 beforeAll(async () => {
@@ -72,7 +77,7 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
     ).toEqual(403);
   });
 
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
     testApiRole(
       "returns error 403",
       "/api/atlases/[atlasId]/component-atlases/create",
@@ -85,6 +90,18 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
       (res) => expect(res._getStatusCode()).toEqual(403)
     );
   }
+
+  it("returns error 403 when requested by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_INTEGRATION_LEAD_PUBLIC,
+          ATLAS_DRAFT,
+          NEW_COMPONENT_ATLAS_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
 
   it("returns error 404 when specified atlas doesn't exist", async () => {
     expect(
@@ -131,7 +148,15 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
     ).toEqual(400);
   });
 
-  it("creates and returns component atlas entry", async () => {
+  it("creates and returns component atlas entry when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    await testSuccessfulCreate(
+      ATLAS_DRAFT,
+      NEW_COMPONENT_ATLAS_FOO_DATA,
+      NEW_COMPONENT_ATLAS_FOO_DATA.title
+    );
+  });
+
+  it("creates and returns component atlas entry when requested by user with CONTENT_ADMIN role", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
       NEW_COMPONENT_ATLAS_DATA,
