@@ -25,6 +25,7 @@ import {
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
+  HCAAtlasTrackerUser,
   Network,
   NetworkKey,
   TASK_STATUS,
@@ -657,6 +658,87 @@ export const buildTissue = (
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
     values: entity.tissue,
+  };
+};
+
+/**
+ * Build props for the disabled status cell component.
+ * @param user - User entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildUserDisabled = (
+  user: HCAAtlasTrackerUser
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: user.disabled.toString(),
+  };
+};
+
+/**
+ * Build props for the email cell component.
+ * @param user - User entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildUserEmail = (
+  user: HCAAtlasTrackerUser
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: user.email,
+  };
+};
+
+/**
+ * Build props for the name cell component.
+ * @param user - User entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildUserFullName = (
+  user: HCAAtlasTrackerUser
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: user.fullName,
+  };
+};
+
+/**
+ * Build props for the last login cell component.
+ * @param user - User entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildUserLastLogin = (
+  user: HCAAtlasTrackerUser
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: user.lastLogin,
+  };
+};
+
+/**
+ * Build props for the role cell component.
+ * @param user - User entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildUserRole = (
+  user: HCAAtlasTrackerUser
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: user.role,
+  };
+};
+
+/**
+ * Build props for the role-associated resource names cell component.
+ * @param user - User entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildUserAssociatedResources = (
+  user: HCAAtlasTrackerUser
+): React.ComponentProps<typeof C.NTagCell> => {
+  return {
+    label: getPluralizedMetadataLabel(
+      METADATA_KEY.ROLE_ASSOCIATED_RESOURCE_NAMES
+    ),
+    values: user.roleAssociatedResourceNames,
   };
 };
 

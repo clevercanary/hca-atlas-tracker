@@ -34,6 +34,10 @@ export function getTaskId(task: HCAAtlasTrackerListValidationRecord): string {
   return task.id;
 }
 
+export function getUserId(user: HCAAtlasTrackerUser): string {
+  return user.id.toString();
+}
+
 export function atlasInputMapper(
   apiAtlas: HCAAtlasTrackerAtlas
 ): HCAAtlasTrackerListAtlas {

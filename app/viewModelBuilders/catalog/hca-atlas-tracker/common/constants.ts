@@ -15,6 +15,7 @@ export const PLURALIZED_METADATA_LABEL = {
   [M.ATLAS_VERSION]: "atlas versions",
   [M.DISEASE]: "diseases",
   [M.LIBRARY_CONSTRUCTION_METHOD]: "library construction methods",
+  [M.ROLE_ASSOCIATED_RESOURCE_NAMES]: "resources",
   [M.SPECIES]: "species",
   [M.SUSPENSION_TYPE]: "suspension types",
   [M.TISSUE]: "tissues",
