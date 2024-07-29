@@ -18,7 +18,12 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
-import { delay, testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  delay,
+  promiseWithResolvers,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/component-atlases");
 jest.mock("../app/services/user-profile");
@@ -36,25 +41,25 @@ jest.mock("../app/services/validations", () => ({
   refreshValidations,
 }));
 
-const getCellxGeneCollections = jest.fn(
-  async () => TEST_CELLXGENE_COLLECTIONS_A
-);
+let getCollectionsBlock: Promise<void> | undefined;
+let resolveGetCollections: () => void;
+const getCellxGeneCollections = jest.fn(async () => {
+  await getCollectionsBlock;
+  return TEST_CELLXGENE_COLLECTIONS_A;
+});
 jest.mock("../app/utils/cellxgene-api", () => ({
   getCellxGeneCollections,
   getCellxGeneDatasets: jest.fn().mockResolvedValue([]),
 }));
 
-const getLatestCatalog = jest.fn(async () => HCA_CATALOG_TEST1);
+const getAllProjects = jest.fn(
+  async (catalog: string): Promise<ProjectsResponse[]> =>
+    TEST_HCA_CATALOGS[catalog]
+);
 jest.mock("../app/utils/hca-api", () => ({
-  getAllProjects: async (catalog: string): Promise<ProjectsResponse[]> =>
-    TEST_HCA_CATALOGS[catalog],
-  getLatestCatalog,
+  getAllProjects,
+  getLatestCatalog: async (): Promise<string> => HCA_CATALOG_TEST1,
 }));
-
-jest.useFakeTimers({
-  advanceTimers: true,
-  doNotFake: ["setTimeout"],
-});
 
 const TEST_ROUTE = "/api/refresh";
 
@@ -153,18 +158,35 @@ describe(TEST_ROUTE, () => {
     );
   }
 
-  it("does refresh and updates validations when POST requested by user with CONTENT_ADMIN role", async () => {
+  it("starts refreshes when POST requested by user with CONTENT_ADMIN role", async () => {
+    [getCollectionsBlock, resolveGetCollections] = promiseWithResolvers<void>();
     expect(refreshValidations).toHaveBeenCalledTimes(1);
-    expect(getLatestCatalog).toHaveBeenCalledTimes(1);
+    expect(getAllProjects).toHaveBeenCalledTimes(1);
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(1);
-    jest.setSystemTime(jest.now() + 14400001);
     expect(
       (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode()
     ).toEqual(202);
     await delay();
-    expect(refreshValidations).toHaveBeenCalledTimes(2);
-    expect(getLatestCatalog).toHaveBeenCalledTimes(2);
+    expect(getAllProjects).toHaveBeenCalledTimes(2);
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not start refresh that is already in progress", async () => {
+    expect(
+      (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode()
+    ).toEqual(202);
+    await delay();
+    expect(getAllProjects).toHaveBeenCalledTimes(3);
+    expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
+  });
+
+  it("updates validations when refreshes complete", async () => {
+    expect(refreshValidations).toHaveBeenCalledTimes(1);
+    resolveGetCollections();
+    await delay();
+    expect(getAllProjects).toHaveBeenCalledTimes(3);
+    expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
+    expect(refreshValidations).toHaveBeenCalledTimes(2);
   });
 });
 
