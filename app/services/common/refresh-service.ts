@@ -4,6 +4,8 @@ export interface RefreshInfo<TData, TRefreshParams = undefined> {
   attemptingRefresh?: boolean;
   data?: TData;
   errorMessage?: string;
+  lastAttemptedAt?: Date;
+  lastResolvedAt?: Date;
   prevRefreshOutcome?: REFRESH_OUTCOME;
   prevRefreshParams?: TRefreshParams;
   refreshing?: boolean;
@@ -82,6 +84,8 @@ export function makeRefreshService<TData, TRefreshParams>(
           ? REFRESH_ACTIVITY.ATTEMPTING_REFRESH
           : REFRESH_ACTIVITY.NOT_REFRESHING,
         errorMessage: info.errorMessage ?? null,
+        lastAttemptedAt: info.lastAttemptedAt?.toISOString() ?? null,
+        lastResolvedAt: info.lastResolvedAt?.toISOString() ?? null,
         previousOutcome: info.prevRefreshOutcome ?? REFRESH_OUTCOME.NA,
       };
     },
@@ -105,6 +109,7 @@ async function startRefreshIfNeeded<TData, TRefreshParams>(
 
   if (info.attemptingRefresh) return;
   info.attemptingRefresh = true;
+  info.lastAttemptedAt = new Date();
 
   let refreshParams, isRefreshNeeded;
   try {
@@ -114,6 +119,7 @@ async function startRefreshIfNeeded<TData, TRefreshParams>(
   } catch (e) {
     info.errorMessage = getErrorMessage(e);
     info.prevRefreshOutcome = REFRESH_OUTCOME.FAILED;
+    info.lastResolvedAt = new Date();
     info.attemptingRefresh = false;
     throw e;
   }
@@ -129,12 +135,12 @@ async function startRefreshIfNeeded<TData, TRefreshParams>(
       info.prevRefreshOutcome = REFRESH_OUTCOME.FAILED;
       info.errorMessage = getErrorMessage(e);
     } finally {
+      info.lastResolvedAt = new Date();
       info.refreshing = false;
       info.attemptingRefresh = false;
       if (completedSuccessfully) onRefreshSuccess?.();
     }
   } else {
-    info.prevRefreshOutcome = REFRESH_OUTCOME.SKIPPED;
     info.attemptingRefresh = false;
   }
 }
