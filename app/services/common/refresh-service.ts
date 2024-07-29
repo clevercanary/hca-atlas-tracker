@@ -1,6 +1,12 @@
+import { RefreshStatus, REFRESH_ACTIVITY, REFRESH_OUTCOME } from "./entities";
+
 export interface RefreshInfo<TData, TRefreshParams = undefined> {
   attemptingRefresh?: boolean;
   data?: TData;
+  errorMessage?: string;
+  lastAttemptedAt?: Date;
+  lastResolvedAt?: Date;
+  prevRefreshOutcome?: REFRESH_OUTCOME;
   prevRefreshParams?: TRefreshParams;
   refreshing?: boolean;
 }
@@ -25,7 +31,9 @@ export interface RefreshServiceParams<TData, TRefreshParams> {
 }
 
 export interface RefreshService<TData> {
+  forceRefresh: () => void;
   getData: () => TData;
+  getStatus: () => RefreshStatus;
   isRefreshing: () => boolean;
 }
 
@@ -59,11 +67,27 @@ export function makeRefreshService<TData, TRefreshParams>(
   }
 
   return {
+    forceRefresh(): void {
+      startRefreshIfNeeded(params, info, true);
+    },
     getData(): TData {
       startRefreshIfNeeded(params, info);
       if (info.data === undefined)
         throw new RefreshDataNotReadyError(notReadyMessage);
       return info.data;
+    },
+    getStatus(): RefreshStatus {
+      return {
+        currentActivity: info.refreshing
+          ? REFRESH_ACTIVITY.REFRESHING
+          : info.attemptingRefresh
+          ? REFRESH_ACTIVITY.ATTEMPTING_REFRESH
+          : REFRESH_ACTIVITY.NOT_REFRESHING,
+        errorMessage: info.errorMessage ?? null,
+        lastAttemptedAt: info.lastAttemptedAt?.toISOString() ?? null,
+        lastResolvedAt: info.lastResolvedAt?.toISOString() ?? null,
+        previousOutcome: info.prevRefreshOutcome ?? REFRESH_OUTCOME.NA,
+      };
     },
     isRefreshing(): boolean {
       return Boolean(info.refreshing);
@@ -85,6 +109,7 @@ async function startRefreshIfNeeded<TData, TRefreshParams>(
 
   if (info.attemptingRefresh) return;
   info.attemptingRefresh = true;
+  info.lastAttemptedAt = new Date();
 
   let refreshParams, isRefreshNeeded;
   try {
@@ -92,6 +117,9 @@ async function startRefreshIfNeeded<TData, TRefreshParams>(
     info.prevRefreshParams = refreshParams;
     isRefreshNeeded = refreshNeeded(info.data, refreshParams);
   } catch (e) {
+    info.errorMessage = getErrorMessage(e);
+    info.prevRefreshOutcome = REFRESH_OUTCOME.FAILED;
+    info.lastResolvedAt = new Date();
     info.attemptingRefresh = false;
     throw e;
   }
@@ -101,13 +129,28 @@ async function startRefreshIfNeeded<TData, TRefreshParams>(
     let completedSuccessfully = false;
     try {
       info.data = await getRefreshedData(refreshParams, info.data);
+      info.prevRefreshOutcome = REFRESH_OUTCOME.COMPLETED;
       completedSuccessfully = true;
+    } catch (e) {
+      info.prevRefreshOutcome = REFRESH_OUTCOME.FAILED;
+      info.errorMessage = getErrorMessage(e);
     } finally {
+      info.lastResolvedAt = new Date();
       info.refreshing = false;
       info.attemptingRefresh = false;
       if (completedSuccessfully) onRefreshSuccess?.();
     }
   } else {
     info.attemptingRefresh = false;
+  }
+}
+
+function getErrorMessage(error: unknown): string {
+  try {
+    return String(
+      error instanceof Error && "message" in error ? error.message : error
+    );
+  } catch (e) {
+    return "Unknown error";
   }
 }

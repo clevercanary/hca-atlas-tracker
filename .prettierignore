@@ -16,3 +16,6 @@ node_modules
 
 # script output
 /files/out
+
+# editors
+.vscode

@@ -77,6 +77,10 @@ const refreshService = makeRefreshService({
   },
 });
 
+export const forceProjectsRefresh = refreshService.forceRefresh;
+
+export const getProjectsStatus = refreshService.getStatus;
+
 export const areProjectsRefreshing = refreshService.isRefreshing;
 
 /**
