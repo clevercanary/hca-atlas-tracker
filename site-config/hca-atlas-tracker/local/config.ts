@@ -61,7 +61,7 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
               url: ROUTE.ATLASES,
             },
             { label: "Reports", url: ROUTE.REPORTS },
-            { label: "Users", url: ROUTE.USERS },
+            { label: "Team", url: ROUTE.USERS },
           ],
           [
             {

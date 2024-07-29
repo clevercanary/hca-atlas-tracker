@@ -61,8 +61,9 @@ export const userEntityConfig: EntityConfig = {
     top: [],
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
+  explorerTitle: "Team",
   getId: getUserId,
-  label: "Users",
+  label: "Team",
   list: {
     columns: [
       {
@@ -131,5 +132,5 @@ export const userEntityConfig: EntityConfig = {
     enableTab: false,
     subTitleHero,
   },
-  route: "users",
+  route: "team",
 };
