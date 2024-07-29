@@ -11,6 +11,7 @@ import { getComponentAtlasDatasets } from "../../../../../../app/services/source
 import {
   handleByMethod,
   handler,
+  integrationLeadAssociatedAtlasOnly,
   role,
 } from "../../../../../../app/utils/api-handler";
 
@@ -26,31 +27,39 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
     );
 });
 
-const postHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
-  const atlasId = req.query.atlasId as string;
-  const componentAtlasId = req.query.componentAtlasId as string;
-  const { sourceDatasetIds } =
-    await componentAtlasAddSourceDatasetsSchema.validate(req.body);
-  await addSourceDatasetsToComponentAtlas(
-    atlasId,
-    componentAtlasId,
-    sourceDatasetIds
-  );
-  res.status(201).end();
-});
+const postHandler = handler(
+  role([ROLE.CONTENT_ADMIN, ROLE.INTEGRATION_LEAD]),
+  integrationLeadAssociatedAtlasOnly,
+  async (req, res) => {
+    const atlasId = req.query.atlasId as string;
+    const componentAtlasId = req.query.componentAtlasId as string;
+    const { sourceDatasetIds } =
+      await componentAtlasAddSourceDatasetsSchema.validate(req.body);
+    await addSourceDatasetsToComponentAtlas(
+      atlasId,
+      componentAtlasId,
+      sourceDatasetIds
+    );
+    res.status(201).end();
+  }
+);
 
-const deleteHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
-  const atlasId = req.query.atlasId as string;
-  const componentAtlasId = req.query.componentAtlasId as string;
-  const { sourceDatasetIds } =
-    await componentAtlasAddSourceDatasetsSchema.validate(req.body);
-  await deleteSourceDatasetsFromComponentAtlas(
-    atlasId,
-    componentAtlasId,
-    sourceDatasetIds
-  );
-  res.status(200).end();
-});
+const deleteHandler = handler(
+  role([ROLE.CONTENT_ADMIN, ROLE.INTEGRATION_LEAD]),
+  integrationLeadAssociatedAtlasOnly,
+  async (req, res) => {
+    const atlasId = req.query.atlasId as string;
+    const componentAtlasId = req.query.componentAtlasId as string;
+    const { sourceDatasetIds } =
+      await componentAtlasAddSourceDatasetsSchema.validate(req.body);
+    await deleteSourceDatasetsFromComponentAtlas(
+      atlasId,
+      componentAtlasId,
+      sourceDatasetIds
+    );
+    res.status(200).end();
+  }
+);
 
 /**
  * API route for adding or deleting multiple source datasets on a component atlas.
