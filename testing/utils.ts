@@ -12,6 +12,7 @@ import {
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
+  HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -392,6 +393,19 @@ export function expectApiValidationsToMatchDb(
       dbValidation.validation_info.validationType
     );
   }
+}
+
+export function expectApiUserToMatchTest(
+  apiUser: HCAAtlasTrackerUser,
+  testUser: TestUser
+): void {
+  expect(apiUser.disabled).toEqual(testUser.disabled);
+  expect(apiUser.email).toEqual(testUser.email);
+  expect(apiUser.fullName).toEqual(testUser.name);
+  expect(apiUser.role).toEqual(testUser.role);
+  expect(apiUser.roleAssociatedResourceIds).toEqual(
+    testUser.roleAssociatedResourceIds
+  );
 }
 
 function expectArrayToContainItems(array: unknown[], items: unknown[]): void {

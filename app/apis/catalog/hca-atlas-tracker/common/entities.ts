@@ -175,6 +175,17 @@ export interface HCAAtlasTrackerActiveUser {
   roleAssociatedResourceIds: string[];
 }
 
+export interface HCAAtlasTrackerUser {
+  disabled: boolean;
+  email: string;
+  fullName: string;
+  id: number;
+  lastLogin: string;
+  role: ROLE;
+  roleAssociatedResourceIds: string[];
+  roleAssociatedResourceNames: string[];
+}
+
 export interface TaskStatusesUpdatedByDOIResult {
   notFound: string[];
   notUpdated: Record<TASK_STATUS, string[]>;
@@ -383,6 +394,11 @@ export interface HCAAtlasTrackerDBUser {
   role: ROLE;
   role_associated_resource_ids: string[];
 }
+
+export type HCAAtlasTrackerDBUserWithAssociatedResources =
+  HCAAtlasTrackerDBUser & {
+    role_associated_resource_names: string[];
+  };
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 

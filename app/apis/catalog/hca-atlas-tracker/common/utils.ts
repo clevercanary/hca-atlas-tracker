@@ -11,12 +11,14 @@ import {
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
+  HCAAtlasTrackerDBUserWithAssociatedResources,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
+  HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   NetworkKey,
@@ -30,6 +32,10 @@ export function getAtlasId(atlas: HCAAtlasTrackerListAtlas): string {
 
 export function getTaskId(task: HCAAtlasTrackerListValidationRecord): string {
   return task.id;
+}
+
+export function getUserId(user: HCAAtlasTrackerUser): string {
+  return user.id.toString();
 }
 
 export function atlasInputMapper(
@@ -221,6 +227,21 @@ export function dbCommentToApiComment(
     threadId: dbComment.thread_id,
     updatedAt: dbComment.updated_at.toISOString(),
     updatedBy: dbComment.updated_by,
+  };
+}
+
+export function dbUserToApiUser(
+  dbUser: HCAAtlasTrackerDBUserWithAssociatedResources
+): HCAAtlasTrackerUser {
+  return {
+    disabled: dbUser.disabled,
+    email: dbUser.email,
+    fullName: dbUser.full_name,
+    id: dbUser.id,
+    lastLogin: dbUser.last_login.toISOString(),
+    role: dbUser.role,
+    roleAssociatedResourceIds: dbUser.role_associated_resource_ids,
+    roleAssociatedResourceNames: dbUser.role_associated_resource_names,
   };
 }
 
