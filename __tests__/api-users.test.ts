@@ -92,11 +92,12 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns no users when email parameter is set to a nonexistent user's email", async () => {
-    expect(
-      (
-        await doUsersRequest(USER_CONTENT_ADMIN, USER_NONEXISTENT.email)
-      )._getJSONData().length
-    ).toEqual(0);
+    const res = await doUsersRequest(
+      USER_CONTENT_ADMIN,
+      USER_NONEXISTENT.email
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    expect(res._getJSONData().length).toEqual(0);
   });
 });
 
