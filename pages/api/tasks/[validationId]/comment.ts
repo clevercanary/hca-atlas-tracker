@@ -7,7 +7,7 @@ import {
   deleteValidationComment,
 } from "../../../../app/services/validations";
 import {
-  getRegisteredUserFromAuthorization,
+  getRegisteredActiveUser,
   handleByMethod,
   handler,
   registeredUser,
@@ -19,7 +19,7 @@ const postHandler = handler(registeredUser, async (req, res) => {
   const newComment = await createValidationComment(
     validationId,
     await newCommentThreadSchema.validate(req.body),
-    await getRegisteredUserFromAuthorization(req.headers.authorization)
+    await getRegisteredActiveUser(req, res)
   );
   res.status(201).json(dbCommentToApiComment(newComment));
 });
