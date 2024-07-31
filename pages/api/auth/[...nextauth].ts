@@ -1,21 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-
-const options = {
-  debug: false,
-  pages: {
-    signIn: "/login",
-  },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID ?? "",
-      clientSecret: process.env.GOOGLE_SECRET ?? "",
-    }),
-  ],
-};
+import { nextAuthOptions } from "../../../site-config/hca-atlas-tracker/local/authentication/next-auth";
 
 const handler = (req: NextApiRequest, res: NextApiResponse): void =>
-  NextAuth(req, res, options);
+  NextAuth(req, res, nextAuthOptions);
 
 export default handler;
