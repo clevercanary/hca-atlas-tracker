@@ -1,4 +1,3 @@
-import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { useCallback, useEffect, useState } from "react";
 import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
 import {
@@ -13,7 +12,6 @@ import { useFetchData } from "./useFetchData";
 export const useFetchSourceStudiesSourceDatasets = (
   pathParameter: PathParameter
 ): HCAAtlasTrackerSourceDataset[] | undefined => {
-  const { token } = useToken();
   const [sourceStudiesSourceDatasets, setSourceStudiesSourceDatasets] =
     useState<HCAAtlasTrackerSourceDataset[]>();
   const { data: sourceStudies } = useFetchData<
@@ -23,8 +21,7 @@ export const useFetchSourceStudiesSourceDatasets = (
   const fetchData = useCallback(
     async (
       sourceStudyIds: SourceStudyId[],
-      pathParameter: PathParameter,
-      token: string
+      pathParameter: PathParameter
     ): Promise<void> => {
       try {
         const requests = sourceStudyIds.map((sourceStudyId) =>
@@ -33,7 +30,7 @@ export const useFetchSourceStudiesSourceDatasets = (
               ...pathParameter,
               sourceStudyId,
             }),
-            getFetchOptions(METHOD.GET, token)
+            getFetchOptions(METHOD.GET)
           ).then((response) => response.json())
         );
         const responses = await Promise.all(requests);
@@ -46,14 +43,12 @@ export const useFetchSourceStudiesSourceDatasets = (
   );
 
   useEffect(() => {
-    if (!token) return;
     if (!sourceStudies) return;
     fetchData(
       sourceStudies.map(({ id }) => id),
-      pathParameter,
-      token
+      pathParameter
     );
-  }, [fetchData, pathParameter, sourceStudies, token]);
+  }, [fetchData, pathParameter, sourceStudies]);
 
   return sourceStudiesSourceDatasets;
 };

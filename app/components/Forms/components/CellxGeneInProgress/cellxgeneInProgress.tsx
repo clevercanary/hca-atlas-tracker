@@ -1,5 +1,4 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { TextField } from "@mui/material";
 import { useCallback, useRef, useState } from "react";
 import {
@@ -18,8 +17,6 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
 
   const textareaRef = useRef<HTMLTextAreaElement>();
 
-  const { token } = useToken();
-
   const onSave = useCallback(() => {
     (async (): Promise<void> => {
       try {
@@ -30,7 +27,6 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
         const res = await fetchResource(
           "/api/tasks/cellxgene-in-progress",
           METHOD.PATCH,
-          token,
           dois
         );
         if (isFetchStatusOk(res.status)) {
@@ -51,7 +47,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
         setIsDisabled(false);
       }
     })();
-  }, [token]);
+  }, []);
 
   return (
     <>
