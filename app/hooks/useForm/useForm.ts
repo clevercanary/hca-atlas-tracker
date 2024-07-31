@@ -1,4 +1,3 @@
-import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -41,7 +40,6 @@ export const useForm = <T extends FieldValues, R = undefined>(
   mapApiValues: MapApiValuesFn<T> = (p): unknown => p,
   options: CustomUseFormOptions<T> = {}
 ): UseForm<T, R> => {
-  const { token } = useToken();
   const values = useMemo(
     () => schema.cast(mapSchemaValues?.(apiData)),
     [apiData, mapSchemaValues, schema]
@@ -79,14 +77,14 @@ export const useForm = <T extends FieldValues, R = undefined>(
       requestMethod: METHOD,
       options?: OnDeleteOptions
     ): Promise<void> => {
-      const res = await fetchResource(requestURL, requestMethod, token);
+      const res = await fetchResource(requestURL, requestMethod);
       if (isFetchStatusOk(res.status)) {
         options?.onSuccess?.();
       } else {
         onError(await getFormResponseErrors(res));
       }
     },
-    [onError, token]
+    [onError]
   );
 
   const onSubmit = useCallback(
@@ -97,12 +95,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
       options?: OnSubmitOptions<T, R>
     ): Promise<void> => {
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
-      const res = await fetchResource(
-        requestURL,
-        requestMethod,
-        token,
-        apiPayload
-      );
+      const res = await fetchResource(requestURL, requestMethod, apiPayload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
         try {
           const response = await res.json();
@@ -116,7 +109,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
         onError(await getFormResponseErrors(res));
       }
     },
-    [mapApiValues, mapSchemaValues, onError, schema, token]
+    [mapApiValues, mapSchemaValues, onError, schema]
   );
 
   // Initialize data with given API response.
