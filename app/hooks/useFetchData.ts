@@ -1,4 +1,3 @@
-import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { useAsync } from "@databiosphere/findable-ui/lib/hooks/useAsync";
 import { useCallback, useEffect } from "react";
 import { METHOD } from "../common/entities";
@@ -14,11 +13,10 @@ export const useFetchData = <D>(
   method: METHOD,
   shouldFetch = true
 ): UseFetchData<D> => {
-  const { token } = useToken();
   const { data, isSuccess, run } = useAsync<D>();
 
   const fetchData = useCallback(async (): Promise<D> => {
-    const res = await fetchResource(requestUrl, method, token);
+    const res = await fetchResource(requestUrl, method);
     if (isFetchStatusOk(res.status)) {
       return await res.json();
     }
@@ -28,13 +26,12 @@ export const useFetchData = <D>(
         .then(({ message }) => message)
         .catch(() => `Received ${res.status} response`)
     );
-  }, [method, requestUrl, token]);
+  }, [method, requestUrl]);
 
   useEffect(() => {
-    if (!token) return;
     if (!shouldFetch) return;
     run(fetchData());
-  }, [fetchData, run, shouldFetch, token]);
+  }, [fetchData, run, shouldFetch]);
 
   return { data, isSuccess };
 };
