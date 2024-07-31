@@ -83,6 +83,14 @@ export const Login = ({
                 Google
               </LoginButton>
             )}
+            {providers?.["azure-ad"] && (
+              <LoginButton
+                EndIcon={GoogleIcon}
+                onClick={onAuthenticateUser.bind(null, providers["azure-ad"])}
+              >
+                Azure AD
+              </LoginButton>
+            )}
           </LoginSectionActions>
         </LoginSection>
       </RoundedPaper>
