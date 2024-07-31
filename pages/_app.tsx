@@ -8,9 +8,9 @@ import { Floating } from "@databiosphere/findable-ui/lib/components/Layout/compo
 import { Footer } from "@databiosphere/findable-ui/lib/components/Layout/components/Footer/footer";
 import { Header as DXHeader } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
+import { AuthProvider } from "@databiosphere/findable-ui/lib/providers/authentication";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
-import { GoogleSignInAuthenticationProvider } from "@databiosphere/findable-ui/lib/providers/googleSignInAuthentication/provider";
 import { LayoutStateProvider } from "@databiosphere/findable-ui/lib/providers/layoutState";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
@@ -21,6 +21,8 @@ import { createBreakpoints } from "@mui/system";
 import { deepmerge } from "@mui/utils";
 import { config } from "app/config/config";
 import { NextPage } from "next";
+import { Session } from "next-auth";
+import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { AuthorizationProvider } from "../app/providers/authorization";
 import { mergeAppTheme } from "../app/theme/theme";
@@ -30,6 +32,7 @@ const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 
 export interface PageProps extends AzulEntitiesStaticResponse {
   pageTitle?: string;
+  session?: Session | null;
 }
 
 export type NextPageWithComponent = NextPage & {
@@ -47,7 +50,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
   const { floating, footer, header } = layout || {};
   const defaultTheme = createAppTheme(themeOptions);
   const appTheme = mergeAppTheme(defaultTheme);
-  const { entityListType, pageTitle } = pageProps as PageProps;
+  const { entityListType, pageTitle, session } = pageProps as PageProps;
   const Main = Component.Main || DXMain;
   return (
     <EmotionThemeProvider theme={appTheme}>
@@ -56,49 +59,51 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
           <Head pageTitle={pageTitle} />
           <CssBaseline />
           <SystemStatusProvider>
-            <GoogleSignInAuthenticationProvider timeout={SESSION_TIMEOUT}>
-              <LayoutStateProvider>
-                <AppLayout>
-                  <ThemeProvider
-                    theme={(theme: Theme): Theme =>
-                      createTheme(
-                        deepmerge(theme, {
-                          breakpoints: createBreakpoints(BREAKPOINTS),
-                        })
-                      )
-                    }
-                  >
-                    <DXHeader {...header} />
-                  </ThemeProvider>
-                  <ExploreStateProvider entityListType={entityListType}>
-                    <AuthorizationProvider>
-                      <Main>
-                        <ErrorBoundary
-                          fallbackRender={({
-                            error,
-                            reset,
-                          }: {
-                            error: DataExplorerError;
-                            reset: () => void;
-                          }): JSX.Element => (
-                            <Error
-                              errorMessage={error.message}
-                              requestUrlMessage={error.requestUrlMessage}
-                              rootPath={redirectRootToPath}
-                              onReset={reset}
-                            />
-                          )}
-                        >
-                          <Component {...pageProps} />
-                          <Floating {...floating} />
-                        </ErrorBoundary>
-                      </Main>
-                    </AuthorizationProvider>
-                  </ExploreStateProvider>
-                  <Footer {...footer} />
-                </AppLayout>
-              </LayoutStateProvider>
-            </GoogleSignInAuthenticationProvider>
+            <SessionProvider session={session}>
+              <AuthProvider sessionTimeout={SESSION_TIMEOUT}>
+                <LayoutStateProvider>
+                  <AppLayout>
+                    <ThemeProvider
+                      theme={(theme: Theme): Theme =>
+                        createTheme(
+                          deepmerge(theme, {
+                            breakpoints: createBreakpoints(BREAKPOINTS),
+                          })
+                        )
+                      }
+                    >
+                      <DXHeader {...header} />
+                    </ThemeProvider>
+                    <ExploreStateProvider entityListType={entityListType}>
+                      <AuthorizationProvider>
+                        <Main>
+                          <ErrorBoundary
+                            fallbackRender={({
+                              error,
+                              reset,
+                            }: {
+                              error: DataExplorerError;
+                              reset: () => void;
+                            }): JSX.Element => (
+                              <Error
+                                errorMessage={error.message}
+                                requestUrlMessage={error.requestUrlMessage}
+                                rootPath={redirectRootToPath}
+                                onReset={reset}
+                              />
+                            )}
+                          >
+                            <Component {...pageProps} />
+                            <Floating {...floating} />
+                          </ErrorBoundary>
+                        </Main>
+                      </AuthorizationProvider>
+                    </ExploreStateProvider>
+                    <Footer {...footer} />
+                  </AppLayout>
+                </LayoutStateProvider>
+              </AuthProvider>
+            </SessionProvider>
           </SystemStatusProvider>
         </DXConfigProvider>
       </ThemeProvider>
