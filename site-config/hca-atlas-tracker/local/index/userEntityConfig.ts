@@ -14,7 +14,6 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../category";
-import { subTitleHero } from "../viewList/subTitleHero";
 
 /**
  * Entity config object responsible to config anything related to the /users route.
@@ -130,7 +129,6 @@ export const userEntityConfig: EntityConfig = {
     disablePagination: true,
     enableDownload: true,
     enableTab: false,
-    subTitleHero,
   },
   route: "team",
 };
