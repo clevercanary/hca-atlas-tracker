@@ -55,7 +55,7 @@ describe(TEST_ROUTE, () => {
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
-      "returns error 403",
+      "returns users",
       role,
       usersHandler,
       METHOD.GET,
@@ -64,7 +64,13 @@ describe(TEST_ROUTE, () => {
       undefined,
       false,
       (res) => {
-        expect(res._getStatusCode()).toEqual(403);
+        expect(res._getStatusCode()).toEqual(200);
+        const users = res._getJSONData() as HCAAtlasTrackerUser[];
+        for (const testUser of INITIAL_TEST_USERS) {
+          const user = users.find((u) => u.email === testUser.email);
+          if (!expectIsDefined(user)) continue;
+          expectApiUserToMatchTest(user, testUser);
+        }
       }
     );
   }
