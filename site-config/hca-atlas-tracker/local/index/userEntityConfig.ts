@@ -25,8 +25,8 @@ export const userEntityConfig: EntityConfig = {
       {
         categoryConfigs: [
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NAME,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.FULL_NAME,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.FULL_NAME,
           },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.EMAIL,
