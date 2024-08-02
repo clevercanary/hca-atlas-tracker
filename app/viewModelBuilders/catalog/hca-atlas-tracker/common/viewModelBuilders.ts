@@ -662,6 +662,19 @@ export const buildTissue = (
 };
 
 /**
+ * Build props for the "updated at" BasicCell component.
+ * @param task - Task entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildUpdatedAt = (
+  task: HCAAtlasTrackerListValidationRecord
+): React.ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: getDateFromIsoString(task.updatedAt),
+  };
+};
+
+/**
  * Build props for the disabled status cell component.
  * @param user - User entity.
  * @returns Props to be used for the cell.
