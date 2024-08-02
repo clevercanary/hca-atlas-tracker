@@ -35,10 +35,12 @@ const TEST_ROUTE =
   "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
 
 const COMPONENT_ATLAS_DRAFT_FOO_EDIT: ComponentAtlasEditData = {
+  description: "Component atlas draft foo description edited",
   title: "Component Atlas Draft Foo Edited",
 };
 
 const COMPONENT_ATLAS_MISC_FOO_EDIT: ComponentAtlasEditData = {
+  description: "Component atlas misc foo description edited",
   title: "Component Atlas Misc Foo Edited",
 };
 
@@ -117,6 +119,9 @@ describe(TEST_ROUTE, () => {
         const componentAtlas =
           res._getJSONData() as HCAAtlasTrackerComponentAtlas;
         expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
+        expect(componentAtlas.description).toEqual(
+          COMPONENT_ATLAS_DRAFT_FOO.description
+        );
       }
     );
   }
@@ -130,6 +135,9 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
     expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
+    expect(componentAtlas.description).toEqual(
+      COMPONENT_ATLAS_DRAFT_FOO.description
+    );
   });
 
   it("returns error 401 when component atlas is PATCH requested from draft atlas by logged out user", async () => {

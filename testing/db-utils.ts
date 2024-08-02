@@ -136,6 +136,7 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         ) ?? 0,
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
+      description: componentAtlas.description,
       disease: aggregateSourceDatasetArrayField(
         componentAtlas.sourceDatasets,
         "disease"

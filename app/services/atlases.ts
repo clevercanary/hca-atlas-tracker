@@ -83,6 +83,7 @@ export async function atlasInputDataToDbData(
 ): Promise<AtlasInputDbData> {
   return {
     overviewData: {
+      description: inputData.description,
       integrationLead: inputData.integrationLead,
       network: inputData.network,
       shortName: inputData.shortName,

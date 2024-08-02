@@ -25,6 +25,7 @@ jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
+  description: "foo bar baz baz foo bar",
   integrationLead: [],
   network: "eye",
   shortName: "test",
@@ -33,6 +34,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
+  description: "bar foo baz foo bar baz bar",
   integrationLead: [
     {
       email: "foo@example.com",
@@ -46,6 +48,7 @@ const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
+  description: "foo baz foo foo",
   integrationLead: [
     {
       email: "foofoo@example.com",
@@ -67,6 +70,7 @@ const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
+  description: "bar bar foo foo foo bar",
   integrationLead: [],
   network: "musculoskeletal",
   shortName: "test4",
@@ -260,6 +264,7 @@ async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
   expect(newAtlasFromDb.target_completion).toEqual(
     atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
   );
+  expect(newAtlasFromDb.overview.description).toEqual(atlasData.description);
   expect(newAtlasFromDb.overview.integrationLead).toEqual(
     atlasData.integrationLead
   );

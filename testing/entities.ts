@@ -20,6 +20,7 @@ export interface TestUser {
 }
 
 export interface TestAtlas {
+  description: string;
   id: string;
   integrationLead: IntegrationLead[];
   network: NetworkKey;
@@ -33,6 +34,7 @@ export interface TestAtlas {
 
 export interface TestComponentAtlas {
   atlasId: string;
+  description: string;
   id: string;
   sourceDatasets?: TestSourceDataset[];
   title: string;

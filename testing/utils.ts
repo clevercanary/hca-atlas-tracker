@@ -56,6 +56,7 @@ export function makeTestAtlasOverview(
 ): HCAAtlasTrackerDBAtlasOverview {
   return {
     completedTaskCount: 0,
+    description: atlas.description,
     integrationLead: atlas.integrationLead,
     network: atlas.network,
     shortName: atlas.shortName,
@@ -257,6 +258,7 @@ export function expectApiAtlasToMatchTest(
   apiAtlas: HCAAtlasTrackerAtlas,
   testAtlas: TestAtlas
 ): void {
+  expect(apiAtlas.description).toEqual(testAtlas.description);
   expect(apiAtlas.id).toEqual(testAtlas.id);
   expect(apiAtlas.integrationLead).toEqual(testAtlas.integrationLead);
   expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);

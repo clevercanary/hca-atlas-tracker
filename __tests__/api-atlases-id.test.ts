@@ -36,6 +36,7 @@ const TEST_ROUTE = "/api/atlases/[id]";
 const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
+  description: "test-public-description-edited",
   integrationLead: [
     {
       email: "bar@example.com",
@@ -50,6 +51,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
 };
 
 const ATLAS_WITH_IL_EDIT: AtlasEditData = {
+  description: ATLAS_WITH_IL.description,
   integrationLead: [],
   network: "development",
   shortName: ATLAS_WITH_IL.shortName,
@@ -58,6 +60,7 @@ const ATLAS_WITH_IL_EDIT: AtlasEditData = {
 };
 
 const ATLAS_DRAFT_EDIT: AtlasEditData = {
+  description: "foo bar baz",
   integrationLead: [
     {
       email: "foofoo@example.com",
@@ -79,6 +82,7 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
 };
 
 const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION: AtlasEditData = {
+  description: ATLAS_DRAFT.description,
   integrationLead: ATLAS_DRAFT.integrationLead,
   network: ATLAS_DRAFT.network,
   shortName: ATLAS_DRAFT.shortName,
@@ -391,6 +395,7 @@ async function testSuccessfulEdit(
 
   const updatedOverview = updatedAtlasFromDb.overview;
 
+  expect(updatedOverview.description).toEqual(editData.description);
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
   expect(updatedOverview.network).toEqual(editData.network);
   expect(updatedOverview.shortName).toEqual(editData.shortName);

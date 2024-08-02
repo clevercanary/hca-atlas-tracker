@@ -27,10 +27,12 @@ jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_COMPONENT_ATLAS_DATA: NewComponentAtlasData = {
+  description: "New component atlas description",
   title: "New Component Atlas",
 };
 
 const NEW_COMPONENT_ATLAS_FOO_DATA: NewComponentAtlasData = {
+  description: "New component atlas foo description",
   title: "New Component Atlas Foo",
 };
 
@@ -149,26 +151,17 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
   });
 
   it("creates and returns component atlas entry when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    await testSuccessfulCreate(
-      ATLAS_DRAFT,
-      NEW_COMPONENT_ATLAS_FOO_DATA,
-      NEW_COMPONENT_ATLAS_FOO_DATA.title
-    );
+    await testSuccessfulCreate(ATLAS_DRAFT, NEW_COMPONENT_ATLAS_FOO_DATA);
   });
 
   it("creates and returns component atlas entry when requested by user with CONTENT_ADMIN role", async () => {
-    await testSuccessfulCreate(
-      ATLAS_DRAFT,
-      NEW_COMPONENT_ATLAS_DATA,
-      NEW_COMPONENT_ATLAS_DATA.title
-    );
+    await testSuccessfulCreate(ATLAS_DRAFT, NEW_COMPONENT_ATLAS_DATA);
   });
 });
 
 async function testSuccessfulCreate(
   atlas: TestAtlas,
-  newData: Record<string, unknown>,
-  expectedTitle: string
+  newData: NewComponentAtlasData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
   expect(res._getStatusCode()).toEqual(201);
@@ -183,7 +176,7 @@ async function testSuccessfulCreate(
     newComponentAtlasFromDb,
     newComponentAtlas,
     atlas.id,
-    expectedTitle
+    newData
   );
   return newComponentAtlasFromDb;
 }
@@ -213,11 +206,12 @@ function expectDbComponentAtlasToMatch(
   dbComponentAtlas: HCAAtlasTrackerDBComponentAtlas,
   apiComponentAtlas: HCAAtlasTrackerComponentAtlas,
   atlasId: string,
-  title: string
+  data: NewComponentAtlasData
 ): void {
   expect(dbComponentAtlas).toBeDefined();
   expect(dbComponentAtlas.atlas_id).toEqual(atlasId);
-  expect(dbComponentAtlas.title).toEqual(title);
+  expect(dbComponentAtlas.component_info.description).toEqual(data.description);
+  expect(dbComponentAtlas.title).toEqual(data.title);
   expect(dbComponentAtlasToApiComponentAtlas(dbComponentAtlas)).toEqual(
     apiComponentAtlas
   );

@@ -16,6 +16,7 @@ import { ROLE } from "./entities";
  * Schema for data used to create a new atlas.
  */
 export const newAtlasSchema = object({
+  description: string().required().max(10000),
   integrationLead: array()
     .of(
       object({
@@ -57,6 +58,7 @@ export type AtlasEditData = InferType<typeof atlasEditSchema>;
  * Schema for data used to create a new component atlas.
  */
 export const newComponentAtlasSchema = object({
+  description: string().required().max(10000),
   title: string().required(),
 }).strict(true);
 

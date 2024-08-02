@@ -19,7 +19,7 @@ import {
 interface ComponentAtlasDbEditData {
   componentInfoEdit: Pick<
     HCAAtlasTrackerDBComponentAtlasInfo,
-    "cellxgeneDatasetId" | "cellxgeneDatasetVersion"
+    "description" | "cellxgeneDatasetId" | "cellxgeneDatasetVersion"
   >;
   title: HCAAtlasTrackerDBComponentAtlas["title"];
 }
@@ -130,6 +130,7 @@ async function newComponentAtlasDataToDbData(
       cellCount: 0,
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
+      description: inputData.description,
       disease: [],
       suspensionType: [],
       tissue: [],
@@ -150,6 +151,7 @@ async function componentAtlasEditDataToDbData(
     componentInfoEdit: {
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,
+      description: inputData.description,
     },
     title: inputData.title,
   };
