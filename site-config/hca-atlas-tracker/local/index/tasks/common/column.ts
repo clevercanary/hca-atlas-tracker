@@ -176,6 +176,17 @@ export const TASK_STATUS: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
   width: { max: "0.5fr", min: "120px" },
 };
 
+export const UPDATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
+  columnVisible: false,
+  componentConfig: {
+    component: C.BasicCell,
+    viewBuilder: V.buildUpdatedAt,
+  } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.UPDATED_AT,
+  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.UPDATED_AT,
+  width: { max: "0.65fr", min: "120px" },
+};
+
 export const WAVES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
   columnVisible: false,
   componentConfig: {

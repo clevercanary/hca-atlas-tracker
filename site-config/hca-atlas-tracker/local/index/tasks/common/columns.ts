@@ -17,6 +17,7 @@ export const COLUMNS: ColumnConfig<HCAAtlasTrackerListValidationRecord>[] = [
   COLUMN.TASK_STATUS,
   COLUMN.TARGET_COMPLETION,
   COLUMN.CREATED_AT,
+  COLUMN.UPDATED_AT,
   COLUMN.RESOLVED_AT,
 ];
 
@@ -34,5 +35,6 @@ export const ROW_PREVIEW_COLUMNS: ColumnConfig<HCAAtlasTrackerListValidationReco
     COLUMN.WAVES,
     COLUMN.ENTITY_TYPE,
     COLUMN.CREATED_AT,
+    COLUMN.UPDATED_AT,
     COLUMN.RESOLVED_AT,
   ];
