@@ -12,6 +12,7 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
+  ATLAS_WITH_MISC_SOURCE_STUDIES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
@@ -88,6 +89,14 @@ const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION: AtlasEditData = {
   shortName: ATLAS_DRAFT.shortName,
   version: ATLAS_DRAFT.version,
   wave: ATLAS_DRAFT.wave,
+};
+
+const ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT: AtlasEditData = {
+  integrationLead: ATLAS_WITH_MISC_SOURCE_STUDIES.integrationLead,
+  network: ATLAS_WITH_MISC_SOURCE_STUDIES.network,
+  shortName: ATLAS_WITH_MISC_SOURCE_STUDIES.shortName,
+  version: ATLAS_WITH_MISC_SOURCE_STUDIES.version,
+  wave: ATLAS_WITH_MISC_SOURCE_STUDIES.wave,
 };
 
 beforeAll(async () => {
@@ -370,6 +379,15 @@ describe(TEST_ROUTE, () => {
     );
     expect(updatedAtlas.target_completion).toBeNull();
   });
+
+  it("PUT updates and returns atlas entry with description removed", async () => {
+    const updatedAtlas = await testSuccessfulEdit(
+      ATLAS_WITH_MISC_SOURCE_STUDIES,
+      ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT,
+      1
+    );
+    expect(updatedAtlas.overview.description).toEqual("");
+  });
 });
 
 async function testSuccessfulEdit(
@@ -395,7 +413,7 @@ async function testSuccessfulEdit(
 
   const updatedOverview = updatedAtlasFromDb.overview;
 
-  expect(updatedOverview.description).toEqual(editData.description);
+  expect(updatedOverview.description).toEqual(editData.description ?? "");
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
   expect(updatedOverview.network).toEqual(editData.network);
   expect(updatedOverview.shortName).toEqual(editData.shortName);

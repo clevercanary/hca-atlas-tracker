@@ -122,5 +122,6 @@ function expectComponentAtlasesToMatch(
     if (!componentAtlas) continue;
     expect(componentAtlas.atlasId).toEqual(testComponentAtlas.atlasId);
     expect(componentAtlas.title).toEqual(testComponentAtlas.title);
+    expect(componentAtlas.description).toEqual(testComponentAtlas.description);
   }
 }

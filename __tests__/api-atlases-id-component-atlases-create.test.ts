@@ -36,6 +36,10 @@ const NEW_COMPONENT_ATLAS_FOO_DATA: NewComponentAtlasData = {
   title: "New Component Atlas Foo",
 };
 
+const NEW_COMPONENT_ATLAS_WITHOUT_DESCRIPTION_DATA: NewComponentAtlasData = {
+  title: "New Component Atlas Without Description",
+};
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -157,6 +161,13 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
   it("creates and returns component atlas entry when requested by user with CONTENT_ADMIN role", async () => {
     await testSuccessfulCreate(ATLAS_DRAFT, NEW_COMPONENT_ATLAS_DATA);
   });
+
+  it("creates and returns component atlas entry without description specified", async () => {
+    await testSuccessfulCreate(
+      ATLAS_DRAFT,
+      NEW_COMPONENT_ATLAS_WITHOUT_DESCRIPTION_DATA
+    );
+  });
 });
 
 async function testSuccessfulCreate(
@@ -210,7 +221,9 @@ function expectDbComponentAtlasToMatch(
 ): void {
   expect(dbComponentAtlas).toBeDefined();
   expect(dbComponentAtlas.atlas_id).toEqual(atlasId);
-  expect(dbComponentAtlas.component_info.description).toEqual(data.description);
+  expect(dbComponentAtlas.component_info.description).toEqual(
+    data.description ?? ""
+  );
   expect(dbComponentAtlas.title).toEqual(data.title);
   expect(dbComponentAtlasToApiComponentAtlas(dbComponentAtlas)).toEqual(
     apiComponentAtlas

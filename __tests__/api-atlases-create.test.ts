@@ -79,6 +79,14 @@ const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
   wave: "2",
 };
 
+const NEW_ATLAS_WITHOUT_DESCRIPTION: NewAtlasData = {
+  integrationLead: [],
+  network: "nervous-system",
+  shortName: "test5",
+  version: "5.3",
+  wave: "2",
+};
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -252,6 +260,10 @@ describe("/api/atlases/create", () => {
   it("creates and returns atlas entry with target completion", async () => {
     await testSuccessfulCreate(NEW_ATLAS_WITH_TARGET_COMPLETION);
   });
+
+  it("creates and returns atlas entry without description", async () => {
+    await testSuccessfulCreate(NEW_ATLAS_WITHOUT_DESCRIPTION);
+  });
 });
 
 async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
@@ -264,7 +276,9 @@ async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
   expect(newAtlasFromDb.target_completion).toEqual(
     atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
   );
-  expect(newAtlasFromDb.overview.description).toEqual(atlasData.description);
+  expect(newAtlasFromDb.overview.description).toEqual(
+    atlasData.description ?? ""
+  );
   expect(newAtlasFromDb.overview.integrationLead).toEqual(
     atlasData.integrationLead
   );

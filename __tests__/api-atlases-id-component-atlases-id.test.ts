@@ -13,6 +13,7 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_MISC_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -42,6 +43,10 @@ const COMPONENT_ATLAS_DRAFT_FOO_EDIT: ComponentAtlasEditData = {
 const COMPONENT_ATLAS_MISC_FOO_EDIT: ComponentAtlasEditData = {
   description: "Component atlas misc foo description edited",
   title: "Component Atlas Misc Foo Edited",
+};
+
+const COMPONENT_ATLAS_DRAFT_BAR_EDIT: ComponentAtlasEditData = {
+  title: COMPONENT_ATLAS_DRAFT_BAR.title,
 };
 
 beforeAll(async () => {
@@ -285,6 +290,38 @@ describe(TEST_ROUTE, () => {
     );
 
     await restoreDbComponentAtlas(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("removes description when description is unspecified", async () => {
+    const componentAtlasFromDbBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+    expect(componentAtlasFromDbBefore?.component_info.description).toBeTruthy();
+
+    const res = await doComponentAtlasRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      COMPONENT_ATLAS_DRAFT_BAR_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const updatedComponentAtlas = res._getJSONData();
+    const componentAtlasFromDb = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_DRAFT_BAR.id
+    );
+    expect(componentAtlasFromDb).toBeDefined();
+    if (!componentAtlasFromDb) return;
+    expect(componentAtlasFromDb.title).toEqual(
+      COMPONENT_ATLAS_DRAFT_BAR_EDIT.title
+    );
+    expect(dbComponentAtlasToApiComponentAtlas(componentAtlasFromDb)).toEqual(
+      updatedComponentAtlas
+    );
+
+    expect(componentAtlasFromDb.component_info.description).toEqual("");
+
+    await restoreDbComponentAtlas(COMPONENT_ATLAS_DRAFT_BAR);
   });
 
   it("returns error 401 when component atlas is DELETE requested from draft atlas by logged out user", async () => {
