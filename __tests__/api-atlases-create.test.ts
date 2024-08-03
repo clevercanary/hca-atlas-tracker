@@ -245,6 +245,21 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when description is too long", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_WITH_TARGET_COMPLETION,
+            description: "x".repeat(10001),
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
     await testSuccessfulCreate(NEW_ATLAS_DATA);
   });

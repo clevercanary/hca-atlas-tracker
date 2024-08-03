@@ -359,6 +359,23 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when description is too long", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            description: "x".repeat(10001),
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0);
   });

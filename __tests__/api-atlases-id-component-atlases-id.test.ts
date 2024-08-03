@@ -242,6 +242,25 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
+  it("returns error 400 for component atlas PATCH requested with excessively long description", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          {
+            ...COMPONENT_ATLAS_DRAFT_FOO_EDIT,
+            description: "x".repeat(10001),
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
   it("updates and returns component atlas when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,

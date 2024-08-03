@@ -154,6 +154,22 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when description is too long", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_COMPONENT_ATLAS_DATA,
+            description: "x".repeat(10001),
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns component atlas entry when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     await testSuccessfulCreate(ATLAS_DRAFT, NEW_COMPONENT_ATLAS_FOO_DATA);
   });
