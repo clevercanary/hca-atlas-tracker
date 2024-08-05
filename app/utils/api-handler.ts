@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
 import { ValidationError } from "yup";
+import { nextAuthOptions } from "../../site-config/hca-atlas-tracker/local/authentication/next-auth";
 import {
   HCAAtlasTrackerDBUser,
   ROLE,
@@ -8,7 +10,12 @@ import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { RefreshDataNotReadyError } from "../services/common/refresh-service";
 import { query } from "../services/database";
-import { getProvidedUserProfile } from "../services/user-profile";
+
+interface UserProfile {
+  email: string;
+  name: string;
+  picture: string;
+}
 
 export type MiddlewareFunction = (
   req: NextApiRequest,
@@ -112,7 +119,7 @@ export function method(methodName: METHOD): MiddlewareFunction {
  * @param next - Middleware next function.
  */
 export const registeredUser: MiddlewareFunction = async (req, res, next) => {
-  await getRegisteredUserFromAuthorization(req.headers.authorization);
+  await getRegisteredActiveUser(req, res);
   next();
 };
 
@@ -126,11 +133,9 @@ export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
     ? allowedRoles
     : [allowedRoles];
   return async (req, res, next) => {
-    const role = await getUserRoleFromAuthorization(req.headers.authorization);
+    const role = await getActiveUserRole(req, res);
     if (!allowedRolesArray.includes(role)) {
-      const userProfile = await getProvidedUserProfile(
-        req.headers.authorization
-      );
+      const userProfile = await getProvidedUserProfile(req, res);
       res.status(userProfile ? 403 : 401).end();
     } else {
       next();
@@ -149,9 +154,7 @@ export const integrationLeadAssociatedAtlasOnly: MiddlewareFunction = async (
   res,
   next
 ) => {
-  const user = await getRegisteredUserFromAuthorization(
-    req.headers.authorization
-  );
+  const user = await getRegisteredActiveUser(req, res);
   if (user.role === ROLE.INTEGRATION_LEAD) {
     const atlasId = req.query.atlasId as string;
     if (!user.role_associated_resource_ids.includes(atlasId)) {
@@ -190,20 +193,20 @@ export function handleRequiredParam(
   return param;
 }
 
-export async function getUserRoleFromAuthorization(
-  authorization: string | undefined
+export async function getActiveUserRole(
+  req: NextApiRequest,
+  res: NextApiResponse
 ): Promise<ROLE> {
-  return (
-    (await getUserFromAuthorization(authorization))?.role ?? ROLE.UNREGISTERED
-  );
+  return (await getActiveUser(req, res))?.role ?? ROLE.UNREGISTERED;
 }
 
-export async function getUserFromAuthorization(
-  authorization: string | undefined
+export async function getActiveUser(
+  req: NextApiRequest,
+  res: NextApiResponse
 ): Promise<HCAAtlasTrackerDBUser | null> {
-  const userProfile = await getProvidedUserProfile(authorization);
+  const userProfile = await getProvidedUserProfile(req, res);
   const email = userProfile?.email;
-  if (email && userProfile.email_verified) {
+  if (email) {
     const { rows } = await query<HCAAtlasTrackerDBUser>(
       "SELECT * FROM hat.users WHERE email=$1",
       [email]
@@ -213,12 +216,13 @@ export async function getUserFromAuthorization(
   return null;
 }
 
-export async function getRegisteredUserFromAuthorization(
-  authorization: string | undefined
+export async function getRegisteredActiveUser(
+  req: NextApiRequest,
+  res: NextApiResponse
 ): Promise<HCAAtlasTrackerDBUser> {
-  const user = await getUserFromAuthorization(authorization);
+  const user = await getActiveUser(req, res);
   if (!user) {
-    const userProfile = await getProvidedUserProfile(authorization);
+    const userProfile = await getProvidedUserProfile(req, res);
     throw new (userProfile ? ForbiddenError : UnauthenticatedError)(
       "User must be registered"
     );
@@ -270,4 +274,21 @@ export function respondValidationError(
         message: error.message,
       };
   res.status(400).json(errorInfo);
+}
+
+export async function getProvidedUserProfile(
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<UserProfile | null> {
+  const session = await getServerSession(req, res, nextAuthOptions);
+  if (!session) return null;
+  // TODO: Should `expires` be checked?
+  if (!session.user?.email)
+    throw new UnauthenticatedError("Email not provided by authentication");
+  // TODO: different handling of missing values?
+  return {
+    email: session.user.email,
+    name: session.user.name ?? "",
+    picture: session.user.image ?? "",
+  };
 }

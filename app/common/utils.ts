@@ -6,17 +6,15 @@ import { FETCH_STATUS, METHOD, PathParameter } from "./entities";
 /**
  * Returns fetch request options.
  * @param method - Method.
- * @param accessToken - Access token.
  * @param defaultHeaders - Default headers.
  * @returns fetch request options.
  */
 export function getFetchOptions(
   method: METHOD,
-  accessToken: string | undefined,
-  defaultHeaders?: HeadersInit
+  defaultHeaders: HeadersInit = method === METHOD.DELETE ? {} : DEFAULT_HEADERS
 ): RequestInit {
   return {
-    headers: getHeaders(method, accessToken, defaultHeaders),
+    headers: defaultHeaders,
     method,
   };
 }
@@ -25,22 +23,16 @@ export function getFetchOptions(
  * Fetch request.
  * @param requestURL - Request URL.
  * @param requestMethod - Request method.
- * @param accessToken - Access token.
  * @param payload - Payload.
  * @returns promise (response).
  */
 export async function fetchResource<P>(
   requestURL: string,
   requestMethod: METHOD,
-  accessToken?: string,
   payload?: P
 ): Promise<Response> {
   return await fetch(requestURL, {
-    ...getFetchOptions(
-      requestMethod,
-      accessToken,
-      payload ? DEFAULT_HEADERS : undefined
-    ),
+    ...getFetchOptions(requestMethod, payload ? DEFAULT_HEADERS : undefined),
     body: payload ? JSON.stringify(payload) : undefined,
   });
 }
@@ -53,22 +45,6 @@ export async function fetchResource<P>(
 export function getHeaderAuthorization(accessToken?: string): HeadersInit {
   if (!accessToken) return {};
   return { authorization: `Bearer ${accessToken}` };
-}
-
-/**
- * Returns HTTP headers with authorization token.
- * @param method - Method.
- * @param accessToken - Access token.
- * @param defaultHeaders - Default headers.
- * @returns HTTP headers.
- */
-export function getHeaders(
-  method: METHOD,
-  accessToken?: string,
-  defaultHeaders = method === METHOD.DELETE ? {} : DEFAULT_HEADERS
-): HeadersInit {
-  if (!accessToken) return defaultHeaders;
-  return { ...defaultHeaders, ...getHeaderAuthorization(accessToken) };
 }
 
 /**
