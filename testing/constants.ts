@@ -1537,6 +1537,7 @@ export const INTEGRATION_LEAD_BAZ_BAZ = {
 };
 
 export const ATLAS_DRAFT: TestAtlas = {
+  description: "bar baz baz foo baz",
   id: ATLAS_ID_DRAFT,
   integrationLead: [
     {
@@ -1561,6 +1562,7 @@ export const ATLAS_DRAFT: TestAtlas = {
 };
 
 export const ATLAS_PUBLIC: TestAtlas = {
+  description: "foo foo bar bar foo",
   id: ATLAS_ID_PUBLIC,
   integrationLead: [
     {
@@ -1582,6 +1584,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
 };
 
 export const ATLAS_WITH_IL: TestAtlas = {
+  description: "foo baz bar baz foo baz",
   id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
   integrationLead: [INTEGRATION_LEAD_BAZ],
   network: "heart",
@@ -1593,6 +1596,7 @@ export const ATLAS_WITH_IL: TestAtlas = {
 };
 
 export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
+  description: "bar foo bar bar foo baz",
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES,
   integrationLead: [INTEGRATION_LEAD_BAZ_BAZ],
   network: "adipose",
@@ -1619,6 +1623,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
 };
 
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
+  description: "foo baz baz bar foo bar",
   id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
   integrationLead: [],
   network: "organoid",
@@ -1636,6 +1641,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
 };
 
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
+  description: "baz foo baz foo bar bar foo",
   id: "9766683a-3c8d-4ec8-b8b5-3fceb8fe0d31",
   integrationLead: [],
   network: "gut",
@@ -1679,6 +1685,7 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
 
 export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
   atlasId: ATLAS_DRAFT.id,
+  description: "bar baz baz foo baz foo bar",
   id: "b1820416-5886-4585-b0fe-7f70487331d8",
   sourceDatasets: [
     SOURCE_DATASET_FOOFOO,
@@ -1690,6 +1697,7 @@ export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
 
 export const COMPONENT_ATLAS_DRAFT_BAR: TestComponentAtlas = {
   atlasId: ATLAS_DRAFT.id,
+  description: "baz baz bar foo baz",
   id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
   sourceDatasets: [
     SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
@@ -1700,6 +1708,7 @@ export const COMPONENT_ATLAS_DRAFT_BAR: TestComponentAtlas = {
 
 export const COMPONENT_ATLAS_MISC_FOO: TestComponentAtlas = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+  description: "foo foo bar baz bar bar",
   id: "b95614cc-5356-4f47-b3a2-da05d23e86ce",
   sourceDatasets: [
     SOURCE_DATASET_FOO,

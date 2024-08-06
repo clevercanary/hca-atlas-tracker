@@ -12,6 +12,7 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
+  ATLAS_WITH_MISC_SOURCE_STUDIES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
@@ -36,6 +37,7 @@ const TEST_ROUTE = "/api/atlases/[id]";
 const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
 
 const ATLAS_PUBLIC_EDIT: AtlasEditData = {
+  description: "test-public-description-edited",
   integrationLead: [
     {
       email: "bar@example.com",
@@ -50,6 +52,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
 };
 
 const ATLAS_WITH_IL_EDIT: AtlasEditData = {
+  description: ATLAS_WITH_IL.description,
   integrationLead: [],
   network: "development",
   shortName: ATLAS_WITH_IL.shortName,
@@ -58,6 +61,7 @@ const ATLAS_WITH_IL_EDIT: AtlasEditData = {
 };
 
 const ATLAS_DRAFT_EDIT: AtlasEditData = {
+  description: "foo bar baz",
   integrationLead: [
     {
       email: "foofoo@example.com",
@@ -79,11 +83,20 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
 };
 
 const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION: AtlasEditData = {
+  description: ATLAS_DRAFT.description,
   integrationLead: ATLAS_DRAFT.integrationLead,
   network: ATLAS_DRAFT.network,
   shortName: ATLAS_DRAFT.shortName,
   version: ATLAS_DRAFT.version,
   wave: ATLAS_DRAFT.wave,
+};
+
+const ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT: AtlasEditData = {
+  integrationLead: ATLAS_WITH_MISC_SOURCE_STUDIES.integrationLead,
+  network: ATLAS_WITH_MISC_SOURCE_STUDIES.network,
+  shortName: ATLAS_WITH_MISC_SOURCE_STUDIES.shortName,
+  version: ATLAS_WITH_MISC_SOURCE_STUDIES.version,
+  wave: ATLAS_WITH_MISC_SOURCE_STUDIES.wave,
 };
 
 beforeAll(async () => {
@@ -346,6 +359,23 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when description is too long", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            description: "x".repeat(10001),
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0);
   });
@@ -365,6 +395,15 @@ describe(TEST_ROUTE, () => {
       0
     );
     expect(updatedAtlas.target_completion).toBeNull();
+  });
+
+  it("PUT updates and returns atlas entry with description removed", async () => {
+    const updatedAtlas = await testSuccessfulEdit(
+      ATLAS_WITH_MISC_SOURCE_STUDIES,
+      ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT,
+      1
+    );
+    expect(updatedAtlas.overview.description).toEqual("");
   });
 });
 
@@ -391,6 +430,7 @@ async function testSuccessfulEdit(
 
   const updatedOverview = updatedAtlasFromDb.overview;
 
+  expect(updatedOverview.description).toEqual(editData.description ?? "");
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
   expect(updatedOverview.network).toEqual(editData.network);
   expect(updatedOverview.shortName).toEqual(editData.shortName);

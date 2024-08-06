@@ -25,6 +25,7 @@ jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
+  description: "foo bar baz baz foo bar",
   integrationLead: [],
   network: "eye",
   shortName: "test",
@@ -33,6 +34,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
+  description: "bar foo baz foo bar baz bar",
   integrationLead: [
     {
       email: "foo@example.com",
@@ -46,6 +48,7 @@ const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
+  description: "foo baz foo foo",
   integrationLead: [
     {
       email: "foofoo@example.com",
@@ -67,11 +70,20 @@ const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
+  description: "bar bar foo foo foo bar",
   integrationLead: [],
   network: "musculoskeletal",
   shortName: "test4",
   targetCompletion: "2024-06-03T21:07:22.177Z",
   version: "3.3",
+  wave: "2",
+};
+
+const NEW_ATLAS_WITHOUT_DESCRIPTION: NewAtlasData = {
+  integrationLead: [],
+  network: "nervous-system",
+  shortName: "test5",
+  version: "5.3",
   wave: "2",
 };
 
@@ -233,6 +245,21 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when description is too long", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_WITH_TARGET_COMPLETION,
+            description: "x".repeat(10001),
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
     await testSuccessfulCreate(NEW_ATLAS_DATA);
   });
@@ -248,6 +275,10 @@ describe("/api/atlases/create", () => {
   it("creates and returns atlas entry with target completion", async () => {
     await testSuccessfulCreate(NEW_ATLAS_WITH_TARGET_COMPLETION);
   });
+
+  it("creates and returns atlas entry without description", async () => {
+    await testSuccessfulCreate(NEW_ATLAS_WITHOUT_DESCRIPTION);
+  });
 });
 
 async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
@@ -259,6 +290,9 @@ async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
   expect(newAtlasFromDb.status).toEqual(ATLAS_STATUS.DRAFT);
   expect(newAtlasFromDb.target_completion).toEqual(
     atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
+  );
+  expect(newAtlasFromDb.overview.description).toEqual(
+    atlasData.description ?? ""
   );
   expect(newAtlasFromDb.overview.integrationLead).toEqual(
     atlasData.integrationLead

@@ -45,6 +45,7 @@ export function atlasInputMapper(
     bioNetwork: apiAtlas.bioNetwork,
     completedTaskCount: apiAtlas.completedTaskCount,
     componentAtlasCount: apiAtlas.componentAtlasCount,
+    description: apiAtlas.description,
     id: apiAtlas.id,
     integrationLeadEmail: apiAtlas.integrationLead.map(({ email }) => email),
     integrationLeadName: apiAtlas.integrationLead.map(({ name }) => name),
@@ -69,6 +70,7 @@ export function dbAtlasToApiAtlas(
     bioNetwork: dbAtlas.overview.network,
     completedTaskCount: dbAtlas.overview.completedTaskCount,
     componentAtlasCount: dbAtlas.component_atlas_count,
+    description: dbAtlas.overview.description,
     id: dbAtlas.id,
     integrationLead: dbAtlas.overview.integrationLead,
     publication: {
@@ -96,6 +98,7 @@ export function dbComponentAtlasToApiComponentAtlas(
     cellxgeneDatasetId: dbComponentAtlas.component_info.cellxgeneDatasetId,
     cellxgeneDatasetVersion:
       dbComponentAtlas.component_info.cellxgeneDatasetVersion,
+    description: dbComponentAtlas.component_info.description,
     disease: dbComponentAtlas.component_info.disease,
     id: dbComponentAtlas.id,
     sourceDatasetCount: dbComponentAtlas.source_datasets.length,

@@ -8,6 +8,7 @@ export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
   completedTaskCount: number;
   componentAtlasCount: number;
+  description: string;
   id: string;
   integrationLeadEmail: IntegrationLead["email"][];
   integrationLeadName: IntegrationLead["name"][];
@@ -28,6 +29,7 @@ export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
   completedTaskCount: number;
   componentAtlasCount: number;
+  description: string;
   id: string;
   integrationLead: IntegrationLead[];
   publication: {
@@ -50,6 +52,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
+  description: string;
   disease: string[];
   id: string;
   sourceDatasetCount: number;
@@ -215,6 +218,7 @@ export interface HCAAtlasTrackerDBAtlasWithComponentAtlases
 
 export interface HCAAtlasTrackerDBAtlasOverview {
   completedTaskCount: number;
+  description: string;
   integrationLead: IntegrationLead[];
   network: NetworkKey;
   shortName: string;
@@ -238,6 +242,7 @@ export interface HCAAtlasTrackerDBComponentAtlasInfo {
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
+  description: string;
   disease: string[];
   suspensionType: string[];
   tissue: string[];

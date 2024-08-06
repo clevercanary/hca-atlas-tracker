@@ -27,11 +27,17 @@ jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_COMPONENT_ATLAS_DATA: NewComponentAtlasData = {
+  description: "New component atlas description",
   title: "New Component Atlas",
 };
 
 const NEW_COMPONENT_ATLAS_FOO_DATA: NewComponentAtlasData = {
+  description: "New component atlas foo description",
   title: "New Component Atlas Foo",
+};
+
+const NEW_COMPONENT_ATLAS_WITHOUT_DESCRIPTION_DATA: NewComponentAtlasData = {
+  title: "New Component Atlas Without Description",
 };
 
 beforeAll(async () => {
@@ -148,27 +154,41 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when description is too long", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          ATLAS_DRAFT,
+          {
+            ...NEW_COMPONENT_ATLAS_DATA,
+            description: "x".repeat(10001),
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns component atlas entry when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    await testSuccessfulCreate(
-      ATLAS_DRAFT,
-      NEW_COMPONENT_ATLAS_FOO_DATA,
-      NEW_COMPONENT_ATLAS_FOO_DATA.title
-    );
+    await testSuccessfulCreate(ATLAS_DRAFT, NEW_COMPONENT_ATLAS_FOO_DATA);
   });
 
   it("creates and returns component atlas entry when requested by user with CONTENT_ADMIN role", async () => {
+    await testSuccessfulCreate(ATLAS_DRAFT, NEW_COMPONENT_ATLAS_DATA);
+  });
+
+  it("creates and returns component atlas entry without description specified", async () => {
     await testSuccessfulCreate(
       ATLAS_DRAFT,
-      NEW_COMPONENT_ATLAS_DATA,
-      NEW_COMPONENT_ATLAS_DATA.title
+      NEW_COMPONENT_ATLAS_WITHOUT_DESCRIPTION_DATA
     );
   });
 });
 
 async function testSuccessfulCreate(
   atlas: TestAtlas,
-  newData: Record<string, unknown>,
-  expectedTitle: string
+  newData: NewComponentAtlasData
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlas, newData);
   expect(res._getStatusCode()).toEqual(201);
@@ -183,7 +203,7 @@ async function testSuccessfulCreate(
     newComponentAtlasFromDb,
     newComponentAtlas,
     atlas.id,
-    expectedTitle
+    newData
   );
   return newComponentAtlasFromDb;
 }
@@ -213,11 +233,14 @@ function expectDbComponentAtlasToMatch(
   dbComponentAtlas: HCAAtlasTrackerDBComponentAtlas,
   apiComponentAtlas: HCAAtlasTrackerComponentAtlas,
   atlasId: string,
-  title: string
+  data: NewComponentAtlasData
 ): void {
   expect(dbComponentAtlas).toBeDefined();
   expect(dbComponentAtlas.atlas_id).toEqual(atlasId);
-  expect(dbComponentAtlas.title).toEqual(title);
+  expect(dbComponentAtlas.component_info.description).toEqual(
+    data.description ?? ""
+  );
+  expect(dbComponentAtlas.title).toEqual(data.title);
   expect(dbComponentAtlasToApiComponentAtlas(dbComponentAtlas)).toEqual(
     apiComponentAtlas
   );
