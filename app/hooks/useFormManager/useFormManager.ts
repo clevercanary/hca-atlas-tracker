@@ -2,9 +2,9 @@ import Router from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { FieldValues } from "react-hook-form";
 import { RouteValue } from "../../routes/entities";
+import { useAuthentication } from "../useAuthentication/useAuthentication";
 import { useAuthorization } from "../useAuthorization";
 import { FormMethod, YupValidatedFormValues } from "../useForm/common/entities";
-import { useNextAuth } from "../useNextAuth";
 import { useUserHasEditAuthorization } from "../useUserHasEditAuthorization/useUserHasEditAuthorization";
 import {
   FormAccess,
@@ -34,7 +34,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
   } = {},
   isDirty = formMethod?.formState.isDirty ?? false
 ): UseFormManager => {
-  const { isAuthenticated } = useNextAuth();
+  const { isAuthenticated } = useAuthentication();
   const { user } = useAuthorization();
   const { canEdit } = useUserHasEditAuthorization();
   const [pathRoute, setPathRoute] =
