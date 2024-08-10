@@ -6,9 +6,12 @@ export type APIValue = (typeof API)[APIKey];
 
 export interface HCAAtlasTrackerListAtlas {
   bioNetwork: NetworkKey;
+  cellxgeneAtlasCollection: string | null;
+  codeLinks: LinkInfo[];
   completedTaskCount: number;
   componentAtlasCount: number;
   description: string;
+  highlights: string;
   id: string;
   integrationLeadEmail: IntegrationLead["email"][];
   integrationLeadName: IntegrationLead["name"][];
@@ -27,9 +30,12 @@ export interface HCAAtlasTrackerListAtlas {
 
 export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
+  cellxgeneAtlasCollection: string | null;
+  codeLinks: LinkInfo[];
   completedTaskCount: number;
   componentAtlasCount: number;
   description: string;
+  highlights: string;
   id: string;
   integrationLead: IntegrationLead[];
   publication: {
@@ -217,8 +223,11 @@ export interface HCAAtlasTrackerDBAtlasWithComponentAtlases
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
+  cellxgeneAtlasCollection: string | null;
+  codeLinks: LinkInfo[];
   completedTaskCount: number;
   description: string;
+  highlights: string;
   integrationLead: IntegrationLead[];
   network: NetworkKey;
   shortName: string;
@@ -453,6 +462,11 @@ export interface Author {
 export interface IntegrationLead {
   email: string;
   name: string;
+}
+
+export interface LinkInfo {
+  label?: string;
+  url: string;
 }
 
 export type SourceDatasetId = string;

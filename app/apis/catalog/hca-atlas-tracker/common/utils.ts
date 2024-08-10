@@ -43,9 +43,12 @@ export function atlasInputMapper(
 ): HCAAtlasTrackerListAtlas {
   return {
     bioNetwork: apiAtlas.bioNetwork,
+    cellxgeneAtlasCollection: apiAtlas.cellxgeneAtlasCollection,
+    codeLinks: apiAtlas.codeLinks,
     completedTaskCount: apiAtlas.completedTaskCount,
     componentAtlasCount: apiAtlas.componentAtlasCount,
     description: apiAtlas.description,
+    highlights: apiAtlas.highlights,
     id: apiAtlas.id,
     integrationLeadEmail: apiAtlas.integrationLead.map(({ email }) => email),
     integrationLeadName: apiAtlas.integrationLead.map(({ name }) => name),
@@ -68,9 +71,12 @@ export function dbAtlasToApiAtlas(
 ): HCAAtlasTrackerAtlas {
   return {
     bioNetwork: dbAtlas.overview.network,
+    cellxgeneAtlasCollection: dbAtlas.overview.cellxgeneAtlasCollection,
+    codeLinks: dbAtlas.overview.codeLinks,
     completedTaskCount: dbAtlas.overview.completedTaskCount,
     componentAtlasCount: dbAtlas.component_atlas_count,
     description: dbAtlas.overview.description,
+    highlights: dbAtlas.overview.highlights,
     id: dbAtlas.id,
     integrationLead: dbAtlas.overview.integrationLead,
     publication: {

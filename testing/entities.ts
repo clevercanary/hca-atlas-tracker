@@ -3,6 +3,7 @@ import {
   DOI_STATUS,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
+  LinkInfo,
   NetworkKey,
   PublicationInfo,
   ROLE,
@@ -20,7 +21,10 @@ export interface TestUser {
 }
 
 export interface TestAtlas {
+  cellxgeneAtlasCollection: string | null;
+  codeLinks: LinkInfo[];
   description: string;
+  highlights: string;
   id: string;
   integrationLead: IntegrationLead[];
   network: NetworkKey;

@@ -16,7 +16,15 @@ import { ROLE } from "./entities";
  * Schema for data used to create a new atlas.
  */
 export const newAtlasSchema = object({
+  cellxgeneAtlasCollection: string().uuid().nullable(),
+  codeLinks: array().of(
+    object({
+      label: string(),
+      url: string().url().required(),
+    }).required()
+  ),
   description: string().max(10000),
+  highlights: string().max(10000),
   integrationLead: array()
     .of(
       object({
