@@ -16,8 +16,7 @@ export interface HCAAtlasTrackerListAtlas {
   integrationLeadEmail: IntegrationLead["email"][];
   integrationLeadName: IntegrationLead["name"][];
   name: string;
-  publicationDoi: string;
-  publicationPubString: string;
+  publications: DoiPublicationInfo[];
   shortName: string;
   sourceStudyCount: number;
   status: ATLAS_STATUS;
@@ -38,10 +37,7 @@ export interface HCAAtlasTrackerAtlas {
   highlights: string;
   id: string;
   integrationLead: IntegrationLead[];
-  publication: {
-    doi: string;
-    pubString: string;
-  };
+  publications: DoiPublicationInfo[];
   shortName: string;
   sourceStudyCount: number;
   status: ATLAS_STATUS;
@@ -230,6 +226,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   highlights: string;
   integrationLead: IntegrationLead[];
   network: NetworkKey;
+  publications: DoiPublicationInfo[];
   shortName: string;
   taskCount: number;
   version: string;
@@ -438,6 +435,11 @@ export interface Network {
 export type NetworkKey = (typeof NETWORK_KEYS)[number];
 
 export type Wave = (typeof WAVES)[number];
+
+export interface DoiPublicationInfo {
+  doi: string;
+  publication: PublicationInfo | null;
+}
 
 export interface PublicationInfo {
   authors: Author[];

@@ -8,7 +8,7 @@ import {
   Schema,
   string,
 } from "yup";
-import { isDoi } from "../../../../utils/doi";
+import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 import { ROLE } from "./entities";
 
@@ -24,6 +24,14 @@ export const newAtlasSchema = object({
     }).required()
   ),
   description: string().max(10000),
+  dois: array()
+    .of(string().required())
+    .test("dois-unique", "DOIs must be unique", (value) => {
+      return (
+        Array.isArray(value) &&
+        new Set(value.map(normalizeDoi)).size === value.length
+      );
+    }),
   highlights: string().max(10000),
   integrationLead: array()
     .of(

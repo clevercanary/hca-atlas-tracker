@@ -62,6 +62,7 @@ export function makeTestAtlasOverview(
     highlights: atlas.highlights,
     integrationLead: atlas.integrationLead,
     network: atlas.network,
+    publications: [],
     shortName: atlas.shortName,
     taskCount: 0,
     version: atlas.version,

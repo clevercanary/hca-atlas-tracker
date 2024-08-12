@@ -1,7 +1,10 @@
 import pg from "pg";
+import { ValidationError } from "yup";
 import { NotFoundError } from "../../app/utils/api-handler";
+import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
 import {
   ATLAS_STATUS,
+  DoiPublicationInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBAtlasWithComponentAtlases,
@@ -81,6 +84,25 @@ export async function updateAtlas(
 export async function atlasInputDataToDbData(
   inputData: NewAtlasData | AtlasEditData
 ): Promise<AtlasInputDbData> {
+  const publications: DoiPublicationInfo[] = [];
+  if (inputData.dois)
+    try {
+      for (const doi of inputData.dois) {
+        publications.push({
+          doi,
+          publication: await getCrossrefPublicationInfo(doi),
+        });
+      }
+    } catch (e) {
+      if (e instanceof ValidationError) {
+        throw new ValidationError(
+          `Crossref data doesn't fit: ${e.message}`,
+          undefined,
+          "dois"
+        );
+      }
+      throw e;
+    }
   return {
     overviewData: {
       cellxgeneAtlasCollection: inputData.cellxgeneAtlasCollection ?? null,
@@ -89,6 +111,7 @@ export async function atlasInputDataToDbData(
       highlights: inputData.highlights ?? "",
       integrationLead: inputData.integrationLead,
       network: inputData.network,
+      publications,
       shortName: inputData.shortName,
       version: inputData.version,
       wave: inputData.wave,
