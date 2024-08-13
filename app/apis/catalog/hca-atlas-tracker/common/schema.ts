@@ -28,7 +28,7 @@ export const newAtlasSchema = object({
     .of(string().required())
     .test("dois-unique", "DOIs must be unique", (value) => {
       return (
-        Array.isArray(value) &&
+        !Array.isArray(value) ||
         new Set(value.map(normalizeDoi)).size === value.length
       );
     }),
