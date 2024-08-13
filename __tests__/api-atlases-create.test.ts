@@ -4,19 +4,27 @@ import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
+  PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import createHandler from "../pages/api/atlases/create";
 import {
+  DOI_NONEXISTENT,
+  DOI_PREPRINT_NO_JOURNAL,
+  PUBLICATION_PREPRINT_NO_JOURNAL,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  expectDbAtlasToMatchApi,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -28,6 +36,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   cellxgeneAtlasCollection: "7a223dd3-a422-4f4b-a437-90b9a3b00ba8",
   codeLinks: [{ url: "https://example.com/new-atlas-foo" }],
   description: "foo bar baz baz foo bar",
+  dois: [DOI_PREPRINT_NO_JOURNAL],
   highlights: "bar foo baz baz baz foo",
   integrationLead: [],
   network: "eye",
@@ -88,6 +97,15 @@ const NEW_ATLAS_WITHOUT_DESCRIPTION: NewAtlasData = {
   shortName: "test5",
   version: "5.3",
   wave: "2",
+};
+
+const NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION: NewAtlasData = {
+  dois: [DOI_NONEXISTENT],
+  integrationLead: [],
+  network: "lung",
+  shortName: "test6",
+  version: "2.3",
+  wave: "1",
 };
 
 beforeAll(async () => {
@@ -308,28 +326,52 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when dois are non-unique", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            dois: ["10.123/foo", "https://doi.org/10.123/foo"],
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
-    await testSuccessfulCreate(NEW_ATLAS_DATA);
+    await testSuccessfulCreate(NEW_ATLAS_DATA, [
+      PUBLICATION_PREPRINT_NO_JOURNAL,
+    ]);
   });
 
   it("creates and returns atlas entry with specified integration lead", async () => {
-    await testSuccessfulCreate(NEW_ATLAS_WITH_IL_DATA);
+    await testSuccessfulCreate(NEW_ATLAS_WITH_IL_DATA, []);
   });
 
   it("creates and returns atlas entry with multiple integration leads", async () => {
-    await testSuccessfulCreate(NEW_ATLAS_WITH_MULTIPLE_ILS);
+    await testSuccessfulCreate(NEW_ATLAS_WITH_MULTIPLE_ILS, []);
   });
 
   it("creates and returns atlas entry with target completion", async () => {
-    await testSuccessfulCreate(NEW_ATLAS_WITH_TARGET_COMPLETION);
+    await testSuccessfulCreate(NEW_ATLAS_WITH_TARGET_COMPLETION, []);
   });
 
   it("creates and returns atlas entry without description", async () => {
-    await testSuccessfulCreate(NEW_ATLAS_WITHOUT_DESCRIPTION);
+    await testSuccessfulCreate(NEW_ATLAS_WITHOUT_DESCRIPTION, []);
+  });
+
+  it("creates and returns atlas entry with nonexistent publication", async () => {
+    await testSuccessfulCreate(NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION, [null]);
   });
 });
 
-async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
+async function testSuccessfulCreate(
+  atlasData: NewAtlasData,
+  expectedPublicationsInfo: (PublicationInfo | null)[]
+): Promise<void> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlasData);
   expect(res._getStatusCode()).toEqual(201);
   const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
@@ -353,33 +395,18 @@ async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
     atlasData.integrationLead
   );
   expect(newAtlasFromDb.overview.network).toEqual(atlasData.network);
+  expect(newAtlasFromDb.overview.publications.map((p) => p.doi)).toEqual(
+    atlasData.dois ?? []
+  );
+  expect(
+    newAtlasFromDb.overview.publications.map((p) => p.publication)
+  ).toEqual(expectedPublicationsInfo);
   expect(newAtlasFromDb.overview.shortName).toEqual(atlasData.shortName);
   expect(newAtlasFromDb.overview.version).toEqual(atlasData.version);
   expect(newAtlasFromDb.overview.wave).toEqual(atlasData.wave);
   expect(newAtlasFromDb.overview.taskCount).toEqual(0);
   expect(newAtlasFromDb.overview.completedTaskCount).toEqual(0);
-  expectAtlasPropertiesToMatch(newAtlasFromDb, newAtlas);
-}
-
-function expectAtlasPropertiesToMatch(
-  dbAtlas: HCAAtlasTrackerDBAtlas,
-  apiAtlas: HCAAtlasTrackerAtlas
-): void {
-  expect(dbAtlas.overview.network).toEqual(apiAtlas.bioNetwork);
-  expect(dbAtlas.overview.completedTaskCount).toEqual(
-    apiAtlas.completedTaskCount
-  );
-  expect(dbAtlas.id).toEqual(apiAtlas.id);
-  expect(dbAtlas.overview.integrationLead).toEqual(apiAtlas.integrationLead);
-  expect(dbAtlas.overview.shortName).toEqual(apiAtlas.shortName);
-  expect(dbAtlas.source_studies).toHaveLength(apiAtlas.sourceStudyCount);
-  expect(dbAtlas.status).toEqual(apiAtlas.status);
-  expect(dbAtlas.target_completion?.toISOString() ?? null).toEqual(
-    apiAtlas.targetCompletion
-  );
-  expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
-  expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
-  expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
+  expectDbAtlasToMatchApi(newAtlasFromDb, newAtlas);
 }
 
 async function doCreateTest(

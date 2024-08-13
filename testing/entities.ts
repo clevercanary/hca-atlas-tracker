@@ -1,5 +1,6 @@
 import {
   ATLAS_STATUS,
+  DoiPublicationInfo,
   DOI_STATUS,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
@@ -28,6 +29,7 @@ export interface TestAtlas {
   id: string;
   integrationLead: IntegrationLead[];
   network: NetworkKey;
+  publications: DoiPublicationInfo[];
   shortName: string;
   sourceStudies: string[];
   status: ATLAS_STATUS;
