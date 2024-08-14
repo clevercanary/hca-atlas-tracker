@@ -15,8 +15,9 @@ import {
   TermsOfService,
 } from "@databiosphere/findable-ui/lib/components/Login/login.styles";
 import { Checkbox, Typography } from "@mui/material";
-import { ClientSafeProvider, signIn } from "next-auth/react";
+import { ClientSafeProvider } from "next-auth/react";
 import { ChangeEvent, ReactNode, useState } from "react";
+import { useAuthentication } from "../../hooks/useAuthentication/useAuthentication";
 import { NextAuthProviders } from "./common/entities";
 
 export interface LoginProps {
@@ -36,6 +37,7 @@ export const Login = ({
 }: LoginProps): JSX.Element => {
   const [isError, setIsError] = useState<boolean>(false);
   const [isInAgreement, setIsInAgreement] = useState<boolean>(!termsOfService);
+  const { authenticateUser } = useAuthentication();
 
   // Authenticates the user, if the user has agreed to the terms of service.
   // If the terms of service are not accepted, set the terms of service error state to true.
@@ -44,7 +46,7 @@ export const Login = ({
       setIsError(true);
       return;
     }
-    signIn(provider.id);
+    authenticateUser(provider.id);
   };
 
   // Callback fired when the checkbox value is changed.
