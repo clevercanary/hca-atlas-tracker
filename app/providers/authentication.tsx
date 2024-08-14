@@ -3,7 +3,7 @@ import { useAuthenticationComplete } from "@databiosphere/findable-ui/lib/hooks/
 import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
 import { INACTIVITY_PARAM } from "@databiosphere/findable-ui/lib/hooks/useSessionTimeout";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Router, { useRouter } from "next/router";
 import { createContext, ReactNode, useCallback } from "react";
 import { useIdleTimer } from "react-idle-timer";
@@ -70,12 +70,14 @@ export function AuthProvider({ children, sessionTimeout }: Props): JSX.Element {
     onIdle: () =>
       isAuthenticated &&
       sessionTimeout &&
-      (window.location.href =
-        window.location.origin +
-        basePath +
-        redirectRootToPath +
-        "?" +
-        `${INACTIVITY_PARAM}=true`),
+      signOut({
+        callbackUrl:
+          window.location.origin +
+          basePath +
+          redirectRootToPath +
+          "?" +
+          `${INACTIVITY_PARAM}=true`,
+      }),
     timeout: sessionTimeout,
   });
 
