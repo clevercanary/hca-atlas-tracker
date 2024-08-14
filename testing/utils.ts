@@ -4,6 +4,7 @@ import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
@@ -62,6 +63,7 @@ export function makeTestAtlasOverview(
     highlights: atlas.highlights,
     integrationLead: atlas.integrationLead,
     network: atlas.network,
+    publications: atlas.publications,
     shortName: atlas.shortName,
     taskCount: 0,
     version: atlas.version,
@@ -270,6 +272,7 @@ export function expectApiAtlasToMatchTest(
   expect(apiAtlas.id).toEqual(testAtlas.id);
   expect(apiAtlas.integrationLead).toEqual(testAtlas.integrationLead);
   expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);
+  expect(apiAtlas.publications).toEqual(testAtlas.publications);
   expect(apiAtlas.shortName).toEqual(testAtlas.shortName);
   expect(apiAtlas.sourceStudyCount).toEqual(testAtlas.sourceStudies.length);
   expect(apiAtlas.status).toEqual(testAtlas.status);
@@ -278,6 +281,30 @@ export function expectApiAtlasToMatchTest(
   );
   expect(apiAtlas.version).toEqual(testAtlas.version);
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
+}
+
+export function expectDbAtlasToMatchApi(
+  dbAtlas: HCAAtlasTrackerDBAtlas,
+  apiAtlas: HCAAtlasTrackerAtlas,
+  expectedComponentAtlasCount = 0
+): void {
+  expect(dbAtlas.overview.network).toEqual(apiAtlas.bioNetwork);
+  expect(dbAtlas.overview.completedTaskCount).toEqual(
+    apiAtlas.completedTaskCount
+  );
+  expect(dbAtlas.id).toEqual(apiAtlas.id);
+  expect(dbAtlas.overview.integrationLead).toEqual(apiAtlas.integrationLead);
+  expect(dbAtlas.overview.shortName).toEqual(apiAtlas.shortName);
+  expect(dbAtlas.overview.publications).toEqual(apiAtlas.publications);
+  expect(dbAtlas.source_studies).toHaveLength(apiAtlas.sourceStudyCount);
+  expect(dbAtlas.status).toEqual(apiAtlas.status);
+  expect(dbAtlas.target_completion?.toISOString() ?? null).toEqual(
+    apiAtlas.targetCompletion
+  );
+  expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
+  expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
+  expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
+  expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
 }
 
 export function expectSourceStudyToMatch(

@@ -3,6 +3,7 @@ import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
+  PublicationInfo,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
@@ -13,6 +14,10 @@ import {
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
+  DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
+  PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
+  PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
@@ -21,6 +26,7 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import {
   expectApiAtlasToMatchTest,
+  expectDbAtlasToMatchApi,
   makeTestAtlasOverview,
   testApiRole,
   withConsoleErrorHiding,
@@ -83,14 +89,18 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
 };
 
 const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION_OR_CELLXGENE: AtlasEditData = {
-  codeLinks: ATLAS_DRAFT.codeLinks,
-  description: ATLAS_DRAFT.description,
-  highlights: ATLAS_DRAFT.highlights,
-  integrationLead: ATLAS_DRAFT.integrationLead,
-  network: ATLAS_DRAFT.network,
-  shortName: ATLAS_DRAFT.shortName,
-  version: ATLAS_DRAFT.version,
-  wave: ATLAS_DRAFT.wave,
+  codeLinks: ATLAS_PUBLIC.codeLinks,
+  description: ATLAS_PUBLIC.description,
+  dois: [
+    DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
+    DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
+  ],
+  highlights: ATLAS_PUBLIC.highlights,
+  integrationLead: ATLAS_PUBLIC.integrationLead,
+  network: ATLAS_PUBLIC.network,
+  shortName: ATLAS_PUBLIC.shortName,
+  version: ATLAS_PUBLIC.version,
+  wave: ATLAS_PUBLIC.wave,
 };
 
 const ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT: AtlasEditData = {
@@ -381,31 +391,36 @@ describe(TEST_ROUTE, () => {
   });
 
   it("PUT updates and returns atlas entry", async () => {
-    await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0);
+    await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0, []);
   });
 
   it("PUT updates and returns atlas entry with integration lead set to empty array", async () => {
-    await testSuccessfulEdit(ATLAS_WITH_IL, ATLAS_WITH_IL_EDIT, 0);
+    await testSuccessfulEdit(ATLAS_WITH_IL, ATLAS_WITH_IL_EDIT, 0, []);
   });
 
   it("PUT updates and returns atlas entry with multiple integration leads", async () => {
-    await testSuccessfulEdit(ATLAS_DRAFT, ATLAS_DRAFT_EDIT, 2);
+    await testSuccessfulEdit(ATLAS_DRAFT, ATLAS_DRAFT_EDIT, 2, []);
   });
 
   it("PUT updates and returns atlas entry with target completion and CELLxGENE collection removed", async () => {
     const updatedAtlas = await testSuccessfulEdit(
       ATLAS_PUBLIC,
       ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION_OR_CELLXGENE,
-      0
+      0,
+      [
+        PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
+        PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
+      ]
     );
     expect(updatedAtlas.target_completion).toBeNull();
   });
 
-  it("PUT updates and returns atlas entry with description, code links, and highlights removed", async () => {
+  it("PUT updates and returns atlas entry with description, code links, highlights, and publications removed", async () => {
     const updatedAtlas = await testSuccessfulEdit(
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT,
-      1
+      1,
+      []
     );
     expect(updatedAtlas.overview.description).toEqual("");
   });
@@ -414,7 +429,8 @@ describe(TEST_ROUTE, () => {
 async function testSuccessfulEdit(
   testAtlas: TestAtlas,
   editData: AtlasEditData,
-  expectedComponentAtlasCount: number
+  expectedComponentAtlasCount: number,
+  expectedPublicationsInfo: PublicationInfo[]
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const res = await doAtlasRequest(
     testAtlas.id,
@@ -439,6 +455,12 @@ async function testSuccessfulEdit(
   );
   expect(updatedOverview.codeLinks).toEqual(editData.codeLinks ?? []);
   expect(updatedOverview.description).toEqual(editData.description ?? "");
+  expect(updatedOverview.publications.map((p) => p.doi)).toEqual(
+    editData.dois ?? []
+  );
+  expect(updatedOverview.publications.map((p) => p.publication)).toEqual(
+    expectedPublicationsInfo
+  );
   expect(updatedOverview.highlights).toEqual(editData.highlights ?? "");
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
   expect(updatedOverview.network).toEqual(editData.network);
@@ -450,7 +472,7 @@ async function testSuccessfulEdit(
     editData.targetCompletion ?? null
   );
 
-  expectAtlasPropertiesToMatch(
+  expectDbAtlasToMatchApi(
     updatedAtlasFromDb,
     updatedAtlas,
     expectedComponentAtlasCount
@@ -463,29 +485,6 @@ async function testSuccessfulEdit(
   );
 
   return updatedAtlasFromDb;
-}
-
-function expectAtlasPropertiesToMatch(
-  dbAtlas: HCAAtlasTrackerDBAtlas,
-  apiAtlas: HCAAtlasTrackerAtlas,
-  expectedComponentAtlasCount: number
-): void {
-  expect(dbAtlas.overview.network).toEqual(apiAtlas.bioNetwork);
-  expect(dbAtlas.overview.completedTaskCount).toEqual(
-    apiAtlas.completedTaskCount
-  );
-  expect(dbAtlas.id).toEqual(apiAtlas.id);
-  expect(dbAtlas.overview.integrationLead).toEqual(apiAtlas.integrationLead);
-  expect(dbAtlas.overview.shortName).toEqual(apiAtlas.shortName);
-  expect(dbAtlas.source_studies).toHaveLength(apiAtlas.sourceStudyCount);
-  expect(dbAtlas.status).toEqual(apiAtlas.status);
-  expect(dbAtlas.target_completion?.toISOString() ?? null).toEqual(
-    apiAtlas.targetCompletion
-  );
-  expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
-  expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
-  expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
-  expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
 }
 
 async function doAtlasRequest(

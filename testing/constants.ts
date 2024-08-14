@@ -1553,6 +1553,7 @@ export const ATLAS_DRAFT: TestAtlas = {
     },
   ],
   network: "eye",
+  publications: [],
   shortName: "test-draft",
   sourceStudies: [
     SOURCE_STUDY_DRAFT_OK.id,
@@ -1581,6 +1582,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
     },
   ],
   network: "lung",
+  publications: [],
   shortName: "test-public",
   sourceStudies: [SOURCE_STUDY_PUBLIC_NO_CROSSREF.id, SOURCE_STUDY_SHARED.id],
   status: ATLAS_STATUS.PUBLIC,
@@ -1597,6 +1599,7 @@ export const ATLAS_WITH_IL: TestAtlas = {
   id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
   integrationLead: [INTEGRATION_LEAD_BAZ],
   network: "heart",
+  publications: [],
   shortName: "test-with-il",
   sourceStudies: [],
   status: ATLAS_STATUS.DRAFT,
@@ -1614,6 +1617,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES,
   integrationLead: [INTEGRATION_LEAD_BAZ_BAZ],
   network: "adipose",
+  publications: [{ doi: DOI_NORMAL, publication: PUBLICATION_NORMAL }],
   shortName: "test-with-misc-source-studies",
   sourceStudies: [
     SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
@@ -1644,6 +1648,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
   id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
   integrationLead: [],
   network: "organoid",
+  publications: [],
   shortName: "test-with-source-study-validations-a",
   sourceStudies: [
     SOURCE_STUDY_PUBLISHED_WITH_HCA.id,
@@ -1665,6 +1670,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   id: "9766683a-3c8d-4ec8-b8b5-3fceb8fe0d31",
   integrationLead: [],
   network: "gut",
+  publications: [],
   shortName: "test-with-source-study-validations-b",
   sourceStudies: [
     SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
