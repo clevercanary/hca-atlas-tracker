@@ -55,8 +55,11 @@ export function makeTestAtlasOverview(
   atlas: TestAtlas
 ): HCAAtlasTrackerDBAtlasOverview {
   return {
+    cellxgeneAtlasCollection: atlas.cellxgeneAtlasCollection,
+    codeLinks: atlas.codeLinks,
     completedTaskCount: 0,
     description: atlas.description,
+    highlights: atlas.highlights,
     integrationLead: atlas.integrationLead,
     network: atlas.network,
     shortName: atlas.shortName,
@@ -258,7 +261,12 @@ export function expectApiAtlasToMatchTest(
   apiAtlas: HCAAtlasTrackerAtlas,
   testAtlas: TestAtlas
 ): void {
+  expect(apiAtlas.cellxgeneAtlasCollection).toEqual(
+    testAtlas.cellxgeneAtlasCollection
+  );
+  expect(apiAtlas.codeLinks).toEqual(testAtlas.codeLinks);
   expect(apiAtlas.description).toEqual(testAtlas.description);
+  expect(apiAtlas.highlights).toEqual(testAtlas.highlights);
   expect(apiAtlas.id).toEqual(testAtlas.id);
   expect(apiAtlas.integrationLead).toEqual(testAtlas.integrationLead);
   expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);

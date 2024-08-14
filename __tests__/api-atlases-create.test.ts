@@ -25,7 +25,10 @@ jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const NEW_ATLAS_DATA: NewAtlasData = {
+  cellxgeneAtlasCollection: "7a223dd3-a422-4f4b-a437-90b9a3b00ba8",
+  codeLinks: [{ url: "https://example.com/new-atlas-foo" }],
   description: "foo bar baz baz foo bar",
+  highlights: "bar foo baz baz baz foo",
   integrationLead: [],
   network: "eye",
   shortName: "test",
@@ -260,6 +263,51 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when cellxgene id is not a uuid", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            cellxgeneAtlasCollection: "not-a-uuid",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when link url is not a url", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            codeLinks: [{ url: "not-a-url" }],
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when highlights are too long", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            highlights: "x".repeat(10001),
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
     await testSuccessfulCreate(NEW_ATLAS_DATA);
   });
@@ -291,8 +339,15 @@ async function testSuccessfulCreate(atlasData: NewAtlasData): Promise<void> {
   expect(newAtlasFromDb.target_completion).toEqual(
     atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
   );
+  expect(newAtlasFromDb.overview.cellxgeneAtlasCollection).toEqual(
+    atlasData.cellxgeneAtlasCollection ?? null
+  );
+  expect(newAtlasFromDb.overview.codeLinks).toEqual(atlasData.codeLinks ?? []);
   expect(newAtlasFromDb.overview.description).toEqual(
     atlasData.description ?? ""
+  );
+  expect(newAtlasFromDb.overview.highlights).toEqual(
+    atlasData.highlights ?? ""
   );
   expect(newAtlasFromDb.overview.integrationLead).toEqual(
     atlasData.integrationLead

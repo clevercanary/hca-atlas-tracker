@@ -82,8 +82,10 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
   wave: "3",
 };
 
-const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION: AtlasEditData = {
+const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION_OR_CELLXGENE: AtlasEditData = {
+  codeLinks: ATLAS_DRAFT.codeLinks,
   description: ATLAS_DRAFT.description,
+  highlights: ATLAS_DRAFT.highlights,
   integrationLead: ATLAS_DRAFT.integrationLead,
   network: ATLAS_DRAFT.network,
   shortName: ATLAS_DRAFT.shortName,
@@ -92,6 +94,8 @@ const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION: AtlasEditData = {
 };
 
 const ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT: AtlasEditData = {
+  cellxgeneAtlasCollection:
+    ATLAS_WITH_MISC_SOURCE_STUDIES.cellxgeneAtlasCollection,
   integrationLead: ATLAS_WITH_MISC_SOURCE_STUDIES.integrationLead,
   network: ATLAS_WITH_MISC_SOURCE_STUDIES.network,
   shortName: ATLAS_WITH_MISC_SOURCE_STUDIES.shortName,
@@ -388,16 +392,16 @@ describe(TEST_ROUTE, () => {
     await testSuccessfulEdit(ATLAS_DRAFT, ATLAS_DRAFT_EDIT, 2);
   });
 
-  it("PUT updates and returns atlas entry with target completion removed", async () => {
+  it("PUT updates and returns atlas entry with target completion and CELLxGENE collection removed", async () => {
     const updatedAtlas = await testSuccessfulEdit(
       ATLAS_PUBLIC,
-      ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION,
+      ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION_OR_CELLXGENE,
       0
     );
     expect(updatedAtlas.target_completion).toBeNull();
   });
 
-  it("PUT updates and returns atlas entry with description removed", async () => {
+  it("PUT updates and returns atlas entry with description, code links, and highlights removed", async () => {
     const updatedAtlas = await testSuccessfulEdit(
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT,
@@ -430,7 +434,12 @@ async function testSuccessfulEdit(
 
   const updatedOverview = updatedAtlasFromDb.overview;
 
+  expect(updatedOverview.cellxgeneAtlasCollection).toEqual(
+    editData.cellxgeneAtlasCollection ?? null
+  );
+  expect(updatedOverview.codeLinks).toEqual(editData.codeLinks ?? []);
   expect(updatedOverview.description).toEqual(editData.description ?? "");
+  expect(updatedOverview.highlights).toEqual(editData.highlights ?? "");
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
   expect(updatedOverview.network).toEqual(editData.network);
   expect(updatedOverview.shortName).toEqual(editData.shortName);

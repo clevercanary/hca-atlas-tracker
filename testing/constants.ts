@@ -1537,7 +1537,10 @@ export const INTEGRATION_LEAD_BAZ_BAZ = {
 };
 
 export const ATLAS_DRAFT: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
   description: "bar baz baz foo baz",
+  highlights: "",
   id: ATLAS_ID_DRAFT,
   integrationLead: [
     {
@@ -1562,7 +1565,10 @@ export const ATLAS_DRAFT: TestAtlas = {
 };
 
 export const ATLAS_PUBLIC: TestAtlas = {
+  cellxgeneAtlasCollection: "354564bb-52cb-4dea-8e2e-d3d707ca3b87",
+  codeLinks: [{ label: "foo", url: "https://example.com/atlas-public-foo" }],
   description: "foo foo bar bar foo",
+  highlights: "bar foo baz foo foo bar baz",
   id: ATLAS_ID_PUBLIC,
   integrationLead: [
     {
@@ -1584,7 +1590,10 @@ export const ATLAS_PUBLIC: TestAtlas = {
 };
 
 export const ATLAS_WITH_IL: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
   description: "foo baz bar baz foo baz",
+  highlights: "",
   id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
   integrationLead: [INTEGRATION_LEAD_BAZ],
   network: "heart",
@@ -1596,7 +1605,12 @@ export const ATLAS_WITH_IL: TestAtlas = {
 };
 
 export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
+  cellxgeneAtlasCollection: "5aa910ee-23d7-419e-b2a4-8362dc058426",
+  codeLinks: [
+    { url: "https://example.com/atlas-with-misc-source-studies-foo" },
+  ],
   description: "bar foo bar bar foo baz",
+  highlights: "foo foo foo foo bar foo bar",
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES,
   integrationLead: [INTEGRATION_LEAD_BAZ_BAZ],
   network: "adipose",
@@ -1623,7 +1637,10 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
 };
 
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
   description: "foo baz baz bar foo bar",
+  highlights: "",
   id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
   integrationLead: [],
   network: "organoid",
@@ -1641,7 +1658,10 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
 };
 
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
   description: "baz foo baz foo bar bar foo",
+  highlights: "",
   id: "9766683a-3c8d-4ec8-b8b5-3fceb8fe0d31",
   integrationLead: [],
   network: "gut",
