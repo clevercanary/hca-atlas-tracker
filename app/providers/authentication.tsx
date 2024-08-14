@@ -1,22 +1,24 @@
 import { AUTHENTICATION_STATUS } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/common/entities";
-import { useAuthenticationComplete } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthenticationComplete";
 import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
 import { INACTIVITY_PARAM } from "@databiosphere/findable-ui/lib/hooks/useSessionTimeout";
 import { Session } from "next-auth";
-import { signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Router, { useRouter } from "next/router";
 import { createContext, ReactNode, useCallback } from "react";
 import { useIdleTimer } from "react-idle-timer";
+import { useAuthenticationRedirectRoute } from "../hooks/useAuthenticationRedirectRoute";
 
 // Template constants
 export const ROUTE_LOGIN = "/login";
 
+type AuthenticateUserFn = (providerId: string) => void;
 type RequestAuthenticationFn = () => void;
 
 /**
  * Model of authentication context.
  */
 export interface AuthContextProps {
+  authenticateUser: AuthenticateUserFn;
   authenticationStatus: AUTHENTICATION_STATUS;
   isAuthenticated: boolean;
   isEnabled: boolean;
@@ -28,6 +30,8 @@ export interface AuthContextProps {
  * Auth context for storing and using auth-related state.
  */
 export const AuthContext = createContext<AuthContextProps>({
+  // eslint-disable-next-line @typescript-eslint/no-empty-function -- allow dummy function for default state.
+  authenticateUser: () => {},
   authenticationStatus: AUTHENTICATION_STATUS.INCOMPLETE,
   isAuthenticated: false,
   isEnabled: true,
@@ -58,9 +62,7 @@ export function AuthProvider({ children, sessionTimeout }: Props): JSX.Element {
   const authenticationStatus = isAuthenticated
     ? AUTHENTICATION_STATUS.COMPLETED
     : AUTHENTICATION_STATUS.INCOMPLETE;
-
-  // Handle completion of authentication process.
-  useAuthenticationComplete(authenticationStatus);
+  const redirectRoute = useAuthenticationRedirectRoute();
 
   /**
    * If sessionTimeout is set and user is authenticated, the app will reload and redirect to
@@ -82,6 +84,16 @@ export function AuthProvider({ children, sessionTimeout }: Props): JSX.Element {
   });
 
   /**
+   * Authenticates user and redirects to previous page.
+   */
+  const authenticateUser = useCallback(
+    (providerId: string): void => {
+      signIn(providerId, { callbackUrl: redirectRoute });
+    },
+    [redirectRoute]
+  );
+
+  /**
    * Navigates to login page.
    */
   const requestAuthentication = useCallback((): void => {
@@ -91,6 +103,7 @@ export function AuthProvider({ children, sessionTimeout }: Props): JSX.Element {
   return (
     <AuthContext.Provider
       value={{
+        authenticateUser,
         authenticationStatus,
         isAuthenticated,
         isEnabled,
