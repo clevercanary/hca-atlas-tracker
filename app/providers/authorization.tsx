@@ -1,10 +1,10 @@
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { createContext, ReactNode, useEffect } from "react";
 import {
   HCAAtlasTrackerActiveUser,
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { useAuthentication } from "../hooks/useAuthentication/useAuthentication";
 import { useFetchUser } from "../hooks/useFetchUser";
 import { ROUTE } from "../routes/constants";
 

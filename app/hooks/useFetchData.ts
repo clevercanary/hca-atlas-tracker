@@ -1,8 +1,8 @@
 import { useAsync } from "@databiosphere/findable-ui/lib/hooks/useAsync";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { useCallback, useEffect } from "react";
 import { METHOD } from "../common/entities";
 import { fetchResource, isFetchStatusOk } from "../common/utils";
+import { useAuthentication } from "./useAuthentication/useAuthentication";
 
 interface UseFetchData<D> {
   data?: D;
@@ -14,11 +14,11 @@ export const useFetchData = <D>(
   method: METHOD,
   shouldFetch = true
 ): UseFetchData<D> => {
-  const { token } = useAuthentication();
+  const { isAuthenticated } = useAuthentication();
   const { data, isSuccess, run } = useAsync<D>();
 
   const fetchData = useCallback(async (): Promise<D> => {
-    const res = await fetchResource(requestUrl, method, token);
+    const res = await fetchResource(requestUrl, method);
     if (isFetchStatusOk(res.status)) {
       return await res.json();
     }
@@ -28,13 +28,13 @@ export const useFetchData = <D>(
         .then(({ message }) => message)
         .catch(() => `Received ${res.status} response`)
     );
-  }, [method, requestUrl, token]);
+  }, [method, requestUrl]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     if (!shouldFetch) return;
     run(fetchData());
-  }, [fetchData, run, shouldFetch, token]);
+  }, [fetchData, run, isAuthenticated, shouldFetch]);
 
   return { data, isSuccess };
 };
