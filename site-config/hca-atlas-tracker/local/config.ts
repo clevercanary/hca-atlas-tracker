@@ -8,6 +8,7 @@ import {
   TEXT_HEADING_XLARGE,
 } from "@databiosphere/findable-ui/lib/theme/common/typography";
 import * as C from "../../../app/components/index";
+import { Authentication } from "../../../app/components/Layout/components/Header/components/Content/components/Actions/components/Authentication/authentication";
 import { ROUTE } from "../../../app/routes/constants";
 import { SiteConfig } from "../../common/entities";
 import { announcementsConfig } from "./announcements/announcementsConfig";
@@ -55,6 +56,7 @@ export function makeConfig(
       },
       header: {
         announcements: announcementsConfig,
+        authenticationComponent: Authentication,
         authenticationEnabled: true,
         logo: C.Logo({
           alt: APP_TITLE,
