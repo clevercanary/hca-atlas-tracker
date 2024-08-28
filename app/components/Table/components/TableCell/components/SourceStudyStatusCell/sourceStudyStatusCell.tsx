@@ -1,3 +1,4 @@
+import { InProgressIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/InProgressIcon/inProgressIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Fragment } from "react";
 import { RequiredIcon } from "../../../../../common/CustomIcon/components/RequiredIcon/requiredIcon";
@@ -28,7 +29,7 @@ function switchStatusIcon(value: string): JSX.Element {
     case SOURCE_STUDY_STATUS.DONE:
       return <SuccessIcon color="success" fontSize="small" />;
     case SOURCE_STUDY_STATUS.IN_PROGRESS:
-      return <SuccessIcon color="warning" fontSize="small" />;
+      return <InProgressIcon color="warning" fontSize="small" />;
     case SOURCE_STUDY_STATUS.REQUIRED:
       return <RequiredIcon />;
     default:
