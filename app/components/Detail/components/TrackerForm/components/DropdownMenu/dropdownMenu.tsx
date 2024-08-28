@@ -3,10 +3,8 @@ import {
   DropdownMenuItemProps,
 } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/common/entities";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import {
-  DropdownMenu as MoreDropdownMenu,
-  IconButton,
-} from "./dropdownMenu.styles";
+import { IconButton } from "../../../../../common/IconButton/iconButton";
+import { DropdownMenu as MoreDropdownMenu } from "./dropdownMenu.styles";
 
 export interface DropdownMenuProps {
   children: ({ closeMenu }: DropdownMenuItemProps) => JSX.Element[];
@@ -39,5 +37,12 @@ export const DropdownMenu = ({
  * @returns button element.
  */
 function renderButton(props: DropdownMenuIconButtonProps): JSX.Element {
-  return <IconButton Icon={MoreVertIcon} size="medium" {...props} />;
+  return (
+    <IconButton
+      color="secondary"
+      Icon={MoreVertIcon}
+      size="medium"
+      {...props}
+    />
+  );
 }

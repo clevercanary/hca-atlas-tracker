@@ -16,7 +16,7 @@ import {
   NETWORKS,
   UNPUBLISHED,
 } from "app/apis/catalog/hca-atlas-tracker/common/constants";
-import { BaseSyntheticEvent } from "react";
+import { BaseSyntheticEvent, ComponentProps } from "react";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   ATLAS_STATUS,
@@ -63,7 +63,7 @@ import {
  */
 export const buildAssay = (
   entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.ASSAY),
     values: entity.assay,
@@ -77,7 +77,7 @@ export const buildAssay = (
  */
 export const buildAtlasName = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   return {
     label: atlas.name,
     url: `/atlases/${encodeURIComponent(atlas.id)}`,
@@ -91,7 +91,7 @@ export const buildAtlasName = (
  */
 export const buildAtlasVersion = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: atlas.version,
   };
@@ -104,7 +104,7 @@ export const buildAtlasVersion = (
  */
 export const buildBioNetwork = (
   entity: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.BioNetworkCell> => {
+): ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: entity.bioNetwork,
   };
@@ -117,7 +117,7 @@ export const buildBioNetwork = (
  */
 export const buildCellCount = (
   entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: entity.cellCount.toLocaleString(),
   };
@@ -130,7 +130,7 @@ export const buildCellCount = (
  */
 export const buildComponentAtlasCount = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const { id: atlasId } = atlas;
   return {
     label: atlas.componentAtlasCount,
@@ -147,7 +147,7 @@ export const buildComponentAtlasCount = (
 export const buildComponentAtlasTitle = (
   pathParameter: PathParameter,
   componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const { id: componentAtlasId } = componentAtlas;
   return {
     label: componentAtlas.title,
@@ -165,7 +165,7 @@ export const buildComponentAtlasTitle = (
  */
 export const buildCreatedAt = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: getDateFromIsoString(task.createdAt),
   };
@@ -178,7 +178,7 @@ export const buildCreatedAt = (
  */
 export const buildDisease = (
   entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.PinnedNTagCell> => {
+): ComponentProps<typeof C.PinnedNTagCell> => {
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.DISEASE),
     values: partitionMetadataValues(entity.disease, [DISEASE.NORMAL]),
@@ -192,7 +192,7 @@ export const buildDisease = (
  */
 export const buildEditTask = (
   rows: Row<HCAAtlasTrackerListValidationRecord>[]
-): React.ComponentProps<typeof C.EditTasks> => {
+): ComponentProps<typeof C.EditTasks> => {
   return {
     rows,
   };
@@ -205,7 +205,7 @@ export const buildEditTask = (
  */
 export const buildEntityTitle = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   const { entityTitle } = task;
   return {
     value: entityTitle,
@@ -219,7 +219,7 @@ export const buildEntityTitle = (
  */
 export const buildEntityType = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.entityType,
   };
@@ -232,7 +232,7 @@ export const buildEntityType = (
  */
 export const buildInCap = (
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
+): ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
     value: getSourceStudyInCap(sourceStudy),
   };
@@ -245,7 +245,7 @@ export const buildInCap = (
  */
 export const buildInCellxGene = (
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
+): ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
     value: getSourceStudyInCellxGene(sourceStudy),
   };
@@ -258,7 +258,7 @@ export const buildInCellxGene = (
  */
 export const buildInHcaDataRepository = (
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.SourceStudyStatusCell> => {
+): ComponentProps<typeof C.SourceStudyStatusCell> => {
   return {
     value: getSourceStudyInHcaDataRepository(sourceStudy),
   };
@@ -271,7 +271,7 @@ export const buildInHcaDataRepository = (
  */
 export const buildIntegrationLead = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: "integration leads",
     values: atlas.integrationLeadName,
@@ -285,7 +285,7 @@ export const buildIntegrationLead = (
  */
 export const buildResolvedAt = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.resolvedAt
       ? getDateFromIsoString(task.resolvedAt)
@@ -300,7 +300,7 @@ export const buildResolvedAt = (
  */
 // export const buildPublication = (
 //   atlas: HCAAtlasTrackerListAtlas
-// ): React.ComponentProps<typeof C.Cell> => {
+// ): ComponentProps<typeof C.Cell> => {
 //   return {
 //     value: atlas.publicationPubString,
 //   };
@@ -313,7 +313,7 @@ export const buildResolvedAt = (
  */
 export const buildSourceDatasetCount = (
   componentAtlas: HCAAtlasTrackerComponentAtlas
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: componentAtlas.sourceDatasetCount.toLocaleString(),
   };
@@ -326,7 +326,7 @@ export const buildSourceDatasetCount = (
  */
 export const buildSourceStudyPublication = (
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const { doi } = sourceStudy;
   return {
     label: getSourceStudyCitation(sourceStudy),
@@ -343,7 +343,7 @@ export const buildSourceStudyPublication = (
 export const buildSourceStudyTitle = (
   pathParameter: PathParameter,
   sourceStudy: HCAAtlasTrackerSourceStudy
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const { id: sourceStudyId, title } = sourceStudy;
   return {
     label: title ?? sourceStudyId,
@@ -361,7 +361,7 @@ export const buildSourceStudyTitle = (
  */
 export const buildSourceStudyCount = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const { id: atlasId } = atlas;
   return {
     label: atlas.sourceStudyCount,
@@ -376,7 +376,7 @@ export const buildSourceStudyCount = (
  */
 export const buildStatus = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.StatusBadge> => {
+): ComponentProps<typeof C.StatusBadge> => {
   let color;
   switch (atlas.status) {
     case ATLAS_STATUS.DRAFT:
@@ -402,7 +402,7 @@ export const buildStatus = (
  */
 export const buildSuspensionType = (
   entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.SUSPENSION_TYPE),
     values: entity.suspensionType,
@@ -416,7 +416,7 @@ export const buildSuspensionType = (
  */
 export const buildSystem = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.system,
   };
@@ -429,7 +429,7 @@ export const buildSystem = (
  */
 export const buildTargetCompletion = (
   entity: HCAAtlasTrackerListValidationRecord | HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: formatDateToQuarterYear(entity.targetCompletion),
   };
@@ -442,7 +442,7 @@ export const buildTargetCompletion = (
  */
 export const buildTaskAtlasNames = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: "atlases",
     values: task.atlasNames,
@@ -456,7 +456,7 @@ export const buildTaskAtlasNames = (
  */
 export const buildTaskAtlasVersions = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.ATLAS_VERSION),
     values: task.atlasVersions,
@@ -470,7 +470,7 @@ export const buildTaskAtlasVersions = (
  */
 export const buildTaskCounts = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.TaskCountsCell> => {
+): ComponentProps<typeof C.TaskCountsCell> => {
   return {
     label: `${atlas.completedTaskCount}/${atlas.taskCount}`,
     url: getTaskCountUrlObject(atlas),
@@ -487,7 +487,7 @@ export const buildTaskCounts = (
 export const buildTaskDescription = (
   task: HCAAtlasTrackerListValidationRecord,
   viewContext: ViewContext<HCAAtlasTrackerListValidationRecord>
-): React.ComponentProps<typeof C.ButtonTextPrimaryCell> => {
+): ComponentProps<typeof C.ButtonTextPrimaryCell> => {
   const { description } = task;
   const { cellContext } = viewContext;
   return {
@@ -506,7 +506,7 @@ export const buildTaskDescription = (
  */
 export const buildTaskNetworks = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BioNetworkCell> => {
+): ComponentProps<typeof C.BioNetworkCell> => {
   return {
     networkKey: task.networks[0],
   };
@@ -521,9 +521,7 @@ export const buildTaskNetworks = (
 export const buildTaskRowPreview = (
   _: Unused,
   viewContext: ViewContext<HCAAtlasTrackerListValidationRecord>
-): React.ComponentProps<
-  typeof C.RowDrawer<HCAAtlasTrackerListValidationRecord>
-> => {
+): ComponentProps<typeof C.RowDrawer<HCAAtlasTrackerListValidationRecord>> => {
   const { tableInstance } = viewContext;
   return {
     tableInstance,
@@ -540,7 +538,7 @@ export const buildTaskRowPreview = (
 export const buildTaskPreviewDetails = (
   task: HCAAtlasTrackerListValidationRecord,
   columns: ColumnConfig<HCAAtlasTrackerListValidationRecord>[]
-): React.ComponentProps<typeof C.PreviewTask> => {
+): ComponentProps<typeof C.PreviewTask> => {
   return {
     columns: mapColumnsWithExtraProps(
       columns,
@@ -557,7 +555,7 @@ export const buildTaskPreviewDetails = (
  */
 export const buildTaskPublicationString = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const { atlasIds, entityId: sourceStudyId } = task;
   const atlasId = atlasIds[0];
   return {
@@ -573,7 +571,7 @@ export const buildTaskPublicationString = (
  */
 export const buildTaskDoi = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const { doi } = task;
   return {
     label: doi,
@@ -588,7 +586,7 @@ export const buildTaskDoi = (
  */
 export const buildTaskRelatedEntityUrl = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.Link> => {
+): ComponentProps<typeof C.Link> => {
   const url = task.relatedEntityUrl ?? LABEL.EMPTY;
   return {
     label: url,
@@ -603,7 +601,7 @@ export const buildTaskRelatedEntityUrl = (
  */
 export const buildTaskStatus = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.StatusBadge> => {
+): ComponentProps<typeof C.StatusBadge> => {
   switch (task.taskStatus) {
     case TASK_STATUS.BLOCKED:
       return {
@@ -640,7 +638,7 @@ export const buildTaskStatus = (
  */
 export const buildTaskWaves = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: "Waves",
     values: task.waves,
@@ -654,7 +652,7 @@ export const buildTaskWaves = (
  */
 export const buildTissue = (
   entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.TISSUE),
     values: entity.tissue,
@@ -668,7 +666,7 @@ export const buildTissue = (
  */
 export const buildUpdatedAt = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: getDateFromIsoString(task.updatedAt),
   };
@@ -681,7 +679,7 @@ export const buildUpdatedAt = (
  */
 export const buildUserDisabled = (
   user: HCAAtlasTrackerUser
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: user.disabled.toString(),
   };
@@ -694,7 +692,7 @@ export const buildUserDisabled = (
  */
 export const buildUserEmail = (
   user: HCAAtlasTrackerUser
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: user.email,
   };
@@ -707,7 +705,7 @@ export const buildUserEmail = (
  */
 export const buildUserFullName = (
   user: HCAAtlasTrackerUser
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: user.fullName,
   };
@@ -720,7 +718,7 @@ export const buildUserFullName = (
  */
 export const buildUserLastLogin = (
   user: HCAAtlasTrackerUser
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: user.lastLogin,
   };
@@ -733,7 +731,7 @@ export const buildUserLastLogin = (
  */
 export const buildUserRole = (
   user: HCAAtlasTrackerUser
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: user.role,
   };
@@ -746,7 +744,7 @@ export const buildUserRole = (
  */
 export const buildUserAssociatedResources = (
   user: HCAAtlasTrackerUser
-): React.ComponentProps<typeof C.NTagCell> => {
+): ComponentProps<typeof C.NTagCell> => {
   return {
     label: getPluralizedMetadataLabel(
       METADATA_KEY.ROLE_ASSOCIATED_RESOURCE_NAMES
@@ -762,7 +760,7 @@ export const buildUserAssociatedResources = (
  */
 export const buildValidationType = (
   task: HCAAtlasTrackerListValidationRecord
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: task.validationType,
   };
@@ -775,7 +773,7 @@ export const buildValidationType = (
  */
 export const buildWave = (
   atlas: HCAAtlasTrackerListAtlas
-): React.ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.BasicCell> => {
   return {
     value: atlas.wave,
   };
@@ -1000,12 +998,14 @@ function getComponentAtlasSourceDatasetUnlinkColumnDef(
   return {
     accessorKey: "delete",
     cell: ({ row }) =>
-      C.IconButtonSecondary({
-        children: C.UnLinkIcon({ color: "inkLight", fontSize: "small" }),
+      C.IconButton({
+        Icon: C.UnLinkIcon,
+        color: "secondary",
         onClick: () =>
           onUnlink({
             sourceDatasetIds: [row.original.id],
           }),
+        size: "medium",
       }),
     header: "",
     meta: { enableSortingInteraction: false },
