@@ -122,7 +122,7 @@ export const userEntityConfig: EntityConfig = {
     ],
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,
-      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
+      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.FULL_NAME,
     },
   } as ListConfig<HCAAtlasTrackerUser>,
   listView: {
