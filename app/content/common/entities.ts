@@ -7,8 +7,3 @@ export interface ContentProps {
   pageTitle: string;
   slug: string[] | null;
 }
-
-export interface ContentScope {
-  portalURL: string;
-  redirectRootToPath: string;
-}
