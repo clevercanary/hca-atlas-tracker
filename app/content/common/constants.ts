@@ -2,9 +2,9 @@ import {
   LayoutStyle,
   PANEL_BACKGROUND_COLOR,
 } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/common/entities";
-import * as C from "../../components";
 import { Breadcrumbs } from "../../components/common/Content/components/Breadcrumbs/breadcrumbs.styles";
-import { getContentScope, getContentURL } from "./utils";
+import { Link } from "../../components/Layout/components/Content/components/Link/link";
+import { ROUTE } from "../../routes/constants";
 
 export const CONTENT_FOLDER_NAME = "content";
 
@@ -16,11 +16,10 @@ export const LAYOUT_STYLE_NO_CONTRAST_DEFAULT: LayoutStyle = {
 
 export const MDX_COMPONENTS = {
   Breadcrumbs,
-  a: ({ ...props }): JSX.Element =>
-    C.Link({ label: props.children, url: getContentURL(props.href) }),
+  a: Link,
 };
 
-const MDX_SCOPE = { ...getContentScope() };
+const MDX_SCOPE = { ROUTE };
 
 export const SERIALIZE_OPTIONS = {
   mdxOptions: {

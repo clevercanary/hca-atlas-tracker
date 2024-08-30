@@ -16,13 +16,15 @@ import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/s
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
 import { DataExplorerError } from "@databiosphere/findable-ui/lib/types/error";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
-import { CssBaseline } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
+import { createTheme, CssBaseline, Theme, ThemeProvider } from "@mui/material";
+import { createBreakpoints } from "@mui/system";
+import { deepmerge } from "@mui/utils";
 import { config } from "app/config/config";
 import { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { AuthorizationProvider } from "../app/providers/authorization";
 import { mergeAppTheme } from "../app/theme/theme";
+import { BREAKPOINTS } from "../site-config/common/constants";
 
 const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 
@@ -57,7 +59,17 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
             <AuthProvider sessionTimeout={SESSION_TIMEOUT}>
               <LayoutStateProvider>
                 <AppLayout>
-                  <DXHeader {...header} />
+                  <ThemeProvider
+                    theme={(theme: Theme): Theme =>
+                      createTheme(
+                        deepmerge(theme, {
+                          breakpoints: createBreakpoints(BREAKPOINTS),
+                        })
+                      )
+                    }
+                  >
+                    <DXHeader {...header} />
+                  </ThemeProvider>
                   <ExploreStateProvider entityListType={entityListType}>
                     <AuthorizationProvider>
                       <Main>

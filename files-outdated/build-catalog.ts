@@ -76,8 +76,8 @@ async function buildCatalog(): Promise<void> {
         Branding: "",
       },
       header: {
-        Logo: "",
-        navLinks: [],
+        logo: "",
+        navigation: [undefined, undefined, undefined],
       },
     },
     redirectRootToPath: "",

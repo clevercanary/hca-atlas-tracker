@@ -18,7 +18,7 @@ export { Link } from "@databiosphere/findable-ui/lib/components/Links/components
 export { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
 export { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
 export { RowDrawer } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/RowDrawer/rowDrawer";
-export { IconButtonSecondary } from "./common/Button/components/IconButtonSecondary/iconButtonSecondary";
+export { IconButton } from "./common/IconButton/iconButton";
 export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
 export { PreviewTask } from "./Index/components/ViewTasks/components/PreviewTask/previewTask";

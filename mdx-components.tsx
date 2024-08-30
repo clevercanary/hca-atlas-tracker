@@ -1,11 +1,9 @@
 import { MDXComponents } from "mdx/types";
-import * as C from "./app/components";
-import { getContentURL } from "./app/content/common/utils";
+import { Link } from "./app/components/Layout/components/Content/components/Link/link";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...components,
-    a: ({ children, href }) =>
-      C.Link({ label: children, url: getContentURL(href) }),
+    a: Link,
   };
 }
