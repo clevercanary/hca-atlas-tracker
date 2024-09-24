@@ -197,11 +197,12 @@ export interface TaskStatusesUpdatedByDOIResult {
   updated: string[];
 }
 
-export type DBEntityOfType<T extends ENTITY_TYPE> = T extends ENTITY_TYPE.ATLAS
-  ? HCAAtlasTrackerDBAtlas
-  : T extends ENTITY_TYPE.SOURCE_STUDY
-  ? HCAAtlasTrackerDBSourceStudy
-  : never;
+export type ValidationDBEntityOfType<T extends ENTITY_TYPE> =
+  T extends ENTITY_TYPE.ATLAS
+    ? HCAAtlasTrackerDBAtlas
+    : T extends ENTITY_TYPE.SOURCE_STUDY
+    ? HCAAtlasTrackerDBSourceStudyWithAtlasProperties
+    : never;
 
 export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
@@ -304,6 +305,13 @@ export type HCAAtlasTrackerDBSourceStudyWithSourceDatasets =
 export type HCAAtlasTrackerDBSourceStudyWithRelatedEntities =
   HCAAtlasTrackerDBSourceStudyWithSourceDatasets & {
     validations: HCAAtlasTrackerDBValidation[];
+  };
+
+export type HCAAtlasTrackerDBSourceStudyWithAtlasProperties =
+  HCAAtlasTrackerDBSourceStudy & {
+    atlas_short_names: string[];
+    atlas_versions: string[];
+    networks: NetworkKey[];
   };
 
 export interface HCAAtlasTrackerDBSourceDataset {
@@ -507,6 +515,7 @@ export enum VALIDATION_TYPE {
 }
 
 export enum VALIDATION_ID {
+  SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES = "SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES",
   SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA = "SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA",
   SOURCE_STUDY_IN_CAP = "SOURCE_STUDY_IN_CAP",
   SOURCE_STUDY_IN_CELLXGENE = "SOURCE_STUDY_IN_CELLXGENE",

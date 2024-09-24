@@ -1,11 +1,11 @@
 import {
-  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
 } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
 import pg from "pg";
 import { endPgPool, getPoolClient } from "../app/services/database";
 import { getSourceStudyValidationResults } from "../app/services/validations";
@@ -345,12 +345,10 @@ async function testValidations(
   testAtlases: TestAtlas[],
   expectedValidationProperties: ExpectedValidationProperties[]
 ): Promise<void> {
-  const sourceStudy = (
-    await client.query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies WHERE id=$1",
-      [testStudy.id]
-    )
-  ).rows[0];
+  const sourceStudy = await getSourceStudyWithAtlasProperties(
+    testStudy.id,
+    client
+  );
   const validationResults = await getSourceStudyValidationResults(
     sourceStudy,
     client
