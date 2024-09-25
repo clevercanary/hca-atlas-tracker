@@ -309,6 +309,7 @@ export type HCAAtlasTrackerDBSourceStudyWithRelatedEntities =
 
 export type HCAAtlasTrackerDBSourceStudyWithAtlasProperties =
   HCAAtlasTrackerDBSourceStudy & {
+    atlas_names: string[];
     atlas_short_names: string[];
     atlas_versions: string[];
     networks: NetworkKey[];
@@ -484,8 +485,8 @@ export type SourceDatasetId = string;
 export type SourceStudyId = string;
 
 export interface ValidationDifference {
-  actual: string | null;
-  expected: string;
+  actual: string | string[] | null;
+  expected: string | string[];
   variable: VALIDATION_VARIABLE;
 }
 
@@ -530,6 +531,8 @@ export enum VALIDATION_STATUS {
 }
 
 export enum VALIDATION_VARIABLE {
+  ATLASES = "Atlases",
+  NETWORKS = "Networks",
   TITLE = "Title",
 }
 

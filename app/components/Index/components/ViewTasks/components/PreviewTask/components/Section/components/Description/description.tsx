@@ -15,12 +15,19 @@ export const Description = ({ task }: DescriptionProps): JSX.Element | null => {
     <Section title="Description">
       <Typography variant={TEXT_BODY_400_2_LINES}>
         <p>{getTaskDescription(task)}</p>
-        {differences.map(({ actual, expected, variable }, i) => (
-          <Fragment key={`${variable}${i}`}>
-            <p>Expected: {expected}</p>
-            <p>Actual: {actual}</p>
-          </Fragment>
-        ))}
+        {differences.map(({ actual, expected, variable }, i) =>
+          Array.isArray(expected) && typeof actual !== "string" ? (
+            <p key={`${variable}${i}`}>
+              Missing {variable}:{" "}
+              {expected.filter((value) => !actual?.includes(value)).join(", ")}
+            </p>
+          ) : (
+            <Fragment key={`${variable}${i}`}>
+              <p>Expected: {expected}</p>
+              <p>Actual: {actual}</p>
+            </Fragment>
+          )
+        )}
       </Typography>
     </Section>
   );

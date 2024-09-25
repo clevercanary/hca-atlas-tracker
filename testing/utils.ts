@@ -129,7 +129,9 @@ export function makeTestProjectsResponse(
   id: string,
   doi: string,
   title: string,
-  fileFormats = ["fastq"]
+  fileFormats = ["fastq"],
+  atlases?: { shortName: string; version: string }[],
+  networks?: string[]
 ): ProjectsResponse {
   return {
     cellSuspensions: [],
@@ -147,6 +149,7 @@ export function makeTestProjectsResponse(
       {
         accessible: true,
         accessions: [],
+        bionetworkName: networks ?? [],
         contributedAnalyses: {},
         contributors: [],
         estimatedCellCount: 0,
@@ -165,6 +168,11 @@ export function makeTestProjectsResponse(
           },
         ],
         supplementaryLinks: [],
+        tissueAtlas:
+          atlases?.map(({ shortName, version }) => ({
+            atlas: shortName,
+            version,
+          })) ?? [],
       },
     ],
     protocols: [],

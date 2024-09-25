@@ -156,6 +156,68 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationType: VALIDATION_TYPE.INGEST,
     },
+    {
+      description: VALIDATION_DESCRIPTION.LINK_PROJECT_BIONETWORKS_AND_ATLASES,
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      validate(sourceStudy): ValidationStatusInfo | null {
+        return validateSourceStudyHcaProjectInfo(
+          sourceStudy,
+          (projectInfo, infoProperties) => {
+            if (!projectInfo) {
+              return {
+                ...infoProperties,
+                differences: [
+                  {
+                    actual: null,
+                    expected: sourceStudy.networks,
+                    variable: VALIDATION_VARIABLE.NETWORKS,
+                  },
+                  {
+                    actual: null,
+                    expected: sourceStudy.atlas_names,
+                    variable: VALIDATION_VARIABLE.ATLASES,
+                  },
+                ],
+                status: VALIDATION_STATUS.FAILED,
+              };
+            }
+            const projectAtlasNames = projectInfo.atlases.map(
+              ({ shortName, version }) => shortName + " " + version
+            );
+            const missingAtlases = sourceStudy.atlas_names.filter(
+              (name) => !projectAtlasNames.includes(name)
+            );
+            const missingNetworks = sourceStudy.atlas_names.filter(
+              (name) => !projectInfo.networks.includes(name)
+            );
+            const info: ValidationStatusInfo = {
+              ...infoProperties,
+              status: VALIDATION_STATUS.PASSED,
+            };
+            if (missingAtlases.length || missingNetworks.length) {
+              info.status = VALIDATION_STATUS.FAILED;
+              info.differences = [];
+              if (missingNetworks.length)
+                info.differences.push({
+                  actual: projectInfo.networks,
+                  expected: sourceStudy.networks,
+                  variable: VALIDATION_VARIABLE.NETWORKS,
+                });
+              if (missingAtlases.length)
+                info.differences.push({
+                  actual: projectAtlasNames,
+                  expected: sourceStudy.atlas_names,
+                  variable: VALIDATION_VARIABLE.ATLASES,
+                });
+            }
+            return info;
+          }
+        );
+      },
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
   ];
 
 /**
