@@ -187,7 +187,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
             const missingAtlases = sourceStudy.atlas_names.filter(
               (name) => !projectAtlasNames.includes(name)
             );
-            const missingNetworks = sourceStudy.atlas_names.filter(
+            const missingNetworks = sourceStudy.networks.filter(
               (name) => !projectInfo.networks.includes(name)
             );
             const info: ValidationStatusInfo = {
