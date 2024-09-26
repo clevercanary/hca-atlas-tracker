@@ -30,6 +30,9 @@ export const STAKEHOLDER_ANALOGOUS_ROLES = [
 export const STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD =
   STAKEHOLDER_ANALOGOUS_ROLES.filter((r) => r !== ROLE.INTEGRATION_LEAD);
 
+const ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A =
+  "test-with-source-study-validations-a";
+
 // DOIS
 
 export const DOI_NORMAL = "10.123/test";
@@ -367,7 +370,16 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_HCA,
     DOI_PUBLISHED_WITH_HCA,
-    "Published With HCA"
+    "Published With HCA",
+    undefined,
+    [
+      {
+        shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A,
+        version: "v5.4",
+      },
+      { shortName: "test-with-il", version: "v2.0" },
+    ],
+    ["organoid"]
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
@@ -381,7 +393,15 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
     DOI_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
-    "Published – With     Hca Title <i>Near</i> Match. "
+    "Published – With     Hca Title <i>Near</i> Match. ",
+    undefined,
+    [
+      {
+        shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A,
+        version: "v5.4",
+      },
+    ],
+    ["organoid"]
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
@@ -389,7 +409,14 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
     HCA_ID_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
     DOI_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
     "Published With No HCA Primary Data",
-    []
+    [],
+    [
+      {
+        shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A,
+        version: "v5.4",
+      },
+    ],
+    ["organoid"]
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UNCHANGING_IDS =
@@ -1601,7 +1628,7 @@ export const ATLAS_WITH_IL: TestAtlas = {
   network: "heart",
   publications: [],
   shortName: "test-with-il",
-  sourceStudies: [],
+  sourceStudies: [SOURCE_STUDY_PUBLISHED_WITH_HCA.id],
   status: ATLAS_STATUS.DRAFT,
   version: "2.0",
   wave: "3",
@@ -1649,7 +1676,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
   integrationLead: [],
   network: "organoid",
   publications: [],
-  shortName: "test-with-source-study-validations-a",
+  shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A,
   sourceStudies: [
     SOURCE_STUDY_PUBLISHED_WITH_HCA.id,
     SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
