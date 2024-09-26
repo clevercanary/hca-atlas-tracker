@@ -43,7 +43,7 @@ export interface FileTypeSummary {
 export interface ProjectResponse {
   accessible: boolean;
   accessions: AccessionResponse[];
-  bionetworkName: string[];
+  bionetworkName: (string | null)[];
   contributedAnalyses: ProjectResponseContributedAnalyses;
   contributors: ContributorResponse[];
   estimatedCellCount: number | null;
@@ -55,7 +55,7 @@ export interface ProjectResponse {
   projectTitle: string;
   publications: PublicationResponse[];
   supplementaryLinks: (string | null)[];
-  tissueAtlas: { atlas: string; version: string }[];
+  tissueAtlas: { atlas: string; version: string | null }[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO - revisit nested Azul structure.

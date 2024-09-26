@@ -2,7 +2,7 @@ import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
 import { normalizeDoi } from "../utils/doi";
 
 export interface ProjectInfo {
-  atlases: { shortName: string; version: string }[];
+  atlases: { shortName: string; version: string | null }[];
   doi: string | null;
   hasPrimaryData: boolean;
   id: string;
@@ -29,10 +29,18 @@ export function getProjectsInfo(
         doi: publication.doi && normalizeDoi(publication.doi),
         hasPrimaryData,
         id: project.projectId,
-        networks,
+        networks: removeArrayNulls(networks),
         title: project.projectTitle,
       });
     }
   }
   return projectsInfo;
+}
+
+function removeArrayNulls<T>(array: (T | null)[]): T[] {
+  const result: T[] = [];
+  for (const item of array) {
+    if (item !== null) result.push(item);
+  }
+  return result;
 }

@@ -184,11 +184,14 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
             const projectAtlasNames = projectInfo.atlases.map(
               ({ shortName, version }) => shortName + " " + version
             );
+            const projectNetworksLower = projectInfo.networks.map((name) =>
+              name.toLowerCase()
+            );
             const missingAtlases = sourceStudy.atlas_names.filter(
               (name) => !projectAtlasNames.includes(name)
             );
             const missingNetworks = sourceStudy.networks.filter(
-              (name) => !projectInfo.networks.includes(name)
+              (name) => !projectNetworksLower.includes(name.toLocaleLowerCase())
             );
             const info: ValidationStatusInfo = {
               ...infoProperties,
