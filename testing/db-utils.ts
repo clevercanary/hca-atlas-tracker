@@ -1,3 +1,4 @@
+import { updateSourceStudyValidationsByEntityId } from "app/services/source-studies";
 import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
@@ -13,7 +14,6 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
 import { query } from "../app/services/database";
-import { updateSourceStudyValidations } from "../app/services/validations";
 import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
 import {
   INITIAL_TEST_ATLASES,
@@ -76,7 +76,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     )
   ).rows;
   for (const study of dbSourceStudies) {
-    await updateSourceStudyValidations(study, client);
+    await updateSourceStudyValidationsByEntityId(study.id, client);
   }
 
   await updateTaskCounts();

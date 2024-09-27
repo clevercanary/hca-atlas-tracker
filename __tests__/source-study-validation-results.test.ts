@@ -1,15 +1,17 @@
 import {
-  HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerValidationResult,
   SYSTEM,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
+  VALIDATION_VARIABLE,
 } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
 import pg from "pg";
 import { endPgPool, getPoolClient } from "../app/services/database";
 import { getSourceStudyValidationResults } from "../app/services/validations";
 import {
+  ATLAS_WITH_IL,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
@@ -27,7 +29,8 @@ import { TestAtlas, TestSourceStudy } from "../testing/entities";
 type ExpectedValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
   "system" | "validationId" | "validationStatus" | "validationType"
->;
+> &
+  Partial<Pick<HCAAtlasTrackerValidationResult, "differences">>;
 
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
@@ -86,6 +89,20 @@ const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
     validationStatus: VALIDATION_STATUS.PASSED,
     validationType: VALIDATION_TYPE.INGEST,
   },
+  {
+    differences: [
+      {
+        actual: ["organoid"],
+        expected: ["heart", "organoid"],
+        variable: VALIDATION_VARIABLE.NETWORKS,
+      },
+    ],
+    system: SYSTEM.HCA_DATA_REPOSITORY,
+    validationId:
+      VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
+    validationStatus: VALIDATION_STATUS.FAILED,
+    validationType: VALIDATION_TYPE.INGEST,
+  },
 ];
 
 const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationProperties[] =
@@ -109,6 +126,13 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
+      differences: [
+        {
+          actual: "Published With HCA Title Mismatch MISMATCHED",
+          expected: "Published With HCA Title Mismatch",
+          variable: VALIDATION_VARIABLE.TITLE,
+        },
+      ],
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validationId:
         VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
@@ -119,6 +143,25 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationStatus: VALIDATION_STATUS.PASSED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      differences: [
+        {
+          actual: [],
+          expected: ["organoid"],
+          variable: VALIDATION_VARIABLE.NETWORKS,
+        },
+        {
+          actual: [],
+          expected: ["test-with-source-study-validations-a v5.4"],
+          variable: VALIDATION_VARIABLE.ATLASES,
+        },
+      ],
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
+      validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
   ];
@@ -156,6 +199,13 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: ExpectedValidationPropert
       validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
     },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
+      validationStatus: VALIDATION_STATUS.PASSED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
   ];
 
 const VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: ExpectedValidationProperties[] =
@@ -189,6 +239,13 @@ const VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA: ExpectedValidationProperti
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
       validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
+      validationStatus: VALIDATION_STATUS.PASSED,
       validationType: VALIDATION_TYPE.INGEST,
     },
   ];
@@ -286,7 +343,7 @@ describe("getSourceStudyValidationResults", () => {
   it("returns validations for source study with HCA project with matching title", async () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_HCA,
-      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
+      [ATLAS_WITH_IL, ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
       VALIDATIONS_PUBLISHED_WITH_HCA
     );
   });
@@ -345,12 +402,10 @@ async function testValidations(
   testAtlases: TestAtlas[],
   expectedValidationProperties: ExpectedValidationProperties[]
 ): Promise<void> {
-  const sourceStudy = (
-    await client.query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies WHERE id=$1",
-      [testStudy.id]
-    )
-  ).rows[0];
+  const sourceStudy = await getSourceStudyWithAtlasProperties(
+    testStudy.id,
+    client
+  );
   const validationResults = await getSourceStudyValidationResults(
     sourceStudy,
     client
@@ -358,6 +413,10 @@ async function testValidations(
   expect(validationResults).toHaveLength(expectedValidationProperties.length);
   const atlasIds = testAtlases.map((atlas) => atlas.id);
   for (const [i, validationResult] of validationResults.entries()) {
+    if (validationResult.differences.length)
+      expect(validationResult.differences).toEqual(
+        expectedValidationProperties[i].differences
+      );
     expect(validationResult).toMatchObject(expectedValidationProperties[i]);
     expect(validationResult.atlasIds).toEqual(atlasIds);
     expect(validationResult.entityId).toEqual(testStudy.id);

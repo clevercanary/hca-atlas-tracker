@@ -204,6 +204,26 @@ export const tasksEntityConfig: EntityConfig = {
         title:
           "HCA Data Repository -  project title does not match publication title",
       },
+      {
+        filters: [
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
+            value: [
+              VALIDATION_DESCRIPTION.LINK_PROJECT_BIONETWORKS_AND_ATLASES,
+            ],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
+            value: [TASK_STATUS.TODO],
+          },
+          {
+            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
+            value: [SYSTEM.HCA_DATA_REPOSITORY],
+          },
+        ],
+        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
+        title: "HCA Data Repository - Missing Network or Atlas",
+      },
     ],
   },
   detail: {

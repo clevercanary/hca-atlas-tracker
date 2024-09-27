@@ -9,11 +9,11 @@ import {
   VALIDATION_STATUS_BY_TASK_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  DBEntityOfType,
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationUpdateColumns,
@@ -23,6 +23,7 @@ import {
   SYSTEM,
   TaskStatusesUpdatedByDOIResult,
   TASK_STATUS,
+  ValidationDBEntityOfType,
   ValidationDifference,
   VALIDATION_ID,
   VALIDATION_STATUS,
@@ -36,7 +37,10 @@ import { updateTaskCounts } from "./atlases";
 import { createCommentThread, deleteCommentThread } from "./comments";
 import { doTransaction, getPoolClient, query } from "./database";
 import { getProjectInfoById } from "./hca-projects";
-import { getSourceStudiesByDois } from "./source-studies";
+import {
+  getSourceStudiesByDois,
+  getSourceStudiesWithAtlasProperties,
+} from "./source-studies";
 
 interface ValidationStatusInfo {
   differences?: ValidationDifference[];
@@ -68,7 +72,7 @@ const CHANGE_INDICATING_VALIDATION_KEYS = [
   "validationStatus",
 ] as const;
 
-export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceStudy>[] =
+export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSourceStudyWithAtlasProperties>[] =
   [
     {
       description: VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY,
@@ -150,6 +154,71 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
         );
       },
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      description: VALIDATION_DESCRIPTION.LINK_PROJECT_BIONETWORKS_AND_ATLASES,
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      validate(sourceStudy): ValidationStatusInfo | null {
+        return validateSourceStudyHcaProjectInfo(
+          sourceStudy,
+          (projectInfo, infoProperties) => {
+            if (!projectInfo) {
+              return {
+                ...infoProperties,
+                differences: [
+                  {
+                    actual: null,
+                    expected: sourceStudy.networks,
+                    variable: VALIDATION_VARIABLE.NETWORKS,
+                  },
+                  {
+                    actual: null,
+                    expected: sourceStudy.atlas_names,
+                    variable: VALIDATION_VARIABLE.ATLASES,
+                  },
+                ],
+                status: VALIDATION_STATUS.FAILED,
+              };
+            }
+            const projectAtlasNames = projectInfo.atlases.map(
+              ({ shortName, version }) => shortName + " " + version
+            );
+            const projectNetworksLower = projectInfo.networks.map((name) =>
+              name.toLowerCase()
+            );
+            const missingAtlases = sourceStudy.atlas_names.filter(
+              (name) => !projectAtlasNames.includes(name)
+            );
+            const missingNetworks = sourceStudy.networks.filter(
+              (name) => !projectNetworksLower.includes(name.toLocaleLowerCase())
+            );
+            const info: ValidationStatusInfo = {
+              ...infoProperties,
+              status: VALIDATION_STATUS.PASSED,
+            };
+            if (missingAtlases.length || missingNetworks.length) {
+              info.status = VALIDATION_STATUS.FAILED;
+              info.differences = [];
+              if (missingNetworks.length)
+                info.differences.push({
+                  actual: projectInfo.networks,
+                  expected: sourceStudy.networks,
+                  variable: VALIDATION_VARIABLE.NETWORKS,
+                });
+              if (missingAtlases.length)
+                info.differences.push({
+                  actual: projectAtlasNames,
+                  expected: sourceStudy.atlas_names,
+                  variable: VALIDATION_VARIABLE.ATLASES,
+                });
+            }
+            return info;
+          }
+        );
+      },
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
       validationType: VALIDATION_TYPE.INGEST,
     },
   ];
@@ -259,8 +328,8 @@ export async function getValidationRecordsWithoutAtlasPropertiesForEntities(
  */
 function getValidationResult<T extends ENTITY_TYPE>(
   entityType: T,
-  validation: ValidationDefinition<DBEntityOfType<T>>,
-  entity: DBEntityOfType<T>,
+  validation: ValidationDefinition<ValidationDBEntityOfType<T>>,
+  entity: ValidationDBEntityOfType<T>,
   typeSpecificProperties: TypeSpecificValidationProperties
 ): HCAAtlasTrackerValidationResult | null {
   const validationStatusInfo = validation.validate(entity);
@@ -293,12 +362,7 @@ export async function refreshValidations(): Promise<void> {
  */
 async function revalidateAllSourceStudies(): Promise<void> {
   const client = await getPoolClient();
-  const sourceStudies = (
-    await client.query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies"
-    )
-  ).rows;
-  for (const study of sourceStudies) {
+  for (const study of await getSourceStudiesWithAtlasProperties(client)) {
     try {
       await client.query("BEGIN");
       await updateSourceStudyValidations(study, client);
@@ -318,7 +382,7 @@ async function revalidateAllSourceStudies(): Promise<void> {
  * @param client - Postgres client to use.
  */
 export async function updateSourceStudyValidations(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy,
+  sourceStudy: HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
   client: pg.PoolClient
 ): Promise<void> {
   const validationResults = await getSourceStudyValidationResults(
@@ -472,7 +536,7 @@ function shouldUpdateValidation(
  * @returns validation results.
  */
 export async function getSourceStudyValidationResults(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy,
+  sourceStudy: HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
   client: pg.PoolClient
 ): Promise<HCAAtlasTrackerValidationResult[]> {
   const validationResults: HCAAtlasTrackerValidationResult[] = [];

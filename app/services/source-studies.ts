@@ -8,6 +8,7 @@ import {
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyMinimumColumns,
+  HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
   HCAAtlasTrackerDBValidation,
@@ -170,12 +171,12 @@ export async function createSourceStudy(
           undefined,
           "doi"
         );
+      await updateSourceStudyValidationsByEntityId(existingStudyId, client);
       const existingStudy = await getSourceStudy(
         atlasId,
         existingStudyId,
         client
       );
-      await updateSourceStudyValidations(existingStudy, client);
       await client.query("COMMIT");
       return existingStudy;
     }
@@ -193,7 +194,7 @@ export async function createSourceStudy(
     );
     // Add source datasets and validations
     await updateSourceStudyCellxGeneDatasets(newStudyRow, client);
-    await updateSourceStudyValidations(newStudyRow, client);
+    await updateSourceStudyValidationsByEntityId(newStudyRow.id, client);
     const newStudy = await getSourceStudy(atlasId, newStudyRow.id, client);
     await client.query("COMMIT");
     return newStudy;
@@ -278,7 +279,7 @@ export async function updateSourceStudy(
     const updatedStudyRow = queryResult.rows[0];
 
     await updateSourceStudyCellxGeneDatasets(updatedStudyRow, client);
-    await updateSourceStudyValidations(updatedStudyRow, client);
+    await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
 
     const updatedStudy = await getSourceStudy(atlasId, sourceStudyId, client);
 
@@ -482,15 +483,66 @@ export async function updateSourceStudyValidationsByEntityId(
   entityId: string,
   client: pg.PoolClient
 ): Promise<void> {
-  const sourceStudy = (
-    await client.query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies WHERE id=$1",
-      [entityId]
-    )
-  ).rows[0];
-  if (!sourceStudy)
-    throw new NotFoundError(`Source study with ID ${entityId} doesn't exist`);
-  await updateSourceStudyValidations(sourceStudy, client);
+  await updateSourceStudyValidations(
+    await getSourceStudyWithAtlasProperties(entityId, client),
+    client
+  );
+}
+
+/**
+ * Get all source studies, with properties of their atlases added.
+ * @param client - Postgres client to use.
+ * @returns source studies with atlas properties.
+ */
+export async function getSourceStudiesWithAtlasProperties(
+  client: pg.PoolClient
+): Promise<HCAAtlasTrackerDBSourceStudyWithAtlasProperties[]> {
+  const queryResult =
+    await client.query<HCAAtlasTrackerDBSourceStudyWithAtlasProperties>(`
+      SELECT
+        s.*,
+        ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS atlas_names,
+        ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+        ARRAY_AGG(DISTINCT a.overview->>'version') AS atlas_versions,
+        ARRAY_AGG(DISTINCT a.overview->>'network') AS networks
+      FROM hat.source_studies s
+      LEFT JOIN hat.atlases a ON a.source_studies @> to_jsonb(s.id)
+      GROUP BY s.id
+    `);
+  return queryResult.rows;
+}
+
+/**
+ * Get a specified source study, with properties of its atlases added.
+ * @param sourceStudyId - ID of the soruce study to get.
+ * @param client - Postgres client to use.
+ * @returns source studies with atlas properties.
+ */
+export async function getSourceStudyWithAtlasProperties(
+  sourceStudyId: string,
+  client: pg.PoolClient
+): Promise<HCAAtlasTrackerDBSourceStudyWithAtlasProperties> {
+  const queryResult =
+    await client.query<HCAAtlasTrackerDBSourceStudyWithAtlasProperties>(
+      `
+        SELECT
+          s.*,
+          ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS atlas_names,
+          ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
+          ARRAY_AGG(DISTINCT a.overview->>'version') AS atlas_versions,
+          ARRAY_AGG(DISTINCT a.overview->>'network') AS networks
+        FROM hat.source_studies s
+        LEFT JOIN hat.atlases a ON a.source_studies @> to_jsonb(s.id)
+        WHERE s.id=$1
+        GROUP BY s.id
+      `,
+      [sourceStudyId]
+    );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Source study with ID ${sourceStudyId} doesn't exist`
+    );
+  return queryResult.rows[0];
 }
 
 /**

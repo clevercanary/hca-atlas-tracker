@@ -33,7 +33,7 @@ afterAll(async () => {
 
 describe("refreshValidations", () => {
   it("updates source study validations and atlas task counts", async () => {
-    const aExpectedSubjectTasksBefore = 5;
+    const aExpectedSubjectTasksBefore = 6;
     const aExpectedSubjectCompletedTasksBefore = 4;
     const aExpectedSubjectTasksAfter = 3;
     const aExpectedSubjectCompletedTasksAfter = 1;

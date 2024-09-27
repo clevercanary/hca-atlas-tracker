@@ -98,7 +98,7 @@ function expectInitialValidationsToExist(
         ? testStudy.doi !== null && TEST_HCA_PROJECTS_BY_DOI.has(testStudy.doi)
         : testStudy.hcaProjectId !== null
     ) {
-      expectedValidationCount++;
+      expectedValidationCount += 2;
       if ("doi" in testStudy && testStudy.doi !== null)
         expectedValidationCount++;
     }
