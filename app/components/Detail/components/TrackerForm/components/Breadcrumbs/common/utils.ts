@@ -13,6 +13,7 @@ import {
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_SOURCE_STUDY,
+  BREADCRUMB_USERS,
 } from "./constants";
 
 /**
@@ -72,6 +73,14 @@ export function getSourceStudyBreadcrumb(
   );
   if (!sourceStudy) return breadcrumb;
   return { ...breadcrumb, text: sourceStudy.title };
+}
+
+/**
+ * Returns the breadcrumb for the users view.
+ * @returns users view breadcrumb.
+ */
+export function getUsersBreadcrumb(): Breadcrumb {
+  return BREADCRUMB_USERS;
 }
 
 /**

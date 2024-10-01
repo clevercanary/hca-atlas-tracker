@@ -7,10 +7,12 @@ export enum API {
   ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   ATLAS_SOURCE_STUDIES = "/api/atlases/[atlasId]/source-studies",
   ATLAS_SOURCE_STUDY = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]",
+  ATLASES = "/api/atlases",
   CREATE_ATLAS = "/api/atlases/create",
   CREATE_ATLAS_COMPONENT_ATLAS = "/api/atlases/[atlasId]/component-atlases/create",
   CREATE_ATLAS_SOURCE_STUDY = "/api/atlases/[atlasId]/source-studies/create",
   CREATE_SOURCE_DATASET = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create",
+  CREATE_USER = "/api/users/create",
   TASKS_COMPLETION_DATES = "/api/tasks/completion-dates",
   USER = "/api/me",
 }
