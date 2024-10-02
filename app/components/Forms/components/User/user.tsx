@@ -34,6 +34,7 @@ export const UserForm = ({
   formMethod,
 }: UserFormProps): JSX.Element => {
   const { atlases } = useFetchAtlases();
+  const selectedRole = formMethod.watch(FIELD_NAME.ROLE);
   if (accessFallback) return <Fragment>{accessFallback}</Fragment>;
   const {
     formStatus: { isReadOnly },
@@ -101,29 +102,33 @@ export const UserForm = ({
               </Select>
             )}
           />
-          <Controller
-            control={control}
-            name={FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS}
-            render={({ field }): JSX.Element => (
-              <Select
-                {...field}
-                error={Boolean(errors[FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS])}
-                helperText={
-                  errors[FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS]?.message
-                }
-                isFilled={Boolean(field.value)}
-                label="Associated atlases"
-                multiple
-                readOnly={isReadOnly}
-              >
-                {(atlases ?? []).map((atlas) => (
-                  <MMenuItem key={atlas.id} value={atlas.id}>
-                    {atlas.shortName} v{atlas.version}
-                  </MMenuItem>
-                ))}
-              </Select>
-            )}
-          />
+          {selectedRole === ROLE.INTEGRATION_LEAD ? (
+            <Controller
+              control={control}
+              name={FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS}
+              render={({ field }): JSX.Element => (
+                <Select
+                  {...field}
+                  error={Boolean(
+                    errors[FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS]
+                  )}
+                  helperText={
+                    errors[FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS]?.message
+                  }
+                  isFilled={Boolean(field.value)}
+                  label="Associated atlases"
+                  multiple
+                  readOnly={isReadOnly}
+                >
+                  {(atlases ?? []).map((atlas) => (
+                    <MMenuItem key={atlas.id} value={atlas.id}>
+                      {atlas.shortName} v{atlas.version}
+                    </MMenuItem>
+                  ))}
+                </Select>
+              )}
+            />
+          ) : null}
         </SectionCard>
       </Section>
     </TrackerForm>
