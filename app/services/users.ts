@@ -1,4 +1,7 @@
-import { NewUserData } from "app/apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  NewUserData,
+  UserEditData,
+} from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBUserWithAssociatedResources,
@@ -77,6 +80,30 @@ export async function createUser(
       inputData.fullName,
       inputData.role,
       inputData.roleAssociatedResourceIds,
+    ]
+  );
+  return await getUserByEmail(inputData.email);
+}
+
+/**
+ * Update a user.
+ * @param id - ID of the user to update.
+ * @param inputData - Values used to update a user.
+ * @returns updated user.
+ */
+export async function updateUser(
+  id: number,
+  inputData: UserEditData
+): Promise<HCAAtlasTrackerDBUserWithAssociatedResources> {
+  await query<HCAAtlasTrackerDBUser>(
+    "UPDATE hat.users SET disabled=$1, email=$2, full_name=$3, role=$4, role_associated_resource_ids=$5 WHERE id=$6",
+    [
+      inputData.disabled.toString(),
+      inputData.email,
+      inputData.fullName,
+      inputData.role,
+      inputData.roleAssociatedResourceIds,
+      id,
     ]
   );
   return await getUserByEmail(inputData.email);
