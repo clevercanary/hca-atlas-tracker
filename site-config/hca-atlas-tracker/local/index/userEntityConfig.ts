@@ -60,7 +60,7 @@ export const userEntityConfig: EntityConfig = {
     top: [],
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
-  explorerTitle: "Team",
+  explorerTitle: C.UsersHero(),
   getId: getUserId,
   label: "Team",
   list: {

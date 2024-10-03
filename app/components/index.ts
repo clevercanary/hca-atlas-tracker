@@ -25,6 +25,7 @@ export { PreviewTask } from "./Index/components/ViewTasks/components/PreviewTask
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";
 export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
+export { UsersHero } from "./Layout/components/IndexPage/components/UsersHero/usersHero";
 export { AnalysisPortalCell } from "./Table/components/TableCell/components/AnalysisPortalCell/analysisPortalCell";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
 export { ButtonTextPrimaryCell } from "./Table/components/TableCell/components/ButtonTextPrimaryCell/buttonTextPrimaryCell.styles";
