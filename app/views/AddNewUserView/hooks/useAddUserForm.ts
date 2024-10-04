@@ -36,5 +36,7 @@ function mapApiValues(user: NewUserData): ApiNewUserData {
   return {
     ...user,
     disabled: user.disabled === "disabled",
+    roleAssociatedResourceIds:
+      user.role === ROLE.INTEGRATION_LEAD ? user.roleAssociatedResourceIds : [],
   };
 }

@@ -45,5 +45,7 @@ function mapApiValues(user: UserEditData): ApiUserEditData {
   return {
     ...user,
     disabled: user.disabled === "disabled",
+    roleAssociatedResourceIds:
+      user.role === ROLE.INTEGRATION_LEAD ? user.roleAssociatedResourceIds : [],
   };
 }
