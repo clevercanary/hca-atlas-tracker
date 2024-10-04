@@ -94,11 +94,13 @@ export const UserForm = ({
                 label="Role"
                 readOnly={isReadOnly}
               >
-                {Object.keys(ROLE).map((role) => (
-                  <MMenuItem key={role} value={role}>
-                    {role}
-                  </MMenuItem>
-                ))}
+                {Object.keys(ROLE).map((role) =>
+                  role === ROLE.UNREGISTERED ? null : (
+                    <MMenuItem key={role} value={role}>
+                      {role}
+                    </MMenuItem>
+                  )
+                )}
               </Select>
             )}
           />
