@@ -1,4 +1,5 @@
 export enum API {
+  ACTIVE_USER = "/api/me",
   ATLAS = "/api/atlases/[atlasId]",
   ATLAS_COMPONENT_ATLAS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]",
   ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets",
@@ -14,5 +15,5 @@ export enum API {
   CREATE_SOURCE_DATASET = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create",
   CREATE_USER = "/api/users/create",
   TASKS_COMPLETION_DATES = "/api/tasks/completion-dates",
-  USER = "/api/me",
+  USER = "/api/users/[userId]",
 }

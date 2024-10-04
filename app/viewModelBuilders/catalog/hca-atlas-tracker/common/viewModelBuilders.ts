@@ -705,9 +705,10 @@ export const buildUserEmail = (
  */
 export const buildUserFullName = (
   user: HCAAtlasTrackerUser
-): ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.Link> => {
   return {
-    value: user.fullName,
+    label: user.fullName,
+    url: getRouteURL(ROUTE.USER, { userId: user.id }),
   };
 };
 

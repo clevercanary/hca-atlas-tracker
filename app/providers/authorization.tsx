@@ -5,7 +5,7 @@ import {
   HCAAtlasTrackerActiveUser,
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { useFetchUser } from "../hooks/useFetchUser";
+import { useFetchActiveUser } from "../hooks/useFetchActiveUser";
 import { ROUTE } from "../routes/constants";
 
 export interface AuthorizationContextProps {
@@ -22,7 +22,7 @@ interface Props {
 
 export function AuthorizationProvider({ children }: Props): JSX.Element {
   const { isAuthenticated } = useAuthentication();
-  const user = useFetchUser();
+  const user = useFetchActiveUser();
   const { role } = user || {};
   const isAuthorized = isUserAuthorized(role);
 

@@ -2,40 +2,42 @@ import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerUser } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../common/entities";
-import { getRouteURL } from "../../../common/utils";
+import { METHOD, PathParameter } from "../../../common/entities";
+import { getRequestURL, getRouteURL } from "../../../common/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../../routes/constants";
-import { NewUserData } from "../common/entities";
+import { UserEditData } from "../common/entities";
 
-export const useAddUserFormManager = (
-  formMethod: FormMethod<NewUserData, HCAAtlasTrackerUser>
+export const useEditUserFormManager = (
+  pathParameter: PathParameter,
+  formMethod: FormMethod<UserEditData, HCAAtlasTrackerUser>
 ): FormManager => {
-  const { onSubmit } = formMethod;
+  const { onSubmit, reset } = formMethod;
 
   const onDiscard = useCallback((url?: string) => {
     Router.push(url ?? ROUTE.USERS);
   }, []);
 
   const onSave = useCallback(
-    (payload: NewUserData, url?: string) => {
-      onSubmit(API.CREATE_USER, METHOD.POST, payload, {
+    (payload: UserEditData, url?: string) => {
+      onSubmit(getRequestURL(API.USER, pathParameter), METHOD.PATCH, payload, {
+        onReset: reset,
         onSuccess: (data) => onSuccess(data.id, url),
       });
     },
-    [onSubmit]
+    [onSubmit, pathParameter, reset]
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });
 };
 
 /**
- * Side effect "onSuccess"; redirects to the users page, or to the specified URL.
+ * Side effect "onSuccess"; redirects to the user page, or to the specified URL.
  * @param userId - User ID.
  * @param url - URL to redirect to.
  */
 export function onSuccess(userId: number, url?: string): void {
-  Router.push(url ?? getRouteURL(ROUTE.USER, { userId: userId }));
+  Router.push(url ?? getRouteURL(ROUTE.USER, { userId }));
 }

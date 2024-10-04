@@ -484,6 +484,8 @@ export type SourceDatasetId = string;
 
 export type SourceStudyId = string;
 
+export type UserId = number;
+
 export interface ValidationDifference {
   actual: string | string[] | null;
   expected: string | string[];

@@ -1,13 +1,17 @@
 import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerActiveUser } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../common/entities";
+import { HCAAtlasTrackerUser } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "../common/entities";
+import { getRequestURL } from "../common/utils";
 import { useFetchData } from "./useFetchData";
 
-export const useFetchUser = (): HCAAtlasTrackerActiveUser | undefined => {
-  const { data: user } = useFetchData<HCAAtlasTrackerActiveUser | undefined>(
-    API.USER,
+interface UseFetchUser {
+  user?: HCAAtlasTrackerUser;
+}
+
+export const useFetchUser = (pathParameter: PathParameter): UseFetchUser => {
+  const { data: user } = useFetchData<HCAAtlasTrackerUser | undefined>(
+    getRequestURL(API.USER, pathParameter),
     METHOD.GET
   );
-
-  return user;
+  return { user };
 };

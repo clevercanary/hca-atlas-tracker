@@ -2,6 +2,7 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceStudy,
+  HCAAtlasTrackerUser,
 } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../../../../../../common/entities";
@@ -13,6 +14,7 @@ import {
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_SOURCE_STUDY,
+  BREADCRUMB_USER,
   BREADCRUMB_USERS,
 } from "./constants";
 
@@ -73,6 +75,21 @@ export function getSourceStudyBreadcrumb(
   );
   if (!sourceStudy) return breadcrumb;
   return { ...breadcrumb, text: sourceStudy.title };
+}
+
+/**
+ * Returns the breadcrumb for the user view.
+ * @param pathParameter - Path parameter.
+ * @param user - User.
+ * @returns user view breadcrumb.
+ */
+export function getUserBreadcrumb(
+  pathParameter?: PathParameter,
+  user?: HCAAtlasTrackerUser
+): Breadcrumb {
+  const breadcrumb = resolveBreadcrumbPath(BREADCRUMB_USER, pathParameter);
+  if (!user) return breadcrumb;
+  return { ...breadcrumb, text: user.fullName };
 }
 
 /**

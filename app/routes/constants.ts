@@ -17,6 +17,7 @@ export const ROUTE = {
     "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   SOURCE_STUDIES: "/atlases/[atlasId]/source-studies",
   SOURCE_STUDY: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
+  USER: "/team/[userId]",
   USERS: "/team",
   VALIDATIONS_AND_TASKS: "/validations-and-tasks",
 } as const;
