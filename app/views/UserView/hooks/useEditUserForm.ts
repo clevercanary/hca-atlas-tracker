@@ -2,6 +2,7 @@ import {
   HCAAtlasTrackerUser,
   ROLE,
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { UserEditData as ApiUserEditData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { PathParameter } from "../../../common/entities";
 import { useFetchUser } from "../../../hooks/useFetchUser";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
@@ -19,7 +20,8 @@ export const useEditUserForm = (
   return useForm<UserEditData, HCAAtlasTrackerUser>(
     SCHEMA,
     user,
-    mapSchemaValues
+    mapSchemaValues,
+    mapApiValues
   );
 };
 
@@ -30,11 +32,18 @@ export const useEditUserForm = (
  */
 function mapSchemaValues(user?: HCAAtlasTrackerUser): UserEditData {
   return {
-    [FIELD_NAME.DISABLED]: user?.disabled ?? false,
+    [FIELD_NAME.DISABLED]: user?.disabled ? "disabled" : "enabled",
     [FIELD_NAME.EMAIL]: user?.email ?? "",
     [FIELD_NAME.FULL_NAME]: user?.fullName ?? "",
     [FIELD_NAME.ROLE]: user?.role ?? ROLE.STAKEHOLDER,
     [FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS]:
       user?.roleAssociatedResourceIds ?? [],
+  };
+}
+
+function mapApiValues(user: UserEditData): ApiUserEditData {
+  return {
+    ...user,
+    disabled: user.disabled === "disabled",
   };
 }

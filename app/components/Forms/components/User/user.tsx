@@ -102,6 +102,23 @@ export const UserForm = ({
               </Select>
             )}
           />
+          <Controller
+            control={control}
+            name={FIELD_NAME.DISABLED}
+            render={({ field }): JSX.Element => (
+              <Select
+                {...field}
+                error={Boolean(errors[FIELD_NAME.DISABLED])}
+                helperText={errors[FIELD_NAME.DISABLED]?.message}
+                isFilled={Boolean(field.value)}
+                label={<br />}
+                readOnly={isReadOnly}
+              >
+                <MMenuItem value={"enabled"}>Enabled</MMenuItem>
+                <MMenuItem value={"disabled"}>Disabled</MMenuItem>
+              </Select>
+            )}
+          />
           {selectedRole === ROLE.INTEGRATION_LEAD ? (
             <Controller
               control={control}

@@ -56,6 +56,6 @@ function renderAccessFallback(formManager: FormManager): JSX.Element | null {
   const {
     access: { canView },
   } = formManager;
-  if (!canView) return <AccessPrompt text="to view the atlas" />;
+  if (!canView) return <AccessPrompt text="to view the user" />;
   return null;
 }
