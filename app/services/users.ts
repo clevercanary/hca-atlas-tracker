@@ -135,6 +135,8 @@ export async function updateUser(
       id,
     ]
   );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`User with ID ${id} doesn't exist`);
   return await getUserById(queryResult.rows[0].id);
 }
 

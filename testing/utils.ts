@@ -11,12 +11,17 @@ import {
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
+  HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  NewUserData,
+  UserEditData,
+} from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
 import {
@@ -227,7 +232,7 @@ export function testApiRole(
   handler: Handler,
   method: METHOD,
   role: ROLE,
-  query: Record<string, string> | undefined,
+  query: (() => Record<string, string>) | Record<string, string> | undefined,
   body: httpMocks.Body | undefined,
   hideConsoleError: boolean,
   callback: (
@@ -237,7 +242,12 @@ export function testApiRole(
 ): void {
   let user: TestUser;
   let testName: string;
-  if (role === ROLE.INTEGRATION_LEAD && query && "atlasId" in query) {
+  if (
+    role === ROLE.INTEGRATION_LEAD &&
+    query &&
+    typeof query !== "function" &&
+    "atlasId" in query
+  ) {
     if (method === METHOD.GET) {
       user =
         query.atlasId === ATLAS_DRAFT.id
@@ -259,7 +269,7 @@ export function testApiRole(
         body,
         headers: { authorization: user.authorization },
         method,
-        query,
+        query: typeof query === "function" ? query() : query,
       }
     );
     await withConsoleErrorHiding(() => handler(req, res), hideConsoleError);
@@ -450,6 +460,19 @@ export function expectApiUserToMatchTest(
   expect(apiUser.role).toEqual(testUser.role);
   expect(apiUser.roleAssociatedResourceIds).toEqual(
     testUser.roleAssociatedResourceIds
+  );
+}
+
+export async function expectDbUserToMatchInputData(
+  dbUser: HCAAtlasTrackerDBUser,
+  inputData: NewUserData | UserEditData
+): Promise<void> {
+  expect(dbUser.disabled).toEqual(inputData.disabled);
+  expect(dbUser.email).toEqual(inputData.email);
+  expect(dbUser.full_name).toEqual(inputData.fullName);
+  expect(dbUser.role).toEqual(inputData.role);
+  expect(dbUser.role_associated_resource_ids).toEqual(
+    inputData.roleAssociatedResourceIds
   );
 }
 
