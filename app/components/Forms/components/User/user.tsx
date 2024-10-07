@@ -77,7 +77,7 @@ export const UserForm = ({
                 error={Boolean(errors[FIELD_NAME.EMAIL])}
                 helperText={errors[FIELD_NAME.EMAIL]?.message}
                 isFilled={Boolean(field.value)}
-                label="Email"
+                label="Gmail/Google Workspace email"
                 readOnly={isReadOnly}
               />
             )}
