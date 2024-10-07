@@ -187,26 +187,30 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
             const projectNetworksLower = projectInfo.networks.map((name) =>
               name.toLowerCase()
             );
-            const missingAtlases = sourceStudy.atlas_names.filter(
-              (name) => !projectAtlasNames.includes(name)
-            );
-            const missingNetworks = sourceStudy.networks.filter(
-              (name) => !projectNetworksLower.includes(name.toLocaleLowerCase())
-            );
+            const atlasesMatch =
+              sourceStudy.atlas_names.length === projectAtlasNames.length &&
+              sourceStudy.atlas_names.every((name) =>
+                projectAtlasNames.includes(name)
+              );
+            const networksMatch =
+              sourceStudy.networks.length === projectNetworksLower.length &&
+              sourceStudy.networks.every((name) =>
+                projectNetworksLower.includes(name.toLocaleLowerCase())
+              );
             const info: ValidationStatusInfo = {
               ...infoProperties,
               status: VALIDATION_STATUS.PASSED,
             };
-            if (missingAtlases.length || missingNetworks.length) {
+            if (!(networksMatch && atlasesMatch)) {
               info.status = VALIDATION_STATUS.FAILED;
               info.differences = [];
-              if (missingNetworks.length)
+              if (!networksMatch)
                 info.differences.push({
                   actual: projectInfo.networks,
                   expected: sourceStudy.networks,
                   variable: VALIDATION_VARIABLE.NETWORKS,
                 });
-              if (missingAtlases.length)
+              if (!atlasesMatch)
                 info.differences.push({
                   actual: projectAtlasNames,
                   expected: sourceStudy.atlas_names,
