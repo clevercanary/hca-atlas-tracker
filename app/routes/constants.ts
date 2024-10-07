@@ -6,6 +6,7 @@ export const ROUTE = {
   CREATE_ATLAS: "/atlases/create",
   CREATE_COMPONENT_ATLAS: "/atlases/[atlasId]/component-atlases/create",
   CREATE_SOURCE_STUDY: "/atlases/[atlasId]/source-studies/create",
+  CREATE_USER: "/team/create",
   LOGIN: "/login",
   OVERVIEW: "/overview",
   REGISTRATION_REQUIRED: "/registration-required",
@@ -16,6 +17,7 @@ export const ROUTE = {
     "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   SOURCE_STUDIES: "/atlases/[atlasId]/source-studies",
   SOURCE_STUDY: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
+  USER: "/team/[userId]",
   USERS: "/team",
   VALIDATIONS_AND_TASKS: "/validations-and-tasks",
 } as const;

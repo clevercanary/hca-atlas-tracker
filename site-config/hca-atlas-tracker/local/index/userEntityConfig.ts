@@ -60,16 +60,16 @@ export const userEntityConfig: EntityConfig = {
     top: [],
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
-  explorerTitle: "Team",
+  explorerTitle: C.UsersHero(),
   getId: getUserId,
   label: "Team",
   list: {
     columns: [
       {
         componentConfig: {
-          component: C.BasicCell,
+          component: C.Link,
           viewBuilder: V.buildUserFullName,
-        } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerUser>,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerUser>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.FULL_NAME,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.FULL_NAME,
         width: { max: "1fr", min: "160px" },

@@ -24,3 +24,15 @@ export const BREADCRUMB_SOURCE_STUDY: Breadcrumb = {
   route: ROUTE.SOURCE_STUDY,
   text: "Source Study",
 };
+
+export const BREADCRUMB_USER: Breadcrumb = {
+  path: ROUTE.USER,
+  route: ROUTE.USER,
+  text: "User",
+};
+
+export const BREADCRUMB_USERS: Breadcrumb = {
+  path: ROUTE.USERS,
+  route: ROUTE.USERS,
+  text: "Team",
+};

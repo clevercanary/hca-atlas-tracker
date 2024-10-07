@@ -3,6 +3,7 @@ import {
   ComponentAtlasId,
   SourceDatasetId,
   SourceStudyId,
+  UserId,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 
 export enum FETCH_STATUS {
@@ -25,4 +26,5 @@ export interface PathParameter {
   componentAtlasId?: ComponentAtlasId;
   sourceDatasetId?: SourceDatasetId;
   sourceStudyId?: SourceStudyId;
+  userId?: UserId;
 }

@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { testApiRole } from "testing/utils";
 import {
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerUser,
@@ -18,6 +17,7 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
+import { expectDbUserToMatchInputData, testApiRole } from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -122,19 +122,15 @@ describe(TEST_ROUTE, () => {
     expect(newUser.roleAssociatedResourceIds).toEqual(
       NEW_USER_DATA.roleAssociatedResourceIds
     );
+
     const newUserFromDb = (
       await query<HCAAtlasTrackerDBUser>(
         "SELECT * FROM hat.users WHERE email=$1",
         [USER_NEW.email]
       )
     ).rows[0];
-    expect(newUserFromDb.disabled).toEqual(NEW_USER_DATA.disabled);
-    expect(newUserFromDb.email).toEqual(NEW_USER_DATA.email);
-    expect(newUserFromDb.full_name).toEqual(NEW_USER_DATA.fullName);
-    expect(newUserFromDb.role).toEqual(NEW_USER_DATA.role);
-    expect(newUserFromDb.role_associated_resource_ids).toEqual(
-      NEW_USER_DATA.roleAssociatedResourceIds
-    );
+
+    await expectDbUserToMatchInputData(newUserFromDb, NEW_USER_DATA);
   });
 });
 

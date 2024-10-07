@@ -1,4 +1,7 @@
-import { NewUserData } from "app/apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  NewUserData,
+  UserEditData,
+} from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBUserWithAssociatedResources,
@@ -62,6 +65,35 @@ export async function getUserByEmail(
 }
 
 /**
+ * Get a user by ID.
+ * @param id - ID of user to get.
+ * @returns user.
+ */
+export async function getUserById(
+  id: number
+): Promise<HCAAtlasTrackerDBUserWithAssociatedResources> {
+  const queryResult = await query<HCAAtlasTrackerDBUserWithAssociatedResources>(
+    `
+      SELECT
+        u.*,
+        (
+          CASE WHEN cardinality(u.role_associated_resource_ids) = 0 THEN '{}'::text[]
+          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version'))
+          END
+        ) AS role_associated_resource_names
+      FROM hat.users u
+      LEFT JOIN hat.atlases a ON a.id=ANY(u.role_associated_resource_ids)
+      WHERE u.id=$1
+      GROUP BY u.id
+    `,
+    [id]
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`User with ID ${id} doesn't exist`);
+  return queryResult.rows[0];
+}
+
+/**
  * Create a user.
  * @param inputData - Values used to create the new user.
  * @returns new user.
@@ -69,8 +101,8 @@ export async function getUserByEmail(
 export async function createUser(
   inputData: NewUserData
 ): Promise<HCAAtlasTrackerDBUserWithAssociatedResources> {
-  await query<HCAAtlasTrackerDBUser>(
-    "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
+  const queryResult = await query<Pick<HCAAtlasTrackerDBUser, "id">>(
+    "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5) RETURNING id",
     [
       inputData.disabled.toString(),
       inputData.email,
@@ -79,7 +111,33 @@ export async function createUser(
       inputData.roleAssociatedResourceIds,
     ]
   );
-  return await getUserByEmail(inputData.email);
+  return await getUserById(queryResult.rows[0].id);
+}
+
+/**
+ * Update a user.
+ * @param id - ID of the user to update.
+ * @param inputData - Values used to update a user.
+ * @returns updated user.
+ */
+export async function updateUser(
+  id: number,
+  inputData: UserEditData
+): Promise<HCAAtlasTrackerDBUserWithAssociatedResources> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBUser, "id">>(
+    "UPDATE hat.users SET disabled=$1, email=$2, full_name=$3, role=$4, role_associated_resource_ids=$5 WHERE id=$6 RETURNING id",
+    [
+      inputData.disabled.toString(),
+      inputData.email,
+      inputData.fullName,
+      inputData.role,
+      inputData.roleAssociatedResourceIds,
+      id,
+    ]
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`User with ID ${id} doesn't exist`);
+  return await getUserById(queryResult.rows[0].id);
 }
 
 /**

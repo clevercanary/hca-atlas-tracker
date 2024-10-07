@@ -339,6 +339,13 @@ export const newUserSchema = object({
 
 export type NewUserData = InferType<typeof newUserSchema>;
 
+/**
+ * Schema for data used to edit a user.
+ */
+export const userEditSchema = newUserSchema;
+
+export type UserEditData = InferType<typeof userEditSchema>;
+
 export const taskCompletionDatesSchema = object({
   targetCompletion: string().datetime().required().nullable(),
   taskIds: array(string().uuid().required()).required().min(1),
