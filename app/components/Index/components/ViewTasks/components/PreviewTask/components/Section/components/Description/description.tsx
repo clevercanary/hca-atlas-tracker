@@ -2,7 +2,10 @@ import { Section } from "@databiosphere/findable-ui/lib/components/Table/compone
 import { TEXT_BODY_400_2_LINES } from "@databiosphere/findable-ui/lib/theme/common/typography";
 import { Typography } from "@mui/material";
 import { Fragment } from "react";
-import { SYSTEM_DISPLAY_NAMES } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES,
+  SYSTEM_DISPLAY_NAMES,
+} from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { HCAAtlasTrackerListValidationRecord } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
 interface DescriptionProps {
@@ -10,24 +13,11 @@ interface DescriptionProps {
 }
 
 export const Description = ({ task }: DescriptionProps): JSX.Element | null => {
-  const { differences } = task;
   return (
     <Section title="Description">
       <Typography variant={TEXT_BODY_400_2_LINES}>
         <p>{getTaskDescription(task)}</p>
-        {differences.map(({ actual, expected, variable }, i) =>
-          Array.isArray(expected) && typeof actual !== "string" ? (
-            <p key={`${variable}${i}`}>
-              Missing {variable}:{" "}
-              {expected.filter((value) => !actual?.includes(value)).join(", ")}
-            </p>
-          ) : (
-            <Fragment key={`${variable}${i}`}>
-              <p>Expected: {expected}</p>
-              <p>Actual: {actual}</p>
-            </Fragment>
-          )
-        )}
+        {getTaskDifferences(task)}
       </Typography>
     </Section>
   );
@@ -43,4 +33,72 @@ function getTaskDescription(task: HCAAtlasTrackerListValidationRecord): string {
   return `${description.trim().slice(0, -1)} in ${
     SYSTEM_DISPLAY_NAMES[system]
   }.`;
+}
+
+/**
+ * Returns the task differences.
+ * @param task - Task.
+ * @returns task differences.
+ */
+function getTaskDifferences(
+  task: HCAAtlasTrackerListValidationRecord
+): JSX.Element {
+  return (
+    <>
+      {task.differences.map(({ actual, expected, variable }, i) => {
+        if (Array.isArray(expected) && typeof actual !== "string") {
+          const caseSensitive =
+            !CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES.has(variable);
+          const missing = getUnsharedValues(
+            expected,
+            actual,
+            caseSensitive
+          ).join(", ");
+          const extra =
+            actual &&
+            getUnsharedValues(actual, expected, caseSensitive).join(", ");
+          return (
+            <Fragment key={`${variable}${i}`}>
+              {missing && (
+                <p>
+                  Missing {variable}: {missing}
+                </p>
+              )}
+              {extra && (
+                <p>
+                  Extra {variable}: {extra}
+                </p>
+              )}
+            </Fragment>
+          );
+        } else {
+          return (
+            <Fragment key={`${variable}${i}`}>
+              <p>Expected: {expected}</p>
+              <p>Actual: {actual}</p>
+            </Fragment>
+          );
+        }
+      })}
+    </>
+  );
+}
+
+/**
+ * Get array of strings present in one array but not another.
+ * @param fromArray - Array to get strings from.
+ * @param byArray - Array to check for strings in.
+ * @param caseSensitive - Whether to check case-sensitively.
+ * @returns strings from `fromArray` that aren't shared by `byArray`.
+ */
+function getUnsharedValues(
+  fromArray: string[],
+  byArray: string[] | null,
+  caseSensitive = true
+): string[] {
+  if (!byArray) return fromArray;
+  if (!caseSensitive) byArray = byArray.map((value) => value.toLowerCase());
+  return fromArray.filter(
+    (value) => !byArray?.includes(caseSensitive ? value : value.toLowerCase())
+  );
 }

@@ -5,6 +5,7 @@ import {
   SYSTEM,
   TASK_STATUS,
   VALIDATION_STATUS,
+  VALIDATION_VARIABLE,
 } from "./entities";
 
 export const WAVES = ["1", "2", "3"] as const;
@@ -169,6 +170,10 @@ export const VALIDATION_STATUS_BY_TASK_STATUS: Record<
   [TASK_STATUS.IN_PROGRESS]: VALIDATION_STATUS.FAILED,
   [TASK_STATUS.TODO]: VALIDATION_STATUS.FAILED,
 };
+
+export const CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES = new Set([
+  VALIDATION_VARIABLE.NETWORKS,
+]);
 
 export const UNPUBLISHED = "Unpublished";
 

@@ -92,7 +92,7 @@ const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
   {
     differences: [
       {
-        actual: ["organoid"],
+        actual: ["Organoid"],
         expected: ["heart", "organoid"],
         variable: VALIDATION_VARIABLE.NETWORKS,
       },
@@ -200,10 +200,17 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH: ExpectedValidationPropert
       validationType: VALIDATION_TYPE.INGEST,
     },
     {
+      differences: [
+        {
+          actual: ["Organoid", "Heart"],
+          expected: ["organoid"],
+          variable: VALIDATION_VARIABLE.NETWORKS,
+        },
+      ],
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validationId:
         VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
-      validationStatus: VALIDATION_STATUS.PASSED,
+      validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
   ];

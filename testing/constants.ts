@@ -379,7 +379,7 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
       },
       { shortName: "test-with-il", version: "v2.0" },
     ],
-    ["organoid"]
+    ["Organoid"]
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
@@ -401,7 +401,7 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH =
         version: "v5.4",
       },
     ],
-    ["organoid"]
+    ["Organoid", "Heart"]
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
@@ -416,7 +416,7 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
         version: "v5.4",
       },
     ],
-    ["organoid"]
+    ["Organoid"]
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UNCHANGING_IDS =
