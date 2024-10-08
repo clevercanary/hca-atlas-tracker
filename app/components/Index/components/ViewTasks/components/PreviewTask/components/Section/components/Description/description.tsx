@@ -35,6 +35,11 @@ function getTaskDescription(task: HCAAtlasTrackerListValidationRecord): string {
   }.`;
 }
 
+/**
+ * Returns the task differences.
+ * @param task - Task.
+ * @returns task differences.
+ */
 function getTaskDifferences(
   task: HCAAtlasTrackerListValidationRecord
 ): JSX.Element {
@@ -79,6 +84,13 @@ function getTaskDifferences(
   );
 }
 
+/**
+ * Get array of strings present in one array but not another.
+ * @param fromArray - Array to get strings from.
+ * @param byArray - Array to check for strings in.
+ * @param caseSensitive - Whether to check case-sensitively.
+ * @returns strings from `fromArray` that aren't shared by `byArray`.
+ */
 function getUnsharedValues(
   fromArray: string[],
   byArray: string[] | null,
