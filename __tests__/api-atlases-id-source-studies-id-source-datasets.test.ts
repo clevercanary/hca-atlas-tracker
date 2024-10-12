@@ -13,6 +13,7 @@ import {
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -59,6 +60,7 @@ describe(TEST_ROUTE, () => {
       )._getStatusCode()
     ).toEqual(401);
   });
+
   it("returns error 403 when source datasets are requested by unregistered user", async () => {
     expect(
       (
@@ -66,6 +68,18 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           USER_UNREGISTERED
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when source datasets are requested by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+          USER_DISABLED_CONTENT_ADMIN
         )
       )._getStatusCode()
     ).toEqual(403);

@@ -106,28 +106,31 @@ export function method(methodName: METHOD): MiddlewareFunction {
 }
 
 /**
- * Middleware function that throws an error for requests from users who aren't registered.
+ * Middleware function that throws an error for requests from users who aren't registered and enabled.
  * @param req - Next API request.
  * @param res - Next API response.
  * @param next - Middleware next function.
  */
 export const registeredUser: MiddlewareFunction = async (req, res, next) => {
-  await getRegisteredUserFromAuthorization(req.headers.authorization);
+  const user = await getRegisteredUserFromAuthorization(
+    req.headers.authorization
+  );
+  if (user.disabled) throw new ForbiddenError();
   next();
 };
 
 /**
- * Creates a middleware function that rejects requests from users who don't have the specified role.
+ * Creates a middleware function that rejects requests from users who aren't enabled with the specified role.
  * @param allowedRoles - Allowed user roles.
- * @returns middleware function restricting requests to users with the specified role.
+ * @returns middleware function restricting requests to enabled users with the specified role.
  */
 export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
   const allowedRolesArray = Array.isArray(allowedRoles)
     ? allowedRoles
     : [allowedRoles];
   return async (req, res, next) => {
-    const role = await getUserRoleFromAuthorization(req.headers.authorization);
-    if (!allowedRolesArray.includes(role)) {
+    const user = await getUserFromAuthorization(req.headers.authorization);
+    if (!user || user.disabled || !allowedRolesArray.includes(user.role)) {
       const userProfile = await getProvidedUserProfile(
         req.headers.authorization
       );

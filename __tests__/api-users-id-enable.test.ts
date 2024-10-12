@@ -8,6 +8,7 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -57,6 +58,14 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doEnableRequest(USER_UNREGISTERED, userDisabledId)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doEnableRequest(USER_DISABLED_CONTENT_ADMIN, userDisabledId)
       )._getStatusCode()
     ).toEqual(403);
   });

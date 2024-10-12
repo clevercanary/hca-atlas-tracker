@@ -23,6 +23,7 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   TEST_SOURCE_STUDIES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_UNREGISTERED,
@@ -101,6 +102,19 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 403 when source dataset is requested by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOOBAZ.id,
+          USER_DISABLED_CONTENT_ADMIN
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns source dataset",
@@ -159,6 +173,21 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_UNREGISTERED,
+          METHOD.POST
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when POST requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST
         )
       )._getStatusCode()
@@ -376,6 +405,21 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_UNREGISTERED,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when DELETE requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOOFOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE
         )
       )._getStatusCode()

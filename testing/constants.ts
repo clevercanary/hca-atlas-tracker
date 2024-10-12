@@ -1515,6 +1515,11 @@ export const USER_CELLXGENE_ADMIN = makeTestUser(
   "test-cellxgene-admin",
   ROLE.CELLXGENE_ADMIN
 );
+export const USER_DISABLED_CONTENT_ADMIN = makeTestUser(
+  "test-disabled-content-admin",
+  ROLE.CONTENT_ADMIN,
+  true
+);
 
 // Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
@@ -1527,6 +1532,7 @@ export const INITIAL_TEST_USERS = [
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_INTEGRATION_LEAD_WITH_NEW_ATLAS,
   USER_CELLXGENE_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
 ];
 
 export const TEST_USERS = [

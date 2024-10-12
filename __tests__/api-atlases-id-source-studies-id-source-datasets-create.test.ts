@@ -19,6 +19,7 @@ import {
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -84,6 +85,19 @@ describe(TEST_ROUTE, () => {
       (
         await doCreateTest(
           USER_UNREGISTERED,
+          ATLAS_WITH_MISC_SOURCE_STUDIES,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS,
+          NEW_SOURCE_DATASET_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_DISABLED_CONTENT_ADMIN,
           ATLAS_WITH_MISC_SOURCE_STUDIES,
           SOURCE_STUDY_WITH_SOURCE_DATASETS,
           NEW_SOURCE_DATASET_DATA

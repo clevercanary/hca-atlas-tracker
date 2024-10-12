@@ -19,6 +19,7 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
@@ -89,6 +90,18 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_UNREGISTERED
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when component atlas is GET requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -167,6 +180,21 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_UNREGISTERED,
+          METHOD.PATCH,
+          COMPONENT_ATLAS_DRAFT_FOO_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when component atlas is PATCH requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.PATCH,
           COMPONENT_ATLAS_DRAFT_FOO_EDIT
         )
@@ -364,6 +392,20 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_UNREGISTERED,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 403 when component atlas is DELETE requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE
         )
       )._getStatusCode()

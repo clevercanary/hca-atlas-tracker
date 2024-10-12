@@ -13,6 +13,7 @@ import {
   INTEGRATION_LEAD_BAZ_BAZ,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
@@ -58,6 +59,14 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 for unregistered user", async () => {
     expect(
       (await doIntegrationLeadsRequest(USER_UNREGISTERED))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doIntegrationLeadsRequest(USER_DISABLED_CONTENT_ADMIN)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

@@ -13,6 +13,7 @@ import {
   SOURCE_STUDY_PUBLISHED_WITH_HCA,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -89,6 +90,19 @@ describe(TEST_ROUTE, () => {
       (
         await doCompletionDatesRequest(
           USER_UNREGISTERED,
+          DATE_VALID,
+          validationIds
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectValidationsToBeUnchanged();
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCompletionDatesRequest(
+          USER_DISABLED_CONTENT_ADMIN,
           DATE_VALID,
           validationIds
         )

@@ -11,6 +11,7 @@ import commentsHandler from "../pages/api/comments";
 import {
   USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -68,6 +69,18 @@ describe("/api/comments", () => {
     expect(
       (
         await doCommentsTest(USER_UNREGISTERED, NEW_COMMENT_FOO_DATA, true)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentsTest(
+          USER_DISABLED_CONTENT_ADMIN,
+          NEW_COMMENT_FOO_DATA,
+          true
+        )
       )._getStatusCode()
     ).toEqual(403);
   });

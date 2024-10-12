@@ -13,6 +13,7 @@ import {
   SOURCE_STUDY_SHARED,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
@@ -51,10 +52,19 @@ describe(TEST_ROUTE, () => {
       401
     );
   });
+
   it("returns error 403 when public atlas studies are requested by unregistered user", async () => {
     expect(
       (
         await doStudiesRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when public atlas studies are requested by disabled user", async () => {
+    expect(
+      (
+        await doStudiesRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -69,6 +79,14 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doStudiesRequest(ATLAS_DRAFT.id, USER_UNREGISTERED)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when draft atlas studies are requested by disabled user", async () => {
+    expect(
+      (
+        await doStudiesRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
       )._getStatusCode()
     ).toEqual(403);
   });

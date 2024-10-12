@@ -14,6 +14,7 @@ import {
   ATLAS_NONEXISTENT,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -76,6 +77,18 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
       (
         await doCreateTest(
           USER_UNREGISTERED,
+          ATLAS_DRAFT,
+          NEW_COMPONENT_ATLAS_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_DISABLED_CONTENT_ADMIN,
           ATLAS_DRAFT,
           NEW_COMPONENT_ATLAS_DATA
         )

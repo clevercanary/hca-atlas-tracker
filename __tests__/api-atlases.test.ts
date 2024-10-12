@@ -8,6 +8,7 @@ import {
   INITIAL_TEST_ATLASES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -44,6 +45,12 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 for unregistered user", async () => {
     expect(
       (await doAtlasesRequest(USER_UNREGISTERED))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (await doAtlasesRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode()
     ).toEqual(403);
   });
 

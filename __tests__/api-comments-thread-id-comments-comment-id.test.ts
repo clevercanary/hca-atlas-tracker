@@ -36,6 +36,7 @@ import {
   THREAD_ID_BY_STAKEHOLDER_FOO,
   USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_STAKEHOLDER2,
@@ -113,6 +114,20 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       (
         await doCommentTest(
           USER_UNREGISTERED,
+          THREAD_ID_BY_STAKEHOLDER,
+          COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
+          METHOD.GET,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("GET returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_DISABLED_CONTENT_ADMIN,
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
           METHOD.GET,
@@ -213,6 +228,22 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       (
         await doCommentTest(
           USER_UNREGISTERED,
+          THREAD_ID_BY_STAKEHOLDER,
+          COMMENT_BY_STAKEHOLDER_ROOT.id,
+          METHOD.PATCH,
+          true,
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
+  });
+
+  it("PATCH returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_DISABLED_CONTENT_ADMIN,
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
@@ -402,6 +433,23 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       (
         await doCommentTest(
           USER_UNREGISTERED,
+          THREAD_ID_BY_STAKEHOLDER2,
+          COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectCommentToBeUnchanged(
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+    );
+  });
+
+  it("DELETE returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentTest(
+          USER_DISABLED_CONTENT_ADMIN,
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,

@@ -13,6 +13,7 @@ import {
   INITIAL_TEST_USERS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_NONEXISTENT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -51,6 +52,12 @@ describe(TEST_ROUTE, () => {
     expect((await doUsersRequest(USER_UNREGISTERED))._getStatusCode()).toEqual(
       403
     );
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (await doUsersRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode()
+    ).toEqual(403);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {

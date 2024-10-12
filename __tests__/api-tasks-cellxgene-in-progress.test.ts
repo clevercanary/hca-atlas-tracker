@@ -25,6 +25,7 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -134,6 +135,14 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCellxGeneInProgressRequest(DOIS, USER_UNREGISTERED)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCellxGeneInProgressRequest(DOIS, USER_DISABLED_CONTENT_ADMIN)
       )._getStatusCode()
     ).toEqual(403);
   });

@@ -46,6 +46,7 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_STAKEHOLDER,
@@ -170,6 +171,18 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 403 when study is requested from public atlas by disabled user", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
+          USER_DISABLED_CONTENT_ADMIN
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
   it("returns error 401 when study is GET requested from draft atlas by logged out user", async () => {
     expect(
       (
@@ -185,6 +198,18 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           SOURCE_STUDY_DRAFT_OK.id,
           USER_UNREGISTERED
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when study is GET requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_STUDY_DRAFT_OK.id,
+          USER_DISABLED_CONTENT_ADMIN
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -268,6 +293,21 @@ describe(TEST_ROUTE, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
+          METHOD.PUT,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 403 when study is PUT requested from public atlas by disabled user", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.PUT,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
         )
@@ -646,6 +686,20 @@ describe(TEST_ROUTE, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 403 when study is DELETE requested from public atlas by disabled user", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_PUBLIC.id,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE
         )
       )._getStatusCode()

@@ -12,6 +12,7 @@ import createHandler from "../pages/api/users/create";
 import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_NEW,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -59,6 +60,14 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 for unregistered user", async () => {
     expect(
       (await doCreateTest(USER_UNREGISTERED, NEW_USER_DATA))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCreateTest(USER_DISABLED_CONTENT_ADMIN, NEW_USER_DATA)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

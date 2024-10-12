@@ -10,6 +10,7 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -47,6 +48,12 @@ describe(TEST_ROUTE, () => {
     expect((await doTasksRequest(USER_UNREGISTERED))._getStatusCode()).toEqual(
       403
     );
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (await doTasksRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode()
+    ).toEqual(403);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {

@@ -13,6 +13,7 @@ import {
   INITIAL_TEST_USERS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_NONEXISTENT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -82,6 +83,14 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 403 when user is GET requested by disabled user", async () => {
+    expect(
+      (
+        await doUserRequest(USER_STAKEHOLDER, USER_DISABLED_CONTENT_ADMIN)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
   it("GET returns error 404 when nonexistent user is requested", async () => {
     expect(
       (
@@ -133,6 +142,20 @@ describe(TEST_ROUTE, () => {
         await doUserRequest(
           USER_STAKEHOLDER,
           USER_UNREGISTERED,
+          false,
+          METHOD.PATCH,
+          USER_STAKEHOLDER_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when user is PATCH requested by disabled user", async () => {
+    expect(
+      (
+        await doUserRequest(
+          USER_STAKEHOLDER,
+          USER_DISABLED_CONTENT_ADMIN,
           false,
           METHOD.PATCH,
           USER_STAKEHOLDER_EDIT
