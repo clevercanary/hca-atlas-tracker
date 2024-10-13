@@ -18,6 +18,7 @@ export default handler(method(METHOD.GET), async (req, res) => {
   if (user) {
     await updateLastLogin(user.id);
     activeUserInfo = {
+      disabled: user.disabled,
       email: user.email,
       fullName: user.full_name,
       role: user.role,
@@ -25,6 +26,7 @@ export default handler(method(METHOD.GET), async (req, res) => {
     };
   } else if (userProfile) {
     activeUserInfo = {
+      disabled: false,
       email: userProfile.email,
       fullName: userProfile.name,
       role: ROLE.UNREGISTERED,

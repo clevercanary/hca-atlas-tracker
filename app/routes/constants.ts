@@ -1,4 +1,5 @@
 export const ROUTE = {
+  ACCOUNT_DISABLED: "/account-disabled",
   ATLAS: "/atlases/[atlasId]",
   ATLASES: "/atlases",
   COMPONENT_ATLAS: "/atlases/[atlasId]/component-atlases/[componentAtlasId]",
