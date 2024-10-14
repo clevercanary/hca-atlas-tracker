@@ -174,6 +174,7 @@ export interface HCAAtlasTrackerComment {
 }
 
 export interface HCAAtlasTrackerActiveUser {
+  disabled: boolean;
   email: string;
   fullName: string;
   role: ROLE;

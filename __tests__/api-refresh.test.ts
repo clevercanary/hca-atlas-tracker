@@ -15,6 +15,7 @@ import {
   TEST_CELLXGENE_COLLECTIONS_A,
   TEST_HCA_CATALOGS,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
@@ -98,6 +99,14 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 403 when GET requested by disabled user", async () => {
+    expect(
+      (
+        await doRefreshTest(USER_DISABLED_CONTENT_ADMIN, METHOD.GET)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns error 403",
@@ -141,6 +150,14 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 when POST requested by unregistered user", async () => {
     expect(
       (await doRefreshTest(USER_UNREGISTERED, METHOD.POST))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when POST requested by disabled user", async () => {
+    expect(
+      (
+        await doRefreshTest(USER_DISABLED_CONTENT_ADMIN, METHOD.POST)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

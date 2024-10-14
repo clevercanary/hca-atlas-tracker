@@ -55,6 +55,7 @@ describe(TEST_ROUTE, () => {
     const res = await doMeRequest(USER_UNREGISTERED);
     expect(res.statusCode).toEqual(200);
     const user: HCAAtlasTrackerActiveUser = res._getJSONData();
+    expect(user.disabled).toEqual(false);
     expect(user.email).toEqual(USER_UNREGISTERED.email);
     expect(user.fullName).toEqual(USER_UNREGISTERED.name);
     expect(user.role).toEqual(ROLE.UNREGISTERED);
@@ -116,6 +117,7 @@ function expectActiveUserToMatchTest(
   activeUser: HCAAtlasTrackerActiveUser,
   testUser: TestUser
 ): void {
+  expect(activeUser.disabled).toEqual(testUser.disabled);
   expect(activeUser.email).toEqual(testUser.email);
   expect(activeUser.fullName).toEqual(testUser.name);
   expect(activeUser.role).toEqual(testUser.role);

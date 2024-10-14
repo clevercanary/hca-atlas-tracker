@@ -24,6 +24,7 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_STAKEHOLDER,
@@ -99,6 +100,19 @@ describe(TEST_ROUTE, () => {
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           SOURCE_DATASET_FOO.id,
           USER_UNREGISTERED
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when source dataset is GET requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+          SOURCE_DATASET_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -209,6 +223,22 @@ describe(TEST_ROUTE, () => {
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           SOURCE_DATASET_FOO.id,
           USER_STAKEHOLDER,
+          METHOD.PATCH,
+          SOURCE_DATASET_FOO_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+  });
+
+  it("returns error 403 when source dataset is PATCH requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+          SOURCE_DATASET_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.PATCH,
           SOURCE_DATASET_FOO_EDIT
         )
@@ -408,6 +438,21 @@ describe(TEST_ROUTE, () => {
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           SOURCE_DATASET_FOO.id,
           USER_STAKEHOLDER,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+  });
+
+  it("returns error 403 when source dataset is DELETE requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+          SOURCE_DATASET_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE
         )
       )._getStatusCode()

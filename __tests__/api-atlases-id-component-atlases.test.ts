@@ -10,6 +10,7 @@ import {
   COMPONENT_ATLAS_DRAFT_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -45,10 +46,22 @@ describe(TEST_ROUTE, () => {
       (await doComponentAtlasesRequest(ATLAS_DRAFT.id))._getStatusCode()
     ).toEqual(401);
   });
+
   it("returns error 403 when draft atlas component atlases are requested by unregistered user", async () => {
     expect(
       (
         await doComponentAtlasesRequest(ATLAS_DRAFT.id, USER_UNREGISTERED)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when draft atlas component atlases are requested by disabled user", async () => {
+    expect(
+      (
+        await doComponentAtlasesRequest(
+          ATLAS_DRAFT.id,
+          USER_DISABLED_CONTENT_ADMIN
+        )
       )._getStatusCode()
     ).toEqual(403);
   });

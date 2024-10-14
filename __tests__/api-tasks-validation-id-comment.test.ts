@@ -16,6 +16,7 @@ import {
   THREAD_ID_BY_STAKEHOLDER,
   USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -117,6 +118,21 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithoutCommentA.id,
           USER_UNREGISTERED,
+          METHOD.POST,
+          NEW_COMMENT_FOO_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
+  });
+
+  it("POST returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentRequest(
+          validationWithoutCommentA.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST,
           NEW_COMMENT_FOO_DATA,
           true
@@ -241,6 +257,19 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_UNREGISTERED,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
+  });
+
+  it("DELETE returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentRequest(
+          validationWithComment.id,
+          USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE
         )
       )._getStatusCode()

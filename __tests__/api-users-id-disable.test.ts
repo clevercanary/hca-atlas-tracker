@@ -7,6 +7,7 @@ import disableHandler from "../pages/api/users/[id]/disable";
 import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
@@ -59,6 +60,14 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doDisableRequest(USER_UNREGISTERED, userStakeholderId)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doDisableRequest(USER_DISABLED_CONTENT_ADMIN, userStakeholderId)
       )._getStatusCode()
     ).toEqual(403);
   });

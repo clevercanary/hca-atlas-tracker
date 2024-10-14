@@ -17,6 +17,7 @@ import {
   THREAD_ID_BY_STAKEHOLDER_FOO,
   USER_CELLXGENE_ADMIN,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
@@ -92,6 +93,19 @@ describe("/api/comments/[threadId]/comments", () => {
       (
         await doCommentsTest(
           USER_UNREGISTERED,
+          THREAD_ID_BY_STAKEHOLDER,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("GET returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentsTest(
+          USER_DISABLED_CONTENT_ADMIN,
           THREAD_ID_BY_STAKEHOLDER,
           undefined,
           true
@@ -184,6 +198,20 @@ describe("/api/comments/[threadId]/comments", () => {
       (
         await doCommentsTest(
           USER_UNREGISTERED,
+          THREAD_ID_BY_STAKEHOLDER,
+          NEW_COMMENT_FOO_DATA,
+          true,
+          METHOD.POST
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("POST returns error 403 for disabled user", async () => {
+    expect(
+      (
+        await doCommentsTest(
+          USER_DISABLED_CONTENT_ADMIN,
           THREAD_ID_BY_STAKEHOLDER,
           NEW_COMMENT_FOO_DATA,
           true,

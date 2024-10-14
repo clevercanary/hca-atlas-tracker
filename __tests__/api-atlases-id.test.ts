@@ -20,6 +20,7 @@ import {
   PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -144,6 +145,14 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 403 when public atlas is GET requested by disabled user", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
   it("returns error 401 when draft atlas is GET requested by logged out user", async () => {
     expect((await doAtlasRequest(ATLAS_DRAFT.id))._getStatusCode()).toEqual(
       401
@@ -153,6 +162,14 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 when draft atlas is GET requested by unregistered user", async () => {
     expect(
       (await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED))._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when draft atlas is GET requested by disabled user", async () => {
+    expect(
+      (
+        await doAtlasRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
+      )._getStatusCode()
     ).toEqual(403);
   });
 
@@ -228,6 +245,20 @@ describe(TEST_ROUTE, () => {
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
           USER_UNREGISTERED,
+          false,
+          METHOD.PUT,
+          ATLAS_PUBLIC_EDIT
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when public atlas is PUT requested by disabled user", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_DISABLED_CONTENT_ADMIN,
           false,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT

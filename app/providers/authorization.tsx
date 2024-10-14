@@ -23,14 +23,16 @@ interface Props {
 export function AuthorizationProvider({ children }: Props): JSX.Element {
   const { isAuthenticated } = useAuthentication();
   const user = useFetchActiveUser();
-  const { role } = user || {};
-  const isAuthorized = isUserAuthorized(role);
+  const { disabled, role } = user || {};
+  const isAuthorized = isUserAuthorized(role, disabled);
 
   useEffect(() => {
     if (role === ROLE.UNREGISTERED) {
       location.href = ROUTE.REGISTRATION_REQUIRED;
+    } else if (disabled) {
+      location.href = ROUTE.ACCOUNT_DISABLED;
     }
-  }, [role]);
+  }, [role, disabled]);
 
   return (
     <AuthorizationContext.Provider value={{ user }}>
@@ -46,10 +48,11 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
 /**
  * Returns true if the user is authorized.
  * @param role - User's role.
+ * @param disabled - Whether the user's account is disabled.
  * @returns true if the user is authorized.
  */
-function isUserAuthorized(role?: ROLE): boolean {
-  if (!role) return false;
+function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
+  if (!role || disabled) return false;
   return role !== ROLE.UNREGISTERED;
 }
 
