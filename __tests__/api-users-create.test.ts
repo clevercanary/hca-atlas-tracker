@@ -18,7 +18,11 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
-import { expectDbUserToMatchInputData, testApiRole } from "../testing/utils";
+import {
+  expectDbUserToMatchInputData,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -47,7 +51,9 @@ afterAll(async () => {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for non-POST request", async () => {
     expect(
-      (await doCreateTest(undefined, NEW_USER_DATA, "GET"))._getStatusCode()
+      (
+        await doCreateTest(undefined, NEW_USER_DATA, false, METHOD.GET)
+      )._getStatusCode()
     ).toEqual(405);
   });
 
@@ -90,10 +96,31 @@ describe(TEST_ROUTE, () => {
   it("returns error 400 when email value is not an email", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_USER_DATA,
-          email: "notanemail",
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_USER_DATA,
+            email: "notanemail",
+          },
+          true,
+          METHOD.POST
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when email value has trailing whitespace", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_USER_DATA,
+            email: NEW_USER_DATA.email + " ",
+          },
+          true,
+          METHOD.POST
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -101,10 +128,15 @@ describe(TEST_ROUTE, () => {
   it("returns error 400 when role is undefined", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_USER_DATA,
-          role: undefined,
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_USER_DATA,
+            role: undefined,
+          },
+          true,
+          METHOD.POST
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -112,10 +144,15 @@ describe(TEST_ROUTE, () => {
   it("returns error 400 when role is not an actual role", async () => {
     expect(
       (
-        await doCreateTest(USER_CONTENT_ADMIN, {
-          ...NEW_USER_DATA,
-          role: "notarole",
-        })
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_USER_DATA,
+            role: "notarole",
+          },
+          true,
+          METHOD.POST
+        )
       )._getStatusCode()
     ).toEqual(400);
   });
@@ -146,6 +183,7 @@ describe(TEST_ROUTE, () => {
 async function doCreateTest(
   user: TestUser | undefined,
   newData: Record<string, unknown>,
+  hideConsoleError = false,
   method: "GET" | "POST" = "POST"
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
@@ -153,6 +191,6 @@ async function doCreateTest(
     headers: { authorization: user?.authorization },
     method,
   });
-  await createHandler(req, res);
+  await withConsoleErrorHiding(() => createHandler(req, res), hideConsoleError);
   return res;
 }

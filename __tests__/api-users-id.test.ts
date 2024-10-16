@@ -211,6 +211,23 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when email value has trailing whitespace", async () => {
+    expect(
+      (
+        await doUserRequest(
+          USER_STAKEHOLDER,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PATCH,
+          {
+            ...USER_STAKEHOLDER_EDIT,
+            email: USER_STAKEHOLDER_EDIT.email + " ",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("returns error 400 when role is undefined", async () => {
     expect(
       (
