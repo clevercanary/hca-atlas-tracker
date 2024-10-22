@@ -68,18 +68,6 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
               label: "Help & Documentation",
               menuItems: [
                 {
-                  label: "Overview",
-                  url: ROUTE.OVERVIEW,
-                },
-                {
-                  label: "Validations and Tasks",
-                  url: ROUTE.VALIDATIONS_AND_TASKS,
-                },
-                {
-                  label: "Roadmap",
-                  url: ROUTE.ROADMAP,
-                },
-                {
                   label: "Requesting Access",
                   url: ROUTE.REQUESTING_ACCESS,
                 },
