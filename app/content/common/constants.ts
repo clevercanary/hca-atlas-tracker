@@ -3,6 +3,7 @@ import {
   PANEL_BACKGROUND_COLOR,
 } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/common/entities";
 import { Breadcrumbs } from "../../components/common/Content/components/Breadcrumbs/breadcrumbs.styles";
+import { Figure } from "../../components/common/Figure/figure";
 import { Link } from "../../components/Layout/components/Content/components/Link/link";
 import { ROUTE } from "../../routes/constants";
 
@@ -16,6 +17,7 @@ export const LAYOUT_STYLE_NO_CONTRAST_DEFAULT: LayoutStyle = {
 
 export const MDX_COMPONENTS = {
   Breadcrumbs,
+  Figure,
   a: Link,
 };
 

@@ -68,20 +68,12 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
               label: "Help & Documentation",
               menuItems: [
                 {
-                  label: "Overview",
-                  url: ROUTE.OVERVIEW,
-                },
-                {
-                  label: "Validations and Tasks",
-                  url: ROUTE.VALIDATIONS_AND_TASKS,
-                },
-                {
-                  label: "Roadmap",
-                  url: ROUTE.ROADMAP,
-                },
-                {
                   label: "Requesting Access",
                   url: ROUTE.REQUESTING_ACCESS,
+                },
+                {
+                  label: "Validating an Atlas's Source Study List",
+                  url: ROUTE.VALIDATING_ATLAS_SOURCE_STUDY_LIST,
                 },
                 {
                   label: C.LabelIconMenuItem({ label: "Privacy" }),

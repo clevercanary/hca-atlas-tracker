@@ -6,13 +6,16 @@ import { Content } from "../../app/components/Layout/components/Content/content"
 import { MDX_COMPONENTS } from "../../app/content/common/constants";
 import { getContentStaticProps } from "../../app/content/common/contentPages";
 
-const slug = ["validations-and-tasks"];
+const slug = ["validating-atlas-source-study-list"];
 
 export const getStaticProps: GetStaticProps = async () => {
-  return getContentStaticProps({ params: { slug } }, "Validations and Tasks");
+  return getContentStaticProps(
+    { params: { slug } },
+    "Validating an Atlas's Source Study List"
+  );
 };
 
-const ValidationsAndTasksPage = ({
+const ValidatingAtlasSourceStudyListPage = ({
   layoutStyle,
   mdxSource,
 }: InferGetStaticPropsType<typeof getStaticProps>): JSX.Element => {
@@ -28,6 +31,6 @@ const ValidationsAndTasksPage = ({
   );
 };
 
-ValidationsAndTasksPage.Main = Main;
+ValidatingAtlasSourceStudyListPage.Main = Main;
 
-export default ValidationsAndTasksPage;
+export default ValidatingAtlasSourceStudyListPage;

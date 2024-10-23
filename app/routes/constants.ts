@@ -9,16 +9,14 @@ export const ROUTE = {
   CREATE_SOURCE_STUDY: "/atlases/[atlasId]/source-studies/create",
   CREATE_USER: "/team/create",
   LOGIN: "/login",
-  OVERVIEW: "/overview",
   REGISTRATION_REQUIRED: "/registration-required",
   REPORTS: "/reports",
   REQUESTING_ACCESS: "/requesting-access",
-  ROADMAP: "/roadmap",
   SOURCE_DATASETS:
     "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   SOURCE_STUDIES: "/atlases/[atlasId]/source-studies",
   SOURCE_STUDY: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
   USER: "/team/[userId]",
   USERS: "/team",
-  VALIDATIONS_AND_TASKS: "/validations-and-tasks",
+  VALIDATING_ATLAS_SOURCE_STUDY_LIST: "/validating-atlas-source-study-list",
 } as const;
