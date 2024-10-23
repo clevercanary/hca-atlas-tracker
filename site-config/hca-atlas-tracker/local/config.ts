@@ -72,6 +72,10 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
                   url: ROUTE.REQUESTING_ACCESS,
                 },
                 {
+                  label: "Validating an Atlas's Source Study List",
+                  url: ROUTE.VALIDATING_ATLAS_SOURCE_STUDY_LIST,
+                },
+                {
                   label: C.LabelIconMenuItem({ label: "Privacy" }),
                   target: ANCHOR_TARGET.BLANK,
                   url: `${portalUrl}/privacy`,

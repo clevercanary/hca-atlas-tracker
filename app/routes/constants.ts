@@ -18,4 +18,5 @@ export const ROUTE = {
   SOURCE_STUDY: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
   USER: "/team/[userId]",
   USERS: "/team",
+  VALIDATING_ATLAS_SOURCE_STUDY_LIST: "/validating-atlas-source-study-list",
 } as const;

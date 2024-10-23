@@ -1,0 +1,117 @@
+# Validating an Atlas’s Source Study List
+
+## Overview
+
+One key goal of the Atlas Tracker is to provide a single source of truth for all source studies and datasets used in a given Atlas version.
+
+_The initial list of source studies from the Atlas spreadsheets has been entered into the tracker. However, as these lists drift over time and to validate the lists, we are asking the integration leads for each atlas to validate the list of source studies in the tracker._
+
+This document provides instructions on how integration leads can use the tracker to validate their atlas’s source study list and how to add, update, or remove source studies as required.
+
+To review/validate a source study list:
+
+1. Access the tracker at [https://tracker.data.humancellatlas.org](https://tracker.data.humancellatlas.org).
+
+2. Find your atlas in the tracker.
+
+3. View the atlas’s source study list.
+
+4. Add/remove source studies as appropriate.
+
+5. Update any source studies from unpublished to preprint or published.
+
+6. Add author contact info for unpublished source studies.
+
+7. Communicate that the source study list has been reviewed to the HCA Office team.
+
+## Finding your Atlas in the Tracker
+
+<Figure src="/docs/validating-source-studies/atlas-list.png" />
+
+1. When logging into the tracker, you will be taken to the “Atlases” page.
+
+2. Select “Atlases” in the header if you are not on the “Atlases” page.
+
+3. The search box lets you search for metadata values to filter on to restrict the atlas list.
+
+4. Select the atlas in the “Atlas” column, e.g., “Lung v1.0,” to see the Atlas detail page.
+
+5. To proceed directly to the atlas’s source study list, select the count in the “Source Studies” column.
+
+## Viewing an Atlas’s Source Study List
+
+1. Once you select an atlas or the atlas’s source study, you will be shown the overview page.
+
+<Figure src="/docs/validating-source-studies/atlas-overview.png" />
+
+2. To view the atlas’s source studies, select the “Source Studies” tab.
+
+<Figure src="/docs/validating-source-studies/source-studies-tab.png" />
+
+- The “Source Studies” tab displays the number of source studies, which is 30 in this case.
+
+- Selecting the source study title takes you to the source studies detail page.
+
+- Selecting the “Publication" link takes you to the journal article or preprint for the source study. The publication is unselectable if the source study does not have a DOI.
+
+- The indicators in the CELLxGENE, CAP, and HCA Data Repository columns indicate if that application has ingested the source study and it is publicly available.
+
+- The source dataset count is also listed. Selecting the count lets you view the list of datasets as imported from CELLxGENE.
+
+## Add a Source Study
+
+To add a source study, select the “Add Source Study” button at the top right of the atlas’s studies list.
+
+<Figure src="/docs/validating-source-studies/add-source-study-button.png" />
+
+### Journal Articles / Preprints (DOI Case)
+
+Condition: You have a DOI for the study.
+
+<Figure src="/docs/validating-source-studies/add-source-study-form-published.png" />
+
+1. Upon selecting the ”Add Source Study” button, the system shows an “Add Source Study” form.
+
+2. If the study has a DOI, enter the DOI and press submit.
+
+3. The system will validate that:
+
+   1. the DOI is well-formed,
+
+   2. the DOI is not already in the atlas,
+
+   3. the DOI exists in CrossRef.
+
+4. The system loads information about the source study from Crossref, such as the title, authors, journal, publication date, etc.
+
+5. The system also checks CELLxGENE and the HCA Repository to see if a study with a matching DOI has been ingested.
+
+### Unpublished Study (No DOI)
+
+Condition: No DOI exists for the study.
+
+<Figure src="/docs/validating-source-studies/add-source-study-form-unpublished.png" />
+
+1. If the study does not have a DOI, enter the study's author, author's email, and working title.
+
+2. When the study is published, switch to the “Publihed / Print” tab and enter the DOI.
+
+## View/Edit a Source Study with No DOI
+
+<Figure src="/docs/validating-source-studies/edit-source-study-form-unpublished.png" />
+
+1. From the source study list, select a title to view the source study details.
+
+2. Edit the form data as appropriate, or switch to the “Published/Preprint” tab and enter the DOI.
+
+## Deleting a Source Study
+
+<Figure src="/docs/validating-source-studies/delete-source-study-button.png" />
+
+1. On the source study detail page, under the three vertical dots, there is a “Delete” button. Selecting the button dissociates the source study from the atlas.
+
+2. If a study is used in multiple atlases, it is deleted only from the current atlas. If no other atlases are used in this study, it is deleted from the tracker.
+
+## Communicating that a source study list has been reviewed
+
+Once the source study has been reviewed and any source studies have been added, deleted, or modified, notify [Ellen Todres](mailto:etodres@humancellatlas.org) and [Lucia Robson](mailto:lrobson@humancellatlas.org) and copy [David Rogers](mailto:dave@clevercanary.com) via email.
