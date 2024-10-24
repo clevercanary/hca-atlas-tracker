@@ -1,10 +1,10 @@
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
+import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { createContext, ReactNode, useEffect } from "react";
 import {
   HCAAtlasTrackerActiveUser,
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { useAuthentication } from "../hooks/useAuthentication/useAuthentication";
 import { useFetchActiveUser } from "../hooks/useFetchActiveUser";
 import { ROUTE } from "../routes/constants";
 
@@ -21,10 +21,13 @@ interface Props {
 }
 
 export function AuthorizationProvider({ children }: Props): JSX.Element {
-  const { isAuthenticated } = useAuthentication();
+  const {
+    authState: { isAuthenticated },
+  } = useAuth();
   const user = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);
+  const isLoading = false; // TODO(fran).
 
   useEffect(() => {
     if (disabled) {
@@ -34,7 +37,7 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
 
   return (
     <AuthorizationContext.Provider value={{ user }}>
-      {shouldRenderComponents(isAuthenticated, isAuthorized) ? (
+      {shouldRenderComponents(isLoading, isAuthenticated, isAuthorized) ? (
         children
       ) : (
         <DXMain>{null}</DXMain>
@@ -58,13 +61,16 @@ function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
  * Returns true if components should be rendered:
  * - When user is not authenticated.
  * - When user is authenticated and authorized.
+ * @param isLoading - Loading next-auth session status.
  * @param isAuthenticated - User's authentication status.
  * @param isAuthorized - User's authorization status.
  * @returns true if the components should be rendered.
  */
 function shouldRenderComponents(
+  isLoading: boolean,
   isAuthenticated: boolean,
   isAuthorized: boolean
 ): boolean {
+  if (isLoading) return false;
   return !isAuthenticated || isAuthorized;
 }
