@@ -1,8 +1,8 @@
+import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import Router from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { FieldValues } from "react-hook-form";
 import { RouteValue } from "../../routes/entities";
-import { useAuthentication } from "../useAuthentication/useAuthentication";
 import { useAuthorization } from "../useAuthorization";
 import { FormMethod, YupValidatedFormValues } from "../useForm/common/entities";
 import { useUserHasEditAuthorization } from "../useUserHasEditAuthorization/useUserHasEditAuthorization";
@@ -34,7 +34,9 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
   } = {},
   isDirty = formMethod?.formState.isDirty ?? false
 ): UseFormManager => {
-  const { isAuthenticated } = useAuthentication();
+  const {
+    authState: { isAuthenticated },
+  } = useAuth();
   const { user } = useAuthorization();
   const { canEdit } = useUserHasEditAuthorization();
   const [pathRoute, setPathRoute] =
