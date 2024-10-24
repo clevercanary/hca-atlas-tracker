@@ -8,7 +8,7 @@ import { Floating } from "@databiosphere/findable-ui/lib/components/Layout/compo
 import { Footer } from "@databiosphere/findable-ui/lib/components/Layout/components/Footer/footer";
 import { Header as DXHeader } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
-import { NextAuthProvider } from "@databiosphere/findable-ui/lib/providers/authentication/auth/nextAuth/provider";
+import { NextAuthProvider } from "@databiosphere/findable-ui/lib/providers/authentication/nextAuth/provider";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
 import { LayoutStateProvider } from "@databiosphere/findable-ui/lib/providers/layoutState";
