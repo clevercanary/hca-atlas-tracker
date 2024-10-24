@@ -1,6 +1,6 @@
 import {
-  StatusBadge,
   STATUS_BADGE_COLOR,
+  StatusBadge,
 } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ATLAS_STATUS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 

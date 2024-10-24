@@ -3,8 +3,8 @@ import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBValidation,
   ROLE,
-  TaskStatusesUpdatedByDOIResult,
   TASK_STATUS,
+  TaskStatusesUpdatedByDOIResult,
   VALIDATION_ID,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";

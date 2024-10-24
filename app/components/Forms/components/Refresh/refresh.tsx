@@ -1,14 +1,14 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { useCallback, useEffect, useState } from "react";
-import { METHOD } from "../../../../../app/common/entities";
-import { fetchResource } from "../../../../../app/common/utils";
-import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
+import { METHOD } from "../../../../common/entities";
+import { fetchResource } from "../../../../common/utils";
+import { FormResponseErrors } from "../../../../hooks/useForm/common/entities";
 import {
-  RefreshServicesStatuses,
-  RefreshStatus,
   REFRESH_ACTIVITY,
   REFRESH_OUTCOME,
-} from "../../../../../app/services/common/entities";
+  RefreshServicesStatuses,
+  RefreshStatus,
+} from "../../../../services/common/entities";
 
 export const RefreshForm = (): JSX.Element => {
   const [statusIsDisabled, setStatusIsDisabled] = useState(false);

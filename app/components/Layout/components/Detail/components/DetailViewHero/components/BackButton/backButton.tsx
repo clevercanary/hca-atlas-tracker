@@ -1,5 +1,5 @@
 import { SouthIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SouthIcon/southIcon";
-import { IconButtonSecondary } from "@databiosphere/findable-ui/lib/components/common/IconButton/iconButton.styles";
+import { IconButton } from "@databiosphere/findable-ui/lib/components/common/IconButton/iconButton";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { HeroActions } from "./backButton.styles";
@@ -12,7 +12,8 @@ export const BackButton = (): JSX.Element => {
   );
   return (
     <HeroActions>
-      <IconButtonSecondary
+      <IconButton
+        color="secondary" // TODO(fran).
         Icon={SouthIcon}
         size="medium"
         onClick={onNavigate}

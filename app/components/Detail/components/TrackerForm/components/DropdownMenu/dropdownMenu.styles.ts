@@ -1,5 +1,5 @@
 import { DropdownMenu as DXDropdownMenu } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/dropdownMenu";
-import { IconButtonSecondary as DXIconButton } from "@databiosphere/findable-ui/lib/components/common/IconButton/iconButton.styles";
+import { IconButton } from "@databiosphere/findable-ui/lib/components/common/IconButton/iconButton";
 import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import styled from "@emotion/styled";
 
@@ -9,7 +9,7 @@ export const DropdownMenu = styled(DXDropdownMenu)`
   }
 `;
 
-export const IconButton = styled(DXIconButton)`
+export const StyledIconButton = styled(IconButton)`
   &.MuiIconButton-root {
     .MuiSvgIcon-root {
       color: ${inkLight};

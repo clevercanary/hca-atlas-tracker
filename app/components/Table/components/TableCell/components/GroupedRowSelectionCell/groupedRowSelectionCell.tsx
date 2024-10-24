@@ -2,8 +2,8 @@ import { CheckedIcon } from "@databiosphere/findable-ui/lib/components/common/Cu
 import { IndeterminateIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/IndeterminateIcon/indeterminateIcon";
 import { UncheckedIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/UncheckedIcon/uncheckedIcon";
 import {
-  Checkbox as MCheckbox,
   FormControlLabel as DXFormControlLabel,
+  Checkbox as MCheckbox,
 } from "@mui/material";
 import { Row, RowData, RowSelectionState, Table } from "@tanstack/react-table";
 import { ChangeEvent, ReactNode, useCallback } from "react";

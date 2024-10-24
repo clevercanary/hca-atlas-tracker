@@ -21,13 +21,13 @@ import {
   HCAAtlasTrackerValidationResult,
   PublicationInfo,
   SYSTEM,
-  TaskStatusesUpdatedByDOIResult,
   TASK_STATUS,
-  ValidationDifference,
+  TaskStatusesUpdatedByDOIResult,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
   VALIDATION_VARIABLE,
+  ValidationDifference,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { getDbEntityCitation } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { ForbiddenError, NotFoundError } from "../utils/api-handler";

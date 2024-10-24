@@ -5,7 +5,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   DropdownMenu as MoreDropdownMenu,
-  IconButton,
+  StyledIconButton,
 } from "./dropdownMenu.styles";
 
 export interface DropdownMenuProps {
@@ -39,5 +39,12 @@ export const DropdownMenu = ({
  * @returns button element.
  */
 function renderButton(props: DropdownMenuIconButtonProps): JSX.Element {
-  return <IconButton Icon={MoreVertIcon} size="medium" {...props} />;
+  return (
+    <StyledIconButton
+      color="secondary" // TODO(fran).
+      Icon={MoreVertIcon}
+      size="medium"
+      {...props}
+    />
+  );
 }
