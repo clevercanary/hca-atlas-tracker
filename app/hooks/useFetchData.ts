@@ -1,8 +1,8 @@
 import { useAsync } from "@databiosphere/findable-ui/lib/hooks/useAsync";
+import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { useCallback, useEffect } from "react";
 import { METHOD } from "../common/entities";
 import { fetchResource, isFetchStatusOk } from "../common/utils";
-import { useAuthentication } from "./useAuthentication/useAuthentication";
 
 interface UseFetchData<D> {
   data?: D;
@@ -14,7 +14,9 @@ export const useFetchData = <D>(
   method: METHOD,
   shouldFetch = true
 ): UseFetchData<D> => {
-  const { isAuthenticated } = useAuthentication();
+  const {
+    authState: { isAuthenticated },
+  } = useAuth();
   const { data, isSuccess, run } = useAsync<D>();
 
   const fetchData = useCallback(async (): Promise<D> => {

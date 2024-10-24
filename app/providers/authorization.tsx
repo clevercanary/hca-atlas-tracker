@@ -1,10 +1,10 @@
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
+import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { createContext, ReactNode, useEffect } from "react";
 import {
   HCAAtlasTrackerActiveUser,
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { useAuthentication } from "../hooks/useAuthentication/useAuthentication";
 import { useFetchActiveUser } from "../hooks/useFetchActiveUser";
 import { ROUTE } from "../routes/constants";
 
@@ -21,7 +21,9 @@ interface Props {
 }
 
 export function AuthorizationProvider({ children }: Props): JSX.Element {
-  const { isAuthenticated } = useAuthentication();
+  const {
+    authState: { isAuthenticated },
+  } = useAuth();
   const user = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);

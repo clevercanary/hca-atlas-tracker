@@ -1,17 +1,17 @@
+import { LoginView } from "@databiosphere/findable-ui/lib/views/LoginView/loginView";
 import { GetServerSideProps } from "next";
-import { getProviders } from "next-auth/react";
-import { NextAuthProviders } from "../../app/components/Login/common/entities";
-import { LoginView } from "../../app/views/LoginView/loginView";
+import { ClientSafeProvider, getProviders } from "next-auth/react";
 
 interface LoginPageProps {
-  providers: NextAuthProviders | null;
+  providers: ClientSafeProvider[];
 }
 
 export const getServerSideProps: GetServerSideProps<
   LoginPageProps
 > = async () => {
+  const providers = await getProviders();
   return {
-    props: { pageTitle: "Login", providers: await getProviders() },
+    props: { pageTitle: "Login", providers: Object.values(providers || {}) },
   };
 };
 
