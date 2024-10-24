@@ -1,4 +1,4 @@
-import { GoogleProfile } from "@databiosphere/findable-ui/lib/providers/authentication/auth/googleSignIn/profile/types";
+import { GoogleProfile } from "@databiosphere/findable-ui/lib/providers/authentication/googleSignIn/profile/types";
 import { TEST_USERS } from "testing/constants";
 
 // TODO(cc) - Can we delete this?
