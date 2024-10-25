@@ -61,14 +61,13 @@ export const DESCRIPTION: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 };
 
 export const DOI: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
-  columnVisible: false,
   componentConfig: {
     component: C.Link,
     viewBuilder: V.buildTaskDoi,
   } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListValidationRecord>,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
-  width: { max: "1fr", min: "220px" },
+  width: { max: "1fr", min: "240px" },
 };
 
 export const ENTITY_TITLE: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
