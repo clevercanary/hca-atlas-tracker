@@ -1,7 +1,8 @@
+import { NextAuthOptions } from "next-auth";
 import AzureAdProvider from "next-auth/providers/azure-ad";
 import GoogleProvider from "next-auth/providers/google";
 
-export const nextAuthOptions = {
+export const nextAuthOptions: NextAuthOptions = {
   debug: false,
   pages: {
     signIn: "/login",
