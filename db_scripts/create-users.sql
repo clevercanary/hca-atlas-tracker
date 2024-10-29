@@ -32,6 +32,7 @@ GRANT CONNECT ON DATABASE hcaatlastracker TO hat_app;
 -- Additional: Grant EXECUTE on all current and future functions/procedures in 'hat' schema to hat_app
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA hat TO hat_app;
 GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA hat TO hat_app;
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE hat.users_id_seq TO hat_app;
 ALTER DEFAULT PRIVILEGES FOR ROLE hat_migrate IN SCHEMA hat
 GRANT EXECUTE ON FUNCTIONS TO hat_app;
 ALTER DEFAULT PRIVILEGES FOR ROLE hat_migrate IN SCHEMA hat
