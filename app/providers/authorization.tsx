@@ -23,16 +23,19 @@ interface Props {
 }
 
 export function AuthorizationProvider({ children }: Props): JSX.Element {
-  const { authState } = useAuth();
+  const { authState, service } = useAuth();
   const user = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);
 
   useEffect(() => {
     if (disabled) {
-      location.href = ROUTE.ACCOUNT_DISABLED;
+      service?.requestLogout({
+        callbackUrl: ROUTE.ACCOUNT_DISABLED,
+        redirect: true,
+      });
     }
-  }, [role, disabled]);
+  }, [role, disabled, service]);
 
   return (
     <AuthorizationContext.Provider value={{ user }}>
