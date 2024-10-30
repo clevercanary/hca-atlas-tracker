@@ -39,7 +39,7 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
 
   return (
     <AuthorizationContext.Provider value={{ user }}>
-      {shouldRenderComponents({ ...authState, isAuthorized }) ? (
+      {shouldRenderComponents(authState, isAuthorized) ? (
         children
       ) : (
         <DXMain>{null}</DXMain>
@@ -64,9 +64,13 @@ function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
  * - When user is not authenticated.
  * - When user is authenticated and authorized.
  * @param authState - Auth state.
+ * @param isAuthorized -- Whether the user is authorized.
  * @returns true if the components should be rendered.
  */
-function shouldRenderComponents(authState: AuthState): boolean {
+function shouldRenderComponents(
+  authState: AuthState,
+  isAuthorized: boolean
+): boolean {
   if (authState.status === AUTH_STATUS.PENDING) return false;
-  return !authState.isAuthenticated || authState.isAuthorized;
+  return !authState.isAuthenticated || isAuthorized;
 }
