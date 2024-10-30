@@ -8,10 +8,10 @@ import { Floating } from "@databiosphere/findable-ui/lib/components/Layout/compo
 import { Footer } from "@databiosphere/findable-ui/lib/components/Layout/components/Footer/footer";
 import { Header as DXHeader } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
-import { NextAuthProvider } from "@databiosphere/findable-ui/lib/providers/authentication/nextAuth/provider";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
 import { LayoutStateProvider } from "@databiosphere/findable-ui/lib/providers/layoutState";
+import { NextAuthAuthenticationProvider } from "@databiosphere/findable-ui/lib/providers/nextAuthAuthentication/provider";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
 import { DataExplorerError } from "@databiosphere/findable-ui/lib/types/error";
@@ -58,7 +58,10 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
           <Head pageTitle={pageTitle} />
           <CssBaseline />
           <SystemStatusProvider>
-            <NextAuthProvider session={session} timeout={SESSION_TIMEOUT}>
+            <NextAuthAuthenticationProvider
+              session={session}
+              timeout={SESSION_TIMEOUT}
+            >
               <LayoutStateProvider>
                 <AppLayout>
                   <ThemeProvider
@@ -100,7 +103,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
                   <Footer {...footer} />
                 </AppLayout>
               </LayoutStateProvider>
-            </NextAuthProvider>
+            </NextAuthAuthenticationProvider>
           </SystemStatusProvider>
         </DXConfigProvider>
       </ThemeProvider>
