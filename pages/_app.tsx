@@ -26,8 +26,10 @@ import type { AppProps } from "next/app";
 import { AuthorizationProvider } from "../app/providers/authorization";
 import { mergeAppTheme } from "../app/theme/theme";
 import { BREAKPOINTS } from "../site-config/common/constants";
-
-const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+import {
+  SESSION_REFETCH_INTERVAL,
+  SESSION_TIMEOUT,
+} from "../site-config/hca-atlas-tracker/local/authentication/constants";
 
 export interface PageProps extends AzulEntitiesStaticResponse {
   pageTitle?: string;
@@ -61,6 +63,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
             <NextAuthAuthenticationProvider
               session={session}
               timeout={SESSION_TIMEOUT}
+              refetchInterval={SESSION_REFETCH_INTERVAL}
             >
               <LayoutStateProvider>
                 <AppLayout>
