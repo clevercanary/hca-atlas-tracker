@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import AzureAdProvider from "next-auth/providers/azure-ad";
 import GoogleProvider from "next-auth/providers/google";
+import { SESSION_MAX_AGE } from "./constants";
 
 export const nextAuthOptions: NextAuthOptions = {
   debug: false,
@@ -18,4 +19,7 @@ export const nextAuthOptions: NextAuthOptions = {
       tenantId: process.env.AZURE_AD_TENANT_ID,
     }),
   ],
+  session: {
+    maxAge: SESSION_MAX_AGE / 1000,
+  },
 };
