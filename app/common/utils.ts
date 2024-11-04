@@ -24,16 +24,19 @@ export function getFetchOptions(
  * @param requestURL - Request URL.
  * @param requestMethod - Request method.
  * @param payload - Payload.
+ * @param additionalFetchOptions - Additional fetch options.
  * @returns promise (response).
  */
 export async function fetchResource<P>(
   requestURL: string,
   requestMethod: METHOD,
-  payload?: P
+  payload?: P,
+  additionalFetchOptions?: RequestInit
 ): Promise<Response> {
   return await fetch(requestURL, {
     ...getFetchOptions(requestMethod, payload ? DEFAULT_HEADERS : undefined),
     body: payload ? JSON.stringify(payload) : undefined,
+    ...additionalFetchOptions,
   });
 }
 
