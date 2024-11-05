@@ -41,16 +41,6 @@ export async function fetchResource<P>(
 }
 
 /**
- * Returns HTTP authorization header.
- * @param accessToken - Access token.
- * @returns HTTP authorization header.
- */
-export function getHeaderAuthorization(accessToken?: string): HeadersInit {
-  if (!accessToken) return {};
-  return { authorization: `Bearer ${accessToken}` };
-}
-
-/**
  * Returns true if the fetch status is "Created".
  * @param status - Status.
  * @returns true if the fetch status is "Created".

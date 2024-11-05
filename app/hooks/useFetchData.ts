@@ -35,11 +35,11 @@ export const useFetchData = <D>(
 
   const [state, setState] = useState<FetchState<D>>(PENDING_STATE);
 
-  // If an error has been saved from the asynchornous fetch, throw it synchronously.
+  // If an error has been saved from the asynchronous fetch, throw it synchronously.
   if (state.outcome === FETCH_OUTCOME.ERROR) throw state.error;
 
   /**
-   * Perform a fetch using the request URL and medthod, with the given abort signal allowing the request to be canceled.
+   * Perform a fetch using the request URL and method, with the given abort signal allowing the request to be canceled.
    */
   const fetchData = useCallback(
     async (abortSignal: AbortSignal): Promise<D> => {
