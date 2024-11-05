@@ -24,7 +24,7 @@ export function getFetchOptions(
  * @param requestURL - Request URL.
  * @param requestMethod - Request method.
  * @param payload - Payload.
- * @param additionalFetchOptions - Additional fetch options.
+ * @param additionalFetchOptions - Additional options to pass to `fetch`.
  * @returns promise (response).
  */
 export async function fetchResource<P>(
