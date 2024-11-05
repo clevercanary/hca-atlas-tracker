@@ -9,6 +9,9 @@ enum FETCH_OUTCOME {
   SUCCESS = "SUCCESS",
 }
 
+/**
+ * Valid fetch states: pending, successful with data, or failed with error.
+ */
 type FetchState<D> =
   | { outcome: FETCH_OUTCOME.PENDING }
   | { data: D; outcome: FETCH_OUTCOME.SUCCESS }
@@ -32,8 +35,12 @@ export const useFetchData = <D>(
 
   const [state, setState] = useState<FetchState<D>>(PENDING_STATE);
 
+  // If an error has been saved from the asynchornous fetch, throw it synchronously.
   if (state.outcome === FETCH_OUTCOME.ERROR) throw state.error;
 
+  /**
+   * Perform a fetch using the request URL and medthod, with the given abort signal allowing the request to be canceled.
+   */
   const fetchData = useCallback(
     async (abortSignal: AbortSignal): Promise<D> => {
       const res = await fetchResource(requestUrl, method, undefined, {
@@ -53,22 +60,27 @@ export const useFetchData = <D>(
   );
 
   useEffect(() => {
+    // If the user is unauthenticated, reset to the pending state.
     if (!isAuthenticated) {
       setState(PENDING_STATE);
       return;
     }
 
+    // If `shouldFetch` is false, keep state as-is.
     if (!shouldFetch) return;
+
+    // Otherwise, fetch and update state as appropriate.
 
     const abortController = new AbortController();
 
     fetchData(abortController.signal)
       .then((data) => setState({ data, outcome: FETCH_OUTCOME.SUCCESS }))
       .catch((error) => {
-        if (abortController.signal.aborted) return;
+        if (abortController.signal.aborted) return; // Aborting a request causes the promise to be rejected, so it's necessary to check the abort signal to avoid saving that error.
         setState({ error, outcome: FETCH_OUTCOME.ERROR });
       });
 
+    // Cancel the request if the component unmounts.
     return (): void => {
       abortController.abort();
     };
