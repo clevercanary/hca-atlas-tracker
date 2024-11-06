@@ -10,8 +10,8 @@ import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { getAtlasSourceStudiesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
-  ButtonLink,
   BUTTON_COLOR,
+  ButtonLink,
 } from "../../../common/Button/components/ButtonLink/buttonLink";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";

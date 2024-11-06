@@ -3,8 +3,8 @@ import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthe
 import { TextField } from "@mui/material";
 import { useCallback, useRef, useState } from "react";
 import {
-  TaskStatusesUpdatedByDOIResult,
   TASK_STATUS,
+  TaskStatusesUpdatedByDOIResult,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../../../app/common/entities";
 import {

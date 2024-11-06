@@ -1,7 +1,7 @@
 import {
-  OnTabChangeFn,
   Tab as DXTab,
   TabsProps as DXTabsProps,
+  OnTabChangeFn,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { Tab as MTab } from "@mui/material";
 import { Tabs as SectionTabs } from "./tabs.styles";

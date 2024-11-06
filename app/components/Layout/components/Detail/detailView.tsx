@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { DetailViewHero } from "./components/DetailViewHero/detailViewHero";
 import {
-  DetailView as DetailViewLayout,
   DetailViewContent,
+  DetailView as DetailViewLayout,
 } from "./detailView.styles";
 
 export interface DetailViewProps {

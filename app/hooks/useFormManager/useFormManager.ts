@@ -95,7 +95,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
   );
 
   useEffect(() => {
-    return () => {
+    return (): void => {
       setPathRoute(undefined);
     };
   }, []);

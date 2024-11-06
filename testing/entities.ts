@@ -1,7 +1,7 @@
 import {
   ATLAS_STATUS,
-  DoiPublicationInfo,
   DOI_STATUS,
+  DoiPublicationInfo,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
   LinkInfo,

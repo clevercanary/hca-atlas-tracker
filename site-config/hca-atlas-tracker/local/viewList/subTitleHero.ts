@@ -1,27 +1,19 @@
+import { ALERT_PROPS } from "@databiosphere/findable-ui/lib/components/common/Alert/constants";
 import {
   ComponentConfig,
   ComponentsConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
-import { HCAAtlasTrackerListAtlas } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { SIZE } from "@databiosphere/findable-ui/lib/styles/common/constants/size";
 import * as C from "../../../../app/components";
 import * as MDX from "../../../../app/components/common/MDXContent/index";
 
 export const subTitleHero: ComponentsConfig = [
   {
-    children: [
-      {
-        children: [
-          {
-            component: MDX.ConfidentialNotice,
-          } as ComponentConfig<typeof MDX.ConfidentialNotice>,
-        ],
-        component: C.AlertText,
-      } as ComponentConfig<typeof C.AlertText>,
-    ],
-    component: C.FluidAlert,
+    component: MDX.ConfidentialNotice,
     props: {
-      severity: "warning",
-      title: "This tracker is confidential",
+      ...ALERT_PROPS.STANDARD_WARNING,
+      component: C.FluidPaper,
+      size: SIZE.LARGE,
     },
-  } as ComponentConfig<typeof C.FluidAlert, HCAAtlasTrackerListAtlas>,
+  } as ComponentConfig<typeof MDX.ConfidentialNotice>,
 ];

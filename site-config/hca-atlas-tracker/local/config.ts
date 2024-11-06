@@ -32,7 +32,6 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
     browserURL: browserUrl,
     contentDir: "hca-atlas-tracker",
     dataSource: {
-      entityURL: LOCALHOST,
       url: browserUrl,
     },
     entities: [atlasEntityConfig, tasksEntityConfig, userEntityConfig],

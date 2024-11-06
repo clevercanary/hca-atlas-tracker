@@ -5,10 +5,10 @@ import { METHOD } from "../../../../../app/common/entities";
 import { fetchResource } from "../../../../../app/common/utils";
 import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
 import {
-  RefreshServicesStatuses,
-  RefreshStatus,
   REFRESH_ACTIVITY,
   REFRESH_OUTCOME,
+  RefreshServicesStatuses,
+  RefreshStatus,
 } from "../../../../../app/services/common/entities";
 
 export const RefreshForm = (): JSX.Element => {
