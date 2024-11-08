@@ -3,9 +3,9 @@ import httpMocks from "node-mocks-http";
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import { METHOD } from "../app/common/entities";
 import {
-  RefreshServicesStatuses,
   REFRESH_ACTIVITY,
   REFRESH_OUTCOME,
+  RefreshServicesStatuses,
 } from "../app/services/common/entities";
 import { endPgPool } from "../app/services/database";
 import { Handler } from "../app/utils/api-handler";

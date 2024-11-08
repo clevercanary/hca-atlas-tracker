@@ -4,8 +4,8 @@ import { SubTitle } from "@databiosphere/findable-ui/lib/components/Layout/compo
 import { ReactNode } from "react";
 import { BackButton } from "./components/BackButton/backButton";
 import {
-  DetailViewHero as DetailViewHeroLayout,
   DetailViewHeroHeadline,
+  DetailViewHero as DetailViewHeroLayout,
   HeroHeader,
   HeroTitle,
   Statuses,

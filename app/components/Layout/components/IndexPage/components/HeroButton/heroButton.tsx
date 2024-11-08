@@ -1,6 +1,6 @@
 import {
-  ButtonLinkProps,
   BUTTON_COLOR,
+  ButtonLinkProps,
 } from "../../../../../common/Button/components/ButtonLink/buttonLink";
 import { Button } from "./heroButton.styles";
 

@@ -4,12 +4,12 @@ import { FormControl } from "../FormControl/formControl.styles";
 import { FormHelperText } from "../FormHelperText/formHelperText";
 import { FormLabel } from "../FormLabel/formLabel";
 
-export interface SelectProps extends MSelectProps {
+export type SelectProps = MSelectProps & {
   className?: string;
   helperText?: ReactNode;
   isFilled?: boolean;
   isFullWidth?: boolean;
-}
+};
 
 export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
   {

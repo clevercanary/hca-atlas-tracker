@@ -1,5 +1,4 @@
-export { FluidAlert } from "@databiosphere/findable-ui/lib/components/common/Alert/alert.styles";
-export { AlertText } from "@databiosphere/findable-ui/lib/components/common/Alert/components/AlertText/alertText.styles";
+export { Alert } from "@databiosphere/findable-ui/lib/components/common/Alert/alert";
 export { SessionTimeout } from "@databiosphere/findable-ui/lib/components/common/Banner/components/SessionTimeout/sessionTimeout";
 export { GitHubIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/GitHubIcon/gitHubIcon";
 export { UnLinkIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/UnLinkIcon/unLinkIcon";
@@ -18,10 +17,12 @@ export { Link } from "@databiosphere/findable-ui/lib/components/Links/components
 export { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
 export { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
 export { RowDrawer } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/RowDrawer/rowDrawer";
+export { AlertTitle } from "@mui/material";
 export { IconButton } from "./common/IconButton/iconButton";
 export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
 export { PreviewTask } from "./Index/components/ViewTasks/components/PreviewTask/previewTask";
+export { AlertText } from "./Layout/components/Content/components/AlertText/alertText.styles";
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";
 export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
