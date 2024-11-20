@@ -21,11 +21,17 @@ const LOCALHOST = "http://localhost:3000";
 const APP_TITLE = "HCA Atlas Tracker";
 const BROWSER_URL = LOCALHOST;
 export const FONT_FAMILY_DIN = "'din-2014', sans-serif";
+export const GIT_HUB_REPO_URL =
+  "https://github.com/clevercanary/hca-atlas-tracker";
 const HOME_PAGE_PATH = ROUTE.ATLASES;
 const ORG_URL = "https://www.humancellatlas.org";
 export const PORTAL_URL = "https://data.humancellatlas.dev.clevercanary.com";
 
-export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
+export function makeConfig(
+  browserUrl: string,
+  portalUrl: string,
+  gitHubUrl: string
+): SiteConfig {
   return {
     appTitle: APP_TITLE,
     authentication: authenticationConfig,
@@ -36,12 +42,14 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
     },
     entities: [atlasEntityConfig, tasksEntityConfig, userEntityConfig],
     explorerTitle: C.Hero(),
+    gitHubUrl,
     layout: {
       footer: {
         Branding: C.HCABranding({
           orgURL: ORG_URL,
           portalURL: portalUrl,
         }),
+        versionInfo: true,
       },
       header: {
         announcements: announcementsConfig,
@@ -153,6 +161,10 @@ export function makeConfig(browserUrl: string, portalUrl: string): SiteConfig {
   };
 }
 
-const config: SiteConfig = makeConfig(BROWSER_URL, PORTAL_URL);
+const config: SiteConfig = makeConfig(
+  BROWSER_URL,
+  PORTAL_URL,
+  GIT_HUB_REPO_URL
+);
 
 export default config;
