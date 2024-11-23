@@ -17,28 +17,6 @@ const BIO_NETWORK: CommonControllerConfig = {
   },
 };
 
-const INTEGRATION_LEAD_A_EMAIL: CommonControllerConfig = {
-  inputProps: { label: "Email" },
-  name: FIELD_NAME.INTEGRATION_LEAD_A_EMAIL,
-};
-
-const INTEGRATION_LEAD_B_EMAIL: CommonControllerConfig = {
-  inputProps: {
-    label: "Email",
-  },
-  name: FIELD_NAME.INTEGRATION_LEAD_B_EMAIL,
-};
-
-const INTEGRATION_LEAD_A_NAME: CommonControllerConfig = {
-  inputProps: { label: "Full name" },
-  name: FIELD_NAME.INTEGRATION_LEAD_A_NAME,
-};
-
-const INTEGRATION_LEAD_B_NAME: CommonControllerConfig = {
-  inputProps: { label: "Full name" },
-  name: FIELD_NAME.INTEGRATION_LEAD_B_NAME,
-};
-
 const SHORT_NAME: CommonControllerConfig = {
   inputProps: {
     label: "Short name",
@@ -76,16 +54,5 @@ const WAVE: CommonControllerConfig = {
 export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
   [SHORT_NAME, VERSION, BIO_NETWORK, WAVE];
 
-export const INTEGRATION_LEAD_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
-  [
-    INTEGRATION_LEAD_A_NAME,
-    INTEGRATION_LEAD_A_EMAIL,
-    INTEGRATION_LEAD_B_NAME,
-    INTEGRATION_LEAD_B_EMAIL,
-  ];
-
 export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
   [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, TARGET_COMPLETION];
-
-export const INTEGRATION_LEAD_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
-  INTEGRATION_LEAD_NEW_ATLAS_CONTROLLERS;

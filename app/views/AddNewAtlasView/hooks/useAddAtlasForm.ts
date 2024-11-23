@@ -14,10 +14,21 @@ export const useAddAtlasForm = (): FormMethod<
   return useForm<NewAtlasData, HCAAtlasTrackerAtlas>(
     SCHEMA,
     undefined,
-    undefined,
+    mapSchemaValues,
     mapApiValues
   );
 };
+
+function mapSchemaValues(): NewAtlasData {
+  return {
+    integrationLead: [
+      {
+        email: "",
+        name: "",
+      },
+    ],
+  } as NewAtlasData; // TODO might be good to make this not requred
+}
 
 /**
  * Returns API payload mapped from data.
@@ -25,10 +36,8 @@ export const useAddAtlasForm = (): FormMethod<
  * @returns API payload.
  */
 function mapApiValues(data: NewAtlasData): APINewAtlasData {
-  const integrationLead = [data.integrationLeadA];
-  if (data.integrationLeadB.name) integrationLead.push(data.integrationLeadB);
   return {
     ...data,
-    integrationLead,
+    integrationLead: data.integrationLead,
   };
 }

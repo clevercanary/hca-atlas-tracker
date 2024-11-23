@@ -4,6 +4,7 @@ import { FormMethod } from "../../../../../../../../hooks/useForm/common/entitie
 import { FormManager } from "../../../../../../../../hooks/useFormManager/common/entities";
 import { ControllerConfig } from "../../../../../../../common/Form/components/Controllers/common/entities";
 import { Controllers } from "../../../../../../../common/Form/components/Controllers/controllers";
+import { SectionControllers } from "../../../../../../../Forms/common/entities";
 import {
   Section,
   SectionCard as SectionContent,
@@ -14,7 +15,9 @@ import {
 import { SlotProps } from "./common/utils";
 
 export interface TrackerFormSectionProps<T extends FieldValues, R = undefined> {
-  controllerConfigs: ControllerConfig<T>[];
+  controllerConfigs:
+    | ControllerConfig<T>[]
+    | { component: SectionControllers<T, R> };
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
   SectionCard?: ElementType;
@@ -39,13 +42,23 @@ export const TrackerFormSection = <T extends FieldValues, R = undefined>({
         <SectionTitle>{sectionTitle}</SectionTitle>
         {sectionText && <SectionText>{sectionText}</SectionText>}
       </SectionHero>
-      <SectionCard fullWidth={fullWidth}>
-        <Controllers
-          controllerConfigs={controllerConfigs}
+
+      {Array.isArray(controllerConfigs) ? (
+        <SectionCard fullWidth={fullWidth}>
+          <Controllers
+            controllerConfigs={controllerConfigs}
+            formManager={formManager}
+            formMethod={formMethod}
+          />
+        </SectionCard>
+      ) : (
+        <controllerConfigs.component
           formManager={formManager}
           formMethod={formMethod}
+          fullWidth={fullWidth}
+          SectionCard={SectionCard}
         />
-      </SectionCard>
+      )}
     </Section>
   );
 };

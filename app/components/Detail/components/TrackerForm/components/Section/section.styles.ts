@@ -15,7 +15,7 @@ import {
 import styled from "@emotion/styled";
 import { Table as CommonTable } from "../../../../../Table/table.styles";
 
-interface SectionProps {
+export interface SectionProps {
   fullWidth?: boolean;
 }
 

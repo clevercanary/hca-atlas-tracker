@@ -2,7 +2,8 @@ import { HCAAtlasTrackerAtlas } from "../../../../../apis/catalog/hca-atlas-trac
 import { NewAtlasData } from "../../../../../views/AddNewAtlasView/common/entities";
 import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
 import { SECTION_TITLES } from "../../../common/constants";
-import { SectionConfig } from "../../../common/entities";
+import { SectionConfig, SectionControllers } from "../../../common/entities";
+import { IntegrationLeadSection } from "../components/IntegrationLeadSection/integrationLeadSection";
 import * as C from "./constants";
 
 export const ADD_ATLAS_SECTION_CONFIGS: SectionConfig<
@@ -15,7 +16,7 @@ export const ADD_ATLAS_SECTION_CONFIGS: SectionConfig<
     showDivider: true,
   },
   {
-    controllerConfigs: C.INTEGRATION_LEAD_NEW_ATLAS_CONTROLLERS,
+    controllerConfigs: { component: IntegrationLeadSection },
     sectionTitle: SECTION_TITLES.INTEGRATION_LEAD,
   },
 ];
@@ -29,7 +30,13 @@ export const VIEW_ATLAS_SECTION_CONFIGS: SectionConfig<
     sectionTitle: SECTION_TITLES.GENERAL_INFORMATION,
   },
   {
-    controllerConfigs: C.INTEGRATION_LEAD_VIEW_ATLAS_CONTROLLERS,
+    controllerConfigs: {
+      // TODO address types
+      component: IntegrationLeadSection as unknown as SectionControllers<
+        AtlasEditData,
+        HCAAtlasTrackerAtlas
+      >,
+    },
     sectionTitle: SECTION_TITLES.INTEGRATION_LEAD,
   },
 ];
