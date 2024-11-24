@@ -42,9 +42,10 @@ export const useForm = <T extends FieldValues, R = undefined>(
   options: CustomUseFormOptions<T> = {}
 ): UseForm<T, R> => {
   const { token } = useAuthentication();
-  const values = useMemo(() => {
-    return schema.cast(mapSchemaValues?.(apiData));
-  }, [apiData, mapSchemaValues, schema]);
+  const values = useMemo(
+    () => schema.cast(mapSchemaValues?.(apiData)),
+    [apiData, mapSchemaValues, schema]
+  );
   const formMethod = useReactHookForm<YupValidatedFormValues<T>>({
     reValidateMode: "onSubmit",
     resolver: yupResolver(schema),
