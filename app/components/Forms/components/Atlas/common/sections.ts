@@ -18,7 +18,6 @@ export const ADD_ATLAS_SECTION_CONFIGS: SectionConfig<
   },
   {
     SectionCard: NewAtlasIntegrationLeadSection,
-    controllerConfigs: [],
     sectionTitle: SECTION_TITLES.INTEGRATION_LEAD,
   },
 ];
@@ -33,7 +32,6 @@ export const VIEW_ATLAS_SECTION_CONFIGS: SectionConfig<
   },
   {
     SectionCard: ViewAtlasIntegrationLeadSection,
-    controllerConfigs: [],
     sectionTitle: SECTION_TITLES.INTEGRATION_LEAD,
   },
 ];
