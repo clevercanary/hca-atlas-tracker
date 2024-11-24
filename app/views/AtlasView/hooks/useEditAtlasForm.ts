@@ -29,7 +29,7 @@ export const useEditAtlasForm = (
  * @param atlas - Atlas.
  * @returns schema default values.
  */
-function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): AtlasEditData {
+function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
   if (!atlas)
     return {
       integrationLead: [
@@ -38,7 +38,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): AtlasEditData {
           name: "",
         },
       ],
-    } as AtlasEditData; // TODO address types
+    };
   const sortedIntegrationLead = atlas.integrationLead.sort((a, b) =>
     a.name.localeCompare(b.name)
   );

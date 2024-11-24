@@ -19,7 +19,11 @@ export const useAddAtlasForm = (): FormMethod<
   );
 };
 
-function mapSchemaValues(): NewAtlasData {
+/**
+ * Returns schema default values.
+ * @returns schema default values.
+ */
+function mapSchemaValues(): Partial<NewAtlasData> {
   return {
     integrationLead: [
       {
@@ -27,7 +31,7 @@ function mapSchemaValues(): NewAtlasData {
         name: "",
       },
     ],
-  } as NewAtlasData; // TODO might be good to make this not requred
+  };
 }
 
 /**
