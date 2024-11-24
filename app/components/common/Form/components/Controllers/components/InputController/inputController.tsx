@@ -11,7 +11,7 @@ export interface InputControllerProps<T extends FieldValues, R = undefined>
   extends UseControllerProps<YupValidatedFormValues<T>> {
   className?: string;
   formManager: FormManager;
-  formMethod: Pick<FormMethod<T, R>, "control">;
+  formMethod: FormMethod<T, R>;
   inputProps?: Partial<Omit<MOutlinedInputProps, "ref">>;
 }
 
