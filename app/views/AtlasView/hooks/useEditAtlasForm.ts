@@ -61,7 +61,6 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
 function mapApiValues(data: AtlasEditData): APIAtlasEditData {
   return {
     ...data,
-    integrationLead: data.integrationLead,
     targetCompletion: mapTargetCompletion(data.targetCompletion),
   };
 }
