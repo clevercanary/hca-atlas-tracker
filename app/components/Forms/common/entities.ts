@@ -1,4 +1,4 @@
-import React, { ElementType } from "react";
+import React, { ReactNode } from "react";
 import { FieldValues } from "react-hook-form";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../hooks/useFormManager/common/entities";
@@ -9,14 +9,14 @@ export interface SectionConfig<T extends FieldValues, R = undefined>
   showDivider?: boolean;
 }
 
-export interface SectionControllersProps<T extends FieldValues, R = undefined> {
+export interface SectionContentProps<T extends FieldValues, R = undefined> {
+  children: ReactNode;
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
-  fullWidth: boolean;
-  SectionCard: ElementType;
+  fullWidth?: boolean;
 }
 
-export type SectionControllers<
+export type SectionContent<
   T extends FieldValues,
   R = undefined
-> = React.FunctionComponent<SectionControllersProps<T, R>>;
+> = React.FunctionComponent<SectionContentProps<T, R>>;
