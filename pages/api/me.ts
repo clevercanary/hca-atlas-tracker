@@ -14,19 +14,16 @@ import {
 
 export default handler(method(METHOD.PUT), async (req, res) => {
   const userProfile = await getProvidedUserProfile(req.headers.authorization);
+  if (!userProfile) throw new UnauthenticatedError("Not authenticated");
   let user = await getUserFromAuthorization(req.headers.authorization);
   if (!user) {
-    if (userProfile) {
-      user = await createUser({
-        disabled: false,
-        email: userProfile.email,
-        fullName: userProfile.name,
-        role: ROLE.STAKEHOLDER,
-        roleAssociatedResourceIds: [],
-      });
-    } else {
-      throw new UnauthenticatedError("Not authenticated");
-    }
+    user = await createUser({
+      disabled: false,
+      email: userProfile.email,
+      fullName: userProfile.name,
+      role: ROLE.STAKEHOLDER,
+      roleAssociatedResourceIds: [],
+    });
   }
   await updateLastLogin(user.id);
   const activeUserInfo: HCAAtlasTrackerActiveUser = {
