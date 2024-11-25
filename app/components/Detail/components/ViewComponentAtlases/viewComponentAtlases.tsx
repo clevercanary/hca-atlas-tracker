@@ -15,6 +15,7 @@ import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tab
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
+import { TABLE_OPTIONS } from "./constants";
 
 interface ViewComponentAtlasesProps {
   componentAtlases?: HCAAtlasTrackerComponentAtlas[];
@@ -48,8 +49,9 @@ export const ViewComponentAtlases = ({
         {componentAtlases.length > 0 && (
           <Table
             columns={getAtlasComponentAtlasesTableColumns(pathParameter)}
-            gridTemplateColumns="minmax(260px, 1fr) repeat(5, minmax(88px, 128px)) auto"
+            gridTemplateColumns="max-content minmax(260px, 1fr) repeat(5, minmax(88px, 128px)) auto"
             items={componentAtlases}
+            tableOptions={TABLE_OPTIONS}
           />
         )}
         <TablePlaceholder

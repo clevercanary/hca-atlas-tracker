@@ -5,6 +5,7 @@ import {
   TableOptions,
 } from "@tanstack/react-table";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { COLUMN_VISIBILITY } from "../../../../../../../../../../../../Table/features/constants";
 
 const PUBLICATION_STRING = "publicationString";
 const TITLE = "title";
@@ -15,7 +16,7 @@ const SORTING: SortingState = [
 ];
 
 export const TABLE_GRID_TEMPLATE_COLUMNS =
-  "minmax(272px, 1fr) repeat(2, minmax(180px, 0.4fr)) repeat(5, minmax(88px, 128px)) auto";
+  "max-content minmax(272px, 1fr) repeat(2, minmax(180px, 0.4fr)) repeat(5, minmax(88px, 128px)) auto";
 
 export const TABLE_OPTIONS: Partial<
   TableOptions<HCAAtlasTrackerSourceDataset>
@@ -24,6 +25,7 @@ export const TABLE_OPTIONS: Partial<
   enableSorting: true,
   getSortedRowModel: getSortedRowModel(),
   initialState: {
+    columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
     sorting: SORTING,
   },
 };

@@ -18,6 +18,7 @@ import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tab
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
+import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceStudiesProps {
   formManager: FormManager;
@@ -55,8 +56,9 @@ export const ViewSourceStudies = ({
         {sourceStudies.length > 0 && (
           <Table
             columns={getAtlasSourceStudiesTableColumns(pathParameter)}
-            gridTemplateColumns="minmax(260px, 1fr) minmax(152px, 0.5fr) minmax(80px, 130px) repeat(3, minmax(100px, 118px))"
+            gridTemplateColumns="max-content minmax(260px, 1fr) minmax(152px, 0.5fr) minmax(80px, 130px) repeat(3, minmax(100px, 118px))"
             items={sortedSourceStudies}
+            tableOptions={TABLE_OPTIONS}
           />
         )}
         <TablePlaceholder

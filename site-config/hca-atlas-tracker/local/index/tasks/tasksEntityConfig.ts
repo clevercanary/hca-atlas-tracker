@@ -16,6 +16,7 @@ import {
   taskInputMapper,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import * as C from "../../../../../app/components";
+import { COLUMN_VISIBILITY } from "../../../../../app/components/Table/features/constants";
 import { mapSelectCategoryValue } from "../../../../../app/config/utils";
 import { formatDateToQuarterYear } from "../../../../../app/utils/date-fns";
 import * as V from "../../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -242,6 +243,9 @@ export const tasksEntityConfig: EntityConfig = {
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,
       id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
+    },
+    tableOptions: {
+      initialState: { columnVisibility: COLUMN_VISIBILITY.ROW_POSITION },
     },
   } as ListConfig<HCAAtlasTrackerListValidationRecord>,
   listView: {
