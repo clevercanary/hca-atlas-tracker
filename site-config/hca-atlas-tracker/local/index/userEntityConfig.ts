@@ -8,6 +8,7 @@ import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMod
 import { HCAAtlasTrackerUser } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getUserId } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import * as C from "../../../../app/components";
+import { COLUMN_VISIBILITY } from "../../../../app/components/Table/features/constants";
 import { mapSelectCategoryValue } from "../../../../app/config/utils";
 import * as V from "../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
@@ -66,6 +67,7 @@ export const userEntityConfig: EntityConfig = {
   list: {
     columns: [
       {
+        columnPinned: true,
         componentConfig: {
           component: C.Link,
           viewBuilder: V.buildUserFullName,
@@ -123,6 +125,9 @@ export const userEntityConfig: EntityConfig = {
     defaultSort: {
       desc: SORT_DIRECTION.ASCENDING,
       id: HCA_ATLAS_TRACKER_CATEGORY_KEY.FULL_NAME,
+    },
+    tableOptions: {
+      initialState: { columnVisibility: COLUMN_VISIBILITY.ROW_POSITION },
     },
   } as ListConfig<HCAAtlasTrackerUser>,
   listView: {

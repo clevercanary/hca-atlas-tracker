@@ -10,6 +10,7 @@ import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.sty
 import { Table } from "../../../Table/table.styles";
 import { AddSourceDataset } from "../AddSourceDataset/addSourceDataset";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
+import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceDatasetsProps {
   formManager: FormManagerProps;
@@ -39,8 +40,9 @@ export const ViewSourceDatasets = ({
         {sourceDatasets.length > 0 && (
           <Table
             columns={getAtlasSourceDatasetsTableColumns(pathParameter, canEdit)}
-            gridTemplateColumns="minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
+            gridTemplateColumns="max-content minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
             items={sourceDatasets.sort(sortSourceDataset)}
+            tableOptions={TABLE_OPTIONS}
           />
         )}
         <TablePlaceholder
