@@ -43,9 +43,9 @@ afterAll(() => {
 });
 
 describe(TEST_ROUTE, () => {
-  it("returns error 405 for non-GET request", async () => {
+  it("returns error 405 for non-PUT request", async () => {
     expect(
-      (await doMeRequest(USER_STAKEHOLDER, METHOD.POST))._getStatusCode()
+      (await doMeRequest(USER_STAKEHOLDER, METHOD.GET))._getStatusCode()
     ).toEqual(405);
     await expectUsersToBeUnchanged();
   });
@@ -134,7 +134,7 @@ function expectActiveUserToMatchTest(
 
 async function doMeRequest(
   user?: TestUser,
-  method = METHOD.GET,
+  method = METHOD.PUT,
   hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({

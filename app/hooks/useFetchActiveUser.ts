@@ -6,7 +6,7 @@ import { useFetchData } from "./useFetchData";
 export const useFetchActiveUser = (): HCAAtlasTrackerActiveUser | undefined => {
   const { data: user } = useFetchData<HCAAtlasTrackerActiveUser | undefined>(
     API.ACTIVE_USER,
-    METHOD.GET
+    METHOD.PUT
   );
 
   return user;

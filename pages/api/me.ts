@@ -12,7 +12,7 @@ import {
   UnauthenticatedError,
 } from "../../app/utils/api-handler";
 
-export default handler(method(METHOD.GET), async (req, res) => {
+export default handler(method(METHOD.PUT), async (req, res) => {
   const userProfile = await getProvidedUserProfile(req.headers.authorization);
   let user = await getUserFromAuthorization(req.headers.authorization);
   if (!user) {
