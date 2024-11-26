@@ -9,7 +9,6 @@ export const ROUTE = {
   CREATE_SOURCE_STUDY: "/atlases/[atlasId]/source-studies/create",
   CREATE_USER: "/team/create",
   LOGIN: "/login",
-  REGISTRATION_REQUIRED: "/registration-required",
   REPORTS: "/reports",
   REQUESTING_ACCESS: "/requesting-access",
   SOURCE_DATASETS:

@@ -27,9 +27,7 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
   const isAuthorized = isUserAuthorized(role, disabled);
 
   useEffect(() => {
-    if (role === ROLE.UNREGISTERED) {
-      location.href = ROUTE.REGISTRATION_REQUIRED;
-    } else if (disabled) {
+    if (disabled) {
       location.href = ROUTE.ACCOUNT_DISABLED;
     }
   }, [role, disabled]);

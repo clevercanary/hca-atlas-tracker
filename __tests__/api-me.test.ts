@@ -16,7 +16,11 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
-import { testApiRole } from "../testing/utils";
+import {
+  expectIsDefined,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -39,28 +43,35 @@ afterAll(() => {
 });
 
 describe(TEST_ROUTE, () => {
-  it("returns error 405 for non-GET request", async () => {
+  it("returns error 405 for non-PUT request", async () => {
     expect(
-      (await doMeRequest(USER_STAKEHOLDER, METHOD.POST))._getStatusCode()
+      (await doMeRequest(USER_STAKEHOLDER, METHOD.GET))._getStatusCode()
     ).toEqual(405);
     await expectUsersToBeUnchanged();
   });
 
   it("returns error 401 for logged out user", async () => {
-    expect((await doMeRequest())._getStatusCode()).toEqual(401);
+    expect(
+      (await doMeRequest(undefined, undefined, true))._getStatusCode()
+    ).toEqual(401);
     await expectUsersToBeUnchanged();
   });
 
-  it("returns information for logged in unregistered user", async () => {
+  it("returns information for previously-unregistered user", async () => {
+    expect(await getDbUserByEmail(USER_UNREGISTERED.email)).toBeUndefined();
     const res = await doMeRequest(USER_UNREGISTERED);
     expect(res.statusCode).toEqual(200);
     const user: HCAAtlasTrackerActiveUser = res._getJSONData();
     expect(user.disabled).toEqual(false);
     expect(user.email).toEqual(USER_UNREGISTERED.email);
     expect(user.fullName).toEqual(USER_UNREGISTERED.name);
-    expect(user.role).toEqual(ROLE.UNREGISTERED);
+    expect(user.role).toEqual(ROLE.STAKEHOLDER);
     expect(user.roleAssociatedResourceIds).toEqual([]);
-    await expectUsersToBeUnchanged();
+    expect(await getDbUserByEmail(USER_UNREGISTERED.email)).toBeDefined();
+
+    await query("DELETE FROM hat.users WHERE email=$1", [
+      USER_UNREGISTERED.email,
+    ]);
   });
 
   it("returns information for logged in user", async () => {
@@ -69,22 +80,17 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toEqual(200);
     const user: HCAAtlasTrackerActiveUser = res._getJSONData();
     expectActiveUserToMatchTest(user, USER_CONTENT_ADMIN);
-    const userContentAdminFromDb = (
-      await query<HCAAtlasTrackerDBUser>(
-        "SELECT * FROM hat.users WHERE email=$1",
-        [USER_CONTENT_ADMIN.email]
-      )
-    ).rows[0];
+    const userContentAdminFromDb = await getDbUserByEmail(
+      USER_CONTENT_ADMIN.email
+    );
+    if (!expectIsDefined(userContentAdminFromDb)) return;
     const lastLoginTime = userContentAdminFromDb.last_login.getTime();
     expect(Math.abs(lastLoginTime - requestTime)).toBeLessThan(1000);
 
-    const userStakeholderFromDb = (
-      await query<HCAAtlasTrackerDBUser>(
-        "SELECT * FROM hat.users WHERE email=$1",
-        [USER_STAKEHOLDER.email]
-      )
-    ).rows[0];
-    expect(userStakeholderFromDb.last_login.getFullYear()).toEqual(1970);
+    const userStakeholderFromDb = await getDbUserByEmail(
+      USER_STAKEHOLDER.email
+    );
+    expect(userStakeholderFromDb?.last_login.getFullYear()).toEqual(1970);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -128,12 +134,27 @@ function expectActiveUserToMatchTest(
 
 async function doMeRequest(
   user?: TestUser,
-  method = METHOD.GET
+  method = METHOD.PUT,
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
   });
-  await meHandler(req, res);
+  await await withConsoleErrorHiding(
+    () => meHandler(req, res),
+    hideConsoleError
+  );
   return res;
+}
+
+async function getDbUserByEmail(
+  email: string
+): Promise<HCAAtlasTrackerDBUser | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBUser>(
+      "SELECT * FROM hat.users WHERE email=$1",
+      [email]
+    )
+  ).rows[0];
 }
