@@ -12,6 +12,7 @@ import {
   textBody400,
   textBodyLarge500,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { Table as CommonTable } from "../../../../../Table/table.styles";
 
@@ -54,7 +55,9 @@ export const SectionText = styled.div`
   font-size: 13px;
 `;
 
-export const SectionCard = styled(FluidPaper)<SectionProps>`
+export const SectionCard = styled(FluidPaper)<
+  SectionProps & { gridAutoFlow?: "dense" | "unset" }
+>`
   ${sectionPadding};
   display: grid;
   gap: 20px;
@@ -67,6 +70,12 @@ export const SectionCard = styled(FluidPaper)<SectionProps>`
   ${mediaDesktopSmallUp} {
     grid-template-columns: 1fr 1fr;
   }
+
+  ${(props) =>
+    props.gridAutoFlow &&
+    css`
+      grid-auto-flow: ${props.gridAutoFlow};
+    `}
 `;
 
 export const SectionTable = styled(CommonTable)`

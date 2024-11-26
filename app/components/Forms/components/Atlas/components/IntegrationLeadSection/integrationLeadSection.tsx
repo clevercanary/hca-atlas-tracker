@@ -1,7 +1,6 @@
-import { ButtonSecondary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonSecondary/buttonSecondary";
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
-import { RemoveIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/RemoveIcon/removeIcon";
-import { IconButton } from "@databiosphere/findable-ui/lib/components/common/IconButton/iconButton";
+import { IconButton } from "@mui/material";
+import { Fragment } from "react";
 import {
   FieldArrayPath,
   FieldPath,
@@ -13,13 +12,13 @@ import {
   YupValidatedFormValues,
 } from "../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
+import { DeleteIcon } from "../../../../../common/CustomIcon/components/DeleteIcon/deleteIcon";
 import { InputController } from "../../../../../common/Form/components/Controllers/components/InputController/inputController";
+import { SectionCard } from "../../../../../Detail/components/TrackerForm/components/Section/section.styles";
+import { BUTTON_PROPS, ICON_BUTTON_PROPS, SVG_ICON_PROPS } from "./constants";
 import {
-  AddLeadRow,
-  IntegrationLeadSectionCard,
-  LeadControllers,
-  NameInputController,
-  RemoveLeadCell,
+  ControllerAction,
+  StyledButton,
 } from "./integrationLeadSection.styles";
 
 interface IntegrationLeadSectionProps<
@@ -55,11 +54,11 @@ export const IntegrationLeadSection = <
   });
   const multiLead = fields.length > 1;
   return (
-    <IntegrationLeadSectionCard fullWidth={fullWidth} multiLead={multiLead}>
+    <SectionCard fullWidth={fullWidth} gridAutoFlow="dense">
       {fields.map((item, index) => {
         return (
-          <LeadControllers key={item.id}>
-            <NameInputController
+          <Fragment key={item.id}>
+            <InputController
               formManager={formManager}
               formMethod={formMethod}
               inputProps={{ label: "Full name" }}
@@ -71,28 +70,26 @@ export const IntegrationLeadSection = <
               inputProps={{ label: "Email" }}
               name={getEmailName(index)}
             />
-            {multiLead ? (
-              <RemoveLeadCell>
-                {/* TODO use correct icon */}
+            {multiLead && (
+              <ControllerAction>
                 <IconButton
-                  color="secondary"
-                  Icon={RemoveIcon}
+                  {...ICON_BUTTON_PROPS}
                   onClick={() => remove(index)}
-                  size="medium"
-                />
-              </RemoveLeadCell>
-            ) : null}
-          </LeadControllers>
+                >
+                  <DeleteIcon {...SVG_ICON_PROPS} />
+                </IconButton>
+              </ControllerAction>
+            )}
+          </Fragment>
         );
       })}
-      <AddLeadRow>
-        <ButtonSecondary
-          startIcon={<AddIcon />}
-          onClick={() => append(getNewValue())}
-        >
-          Add lead
-        </ButtonSecondary>
-      </AddLeadRow>
-    </IntegrationLeadSectionCard>
+      <StyledButton
+        {...BUTTON_PROPS}
+        startIcon={<AddIcon />}
+        onClick={() => append(getNewValue())}
+      >
+        Add lead
+      </StyledButton>
+    </SectionCard>
   );
 };
