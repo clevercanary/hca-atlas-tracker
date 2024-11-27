@@ -3,20 +3,14 @@ import styled from "@emotion/styled";
 import { Button } from "@mui/material";
 
 export const ControllerAction = styled.div`
-  display: grid;
   grid-column: 2;
   grid-row: auto / span 2;
-  grid-template-rows: subgrid;
+
+  padding-top: 24px;
 
   ${mediaDesktopSmallUp} {
     grid-column: 3;
     grid-row: auto;
-  }
-
-  .MuiIconButton-root {
-    align-self: flex-end;
-    grid-row: 1;
-    justify-self: flex-end;
   }
 `;
 
