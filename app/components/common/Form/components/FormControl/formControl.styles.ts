@@ -1,3 +1,4 @@
+import { mediaDesktopSmallUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import {
   inkLight,
   inkMain,
@@ -21,6 +22,7 @@ export const FormControl = styled(MFormControl, {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  grid-column: 1 / -1;
 
   .MuiOutlinedInput-root {
     &.MuiInputBase-adornedStart {
@@ -86,9 +88,7 @@ export const FormControl = styled(MFormControl, {
       `};
   }
 
-  ${({ isFullWidth }) =>
-    isFullWidth &&
-    css`
-      grid-column: 1 / -1;
-    `};
+  ${mediaDesktopSmallUp} {
+    grid-column: ${({ isFullWidth }) => (isFullWidth ? "1 / -1" : "unset")};
+  }
 `;

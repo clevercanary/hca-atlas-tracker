@@ -1,5 +1,4 @@
 import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewAtlasData as APINewAtlasData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { NewAtlasData } from "../common/entities";
@@ -14,21 +13,21 @@ export const useAddAtlasForm = (): FormMethod<
   return useForm<NewAtlasData, HCAAtlasTrackerAtlas>(
     SCHEMA,
     undefined,
-    undefined,
-    mapApiValues
+    mapSchemaValues
   );
 };
 
 /**
- * Returns API payload mapped from data.
- * @param data - Form data.
- * @returns API payload.
+ * Returns schema default values.
+ * @returns schema default values.
  */
-function mapApiValues(data: NewAtlasData): APINewAtlasData {
-  const integrationLead = [data.integrationLeadA];
-  if (data.integrationLeadB.name) integrationLead.push(data.integrationLeadB);
+function mapSchemaValues(): Partial<NewAtlasData> {
   return {
-    ...data,
-    integrationLead,
+    integrationLead: [
+      {
+        email: "",
+        name: "",
+      },
+    ],
   };
 }

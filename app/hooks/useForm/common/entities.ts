@@ -25,7 +25,7 @@ export type MapApiValuesFn<T extends FieldValues> = (
   formData: YupValidatedFormValues<T>
 ) => unknown;
 
-export type MapSchemaValuesFn<T, R> = (apiData?: R) => T | undefined;
+export type MapSchemaValuesFn<T, R> = (apiData?: R) => Partial<T> | undefined;
 
 export type OnDeleteFn = (
   requestURL: string,
