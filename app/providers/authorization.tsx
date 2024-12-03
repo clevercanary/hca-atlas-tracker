@@ -1,6 +1,8 @@
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { createContext, ReactNode, useEffect } from "react";
+import { AuthState } from "../../../findable-ui/lib/providers/authentication/auth/types";
+import { AUTH_STATUS } from "../../../findable-ui/src/providers/authentication/auth/types";
 import {
   HCAAtlasTrackerActiveUser,
   ROLE,
@@ -21,20 +23,23 @@ interface Props {
 }
 
 export function AuthorizationProvider({ children }: Props): JSX.Element {
-  const { isAuthenticated } = useAuthentication();
+  const { authState, service } = useAuth();
   const user = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);
 
   useEffect(() => {
     if (disabled) {
-      location.href = ROUTE.ACCOUNT_DISABLED;
+      service?.requestLogout({
+        callbackUrl: ROUTE.ACCOUNT_DISABLED,
+        redirect: true,
+      });
     }
-  }, [role, disabled]);
+  }, [role, disabled, service]);
 
   return (
     <AuthorizationContext.Provider value={{ user }}>
-      {shouldRenderComponents(isAuthenticated, isAuthorized) ? (
+      {shouldRenderComponents(authState, isAuthorized) ? (
         children
       ) : (
         <DXMain>{null}</DXMain>
@@ -58,13 +63,14 @@ function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
  * Returns true if components should be rendered:
  * - When user is not authenticated.
  * - When user is authenticated and authorized.
- * @param isAuthenticated - User's authentication status.
- * @param isAuthorized - User's authorization status.
+ * @param authState - Auth state.
+ * @param isAuthorized -- Whether the user is authorized.
  * @returns true if the components should be rendered.
  */
 function shouldRenderComponents(
-  isAuthenticated: boolean,
+  authState: AuthState,
   isAuthorized: boolean
 ): boolean {
-  return !isAuthenticated || isAuthorized;
+  if (authState.status === AUTH_STATUS.PENDING) return false;
+  return !authState.isAuthenticated || isAuthorized;
 }

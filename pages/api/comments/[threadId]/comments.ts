@@ -6,7 +6,7 @@ import {
   getThreadComments,
 } from "../../../../app/services/comments";
 import {
-  getRegisteredUserFromAuthorization,
+  getRegisteredActiveUser,
   handleByMethod,
   handler,
   registeredUser,
@@ -28,7 +28,7 @@ const postHandler = handler(registeredUser, async (req, res) => {
         await createComment(
           threadId,
           await newCommentSchema.validate(req.body),
-          await getRegisteredUserFromAuthorization(req.headers.authorization)
+          await getRegisteredActiveUser(req, res)
         )
       )
     );

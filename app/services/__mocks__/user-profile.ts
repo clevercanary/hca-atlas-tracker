@@ -1,9 +1,11 @@
-import { UserProfile } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useFetchGoogleProfile";
+import { GoogleProfile } from "@databiosphere/findable-ui/lib/providers/authentication/googleSignIn/profile/types";
 import { TEST_USERS } from "testing/constants";
+
+// TODO(cc) - Can we delete this?
 
 export async function getProvidedUserProfile(
   authorization: string | undefined
-): Promise<UserProfile | null> {
+): Promise<GoogleProfile | null> {
   if (!authorization) return null;
   const token = /^Bearer (.+)$/.exec(authorization)?.[1];
   if (!token) return null;

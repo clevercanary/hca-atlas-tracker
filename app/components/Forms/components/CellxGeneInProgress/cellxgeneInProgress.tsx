@@ -1,17 +1,13 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
 import { TextField } from "@mui/material";
 import { useCallback, useRef, useState } from "react";
 import {
   TASK_STATUS,
   TaskStatusesUpdatedByDOIResult,
-} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../../../app/common/entities";
-import {
-  fetchResource,
-  isFetchStatusOk,
-} from "../../../../../app/common/utils";
-import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
+} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "../../../../common/entities";
+import { fetchResource, isFetchStatusOk } from "../../../../common/utils";
+import { FormResponseErrors } from "../../../../hooks/useForm/common/entities";
 
 export const CellxGeneInProgressForm = (): JSX.Element => {
   const [isDisabled, setIsDisabled] = useState(false);
@@ -20,8 +16,6 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
     useState<TaskStatusesUpdatedByDOIResult>();
 
   const textareaRef = useRef<HTMLTextAreaElement>();
-
-  const { token } = useAuthentication();
 
   const onSave = useCallback(() => {
     (async (): Promise<void> => {
@@ -33,7 +27,6 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
         const res = await fetchResource(
           "/api/tasks/cellxgene-in-progress",
           METHOD.PATCH,
-          token,
           dois
         );
         if (isFetchStatusOk(res.status)) {
@@ -54,7 +47,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
         setIsDisabled(false);
       }
     })();
-  }, [token]);
+  }, []);
 
   return (
     <>
