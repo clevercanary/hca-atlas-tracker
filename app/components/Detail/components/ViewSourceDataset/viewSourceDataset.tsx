@@ -54,7 +54,7 @@ export const ViewSourceDataset = ({
             sourceStudyId,
           })}
           schema={SCHEMA}
-          title="Edit source dataset"
+          title="Edit dataset"
         />
       </Dialog>
     </Fragment>
