@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps = async (
     context.params as SourceStudySourceDatasetsPageUrlParams;
   return {
     props: {
-      pageTitle: "Source Datasets",
+      pageTitle: "Datasets",
       pathParameter: { atlasId, sourceStudyId },
     },
   };

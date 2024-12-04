@@ -36,7 +36,7 @@ export const Tabs = ({
         { label: "Overview", value: ROUTE.SOURCE_STUDY },
         {
           label: getTabLabelWithCount(
-            "Source Datasets",
+            "Datasets",
             sourceStudy?.sourceDatasetCount
           ),
           value: ROUTE.SOURCE_DATASETS,

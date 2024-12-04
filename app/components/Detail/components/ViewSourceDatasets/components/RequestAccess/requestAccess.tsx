@@ -5,7 +5,7 @@ import { RequestAccess as Section } from "../../../TrackerForm/components/Sectio
 export const RequestAccess = (): JSX.Element => {
   return (
     <Section>
-      <Link label="Sign in" url={ROUTE.LOGIN} /> to view the source datasets.
+      <Link label="Sign in" url={ROUTE.LOGIN} /> to view the datasets.
     </Section>
   );
 };

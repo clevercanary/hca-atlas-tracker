@@ -1395,7 +1395,7 @@ function getSourceStudySourceDatasetCountColumnDef(
           sourceStudyId: row.original.id,
         }),
       }),
-    header: "Source Datasets",
+    header: "Datasets",
   };
 }
 
