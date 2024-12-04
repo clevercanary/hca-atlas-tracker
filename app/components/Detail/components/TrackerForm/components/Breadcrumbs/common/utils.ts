@@ -13,6 +13,9 @@ import {
   BREADCRUMB_ATLAS,
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
+  BREADCRUMB_COMPONENT_ATLASES,
+  BREADCRUMB_SOURCE_DATASETS,
+  BREADCRUMB_SOURCE_STUDIES,
   BREADCRUMB_SOURCE_STUDY,
   BREADCRUMB_USER,
   BREADCRUMB_USERS,
@@ -42,6 +45,17 @@ export function getAtlasesBreadcrumb(): Breadcrumb {
 }
 
 /**
+ * Returns the breadcrumb for the component atlases view.
+ * @param pathParameter - Path parameter.
+ * @returns component atlases view breadcrumb.
+ */
+export function getComponentAtlasesBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(BREADCRUMB_COMPONENT_ATLASES, pathParameter);
+}
+
+/**
  * Returns the breadcrumb for the component atlas view.
  * @param pathParameter - Path parameter.
  * @param componentAtlas - Component atlas.
@@ -60,6 +74,17 @@ export function getComponentAtlasBreadcrumb(
 }
 
 /**
+ * Returns the breadcrumb for the source studies view.
+ * @param pathParameter - Path parameter.
+ * @returns source studies view breadcrumb.
+ */
+export function getSourceStudiesBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(BREADCRUMB_SOURCE_STUDIES, pathParameter);
+}
+
+/**
  * Returns the breadcrumb for the source study view.
  * @param pathParameter - Path parameter.
  * @param sourceStudy - Source study.
@@ -75,6 +100,17 @@ export function getSourceStudyBreadcrumb(
   );
   if (!sourceStudy) return breadcrumb;
   return { ...breadcrumb, text: sourceStudy.title };
+}
+
+/**
+ * Returns the breadcrumb for the source datasets view.
+ * @param pathParameter - Path parameter.
+ * @returns source datasets view breadcrumb.
+ */
+export function getSourceDatasetsBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(BREADCRUMB_SOURCE_DATASETS, pathParameter);
 }
 
 /**
