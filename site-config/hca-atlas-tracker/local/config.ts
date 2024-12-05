@@ -75,8 +75,8 @@ export function makeConfig(
               label: "Help & Documentation",
               menuItems: [
                 {
-                  label: "Requesting Access",
-                  url: ROUTE.REQUESTING_ACCESS,
+                  label: "Requesting Elevated Permissions",
+                  url: ROUTE.REQUESTING_ELEVATED_PERMISSIONS,
                 },
                 {
                   label: "Validating an Atlas's Source Study List",
