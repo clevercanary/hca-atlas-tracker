@@ -6,13 +6,16 @@ import { Content } from "../../app/components/Layout/components/Content/content"
 import { MDX_COMPONENTS } from "../../app/content/common/constants";
 import { getContentStaticProps } from "../../app/content/common/contentPages";
 
-const slug = ["requesting-access"];
+const slug = ["requesting-elevated-permissions"];
 
 export const getStaticProps: GetStaticProps = async () => {
-  return getContentStaticProps({ params: { slug } }, "Requesting Access");
+  return getContentStaticProps(
+    { params: { slug } },
+    "Requesting Elevated Permissions"
+  );
 };
 
-const RequestingAccessPage = ({
+const RequestingElevatedPermissionsPage = ({
   layoutStyle,
   mdxSource,
 }: InferGetStaticPropsType<typeof getStaticProps>): JSX.Element => {
@@ -28,6 +31,6 @@ const RequestingAccessPage = ({
   );
 };
 
-RequestingAccessPage.Main = Main;
+RequestingElevatedPermissionsPage.Main = Main;
 
-export default RequestingAccessPage;
+export default RequestingElevatedPermissionsPage;

@@ -10,7 +10,7 @@ export const ROUTE = {
   CREATE_USER: "/team/create",
   LOGIN: "/login",
   REPORTS: "/reports",
-  REQUESTING_ACCESS: "/requesting-access",
+  REQUESTING_ELEVATED_PERMISSIONS: "/requesting-elevated-permissions",
   SOURCE_DATASETS:
     "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   SOURCE_STUDIES: "/atlases/[atlasId]/source-studies",
