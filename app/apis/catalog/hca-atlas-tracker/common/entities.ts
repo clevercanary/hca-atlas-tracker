@@ -209,6 +209,7 @@ export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
+  source_datasets: string[];
   source_studies: string[];
   status: ATLAS_STATUS;
   target_completion: Date | null;
