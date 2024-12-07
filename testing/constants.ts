@@ -1227,6 +1227,30 @@ export const SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID: TestPublishedSourceStu
     publication: null,
   };
 
+export const SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "626a8685-719b-4a72-9a71-642d6ab8c3be",
+    unpublishedInfo: {
+      contactEmail: "barbazfoobazfoo@example.com",
+      referenceAuthor: "Bar Foo Foo Baz Baz",
+      title: "Source Study With Atlas Linked Datasets A",
+    },
+  };
+
+export const SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "7a2fb8ae-a9a7-4e61-b36e-80097d121b0a",
+    unpublishedInfo: {
+      contactEmail: "foofoobazbazfoo@example.com",
+      referenceAuthor: "Bar Foo Bar Baz Bar",
+      title: "Source Study With Atlas Linked Datasets B",
+    },
+  };
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1255,6 +1279,8 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -1436,6 +1462,39 @@ export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR: TestSourceDatase
     title: "Source Dataset Published Without CELLxGENE ID Bar",
   };
 
+export const SOURCE_DATASET_ATLAS_LINKED_A_FOO: TestSourceDataset = {
+  assay: ["assay atlas linked a foo"],
+  cellCount: 3982,
+  disease: ["disease atlas linked a foo"],
+  id: "4d08641d-be55-440b-8a19-b67c965cc2bf",
+  sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  suspensionType: ["suspension type atlas linked a foo"],
+  tissue: ["tissue atlas linked a foo"],
+  title: "Source Dataset Atlas Linked A Foo",
+};
+
+export const SOURCE_DATASET_ATLAS_LINKED_B_FOO: TestSourceDataset = {
+  assay: ["assay atlas linked b foo"],
+  cellCount: 81283,
+  disease: ["disease atlas linked b foo"],
+  id: "9d361a63-78bb-487c-8af5-160de4782eb2",
+  sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+  suspensionType: ["suspension type atlas linked b foo"],
+  tissue: ["tissue atlas linked b foo"],
+  title: "Source Dataset Atlas Linked B Foo",
+};
+
+export const SOURCE_DATASET_ATLAS_LINKED_B_BAR: TestSourceDataset = {
+  assay: ["assay atlas linked b bar"],
+  cellCount: 12353,
+  disease: ["disease atlas linked b bar"],
+  id: "a710a258-c48c-4185-9d28-9e9429c989fd",
+  sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+  suspensionType: ["suspension type atlas linked b bar"],
+  tissue: ["tissue atlas linked b bar"],
+  title: "Source Dataset Atlas Linked B Bar",
+};
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_FOO,
@@ -1455,6 +1514,9 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR,
+  SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+  SOURCE_DATASET_ATLAS_LINKED_B_FOO,
 ];
 
 // ATLAS IDS
@@ -1652,6 +1714,11 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   network: "adipose",
   publications: [{ doi: DOI_NORMAL, publication: PUBLICATION_NORMAL }],
   shortName: "test-with-misc-source-studies",
+  sourceDatasets: [
+    SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+    SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
+    SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+  ],
   sourceStudies: [
     SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
     SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id,
@@ -1667,9 +1734,27 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id,
     SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
     SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
+    SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+    SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
   ],
   status: ATLAS_STATUS.PUBLIC,
   version: "2.3",
+  wave: "2",
+};
+
+export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "baz baz baz foo bar bar",
+  highlights: "",
+  id: "1d58c9eb-ff76-4a23-a579-380a96a9125a",
+  integrationLead: [],
+  network: "eye",
+  publications: [],
+  shortName: "test-with-misc-source-studies-b",
+  sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
+  status: ATLAS_STATUS.DRAFT,
+  version: "5.3",
   wave: "2",
 };
 

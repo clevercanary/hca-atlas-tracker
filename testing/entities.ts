@@ -31,6 +31,7 @@ export interface TestAtlas {
   network: NetworkKey;
   publications: DoiPublicationInfo[];
   shortName: string;
+  sourceDatasets?: string[];
   sourceStudies: string[];
   status: ATLAS_STATUS;
   targetCompletion?: Date;
