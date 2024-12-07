@@ -110,10 +110,11 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
-      "INSERT INTO hat.atlases (id, overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO hat.atlases (id, overview, source_datasets, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5, $6)",
       [
         atlas.id,
         JSON.stringify(overview),
+        atlas.sourceDatasets || [],
         JSON.stringify(atlas.sourceStudies || []),
         atlas.status,
         atlas.targetCompletion ?? null,

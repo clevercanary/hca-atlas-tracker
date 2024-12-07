@@ -42,6 +42,7 @@ import {
   SOURCE_STUDY_SHARED,
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -62,11 +63,7 @@ import {
   initSourceDatasets,
   resetDatabase,
 } from "../testing/db-utils";
-import {
-  TestPublishedSourceStudy,
-  TestSourceStudy,
-  TestUser,
-} from "../testing/entities";
+import { TestSourceStudy, TestUser } from "../testing/entities";
 import {
   expectApiValidationsToMatchDb,
   expectComponentAtlasDatasetsToHaveDifference,
@@ -754,6 +751,22 @@ describe(TEST_ROUTE, () => {
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
+  it("returns error 400 when study of multiple atlases is DELETE requested from atlas it has datasets on", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A);
+  });
+
   it("deletes source study only from specified atlas and revalidates when shared by multiple atlases", async () => {
     const validationsBefore = await getValidationsByEntityId(
       SOURCE_STUDY_SHARED.id
@@ -958,15 +971,19 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
   expect(studyFromDb.study_info.hcaProjectId).toEqual(editData.hcaProjectId);
 }
 
-async function expectStudyToBeUnchanged(
-  study: TestPublishedSourceStudy
-): Promise<void> {
+async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {
   const studyFromDb = await getStudyFromDatabase(study.id);
   expect(studyFromDb).toBeDefined();
   if (!studyFromDb) return;
-  expect(studyFromDb.doi).toEqual(study.doi);
-  expect(studyFromDb.study_info.doiStatus).toEqual(study.doiStatus);
-  expect(studyFromDb.study_info.publication).toEqual(study.publication);
+  if ("unpublishedInfo" in study) {
+    expect(studyFromDb.study_info.unpublishedInfo).toEqual(
+      study.unpublishedInfo
+    );
+  } else {
+    expect(studyFromDb.doi).toEqual(study.doi);
+    expect(studyFromDb.study_info.doiStatus).toEqual(study.doiStatus);
+    expect(studyFromDb.study_info.publication).toEqual(study.publication);
+  }
 }
 
 async function getSourceDatasetFromDatabase(
