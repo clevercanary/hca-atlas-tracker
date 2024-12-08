@@ -236,9 +236,14 @@ export async function deleteSourceDataset(
   sourceStudyId: string,
   sourceDatasetId: string
 ): Promise<void> {
-  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete");
   await doTransaction(async (client) => {
+    await confirmSourceStudyExistsOnAtlas(
+      sourceStudyId,
+      atlasId,
+      undefined,
+      client
+    );
+    await confirmSourceDatasetCanBeExplicitlyDeleted(sourceDatasetId, client);
     const queryResult = await client.query(
       "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
       [sourceDatasetId, sourceStudyId]
@@ -450,18 +455,43 @@ function getCellxGeneSourceDatasetInfo(
 }
 
 /**
+ * Throw an error if the given source dataset cannot be deleted as an explicit user action.
+ * @param sourceDatasetId - Source dataset ID.
+ * @param client - Postgres client to use.
+ */
+async function confirmSourceDatasetCanBeExplicitlyDeleted(
+  sourceDatasetId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete", client);
+
+  const linkedAtlasesQueryResult = await query(
+    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE $1 = ANY(a.source_datasets))",
+    [sourceDatasetId],
+    client
+  );
+  if (linkedAtlasesQueryResult.rows[0].exists)
+    throw new InvalidOperationError(
+      `Source dataset with ID ${sourceDatasetId} is linked to atlas(es)`
+    );
+}
+
+/**
  * Throw an error if the given source dataset is a CELLxGENE dataset.
  * @param sourceDatasetId - ID of the source dataset to check.
  * @param attemptedOperationVerb - Word to use in the error message describing the operation attempted on the source dataset.
+ * @param client - Postgres client to use.
  */
 async function confirmSourceDatasetIsNonCellxGene(
   sourceDatasetId: string,
-  attemptedOperationVerb: string
+  attemptedOperationVerb: string,
+  client?: pg.PoolClient
 ): Promise<void> {
   const { is_cellxgene } = (
     await query<{ is_cellxgene: boolean }>(
       "SELECT NOT sd_info->'cellxgeneDatasetId' = 'null' as is_cellxgene FROM hat.source_datasets WHERE id=$1",
-      [sourceDatasetId]
+      [sourceDatasetId],
+      client
     )
   ).rows[0];
   if (is_cellxgene)
