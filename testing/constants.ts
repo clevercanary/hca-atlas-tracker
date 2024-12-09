@@ -1495,6 +1495,17 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAR: TestSourceDataset = {
   title: "Source Dataset Atlas Linked B Bar",
 };
 
+export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ: TestSourceDataset = {
+  assay: ["assay atlas linked b baz"],
+  cellCount: 38429,
+  disease: ["disease atlas linked b baz"],
+  id: "79446f6f-0f3a-4915-a019-090189947223",
+  sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+  suspensionType: ["suspension type atlas linked b baz"],
+  tissue: ["tissue atlas linked b baz"],
+  title: "Source Dataset Atlas Linked B Baz",
+};
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_FOO,
@@ -1515,8 +1526,9 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
-  SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+  SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
 ];
 
 // ATLAS IDS
@@ -1816,6 +1828,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_PUBLIC,
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
 ];

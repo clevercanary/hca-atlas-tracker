@@ -24,9 +24,11 @@ import {
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
 } from "./constants";
+import { TestAtlas } from "./entities";
 import {
   aggregateSourceDatasetArrayField,
   expectApiValidationsToMatchDb,
+  expectIsDefined,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
@@ -302,6 +304,29 @@ export async function getValidationsByEntityId(
       [id]
     )
   ).rows;
+}
+
+export async function expectAtlasToBeUnchanged(
+  atlas: TestAtlas
+): Promise<void> {
+  const atlasFromDb = await getAtlasFromDatabase(atlas.id);
+  if (!expectIsDefined(atlasFromDb)) return;
+  expect(atlasFromDb.overview.cellxgeneAtlasCollection).toEqual(
+    atlas.cellxgeneAtlasCollection
+  );
+  expect(atlasFromDb.overview.codeLinks).toEqual(atlas.codeLinks);
+  expect(atlasFromDb.overview.description).toEqual(atlas.description);
+  expect(atlasFromDb.overview.highlights).toEqual(atlas.highlights);
+  expect(atlasFromDb.overview.integrationLead).toEqual(atlas.integrationLead);
+  expect(atlasFromDb.overview.network).toEqual(atlas.network);
+  expect(atlasFromDb.overview.publications).toEqual(atlas.publications);
+  expect(atlasFromDb.overview.shortName).toEqual(atlas.shortName);
+  expect(atlasFromDb.overview.version).toEqual(atlas.version);
+  expect(atlasFromDb.overview.wave).toEqual(atlas.wave);
+  expect(atlasFromDb.source_datasets).toEqual(atlas.sourceDatasets ?? []);
+  expect(atlasFromDb.source_studies).toEqual(atlas.sourceStudies);
+  expect(atlasFromDb.status).toEqual(atlas.status);
+  expect(atlasFromDb.target_completion).toEqual(atlas.targetCompletion ?? null);
 }
 
 export async function expectApiSourceStudyToHaveMatchingDbValidations(
