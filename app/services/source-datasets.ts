@@ -13,6 +13,7 @@ import {
   SourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { removeSourceDatasetsFromAllAtlases } from "./atlases";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
   getComponentAtlasNotFoundError,
@@ -258,11 +259,11 @@ export async function deleteSourceDataset(
 }
 
 /**
- * Delete all source datasets of the specified source study.
+ * Delete all source datasets of the specified source study, as result of the source study being deleted.
  * @param sourceStudyId - Source study ID.
  * @param client - Postgres client to use.
  */
-export async function deleteSourceDatasetsOfSourceStudy(
+export async function deleteSourceDatasetsOfDeletedSourceStudy(
   sourceStudyId: string,
   client: pg.PoolClient
 ): Promise<void> {
@@ -321,7 +322,7 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
       updatedDatasetsInfo.modified.push(...studyUpdatedDatasetsInfo.modified);
     }
 
-    await updateComponentAtlasesForUpdatedSourceDatasets(
+    await updateLinkedEntitiesForUpdatedSourceDatasets(
       updatedDatasetsInfo,
       client
     );
@@ -343,7 +344,7 @@ export async function updateSourceStudyCellxGeneDatasets(
     client
   );
 
-  await updateComponentAtlasesForUpdatedSourceDatasets(
+  await updateLinkedEntitiesForUpdatedSourceDatasets(
     updatedDatasetsInfo,
     client
   );
@@ -452,6 +453,22 @@ function getCellxGeneSourceDatasetInfo(
     tissue: cxgDataset.tissue.map((t) => t.label),
     title: cxgDataset.title,
   };
+}
+
+/**
+ * Update properties of entities with linked source datasets based on lists of created, modified, and deleted datasets.
+ * @param updatedDatasetsInfo - Object containing lists of IDs of source datasets to update linked entities of.
+ * @param client - Postgres client to use.
+ */
+async function updateLinkedEntitiesForUpdatedSourceDatasets(
+  updatedDatasetsInfo: UpdatedSourceDatasetsInfo,
+  client: pg.PoolClient
+): Promise<void> {
+  await updateComponentAtlasesForUpdatedSourceDatasets(
+    updatedDatasetsInfo,
+    client
+  );
+  await removeSourceDatasetsFromAllAtlases(updatedDatasetsInfo.deleted, client);
 }
 
 /**

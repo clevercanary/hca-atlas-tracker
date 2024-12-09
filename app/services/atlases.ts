@@ -144,6 +144,26 @@ export async function updateTaskCounts(): Promise<void> {
 }
 
 /**
+ * Remove the given source datasets from all atlases that have any of them.
+ * @param sourceDatasetIds - IDs of source datasets to remove.
+ * @param client - Postgres client to use.
+ */
+export async function removeSourceDatasetsFromAllAtlases(
+  sourceDatasetIds: string[],
+  client: pg.PoolClient
+): Promise<void> {
+  if (sourceDatasetIds.length === 0) return;
+  await client.query(
+    `
+      UPDATE hat.atlases
+      SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
+      WHERE source_datasets && $1
+    `,
+    [sourceDatasetIds]
+  );
+}
+
+/**
  * Throw a NotFoundError if the specified atlas doesn't exist.
  * @param atlasId - ID of the atlas to check for.
  */
