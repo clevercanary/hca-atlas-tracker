@@ -518,6 +518,38 @@ async function confirmSourceDatasetIsNonCellxGene(
 }
 
 /**
+ * Throw an error if the given source dataset does not exist on a source study of the given atlas.
+ * @param sourceDatasetId - Source dataset ID.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+export async function confirmSourceDatasetStudyIsOnAtlas(
+  sourceDatasetId: string,
+  atlasId: string,
+  client?: pg.PoolClient
+): Promise<void> {
+  const queryResult = await query(
+    `
+      SELECT
+        EXISTS(
+          SELECT 1 FROM hat.source_datasets d
+          WHERE d.id = $1 AND a.source_studies ? d.source_study_id::text
+        )
+      FROM hat.atlases a
+      WHERE a.id = $2
+    `,
+    [sourceDatasetId, atlasId],
+    client
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  if (!queryResult.rows[0].exists)
+    throw new InvalidOperationError(
+      `Source dataset with ID ${sourceDatasetId} is not on a source study of atlas with ID ${atlasId}`
+    );
+}
+
+/**
  * Check whether a list of dataset IDs exist, and throw an error if any don't.
  * @param sourceDatasetIds - Source dataset IDs to check for.
  */
