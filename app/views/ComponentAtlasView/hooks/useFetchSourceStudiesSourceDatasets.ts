@@ -29,7 +29,7 @@ export const useFetchSourceStudiesSourceDatasets = (
       try {
         const requests = sourceStudyIds.map((sourceStudyId) =>
           fetch(
-            getRequestURL(API.ATLAS_SOURCE_DATASETS, {
+            getRequestURL(API.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, {
               ...pathParameter,
               sourceStudyId,
             }),

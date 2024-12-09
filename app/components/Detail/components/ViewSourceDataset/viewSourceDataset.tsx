@@ -48,7 +48,7 @@ export const ViewSourceDataset = ({
           mapSchemaValues={mapSchemaValues}
           method={METHOD.PATCH}
           onClose={onClose}
-          requestUrl={getRequestURL(API.ATLAS_SOURCE_DATASET, {
+          requestUrl={getRequestURL(API.ATLAS_SOURCE_STUDY_SOURCE_DATASET, {
             ...pathParameter,
             sourceDatasetId,
             sourceStudyId,
