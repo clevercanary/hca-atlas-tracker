@@ -19,7 +19,7 @@ export const useFetchSourceDatasets = (
   const { data: sourceDatasets, isSuccess } = useFetchData<
     HCAAtlasTrackerSourceDataset[] | undefined
   >(
-    getRequestURL(API.ATLAS_SOURCE_DATASETS, pathParameter),
+    getRequestURL(API.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, pathParameter),
     METHOD.GET,
     shouldFetch
   );
