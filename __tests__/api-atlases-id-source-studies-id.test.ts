@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   DOI_STATUS,
-  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
@@ -26,6 +25,7 @@ import {
   CELLXGENE_ID_NORMAL,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
@@ -58,7 +58,9 @@ import {
 } from "../testing/constants";
 import {
   expectApiSourceStudyToHaveMatchingDbValidations,
+  getAtlasFromDatabase,
   getCellxGeneSourceDatasetFromDatabase,
+  getComponentAtlasFromDatabase,
   getExistingComponentAtlasFromDatabase,
   getSourceStudyFromDatabase,
   getStudySourceDatasets,
@@ -74,7 +76,9 @@ import {
 } from "../testing/entities";
 import {
   expectApiValidationsToMatchDb,
+  expectAtlasDatasetsToHaveDifference,
   expectComponentAtlasDatasetsToHaveDifference,
+  expectIsDefined,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
   testApiRole,
@@ -596,9 +600,16 @@ describe(TEST_ROUTE, () => {
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
-  it("deletes CELLxGENE datasets when source study is PUT requested with CELLxGENE ID removed", async () => {
+  it("deletes CELLxGENE datasets, updating linked entities, when source study is PUT requested with CELLxGENE ID removed", async () => {
     const studyDatasetsBefore = await getStudySourceDatasets(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
+    );
+
+    const atlasBefore = await getAtlasFromDatabase(
+      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id
+    );
+    const componentAtlasBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
     );
 
     expect(studyDatasetsBefore).toHaveLength(3);
@@ -662,6 +673,32 @@ describe(TEST_ROUTE, () => {
         SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.id
       )
     ).toBeTruthy();
+
+    const atlasAfter = await getAtlasFromDatabase(
+      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id
+    );
+    const componentAtlasAfter = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
+    );
+
+    if (
+      !(
+        expectIsDefined(atlasBefore) &&
+        expectIsDefined(atlasAfter) &&
+        expectIsDefined(componentAtlasBefore) &&
+        expectIsDefined(componentAtlasAfter)
+      )
+    ) {
+      return;
+    }
+    expectAtlasDatasetsToHaveDifference(atlasAfter, atlasBefore, [
+      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+    ]);
+    expectComponentAtlasDatasetsToHaveDifference(
+      componentAtlasAfter,
+      componentAtlasBefore,
+      [SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR]
+    );
 
     await initSourceDatasets(undefined, [
       SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
@@ -1060,17 +1097,6 @@ async function getStudyFromDatabase(
   return (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [id]
-    )
-  ).rows[0];
-}
-
-async function getAtlasFromDatabase(
-  id: string
-): Promise<HCAAtlasTrackerDBAtlas | undefined> {
-  return (
-    await query<HCAAtlasTrackerDBAtlas>(
-      "SELECT * FROM hat.atlases WHERE id=$1",
       [id]
     )
   ).rows[0];

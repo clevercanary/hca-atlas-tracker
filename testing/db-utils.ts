@@ -3,6 +3,7 @@ import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
@@ -218,6 +219,17 @@ export async function getDbUsersByEmail(): Promise<
       (u) => [u.email, u]
     )
   );
+}
+
+export async function getAtlasFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBAtlas | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBAtlas>(
+      "SELECT * FROM hat.atlases WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
 }
 
 export async function getExistingComponentAtlasFromDatabase(

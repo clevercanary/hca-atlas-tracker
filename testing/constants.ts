@@ -1718,6 +1718,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
     SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
     SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+    SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.id,
   ],
   sourceStudies: [
     SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
@@ -1790,6 +1791,10 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   network: "gut",
   publications: [],
   shortName: "test-with-source-study-validations-b",
+  sourceDatasets: [
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ.id,
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.id,
+  ],
   sourceStudies: [
     SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
     SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE.id,
@@ -1863,11 +1868,24 @@ export const COMPONENT_ATLAS_MISC_FOO: TestComponentAtlas = {
   title: "Component Atlas Misc Foo",
 };
 
+export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS: TestComponentAtlas = {
+  atlasId: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
+  description: "barfoo foo baz barbar",
+  id: "6feee158-5e54-4f46-8695-360c89ef9916",
+  sourceDatasets: [
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
+    SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+  ],
+  title: "Component Atlas Misc Foo",
+};
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
 ];
 
 // COMMENTS

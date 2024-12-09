@@ -38,7 +38,7 @@ import {
 } from "./database";
 import { getProjectIdByDoi } from "./hca-projects";
 import {
-  deleteSourceDatasetsOfSourceStudy,
+  deleteSourceDatasetsOfDeletedSourceStudy,
   updateSourceStudyCellxGeneDatasets,
 } from "./source-datasets";
 import {
@@ -419,7 +419,7 @@ export async function deleteAtlasSourceStudy(
     if (sourceStudyHasAtlases) {
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
-      await deleteSourceDatasetsOfSourceStudy(sourceStudyId, client);
+      await deleteSourceDatasetsOfDeletedSourceStudy(sourceStudyId, client);
       await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
         sourceStudyId,
       ]);
