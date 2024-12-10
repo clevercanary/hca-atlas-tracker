@@ -98,7 +98,7 @@ describe(TEST_ROUTE, () => {
       "returns own user information",
       TEST_ROUTE,
       meHandler,
-      METHOD.GET,
+      METHOD.PUT,
       role,
       undefined,
       undefined,
