@@ -1,6 +1,7 @@
 import { CellxGeneDataset } from "app/utils/cellxgene-api";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
@@ -45,6 +46,28 @@ export async function getSourceStudyDatasets(
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
       "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE s.id = $1",
       [sourceStudyId]
+    );
+  return queryResult.rows;
+}
+
+/**
+ * Get all source datasets linked to the given atlas.
+ * @param atlasId - Atlas ID.
+ * @returns database-model source datasets.
+ */
+export async function getAtlasDatasets(
+  atlasId: string
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+  const atlasResult = await query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
+  >("SELECT source_datasets FROM hat.atlases WHERE id=$1", [atlasId]);
+  if (atlasResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  const sourceDatasetIds = atlasResult.rows[0].source_datasets;
+  const queryResult =
+    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      [sourceDatasetIds]
     );
   return queryResult.rows;
 }
