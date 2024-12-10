@@ -19,6 +19,7 @@ export { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/compon
 export { RowDrawer } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/RowDrawer/rowDrawer";
 export { AlertTitle } from "@mui/material";
 export { IconButton } from "./common/IconButton/iconButton";
+export { LinkDatasetDropdown } from "./Detail/components/ViewAtlasSourceDatasets/components/LinkDatasetDropdown/linkDatasetDropdown";
 export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
 export { PreviewTask } from "./Index/components/ViewTasks/components/PreviewTask/previewTask";
