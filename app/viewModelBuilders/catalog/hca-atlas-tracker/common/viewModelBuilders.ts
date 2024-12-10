@@ -831,7 +831,7 @@ export function getAtlasComponentSourceDatasetsTableColumns(
  * @param canEdit - Edit state for user.
  * @returns Table column definition.
  */
-export function getAtlasSourceDatasetsTableColumns(
+export function getAtlasSourceStudySourceDatasetsTableColumns(
   pathParameter: PathParameter,
   canEdit: boolean
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {

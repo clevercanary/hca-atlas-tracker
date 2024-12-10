@@ -3,7 +3,7 @@ import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Pape
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { getAtlasSourceStudySourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
@@ -39,7 +39,10 @@ export const ViewSourceDatasets = ({
         )}
         {sourceDatasets.length > 0 && (
           <Table
-            columns={getAtlasSourceDatasetsTableColumns(pathParameter, canEdit)}
+            columns={getAtlasSourceStudySourceDatasetsTableColumns(
+              pathParameter,
+              canEdit
+            )}
             gridTemplateColumns="max-content minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
             items={sourceDatasets.sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
