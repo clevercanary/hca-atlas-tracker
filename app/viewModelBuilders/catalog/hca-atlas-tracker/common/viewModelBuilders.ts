@@ -831,7 +831,15 @@ export function getAtlasComponentSourceDatasetsTableColumns(
  * @returns Table column definition.
  */
 export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [getLinkedSourceDatasetTitleColumnDef()];
+  return [
+    getLinkedSourceDatasetTitleColumnDef(),
+    getSourceDatasetExploreColumnDef(),
+    getSourceDatasetAssayColumnDef(),
+    getSourceDatasetSuspensionTypeColumnDef(),
+    getSourceDatasetTissueColumnDef(),
+    getSourceDatasetDiseaseColumnDef(),
+    getCellCountColumnDef(),
+  ];
 }
 
 /**
