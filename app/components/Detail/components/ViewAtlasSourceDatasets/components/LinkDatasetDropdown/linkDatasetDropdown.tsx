@@ -1,5 +1,5 @@
 import { MenuItem, Select } from "@mui/material";
-import { UseSetLinkedAtlasSourceDatasets } from "../../../../../../views/AtlasSourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
+import { UseSetLinkedAtlasSourceDatasets } from "../../../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 
 enum DATASET_STATUS {
   IN_USE = "IN_USE",

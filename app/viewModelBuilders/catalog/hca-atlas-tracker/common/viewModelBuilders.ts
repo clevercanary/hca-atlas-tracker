@@ -41,8 +41,8 @@ import * as C from "../../../../components";
 import { SOURCE_STUDY_STATUS } from "../../../../components/Table/components/TableCell/components/SourceStudyStatusCell/sourceStudyStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
-import { UseSetLinkedAtlasSourceDatasets } from "../../../../views/AtlasSourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
+import { UseSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { EXTRA_PROPS } from "./constants";
 import {
   COMPONENT_NAME,
@@ -828,64 +828,33 @@ export function getAtlasComponentSourceDatasetsTableColumns(
 
 /**
  * Returns the table column definition model for the atlas source datasets table.
- * @param onSetLinked - Set linked source datasets function.
- * @param canEdit - Edit state for user.
- * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
  * @returns Table column definition.
  */
-export function getAtlasSourceDatasetsTableColumns(
-  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
-  canEdit: boolean,
-  linkedSourceDatasetIds: Set<string>
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [
-    getLinkedSourceDatasetTitleColumnDef(),
-    getAtlasSourceDatasetLinkedColumnDef(
-      onSetLinked,
-      canEdit,
-      linkedSourceDatasetIds
-    ),
-  ];
-}
-
-/**
- * Returns atlas source dataset linked column def.
- * @param onSetLinked - Set linked source datasets function.
- * @param canEdit - Edit state for user.
- * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
- * @returns ColumnDef.
- */
-function getAtlasSourceDatasetLinkedColumnDef(
-  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
-  canEdit: boolean,
-  linkedSourceDatasetIds: Set<string>
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "linked",
-    cell: ({ row }) =>
-      C.LinkDatasetDropdown({
-        disabled: !canEdit,
-        linked: linkedSourceDatasetIds.has(row.original.id),
-        onSetLinked,
-        sourceDatasetId: row.original.id,
-      }),
-    header: "",
-    meta: { enableSortingInteraction: false },
-  };
+export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+  return [getLinkedSourceDatasetTitleColumnDef()];
 }
 
 /**
  * Returns the table column definition model for the atlas (edit mode) source datasets table.
  * @param pathParameter - Path parameter.
+ * @param onSetLinked - Set linked source datasets function.
  * @param canEdit - Edit state for user.
+ * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
  * @returns Table column definition.
  */
 export function getAtlasSourceStudySourceDatasetsTableColumns(
   pathParameter: PathParameter,
-  canEdit: boolean
+  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
+  canEdit: boolean,
+  linkedSourceDatasetIds: Set<string>
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetTitleColumnDef(pathParameter, canEdit),
+    getAtlasSourceStudiesSourceDatasetLinkedColumnDef(
+      onSetLinked,
+      canEdit,
+      linkedSourceDatasetIds
+    ),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
     getSourceDatasetSuspensionTypeColumnDef(),
@@ -904,6 +873,32 @@ function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAA
     accessorKey: "cellCount",
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
+    meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns atlas source studies source dataset linked column def.
+ * @param onSetLinked - Set linked source dataset function.
+ * @param canEdit - Edit state for user.
+ * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
+ * @returns ColumnDef.
+ */
+function getAtlasSourceStudiesSourceDatasetLinkedColumnDef(
+  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
+  canEdit: boolean,
+  linkedSourceDatasetIds: Set<string>
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "linked",
+    cell: ({ row }) =>
+      C.LinkDatasetDropdown({
+        disabled: !canEdit,
+        linked: linkedSourceDatasetIds.has(row.original.id),
+        onSetLinked,
+        sourceDatasetId: row.original.id,
+      }),
+    header: "Used In Atlas",
     meta: { enableSortingInteraction: false },
   };
 }

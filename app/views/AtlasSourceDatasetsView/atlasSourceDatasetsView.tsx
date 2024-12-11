@@ -1,5 +1,6 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { useFetchAtlas } from "app/hooks/useFetchAtlas";
 import { Fragment } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
@@ -10,7 +11,7 @@ import { AtlasStatus } from "../../components/Layout/components/Detail/component
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "./common/utils";
-import { useFetchAtlasSourceDatasetsData } from "./hooks/useFetchAtlasSourceDatasetsData";
+import { useFetchAtlasSourceDatasets } from "./hooks/useFetchAtlasSourceDatasets";
 
 interface AtlasSourceDatasetsViewProps {
   pathParameter: PathParameter;
@@ -19,22 +20,17 @@ interface AtlasSourceDatasetsViewProps {
 export const AtlasSourceDatasetsView = ({
   pathParameter,
 }: AtlasSourceDatasetsViewProps): JSX.Element => {
-  const atlasSourceDatasetsData =
-    useFetchAtlasSourceDatasetsData(pathParameter);
   const formManager = useFormManager();
   const {
     access: { canView },
     isLoading,
   } = formManager;
-  const { atlas, atlasSourceDatasets, sourceStudiesSourceDatasets } =
-    atlasSourceDatasetsData;
+  const { atlas } = useFetchAtlas(pathParameter);
+  const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
   if (isLoading) return <Fragment />;
   return (
     <ConditionalComponent
-      isIn={shouldRenderView(
-        canView,
-        Boolean(atlas && atlasSourceDatasets && sourceStudiesSourceDatasets)
-      )}
+      isIn={shouldRenderView(canView, Boolean(atlas && atlasSourceDatasets))}
     >
       <DetailView
         breadcrumbs={
@@ -42,10 +38,8 @@ export const AtlasSourceDatasetsView = ({
         }
         mainColumn={
           <ViewAtlasSourceDatasets
-            atlasSourceDatasets={atlasSourceDatasets}
             formManager={formManager}
-            pathParameter={pathParameter}
-            sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
+            atlasSourceDatasets={atlasSourceDatasets}
           />
         }
         status={atlas && <AtlasStatus atlasStatus={atlas.status} />}

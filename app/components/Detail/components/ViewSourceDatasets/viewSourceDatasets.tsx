@@ -4,6 +4,7 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas
 import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceStudySourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { useSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
@@ -13,6 +14,7 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceDatasetsProps {
+  atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
   isCELLXGENECollection: boolean;
   pathParameter: PathParameter;
@@ -20,6 +22,7 @@ interface ViewSourceDatasetsProps {
 }
 
 export const ViewSourceDatasets = ({
+  atlasSourceDatasets = [],
   formManager,
   isCELLXGENECollection,
   pathParameter,
@@ -28,7 +31,9 @@ export const ViewSourceDatasets = ({
   const {
     access: { canEdit, canView },
   } = formManager;
+  const { onSetLinked } = useSetLinkedAtlasSourceDatasets(pathParameter);
   if (!canView) return <RequestAccess />;
+  const linkedSourceDatasetIds = new Set(atlasSourceDatasets.map((d) => d.id));
   return (
     <Paper>
       <GridPaper>
@@ -41,9 +46,11 @@ export const ViewSourceDatasets = ({
           <Table
             columns={getAtlasSourceStudySourceDatasetsTableColumns(
               pathParameter,
-              canEdit
+              onSetLinked,
+              canEdit,
+              linkedSourceDatasetIds
             )}
-            gridTemplateColumns="max-content minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
+            gridTemplateColumns="max-content minmax(200px, 1fr) auto minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
             items={sourceDatasets.sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />
