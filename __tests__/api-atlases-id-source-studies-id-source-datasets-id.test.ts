@@ -14,12 +14,14 @@ import {
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
+  SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOFOO,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -547,6 +549,23 @@ describe(TEST_ROUTE, () => {
     await expectSourceDatasetToBeUnchanged(
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE
     );
+  });
+
+  it("returns error 400 when source dataset with linked atlas is DELETE requested", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+          SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
   it("deletes source dataset when requested by user with CONTENT_ADMIN role", async () => {

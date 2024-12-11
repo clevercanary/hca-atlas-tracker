@@ -6,23 +6,23 @@ import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
 
-interface UseFetchSourceDatasets {
-  sourceDatasets?: HCAAtlasTrackerSourceDataset[];
+interface UseFetchAtlasSourceDatasets {
+  atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
-export const useFetchSourceDatasets = (
+export const useFetchAtlasSourceDatasets = (
   pathParameter: PathParameter
-): UseFetchSourceDatasets => {
+): UseFetchAtlasSourceDatasets => {
   const {
     fetchDataState: { shouldFetch },
   } = useFetchDataState();
-  const { data: sourceDatasets, isSuccess } = useFetchData<
+  const { data: atlasSourceDatasets, isSuccess } = useFetchData<
     HCAAtlasTrackerSourceDataset[] | undefined
   >(
-    getRequestURL(API.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, pathParameter),
+    getRequestURL(API.ATLAS_SOURCE_DATASETS, pathParameter),
     METHOD.GET,
     shouldFetch
   );
   useResetFetchStatus(isSuccess);
-  return { sourceDatasets };
+  return { atlasSourceDatasets };
 };

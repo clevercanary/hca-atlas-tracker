@@ -361,6 +361,20 @@ export function expectSourceStudyToMatch(
   }
 }
 
+export function expectAtlasDatasetsToHaveDifference(
+  atlasWithout: HCAAtlasTrackerDBAtlas,
+  atlasWith: HCAAtlasTrackerDBAtlas,
+  sourceDatasets: TestSourceDataset[]
+): void {
+  expectArrayToContainItems(
+    atlasWith.source_datasets,
+    atlasWithout.source_datasets
+  );
+  for (const { id } of sourceDatasets) {
+    expect(atlasWithout.source_datasets).not.toContain(id);
+  }
+}
+
 export function expectComponentAtlasDatasetsToHaveDifference(
   componentAtlasWithout: HCAAtlasTrackerDBComponentAtlas,
   componentAtlasWith: HCAAtlasTrackerDBComponentAtlas,
