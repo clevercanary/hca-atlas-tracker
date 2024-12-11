@@ -40,12 +40,12 @@ export const Tabs = ({
       tabs={[
         { label: "Overview", value: ROUTE.ATLAS },
         {
-          label: getTabLabelWithCount("Source Studies", sourceStudyCount),
-          value: ROUTE.SOURCE_STUDIES,
-        },
-        {
           label: getTabLabelWithCount("Source Datasets", sourceDatasetCount),
           value: ROUTE.ATLAS_SOURCE_DATASETS,
+        },
+        {
+          label: getTabLabelWithCount("Source Studies", sourceStudyCount),
+          value: ROUTE.SOURCE_STUDIES,
         },
         {
           label: getTabLabelWithCount(
