@@ -960,15 +960,20 @@ export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCA
 /**
  * Returns the table column definition model for the atlas (edit mode) source studies table.
  * @param pathParameter - Path parameter.
+ * @param atlasLinkedDatasetCountsByStudyId - Counts of atlas-linked datasets by source study.
  * @returns Table column definition.
  */
 export function getAtlasSourceStudiesTableColumns(
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
+  atlasLinkedDatasetCountsByStudyId: Map<string, number>
 ): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
   return [
     getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
-    getSourceStudySourceDatasetCountColumnDef(pathParameter),
+    getSourceStudySourceDatasetCountColumnDef(
+      pathParameter,
+      atlasLinkedDatasetCountsByStudyId
+    ),
     getSourceStudyInCELLxGENEColumnDef(),
     getSourceStudyInCapColumnDef(),
     getSourceStudyInHCADataRepositoryColumnDef(),
@@ -1424,16 +1429,20 @@ function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceSt
 /**
  * Returns source study source datasets count column def.
  * @param pathParameter - Path parameter.
+ * @param atlasLinkedDatasetCountsByStudyId - Counts of atlas-linked datasets by source study.
  * @returns Column def.
  */
 function getSourceStudySourceDatasetCountColumnDef(
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
+  atlasLinkedDatasetCountsByStudyId: Map<string, number>
 ): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "sourceDatasetCount",
     cell: ({ row }) =>
       C.Link({
-        label: row.original.sourceDatasetCount.toLocaleString(),
+        label: `${
+          atlasLinkedDatasetCountsByStudyId.get(row.original.id) ?? 0
+        }/${row.original.sourceDatasetCount.toLocaleString()}`,
         url: getRouteURL(ROUTE.SOURCE_DATASETS, {
           ...pathParameter,
           sourceStudyId: row.original.id,
