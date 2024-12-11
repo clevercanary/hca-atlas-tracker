@@ -5,7 +5,7 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComment,
   HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerDBAtlasWithComponentAtlases,
+  HCAAtlasTrackerDBAtlasWithRelatedEntities,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
@@ -66,7 +66,7 @@ export function atlasInputMapper(
 }
 
 export function dbAtlasToApiAtlas(
-  dbAtlas: HCAAtlasTrackerDBAtlasWithComponentAtlases
+  dbAtlas: HCAAtlasTrackerDBAtlasWithRelatedEntities
 ): HCAAtlasTrackerAtlas {
   return {
     bioNetwork: dbAtlas.overview.network,
@@ -80,7 +80,9 @@ export function dbAtlasToApiAtlas(
     integrationLead: dbAtlas.overview.integrationLead,
     publications: dbAtlas.overview.publications,
     shortName: dbAtlas.overview.shortName,
+    sourceDatasetCount: dbAtlas.source_datasets.length,
     sourceStudyCount: dbAtlas.source_studies.length,
+    sourceStudyDatasetCount: dbAtlas.source_study_dataset_count,
     status: dbAtlas.status,
     targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
     taskCount: dbAtlas.overview.taskCount,

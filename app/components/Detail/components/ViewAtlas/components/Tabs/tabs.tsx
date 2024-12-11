@@ -49,7 +49,14 @@ export const Tabs = ({
           ),
           value: ROUTE.COMPONENT_ATLASES,
         },
-        { label: "Source Datasets", value: ROUTE.ATLAS_SOURCE_DATASETS },
+        {
+          label:
+            "Source Datasets" +
+            (atlas
+              ? ` (${atlas.sourceDatasetCount}/${atlas.sourceStudyDatasetCount})`
+              : ""),
+          value: ROUTE.ATLAS_SOURCE_DATASETS,
+        },
       ]}
       value={route}
     />

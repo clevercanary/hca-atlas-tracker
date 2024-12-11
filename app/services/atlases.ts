@@ -10,7 +10,7 @@ import {
   DoiPublicationInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBAtlasWithComponentAtlases,
+  HCAAtlasTrackerDBAtlasWithRelatedEntities,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasEditData,
@@ -29,9 +29,18 @@ interface AtlasInputDbData {
 
 export async function getAllAtlases(
   client?: pg.PoolClient
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases[]> {
-  const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
-    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id GROUP BY a.id",
+): Promise<HCAAtlasTrackerDBAtlasWithRelatedEntities[]> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlasWithRelatedEntities>(
+    `
+      SELECT
+        a.*,
+        COUNT(DISTINCT c.id)::int AS component_atlas_count,
+        COUNT(DISTINCT d.id)::int AS source_study_dataset_count
+      FROM hat.atlases a
+      LEFT JOIN hat.component_atlases c ON c.atlas_id = a.id
+      LEFT JOIN hat.source_datasets d ON a.source_studies ? d.source_study_id::text
+      GROUP BY a.id
+    `,
     undefined,
     client
   );
@@ -40,9 +49,19 @@ export async function getAllAtlases(
 
 export async function getAtlas(
   id: string
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
-  const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
-    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id WHERE a.id=$1 GROUP BY a.id",
+): Promise<HCAAtlasTrackerDBAtlasWithRelatedEntities> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlasWithRelatedEntities>(
+    `
+      SELECT
+        a.*,
+        COUNT(DISTINCT c.id)::int AS component_atlas_count,
+        COUNT(DISTINCT d.id)::int AS source_study_dataset_count
+      FROM hat.atlases a
+      LEFT JOIN hat.component_atlases c ON c.atlas_id = a.id
+      LEFT JOIN hat.source_datasets d ON a.source_studies ? d.source_study_id::text
+      WHERE a.id=$1
+      GROUP BY a.id
+    `,
     [id]
   );
   if (queryResult.rows.length === 0)
@@ -52,7 +71,7 @@ export async function getAtlas(
 
 export async function createAtlas(
   inputData: NewAtlasData
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
+): Promise<HCAAtlasTrackerDBAtlasWithRelatedEntities> {
   const { overviewData, targetCompletion } = await atlasInputDataToDbData(
     inputData
   );
@@ -72,7 +91,7 @@ export async function createAtlas(
 export async function updateAtlas(
   id: string,
   inputData: AtlasEditData
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
+): Promise<HCAAtlasTrackerDBAtlasWithRelatedEntities> {
   const { overviewData, targetCompletion } = await atlasInputDataToDbData(
     inputData
   );
