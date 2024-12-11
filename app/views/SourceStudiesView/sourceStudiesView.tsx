@@ -8,9 +8,9 @@ import { ViewSourceStudies } from "../../components/Detail/components/ViewSource
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
+import { useFetchSourceStudiesSourceDatasets } from "../../hooks/useFetchSourceStudiesSourceDatasets";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { useFetchAtlasSourceDatasets } from "../AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
-import { useFetchSourceStudiesSourceDatasets } from "../ComponentAtlasView/hooks/useFetchSourceStudiesSourceDatasets";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceStudies } from "./hooks/useFetchSourceStudies";
 

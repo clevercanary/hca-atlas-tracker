@@ -4,8 +4,8 @@ import {
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
 import { useFetchAtlas } from "../../../hooks/useFetchAtlas";
+import { useFetchSourceStudiesSourceDatasets } from "../../../hooks/useFetchSourceStudiesSourceDatasets";
 import { useFetchComponentAtlasSourceDatasets } from "./useFetchComponentAtlasSourceDatasets";
-import { useFetchSourceStudiesSourceDatasets } from "./useFetchSourceStudiesSourceDatasets";
 
 interface UseFetchComponentAtlasData {
   atlas?: HCAAtlasTrackerAtlas;
