@@ -40,7 +40,7 @@ export const ViewAtlasSourceDatasets = ({
               canEdit,
               linkedSourceDatasetIds
             )}
-            gridTemplateColumns="auto auto auto" // TODO
+            gridTemplateColumns="max-content auto auto"
             items={sourceStudiesSourceDatasets.sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />
