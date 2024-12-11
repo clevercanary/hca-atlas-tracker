@@ -12,7 +12,7 @@ export const DEFAULT_INPUT_PROPS = {
   },
   DOI: {
     isFullWidth: true,
-    label: "Publication DOI no.",
+    label: "Publication DOI",
     placeholder: "e.g. 10.1038/s41591-023-02327-2",
   },
   HCA_PROJECT_ID: {
