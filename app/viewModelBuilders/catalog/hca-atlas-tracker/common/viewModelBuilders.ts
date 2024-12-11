@@ -850,7 +850,7 @@ export function getAtlasSourceStudySourceDatasetsTableColumns(
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetTitleColumnDef(pathParameter, canEdit),
-    getAtlasSourceStudiesSourceDatasetLinkedColumnDef(
+    getSourceDatasetLinkedColumnDef(
       onSetLinked,
       canEdit,
       linkedSourceDatasetIds
@@ -873,32 +873,6 @@ function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAA
     accessorKey: "cellCount",
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
-    meta: { enableSortingInteraction: false },
-  };
-}
-
-/**
- * Returns atlas source studies source dataset linked column def.
- * @param onSetLinked - Set linked source dataset function.
- * @param canEdit - Edit state for user.
- * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
- * @returns ColumnDef.
- */
-function getAtlasSourceStudiesSourceDatasetLinkedColumnDef(
-  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
-  canEdit: boolean,
-  linkedSourceDatasetIds: Set<string>
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "linked",
-    cell: ({ row }) =>
-      C.LinkDatasetDropdown({
-        disabled: !canEdit,
-        linked: linkedSourceDatasetIds.has(row.original.id),
-        onSetLinked,
-        sourceDatasetId: row.original.id,
-      }),
-    header: "Used In Atlas",
     meta: { enableSortingInteraction: false },
   };
 }
@@ -1258,6 +1232,32 @@ function getSourceDatasetExploreColumnDef(
     },
     header: "Explore",
     meta: { enableSortingInteraction },
+  };
+}
+
+/**
+ * Returns source dataset linked column def.
+ * @param onSetLinked - Set linked source dataset function.
+ * @param canEdit - Edit state for user.
+ * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
+ * @returns ColumnDef.
+ */
+function getSourceDatasetLinkedColumnDef(
+  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
+  canEdit: boolean,
+  linkedSourceDatasetIds: Set<string>
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "linked",
+    cell: ({ row }) =>
+      C.LinkDatasetDropdown({
+        disabled: !canEdit,
+        linked: linkedSourceDatasetIds.has(row.original.id),
+        onSetLinked,
+        sourceDatasetId: row.original.id,
+      }),
+    header: "Used In Atlas",
+    meta: { enableSortingInteraction: false },
   };
 }
 
