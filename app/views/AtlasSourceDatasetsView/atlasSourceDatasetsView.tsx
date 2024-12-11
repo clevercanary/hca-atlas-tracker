@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewAtlasSourceDatasets } from "../../components/Detail/components/ViewAtlasSourceDatasets/viewAtlasSourceDatasets";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
@@ -12,8 +13,6 @@ import { useFetchAtlasSourceDatasetsData } from "./hooks/useFetchAtlasSourceData
 interface AtlasSourceDatasetsViewProps {
   pathParameter: PathParameter;
 }
-
-// TODO add tabs
 
 export const AtlasSourceDatasetsView = ({
   pathParameter,
@@ -47,6 +46,7 @@ export const AtlasSourceDatasetsView = ({
             sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
           />
         }
+        tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
         title="Source Datasets"
       />
     </ConditionalComponent>
