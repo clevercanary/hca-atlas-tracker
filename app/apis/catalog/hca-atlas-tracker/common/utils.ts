@@ -80,6 +80,7 @@ export function dbAtlasToApiAtlas(
     integrationLead: dbAtlas.overview.integrationLead,
     publications: dbAtlas.overview.publications,
     shortName: dbAtlas.overview.shortName,
+    sourceDatasetCount: dbAtlas.source_datasets.length,
     sourceStudyCount: dbAtlas.source_studies.length,
     status: dbAtlas.status,
     targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
