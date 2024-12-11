@@ -13,6 +13,12 @@ export const BREADCRUMB_ATLASES: Breadcrumb = {
   text: "Atlases",
 };
 
+export const BREADCRUMB_ATLAS_SOURCE_DATASETS: Breadcrumb = {
+  path: ROUTE.ATLAS_SOURCE_DATASETS,
+  route: ROUTE.ATLAS_SOURCE_DATASETS,
+  text: "Source Datasets",
+};
+
 export const BREADCRUMB_COMPONENT_ATLASES: Breadcrumb = {
   path: ROUTE.COMPONENT_ATLASES,
   route: ROUTE.COMPONENT_ATLASES,
