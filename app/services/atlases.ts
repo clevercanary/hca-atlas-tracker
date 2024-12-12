@@ -1,6 +1,9 @@
 import pg from "pg";
 import { ValidationError } from "yup";
-import { NotFoundError } from "../../app/utils/api-handler";
+import {
+  InvalidOperationError,
+  NotFoundError,
+} from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
 import {
   ATLAS_STATUS,
@@ -14,6 +17,7 @@ import {
   NewAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { query } from "./database";
+import { confirmSourceDatasetStudyIsOnAtlas } from "./source-datasets";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -141,6 +145,73 @@ export async function updateTaskCounts(): Promise<void> {
     ) AS counts
     WHERE a.id = counts.atlas_id;
   `);
+}
+
+/**
+ * Link the given source dataset to the given atlas.
+ * @param atlasId - Atlas ID.
+ * @param sourceDatasetId - Source dataset ID.
+ */
+export async function addSourceDatasetToAtlas(
+  atlasId: string,
+  sourceDatasetId: string
+): Promise<void> {
+  await confirmSourceDatasetStudyIsOnAtlas(sourceDatasetId, atlasId);
+  const alreadyLinkedQueryResult = await query(
+    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
+    [atlasId, sourceDatasetId]
+  );
+  if (alreadyLinkedQueryResult.rows[0].exists)
+    throw new InvalidOperationError(
+      `Source dataset with ID ${sourceDatasetId} is already linked to atlas with ID ${atlasId}`
+    );
+  await query(
+    "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
+    [atlasId, sourceDatasetId]
+  );
+}
+
+/**
+ * Unlink the given source dataset from the given atlas.
+ * @param atlasId - Atlas ID.
+ * @param sourceDatasetId - Source dataset ID.
+ */
+export async function removeSourceDatasetFromAtlas(
+  atlasId: string,
+  sourceDatasetId: string
+): Promise<void> {
+  const notLinkedQueryResult = await query(
+    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND NOT $2 = ANY(a.source_datasets))",
+    [atlasId, sourceDatasetId]
+  );
+  if (notLinkedQueryResult.rows[0].exists)
+    throw new InvalidOperationError(
+      `Source dataset with ID ${sourceDatasetId} is not linked to atlas with ID ${atlasId}`
+    );
+  await query(
+    "UPDATE hat.atlases SET source_datasets = array_remove(source_datasets, $2) WHERE id = $1",
+    [atlasId, sourceDatasetId]
+  );
+}
+
+/**
+ * Remove the given source datasets from all atlases that have any of them.
+ * @param sourceDatasetIds - IDs of source datasets to remove.
+ * @param client - Postgres client to use.
+ */
+export async function removeSourceDatasetsFromAllAtlases(
+  sourceDatasetIds: string[],
+  client: pg.PoolClient
+): Promise<void> {
+  if (sourceDatasetIds.length === 0) return;
+  await client.query(
+    `
+      UPDATE hat.atlases
+      SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
+      WHERE source_datasets && $1
+    `,
+    [sourceDatasetIds]
+  );
 }
 
 /**

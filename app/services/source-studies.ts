@@ -22,7 +22,11 @@ import {
   UnpublishedSourceStudyEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { AccessError, NotFoundError } from "../utils/api-handler";
+import {
+  AccessError,
+  InvalidOperationError,
+  NotFoundError,
+} from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
 import { getCellxGeneIdByDoi } from "./cellxgene";
@@ -34,7 +38,7 @@ import {
 } from "./database";
 import { getProjectIdByDoi } from "./hca-projects";
 import {
-  deleteSourceDatasetsOfSourceStudy,
+  deleteSourceDatasetsOfDeletedSourceStudy,
   updateSourceStudyCellxGeneDatasets,
 } from "./source-datasets";
 import {
@@ -394,11 +398,14 @@ export async function deleteAtlasSourceStudy(
   atlasId: string,
   sourceStudyId: string
 ): Promise<void> {
-  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-
   const client = await getPoolClient();
   try {
     await client.query("BEGIN");
+    await confirmSourceStudyCanBeDeletedFromAtlas(
+      sourceStudyId,
+      atlasId,
+      client
+    );
     await client.query(
       "UPDATE hat.atlases SET source_studies=source_studies-$1 WHERE id=$2",
       [sourceStudyId, atlasId]
@@ -412,7 +419,7 @@ export async function deleteAtlasSourceStudy(
     if (sourceStudyHasAtlases) {
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
-      await deleteSourceDatasetsOfSourceStudy(sourceStudyId, client);
+      await deleteSourceDatasetsOfDeletedSourceStudy(sourceStudyId, client);
       await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
         sourceStudyId,
       ]);
@@ -543,6 +550,43 @@ export async function getSourceStudyWithAtlasProperties(
       `Source study with ID ${sourceStudyId} doesn't exist`
     );
   return queryResult.rows[0];
+}
+
+/**
+ * Throw an error if the given source study cannot be deleted from the given atlas.
+ * @param sourceStudyId - Source study ID.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+async function confirmSourceStudyCanBeDeletedFromAtlas(
+  sourceStudyId: string,
+  atlasId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await confirmSourceStudyExistsOnAtlas(
+    sourceStudyId,
+    atlasId,
+    undefined,
+    client
+  );
+
+  const datasetsQueryResult = await query(
+    `
+      SELECT
+        EXISTS(
+          SELECT 1 FROM hat.source_datasets d
+          WHERE d.id = ANY(a.source_datasets) AND d.source_study_id = $1
+        )
+      FROM hat.atlases a
+      WHERE a.id = $2
+    `,
+    [sourceStudyId, atlasId],
+    client
+  );
+  if (datasetsQueryResult.rows[0].exists)
+    throw new InvalidOperationError(
+      `Source study with ID ${sourceStudyId} has dataset(s) linked to atlas with ID ${atlasId}`
+    );
 }
 
 /**

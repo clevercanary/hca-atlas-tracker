@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   DOI_STATUS,
-  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
@@ -26,9 +25,12 @@ import {
   CELLXGENE_ID_NORMAL,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
+  SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_OTHER_BAR,
@@ -42,6 +44,8 @@ import {
   SOURCE_STUDY_SHARED,
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -54,7 +58,9 @@ import {
 } from "../testing/constants";
 import {
   expectApiSourceStudyToHaveMatchingDbValidations,
+  getAtlasFromDatabase,
   getCellxGeneSourceDatasetFromDatabase,
+  getComponentAtlasFromDatabase,
   getExistingComponentAtlasFromDatabase,
   getSourceStudyFromDatabase,
   getStudySourceDatasets,
@@ -63,13 +69,16 @@ import {
   resetDatabase,
 } from "../testing/db-utils";
 import {
-  TestPublishedSourceStudy,
+  TestAtlas,
+  TestSourceDataset,
   TestSourceStudy,
   TestUser,
 } from "../testing/entities";
 import {
   expectApiValidationsToMatchDb,
+  expectAtlasDatasetsToHaveDifference,
   expectComponentAtlasDatasetsToHaveDifference,
+  expectIsDefined,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
   testApiRole,
@@ -591,9 +600,16 @@ describe(TEST_ROUTE, () => {
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
-  it("deletes CELLxGENE datasets when source study is PUT requested with CELLxGENE ID removed", async () => {
+  it("deletes CELLxGENE datasets, updating linked entities, when source study is PUT requested with CELLxGENE ID removed", async () => {
     const studyDatasetsBefore = await getStudySourceDatasets(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
+    );
+
+    const atlasBefore = await getAtlasFromDatabase(
+      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id
+    );
+    const componentAtlasBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
     );
 
     expect(studyDatasetsBefore).toHaveLength(3);
@@ -657,6 +673,32 @@ describe(TEST_ROUTE, () => {
         SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.id
       )
     ).toBeTruthy();
+
+    const atlasAfter = await getAtlasFromDatabase(
+      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id
+    );
+    const componentAtlasAfter = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
+    );
+
+    if (
+      !(
+        expectIsDefined(atlasBefore) &&
+        expectIsDefined(atlasAfter) &&
+        expectIsDefined(componentAtlasBefore) &&
+        expectIsDefined(componentAtlasAfter)
+      )
+    ) {
+      return;
+    }
+    expectAtlasDatasetsToHaveDifference(atlasAfter, atlasBefore, [
+      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+    ]);
+    expectComponentAtlasDatasetsToHaveDifference(
+      componentAtlasAfter,
+      componentAtlasBefore,
+      [SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR]
+    );
 
     await initSourceDatasets(undefined, [
       SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
@@ -752,6 +794,46 @@ describe(TEST_ROUTE, () => {
       )._getStatusCode()
     ).toEqual(404);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
+  });
+
+  it("returns error 400 when study of a single atlas is DELETE requested", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B);
+    await expectAtlasSourceDatasetListToBeUnchanged(
+      ATLAS_WITH_MISC_SOURCE_STUDIES
+    );
+    await expectSourceDatasetToExist(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+  });
+
+  it("returns error 400 when study of multiple atlases is DELETE requested from atlas it has datasets on", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A);
+    await expectAtlasSourceDatasetListToBeUnchanged(
+      ATLAS_WITH_MISC_SOURCE_STUDIES
+    );
+    await expectSourceDatasetToExist(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
 
   it("deletes source study only from specified atlas and revalidates when shared by multiple atlases", async () => {
@@ -958,15 +1040,33 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
   expect(studyFromDb.study_info.hcaProjectId).toEqual(editData.hcaProjectId);
 }
 
-async function expectStudyToBeUnchanged(
-  study: TestPublishedSourceStudy
-): Promise<void> {
+async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {
   const studyFromDb = await getStudyFromDatabase(study.id);
   expect(studyFromDb).toBeDefined();
   if (!studyFromDb) return;
-  expect(studyFromDb.doi).toEqual(study.doi);
-  expect(studyFromDb.study_info.doiStatus).toEqual(study.doiStatus);
-  expect(studyFromDb.study_info.publication).toEqual(study.publication);
+  if ("unpublishedInfo" in study) {
+    expect(studyFromDb.study_info.unpublishedInfo).toEqual(
+      study.unpublishedInfo
+    );
+  } else {
+    expect(studyFromDb.doi).toEqual(study.doi);
+    expect(studyFromDb.study_info.doiStatus).toEqual(study.doiStatus);
+    expect(studyFromDb.study_info.publication).toEqual(study.publication);
+  }
+}
+
+async function expectAtlasSourceDatasetListToBeUnchanged(
+  atlas: TestAtlas
+): Promise<void> {
+  const atlasFromDb = await getAtlasFromDatabase(atlas.id);
+  expect(atlasFromDb).toBeDefined();
+  expect(atlasFromDb?.source_datasets).toEqual(atlas.sourceDatasets);
+}
+
+async function expectSourceDatasetToExist(
+  sourceDataset: TestSourceDataset
+): Promise<void> {
+  expect(await getSourceDatasetFromDatabase(sourceDataset.id)).toBeDefined();
 }
 
 async function getSourceDatasetFromDatabase(
@@ -997,17 +1097,6 @@ async function getStudyFromDatabase(
   return (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [id]
-    )
-  ).rows[0];
-}
-
-async function getAtlasFromDatabase(
-  id: string
-): Promise<HCAAtlasTrackerDBAtlas | undefined> {
-  return (
-    await query<HCAAtlasTrackerDBAtlas>(
-      "SELECT * FROM hat.atlases WHERE id=$1",
       [id]
     )
   ).rows[0];

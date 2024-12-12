@@ -3,6 +3,7 @@ import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
@@ -23,9 +24,11 @@ import {
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
 } from "./constants";
+import { TestAtlas } from "./entities";
 import {
   aggregateSourceDatasetArrayField,
   expectApiValidationsToMatchDb,
+  expectIsDefined,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
@@ -110,10 +113,11 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
-      "INSERT INTO hat.atlases (id, overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO hat.atlases (id, overview, source_datasets, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5, $6)",
       [
         atlas.id,
         JSON.stringify(overview),
+        atlas.sourceDatasets || [],
         JSON.stringify(atlas.sourceStudies || []),
         atlas.status,
         atlas.targetCompletion ?? null,
@@ -219,6 +223,17 @@ export async function getDbUsersByEmail(): Promise<
   );
 }
 
+export async function getAtlasFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBAtlas | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBAtlas>(
+      "SELECT * FROM hat.atlases WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
+}
+
 export async function getExistingComponentAtlasFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
@@ -289,6 +304,29 @@ export async function getValidationsByEntityId(
       [id]
     )
   ).rows;
+}
+
+export async function expectAtlasToBeUnchanged(
+  atlas: TestAtlas
+): Promise<void> {
+  const atlasFromDb = await getAtlasFromDatabase(atlas.id);
+  if (!expectIsDefined(atlasFromDb)) return;
+  expect(atlasFromDb.overview.cellxgeneAtlasCollection).toEqual(
+    atlas.cellxgeneAtlasCollection
+  );
+  expect(atlasFromDb.overview.codeLinks).toEqual(atlas.codeLinks);
+  expect(atlasFromDb.overview.description).toEqual(atlas.description);
+  expect(atlasFromDb.overview.highlights).toEqual(atlas.highlights);
+  expect(atlasFromDb.overview.integrationLead).toEqual(atlas.integrationLead);
+  expect(atlasFromDb.overview.network).toEqual(atlas.network);
+  expect(atlasFromDb.overview.publications).toEqual(atlas.publications);
+  expect(atlasFromDb.overview.shortName).toEqual(atlas.shortName);
+  expect(atlasFromDb.overview.version).toEqual(atlas.version);
+  expect(atlasFromDb.overview.wave).toEqual(atlas.wave);
+  expect(atlasFromDb.source_datasets).toEqual(atlas.sourceDatasets ?? []);
+  expect(atlasFromDb.source_studies).toEqual(atlas.sourceStudies);
+  expect(atlasFromDb.status).toEqual(atlas.status);
+  expect(atlasFromDb.target_completion).toEqual(atlas.targetCompletion ?? null);
 }
 
 export async function expectApiSourceStudyToHaveMatchingDbValidations(

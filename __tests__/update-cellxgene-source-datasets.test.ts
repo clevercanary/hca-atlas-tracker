@@ -1,6 +1,8 @@
 import {
+  ATLAS_WITH_MISC_SOURCE_STUDIES,
   CELLXGENE_DATASET_NEW,
   CELLXGENE_DATASET_WITH_UPDATE_UPDATED,
+  COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
@@ -13,8 +15,17 @@ import { HCAAtlasTrackerDBSourceDataset } from "../app/apis/catalog/hca-atlas-tr
 import { endPgPool, query } from "../app/services/database";
 import { updateCellxGeneSourceDatasets } from "../app/services/source-datasets";
 import { CellxGeneDataset } from "../app/utils/cellxgene-api";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  getAtlasFromDatabase,
+  getComponentAtlasFromDatabase,
+  resetDatabase,
+} from "../testing/db-utils";
 import { TestSourceDataset } from "../testing/entities";
+import {
+  expectAtlasDatasetsToHaveDifference,
+  expectComponentAtlasDatasetsToHaveDifference,
+  expectIsDefined,
+} from "../testing/utils";
 
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -30,7 +41,7 @@ afterAll(() => {
 });
 
 describe("updateCellxGeneSourceDatasets", () => {
-  it("updates, adds, and deletes source datasets as appropriate", async () => {
+  it("updates, adds, and deletes source datasets as appropriate, including on linked entities", async () => {
     const sourceDatasetsBefore = await getStudySourceDatasets(
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id
     );
@@ -75,6 +86,13 @@ describe("updateCellxGeneSourceDatasets", () => {
         SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR.id
       ),
       SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR
+    );
+
+    const atlasBefore = await getAtlasFromDatabase(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id
+    );
+    const componentAtlasBefore = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
     );
 
     await updateCellxGeneSourceDatasets();
@@ -130,6 +148,32 @@ describe("updateCellxGeneSourceDatasets", () => {
     expectSourceDatasetToMatch(
       findSourceDatasetById(sourceDatasetsAfter, SOURCE_DATASET_FOO.id),
       SOURCE_DATASET_FOO
+    );
+
+    const atlasAfter = await getAtlasFromDatabase(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id
+    );
+    const componentAtlasAfter = await getComponentAtlasFromDatabase(
+      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
+    );
+
+    if (
+      !(
+        expectIsDefined(atlasBefore) &&
+        expectIsDefined(atlasAfter) &&
+        expectIsDefined(componentAtlasBefore) &&
+        expectIsDefined(componentAtlasAfter)
+      )
+    ) {
+      return;
+    }
+    expectAtlasDatasetsToHaveDifference(atlasAfter, atlasBefore, [
+      SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+    ]);
+    expectComponentAtlasDatasetsToHaveDifference(
+      componentAtlasAfter,
+      componentAtlasBefore,
+      [SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO]
     );
   });
 });

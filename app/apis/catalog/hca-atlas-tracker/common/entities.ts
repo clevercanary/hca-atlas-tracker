@@ -39,6 +39,7 @@ export interface HCAAtlasTrackerAtlas {
   integrationLead: IntegrationLead[];
   publications: DoiPublicationInfo[];
   shortName: string;
+  sourceDatasetCount: number;
   sourceStudyCount: number;
   status: ATLAS_STATUS;
   targetCompletion: string | null;
@@ -209,6 +210,7 @@ export interface HCAAtlasTrackerDBAtlas {
   created_at: Date;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
+  source_datasets: string[];
   source_studies: string[];
   status: ATLAS_STATUS;
   target_completion: Date | null;

@@ -1,6 +1,7 @@
 import { CellxGeneDataset } from "app/utils/cellxgene-api";
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
@@ -13,6 +14,7 @@ import {
   SourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { removeSourceDatasetsFromAllAtlases } from "./atlases";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
   getComponentAtlasNotFoundError,
@@ -44,6 +46,28 @@ export async function getSourceStudyDatasets(
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
       "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE s.id = $1",
       [sourceStudyId]
+    );
+  return queryResult.rows;
+}
+
+/**
+ * Get all source datasets linked to the given atlas.
+ * @param atlasId - Atlas ID.
+ * @returns database-model source datasets.
+ */
+export async function getAtlasDatasets(
+  atlasId: string
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+  const atlasResult = await query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
+  >("SELECT source_datasets FROM hat.atlases WHERE id=$1", [atlasId]);
+  if (atlasResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  const sourceDatasetIds = atlasResult.rows[0].source_datasets;
+  const queryResult =
+    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      [sourceDatasetIds]
     );
   return queryResult.rows;
 }
@@ -236,9 +260,14 @@ export async function deleteSourceDataset(
   sourceStudyId: string,
   sourceDatasetId: string
 ): Promise<void> {
-  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete");
   await doTransaction(async (client) => {
+    await confirmSourceStudyExistsOnAtlas(
+      sourceStudyId,
+      atlasId,
+      undefined,
+      client
+    );
+    await confirmSourceDatasetCanBeExplicitlyDeleted(sourceDatasetId, client);
     const queryResult = await client.query(
       "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
       [sourceDatasetId, sourceStudyId]
@@ -253,11 +282,11 @@ export async function deleteSourceDataset(
 }
 
 /**
- * Delete all source datasets of the specified source study.
+ * Delete all source datasets of the specified source study, as result of the source study being deleted.
  * @param sourceStudyId - Source study ID.
  * @param client - Postgres client to use.
  */
-export async function deleteSourceDatasetsOfSourceStudy(
+export async function deleteSourceDatasetsOfDeletedSourceStudy(
   sourceStudyId: string,
   client: pg.PoolClient
 ): Promise<void> {
@@ -316,7 +345,7 @@ export async function updateCellxGeneSourceDatasets(): Promise<void> {
       updatedDatasetsInfo.modified.push(...studyUpdatedDatasetsInfo.modified);
     }
 
-    await updateComponentAtlasesForUpdatedSourceDatasets(
+    await updateLinkedEntitiesForUpdatedSourceDatasets(
       updatedDatasetsInfo,
       client
     );
@@ -338,7 +367,7 @@ export async function updateSourceStudyCellxGeneDatasets(
     client
   );
 
-  await updateComponentAtlasesForUpdatedSourceDatasets(
+  await updateLinkedEntitiesForUpdatedSourceDatasets(
     updatedDatasetsInfo,
     client
   );
@@ -450,23 +479,96 @@ function getCellxGeneSourceDatasetInfo(
 }
 
 /**
+ * Update properties of entities with linked source datasets based on lists of created, modified, and deleted datasets.
+ * @param updatedDatasetsInfo - Object containing lists of IDs of source datasets to update linked entities of.
+ * @param client - Postgres client to use.
+ */
+async function updateLinkedEntitiesForUpdatedSourceDatasets(
+  updatedDatasetsInfo: UpdatedSourceDatasetsInfo,
+  client: pg.PoolClient
+): Promise<void> {
+  await updateComponentAtlasesForUpdatedSourceDatasets(
+    updatedDatasetsInfo,
+    client
+  );
+  await removeSourceDatasetsFromAllAtlases(updatedDatasetsInfo.deleted, client);
+}
+
+/**
+ * Throw an error if the given source dataset cannot be deleted as an explicit user action.
+ * @param sourceDatasetId - Source dataset ID.
+ * @param client - Postgres client to use.
+ */
+async function confirmSourceDatasetCanBeExplicitlyDeleted(
+  sourceDatasetId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete", client);
+
+  const linkedAtlasesQueryResult = await query(
+    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE $1 = ANY(a.source_datasets))",
+    [sourceDatasetId],
+    client
+  );
+  if (linkedAtlasesQueryResult.rows[0].exists)
+    throw new InvalidOperationError(
+      `Source dataset with ID ${sourceDatasetId} is linked to atlas(es)`
+    );
+}
+
+/**
  * Throw an error if the given source dataset is a CELLxGENE dataset.
  * @param sourceDatasetId - ID of the source dataset to check.
  * @param attemptedOperationVerb - Word to use in the error message describing the operation attempted on the source dataset.
+ * @param client - Postgres client to use.
  */
 async function confirmSourceDatasetIsNonCellxGene(
   sourceDatasetId: string,
-  attemptedOperationVerb: string
+  attemptedOperationVerb: string,
+  client?: pg.PoolClient
 ): Promise<void> {
   const { is_cellxgene } = (
     await query<{ is_cellxgene: boolean }>(
       "SELECT NOT sd_info->'cellxgeneDatasetId' = 'null' as is_cellxgene FROM hat.source_datasets WHERE id=$1",
-      [sourceDatasetId]
+      [sourceDatasetId],
+      client
     )
   ).rows[0];
   if (is_cellxgene)
     throw new InvalidOperationError(
       `Can't ${attemptedOperationVerb} CELLxGENE source dataset`
+    );
+}
+
+/**
+ * Throw an error if the given source dataset does not exist on a source study of the given atlas.
+ * @param sourceDatasetId - Source dataset ID.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+export async function confirmSourceDatasetStudyIsOnAtlas(
+  sourceDatasetId: string,
+  atlasId: string,
+  client?: pg.PoolClient
+): Promise<void> {
+  const queryResult = await query(
+    `
+      SELECT
+        EXISTS(
+          SELECT 1 FROM hat.source_datasets d
+          WHERE d.id = $1 AND a.source_studies ? d.source_study_id::text
+        )
+      FROM hat.atlases a
+      WHERE a.id = $2
+    `,
+    [sourceDatasetId, atlasId],
+    client
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  if (!queryResult.rows[0].exists)
+    throw new InvalidOperationError(
+      `Source dataset with ID ${sourceDatasetId} is not on a source study of atlas with ID ${atlasId}`
     );
 }
 

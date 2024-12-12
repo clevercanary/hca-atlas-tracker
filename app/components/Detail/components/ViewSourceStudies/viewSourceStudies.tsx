@@ -2,7 +2,10 @@ import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useMemo } from "react";
-import { HCAAtlasTrackerSourceStudy } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceStudy,
+} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyCitation } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
@@ -21,15 +24,19 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceStudiesProps {
+  atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManager;
   pathParameter: PathParameter;
   sourceStudies?: HCAAtlasTrackerSourceStudy[];
+  sourceStudiesSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewSourceStudies = ({
+  atlasSourceDatasets = [],
   formManager,
   pathParameter,
   sourceStudies = [],
+  sourceStudiesSourceDatasets = [],
 }: ViewSourceStudiesProps): JSX.Element => {
   const {
     access: { canEdit, canView },
@@ -37,6 +44,21 @@ export const ViewSourceStudies = ({
   const sortedSourceStudies = useMemo(
     () => sourceStudies.sort(sortSourceStudies),
     [sourceStudies]
+  );
+  const atlasLinkedDatasetCountsByStudyId = useMemo(
+    () =>
+      sourceStudiesSourceDatasets.reduce((counts, sourceDataset) => {
+        const linkedDataset = atlasSourceDatasets.find(
+          (atlasSourceDataset) => atlasSourceDataset.id === sourceDataset.id
+        );
+        if (linkedDataset)
+          counts.set(
+            sourceDataset.sourceStudyId,
+            (counts.get(sourceDataset.sourceStudyId) ?? 0) + 1
+          );
+        return counts;
+      }, new Map<string, number>()),
+    [atlasSourceDatasets, sourceStudiesSourceDatasets]
   );
   if (!canView) return <RequestAccess />;
   return (
@@ -55,7 +77,10 @@ export const ViewSourceStudies = ({
         )}
         {sourceStudies.length > 0 && (
           <Table
-            columns={getAtlasSourceStudiesTableColumns(pathParameter)}
+            columns={getAtlasSourceStudiesTableColumns(
+              pathParameter,
+              atlasLinkedDatasetCountsByStudyId
+            )}
             gridTemplateColumns="max-content minmax(260px, 1fr) minmax(152px, 0.5fr) minmax(80px, 130px) repeat(3, minmax(100px, 118px))"
             items={sortedSourceStudies}
             tableOptions={TABLE_OPTIONS}

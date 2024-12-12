@@ -1,64 +1,42 @@
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { getAtlasSourceStudySourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { useSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
+import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
-import { AddSourceDataset } from "../AddSourceDataset/addSourceDataset";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceDatasetsProps {
   atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
-  isCELLXGENECollection: boolean;
-  pathParameter: PathParameter;
-  sourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
-export const ViewSourceDatasets = ({
+export const ViewAtlasSourceDatasets = ({
   atlasSourceDatasets = [],
   formManager,
-  isCELLXGENECollection,
-  pathParameter,
-  sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
   const {
     access: { canEdit, canView },
   } = formManager;
-  const { onSetLinked } = useSetLinkedAtlasSourceDatasets(pathParameter);
   if (!canView) return <RequestAccess />;
-  const linkedSourceDatasetIds = new Set(atlasSourceDatasets.map((d) => d.id));
   return (
     <Paper>
       <GridPaper>
-        {canEdit && !isCELLXGENECollection && (
-          <Toolbar variant="table">
-            <AddSourceDataset pathParameter={pathParameter} />
-          </Toolbar>
-        )}
-        {sourceDatasets.length > 0 && (
+        {atlasSourceDatasets.length > 0 && (
           <Table
-            columns={getAtlasSourceStudySourceDatasetsTableColumns(
-              pathParameter,
-              onSetLinked,
-              canEdit,
-              linkedSourceDatasetIds
-            )}
-            gridTemplateColumns="max-content minmax(200px, 1fr) minmax(148px, auto) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
-            items={sourceDatasets.sort(sortSourceDataset)}
+            columns={getAtlasSourceDatasetsTableColumns()}
+            gridTemplateColumns="max-content minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
+            items={atlasSourceDatasets.sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />
         )}
         <TablePlaceholder
           canEdit={canEdit}
           message="No source datasets"
-          rowCount={sourceDatasets.length}
+          rowCount={atlasSourceDatasets.length}
         />
       </GridPaper>
     </Paper>
