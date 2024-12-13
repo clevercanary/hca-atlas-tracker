@@ -1,3 +1,7 @@
+import {
+  ALTAS_ECOSYSTEM_PATHS,
+  ATLAS_ECOSYSTEM_URLS,
+} from "../../../../site-config/common/constants";
 import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasEditData as APIAtlasEditData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { PathParameter } from "../../../common/entities";
@@ -45,12 +49,27 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
   return {
     [FIELD_NAME.INTEGRATION_LEAD]: sortedIntegrationLead,
     [FIELD_NAME.BIO_NETWORK]: atlas.bioNetwork,
+    [FIELD_NAME.CELLXGENE_ATLAS_COLLECTION]: mapCELLxGENECollectionId(
+      atlas.cellxgeneAtlasCollection
+    ),
     [FIELD_NAME.SHORT_NAME]: atlas.shortName,
     [FIELD_NAME.TARGET_COMPLETION]:
       atlas.targetCompletion ?? TARGET_COMPLETION_NULL,
     [FIELD_NAME.VERSION]: atlas.version,
     [FIELD_NAME.WAVE]: atlas.wave,
   };
+}
+
+/**
+ * Maps CELLxGENE collection ID to URL.
+ * @param cellxgeneCollectionId - CELLxGENE collection ID.
+ * @returns URL.
+ */
+function mapCELLxGENECollectionId(
+  cellxgeneCollectionId: string | null
+): string {
+  if (!cellxgeneCollectionId) return "";
+  return `${ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL}${ALTAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION}/${cellxgeneCollectionId}`;
 }
 
 /**

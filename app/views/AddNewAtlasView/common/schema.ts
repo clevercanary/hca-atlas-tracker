@@ -24,6 +24,7 @@ export const newAtlasSchema = object({
     .required("Network is required")
     .notOneOf([""], "Network is required")
     .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
+  [FIELD_NAME.CELLXGENE_ATLAS_COLLECTION]: string().default("").notRequired(),
   [FIELD_NAME.SHORT_NAME]: string()
     .default("")
     .required("Short name is required"),
