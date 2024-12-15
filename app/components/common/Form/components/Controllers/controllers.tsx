@@ -7,7 +7,7 @@ import { InputController } from "./components/InputController/inputController";
 import { SelectController } from "./components/SelectController/selectController";
 
 export interface ControllersProps<T extends FieldValues, R = undefined> {
-  controllerConfigs: ControllerConfig<T>[];
+  controllerConfigs: ControllerConfig<T, R>[];
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
 }
@@ -19,7 +19,16 @@ export const Controllers = <T extends FieldValues, R = undefined>({
 }: ControllersProps<T, R>): JSX.Element => {
   return (
     <Fragment>
-      {controllerConfigs.map(({ inputProps, name, selectProps }, i) => {
+      {controllerConfigs.map((config, i) => {
+        if ("ControllerComponent" in config)
+          return (
+            <config.ControllerComponent
+              key={i}
+              formManager={formManager}
+              formMethod={formMethod}
+            />
+          );
+        const { inputProps, name, selectProps } = config;
         const { SelectComponent } = selectProps || {};
         return SelectComponent ? (
           <SelectController

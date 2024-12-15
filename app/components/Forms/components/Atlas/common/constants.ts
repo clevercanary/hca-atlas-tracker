@@ -1,12 +1,20 @@
+import { HCAAtlasTrackerAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../../../../../views/AddNewAtlasView/common/entities";
 import { FIELD_NAME } from "../../../../../views/AtlasView/common/constants";
 import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
-import { ControllerConfig } from "../../../../common/Form/components/Controllers/common/entities";
+import {
+  ComponentControllerConfig,
+  ControllerConfig,
+  StaticControllerConfig,
+} from "../../../../common/Form/components/Controllers/common/entities";
 import { BioNetwork } from "../../../../Form/components/Select/components/BioNetwork/bioNetwork";
 import { TargetCompletion } from "../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
 import { Wave } from "../../../../Form/components/Select/components/Wave/wave";
+import { InputControllerWithLink } from "../components/InputControllerWithLink/inputControllerWithLink";
 
-type CommonControllerConfig = ControllerConfig<NewAtlasData | AtlasEditData>;
+type CommonControllerConfig = StaticControllerConfig<
+  NewAtlasData | AtlasEditData
+>;
 
 const BIO_NETWORK: CommonControllerConfig = {
   name: FIELD_NAME.BIO_NETWORK,
@@ -25,7 +33,7 @@ const SHORT_NAME: CommonControllerConfig = {
   name: FIELD_NAME.SHORT_NAME,
 };
 
-const TARGET_COMPLETION: ControllerConfig<AtlasEditData> = {
+const TARGET_COMPLETION: StaticControllerConfig<AtlasEditData> = {
   name: FIELD_NAME.TARGET_COMPLETION,
   selectProps: {
     SelectComponent: TargetCompletion,
@@ -51,8 +59,63 @@ const WAVE: CommonControllerConfig = {
   },
 };
 
-export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
-  [SHORT_NAME, VERSION, BIO_NETWORK, WAVE];
+const GENERAL_INFO_COMMON_CONTROLLERS: CommonControllerConfig[] = [
+  SHORT_NAME,
+  VERSION,
+  BIO_NETWORK,
+  WAVE,
+];
 
-export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
-  [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, TARGET_COMPLETION];
+export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<
+  NewAtlasData,
+  HCAAtlasTrackerAtlas
+>[] = GENERAL_INFO_COMMON_CONTROLLERS;
+
+export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
+  AtlasEditData,
+  HCAAtlasTrackerAtlas
+>[] = [...GENERAL_INFO_COMMON_CONTROLLERS, TARGET_COMPLETION];
+
+const NEW_ATLAS_CELLXGENE_ATLAS_COLLECTION: ComponentControllerConfig<
+  NewAtlasData,
+  HCAAtlasTrackerAtlas
+> = {
+  ControllerComponent({ formManager, formMethod }) {
+    return InputControllerWithLink({
+      formManager,
+      formMethod,
+      inputProps: {
+        isFullWidth: true,
+      },
+      label: "CELLxGENE collection ID",
+      name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
+    });
+  },
+};
+
+const VIEW_ATLAS_CELLXGENE_ATLAS_COLLECTION: ComponentControllerConfig<
+  AtlasEditData,
+  HCAAtlasTrackerAtlas
+> = {
+  ControllerComponent({ formManager, formMethod }) {
+    return InputControllerWithLink({
+      formManager,
+      formMethod,
+      inputProps: {
+        isFullWidth: true,
+      },
+      label: "CELLxGENE collection ID",
+      name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
+    });
+  },
+};
+
+export const IDENTIFIERS_NEW_ATLAS_CONTROLLERS: ControllerConfig<
+  NewAtlasData,
+  HCAAtlasTrackerAtlas
+>[] = [NEW_ATLAS_CELLXGENE_ATLAS_COLLECTION];
+
+export const IDENTIFIERS_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
+  AtlasEditData,
+  HCAAtlasTrackerAtlas
+>[] = [VIEW_ATLAS_CELLXGENE_ATLAS_COLLECTION];
