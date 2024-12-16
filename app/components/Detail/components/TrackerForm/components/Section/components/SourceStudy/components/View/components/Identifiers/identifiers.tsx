@@ -30,7 +30,11 @@ export const Identifiers = ({
   const {
     formStatus: { isReadOnly },
   } = formManager;
-  const { control, watch } = formMethod;
+  const {
+    control,
+    formState: { errors },
+    watch,
+  } = formMethod;
   const watchedFields = watch([FIELD_NAME.PUBLICATION_STATUS]);
   const [publicationStatus] = watchedFields;
   const isPublishedPreprint =
@@ -48,6 +52,8 @@ export const Identifiers = ({
             <Input
               {...field}
               {...DEFAULT_INPUT_PROPS.HCA_PROJECT_ID}
+              error={Boolean(errors[FIELD_NAME.HCA_PROJECT_ID])}
+              helperText={errors[FIELD_NAME.HCA_PROJECT_ID]?.message}
               isFilled={Boolean(field.value)}
               label={
                 <Fragment>
@@ -68,6 +74,8 @@ export const Identifiers = ({
             <Input
               {...field}
               {...DEFAULT_INPUT_PROPS.CELLXGENE_COLLECTION_ID}
+              error={Boolean(errors[FIELD_NAME.CELLXGENE_COLLECTION_ID])}
+              helperText={errors[FIELD_NAME.CELLXGENE_COLLECTION_ID]?.message}
               isFilled={Boolean(field.value)}
               label={
                 <Fragment>
