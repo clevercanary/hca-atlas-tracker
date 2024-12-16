@@ -51,8 +51,16 @@ const WAVE: CommonControllerConfig = {
   },
 };
 
+const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: true,
+    label: "CELLxGENE collection ID",
+  },
+  name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
+};
+
 export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
-  [SHORT_NAME, VERSION, BIO_NETWORK, WAVE];
+  [SHORT_NAME, VERSION, BIO_NETWORK, WAVE, CELLXGENE_COLLECTION_ID];
 
 export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
   [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, TARGET_COMPLETION];
