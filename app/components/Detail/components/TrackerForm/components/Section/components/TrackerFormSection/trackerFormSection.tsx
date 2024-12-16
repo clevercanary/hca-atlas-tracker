@@ -15,7 +15,7 @@ import {
 import { SlotProps } from "./common/utils";
 
 export interface TrackerFormSectionProps<T extends FieldValues, R = undefined> {
-  controllerConfigs?: ControllerConfig<T, R>[];
+  controllerConfigs?: ControllerConfig<T>[];
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
   SectionCard?: SectionContent<T, R>;

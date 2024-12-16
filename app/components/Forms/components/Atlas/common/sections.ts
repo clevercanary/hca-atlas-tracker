@@ -3,7 +3,9 @@ import { NewAtlasData } from "../../../../../views/AddNewAtlasView/common/entiti
 import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
 import { SECTION_TITLES } from "../../../common/constants";
 import { SectionConfig } from "../../../common/entities";
+import { NewAtlasIdentifiersSection } from "../components/NewAtlasIdentifiersSection/newAtlasIdentifiersSection";
 import { NewAtlasIntegrationLeadSection } from "../components/NewAtlasIntegrationLeadSection/newAtlasIntegrationLeadSection";
+import { ViewAtlasIdentifiersSection } from "../components/ViewAtlasIdentifiersSection/viewAtlasIdentifiersSection";
 import { ViewAtlasIntegrationLeadSection } from "../components/ViewAtlasIntegrationLeadSection/viewAtlasIntegrationLeadSection";
 import * as C from "./constants";
 
@@ -17,7 +19,7 @@ export const ADD_ATLAS_SECTION_CONFIGS: SectionConfig<
     showDivider: true,
   },
   {
-    controllerConfigs: C.IDENTIFIERS_NEW_ATLAS_CONTROLLERS,
+    SectionCard: NewAtlasIdentifiersSection,
     sectionTitle: SECTION_TITLES.IDENTIFIERS,
   },
   {
@@ -35,7 +37,7 @@ export const VIEW_ATLAS_SECTION_CONFIGS: SectionConfig<
     sectionTitle: SECTION_TITLES.GENERAL_INFORMATION,
   },
   {
-    controllerConfigs: C.IDENTIFIERS_VIEW_ATLAS_CONTROLLERS,
+    SectionCard: ViewAtlasIdentifiersSection,
     sectionTitle: SECTION_TITLES.IDENTIFIERS,
   },
   {

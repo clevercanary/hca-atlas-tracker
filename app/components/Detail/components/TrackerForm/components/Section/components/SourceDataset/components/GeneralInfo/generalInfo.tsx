@@ -19,7 +19,7 @@ export interface GeneralInfoProps<T extends FieldValues> {
   actions?: DialogBodyProps<T, HCAAtlasTrackerSourceDataset>["actions"];
   apiData?: HCAAtlasTrackerSourceDataset;
   canDelete?: boolean;
-  controllerConfigs: ControllerConfig<T, HCAAtlasTrackerSourceDataset>[];
+  controllerConfigs: ControllerConfig<T>[];
   mapSchemaValues?: MapSchemaValuesFn<T, HCAAtlasTrackerSourceDataset>;
   method: METHOD;
   onClose: () => void;
