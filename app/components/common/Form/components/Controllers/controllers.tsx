@@ -19,27 +19,30 @@ export const Controllers = <T extends FieldValues, R = undefined>({
 }: ControllersProps<T, R>): JSX.Element => {
   return (
     <Fragment>
-      {controllerConfigs.map(({ inputProps, name, selectProps }, i) => {
-        const { SelectComponent } = selectProps || {};
-        return SelectComponent ? (
-          <SelectController
-            key={i}
-            {...selectProps}
-            name={name}
-            formManager={formManager}
-            formMethod={formMethod}
-            SelectComponent={SelectComponent}
-          />
-        ) : (
-          <InputController
-            key={i}
-            {...inputProps}
-            name={name}
-            formManager={formManager}
-            formMethod={formMethod}
-          />
-        );
-      })}
+      {controllerConfigs.map(
+        ({ inputProps, labelLink, name, selectProps }, i) => {
+          const { SelectComponent } = selectProps || {};
+          return SelectComponent ? (
+            <SelectController
+              key={i}
+              {...selectProps}
+              name={name}
+              formManager={formManager}
+              formMethod={formMethod}
+              SelectComponent={SelectComponent}
+            />
+          ) : (
+            <InputController
+              key={i}
+              inputProps={inputProps}
+              name={name}
+              formManager={formManager}
+              formMethod={formMethod}
+              labelLink={labelLink}
+            />
+          );
+        }
+      )}
     </Fragment>
   );
 };

@@ -56,11 +56,18 @@ const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
     isFullWidth: true,
     label: "CELLxGENE collection ID",
   },
+  labelLink: true,
   name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
 };
 
 export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
-  [SHORT_NAME, VERSION, BIO_NETWORK, WAVE, CELLXGENE_COLLECTION_ID];
+  [SHORT_NAME, VERSION, BIO_NETWORK, WAVE];
+
+export const IDENTIFIERS_NEW_ATLAS_CONTROLLERS: ControllerConfig<NewAtlasData>[] =
+  [CELLXGENE_COLLECTION_ID];
 
 export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
   [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, TARGET_COMPLETION];
+
+export const IDENTIFIERS_VIEW_ATLAS_CONTROLLERS: ControllerConfig<AtlasEditData>[] =
+  [...IDENTIFIERS_NEW_ATLAS_CONTROLLERS];

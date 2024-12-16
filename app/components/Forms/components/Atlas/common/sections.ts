@@ -17,6 +17,10 @@ export const ADD_ATLAS_SECTION_CONFIGS: SectionConfig<
     showDivider: true,
   },
   {
+    controllerConfigs: C.IDENTIFIERS_NEW_ATLAS_CONTROLLERS,
+    sectionTitle: SECTION_TITLES.IDENTIFIERS,
+  },
+  {
     SectionCard: NewAtlasIntegrationLeadSection,
     sectionTitle: SECTION_TITLES.INTEGRATION_LEAD,
   },
@@ -29,6 +33,10 @@ export const VIEW_ATLAS_SECTION_CONFIGS: SectionConfig<
   {
     controllerConfigs: C.GENERAL_INFO_VIEW_ATLAS_CONTROLLERS,
     sectionTitle: SECTION_TITLES.GENERAL_INFORMATION,
+  },
+  {
+    controllerConfigs: C.IDENTIFIERS_VIEW_ATLAS_CONTROLLERS,
+    sectionTitle: SECTION_TITLES.IDENTIFIERS,
   },
   {
     SectionCard: ViewAtlasIntegrationLeadSection,
