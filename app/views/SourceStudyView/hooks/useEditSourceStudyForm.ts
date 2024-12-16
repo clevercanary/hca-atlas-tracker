@@ -1,5 +1,5 @@
 import {
-  ALTAS_ECOSYSTEM_PATHS,
+  ATLAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
 } from "../../../../site-config/common/constants";
 import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -36,7 +36,7 @@ function mapCELLxGENECollectionId(
   cellxgeneCollectionId: string | null
 ): string {
   if (!cellxgeneCollectionId) return "";
-  return `${ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL}${ALTAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION}/${cellxgeneCollectionId}`;
+  return `${ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL}${ATLAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION}/${cellxgeneCollectionId}`;
 }
 
 /**
@@ -46,7 +46,7 @@ function mapCELLxGENECollectionId(
  */
 function mapHCAProjectId(hcaProjectId: string | null): string {
   if (!hcaProjectId) return "";
-  return `${ATLAS_ECOSYSTEM_URLS.HCA_EXPLORER}${ALTAS_ECOSYSTEM_PATHS.HCA_PROJECT}/${hcaProjectId}`;
+  return `${ATLAS_ECOSYSTEM_URLS.HCA_EXPLORER}${ATLAS_ECOSYSTEM_PATHS.HCA_PROJECT}/${hcaProjectId}`;
 }
 
 /**

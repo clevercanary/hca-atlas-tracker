@@ -1,5 +1,5 @@
 import {
-  ALTAS_ECOSYSTEM_PATHS,
+  ATLAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
 } from "../../../../site-config/common/constants";
 import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -69,7 +69,7 @@ function mapCELLxGENECollectionId(
   cellxgeneCollectionId: string | null
 ): string {
   if (!cellxgeneCollectionId) return "";
-  return `${ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL}${ALTAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION}/${cellxgeneCollectionId}`;
+  return `${ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL}${ATLAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION}/${cellxgeneCollectionId}`;
 }
 
 /**
