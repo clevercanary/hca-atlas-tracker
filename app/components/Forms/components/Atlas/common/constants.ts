@@ -1,9 +1,9 @@
 import { HCAAtlasTrackerAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { controllerConfigWithProps } from "app/components/common/Form/components/Controllers/common/utils";
 import { NewAtlasData } from "../../../../../views/AddNewAtlasView/common/entities";
 import { FIELD_NAME } from "../../../../../views/AtlasView/common/constants";
 import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
 import {
+  ComponentControllerConfig,
   ControllerConfig,
   StaticControllerConfig,
 } from "../../../../common/Form/components/Controllers/common/entities";
@@ -11,7 +11,6 @@ import { BioNetwork } from "../../../../Form/components/Select/components/BioNet
 import { TargetCompletion } from "../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
 import { Wave } from "../../../../Form/components/Select/components/Wave/wave";
 import { InputControllerWithLink } from "../components/InputControllerWithLink/inputControllerWithLink";
-import { CellxgeneAtlasCollectionControllerProps } from "./entities";
 
 type CommonControllerConfig = StaticControllerConfig<
   NewAtlasData | AtlasEditData
@@ -77,25 +76,39 @@ export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   HCAAtlasTrackerAtlas
 >[] = [...GENERAL_INFO_COMMON_CONTROLLERS, TARGET_COMPLETION];
 
-const CELLXGENE_ATLAS_COLLECTION_PROPS = {
-  inputProps: {
-    isFullWidth: true,
+const NEW_ATLAS_CELLXGENE_ATLAS_COLLECTION: ComponentControllerConfig<
+  NewAtlasData,
+  HCAAtlasTrackerAtlas
+> = {
+  ControllerComponent({ formManager, formMethod }) {
+    return InputControllerWithLink({
+      formManager,
+      formMethod,
+      inputProps: {
+        isFullWidth: true,
+      },
+      label: "CELLxGENE collection ID",
+      name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
+    });
   },
-  label: "CELLxGENE collection ID",
-  name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
 };
 
-const NEW_ATLAS_CELLXGENE_ATLAS_COLLECTION = controllerConfigWithProps<
-  NewAtlasData,
-  HCAAtlasTrackerAtlas,
-  CellxgeneAtlasCollectionControllerProps
->(InputControllerWithLink, CELLXGENE_ATLAS_COLLECTION_PROPS);
-
-const VIEW_ATLAS_CELLXGENE_ATLAS_COLLECTION = controllerConfigWithProps<
+const VIEW_ATLAS_CELLXGENE_ATLAS_COLLECTION: ComponentControllerConfig<
   AtlasEditData,
-  HCAAtlasTrackerAtlas,
-  CellxgeneAtlasCollectionControllerProps
->(InputControllerWithLink, CELLXGENE_ATLAS_COLLECTION_PROPS);
+  HCAAtlasTrackerAtlas
+> = {
+  ControllerComponent({ formManager, formMethod }) {
+    return InputControllerWithLink({
+      formManager,
+      formMethod,
+      inputProps: {
+        isFullWidth: true,
+      },
+      label: "CELLxGENE collection ID",
+      name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
+    });
+  },
+};
 
 export const IDENTIFIERS_NEW_ATLAS_CONTROLLERS: ControllerConfig<
   NewAtlasData,
