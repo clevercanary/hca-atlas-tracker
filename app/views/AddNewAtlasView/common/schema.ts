@@ -3,6 +3,7 @@ import {
   NETWORK_KEYS,
   WAVES,
 } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
+import { CELLXGENE_COLLECTION_ID_REGEX } from "../../../common/constants";
 import { FIELD_NAME } from "./constants";
 
 export const newAtlasSchema = object({
@@ -24,6 +25,13 @@ export const newAtlasSchema = object({
     .required("Network is required")
     .notOneOf([""], "Network is required")
     .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
+  [FIELD_NAME.CELLXGENE_ATLAS_COLLECTION]: string()
+    .default("")
+    .notRequired()
+    .matches(
+      CELLXGENE_COLLECTION_ID_REGEX,
+      "CELLxGENE collection ID must be a UUID or CELLxGENE collection URL"
+    ),
   [FIELD_NAME.SHORT_NAME]: string()
     .default("")
     .required("Short name is required"),

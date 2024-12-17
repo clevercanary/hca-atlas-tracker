@@ -9,6 +9,7 @@ import { FormManager } from "../../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../../routes/constants";
 import { NewAtlasData } from "../common/entities";
+import { getIdentifierId } from "../common/utils";
 
 export const useAddAtlasFormManager = (
   formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>
@@ -21,7 +22,7 @@ export const useAddAtlasFormManager = (
 
   const onSave = useCallback(
     (payload: NewAtlasData, url?: string) => {
-      onSubmit(API.CREATE_ATLAS, METHOD.POST, payload, {
+      onSubmit(API.CREATE_ATLAS, METHOD.POST, mapPayload(payload), {
         onSuccess: (data) => onSuccess(data.id, url),
       });
     },
@@ -30,6 +31,19 @@ export const useAddAtlasFormManager = (
 
   return useFormManager(formMethod, { onDiscard, onSave });
 };
+
+/**
+ * Maps the payload.
+ * Strips ID from identifier CELLxGENE collection.
+ * @param payload - Payload.
+ * @returns payload.
+ */
+function mapPayload(payload: NewAtlasData): NewAtlasData {
+  return {
+    ...payload,
+    cellxgeneAtlasCollection: getIdentifierId(payload.cellxgeneAtlasCollection),
+  };
+}
 
 /**
  * Side effect "onSuccess"; redirects to the atlas page, or to the specified URL.

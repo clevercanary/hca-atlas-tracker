@@ -1,25 +1,34 @@
-import { OutlinedInputProps as MOutlinedInputProps } from "@mui/material/OutlinedInput/OutlinedInput";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { TypographyNoWrap } from "app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
+import { Fragment, ReactNode } from "react";
 import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 import {
   FormMethod,
   YupValidatedFormValues,
 } from "../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
-import { Input } from "../../../Input/input";
+import { Input, InputProps } from "../../../Input/input";
+
+export interface LabelLinkConfig {
+  getUrl?: (v: string | null) => string | null;
+  label?: string;
+}
 
 export interface InputControllerProps<T extends FieldValues, R = undefined>
   extends UseControllerProps<YupValidatedFormValues<T>> {
   className?: string;
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
-  inputProps?: Partial<Omit<MOutlinedInputProps, "ref">>;
+  inputProps?: Partial<Omit<InputProps, "ref">>;
+  labelLink?: LabelLinkConfig | true;
 }
 
 export const InputController = <T extends FieldValues, R = undefined>({
   className,
   formManager,
   formMethod,
-  inputProps,
+  inputProps: { label, ...inputProps } = {},
+  labelLink,
   name,
   ...props
 }: InputControllerProps<T, R>): JSX.Element => {
@@ -38,6 +47,15 @@ export const InputController = <T extends FieldValues, R = undefined>({
           error={invalid}
           helperText={error?.message}
           isFilled={Boolean(field.value)}
+          label={
+            labelLink
+              ? getLabelWithLink(
+                  label,
+                  labelLink === true ? {} : labelLink,
+                  field.value
+                )
+              : label
+          }
           readOnly={isReadOnly}
           {...inputProps}
           {...props}
@@ -46,3 +64,31 @@ export const InputController = <T extends FieldValues, R = undefined>({
     />
   );
 };
+
+/**
+ * Get input label including a link derived from the input value.
+ * @param label - Primary label.
+ * @param param1 - Link config.
+ * @param param1.getUrl - Function that takes the input value (cast to string or null) and returns the link URL, or null if the link shouldn't be displayed.
+ * @param param1.label - Link label.
+ * @param value - Input value.
+ * @returns Input label with link.
+ */
+function getLabelWithLink(
+  label: ReactNode,
+  {
+    getUrl = (v): string | null => (v ? v : null),
+    label: linkLabel = "Visit link",
+  }: LabelLinkConfig,
+  value: unknown
+): JSX.Element {
+  const url = getUrl(
+    value === null || value === undefined ? null : String(value)
+  );
+  return (
+    <Fragment>
+      <TypographyNoWrap>{label}</TypographyNoWrap>
+      {url !== null && <Link label={linkLabel} url={url} />}
+    </Fragment>
+  );
+}

@@ -1,6 +1,6 @@
 import { Breakpoints } from "@mui/system";
 
-export const ALTAS_ECOSYSTEM_PATHS = {
+export const ATLAS_ECOSYSTEM_PATHS = {
   CELLXGENE_COLLECTION: "/collections",
   HCA_PROJECT: "/projects",
 };

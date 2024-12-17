@@ -8,3 +8,14 @@ import { getAtlasesBreadcrumb } from "../../../components/Detail/components/Trac
 export function getBreadcrumbs(): Breadcrumb[] {
   return [getAtlasesBreadcrumb()];
 }
+
+/**
+ * Returns the identifier URL's ID.
+ * @param identifierUrl - Identifier URL.
+ * @returns identifier ID.
+ */
+export function getIdentifierId(identifierUrl: string | null): string | null {
+  if (!identifierUrl) return null;
+  const paths = identifierUrl.split("/");
+  return paths.pop() || "";
+}
