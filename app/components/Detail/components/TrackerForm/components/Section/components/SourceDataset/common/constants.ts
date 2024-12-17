@@ -1,10 +1,12 @@
+import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { ControllerConfig } from "../../../../../../../../common/Form/components/Controllers/common/entities";
 import { NewSourceDatasetData } from "../../../../../../AddSourceDataset/common/entities";
 import { FIELD_NAME } from "../../../../../../ViewSourceDataset/common/constants";
 import { SourceDatasetEditData } from "../../../../../../ViewSourceDataset/common/entities";
 
 type CommonControllerConfig = ControllerConfig<
-  NewSourceDatasetData | SourceDatasetEditData
+  NewSourceDatasetData | SourceDatasetEditData,
+  HCAAtlasTrackerSourceDataset
 >;
 
 const TITLE: CommonControllerConfig = {
@@ -14,8 +16,12 @@ const TITLE: CommonControllerConfig = {
   name: FIELD_NAME.TITLE,
 };
 
-export const GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS: ControllerConfig<NewSourceDatasetData>[] =
-  [TITLE];
+export const GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS: ControllerConfig<
+  NewSourceDatasetData,
+  HCAAtlasTrackerSourceDataset
+>[] = [TITLE];
 
-export const GENERAL_INFO_VIEW_SOURCE_DATASET_CONTROLLERS: ControllerConfig<SourceDatasetEditData>[] =
-  GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS;
+export const GENERAL_INFO_VIEW_SOURCE_DATASET_CONTROLLERS: ControllerConfig<
+  SourceDatasetEditData,
+  HCAAtlasTrackerSourceDataset
+>[] = GENERAL_INFO_NEW_SOURCE_DATASET_CONTROLLERS;

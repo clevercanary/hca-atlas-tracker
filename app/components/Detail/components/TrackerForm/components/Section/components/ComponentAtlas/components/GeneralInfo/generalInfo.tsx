@@ -12,7 +12,7 @@ import {
 } from "../../../../section.styles";
 
 export interface GeneralInfoProps<T extends FieldValues> {
-  controllerConfigs: ControllerConfig<T>[];
+  controllerConfigs: ControllerConfig<T, HCAAtlasTrackerComponentAtlas>[];
   formManager: FormManager;
   formMethod: FormMethod<T, HCAAtlasTrackerComponentAtlas>;
 }
