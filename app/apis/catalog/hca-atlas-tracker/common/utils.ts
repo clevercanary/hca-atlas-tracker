@@ -315,7 +315,7 @@ export function getPublicationCitation({
   publication,
 }: DoiPublicationInfo): string {
   return getPublishedCitation(
-    DOI_STATUS.NA, // TODO should be actually based on something?
+    DOI_STATUS.OK, // TODO should be actually based on something?
     publication?.authors[0].name ?? null,
     publication?.publicationDate ?? null,
     publication?.journal ?? null
