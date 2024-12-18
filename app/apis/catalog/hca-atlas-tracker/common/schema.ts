@@ -48,7 +48,7 @@ export const newAtlasSchema = object({
     .required(),
   metadataSpecificationUrl: string()
     .matches(
-      /^https:\/\/docs\.google\.com\/spreadsheets\//,
+      /^$|^https:\/\/docs\.google\.com\/spreadsheets\//,
       "Metadata specification must be a Google Sheets URL"
     )
     .nullable(),
