@@ -1688,7 +1688,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
       name: USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.name,
     },
   ],
-  metadataSpecificationUrl: "https://docs.google.com/spreadsheets/",
+  metadataSpecificationUrl: "https://docs.google.com/spreadsheets/foo",
   network: "lung",
   publications: [],
   shortName: "test-public",

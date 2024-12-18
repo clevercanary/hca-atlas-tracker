@@ -40,8 +40,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   dois: [DOI_PREPRINT_NO_JOURNAL],
   highlights: "bar foo baz baz baz foo",
   integrationLead: [],
-  metadataSpecificationUrl:
-    "https://docs.google.com/spreadsheets/not-a-google-sheet",
+  metadataSpecificationUrl: "https://docs.google.com/spreadsheets/foo",
   network: "eye",
   shortName: "test",
   version: "1.0",
