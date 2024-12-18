@@ -81,6 +81,18 @@ const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
   name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
 };
 
+const METADATA_SPECIFICATION_URL: ControllerConfig<
+  AtlasEditData,
+  HCAAtlasTrackerAtlas
+> = {
+  inputProps: {
+    isFullWidth: true,
+    label: "Metadata Specification (Golden Spreadsheet)",
+  },
+  labelLink: true,
+  name: FIELD_NAME.METADATA_SPECIFICATION_URL,
+};
+
 export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<
   NewAtlasData,
   HCAAtlasTrackerAtlas
@@ -100,3 +112,8 @@ export const IDENTIFIERS_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   AtlasEditData,
   HCAAtlasTrackerAtlas
 >[] = [...IDENTIFIERS_NEW_ATLAS_CONTROLLERS];
+
+export const METADATA_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
+  AtlasEditData,
+  HCAAtlasTrackerAtlas
+>[] = [METADATA_SPECIFICATION_URL];

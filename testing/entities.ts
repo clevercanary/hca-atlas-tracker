@@ -28,6 +28,7 @@ export interface TestAtlas {
   highlights: string;
   id: string;
   integrationLead: IntegrationLead[];
+  metadataSpecificationUrl?: string;
   network: NetworkKey;
   publications: DoiPublicationInfo[];
   shortName: string;

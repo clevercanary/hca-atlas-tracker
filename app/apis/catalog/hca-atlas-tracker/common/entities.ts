@@ -4,28 +4,14 @@ import { NETWORK_KEYS, WAVES } from "./constants";
 export type APIKey = keyof typeof API;
 export type APIValue = (typeof API)[APIKey];
 
-export interface HCAAtlasTrackerListAtlas {
-  bioNetwork: NetworkKey;
-  cellxgeneAtlasCollection: string | null;
-  codeLinks: LinkInfo[];
-  completedTaskCount: number;
-  componentAtlasCount: number;
-  description: string;
-  highlights: string;
-  id: string;
+export type HCAAtlasTrackerListAtlas = Omit<
+  HCAAtlasTrackerAtlas,
+  "integrationLead"
+> & {
   integrationLeadEmail: IntegrationLead["email"][];
   integrationLeadName: IntegrationLead["name"][];
   name: string;
-  publications: DoiPublicationInfo[];
-  shortName: string;
-  sourceStudyCount: number;
-  status: ATLAS_STATUS;
-  targetCompletion: string;
-  taskCount: number;
-  title: string;
-  version: string;
-  wave: Wave;
-}
+};
 
 export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
@@ -37,6 +23,7 @@ export interface HCAAtlasTrackerAtlas {
   highlights: string;
   id: string;
   integrationLead: IntegrationLead[];
+  metadataSpecificationUrl: string | null;
   publications: DoiPublicationInfo[];
   shortName: string;
   sourceDatasetCount: number;
@@ -229,6 +216,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   description: string;
   highlights: string;
   integrationLead: IntegrationLead[];
+  metadataSpecificationUrl: string | null;
   network: NetworkKey;
   publications: DoiPublicationInfo[];
   shortName: string;

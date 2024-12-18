@@ -53,6 +53,8 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
       atlas.cellxgeneAtlasCollection
     ),
     [FIELD_NAME.DOI]: atlas.publications[0]?.doi,
+    [FIELD_NAME.METADATA_SPECIFICATION_URL]:
+      atlas.metadataSpecificationUrl ?? "",
     [FIELD_NAME.SHORT_NAME]: atlas.shortName,
     [FIELD_NAME.TARGET_COMPLETION]:
       atlas.targetCompletion ?? TARGET_COMPLETION_NULL,

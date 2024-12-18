@@ -421,6 +421,23 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when metadata specification is not a google sheets url", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            metadataSpecificationUrl: "https://example.com",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0, []);
   });
@@ -494,6 +511,9 @@ async function testSuccessfulEdit(
   );
   expect(updatedOverview.highlights).toEqual(editData.highlights ?? "");
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
+  expect(updatedOverview.metadataSpecificationUrl).toEqual(
+    editData.metadataSpecificationUrl ?? null
+  );
   expect(updatedOverview.network).toEqual(editData.network);
   expect(updatedOverview.shortName).toEqual(editData.shortName);
   expect(updatedOverview.version).toEqual(editData.version);

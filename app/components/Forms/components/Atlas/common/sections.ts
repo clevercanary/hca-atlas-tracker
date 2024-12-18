@@ -42,4 +42,8 @@ export const VIEW_ATLAS_SECTION_CONFIGS: SectionConfig<
     SectionCard: ViewAtlasIntegrationLeadSection,
     sectionTitle: SECTION_TITLES.INTEGRATION_LEAD,
   },
+  {
+    controllerConfigs: C.METADATA_VIEW_ATLAS_CONTROLLERS,
+    sectionTitle: SECTION_TITLES.METADATA,
+  },
 ];
