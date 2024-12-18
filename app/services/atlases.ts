@@ -116,6 +116,7 @@ export async function atlasInputDataToDbData(
       description: inputData.description ?? "",
       highlights: inputData.highlights ?? "",
       integrationLead: inputData.integrationLead,
+      metadataSpecificationUrl: null,
       network: inputData.network,
       publications,
       shortName: inputData.shortName,
