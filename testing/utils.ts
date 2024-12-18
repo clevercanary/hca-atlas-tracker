@@ -67,7 +67,7 @@ export function makeTestAtlasOverview(
     description: atlas.description,
     highlights: atlas.highlights,
     integrationLead: atlas.integrationLead,
-    metadataSpecificationUrl: null,
+    metadataSpecificationUrl: atlas.metadataSpecificationUrl ?? null,
     network: atlas.network,
     publications: atlas.publications,
     shortName: atlas.shortName,

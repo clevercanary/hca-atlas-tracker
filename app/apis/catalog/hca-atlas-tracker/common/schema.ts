@@ -46,6 +46,12 @@ export const newAtlasSchema = object({
       }).required()
     )
     .required(),
+  metadataSpecificationUrl: string()
+    .matches(
+      /^https:\/\/docs\.google\.com\/spreadsheets\//,
+      "Metadata specification must be a Google Sheets URL"
+    )
+    .nullable(),
   network: string()
     .default("")
     .required("Network is required")

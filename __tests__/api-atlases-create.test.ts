@@ -40,6 +40,8 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   dois: [DOI_PREPRINT_NO_JOURNAL],
   highlights: "bar foo baz baz baz foo",
   integrationLead: [],
+  metadataSpecificationUrl:
+    "https://docs.google.com/spreadsheets/not-a-google-sheet",
   network: "eye",
   shortName: "test",
   version: "1.0",
@@ -350,6 +352,21 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when metadata specification is not a google sheets url", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            metadataSpecificationUrl: "https://example.com",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
     await testSuccessfulCreate(NEW_ATLAS_DATA, [
       PUBLICATION_PREPRINT_NO_JOURNAL,
@@ -402,6 +419,9 @@ async function testSuccessfulCreate(
   );
   expect(newAtlasFromDb.overview.integrationLead).toEqual(
     atlasData.integrationLead
+  );
+  expect(newAtlasFromDb.overview.metadataSpecificationUrl).toEqual(
+    atlasData.metadataSpecificationUrl ?? null
   );
   expect(newAtlasFromDb.overview.network).toEqual(atlasData.network);
   expect(newAtlasFromDb.overview.publications.map((p) => p.doi)).toEqual(
