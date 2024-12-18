@@ -16,6 +16,7 @@ import {
   AtlasEditData,
   NewAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import { normalizeDoi } from "../utils/doi";
 import { query } from "./database";
 import { confirmSourceDatasetStudyIsOnAtlas } from "./source-datasets";
 
@@ -91,7 +92,8 @@ export async function atlasInputDataToDbData(
   const publications: DoiPublicationInfo[] = [];
   if (inputData.dois)
     try {
-      for (const doi of inputData.dois) {
+      for (const sourceDoi of inputData.dois) {
+        const doi = normalizeDoi(sourceDoi);
         publications.push({
           doi,
           publication: await getCrossrefPublicationInfo(doi),
