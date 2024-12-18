@@ -9,7 +9,6 @@ import { HCAAtlasTrackerUser } from "../../../../app/apis/catalog/hca-atlas-trac
 import { getUserId } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import * as C from "../../../../app/components";
 import { COLUMN_VISIBILITY } from "../../../../app/components/Table/features/constants";
-import { mapSelectCategoryValue } from "../../../../app/config/utils";
 import * as V from "../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
@@ -45,9 +44,6 @@ export const userEntityConfig: EntityConfig = {
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISABLED,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISABLED,
-            mapSelectCategoryValue: mapSelectCategoryValue((value) =>
-              value.toString()
-            ),
           },
         ],
       },
