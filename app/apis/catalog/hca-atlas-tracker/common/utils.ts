@@ -307,8 +307,8 @@ export function getSourceStudyCitation(
 
 /**
  * Returns the publication citation.
- * @param param0 - DOI and publication info.
- * @param param0.publication - Publication.
+ * @param doiPuplicationInfo - DOI and publication info.
+ * @param doiPuplicationInfo.publication - Publication.
  * @returns publication citation.
  */
 export function getPublicationCitation({
