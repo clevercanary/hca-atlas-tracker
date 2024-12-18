@@ -21,6 +21,7 @@ export interface InputControllerProps<T extends FieldValues, R = undefined>
   formMethod: FormMethod<T, R>;
   inputProps?: Partial<Omit<InputProps, "ref">>;
   labelLink?: LabelLinkConfig | true;
+  renderHelperText?: (data?: R) => ReactNode;
 }
 
 export const InputController = <T extends FieldValues, R = undefined>({
@@ -30,6 +31,7 @@ export const InputController = <T extends FieldValues, R = undefined>({
   inputProps: { label, ...inputProps } = {},
   labelLink,
   name,
+  renderHelperText,
   ...props
 }: InputControllerProps<T, R>): JSX.Element => {
   const {
@@ -45,7 +47,7 @@ export const InputController = <T extends FieldValues, R = undefined>({
           {...field}
           className={className}
           error={invalid}
-          helperText={error?.message}
+          helperText={error?.message || renderHelperText?.(formMethod.data)}
           isFilled={Boolean(field.value)}
           label={
             labelLink

@@ -52,6 +52,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
     [FIELD_NAME.CELLXGENE_ATLAS_COLLECTION]: mapCELLxGENECollectionId(
       atlas.cellxgeneAtlasCollection
     ),
+    [FIELD_NAME.DOI]: atlas.publications[0]?.doi,
     [FIELD_NAME.SHORT_NAME]: atlas.shortName,
     [FIELD_NAME.TARGET_COMPLETION]:
       atlas.targetCompletion ?? TARGET_COMPLETION_NULL,
@@ -75,11 +76,13 @@ function mapCELLxGENECollectionId(
 /**
  * Returns API payload mapped from data.
  * @param data - Form data.
+ * @param data.doi - DOI.
  * @returns API payload.
  */
-function mapApiValues(data: AtlasEditData): APIAtlasEditData {
+function mapApiValues({ doi, ...data }: AtlasEditData): APIAtlasEditData {
   return {
     ...data,
+    dois: doi ? [doi] : undefined,
     targetCompletion: mapTargetCompletion(data.targetCompletion),
   };
 }

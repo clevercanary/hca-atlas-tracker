@@ -2,6 +2,7 @@ import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
 import { NETWORK_KEYS, UNPUBLISHED, WAVES } from "./constants";
 import {
   DOI_STATUS,
+  DoiPublicationInfo,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComment,
   HCAAtlasTrackerComponentAtlas,
@@ -302,6 +303,23 @@ export function getSourceStudyCitation(
       journal
     );
   }
+}
+
+/**
+ * Returns the publication citation.
+ * @param doiPuplicationInfo - DOI and publication info.
+ * @param doiPuplicationInfo.publication - Publication.
+ * @returns publication citation.
+ */
+export function getPublicationCitation({
+  publication,
+}: DoiPublicationInfo): string {
+  return getPublishedCitation(
+    publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
+    publication?.authors[0].name ?? null,
+    publication?.publicationDate ?? null,
+    publication?.journal ?? null
+  );
 }
 
 function getPublishedCitation(

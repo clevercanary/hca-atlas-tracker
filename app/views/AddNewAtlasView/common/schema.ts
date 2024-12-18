@@ -4,6 +4,7 @@ import {
   WAVES,
 } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { CELLXGENE_COLLECTION_ID_REGEX } from "../../../common/constants";
+import { isDoi } from "../../../utils/doi";
 import { FIELD_NAME } from "./constants";
 
 export const newAtlasSchema = object({
@@ -31,6 +32,14 @@ export const newAtlasSchema = object({
     .matches(
       CELLXGENE_COLLECTION_ID_REGEX,
       "CELLxGENE collection ID must be a UUID or CELLxGENE collection URL"
+    ),
+  [FIELD_NAME.DOI]: string()
+    .default("")
+    .notRequired()
+    .test(
+      "is-doi",
+      "DOI must be a syntactically-valid DOI",
+      (value) => !value || isDoi(value)
     ),
   [FIELD_NAME.SHORT_NAME]: string()
     .default("")

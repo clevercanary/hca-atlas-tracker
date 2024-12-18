@@ -7,7 +7,7 @@ import { InputController } from "./components/InputController/inputController";
 import { SelectController } from "./components/SelectController/selectController";
 
 export interface ControllersProps<T extends FieldValues, R = undefined> {
-  controllerConfigs: ControllerConfig<T>[];
+  controllerConfigs: ControllerConfig<T, R>[];
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
 }
@@ -20,7 +20,7 @@ export const Controllers = <T extends FieldValues, R = undefined>({
   return (
     <Fragment>
       {controllerConfigs.map(
-        ({ inputProps, labelLink, name, selectProps }, i) => {
+        ({ inputProps, labelLink, name, renderHelperText, selectProps }, i) => {
           const { SelectComponent } = selectProps || {};
           return SelectComponent ? (
             <SelectController
@@ -39,6 +39,7 @@ export const Controllers = <T extends FieldValues, R = undefined>({
               formManager={formManager}
               formMethod={formMethod}
               labelLink={labelLink}
+              renderHelperText={renderHelperText}
             />
           );
         }
