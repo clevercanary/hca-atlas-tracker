@@ -1109,11 +1109,12 @@ function getComponentAtlasTitleColumnDef(
 
 /**
  * Returns the DOI link.
- * @param doi - DOI.
+ * @param doi - DOI or DOI URL.
  * @returns DOI link.
  */
 export function getDOILink(doi: string | null): string {
   if (!doi || doi === UNPUBLISHED) return "";
+  if (doi.startsWith("https://doi.org/")) return doi;
   return `https://doi.org/${encodeURIComponent(doi)}`;
 }
 
