@@ -811,8 +811,8 @@ export function getAtlasComponentSourceDatasetsTableColumns(
   canEdit: boolean
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   const columnDefs = [
+    getSourceDatasetPublicationColumnDef(),
     getLinkedSourceDatasetTitleColumnDef(),
-    getComponentAtlasSourceDatasetPublicationColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
     getSourceDatasetSuspensionTypeColumnDef(),
@@ -832,6 +832,7 @@ export function getAtlasComponentSourceDatasetsTableColumns(
  */
 export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
+    getSourceDatasetPublicationColumnDef(),
     getLinkedSourceDatasetTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
@@ -989,19 +990,6 @@ function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDe
     accessorKey: "cellCount",
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell count",
-    meta: { enableSortingInteraction: false },
-  };
-}
-
-/**
- * Returns component atlas source dataset publication column def.
- * @returns ColumnDef.
- */
-function getComponentAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "publicationString",
-    cell: ({ row }) => C.BasicCell({ value: row.original.publicationString }),
-    header: "Source study",
     meta: { enableSortingInteraction: false },
   };
 }
@@ -1192,7 +1180,7 @@ function getLinkedSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSource
   return {
     accessorKey: "title",
     cell: ({ row }) => C.BasicCell({ value: row.original.title }),
-    header: "Title",
+    header: "Dataset",
     meta: { columnPinned: true, enableSortingInteraction: false },
   };
 }
@@ -1267,6 +1255,25 @@ function getSourceDatasetLinkedColumnDef(
       }),
     header: "Used In Atlas",
     meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns source dataset publication column def.
+ * @param enableSortingInteraction - Enable sorting interaction.
+ * @returns Column def.
+ */
+function getSourceDatasetPublicationColumnDef(
+  enableSortingInteraction = false
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "publicationString",
+    cell: ({ row }) =>
+      C.BasicCell({
+        value: row.original.publicationString,
+      }),
+    header: "Publication",
+    meta: { enableSortingInteraction },
   };
 }
 

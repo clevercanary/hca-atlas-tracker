@@ -16,7 +16,7 @@ const SORTING: SortingState = [
 ];
 
 export const TABLE_GRID_TEMPLATE_COLUMNS =
-  "max-content minmax(272px, 1fr) repeat(2, minmax(180px, 0.4fr)) repeat(5, minmax(88px, 128px)) auto";
+  "max-content minmax(180px, 0.4fr) minmax(272px, 1fr) minmax(180px, 0.4fr) repeat(5, minmax(88px, 128px)) auto";
 
 export const TABLE_OPTIONS: Partial<
   TableOptions<HCAAtlasTrackerSourceDataset>
