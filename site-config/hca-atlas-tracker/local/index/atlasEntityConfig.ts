@@ -197,7 +197,13 @@ export const atlasEntityConfig: EntityConfig = {
       id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
     },
     tableOptions: {
-      initialState: { columnVisibility: COLUMN_VISIBILITY.ROW_POSITION },
+      enableExpanding: true,
+      enableGrouping: false,
+      initialState: {
+        columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
+        expanded: true,
+        grouping: [HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE],
+      },
     },
   } as ListConfig<HCAAtlasTrackerListAtlas>,
   listView: {
