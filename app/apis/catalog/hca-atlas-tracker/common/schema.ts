@@ -12,6 +12,9 @@ import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 import { ROLE } from "./entities";
 
+const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
+  /^$|^https:\/\/docs\.google\.com\/spreadsheets\//;
+
 /**
  * Schema for data used to create a new atlas.
  */
@@ -48,7 +51,7 @@ export const newAtlasSchema = object({
     .required(),
   metadataSpecificationUrl: string()
     .matches(
-      /^$|^https:\/\/docs\.google\.com\/spreadsheets\//,
+      GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
       "Metadata specification must be a Google Sheets URL"
     )
     .nullable(),
@@ -287,6 +290,17 @@ export const sourceDatasetEditSchema = object({
 }).strict();
 
 export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
+
+/**
+ * Schema for data used to update an atlas-linked source dataset.
+ */
+export const atlasSourceDatasetEditSchema = object({
+  metadataSpreadsheetUrl: string().required().nullable(),
+}).strict();
+
+export type AtlasSourceDatasetEditData = InferType<
+  typeof atlasSourceDatasetEditSchema
+>;
 
 /**
  * Schema for data used to create a comment.
