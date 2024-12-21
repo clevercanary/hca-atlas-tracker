@@ -284,7 +284,7 @@ export async function updateAtlasSourceDataset(
     HCAAtlasTrackerDBSourceDatasetInfo,
     "metadataSpreadsheetUrl"
   > = {
-    metadataSpreadsheetUrl: inputData.metadataSpreadsheetUrl,
+    metadataSpreadsheetUrl: inputData.metadataSpreadsheetUrl || null,
   };
   await query(
     "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = $2",

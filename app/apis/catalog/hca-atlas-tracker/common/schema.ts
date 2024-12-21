@@ -12,7 +12,7 @@ import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 import { ROLE } from "./entities";
 
-const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
+export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
   /^$|^https:\/\/docs\.google\.com\/spreadsheets\//;
 
 /**
@@ -295,7 +295,7 @@ export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
  * Schema for data used to update an atlas-linked source dataset.
  */
 export const atlasSourceDatasetEditSchema = object({
-  metadataSpreadsheetUrl: string().required().nullable(),
+  metadataSpreadsheetUrl: string().nullable(),
 }).strict();
 
 export type AtlasSourceDatasetEditData = InferType<

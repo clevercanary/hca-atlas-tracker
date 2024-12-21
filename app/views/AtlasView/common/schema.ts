@@ -1,4 +1,5 @@
 import { object, string } from "yup";
+import { GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   TARGET_COMPLETION_NULL,
   TARGET_COMPLETION_REGEXP,
@@ -12,7 +13,7 @@ export const atlasEditSchema = newAtlasSchema.concat(
       .default("")
       .notRequired()
       .matches(
-        /^$|^https:\/\/docs\.google\.com\/spreadsheets\//,
+        GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
         "Metadata specification must be a Google Sheets URL"
       ),
     [FIELD_NAME.TARGET_COMPLETION]: string()

@@ -11,6 +11,7 @@ import { isRouteValue } from "../../../../../../../routes/utils";
 import { Breadcrumb } from "../breadcrumbs";
 import {
   BREADCRUMB_ATLAS,
+  BREADCRUMB_ATLAS_SOURCE_DATASET,
   BREADCRUMB_ATLAS_SOURCE_DATASETS,
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
@@ -54,6 +55,17 @@ export function getAtlasSourceDatasetsBreadcrumb(
   pathParameter?: PathParameter
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_ATLAS_SOURCE_DATASETS, pathParameter);
+}
+
+/**
+ * Returns the breadcrumb for the atlas source datasets view.
+ * @param pathParameter - Path parameter.
+ * @returns atkas source datasets view breadcrumb.
+ */
+export function getAtlasSourceDatasetBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(BREADCRUMB_ATLAS_SOURCE_DATASET, pathParameter);
 }
 
 /**
