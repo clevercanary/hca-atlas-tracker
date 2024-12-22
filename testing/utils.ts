@@ -8,11 +8,13 @@ import {
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
+  HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
@@ -361,6 +363,58 @@ export function expectSourceStudyToMatch(
     }
     expect(apiStudy.contactEmail).toBeNull();
   }
+}
+
+export function expectApiSourceDatasetToMatchTest(
+  apiSourceDataset: HCAAtlasTrackerSourceDataset,
+  testSourceDataset: TestSourceDataset
+): void {
+  expect(apiSourceDataset.assay).toEqual(testSourceDataset.assay ?? []);
+  expect(apiSourceDataset.cellCount).toEqual(testSourceDataset.cellCount ?? 0);
+  expect(apiSourceDataset.cellxgeneDatasetId).toEqual(
+    testSourceDataset.cellxgeneDatasetId ?? null
+  );
+  expect(apiSourceDataset.cellxgeneDatasetVersion).toEqual(
+    testSourceDataset.cellxgeneDatasetVersion ?? null
+  );
+  expect(apiSourceDataset.disease).toEqual(testSourceDataset.disease ?? []);
+  expect(apiSourceDataset.sourceStudyId).toEqual(
+    testSourceDataset.sourceStudyId
+  );
+  expect(apiSourceDataset.suspensionType).toEqual(
+    testSourceDataset.suspensionType ?? []
+  );
+  expect(apiSourceDataset.tissue).toEqual(testSourceDataset.tissue ?? []);
+  expect(apiSourceDataset.title).toEqual(testSourceDataset.title);
+}
+
+export function expectDbSourceDatasetToMatchTest(
+  dbSourceDataset: HCAAtlasTrackerDBSourceDataset,
+  testSourceDataset: TestSourceDataset
+): void {
+  expect(dbSourceDataset.sd_info.assay).toEqual(testSourceDataset.assay ?? []);
+  expect(dbSourceDataset.sd_info.cellCount).toEqual(
+    testSourceDataset.cellCount ?? 0
+  );
+  expect(dbSourceDataset.sd_info.cellxgeneDatasetId).toEqual(
+    testSourceDataset.cellxgeneDatasetId ?? null
+  );
+  expect(dbSourceDataset.sd_info.cellxgeneDatasetVersion).toEqual(
+    testSourceDataset.cellxgeneDatasetVersion ?? null
+  );
+  expect(dbSourceDataset.sd_info.disease).toEqual(
+    testSourceDataset.disease ?? []
+  );
+  expect(dbSourceDataset.source_study_id).toEqual(
+    testSourceDataset.sourceStudyId
+  );
+  expect(dbSourceDataset.sd_info.suspensionType).toEqual(
+    testSourceDataset.suspensionType ?? []
+  );
+  expect(dbSourceDataset.sd_info.tissue).toEqual(
+    testSourceDataset.tissue ?? []
+  );
+  expect(dbSourceDataset.sd_info.title).toEqual(testSourceDataset.title);
 }
 
 export function expectAtlasDatasetsToHaveDifference(
