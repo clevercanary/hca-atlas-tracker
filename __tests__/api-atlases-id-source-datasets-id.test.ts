@@ -1,6 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerDBAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerSourceDataset,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { AtlasSourceDatasetEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
@@ -11,6 +15,7 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -20,11 +25,13 @@ import {
 } from "../testing/constants";
 import {
   expectAtlasToBeUnchanged,
+  expectSourceDatasetToBeUnchanged,
   getAtlasFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import {
+  expectApiSourceDatasetToMatchTest,
   expectAtlasDatasetsToHaveDifference,
   expectIsDefined,
   testApiRole,
@@ -36,9 +43,19 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
+const RETURNS_ERROR_403 = "returns error 403";
+
 const TEST_ROUTE = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
 
 const SOURCE_DATASET_ID_NONEXISTENT = "52281fde-232c-4481-8b45-cc986570e7b9";
+
+const A_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
+  metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/bar",
+};
+
+const B_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
+  metadataSpreadsheetUrl: "",
+};
 
 beforeAll(async () => {
   await resetDatabase();
@@ -48,7 +65,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe(TEST_ROUTE, () => {
+describe(`${TEST_ROUTE} (misc)`, () => {
   it("returns error 405 for PUT request", async () => {
     expect(
       (
@@ -61,7 +78,266 @@ describe(TEST_ROUTE, () => {
       )._getStatusCode()
     ).toEqual(405);
   });
+});
 
+describe(`${TEST_ROUTE} (GET)`, () => {
+  it("returns error 401 when source dataset is GET requested by logged out user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          undefined,
+          METHOD.GET
+        )
+      )._getStatusCode()
+    ).toEqual(401);
+  });
+
+  it("returns error 403 when source dataset is GET requested by unregistered user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          USER_UNREGISTERED,
+          METHOD.GET
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when source dataset is GET requested by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
+          METHOD.GET
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
+    testApiRole(
+      "returns source dataset",
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.GET,
+      role,
+      getQueryValues(
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+        SOURCE_DATASET_ATLAS_LINKED_A_FOO.id
+      ),
+      undefined,
+      false,
+      (res) => {
+        expect(res._getStatusCode()).toEqual(200);
+        const sourceDataset =
+          res._getJSONData() as HCAAtlasTrackerSourceDataset;
+        expectApiSourceDatasetToMatchTest(
+          sourceDataset,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO
+        );
+      }
+    );
+  }
+
+  it("returns source dataset when requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO
+    );
+  });
+});
+
+describe(`${TEST_ROUTE} (PATCH)`, () => {
+  it("returns error 401 when PATCH requested by logged out user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          undefined,
+          METHOD.PATCH,
+          false,
+          A_FOO_EDIT_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(401);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
+  it("returns error 403 when PATCH requested by unregistered user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          USER_UNREGISTERED,
+          METHOD.PATCH,
+          false,
+          A_FOO_EDIT_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
+  it("returns error 403 when PATCH requested by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
+          METHOD.PATCH,
+          false,
+          A_FOO_EDIT_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      RETURNS_ERROR_403,
+      TEST_ROUTE,
+      sourceDatasetHandler,
+      METHOD.PATCH,
+      role,
+      getQueryValues(
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+        SOURCE_DATASET_ATLAS_LINKED_A_FOO.id
+      ),
+      A_FOO_EDIT_DATA,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectSourceDatasetToBeUnchanged(
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO
+        );
+      }
+    );
+  }
+
+  it("returns error 403 when PATCH requested by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
+          METHOD.PATCH,
+          false,
+          A_FOO_EDIT_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
+  it("returns error 404 when PATCH requested with nonexistent source dataset", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ID_NONEXISTENT,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          A_FOO_EDIT_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
+  it("returns error 404 when PATCH requested with source dataset the atlas doesn't have", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          A_FOO_EDIT_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_BAZ);
+  });
+
+  it("returns error 400 when PATCH requested with non-google-sheets metadata url", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_FOO_EDIT_DATA,
+            metadataSpreadsheetUrl: "https://example.com",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
+  it("updates and returns source dataset when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      METHOD.PATCH,
+      true,
+      B_BAR_EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.metadataSpreadsheetUrl).toEqual(null);
+    expect(sourceDataset.title).toEqual(
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.title
+    );
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+  });
+
+  it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      A_FOO_EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.metadataSpreadsheetUrl).toEqual(
+      A_FOO_EDIT_DATA.metadataSpreadsheetUrl
+    );
+    expect(sourceDataset.title).toEqual(
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.title
+    );
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+  });
+});
+
+describe(`${TEST_ROUTE} (POST)`, () => {
   it("returns error 401 when POST requested from draft atlas by logged out user", async () => {
     expect(
       (
@@ -106,7 +382,7 @@ describe(TEST_ROUTE, () => {
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
     testApiRole(
-      "returns error 403",
+      RETURNS_ERROR_403,
       TEST_ROUTE,
       sourceDatasetHandler,
       METHOD.POST,
@@ -252,7 +528,9 @@ describe(TEST_ROUTE, () => {
       sourceDatasetsBefore
     );
   });
+});
 
+describe(`${TEST_ROUTE} (DELETE)`, () => {
   it("returns error 401 when DELETE requested from draft atlas by logged out user", async () => {
     expect(
       (
@@ -297,7 +575,7 @@ describe(TEST_ROUTE, () => {
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
     testApiRole(
-      "returns error 403",
+      RETURNS_ERROR_403,
       TEST_ROUTE,
       sourceDatasetHandler,
       METHOD.DELETE,
@@ -441,9 +719,11 @@ async function doSourceDatasetRequest(
   sourceDatasetId: string,
   user?: TestUser,
   method = METHOD.POST,
-  hideConsoleError = false
+  hideConsoleError = false,
+  body?: Record<string, unknown>
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
+    body,
     headers: { authorization: user?.authorization },
     method,
     query: getQueryValues(atlasId, sourceDatasetId),

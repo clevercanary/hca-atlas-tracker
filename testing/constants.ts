@@ -1489,6 +1489,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAR: TestSourceDataset = {
   cellCount: 12353,
   disease: ["disease atlas linked b bar"],
   id: "a710a258-c48c-4185-9d28-9e9429c989fd",
+  metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/baz",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
   suspensionType: ["suspension type atlas linked b bar"],
   tissue: ["tissue atlas linked b bar"],

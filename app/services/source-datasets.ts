@@ -10,6 +10,7 @@ import {
   HCAAtlasTrackerDBSourceStudy,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
+  AtlasSourceDatasetEditData,
   NewSourceDatasetData,
   SourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
@@ -131,6 +132,29 @@ export async function getSourceDataset(
 }
 
 /**
+ * Get a source dataset linked to an atlas.
+ * @param atlasId - Atlas ID.
+ * @param sourceDatasetId - Source dataset ID.
+ * @returns database-model source dataset.
+ */
+export async function getAtlasSourceDataset(
+  atlasId: string,
+  sourceDatasetId: string
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+  await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
+  const queryResult =
+    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
+      [sourceDatasetId]
+    );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Source dataset with ID ${sourceDatasetId} does not exist`
+    );
+  return queryResult.rows[0];
+}
+
+/**
  * Get a source dataset of a component atlas.
  * @param atlasId - ID of the atlas that the source dataset is accessed through.
  * @param componentAtlasId - ID of the component atlas that the source dataset is accessed through.
@@ -243,10 +267,30 @@ function sourceDatasetInputDataToDbData(
     cellxgeneDatasetVersion: null,
     cellxgeneExplorerUrl: null,
     disease: [],
+    metadataSpreadsheetUrl: null,
     suspensionType: [],
     tissue: [],
     title: inputData.title,
   };
+}
+
+export async function updateAtlasSourceDataset(
+  atlasId: string,
+  sourceDatasetId: string,
+  inputData: AtlasSourceDatasetEditData
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+  await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
+  const updatedInfoFields: Pick<
+    HCAAtlasTrackerDBSourceDatasetInfo,
+    "metadataSpreadsheetUrl"
+  > = {
+    metadataSpreadsheetUrl: inputData.metadataSpreadsheetUrl || null,
+  };
+  await query(
+    "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = $2",
+    [JSON.stringify(updatedInfoFields), sourceDatasetId]
+  );
+  return await getAtlasSourceDataset(atlasId, sourceDatasetId);
 }
 
 /**
@@ -472,6 +516,7 @@ function getCellxGeneSourceDatasetInfo(
     cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
     cellxgeneExplorerUrl: cxgDataset.explorer_url,
     disease: cxgDataset.disease.map((d) => d.label),
+    metadataSpreadsheetUrl: null,
     suspensionType: cxgDataset.suspension_type,
     tissue: cxgDataset.tissue.map((t) => t.label),
     title: cxgDataset.title,
@@ -569,6 +614,26 @@ export async function confirmSourceDatasetStudyIsOnAtlas(
   if (!queryResult.rows[0].exists)
     throw new InvalidOperationError(
       `Source dataset with ID ${sourceDatasetId} is not on a source study of atlas with ID ${atlasId}`
+    );
+}
+
+/**
+ * Throw an error if the given source dataset is not linked to the given atlas.
+ * @param sourceDatasetId - Source dataset ID.
+ * @param atlasId - Atlas ID.
+ */
+async function confirmSourceDatasetIsLinkedToAtlas(
+  sourceDatasetId: string,
+  atlasId: string
+): Promise<void> {
+  const atlasResult = await query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
+  >("SELECT source_datasets FROM hat.atlases WHERE id=$1", [atlasId]);
+  if (atlasResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  if (!atlasResult.rows[0].source_datasets.includes(sourceDatasetId))
+    throw new NotFoundError(
+      `Source dataset with ID ${sourceDatasetId} is not linked to atlas with ID ${atlasId}`
     );
 }
 

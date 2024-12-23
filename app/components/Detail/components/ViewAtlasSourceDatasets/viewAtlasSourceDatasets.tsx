@@ -1,5 +1,8 @@
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerSourceDataset,
+} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
@@ -10,11 +13,13 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceDatasetsProps {
+  atlas?: HCAAtlasTrackerAtlas;
   atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
 }
 
 export const ViewAtlasSourceDatasets = ({
+  atlas,
   atlasSourceDatasets = [],
   formManager,
 }: ViewSourceDatasetsProps): JSX.Element => {
@@ -25,9 +30,9 @@ export const ViewAtlasSourceDatasets = ({
   return (
     <Paper>
       <GridPaper>
-        {atlasSourceDatasets.length > 0 && (
+        {atlas && atlasSourceDatasets.length > 0 && (
           <Table
-            columns={getAtlasSourceDatasetsTableColumns()}
+            columns={getAtlasSourceDatasetsTableColumns(atlas)}
             gridTemplateColumns="max-content minmax(180px, 0.4fr) minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
             items={atlasSourceDatasets.sort(sortLinkedSourceDataset)}
             tableOptions={TABLE_OPTIONS}

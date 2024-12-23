@@ -20,6 +20,7 @@ import { BaseSyntheticEvent, ComponentProps } from "react";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   ATLAS_STATUS,
+  HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
@@ -812,7 +813,7 @@ export function getAtlasComponentSourceDatasetsTableColumns(
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   const columnDefs = [
     getSourceDatasetPublicationColumnDef(),
-    getLinkedSourceDatasetTitleColumnDef(),
+    getComponentAtlasSourceDatasetTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
     getSourceDatasetSuspensionTypeColumnDef(),
@@ -828,12 +829,15 @@ export function getAtlasComponentSourceDatasetsTableColumns(
 
 /**
  * Returns the table column definition model for the atlas source datasets table.
+ * @param atlas - Atlas.
  * @returns Table column definition.
  */
-export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+export function getAtlasSourceDatasetsTableColumns(
+  atlas: HCAAtlasTrackerAtlas
+): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetPublicationColumnDef(),
-    getLinkedSourceDatasetTitleColumnDef(),
+    getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetExploreColumnDef(),
     getSourceDatasetAssayColumnDef(),
     getSourceDatasetSuspensionTypeColumnDef(),
@@ -841,6 +845,29 @@ export function getAtlasSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerS
     getSourceDatasetDiseaseColumnDef(),
     getCellCountColumnDef(),
   ];
+}
+
+/**
+ * Returns linked source dataset title column def.
+ * @param atlas - Atlas.
+ * @returns ColumnDef.
+ */
+function getAtlasSourceDatasetTitleColumnDef(
+  atlas: HCAAtlasTrackerAtlas
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "title",
+    cell: ({ row }) =>
+      C.Link({
+        label: row.original.title,
+        url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
+          atlasId: atlas.id,
+          sourceDatasetId: row.original.id,
+        }),
+      }),
+    header: "Dataset",
+    meta: { columnPinned: true, enableSortingInteraction: false },
+  };
 }
 
 /**
@@ -991,6 +1018,19 @@ function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDe
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell count",
     meta: { enableSortingInteraction: false },
+  };
+}
+
+/**
+ * Returns component atlas source dataset title column def.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "title",
+    cell: ({ row }) => C.BasicCell({ value: row.original.title }),
+    header: "Dataset",
+    meta: { columnPinned: true, enableSortingInteraction: false },
   };
 }
 
@@ -1169,19 +1209,6 @@ function getCellCountColumnDef<
     accessorKey: "cellCount",
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
-  };
-}
-
-/**
- * Returns linked source dataset title column def.
- * @returns ColumnDef.
- */
-function getLinkedSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "title",
-    cell: ({ row }) => C.BasicCell({ value: row.original.title }),
-    header: "Dataset",
-    meta: { columnPinned: true, enableSortingInteraction: false },
   };
 }
 

@@ -39,6 +39,7 @@ export const AtlasSourceDatasetsView = ({
         mainColumn={
           <ViewAtlasSourceDatasets
             formManager={formManager}
+            atlas={atlas}
             atlasSourceDatasets={atlasSourceDatasets}
           />
         }

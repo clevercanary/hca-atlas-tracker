@@ -24,10 +24,11 @@ import {
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
 } from "./constants";
-import { TestAtlas } from "./entities";
+import { TestAtlas, TestSourceDataset } from "./entities";
 import {
   aggregateSourceDatasetArrayField,
   expectApiValidationsToMatchDb,
+  expectDbSourceDatasetToMatchTest,
   expectIsDefined,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
@@ -272,6 +273,17 @@ export async function getSourceStudyFromDatabase(
   ).rows[0];
 }
 
+export async function getSourceDatasetFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBSourceDataset | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
+}
+
 export async function getCellxGeneSourceDatasetFromDatabase(
   cellxgeneId: string
 ): Promise<HCAAtlasTrackerDBSourceDataset | null> {
@@ -327,6 +339,14 @@ export async function expectAtlasToBeUnchanged(
   expect(atlasFromDb.source_studies).toEqual(atlas.sourceStudies);
   expect(atlasFromDb.status).toEqual(atlas.status);
   expect(atlasFromDb.target_completion).toEqual(atlas.targetCompletion ?? null);
+}
+
+export async function expectSourceDatasetToBeUnchanged(
+  sourceDataset: TestSourceDataset
+): Promise<void> {
+  const datasetFromDb = await getSourceDatasetFromDatabase(sourceDataset.id);
+  if (!expectIsDefined(datasetFromDb)) return;
+  expectDbSourceDatasetToMatchTest(datasetFromDb, sourceDataset);
 }
 
 export async function expectApiSourceStudyToHaveMatchingDbValidations(

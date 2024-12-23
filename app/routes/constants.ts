@@ -2,6 +2,7 @@ export const ROUTE = {
   ACCOUNT_DISABLED: "/account-disabled",
   ATLAS: "/atlases/[atlasId]",
   ATLASES: "/atlases",
+  ATLAS_SOURCE_DATASET: "/atlases/[atlasId]/source-datasets/[sourceDatasetId]",
   ATLAS_SOURCE_DATASETS: "/atlases/[atlasId]/source-datasets",
   COMPONENT_ATLAS: "/atlases/[atlasId]/component-atlases/[componentAtlasId]",
   COMPONENT_ATLASES: "/atlases/[atlasId]/component-atlases",
