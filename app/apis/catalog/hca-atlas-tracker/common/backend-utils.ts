@@ -1,4 +1,4 @@
-import { getCellxGeneCollectionById } from "../../../../services/cellxgene";
+import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComment,
@@ -28,7 +28,7 @@ export function dbAtlasToApiAtlas(
     cellxgeneAtlasCollection: dbAtlas.overview.cellxgeneAtlasCollection,
     cellxgeneAtlasCollectionTitle:
       dbAtlas.overview.cellxgeneAtlasCollection &&
-      (getCellxGeneCollectionById(dbAtlas.overview.cellxgeneAtlasCollection)
+      (getCellxGeneCollectionInfoById(dbAtlas.overview.cellxgeneAtlasCollection)
         ?.title ??
         null),
     codeLinks: dbAtlas.overview.codeLinks,

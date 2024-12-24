@@ -97,7 +97,7 @@ export function getCellxGeneInfoByDoi(dois: string[]): CollectionInfo | null {
   return null;
 }
 
-export function getCellxGeneCollectionById(
+export function getCellxGeneCollectionInfoById(
   collectionId: string
 ): CollectionInfo | undefined {
   return refreshService.getData().collectionInfoById.get(collectionId);
