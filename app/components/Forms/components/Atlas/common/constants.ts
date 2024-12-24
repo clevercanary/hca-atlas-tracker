@@ -74,6 +74,9 @@ const DOI: CommonControllerConfig = {
 
 const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
   inputProps: {
+    helperTextProps: {
+      noWrap: false,
+    },
     isFullWidth: true,
     label: "CELLxGENE collection ID",
   },

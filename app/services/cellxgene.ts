@@ -49,7 +49,8 @@ const refreshService = makeRefreshService({
   getStoredInfo() {
     return globalThis.hcaAtlasTrackerCellxGeneInfoCache;
   },
-  notReadyMessage: "DOI to CELLxGENE collection ID mapping not initialized",
+  notReadyMessage:
+    "Cache of CELLxGENE collections and datasets not initialized",
   onRefreshSuccess() {
     doUpdatesIfRefreshesComplete();
   },
