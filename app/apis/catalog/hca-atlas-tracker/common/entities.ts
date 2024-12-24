@@ -16,6 +16,7 @@ export type HCAAtlasTrackerListAtlas = Omit<
 export interface HCAAtlasTrackerAtlas {
   bioNetwork: NetworkKey;
   cellxgeneAtlasCollection: string | null;
+  cellxgeneAtlasCollectionTitle: string | null;
   codeLinks: LinkInfo[];
   completedTaskCount: number;
   componentAtlasCount: number;

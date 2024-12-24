@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComment,
   HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerDBAtlasWithComponentAtlases,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
@@ -45,6 +44,7 @@ export function atlasInputMapper(
   return {
     bioNetwork: apiAtlas.bioNetwork,
     cellxgeneAtlasCollection: apiAtlas.cellxgeneAtlasCollection,
+    cellxgeneAtlasCollectionTitle: apiAtlas.cellxgeneAtlasCollectionTitle,
     codeLinks: apiAtlas.codeLinks,
     completedTaskCount: apiAtlas.completedTaskCount,
     componentAtlasCount: apiAtlas.componentAtlasCount,
@@ -65,33 +65,6 @@ export function atlasInputMapper(
     title: apiAtlas.title,
     version: apiAtlas.version,
     wave: apiAtlas.wave,
-  };
-}
-
-export function dbAtlasToApiAtlas(
-  dbAtlas: HCAAtlasTrackerDBAtlasWithComponentAtlases
-): HCAAtlasTrackerAtlas {
-  return {
-    bioNetwork: dbAtlas.overview.network,
-    cellxgeneAtlasCollection: dbAtlas.overview.cellxgeneAtlasCollection,
-    codeLinks: dbAtlas.overview.codeLinks,
-    completedTaskCount: dbAtlas.overview.completedTaskCount,
-    componentAtlasCount: dbAtlas.component_atlas_count,
-    description: dbAtlas.overview.description,
-    highlights: dbAtlas.overview.highlights,
-    id: dbAtlas.id,
-    integrationLead: dbAtlas.overview.integrationLead,
-    metadataSpecificationUrl: dbAtlas.overview.metadataSpecificationUrl,
-    publications: dbAtlas.overview.publications,
-    shortName: dbAtlas.overview.shortName,
-    sourceDatasetCount: dbAtlas.source_datasets.length,
-    sourceStudyCount: dbAtlas.source_studies.length,
-    status: dbAtlas.status,
-    targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
-    taskCount: dbAtlas.overview.taskCount,
-    title: "",
-    version: dbAtlas.overview.version,
-    wave: dbAtlas.overview.wave,
   };
 }
 

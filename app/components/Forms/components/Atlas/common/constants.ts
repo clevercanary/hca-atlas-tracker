@@ -79,6 +79,9 @@ const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
   },
   labelLink: true,
   name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
+  renderHelperText(atlas) {
+    return atlas?.cellxgeneAtlasCollectionTitle;
+  },
 };
 
 const METADATA_SPECIFICATION_URL: ControllerConfig<
