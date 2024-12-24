@@ -2,7 +2,6 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../.
 import { PathParameter } from "../../../../../../../../../../../../common/entities";
 import { getAtlasComponentSourceDatasetsTableColumns } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { useUnlinkComponentAtlasSourceDatasets } from "../../../../../../../../../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
-import { sortLinkedSourceDataset } from "../../../../../../../../../../common/utils";
 import { SectionTable } from "../../../../../../section.styles";
 import { TABLE_OPTIONS } from "./common/constants";
 import { getGridTemplateColumns } from "./common/utils";
@@ -23,7 +22,7 @@ export const Table = ({
     <SectionTable
       columns={getAtlasComponentSourceDatasetsTableColumns(onUnlink, canEdit)}
       gridTemplateColumns={getGridTemplateColumns(canEdit)}
-      items={componentAtlasSourceDatasets.sort(sortLinkedSourceDataset)}
+      items={componentAtlasSourceDatasets}
       tableOptions={{ ...TABLE_OPTIONS, getRowId: (row) => row.id }}
     />
   );
