@@ -311,19 +311,6 @@ export const buildResolvedAt = (
 };
 
 /**
- * Build props for the publication cell component.
- * @param atlas - Atlas entity.
- * @returns Props to be used for the cell.
- */
-// export const buildPublication = (
-//   atlas: HCAAtlasTrackerListAtlas
-// ): ComponentProps<typeof C.Cell> => {
-//   return {
-//     value: atlas.publicationPubString,
-//   };
-// };
-
-/**
  * Build props for the source dataset count cell component.
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the cell.
@@ -809,6 +796,20 @@ export function getAtlasStatusBadgeProps(
   }
 }
 
+/*
+ * Returns source dataset or component atlas assay column def.
+ * @returns Column def.
+ */
+function getAssayColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "assay",
+    cell: ({ row }) => C.NTagCell(buildAssay(row.original)),
+    header: "Assay",
+  };
+}
+
 /**
  * Returns the table column definition model for the atlas (edit mode) component atlases table.
  * @param pathParameter - Path parameter.
@@ -820,10 +821,10 @@ export function getAtlasComponentAtlasesTableColumns(
   return [
     getComponentAtlasTitleColumnDef(pathParameter),
     getComponentAtlasSourceDatasetCountColumnDef(),
-    getComponentAtlasAssayColumnDef(),
-    getComponentAtlasSuspensionTypeColumnDef(),
-    getComponentAtlasTissueColumnDef(),
-    getComponentAtlasDiseaseColumnDef(),
+    getAssayColumnDef(),
+    getSuspensionTypeColumnDef(),
+    getTissueColumnDef(),
+    getDiseaseColumnDef(),
     getCellCountColumnDef(),
   ];
 }
@@ -838,14 +839,14 @@ export function getAtlasComponentSourceDatasetsTableColumns(
   onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"],
   canEdit: boolean
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  const columnDefs = [
+  const columnDefs: ColumnDef<HCAAtlasTrackerSourceDataset>[] = [
     getSourceDatasetPublicationColumnDef(),
     getComponentAtlasSourceDatasetTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
-    getSourceDatasetAssayColumnDef(),
-    getSourceDatasetSuspensionTypeColumnDef(),
-    getSourceDatasetTissueColumnDef(),
-    getSourceDatasetDiseaseColumnDef(),
+    getAssayColumnDef(),
+    getSuspensionTypeColumnDef(),
+    getTissueColumnDef(),
+    getDiseaseColumnDef(),
     getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
   ];
   if (canEdit) {
@@ -866,10 +867,10 @@ export function getAtlasSourceDatasetsTableColumns(
     getSourceDatasetPublicationColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetExploreColumnDef(),
-    getSourceDatasetAssayColumnDef(),
-    getSourceDatasetSuspensionTypeColumnDef(),
-    getSourceDatasetTissueColumnDef(),
-    getSourceDatasetDiseaseColumnDef(),
+    getAssayColumnDef(),
+    getSuspensionTypeColumnDef(),
+    getTissueColumnDef(),
+    getDiseaseColumnDef(),
     getCellCountColumnDef(),
   ];
 }
@@ -893,7 +894,7 @@ function getAtlasSourceDatasetTitleColumnDef(
         }),
       }),
     header: "Dataset",
-    meta: { columnPinned: true, enableSortingInteraction: false },
+    meta: { columnPinned: true },
   };
 }
 
@@ -919,25 +920,12 @@ export function getAtlasSourceStudySourceDatasetsTableColumns(
       linkedSourceDatasetIds
     ),
     getSourceDatasetExploreColumnDef(),
-    getSourceDatasetAssayColumnDef(),
-    getSourceDatasetSuspensionTypeColumnDef(),
-    getSourceDatasetTissueColumnDef(),
-    getSourceDatasetDiseaseColumnDef(),
+    getAssayColumnDef(),
+    getSuspensionTypeColumnDef(),
+    getTissueColumnDef(),
+    getDiseaseColumnDef(),
     getCellCountColumnDef(),
   ];
-}
-
-/**
- * Returns the source studies source datasets cell count column definition model.
- * @returns Column definition.
- */
-function getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "cellCount",
-    cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
-    header: "Cell Count",
-    meta: { enableSortingInteraction: false },
-  };
 }
 
 /**
@@ -956,7 +944,7 @@ function getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(): Column
         row,
         table,
       }),
-    meta: { columnPinned: true, enableSortingInteraction: false },
+    meta: { columnPinned: true },
   };
 }
 
@@ -973,7 +961,6 @@ function getAtlasSourceStudiesSourceDatasetsTitleColumnDef(): ColumnDef<HCAAtlas
         row,
       }),
     header: "Title",
-    meta: { enableSortingInteraction: false },
   };
 }
 
@@ -986,11 +973,11 @@ export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCA
     getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(),
     getAtlasSourceStudiesSourceDatasetsTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
-    getSourceDatasetAssayColumnDef(),
-    getSourceDatasetSuspensionTypeColumnDef(),
-    getSourceDatasetTissueColumnDef(),
-    getSourceDatasetDiseaseColumnDef(),
-    getAtlasSourceStudiesSourceDatasetsCellCountColumnDef(),
+    getAssayColumnDef(),
+    getSuspensionTypeColumnDef(),
+    getTissueColumnDef(),
+    getDiseaseColumnDef(),
+    getCellCountColumnDef(),
   ];
 }
 
@@ -1036,6 +1023,20 @@ export function getBioNetworkName(name: string): string {
 }
 
 /**
+ * Returns source dataset or component atlas cell count column def.
+ * @returns Column def.
+ */
+function getCellCountColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "cellCount",
+    cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
+    header: "Cell Count",
+  };
+}
+
+/**
  * Returns component atlas source dataset cell count column def.
  * @returns ColumnDef.
  */
@@ -1044,7 +1045,6 @@ function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDe
     accessorKey: "cellCount",
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell count",
-    meta: { enableSortingInteraction: false },
   };
 }
 
@@ -1057,7 +1057,7 @@ function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrack
     accessorKey: "title",
     cell: ({ row }) => C.BasicCell({ value: row.original.title }),
     header: "Dataset",
-    meta: { columnPinned: true, enableSortingInteraction: false },
+    meta: { columnPinned: true },
   };
 }
 
@@ -1081,44 +1081,8 @@ function getComponentAtlasSourceDatasetUnlinkColumnDef(
           }),
         size: "medium",
       }),
+    enableSorting: false,
     header: "",
-    meta: { enableSortingInteraction: false },
-  };
-}
-
-/**
- * Returns component atlas assay column def.
- * @returns ColumnDef.
- */
-function getComponentAtlasAssayColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
-  return {
-    accessorKey: "assay",
-    cell: ({ row }) => C.NTagCell(buildAssay(row.original)),
-    header: "Assay",
-  };
-}
-
-/**
- * Returns component atlas disease column def.
- * @returns ColumnDef.
- */
-function getComponentAtlasDiseaseColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
-  return {
-    accessorKey: "disease",
-    cell: ({ row }) => C.PinnedNTagCell(buildDisease(row.original)),
-    header: "Disease",
-  };
-}
-
-/**
- * Returns component atlas suspension type column def.
- * @returns ColumnDef.
- */
-function getComponentAtlasSuspensionTypeColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
-  return {
-    accessorKey: "suspensionType",
-    cell: ({ row }) => C.NTagCell(buildSuspensionType(row.original)),
-    header: "Suspension Type",
   };
 }
 
@@ -1135,18 +1099,6 @@ function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<HCAAtlasTrack
 }
 
 /**
- * Returns component atlas tissue column def.
- * @returns ColumnDef.
- */
-function getComponentAtlasTissueColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
-  return {
-    accessorKey: "tissue",
-    cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
-    header: "Tissue",
-  };
-}
-
-/**
  * Returns component atlas title column def.
  * @param pathParameter - Path parameter.
  * @returns ColumnDef.
@@ -1159,6 +1111,20 @@ function getComponentAtlasTitleColumnDef(
     cell: ({ row }) =>
       C.Link(buildComponentAtlasTitle(pathParameter, row.original)),
     header: "Integration object",
+  };
+}
+
+/**
+ * Returns component atlas or source dataset disease column def.
+ * @returns ColumnDef.
+ */
+function getDiseaseColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "disease",
+    cell: ({ row }) => C.PinnedNTagCell(buildDisease(row.original)),
+    header: "Disease",
   };
 }
 
@@ -1210,59 +1176,10 @@ function getProgressValue(numerator: number, denominator: number): number {
 }
 
 /**
- * Returns source dataset assay column def.
- * @param enableSortingInteraction - Enable sorting interaction.
- * @returns Column def.
- */
-function getSourceDatasetAssayColumnDef(
-  enableSortingInteraction = false
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "assay",
-    cell: ({ row }) => C.NTagCell(buildAssay(row.original)),
-    header: "Assay",
-    meta: { enableSortingInteraction },
-  };
-}
-
-/**
- * Returns source dataset or component atlas cell count column def.
- * @returns Column def.
- */
-function getCellCountColumnDef<
-  T extends HCAAtlasTrackerSourceDataset | HCAAtlasTrackerComponentAtlas
->(): ColumnDef<T> {
-  return {
-    accessorKey: "cellCount",
-    cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
-    header: "Cell Count",
-  };
-}
-
-/**
- * Returns source dataset disease column def.
- * @param enableSortingInteraction - Enable sorting interaction.
- * @returns Column def.
- */
-function getSourceDatasetDiseaseColumnDef(
-  enableSortingInteraction = false
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "disease",
-    cell: ({ row }) => C.PinnedNTagCell(buildDisease(row.original)),
-    header: "Disease",
-    meta: { enableSortingInteraction },
-  };
-}
-
-/**
  * Returns source dataset explore column def.
- * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetExploreColumnDef(
-  enableSortingInteraction = false
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "explore",
     cell: ({ row }): JSX.Element => {
@@ -1281,8 +1198,8 @@ function getSourceDatasetExploreColumnDef(
         analysisPortals,
       });
     },
+    enableSorting: false,
     header: "Explore",
-    meta: { enableSortingInteraction },
   };
 }
 
@@ -1307,19 +1224,16 @@ function getSourceDatasetLinkedColumnDef(
         onSetLinked,
         sourceDatasetId: row.original.id,
       }),
+    enableSorting: false,
     header: "Used In Atlas",
-    meta: { enableSortingInteraction: false },
   };
 }
 
 /**
  * Returns source dataset publication column def.
- * @param enableSortingInteraction - Enable sorting interaction.
  * @returns Column def.
  */
-function getSourceDatasetPublicationColumnDef(
-  enableSortingInteraction = false
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "publicationString",
     cell: ({ row }) =>
@@ -1327,39 +1241,6 @@ function getSourceDatasetPublicationColumnDef(
         value: row.original.publicationString,
       }),
     header: "Publication",
-    meta: { enableSortingInteraction },
-  };
-}
-
-/**
- * Returns source dataset suspension type column def.
- * @param enableSortingInteraction - Enable sorting interaction.
- * @returns Column def.
- */
-function getSourceDatasetSuspensionTypeColumnDef(
-  enableSortingInteraction = false
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "suspensionType",
-    cell: ({ row }) => C.NTagCell(buildSuspensionType(row.original)),
-    header: "Suspension Type",
-    meta: { enableSortingInteraction },
-  };
-}
-
-/**
- * Returns source dataset tissue column def.
- * @param enableSortingInteraction - Enable sorting interaction.
- * @returns Column def.
- */
-function getSourceDatasetTissueColumnDef(
-  enableSortingInteraction = false
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "tissue",
-    cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
-    header: "Tissue",
-    meta: { enableSortingInteraction },
   };
 }
 
@@ -1539,6 +1420,20 @@ function getSourceStudyTitleColumnDef(
 }
 
 /**
+ * Returns component atlas or source dataset suspension type column def.
+ * @returns ColumnDef.
+ */
+function getSuspensionTypeColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "suspensionType",
+    cell: ({ row }) => C.NTagCell(buildSuspensionType(row.original)),
+    header: "Suspension Type",
+  };
+}
+
+/**
  * Returns the URL object for the task count link.
  * @param atlas - Atlas entity.
  * @returns URL object for the task count link.
@@ -1584,4 +1479,18 @@ function getTaskRowPreviewTitle(
   const { getRowPreviewRow } = tableInstance || {};
   const task = getEntityFromRowData(getRowPreviewRow?.(), isTask);
   return task?.description;
+}
+
+/**
+ * Returns component atlas or source dataset tissue column def.
+ * @returns ColumnDef.
+ */
+function getTissueColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "tissue",
+    cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
+    header: "Tissue",
+  };
 }

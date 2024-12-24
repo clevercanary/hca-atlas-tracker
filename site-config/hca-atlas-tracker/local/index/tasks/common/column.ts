@@ -157,8 +157,10 @@ export const TARGET_COMPLETION: ColumnConfig<HCAAtlasTrackerListValidationRecord
       typeof C.BasicCell,
       HCAAtlasTrackerListValidationRecord
     >,
+    enableGrouping: true,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+    sortDescFirst: false,
     width: { max: "0.65fr", min: "120px" },
   };
 

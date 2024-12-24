@@ -240,12 +240,25 @@ export const tasksEntityConfig: EntityConfig = {
   label: "Reports",
   list: {
     columns: COLUMNS,
-    defaultSort: {
-      desc: SORT_DIRECTION.ASCENDING,
-      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
-    },
     tableOptions: {
-      initialState: { columnVisibility: COLUMN_VISIBILITY.ROW_POSITION },
+      enableExpanding: true,
+      enableGrouping: true,
+      enableMultiSort: true,
+      initialState: {
+        columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
+        expanded: true,
+        grouping: [HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE],
+        sorting: [
+          {
+            desc: SORT_DIRECTION.ASCENDING,
+            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+          },
+          {
+            desc: SORT_DIRECTION.ASCENDING,
+            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
+          },
+        ],
+      },
     },
   } as ListConfig<HCAAtlasTrackerListValidationRecord>,
   listView: {
