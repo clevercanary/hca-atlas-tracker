@@ -247,6 +247,7 @@ export const tasksEntityConfig: EntityConfig = {
     tableOptions: {
       enableExpanding: true,
       enableGrouping: true,
+      enableMultiSort: true,
       initialState: {
         columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
         expanded: true,

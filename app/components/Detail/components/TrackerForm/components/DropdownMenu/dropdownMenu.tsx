@@ -1,7 +1,4 @@
-import {
-  DropdownMenuIconButtonProps,
-  DropdownMenuItemProps,
-} from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/common/entities";
+import { DropdownMenuItemProps } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/common/entities";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { IconButton } from "../../../../../common/IconButton/iconButton";
 import { DropdownMenu as MoreDropdownMenu } from "./dropdownMenu.styles";
@@ -21,28 +18,18 @@ export const DropdownMenu = ({
   return (
     <MoreDropdownMenu
       className={className}
-      Button={(props: DropdownMenuIconButtonProps): JSX.Element =>
-        renderButton({ ...props, disabled })
-      }
+      button={(props) => (
+        <IconButton
+          color="secondary"
+          disabled={disabled}
+          Icon={MoreVertIcon}
+          size="medium"
+          {...props}
+        />
+      )}
       {...props}
     >
       {({ closeMenu }): JSX.Element[] => children({ closeMenu })}
     </MoreDropdownMenu>
   );
 };
-
-/**
- * Return the dropdown button.
- * @param props - Button props e.g. "onClick".
- * @returns button element.
- */
-function renderButton(props: DropdownMenuIconButtonProps): JSX.Element {
-  return (
-    <IconButton
-      color="secondary"
-      Icon={MoreVertIcon}
-      size="medium"
-      {...props}
-    />
-  );
-}
