@@ -1,6 +1,6 @@
+import { dbComponentAtlasToApiComponentAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { newComponentAtlasSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbComponentAtlasToApiComponentAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import { createComponentAtlas } from "../../../../../app/services/component-atlases";
 import {

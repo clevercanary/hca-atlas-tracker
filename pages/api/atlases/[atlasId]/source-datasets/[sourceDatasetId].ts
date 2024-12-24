@@ -2,10 +2,10 @@ import {
   addSourceDatasetToAtlas,
   removeSourceDatasetFromAtlas,
 } from "app/services/atlases";
+import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { atlasSourceDatasetEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../app/common/entities";
 import {
   getAtlasSourceDataset,
