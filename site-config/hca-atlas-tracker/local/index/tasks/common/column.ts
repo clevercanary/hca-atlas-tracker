@@ -143,6 +143,7 @@ export const SYSTEM: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.BasicCell,
     viewBuilder: V.buildSystem,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: true,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SYSTEM,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
   width: { max: "0.5fr", min: "220px" },
@@ -157,8 +158,10 @@ export const TARGET_COMPLETION: ColumnConfig<HCAAtlasTrackerListValidationRecord
       typeof C.BasicCell,
       HCAAtlasTrackerListValidationRecord
     >,
+    enableGrouping: true,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+    sortDescFirst: false,
     width: { max: "0.65fr", min: "120px" },
   };
 
@@ -170,6 +173,7 @@ export const TASK_STATUS: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     typeof C.StatusBadge,
     HCAAtlasTrackerListValidationRecord
   >,
+  enableGrouping: true,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
   width: { max: "0.5fr", min: "120px" },

@@ -245,7 +245,14 @@ export const tasksEntityConfig: EntityConfig = {
       id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
     },
     tableOptions: {
-      initialState: { columnVisibility: COLUMN_VISIBILITY.ROW_POSITION },
+      enableExpanding: true,
+      enableGrouping: true,
+      enableMultiSort: true,
+      initialState: {
+        columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
+        expanded: true,
+        grouping: [HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE],
+      },
     },
   } as ListConfig<HCAAtlasTrackerListValidationRecord>,
   listView: {
