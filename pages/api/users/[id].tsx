@@ -1,6 +1,6 @@
+import { dbUserToApiUser } from "../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { userEditSchema } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbUserToApiUser } from "../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../app/common/entities";
 import { getUserById, updateUser } from "../../../app/services/users";
 import {

@@ -1,5 +1,5 @@
+import { dbCommentToApiComment } from "../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { newCommentThreadSchema } from "../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbCommentToApiComment } from "../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../app/common/entities";
 import { createCommentThread } from "../../app/services/comments";
 import {

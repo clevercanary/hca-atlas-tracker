@@ -1,4 +1,4 @@
-import { dbSourceDatasetToApiSourceDataset } from "app/apis/catalog/hca-atlas-tracker/common/utils";
+import { dbSourceDatasetToApiSourceDataset } from "app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "../../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../../../../../app/common/entities";

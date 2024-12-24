@@ -643,6 +643,13 @@ export const TEST_CELLXGENE_COLLECTIONS_BY_DOI = new Map([
   ],
 ]);
 
+export const TEST_CELLXGENE_COLLECTIONS_BY_ID = new Map(
+  Array.from(TEST_CELLXGENE_COLLECTIONS_BY_DOI.values(), (c) => [
+    c.collection_id,
+    { id: c.collection_id, title: c.name },
+  ])
+);
+
 export const TEST_CELLXGENE_COLLECTIONS_A = [TEST_CELLXGENE_COLLECTION_NORMAL];
 
 export const TEST_CELLXGENE_COLLECTIONS_B = [

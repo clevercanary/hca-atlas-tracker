@@ -2,6 +2,7 @@ import { NewCommentThreadData } from "app/apis/catalog/hca-atlas-tracker/common/
 import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
+import { getDbEntityCitation } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS,
   DEFAULT_TASK_STATUS_BY_VALIDATION_STATUS,
@@ -30,7 +31,6 @@ import {
   ValidationDBEntityOfType,
   ValidationDifference,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { getDbEntityCitation } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { ForbiddenError, NotFoundError } from "../utils/api-handler";
 import { ProjectInfo } from "../utils/hca-projects";
 import { updateTaskCounts } from "./atlases";

@@ -1,6 +1,7 @@
 import { CellxGeneDataset } from "../../../app/utils/cellxgene-api";
 import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
+  TEST_CELLXGENE_COLLECTIONS_BY_ID,
   TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID,
 } from "../../../testing/constants";
 import { CollectionInfo } from "../cellxgene";
@@ -23,6 +24,12 @@ export function getCellxGeneInfoByDoi(dois: string[]): CollectionInfo | null {
       };
   }
   return null;
+}
+
+export function getCellxGeneCollectionInfoById(
+  collectionId: string
+): CollectionInfo | undefined {
+  return TEST_CELLXGENE_COLLECTIONS_BY_ID.get(collectionId);
 }
 
 export function getCellxGeneDatasetsByCollectionId(
