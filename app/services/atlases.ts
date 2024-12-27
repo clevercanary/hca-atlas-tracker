@@ -64,7 +64,7 @@ export async function createAtlas(
   };
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING id",
-    [JSON.stringify(overview), "[]", ATLAS_STATUS.DRAFT, targetCompletion]
+    [JSON.stringify(overview), "[]", ATLAS_STATUS.IN_PROGRESS, targetCompletion]
   );
   const newId = queryResult.rows[0].id;
   return await getAtlas(newId);

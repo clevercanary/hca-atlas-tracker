@@ -402,7 +402,7 @@ async function testSuccessfulCreate(
   const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
   const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
   expect(newAtlasFromDb.source_studies).toEqual([]);
-  expect(newAtlasFromDb.status).toEqual(ATLAS_STATUS.DRAFT);
+  expect(newAtlasFromDb.status).toEqual(ATLAS_STATUS.IN_PROGRESS);
   expect(newAtlasFromDb.target_completion).toEqual(
     atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
   );

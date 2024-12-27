@@ -394,22 +394,7 @@ export const buildSourceStudyCount = (
 export const buildStatus = (
   atlas: HCAAtlasTrackerListAtlas
 ): ComponentProps<typeof C.StatusBadge> => {
-  let color;
-  switch (atlas.status) {
-    case ATLAS_STATUS.DRAFT:
-      color = STATUS_BADGE_COLOR.INFO;
-      break;
-    case ATLAS_STATUS.PUBLIC:
-      color = STATUS_BADGE_COLOR.SUCCESS;
-      break;
-    case ATLAS_STATUS.REVISION:
-      color = STATUS_BADGE_COLOR.WARNING;
-      break;
-  }
-  return {
-    color,
-    label: atlas.status,
-  };
+  return getAtlasStatusBadgeProps(atlas.status);
 };
 
 /**
@@ -796,6 +781,33 @@ export const buildWave = (
     value: atlas.wave,
   };
 };
+
+/**
+ * Get props for the status badge component for the given atlas status.
+ * @param status - Atlas status.
+ * @returns status badge props.
+ */
+export function getAtlasStatusBadgeProps(
+  status: ATLAS_STATUS
+): ComponentProps<typeof C.StatusBadge> {
+  switch (status) {
+    case ATLAS_STATUS.COMPLETE:
+      return {
+        color: STATUS_BADGE_COLOR.SUCCESS,
+        label: "Complete",
+      };
+    case ATLAS_STATUS.IN_PROGRESS:
+      return {
+        color: STATUS_BADGE_COLOR.WARNING,
+        label: "In progress",
+      };
+    default:
+      return {
+        color: STATUS_BADGE_COLOR.DEFAULT,
+        label: "Unspecified",
+      };
+  }
+}
 
 /**
  * Returns the table column definition model for the atlas (edit mode) component atlases table.
