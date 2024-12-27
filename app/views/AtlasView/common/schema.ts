@@ -1,4 +1,5 @@
 import { object, string } from "yup";
+import { ATLAS_STATUS } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   TARGET_COMPLETION_NULL,
@@ -16,6 +17,10 @@ export const atlasEditSchema = newAtlasSchema.concat(
         GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
         "Metadata specification must be a Google Sheets URL"
       ),
+    [FIELD_NAME.STATUS]: string()
+      .default("")
+      .oneOf(Object.values(ATLAS_STATUS))
+      .required(),
     [FIELD_NAME.TARGET_COMPLETION]: string()
       .matches(TARGET_COMPLETION_REGEXP)
       .default(TARGET_COMPLETION_NULL),

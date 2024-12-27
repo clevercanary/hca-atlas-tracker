@@ -6,6 +6,7 @@ import { FIELD_NAME } from "../../../../../views/AtlasView/common/constants";
 import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
 import { ControllerConfig } from "../../../../common/Form/components/Controllers/common/entities";
 import { BioNetwork } from "../../../../Form/components/Select/components/BioNetwork/bioNetwork";
+import { Status } from "../../../../Form/components/Select/components/Status/status";
 import { TargetCompletion } from "../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
 import { Wave } from "../../../../Form/components/Select/components/Wave/wave";
 
@@ -72,6 +73,15 @@ const DOI: CommonControllerConfig = {
   },
 };
 
+const STATUS: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> = {
+  name: FIELD_NAME.STATUS,
+  selectProps: {
+    SelectComponent: Status,
+    displayEmpty: true,
+    label: "Status",
+  },
+};
+
 const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
   inputProps: {
     helperTextProps: {
@@ -112,7 +122,7 @@ export const IDENTIFIERS_NEW_ATLAS_CONTROLLERS: ControllerConfig<
 export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   AtlasEditData,
   HCAAtlasTrackerAtlas
->[] = [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, TARGET_COMPLETION];
+>[] = [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, STATUS, TARGET_COMPLETION];
 
 export const IDENTIFIERS_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   AtlasEditData,
