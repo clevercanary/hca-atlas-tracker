@@ -141,6 +141,15 @@ export const atlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.Link,
+          viewBuilder: V.buildAtlasSourceDatasetCount,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SOURCE_DATASET_COUNT,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_DATASET_COUNT,
+        width: { max: "0.5fr", min: "112px" },
+      },
+      {
+        componentConfig: {
+          component: C.Link,
           viewBuilder: V.buildSourceStudyCount,
         } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SOURCE_STUDY_COUNT,

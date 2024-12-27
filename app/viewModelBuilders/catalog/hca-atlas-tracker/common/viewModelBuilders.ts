@@ -87,6 +87,21 @@ export const buildAtlasName = (
 };
 
 /**
+ * Build props for the source datasets cell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildAtlasSourceDatasetCount = (
+  atlas: HCAAtlasTrackerListAtlas
+): ComponentProps<typeof C.Link> => {
+  const { id: atlasId } = atlas;
+  return {
+    label: atlas.sourceDatasetCount,
+    url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASETS, { atlasId }),
+  };
+};
+
+/**
  * Build props for the atlas version cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
