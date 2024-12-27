@@ -25,6 +25,7 @@ interface AtlasInputDbData {
     HCAAtlasTrackerDBAtlasOverview,
     "completedTaskCount" | "taskCount"
   >;
+  status: HCAAtlasTrackerDBAtlas["status"];
   targetCompletion: HCAAtlasTrackerDBAtlas["target_completion"];
 }
 
@@ -54,9 +55,8 @@ export async function getAtlas(
 export async function createAtlas(
   inputData: NewAtlasData
 ): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
-  const { overviewData, targetCompletion } = await atlasInputDataToDbData(
-    inputData
-  );
+  const { overviewData, status, targetCompletion } =
+    await atlasInputDataToDbData(inputData);
   const overview: HCAAtlasTrackerDBAtlasOverview = {
     ...overviewData,
     completedTaskCount: 0,
@@ -64,7 +64,7 @@ export async function createAtlas(
   };
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING id",
-    [JSON.stringify(overview), "[]", ATLAS_STATUS.IN_PROGRESS, targetCompletion]
+    [JSON.stringify(overview), "[]", status, targetCompletion]
   );
   const newId = queryResult.rows[0].id;
   return await getAtlas(newId);
@@ -74,12 +74,11 @@ export async function updateAtlas(
   id: string,
   inputData: AtlasEditData
 ): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
-  const { overviewData, targetCompletion } = await atlasInputDataToDbData(
-    inputData
-  );
+  const { overviewData, status, targetCompletion } =
+    await atlasInputDataToDbData(inputData);
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-    "UPDATE hat.atlases SET overview=overview||$1, target_completion=$2 WHERE id=$3 RETURNING *",
-    [JSON.stringify(overviewData), targetCompletion, id]
+    "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3 WHERE id=$4 RETURNING *",
+    [JSON.stringify(overviewData), status, targetCompletion, id]
   );
   if (queryResult.rowCount === 0)
     throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
@@ -123,6 +122,7 @@ export async function atlasInputDataToDbData(
       version: inputData.version,
       wave: inputData.wave,
     },
+    status: inputData.status ?? ATLAS_STATUS.IN_PROGRESS,
     targetCompletion: inputData.targetCompletion
       ? new Date(inputData.targetCompletion)
       : null,

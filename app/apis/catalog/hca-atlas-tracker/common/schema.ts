@@ -10,7 +10,7 @@ import {
 } from "yup";
 import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
-import { ROLE } from "./entities";
+import { ATLAS_STATUS, ROLE } from "./entities";
 
 export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
   /^$|^https:\/\/docs\.google\.com\/spreadsheets\//;
@@ -61,6 +61,7 @@ export const newAtlasSchema = object({
     .notOneOf([""], "Network is required")
     .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
   shortName: string().default("").required("Short name is required"),
+  status: string().oneOf(Object.values(ATLAS_STATUS)),
   targetCompletion: string().datetime().nullable(),
   version: string().default("").required("Version is required"),
   wave: string()

@@ -1827,6 +1827,22 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   wave: "1",
 };
 
+export const ATLAS_PUBLIC_BAR: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "bar bar foo baz foo foo baz",
+  highlights: "",
+  id: "40cd10f3-021b-4472-9820-b49978fa6b58",
+  integrationLead: [],
+  network: "adipose",
+  publications: [],
+  shortName: "test-public-bar",
+  sourceStudies: [],
+  status: ATLAS_STATUS.COMPLETE,
+  version: "7.2",
+  wave: "3",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -1840,6 +1856,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+  ATLAS_PUBLIC_BAR,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

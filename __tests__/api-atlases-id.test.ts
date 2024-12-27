@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
   PublicationInfo,
@@ -12,6 +13,7 @@ import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_PUBLIC_BAR,
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
@@ -53,6 +55,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
   ],
   network: ATLAS_PUBLIC.network,
   shortName: "test-public-edited",
+  status: ATLAS_PUBLIC.status,
   targetCompletion: "2024-06-09T12:21:52.277Z",
   version: "2.0",
   wave: "2",
@@ -112,6 +115,15 @@ const ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT: AtlasEditData = {
   shortName: ATLAS_WITH_MISC_SOURCE_STUDIES.shortName,
   version: ATLAS_WITH_MISC_SOURCE_STUDIES.version,
   wave: ATLAS_WITH_MISC_SOURCE_STUDIES.wave,
+};
+
+const ATLAS_PUBLIC_BAR_EDIT: AtlasEditData = {
+  cellxgeneAtlasCollection: ATLAS_PUBLIC_BAR.cellxgeneAtlasCollection,
+  integrationLead: ATLAS_PUBLIC_BAR.integrationLead,
+  network: ATLAS_PUBLIC_BAR.network,
+  shortName: ATLAS_PUBLIC_BAR.shortName,
+  version: ATLAS_PUBLIC_BAR.version,
+  wave: ATLAS_PUBLIC_BAR.wave,
 };
 
 beforeAll(async () => {
@@ -438,6 +450,23 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when status is not a valid atlas status", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            status: "NOT_AN_ATLAS_STATUS",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0, []);
   });
@@ -471,6 +500,16 @@ describe(TEST_ROUTE, () => {
       []
     );
     expect(updatedAtlas.overview.description).toEqual("");
+  });
+
+  it("PUT updates and returns atlas entry with status set to IN_PROGRESS when omitted", async () => {
+    const updatedAtlas = await testSuccessfulEdit(
+      ATLAS_PUBLIC_BAR,
+      ATLAS_PUBLIC_BAR_EDIT,
+      0,
+      []
+    );
+    expect(updatedAtlas.status).toEqual(ATLAS_STATUS.IN_PROGRESS);
   });
 });
 
@@ -519,6 +558,9 @@ async function testSuccessfulEdit(
   expect(updatedOverview.version).toEqual(editData.version);
   expect(updatedOverview.wave).toEqual(editData.wave);
 
+  expect(updatedAtlas.status).toEqual(
+    editData.status ?? ATLAS_STATUS.IN_PROGRESS
+  );
   expect(updatedAtlas.targetCompletion).toEqual(
     editData.targetCompletion ?? null
   );
@@ -543,7 +585,7 @@ async function doAtlasRequest(
   user?: TestUser,
   hideConsoleError = false,
   method = METHOD.GET,
-  updatedData?: AtlasEditData
+  updatedData?: Record<string, unknown>
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: updatedData,
