@@ -130,6 +130,7 @@ export const atlasEntityConfig: EntityConfig = {
         width: { max: "0.5fr", min: "112px" },
       },
       {
+        columnVisible: false,
         componentConfig: {
           component: C.BasicCell,
           viewBuilder: V.buildWave,
@@ -166,6 +167,7 @@ export const atlasEntityConfig: EntityConfig = {
         width: { max: "0.5fr", min: "112px" },
       },
       {
+        columnVisible: false,
         componentConfig: {
           component: C.NTagCell,
           viewBuilder: V.buildIntegrationLead,
