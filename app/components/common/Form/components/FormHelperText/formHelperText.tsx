@@ -5,15 +5,20 @@ import {
 } from "@mui/material";
 import { FormHelperText as HelperText } from "./formHelperText.styles";
 
+export interface FormHelperTextProps extends MFormHelperTextProps {
+  noWrap?: boolean;
+}
+
 export const FormHelperText = ({
   children,
+  noWrap = true,
   ...props /* Spread props to allow for Mui FormHelperText specific prop overrides e.g. "filled". */
-}: MFormHelperTextProps): JSX.Element => {
+}: FormHelperTextProps): JSX.Element => {
   const { error } = props;
   return (
     <HelperText component="div" {...props}>
       {error && <ErrorIcon color="inherit" fontSize="xxsmall" />}
-      <Typography component="span" noWrap>
+      <Typography component="span" noWrap={noWrap}>
         {children}
       </Typography>
     </HelperText>

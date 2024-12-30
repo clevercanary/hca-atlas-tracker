@@ -1,5 +1,5 @@
+import { dbSourceStudyToApiSourceStudy } from "../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
-import { dbSourceStudyToApiSourceStudy } from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../app/common/entities";
 import { getAtlasSourceStudies } from "../../../../app/services/source-studies";
 import { handler, method, role } from "../../../../app/utils/api-handler";

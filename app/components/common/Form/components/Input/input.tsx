@@ -3,13 +3,17 @@ import {
   OutlinedInputProps as MOutlinedInputProps,
 } from "@mui/material";
 import { forwardRef, ReactNode } from "react";
-import { FormHelperText } from "../FormHelperText/formHelperText";
+import {
+  FormHelperText,
+  FormHelperTextProps,
+} from "../FormHelperText/formHelperText";
 import { FormLabel } from "../FormLabel/formLabel";
 import { InputFormControl as FormControl } from "./input.styles";
 
 export interface InputProps extends MOutlinedInputProps {
   className?: string;
   helperText?: ReactNode;
+  helperTextProps?: Partial<FormHelperTextProps>;
   isFilled?: boolean;
   isFullWidth?: boolean;
 }
@@ -20,6 +24,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     disabled,
     error,
     helperText,
+    helperTextProps,
     isFilled = false,
     isFullWidth = false,
     label,
@@ -47,7 +52,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {...props}
       />
       {helperText && (
-        <FormHelperText disabled={disabled} error={error}>
+        <FormHelperText disabled={disabled} error={error} {...helperTextProps}>
           {helperText}
         </FormHelperText>
       )}

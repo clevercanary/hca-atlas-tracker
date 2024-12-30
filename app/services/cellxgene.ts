@@ -15,6 +15,7 @@ export interface CollectionInfo {
 
 interface CellxGeneData {
   collectionInfoByDoi: Map<string, CollectionInfo>;
+  collectionInfoById: Map<string, CollectionInfo>;
   datasetsByCollectionId: Map<string, CellxGeneDataset[]>;
   lastRefreshTime: number;
 }
@@ -35,12 +36,12 @@ const refreshService = makeRefreshService({
   getRefreshParams: () => undefined,
   async getRefreshedData() {
     const time = Date.now();
-    const [collectionInfoByDoi, datasetsByCollectionId] = await Promise.all([
-      getRefreshedCollectionIdsByDoi(),
+    const [collectionMaps, datasetsByCollectionId] = await Promise.all([
+      getRefreshedCollectionMaps(),
       getRefreshedDatasetsByCollectionId(),
     ]);
     return {
-      collectionInfoByDoi,
+      ...collectionMaps,
       datasetsByCollectionId,
       lastRefreshTime: time,
     };
@@ -48,7 +49,8 @@ const refreshService = makeRefreshService({
   getStoredInfo() {
     return globalThis.hcaAtlasTrackerCellxGeneInfoCache;
   },
-  notReadyMessage: "DOI to CELLxGENE collection ID mapping not initialized",
+  notReadyMessage:
+    "Cache of CELLxGENE collections and datasets not initialized",
   onRefreshSuccess() {
     doUpdatesIfRefreshesComplete();
   },
@@ -96,14 +98,21 @@ export function getCellxGeneInfoByDoi(dois: string[]): CollectionInfo | null {
   return null;
 }
 
+export function getCellxGeneCollectionInfoById(
+  collectionId: string
+): CollectionInfo | undefined {
+  return refreshService.getData().collectionInfoById.get(collectionId);
+}
+
 /**
  * Fetch CELLxGENE collections and build DOI-to-ID mapping.
  * @returns collection IDs by DOI.
  */
-async function getRefreshedCollectionIdsByDoi(): Promise<
-  Map<string, CollectionInfo>
+async function getRefreshedCollectionMaps(): Promise<
+  Pick<CellxGeneData, "collectionInfoByDoi" | "collectionInfoById">
 > {
-  const idsByDoi = new Map<string, CollectionInfo>();
+  const byDoi = new Map<string, CollectionInfo>();
+  const byId = new Map<string, CollectionInfo>();
   console.log("Requesting CELLxGENE collections");
   const collections = await getCellxGeneCollections({
     hooks: {
@@ -117,13 +126,17 @@ async function getRefreshedCollectionIdsByDoi(): Promise<
   });
   console.log("Loaded CELLxGENE collections");
   for (const { collection_id, doi, name } of collections) {
-    if (doi)
-      idsByDoi.set(normalizeDoi(doi), {
-        id: collection_id,
-        title: name,
-      });
+    const info: CollectionInfo = {
+      id: collection_id,
+      title: name,
+    };
+    byId.set(collection_id, info);
+    if (doi) byDoi.set(normalizeDoi(doi), info);
   }
-  return idsByDoi;
+  return {
+    collectionInfoByDoi: byDoi,
+    collectionInfoById: byId,
+  };
 }
 
 async function getRefreshedDatasetsByCollectionId(): Promise<

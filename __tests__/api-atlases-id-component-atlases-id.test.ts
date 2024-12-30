@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { dbComponentAtlasToApiComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBComponentAtlas,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ComponentAtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbComponentAtlasToApiComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";

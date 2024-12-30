@@ -1,7 +1,7 @@
 import { ROLE_GROUP } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import { dbSourceDatasetToApiSourceDataset } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { componentAtlasAddSourceDatasetsSchema } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dbSourceDatasetToApiSourceDataset } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../../../../../../app/common/entities";
 import {
   addSourceDatasetsToComponentAtlas,
