@@ -425,9 +425,8 @@ export enum DOI_STATUS {
 }
 
 export enum ATLAS_STATUS {
-  DRAFT = "Draft",
-  PUBLIC = "Public",
-  REVISION = "Revision",
+  COMPLETE = "COMPLETE",
+  IN_PROGRESS = "IN_PROGRESS",
 }
 
 export interface Network {

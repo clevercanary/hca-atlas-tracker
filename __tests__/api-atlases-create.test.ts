@@ -43,6 +43,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   metadataSpecificationUrl: "https://docs.google.com/spreadsheets/foo",
   network: "eye",
   shortName: "test",
+  status: ATLAS_STATUS.IN_PROGRESS,
   version: "1.0",
   wave: "1",
 };
@@ -107,6 +108,15 @@ const NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION: NewAtlasData = {
   network: "lung",
   shortName: "test6",
   version: "2.3",
+  wave: "1",
+};
+
+const NEW_ATLAS_COMPLETE: NewAtlasData = {
+  integrationLead: [],
+  network: "kidney",
+  shortName: "test7",
+  status: ATLAS_STATUS.COMPLETE,
+  version: "6.2",
   wave: "1",
 };
 
@@ -366,6 +376,21 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when status is not a valid atlas status", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            status: "NOT_AN_ATLAS_STATUS",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
     await testSuccessfulCreate(NEW_ATLAS_DATA, [
       PUBLICATION_PREPRINT_NO_JOURNAL,
@@ -391,6 +416,10 @@ describe("/api/atlases/create", () => {
   it("creates and returns atlas entry with nonexistent publication", async () => {
     await testSuccessfulCreate(NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION, [null]);
   });
+
+  it("creates and returns atlas entry with status set to COMPLETE", async () => {
+    await testSuccessfulCreate(NEW_ATLAS_COMPLETE, []);
+  });
 });
 
 async function testSuccessfulCreate(
@@ -402,7 +431,9 @@ async function testSuccessfulCreate(
   const newAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
   const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
   expect(newAtlasFromDb.source_studies).toEqual([]);
-  expect(newAtlasFromDb.status).toEqual(ATLAS_STATUS.DRAFT);
+  expect(newAtlasFromDb.status).toEqual(
+    atlasData.status ?? ATLAS_STATUS.IN_PROGRESS
+  );
   expect(newAtlasFromDb.target_completion).toEqual(
     atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
   );
@@ -439,7 +470,7 @@ async function testSuccessfulCreate(
 
 async function doCreateTest(
   user: TestUser | undefined,
-  newData: NewAtlasData,
+  newData: Record<string, unknown>,
   hideConsoleError = false,
   method: "GET" | "POST" = "POST"
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {

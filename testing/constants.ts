@@ -1675,7 +1675,7 @@ export const ATLAS_DRAFT: TestAtlas = {
     SOURCE_STUDY_SHARED.id,
     SOURCE_STUDY_DRAFT_NO_CROSSREF.id,
   ],
-  status: ATLAS_STATUS.DRAFT,
+  status: ATLAS_STATUS.IN_PROGRESS,
   version: "1.2",
   wave: "1",
 };
@@ -1701,7 +1701,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   publications: [],
   shortName: "test-public",
   sourceStudies: [SOURCE_STUDY_PUBLIC_NO_CROSSREF.id, SOURCE_STUDY_SHARED.id],
-  status: ATLAS_STATUS.PUBLIC,
+  status: ATLAS_STATUS.COMPLETE,
   targetCompletion: new Date("2024-05-28T22:31:45.731Z"),
   version: "2.3",
   wave: "1",
@@ -1718,7 +1718,7 @@ export const ATLAS_WITH_IL: TestAtlas = {
   publications: [],
   shortName: "test-with-il",
   sourceStudies: [SOURCE_STUDY_PUBLISHED_WITH_HCA.id],
-  status: ATLAS_STATUS.DRAFT,
+  status: ATLAS_STATUS.IN_PROGRESS,
   version: "2.0",
   wave: "3",
 };
@@ -1759,7 +1759,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
     SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
   ],
-  status: ATLAS_STATUS.PUBLIC,
+  status: ATLAS_STATUS.COMPLETE,
   version: "2.3",
   wave: "2",
 };
@@ -1775,7 +1775,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   publications: [],
   shortName: "test-with-misc-source-studies-b",
   sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
-  status: ATLAS_STATUS.DRAFT,
+  status: ATLAS_STATUS.IN_PROGRESS,
   version: "5.3",
   wave: "2",
 };
@@ -1797,7 +1797,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
     SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH.id,
     SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA.id,
   ],
-  status: ATLAS_STATUS.DRAFT,
+  status: ATLAS_STATUS.IN_PROGRESS,
   version: "5.4",
   wave: "2",
 };
@@ -1822,9 +1822,25 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
     SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE.id,
     SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE.id,
   ],
-  status: ATLAS_STATUS.DRAFT,
+  status: ATLAS_STATUS.IN_PROGRESS,
   version: "3.5",
   wave: "1",
+};
+
+export const ATLAS_PUBLIC_BAR: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "bar bar foo baz foo foo baz",
+  highlights: "",
+  id: "40cd10f3-021b-4472-9820-b49978fa6b58",
+  integrationLead: [],
+  network: "adipose",
+  publications: [],
+  shortName: "test-public-bar",
+  sourceStudies: [],
+  status: ATLAS_STATUS.COMPLETE,
+  version: "7.2",
+  wave: "3",
 };
 
 export const ATLAS_NONEXISTENT = {
@@ -1840,6 +1856,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+  ATLAS_PUBLIC_BAR,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

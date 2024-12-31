@@ -4,6 +4,7 @@ export const FIELD_NAME = {
   DOI: "doi",
   INTEGRATION_LEAD: "integrationLead",
   SHORT_NAME: "shortName",
+  STATUS: "status",
   VERSION: "version",
   WAVE: "wave",
 } as const;

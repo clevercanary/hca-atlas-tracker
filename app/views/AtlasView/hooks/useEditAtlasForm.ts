@@ -56,6 +56,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
     [FIELD_NAME.METADATA_SPECIFICATION_URL]:
       atlas.metadataSpecificationUrl ?? "",
     [FIELD_NAME.SHORT_NAME]: atlas.shortName,
+    [FIELD_NAME.STATUS]: atlas.status,
     [FIELD_NAME.TARGET_COMPLETION]:
       atlas.targetCompletion ?? TARGET_COMPLETION_NULL,
     [FIELD_NAME.VERSION]: atlas.version,
