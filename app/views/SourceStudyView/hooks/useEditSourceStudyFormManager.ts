@@ -116,11 +116,14 @@ function isFormDirty(
  * @returns payload.
  */
 function mapPayload(payload: SourceStudyEditData): SourceStudyEditData {
-  return {
-    ...payload,
-    cellxgeneCollectionId: getIdentifierId(payload.cellxgeneCollectionId),
-    hcaProjectId: getIdentifierId(payload.hcaProjectId),
-  };
+  const mappedPayload = { ...payload };
+  if (payload.cellxgeneCollectionId)
+    mappedPayload.cellxgeneCollectionId = getIdentifierId(
+      payload.cellxgeneCollectionId
+    );
+  if (payload.hcaProjectId)
+    mappedPayload.hcaProjectId = getIdentifierId(payload.hcaProjectId);
+  return mappedPayload;
 }
 
 /**
