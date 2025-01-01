@@ -243,7 +243,8 @@ export const tasksEntityConfig: EntityConfig = {
     tableOptions: {
       enableExpanding: true,
       enableGrouping: true,
-      enableMultiSort: true,
+      enableMultiRowSelection: true,
+      enableRowSelection: (row) => !row.getIsGrouped(),
       initialState: {
         columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
         expanded: true,
@@ -265,7 +266,6 @@ export const tasksEntityConfig: EntityConfig = {
     disablePagination: true,
     enableDownload: true,
     enableRowPreview: true,
-    enableRowSelection: true,
     enableTab: false,
     rowPreviewView: [
       {
