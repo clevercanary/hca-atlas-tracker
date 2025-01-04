@@ -36,7 +36,7 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
 
   return (
     <AuthorizationContext.Provider
-      value={{ user: isAuthenticated ? user : undefined }} // TODO(cc) - we should reset/ clear user when not authenticated see useFetchActiveUser.
+      value={{ user: isAuthenticated ? user : undefined }} // TODO(cc) - we should reset / clear user when not authenticated see useFetchActiveUser.
     >
       {shouldRenderComponents(isAuthenticated, isAuthorized) ? (
         children
