@@ -1,4 +1,4 @@
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD, PathParameter } from "../../../common/entities";
@@ -16,7 +16,9 @@ export interface UseSetLinkedAtlasSourceDatasets {
 export const useSetLinkedAtlasSourceDatasets = (
   pathParameter: PathParameter
 ): UseSetLinkedAtlasSourceDatasets => {
-  const { token } = useAuthentication();
+  const {
+    credentialsState: { credentials: token },
+  } = useCredentials();
 
   const onSetLinked = useCallback(
     async (sourceDatasetId: string, linked: boolean): Promise<void> => {

@@ -1,15 +1,15 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
 import { useCallback, useEffect, useState } from "react";
-import { METHOD } from "../../../../../app/common/entities";
-import { fetchResource } from "../../../../../app/common/utils";
-import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
+import { METHOD } from "../../../../common/entities";
+import { fetchResource } from "../../../../common/utils";
+import { FormResponseErrors } from "../../../../hooks/useForm/common/entities";
 import {
   REFRESH_ACTIVITY,
   REFRESH_OUTCOME,
   RefreshServicesStatuses,
   RefreshStatus,
-} from "../../../../../app/services/common/entities";
+} from "../../../../services/common/entities";
 
 export const RefreshForm = (): JSX.Element => {
   const [statusIsDisabled, setStatusIsDisabled] = useState(false);
@@ -22,7 +22,9 @@ export const RefreshForm = (): JSX.Element => {
     useState<FormResponseErrors>();
   const [refreshStarted, setRefreshStarted] = useState(false);
 
-  const { token } = useAuthentication();
+  const {
+    credentialsState: { credentials: token },
+  } = useCredentials();
 
   const onReloadStatus = useCallback(() => {
     doApiRequest(

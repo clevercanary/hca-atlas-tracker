@@ -1,19 +1,18 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
 import { useCallback, useState } from "react";
-import { METHOD } from "../../../../../app/common/entities";
-import {
-  fetchResource,
-  isFetchStatusOk,
-} from "../../../../../app/common/utils";
-import { FormResponseErrors } from "../../../../../app/hooks/useForm/common/entities";
+import { METHOD } from "../../../../common/entities";
+import { fetchResource, isFetchStatusOk } from "../../../../common/utils";
+import { FormResponseErrors } from "../../../../hooks/useForm/common/entities";
 
 export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [responseErrors, setResponseErrors] = useState<FormResponseErrors>();
   const [didUpdate, setDidUpdate] = useState(false);
 
-  const { token } = useAuthentication();
+  const {
+    credentialsState: { credentials: token },
+  } = useCredentials();
 
   const onSave = useCallback(() => {
     (async (): Promise<void> => {

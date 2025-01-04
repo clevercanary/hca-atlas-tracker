@@ -8,9 +8,9 @@ import { Floating } from "@databiosphere/findable-ui/lib/components/Layout/compo
 import { Footer } from "@databiosphere/findable-ui/lib/components/Layout/components/Footer/footer";
 import { Header as DXHeader } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
-import { AuthProvider } from "@databiosphere/findable-ui/lib/providers/authentication";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
+import { GoogleSignInAuthenticationProvider } from "@databiosphere/findable-ui/lib/providers/googleSignInAuthentication/provider";
 import { LayoutStateProvider } from "@databiosphere/findable-ui/lib/providers/layoutState";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
@@ -56,7 +56,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
           <Head pageTitle={pageTitle} />
           <CssBaseline />
           <SystemStatusProvider>
-            <AuthProvider sessionTimeout={SESSION_TIMEOUT}>
+            <GoogleSignInAuthenticationProvider timeout={SESSION_TIMEOUT}>
               <LayoutStateProvider>
                 <AppLayout>
                   <ThemeProvider
@@ -98,7 +98,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
                   <Footer {...footer} />
                 </AppLayout>
               </LayoutStateProvider>
-            </AuthProvider>
+            </GoogleSignInAuthenticationProvider>
           </SystemStatusProvider>
         </DXConfigProvider>
       </ThemeProvider>

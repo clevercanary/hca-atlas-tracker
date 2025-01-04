@@ -1,5 +1,5 @@
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { createContext, ReactNode, useEffect } from "react";
 import {
   HCAAtlasTrackerActiveUser,
@@ -21,7 +21,9 @@ interface Props {
 }
 
 export function AuthorizationProvider({ children }: Props): JSX.Element {
-  const { isAuthenticated } = useAuthentication();
+  const {
+    authState: { isAuthenticated },
+  } = useAuth();
   const user = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);
@@ -33,7 +35,9 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
   }, [role, disabled]);
 
   return (
-    <AuthorizationContext.Provider value={{ user }}>
+    <AuthorizationContext.Provider
+      value={{ user: isAuthenticated ? user : undefined }} // TODO(cc) - we should reset/ clear user when not authenticated see useFetchActiveUser.
+    >
       {shouldRenderComponents(isAuthenticated, isAuthorized) ? (
         children
       ) : (

@@ -1,4 +1,4 @@
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
 import Router from "next/router";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
@@ -18,7 +18,9 @@ export interface UseDeleteSourceStudy {
 export const useDeleteSourceStudy = (
   pathParameter: PathParameter
 ): UseDeleteSourceStudy => {
-  const { token } = useAuthentication();
+  const {
+    credentialsState: { credentials: token },
+  } = useCredentials();
 
   const onDelete = useCallback(async (): Promise<void> => {
     const res = await fetchResource(

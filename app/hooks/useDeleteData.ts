@@ -1,4 +1,4 @@
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
 import { useCallback } from "react";
 import { METHOD } from "../common/entities";
 import { fetchResource, isFetchStatusOk } from "../common/utils";
@@ -13,7 +13,9 @@ export const useDeleteData = <T>(
   method = METHOD.DELETE,
   options?: OnDeleteOptions
 ): UseDeleteData<T> => {
-  const { token } = useAuthentication();
+  const {
+    credentialsState: { credentials: token },
+  } = useCredentials();
 
   const onDelete = useCallback(
     async (payload?: T): Promise<void> => {

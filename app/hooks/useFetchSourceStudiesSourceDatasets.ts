@@ -1,4 +1,4 @@
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
 import { useCallback, useEffect, useState } from "react";
 import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
 import {
@@ -13,7 +13,9 @@ import { useFetchData } from "./useFetchData";
 export const useFetchSourceStudiesSourceDatasets = (
   pathParameter: PathParameter
 ): HCAAtlasTrackerSourceDataset[] | undefined => {
-  const { token } = useAuthentication();
+  const {
+    credentialsState: { credentials: token },
+  } = useCredentials();
   const [sourceStudiesSourceDatasets, setSourceStudiesSourceDatasets] =
     useState<HCAAtlasTrackerSourceDataset[]>();
   const { data: sourceStudies } = useFetchData<
