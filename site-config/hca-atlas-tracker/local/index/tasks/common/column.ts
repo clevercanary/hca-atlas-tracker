@@ -15,6 +15,7 @@ export const ATLAS_NAMES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.NTagCell,
     viewBuilder: V.buildTaskAtlasNames,
   } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
   width: { max: "0.5fr", min: "120px" },
@@ -30,6 +31,7 @@ export const ATLAS_VERSIONS: ColumnConfig<HCAAtlasTrackerListValidationRecord> =
       typeof C.NTagCell,
       HCAAtlasTrackerListValidationRecord
     >,
+    enableGrouping: false,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_VERSIONS,
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_VERSIONS,
     width: { max: "0.5fr", min: "120px" },
@@ -41,6 +43,7 @@ export const CREATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.BasicCell,
     viewBuilder: V.buildCreatedAt,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CREATED_AT,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.CREATED_AT,
   width: { max: "0.65fr", min: "120px" },
@@ -55,6 +58,7 @@ export const DESCRIPTION: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     typeof C.ButtonTextPrimaryCell,
     HCAAtlasTrackerListValidationRecord
   >,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DESCRIPTION, // Task.
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
   width: { max: "1fr", min: "220px" },
@@ -65,6 +69,7 @@ export const DOI: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.Link,
     viewBuilder: V.buildTaskDoi,
   } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DOI,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DOI,
   width: { max: "1fr", min: "240px" },
@@ -76,6 +81,7 @@ export const ENTITY_TITLE: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.BasicCell,
     viewBuilder: V.buildEntityTitle,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TITLE,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE,
   width: { max: "1fr", min: "220px" },
@@ -87,6 +93,7 @@ export const ENTITY_TYPE: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.BasicCell,
     viewBuilder: V.buildEntityType,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENTITY_TYPE,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TYPE,
   width: { max: "0.5fr", min: "200px" },
@@ -101,6 +108,7 @@ export const NETWORKS: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     typeof C.BioNetworkCell,
     HCAAtlasTrackerListValidationRecord
   >,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
   width: { max: "1fr", min: "212px" },
@@ -112,6 +120,7 @@ export const PUBLICATION_STRING: ColumnConfig<HCAAtlasTrackerListValidationRecor
       component: C.Link,
       viewBuilder: V.buildTaskPublicationString,
     } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListValidationRecord>,
+    enableGrouping: false,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
     width: { max: "1fr", min: "220px" },
@@ -123,6 +132,7 @@ export const RELATED_ENTITY_URL: ColumnConfig<HCAAtlasTrackerListValidationRecor
       component: C.Link,
       viewBuilder: V.buildTaskRelatedEntityUrl,
     } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListValidationRecord>,
+    enableGrouping: false,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.RELATED_ENTITY_URL, // Resource.
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RELATED_ENTITY_URL,
     width: { max: "1fr", min: "220px" },
@@ -133,6 +143,7 @@ export const RESOLVED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.BasicCell,
     viewBuilder: V.buildResolvedAt,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.RESOLVED_AT,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RESOLVED_AT,
   width: { max: "0.65fr", min: "120px" },
@@ -143,6 +154,7 @@ export const SYSTEM: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.BasicCell,
     viewBuilder: V.buildSystem,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SYSTEM,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
   width: { max: "0.5fr", min: "220px" },
@@ -157,8 +169,10 @@ export const TARGET_COMPLETION: ColumnConfig<HCAAtlasTrackerListValidationRecord
       typeof C.BasicCell,
       HCAAtlasTrackerListValidationRecord
     >,
+    enableGrouping: true,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+    sortDescFirst: false,
     width: { max: "0.65fr", min: "120px" },
   };
 
@@ -170,6 +184,7 @@ export const TASK_STATUS: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     typeof C.StatusBadge,
     HCAAtlasTrackerListValidationRecord
   >,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_STATUS,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
   width: { max: "0.5fr", min: "120px" },
@@ -181,6 +196,7 @@ export const UPDATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.BasicCell,
     viewBuilder: V.buildUpdatedAt,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.UPDATED_AT,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.UPDATED_AT,
   width: { max: "0.65fr", min: "120px" },
@@ -192,6 +208,7 @@ export const WAVES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
     component: C.NTagCell,
     viewBuilder: V.buildTaskWaves,
   } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerListValidationRecord>,
+  enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.WAVES,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVES,
   width: { max: "0.5fr", min: "68px" },
@@ -207,6 +224,7 @@ export const VALIDATION_TYPE: ColumnConfig<HCAAtlasTrackerListValidationRecord> 
       typeof C.BasicCell,
       HCAAtlasTrackerListValidationRecord
     >,
+    enableGrouping: false,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.VALIDATION_TYPE, // Task Type.
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.VALIDATION_TYPE,
     width: { max: "0.5fr", min: "120px" },

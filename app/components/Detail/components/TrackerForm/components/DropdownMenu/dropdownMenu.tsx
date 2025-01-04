@@ -21,28 +21,20 @@ export const DropdownMenu = ({
   return (
     <MoreDropdownMenu
       className={className}
-      Button={(props: DropdownMenuIconButtonProps): JSX.Element =>
-        renderButton({ ...props, disabled })
-      }
+      button={(
+        props: Pick<DropdownMenuIconButtonProps, "onClick" | "open">
+      ) => (
+        <IconButton
+          color="secondary"
+          disabled={disabled}
+          Icon={MoreVertIcon}
+          size="medium"
+          {...props}
+        />
+      )}
       {...props}
     >
       {({ closeMenu }): JSX.Element[] => children({ closeMenu })}
     </MoreDropdownMenu>
   );
 };
-
-/**
- * Return the dropdown button.
- * @param props - Button props e.g. "onClick".
- * @returns button element.
- */
-function renderButton(props: DropdownMenuIconButtonProps): JSX.Element {
-  return (
-    <IconButton
-      color="secondary"
-      Icon={MoreVertIcon}
-      size="medium"
-      {...props}
-    />
-  );
-}
