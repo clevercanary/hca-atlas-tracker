@@ -48,6 +48,9 @@ export const IntegrationLeadSection = <
   getNewValue,
   integrationLeadName,
 }: IntegrationLeadSectionProps<T, TFieldArrayName, R>): JSX.Element => {
+  const {
+    formStatus: { isReadOnly },
+  } = formManager;
   const { append, fields, remove } = useFieldArray({
     control: formMethod.control,
     name: integrationLeadName,
@@ -75,6 +78,7 @@ export const IntegrationLeadSection = <
                 <IconButton
                   {...ICON_BUTTON_PROPS}
                   onClick={() => remove(index)}
+                  disabled={isReadOnly}
                 >
                   <DeleteIcon {...SVG_ICON_PROPS} />
                 </IconButton>
@@ -87,6 +91,7 @@ export const IntegrationLeadSection = <
         {...BUTTON_PROPS}
         startIcon={<AddIcon />}
         onClick={() => append(getNewValue())}
+        disabled={isReadOnly}
       >
         Add lead
       </StyledButton>
