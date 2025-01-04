@@ -75,7 +75,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   SOURCE_DATASET_COUNT: "Source Datasets",
   SOURCE_STUDY_COUNT: "Source Studies",
   SYSTEM: "System",
-  TARGET_COMPLETION_DATE: "Deadline",
+  TARGET_COMPLETION_DATE: "Target Completion",
   TASK_COUNTS: "Tasks",
   TASK_STATUS: "Status",
   TISSUE: "Tissue",
