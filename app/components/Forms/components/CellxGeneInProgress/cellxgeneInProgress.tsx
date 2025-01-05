@@ -1,5 +1,5 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
+import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { TextField } from "@mui/material";
 import { useCallback, useRef, useState } from "react";
 import {
@@ -18,9 +18,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
 
   const textareaRef = useRef<HTMLTextAreaElement>();
 
-  const {
-    credentialsState: { credentials: token },
-  } = useCredentials();
+  const { token } = useToken();
 
   const onSave = useCallback(() => {
     (async (): Promise<void> => {

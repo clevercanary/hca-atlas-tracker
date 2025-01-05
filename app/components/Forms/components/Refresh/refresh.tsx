@@ -1,5 +1,5 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
+import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { useCallback, useEffect, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource } from "../../../../common/utils";
@@ -22,9 +22,7 @@ export const RefreshForm = (): JSX.Element => {
     useState<FormResponseErrors>();
   const [refreshStarted, setRefreshStarted] = useState(false);
 
-  const {
-    credentialsState: { credentials: token },
-  } = useCredentials();
+  const { token } = useToken();
 
   const onReloadStatus = useCallback(() => {
     doApiRequest(

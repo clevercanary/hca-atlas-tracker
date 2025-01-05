@@ -1,4 +1,4 @@
-import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
+import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -41,9 +41,6 @@ export const useForm = <T extends FieldValues, R = undefined>(
   mapApiValues: MapApiValuesFn<T> = (p): unknown => p,
   options: CustomUseFormOptions<T> = {}
 ): UseForm<T, R> => {
-  const {
-    credentialsState: { credentials: token },
-  } = useCredentials();
   const values = useMemo(
     () => schema.cast(mapSchemaValues?.(apiData)),
     [apiData, mapSchemaValues, schema]
@@ -54,6 +51,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
     ...options,
   });
+  const { token } = useToken();
   const [data, setData] = useState<R | undefined>();
   const { reset, setError } = formMethod;
 

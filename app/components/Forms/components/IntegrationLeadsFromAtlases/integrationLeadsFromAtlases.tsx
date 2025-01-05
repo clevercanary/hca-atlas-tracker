@@ -1,5 +1,5 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useCredentials } from "@databiosphere/findable-ui/lib/providers/authentication/credentials/hook";
+import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { useCallback, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource, isFetchStatusOk } from "../../../../common/utils";
@@ -10,9 +10,7 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
   const [responseErrors, setResponseErrors] = useState<FormResponseErrors>();
   const [didUpdate, setDidUpdate] = useState(false);
 
-  const {
-    credentialsState: { credentials: token },
-  } = useCredentials();
+  const { token } = useToken();
 
   const onSave = useCallback(() => {
     (async (): Promise<void> => {
