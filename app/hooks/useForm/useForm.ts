@@ -41,6 +41,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
   mapApiValues: MapApiValuesFn<T> = (p): unknown => p,
   options: CustomUseFormOptions<T> = {}
 ): UseForm<T, R> => {
+  const { token } = useToken();
   const values = useMemo(
     () => schema.cast(mapSchemaValues?.(apiData)),
     [apiData, mapSchemaValues, schema]
@@ -51,7 +52,6 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
     ...options,
   });
-  const { token } = useToken();
   const [data, setData] = useState<R | undefined>();
   const { reset, setError } = formMethod;
 
