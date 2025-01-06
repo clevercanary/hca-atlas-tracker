@@ -1,10 +1,12 @@
-import { getAuthenticationRequestOptions } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/common/utils";
-import { UserProfile } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useFetchGoogleProfile";
+import { UserProfile as BaseUserProfile } from "@databiosphere/findable-ui/lib/providers/authentication/authentication/types";
+import { getAuthenticationRequestOptions } from "@databiosphere/findable-ui/lib/providers/authentication/terra/hooks/common/utils";
 import ky from "ky";
 
 const ENDPOINT = "https://www.googleapis.com/oauth2/v3/userinfo";
 
 const userProfilesCache = new Map<string, UserProfile>();
+
+export type UserProfile = BaseUserProfile & { email_verified: boolean };
 
 export async function getProvidedUserProfile(
   authorization: string | undefined

@@ -1,13 +1,15 @@
-import { useAuthentication } from "@databiosphere/findable-ui/lib/hooks/useAuthentication/useAuthentication";
+import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { ContentView } from "@databiosphere/findable-ui/lib/views/ContentView/contentView";
-import { AccessPrompt } from "../../../app/components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { Divider } from "../../../app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
-import { CellxGeneInProgressForm } from "../../../app/components/Forms/components/CellxGeneInProgress/cellxgeneInProgress";
-import { Content } from "../../../app/components/Layout/components/Content/content";
-import { LAYOUT_STYLE_NO_CONTRAST_DEFAULT } from "../../../app/content/common/constants";
+import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
+import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
+import { CellxGeneInProgressForm } from "../../components/Forms/components/CellxGeneInProgress/cellxgeneInProgress";
+import { Content } from "../../components/Layout/components/Content/content";
+import { LAYOUT_STYLE_NO_CONTRAST_DEFAULT } from "../../content/common/constants";
 
 export const CellxGeneInProgressView = (): JSX.Element => {
-  const { isAuthenticated } = useAuthentication();
+  const {
+    authState: { isAuthenticated },
+  } = useAuth();
   return (
     <ContentView
       content={
