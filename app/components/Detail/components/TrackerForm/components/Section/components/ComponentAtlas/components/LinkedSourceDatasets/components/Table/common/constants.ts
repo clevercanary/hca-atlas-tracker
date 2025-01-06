@@ -1,3 +1,4 @@
+import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import {
   getSortedRowModel,
@@ -5,7 +6,6 @@ import {
   TableOptions,
 } from "@tanstack/react-table";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { COLUMN_VISIBILITY } from "../../../../../../../../../../../../Table/features/constants";
 
 const PUBLICATION_STRING = "publicationString";
 const TITLE = "title";
@@ -25,7 +25,7 @@ export const TABLE_OPTIONS: Partial<
   enableSorting: true,
   getSortedRowModel: getSortedRowModel(),
   initialState: {
-    columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
+    columnVisibility: { [COLUMN_IDENTIFIER.ROW_POSITION]: true },
     sorting: SORTING,
   },
 };

@@ -12,9 +12,9 @@ import { ROUTE } from "../../../app/routes/constants";
 import { SiteConfig } from "../../common/entities";
 import { announcementsConfig } from "./announcements/announcementsConfig";
 import { authenticationConfig } from "./authentication/authentication";
-import { atlasEntityConfig } from "./index/atlasEntityConfig";
+import { atlasEntityConfig } from "./index/atlas/atlasEntityConfig";
 import { tasksEntityConfig } from "./index/tasks/tasksEntityConfig";
-import { userEntityConfig } from "./index/userEntityConfig";
+import { userEntityConfig } from "./index/user/userEntityConfig";
 
 // Template constants
 const LOCALHOST = "http://localhost:3000";
