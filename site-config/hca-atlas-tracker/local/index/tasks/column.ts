@@ -2,13 +2,13 @@ import {
   ColumnConfig,
   ComponentConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
-import { HCAAtlasTrackerListValidationRecord } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import * as C from "../../../../../../app/components";
-import * as V from "../../../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { HCAAtlasTrackerListValidationRecord } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import * as C from "../../../../../app/components";
+import * as V from "../../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
-} from "../../../../category";
+} from "../../../category";
 
 export const ATLAS_NAMES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
   componentConfig: {
@@ -23,7 +23,6 @@ export const ATLAS_NAMES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 
 export const ATLAS_VERSIONS: ColumnConfig<HCAAtlasTrackerListValidationRecord> =
   {
-    columnVisible: false,
     componentConfig: {
       component: C.NTagCell,
       viewBuilder: V.buildTaskAtlasVersions,
@@ -38,7 +37,6 @@ export const ATLAS_VERSIONS: ColumnConfig<HCAAtlasTrackerListValidationRecord> =
   };
 
 export const CREATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
-  columnVisible: false,
   componentConfig: {
     component: C.BasicCell,
     viewBuilder: V.buildCreatedAt,
@@ -76,7 +74,6 @@ export const DOI: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 };
 
 export const ENTITY_TITLE: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
-  columnVisible: false,
   componentConfig: {
     component: C.BasicCell,
     viewBuilder: V.buildEntityTitle,
@@ -88,7 +85,6 @@ export const ENTITY_TITLE: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 };
 
 export const ENTITY_TYPE: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
-  columnVisible: false,
   componentConfig: {
     component: C.BasicCell,
     viewBuilder: V.buildEntityType,
@@ -100,7 +96,6 @@ export const ENTITY_TYPE: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 };
 
 export const NETWORKS: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
-  columnVisible: false,
   componentConfig: {
     component: C.BioNetworkCell,
     viewBuilder: V.buildTaskNetworks,
@@ -191,7 +186,6 @@ export const TASK_STATUS: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 };
 
 export const UPDATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
-  columnVisible: false,
   componentConfig: {
     component: C.BasicCell,
     viewBuilder: V.buildUpdatedAt,
@@ -203,7 +197,6 @@ export const UPDATED_AT: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 };
 
 export const WAVES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
-  columnVisible: false,
   componentConfig: {
     component: C.NTagCell,
     viewBuilder: V.buildTaskWaves,
@@ -216,7 +209,6 @@ export const WAVES: ColumnConfig<HCAAtlasTrackerListValidationRecord> = {
 
 export const VALIDATION_TYPE: ColumnConfig<HCAAtlasTrackerListValidationRecord> =
   {
-    columnVisible: false,
     componentConfig: {
       component: C.BasicCell,
       viewBuilder: V.buildValidationType,

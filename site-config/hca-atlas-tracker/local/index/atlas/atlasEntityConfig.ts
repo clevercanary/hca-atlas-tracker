@@ -1,4 +1,3 @@
-import { ACCESSOR_KEYS } from "@databiosphere/findable-ui/lib/components/TableCreator/common/constants";
 import {
   ComponentConfig,
   EntityConfig,
@@ -6,20 +5,21 @@ import {
   SORT_DIRECTION,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
-import { HCAAtlasTrackerListAtlas } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerListAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   atlasInputMapper,
   getAtlasId,
-} from "../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
-import * as C from "../../../../app/components";
-import { mapSelectCategoryValue } from "../../../../app/config/utils";
-import { formatDateToQuarterYear } from "../../../../app/utils/date-fns";
-import * as V from "../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
+import * as C from "../../../../../app/components";
+import { mapSelectCategoryValue } from "../../../../../app/config/utils";
+import { formatDateToQuarterYear } from "../../../../../app/utils/date-fns";
+import * as V from "../../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
-} from "../../category";
-import { subTitleHero } from "../viewList/subTitleHero";
+} from "../../../category";
+import { subTitleHero } from "../../viewList/subTitleHero";
+import { TABLE_OPTIONS } from "./tableOptions";
 
 /**
  * Entity config object responsible to config anything related to the /atlases route.
@@ -112,7 +112,6 @@ export const atlasEntityConfig: EntityConfig = {
         width: { max: "1fr", min: "212px" },
       },
       {
-        columnVisible: false,
         componentConfig: {
           component: C.BasicCell,
           viewBuilder: V.buildAtlasVersion,
@@ -123,7 +122,6 @@ export const atlasEntityConfig: EntityConfig = {
         width: { max: "0.5fr", min: "112px" },
       },
       {
-        columnVisible: false,
         componentConfig: {
           component: C.BasicCell,
           viewBuilder: V.buildWave,
@@ -163,7 +161,6 @@ export const atlasEntityConfig: EntityConfig = {
         width: { max: "0.5fr", min: "112px" },
       },
       {
-        columnVisible: false,
         componentConfig: {
           component: C.NTagCell,
           viewBuilder: V.buildIntegrationLead,
@@ -203,18 +200,7 @@ export const atlasEntityConfig: EntityConfig = {
         width: { max: "0.5fr", min: "168px" },
       },
     ],
-    defaultSort: {
-      desc: SORT_DIRECTION.ASCENDING,
-      id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
-    },
-    tableOptions: {
-      initialState: {
-        columnVisibility: {
-          [ACCESSOR_KEYS.ROW_POSITION]: true,
-          [ACCESSOR_KEYS.SELECT]: false,
-        },
-      },
-    },
+    tableOptions: TABLE_OPTIONS,
   } as ListConfig<HCAAtlasTrackerListAtlas>,
   listView: {
     disablePagination: true,

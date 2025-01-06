@@ -2,21 +2,14 @@ import {
   ComponentConfig,
   EntityConfig,
   ListConfig,
-  SORT_DIRECTION,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
-import { VALIDATION_DESCRIPTION } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
-import {
-  HCAAtlasTrackerListValidationRecord,
-  SYSTEM,
-  TASK_STATUS,
-} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerListValidationRecord } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getTaskId,
   taskInputMapper,
 } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import * as C from "../../../../../app/components";
-import { COLUMN_VISIBILITY } from "../../../../../app/components/Table/features/constants";
 import { mapSelectCategoryValue } from "../../../../../app/config/utils";
 import { formatDateToQuarterYear } from "../../../../../app/utils/date-fns";
 import * as V from "../../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -24,8 +17,9 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../../category";
-import { SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE } from "../common/constants";
-import { COLUMNS, ROW_PREVIEW_COLUMNS } from "./common/columns";
+import { COLUMNS, ROW_PREVIEW_COLUMNS } from "./columns";
+import { SAVED_FILTERS } from "./savedFilters";
+import { TABLE_OPTIONS } from "./tableOptions";
 
 /**
  * Entity config object responsible to config anything related to the /reports route.
@@ -98,134 +92,7 @@ export const tasksEntityConfig: EntityConfig = {
       },
     ],
     key: "tasks",
-    savedFilters: [
-      {
-        filters: [
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: [VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.TODO, TASK_STATUS.BLOCKED],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
-            value: [SYSTEM.CAP],
-          },
-        ],
-        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
-        title: "CAP - Ingest backlog",
-      },
-      {
-        filters: [
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: [VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.IN_PROGRESS, TASK_STATUS.TODO],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
-            value: [SYSTEM.CELLXGENE],
-          },
-        ],
-        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
-        title: "CELLxGENE - Ingest backlog",
-      },
-      {
-        filters: [
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.DONE],
-          },
-        ],
-        sorting: [
-          {
-            desc: SORT_DIRECTION.DESCENDING,
-            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.RESOLVED_AT,
-          },
-        ],
-        title: "Completed Tasks",
-      },
-      {
-        filters: [
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: [VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.TODO],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
-            value: [SYSTEM.HCA_DATA_REPOSITORY],
-          },
-        ],
-        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
-        title: "HCA Data Repository -  Ingest backlog",
-      },
-      {
-        filters: [
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: [VALIDATION_DESCRIPTION.ADD_PRIMARY_DATA],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.TODO],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
-            value: [SYSTEM.HCA_DATA_REPOSITORY],
-          },
-        ],
-        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
-        title: "HCA Data Repository - no primary data",
-      },
-      {
-        filters: [
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: [VALIDATION_DESCRIPTION.UPDATE_TITLE_TO_MATCH_PUBLICATION],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.TODO],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
-            value: [SYSTEM.HCA_DATA_REPOSITORY],
-          },
-        ],
-        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
-        title:
-          "HCA Data Repository -  project title does not match publication title",
-      },
-      {
-        filters: [
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.DESCRIPTION,
-            value: [
-              VALIDATION_DESCRIPTION.LINK_PROJECT_BIONETWORKS_AND_ATLASES,
-            ],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.TASK_STATUS,
-            value: [TASK_STATUS.TODO],
-          },
-          {
-            categoryKey: HCA_ATLAS_TRACKER_CATEGORY_KEY.SYSTEM,
-            value: [SYSTEM.HCA_DATA_REPOSITORY],
-          },
-        ],
-        sorting: SAVED_FILTERS_SORTING_TARGET_COMPLETION_DATE,
-        title: "HCA Data Repository - Missing Network or Atlas",
-      },
-    ],
+    savedFilters: SAVED_FILTERS,
   },
   detail: {
     detailOverviews: [],
@@ -240,32 +107,11 @@ export const tasksEntityConfig: EntityConfig = {
   label: "Reports",
   list: {
     columns: COLUMNS,
-    tableOptions: {
-      enableExpanding: true,
-      enableGrouping: true,
-      enableMultiRowSelection: true,
-      enableRowSelection: (row) => !row.getIsGrouped(),
-      initialState: {
-        columnVisibility: COLUMN_VISIBILITY.ROW_POSITION,
-        expanded: true,
-        grouping: [HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE],
-        sorting: [
-          {
-            desc: SORT_DIRECTION.ASCENDING,
-            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-          },
-          {
-            desc: SORT_DIRECTION.ASCENDING,
-            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
-          },
-        ],
-      },
-    },
+    tableOptions: TABLE_OPTIONS,
   } as ListConfig<HCAAtlasTrackerListValidationRecord>,
   listView: {
     disablePagination: true,
     enableDownload: true,
-    enableRowPreview: true,
     enableTab: false,
     rowPreviewView: [
       {
