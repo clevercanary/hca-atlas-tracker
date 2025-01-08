@@ -1,7 +1,19 @@
 import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import { METHOD } from "../common/entities";
 import { fetchResource, isFetchStatusOk } from "../common/utils";
+
+export enum FETCH_PROGRESS {
+  COMPLETED = "COMPLETED",
+  FETCHING = "FETCHING",
+  INACTIVE = "INACTIVE",
+}
+
+enum FetchProgressActionKind {
+  Completed = "COMPLETED",
+  Fetching = "FETCHING",
+  NotFetching = "NOT_FETCHING",
+}
 
 enum FETCH_OUTCOME {
   ERROR = "ERROR",
@@ -22,6 +34,7 @@ const PENDING_STATE = { outcome: FETCH_OUTCOME.PENDING } as const;
 interface UseFetchData<D> {
   data?: D;
   isSuccess: boolean;
+  progress: FETCH_PROGRESS;
 }
 
 export const useFetchData = <D>(
@@ -34,6 +47,11 @@ export const useFetchData = <D>(
   } = useAuth();
 
   const [state, setState] = useState<FetchState<D>>(PENDING_STATE);
+
+  const [progress, progressDispatch] = useReducer(
+    fetchProgressReducer,
+    FETCH_PROGRESS.INACTIVE
+  );
 
   // If an error has been saved from the asynchronous fetch, throw it synchronously.
   if (state.outcome === FETCH_OUTCOME.ERROR) throw state.error;
@@ -60,23 +78,33 @@ export const useFetchData = <D>(
   );
 
   useEffect(() => {
-    // If the user is unauthenticated, reset to the pending state.
+    // If the user is unauthenticated, reset to the pending state and non-fetching progress.
     if (!isAuthenticated) {
       setState(PENDING_STATE);
+      progressDispatch(FetchProgressActionKind.NotFetching);
       return;
     }
 
-    // If `shouldFetch` is false, keep state as-is.
-    if (!shouldFetch) return;
+    // If `shouldFetch` is false, keep state as-is and set progress to not fetching.
+    if (!shouldFetch) {
+      progressDispatch(FetchProgressActionKind.NotFetching);
+      return;
+    }
 
     // Otherwise, fetch and update state as appropriate.
+
+    progressDispatch(FetchProgressActionKind.Fetching);
 
     const abortController = new AbortController();
 
     fetchData(abortController.signal)
-      .then((data) => setState({ data, outcome: FETCH_OUTCOME.SUCCESS }))
+      .then((data) => {
+        progressDispatch(FetchProgressActionKind.Completed);
+        setState({ data, outcome: FETCH_OUTCOME.SUCCESS });
+      })
       .catch((error) => {
         if (abortController.signal.aborted) return; // Aborting a request causes the promise to be rejected, so it's necessary to check the abort signal to avoid saving that error.
+        progressDispatch(FetchProgressActionKind.Completed);
         setState({ error, outcome: FETCH_OUTCOME.ERROR });
       });
 
@@ -87,6 +115,20 @@ export const useFetchData = <D>(
   }, [fetchData, isAuthenticated, shouldFetch]);
 
   return state.outcome === FETCH_OUTCOME.SUCCESS
-    ? { data: state.data, isSuccess: true }
-    : { data: undefined, isSuccess: false };
+    ? { data: state.data, isSuccess: true, progress }
+    : { data: undefined, isSuccess: false, progress };
 };
+
+function fetchProgressReducer(
+  p: FETCH_PROGRESS,
+  a: FetchProgressActionKind
+): FETCH_PROGRESS {
+  switch (a) {
+    case FetchProgressActionKind.Completed:
+      return FETCH_PROGRESS.COMPLETED;
+    case FetchProgressActionKind.Fetching:
+      return FETCH_PROGRESS.FETCHING;
+    case FetchProgressActionKind.NotFetching:
+      return p === FETCH_PROGRESS.FETCHING ? FETCH_PROGRESS.INACTIVE : p;
+  }
+}
