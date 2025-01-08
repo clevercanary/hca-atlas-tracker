@@ -16,14 +16,14 @@ export const useFetchComponentAtlasSourceDatasets = (
   const {
     fetchDataState: { shouldFetch },
   } = useFetchDataState();
-  const { data: componentAtlasSourceDatasets, isSuccess } = useFetchData<
+  const { data: componentAtlasSourceDatasets, progress } = useFetchData<
     HCAAtlasTrackerSourceDataset[] | undefined
   >(
     getRequestURL(API.ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS, pathParameter),
     METHOD.GET,
     shouldFetch
   );
-  useResetFetchStatus(isSuccess);
+  useResetFetchStatus(progress);
   return {
     componentAtlasSourceDatasets,
   };
