@@ -1,4 +1,3 @@
-import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { useCallback } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD, PathParameter } from "../../../common/entities";
@@ -16,8 +15,6 @@ export interface UseSetLinkedAtlasSourceDatasets {
 export const useSetLinkedAtlasSourceDatasets = (
   pathParameter: PathParameter
 ): UseSetLinkedAtlasSourceDatasets => {
-  const { token } = useToken();
-
   const onSetLinked = useCallback(
     async (sourceDatasetId: string, linked: boolean): Promise<void> => {
       const res = await fetchResource(
@@ -25,8 +22,7 @@ export const useSetLinkedAtlasSourceDatasets = (
           ...pathParameter,
           sourceDatasetId,
         }),
-        linked ? METHOD.POST : METHOD.DELETE,
-        token
+        linked ? METHOD.POST : METHOD.DELETE
       );
       if (
         !(linked
@@ -41,7 +37,7 @@ export const useSetLinkedAtlasSourceDatasets = (
         );
       }
     },
-    [pathParameter, token]
+    [pathParameter]
   );
 
   return {

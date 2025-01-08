@@ -3,7 +3,7 @@ import { newCommentThreadSchema } from "../../app/apis/catalog/hca-atlas-tracker
 import { METHOD } from "../../app/common/entities";
 import { createCommentThread } from "../../app/services/comments";
 import {
-  getRegisteredUserFromAuthorization,
+  getRegisteredActiveUser,
   handler,
   method,
   registeredUser,
@@ -19,7 +19,7 @@ export default handler(
         dbCommentToApiComment(
           await createCommentThread(
             await newCommentThreadSchema.validate(req.body),
-            await getRegisteredUserFromAuthorization(req.headers.authorization)
+            await getRegisteredActiveUser(req, res)
           )
         )
       );

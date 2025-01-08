@@ -1,5 +1,4 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { useToken } from "@databiosphere/findable-ui/lib/hooks/authentication/token/useToken";
 import { useCallback, useEffect, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource } from "../../../../common/utils";
@@ -22,29 +21,23 @@ export const RefreshForm = (): JSX.Element => {
     useState<FormResponseErrors>();
   const [refreshStarted, setRefreshStarted] = useState(false);
 
-  const { token } = useToken();
-
   const onReloadStatus = useCallback(() => {
-    doApiRequest(
-      METHOD.GET,
-      token,
-      setStatusIsDisabled,
-      setStatusResponseErrors
-    ).then(async (res) => {
-      if (res) setStatuses(await res.json());
-    });
-  }, [token]);
+    doApiRequest(METHOD.GET, setStatusIsDisabled, setStatusResponseErrors).then(
+      async (res) => {
+        if (res) setStatuses(await res.json());
+      }
+    );
+  }, []);
 
   const onRefresh = useCallback(() => {
     doApiRequest(
       METHOD.POST,
-      token,
       setRefreshIsDisabled,
       setRefreshResponseErrors
     ).then(async (res) => {
       if (res) setRefreshStarted(true);
     });
-  }, [token]);
+  }, []);
 
   useEffect(onReloadStatus, [onReloadStatus]);
 
@@ -142,13 +135,12 @@ function buildResponseErrors(responseErrors: FormResponseErrors): JSX.Element {
 
 async function doApiRequest(
   method: METHOD,
-  token: string | undefined,
   setIsDisabled: (d: boolean) => void,
   setResponseErrors: (e: FormResponseErrors | undefined) => void
 ): Promise<Response | null> {
   try {
     setIsDisabled(true);
-    const res = await fetchResource("/api/refresh", method, token);
+    const res = await fetchResource("/api/refresh", method);
     if (200 <= res.status && res.status < 300) {
       setResponseErrors(undefined);
       return res;
