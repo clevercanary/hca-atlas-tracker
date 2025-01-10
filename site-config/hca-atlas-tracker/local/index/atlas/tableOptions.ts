@@ -7,6 +7,7 @@ import { HCA_ATLAS_TRACKER_CATEGORY_KEY } from "../../../category";
 
 export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"] =
   {
+    enableGrouping: true,
     enableRowPosition: true,
     initialState: {
       columnVisibility: {
@@ -14,6 +15,7 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"]
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD]: false,
       },
+      expanded: true,
       sorting: [
         {
           desc: SORT_DIRECTION.ASCENDING,
