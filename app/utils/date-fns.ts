@@ -1,15 +1,11 @@
-import {
-  endOfQuarter,
-  format,
-  getYear,
-  isFuture,
-  quartersToMonths,
-} from "date-fns";
+import { endOfQuarter, format, getYear, quartersToMonths } from "date-fns";
 
 const FORMAT_STR = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 const FORMAT_STR_YEAR_QUARTER = "yyyy, QQQ";
 const QUARTERS = [1, 2, 3, 4];
 export const GREATEST_UNIX_TIME = "2038-01-19T13:14:07.000Z";
+const BEGINNING_PAST_YEAR = 2023;
+const BEGINNING_PAST_YEAR_QUARTERS = [4];
 
 /**
  * Returns date, formatted as a string.
@@ -39,16 +35,6 @@ export function formatDateToQuarterYear(dateStr: string | null): string {
 }
 
 /**
- * Returns the current year and the next year.
- * @param date - Date.
- * @returns years.
- */
-function getCurrentAndNextYear(date: Date): number[] {
-  const year = getYear(date);
-  return [year, year + 1];
-}
-
-/**
  * Returns the date for the given year and month.
  * @param year - Year.
  * @param month - Month.
@@ -71,26 +57,27 @@ function getFormattedMonth(month: number): string {
 }
 
 /**
- * Returns the future quarter keyed by late (formatted) moment of the quarter for the next two years.
+ * Returns the quarters keyed by last (formatted) moment of the quarter from Q4 2023 to the end of next year.
  * @param date - Date.
- * @returns future quarters.
+ * @returns quarters.
  */
-export function getFutureQuarterByDateForNextTwoYears(
+export function getPastAndNextTwoYearsQuartersByDate(
   date = new Date()
 ): Map<string, string> {
-  const futureQuarterByDate: Map<string, string> = new Map();
-  for (const year of getCurrentAndNextYear(date)) {
-    for (const quarter of QUARTERS) {
+  const quartersByDate: Map<string, string> = new Map();
+  const finalListedYear = getYear(date) + 1;
+  for (let year = BEGINNING_PAST_YEAR; year <= finalListedYear; year++) {
+    for (const quarter of year === BEGINNING_PAST_YEAR
+      ? BEGINNING_PAST_YEAR_QUARTERS
+      : QUARTERS) {
       const lastMomentOfQuarter = getLastMomentOfQuarter(quarter, year);
-      if (isFuture(lastMomentOfQuarter)) {
-        futureQuarterByDate.set(
-          formatDate(lastMomentOfQuarter),
-          formatDate(lastMomentOfQuarter, FORMAT_STR_YEAR_QUARTER)
-        );
-      }
+      quartersByDate.set(
+        formatDate(lastMomentOfQuarter),
+        formatDate(lastMomentOfQuarter, FORMAT_STR_YEAR_QUARTER)
+      );
     }
   }
-  return futureQuarterByDate;
+  return quartersByDate;
 }
 
 /**
