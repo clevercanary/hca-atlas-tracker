@@ -882,9 +882,9 @@ export function getAtlasSourceDatasetsTableColumns(
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetDownloadColumnDef(),
+    getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetPublicationColumnDef(),
     getSourceDatasetSourceStudyColumnDef(atlas),
-    getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
