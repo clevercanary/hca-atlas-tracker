@@ -1415,7 +1415,7 @@ function getSourceStudyTitleColumnDef(
     accessorKey: "title",
     cell: ({ row }) =>
       C.Link(buildSourceStudyTitle(pathParameter, row.original)),
-    header: "Title",
+    header: "Source Study",
   };
 }
 
