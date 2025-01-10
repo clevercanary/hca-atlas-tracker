@@ -1,6 +1,6 @@
 import { MenuItem as MMenuItem } from "@mui/material";
 import { forwardRef, ReactNode, useMemo } from "react";
-import { getFutureQuarterByDateForNextTwoYears } from "../../../../../../utils/date-fns";
+import { getPastAndNextTwoYearsQuartersByDate } from "../../../../../../utils/date-fns";
 import {
   Select,
   SelectProps,
@@ -15,8 +15,8 @@ export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(
     }: SelectProps,
     ref
   ): JSX.Element {
-    const futureQuarterByDate = useMemo(
-      () => getFutureQuarterByDateForNextTwoYears(),
+    const quartersByDate = useMemo(
+      () => getPastAndNextTwoYearsQuartersByDate(),
       []
     );
     return (
@@ -24,11 +24,9 @@ export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(
         {...props}
         className={className}
         ref={ref}
-        renderValue={(value): ReactNode =>
-          renderValue(value, futureQuarterByDate)
-        }
+        renderValue={(value): ReactNode => renderValue(value, quartersByDate)}
       >
-        {[...futureQuarterByDate].map(([date, quarter]) => (
+        {[...quartersByDate].map(([date, quarter]) => (
           <MMenuItem key={quarter} value={date}>
             {quarter}
           </MMenuItem>
