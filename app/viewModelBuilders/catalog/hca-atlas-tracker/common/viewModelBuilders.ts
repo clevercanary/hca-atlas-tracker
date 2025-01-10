@@ -324,6 +324,23 @@ export const buildSourceDatasetCount = (
 };
 
 /**
+ * Build props for the source dataset download component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildSourceDatasetDownload = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): ComponentProps<typeof C.FileDownload> => {
+  const versionId = sourceDataset.cellxgeneDatasetVersion;
+  return {
+    fileName: `${versionId}.h5ad`,
+    fileUrl: versionId
+      ? `https://datasets.cellxgene.cziscience.com/${versionId}.h5ad`
+      : undefined,
+  };
+};
+
+/**
  * Build props for the source study publication Link component.
  * @param sourceStudy - Source study entity.
  * @returns Props to be used for the Link component.
@@ -864,6 +881,7 @@ export function getAtlasSourceDatasetsTableColumns(
   atlas: HCAAtlasTrackerAtlas
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
+    getSourceDatasetDownloadColumnDef(),
     getSourceDatasetPublicationColumnDef(),
     getSourceDatasetSourceStudyColumnDef(atlas),
     getAtlasSourceDatasetTitleColumnDef(atlas),
@@ -1174,6 +1192,21 @@ function getEntityFromRowData<T extends RowData>(
 function getProgressValue(numerator: number, denominator: number): number {
   if (denominator === 0) return 0;
   return (numerator / denominator) * 100;
+}
+
+/**
+ * Returns source dataset download column def.
+ * @returns Column def.
+ */
+function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "cellxgeneDatasetVersion",
+    cell: ({ row }): JSX.Element => {
+      return C.FileDownload(buildSourceDatasetDownload(row.original));
+    },
+    enableSorting: false,
+    header: "Download",
+  };
 }
 
 /**
