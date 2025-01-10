@@ -865,6 +865,7 @@ export function getAtlasSourceDatasetsTableColumns(
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetPublicationColumnDef(),
+    getSourceDatasetSourceStudyColumnDef(atlas),
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
@@ -893,7 +894,7 @@ function getAtlasSourceDatasetTitleColumnDef(
           sourceDatasetId: row.original.id,
         }),
       }),
-    header: "Dataset",
+    header: "Source Dataset",
     meta: { columnPinned: true },
   };
 }
@@ -1056,7 +1057,7 @@ function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrack
   return {
     accessorKey: "title",
     cell: ({ row }) => C.BasicCell({ value: row.original.title }),
-    header: "Dataset",
+    header: "Source Dataset",
     meta: { columnPinned: true },
   };
 }
@@ -1237,10 +1238,33 @@ function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSource
   return {
     accessorKey: "publicationString",
     cell: ({ row }) =>
-      C.BasicCell({
-        value: row.original.publicationString,
+      C.Link({
+        label: row.original.publicationString,
+        url: getDOILink(row.original.doi),
       }),
     header: "Publication",
+  };
+}
+
+/**
+ * Returns source dataset source study column def.
+ * @param atlas - Linked atlas.
+ * @returns Column def.
+ */
+function getSourceDatasetSourceStudyColumnDef(
+  atlas: HCAAtlasTrackerAtlas
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "sourceStudyTitle",
+    cell: ({ row }) =>
+      C.Link({
+        label: row.original.sourceStudyTitle,
+        url: getRouteURL(ROUTE.SOURCE_STUDY, {
+          atlasId: atlas.id,
+          sourceStudyId: row.original.sourceStudyId,
+        }),
+      }),
+    header: "Source Study",
   };
 }
 
