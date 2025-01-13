@@ -46,6 +46,7 @@ export function dbAtlasToApiAtlas(
     status: dbAtlas.status,
     targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
     taskCount: dbAtlas.overview.taskCount,
+    tasksBySystem: dbAtlas.overview.tasksBySystem,
     title: "",
     version: dbAtlas.overview.version,
     wave: dbAtlas.overview.wave,

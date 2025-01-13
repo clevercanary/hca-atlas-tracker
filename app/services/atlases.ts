@@ -23,7 +23,7 @@ import { confirmSourceDatasetStudyIsOnAtlas } from "./source-datasets";
 interface AtlasInputDbData {
   overviewData: Omit<
     HCAAtlasTrackerDBAtlasOverview,
-    "completedTaskCount" | "taskCount"
+    "completedTaskCount" | "taskCount" | "tasksBySystem"
   >;
   status: HCAAtlasTrackerDBAtlas["status"];
   targetCompletion: HCAAtlasTrackerDBAtlas["target_completion"];
@@ -61,6 +61,7 @@ export async function createAtlas(
     ...overviewData,
     completedTaskCount: 0,
     taskCount: 0,
+    tasksBySystem: [],
   };
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING id",
@@ -133,18 +134,32 @@ export async function updateTaskCounts(): Promise<void> {
   await query(`
     UPDATE hat.atlases a
     SET
-      overview = a.overview || jsonb_build_object('taskCount', counts.task_count, 'completedTaskCount', counts.completed_task_count)
+      overview = a.overview || jsonb_build_object('taskCount', counts.task_count, 'completedTaskCount', counts.completed_task_count, 'tasksBySystem', counts.tasks_by_system)
     FROM (
       SELECT
-        a.id AS atlas_id,
-        COUNT(v.id) AS task_count,
-        COUNT(CASE WHEN v.validation_info->>'validationStatus' = 'PASSED' THEN 1 END) AS completed_task_count
-      FROM
-        hat.atlases a
-      LEFT JOIN
-        hat.validations v ON a.id = ANY(v.atlas_ids)
-      GROUP BY
-        a.id
+        systems.atlas_id,
+        SUM(systems.task_count) AS task_count,
+        SUM(systems.completed_task_count) AS completed_task_count,
+        COALESCE(
+          JSONB_AGG(
+            jsonb_build_object('system', systems.system, 'count', systems.task_count, 'completedCount', systems.completed_task_count)
+          ) FILTER (WHERE systems.system IS NOT NULL),
+          '[]'::jsonb
+        ) AS tasks_by_system
+      FROM (
+        SELECT
+          a.id AS atlas_id,
+          v.validation_info ->> 'system' AS system,
+          COUNT(v.id) AS task_count,
+          COUNT(CASE WHEN v.validation_info->>'validationStatus' = 'PASSED' THEN 1 END) AS completed_task_count
+        FROM
+          hat.atlases a
+        LEFT JOIN
+          hat.validations v ON a.id = ANY(v.atlas_ids)
+        GROUP BY
+          a.id, v.validation_info ->> 'system'
+      ) AS systems
+      GROUP BY systems.atlas_id
     ) AS counts
     WHERE a.id = counts.atlas_id;
   `);

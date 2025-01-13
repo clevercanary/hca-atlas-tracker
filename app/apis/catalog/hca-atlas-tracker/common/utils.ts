@@ -50,6 +50,7 @@ export function atlasInputMapper(
     status: apiAtlas.status,
     targetCompletion: apiAtlas.targetCompletion ?? GREATEST_UNIX_TIME,
     taskCount: apiAtlas.taskCount,
+    tasksBySystem: apiAtlas.tasksBySystem,
     title: apiAtlas.title,
     version: apiAtlas.version,
     wave: apiAtlas.wave,

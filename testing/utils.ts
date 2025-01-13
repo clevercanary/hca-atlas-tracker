@@ -74,6 +74,7 @@ export function makeTestAtlasOverview(
     publications: atlas.publications,
     shortName: atlas.shortName,
     taskCount: 0,
+    tasksBySystem: [],
     version: atlas.version,
     wave: atlas.wave,
   };

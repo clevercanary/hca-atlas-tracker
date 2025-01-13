@@ -32,6 +32,7 @@ export interface HCAAtlasTrackerAtlas {
   status: ATLAS_STATUS;
   targetCompletion: string | null;
   taskCount: number;
+  tasksBySystem: SystemTaskCounts[];
   title: string;
   version: string;
   wave: Wave;
@@ -223,6 +224,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   publications: DoiPublicationInfo[];
   shortName: string;
   taskCount: number;
+  tasksBySystem: SystemTaskCounts[];
   version: string;
   wave: Wave;
 }
@@ -471,6 +473,12 @@ export interface IntegrationLead {
 export interface LinkInfo {
   label?: string;
   url: string;
+}
+
+interface SystemTaskCounts {
+  completedCount: number;
+  count: number;
+  system: SYSTEM;
 }
 
 export type SourceDatasetId = string;
