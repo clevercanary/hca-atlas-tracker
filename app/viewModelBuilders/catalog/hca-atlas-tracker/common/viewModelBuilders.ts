@@ -29,6 +29,7 @@ import {
   HCAAtlasTrackerUser,
   Network,
   NetworkKey,
+  SYSTEM,
   TASK_STATUS,
   VALIDATION_ID,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -470,18 +471,56 @@ export const buildTaskAtlasVersions = (
 };
 
 /**
- * Build props for the task counts TaskCountsCell component.
+ * Build props for the CAP task counts TaskCountsCell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the TaskCountsCell.
  */
-export const buildTaskCounts = (
+export const buildTaskCountsCap = (
   atlas: HCAAtlasTrackerListAtlas
 ): ComponentProps<typeof C.TaskCountsCell> => {
+  return buildTaskCountsForSystem(atlas, SYSTEM.CAP);
+};
+
+/**
+ * Build props for the CELLxGENE task counts TaskCountsCell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the TaskCountsCell.
+ */
+export const buildTaskCountsCellxGene = (
+  atlas: HCAAtlasTrackerListAtlas
+): ComponentProps<typeof C.TaskCountsCell> => {
+  return buildTaskCountsForSystem(atlas, SYSTEM.CELLXGENE);
+};
+
+/**
+ * Build props for the task counts TaskCountsCell component for the given system.
+ * @param atlas - Atlas entity.
+ * @param system - System.
+ * @returns Props to be used for the TaskCountsCell.
+ */
+export const buildTaskCountsForSystem = (
+  atlas: HCAAtlasTrackerListAtlas,
+  system: SYSTEM
+): ComponentProps<typeof C.TaskCountsCell> => {
+  const { completedCount, count } = atlas.tasksBySystem.find(
+    (counts) => counts.system === system
+  ) ?? { completedCount: 0, count: 0 };
   return {
-    label: `${atlas.completedTaskCount}/${atlas.taskCount}`,
-    url: getTaskCountUrlObject(atlas),
-    value: getProgressValue(atlas.completedTaskCount, atlas.taskCount),
+    label: `${completedCount}/${count}`,
+    url: getTaskCountUrlObject(atlas, system),
+    value: getProgressValue(completedCount, count),
   };
+};
+
+/**
+ * Build props for the HCA task counts TaskCountsCell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the TaskCountsCell.
+ */
+export const buildTaskCountsHca = (
+  atlas: HCAAtlasTrackerListAtlas
+): ComponentProps<typeof C.TaskCountsCell> => {
+  return buildTaskCountsForSystem(atlas, SYSTEM.HCA_DATA_REPOSITORY);
 };
 
 /**
@@ -1493,10 +1532,12 @@ function getSuspensionTypeColumnDef<
 /**
  * Returns the URL object for the task count link.
  * @param atlas - Atlas entity.
+ * @param system - System to limit tasks to.
  * @returns URL object for the task count link.
  */
 function getTaskCountUrlObject(
-  atlas: HCAAtlasTrackerListAtlas
+  atlas: HCAAtlasTrackerListAtlas,
+  system?: SYSTEM
 ): LinkProps["url"] {
   const params = {
     filter: [
@@ -1504,6 +1545,14 @@ function getTaskCountUrlObject(
         categoryKey: "atlasNames",
         value: [atlas.name],
       },
+      ...(system
+        ? [
+            {
+              categoryKey: "system",
+              value: [system],
+            },
+          ]
+        : []),
     ],
   };
   return {

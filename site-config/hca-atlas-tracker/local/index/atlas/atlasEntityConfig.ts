@@ -193,10 +193,28 @@ export const atlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.TaskCountsCell,
-          viewBuilder: V.buildTaskCounts,
+          viewBuilder: V.buildTaskCountsHca,
         } as ComponentConfig<typeof C.TaskCountsCell, HCAAtlasTrackerListAtlas>,
         enableGrouping: false,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_COUNTS,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_COUNTS_HCA,
+        width: { max: "128px", min: "128px" },
+      },
+      {
+        componentConfig: {
+          component: C.TaskCountsCell,
+          viewBuilder: V.buildTaskCountsCellxGene,
+        } as ComponentConfig<typeof C.TaskCountsCell, HCAAtlasTrackerListAtlas>,
+        enableGrouping: false,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_COUNTS_CELLXGENE,
+        width: { max: "128px", min: "128px" },
+      },
+      {
+        componentConfig: {
+          component: C.TaskCountsCell,
+          viewBuilder: V.buildTaskCountsCap,
+        } as ComponentConfig<typeof C.TaskCountsCell, HCAAtlasTrackerListAtlas>,
+        enableGrouping: false,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TASK_COUNTS_CAP,
         width: { max: "128px", min: "128px" },
       },
       {
