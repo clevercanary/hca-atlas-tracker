@@ -224,6 +224,14 @@ export async function getDbUsersByEmail(): Promise<
   );
 }
 
+export async function getExistingAtlasFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBAtlas> {
+  const result = await getAtlasFromDatabase(id);
+  if (!result) throw new Error(`Atlas ${id} doesn't exist`);
+  return result;
+}
+
 export async function getAtlasFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBAtlas | undefined> {

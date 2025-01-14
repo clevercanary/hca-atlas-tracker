@@ -23,6 +23,7 @@ export interface HCAAtlasTrackerAtlas {
   description: string;
   highlights: string;
   id: string;
+  ingestionTaskCounts: IngestionTaskCounts;
   integrationLead: IntegrationLead[];
   metadataSpecificationUrl: string | null;
   publications: DoiPublicationInfo[];
@@ -217,6 +218,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   completedTaskCount: number;
   description: string;
   highlights: string;
+  ingestionTaskCounts: IngestionTaskCounts;
   integrationLead: IntegrationLead[];
   metadataSpecificationUrl: string | null;
   network: NetworkKey;
@@ -463,6 +465,14 @@ export interface Author {
   personalName: string | null;
 }
 
+export type IngestionTaskCounts = Record<
+  SYSTEM.CAP | SYSTEM.CELLXGENE | SYSTEM.HCA_DATA_REPOSITORY,
+  {
+    completedCount: number;
+    count: number;
+  }
+>;
+
 export interface IntegrationLead {
   email: string;
   name: string;
@@ -508,6 +518,13 @@ export enum TASK_STATUS {
 export enum VALIDATION_TYPE {
   INGEST = "INGEST",
   METADATA = "METADATA",
+}
+
+export enum VALIDATION_DESCRIPTION {
+  ADD_PRIMARY_DATA = "Add primary data.",
+  INGEST_SOURCE_STUDY = "Ingest source study.",
+  LINK_PROJECT_BIONETWORKS_AND_ATLASES = "Link project to HCA BioNeworks and Atlases.",
+  UPDATE_TITLE_TO_MATCH_PUBLICATION = "Update project title to match publication title.",
 }
 
 export enum VALIDATION_ID {

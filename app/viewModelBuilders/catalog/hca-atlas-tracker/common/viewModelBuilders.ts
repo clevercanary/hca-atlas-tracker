@@ -27,9 +27,12 @@ import {
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
+  IngestionTaskCounts,
   Network,
   NetworkKey,
+  SYSTEM,
   TASK_STATUS,
+  VALIDATION_DESCRIPTION,
   VALIDATION_ID,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -282,6 +285,61 @@ export const buildInHcaDataRepository = (
 };
 
 /**
+ * Build props for the CAP ingestion counts TaskCountsCell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the TaskCountsCell.
+ */
+export const buildIngestionCountsCap = (
+  atlas: HCAAtlasTrackerListAtlas
+): ComponentProps<typeof C.TaskCountsCell> => {
+  return buildIngestionCountsForSystem(atlas, SYSTEM.CAP);
+};
+
+/**
+ * Build props for the CELLxGENE ingestion counts TaskCountsCell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the TaskCountsCell.
+ */
+export const buildIngestionCountsCellxGene = (
+  atlas: HCAAtlasTrackerListAtlas
+): ComponentProps<typeof C.TaskCountsCell> => {
+  return buildIngestionCountsForSystem(atlas, SYSTEM.CELLXGENE);
+};
+
+/**
+ * Build props for the ingestion counts TaskCountsCell component for the given system.
+ * @param atlas - Atlas entity.
+ * @param system - System.
+ * @returns Props to be used for the TaskCountsCell.
+ */
+export const buildIngestionCountsForSystem = (
+  atlas: HCAAtlasTrackerListAtlas,
+  system: keyof IngestionTaskCounts
+): ComponentProps<typeof C.TaskCountsCell> => {
+  const { completedCount, count } = atlas.ingestionTaskCounts[system];
+  return {
+    label: `${completedCount}/${count}`,
+    url: getTaskCountUrlObject(
+      atlas,
+      system,
+      VALIDATION_DESCRIPTION.INGEST_SOURCE_STUDY
+    ),
+    value: getProgressValue(completedCount, count),
+  };
+};
+
+/**
+ * Build props for the HCA ingestion counts TaskCountsCell component.
+ * @param atlas - Atlas entity.
+ * @returns Props to be used for the TaskCountsCell.
+ */
+export const buildIngestionCountsHca = (
+  atlas: HCAAtlasTrackerListAtlas
+): ComponentProps<typeof C.TaskCountsCell> => {
+  return buildIngestionCountsForSystem(atlas, SYSTEM.HCA_DATA_REPOSITORY);
+};
+
+/**
  * Build props for the integration lead cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -466,21 +524,6 @@ export const buildTaskAtlasVersions = (
   return {
     label: getPluralizedMetadataLabel(METADATA_KEY.ATLAS_VERSION),
     values: task.atlasVersions,
-  };
-};
-
-/**
- * Build props for the task counts TaskCountsCell component.
- * @param atlas - Atlas entity.
- * @returns Props to be used for the TaskCountsCell.
- */
-export const buildTaskCounts = (
-  atlas: HCAAtlasTrackerListAtlas
-): ComponentProps<typeof C.TaskCountsCell> => {
-  return {
-    label: `${atlas.completedTaskCount}/${atlas.taskCount}`,
-    url: getTaskCountUrlObject(atlas),
-    value: getProgressValue(atlas.completedTaskCount, atlas.taskCount),
   };
 };
 
@@ -1493,10 +1536,14 @@ function getSuspensionTypeColumnDef<
 /**
  * Returns the URL object for the task count link.
  * @param atlas - Atlas entity.
+ * @param system - System to limit tasks to.
+ * @param task - Description to limit tasks to.
  * @returns URL object for the task count link.
  */
 function getTaskCountUrlObject(
-  atlas: HCAAtlasTrackerListAtlas
+  atlas: HCAAtlasTrackerListAtlas,
+  system?: SYSTEM,
+  task?: VALIDATION_DESCRIPTION
 ): LinkProps["url"] {
   const params = {
     filter: [
@@ -1504,6 +1551,22 @@ function getTaskCountUrlObject(
         categoryKey: "atlasNames",
         value: [atlas.name],
       },
+      ...(system
+        ? [
+            {
+              categoryKey: "system",
+              value: [system],
+            },
+          ]
+        : []),
+      ...(task
+        ? [
+            {
+              categoryKey: "description",
+              value: [task],
+            },
+          ]
+        : []),
     ],
   };
   return {

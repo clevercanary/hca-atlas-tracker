@@ -176,12 +176,3 @@ export const CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES = new Set([
 ]);
 
 export const UNPUBLISHED = "Unpublished";
-
-export const VALIDATION_DESCRIPTION = {
-  ADD_PRIMARY_DATA: "Add primary data.",
-  INGEST_SOURCE_STUDY: "Ingest source study.",
-  LINK_PROJECT_BIONETWORKS_AND_ATLASES:
-    "Link project to HCA BioNeworks and Atlases.",
-  UPDATE_TITLE_TO_MATCH_PUBLICATION:
-    "Update project title to match publication title.",
-};

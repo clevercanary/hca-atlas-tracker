@@ -988,6 +988,7 @@ export const SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSourc
 
 export const SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: TestPublishedSourceStudy =
   {
+    capId: "cap-id-published-with-cap-and-no-cellxgene",
     doi: "10.123/published-with-cap-and-no-cellxgene",
     doiStatus: DOI_STATUS.OK,
     id: "0461d2ee-e41c-4f91-97a2-fcb0cb62d6d9",

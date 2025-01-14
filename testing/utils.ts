@@ -19,6 +19,7 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   ROLE,
+  SYSTEM,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewUserData,
@@ -68,6 +69,11 @@ export function makeTestAtlasOverview(
     completedTaskCount: 0,
     description: atlas.description,
     highlights: atlas.highlights,
+    ingestionTaskCounts: {
+      [SYSTEM.CAP]: { completedCount: 0, count: 0 },
+      [SYSTEM.CELLXGENE]: { completedCount: 0, count: 0 },
+      [SYSTEM.HCA_DATA_REPOSITORY]: { completedCount: 0, count: 0 },
+    },
     integrationLead: atlas.integrationLead,
     metadataSpecificationUrl: atlas.metadataSpecificationUrl ?? null,
     network: atlas.network,

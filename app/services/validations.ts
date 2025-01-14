@@ -6,7 +6,6 @@ import { getDbEntityCitation } from "../apis/catalog/hca-atlas-tracker/common/ba
 import {
   ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS,
   DEFAULT_TASK_STATUS_BY_VALIDATION_STATUS,
-  VALIDATION_DESCRIPTION,
   VALIDATION_STATUS_BY_TASK_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
@@ -24,6 +23,7 @@ import {
   SYSTEM,
   TASK_STATUS,
   TaskStatusesUpdatedByDOIResult,
+  VALIDATION_DESCRIPTION,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,

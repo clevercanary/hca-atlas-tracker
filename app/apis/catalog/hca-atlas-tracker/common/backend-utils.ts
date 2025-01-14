@@ -37,6 +37,7 @@ export function dbAtlasToApiAtlas(
     description: dbAtlas.overview.description,
     highlights: dbAtlas.overview.highlights,
     id: dbAtlas.id,
+    ingestionTaskCounts: dbAtlas.overview.ingestionTaskCounts,
     integrationLead: dbAtlas.overview.integrationLead,
     metadataSpecificationUrl: dbAtlas.overview.metadataSpecificationUrl,
     publications: dbAtlas.overview.publications,
