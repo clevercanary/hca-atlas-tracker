@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.2.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.1.0...v1.2.0) (2025-01-14)
+
+
+### Features
+
+* add additional grouping options for tasks and remove default grouping ([#538](https://github.com/clevercanary/hca-atlas-tracker/issues/538)) ([#541](https://github.com/clevercanary/hca-atlas-tracker/issues/541)) ([7912ca9](https://github.com/clevercanary/hca-atlas-tracker/commit/7912ca9951891b61e13beb64abae22a0c9fbf32e))
+* add download buttons to atlas source datasets ([#526](https://github.com/clevercanary/hca-atlas-tracker/issues/526)) ([#535](https://github.com/clevercanary/hca-atlas-tracker/issues/535)) ([12dc308](https://github.com/clevercanary/hca-atlas-tracker/commit/12dc30862e8891114e99e87a8157b992bd9cb17c))
+* allow grouping atlases and add grouping to roadmap filter ([#519](https://github.com/clevercanary/hca-atlas-tracker/issues/519)) ([#527](https://github.com/clevercanary/hca-atlas-tracker/issues/527)) ([74fe0cc](https://github.com/clevercanary/hca-atlas-tracker/commit/74fe0cc6fb352d2e4c43b3b88ba42ea566df13c7))
+* allow grouping users ([#520](https://github.com/clevercanary/hca-atlas-tracker/issues/520)) ([#528](https://github.com/clevercanary/hca-atlas-tracker/issues/528)) ([c4d8e82](https://github.com/clevercanary/hca-atlas-tracker/commit/c4d8e826c7023924206a4f829676f30f69d06b7f))
+* allow setting past target completions ([#534](https://github.com/clevercanary/hca-atlas-tracker/issues/534)) ([#536](https://github.com/clevercanary/hca-atlas-tracker/issues/536)) ([ac39388](https://github.com/clevercanary/hca-atlas-tracker/commit/ac393882f782743913625213ad799ec5eb76e14b))
+* link atlas source dataset publication and study and update title label ([#524](https://github.com/clevercanary/hca-atlas-tracker/issues/524)) ([#531](https://github.com/clevercanary/hca-atlas-tracker/issues/531)) ([2b86d22](https://github.com/clevercanary/hca-atlas-tracker/commit/2b86d22a9a60aa62e7578f5b619309e738e467a2))
+* relabel source study title column ([#525](https://github.com/clevercanary/hca-atlas-tracker/issues/525)) ([#529](https://github.com/clevercanary/hca-atlas-tracker/issues/529)) ([8367778](https://github.com/clevercanary/hca-atlas-tracker/commit/83677785f79072e1b994411dbca3f4312d00464c))
+* show per-system ingestion task counts in atlas list rather than all tasks ([#539](https://github.com/clevercanary/hca-atlas-tracker/issues/539)) ([#543](https://github.com/clevercanary/hca-atlas-tracker/issues/543)) ([b6b2c9e](https://github.com/clevercanary/hca-atlas-tracker/commit/b6b2c9e2485573b973646e0a4bd425646887a72f))
+* update atlas roadmap filter to sort by status and name ([#537](https://github.com/clevercanary/hca-atlas-tracker/issues/537)) ([#540](https://github.com/clevercanary/hca-atlas-tracker/issues/540)) ([60ef3fd](https://github.com/clevercanary/hca-atlas-tracker/commit/60ef3fd623d6acc851e45c2f89582003f8c9a97f))
+
+
+### Tests
+
+* restore user-profile mock to fix tests ([#532](https://github.com/clevercanary/hca-atlas-tracker/issues/532)) ([#533](https://github.com/clevercanary/hca-atlas-tracker/issues/533)) ([923f221](https://github.com/clevercanary/hca-atlas-tracker/commit/923f221854650906b42d1d40099eb68ac83492ae))
+
 ## [1.1.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.0.0...v1.1.0) (2025-01-07)
 
 
