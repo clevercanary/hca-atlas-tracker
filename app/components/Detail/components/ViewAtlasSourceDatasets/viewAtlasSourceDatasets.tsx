@@ -33,7 +33,7 @@ export const ViewAtlasSourceDatasets = ({
         {atlas && atlasSourceDatasets.length > 0 && (
           <Table
             columns={getAtlasSourceDatasetsTableColumns(atlas)}
-            gridTemplateColumns="max-content minmax(100px, auto) repeat(2, minmax(180px, 0.4fr)) minmax(200px, 1fr) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
+            gridTemplateColumns="max-content minmax(100px, auto) repeat(2, minmax(180px, 0.4fr)) minmax(200px, 1fr) repeat(4, minmax(88px, 0.4fr)) auto"
             items={atlasSourceDatasets.sort(sortLinkedSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />
