@@ -23,6 +23,7 @@ export interface HCAAtlasTrackerAtlas {
   description: string;
   highlights: string;
   id: string;
+  ingestionTaskCounts: IngestionTaskCounts;
   integrationLead: IntegrationLead[];
   metadataSpecificationUrl: string | null;
   publications: DoiPublicationInfo[];
@@ -32,7 +33,6 @@ export interface HCAAtlasTrackerAtlas {
   status: ATLAS_STATUS;
   targetCompletion: string | null;
   taskCount: number;
-  tasksBySystem: SystemTaskCounts[];
   title: string;
   version: string;
   wave: Wave;
@@ -218,13 +218,13 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   completedTaskCount: number;
   description: string;
   highlights: string;
+  ingestionTaskCounts: IngestionTaskCounts;
   integrationLead: IntegrationLead[];
   metadataSpecificationUrl: string | null;
   network: NetworkKey;
   publications: DoiPublicationInfo[];
   shortName: string;
   taskCount: number;
-  tasksBySystem: SystemTaskCounts[];
   version: string;
   wave: Wave;
 }
@@ -465,6 +465,14 @@ export interface Author {
   personalName: string | null;
 }
 
+export type IngestionTaskCounts = Record<
+  SYSTEM.CAP | SYSTEM.CELLXGENE | SYSTEM.HCA_DATA_REPOSITORY,
+  {
+    completedCount: number;
+    count: number;
+  }
+>;
+
 export interface IntegrationLead {
   email: string;
   name: string;
@@ -473,12 +481,6 @@ export interface IntegrationLead {
 export interface LinkInfo {
   label?: string;
   url: string;
-}
-
-interface SystemTaskCounts {
-  completedCount: number;
-  count: number;
-  system: SYSTEM;
 }
 
 export type SourceDatasetId = string;

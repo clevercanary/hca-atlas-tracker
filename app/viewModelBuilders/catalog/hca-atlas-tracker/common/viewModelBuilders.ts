@@ -27,6 +27,7 @@ import {
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
+  IngestionTaskCounts,
   Network,
   NetworkKey,
   SYSTEM,
@@ -313,11 +314,9 @@ export const buildIngestionCountsCellxGene = (
  */
 export const buildIngestionCountsForSystem = (
   atlas: HCAAtlasTrackerListAtlas,
-  system: SYSTEM
+  system: keyof IngestionTaskCounts
 ): ComponentProps<typeof C.TaskCountsCell> => {
-  const { completedCount, count } = atlas.tasksBySystem.find(
-    (counts) => counts.system === system
-  ) ?? { completedCount: 0, count: 0 };
+  const { completedCount, count } = atlas.ingestionTaskCounts[system];
   return {
     label: `${completedCount}/${count}`,
     url: getTaskCountUrlObject(
