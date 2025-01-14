@@ -928,7 +928,6 @@ export function getAtlasSourceDatasetsTableColumns(
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetPublicationColumnDef(),
     getSourceDatasetSourceStudyColumnDef(atlas),
-    getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
