@@ -2,7 +2,6 @@ import {
   ComponentConfig,
   EntityConfig,
   ListConfig,
-  SORT_DIRECTION,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
 import { HCAAtlasTrackerListAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -64,26 +63,6 @@ export const atlasEntityConfig: EntityConfig = {
       },
     ],
     key: "atlas",
-    savedFilters: [
-      {
-        filters: [],
-        sorting: [
-          {
-            desc: SORT_DIRECTION.ASCENDING,
-            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-          },
-          {
-            desc: SORT_DIRECTION.ASCENDING,
-            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
-          },
-          {
-            desc: SORT_DIRECTION.ASCENDING,
-            id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
-          },
-        ],
-        title: "Atlas Roadmap",
-      },
-    ],
   },
   detail: {
     detailOverviews: [],
