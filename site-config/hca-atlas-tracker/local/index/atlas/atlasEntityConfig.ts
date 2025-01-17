@@ -99,6 +99,16 @@ export const atlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildMetadataSpecification,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
+        enableGrouping: false,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.METADATA_SPECIFICATION_URL,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.METADATA_SPECIFICATION_URL,
+        width: { max: "1fr", min: "160px" },
+      },
+      {
+        componentConfig: {
           component: C.BasicCell,
           viewBuilder: V.buildAtlasVersion,
         } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListAtlas>,
