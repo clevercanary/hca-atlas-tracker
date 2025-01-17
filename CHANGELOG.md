@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.2.0...v1.3.0) (2025-01-17)
+
+
+### Features
+
+* remove cellxgene link to make room in atlas source datasets table ([#542](https://github.com/clevercanary/hca-atlas-tracker/issues/542)) ([#544](https://github.com/clevercanary/hca-atlas-tracker/issues/544)) ([2dbee59](https://github.com/clevercanary/hca-atlas-tracker/commit/2dbee5948ead5e4c9f81dca92b1161101e2b6d18))
+
+
+### Build System
+
+* checkout latest tag during build ([#523](https://github.com/clevercanary/hca-atlas-tracker/issues/523)) ([#553](https://github.com/clevercanary/hca-atlas-tracker/issues/553)) ([a417b1e](https://github.com/clevercanary/hca-atlas-tracker/commit/a417b1ed2c33f65c05967b6e0f5b6d7e46995048))
+* fetch latest tag only during build ([#523](https://github.com/clevercanary/hca-atlas-tracker/issues/523)) ([#554](https://github.com/clevercanary/hca-atlas-tracker/issues/554)) ([7409bb9](https://github.com/clevercanary/hca-atlas-tracker/commit/7409bb96546de12e7fc3dba4533f65b7837e740b))
+
 ## [1.2.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.1.0...v1.2.0) (2025-01-14)
 
 
