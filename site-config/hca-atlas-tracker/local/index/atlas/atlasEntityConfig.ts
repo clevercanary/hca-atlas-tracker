@@ -67,7 +67,6 @@ export const atlasEntityConfig: EntityConfig = {
     savedFilters: [
       {
         filters: [],
-        grouping: [HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE],
         sorting: [
           {
             desc: SORT_DIRECTION.ASCENDING,
