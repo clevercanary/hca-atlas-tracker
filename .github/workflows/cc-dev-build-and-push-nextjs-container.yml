@@ -24,12 +24,8 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Fetch and check out the latest tag
-        run: |
-          git fetch --tags --depth=1
-          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-          git checkout $LATEST_TAG
-          echo "🏷️ The latest tag is $LATEST_TAG."
+      - name: Fetch the latest tag
+        run: git fetch --tags --depth=1
 
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
 
