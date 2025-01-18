@@ -18,7 +18,6 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../../category";
-import { subTitleHero } from "../../viewList/subTitleHero";
 import { TABLE_OPTIONS } from "./tableOptions";
 
 /**
@@ -234,7 +233,6 @@ export const atlasEntityConfig: EntityConfig = {
     disablePagination: true,
     enableDownload: true,
     enableTab: false,
-    subTitleHero,
   },
   route: "atlases",
 };
