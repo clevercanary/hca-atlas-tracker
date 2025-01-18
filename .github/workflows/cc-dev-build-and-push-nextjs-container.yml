@@ -22,10 +22,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 1
-
-      - name: Fetch the latest tag
-        run: git fetch --tags --depth=1
+          fetch-depth: 0
 
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
 
