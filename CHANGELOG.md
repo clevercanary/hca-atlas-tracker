@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.3.0...v1.4.0) (2025-01-18)
+
+
+### Features
+
+* removed confidentiality notice ([#548](https://github.com/clevercanary/hca-atlas-tracker/issues/548)) ([#555](https://github.com/clevercanary/hca-atlas-tracker/issues/555)) ([b96119a](https://github.com/clevercanary/hca-atlas-tracker/commit/b96119a4d7fcb0099c4fc184be9274fc97e45d69))
+
+
+### Build System
+
+* checkout full history and tags during build ([#523](https://github.com/clevercanary/hca-atlas-tracker/issues/523)) ([#558](https://github.com/clevercanary/hca-atlas-tracker/issues/558)) ([2e34390](https://github.com/clevercanary/hca-atlas-tracker/commit/2e343907f5f4e013fefd381bb332828f69ca2f8f))
+
 ## [1.3.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.2.0...v1.3.0) (2025-01-17)
 
 
