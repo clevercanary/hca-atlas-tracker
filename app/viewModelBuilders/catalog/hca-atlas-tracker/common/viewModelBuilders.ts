@@ -1,5 +1,6 @@
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
+import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import {
   ColumnConfig,
@@ -926,6 +927,7 @@ export function getAtlasSourceDatasetsTableColumns(
   return [
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
+    getSourceDatasetMetadataSpreadsheetColumnDef(),
     getSourceDatasetPublicationColumnDef(),
     getSourceDatasetSourceStudyColumnDef(atlas),
     getAssayColumnDef(),
@@ -1302,6 +1304,26 @@ function getSourceDatasetLinkedColumnDef(
       }),
     enableSorting: false,
     header: "Used In Atlas",
+  };
+}
+
+/**
+ * Returns source dataset metadata spreadsheet column def.
+ * @returns Column def.
+ */
+function getSourceDatasetMetadataSpreadsheetColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "metadataSpreadsheetUrl",
+    cell: ({ row }): JSX.Element => {
+      return C.Link({
+        label: row.original.metadataSpreadsheetUrl,
+        noWrap: true,
+        target: ANCHOR_TARGET.BLANK,
+        url: row.original.metadataSpreadsheetUrl ?? "",
+      });
+    },
+    enableSorting: false,
+    header: "Metadata Entry Sheet",
   };
 }
 
