@@ -23,6 +23,10 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"]
       sorting: [
         {
           desc: SORT_DIRECTION.ASCENDING,
+          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
+        },
+        {
+          desc: SORT_DIRECTION.ASCENDING,
           id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
         },
         {
