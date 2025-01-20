@@ -9,7 +9,7 @@ const METADATA_SPREADSHEET_URL: ControllerConfig<
 > = {
   inputProps: {
     isFullWidth: true,
-    label: "Metadata spreadsheet",
+    label: "Metadata entry sheet",
   },
   labelLink: true,
   name: FIELD_NAME.METADATA_SPREADSHEET_URL,
