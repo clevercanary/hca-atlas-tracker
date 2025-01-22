@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.4.0...v1.5.0) (2025-01-22)
+
+
+### Features
+
+* add metadata spreadsheet link to atlas source dataset list ([#549](https://github.com/clevercanary/hca-atlas-tracker/issues/549)) ([#559](https://github.com/clevercanary/hca-atlas-tracker/issues/559)) ([250f6a9](https://github.com/clevercanary/hca-atlas-tracker/commit/250f6a9bb7bd9d0bc15881e329e20def69d741c1))
+* added metadata specification column ([#547](https://github.com/clevercanary/hca-atlas-tracker/issues/547)) ([#552](https://github.com/clevercanary/hca-atlas-tracker/issues/552)) ([2bd70a0](https://github.com/clevercanary/hca-atlas-tracker/commit/2bd70a06c35d47c8974c3c5188bd0d6a7218c529))
+* added roadmap grouping by default ([#546](https://github.com/clevercanary/hca-atlas-tracker/issues/546)) ([#551](https://github.com/clevercanary/hca-atlas-tracker/issues/551)) ([f250dd1](https://github.com/clevercanary/hca-atlas-tracker/commit/f250dd1607cc5ec43d3a3c236b109fb65012bec5))
+
+
+### Chores
+
+* renamed metadata spreadsheet ([#550](https://github.com/clevercanary/hca-atlas-tracker/issues/550)) ([#556](https://github.com/clevercanary/hca-atlas-tracker/issues/556)) ([66b46f1](https://github.com/clevercanary/hca-atlas-tracker/commit/66b46f14108d2e8ff923812627a9b37b030f6e05))
+
 ## [1.4.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.3.0...v1.4.0) (2025-01-18)
 
 
