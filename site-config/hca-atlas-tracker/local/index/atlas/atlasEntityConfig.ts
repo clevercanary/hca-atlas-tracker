@@ -106,7 +106,7 @@ export const atlasEntityConfig: EntityConfig = {
         enableSorting: false,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.METADATA_SPECIFICATION_URL,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.METADATA_SPECIFICATION_URL,
-        width: { max: "1fr", min: "160px" },
+        width: { max: "170px", min: "170px" },
       },
       {
         componentConfig: {
