@@ -363,7 +363,9 @@ export function buildMetadataSpecification(
   atlas: HCAAtlasTrackerListAtlas
 ): ComponentProps<typeof C.Link> {
   return {
-    label: atlas.metadataSpecificationUrl !== null ? "Metadata Spec" : "",
+    label: atlas?.metadataSpecificationUrl,
+    noWrap: true,
+    target: ANCHOR_TARGET.BLANK,
     url: atlas?.metadataSpecificationUrl ?? "",
   };
 }
