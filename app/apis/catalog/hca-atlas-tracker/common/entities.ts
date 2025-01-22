@@ -427,8 +427,8 @@ export enum DOI_STATUS {
 }
 
 export enum ATLAS_STATUS {
-  COMPLETE = "COMPLETE",
   IN_PROGRESS = "IN_PROGRESS",
+  OC_ENDORSED = "OC_ENDORSED",
 }
 
 export interface Network {

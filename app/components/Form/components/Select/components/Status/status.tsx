@@ -21,7 +21,7 @@ export const Status = forwardRef<HTMLInputElement, SelectProps>(function Status(
       renderValue={renderValue}
     >
       <MMenuItem value={ATLAS_STATUS.IN_PROGRESS}>In progress</MMenuItem>
-      <MMenuItem value={ATLAS_STATUS.COMPLETE}>Complete</MMenuItem>
+      <MMenuItem value={ATLAS_STATUS.OC_ENDORSED}>OC endorsed</MMenuItem>
     </Select>
   );
 });
@@ -35,8 +35,8 @@ function renderValue(value: unknown): ReactNode {
   switch (value) {
     case ATLAS_STATUS.IN_PROGRESS:
       return "In progress";
-    case ATLAS_STATUS.COMPLETE:
-      return "Complete";
+    case ATLAS_STATUS.OC_ENDORSED:
+      return "OC endorsed";
     default:
       return "Choose...";
   }

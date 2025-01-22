@@ -855,10 +855,10 @@ export function getAtlasStatusBadgeProps(
   status: ATLAS_STATUS
 ): ComponentProps<typeof C.StatusBadge> {
   switch (status) {
-    case ATLAS_STATUS.COMPLETE:
+    case ATLAS_STATUS.OC_ENDORSED:
       return {
         color: STATUS_BADGE_COLOR.SUCCESS,
-        label: "OC Endorsed",
+        label: "OC endorsed",
       };
     case ATLAS_STATUS.IN_PROGRESS:
       return {

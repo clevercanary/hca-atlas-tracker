@@ -115,7 +115,7 @@ const NEW_ATLAS_COMPLETE: NewAtlasData = {
   integrationLead: [],
   network: "kidney",
   shortName: "test7",
-  status: ATLAS_STATUS.COMPLETE,
+  status: ATLAS_STATUS.OC_ENDORSED,
   version: "6.2",
   wave: "1",
 };
