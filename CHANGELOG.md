@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.5.0...v1.6.0) (2025-01-22)
+
+
+### Features
+
+* rename atlas completed status to oc endorsed ([#564](https://github.com/clevercanary/hca-atlas-tracker/issues/564)) ([#566](https://github.com/clevercanary/hca-atlas-tracker/issues/566)) ([f3f3689](https://github.com/clevercanary/hca-atlas-tracker/commit/f3f3689e7af3ab3a604f782eeba0f1dce4752579))
+* rename atlas status value `COMPLETE` to `OC_ENDORSED` ([#569](https://github.com/clevercanary/hca-atlas-tracker/issues/569)) ([#570](https://github.com/clevercanary/hca-atlas-tracker/issues/570)) ([ff95529](https://github.com/clevercanary/hca-atlas-tracker/commit/ff9552990a900a5349a8218bed49337e10899d92))
+* update golden sheet and integration lead columns ([#565](https://github.com/clevercanary/hca-atlas-tracker/issues/565)) ([#568](https://github.com/clevercanary/hca-atlas-tracker/issues/568)) ([16be36c](https://github.com/clevercanary/hca-atlas-tracker/commit/16be36cadba14710d83d123c5c0425ed68365361))
+
 ## [1.5.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.4.0...v1.5.0) (2025-01-22)
 
 
