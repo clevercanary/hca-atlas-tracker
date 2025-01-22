@@ -355,6 +355,22 @@ export const buildIntegrationLead = (
 };
 
 /**
+ * Build props for the "Metadata Spreadsheet" Link component
+ * @param atlas  - Atlas entity.
+ * @returns Props to be used for the cell
+ */
+export function buildMetadataSpecification(
+  atlas: HCAAtlasTrackerListAtlas
+): ComponentProps<typeof C.Link> {
+  return {
+    label: atlas?.metadataSpecificationUrl,
+    noWrap: true,
+    target: ANCHOR_TARGET.BLANK,
+    url: atlas?.metadataSpecificationUrl ?? "",
+  };
+}
+
+/**
  * Build props for the "resolved at" BasicCell component.
  * @param task - Task entity.
  * @returns Props to be used for the BasicCell component.
