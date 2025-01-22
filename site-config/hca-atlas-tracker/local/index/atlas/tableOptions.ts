@@ -11,9 +11,9 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"]
     enableRowPosition: true,
     initialState: {
       columnVisibility: {
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.METADATA_SPECIFICATION_URL]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE]: false,
-        [HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_DATASET_COUNT]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_STUDY_COUNT]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.COMPONENT_ATLAS_COUNT]: false,
