@@ -858,7 +858,7 @@ export function getAtlasStatusBadgeProps(
     case ATLAS_STATUS.COMPLETE:
       return {
         color: STATUS_BADGE_COLOR.SUCCESS,
-        label: "Complete",
+        label: "OC Endorsed",
       };
     case ATLAS_STATUS.IN_PROGRESS:
       return {
