@@ -203,7 +203,7 @@ export const atlasEntityConfig: EntityConfig = {
         enableGrouping: true,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
-        width: { max: "128px", min: "128px" },
+        width: { max: "132px", min: "132px" },
       },
       {
         componentConfig: {
