@@ -1702,7 +1702,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   publications: [],
   shortName: "test-public",
   sourceStudies: [SOURCE_STUDY_PUBLIC_NO_CROSSREF.id, SOURCE_STUDY_SHARED.id],
-  status: ATLAS_STATUS.COMPLETE,
+  status: ATLAS_STATUS.OC_ENDORSED,
   targetCompletion: new Date("2024-05-28T22:31:45.731Z"),
   version: "2.3",
   wave: "1",
@@ -1760,7 +1760,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
     SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
   ],
-  status: ATLAS_STATUS.COMPLETE,
+  status: ATLAS_STATUS.OC_ENDORSED,
   version: "2.3",
   wave: "2",
 };
@@ -1839,7 +1839,7 @@ export const ATLAS_PUBLIC_BAR: TestAtlas = {
   publications: [],
   shortName: "test-public-bar",
   sourceStudies: [],
-  status: ATLAS_STATUS.COMPLETE,
+  status: ATLAS_STATUS.OC_ENDORSED,
   version: "7.2",
   wave: "3",
 };
