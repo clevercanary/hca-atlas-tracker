@@ -79,6 +79,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
       system: SYSTEM.CAP,
       validate(sourceStudy): ValidationStatusInfo {
         return {
+          relatedEntityUrl: getCapRelatedEntityUrl(sourceStudy),
           status: sourceStudy.study_info.cellxgeneCollectionId
             ? passedIfTruthy(sourceStudy.study_info.capId)
             : VALIDATION_STATUS.BLOCKED,
@@ -92,6 +93,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
       system: SYSTEM.CELLXGENE,
       validate(sourceStudy): ValidationStatusInfo {
         return {
+          relatedEntityUrl: getCellxGeneRelatedEntityUrl(sourceStudy),
           status: passedIfTruthy(sourceStudy.study_info.cellxgeneCollectionId),
         };
       },
@@ -103,6 +105,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
       system: SYSTEM.HCA_DATA_REPOSITORY,
       validate(sourceStudy): ValidationStatusInfo {
         return {
+          relatedEntityUrl: getHcaRelatedEntityUrl(sourceStudy),
           status: passedIfTruthy(sourceStudy.study_info.hcaProjectId),
         };
       },
@@ -246,15 +249,56 @@ function validateSourceStudyHcaProjectInfo(
   }
   const projectInfo = getProjectInfoById(sourceStudy.study_info.hcaProjectId);
   const infoProperties = {
-    relatedEntityUrl: `https://explore.data.humancellatlas.org/projects/${encodeURIComponent(
-      sourceStudy.study_info.hcaProjectId
-    )}`,
+    relatedEntityUrl: getHcaRelatedEntityUrl(sourceStudy),
   };
   return validate(
     projectInfo,
     infoProperties,
     sourceStudy.study_info.publication
   );
+}
+
+/**
+ * Get related entity URL for an HCA-associated source study validation.
+ * @param sourceStudy - Source study.
+ * @returns HCA project URL, or undefined if unavailable.
+ */
+function getHcaRelatedEntityUrl(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy
+): string | undefined {
+  const { hcaProjectId } = sourceStudy.study_info;
+  return hcaProjectId === null
+    ? undefined
+    : `https://explore.data.humancellatlas.org/projects/${encodeURIComponent(
+        hcaProjectId
+      )}`;
+}
+
+/**
+ * Get related entity URL for a CELLxGENE-associated source study validation.
+ * @param sourceStudy - Source study.
+ * @returns CELLxGENE collection URL, or undefined if unavailable.
+ */
+function getCellxGeneRelatedEntityUrl(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy
+): string | undefined {
+  const { cellxgeneCollectionId } = sourceStudy.study_info;
+  return cellxgeneCollectionId === null
+    ? undefined
+    : `https://cellxgene.cziscience.com/collections/${encodeURIComponent(
+        cellxgeneCollectionId
+      )}`;
+}
+
+/**
+ * Get related entity URL for a CAP-associated source study validation.
+ * @param sourceStudy - Source study.
+ * @returns CAP URL, or undefined if unavailable.
+ */
+function getCapRelatedEntityUrl(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy
+): string | undefined {
+  return sourceStudy.study_info.capId ?? undefined;
 }
 
 /**
