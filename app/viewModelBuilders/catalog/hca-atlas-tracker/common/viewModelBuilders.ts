@@ -655,7 +655,7 @@ export const buildTaskRelatedEntityUrl = (
 ): ComponentProps<typeof C.Link> => {
   const url = task.relatedEntityUrl ?? LABEL.EMPTY;
   return {
-    label: url,
+    label: url || "N/A",
     url,
   };
 };
