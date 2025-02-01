@@ -15,6 +15,7 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListValidationRecord>["tab
     enableRowSelection: (row) => !row.getIsGrouped(),
     initialState: {
       columnVisibility: {
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.RELATED_ENTITY_URL]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_VERSIONS]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.CREATED_AT]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.ENTITY_TITLE]: false,

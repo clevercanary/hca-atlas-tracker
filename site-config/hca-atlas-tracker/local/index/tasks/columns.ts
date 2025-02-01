@@ -6,6 +6,7 @@ export const COLUMNS: ColumnConfig<HCAAtlasTrackerListValidationRecord>[] = [
   COLUMN.DESCRIPTION, // Task.
   COLUMN.PUBLICATION_STRING, // Source study.
   COLUMN.SYSTEM,
+  COLUMN.RELATED_ENTITY_URL, // Resource.
   COLUMN.ATLAS_NAMES,
   COLUMN.ATLAS_VERSIONS,
   COLUMN.NETWORKS,
