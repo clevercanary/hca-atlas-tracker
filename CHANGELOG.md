@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.6.0...v1.7.0) (2025-02-01)
+
+
+### Features
+
+* add related entity urls to all validations and show "N/A" when unavailable ([#572](https://github.com/clevercanary/hca-atlas-tracker/issues/572)) ([#574](https://github.com/clevercanary/hca-atlas-tracker/issues/574)) ([8cac093](https://github.com/clevercanary/hca-atlas-tracker/commit/8cac0930928ea047aad8cd63c48589c32c85cbc1))
+* add resource column to reports table ([#571](https://github.com/clevercanary/hca-atlas-tracker/issues/571)) ([#577](https://github.com/clevercanary/hca-atlas-tracker/issues/577)) ([71abba3](https://github.com/clevercanary/hca-atlas-tracker/commit/71abba34409e739cbf0f3a65671cd1144b4b5999))
+
+
+### Bug Fixes
+
+* update findable ui to resolve issue with tsv export ([#573](https://github.com/clevercanary/hca-atlas-tracker/issues/573)) ([#576](https://github.com/clevercanary/hca-atlas-tracker/issues/576)) ([e8ffdd1](https://github.com/clevercanary/hca-atlas-tracker/commit/e8ffdd147116ac521fbe82338b1979d04f9f0b3d))
+
 ## [1.6.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.5.0...v1.6.0) (2025-01-22)
 
 
