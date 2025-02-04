@@ -109,6 +109,18 @@ const METADATA_SPECIFICATION_URL: ControllerConfig<
   name: FIELD_NAME.METADATA_SPECIFICATION_URL,
 };
 
+const METADATA_CORRECTNESS_URL: ControllerConfig<
+  AtlasEditData,
+  HCAAtlasTrackerAtlas
+> = {
+  inputProps: {
+    isFullWidth: true,
+    label: "Metadata Correctness Report",
+  },
+  labelLink: true,
+  name: FIELD_NAME.METADATA_CORRECTNESS_URL,
+};
+
 export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<
   NewAtlasData,
   HCAAtlasTrackerAtlas
@@ -132,4 +144,4 @@ export const IDENTIFIERS_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
 export const METADATA_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   AtlasEditData,
   HCAAtlasTrackerAtlas
->[] = [METADATA_SPECIFICATION_URL];
+>[] = [METADATA_SPECIFICATION_URL, METADATA_CORRECTNESS_URL];

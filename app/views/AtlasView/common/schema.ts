@@ -10,6 +10,7 @@ import { FIELD_NAME } from "./constants";
 
 export const atlasEditSchema = newAtlasSchema.concat(
   object({
+    [FIELD_NAME.METADATA_CORRECTNESS_URL]: string().default("").notRequired(),
     [FIELD_NAME.METADATA_SPECIFICATION_URL]: string()
       .default("")
       .notRequired()
