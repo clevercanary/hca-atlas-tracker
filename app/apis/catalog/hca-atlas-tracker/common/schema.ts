@@ -49,7 +49,9 @@ export const newAtlasSchema = object({
       }).required()
     )
     .required(),
-  metadataCorrectnessUrl: string().nullable(),
+  metadataCorrectnessUrl: string()
+    .url("Metadata correctness report must be a URL")
+    .nullable(),
   metadataSpecificationUrl: string()
     .matches(
       GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
