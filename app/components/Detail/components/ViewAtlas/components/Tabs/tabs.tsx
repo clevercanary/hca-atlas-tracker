@@ -54,6 +54,10 @@ export const Tabs = ({
           ),
           value: ROUTE.COMPONENT_ATLASES,
         },
+        {
+          label: "Metadata Correctness",
+          value: ROUTE.METADATA_CORRECTNESS,
+        },
       ]}
       value={route}
     />

@@ -37,6 +37,12 @@ export const BREADCRUMB_COMPONENT_ATLAS: Breadcrumb = {
   text: "Integration Object",
 };
 
+export const BREADCRUMB_METADATA_CORRECTNESS: Breadcrumb = {
+  path: ROUTE.METADATA_CORRECTNESS,
+  route: ROUTE.METADATA_CORRECTNESS,
+  text: "Metadata Correctness",
+};
+
 export const BREADCRUMB_SOURCE_STUDIES: Breadcrumb = {
   path: ROUTE.SOURCE_STUDIES,
   route: ROUTE.SOURCE_STUDIES,

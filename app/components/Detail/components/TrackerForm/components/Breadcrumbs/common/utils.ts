@@ -16,6 +16,7 @@ import {
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_COMPONENT_ATLASES,
+  BREADCRUMB_METADATA_CORRECTNESS,
   BREADCRUMB_SOURCE_DATASETS,
   BREADCRUMB_SOURCE_STUDIES,
   BREADCRUMB_SOURCE_STUDY,
@@ -95,6 +96,17 @@ export function getComponentAtlasBreadcrumb(
   );
   if (!componentAtlas) return breadcrumb;
   return { ...breadcrumb, text: componentAtlas.title };
+}
+
+/**
+ * Returns the breadcrumb for the metadata correctness view.
+ * @param pathParameter - Path parameter.
+ * @returns metadata correctness view breadcrumb.
+ */
+export function getMetadataCorrectnessBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(BREADCRUMB_METADATA_CORRECTNESS, pathParameter);
 }
 
 /**
