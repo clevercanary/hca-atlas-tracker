@@ -49,6 +49,7 @@ export const newAtlasSchema = object({
       }).required()
     )
     .required(),
+  metadataCorrectnessUrl: string().nullable(),
   metadataSpecificationUrl: string()
     .matches(
       GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
