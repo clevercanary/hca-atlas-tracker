@@ -40,6 +40,8 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   dois: [DOI_PREPRINT_NO_JOURNAL],
   highlights: "bar foo baz baz baz foo",
   integrationLead: [],
+  metadataCorrectnessUrl:
+    "https://example.com/new-atlas-foo-metadata-correctness",
   metadataSpecificationUrl: "https://docs.google.com/spreadsheets/foo",
   network: "eye",
   shortName: "test",
@@ -369,6 +371,21 @@ describe("/api/atlases/create", () => {
           {
             ...NEW_ATLAS_DATA,
             metadataSpecificationUrl: "https://example.com",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when metadata correctness report is not a url", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            metadataCorrectnessUrl: "not-a-url",
           },
           true
         )
