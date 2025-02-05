@@ -39,6 +39,7 @@ export function dbAtlasToApiAtlas(
     id: dbAtlas.id,
     ingestionTaskCounts: dbAtlas.overview.ingestionTaskCounts,
     integrationLead: dbAtlas.overview.integrationLead,
+    metadataCorrectnessUrl: dbAtlas.overview.metadataCorrectnessUrl,
     metadataSpecificationUrl: dbAtlas.overview.metadataSpecificationUrl,
     publications: dbAtlas.overview.publications,
     shortName: dbAtlas.overview.shortName,

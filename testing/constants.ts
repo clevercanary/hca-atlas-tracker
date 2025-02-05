@@ -1844,6 +1844,24 @@ export const ATLAS_PUBLIC_BAR: TestAtlas = {
   wave: "3",
 };
 
+export const ATLAS_WITH_METADATA_CORRECTNESS: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "foo barbaz bazbar foo foo foobaz",
+  highlights: "",
+  id: "22d1ece3-9e62-42f5-a737-a9c84042a1a0",
+  integrationLead: [],
+  metadataCorrectnessUrl: "https://example.com/atlas-with-metadata-correctness",
+  network: "reproduction",
+  publications: [],
+  shortName: "test-with-metadata-correctness",
+  sourceDatasets: [],
+  sourceStudies: [],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "2.6",
+  wave: "3",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -1858,6 +1876,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   ATLAS_PUBLIC_BAR,
+  ATLAS_WITH_METADATA_CORRECTNESS,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

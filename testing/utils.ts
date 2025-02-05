@@ -75,6 +75,7 @@ export function makeTestAtlasOverview(
       [SYSTEM.HCA_DATA_REPOSITORY]: { completedCount: 0, count: 0 },
     },
     integrationLead: atlas.integrationLead,
+    metadataCorrectnessUrl: atlas.metadataCorrectnessUrl ?? null,
     metadataSpecificationUrl: atlas.metadataSpecificationUrl ?? null,
     network: atlas.network,
     publications: atlas.publications,

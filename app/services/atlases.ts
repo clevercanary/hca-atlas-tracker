@@ -94,10 +94,36 @@ export async function updateAtlas(
 export async function atlasInputDataToDbData(
   inputData: NewAtlasData | AtlasEditData
 ): Promise<AtlasInputDbData> {
+  const publications = await getPublicationsFromInputDois(inputData.dois);
+  return {
+    overviewData: {
+      cellxgeneAtlasCollection: inputData.cellxgeneAtlasCollection ?? null,
+      codeLinks: inputData.codeLinks ?? [],
+      description: inputData.description ?? "",
+      highlights: inputData.highlights ?? "",
+      integrationLead: inputData.integrationLead,
+      metadataCorrectnessUrl: inputData.metadataCorrectnessUrl || null,
+      metadataSpecificationUrl: inputData.metadataSpecificationUrl || null,
+      network: inputData.network,
+      publications,
+      shortName: inputData.shortName,
+      version: inputData.version,
+      wave: inputData.wave,
+    },
+    status: inputData.status ?? ATLAS_STATUS.IN_PROGRESS,
+    targetCompletion: inputData.targetCompletion
+      ? new Date(inputData.targetCompletion)
+      : null,
+  };
+}
+
+async function getPublicationsFromInputDois(
+  dois: string[] | undefined
+): Promise<DoiPublicationInfo[]> {
   const publications: DoiPublicationInfo[] = [];
-  if (inputData.dois)
+  if (dois) {
     try {
-      for (const sourceDoi of inputData.dois) {
+      for (const sourceDoi of dois) {
         const doi = normalizeDoi(sourceDoi);
         publications.push({
           doi,
@@ -114,25 +140,8 @@ export async function atlasInputDataToDbData(
       }
       throw e;
     }
-  return {
-    overviewData: {
-      cellxgeneAtlasCollection: inputData.cellxgeneAtlasCollection ?? null,
-      codeLinks: inputData.codeLinks ?? [],
-      description: inputData.description ?? "",
-      highlights: inputData.highlights ?? "",
-      integrationLead: inputData.integrationLead,
-      metadataSpecificationUrl: inputData.metadataSpecificationUrl || null,
-      network: inputData.network,
-      publications,
-      shortName: inputData.shortName,
-      version: inputData.version,
-      wave: inputData.wave,
-    },
-    status: inputData.status ?? ATLAS_STATUS.IN_PROGRESS,
-    targetCompletion: inputData.targetCompletion
-      ? new Date(inputData.targetCompletion)
-      : null,
-  };
+  }
+  return publications;
 }
 
 export async function updateTaskCounts(): Promise<void> {

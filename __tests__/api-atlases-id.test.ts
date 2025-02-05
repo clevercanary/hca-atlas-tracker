@@ -15,6 +15,7 @@ import {
   ATLAS_PUBLIC,
   ATLAS_PUBLIC_BAR,
   ATLAS_WITH_IL,
+  ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
   DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
@@ -124,6 +125,16 @@ const ATLAS_PUBLIC_BAR_EDIT: AtlasEditData = {
   shortName: ATLAS_PUBLIC_BAR.shortName,
   version: ATLAS_PUBLIC_BAR.version,
   wave: ATLAS_PUBLIC_BAR.wave,
+};
+
+const ATLAS_WITH_METADATA_CORRECTNESS_EDIT: AtlasEditData = {
+  cellxgeneAtlasCollection:
+    ATLAS_WITH_METADATA_CORRECTNESS.cellxgeneAtlasCollection,
+  integrationLead: ATLAS_WITH_METADATA_CORRECTNESS.integrationLead,
+  network: ATLAS_WITH_METADATA_CORRECTNESS.network,
+  shortName: ATLAS_WITH_METADATA_CORRECTNESS.shortName,
+  version: ATLAS_WITH_METADATA_CORRECTNESS.version,
+  wave: ATLAS_WITH_METADATA_CORRECTNESS.wave,
 };
 
 beforeAll(async () => {
@@ -450,6 +461,23 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when metadata correctness report is not a url", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            metadataCorrectnessUrl: "not-a-url",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT returns error 400 when status is not a valid atlas status", async () => {
     expect(
       (
@@ -510,6 +538,16 @@ describe(TEST_ROUTE, () => {
       []
     );
     expect(updatedAtlas.status).toEqual(ATLAS_STATUS.IN_PROGRESS);
+  });
+
+  it("PUT removes metadata correctness url when specified as empty string", async () => {
+    const updatedAtlas = await testSuccessfulEdit(
+      ATLAS_WITH_METADATA_CORRECTNESS,
+      ATLAS_WITH_METADATA_CORRECTNESS_EDIT,
+      0,
+      []
+    );
+    expect(updatedAtlas.overview.metadataCorrectnessUrl).toBeNull();
   });
 });
 
