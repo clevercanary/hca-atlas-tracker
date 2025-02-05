@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.7.0...v1.8.0) (2025-02-05)
+
+
+### Features
+
+* add metadata correctness report to atlas detail ([#578](https://github.com/clevercanary/hca-atlas-tracker/issues/578)) ([#583](https://github.com/clevercanary/hca-atlas-tracker/issues/583)) ([988a3e9](https://github.com/clevercanary/hca-atlas-tracker/commit/988a3e9b1607f2accdc054e082d158843ba0f2da))
+
 ## [1.7.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.6.0...v1.7.0) (2025-02-01)
 
 
