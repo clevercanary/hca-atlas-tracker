@@ -482,7 +482,7 @@ export const buildSourceStudySourceDatasetCount = (
       ? "--"
       : `${
           atlasLinkedDatasetCountsByStudyId.get(sourceStudy.id) ?? 0
-        }/${sourceStudy.sourceDatasetCount.toLocaleString()}`;
+        } of ${sourceStudy.sourceDatasetCount.toLocaleString()}`;
   return {
     label,
     url: getRouteURL(ROUTE.SOURCE_DATASETS, {
