@@ -1324,7 +1324,7 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
       return C.FileDownload(buildSourceDatasetDownload(row.original));
     },
     enableSorting: false,
-    header: "Download",
+    header: "Download from CELLxGENE",
   };
 }
 
