@@ -970,9 +970,9 @@ export function getAtlasSourceDatasetsTableColumns(
   return [
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
-    getSourceDatasetMetadataSpreadsheetColumnDef(),
     getSourceDatasetSourceStudyColumnDef(atlas),
     getAtlasSourceDatasetPublicationColumnDef(),
+    getSourceDatasetMetadataSpreadsheetColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
