@@ -1486,7 +1486,6 @@ function getSourceDatasetTitleColumnDef(
  */
 function getSourceStudyCapStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: (sourceStudy) => buildSourceStudyCapStatus(sourceStudy).label,
     cell: ({ row }) =>
       C.SourceStudyStatusCell(buildSourceStudyCapStatus(row.original)),
     header: "CAP",
@@ -1499,8 +1498,6 @@ function getSourceStudyCapStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStud
  */
 function getSourceStudyCELLxGENEStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: (sourceStudy) =>
-      buildSourceStudyCellxGeneStatus(sourceStudy).label,
     cell: ({ row }) =>
       C.SourceStudyStatusCell(buildSourceStudyCellxGeneStatus(row.original)),
     header: "CELLxGENE",
@@ -1513,8 +1510,6 @@ function getSourceStudyCELLxGENEStatusColumnDef(): ColumnDef<HCAAtlasTrackerSour
  */
 function getSourceStudyHCADataRepositoryStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: (sourceStudy) =>
-      buildSourceStudyHcaDataRepositoryStatus(sourceStudy).label,
     cell: ({ row }) =>
       C.SourceStudyStatusCell(
         buildSourceStudyHcaDataRepositoryStatus(row.original)
