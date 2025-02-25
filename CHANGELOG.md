@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.8.0...v1.9.0) (2025-02-25)
+
+
+### Features
+
+* update atlas source study and source dataset tables ([#588](https://github.com/clevercanary/hca-atlas-tracker/issues/588)) ([#592](https://github.com/clevercanary/hca-atlas-tracker/issues/592)) ([0b4e65d](https://github.com/clevercanary/hca-atlas-tracker/commit/0b4e65ddd8e19d20798c4debd32456beda012232))
+* update name and content of source study datasets column for more clarity ([#585](https://github.com/clevercanary/hca-atlas-tracker/issues/585)) ([#586](https://github.com/clevercanary/hca-atlas-tracker/issues/586)) ([9494fd1](https://github.com/clevercanary/hca-atlas-tracker/commit/9494fd1bd9ecac518839dec46f12e5156ee1b9c6))
+
 ## [1.8.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.7.0...v1.8.0) (2025-02-05)
 
 
