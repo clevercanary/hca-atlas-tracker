@@ -425,7 +425,7 @@ export const buildSourceStudyPublication = (
 ): ComponentProps<typeof C.Link> => {
   const { doi } = sourceStudy;
   return {
-    label: getSourceStudyCitation(sourceStudy),
+    label: doi === null ? "" : C.OpenInNewIcon({}),
     url: getDOILink(doi),
   };
 };
@@ -440,9 +440,9 @@ export const buildSourceStudyTitle = (
   pathParameter: PathParameter,
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): ComponentProps<typeof C.Link> => {
-  const { id: sourceStudyId, title } = sourceStudy;
+  const { id: sourceStudyId } = sourceStudy;
   return {
-    label: title ?? sourceStudyId,
+    label: getSourceStudyCitation(sourceStudy),
     url: getRouteURL(ROUTE.SOURCE_STUDY, {
       ...pathParameter,
       sourceStudyId,
@@ -482,7 +482,7 @@ export const buildSourceStudySourceDatasetCount = (
       ? "--"
       : `${
           atlasLinkedDatasetCountsByStudyId.get(sourceStudy.id) ?? 0
-        }/${sourceStudy.sourceDatasetCount.toLocaleString()}`;
+        } of ${sourceStudy.sourceDatasetCount.toLocaleString()}`;
   return {
     label,
     url: getRouteURL(ROUTE.SOURCE_DATASETS, {
@@ -944,7 +944,7 @@ export function getAtlasComponentSourceDatasetsTableColumns(
   canEdit: boolean
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   const columnDefs: ColumnDef<HCAAtlasTrackerSourceDataset>[] = [
-    getSourceDatasetPublicationColumnDef(),
+    getComponentAtlasSourceDatasetPublicationColumnDef(),
     getComponentAtlasSourceDatasetTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
@@ -970,15 +970,31 @@ export function getAtlasSourceDatasetsTableColumns(
   return [
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
-    getSourceDatasetMetadataSpreadsheetColumnDef(),
-    getSourceDatasetPublicationColumnDef(),
     getSourceDatasetSourceStudyColumnDef(atlas),
+    getAtlasSourceDatasetPublicationColumnDef(),
+    getSourceDatasetMetadataSpreadsheetColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
     getDiseaseColumnDef(),
     getCellCountColumnDef(),
   ];
+}
+
+/**
+ * Returns source dataset publication column def.
+ * @returns Column def.
+ */
+function getAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "publicationString",
+    cell: ({ row }) =>
+      C.Link({
+        label: row.original.doi === null ? "" : C.OpenInNewIcon({}),
+        url: getDOILink(row.original.doi),
+      }),
+    header: "Publication",
+  };
 }
 
 /**
@@ -1143,6 +1159,22 @@ function getCellCountColumnDef<
 }
 
 /**
+ * Returns source dataset publication column def.
+ * @returns Column def.
+ */
+function getComponentAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "publicationString",
+    cell: ({ row }) =>
+      C.Link({
+        label: row.original.publicationString,
+        url: getDOILink(row.original.doi),
+      }),
+    header: "Publication",
+  };
+}
+
+/**
  * Returns component atlas source dataset cell count column def.
  * @returns ColumnDef.
  */
@@ -1292,7 +1324,7 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
       return C.FileDownload(buildSourceDatasetDownload(row.original));
     },
     enableSorting: false,
-    header: "Download",
+    header: "Download from CELLxGENE",
   };
 }
 
@@ -1371,22 +1403,6 @@ function getSourceDatasetMetadataSpreadsheetColumnDef(): ColumnDef<HCAAtlasTrack
 }
 
 /**
- * Returns source dataset publication column def.
- * @returns Column def.
- */
-function getSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "publicationString",
-    cell: ({ row }) =>
-      C.Link({
-        label: row.original.publicationString,
-        url: getDOILink(row.original.doi),
-      }),
-    header: "Publication",
-  };
-}
-
-/**
  * Returns source dataset source study column def.
  * @param atlas - Linked atlas.
  * @returns Column def.
@@ -1398,7 +1414,7 @@ function getSourceDatasetSourceStudyColumnDef(
     accessorKey: "sourceStudyTitle",
     cell: ({ row }) =>
       C.Link({
-        label: row.original.sourceStudyTitle,
+        label: row.original.publicationString,
         url: getRouteURL(ROUTE.SOURCE_STUDY, {
           atlasId: atlas.id,
           sourceStudyId: row.original.sourceStudyId,

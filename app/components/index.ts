@@ -1,6 +1,7 @@
 export { Alert } from "@databiosphere/findable-ui/lib/components/common/Alert/alert";
 export { SessionTimeout } from "@databiosphere/findable-ui/lib/components/common/Banner/components/SessionTimeout/sessionTimeout";
 export { GitHubIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/GitHubIcon/gitHubIcon";
+export { OpenInNewIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/OpenInNewIcon/openInNewIcon";
 export { UnLinkIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/UnLinkIcon/unLinkIcon";
 export { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 export { Sections } from "@databiosphere/findable-ui/lib/components/common/Sections/sections";
