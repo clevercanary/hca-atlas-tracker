@@ -252,74 +252,6 @@ export const buildEntityType = (
 };
 
 /**
- * Build props for the "in CAP" SourceStudyStatusCell component.
- * @param sourceStudy - Source study entity.
- * @returns Props to be used for the SourceStudyStatusCell component.
- */
-export const buildInCap = (
-  sourceStudy: HCAAtlasTrackerSourceStudy
-): ComponentProps<typeof C.SourceStudyStatusCell> => {
-  return getSourceStudyStatusFromValidation(
-    sourceStudy,
-    VALIDATION_ID.SOURCE_STUDY_IN_CAP
-  );
-};
-
-/**
- * Build props for the "in CELLxGENE" SourceStudyStatusCell component.
- * @param sourceStudy - Source study entity.
- * @returns Props to be used for the SourceStudyStatusCell component.
- */
-export const buildInCellxGene = (
-  sourceStudy: HCAAtlasTrackerSourceStudy
-): ComponentProps<typeof C.SourceStudyStatusCell> => {
-  return getSourceStudyStatusFromValidation(
-    sourceStudy,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
-  );
-};
-
-/**
- * Build props for the "in HCA data repository" SourceStudyStatusCell component.
- * @param sourceStudy - Source study entity.
- * @returns Props to be used for the SourceStudyStatusCell component.
- */
-export const buildInHcaDataRepository = (
-  sourceStudy: HCAAtlasTrackerSourceStudy
-): ComponentProps<typeof C.SourceStudyStatusCell> => {
-  const ingestStatus = getSourceStudyTaskStatus(
-    sourceStudy,
-    VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY
-  );
-  if (ingestStatus === TASK_STATUS.DONE) {
-    const primaryDataStatus = getSourceStudyTaskStatus(
-      sourceStudy,
-      VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA
-    );
-    if (primaryDataStatus === TASK_STATUS.DONE)
-      return {
-        label: SOURCE_STUDY_STATUS_LABEL.COMPLETE,
-        status: SOURCE_STUDY_STATUS.DONE,
-      };
-    else if (primaryDataStatus === TASK_STATUS.BLOCKED)
-      return {
-        label: SOURCE_STUDY_STATUS_LABEL.PRIMARY_DATA_BLOCKED,
-        status: SOURCE_STUDY_STATUS.BLOCKED,
-      };
-    else
-      return {
-        label: SOURCE_STUDY_STATUS_LABEL.NO_PRIMARY_DATA,
-        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
-      };
-  } else {
-    return {
-      label: SOURCE_STUDY_STATUS_LABEL.TODO,
-      status: SOURCE_STUDY_STATUS.REQUIRED,
-    };
-  }
-};
-
-/**
  * Build props for the CAP ingestion counts TaskCountsCell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the TaskCountsCell.
@@ -447,6 +379,74 @@ export const buildSourceDatasetDownload = (
       ? `https://datasets.cellxgene.cziscience.com/${versionId}.h5ad`
       : undefined,
   };
+};
+
+/**
+ * Build props for the CAP SourceStudyStatusCell component.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the SourceStudyStatusCell component.
+ */
+export const buildSourceStudyCapStatus = (
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): ComponentProps<typeof C.SourceStudyStatusCell> => {
+  return getSourceStudyStatusFromValidation(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_CAP
+  );
+};
+
+/**
+ * Build props for the CELLxGENE SourceStudyStatusCell component.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the SourceStudyStatusCell component.
+ */
+export const buildSourceStudyCellxGeneStatus = (
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): ComponentProps<typeof C.SourceStudyStatusCell> => {
+  return getSourceStudyStatusFromValidation(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+  );
+};
+
+/**
+ * Build props for the HCA Data Repository SourceStudyStatusCell component.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the SourceStudyStatusCell component.
+ */
+export const buildSourceStudyHcaDataRepositoryStatus = (
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): ComponentProps<typeof C.SourceStudyStatusCell> => {
+  const ingestStatus = getSourceStudyTaskStatus(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY
+  );
+  if (ingestStatus === TASK_STATUS.DONE) {
+    const primaryDataStatus = getSourceStudyTaskStatus(
+      sourceStudy,
+      VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA
+    );
+    if (primaryDataStatus === TASK_STATUS.DONE)
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.COMPLETE,
+        status: SOURCE_STUDY_STATUS.DONE,
+      };
+    else if (primaryDataStatus === TASK_STATUS.BLOCKED)
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.PRIMARY_DATA_BLOCKED,
+        status: SOURCE_STUDY_STATUS.BLOCKED,
+      };
+    else
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.NO_PRIMARY_DATA,
+        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+      };
+  } else {
+    return {
+      label: SOURCE_STUDY_STATUS_LABEL.TODO,
+      status: SOURCE_STUDY_STATUS.REQUIRED,
+    };
+  }
 };
 
 /**
@@ -1154,9 +1154,9 @@ export function getAtlasSourceStudiesTableColumns(
       pathParameter,
       atlasLinkedDatasetCountsByStudyId
     ),
-    getSourceStudyInCELLxGENEColumnDef(),
-    getSourceStudyInCapColumnDef(),
-    getSourceStudyInHCADataRepositoryColumnDef(),
+    getSourceStudyCELLxGENEStatusColumnDef(),
+    getSourceStudyCapStatusColumnDef(),
+    getSourceStudyHCADataRepositoryStatusColumnDef(),
   ];
 }
 
@@ -1484,10 +1484,11 @@ function getSourceDatasetTitleColumnDef(
  * Returns source study is in Cap column def.
  * @returns Column def.
  */
-function getSourceStudyInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
+function getSourceStudyCapStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: (sourceStudy) => buildInCap(sourceStudy).label,
-    cell: ({ row }) => C.SourceStudyStatusCell(buildInCap(row.original)),
+    accessorFn: (sourceStudy) => buildSourceStudyCapStatus(sourceStudy).label,
+    cell: ({ row }) =>
+      C.SourceStudyStatusCell(buildSourceStudyCapStatus(row.original)),
     header: "CAP",
   };
 }
@@ -1496,10 +1497,12 @@ function getSourceStudyInCapColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
  * Returns source study in CELLxGENE column def.
  * @returns Column def.
  */
-function getSourceStudyInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
+function getSourceStudyCELLxGENEStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: (sourceStudy) => buildInCellxGene(sourceStudy).label,
-    cell: ({ row }) => C.SourceStudyStatusCell(buildInCellxGene(row.original)),
+    accessorFn: (sourceStudy) =>
+      buildSourceStudyCellxGeneStatus(sourceStudy).label,
+    cell: ({ row }) =>
+      C.SourceStudyStatusCell(buildSourceStudyCellxGeneStatus(row.original)),
     header: "CELLxGENE",
   };
 }
@@ -1508,11 +1511,14 @@ function getSourceStudyInCELLxGENEColumnDef(): ColumnDef<HCAAtlasTrackerSourceSt
  * Returns source study in HCA data repository column def.
  * @returns Column def.
  */
-function getSourceStudyInHCADataRepositoryColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
+function getSourceStudyHCADataRepositoryStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorFn: (sourceStudy) => buildInHcaDataRepository(sourceStudy).label,
+    accessorFn: (sourceStudy) =>
+      buildSourceStudyHcaDataRepositoryStatus(sourceStudy).label,
     cell: ({ row }) =>
-      C.SourceStudyStatusCell(buildInHcaDataRepository(row.original)),
+      C.SourceStudyStatusCell(
+        buildSourceStudyHcaDataRepositoryStatus(row.original)
+      ),
     header: "HCA Data Repository",
   };
 }
