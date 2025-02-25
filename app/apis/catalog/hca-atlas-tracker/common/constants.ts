@@ -136,6 +136,14 @@ export const ROLE_GROUP = {
   ],
 };
 
+export const SOURCE_STUDY_STATUS_LABEL = {
+  COMPLETE: "Complete",
+  IN_PROGRESS: "In progress",
+  NO_PRIMARY_DATA: "No primary data",
+  PRIMARY_DATA_BLOCKED: "Primary data blocked",
+  TODO: "To do",
+};
+
 export const SYSTEM_DISPLAY_NAMES: { [key in SYSTEM]: string } = {
   CAP: "CAP",
   CELLXGENE: "CELLxGENE",
