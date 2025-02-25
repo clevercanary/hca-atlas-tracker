@@ -11,6 +11,8 @@ import {
   HCAAtlasTrackerValidationRecord,
   NetworkKey,
   PublicationInfo,
+  TASK_STATUS,
+  VALIDATION_ID,
   Wave,
 } from "./entities";
 
@@ -84,6 +86,20 @@ export function getSourceStudyCitation(
       journal
     );
   }
+}
+
+/**
+ * Get the status of a task of a source study.
+ * @param sourceStudy - Source study.
+ * @param validationId - Validation ID of task to get status of.
+ * @returns task status, or undefined if the task doesn't exist on the given source study.
+ */
+export function getSourceStudyTaskStatus(
+  sourceStudy: HCAAtlasTrackerSourceStudy,
+  validationId: VALIDATION_ID
+): TASK_STATUS | undefined {
+  return sourceStudy.tasks.find((v) => v.validationId === validationId)
+    ?.taskStatus;
 }
 
 /**
