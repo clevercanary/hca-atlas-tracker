@@ -36,7 +36,7 @@ export const SourceStudyStatusCell = ({
 /**
  * Switch status badge color for the given value.
  * @param value - Status value.
- * @returns icon element for the status value.
+ * @returns status badge color for the status value.
  */
 function switchStatusBadgeColor(
   value: SOURCE_STUDY_STATUS
