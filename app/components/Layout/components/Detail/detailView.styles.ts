@@ -19,5 +19,6 @@ export const DetailViewContent = styled(DXBackPageContent)`
 
   ${mediaTabletUp} {
     gap: inherit;
+    grid-template-columns: subgrid;
   }
 `;

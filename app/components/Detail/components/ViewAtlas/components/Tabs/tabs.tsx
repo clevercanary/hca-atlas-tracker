@@ -1,7 +1,4 @@
-import {
-  Tabs as DXTabs,
-  TabValue,
-} from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
+import { TabValue } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { HCAAtlasTrackerAtlas } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -11,6 +8,7 @@ import { FormAction } from "../../../../../../hooks/useFormManager/common/entiti
 import { navigateToRoute } from "../../../../../../hooks/useFormManager/common/utils";
 import { ROUTE } from "../../../../../../routes/constants";
 import { getTabLabelWithCount } from "../../../TrackerForm/components/Tabs/common/utils";
+import { StyledTabs } from "./tabs.styles";
 
 interface TabsProps {
   atlas?: HCAAtlasTrackerAtlas;
@@ -35,7 +33,7 @@ export const Tabs = ({
   );
 
   return (
-    <DXTabs
+    <StyledTabs
       onTabChange={onChange}
       tabs={[
         { label: "Overview", value: ROUTE.ATLAS },

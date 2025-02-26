@@ -20,8 +20,10 @@ import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
+import { Alert } from "./components/Alert/alert";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
+import { SubGrid } from "./viewAtlasSourceStudies.styles";
 
 interface ViewSourceStudiesProps {
   atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
@@ -62,37 +64,41 @@ export const ViewSourceStudies = ({
   );
   if (!canView) return <RequestAccess />;
   return (
-    <Paper>
-      <GridPaper>
-        {canEdit && (
-          <Toolbar variant="table">
-            <ButtonLink
-              color={BUTTON_COLOR.SECONDARY}
-              href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, pathParameter)}
-              startIcon={<AddIcon color="inkLight" fontSize="small" />}
-            >
-              Add Source Study
-            </ButtonLink>
-          </Toolbar>
-        )}
-        {sourceStudies.length > 0 && (
-          <Table
-            columns={getAtlasSourceStudiesTableColumns(
-              pathParameter,
-              atlasLinkedDatasetCountsByStudyId
-            )}
-            gridTemplateColumns="max-content minmax(260px, 1fr) minmax(100px, 118px) minmax(80px, 130px) repeat(3, minmax(100px, 118px))"
-            items={sortedSourceStudies}
-            tableOptions={TABLE_OPTIONS}
+    <SubGrid>
+      {/* What is a Source Study? */}
+      <Alert />
+      <Paper>
+        <GridPaper>
+          {canEdit && (
+            <Toolbar variant="table">
+              <ButtonLink
+                color={BUTTON_COLOR.SECONDARY}
+                href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, pathParameter)}
+                startIcon={<AddIcon color="inkLight" fontSize="small" />}
+              >
+                Add Source Study
+              </ButtonLink>
+            </Toolbar>
+          )}
+          {sourceStudies.length > 0 && (
+            <Table
+              columns={getAtlasSourceStudiesTableColumns(
+                pathParameter,
+                atlasLinkedDatasetCountsByStudyId
+              )}
+              gridTemplateColumns="max-content minmax(260px, 1fr) minmax(100px, 118px) minmax(80px, 130px) repeat(3, minmax(100px, 118px))"
+              items={sortedSourceStudies}
+              tableOptions={TABLE_OPTIONS}
+            />
+          )}
+          <TablePlaceholder
+            canEdit={canEdit}
+            message="No source studies"
+            rowCount={sourceStudies.length}
           />
-        )}
-        <TablePlaceholder
-          canEdit={canEdit}
-          message="No source studies"
-          rowCount={sourceStudies.length}
-        />
-      </GridPaper>
-    </Paper>
+        </GridPaper>
+      </Paper>
+    </SubGrid>
   );
 };
 
