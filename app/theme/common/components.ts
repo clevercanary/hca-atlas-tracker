@@ -41,3 +41,25 @@ export const MuiButton = (theme: Theme): Components["MuiButton"] => {
     },
   };
 };
+
+export const MuiChip = (theme: Theme): Components<Theme>["MuiChip"] => {
+  return {
+    variants: [
+      ...(theme.components?.MuiChip?.variants ?? []),
+      {
+        props: { color: "default", variant: "status" },
+        style: {
+          backgroundColor: theme.palette.smoke.main,
+          color: theme.palette.ink.light,
+        },
+      },
+      {
+        props: { color: "caution" },
+        style: {
+          backgroundColor: theme.palette.caution.light,
+          color: theme.palette.caution.main,
+        },
+      },
+    ],
+  };
+};

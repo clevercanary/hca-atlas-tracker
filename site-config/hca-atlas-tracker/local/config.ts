@@ -104,6 +104,10 @@ export function makeConfig(
     redirectRootToPath: HOME_PAGE_PATH,
     themeOptions: {
       palette: {
+        caution: {
+          light: "#FFEB78",
+          main: "#956F00",
+        },
         primary: {
           dark: "#005EA9",
           main: "#1C7CC7",

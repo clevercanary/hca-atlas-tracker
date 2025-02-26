@@ -10,6 +10,7 @@ export function mergeAppTheme(theme: Theme): Theme {
   return createTheme(theme, {
     components: {
       MuiButton: C.MuiButton(theme),
+      MuiChip: C.MuiChip(theme),
     },
   });
 }
