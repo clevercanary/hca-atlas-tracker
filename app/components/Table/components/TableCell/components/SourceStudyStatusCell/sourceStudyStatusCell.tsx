@@ -47,7 +47,7 @@ function switchStatusBadgeColor(
     case SOURCE_STUDY_STATUS.DONE:
       return "success";
     case SOURCE_STUDY_STATUS.IN_PROGRESS:
-      return "info";
+      return "caution";
     case SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE:
       return "warning";
     case SOURCE_STUDY_STATUS.REQUIRED:
