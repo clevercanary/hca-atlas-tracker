@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.9.0...v1.10.0) (2025-02-26)
+
+
+### Features
+
+* update source study hca status labels ([#596](https://github.com/clevercanary/hca-atlas-tracker/issues/596)) ([#597](https://github.com/clevercanary/hca-atlas-tracker/issues/597)) ([690da4d](https://github.com/clevercanary/hca-atlas-tracker/commit/690da4d928e21391f5706ba6a266a16219587a3e))
+
 ## [1.9.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.8.0...v1.9.0) (2025-02-26)
 
 
