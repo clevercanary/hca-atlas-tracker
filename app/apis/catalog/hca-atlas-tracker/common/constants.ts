@@ -138,9 +138,10 @@ export const ROLE_GROUP = {
 
 export const SOURCE_STUDY_STATUS_LABEL = {
   COMPLETE: "Complete",
+  FASTQS: "FASTQs",
+  FASTQS_BLOCKED: "FASTQs blocked",
   IN_PROGRESS: "In progress",
-  NO_PRIMARY_DATA: "No primary data",
-  PRIMARY_DATA_BLOCKED: "Primary data blocked",
+  NEEDS_FASTQS: "Needs FASTQs",
   TODO: "To do",
 };
 

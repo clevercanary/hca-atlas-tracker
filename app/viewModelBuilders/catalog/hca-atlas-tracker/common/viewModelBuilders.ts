@@ -417,28 +417,36 @@ export const buildSourceStudyCellxGeneStatus = (
 export const buildSourceStudyHcaDataRepositoryStatus = (
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): ComponentProps<typeof C.SourceStudyStatusCell> => {
-  const ingestStatus = getSourceStudyTaskStatus(
-    sourceStudy,
-    VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY
-  );
+  // const ingestStatus = getSourceStudyTaskStatus(
+  //   sourceStudy,
+  //   VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY
+  // );
+  const ingestStatus = [TASK_STATUS.DONE, TASK_STATUS.TODO][
+    parseInt(sourceStudy.id[1], 16) % 2
+  ];
   if (ingestStatus === TASK_STATUS.DONE) {
-    const primaryDataStatus = getSourceStudyTaskStatus(
-      sourceStudy,
-      VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA
-    );
+    // const primaryDataStatus = getSourceStudyTaskStatus(
+    //   sourceStudy,
+    //   VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA
+    // );
+    const primaryDataStatus = [
+      TASK_STATUS.DONE,
+      TASK_STATUS.BLOCKED,
+      TASK_STATUS.TODO,
+    ][parseInt(sourceStudy.id[2], 16) % 3];
     if (primaryDataStatus === TASK_STATUS.DONE)
       return {
-        label: SOURCE_STUDY_STATUS_LABEL.COMPLETE,
+        label: SOURCE_STUDY_STATUS_LABEL.FASTQS,
         status: SOURCE_STUDY_STATUS.DONE,
       };
     else if (primaryDataStatus === TASK_STATUS.BLOCKED)
       return {
-        label: SOURCE_STUDY_STATUS_LABEL.PRIMARY_DATA_BLOCKED,
+        label: SOURCE_STUDY_STATUS_LABEL.FASTQS_BLOCKED,
         status: SOURCE_STUDY_STATUS.BLOCKED,
       };
     else
       return {
-        label: SOURCE_STUDY_STATUS_LABEL.NO_PRIMARY_DATA,
+        label: SOURCE_STUDY_STATUS_LABEL.NEEDS_FASTQS,
         status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
       };
   } else {
