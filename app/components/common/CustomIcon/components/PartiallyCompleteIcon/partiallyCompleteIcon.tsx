@@ -1,5 +1,4 @@
-import { CustomSVGIconProps } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/common/entities";
-import { SvgIcon } from "@mui/material";
+import { SvgIcon, SvgIconProps } from "@mui/material";
 
 /**
  * Custom partially complete icon.
@@ -9,7 +8,7 @@ export const PartiallyCompleteIcon = ({
   fontSize = "small",
   viewBox = "0 0 18 18",
   ...props /* Spread props to allow for Mui SvgIconProps specific prop overrides e.g. "htmlColor". */
-}: CustomSVGIconProps): JSX.Element => {
+}: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon viewBox={viewBox} fontSize={fontSize} {...props}>
       <path
