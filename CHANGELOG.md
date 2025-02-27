@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.10.0...v1.10.1) (2025-02-27)
+
+
+### Bug Fixes
+
+* enable actual code for source study hca status ([#599](https://github.com/clevercanary/hca-atlas-tracker/issues/599)) ([#600](https://github.com/clevercanary/hca-atlas-tracker/issues/600)) ([5dd9773](https://github.com/clevercanary/hca-atlas-tracker/commit/5dd97736a9bc216aa7dd79837e2ef1db7fa7d1b7))
+
 ## [1.10.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.9.0...v1.10.0) (2025-02-26)
 
 
