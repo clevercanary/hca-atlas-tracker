@@ -6,8 +6,8 @@ import anndata as ad
 TRACKER_CELLXGENE_IDS_URLS = "http://localhost:3000/api/cellxgene-source-datasets"
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
 
-JSON_PATH = "catalog/out/cellxgene-datasets-info.json"
-DOWNLOADS_PATH = "catalog/build/downloads"
+JSON_PATH = "catalog/output/cellxgene-datasets-info.json"
+DOWNLOADS_PATH = "catalog/build/temporary/downloads"
 
 HCA_REQUIRED_FIELDS = [
     "alignment_software",
@@ -94,7 +94,7 @@ def has_latest_dataset_version(prev_info, dataset_id, cellxgene_datasets_by_id):
 
 def get_cellxgene_datasets_info():
   if not os.path.exists(DOWNLOADS_PATH):
-    os.mkdir(DOWNLOADS_PATH)
+    os.makedirs(DOWNLOADS_PATH)
 
   with open(JSON_PATH) as file:
     prev_info = json.load(file)

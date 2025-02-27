@@ -16,7 +16,8 @@ build
 node_modules
 
 # script output
-/files/out
+/catalog/temporary
+/catalog/output
 
 # editors
 .vscode
