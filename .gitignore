@@ -51,7 +51,7 @@ _templates
 /public/favicons/*
 
 # script output
-/files/out
+/catalog/build/downloads
 
 #python
 venv/

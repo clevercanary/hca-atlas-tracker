@@ -347,6 +347,19 @@ export async function deleteSourceDatasetsOfDeletedSourceStudy(
 }
 
 /**
+ * Get all source datasets that have CELLxGENE IDs.
+ * @returns source datasets.
+ */
+export async function getCellxGeneSourceDatasets(): Promise<
+  HCAAtlasTrackerDBSourceDataset[]
+> {
+  const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
+    "SELECT * FROM hat.source_datasets d WHERE NOT d.sd_info->'cellxgeneDatasetId' = 'null'"
+  );
+  return queryResult.rows;
+}
+
+/**
  * Create and update CELLxGENE source datasets for all source studies with CELLxGENE IDs.
  */
 export async function updateCellxGeneSourceDatasets(): Promise<void> {
