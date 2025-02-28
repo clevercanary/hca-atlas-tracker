@@ -3,7 +3,7 @@ import json
 import requests
 import anndata as ad
 
-TRACKER_CELLXGENE_IDS_URLS = "http://localhost:3000/api/cellxgene-source-datasets"
+TRACKER_CELLXGENE_IDS_URLS = "https://tracker.data.humancellatlas.org/api/cellxgene-source-datasets"
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
 
 JSON_PATH = "catalog/output/cellxgene-datasets-info.json"
