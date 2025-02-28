@@ -127,7 +127,7 @@ def get_cellxgene_datasets_info():
 
   tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URLS).json()
 
-  if cellxgene_datasets_by_id is not None:
+  if cellxgene_datasets_by_id is None:
     print("Requesting CELLxGENE datasets")
     cellxgene_datasets_by_id = {dataset["dataset_id"]: dataset for dataset in requests.get(CELLXGENE_DATASETS_URL).json()}
     write_json_file(TEMP_CELLXGENE_DATASETS_PATH, cellxgene_datasets_by_id)
