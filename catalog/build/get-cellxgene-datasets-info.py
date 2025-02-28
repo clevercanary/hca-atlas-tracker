@@ -3,7 +3,7 @@ import json
 import requests
 import anndata as ad
 
-TRACKER_CELLXGENE_IDS_URLS = "https://tracker.data.humancellatlas.org/api/cellxgene-source-datasets"
+TRACKER_CELLXGENE_IDS_URL = "http://localhost:3000/api/cellxgene-source-datasets"
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
 
 JSON_PATH = "catalog/output/cellxgene-datasets-info.json"
@@ -63,6 +63,7 @@ def download_file(url, download_path, download_name, file_size):
 
 def missing_dataset_info():
   return {
+    "collectionId": None,
     "datasetVersionId": None,
     "hasPrimaryData": False
   }
@@ -98,6 +99,7 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
   os.remove(download_path)
 
   return {
+    "collectionId": dataset["collection_id"],
     "datasetVersionId": dataset["dataset_version_id"],
     "hasPrimaryData": has_primary_data
   }
@@ -120,7 +122,7 @@ def get_cellxgene_datasets_info():
     if os.path.exists(TEMP_CELLXGENE_DATASETS_PATH):
       cellxgene_datasets_by_id = read_json_file(TEMP_CELLXGENE_DATASETS_PATH)
 
-  tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URLS).json()
+  tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URL).json()
 
   if cellxgene_datasets_by_id is None:
     print("Requesting CELLxGENE datasets")
