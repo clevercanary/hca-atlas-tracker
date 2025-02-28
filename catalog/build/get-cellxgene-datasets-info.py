@@ -106,8 +106,8 @@ def has_latest_dataset_version(prev_info, dataset_id, cellxgene_datasets_by_id):
   return dataset_id in prev_info and dataset_id in cellxgene_datasets_by_id and prev_info[dataset_id]["datasetVersionId"] == cellxgene_datasets_by_id[dataset_id]["dataset_version_id"]
 
 def get_cellxgene_datasets_info():
-  if not os.path.exists(TEMP_PATH):
-    os.mkdir(TEMP_PATH)
+  if not os.path.exists(DOWNLOADS_PATH):
+    os.makedirs(DOWNLOADS_PATH)
 
   prev_info = read_json_file(JSON_PATH)
   
