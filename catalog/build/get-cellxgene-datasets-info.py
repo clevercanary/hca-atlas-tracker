@@ -85,7 +85,7 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
 
   try:
     download_file(file_info["url"], download_path, download_name, file_info["filesize"])
-  except:
+  except requests.RequestException:
     print(f"Download of {download_name} failed")
     if os.path.exists(download_path):
       os.remove(download_path)
@@ -93,12 +93,7 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
   
   print(f"Reading {download_name}")
 
-  try:
-    has_primary_data = get_has_primary_data(download_path)
-  except:
-    print(f"Failed to read info from {download_name}")
-    os.remove(download_path)
-    return missing_dataset_info()
+  has_primary_data = get_has_primary_data(download_path)
   
   os.remove(download_path)
 
