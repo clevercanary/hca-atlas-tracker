@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 import requests
 import anndata as ad
@@ -7,7 +8,10 @@ TRACKER_CELLXGENE_IDS_URLS = "http://localhost:3000/api/cellxgene-source-dataset
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
 
 JSON_PATH = "catalog/output/cellxgene-datasets-info.json"
-DOWNLOADS_PATH = "catalog/build/temporary/downloads"
+TEMP_PATH = "catalog/build/temporary"
+DOWNLOADS_PATH = f"{TEMP_PATH}/downloads"
+TEMP_JSON_PATH = f"{TEMP_PATH}/in-progress-info.json"
+TEMP_CELLXGENE_DATASETS_PATH = f"{TEMP_PATH}/cellxgene-datasets.json"
 
 HCA_REQUIRED_FIELDS = [
     "alignment_software",
@@ -26,6 +30,16 @@ HCA_REQUIRED_FIELDS = [
     "sample_source",
     "sequenced_fragment",
 ]
+
+DATASET_BATCH_SIZE = 25
+
+def read_json_file(path):
+  with open(path) as file:
+    return json.load(file)
+
+def write_json_file(path, value):
+  with open(path, "w") as file:
+    json.dump(value, file)
 
 def get_has_primary_data(file_path):
   adata = ad.read_h5ad(file_path)
@@ -89,20 +103,42 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
     "hasPrimaryData": has_primary_data
   }
 
+def process_dataset_batch(new_info, ids_to_update, cellxgene_datasets_by_id):
+  if not os.path.exists(DOWNLOADS_PATH):
+    os.mkdir(DOWNLOADS_PATH)
+
+  for index, dataset_id in enumerate(ids_to_update):
+    print(f"Processing {dataset_id} ({index + 1}/{len(ids_to_update)})")
+    new_info[dataset_id] = get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id)
+  
+  write_json_file(TEMP_JSON_PATH, new_info)
+
+  shutil.rmtree(DOWNLOADS_PATH)
+
 def has_latest_dataset_version(prev_info, dataset_id, cellxgene_datasets_by_id):
   return dataset_id in prev_info and dataset_id in cellxgene_datasets_by_id and prev_info[dataset_id]["datasetVersionId"] == cellxgene_datasets_by_id[dataset_id]["dataset_version_id"]
 
 def get_cellxgene_datasets_info():
-  if not os.path.exists(DOWNLOADS_PATH):
-    os.makedirs(DOWNLOADS_PATH)
+  if not os.path.exists(TEMP_PATH):
+    os.mkdir(TEMP_PATH)
 
-  with open(JSON_PATH) as file:
-    prev_info = json.load(file)
+  prev_info = read_json_file(JSON_PATH)
+  
+  cellxgene_datasets_by_id = None
 
-  print("Requesting CELLxGENE datasets")
+  if os.path.exists(TEMP_JSON_PATH):
+    print(f"Restoring previous run from {TEMP_JSON_PATH}")
+    prev_run_info = read_json_file(TEMP_JSON_PATH)
+    prev_info = {**prev_info, **prev_run_info}
+    if os.path.exists(TEMP_CELLXGENE_DATASETS_PATH):
+      cellxgene_datasets_by_id = read_json_file(TEMP_CELLXGENE_DATASETS_PATH)
 
   tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URLS).json()
-  cellxgene_datasets_by_id = {dataset["dataset_id"]: dataset for dataset in requests.get(CELLXGENE_DATASETS_URL).json()}
+
+  if cellxgene_datasets_by_id is not None:
+    print("Requesting CELLxGENE datasets")
+    cellxgene_datasets_by_id = {dataset["dataset_id"]: dataset for dataset in requests.get(CELLXGENE_DATASETS_URL).json()}
+    write_json_file(TEMP_CELLXGENE_DATASETS_PATH, cellxgene_datasets_by_id)
 
   new_info = {}
 
@@ -116,12 +152,15 @@ def get_cellxgene_datasets_info():
     else:
       ids_to_update.append(dataset_id)
 
-  for index, dataset_id in enumerate(ids_to_update):
-    print(f"Processing {dataset_id} ({index + 1}/{len(ids_to_update)})")
-    new_info[dataset_id] = get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id)
+  batch_indices = range(0, len(ids_to_update), DATASET_BATCH_SIZE)
 
-  with open(JSON_PATH, "w") as file:
-    json.dump(new_info, file)
+  for i in batch_indices:
+    print(f"Processing dataset batch {i/DATASET_BATCH_SIZE:.0f}/{len(batch_indices)}")
+    process_dataset_batch(new_info, ids_to_update[i : i + DATASET_BATCH_SIZE], cellxgene_datasets_by_id)
+
+  write_json_file(JSON_PATH, new_info)
+
+  os.remove(TEMP_JSON_PATH)
 
   print(f"Done")
 
