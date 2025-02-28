@@ -1,5 +1,4 @@
 import os
-import shutil
 import json
 import requests
 import anndata as ad
@@ -88,6 +87,8 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
     download_file(file_info["url"], download_path, download_name, file_info["filesize"])
   except:
     print(f"Download of {download_name} failed")
+    if os.path.exists(download_path):
+      os.remove(download_path)
     return missing_dataset_info()
   
   print(f"Reading {download_name}")
@@ -95,25 +96,16 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
   try:
     has_primary_data = get_has_primary_data(download_path)
   except:
-    print(f"Failing to read info from {download_name}")
+    print(f"Failed to read info from {download_name}")
+    os.remove(download_path)
     return missing_dataset_info()
   
+  os.remove(download_path)
+
   return {
     "datasetVersionId": dataset["dataset_version_id"],
     "hasPrimaryData": has_primary_data
   }
-
-def process_dataset_batch(new_info, ids_to_update, cellxgene_datasets_by_id):
-  if not os.path.exists(DOWNLOADS_PATH):
-    os.mkdir(DOWNLOADS_PATH)
-
-  for index, dataset_id in enumerate(ids_to_update):
-    print(f"Processing {dataset_id} ({index + 1}/{len(ids_to_update)})")
-    new_info[dataset_id] = get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id)
-  
-  write_json_file(TEMP_JSON_PATH, new_info)
-
-  shutil.rmtree(DOWNLOADS_PATH)
 
 def has_latest_dataset_version(prev_info, dataset_id, cellxgene_datasets_by_id):
   return dataset_id in prev_info and dataset_id in cellxgene_datasets_by_id and prev_info[dataset_id]["datasetVersionId"] == cellxgene_datasets_by_id[dataset_id]["dataset_version_id"]
@@ -152,12 +144,11 @@ def get_cellxgene_datasets_info():
     else:
       ids_to_update.append(dataset_id)
 
-  batch_indices = range(0, len(ids_to_update), DATASET_BATCH_SIZE)
-
-  for i in batch_indices:
-    print(f"Processing dataset batch {i/DATASET_BATCH_SIZE:.0f}/{len(batch_indices)}")
-    process_dataset_batch(new_info, ids_to_update[i : i + DATASET_BATCH_SIZE], cellxgene_datasets_by_id)
-
+  for index, dataset_id in enumerate(ids_to_update):
+    print(f"Processing {dataset_id} ({index + 1}/{len(ids_to_update)})")
+    new_info[dataset_id] = get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id)
+    write_json_file(TEMP_JSON_PATH, new_info)
+  
   write_json_file(JSON_PATH, new_info)
 
   os.remove(TEMP_JSON_PATH)
