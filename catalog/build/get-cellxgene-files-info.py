@@ -8,7 +8,7 @@ TIER_ONE_COMPLETE = "COMPLETE"
 TIER_ONE_INCOMPLETE = "INCOMPLETE"
 TIER_ONE_MISSING = "MISSING"
 
-TRACKER_CELLXGENE_IDS_URL = "http://localhost:3000/api/source-study-cellxgene-ids"
+TRACKER_CELLXGENE_IDS_URL = "https://tracker.data.humancellatlas.org/api/source-study-cellxgene-ids"
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
 
 JSON_PATH = "catalog/output/cellxgene-info.json"
