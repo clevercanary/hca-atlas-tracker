@@ -133,7 +133,7 @@ def get_cellxgene_datasets_info():
     if os.path.exists(TEMP_CELLXGENE_DATASETS_PATH):
       cellxgene_datasets_by_collection = read_json_file(TEMP_CELLXGENE_DATASETS_PATH)
 
-  tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URL).json()[:15]
+  tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URL).json()
 
   if cellxgene_datasets_by_collection is None:
     print("Requesting CELLxGENE datasets")
