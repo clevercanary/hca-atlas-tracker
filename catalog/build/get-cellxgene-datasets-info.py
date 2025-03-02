@@ -40,14 +40,18 @@ def write_json_file(path, value):
   with open(path, "w") as file:
     json.dump(value, file)
 
-def get_has_primary_data(file_path):
+def get_tier_one_status(file_path):
   adata = ad.read_h5ad(file_path)
+  prev_bool = None
   for col in HCA_REQUIRED_FIELDS:
-    if col not in adata.obs.columns:
-      return False
-    if adata.obs[col].isnull().any():
-      return False
-  return True
+    col_bools = adata.obs[col].isnull().unique() if col in adata.obs.columns else [False]
+    if len(col_bools) == 2:
+      return "INCOMPLETE"
+    elif prev_bool is None:
+      prev_bool = col_bools[0]
+    elif col_bools[0] != prev_bool:
+      return "INCOMPLETE"
+  return "MISSING" if prev_bool is None else "COMPLETE" if prev_bool else "INCOMPLETE"
 
 def download_file(url, download_path, download_name, file_size):
   print(f"Downloading {download_name} (0.00%)", end="\r")
@@ -65,7 +69,7 @@ def missing_dataset_info():
   return {
     "collectionId": None,
     "datasetVersionId": None,
-    "hasPrimaryData": False
+    "tierOneStatus": "MISSING"
   }
 
 def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
@@ -94,14 +98,14 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
   
   print(f"Reading {download_name}")
 
-  has_primary_data = get_has_primary_data(download_path)
+  tier_one_status = get_tier_one_status(download_path)
   
   os.remove(download_path)
 
   return {
     "collectionId": dataset["collection_id"],
     "datasetVersionId": dataset["dataset_version_id"],
-    "hasPrimaryData": has_primary_data
+    "tierOneStatus": tier_one_status
   }
 
 def has_latest_dataset_version(prev_info, dataset_id, cellxgene_datasets_by_id):
@@ -122,7 +126,7 @@ def get_cellxgene_datasets_info():
     if os.path.exists(TEMP_CELLXGENE_DATASETS_PATH):
       cellxgene_datasets_by_id = read_json_file(TEMP_CELLXGENE_DATASETS_PATH)
 
-  tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URL).json()
+  tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URL).json()[:15]
 
   if cellxgene_datasets_by_id is None:
     print("Requesting CELLxGENE datasets")
