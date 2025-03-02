@@ -1,6 +1,5 @@
 import pg from "pg";
 import { ValidationError } from "yup";
-import { getSourceStudyTierOneMetadataStatus } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
@@ -72,7 +71,7 @@ export async function getAtlasSourceStudies(
             )
           ).rows;
 
-    return await addAdditionalFieldsToSourceStudiesInfo(sourceStudies, client);
+    return await addValidationsToSourceStudiesInfo(sourceStudies, client);
   });
 }
 
@@ -102,19 +101,18 @@ export async function getSourceStudy(
       );
 
     return (
-      await addAdditionalFieldsToSourceStudiesInfo(queryResult.rows, client)
+      await addValidationsToSourceStudiesInfo(queryResult.rows, client)
     )[0];
   });
 }
 
 /**
- * Take an array of source studies, get the validation records for those source studies, and return the source studies
- * with validation records and Tier 1 metadata status added.
+ * Take an array of source studies, get the validation records for those source studies, and return the source studies with validation records added.
  * @param sourceStudies - Source studies to get validations for.
  * @param client - Postgres client to use.
- * @returns sources studies with additional fields added.
+ * @returns sources studies with validation lists added.
  */
-async function addAdditionalFieldsToSourceStudiesInfo(
+async function addValidationsToSourceStudiesInfo(
   sourceStudies: HCAAtlasTrackerDBSourceStudyWithSourceDatasets[],
   client: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities[]> {
@@ -138,7 +136,6 @@ async function addAdditionalFieldsToSourceStudiesInfo(
   }
   return sourceStudies.map((sourceStudy) => ({
     ...sourceStudy,
-    tierOneMetadataStatus: getSourceStudyTierOneMetadataStatus(sourceStudy),
     validations: validationsBySourceStudyId.get(sourceStudy.id) ?? [],
   }));
 }

@@ -302,7 +302,6 @@ export type HCAAtlasTrackerDBSourceStudyWithSourceDatasets =
 
 export type HCAAtlasTrackerDBSourceStudyWithRelatedEntities =
   HCAAtlasTrackerDBSourceStudyWithSourceDatasets & {
-    tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
     validations: HCAAtlasTrackerDBValidation[];
   };
 

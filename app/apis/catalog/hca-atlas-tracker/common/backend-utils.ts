@@ -85,6 +85,8 @@ export function dbSourceStudyToApiSourceStudy(
   const tasks = dbSourceStudy.validations.map(
     dbValidationToApiValidationWithoutAtlasProperties
   );
+  const tierOneMetadataStatus =
+    getSourceStudyTierOneMetadataStatus(dbSourceStudy);
   if (dbSourceStudy.doi === null) {
     const unpublishedInfo = dbSourceStudy.study_info.unpublishedInfo;
     return {
@@ -100,7 +102,7 @@ export function dbSourceStudyToApiSourceStudy(
       referenceAuthor: unpublishedInfo.referenceAuthor,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
       tasks,
-      tierOneMetadataStatus: dbSourceStudy.tierOneMetadataStatus,
+      tierOneMetadataStatus,
       title: unpublishedInfo.title,
     };
   } else {
@@ -117,7 +119,7 @@ export function dbSourceStudyToApiSourceStudy(
       referenceAuthor: publication?.authors[0]?.name ?? null,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
       tasks,
-      tierOneMetadataStatus: dbSourceStudy.tierOneMetadataStatus,
+      tierOneMetadataStatus,
       title: publication?.title ?? null,
     };
   }
