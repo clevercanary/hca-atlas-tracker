@@ -4,6 +4,10 @@ import json
 import requests
 import anndata as ad
 
+TIER_ONE_COMPLETE = "COMPLETE"
+TIER_ONE_INCOMPLETE = "INCOMPLETE"
+TIER_ONE_MISSING = "MISSING"
+
 TRACKER_CELLXGENE_IDS_URL = "http://localhost:3000/api/source-study-cellxgene-ids"
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
 
@@ -47,12 +51,12 @@ def get_tier_one_status(file_path):
   for col in HCA_REQUIRED_FIELDS:
     col_is_nulls = adata.obs[col].isnull().unique() if col in adata.obs.columns else [True]
     if len(col_is_nulls) == 2:
-      return "INCOMPLETE"
+      return TIER_ONE_INCOMPLETE
     elif prev_is_null is None:
       prev_is_null = col_is_nulls[0]
     elif col_is_nulls[0] != prev_is_null:
-      return "INCOMPLETE"
-  return "MISSING" if prev_is_null is None or prev_is_null else "COMPLETE"
+      return TIER_ONE_INCOMPLETE
+  return TIER_ONE_MISSING if prev_is_null is None or prev_is_null else TIER_ONE_COMPLETE
 
 def download_file(url, download_path, download_name, file_size):
   print(f"Downloading {download_name} (0.00%)", end="\r")
@@ -69,7 +73,7 @@ def download_file(url, download_path, download_name, file_size):
 def skipped_dataset_info(skipped_reason):
   return {
     "datasetVersionId": None,
-    "tierOneStatus": "MISSING",
+    "tierOneStatus": TIER_ONE_MISSING,
     "skippedReason": skipped_reason
   }
 
@@ -112,11 +116,11 @@ def add_collection_status(collection_info):
   status = None
   for dataset_info in collection_info["datasets"].values():
     dataset_status = dataset_info["tierOneStatus"]
-    if dataset_status == "INCOMPLETE" or (status is not None and status != dataset_status):
-      status = "INCOMPLETE"
+    if dataset_status == TIER_ONE_INCOMPLETE or (status is not None and status != dataset_status):
+      status = TIER_ONE_INCOMPLETE
       break
     status = dataset_status
-  return {"tierOneStatus": "MISSING" if status is None else status, **collection_info}
+  return {"tierOneStatus": TIER_ONE_MISSING if status is None else status, **collection_info}
 
 def get_cellxgene_datasets_info():
   if not os.path.exists(DOWNLOADS_PATH):
