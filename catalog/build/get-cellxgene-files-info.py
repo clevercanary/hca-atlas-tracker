@@ -35,8 +35,6 @@ HCA_REQUIRED_FIELDS = [
     "sequenced_fragment",
 ]
 
-DATASET_BATCH_SIZE = 25
-
 def read_json_file(path):
   with open(path) as file:
     return json.load(file)
