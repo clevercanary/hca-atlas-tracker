@@ -100,6 +100,7 @@ export function dbSourceStudyToApiSourceStudy(
       referenceAuthor: unpublishedInfo.referenceAuthor,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
       tasks,
+      tierOneMetadataStatus: dbSourceStudy.tierOneMetadataStatus,
       title: unpublishedInfo.title,
     };
   } else {
@@ -116,6 +117,7 @@ export function dbSourceStudyToApiSourceStudy(
       referenceAuthor: publication?.authors[0]?.name ?? null,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
       tasks,
+      tierOneMetadataStatus: dbSourceStudy.tierOneMetadataStatus,
       title: publication?.title ?? null,
     };
   }

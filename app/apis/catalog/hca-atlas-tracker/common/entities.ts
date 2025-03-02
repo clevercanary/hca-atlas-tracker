@@ -71,6 +71,7 @@ interface HCAAtlasTrackerSourceStudyCommon {
   id: string;
   sourceDatasetCount: number;
   tasks: HCAAtlasTrackerValidationRecordWithoutAtlases[];
+  tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
 }
 
 export interface HCAAtlasTrackerPublishedSourceStudy
@@ -301,6 +302,7 @@ export type HCAAtlasTrackerDBSourceStudyWithSourceDatasets =
 
 export type HCAAtlasTrackerDBSourceStudyWithRelatedEntities =
   HCAAtlasTrackerDBSourceStudyWithSourceDatasets & {
+    tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
     validations: HCAAtlasTrackerDBValidation[];
   };
 

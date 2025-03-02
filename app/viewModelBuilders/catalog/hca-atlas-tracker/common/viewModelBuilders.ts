@@ -34,6 +34,7 @@ import {
   NetworkKey,
   SYSTEM,
   TASK_STATUS,
+  TIER_ONE_METADATA_STATUS,
   VALIDATION_DESCRIPTION,
   VALIDATION_ID,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -408,20 +409,23 @@ export const buildSourceStudyCellxGeneStatus = (
     VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
   );
   if (ingestStatus === TASK_STATUS.DONE) {
-    const tierOneStatus = getSourceStudyTaskStatus(
-      sourceStudy,
-      VALIDATION_ID.SOURCE_STUDY_CELLXGENE_DATASETS_HAVE_TIER_ONE_METADATA
-    );
-    if (tierOneStatus === TASK_STATUS.DONE)
-      return {
-        label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA,
-        status: SOURCE_STUDY_STATUS.DONE,
-      };
-    else
-      return {
-        label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA_INCOMPLETE,
-        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
-      };
+    switch (sourceStudy.tierOneMetadataStatus) {
+      case TIER_ONE_METADATA_STATUS.COMPLETE:
+        return {
+          label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA,
+          status: SOURCE_STUDY_STATUS.DONE,
+        };
+      case TIER_ONE_METADATA_STATUS.INCOMPLETE:
+        return {
+          label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA_INCOMPLETE,
+          status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+        };
+      case TIER_ONE_METADATA_STATUS.MISSING:
+        return {
+          label: SOURCE_STUDY_STATUS_LABEL.NO_TIER_ONE_METADATA,
+          status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+        };
+    }
   } else {
     return {
       label: SOURCE_STUDY_STATUS_LABEL.TODO,
