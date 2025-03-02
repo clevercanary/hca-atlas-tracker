@@ -48,6 +48,8 @@ def get_tier_one_status(file_path):
   prev_is_null = None
   for col in HCA_REQUIRED_FIELDS:
     col_is_nulls = adata.obs[col].isnull().unique() if col in adata.obs.columns else [True]
+    if len(col_is_nulls) == 0:
+      col_is_nulls = [True]
     if len(col_is_nulls) == 2:
       return TIER_ONE_INCOMPLETE
     elif prev_is_null is None:
