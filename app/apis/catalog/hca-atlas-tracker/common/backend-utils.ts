@@ -1,3 +1,4 @@
+import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import {
   HCAAtlasTrackerAtlas,
@@ -17,6 +18,7 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
+  TIER_ONE_METADATA_STATUS,
 } from "./entities";
 import { getPublishedCitation, getUnpublishedCitation } from "./utils";
 
@@ -238,4 +240,21 @@ export function getDbEntityCitation(
       publication?.journal ?? null
     );
   }
+}
+
+/**
+ * Get the Tier 1 metadata status of the given source study's CELLxGENE collection.
+ * @param sourceStudy - Source study.
+ * @returns Tier 1 metadata status.
+ */
+export function getSourceStudyTierOneMetadataStatus(
+  sourceStudy: HCAAtlasTrackerDBSourceStudy
+): TIER_ONE_METADATA_STATUS {
+  const collectionId = sourceStudy.study_info.cellxgeneCollectionId;
+  return (
+    (collectionId &&
+      Object.hasOwn(savedCellxgeneInfo, collectionId) &&
+      savedCellxgeneInfo[collectionId].tierOneStatus) ||
+    TIER_ONE_METADATA_STATUS.MISSING
+  );
 }

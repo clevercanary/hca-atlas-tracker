@@ -403,10 +403,31 @@ export const buildSourceStudyCapStatus = (
 export const buildSourceStudyCellxGeneStatus = (
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): ComponentProps<typeof C.SourceStudyStatusCell> => {
-  return getSourceStudyStatusFromValidation(
+  const ingestStatus = getSourceStudyTaskStatus(
     sourceStudy,
     VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
   );
+  if (ingestStatus === TASK_STATUS.DONE) {
+    const tierOneStatus = getSourceStudyTaskStatus(
+      sourceStudy,
+      VALIDATION_ID.SOURCE_STUDY_CELLXGENE_DATASETS_HAVE_TIER_ONE_METADATA
+    );
+    if (tierOneStatus === TASK_STATUS.DONE)
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA,
+        status: SOURCE_STUDY_STATUS.DONE,
+      };
+    else
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA_INCOMPLETE,
+        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+      };
+  } else {
+    return {
+      label: SOURCE_STUDY_STATUS_LABEL.TODO,
+      status: SOURCE_STUDY_STATUS.REQUIRED,
+    };
+  }
 };
 
 /**
