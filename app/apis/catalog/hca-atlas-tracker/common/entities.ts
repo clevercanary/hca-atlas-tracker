@@ -489,6 +489,12 @@ export type SourceDatasetId = string;
 
 export type SourceStudyId = string;
 
+export enum TIER_ONE_METADATA_STATUS {
+  COMPLETE = "COMPLETE",
+  INCOMPLETE = "INCOMPLETE",
+  MISSING = "MISSING",
+}
+
 export type UserId = number;
 
 export interface ValidationDifference {

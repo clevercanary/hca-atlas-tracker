@@ -553,6 +553,19 @@ export async function getSourceStudyWithAtlasProperties(
 }
 
 /**
+ * Get all source studies that have CELLxGENE IDs.
+ * @returns source studies.
+ */
+export async function getCellxGeneSourceStudies(): Promise<
+  HCAAtlasTrackerDBSourceStudy[]
+> {
+  const queryResult = await query<HCAAtlasTrackerDBSourceStudy>(
+    "SELECT * FROM hat.source_studies s WHERE NOT s.study_info->'cellxgeneCollectionId' = 'null'"
+  );
+  return queryResult.rows;
+}
+
+/**
  * Throw an error if the given source study cannot be deleted from the given atlas.
  * @param sourceStudyId - Source study ID.
  * @param atlasId - Atlas ID.

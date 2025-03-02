@@ -1,12 +1,13 @@
+from itertools import groupby
 import os
 import json
 import requests
 import anndata as ad
 
-TRACKER_CELLXGENE_IDS_URL = "http://localhost:3000/api/cellxgene-source-datasets"
+TRACKER_CELLXGENE_IDS_URL = "http://localhost:3000/api/source-study-cellxgene-ids"
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
 
-JSON_PATH = "catalog/output/cellxgene-datasets-info.json"
+JSON_PATH = "catalog/output/cellxgene-info.json"
 TEMP_PATH = "catalog/build/temporary"
 DOWNLOADS_PATH = f"{TEMP_PATH}/downloads"
 TEMP_JSON_PATH = f"{TEMP_PATH}/in-progress-info.json"
@@ -42,16 +43,16 @@ def write_json_file(path, value):
 
 def get_tier_one_status(file_path):
   adata = ad.read_h5ad(file_path)
-  prev_bool = None
+  prev_is_null = None
   for col in HCA_REQUIRED_FIELDS:
-    col_bools = adata.obs[col].isnull().unique() if col in adata.obs.columns else [False]
-    if len(col_bools) == 2:
+    col_is_nulls = adata.obs[col].isnull().unique() if col in adata.obs.columns else [True]
+    if len(col_is_nulls) == 2:
       return "INCOMPLETE"
-    elif prev_bool is None:
-      prev_bool = col_bools[0]
-    elif col_bools[0] != prev_bool:
+    elif prev_is_null is None:
+      prev_is_null = col_is_nulls[0]
+    elif col_is_nulls[0] != prev_is_null:
       return "INCOMPLETE"
-  return "MISSING" if prev_bool is None else "COMPLETE" if prev_bool else "INCOMPLETE"
+  return "MISSING" if prev_is_null is None or prev_is_null else "COMPLETE"
 
 def download_file(url, download_path, download_name, file_size):
   print(f"Downloading {download_name} (0.00%)", end="\r")
@@ -72,17 +73,11 @@ def missing_dataset_info():
     "tierOneStatus": "MISSING"
   }
 
-def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
-  if dataset_id not in cellxgene_datasets_by_id:
-    print(f"{dataset_id} not found on CELLxGENE")
-    return missing_dataset_info()
-  
-  dataset = cellxgene_datasets_by_id[dataset_id]
-
+def get_latest_dataset_info(dataset):
   try:
     file_info = next(file for file in dataset["assets"] if file["filetype"].upper() == "H5AD")
   except StopIteration:
-    print(f"H5AD URL not found for {dataset_id}")
+    print(f"H5AD URL not found for {dataset["dataset_id"]}")
     return missing_dataset_info()
   
   download_name = f"{dataset["dataset_version_id"]}.h5ad"
@@ -103,13 +98,25 @@ def get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id):
   os.remove(download_path)
 
   return {
-    "collectionId": dataset["collection_id"],
     "datasetVersionId": dataset["dataset_version_id"],
     "tierOneStatus": tier_one_status
   }
 
-def has_latest_dataset_version(prev_info, dataset_id, cellxgene_datasets_by_id):
-  return dataset_id in prev_info and dataset_id in cellxgene_datasets_by_id and prev_info[dataset_id]["datasetVersionId"] == cellxgene_datasets_by_id[dataset_id]["dataset_version_id"]
+def has_latest_dataset_version(prev_info, dataset):
+  prev_dataset_info = prev_info.get(dataset["collection_id"], {"datasets": {}})["datasets"].get(dataset["dataset_id"])
+  if prev_dataset_info is None:
+    return False
+  return prev_dataset_info["datasetVersionId"] == dataset["dataset_version_id"]
+
+def add_collection_status(collection_info):
+  status = None
+  for dataset_info in collection_info["datasets"].values():
+    dataset_status = dataset_info["tierOneStatus"]
+    if dataset_status == "INCOMPLETE" or (status is not None and status != dataset_status):
+      status = "INCOMPLETE"
+      break
+    status = dataset_status
+  return {"tierOneStatus": "MISSING" if status is None else status, **collection_info}
 
 def get_cellxgene_datasets_info():
   if not os.path.exists(DOWNLOADS_PATH):
@@ -117,40 +124,50 @@ def get_cellxgene_datasets_info():
 
   prev_info = read_json_file(JSON_PATH)
   
-  cellxgene_datasets_by_id = None
+  new_info = {}
+  cellxgene_datasets_by_collection = None
 
   if os.path.exists(TEMP_JSON_PATH):
     print(f"Restoring previous run from {TEMP_JSON_PATH}")
-    prev_run_info = read_json_file(TEMP_JSON_PATH)
-    prev_info = {**prev_info, **prev_run_info}
+    new_info = read_json_file(TEMP_JSON_PATH)
     if os.path.exists(TEMP_CELLXGENE_DATASETS_PATH):
-      cellxgene_datasets_by_id = read_json_file(TEMP_CELLXGENE_DATASETS_PATH)
+      cellxgene_datasets_by_collection = read_json_file(TEMP_CELLXGENE_DATASETS_PATH)
 
   tracker_cellxgene_ids = requests.get(TRACKER_CELLXGENE_IDS_URL).json()[:15]
 
-  if cellxgene_datasets_by_id is None:
+  if cellxgene_datasets_by_collection is None:
     print("Requesting CELLxGENE datasets")
-    cellxgene_datasets_by_id = {dataset["dataset_id"]: dataset for dataset in requests.get(CELLXGENE_DATASETS_URL).json()}
-    write_json_file(TEMP_CELLXGENE_DATASETS_PATH, cellxgene_datasets_by_id)
-
-  new_info = {}
+    cellxgene_datasets_by_collection = {
+      collection_id: list(datasets) for collection_id, datasets in groupby(requests.get(CELLXGENE_DATASETS_URL).json(), lambda d: d["collection_id"])
+    }
+    write_json_file(TEMP_CELLXGENE_DATASETS_PATH, cellxgene_datasets_by_collection)
 
   print("Updating saved info")
 
-  ids_to_update = []
+  datasets_to_update = []
 
-  for dataset_id in tracker_cellxgene_ids:
-    if has_latest_dataset_version(prev_info, dataset_id, cellxgene_datasets_by_id):
-      new_info[dataset_id] = prev_info[dataset_id]
+  for collection_id in tracker_cellxgene_ids:
+    if collection_id in cellxgene_datasets_by_collection:
+      if not collection_id in new_info:
+        new_info[collection_id] = {"datasets": {}}
+      for dataset in cellxgene_datasets_by_collection[collection_id]:
+        if dataset["dataset_id"] in new_info[collection_id]["datasets"]:
+          continue
+        if has_latest_dataset_version(prev_info, dataset):
+          new_info[collection_id]["datasets"][dataset_id] = prev_info[collection_id]["datasets"][dataset_id]
+        else:
+          datasets_to_update.append(dataset)
     else:
-      ids_to_update.append(dataset_id)
+      print(f"Collection {collection_id} not found on CELLxGENE - skipping")
 
-  for index, dataset_id in enumerate(ids_to_update):
-    print(f"Processing {dataset_id} ({index + 1}/{len(ids_to_update)})")
-    new_info[dataset_id] = get_latest_dataset_info(dataset_id, cellxgene_datasets_by_id)
+  for index, dataset in enumerate(datasets_to_update):
+    collection_id = dataset["collection_id"]
+    dataset_id = dataset["dataset_id"]
+    print(f"Processing dataset {dataset_id} ({index + 1}/{len(datasets_to_update)}), collection {collection_id}")
+    new_info[collection_id]["datasets"][dataset_id] = get_latest_dataset_info(dataset)
     write_json_file(TEMP_JSON_PATH, new_info)
   
-  write_json_file(JSON_PATH, new_info)
+  write_json_file(JSON_PATH, {collection_id: add_collection_status(collection_info) for collection_id, collection_info in new_info.items()})
 
   os.remove(TEMP_JSON_PATH)
 
