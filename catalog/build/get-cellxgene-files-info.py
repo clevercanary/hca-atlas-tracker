@@ -66,11 +66,11 @@ def download_file(url, download_path, download_name, file_size):
         print(f"Downloading {download_name} ({downloaded_size/file_size * 100 :.2f}%)", end="\r")
   print("")
 
-def missing_dataset_info():
+def skipped_dataset_info(skipped_reason):
   return {
-    "collectionId": None,
     "datasetVersionId": None,
-    "tierOneStatus": "MISSING"
+    "tierOneStatus": "MISSING",
+    "skippedReason": skipped_reason
   }
 
 def get_latest_dataset_info(dataset):
@@ -78,7 +78,7 @@ def get_latest_dataset_info(dataset):
     file_info = next(file for file in dataset["assets"] if file["filetype"].upper() == "H5AD")
   except StopIteration:
     print(f"H5AD URL not found for {dataset["dataset_id"]}")
-    return missing_dataset_info()
+    return skipped_dataset_info("H5AD URL not found")
   
   download_name = f"{dataset["dataset_version_id"]}.h5ad"
   download_path = f"{DOWNLOADS_PATH}/{download_name}"
@@ -89,7 +89,7 @@ def get_latest_dataset_info(dataset):
     print(f"Download of {download_name} failed")
     if os.path.exists(download_path):
       os.remove(download_path)
-    return missing_dataset_info()
+    return skipped_dataset_info("Download failed")
   
   print(f"Reading {download_name}")
 
@@ -167,6 +167,13 @@ def get_cellxgene_datasets_info():
     new_info[collection_id]["datasets"][dataset_id] = get_latest_dataset_info(dataset)
     write_json_file(TEMP_JSON_PATH, new_info)
   
+  skipped_datasets_info = [(dataset_id, dataset_info["skippedReason"]) for collection_info in new_info.values() for dataset_id, dataset_info in collection_info["datasets"].items()]
+  if len(skipped_datasets_info > 0):
+    print("\nSummary of skipped datasets:")
+    for dataset_id, reason in skipped_datasets_info:
+      print(f"{dataset_id}: {reason}")
+    print("")
+
   write_json_file(JSON_PATH, {collection_id: add_collection_status(collection_info) for collection_id, collection_info in new_info.items()})
 
   os.remove(TEMP_JSON_PATH)
