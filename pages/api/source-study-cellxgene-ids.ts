@@ -6,5 +6,5 @@ export default handler(method(METHOD.GET), async (req, res) => {
   const cellxgeneIds = (await getCellxGeneSourceStudies()).map(
     (study) => study.study_info.cellxgeneCollectionId
   );
-  res.json(cellxgeneIds);
+  res.json(Array.from(new Set(cellxgeneIds)));
 });
