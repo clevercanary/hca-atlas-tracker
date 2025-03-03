@@ -7,6 +7,7 @@ import {
   HCAAtlasTrackerDBAtlasWithComponentAtlases,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
@@ -20,7 +21,11 @@ import {
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   TIER_ONE_METADATA_STATUS,
 } from "./entities";
-import { getPublishedCitation, getUnpublishedCitation } from "./utils";
+import {
+  getCompositeTierOneMetadataStatus,
+  getPublishedCitation,
+  getUnpublishedCitation,
+} from "./utils";
 
 export function dbAtlasToApiAtlas(
   dbAtlas: HCAAtlasTrackerDBAtlasWithComponentAtlases
@@ -85,8 +90,6 @@ export function dbSourceStudyToApiSourceStudy(
   const tasks = dbSourceStudy.validations.map(
     dbValidationToApiValidationWithoutAtlasProperties
   );
-  const tierOneMetadataStatus =
-    getSourceStudyTierOneMetadataStatus(dbSourceStudy);
   if (dbSourceStudy.doi === null) {
     const unpublishedInfo = dbSourceStudy.study_info.unpublishedInfo;
     return {
@@ -102,7 +105,6 @@ export function dbSourceStudyToApiSourceStudy(
       referenceAuthor: unpublishedInfo.referenceAuthor,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
       tasks,
-      tierOneMetadataStatus,
       title: unpublishedInfo.title,
     };
   } else {
@@ -119,7 +121,6 @@ export function dbSourceStudyToApiSourceStudy(
       referenceAuthor: publication?.authors[0]?.name ?? null,
       sourceDatasetCount: dbSourceStudy.source_dataset_count,
       tasks,
-      tierOneMetadataStatus,
       title: publication?.title ?? null,
     };
   }
@@ -145,6 +146,8 @@ export function dbSourceDatasetToApiSourceDataset(
     sourceStudyTitle:
       studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
     suspensionType: dbSourceDataset.sd_info.suspensionType,
+    tierOneMetadataStatus:
+      getDbSourceDatasetTierOneMetadataStatus(dbSourceDataset),
     tissue: dbSourceDataset.sd_info.tissue,
     title: dbSourceDataset.sd_info.title,
     updatedAt: dbSourceDataset.updated_at.toISOString(),
@@ -222,6 +225,19 @@ export function dbUserToApiUser(
 }
 
 /**
+ * Get the Tier 1 metadata status of the CELLxGENE dataset with the given ID.
+ * @param cellxgeneDatasetId - CELLxGENE dataset ID.
+ * @returns Tier 1 metadata status.
+ */
+export function getCellxGeneDatasetTierOneMetadataStatus(
+  cellxgeneDatasetId: string
+): TIER_ONE_METADATA_STATUS {
+  return Object.hasOwn(savedCellxgeneInfo.datasets, cellxgeneDatasetId)
+    ? savedCellxgeneInfo.datasets[cellxgeneDatasetId].tierOneStatus
+    : TIER_ONE_METADATA_STATUS.MISSING;
+}
+
+/**
  * Returns the entity's citation.
  * @param entity - Database model of entity with source study properties.
  * @returns citation for the associated source study.
@@ -251,14 +267,30 @@ export function getDbEntityCitation(
  * @param sourceStudy - Source study.
  * @returns Tier 1 metadata status.
  */
-export function getSourceStudyTierOneMetadataStatus(
+export function getDbSourceStudyTierOneMetadataStatus(
   sourceStudy: HCAAtlasTrackerDBSourceStudy
 ): TIER_ONE_METADATA_STATUS {
   const collectionId = sourceStudy.study_info.cellxgeneCollectionId;
-  return (
-    (collectionId &&
-      Object.hasOwn(savedCellxgeneInfo, collectionId) &&
-      savedCellxgeneInfo[collectionId].tierOneStatus) ||
-    TIER_ONE_METADATA_STATUS.MISSING
-  );
+  return collectionId &&
+    Object.hasOwn(savedCellxgeneInfo.collections, collectionId)
+    ? getCompositeTierOneMetadataStatus(
+        savedCellxgeneInfo.collections[collectionId].datasets.map(
+          getCellxGeneDatasetTierOneMetadataStatus
+        )
+      )
+    : TIER_ONE_METADATA_STATUS.MISSING;
+}
+
+/**
+ * Get the Tier 1 metadata status of the given source dataset's CELLxGENE dataset.
+ * @param sourceDataset - Source dataset.
+ * @returns Tier 1 metadata status.
+ */
+export function getDbSourceDatasetTierOneMetadataStatus(
+  sourceDataset: HCAAtlasTrackerDBSourceDataset
+): TIER_ONE_METADATA_STATUS {
+  const datasetId = sourceDataset.sd_info.cellxgeneDatasetId;
+  return datasetId
+    ? getCellxGeneDatasetTierOneMetadataStatus(datasetId)
+    : TIER_ONE_METADATA_STATUS.MISSING;
 }

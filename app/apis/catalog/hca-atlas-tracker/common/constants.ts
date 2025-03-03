@@ -142,6 +142,7 @@ export const SOURCE_STUDY_STATUS_LABEL = {
   FASTQS_BLOCKED: "FASTQs blocked",
   IN_PROGRESS: "In progress",
   NEEDS_FASTQS: "Needs FASTQs",
+  NO_DATASETS_USED: "No datasets used",
   NO_TIER_ONE_METADATA: "No Tier 1 metadata",
   TIER_ONE_METADATA: "Tier 1 metadata",
   TIER_ONE_METADATA_INCOMPLETE: "Tier 1 metadata incomplete",

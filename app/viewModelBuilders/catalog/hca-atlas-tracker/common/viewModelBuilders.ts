@@ -39,6 +39,7 @@ import {
   VALIDATION_ID,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
+  getSourceDatasetsTierOneMetadataStatus,
   getSourceStudyCitation,
   getSourceStudyTaskStatus,
   isTask,
@@ -399,17 +400,28 @@ export const buildSourceStudyCapStatus = (
 /**
  * Build props for the CELLxGENE SourceStudyStatusCell component.
  * @param sourceStudy - Source study entity.
+ * @param atlasLinkedDatasetsByStudyId - Atlas linked source datasets indexed by source study.
  * @returns Props to be used for the SourceStudyStatusCell component.
  */
 export const buildSourceStudyCellxGeneStatus = (
-  sourceStudy: HCAAtlasTrackerSourceStudy
+  sourceStudy: HCAAtlasTrackerSourceStudy,
+  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ComponentProps<typeof C.SourceStudyStatusCell> => {
   const ingestStatus = getSourceStudyTaskStatus(
     sourceStudy,
     VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
   );
   if (ingestStatus === TASK_STATUS.DONE) {
-    switch (sourceStudy.tierOneMetadataStatus) {
+    const sourceDatasets =
+      atlasLinkedDatasetsByStudyId.get(sourceStudy.id) ?? [];
+    if (sourceDatasets.length === 0)
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.NO_DATASETS_USED,
+        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+      };
+    const tierOneMetadataStatus =
+      getSourceDatasetsTierOneMetadataStatus(sourceDatasets);
+    switch (tierOneMetadataStatus) {
       case TIER_ONE_METADATA_STATUS.COMPLETE:
         return {
           label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA,
@@ -528,19 +540,19 @@ export const buildSourceStudyCount = (
  * Build props for the used source datasets cell component.
  * @param sourceStudy - Source study entity.
  * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetCountsByStudyId - Counts of atlas-linked source datasets.
+ * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked source datasets indexed by source study.
  * @returns Props to be used for the cell.
  */
 export const buildSourceStudySourceDatasetCount = (
   sourceStudy: HCAAtlasTrackerSourceStudy,
   pathParameter: PathParameter,
-  atlasLinkedDatasetCountsByStudyId: Map<string, number>
+  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ComponentProps<typeof C.Link> => {
   const label =
     sourceStudy.sourceDatasetCount === 0
       ? "--"
       : `${
-          atlasLinkedDatasetCountsByStudyId.get(sourceStudy.id) ?? 0
+          atlasLinkedDatasetsByStudyId.get(sourceStudy.id)?.length ?? 0
         } of ${sourceStudy.sourceDatasetCount.toLocaleString()}`;
   return {
     label,
@@ -1165,21 +1177,21 @@ export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCA
 /**
  * Returns the table column definition model for the atlas (edit mode) source studies table.
  * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetCountsByStudyId - Counts of atlas-linked datasets by source study.
+ * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked datasets indexed by source study.
  * @returns Table column definition.
  */
 export function getAtlasSourceStudiesTableColumns(
   pathParameter: PathParameter,
-  atlasLinkedDatasetCountsByStudyId: Map<string, number>
+  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
   return [
     getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
     getSourceStudySourceDatasetCountColumnDef(
       pathParameter,
-      atlasLinkedDatasetCountsByStudyId
+      atlasLinkedDatasetsByStudyId
     ),
-    getSourceStudyCELLxGENEStatusColumnDef(),
+    getSourceStudyCELLxGENEStatusColumnDef(atlasLinkedDatasetsByStudyId),
     getSourceStudyCapStatusColumnDef(),
     getSourceStudyHCADataRepositoryStatusColumnDef(),
   ];
@@ -1519,12 +1531,20 @@ function getSourceStudyCapStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStud
 
 /**
  * Returns source study in CELLxGENE column def.
+ * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked source datasets indexed by source study.
  * @returns Column def.
  */
-function getSourceStudyCELLxGENEStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
+function getSourceStudyCELLxGENEStatusColumnDef(
+  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
+): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     cell: ({ row }) =>
-      C.SourceStudyStatusCell(buildSourceStudyCellxGeneStatus(row.original)),
+      C.SourceStudyStatusCell(
+        buildSourceStudyCellxGeneStatus(
+          row.original,
+          atlasLinkedDatasetsByStudyId
+        )
+      ),
     header: "CELLxGENE",
   };
 }
@@ -1585,12 +1605,12 @@ function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceSt
 /**
  * Returns source study source datasets count column def.
  * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetCountsByStudyId - Counts of atlas-linked datasets by source study.
+ * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked datasets indexed by source study.
  * @returns Column def.
  */
 function getSourceStudySourceDatasetCountColumnDef(
   pathParameter: PathParameter,
-  atlasLinkedDatasetCountsByStudyId: Map<string, number>
+  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "sourceDatasetCount",
@@ -1599,7 +1619,7 @@ function getSourceStudySourceDatasetCountColumnDef(
         buildSourceStudySourceDatasetCount(
           row.original,
           pathParameter,
-          atlasLinkedDatasetCountsByStudyId
+          atlasLinkedDatasetsByStudyId
         )
       ),
     header: "Datasets Used",

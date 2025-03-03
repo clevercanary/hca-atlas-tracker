@@ -6,12 +6,14 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
+  HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
   NetworkKey,
   PublicationInfo,
   TASK_STATUS,
+  TIER_ONE_METADATA_STATUS,
   VALIDATION_ID,
   Wave,
 } from "./entities";
@@ -62,6 +64,40 @@ export function atlasInputMapper(
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
   return `${atlas.shortName} v${atlas.version}`;
+}
+
+/**
+ * Combine the given Tier 1 metadata statuses into one.
+ * @param statuses - Tier 1 metadata statuses.
+ * @returns Tier 1 metadata status.
+ */
+export function getCompositeTierOneMetadataStatus(
+  statuses: TIER_ONE_METADATA_STATUS[]
+): TIER_ONE_METADATA_STATUS {
+  let prevStatus: TIER_ONE_METADATA_STATUS | null = null;
+  for (const status of statuses) {
+    if (
+      status === TIER_ONE_METADATA_STATUS.INCOMPLETE ||
+      (prevStatus && prevStatus !== status)
+    ) {
+      return TIER_ONE_METADATA_STATUS.INCOMPLETE;
+    }
+    prevStatus = status;
+  }
+  return prevStatus ?? TIER_ONE_METADATA_STATUS.MISSING;
+}
+
+/**
+ * Get combined Tier 1 metadata status of the given source datasets.
+ * @param sourceDatasets - Source datasets.
+ * @returns Tier 1 metadata status.
+ */
+export function getSourceDatasetsTierOneMetadataStatus(
+  sourceDatasets: HCAAtlasTrackerSourceDataset[]
+): TIER_ONE_METADATA_STATUS {
+  return getCompositeTierOneMetadataStatus(
+    sourceDatasets.map((sourceDataset) => sourceDataset.tierOneMetadataStatus)
+  );
 }
 
 /**

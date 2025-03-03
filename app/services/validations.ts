@@ -4,7 +4,7 @@ import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
 import {
   getDbEntityCitation,
-  getSourceStudyTierOneMetadataStatus,
+  getDbSourceStudyTierOneMetadataStatus,
 } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS,
@@ -112,7 +112,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
         return {
           relatedEntityUrl: getCellxGeneRelatedEntityUrl(sourceStudy),
           status: passedIfTruthy(
-            getSourceStudyTierOneMetadataStatus(sourceStudy) ===
+            getDbSourceStudyTierOneMetadataStatus(sourceStudy) ===
               TIER_ONE_METADATA_STATUS.COMPLETE
           ),
         };
