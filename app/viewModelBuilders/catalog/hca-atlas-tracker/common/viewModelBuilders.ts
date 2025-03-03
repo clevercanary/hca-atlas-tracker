@@ -417,7 +417,7 @@ export const buildSourceStudyCellxGeneStatus = (
     if (sourceDatasets.length === 0)
       return {
         label: SOURCE_STUDY_STATUS_LABEL.NO_DATASETS_USED,
-        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+        status: SOURCE_STUDY_STATUS.REQUIRED,
       };
     const tierOneMetadataStatus =
       getSourceDatasetsTierOneMetadataStatus(sourceDatasets);
