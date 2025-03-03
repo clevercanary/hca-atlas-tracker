@@ -1,8 +1,12 @@
 import { TIER_ONE_METADATA_STATUS } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 
-interface CollectionInfo {
+interface CellXGeneInfo {
+  collections: Record<string, CollectionInfo>;
   datasets: Record<string, DatasetInfo>;
-  tierOneStatus: TIER_ONE_METADATA_STATUS;
+}
+
+interface CollectionInfo {
+  datasets: string[];
 }
 
 type DatasetInfo =
@@ -17,6 +21,6 @@ type DatasetInfo =
       tierOneStatus: TIER_ONE_METADATA_STATUS;
     };
 
-declare const cellxgeneInfo: Record<string, CollectionInfo>;
+declare const cellxgeneInfo: CellxGeneInfo;
 
 export default cellxgeneInfo;

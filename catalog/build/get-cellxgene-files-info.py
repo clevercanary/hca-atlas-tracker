@@ -106,8 +106,8 @@ def get_latest_dataset_info(dataset):
     "tierOneStatus": tier_one_status
   }
 
-def has_latest_dataset_version(prev_info, dataset):
-  prev_dataset_info = prev_info.get(dataset["collection_id"], {"datasets": {}})["datasets"].get(dataset["dataset_id"])
+def has_latest_dataset_version(prev_datasets_info, dataset):
+  prev_dataset_info = prev_datasets_info.get(dataset["dataset_id"])
   if prev_dataset_info is None:
     return False
   return prev_dataset_info["datasetVersionId"] == dataset["dataset_version_id"]
@@ -126,14 +126,14 @@ def get_cellxgene_datasets_info():
   if not os.path.exists(DOWNLOADS_PATH):
     os.makedirs(DOWNLOADS_PATH)
 
-  prev_info = read_json_file(JSON_PATH)
+  prev_datasets_info = read_json_file(JSON_PATH)["datasets"]
   
-  new_info = {}
+  new_datasets_info = {}
   cellxgene_datasets_by_collection = None
 
   if os.path.exists(TEMP_JSON_PATH):
     print(f"Restoring previous run from {TEMP_JSON_PATH}")
-    new_info = read_json_file(TEMP_JSON_PATH)
+    new_datasets_info = read_json_file(TEMP_JSON_PATH)
     if os.path.exists(TEMP_CELLXGENE_DATASETS_PATH):
       cellxgene_datasets_by_collection = read_json_file(TEMP_CELLXGENE_DATASETS_PATH)
 
@@ -148,17 +148,19 @@ def get_cellxgene_datasets_info():
 
   print("Updating saved info")
 
+  new_collections_info = {}
   datasets_to_update = []
 
   for collection_id in tracker_cellxgene_ids:
     if collection_id in cellxgene_datasets_by_collection:
-      if not collection_id in new_info:
-        new_info[collection_id] = {"datasets": {}}
+      new_collections_info[collection_id] = {"datasets": []}
       for dataset in cellxgene_datasets_by_collection[collection_id]:
-        if dataset["dataset_id"] in new_info[collection_id]["datasets"]:
+        dataset_id = dataset["dataset_id"]
+        new_collections_info[collection_id]["datasets"].append(dataset_id)
+        if dataset_id in new_datasets_info:
           continue
-        if has_latest_dataset_version(prev_info, dataset):
-          new_info[collection_id]["datasets"][dataset_id] = prev_info[collection_id]["datasets"][dataset_id]
+        if has_latest_dataset_version(prev_datasets_info, dataset):
+          new_datasets_info[dataset_id] = prev_datasets_info[dataset_id]
         else:
           datasets_to_update.append(dataset)
     else:
@@ -168,17 +170,17 @@ def get_cellxgene_datasets_info():
     collection_id = dataset["collection_id"]
     dataset_id = dataset["dataset_id"]
     print(f"Processing dataset {dataset_id} ({index + 1}/{len(datasets_to_update)}), collection {collection_id}")
-    new_info[collection_id]["datasets"][dataset_id] = get_latest_dataset_info(dataset)
-    write_json_file(TEMP_JSON_PATH, new_info)
+    new_datasets_info[dataset_id] = get_latest_dataset_info(dataset)
+    write_json_file(TEMP_JSON_PATH, new_datasets_info)
   
-  skipped_datasets_info = [(dataset_id, dataset_info["skippedReason"]) for collection_info in new_info.values() for dataset_id, dataset_info in collection_info["datasets"].items()]
-  if len(skipped_datasets_info > 0):
+  skipped_datasets_info = [(dataset_id, dataset_info["skippedReason"]) for dataset_id, dataset_info in new_datasets_info.items() if "skippedReason" in dataset_info]
+  if len(skipped_datasets_info) > 0:
     print("\nSummary of skipped datasets:")
     for dataset_id, reason in skipped_datasets_info:
       print(f"{dataset_id}: {reason}")
     print("")
 
-  write_json_file(JSON_PATH, {collection_id: add_collection_status(collection_info) for collection_id, collection_info in new_info.items()})
+  write_json_file(JSON_PATH, {"collections": new_collections_info, "datasets": new_datasets_info})
 
   os.remove(TEMP_JSON_PATH)
 
