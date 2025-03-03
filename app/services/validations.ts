@@ -107,7 +107,8 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
     {
       description: VALIDATION_DESCRIPTION.ADD_TIER_ONE_METADATA,
       system: SYSTEM.CELLXGENE,
-      validate(sourceStudy): ValidationStatusInfo {
+      validate(sourceStudy): ValidationStatusInfo | null {
+        if (!sourceStudy.study_info.cellxgeneCollectionId) return null;
         return {
           relatedEntityUrl: getCellxGeneRelatedEntityUrl(sourceStudy),
           status: passedIfTruthy(
