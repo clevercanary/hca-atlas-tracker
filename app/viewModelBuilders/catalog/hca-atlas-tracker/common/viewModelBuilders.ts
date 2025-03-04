@@ -391,11 +391,6 @@ export const buildSourceDatasetDownload = (
 export const buildSourceDatasetTierOneMetadataStatus = (
   sourceDataset: HCAAtlasTrackerSourceDataset
 ): ComponentProps<typeof C.IconStatusBadge> => {
-  if (!sourceDataset.cellxgeneDatasetId)
-    return {
-      label: STATUS_LABEL.NO_CELLXGENE_ID,
-      status: ICON_STATUS.REQUIRED,
-    };
   switch (sourceDataset.tierOneMetadataStatus) {
     case TIER_ONE_METADATA_STATUS.COMPLETE:
       return {
@@ -411,6 +406,16 @@ export const buildSourceDatasetTierOneMetadataStatus = (
       return {
         label: STATUS_LABEL.NO_TIER_ONE_METADATA,
         status: ICON_STATUS.PARTIALLY_COMPLETE,
+      };
+    case TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION:
+      return {
+        label: STATUS_LABEL.NEEDS_VALIDATION,
+        status: ICON_STATUS.PARTIALLY_COMPLETE,
+      };
+    case TIER_ONE_METADATA_STATUS.NA:
+      return {
+        label: STATUS_LABEL.NO_CELLXGENE_ID,
+        status: ICON_STATUS.REQUIRED,
       };
   }
 };
@@ -467,6 +472,11 @@ export const buildSourceStudyCellxGeneStatus = (
       case TIER_ONE_METADATA_STATUS.MISSING:
         return {
           label: STATUS_LABEL.NO_TIER_ONE_METADATA,
+          status: ICON_STATUS.PARTIALLY_COMPLETE,
+        };
+      default:
+        return {
+          label: STATUS_LABEL.NEEDS_VALIDATION,
           status: ICON_STATUS.PARTIALLY_COMPLETE,
         };
     }

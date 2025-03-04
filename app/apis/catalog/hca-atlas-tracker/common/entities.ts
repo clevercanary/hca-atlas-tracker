@@ -494,6 +494,8 @@ export enum TIER_ONE_METADATA_STATUS {
   COMPLETE = "COMPLETE",
   INCOMPLETE = "INCOMPLETE",
   MISSING = "MISSING",
+  NA = "NA",
+  NEEDS_VALIDATION = "NEEDS_VALIDATION",
 }
 
 export type UserId = number;

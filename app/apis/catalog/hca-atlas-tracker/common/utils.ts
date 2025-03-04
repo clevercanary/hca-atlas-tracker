@@ -76,6 +76,8 @@ export function getCompositeTierOneMetadataStatus(
 ): TIER_ONE_METADATA_STATUS {
   let prevStatus: TIER_ONE_METADATA_STATUS | null = null;
   for (const status of statuses) {
+    if (status === TIER_ONE_METADATA_STATUS.NA) continue;
+    if (status === TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION) return status;
     if (
       status === TIER_ONE_METADATA_STATUS.INCOMPLETE ||
       (prevStatus && prevStatus !== status)
@@ -84,7 +86,7 @@ export function getCompositeTierOneMetadataStatus(
     }
     prevStatus = status;
   }
-  return prevStatus ?? TIER_ONE_METADATA_STATUS.MISSING;
+  return prevStatus ?? TIER_ONE_METADATA_STATUS.NA;
 }
 
 /**

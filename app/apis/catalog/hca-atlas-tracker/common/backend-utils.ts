@@ -234,7 +234,7 @@ export function getCellxGeneDatasetTierOneMetadataStatus(
 ): TIER_ONE_METADATA_STATUS {
   return Object.hasOwn(savedCellxgeneInfo.datasets, cellxgeneDatasetId)
     ? savedCellxgeneInfo.datasets[cellxgeneDatasetId].tierOneStatus
-    : TIER_ONE_METADATA_STATUS.MISSING;
+    : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION;
 }
 
 /**
@@ -271,14 +271,15 @@ export function getDbSourceStudyTierOneMetadataStatus(
   sourceStudy: HCAAtlasTrackerDBSourceStudy
 ): TIER_ONE_METADATA_STATUS {
   const collectionId = sourceStudy.study_info.cellxgeneCollectionId;
-  return collectionId &&
-    Object.hasOwn(savedCellxgeneInfo.collections, collectionId)
-    ? getCompositeTierOneMetadataStatus(
-        savedCellxgeneInfo.collections[collectionId].datasets.map(
-          getCellxGeneDatasetTierOneMetadataStatus
+  return collectionId
+    ? Object.hasOwn(savedCellxgeneInfo.collections, collectionId)
+      ? getCompositeTierOneMetadataStatus(
+          savedCellxgeneInfo.collections[collectionId].datasets.map(
+            getCellxGeneDatasetTierOneMetadataStatus
+          )
         )
-      )
-    : TIER_ONE_METADATA_STATUS.MISSING;
+      : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
+    : TIER_ONE_METADATA_STATUS.NA;
 }
 
 /**
@@ -292,5 +293,5 @@ export function getDbSourceDatasetTierOneMetadataStatus(
   const datasetId = sourceDataset.sd_info.cellxgeneDatasetId;
   return datasetId
     ? getCellxGeneDatasetTierOneMetadataStatus(datasetId)
-    : TIER_ONE_METADATA_STATUS.MISSING;
+    : TIER_ONE_METADATA_STATUS.NA;
 }

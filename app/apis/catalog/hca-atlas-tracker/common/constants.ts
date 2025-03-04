@@ -142,6 +142,7 @@ export const STATUS_LABEL = {
   FASTQS_BLOCKED: "FASTQs blocked",
   IN_PROGRESS: "In progress",
   NEEDS_FASTQS: "Needs FASTQs",
+  NEEDS_VALIDATION: "Needs validation",
   NO_CELLXGENE_ID: "No CELLxGENE ID",
   NO_DATASETS_USED: "No datasets used",
   NO_TIER_ONE_METADATA: "No Tier 1 metadata",
