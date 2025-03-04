@@ -384,6 +384,38 @@ export const buildSourceDatasetDownload = (
 };
 
 /**
+ * Build props for the source dataset Tier 1 metadata StatusBadge component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the StatusBadge component.
+ */
+export const buildSourceDatasetTierOneMetadataStatus = (
+  sourceDataset: HCAAtlasTrackerSourceDataset
+): ComponentProps<typeof C.SourceStudyStatusCell> => {
+  if (!sourceDataset.cellxgeneDatasetId)
+    return {
+      label: SOURCE_STUDY_STATUS_LABEL.NO_CELLXGENE_ID,
+      status: SOURCE_STUDY_STATUS.REQUIRED,
+    };
+  switch (sourceDataset.tierOneMetadataStatus) {
+    case TIER_ONE_METADATA_STATUS.COMPLETE:
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA,
+        status: SOURCE_STUDY_STATUS.DONE,
+      };
+    case TIER_ONE_METADATA_STATUS.INCOMPLETE:
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.TIER_ONE_METADATA_INCOMPLETE,
+        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+      };
+    case TIER_ONE_METADATA_STATUS.MISSING:
+      return {
+        label: SOURCE_STUDY_STATUS_LABEL.NO_TIER_ONE_METADATA,
+        status: SOURCE_STUDY_STATUS.PARTIALLY_COMPLETE,
+      };
+  }
+};
+
+/**
  * Build props for the CAP SourceStudyStatusCell component.
  * @param sourceStudy - Source study entity.
  * @returns Props to be used for the SourceStudyStatusCell component.
@@ -1043,6 +1075,7 @@ export function getAtlasSourceDatasetsTableColumns(
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetSourceStudyColumnDef(atlas),
     getAtlasSourceDatasetPublicationColumnDef(),
+    getSourceDatasetTierOneMetadataStatusColumnDef(),
     getSourceDatasetMetadataSpreadsheetColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
@@ -1492,6 +1525,22 @@ function getSourceDatasetSourceStudyColumnDef(
         }),
       }),
     header: "Source Study",
+  };
+}
+
+/**
+ * Returns source dataset Tier 1 metadata status column def.
+ * @returns Column def.
+ */
+function getSourceDatasetTierOneMetadataStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "tierOneMetadataStatus",
+    cell: ({ row }): JSX.Element =>
+      C.SourceStudyStatusCell(
+        buildSourceDatasetTierOneMetadataStatus(row.original)
+      ),
+    enableSorting: false,
+    header: "Tier 1 Metadata",
   };
 }
 
