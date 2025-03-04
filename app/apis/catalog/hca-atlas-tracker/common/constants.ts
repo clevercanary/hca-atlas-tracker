@@ -136,7 +136,7 @@ export const ROLE_GROUP = {
   ],
 };
 
-export const SOURCE_STUDY_STATUS_LABEL = {
+export const STATUS_LABEL = {
   COMPLETE: "Complete",
   FASTQS: "FASTQs",
   FASTQS_BLOCKED: "FASTQs blocked",
