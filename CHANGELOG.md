@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.10.1...v1.11.0) (2025-03-05)
+
+
+### Features
+
+* add tier 1 metadata status to source study dataset list ([#608](https://github.com/clevercanary/hca-atlas-tracker/issues/608)) ([#609](https://github.com/clevercanary/hca-atlas-tracker/issues/609)) ([d75ecf6](https://github.com/clevercanary/hca-atlas-tracker/commit/d75ecf6528c3c46fad13adf44c0e403a3505f4b9))
+* add tier 1 metadata task and incorporate into source study status ([#591](https://github.com/clevercanary/hca-atlas-tracker/issues/591)) ([#603](https://github.com/clevercanary/hca-atlas-tracker/issues/603)) ([618c711](https://github.com/clevercanary/hca-atlas-tracker/commit/618c711f2786c3fa93c5912d4dff1597e9811428))
+
 ## [1.10.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.10.0...v1.10.1) (2025-02-27)
 
 
