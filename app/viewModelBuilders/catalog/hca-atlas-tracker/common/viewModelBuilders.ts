@@ -1155,6 +1155,7 @@ export function getAtlasSourceStudySourceDatasetsTableColumns(
       canEdit,
       linkedSourceDatasetIds
     ),
+    getSourceDatasetTierOneMetadataStatusColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),

@@ -87,7 +87,7 @@ export const ViewSourceStudies = ({
                 pathParameter,
                 atlasLinkedDatasetsByStudyId
               )}
-              gridTemplateColumns="max-content minmax(260px, 1fr) minmax(100px, 118px) minmax(80px, 130px) minmax(230px, 250px) minmax(130px, 150px) minmax(170px, 185px)"
+              gridTemplateColumns="max-content minmax(260px, 1fr) minmax(100px, 118px) minmax(80px, 130px) minmax(170px, 190px) minmax(130px, 150px) minmax(170px, 185px)"
               items={sortedSourceStudies}
               tableOptions={TABLE_OPTIONS}
             />
