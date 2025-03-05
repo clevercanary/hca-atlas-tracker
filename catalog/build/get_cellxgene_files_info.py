@@ -43,8 +43,7 @@ def write_json_file(path, value):
   with open(path, "w") as file:
     json.dump(value, file)
 
-def get_tier_one_status(file_path):
-  adata = ad.read_h5ad(file_path)
+def get_tier_one_status(adata):
   prev_is_null = None
   for col in HCA_REQUIRED_FIELDS:
     col_is_nulls = adata.obs[col].isnull().unique() if col in adata.obs.columns else [True]
@@ -77,7 +76,7 @@ def skipped_dataset_info(skipped_reason):
     "skippedReason": skipped_reason
   }
 
-def get_latest_dataset_info(dataset):
+def download_and_read_dataset_file(dataset, handle_data, retain_files=False):
   try:
     file_info = next(file for file in dataset["assets"] if file["filetype"].upper() == "H5AD")
   except StopIteration:
@@ -97,14 +96,16 @@ def get_latest_dataset_info(dataset):
   
   print(f"Reading {download_name}")
 
-  tier_one_status = get_tier_one_status(download_path)
-  
-  os.remove(download_path)
+  adata = ad.read_h5ad(download_path)
+  result = handle_data(adata)
 
-  return {
-    "datasetVersionId": dataset["dataset_version_id"],
-    "tierOneStatus": tier_one_status
-  }
+  if not retain_files:
+    os.remove(download_path)
+
+  return result
+
+def get_latest_dataset_info(dataset):
+  return download_and_read_dataset_file(dataset, lambda adata: {"datasetVersionId": dataset["dataset_version_id"], "tierOneStatus": get_tier_one_status(adata)})
 
 def has_latest_dataset_version(prev_datasets_info, dataset):
   prev_dataset_info = prev_datasets_info.get(dataset["dataset_id"])

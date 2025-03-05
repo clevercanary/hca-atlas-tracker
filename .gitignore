@@ -55,4 +55,5 @@ _templates
 
 #python
 venv/
+__pycache__
 
