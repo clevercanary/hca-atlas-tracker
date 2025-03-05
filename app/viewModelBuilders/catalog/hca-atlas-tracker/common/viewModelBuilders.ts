@@ -394,17 +394,17 @@ export const buildSourceDatasetTierOneMetadataStatus = (
   switch (sourceDataset.tierOneMetadataStatus) {
     case TIER_ONE_METADATA_STATUS.COMPLETE:
       return {
-        label: STATUS_LABEL.TIER_ONE_METADATA,
+        label: STATUS_LABEL.TIER_ONE,
         status: ICON_STATUS.DONE,
       };
     case TIER_ONE_METADATA_STATUS.INCOMPLETE:
       return {
-        label: STATUS_LABEL.TIER_ONE_METADATA_INCOMPLETE,
+        label: STATUS_LABEL.INCOMPLETE_TIER_ONE,
         status: ICON_STATUS.PARTIALLY_COMPLETE,
       };
     case TIER_ONE_METADATA_STATUS.MISSING:
       return {
-        label: STATUS_LABEL.NO_TIER_ONE_METADATA,
+        label: STATUS_LABEL.NO_TIER_ONE,
         status: ICON_STATUS.PARTIALLY_COMPLETE,
       };
     case TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION:
@@ -461,17 +461,17 @@ export const buildSourceStudyCellxGeneStatus = (
     switch (tierOneMetadataStatus) {
       case TIER_ONE_METADATA_STATUS.COMPLETE:
         return {
-          label: STATUS_LABEL.TIER_ONE_METADATA,
+          label: STATUS_LABEL.TIER_ONE,
           status: ICON_STATUS.DONE,
         };
       case TIER_ONE_METADATA_STATUS.INCOMPLETE:
         return {
-          label: STATUS_LABEL.TIER_ONE_METADATA_INCOMPLETE,
+          label: STATUS_LABEL.INCOMPLETE_TIER_ONE,
           status: ICON_STATUS.PARTIALLY_COMPLETE,
         };
       case TIER_ONE_METADATA_STATUS.MISSING:
         return {
-          label: STATUS_LABEL.NO_TIER_ONE_METADATA,
+          label: STATUS_LABEL.NO_TIER_ONE,
           status: ICON_STATUS.PARTIALLY_COMPLETE,
         };
       default:
