@@ -7,6 +7,7 @@ import anndata as ad
 TIER_ONE_COMPLETE = "COMPLETE"
 TIER_ONE_INCOMPLETE = "INCOMPLETE"
 TIER_ONE_MISSING = "MISSING"
+TIER_ONE_NEEDS_VALIDATION= "NEEDS_VALIDATION"
 
 TRACKER_CELLXGENE_IDS_URL = "https://tracker.data.humancellatlas.org/api/source-study-cellxgene-ids"
 CELLXGENE_DATASETS_URL = "https://api.cellxgene.cziscience.com/curation/v1/datasets"
@@ -72,7 +73,7 @@ def download_file(url, download_path, download_name, file_size):
 def skipped_dataset_info(skipped_reason):
   return {
     "datasetVersionId": None,
-    "tierOneStatus": TIER_ONE_MISSING,
+    "tierOneStatus": TIER_ONE_NEEDS_VALIDATION,
     "skippedReason": skipped_reason
   }
 
