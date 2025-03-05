@@ -410,7 +410,7 @@ export const buildSourceDatasetTierOneMetadataStatus = (
     case TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION:
       return {
         label: STATUS_LABEL.NEEDS_VALIDATION,
-        status: ICON_STATUS.PARTIALLY_COMPLETE,
+        status: ICON_STATUS.REQUIRED,
       };
     case TIER_ONE_METADATA_STATUS.NA:
       return {
@@ -477,7 +477,7 @@ export const buildSourceStudyCellxGeneStatus = (
       default:
         return {
           label: STATUS_LABEL.NEEDS_VALIDATION,
-          status: ICON_STATUS.PARTIALLY_COMPLETE,
+          status: ICON_STATUS.REQUIRED,
         };
     }
   } else {
