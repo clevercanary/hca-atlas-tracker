@@ -50,3 +50,17 @@ In order to run tests, a test database must be created:
 - `createdb atlas-tracker-test`
 
 Once this has been done, tests may be run with `npm run test`.
+
+### Updating saved CELLxGENE file info
+
+To get Tier 1 metadata status, dataset files from CELLxGENE must be downloaded and read. This is done using a Python script, which exports a JSON file that's saved in the repository. To run the script:
+
+- Create and activate the virtual environment, if necessary:
+  - Use Python 3.12.4.
+  - In the root of this repository, run `python3 -m venv ./venv`.
+  - Run `source venv/bin/activate` to activate the environment.
+  - Run `pip install -r catalog/build/requirements.txt` to install dependencies.
+  - `deactivate` can be run to deactivate the virtual environment.
+- Run `python3 catalog/build/get-cellxgene-files-info.py`.
+- If the script exits unexpectedly, the same command can be run again to resume. If resuming is not desired, `catalog/build/temporary/in-progress-info.json` should be deleted.
+- If a dataset is skipped due to a temporary HTTP error, the script can be re-run to patch missing info.

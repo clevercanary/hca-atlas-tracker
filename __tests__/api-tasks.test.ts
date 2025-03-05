@@ -8,6 +8,7 @@ import {
   INITIAL_TEST_ATLASES_BY_SOURCE_STUDY,
   INITIAL_TEST_SOURCE_STUDIES,
   STAKEHOLDER_ANALOGOUS_ROLES,
+  TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -15,7 +16,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+import { TestSourceStudy, TestUser } from "../testing/entities";
 import { testApiRole } from "../testing/utils";
 
 jest.mock("../app/utils/pg-app-connect-config");
@@ -100,14 +101,13 @@ function expectInitialValidationsToExist(
       (v) => v.entityId === testStudy.id
     );
     let expectedValidationCount = 3;
-    if (
-      "doi" in testStudy && testStudy.hcaProjectId === undefined
-        ? testStudy.doi !== null && TEST_HCA_PROJECTS_BY_DOI.has(testStudy.doi)
-        : testStudy.hcaProjectId !== null
-    ) {
+    if (hasHcaId(testStudy)) {
       expectedValidationCount += 2;
       if ("doi" in testStudy && testStudy.doi !== null)
         expectedValidationCount++;
+    }
+    if (hasCellxGeneId(testStudy)) {
+      expectedValidationCount += 1;
     }
     expect(studyValidations).toHaveLength(expectedValidationCount);
     const studyAtlases = INITIAL_TEST_ATLASES_BY_SOURCE_STUDY[testStudy.id];
@@ -117,4 +117,17 @@ function expectInitialValidationsToExist(
       expect(atlasNames).toContain(`${atlas.shortName} v${atlas.version}`);
     }
   }
+}
+
+function hasHcaId(testStudy: TestSourceStudy): boolean {
+  return "doi" in testStudy && testStudy.hcaProjectId === undefined
+    ? testStudy.doi !== null && TEST_HCA_PROJECTS_BY_DOI.has(testStudy.doi)
+    : testStudy.hcaProjectId !== null;
+}
+
+function hasCellxGeneId(testStudy: TestSourceStudy): boolean {
+  return "doi" in testStudy && testStudy.cellxgeneCollectionId === undefined
+    ? testStudy.doi !== null &&
+        TEST_CELLXGENE_COLLECTIONS_BY_DOI.has(testStudy.doi)
+    : testStudy.cellxgeneCollectionId !== null;
 }

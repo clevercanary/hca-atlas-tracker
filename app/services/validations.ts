@@ -2,7 +2,10 @@ import { NewCommentThreadData } from "app/apis/catalog/hca-atlas-tracker/common/
 import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";
-import { getDbEntityCitation } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
+import {
+  getDbEntityCitation,
+  getDbSourceStudyTierOneMetadataStatus,
+} from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS,
   DEFAULT_TASK_STATUS_BY_VALIDATION_STATUS,
@@ -23,6 +26,7 @@ import {
   SYSTEM,
   TASK_STATUS,
   TaskStatusesUpdatedByDOIResult,
+  TIER_ONE_METADATA_STATUS,
   VALIDATION_DESCRIPTION,
   VALIDATION_ID,
   VALIDATION_STATUS,
@@ -98,6 +102,23 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
         };
       },
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      description: VALIDATION_DESCRIPTION.ADD_TIER_ONE_METADATA,
+      system: SYSTEM.CELLXGENE,
+      validate(sourceStudy): ValidationStatusInfo | null {
+        if (!sourceStudy.study_info.cellxgeneCollectionId) return null;
+        return {
+          relatedEntityUrl: getCellxGeneRelatedEntityUrl(sourceStudy),
+          status: passedIfTruthy(
+            getDbSourceStudyTierOneMetadataStatus(sourceStudy) ===
+              TIER_ONE_METADATA_STATUS.COMPLETE
+          ),
+        };
+      },
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_CELLXGENE_DATASETS_HAVE_TIER_ONE_METADATA,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {

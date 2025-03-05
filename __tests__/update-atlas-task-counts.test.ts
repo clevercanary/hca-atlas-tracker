@@ -32,7 +32,7 @@ describe("updateTaskCounts", () => {
   it("Sets completed and total counts for HCA ingest, CELLxGENE ingest, CAP ingest, and all tasks", async () => {
     await updateTaskCounts();
 
-    await testAtlasCounts(ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A, 27, 12, {
+    await testAtlasCounts(ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A, 28, 12, {
       [SYSTEM.CAP]: {
         completedCount: 0,
         count: 5,
@@ -47,7 +47,7 @@ describe("updateTaskCounts", () => {
       },
     });
 
-    await testAtlasCounts(ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B, 12, 3, {
+    await testAtlasCounts(ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B, 14, 3, {
       [SYSTEM.CAP]: {
         completedCount: 1,
         count: 4,

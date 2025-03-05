@@ -47,19 +47,20 @@ export const ViewSourceStudies = ({
     () => sourceStudies.sort(sortSourceStudies),
     [sourceStudies]
   );
-  const atlasLinkedDatasetCountsByStudyId = useMemo(
+  const atlasLinkedDatasetsByStudyId = useMemo(
     () =>
-      sourceStudiesSourceDatasets.reduce((counts, sourceDataset) => {
+      sourceStudiesSourceDatasets.reduce((datasets, sourceDataset) => {
         const linkedDataset = atlasSourceDatasets.find(
           (atlasSourceDataset) => atlasSourceDataset.id === sourceDataset.id
         );
-        if (linkedDataset)
-          counts.set(
-            sourceDataset.sourceStudyId,
-            (counts.get(sourceDataset.sourceStudyId) ?? 0) + 1
-          );
-        return counts;
-      }, new Map<string, number>()),
+        if (linkedDataset) {
+          let studyDatasets = datasets.get(sourceDataset.sourceStudyId);
+          if (!studyDatasets)
+            datasets.set(sourceDataset.sourceStudyId, (studyDatasets = []));
+          studyDatasets.push(sourceDataset);
+        }
+        return datasets;
+      }, new Map<string, HCAAtlasTrackerSourceDataset[]>()),
     [atlasSourceDatasets, sourceStudiesSourceDatasets]
   );
   if (!canView) return <RequestAccess />;
@@ -84,9 +85,9 @@ export const ViewSourceStudies = ({
             <Table
               columns={getAtlasSourceStudiesTableColumns(
                 pathParameter,
-                atlasLinkedDatasetCountsByStudyId
+                atlasLinkedDatasetsByStudyId
               )}
-              gridTemplateColumns="max-content minmax(260px, 1fr) minmax(100px, 118px) minmax(80px, 130px) repeat(2, minmax(130px, 150px)) minmax(170px, 185px)"
+              gridTemplateColumns="max-content minmax(260px, 1fr) minmax(100px, 118px) minmax(80px, 130px) minmax(230px, 250px) minmax(130px, 150px) minmax(170px, 185px)"
               items={sortedSourceStudies}
               tableOptions={TABLE_OPTIONS}
             />

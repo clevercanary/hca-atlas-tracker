@@ -51,6 +51,13 @@ const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
     validationType: VALIDATION_TYPE.INGEST,
   },
   {
+    system: SYSTEM.CELLXGENE,
+    validationId:
+      VALIDATION_ID.SOURCE_STUDY_CELLXGENE_DATASETS_HAVE_TIER_ONE_METADATA,
+    validationStatus: VALIDATION_STATUS.FAILED,
+    validationType: VALIDATION_TYPE.INGEST,
+  },
+  {
     system: SYSTEM.HCA_DATA_REPOSITORY,
     validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
     validationStatus: VALIDATION_STATUS.FAILED,
@@ -313,6 +320,13 @@ const VALIDATIONS_PUBLISHED_WITH_CAP_AND_CELLXGENE: ExpectedValidationProperties
       system: SYSTEM.CELLXGENE,
       validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
       validationStatus: VALIDATION_STATUS.PASSED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.CELLXGENE,
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_CELLXGENE_DATASETS_HAVE_TIER_ONE_METADATA,
+      validationStatus: VALIDATION_STATUS.FAILED,
       validationType: VALIDATION_TYPE.INGEST,
     },
     {

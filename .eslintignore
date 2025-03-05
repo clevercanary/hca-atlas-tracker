@@ -3,3 +3,6 @@
 **/.next/*
 
 build
+
+# Python
+venv/

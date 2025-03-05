@@ -136,12 +136,18 @@ export const ROLE_GROUP = {
   ],
 };
 
-export const SOURCE_STUDY_STATUS_LABEL = {
+export const STATUS_LABEL = {
   COMPLETE: "Complete",
   FASTQS: "FASTQs",
   FASTQS_BLOCKED: "FASTQs blocked",
+  INCOMPLETE_TIER_ONE: "Incomplete Tier 1",
   IN_PROGRESS: "In progress",
   NEEDS_FASTQS: "Needs FASTQs",
+  NEEDS_VALIDATION: "Needs validation",
+  NO_CELLXGENE_ID: "No CELLxGENE ID",
+  NO_DATASETS_USED: "No datasets used",
+  NO_TIER_ONE: "No Tier 1",
+  TIER_ONE: "Tier 1",
   TODO: "To do",
 };
 
