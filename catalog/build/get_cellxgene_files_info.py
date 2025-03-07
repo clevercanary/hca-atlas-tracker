@@ -18,6 +18,9 @@ DOWNLOADS_PATH = f"{TEMP_PATH}/downloads"
 TEMP_JSON_PATH = f"{TEMP_PATH}/in-progress-info.json"
 TEMP_CELLXGENE_DATASETS_PATH = f"{TEMP_PATH}/cellxgene-datasets.json"
 
+# Set this to a number (in bytes) to limit which files are processed
+MAX_FILE_SIZE = None
+
 HCA_REQUIRED_FIELDS = [
     "alignment_software",
     "cell_enrichment",
@@ -84,6 +87,10 @@ def download_and_read_dataset_file(dataset, handle_data, retain_files=False):
     print(f"H5AD URL not found for {dataset["dataset_id"]}")
     return skipped_dataset_info("H5AD URL not found")
   
+  if MAX_FILE_SIZE is not None and file_info["filesize"] > MAX_FILE_SIZE:
+    print(f"{dataset["dataset_id"]} has filesize of {file_info["filesize"]}, exceeding specified maximum size")
+    return skipped_dataset_info("File bigger than allowed")
+
   download_name = f"{dataset["dataset_version_id"]}.h5ad"
   download_path = f"{DOWNLOADS_PATH}/{download_name}"
 

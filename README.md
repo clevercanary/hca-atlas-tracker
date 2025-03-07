@@ -61,6 +61,8 @@ To get Tier 1 metadata status, dataset files from CELLxGENE must be downloaded a
   - Run `source venv/bin/activate` to activate the environment.
   - Run `pip install -r catalog/build/requirements.txt` to install dependencies.
   - `deactivate` can be run to deactivate the virtual environment.
-- Run `python3 catalog/build/get-cellxgene-files-info.py`.
-- If the script exits unexpectedly, the same command can be run again to resume. If resuming is not desired, `catalog/build/temporary/in-progress-info.json` should be deleted.
-- If a dataset is skipped due to a temporary HTTP error, the script can be re-run to patch missing info.
+- Run `python3 catalog/build/get_cellxgene_files_info.py`.
+- Troubleshooting:
+  - If the script exits unexpectedly, the same command can be run again to resume. If resuming is not desired, `catalog/build/temporary/in-progress-info.json` should be deleted.
+  - If a dataset is skipped due to a temporary HTTP error, the script can be re-run to patch missing info.
+  - If the script crashes due to a file being to large, the `MAX_FILE_SIZE` variable in `get_cellxgene_files_info.py` can be edited to limit which files are processed.
