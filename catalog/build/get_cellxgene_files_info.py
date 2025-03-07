@@ -43,9 +43,9 @@ def read_json_file(path):
   with open(path) as file:
     return json.load(file)
 
-def write_json_file(path, value):
+def write_json_file(path, value, formatted=False):
   with open(path, "w") as file:
-    json.dump(value, file)
+    json.dump(value, file, indent=(2 if formatted else None), sort_keys=formatted)
 
 def get_tier_one_status(adata):
   prev_is_null = None
@@ -172,6 +172,7 @@ def get_cellxgene_datasets_info():
           new_datasets_info[dataset_id] = prev_datasets_info[dataset_id]
         else:
           datasets_to_update.append(dataset)
+      new_collections_info[collection_id]["datasets"].sort()
     else:
       print(f"Collection {collection_id} not found on CELLxGENE - skipping")
 
@@ -189,7 +190,7 @@ def get_cellxgene_datasets_info():
       print(f"{dataset_id}: {reason}")
     print("")
 
-  write_json_file(JSON_PATH, {"collections": new_collections_info, "datasets": new_datasets_info})
+  write_json_file(JSON_PATH, {"collections": new_collections_info, "datasets": new_datasets_info}, True)
 
   os.remove(TEMP_JSON_PATH)
 
