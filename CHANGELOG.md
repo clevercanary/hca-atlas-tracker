@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.2](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.11.1...v1.11.2) (2025-03-07)
+
+
+### Chores
+
+* added feedback template ([b0637e9](https://github.com/clevercanary/hca-atlas-tracker/commit/b0637e9ae3424626ce9eb24b9039f022f87d3a5a))
+* added feedback template [#604](https://github.com/clevercanary/hca-atlas-tracker/issues/604) ([#606](https://github.com/clevercanary/hca-atlas-tracker/issues/606)) ([b0637e9](https://github.com/clevercanary/hca-atlas-tracker/commit/b0637e9ae3424626ce9eb24b9039f022f87d3a5a))
+
 ## [1.11.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.11.0...v1.11.1) (2025-03-07)
 
 
