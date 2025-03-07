@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.11.0...v1.11.1) (2025-03-07)
+
+
+### Content
+
+* update tier 1 metadata info ([#610](https://github.com/clevercanary/hca-atlas-tracker/issues/610)) ([#611](https://github.com/clevercanary/hca-atlas-tracker/issues/611)) ([d0414a4](https://github.com/clevercanary/hca-atlas-tracker/commit/d0414a4765423e8cb13bd58d651957fd06c903c9))
+
 ## [1.11.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.10.1...v1.11.0) (2025-03-05)
 
 
