@@ -18,6 +18,9 @@ DOWNLOADS_PATH = f"{TEMP_PATH}/downloads"
 TEMP_JSON_PATH = f"{TEMP_PATH}/in-progress-info.json"
 TEMP_CELLXGENE_DATASETS_PATH = f"{TEMP_PATH}/cellxgene-datasets.json"
 
+# Set this to a number (in bytes) to limit which files are processed
+MAX_FILE_SIZE = None
+
 HCA_REQUIRED_FIELDS = [
     "alignment_software",
     "cell_enrichment",
@@ -40,9 +43,9 @@ def read_json_file(path):
   with open(path) as file:
     return json.load(file)
 
-def write_json_file(path, value):
+def write_json_file(path, value, formatted=False):
   with open(path, "w") as file:
-    json.dump(value, file)
+    json.dump(value, file, indent=(2 if formatted else None), sort_keys=formatted)
 
 def get_tier_one_status(adata):
   prev_is_null = None
@@ -84,6 +87,10 @@ def download_and_read_dataset_file(dataset, handle_data, retain_files=False):
     print(f"H5AD URL not found for {dataset["dataset_id"]}")
     return skipped_dataset_info("H5AD URL not found")
   
+  if MAX_FILE_SIZE is not None and file_info["filesize"] > MAX_FILE_SIZE:
+    print(f"{dataset["dataset_id"]} has filesize of {file_info["filesize"]}, exceeding specified maximum size")
+    return skipped_dataset_info("File bigger than allowed")
+
   download_name = f"{dataset["dataset_version_id"]}.h5ad"
   download_path = f"{DOWNLOADS_PATH}/{download_name}"
 
@@ -165,6 +172,7 @@ def get_cellxgene_datasets_info():
           new_datasets_info[dataset_id] = prev_datasets_info[dataset_id]
         else:
           datasets_to_update.append(dataset)
+      new_collections_info[collection_id]["datasets"].sort()
     else:
       print(f"Collection {collection_id} not found on CELLxGENE - skipping")
 
@@ -182,7 +190,7 @@ def get_cellxgene_datasets_info():
       print(f"{dataset_id}: {reason}")
     print("")
 
-  write_json_file(JSON_PATH, {"collections": new_collections_info, "datasets": new_datasets_info})
+  write_json_file(JSON_PATH, {"collections": new_collections_info, "datasets": new_datasets_info}, True)
 
   os.remove(TEMP_JSON_PATH)
 
