@@ -104,8 +104,11 @@ def download_and_read_dataset_file(dataset, handle_data, retain_files=False):
   
   print(f"Reading {download_name}")
 
-  adata = ad.read_h5ad(download_path)
-  result = handle_data(adata)
+  adata = ad.read_h5ad(download_path, backed="r")
+  try:
+    result = handle_data(adata)
+  finally:
+    adata.file.close()
 
   if not retain_files:
     os.remove(download_path)
