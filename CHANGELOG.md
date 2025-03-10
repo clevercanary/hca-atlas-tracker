@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.12.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.11.1...v1.12.0) (2025-03-10)
+
+
+### Features
+
+* add feedback link ([#605](https://github.com/clevercanary/hca-atlas-tracker/issues/605)) ([#615](https://github.com/clevercanary/hca-atlas-tracker/issues/615)) ([2cd8a9d](https://github.com/clevercanary/hca-atlas-tracker/commit/2cd8a9da371ba8780c5e9539acfcd33fc196dea7))
+
+
+### Chores
+
+* added feedback template ([b0637e9](https://github.com/clevercanary/hca-atlas-tracker/commit/b0637e9ae3424626ce9eb24b9039f022f87d3a5a))
+* added feedback template [#604](https://github.com/clevercanary/hca-atlas-tracker/issues/604) ([#606](https://github.com/clevercanary/hca-atlas-tracker/issues/606)) ([b0637e9](https://github.com/clevercanary/hca-atlas-tracker/commit/b0637e9ae3424626ce9eb24b9039f022f87d3a5a))
+
+
+### Code Refactoring
+
+* don't load entire file when reading cellxgene datasets ([#610](https://github.com/clevercanary/hca-atlas-tracker/issues/610)) ([#614](https://github.com/clevercanary/hca-atlas-tracker/issues/614)) ([47fb459](https://github.com/clevercanary/hca-atlas-tracker/commit/47fb459e7f5afa1edf024e97038c18f992ab9889))
+
 ## [1.11.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.11.0...v1.11.1) (2025-03-07)
 
 
