@@ -12,6 +12,7 @@ import { ROUTE } from "../../../app/routes/constants";
 import { SiteConfig } from "../../common/entities";
 import { announcementsConfig } from "./announcements/announcementsConfig";
 import { authenticationConfig } from "./authentication/authentication";
+import { floating } from "./floating/floating";
 import { atlasEntityConfig } from "./index/atlas/atlasEntityConfig";
 import { tasksEntityConfig } from "./index/tasks/tasksEntityConfig";
 import { userEntityConfig } from "./index/user/userEntityConfig";
@@ -44,6 +45,7 @@ export function makeConfig(
     explorerTitle: C.Hero(),
     gitHubUrl,
     layout: {
+      floating,
       footer: {
         Branding: C.HCABranding({
           orgURL: ORG_URL,
