@@ -15,6 +15,7 @@ export {
 export { BackPageHero } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/components/BackPageHero/backPageHero";
 export { Logo } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
 export { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+export { ViewSupport } from "@databiosphere/findable-ui/lib/components/Support/components/ViewSupport/viewSupport";
 export { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
 export { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
 export { RowDrawer } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/RowDrawer/rowDrawer";
