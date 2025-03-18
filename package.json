@@ -16,7 +16,7 @@
     "migrate": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts"
   },
   "dependencies": {
-    "@databiosphere/findable-ui": "^21.1.1",
+    "@databiosphere/findable-ui": "^22.0.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.3.4",
@@ -28,7 +28,7 @@
     "@tanstack/react-table": "^8.19.2",
     "date-fns": "^3.6.0",
     "dequal": "^2.0.3",
-    "isomorphic-dompurify": "0.24.0",
+    "isomorphic-dompurify": "^2.22.0",
     "ky": "^1.7.2",
     "next": "^14.1.0",
     "next-auth": "^4.24.7",
@@ -39,7 +39,6 @@
     "react-window": "1.8.9",
     "string-strip-html": "^13.4.8",
     "uuid": "8.3.2",
-    "validate.js": "^0.13.1",
     "yup": "^1.4.0"
   },
   "devDependencies": {
