@@ -26,6 +26,7 @@ export interface HCAAtlasTrackerAtlas {
   ingestionTaskCounts: IngestionTaskCounts;
   integrationLead: IntegrationLead[];
   metadataCorrectnessUrl: string | null;
+  metadataSpecificationTitle: string | null;
   metadataSpecificationUrl: string | null;
   publications: DoiPublicationInfo[];
   shortName: string;
@@ -223,6 +224,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   ingestionTaskCounts: IngestionTaskCounts;
   integrationLead: IntegrationLead[];
   metadataCorrectnessUrl: string | null;
+  metadataSpecificationTitle: string | null;
   metadataSpecificationUrl: string | null;
   network: NetworkKey;
   publications: DoiPublicationInfo[];

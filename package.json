@@ -28,6 +28,7 @@
     "@tanstack/react-table": "^8.19.2",
     "date-fns": "^3.6.0",
     "dequal": "^2.0.3",
+    "googleapis": "^146.0.0",
     "isomorphic-dompurify": "^2.22.0",
     "ky": "^1.7.2",
     "next": "^14.1.0",
