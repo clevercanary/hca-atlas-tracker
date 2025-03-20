@@ -107,6 +107,9 @@ const METADATA_SPECIFICATION_URL: ControllerConfig<
   },
   labelLink: true,
   name: FIELD_NAME.METADATA_SPECIFICATION_URL,
+  renderHelperText(atlas) {
+    return atlas?.metadataSpecificationTitle;
+  },
 };
 
 const METADATA_CORRECTNESS_URL: ControllerConfig<
