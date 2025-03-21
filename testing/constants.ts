@@ -2198,4 +2198,5 @@ export const TEST_GOOGLE_SHEET_TITLES_BY_ID: Record<string, string> = {
   "atlas-public-baz": "Atlas Public Baz Sheet",
   "new-atlas-with-metadata-specification":
     "New Atlas With Metadata Specification Sheet",
+  "sheet-foo": "Sheet Foo",
 };
