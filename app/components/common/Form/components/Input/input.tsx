@@ -52,7 +52,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {...props}
       />
       {helperText && (
-        <FormHelperText disabled={disabled} error={error} {...helperTextProps}>
+        <FormHelperText
+          disabled={disabled}
+          error={error}
+          noWrap={!error}
+          {...helperTextProps}
+        >
           {helperText}
         </FormHelperText>
       )}

@@ -18,6 +18,7 @@ import {
   NewAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { normalizeDoi } from "../utils/doi";
+import { getSheetTitle, InvalidSheetError } from "../utils/google-sheets";
 import { query } from "./database";
 import { confirmSourceDatasetStudyIsOnAtlas } from "./source-datasets";
 
@@ -95,6 +96,17 @@ export async function atlasInputDataToDbData(
   inputData: NewAtlasData | AtlasEditData
 ): Promise<AtlasInputDbData> {
   const publications = await getPublicationsFromInputDois(inputData.dois);
+  const metadataSpecificationTitle = inputData.metadataSpecificationUrl
+    ? await getSheetTitle(inputData.metadataSpecificationUrl).catch((err) => {
+        throw err instanceof InvalidSheetError
+          ? new ValidationError(
+              err.message,
+              undefined,
+              "metadataSpecificationUrl"
+            )
+          : err;
+      })
+    : null;
   return {
     overviewData: {
       cellxgeneAtlasCollection: inputData.cellxgeneAtlasCollection ?? null,
@@ -103,6 +115,7 @@ export async function atlasInputDataToDbData(
       highlights: inputData.highlights ?? "",
       integrationLead: inputData.integrationLead,
       metadataCorrectnessUrl: inputData.metadataCorrectnessUrl || null,
+      metadataSpecificationTitle,
       metadataSpecificationUrl: inputData.metadataSpecificationUrl || null,
       network: inputData.network,
       publications,

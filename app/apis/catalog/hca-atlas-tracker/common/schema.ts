@@ -13,7 +13,7 @@ import { NETWORK_KEYS, WAVES } from "./constants";
 import { ATLAS_STATUS, ROLE } from "./entities";
 
 export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
-  /^$|^https:\/\/docs\.google\.com\/spreadsheets\//;
+  /^$|^https:\/\/docs\.google\.com\/spreadsheets\/d\/./;
 
 /**
  * Schema for data used to create a new atlas.
@@ -55,7 +55,7 @@ export const newAtlasSchema = object({
   metadataSpecificationUrl: string()
     .matches(
       GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
-      "Metadata specification must be a Google Sheets URL"
+      'Metadata specification must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
     )
     .nullable(),
   network: string()

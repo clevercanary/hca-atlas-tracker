@@ -19,7 +19,7 @@ export const atlasEditSchema = newAtlasSchema.concat(
       .notRequired()
       .matches(
         GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
-        "Metadata specification must be a Google Sheets URL"
+        'Metadata specification must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
       ),
     [FIELD_NAME.STATUS]: string()
       .default("")

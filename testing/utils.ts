@@ -76,6 +76,7 @@ export function makeTestAtlasOverview(
     },
     integrationLead: atlas.integrationLead,
     metadataCorrectnessUrl: atlas.metadataCorrectnessUrl ?? null,
+    metadataSpecificationTitle: null,
     metadataSpecificationUrl: atlas.metadataSpecificationUrl ?? null,
     network: atlas.network,
     publications: atlas.publications,

@@ -47,6 +47,7 @@ export function atlasInputMapper(
     integrationLeadEmail: apiAtlas.integrationLead.map(({ email }) => email),
     integrationLeadName: apiAtlas.integrationLead.map(({ name }) => name),
     metadataCorrectnessUrl: apiAtlas.metadataCorrectnessUrl,
+    metadataSpecificationTitle: apiAtlas.metadataSpecificationTitle,
     metadataSpecificationUrl: apiAtlas.metadataSpecificationUrl,
     name: getAtlasName(apiAtlas),
     publications: apiAtlas.publications,

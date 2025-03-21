@@ -9,6 +9,7 @@ import {
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { getSheetTitle } from "../app/utils/google-sheets";
 import createHandler from "../pages/api/atlases/create";
 import {
   DOI_NONEXISTENT,
@@ -33,6 +34,20 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
+jest.mock("googleapis");
+
+const getSheetTitleMock = getSheetTitle as jest.Mock;
+
+jest.mock("../app/utils/google-sheets", () => {
+  const googleSheets: typeof import("../app/utils/google-sheets") =
+    jest.requireActual("../app/utils/google-sheets");
+
+  return {
+    InvalidSheetError: googleSheets.InvalidSheetError,
+    getSheetTitle: jest.fn(googleSheets.getSheetTitle),
+  };
+});
+
 const NEW_ATLAS_DATA: NewAtlasData = {
   cellxgeneAtlasCollection: "7a223dd3-a422-4f4b-a437-90b9a3b00ba8",
   codeLinks: [{ url: "https://example.com/new-atlas-foo" }],
@@ -42,7 +57,6 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   integrationLead: [],
   metadataCorrectnessUrl:
     "https://example.com/new-atlas-foo-metadata-correctness",
-  metadataSpecificationUrl: "https://docs.google.com/spreadsheets/foo",
   network: "eye",
   shortName: "test",
   status: ATLAS_STATUS.IN_PROGRESS,
@@ -122,11 +136,22 @@ const NEW_ATLAS_COMPLETE: NewAtlasData = {
   wave: "1",
 };
 
+const NEW_ATLAS_WITH_METADATA_SPECIFICATION: NewAtlasData = {
+  integrationLead: [],
+  metadataSpecificationUrl:
+    "https://docs.google.com/spreadsheets/d/new-atlas-with-metadata-specification/edit",
+  network: "nervous-system",
+  shortName: "test8",
+  version: "2.5",
+  wave: "3",
+};
+
 beforeAll(async () => {
   await resetDatabase();
 });
 
 afterAll(async () => {
+  jest.resetAllMocks();
   endPgPool();
 });
 
@@ -378,6 +403,22 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when metadata specification sheet doesn't exist", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_WITH_METADATA_SPECIFICATION,
+            metadataSpecificationUrl:
+              "https://docs.google.com/spreadsheets/d/nonexistent/edit",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("returns error 400 when metadata correctness report is not a url", async () => {
     expect(
       (
@@ -437,11 +478,22 @@ describe("/api/atlases/create", () => {
   it("creates and returns atlas entry with status set to COMPLETE", async () => {
     await testSuccessfulCreate(NEW_ATLAS_COMPLETE, []);
   });
+
+  it("creates and returns atlas entry with retrieved metadata specification title, calling getSheetTitle", async () => {
+    const callCountBefore = getSheetTitleMock.mock.calls.length;
+    await testSuccessfulCreate(
+      NEW_ATLAS_WITH_METADATA_SPECIFICATION,
+      [],
+      "New Atlas With Metadata Specification Sheet"
+    );
+    expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
+  });
 });
 
 async function testSuccessfulCreate(
   atlasData: NewAtlasData,
-  expectedPublicationsInfo: (PublicationInfo | null)[]
+  expectedPublicationsInfo: (PublicationInfo | null)[],
+  expectedMetadataSpecificationTitle?: string
 ): Promise<void> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlasData);
   expect(res._getStatusCode()).toEqual(201);
@@ -466,6 +518,9 @@ async function testSuccessfulCreate(
   );
   expect(newAtlasFromDb.overview.integrationLead).toEqual(
     atlasData.integrationLead
+  );
+  expect(newAtlasFromDb.overview.metadataSpecificationTitle).toEqual(
+    expectedMetadataSpecificationTitle ?? null
   );
   expect(newAtlasFromDb.overview.metadataSpecificationUrl).toEqual(
     atlasData.metadataSpecificationUrl ?? null

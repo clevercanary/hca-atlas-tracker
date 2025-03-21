@@ -1862,6 +1862,22 @@ export const ATLAS_WITH_METADATA_CORRECTNESS: TestAtlas = {
   wave: "3",
 };
 
+export const ATLAS_PUBLIC_BAZ: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "bar baz foo foo bar bar bar bar bar foo bar",
+  highlights: "",
+  id: "ca000a2b-8246-4694-8f21-f47bcbfe1852",
+  integrationLead: [],
+  network: "musculoskeletal",
+  publications: [],
+  shortName: "test-public-baz",
+  sourceStudies: [],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "5.2",
+  wave: "3",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -1877,6 +1893,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   ATLAS_PUBLIC_BAR,
   ATLAS_WITH_METADATA_CORRECTNESS,
+  ATLAS_PUBLIC_BAZ,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
@@ -2172,3 +2189,14 @@ export const TEST_COMMENTS_BY_THREAD_ID = TEST_COMMENTS.reduce(
   },
   {} as Record<string, TestComment[]>
 );
+
+// Google sheets
+
+export const TEST_UNSHARED_GOOGLE_SHEET_IDS = new Set(["sheet-unshared"]);
+
+export const TEST_GOOGLE_SHEET_TITLES_BY_ID: Record<string, string> = {
+  "atlas-public-baz": "Atlas Public Baz Sheet",
+  "new-atlas-with-metadata-specification":
+    "New Atlas With Metadata Specification Sheet",
+  "sheet-foo": "Sheet Foo",
+};

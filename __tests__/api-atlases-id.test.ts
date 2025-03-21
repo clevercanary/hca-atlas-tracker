@@ -9,11 +9,13 @@ import {
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { getSheetTitle } from "../app/utils/google-sheets";
 import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_PUBLIC_BAR,
+  ATLAS_PUBLIC_BAZ,
   ATLAS_WITH_IL,
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -41,6 +43,20 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("googleapis");
+
+const getSheetTitleMock = getSheetTitle as jest.Mock;
+
+jest.mock("../app/utils/google-sheets", () => {
+  const googleSheets: typeof import("../app/utils/google-sheets") =
+    jest.requireActual("../app/utils/google-sheets");
+
+  return {
+    InvalidSheetError: googleSheets.InvalidSheetError,
+    getSheetTitle: jest.fn(googleSheets.getSheetTitle),
+  };
+});
 
 const TEST_ROUTE = "/api/atlases/[id]";
 
@@ -135,6 +151,17 @@ const ATLAS_WITH_METADATA_CORRECTNESS_EDIT: AtlasEditData = {
   shortName: ATLAS_WITH_METADATA_CORRECTNESS.shortName,
   version: ATLAS_WITH_METADATA_CORRECTNESS.version,
   wave: ATLAS_WITH_METADATA_CORRECTNESS.wave,
+};
+
+const ATLAS_PUBLIC_BAZ_EDIT: AtlasEditData = {
+  cellxgeneAtlasCollection: ATLAS_PUBLIC_BAZ.cellxgeneAtlasCollection,
+  integrationLead: ATLAS_PUBLIC_BAZ.integrationLead,
+  metadataSpecificationUrl:
+    "https://docs.google.com/spreadsheets/d/atlas-public-baz/edit",
+  network: ATLAS_PUBLIC_BAZ.network,
+  shortName: ATLAS_PUBLIC_BAZ.shortName,
+  version: ATLAS_PUBLIC_BAZ.version,
+  wave: ATLAS_PUBLIC_BAZ.wave,
 };
 
 beforeAll(async () => {
@@ -461,6 +488,24 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 when metadata specification sheet doesn't exist", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC_BAZ.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_BAZ_EDIT,
+            metadataSpecificationUrl:
+              "https://docs.google.com/spreadsheets/d/nonexistent/edit",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("PUT returns error 400 when metadata correctness report is not a url", async () => {
     expect(
       (
@@ -549,13 +594,26 @@ describe(TEST_ROUTE, () => {
     );
     expect(updatedAtlas.overview.metadataCorrectnessUrl).toBeNull();
   });
+
+  it("PUT updates and returns atlas entry with retrieved metadata specification title, calling getSheetTitle", async () => {
+    const callCountBefore = getSheetTitleMock.mock.calls.length;
+    await testSuccessfulEdit(
+      ATLAS_PUBLIC_BAZ,
+      ATLAS_PUBLIC_BAZ_EDIT,
+      0,
+      [],
+      "Atlas Public Baz Sheet"
+    );
+    expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
+  });
 });
 
 async function testSuccessfulEdit(
   testAtlas: TestAtlas,
   editData: AtlasEditData,
   expectedComponentAtlasCount: number,
-  expectedPublicationsInfo: PublicationInfo[]
+  expectedPublicationsInfo: PublicationInfo[],
+  expectedMetadataSpecificationTitle?: string
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const res = await doAtlasRequest(
     testAtlas.id,
@@ -588,6 +646,9 @@ async function testSuccessfulEdit(
   );
   expect(updatedOverview.highlights).toEqual(editData.highlights ?? "");
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
+  expect(updatedOverview.metadataSpecificationTitle).toEqual(
+    expectedMetadataSpecificationTitle ?? null
+  );
   expect(updatedOverview.metadataSpecificationUrl).toEqual(
     editData.metadataSpecificationUrl ?? null
   );
