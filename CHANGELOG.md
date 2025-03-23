@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.13.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.12.0...v1.13.0) (2025-03-23)
+
+
+### Features
+
+* query, save, and display metadata specification sheet title in atlas form ([#602](https://github.com/clevercanary/hca-atlas-tracker/issues/602)) ([#624](https://github.com/clevercanary/hca-atlas-tracker/issues/624)) ([c973095](https://github.com/clevercanary/hca-atlas-tracker/commit/c973095c32f245cf0fa4e2961d2ab7b28b89f47f))
+
+
+### Bug Fixes
+
+* make next env vars available in the docker image ([#627](https://github.com/clevercanary/hca-atlas-tracker/issues/627)) ([#628](https://github.com/clevercanary/hca-atlas-tracker/issues/628)) ([1ac2f58](https://github.com/clevercanary/hca-atlas-tracker/commit/1ac2f5846cb07ddf15e2766059b6a1e4811d6170))
+* rename google service account environment variable ([#602](https://github.com/clevercanary/hca-atlas-tracker/issues/602)) ([#626](https://github.com/clevercanary/hca-atlas-tracker/issues/626)) ([57103c2](https://github.com/clevercanary/hca-atlas-tracker/commit/57103c284423690e035d36323d936d7dc6a181ef))
+
+
+### Chores
+
+* update finable-ui to latest v22.0.0 ([#617](https://github.com/clevercanary/hca-atlas-tracker/issues/617)) ([#618](https://github.com/clevercanary/hca-atlas-tracker/issues/618)) ([f2af3ec](https://github.com/clevercanary/hca-atlas-tracker/commit/f2af3ec364f158cdee2645f5a0d8646810e10200))
+
 ## [1.12.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.11.1...v1.12.0) (2025-03-10)
 
 
