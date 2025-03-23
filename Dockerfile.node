@@ -31,8 +31,10 @@ RUN npm run build:${ENVIRONMENT}
 FROM base AS runner
 RUN npm install -g pm2
 WORKDIR /app
+# Always run in production mode on AWS
 ENV NODE_ENV production
 ENV APP_ENV aws-dev
+COPY --from=builder /app/.env.production ./
 COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
