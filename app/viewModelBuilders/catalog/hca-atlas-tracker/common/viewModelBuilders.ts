@@ -1506,8 +1506,9 @@ function getSourceDatasetMetadataSpreadsheetColumnDef(): ColumnDef<HCAAtlasTrack
     accessorKey: "metadataSpreadsheetUrl",
     cell: ({ row }): JSX.Element => {
       return C.Link({
-        label: row.original.metadataSpreadsheetUrl,
-        noWrap: true,
+        label:
+          row.original.metadataSpreadsheetTitle ||
+          row.original.metadataSpreadsheetUrl,
         target: ANCHOR_TARGET.BLANK,
         url: row.original.metadataSpreadsheetUrl ?? "",
       });
