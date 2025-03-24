@@ -104,6 +104,7 @@ export interface HCAAtlasTrackerSourceDataset {
   disease: string[];
   doi: string | null;
   id: string;
+  metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationString: string;
   sourceStudyId: string;
@@ -330,6 +331,7 @@ export interface HCAAtlasTrackerDBSourceDatasetInfo {
   cellxgeneDatasetVersion: string | null;
   cellxgeneExplorerUrl: string | null;
   disease: string[];
+  metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   suspensionType: string[];
   tissue: string[];

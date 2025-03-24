@@ -141,6 +141,7 @@ export function dbSourceDatasetToApiSourceDataset(
     disease: dbSourceDataset.sd_info.disease,
     doi: dbSourceDataset.doi,
     id: dbSourceDataset.id,
+    metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
     publicationString: getDbEntityCitation(dbSourceDataset),
     sourceStudyId: dbSourceDataset.source_study_id,

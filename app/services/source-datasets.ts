@@ -1,4 +1,3 @@
-import { CellxGeneDataset } from "app/utils/cellxgene-api";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
@@ -15,6 +14,8 @@ import {
   SourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { CellxGeneDataset } from "../utils/cellxgene-api";
+import { getSheetTitleForApi } from "../utils/google-sheets";
 import { removeSourceDatasetsFromAllAtlases } from "./atlases";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
@@ -267,6 +268,7 @@ function sourceDatasetInputDataToDbData(
     cellxgeneDatasetVersion: null,
     cellxgeneExplorerUrl: null,
     disease: [],
+    metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
     suspensionType: [],
     tissue: [],
@@ -282,8 +284,12 @@ export async function updateAtlasSourceDataset(
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   const updatedInfoFields: Pick<
     HCAAtlasTrackerDBSourceDatasetInfo,
-    "metadataSpreadsheetUrl"
+    "metadataSpreadsheetTitle" | "metadataSpreadsheetUrl"
   > = {
+    metadataSpreadsheetTitle: await getSheetTitleForApi(
+      inputData.metadataSpreadsheetUrl,
+      "metadataSpreadsheetUrl"
+    ),
     metadataSpreadsheetUrl: inputData.metadataSpreadsheetUrl || null,
   };
   await query(
@@ -516,6 +522,7 @@ function getCellxGeneSourceDatasetInfo(
     cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
     cellxgeneExplorerUrl: cxgDataset.explorer_url,
     disease: cxgDataset.disease.map((d) => d.label),
+    metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
     suspensionType: cxgDataset.suspension_type,
     tissue: cxgDataset.tissue.map((t) => t.label),
