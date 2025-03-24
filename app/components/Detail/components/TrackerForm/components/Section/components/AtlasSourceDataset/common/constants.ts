@@ -13,6 +13,9 @@ const METADATA_SPREADSHEET_URL: ControllerConfig<
   },
   labelLink: true,
   name: FIELD_NAME.METADATA_SPREADSHEET_URL,
+  renderHelperText(data) {
+    return data?.metadataSpreadsheetTitle;
+  },
 };
 
 export const METADATA_VIEW_ATLAS_SOURCE_DATASET_CONTROLLERS: ControllerConfig<
