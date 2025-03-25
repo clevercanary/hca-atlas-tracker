@@ -1,4 +1,5 @@
 import { getSheetTitle, InvalidSheetError } from "app/utils/google-sheets";
+import { withConsoleErrorHiding } from "testing/utils";
 
 jest.mock("googleapis");
 
@@ -30,12 +31,14 @@ describe("getSheetTitle", () => {
   });
 
   it("returns null when credentials are missing", async () => {
-    const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-    process.env.GOOGLE_SERVICE_ACCOUNT_JSON = "";
-    await expect(
-      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo")
-    ).resolves.toBeNull();
-    process.env.GOOGLE_SERVICE_ACCOUNT_JSON = credentials;
+    await withConsoleErrorHiding(async () => {
+      const credentials = process.env.GOOGLE_SERVICE_ACCOUNT;
+      process.env.GOOGLE_SERVICE_ACCOUNT = "";
+      await expect(
+        getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo")
+      ).resolves.toBeNull();
+      process.env.GOOGLE_SERVICE_ACCOUNT = credentials;
+    });
   });
 
   it("returns sheet title for valid URL with nothing following ID", async () => {
