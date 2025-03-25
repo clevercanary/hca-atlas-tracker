@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.13.0...v1.14.0) (2025-03-25)
+
+
+### Features
+
+* save and display metadata spreadsheet titles for source datasets ([#625](https://github.com/clevercanary/hca-atlas-tracker/issues/625)) ([#630](https://github.com/clevercanary/hca-atlas-tracker/issues/630)) ([232216b](https://github.com/clevercanary/hca-atlas-tracker/commit/232216b53eb32bec7b6313a0137b7204262a8cfa))
+
 ## [1.13.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.12.0...v1.13.0) (2025-03-23)
 
 
