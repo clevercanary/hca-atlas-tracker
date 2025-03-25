@@ -24,7 +24,7 @@ export async function getSheetTitle(
   // Get credentials from environment variable
   const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT;
   if (!credentialsJson) {
-    console.error("GOOGLE_SERVICE_ACCOUNT_JSON environment variable not found");
+    console.error("GOOGLE_SERVICE_ACCOUNT environment variable not found");
     return null;
   }
   // Parse JSON credentials
