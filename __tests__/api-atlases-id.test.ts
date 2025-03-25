@@ -9,7 +9,7 @@ import {
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
-import { getSheetTitle } from "../app/utils/google-sheets";
+import { getSheetTitleForApi } from "../app/utils/google-sheets";
 import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
   ATLAS_DRAFT,
@@ -46,7 +46,7 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("googleapis");
 
-const getSheetTitleMock = getSheetTitle as jest.Mock;
+const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
 
 jest.mock("../app/utils/google-sheets", () => {
   const googleSheets: typeof import("../app/utils/google-sheets") =
@@ -54,7 +54,7 @@ jest.mock("../app/utils/google-sheets", () => {
 
   return {
     InvalidSheetError: googleSheets.InvalidSheetError,
-    getSheetTitle: jest.fn(googleSheets.getSheetTitle),
+    getSheetTitleForApi: jest.fn(googleSheets.getSheetTitleForApi),
   };
 });
 

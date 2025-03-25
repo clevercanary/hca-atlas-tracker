@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { GaxiosError } from "googleapis-common";
+import { ValidationError } from "yup";
 
 export class InvalidSheetError extends Error {
   name = "InvalidSheetError";
@@ -23,7 +24,7 @@ export async function getSheetTitle(
   // Get credentials from environment variable
   const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT;
   if (!credentialsJson) {
-    console.error("GOOGLE_SERVICE_ACCOUNT_JSON environment variable not found");
+    console.error("GOOGLE_SERVICE_ACCOUNT environment variable not found");
     return null;
   }
   // Parse JSON credentials
@@ -62,4 +63,23 @@ export async function getSheetTitle(
     }
     throw error;
   }
+}
+
+/**
+ * Get title of given spreadsheet if specified, throwing a validation error if the title isn't accessible.
+ * @param spreadsheetUrl - URL of spreadsheet to get title of.
+ * @param schemaKey - Key of the field containing the spreadsheet URL, to be used in a validation error.
+ * @returns spreadsheet title or null.
+ */
+export async function getSheetTitleForApi(
+  spreadsheetUrl: string | null | undefined,
+  schemaKey: string
+): Promise<string | null> {
+  return spreadsheetUrl
+    ? await getSheetTitle(spreadsheetUrl).catch((err) => {
+        throw err instanceof InvalidSheetError
+          ? new ValidationError(err.message, undefined, schemaKey)
+          : err;
+      })
+    : null;
 }

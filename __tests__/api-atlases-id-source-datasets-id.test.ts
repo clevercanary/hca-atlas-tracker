@@ -7,6 +7,7 @@ import {
 import { AtlasSourceDatasetEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { getSheetTitleForApi } from "../app/utils/google-sheets";
 import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -43,6 +44,20 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
+jest.mock("googleapis");
+
+const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
+
+jest.mock("../app/utils/google-sheets", () => {
+  const googleSheets: typeof import("../app/utils/google-sheets") =
+    jest.requireActual("../app/utils/google-sheets");
+
+  return {
+    InvalidSheetError: googleSheets.InvalidSheetError,
+    getSheetTitleForApi: jest.fn(googleSheets.getSheetTitleForApi),
+  };
+});
+
 const RETURNS_ERROR_403 = "returns error 403";
 
 const TEST_ROUTE = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
@@ -50,7 +65,7 @@ const TEST_ROUTE = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
 const SOURCE_DATASET_ID_NONEXISTENT = "52281fde-232c-4481-8b45-cc986570e7b9";
 
 const A_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
-  metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/bar",
+  metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/d/sheet-bar",
 };
 
 const B_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
@@ -298,6 +313,26 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
 
+  it("returns error 400 when PATCH requested with unshared matadata sheet URL", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_FOO_EDIT_DATA,
+            metadataSpreadsheetUrl:
+              "https://docs.google.com/spreadsheets/d/nonexistent/edit",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
   it("updates and returns source dataset when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
@@ -317,6 +352,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
   });
 
   it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {
+    const callCountBefore = getSheetTitleMock.mock.calls.length;
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
@@ -327,12 +363,14 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.metadataSpreadsheetTitle).toEqual("Sheet Bar");
     expect(sourceDataset.metadataSpreadsheetUrl).toEqual(
       A_FOO_EDIT_DATA.metadataSpreadsheetUrl
     );
     expect(sourceDataset.title).toEqual(
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.title
     );
+    expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 });
