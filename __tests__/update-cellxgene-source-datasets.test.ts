@@ -11,7 +11,10 @@ import {
   SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
 } from "testing/constants";
-import { HCAAtlasTrackerDBSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceDatasetInfo,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import { updateCellxGeneSourceDatasets } from "../app/services/source-datasets";
 import { CellxGeneDataset } from "../app/utils/cellxgene-api";
@@ -41,7 +44,7 @@ afterAll(() => {
 });
 
 describe("updateCellxGeneSourceDatasets", () => {
-  it("updates, adds, and deletes source datasets as appropriate, including on linked entities", async () => {
+  it("updates, adds, and deletes source datasets as appropriate, including on linked entities, and only changing necessary fields on update", async () => {
     const sourceDatasetsBefore = await getStudySourceDatasets(
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id
     );
@@ -64,7 +67,8 @@ describe("updateCellxGeneSourceDatasets", () => {
         sourceDatasetsBefore,
         SOURCE_DATASET_CELLXGENE_WITH_UPDATE.id
       ),
-      SOURCE_DATASET_CELLXGENE_WITH_UPDATE
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+      ["metadataSpreadsheetTitle", "metadataSpreadsheetUrl"]
     );
     expect(
       findSourceDatasetByCellxGeneId(
@@ -114,15 +118,16 @@ describe("updateCellxGeneSourceDatasets", () => {
       ),
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE
     );
-    expectSourceDatasetToMatchCellxGeneDataset(
+    expectNewOrUpdatedDatasetToMatch(
       findSourceDatasetById(
         sourceDatasetsAfter,
         SOURCE_DATASET_CELLXGENE_WITH_UPDATE.id
       ),
       CELLXGENE_DATASET_WITH_UPDATE_UPDATED,
-      SOURCE_STUDY_WITH_SOURCE_DATASETS.id
+      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE
     );
-    expectSourceDatasetToMatchCellxGeneDataset(
+    expectNewOrUpdatedDatasetToMatch(
       findSourceDatasetByCellxGeneId(
         sourceDatasetsAfter,
         CELLXGENE_DATASET_NEW.dataset_id
@@ -180,7 +185,8 @@ describe("updateCellxGeneSourceDatasets", () => {
 
 function expectSourceDatasetToMatch(
   sourceDataset: HCAAtlasTrackerDBSourceDataset | undefined,
-  testSourceDataset: TestSourceDataset
+  testSourceDataset: TestSourceDataset,
+  expectedNonNullInfoFields?: (keyof HCAAtlasTrackerDBSourceDatasetInfo)[]
 ): void {
   expect(sourceDataset).toBeDefined();
   if (!sourceDataset) return;
@@ -205,12 +211,18 @@ function expectSourceDatasetToMatch(
     testSourceDataset.cellxgeneDatasetVersion ?? null
   );
   expect(sourceDataset.sd_info.title).toEqual(testSourceDataset.title);
+  if (expectedNonNullInfoFields) {
+    expectedNonNullInfoFields.forEach((field) => {
+      expect(sourceDataset.sd_info[field]).not.toBeNull();
+    });
+  }
 }
 
-function expectSourceDatasetToMatchCellxGeneDataset(
+function expectNewOrUpdatedDatasetToMatch(
   sourceDataset: HCAAtlasTrackerDBSourceDataset | undefined,
   cxgDataset: CellxGeneDataset,
-  expectedSourceStudyId: string
+  expectedSourceStudyId: string,
+  existingDataset?: TestSourceDataset
 ): void {
   expect(sourceDataset).toBeDefined();
   if (!sourceDataset) return;
@@ -238,6 +250,17 @@ function expectSourceDatasetToMatchCellxGeneDataset(
     cxgDataset.tissue.map((t) => t.label)
   );
   expect(sourceDataset.sd_info.title).toEqual(cxgDataset.title);
+  if (existingDataset) {
+    expect(sourceDataset.sd_info.metadataSpreadsheetTitle).toEqual(
+      existingDataset.metadataSpreadsheetTitle ?? null
+    );
+    expect(sourceDataset.sd_info.metadataSpreadsheetUrl).toEqual(
+      existingDataset.metadataSpreadsheetUrl ?? null
+    );
+  } else {
+    expect(sourceDataset.sd_info.metadataSpreadsheetTitle).toEqual(null);
+    expect(sourceDataset.sd_info.metadataSpreadsheetUrl).toEqual(null);
+  }
 }
 
 function findSourceDatasetById(

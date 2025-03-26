@@ -1361,6 +1361,9 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
   cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
   disease: ["barbarfoo"],
   id: "04ccf7fd-22eb-4236-829c-9a0058580d36",
+  metadataSpreadsheetTitle: "Source Dataset CELLxGENE With Update Metadata",
+  metadataSpreadsheetUrl:
+    "https://docs.google.com/spreadsheets/d/source-dataset-cellxgene-with-update",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   suspensionType: ["foobazbarfoo"],
   tissue: ["bazbarfoo"],
