@@ -77,6 +77,7 @@ export interface TestSourceDataset {
   cellxgeneDatasetVersion?: string;
   disease?: string[];
   id: string;
+  metadataSpreadsheetTitle?: string;
   metadataSpreadsheetUrl?: string;
   sourceStudyId: string;
   suspensionType?: string[];

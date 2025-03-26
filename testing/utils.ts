@@ -135,8 +135,8 @@ export function makeTestSourceDatasetInfo(
       ? `explorer-url-${sourceDataset.cellxgeneDatasetId}`
       : null,
     disease: sourceDataset.disease ?? [],
-    metadataSpreadsheetTitle: null,
-    metadataSpreadsheetUrl: null,
+    metadataSpreadsheetTitle: sourceDataset.metadataSpreadsheetTitle ?? null,
+    metadataSpreadsheetUrl: sourceDataset.metadataSpreadsheetUrl ?? null,
     suspensionType: sourceDataset.suspensionType ?? [],
     tissue: sourceDataset.tissue ?? [],
     title: sourceDataset.title,
