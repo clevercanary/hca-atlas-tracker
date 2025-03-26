@@ -33,6 +33,19 @@ export interface UpdatedSourceDatasetsInfo {
   modified: string[];
 }
 
+type CellxGeneSourceDatasetUpdateInfo = Pick<
+  HCAAtlasTrackerDBSourceDatasetInfo,
+  | "assay"
+  | "cellCount"
+  | "cellxgeneDatasetId"
+  | "cellxgeneDatasetVersion"
+  | "cellxgeneExplorerUrl"
+  | "disease"
+  | "suspensionType"
+  | "tissue"
+  | "title"
+>;
+
 /**
  * Get all source datasets of the given source study.
  * @param atlasId - ID of the atlas that the source study is accesed through.
@@ -488,16 +501,24 @@ async function updateCellxGeneSourceDatasetsForStudy(
     ) {
       continue;
     }
-    const infoJson = JSON.stringify(getCellxGeneSourceDatasetInfo(cxgDataset));
+
+    const updateInfo = getCellxGeneSourceDatasetInfo(cxgDataset);
 
     if (existingDataset) {
+      const infoJson = JSON.stringify(updateInfo);
       await query(
-        "UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2",
+        "UPDATE hat.source_datasets SET sd_info=sd_info||$1 WHERE id=$2",
         [infoJson, existingDataset.id],
         client
       );
       updatedDatasetsInfo.modified.push(existingDataset.id);
     } else {
+      const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
+        ...updateInfo,
+        metadataSpreadsheetTitle: null,
+        metadataSpreadsheetUrl: null,
+      };
+      const infoJson = JSON.stringify(newInfo);
       const { id: newId } = (
         await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
           "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2) RETURNING id",
@@ -514,7 +535,7 @@ async function updateCellxGeneSourceDatasetsForStudy(
 
 function getCellxGeneSourceDatasetInfo(
   cxgDataset: CellxGeneDataset
-): HCAAtlasTrackerDBSourceDatasetInfo {
+): CellxGeneSourceDatasetUpdateInfo {
   return {
     assay: cxgDataset.assay.map((a) => a.label),
     cellCount: cxgDataset.cell_count,
@@ -522,8 +543,6 @@ function getCellxGeneSourceDatasetInfo(
     cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
     cellxgeneExplorerUrl: cxgDataset.explorer_url,
     disease: cxgDataset.disease.map((d) => d.label),
-    metadataSpreadsheetTitle: null,
-    metadataSpreadsheetUrl: null,
     suspensionType: cxgDataset.suspension_type,
     tissue: cxgDataset.tissue.map((t) => t.label),
     title: cxgDataset.title,
