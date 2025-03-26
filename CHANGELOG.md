@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.14.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.14.0...v1.14.1) (2025-03-26)
+
+
+### Bug Fixes
+
+* retain metadata spreadsheet info when cellxgene dataset is updated ([#629](https://github.com/clevercanary/hca-atlas-tracker/issues/629)) ([#634](https://github.com/clevercanary/hca-atlas-tracker/issues/634)) ([1f1b1a7](https://github.com/clevercanary/hca-atlas-tracker/commit/1f1b1a76769aba09228f209d547426b801157356))
+
+
+### Chores
+
+* delete unused `files-outdated` folder ([#622](https://github.com/clevercanary/hca-atlas-tracker/issues/622)) ([#632](https://github.com/clevercanary/hca-atlas-tracker/issues/632)) ([c4d64c6](https://github.com/clevercanary/hca-atlas-tracker/commit/c4d64c6b4cf79aeebc5e8b6f1b4a8ce420cbc7b1))
+
 ## [1.14.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.13.0...v1.14.0) (2025-03-25)
 
 
