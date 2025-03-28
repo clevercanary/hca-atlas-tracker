@@ -24,11 +24,15 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/users/create";
 
@@ -59,13 +63,15 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doCreateTest(undefined, NEW_USER_DATA))._getStatusCode()
+      (await doCreateTest(undefined, NEW_USER_DATA, true))._getStatusCode()
     ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doCreateTest(USER_UNREGISTERED, NEW_USER_DATA))._getStatusCode()
+      (
+        await doCreateTest(USER_UNREGISTERED, NEW_USER_DATA, true)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

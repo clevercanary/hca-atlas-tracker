@@ -8,10 +8,12 @@ import {
   TEST_HCA_CATALOGS,
 } from "../testing/constants";
 
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/source-studies");
 jest.mock("../app/services/source-datasets");
 jest.mock("../app/services/component-atlases");
-jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 const refreshValidations = jest.fn();

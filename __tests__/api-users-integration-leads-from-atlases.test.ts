@@ -28,10 +28,14 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/users/integration-leads-from-atlases";
 
@@ -53,12 +57,16 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 for logged out user", async () => {
-    expect((await doIntegrationLeadsRequest())._getStatusCode()).toEqual(401);
+    expect(
+      (await doIntegrationLeadsRequest(undefined, true))._getStatusCode()
+    ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doIntegrationLeadsRequest(USER_UNREGISTERED))._getStatusCode()
+      (
+        await doIntegrationLeadsRequest(USER_UNREGISTERED, true)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

@@ -43,10 +43,14 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE =
   "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/[sourceDatasetId]";
@@ -88,7 +92,11 @@ describe(TEST_ROUTE, () => {
         await doSourceDatasetRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          SOURCE_DATASET_FOO.id
+          SOURCE_DATASET_FOO.id,
+          undefined,
+          METHOD.GET,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -101,7 +109,10 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           SOURCE_DATASET_FOO.id,
-          USER_UNREGISTERED
+          USER_UNREGISTERED,
+          METHOD.GET,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -210,7 +221,8 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_FOO.id,
           undefined,
           METHOD.PATCH,
-          SOURCE_DATASET_FOO_EDIT
+          SOURCE_DATASET_FOO_EDIT,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -425,7 +437,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           SOURCE_DATASET_FOO.id,
           undefined,
-          METHOD.DELETE
+          METHOD.DELETE,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);

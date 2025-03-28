@@ -18,12 +18,16 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestSourceDataset, TestUser } from "../testing/entities";
-import { testApiRole } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE =
   "/api/atlases/[id]/source-studies/[sourceStudyId]/source-datasets";
@@ -55,7 +59,10 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id
+          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+          undefined,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -67,7 +74,9 @@ describe(TEST_ROUTE, () => {
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          USER_UNREGISTERED
+          USER_UNREGISTERED,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -135,14 +144,18 @@ async function doSourceDatasetsRequest(
   atlasId: string,
   sourceStudyId: string,
   user?: TestUser,
-  method = METHOD.GET
+  method = METHOD.GET,
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
     query: getQueryValues(atlasId, sourceStudyId),
   });
-  await sourceDatasetsHandler(req, res);
+  await withConsoleErrorHiding(
+    () => sourceDatasetsHandler(req, res),
+    hideConsoleError
+  );
   return res;
 }
 

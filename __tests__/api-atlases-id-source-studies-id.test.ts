@@ -86,11 +86,15 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 
@@ -182,7 +186,11 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       (
         await doStudyRequest(
           ATLAS_PUBLIC.id,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
+          undefined,
+          METHOD.GET,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -194,7 +202,10 @@ describe(`${TEST_ROUTE} (GET)`, () => {
         await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
-          USER_UNREGISTERED
+          USER_UNREGISTERED,
+          METHOD.GET,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -215,7 +226,14 @@ describe(`${TEST_ROUTE} (GET)`, () => {
   it("returns error 401 when study is GET requested from draft atlas by logged out user", async () => {
     expect(
       (
-        await doStudyRequest(ATLAS_DRAFT.id, SOURCE_STUDY_DRAFT_OK.id)
+        await doStudyRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_STUDY_DRAFT_OK.id,
+          undefined,
+          METHOD.GET,
+          undefined,
+          true
+        )
       )._getStatusCode()
     ).toEqual(401);
   });
@@ -226,7 +244,10 @@ describe(`${TEST_ROUTE} (GET)`, () => {
         await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_DRAFT_OK.id,
-          USER_UNREGISTERED
+          USER_UNREGISTERED,
+          METHOD.GET,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -310,7 +331,8 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           undefined,
           METHOD.PUT,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -791,7 +813,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           undefined,
-          METHOD.DELETE
+          METHOD.DELETE,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);

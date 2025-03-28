@@ -27,10 +27,14 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestSourceStudy, TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE =
   "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create";
@@ -74,7 +78,8 @@ describe(TEST_ROUTE, () => {
           undefined,
           ATLAS_WITH_MISC_SOURCE_STUDIES,
           SOURCE_STUDY_WITH_SOURCE_DATASETS,
-          NEW_SOURCE_DATASET_DATA
+          NEW_SOURCE_DATASET_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -87,7 +92,8 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           ATLAS_WITH_MISC_SOURCE_STUDIES,
           SOURCE_STUDY_WITH_SOURCE_DATASETS,
-          NEW_SOURCE_DATASET_DATA
+          NEW_SOURCE_DATASET_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);

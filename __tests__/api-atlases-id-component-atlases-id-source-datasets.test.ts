@@ -41,10 +41,14 @@ import {
 } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE =
   "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets";
@@ -109,7 +113,11 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetsRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          undefined,
+          METHOD.GET,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -121,7 +129,10 @@ describe(TEST_ROUTE, () => {
         await doSourceDatasetsRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_UNREGISTERED
+          USER_UNREGISTERED,
+          METHOD.GET,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -187,7 +198,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           undefined,
           METHOD.POST,
-          NEW_DATASETS_DATA
+          NEW_DATASETS_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -202,7 +214,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_UNREGISTERED,
           METHOD.POST,
-          NEW_DATASETS_DATA
+          NEW_DATASETS_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -367,7 +380,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           undefined,
           METHOD.DELETE,
-          DELETE_DATASETS_DATA
+          DELETE_DATASETS_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -382,7 +396,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_UNREGISTERED,
           METHOD.DELETE,
-          DELETE_DATASETS_DATA
+          DELETE_DATASETS_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
