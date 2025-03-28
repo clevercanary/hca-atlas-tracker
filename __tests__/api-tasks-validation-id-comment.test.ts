@@ -25,10 +25,14 @@ import { getDbUsersByEmail, resetDatabase } from "../testing/db-utils";
 import { TestComment, TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const VALIDATION_RECORD_ID_NONEXISTENT = "67c71957-402d-4933-b602-10c8d1ad2198";
 
@@ -244,7 +248,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           undefined,
-          METHOD.DELETE
+          METHOD.DELETE,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -257,7 +263,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_UNREGISTERED,
-          METHOD.DELETE
+          METHOD.DELETE,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);

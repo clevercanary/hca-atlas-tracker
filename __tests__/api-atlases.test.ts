@@ -13,13 +13,21 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
-import { expectApiAtlasToMatchTest, testApiRole } from "../testing/utils";
+import {
+  expectApiAtlasToMatchTest,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases";
 
@@ -34,17 +42,19 @@ afterAll(() => {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
-      (await doAtlasesRequest(undefined, "POST"))._getStatusCode()
+      (await doAtlasesRequest(undefined, "POST", true))._getStatusCode()
     ).toEqual(405);
   });
 
   it("returns error 401 for logged out user", async () => {
-    expect((await doAtlasesRequest())._getStatusCode()).toEqual(401);
+    expect(
+      (await doAtlasesRequest(undefined, "GET", true))._getStatusCode()
+    ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doAtlasesRequest(USER_UNREGISTERED))._getStatusCode()
+      (await doAtlasesRequest(USER_UNREGISTERED, "GET", true))._getStatusCode()
     ).toEqual(403);
   });
 
@@ -94,12 +104,16 @@ function expectApiAtlasesToIncludeTests(
 
 async function doAtlasesRequest(
   user?: TestUser,
-  method: "GET" | "POST" = "GET"
+  method: "GET" | "POST" = "GET",
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
   });
-  await atlasesHandler(req, res);
+  await withConsoleErrorHiding(
+    () => atlasesHandler(req, res),
+    hideConsoleError
+  );
   return res;
 }

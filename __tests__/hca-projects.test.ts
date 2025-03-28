@@ -12,7 +12,9 @@ import {
 } from "../testing/constants";
 import { delay, promiseWithResolvers } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/validations", () => ({

@@ -27,10 +27,14 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/users/[id]";
 
@@ -70,15 +74,15 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 when user is GET requested by logged out user", async () => {
-    expect((await doUserRequest(USER_STAKEHOLDER))._getStatusCode()).toEqual(
-      401
-    );
+    expect(
+      (await doUserRequest(USER_STAKEHOLDER, undefined, true))._getStatusCode()
+    ).toEqual(401);
   });
 
   it("returns error 403 when user is GET requested by unregistered user", async () => {
     expect(
       (
-        await doUserRequest(USER_STAKEHOLDER, USER_UNREGISTERED)
+        await doUserRequest(USER_STAKEHOLDER, USER_UNREGISTERED, true)
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -128,7 +132,7 @@ describe(TEST_ROUTE, () => {
         await doUserRequest(
           USER_STAKEHOLDER,
           undefined,
-          false,
+          true,
           METHOD.PATCH,
           USER_STAKEHOLDER_EDIT
         )
@@ -142,7 +146,7 @@ describe(TEST_ROUTE, () => {
         await doUserRequest(
           USER_STAKEHOLDER,
           USER_UNREGISTERED,
-          false,
+          true,
           METHOD.PATCH,
           USER_STAKEHOLDER_EDIT
         )

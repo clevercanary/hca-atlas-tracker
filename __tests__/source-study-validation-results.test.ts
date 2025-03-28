@@ -32,10 +32,12 @@ type ExpectedValidationProperties = Pick<
 > &
   Partial<Pick<HCAAtlasTrackerValidationResult, "differences">>;
 
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
-jest.mock("../app/services/user-profile");
 
 const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
   {

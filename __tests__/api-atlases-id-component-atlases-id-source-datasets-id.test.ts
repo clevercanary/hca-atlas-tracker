@@ -44,10 +44,14 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE =
   "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets/[sourceDatasetId]";
@@ -83,7 +87,10 @@ describe(TEST_ROUTE, () => {
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOOBAZ.id
+          SOURCE_DATASET_FOOBAZ.id,
+          undefined,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -96,7 +103,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOBAZ.id,
-          USER_UNREGISTERED
+          USER_UNREGISTERED,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -158,7 +167,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           undefined,
-          METHOD.POST
+          METHOD.POST,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -173,7 +183,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_UNREGISTERED,
-          METHOD.POST
+          METHOD.POST,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -390,7 +401,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           undefined,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -405,7 +417,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_UNREGISTERED,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);

@@ -13,7 +13,6 @@ import {
 } from "../testing/constants";
 import { delay, promiseWithResolvers } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/refresh-services", () => ({

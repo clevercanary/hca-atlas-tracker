@@ -39,12 +39,15 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("googleapis");
+jest.mock("next-auth");
 
 const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
 
@@ -103,7 +106,8 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
           undefined,
-          METHOD.GET
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -116,7 +120,8 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
           USER_UNREGISTERED,
-          METHOD.GET
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -185,7 +190,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
           undefined,
           METHOD.PATCH,
-          false,
+          true,
           A_FOO_EDIT_DATA
         )
       )._getStatusCode()
@@ -201,7 +206,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
           USER_UNREGISTERED,
           METHOD.PATCH,
-          false,
+          true,
           A_FOO_EDIT_DATA
         )
       )._getStatusCode()
@@ -383,7 +388,8 @@ describe(`${TEST_ROUTE} (POST)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
           undefined,
-          METHOD.POST
+          METHOD.POST,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -397,7 +403,8 @@ describe(`${TEST_ROUTE} (POST)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
           USER_UNREGISTERED,
-          METHOD.POST
+          METHOD.POST,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
@@ -576,7 +583,8 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
           undefined,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(401);
@@ -590,7 +598,8 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
           USER_UNREGISTERED,
-          METHOD.DELETE
+          METHOD.DELETE,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);

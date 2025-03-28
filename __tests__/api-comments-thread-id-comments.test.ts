@@ -26,10 +26,14 @@ import { getDbUsersByEmail, resetDatabase } from "../testing/db-utils";
 import { TestComment, TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const THREAD_ID_NONEXISTENT = "f1d7ee3c-34ac-4d2e-86bb-d45f86d84fe4";
 

@@ -46,10 +46,14 @@ import { getDbUsersByEmail, resetDatabase } from "../testing/db-utils";
 import { TestComment, TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const COMMENT_BY_STAKEHOLDER_ROOT_EDIT: CommentEditData = {
   text: "comment by stakeholder root edit",

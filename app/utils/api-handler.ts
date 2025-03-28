@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { ValidationError } from "yup";
-import { nextAuthOptions } from "../../site-config/hca-atlas-tracker/local/authentication/next-auth";
+import { nextAuthOptions } from "../../site-config/hca-atlas-tracker/local/authentication/next-auth-config";
 import {
   HCAAtlasTrackerDBUser,
   ROLE,

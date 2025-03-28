@@ -4,6 +4,7 @@ import {
   expectApiUserToMatchTest,
   expectIsDefined,
   testApiRole,
+  withConsoleErrorHiding,
 } from "testing/utils";
 import { HCAAtlasTrackerUser } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
@@ -21,11 +22,15 @@ import {
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/users";
 
@@ -45,13 +50,17 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 for logged out user", async () => {
-    expect((await doUsersRequest())._getStatusCode()).toEqual(401);
+    expect(
+      (await doUsersRequest(undefined, undefined, "GET", true))._getStatusCode()
+    ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
-    expect((await doUsersRequest(USER_UNREGISTERED))._getStatusCode()).toEqual(
-      403
-    );
+    expect(
+      (
+        await doUsersRequest(USER_UNREGISTERED, undefined, "GET", true)
+      )._getStatusCode()
+    ).toEqual(403);
   });
 
   it("returns error 403 for disabled user", async () => {
@@ -117,7 +126,8 @@ describe(TEST_ROUTE, () => {
 async function doUsersRequest(
   user?: TestUser,
   email?: string,
-  method: "GET" | "POST" = "GET"
+  method: "GET" | "POST" = "GET",
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -126,6 +136,6 @@ async function doUsersRequest(
       email,
     },
   });
-  await usersHandler(req, res);
+  await withConsoleErrorHiding(() => usersHandler(req, res), hideConsoleError);
   return res;
 }
