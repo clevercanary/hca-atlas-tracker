@@ -17,12 +17,16 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestSourceStudy, TestUser } from "../testing/entities";
-import { testApiRole } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/user-profile");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/tasks";
 
@@ -42,13 +46,17 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 for logged out user", async () => {
-    expect((await doTasksRequest())._getStatusCode()).toEqual(401);
+    expect(
+      (await doTasksRequest(undefined, METHOD.GET, true))._getStatusCode()
+    ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
-    expect((await doTasksRequest(USER_UNREGISTERED))._getStatusCode()).toEqual(
-      403
-    );
+    expect(
+      (
+        await doTasksRequest(USER_UNREGISTERED, METHOD.GET, true)
+      )._getStatusCode()
+    ).toEqual(403);
   });
 
   it("returns error 403 for disabled user", async () => {
@@ -83,13 +91,14 @@ describe(TEST_ROUTE, () => {
 
 async function doTasksRequest(
   user?: TestUser,
-  method = METHOD.GET
+  method = METHOD.GET,
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
   });
-  await tasksHandler(req, res);
+  await withConsoleErrorHiding(() => tasksHandler(req, res), hideConsoleError);
   return res;
 }
 

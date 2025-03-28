@@ -22,10 +22,14 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const NEW_COMPONENT_ATLAS_DATA: NewComponentAtlasData = {
   description: "New component atlas description",
@@ -67,7 +71,12 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
   it("returns error 401 for logged out user", async () => {
     expect(
       (
-        await doCreateTest(undefined, ATLAS_DRAFT, NEW_COMPONENT_ATLAS_DATA)
+        await doCreateTest(
+          undefined,
+          ATLAS_DRAFT,
+          NEW_COMPONENT_ATLAS_DATA,
+          true
+        )
       )._getStatusCode()
     ).toEqual(401);
   });
@@ -78,7 +87,8 @@ describe("/api/atlases/[atlasId]/component-atlases/create", () => {
         await doCreateTest(
           USER_UNREGISTERED,
           ATLAS_DRAFT,
-          NEW_COMPONENT_ATLAS_DATA
+          NEW_COMPONENT_ATLAS_DATA,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);

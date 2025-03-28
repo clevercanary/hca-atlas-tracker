@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { testApiRole } from "testing/utils";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import disableHandler from "../pages/api/users/[id]/disable";
@@ -13,12 +12,17 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/users/[id]/disable";
 
@@ -52,14 +56,21 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doDisableRequest(undefined, userStakeholderId))._getStatusCode()
+      (
+        await doDisableRequest(undefined, userStakeholderId, "POST", true)
+      )._getStatusCode()
     ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
       (
-        await doDisableRequest(USER_UNREGISTERED, userStakeholderId)
+        await doDisableRequest(
+          USER_UNREGISTERED,
+          userStakeholderId,
+          "POST",
+          true
+        )
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -116,14 +127,18 @@ describe(TEST_ROUTE, () => {
 async function doDisableRequest(
   user: TestUser | undefined,
   targetId: string,
-  method: "GET" | "POST" = "POST"
+  method: "GET" | "POST" = "POST",
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
     query: getQueryValues(targetId),
   });
-  await disableHandler(req, res);
+  await withConsoleErrorHiding(
+    () => disableHandler(req, res),
+    hideConsoleError
+  );
   return res;
 }
 

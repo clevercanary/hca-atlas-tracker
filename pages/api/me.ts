@@ -3,19 +3,19 @@ import {
   ROLE,
 } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../app/common/entities";
-import { getProvidedUserProfile } from "../../app/services/user-profile";
 import { createUser, updateLastLogin } from "../../app/services/users";
 import {
-  getUserFromAuthorization,
+  getActiveUser,
+  getProvidedUserProfile,
   handler,
   method,
   UnauthenticatedError,
 } from "../../app/utils/api-handler";
 
 export default handler(method(METHOD.PUT), async (req, res) => {
-  const userProfile = await getProvidedUserProfile(req.headers.authorization);
+  const userProfile = await getProvidedUserProfile(req, res);
   if (!userProfile) throw new UnauthenticatedError("Not authenticated");
-  let user = await getUserFromAuthorization(req.headers.authorization);
+  let user = await getActiveUser(req, res);
   if (!user) {
     user = await createUser({
       disabled: false,
