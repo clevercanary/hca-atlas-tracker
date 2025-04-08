@@ -98,6 +98,7 @@ export function makeTestSourceStudyOverview(
         cellxgeneCollectionId: study.cellxgeneCollectionId,
         doiStatus: DOI_STATUS.NA,
         hcaProjectId: study.hcaProjectId,
+        metadataSpreadsheets: [],
         publication: null,
         unpublishedInfo: study.unpublishedInfo,
       }
@@ -118,6 +119,7 @@ export function makeTestSourceStudyOverview(
                   .projectId) ??
               null
             : study.hcaProjectId,
+        metadataSpreadsheets: [],
         publication: study.publication,
         unpublishedInfo: null,
       };

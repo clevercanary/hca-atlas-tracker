@@ -348,6 +348,7 @@ async function makePublishedSourceStudyDbData(
       cellxgeneCollectionId,
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,
+      metadataSpreadsheets: [],
       publication,
       unpublishedInfo: null,
     },
@@ -378,6 +379,7 @@ function makeUnpublishedSourceStudyDbData(
     doi: null,
     study_info: {
       doiStatus: DOI_STATUS.NA,
+      metadataSpreadsheets: [],
       publication: null,
       unpublishedInfo: {
         contactEmail: inputData.contactEmail,
