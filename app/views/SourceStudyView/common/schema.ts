@@ -1,4 +1,4 @@
-import { object, string } from "yup";
+import { array, object, string } from "yup";
 import {
   CELLXGENE_COLLECTION_ID_REGEX,
   HCA_PROJECT_ID_REGEX,
@@ -27,5 +27,11 @@ export const sourceStudyEditSchema = newSourceStudySchema.concat(
         HCA_PROJECT_ID_REGEX,
         "HCA project ID must be a UUID or HCA Data Explorer project URL"
       ),
+    [FIELD_NAME.METADATA_SPREADSHEETS]: array(
+      object({
+        title: string().defined().nullable(),
+        url: string().required(),
+      }).required()
+    ).required(),
   })
 );

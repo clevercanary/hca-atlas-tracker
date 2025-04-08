@@ -10,6 +10,7 @@ export const FIELD_NAME = {
   CAP_ID: "capId",
   CELLXGENE_COLLECTION_ID: "cellxgeneCollectionId",
   HCA_PROJECT_ID: "hcaProjectId",
+  METADATA_SPREADSHEETS: "metadataSpreadsheets",
 } as const;
 
 export const NO_DOI_FIELDS: SourceStudyEditDataKeys[] = [

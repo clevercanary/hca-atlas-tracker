@@ -70,6 +70,10 @@ interface HCAAtlasTrackerSourceStudyCommon {
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   id: string;
+  metadataSpreadsheets: Array<{
+    title: string | null;
+    url: string;
+  }>;
   sourceDatasetCount: number;
   tasks: HCAAtlasTrackerValidationRecordWithoutAtlases[];
 }

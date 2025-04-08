@@ -6,6 +6,7 @@ import { FormManager } from "../../../common/Form/components/FormManager/formMan
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceStudy/components/View/components/GeneralInfo/generalInfo";
 import { Identifiers } from "../TrackerForm/components/Section/components/SourceStudy/components/View/components/Identifiers/identifiers";
+import { Metadata } from "../TrackerForm/components/Section/components/SourceStudy/components/View/components/Metadata/metadata";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
@@ -26,6 +27,8 @@ export const ViewSourceStudy = ({
     <TrackerForm>
       <FormManager {...formManager} />
       <GeneralInfo formManager={formManager} formMethod={formMethod} />
+      <Divider />
+      <Metadata formManager={formManager} formMethod={formMethod} />
       <Divider />
       <Identifiers formManager={formManager} formMethod={formMethod} />
     </TrackerForm>
