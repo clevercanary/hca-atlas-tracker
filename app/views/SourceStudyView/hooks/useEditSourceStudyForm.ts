@@ -67,18 +67,20 @@ export function mapPublicationStatus(doi?: string | null): PUBLICATION_STATUS {
  */
 function mapSchemaValues(
   sourceStudy?: HCAAtlasTrackerSourceStudy
-): SourceStudyEditData | undefined {
-  if (!sourceStudy) return;
+): SourceStudyEditData {
   return {
-    [FIELD_NAME.CAP_ID]: sourceStudy.capId ?? "",
+    [FIELD_NAME.CAP_ID]: sourceStudy?.capId ?? "",
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: mapCELLxGENECollectionId(
-      sourceStudy.cellxgeneCollectionId
+      sourceStudy?.cellxgeneCollectionId ?? null
     ),
-    [FIELD_NAME.CONTACT_EMAIL]: sourceStudy.contactEmail ?? "",
-    [FIELD_NAME.DOI]: sourceStudy.doi ?? "",
-    [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(sourceStudy.hcaProjectId),
-    [FIELD_NAME.PUBLICATION_STATUS]: mapPublicationStatus(sourceStudy.doi),
-    [FIELD_NAME.REFERENCE_AUTHOR]: sourceStudy.referenceAuthor ?? "",
-    [FIELD_NAME.TITLE]: sourceStudy.title ?? "",
+    [FIELD_NAME.CONTACT_EMAIL]: sourceStudy?.contactEmail ?? "",
+    [FIELD_NAME.DOI]: sourceStudy?.doi ?? "",
+    [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(
+      sourceStudy?.hcaProjectId ?? null
+    ),
+    [FIELD_NAME.METADATA_SPREADSHEETS]: sourceStudy?.metadataSpreadsheets ?? [],
+    [FIELD_NAME.PUBLICATION_STATUS]: mapPublicationStatus(sourceStudy?.doi),
+    [FIELD_NAME.REFERENCE_AUTHOR]: sourceStudy?.referenceAuthor ?? "",
+    [FIELD_NAME.TITLE]: sourceStudy?.title ?? "",
   };
 }

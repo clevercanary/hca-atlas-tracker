@@ -70,6 +70,7 @@ interface HCAAtlasTrackerSourceStudyCommon {
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
   id: string;
+  metadataSpreadsheets: GoogleSheetInfo[];
   sourceDatasetCount: number;
   tasks: HCAAtlasTrackerValidationRecordWithoutAtlases[];
 }
@@ -285,6 +286,7 @@ export interface HCAAtlasTrackerDBPublishedSourceStudyInfo {
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
+  metadataSpreadsheets: GoogleSheetInfo[];
   publication: PublicationInfo | null;
   unpublishedInfo: null;
 }
@@ -294,6 +296,7 @@ export interface HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
   cellxgeneCollectionId: string | null;
   doiStatus: DOI_STATUS;
   hcaProjectId: string | null;
+  metadataSpreadsheets: GoogleSheetInfo[];
   publication: null;
   unpublishedInfo: UnpublishedInfo;
 }
@@ -487,6 +490,11 @@ export interface IntegrationLead {
 
 export interface LinkInfo {
   label?: string;
+  url: string;
+}
+
+export interface GoogleSheetInfo {
+  title: string | null;
   url: string;
 }
 

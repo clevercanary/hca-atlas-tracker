@@ -2202,5 +2202,6 @@ export const TEST_GOOGLE_SHEET_TITLES_BY_ID: Record<string, string> = {
   "new-atlas-with-metadata-specification":
     "New Atlas With Metadata Specification Sheet",
   "sheet-bar": "Sheet Bar",
+  "sheet-baz": "Sheet Baz",
   "sheet-foo": "Sheet Foo",
 };

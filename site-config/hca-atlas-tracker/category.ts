@@ -67,6 +67,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   INTEGRATION_LEAD: "Integration Lead",
   LAST_LOGIN: "Last Login",
   METADATA_SPECIFICATION_URL: "Metadata Spec (Golden Sheet)",
+  METADATA_SPREADSHEETS: "Metadata Entry Sheet",
   NAME: "Atlas",
   NETWORKS: "Network",
   PROJECT_TITLE: "Project Title",

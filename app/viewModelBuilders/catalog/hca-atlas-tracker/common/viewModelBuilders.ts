@@ -323,6 +323,24 @@ export const buildIntegrationLead = (
 };
 
 /**
+ * Build props for the "Metadata Entry Sheet" column
+ * @param sourceStudy  - Source study entity.
+ * @returns Props to be used for the cell
+ */
+export function buildMetadataSpreadsheets(
+  sourceStudy: HCAAtlasTrackerSourceStudy
+): ComponentProps<typeof C.LinksCell> {
+  return {
+    links: sourceStudy.metadataSpreadsheets.map(({ title, url }) => ({
+      label: title ?? url,
+      noWrap: true,
+      target: ANCHOR_TARGET.BLANK,
+      url,
+    })),
+  };
+}
+
+/**
  * Build props for the "Metadata Spreadsheet" Link component
  * @param atlas  - Atlas entity.
  * @returns Props to be used for the cell
@@ -1231,6 +1249,7 @@ export function getAtlasSourceStudiesTableColumns(
   return [
     getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
+    getSourceStudyMetadataSpreadsheetColumnDef(),
     getSourceStudySourceDatasetCountColumnDef(
       pathParameter,
       atlasLinkedDatasetsByStudyId
@@ -1617,6 +1636,18 @@ function getSourceStudyHCADataRepositoryStatusColumnDef(): ColumnDef<HCAAtlasTra
     cell: ({ row }) =>
       C.IconStatusBadge(buildSourceStudyHcaDataRepositoryStatus(row.original)),
     header: "HCA Data Repository",
+  };
+}
+
+/**
+ * Returns source study metadata spreadsheet column def.
+ * @returns Column def.
+ */
+function getSourceStudyMetadataSpreadsheetColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
+  return {
+    accessorKey: "metdataSpreadsheets",
+    cell: ({ row }) => C.LinksCell(buildMetadataSpreadsheets(row.original)),
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.METADATA_SPREADSHEETS,
   };
 }
 
