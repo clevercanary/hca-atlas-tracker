@@ -24,6 +24,7 @@ export { IconButton } from "./common/IconButton/iconButton";
 export { LinkDatasetDropdown } from "./Detail/components/ViewAtlasSourceDatasets/components/LinkDatasetDropdown/linkDatasetDropdown";
 export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
 export { FileDownload } from "./Index/components/FileDownload/fileDownload";
+export { LinksCell } from "./Index/components/LinksCell/linksCell";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
 export { PreviewTask } from "./Index/components/ViewTasks/components/PreviewTask/previewTask";
 export { AlertText } from "./Layout/components/Content/components/AlertText/alertText.styles";
