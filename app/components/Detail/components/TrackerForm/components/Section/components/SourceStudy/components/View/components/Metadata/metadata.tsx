@@ -66,7 +66,7 @@ export const Metadata = ({
           disabled={isReadOnly}
           onClick={() => append({ url: "" })}
         >
-          Add sheet
+          Add entry sheet
         </AddItemButton>
       </ListSection>
     </Section>
