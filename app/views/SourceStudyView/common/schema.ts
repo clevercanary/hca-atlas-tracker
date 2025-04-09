@@ -30,7 +30,6 @@ export const sourceStudyEditSchema = newSourceStudySchema.concat(
       ),
     [FIELD_NAME.METADATA_SPREADSHEETS]: array(
       object({
-        title: string().defined().nullable(),
         url: string()
           .matches(
             GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,

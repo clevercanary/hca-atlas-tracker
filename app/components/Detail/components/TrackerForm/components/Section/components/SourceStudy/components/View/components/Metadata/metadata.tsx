@@ -72,7 +72,7 @@ export const Metadata = ({
         <StyledButton
           {...BUTTON_PROPS}
           startIcon={<AddIcon />}
-          onClick={() => append({ title: null, url: "" })}
+          onClick={() => append({ url: "" })}
           disabled={isReadOnly}
         >
           Add sheet
