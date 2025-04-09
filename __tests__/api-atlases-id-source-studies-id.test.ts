@@ -26,6 +26,7 @@ import {
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_MISC_FOO,
   COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
+  DOI_DRAFT_OK,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
   PUBLICATION_PREPRINT_NO_JOURNAL,
@@ -93,9 +94,10 @@ jest.mock("../app/services/cellxgene");
 
 const TEST_ROUTE = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 
-const SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT = {
+const SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT: SourceStudyEditData = {
   capId: null,
   doi: DOI_PREPRINT_NO_JOURNAL,
+  metadataSpreadsheets: [],
 };
 
 const SOURCE_STUDY_DRAFT_OK_EDIT: SourceStudyEditData = {
@@ -103,34 +105,39 @@ const SOURCE_STUDY_DRAFT_OK_EDIT: SourceStudyEditData = {
   cellxgeneCollectionId: null,
   contactEmail: "bar@example.com",
   hcaProjectId: null,
+  metadataSpreadsheets: [],
   referenceAuthor: "Bar",
   title: "Baz",
 };
 
-const SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT = {
+const SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT: SourceStudyEditData = {
   capId: "cap-id-source-study-draft-ok-edit",
-  doi: SOURCE_STUDY_DRAFT_OK.doi,
+  doi: DOI_DRAFT_OK,
+  metadataSpreadsheets: [],
 };
 
-const SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT = {
+const SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT: SourceStudyEditData = {
   capId: null,
   doi: DOI_WITH_NEW_SOURCE_DATASETS,
+  metadataSpreadsheets: [],
 };
 
-const SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT = {
+const SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT: SourceStudyEditData = {
   capId: null,
   cellxgeneCollectionId: null,
   contactEmail: "barfoo@example.com",
   hcaProjectId: null,
+  metadataSpreadsheets: [],
   referenceAuthor: "Barfoo",
   title: "Unpublished With HCA Edit",
 };
 
-const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT = {
+const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT: SourceStudyEditData = {
   capId: null,
   cellxgeneCollectionId: null,
   contactEmail: null,
   hcaProjectId: null,
+  metadataSpreadsheets: [],
   referenceAuthor: "Foo",
   title: "Unpublished With CELLxGENE",
 };
@@ -1038,6 +1045,9 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
     editData.cellxgeneCollectionId
   );
   expect(studyFromDb.study_info.hcaProjectId).toEqual(editData.hcaProjectId);
+  expect(
+    studyFromDb.study_info.metadataSpreadsheets.map((sheet) => sheet.url)
+  ).toEqual(editData.metadataSpreadsheets.map((sheet) => sheet.url));
 }
 
 async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {

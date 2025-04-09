@@ -226,6 +226,17 @@ export type NewSourceStudyData =
  * Schemas for data used to edit a source stufy.
  */
 
+const metadataSpreadsheetUrlsSchema = array(
+  object({
+    url: string()
+      .matches(
+        GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
+        'Metadata spreadsheet must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
+      )
+      .required(),
+  }).required()
+);
+
 export const publishedSourceStudyEditSchema = object({
   capId: string().defined("CAP ID is required").nullable(),
   doi: string()
@@ -235,9 +246,10 @@ export const publishedSourceStudyEditSchema = object({
       "DOI must be a syntactically-valid DOI",
       (value) => typeof value !== "string" || isDoi(value)
     ),
+  metadataSpreadsheets: metadataSpreadsheetUrlsSchema.required(),
 })
   .noUnknown(
-    "If DOI is specified, it must appear alongside CAP ID and no other fields"
+    "If DOI is specified, it must appear alongside CAP ID, metadata spreadsheet URLs, and no other fields"
   )
   .strict(true);
 
@@ -253,6 +265,7 @@ export const unpublishedSourceStudyEditSchema = object({
   hcaProjectId: string()
     .defined("HCA project ID is required when DOI is absent")
     .nullable(),
+  metadataSpreadsheets: metadataSpreadsheetUrlsSchema.required(),
   referenceAuthor: string().required("Author is required when DOI is absent"),
   title: string().required("Title is required when DOI is absent"),
 })

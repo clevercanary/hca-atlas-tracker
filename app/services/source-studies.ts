@@ -3,6 +3,7 @@ import { ValidationError } from "yup";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
+  GoogleSheetInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBPublishedSourceStudy,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
@@ -29,6 +30,7 @@ import {
 } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
+import { getSheetTitleForApi } from "../utils/google-sheets";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import {
   doOrContinueTransaction,
@@ -308,7 +310,7 @@ async function sourceStudyInputDataToDbData(
 ): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   return "doi" in inputData
     ? await makePublishedSourceStudyDbData(inputData)
-    : makeUnpublishedSourceStudyDbData(inputData);
+    : await makeUnpublishedSourceStudyDbData(inputData);
 }
 
 /**
@@ -348,7 +350,7 @@ async function makePublishedSourceStudyDbData(
       cellxgeneCollectionId,
       doiStatus: publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
       hcaProjectId,
-      metadataSpreadsheets: [],
+      metadataSpreadsheets: await getMetadataSpreadsheetsInfo(inputData),
       publication,
       unpublishedInfo: null,
     },
@@ -360,9 +362,9 @@ async function makePublishedSourceStudyDbData(
  * @param inputData - Values to derive source study from.
  * @returns database model of values needed to define a source study.
  */
-function makeUnpublishedSourceStudyDbData(
+async function makeUnpublishedSourceStudyDbData(
   inputData: NewUnpublishedSourceStudyData | UnpublishedSourceStudyEditData
-): HCAAtlasTrackerDBSourceStudyMinimumColumns {
+): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   const externalIds =
     "capId" in inputData
       ? {
@@ -379,7 +381,7 @@ function makeUnpublishedSourceStudyDbData(
     doi: null,
     study_info: {
       doiStatus: DOI_STATUS.NA,
-      metadataSpreadsheets: [],
+      metadataSpreadsheets: await getMetadataSpreadsheetsInfo(inputData),
       publication: null,
       unpublishedInfo: {
         contactEmail: inputData.contactEmail,
@@ -389,6 +391,32 @@ function makeUnpublishedSourceStudyDbData(
       ...externalIds,
     },
   };
+}
+
+/**
+ * Get info objects for the metadata spreadsheet URLs specified in the given input data, or empty array if none are specified.
+ * @param inputData - Source study input data to get metadata spreadsheet URLs from.
+ * @returns metadata spreadsheets info.
+ */
+async function getMetadataSpreadsheetsInfo(
+  inputData:
+    | NewPublishedSourceStudyData
+    | PublishedSourceStudyEditData
+    | NewUnpublishedSourceStudyData
+    | UnpublishedSourceStudyEditData
+): Promise<GoogleSheetInfo[]> {
+  if ("metadataSpreadsheets" in inputData) {
+    const info: GoogleSheetInfo[] = [];
+    for (const [i, { url }] of inputData.metadataSpreadsheets.entries()) {
+      info.push({
+        title: await getSheetTitleForApi(url, `metadataSpreadsheets.${i}.url`),
+        url,
+      });
+    }
+    return info;
+  } else {
+    return [];
+  }
 }
 
 /**

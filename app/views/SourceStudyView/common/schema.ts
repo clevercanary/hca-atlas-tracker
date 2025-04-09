@@ -1,4 +1,5 @@
 import { array, object, string } from "yup";
+import { GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   CELLXGENE_COLLECTION_ID_REGEX,
   HCA_PROJECT_ID_REGEX,
@@ -30,7 +31,12 @@ export const sourceStudyEditSchema = newSourceStudySchema.concat(
     [FIELD_NAME.METADATA_SPREADSHEETS]: array(
       object({
         title: string().defined().nullable(),
-        url: string().required(),
+        url: string()
+          .matches(
+            GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
+            'Metadata spreadsheet must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
+          )
+          .required(),
       }).required()
     ).required(),
   })
