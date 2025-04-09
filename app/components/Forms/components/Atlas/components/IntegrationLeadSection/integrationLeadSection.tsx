@@ -1,5 +1,3 @@
-import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
-import { IconButton } from "@mui/material";
 import { Fragment } from "react";
 import {
   FieldArrayPath,
@@ -12,14 +10,9 @@ import {
   YupValidatedFormValues,
 } from "../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
-import { DeleteIcon } from "../../../../../common/CustomIcon/components/DeleteIcon/deleteIcon";
 import { InputController } from "../../../../../common/Form/components/Controllers/components/InputController/inputController";
-import { SectionCard } from "../../../../../Detail/components/TrackerForm/components/Section/section.styles";
-import { BUTTON_PROPS, ICON_BUTTON_PROPS, SVG_ICON_PROPS } from "./constants";
-import {
-  ControllerAction,
-  StyledButton,
-} from "./integrationLeadSection.styles";
+import { DeleteItemButton } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/components/DeleteItemButton/deleteItemButton";
+import { ListSection } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/listSection";
 
 interface IntegrationLeadSectionProps<
   T extends FieldValues,
@@ -57,7 +50,14 @@ export const IntegrationLeadSection = <
   });
   const multiLead = fields.length > 1;
   return (
-    <SectionCard fullWidth={fullWidth} gridAutoFlow="dense">
+    <ListSection
+      addItemButtonProps={{
+        children: "Add lead",
+        disabled: isReadOnly,
+        onClick: () => append(getNewValue()),
+      }}
+      fullWidth={fullWidth}
+    >
       {fields.map((item, index) => {
         return (
           <Fragment key={item.id}>
@@ -74,27 +74,15 @@ export const IntegrationLeadSection = <
               name={getEmailName(index)}
             />
             {multiLead && (
-              <ControllerAction>
-                <IconButton
-                  {...ICON_BUTTON_PROPS}
-                  onClick={() => remove(index)}
-                  disabled={isReadOnly}
-                >
-                  <DeleteIcon {...SVG_ICON_PROPS} />
-                </IconButton>
-              </ControllerAction>
+              <DeleteItemButton
+                inputRowsPerItem={2}
+                onClick={() => remove(index)}
+                disabled={isReadOnly}
+              />
             )}
           </Fragment>
         );
       })}
-      <StyledButton
-        {...BUTTON_PROPS}
-        startIcon={<AddIcon />}
-        onClick={() => append(getNewValue())}
-        disabled={isReadOnly}
-      >
-        Add lead
-      </StyledButton>
-    </SectionCard>
+    </ListSection>
   );
 };

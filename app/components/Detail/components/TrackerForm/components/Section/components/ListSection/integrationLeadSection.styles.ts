@@ -2,9 +2,13 @@ import { mediaDesktopSmallUp } from "@databiosphere/findable-ui/lib/styles/commo
 import styled from "@emotion/styled";
 import { Button } from "@mui/material";
 
-export const ControllerAction = styled.div`
+interface ControllerActionProps {
+  inputRowCount: number;
+}
+
+export const ControllerAction = styled.div<ControllerActionProps>`
   grid-column: 2;
-  grid-row: auto / span 2;
+  grid-row: auto / span ${(props) => props.inputRowCount};
 
   padding-top: 24px;
 

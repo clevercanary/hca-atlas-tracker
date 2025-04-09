@@ -1,21 +1,17 @@
-import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
-import { IconButton } from "@mui/material";
 import { Fragment } from "react";
 import { useFieldArray } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
-import { DeleteIcon } from "../../../../../../../../../../../common/CustomIcon/components/DeleteIcon/deleteIcon";
 import { InputController } from "../../../../../../../../../../../common/Form/components/Controllers/components/InputController/inputController";
 import {
   Section,
-  SectionCard,
   SectionHero,
   SectionTitle,
 } from "../../../../../../section.styles";
-import { BUTTON_PROPS, ICON_BUTTON_PROPS, SVG_ICON_PROPS } from "./constants";
-import { ControllerAction, StyledButton } from "./metadata.styles";
+import { DeleteItemButton } from "../../../../../ListSection/components/DeleteItemButton/deleteItemButton";
+import { ListSection } from "../../../../../ListSection/listSection";
 
 export interface MetadataProps {
   formManager: FormManager;
@@ -38,7 +34,13 @@ export const Metadata = ({
       <SectionHero>
         <SectionTitle>Metadata</SectionTitle>
       </SectionHero>
-      <SectionCard gridAutoFlow="dense">
+      <ListSection
+        addItemButtonProps={{
+          children: "Add sheet",
+          disabled: isReadOnly,
+          onClick: () => append({ url: "" }),
+        }}
+      >
         {fields.map((item, index) => {
           return (
             <Fragment key={item.id}>
@@ -57,27 +59,15 @@ export const Metadata = ({
                   getMetadataSpreadsheetHelperText(sourceStudy, item.url)
                 }
               />
-              <ControllerAction>
-                <IconButton
-                  {...ICON_BUTTON_PROPS}
-                  onClick={() => remove(index)}
-                  disabled={isReadOnly}
-                >
-                  <DeleteIcon {...SVG_ICON_PROPS} />
-                </IconButton>
-              </ControllerAction>
+              <DeleteItemButton
+                inputRowsPerItem={1}
+                onClick={() => remove(index)}
+                disabled={isReadOnly}
+              />
             </Fragment>
           );
         })}
-        <StyledButton
-          {...BUTTON_PROPS}
-          startIcon={<AddIcon />}
-          onClick={() => append({ url: "" })}
-          disabled={isReadOnly}
-        >
-          Add sheet
-        </StyledButton>
-      </SectionCard>
+      </ListSection>
     </Section>
   );
 };
