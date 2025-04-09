@@ -11,6 +11,7 @@ import {
 } from "../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
 import { InputController } from "../../../../../common/Form/components/Controllers/components/InputController/inputController";
+import { AddItemButton } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/components/AddItemButton/addItemButton";
 import { DeleteItemButton } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/components/DeleteItemButton/deleteItemButton";
 import { ListSection } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/listSection";
 
@@ -50,14 +51,7 @@ export const IntegrationLeadSection = <
   });
   const multiLead = fields.length > 1;
   return (
-    <ListSection
-      addItemButtonProps={{
-        children: "Add lead",
-        disabled: isReadOnly,
-        onClick: () => append(getNewValue()),
-      }}
-      fullWidth={fullWidth}
-    >
+    <ListSection fullWidth={fullWidth}>
       {fields.map((item, index) => {
         return (
           <Fragment key={item.id}>
@@ -83,6 +77,12 @@ export const IntegrationLeadSection = <
           </Fragment>
         );
       })}
+      <AddItemButton
+        disabled={isReadOnly}
+        onClick={() => append(getNewValue())}
+      >
+        Add lead
+      </AddItemButton>
     </ListSection>
   );
 };

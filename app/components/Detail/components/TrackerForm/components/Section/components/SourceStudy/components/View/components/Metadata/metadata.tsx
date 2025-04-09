@@ -10,6 +10,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../../../section.styles";
+import { AddItemButton } from "../../../../../ListSection/components/AddItemButton/addItemButton";
 import { DeleteItemButton } from "../../../../../ListSection/components/DeleteItemButton/deleteItemButton";
 import { ListSection } from "../../../../../ListSection/listSection";
 
@@ -34,13 +35,7 @@ export const Metadata = ({
       <SectionHero>
         <SectionTitle>Metadata</SectionTitle>
       </SectionHero>
-      <ListSection
-        addItemButtonProps={{
-          children: "Add sheet",
-          disabled: isReadOnly,
-          onClick: () => append({ url: "" }),
-        }}
-      >
+      <ListSection>
         {fields.map((item, index) => {
           return (
             <Fragment key={item.id}>
@@ -67,6 +62,12 @@ export const Metadata = ({
             </Fragment>
           );
         })}
+        <AddItemButton
+          disabled={isReadOnly}
+          onClick={() => append({ url: "" })}
+        >
+          Add sheet
+        </AddItemButton>
       </ListSection>
     </Section>
   );
