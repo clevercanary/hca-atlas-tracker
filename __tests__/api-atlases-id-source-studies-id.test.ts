@@ -452,6 +452,32 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
+  it("returns error 400 when metadata spreadsheet URLs are non-unique", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_STUDY_DRAFT_OK.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            ...SOURCE_STUDY_DRAFT_OK_EDIT,
+            metadataSpreadsheets: [
+              {
+                url:
+                  SOURCE_STUDY_DRAFT_OK_EDIT.metadataSpreadsheets[0].url +
+                  "?gid=0#gid=0",
+              },
+              ...SOURCE_STUDY_DRAFT_OK_EDIT.metadataSpreadsheets,
+            ],
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
+  });
+
   it("updates, revalidates, and returns study with published data, including validations, when PUT requested", async () => {
     const validationsBefore = await getValidationsByEntityId(
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id

@@ -1,5 +1,5 @@
-import { array, object, string } from "yup";
-import { GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { object, string } from "yup";
+import { metadataSpreadsheetUrlsSchema } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   CELLXGENE_COLLECTION_ID_REGEX,
   HCA_PROJECT_ID_REGEX,
@@ -28,15 +28,7 @@ export const sourceStudyEditSchema = newSourceStudySchema.concat(
         HCA_PROJECT_ID_REGEX,
         "HCA project ID must be a UUID or HCA Data Explorer project URL"
       ),
-    [FIELD_NAME.METADATA_SPREADSHEETS]: array(
-      object({
-        url: string()
-          .matches(
-            GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
-            'Metadata spreadsheet must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
-          )
-          .required("Metadata spreadsheet URL cannot be empty"),
-      }).required()
-    ).required(),
+    [FIELD_NAME.METADATA_SPREADSHEETS]:
+      metadataSpreadsheetUrlsSchema.required(),
   })
 );

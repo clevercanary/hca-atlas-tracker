@@ -226,7 +226,7 @@ export type NewSourceStudyData =
  * Schemas for data used to edit a source stufy.
  */
 
-const metadataSpreadsheetUrlsSchema = array(
+export const metadataSpreadsheetUrlsSchema = array(
   object({
     url: string()
       .matches(
@@ -235,7 +235,21 @@ const metadataSpreadsheetUrlsSchema = array(
       )
       .required("Metadata spreadsheet URL cannot be empty"),
   }).required()
-);
+).test("unique-metadata-urls", (sheets, context) => {
+  if (sheets) {
+    const prevUrls = new Set();
+    for (const [i, { url }] of sheets.entries()) {
+      const trimmedUrl = url.replace(/[?#].*/, "");
+      if (prevUrls.has(trimmedUrl))
+        return context.createError({
+          message: "Metadata spreadsheet URL must be unique",
+          path: `metadataSpreadsheets.${i}.url`,
+        });
+      prevUrls.add(trimmedUrl);
+    }
+  }
+  return true;
+});
 
 export const publishedSourceStudyEditSchema = object({
   capId: string().defined("CAP ID is required").nullable(),
