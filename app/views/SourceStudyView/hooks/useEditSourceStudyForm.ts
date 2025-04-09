@@ -78,7 +78,7 @@ function mapSchemaValues(
     [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(
       sourceStudy?.hcaProjectId ?? null
     ),
-    [FIELD_NAME.METADATA_SPREADSHEETS]: [],
+    [FIELD_NAME.METADATA_SPREADSHEETS]: sourceStudy?.metadataSpreadsheets ?? [],
     [FIELD_NAME.PUBLICATION_STATUS]: mapPublicationStatus(sourceStudy?.doi),
     [FIELD_NAME.REFERENCE_AUTHOR]: sourceStudy?.referenceAuthor ?? "",
     [FIELD_NAME.TITLE]: sourceStudy?.title ?? "",

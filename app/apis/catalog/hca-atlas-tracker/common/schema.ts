@@ -233,7 +233,7 @@ const metadataSpreadsheetUrlsSchema = array(
         GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
         'Metadata spreadsheet must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
       )
-      .required(),
+      .required("Metadata spreadsheet URL cannot be empty"),
   }).required()
 );
 
