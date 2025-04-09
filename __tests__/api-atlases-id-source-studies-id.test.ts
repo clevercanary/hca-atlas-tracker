@@ -105,7 +105,10 @@ const SOURCE_STUDY_DRAFT_OK_EDIT: SourceStudyEditData = {
   cellxgeneCollectionId: null,
   contactEmail: "bar@example.com",
   hcaProjectId: null,
-  metadataSpreadsheets: [],
+  metadataSpreadsheets: [
+    { url: "https://docs.google.com/spreadsheets/d/sheet-foo/edit" },
+    { url: "https://docs.google.com/spreadsheets/d/sheet-bar/edit" },
+  ],
   referenceAuthor: "Bar",
   title: "Baz",
 };
@@ -114,6 +117,14 @@ const SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT: SourceStudyEditData = {
   capId: "cap-id-source-study-draft-ok-edit",
   doi: DOI_DRAFT_OK,
   metadataSpreadsheets: [],
+};
+
+const SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT: SourceStudyEditData = {
+  capId: null,
+  doi: DOI_DRAFT_OK,
+  metadataSpreadsheets: [
+    { url: "https://docs.google.com/spreadsheets/d/sheet-baz/edit" },
+  ],
 };
 
 const SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT: SourceStudyEditData = {
@@ -150,7 +161,7 @@ afterAll(async () => {
   endPgPool();
 });
 
-describe(TEST_ROUTE, () => {
+describe(`${TEST_ROUTE} (misc)`, () => {
   it("returns error 405 for POST request", async () => {
     expect(
       (
@@ -163,7 +174,9 @@ describe(TEST_ROUTE, () => {
       )._getStatusCode()
     ).toEqual(405);
   });
+});
 
+describe(`${TEST_ROUTE} (GET)`, () => {
   it("returns error 401 when study is requested from public atlas by logged out user", async () => {
     expect(
       (
@@ -286,7 +299,9 @@ describe(TEST_ROUTE, () => {
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
   });
+});
 
+describe(`${TEST_ROUTE} (PUT)`, () => {
   it("returns error 401 when study is PUT requested from public atlas by logged out user", async () => {
     expect(
       (
@@ -521,6 +536,33 @@ describe(TEST_ROUTE, () => {
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
+  it("updates and returns published study with metadata spreadsheet when PUT requested", async () => {
+    const res = await doStudyRequest(
+      ATLAS_DRAFT.id,
+      SOURCE_STUDY_DRAFT_OK.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const editUrls =
+      SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT.metadataSpreadsheets.map(
+        ({ url }) => url
+      );
+    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+    expect(updatedStudy.metadataSpreadsheets.map(({ url }) => url)).toEqual(
+      editUrls
+    );
+    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    expect(studyFromDb).toBeDefined();
+    if (!studyFromDb) return;
+    expect(
+      studyFromDb.study_info.metadataSpreadsheets.map(({ url }) => url)
+    ).toEqual(editUrls);
+
+    await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
+  });
+
   it("updates and returns study with unpublished data when PUT requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const res = await doStudyRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
@@ -713,7 +755,9 @@ describe(TEST_ROUTE, () => {
     ]);
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
+});
 
+describe(`${TEST_ROUTE} (DELETE)`, () => {
   it("returns error 401 when study is DELETE requested from public atlas by logged out user", async () => {
     expect(
       (
