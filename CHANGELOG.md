@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.15.0...v1.16.0) (2025-04-10)
+
+
+### Features
+
+* swap order of source studies tab and source datasets tab ([#638](https://github.com/clevercanary/hca-atlas-tracker/issues/638)) ([#639](https://github.com/clevercanary/hca-atlas-tracker/issues/639)) ([39d8769](https://github.com/clevercanary/hca-atlas-tracker/commit/39d876945f80ee1afbc47a0f0436d26f8cac2889))
+
 ## [1.15.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.14.0...v1.15.0) (2025-04-09)
 
 
