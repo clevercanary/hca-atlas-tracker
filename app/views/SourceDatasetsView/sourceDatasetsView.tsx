@@ -45,7 +45,6 @@ export const SourceDatasetsView = ({
           <ViewSourceDatasets
             atlasSourceDatasets={atlasSourceDatasets}
             formManager={formManager}
-            isCELLXGENECollection={Boolean(sourceStudy?.cellxgeneCollectionId)}
             pathParameter={pathParameter}
             sourceDatasets={sourceDatasets}
           />

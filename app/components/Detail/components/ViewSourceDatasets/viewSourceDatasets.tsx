@@ -7,16 +7,13 @@ import { getAtlasSourceStudySourceDatasetsTableColumns } from "../../../../viewM
 import { useSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
-import { AddSourceDataset } from "../AddSourceDataset/addSourceDataset";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceDatasetsProps {
   atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
-  isCELLXGENECollection: boolean;
   pathParameter: PathParameter;
   sourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
@@ -24,7 +21,6 @@ interface ViewSourceDatasetsProps {
 export const ViewSourceDatasets = ({
   atlasSourceDatasets = [],
   formManager,
-  isCELLXGENECollection,
   pathParameter,
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
@@ -37,11 +33,6 @@ export const ViewSourceDatasets = ({
   return (
     <Paper>
       <GridPaper>
-        {canEdit && !isCELLXGENECollection && (
-          <Toolbar variant="table">
-            <AddSourceDataset pathParameter={pathParameter} />
-          </Toolbar>
-        )}
         {sourceDatasets.length > 0 && (
           <Table
             columns={getAtlasSourceStudySourceDatasetsTableColumns(
@@ -50,7 +41,7 @@ export const ViewSourceDatasets = ({
               canEdit,
               linkedSourceDatasetIds
             )}
-            gridTemplateColumns="max-content minmax(200px, 1fr) minmax(148px, auto) minmax(170px, 190px) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
+            gridTemplateColumns="max-content minmax(110px, auto) minmax(200px, 1fr) minmax(148px, auto) minmax(170px, 190px) minmax(180px, auto) repeat(4, minmax(88px, 0.4fr)) auto"
             items={sourceDatasets.sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />

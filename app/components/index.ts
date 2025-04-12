@@ -22,7 +22,6 @@ export { RowDrawer } from "@databiosphere/findable-ui/lib/components/Table/compo
 export { AlertTitle } from "@mui/material";
 export { IconButton } from "./common/IconButton/iconButton";
 export { LinkDatasetDropdown } from "./Detail/components/ViewAtlasSourceDatasets/components/LinkDatasetDropdown/linkDatasetDropdown";
-export { ViewSourceDataset } from "./Detail/components/ViewSourceDataset/viewSourceDataset";
 export { FileDownload } from "./Index/components/FileDownload/fileDownload";
 export { LinksCell } from "./Index/components/LinksCell/linksCell";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
