@@ -1167,7 +1167,7 @@ export function getAtlasSourceStudySourceDatasetsTableColumns(
   linkedSourceDatasetIds: Set<string>
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
-    getSourceDatasetTitleColumnDef(pathParameter, canEdit),
+    getSourceDatasetTitleColumnDef(),
     getSourceDatasetLinkedColumnDef(
       onSetLinked,
       canEdit,
@@ -1575,21 +1575,14 @@ function getSourceDatasetTierOneMetadataStatusColumnDef(): ColumnDef<HCAAtlasTra
 
 /**
  * Returns source dataset title column def.
- * @param pathParameter - Path parameter.
- * @param canEdit - Edit state for user.
  * @returns Column def.
  */
-function getSourceDatasetTitleColumnDef(
-  pathParameter: PathParameter,
-  canEdit: boolean
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "title",
     cell: ({ row }) =>
-      C.ViewSourceDataset({
-        canEdit,
-        pathParameter,
-        sourceDataset: row.original,
+      C.BasicCell({
+        value: row.original.title,
       }),
     header: "Title",
   };
