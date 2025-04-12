@@ -1167,6 +1167,7 @@ export function getAtlasSourceStudySourceDatasetsTableColumns(
   linkedSourceDatasetIds: Set<string>
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
+    getSourceDatasetDownloadColumnDef(),
     getSourceDatasetTitleColumnDef(),
     getSourceDatasetLinkedColumnDef(
       onSetLinked,
