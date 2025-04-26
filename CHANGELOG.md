@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.16.0...v1.17.0) (2025-04-26)
+
+
+### Features
+
+* use `next-auth` for authentication ([#395](https://github.com/clevercanary/hca-atlas-tracker/issues/395)) ([#398](https://github.com/clevercanary/hca-atlas-tracker/issues/398)) ([8d679bf](https://github.com/clevercanary/hca-atlas-tracker/commit/8d679bf0cb641f7ed927b86185561e1ece1154fb))
+
 ## [1.16.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.15.0...v1.16.0) (2025-04-12)
 
 
