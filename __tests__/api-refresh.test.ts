@@ -27,7 +27,9 @@ import {
 } from "../testing/utils";
 
 jest.mock("../app/services/component-atlases");
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/source-studies", () => ({
@@ -36,6 +38,8 @@ jest.mock("../app/services/source-studies", () => ({
 jest.mock("../app/services/source-datasets", () => ({
   updateCellxGeneSourceDatasets: jest.fn(),
 }));
+
+jest.mock("next-auth");
 
 const refreshValidations = jest.fn();
 jest.mock("../app/services/validations", () => ({
@@ -89,13 +93,15 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 401 when GET requested by logged out user", async () => {
     expect(
-      (await doRefreshTest(undefined, METHOD.GET))._getStatusCode()
+      (await doRefreshTest(undefined, METHOD.GET, true))._getStatusCode()
     ).toEqual(401);
   });
 
   it("returns error 403 when GET requested by unregistered user", async () => {
     expect(
-      (await doRefreshTest(USER_UNREGISTERED, METHOD.GET))._getStatusCode()
+      (
+        await doRefreshTest(USER_UNREGISTERED, METHOD.GET, true)
+      )._getStatusCode()
     ).toEqual(403);
   });
 
@@ -143,13 +149,15 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 401 when POST requested by logged out user", async () => {
     expect(
-      (await doRefreshTest(undefined, METHOD.POST))._getStatusCode()
+      (await doRefreshTest(undefined, METHOD.POST, true))._getStatusCode()
     ).toEqual(401);
   });
 
   it("returns error 403 when POST requested by unregistered user", async () => {
     expect(
-      (await doRefreshTest(USER_UNREGISTERED, METHOD.POST))._getStatusCode()
+      (
+        await doRefreshTest(USER_UNREGISTERED, METHOD.POST, true)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

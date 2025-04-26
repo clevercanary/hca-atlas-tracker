@@ -28,12 +28,15 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
+jest.mock("next-auth");
 jest.mock("googleapis");
 
 const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
@@ -166,13 +169,15 @@ describe("/api/atlases/create", () => {
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doCreateTest(undefined, NEW_ATLAS_DATA))._getStatusCode()
+      (await doCreateTest(undefined, NEW_ATLAS_DATA, true))._getStatusCode()
     ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doCreateTest(USER_UNREGISTERED, NEW_ATLAS_DATA))._getStatusCode()
+      (
+        await doCreateTest(USER_UNREGISTERED, NEW_ATLAS_DATA, true)
+      )._getStatusCode()
     ).toEqual(403);
   });
 

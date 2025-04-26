@@ -8,7 +8,7 @@ import {
   updateComment,
 } from "../../../../../app/services/comments";
 import {
-  getRegisteredUserFromAuthorization,
+  getRegisteredActiveUser,
   handleByMethod,
   handler,
   registeredUser,
@@ -25,9 +25,7 @@ const getHandler = handler(registeredUser, async (req, res) => {
 const patchHandler = handler(registeredUser, async (req, res) => {
   const threadId = req.query.threadId as string;
   const commentId = req.query.commentId as string;
-  const user = await getRegisteredUserFromAuthorization(
-    req.headers.authorization
-  );
+  const user = await getRegisteredActiveUser(req, res);
   res
     .status(200)
     .json(
@@ -46,9 +44,7 @@ const patchHandler = handler(registeredUser, async (req, res) => {
 const deleteHandler = handler(registeredUser, async (req, res) => {
   const threadId = req.query.threadId as string;
   const commentId = req.query.commentId as string;
-  const user = await getRegisteredUserFromAuthorization(
-    req.headers.authorization
-  );
+  const user = await getRegisteredActiveUser(req, res);
   await deleteComment(
     threadId,
     commentId,

@@ -17,10 +17,12 @@ import {
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestSourceStudy } from "../testing/entities";
 
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
-jest.mock("../app/services/user-profile");
 jest.mock("../app/utils/pg-app-connect-config");
 
 beforeAll(async () => {

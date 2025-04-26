@@ -10,8 +10,8 @@ import { Header as DXHeader } from "@databiosphere/findable-ui/lib/components/La
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
-import { GoogleSignInAuthenticationProvider } from "@databiosphere/findable-ui/lib/providers/googleSignInAuthentication/provider";
 import { LayoutStateProvider } from "@databiosphere/findable-ui/lib/providers/layoutState";
+import { NextAuthAuthenticationProvider } from "@databiosphere/findable-ui/lib/providers/nextAuthAuthentication/provider";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
 import { DataExplorerError } from "@databiosphere/findable-ui/lib/types/error";
@@ -21,15 +21,19 @@ import { createBreakpoints } from "@mui/system";
 import { deepmerge } from "@mui/utils";
 import { config } from "app/config/config";
 import { NextPage } from "next";
+import { Session } from "next-auth";
 import type { AppProps } from "next/app";
 import { AuthorizationProvider } from "../app/providers/authorization";
 import { mergeAppTheme } from "../app/theme/theme";
 import { BREAKPOINTS } from "../site-config/common/constants";
-
-const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+import {
+  SESSION_REFETCH_INTERVAL,
+  SESSION_TIMEOUT,
+} from "../site-config/hca-atlas-tracker/local/authentication/constants";
 
 export interface PageProps extends AzulEntitiesStaticResponse {
   pageTitle?: string;
+  session?: Session | null;
 }
 
 export type NextPageWithComponent = NextPage & {
@@ -47,7 +51,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
   const { floating, footer, header } = layout || {};
   const defaultTheme = createAppTheme(themeOptions);
   const appTheme = mergeAppTheme(defaultTheme);
-  const { entityListType, pageTitle } = pageProps as PageProps;
+  const { entityListType, pageTitle, session } = pageProps as PageProps;
   const Main = Component.Main || DXMain;
   return (
     <EmotionThemeProvider theme={appTheme}>
@@ -56,7 +60,11 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
           <Head pageTitle={pageTitle} />
           <CssBaseline />
           <SystemStatusProvider>
-            <GoogleSignInAuthenticationProvider timeout={SESSION_TIMEOUT}>
+            <NextAuthAuthenticationProvider
+              session={session}
+              timeout={SESSION_TIMEOUT}
+              refetchInterval={SESSION_REFETCH_INTERVAL}
+            >
               <LayoutStateProvider>
                 <AppLayout>
                   <ThemeProvider
@@ -98,7 +106,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
                   <Footer {...footer} />
                 </AppLayout>
               </LayoutStateProvider>
-            </GoogleSignInAuthenticationProvider>
+            </NextAuthAuthenticationProvider>
           </SystemStatusProvider>
         </DXConfigProvider>
       </ThemeProvider>

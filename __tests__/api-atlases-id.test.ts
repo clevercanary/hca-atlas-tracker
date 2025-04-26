@@ -38,13 +38,16 @@ import {
   withConsoleErrorHiding,
 } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("googleapis");
+jest.mock("next-auth");
 
 const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
 
@@ -182,15 +185,15 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 when public atlas is GET requested by logged out user", async () => {
-    expect((await doAtlasRequest(ATLAS_PUBLIC.id))._getStatusCode()).toEqual(
-      401
-    );
+    expect(
+      (await doAtlasRequest(ATLAS_PUBLIC.id, undefined, true))._getStatusCode()
+    ).toEqual(401);
   });
 
   it("returns error 403 when public atlas is GET requested by unregistered user", async () => {
     expect(
       (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED)
+        await doAtlasRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED, true)
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -204,14 +207,16 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 when draft atlas is GET requested by logged out user", async () => {
-    expect((await doAtlasRequest(ATLAS_DRAFT.id))._getStatusCode()).toEqual(
-      401
-    );
+    expect(
+      (await doAtlasRequest(ATLAS_DRAFT.id, undefined, true))._getStatusCode()
+    ).toEqual(401);
   });
 
   it("returns error 403 when draft atlas is GET requested by unregistered user", async () => {
     expect(
-      (await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED))._getStatusCode()
+      (
+        await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED, true)
+      )._getStatusCode()
     ).toEqual(403);
   });
 
@@ -281,7 +286,7 @@ describe(TEST_ROUTE, () => {
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
           undefined,
-          false,
+          true,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT
         )
@@ -295,7 +300,7 @@ describe(TEST_ROUTE, () => {
         await doAtlasRequest(
           ATLAS_PUBLIC.id,
           USER_UNREGISTERED,
-          false,
+          true,
           METHOD.PUT,
           ATLAS_PUBLIC_EDIT
         )

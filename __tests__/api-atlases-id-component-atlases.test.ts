@@ -15,12 +15,16 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestComponentAtlas, TestUser } from "../testing/entities";
-import { testApiRole } from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases/[id]/component-atlases";
 
@@ -43,14 +47,26 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 401 when draft atlas component atlases are requested by logged out user", async () => {
     expect(
-      (await doComponentAtlasesRequest(ATLAS_DRAFT.id))._getStatusCode()
+      (
+        await doComponentAtlasesRequest(
+          ATLAS_DRAFT.id,
+          undefined,
+          METHOD.GET,
+          true
+        )
+      )._getStatusCode()
     ).toEqual(401);
   });
 
   it("returns error 403 when draft atlas component atlases are requested by unregistered user", async () => {
     expect(
       (
-        await doComponentAtlasesRequest(ATLAS_DRAFT.id, USER_UNREGISTERED)
+        await doComponentAtlasesRequest(
+          ATLAS_DRAFT.id,
+          USER_UNREGISTERED,
+          METHOD.GET,
+          true
+        )
       )._getStatusCode()
     ).toEqual(403);
   });
@@ -108,14 +124,18 @@ describe(TEST_ROUTE, () => {
 async function doComponentAtlasesRequest(
   atlasId: string,
   user?: TestUser,
-  method = METHOD.GET
+  method = METHOD.GET,
+  hideConsoleError = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
     query: getQueryValues(atlasId),
   });
-  await componentAtlasesHandler(req, res);
+  await withConsoleErrorHiding(
+    () => componentAtlasesHandler(req, res),
+    hideConsoleError
+  );
   return res;
 }
 

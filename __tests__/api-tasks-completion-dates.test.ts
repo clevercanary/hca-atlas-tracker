@@ -20,10 +20,14 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
-jest.mock("../app/services/user-profile");
+jest.mock(
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+);
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+
+jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/tasks/completion-dates";
 
@@ -79,7 +83,12 @@ describe(TEST_ROUTE, () => {
   it("returns error 401 for logged out user", async () => {
     expect(
       (
-        await doCompletionDatesRequest(undefined, DATE_VALID, validationIds)
+        await doCompletionDatesRequest(
+          undefined,
+          DATE_VALID,
+          validationIds,
+          true
+        )
       )._getStatusCode()
     ).toEqual(401);
     await expectValidationsToBeUnchanged();
@@ -91,7 +100,8 @@ describe(TEST_ROUTE, () => {
         await doCompletionDatesRequest(
           USER_UNREGISTERED,
           DATE_VALID,
-          validationIds
+          validationIds,
+          true
         )
       )._getStatusCode()
     ).toEqual(403);
