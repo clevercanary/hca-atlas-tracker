@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.17.0...v1.17.1) (2025-05-07)
+
+
+### Chores
+
+* update cellxgene tier 1 statuses ([#644](https://github.com/clevercanary/hca-atlas-tracker/issues/644)) ([#645](https://github.com/clevercanary/hca-atlas-tracker/issues/645)) ([d9fdd9f](https://github.com/clevercanary/hca-atlas-tracker/commit/d9fdd9f63807ffbef5b5e689e551b8d91054c7a7))
+
 ## [1.17.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.16.0...v1.17.0) (2025-04-26)
 
 
