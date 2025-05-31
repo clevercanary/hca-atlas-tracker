@@ -1,3 +1,4 @@
+import { escapeRegExp } from "@databiosphere/findable-ui/lib/common/utils";
 import {
   array,
   boolean,
@@ -11,6 +12,10 @@ import {
 import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
 import { ATLAS_STATUS, ROLE } from "./entities";
+
+export const CAP_PROJECT_URL_REGEXP = new RegExp(
+  `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+)?$`
+);
 
 export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
   /^$|^https:\/\/docs\.google\.com\/spreadsheets\/d\/./;
@@ -252,7 +257,10 @@ export const metadataSpreadsheetUrlsSchema = array(
 });
 
 export const publishedSourceStudyEditSchema = object({
-  capId: string().defined("CAP ID is required").nullable(),
+  capId: string()
+    .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
+    .defined("CAP ID is required")
+    .nullable(),
   doi: string()
     .required()
     .test(
@@ -268,7 +276,10 @@ export const publishedSourceStudyEditSchema = object({
   .strict(true);
 
 export const unpublishedSourceStudyEditSchema = object({
-  capId: string().defined("CAP ID is required").nullable(),
+  capId: string()
+    .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
+    .defined("CAP ID is required")
+    .nullable(),
   cellxgeneCollectionId: string()
     .defined("CELLxGENE collection ID is required when DOI is absent")
     .nullable(),

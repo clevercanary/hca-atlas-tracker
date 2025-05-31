@@ -1,12 +1,12 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { forwardRef, Fragment } from "react";
+import { CAP_PROJECT_URL_REGEXP } from "../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   Input,
   InputProps,
 } from "../../../../../common/Form/components/Input/input";
 import { TypographyNoWrap } from "../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import { isNonEmptyString } from "../../../../common/utils";
-import { CAP_ID_REGEXP } from "./common/constants";
 
 export const CapId = forwardRef<HTMLInputElement, InputProps>(function CapId(
   {
@@ -23,7 +23,7 @@ export const CapId = forwardRef<HTMLInputElement, InputProps>(function CapId(
       label={
         <Fragment>
           <TypographyNoWrap>{label}</TypographyNoWrap>
-          {isNonEmptyString(value) && CAP_ID_REGEXP.test(value) && (
+          {isNonEmptyString(value) && CAP_PROJECT_URL_REGEXP.test(value) && (
             <Link label="Visit link" url={value} />
           )}
         </Fragment>

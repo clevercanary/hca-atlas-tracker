@@ -105,7 +105,7 @@ const SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT: SourceStudyEditData = {
 };
 
 const SOURCE_STUDY_DRAFT_OK_EDIT: SourceStudyEditData = {
-  capId: "https://celltype.info/project/12345/dataset/54321",
+  capId: "https://celltype.info/project/223439",
   cellxgeneCollectionId: null,
   contactEmail: "bar@example.com",
   hcaProjectId: null,
@@ -118,7 +118,7 @@ const SOURCE_STUDY_DRAFT_OK_EDIT: SourceStudyEditData = {
 };
 
 const SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT: SourceStudyEditData = {
-  capId: "cap-id-source-study-draft-ok-edit",
+  capId: "https://celltype.info/project/627199",
   doi: DOI_DRAFT_OK,
   metadataSpreadsheets: [],
 };
@@ -492,6 +492,25 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
               },
               ...SOURCE_STUDY_DRAFT_OK_EDIT.metadataSpreadsheets,
             ],
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
+  });
+
+  it("returns error 400 when CAP ID is dataset URL rather than project URL", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_STUDY_DRAFT_OK.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            ...SOURCE_STUDY_DRAFT_OK_EDIT,
+            capId: "https://celltype.info/project/223439/dataset/552505",
           },
           true
         )

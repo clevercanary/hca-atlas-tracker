@@ -988,7 +988,7 @@ export const SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE: TestPublishedSourc
 
 export const SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: TestPublishedSourceStudy =
   {
-    capId: "cap-id-published-with-cap-and-no-cellxgene",
+    capId: "https://celltype.info/project/741640",
     doi: "10.123/published-with-cap-and-no-cellxgene",
     doiStatus: DOI_STATUS.OK,
     id: "0461d2ee-e41c-4f91-97a2-fcb0cb62d6d9",
@@ -1009,7 +1009,7 @@ export const SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE: TestPublishedSour
 
 export const SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE: TestPublishedSourceStudy =
   {
-    capId: "cap-id-published-with-cap-and-cellxgene",
+    capId: "https://celltype.info/project/718611",
     doi: DOI_PUBLISHED_WITH_CAP_AND_CELLXGENE,
     doiStatus: DOI_STATUS.OK,
     id: "17b397df-6443-4c02-9c78-b2ab9ba86052",
