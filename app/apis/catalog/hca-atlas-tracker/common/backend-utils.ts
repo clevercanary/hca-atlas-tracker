@@ -32,6 +32,7 @@ export function dbAtlasToApiAtlas(
 ): HCAAtlasTrackerAtlas {
   return {
     bioNetwork: dbAtlas.overview.network,
+    capId: dbAtlas.overview.capId,
     cellxgeneAtlasCollection: dbAtlas.overview.cellxgeneAtlasCollection,
     cellxgeneAtlasCollectionTitle:
       dbAtlas.overview.cellxgeneAtlasCollection &&

@@ -35,6 +35,7 @@ export function atlasInputMapper(
 ): HCAAtlasTrackerListAtlas {
   return {
     bioNetwork: apiAtlas.bioNetwork,
+    capId: apiAtlas.capId,
     cellxgeneAtlasCollection: apiAtlas.cellxgeneAtlasCollection,
     cellxgeneAtlasCollectionTitle: apiAtlas.cellxgeneAtlasCollectionTitle,
     codeLinks: apiAtlas.codeLinks,
