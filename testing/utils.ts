@@ -64,7 +64,7 @@ export function makeTestAtlasOverview(
   atlas: TestAtlas
 ): HCAAtlasTrackerDBAtlasOverview {
   return {
-    capId: null,
+    capId: atlas.capId ?? null,
     cellxgeneAtlasCollection: atlas.cellxgeneAtlasCollection,
     codeLinks: atlas.codeLinks,
     completedTaskCount: 0,

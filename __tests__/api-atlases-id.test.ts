@@ -16,6 +16,7 @@ import {
   ATLAS_PUBLIC,
   ATLAS_PUBLIC_BAR,
   ATLAS_PUBLIC_BAZ,
+  ATLAS_WITH_CAP_ID,
   ATLAS_WITH_IL,
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -173,6 +174,17 @@ const ATLAS_PUBLIC_BAZ_EDIT: AtlasEditData = {
   shortName: ATLAS_PUBLIC_BAZ.shortName,
   version: ATLAS_PUBLIC_BAZ.version,
   wave: ATLAS_PUBLIC_BAZ.wave,
+};
+
+const ATLAS_WITH_CAP_ID_EDIT: AtlasEditData = {
+  capId: null,
+  cellxgeneAtlasCollection: ATLAS_WITH_CAP_ID.cellxgeneAtlasCollection,
+  integrationLead: ATLAS_WITH_CAP_ID.integrationLead,
+  metadataSpecificationUrl: ATLAS_WITH_CAP_ID.metadataSpecificationUrl,
+  network: ATLAS_WITH_CAP_ID.network,
+  shortName: ATLAS_WITH_CAP_ID.shortName,
+  version: ATLAS_WITH_CAP_ID.version,
+  wave: ATLAS_WITH_CAP_ID.wave,
 };
 
 beforeAll(async () => {
@@ -623,6 +635,16 @@ describe(TEST_ROUTE, () => {
       []
     );
     expect(updatedAtlas.overview.metadataCorrectnessUrl).toBeNull();
+  });
+
+  it("PUT removes CAP ID when specified as empty string", async () => {
+    const updatedAtlas = await testSuccessfulEdit(
+      ATLAS_WITH_CAP_ID,
+      ATLAS_WITH_CAP_ID_EDIT,
+      0,
+      []
+    );
+    expect(updatedAtlas.overview.capId).toBeNull();
   });
 
   it("PUT updates and returns atlas entry with retrieved metadata specification title, calling getSheetTitle", async () => {
