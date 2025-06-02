@@ -102,7 +102,7 @@ export async function atlasInputDataToDbData(
   );
   return {
     overviewData: {
-      capId: null,
+      capId: inputData.capId,
       cellxgeneAtlasCollection: inputData.cellxgeneAtlasCollection ?? null,
       codeLinks: inputData.codeLinks ?? [],
       description: inputData.description ?? "",

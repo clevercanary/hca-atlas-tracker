@@ -86,6 +86,7 @@ function mapCELLxGENECollectionId(
 function mapApiValues({ doi, ...data }: AtlasEditData): APIAtlasEditData {
   return {
     ...data,
+    capId: null,
     dois: doi ? [doi] : undefined,
     targetCompletion: mapTargetCompletion(data.targetCompletion),
   };

@@ -21,9 +21,18 @@ export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
   /^$|^https:\/\/docs\.google\.com\/spreadsheets\/d\/./;
 
 /**
+ * Shared schema for CAP ID fields.
+ */
+const capProjectUrlSchema = string()
+  .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
+  .defined("CAP ID is required")
+  .nullable();
+
+/**
  * Schema for data used to create a new atlas.
  */
 export const newAtlasSchema = object({
+  capId: capProjectUrlSchema,
   cellxgeneAtlasCollection: string().uuid().nullable(),
   codeLinks: array().of(
     object({
@@ -257,10 +266,7 @@ export const metadataSpreadsheetUrlsSchema = array(
 });
 
 export const publishedSourceStudyEditSchema = object({
-  capId: string()
-    .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
-    .defined("CAP ID is required")
-    .nullable(),
+  capId: capProjectUrlSchema,
   doi: string()
     .required()
     .test(
@@ -276,10 +282,7 @@ export const publishedSourceStudyEditSchema = object({
   .strict(true);
 
 export const unpublishedSourceStudyEditSchema = object({
-  capId: string()
-    .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
-    .defined("CAP ID is required")
-    .nullable(),
+  capId: capProjectUrlSchema,
   cellxgeneCollectionId: string()
     .defined("CELLxGENE collection ID is required when DOI is absent")
     .nullable(),

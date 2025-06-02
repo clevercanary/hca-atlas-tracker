@@ -52,6 +52,7 @@ jest.mock("../app/utils/google-sheets", () => {
 });
 
 const NEW_ATLAS_DATA: NewAtlasData = {
+  capId: "https://celltype.info/project/211278",
   cellxgeneAtlasCollection: "7a223dd3-a422-4f4b-a437-90b9a3b00ba8",
   codeLinks: [{ url: "https://example.com/new-atlas-foo" }],
   description: "foo bar baz baz foo bar",
@@ -68,6 +69,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
+  capId: null,
   description: "bar foo baz foo bar baz bar",
   integrationLead: [
     {
@@ -82,6 +84,7 @@ const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
+  capId: null,
   description: "foo baz foo foo",
   integrationLead: [
     {
@@ -104,6 +107,7 @@ const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
+  capId: null,
   description: "bar bar foo foo foo bar",
   integrationLead: [],
   network: "musculoskeletal",
@@ -114,6 +118,7 @@ const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITHOUT_DESCRIPTION: NewAtlasData = {
+  capId: null,
   integrationLead: [],
   network: "nervous-system",
   shortName: "test5",
@@ -122,6 +127,7 @@ const NEW_ATLAS_WITHOUT_DESCRIPTION: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION: NewAtlasData = {
+  capId: null,
   dois: [DOI_NONEXISTENT],
   integrationLead: [],
   network: "lung",
@@ -131,6 +137,7 @@ const NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION: NewAtlasData = {
 };
 
 const NEW_ATLAS_COMPLETE: NewAtlasData = {
+  capId: null,
   integrationLead: [],
   network: "kidney",
   shortName: "test7",
@@ -140,6 +147,7 @@ const NEW_ATLAS_COMPLETE: NewAtlasData = {
 };
 
 const NEW_ATLAS_WITH_METADATA_SPECIFICATION: NewAtlasData = {
+  capId: null,
   integrationLead: [],
   metadataSpecificationUrl:
     "https://docs.google.com/spreadsheets/d/new-atlas-with-metadata-specification/edit",
@@ -447,6 +455,21 @@ describe("/api/atlases/create", () => {
           {
             ...NEW_ATLAS_DATA,
             status: "NOT_AN_ATLAS_STATUS",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when CAP ID is not a project URL", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            capId: "https://celltype.info/project/211278/dataset/778447",
           },
           true
         )
