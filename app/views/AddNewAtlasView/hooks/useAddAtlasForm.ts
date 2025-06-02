@@ -43,7 +43,6 @@ function mapSchemaValues(): Partial<NewAtlasData> {
 function mapApiValues({ doi, ...data }: NewAtlasData): APINewAtlasData {
   return {
     ...data,
-    capId: null,
     dois: doi ? [doi] : undefined,
   };
 }
