@@ -177,7 +177,7 @@ const ATLAS_PUBLIC_BAZ_EDIT: AtlasEditData = {
 };
 
 const ATLAS_WITH_CAP_ID_EDIT: AtlasEditData = {
-  capId: null,
+  capId: "",
   cellxgeneAtlasCollection: ATLAS_WITH_CAP_ID.cellxgeneAtlasCollection,
   integrationLead: ATLAS_WITH_CAP_ID.integrationLead,
   metadataSpecificationUrl: ATLAS_WITH_CAP_ID.metadataSpecificationUrl,
