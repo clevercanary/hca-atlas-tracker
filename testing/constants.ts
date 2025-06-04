@@ -1881,6 +1881,23 @@ export const ATLAS_PUBLIC_BAZ: TestAtlas = {
   wave: "3",
 };
 
+export const ATLAS_WITH_CAP_ID: TestAtlas = {
+  capId: "https://celltype.info/project/41866",
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "bar foo baz baz foo foo bar bar bar",
+  highlights: "",
+  id: "381ae4f6-7795-4084-9ce4-e2f5b0794c74",
+  integrationLead: [],
+  network: "heart",
+  publications: [],
+  shortName: "test-with-cap-id",
+  sourceStudies: [],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "6.2",
+  wave: "1",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -1897,6 +1914,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_PUBLIC_BAR,
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_PUBLIC_BAZ,
+  ATLAS_WITH_CAP_ID,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

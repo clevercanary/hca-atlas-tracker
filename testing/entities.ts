@@ -22,6 +22,7 @@ export interface TestUser {
 }
 
 export interface TestAtlas {
+  capId?: string | null;
   cellxgeneAtlasCollection: string | null;
   codeLinks: LinkInfo[];
   description: string;

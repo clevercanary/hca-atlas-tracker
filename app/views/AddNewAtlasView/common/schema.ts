@@ -3,6 +3,7 @@ import {
   NETWORK_KEYS,
   WAVES,
 } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
+import { CAP_PROJECT_URL_REGEXP } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { CELLXGENE_COLLECTION_ID_REGEX } from "../../../common/constants";
 import { isDoi } from "../../../utils/doi";
 import { FIELD_NAME } from "./constants";
@@ -26,6 +27,10 @@ export const newAtlasSchema = object({
     .required("Network is required")
     .notOneOf([""], "Network is required")
     .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
+  [FIELD_NAME.CAP_ID]: string()
+    .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
+    .default("")
+    .notRequired(),
   [FIELD_NAME.CELLXGENE_ATLAS_COLLECTION]: string()
     .default("")
     .notRequired()

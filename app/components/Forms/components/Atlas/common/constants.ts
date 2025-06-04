@@ -97,6 +97,15 @@ const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
   },
 };
 
+const CAP_ID: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: true,
+    label: "CAP ID",
+  },
+  labelLink: true,
+  name: FIELD_NAME.CAP_ID,
+};
+
 const METADATA_SPECIFICATION_URL: ControllerConfig<
   AtlasEditData,
   HCAAtlasTrackerAtlas
@@ -132,7 +141,7 @@ export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<
 export const IDENTIFIERS_NEW_ATLAS_CONTROLLERS: ControllerConfig<
   NewAtlasData,
   HCAAtlasTrackerAtlas
->[] = [CELLXGENE_COLLECTION_ID];
+>[] = [CELLXGENE_COLLECTION_ID, CAP_ID];
 
 export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   AtlasEditData,

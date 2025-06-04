@@ -49,6 +49,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
   return {
     [FIELD_NAME.INTEGRATION_LEAD]: sortedIntegrationLead,
     [FIELD_NAME.BIO_NETWORK]: atlas.bioNetwork,
+    [FIELD_NAME.CAP_ID]: atlas.capId,
     [FIELD_NAME.CELLXGENE_ATLAS_COLLECTION]: mapCELLxGENECollectionId(
       atlas.cellxgeneAtlasCollection
     ),
