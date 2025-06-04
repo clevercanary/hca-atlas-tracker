@@ -1,6 +1,6 @@
 {
   "name": "hca-atlas-tracker",
-  "version": "1.17.1",
+  "version": "1.18.0",
   "private": true,
   "scripts": {
     "dev": "./scripts/dev.sh hca-atlas-tracker && ./scripts/set-version.sh dev && next dev",
