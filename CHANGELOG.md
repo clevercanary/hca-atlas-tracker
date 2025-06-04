@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.18.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.17.1...v1.18.0) (2025-06-04)
+
+
+### Features
+
+* add atlas cap id field ([#648](https://github.com/clevercanary/hca-atlas-tracker/issues/648)) ([#660](https://github.com/clevercanary/hca-atlas-tracker/issues/660)) ([e7cc363](https://github.com/clevercanary/hca-atlas-tracker/commit/e7cc3639fa3bf8a5aac277c4d59d33b365fc25e5))
+
+
+### Bug Fixes
+
+* accept project urls for cap id rather than dataset urls ([#649](https://github.com/clevercanary/hca-atlas-tracker/issues/649)) ([#653](https://github.com/clevercanary/hca-atlas-tracker/issues/653)) ([862e5d6](https://github.com/clevercanary/hca-atlas-tracker/commit/862e5d6a70234d2ec0edb96fb0cc85c7f08baa93))
+
+
+### Chores
+
+* update saved cellxgene info ([#650](https://github.com/clevercanary/hca-atlas-tracker/issues/650)) ([#651](https://github.com/clevercanary/hca-atlas-tracker/issues/651)) ([33420cf](https://github.com/clevercanary/hca-atlas-tracker/commit/33420cf1589fb95fd9edee41b36a8258031d1690))
+
 ## [1.17.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.17.0...v1.17.1) (2025-05-07)
 
 
