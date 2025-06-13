@@ -4,11 +4,6 @@ export const up = (pgm: MigrationBuilder): void => {
   pgm.createTable(
     { name: "entry_sheet_validations", schema: "hat" },
     {
-      atlas_id: {
-        notNull: true,
-        references: { name: "atlases", schema: "hat" },
-        type: "uuid",
-      },
       entry_sheet_id: {
         notNull: true,
         type: "text",

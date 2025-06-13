@@ -409,7 +409,6 @@ export interface HCAAtlasTrackerDBValidationWithAtlasProperties
 }
 
 export interface HCAAtlasTrackerDBEntrySheetValidation {
-  atlas_id: string;
   entry_sheet_id: string;
   entry_sheet_title: string | null;
   id: string;

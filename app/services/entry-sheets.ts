@@ -31,7 +31,7 @@ export async function updateAtlasEntrySheetValidations(
     studiesResult.rows
       .map((study) =>
         study.study_info.metadataSpreadsheets.map((sheetInfo) =>
-          getSheetValidationResults(atlasId, study.id, sheetInfo.url)
+          getSheetValidationResults(study.id, sheetInfo.url)
         )
       )
       .flat()
@@ -111,7 +111,6 @@ export async function updateAtlasEntrySheetValidations(
 }
 
 async function getSheetValidationResults(
-  atlasId: string,
   sourceStudyId: string,
   sheetUrl: string
 ): Promise<ValidationUpdateData> {
@@ -122,14 +121,12 @@ async function getSheetValidationResults(
     if ("error" in response) {
       return makeValidationWithErrorMessage(
         response.error,
-        atlasId,
         sourceStudyId,
         sheetId,
         syncTime
       );
     } else {
       return {
-        atlas_id: atlasId,
         entry_sheet_id: sheetId,
         entry_sheet_title: response.sheet_title,
         last_synced: syncTime,
@@ -143,7 +140,6 @@ async function getSheetValidationResults(
     console.error(err);
     return makeValidationWithErrorMessage(
       String(err),
-      atlasId,
       sourceStudyId,
       sheetId,
       syncTime
@@ -153,13 +149,11 @@ async function getSheetValidationResults(
 
 function makeValidationWithErrorMessage(
   message: string,
-  atlasId: string,
   sourceStudyId: string,
   entrySheetId: string,
   syncTime: Date
 ): ValidationUpdateData {
   return {
-    atlas_id: atlasId,
     entry_sheet_id: entrySheetId,
     entry_sheet_title: null,
     last_synced: syncTime,

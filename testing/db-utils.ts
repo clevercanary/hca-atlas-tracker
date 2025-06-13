@@ -174,9 +174,8 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 async function initEntrySheetValidations(client: pg.PoolClient): Promise<void> {
   for (const validation of INITIAL_TEST_ENTRY_SHEET_VALIDATIONS) {
     await client.query(
-      "INSERT INTO hat.entry_sheet_validations (atlas_id, entry_sheet_id, entry_sheet_title, id, last_synced, last_updated, source_study_id, validation_report, validation_summary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+      "INSERT INTO hat.entry_sheet_validations (entry_sheet_id, entry_sheet_title, id, last_synced, last_updated, source_study_id, validation_report, validation_summary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
       [
-        validation.atlas_id,
         validation.entry_sheet_id,
         validation.entry_sheet_title,
         validation.id,

@@ -2122,7 +2122,6 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
 // ENTRY SHEET VALIDATIONS
 
 export const ENTRY_SHEET_VALIDATION_WITH_UPDATE: TestEntrySheetValidation = {
-  atlas_id: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
   entry_sheet_id: ENTRY_SHEET_ID_WITH_UPDATE,
   entry_sheet_title: "Entry Sheet With Update",
   id: "4684a422-f3c5-4334-bc0a-df18a62bee0c",
