@@ -116,7 +116,7 @@ async function getSheetValidationResults(
   sheetUrl: string
 ): Promise<ValidationUpdateData> {
   const sheetId = getSpreadsheetIdFromUrl(sheetUrl);
-  const syncTime = new Date().toISOString();
+  const syncTime = new Date();
   try {
     const response = await validateEntrySheet(sheetId);
     if ("error" in response) {
@@ -156,7 +156,7 @@ function makeValidationWithErrorMessage(
   atlasId: string,
   sourceStudyId: string,
   entrySheetId: string,
-  syncTime: string
+  syncTime: Date
 ): ValidationUpdateData {
   return {
     atlas_id: atlasId,

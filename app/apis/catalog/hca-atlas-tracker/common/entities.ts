@@ -413,7 +413,7 @@ export interface HCAAtlasTrackerDBEntrySheetValidation {
   entry_sheet_id: string;
   entry_sheet_title: string | null;
   id: string;
-  last_synced: string;
+  last_synced: Date;
   last_updated: GoogleLastUpdateInfo | null;
   source_study_id: string;
   validation_report: EntrySheetValidationErrorInfo[];
