@@ -6,7 +6,7 @@ export class InvalidSheetError extends Error {
   name = "InvalidSheetError";
 }
 
-function getSpreadsheetIdFromUrl(urlString: string): string {
+export function getSpreadsheetIdFromUrl(urlString: string): string {
   const spreadsheetId = urlString.match(/\/spreadsheets\/d\/([^/?#]+)/)?.[1];
 
   if (!spreadsheetId) {
