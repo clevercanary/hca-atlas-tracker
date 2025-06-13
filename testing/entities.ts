@@ -2,6 +2,7 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
+  HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
   LinkInfo,
@@ -85,6 +86,8 @@ export interface TestSourceDataset {
   tissue?: string[];
   title: string;
 }
+
+export type TestEntrySheetValidation = HCAAtlasTrackerDBEntrySheetValidation;
 
 export interface TestComment {
   createdAt: string;
