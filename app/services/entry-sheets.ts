@@ -65,7 +65,6 @@ export async function updateAtlasEntrySheetValidations(
         updatedValidations.push(validation);
       else newValidations.push(validation);
     }
-    // TODO is entry sheet ID what these should be joined on? are there any uniqueness considerations here or for the query above?
     await query(
       `
         UPDATE hat.entry_sheet_validations v
