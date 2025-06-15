@@ -1,4 +1,4 @@
-import { METHOD } from "app/common/entities";
+import { METHOD } from "../common/entities";
 
 interface EntrySheetValidationRequestBody {
   sheet_id: string;
@@ -43,7 +43,7 @@ export interface EntrySheetValidationSummary {
   sample_count: number;
 }
 
-const VALIDATION_API_URL = "";
+const VALIDATION_API_URL = ""; // TODO
 
 export async function validateEntrySheet(
   googleSheetId: string

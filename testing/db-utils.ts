@@ -7,6 +7,7 @@ import {
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
+  HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUser,
@@ -323,6 +324,17 @@ export async function getCellxGeneSourceDatasetFromDatabase(
     )
   ).rows[0];
   return result ?? null;
+}
+
+export async function getEntrySheetValidationFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBEntrySheetValidation>(
+      "SELECT * FROM hat.entry_sheet_validations WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
 }
 
 export async function getStudySourceDatasets(

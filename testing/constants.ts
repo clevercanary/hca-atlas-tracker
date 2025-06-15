@@ -838,49 +838,42 @@ export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
 export const ENTRY_SHEET_ID_WITH_UPDATE =
   "1josZ23Q9x8tKRNk4yub5pJ66wEY2Sphf-WoOPDdm-JZ";
 
-// 1Aip1fZ_27k93JKh5lSncYC2q7tu5sLegWca_RHrKbN1
-// 1sxNF0nt04DFvQkP3-OCMRivLtmL73IfdAhgBVg901y9
-// 15Nm4W5_k-e1o85KXqZAod1XwrIw7Rjmp87hbShGQ9-d
-// 1pxdCw5bm3L_A2ORiAFOL-77K9O_ZXM-agCSHvRmQm7Z
-// 13BcErSq1NqvwFZp_DzKZ9aK0hK3D73Z3JuIoyTK4WPQ
-
-export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE: EntrySheetValidationResponse =
-  {
-    errors: [
-      {
-        cell: "C7",
-        column: "consortia",
-        entity_type: "dataset",
-        input: "foofoo",
-        message: "error foofoo",
-        primary_key: "dataset_id:dataset_foo_foo",
-        row: 6,
-        worksheet_id: "234203429",
-      },
-      {
-        cell: "B11",
-        column: "donor_id",
-        entity_type: "sample",
-        input: "foobar",
-        message: "error foobar",
-        primary_key: "sample_id:sample_foo_bar",
-        row: 10,
-        worksheet_id: "534298734234",
-      },
-    ],
-    last_updated: {
-      by: "foo",
-      by_email: "foo@example.com",
-      date: "2025-06-13T21:11:26.090Z",
+export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
+  errors: [
+    {
+      cell: "C7",
+      column: "consortia",
+      entity_type: "dataset",
+      input: "foofoo",
+      message: "error foofoo",
+      primary_key: "dataset_id:dataset_foo_foo",
+      row: 6,
+      worksheet_id: "234203429",
     },
-    sheet_title: "Entry Sheet With Update Updated",
-    summary: {
-      dataset_count: 3,
-      donor_count: 9,
-      error_count: 2,
-      sample_count: 12,
+    {
+      cell: "B11",
+      column: "donor_id",
+      entity_type: "sample",
+      input: "foobar",
+      message: "error foobar",
+      primary_key: "sample_id:sample_foo_bar",
+      row: 10,
+      worksheet_id: "534298734234",
     },
-  };
+  ],
+  last_updated: {
+    by: "foo",
+    by_email: "foo@example.com",
+    date: "2025-06-13T21:11:26.090Z",
+  },
+  sheet_title: "Entry Sheet With Update Updated",
+  summary: {
+    dataset_count: 3,
+    donor_count: 9,
+    error_count: 2,
+    sample_count: 12,
+  },
+} satisfies EntrySheetValidationResponse;
 
 export const TEST_ENTRY_SHEET_VALIDATION_REPONSES_BY_ID = new Map([
   [ENTRY_SHEET_ID_WITH_UPDATE, ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE],
@@ -1319,6 +1312,12 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestUnpublishedSourc
     cellxgeneCollectionId: null,
     hcaProjectId: null,
     id: "daf8febc-a38d-4e8e-91be-802aab281f02",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet With Update",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_UPDATE}/edit`,
+      },
+    ],
     unpublishedInfo: {
       contactEmail: "barbazfoobazbar@example.com",
       referenceAuthor: "Bar Baz Foo Baz Bar",
