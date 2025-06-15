@@ -49,14 +49,14 @@ export async function updateAtlasEntrySheetValidations(
   await doTransaction(async (client) => {
     const sheetIds = validations.map((v) => v.entry_sheet_id);
     const existingValidationsResult = await query<
-      Pick<HCAAtlasTrackerDBEntrySheetValidation, "id">
+      Pick<HCAAtlasTrackerDBEntrySheetValidation, "entry_sheet_id">
     >(
-      "SELECT id FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
+      "SELECT entry_sheet_id FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
       [sheetIds],
       client
     );
     const existingValidationSheetIds = existingValidationsResult.rows.map(
-      (v) => v.id
+      (v) => v.entry_sheet_id
     );
     const updatedValidations: ValidationUpdateData[] = [];
     const newValidations: ValidationUpdateData[] = [];
