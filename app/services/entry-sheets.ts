@@ -15,7 +15,7 @@ interface CompletionPromiseContainer {
 type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
 
 /**
- * Update entry sheet validations for source studies of the given atlas, resolving the returned promise **before** calling the validation API.
+ * Update entry sheet validations for source studies of the given atlas, resolving the returned promise **before** receiving the validation API responses.
  * @param atlasId - Atlas to update entry sheet validations for.
  * @returns promise resolving to an object containing a promise that resolves when validations have been updated.
  */
