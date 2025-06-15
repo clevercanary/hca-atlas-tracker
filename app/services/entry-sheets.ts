@@ -65,47 +65,49 @@ export async function updateAtlasEntrySheetValidations(
         updatedValidations.push(validation);
       else newValidations.push(validation);
     }
-    await query(
-      `
-        UPDATE hat.entry_sheet_validations v
-        SET
-          entry_sheet_title = u.entry_sheet_title
-          last_synced = u.last_synced
-          last_updated = u.last_updated
-          validation_report = u.validation_report
-          validation_summary = u.validation_summary
-        FROM jsonb_to_recordset($1) as u(
-          atlas_id uuid,
-          entry_sheet_id text,
-          entry_sheet_title text,
-          last_synced timestamp,
-          last_updated jsonb,
-          source_study_id uuid,
-          validation_report jsonb,
-          validation_summary jsonb
-        )
-        WHERE v.entry_sheet_id = u.entry_sheet_id
-      `,
-      [JSON.stringify(updatedValidations)],
-      client
-    );
-    await query(
-      `
-        INSERT INTO hat.entry_sheet_validations
-        SELECT * FROM jsonb_to_recordset($1) as u(
-          atlas_id uuid,
-          entry_sheet_id text,
-          entry_sheet_title text,
-          last_synced timestamp,
-          last_updated jsonb,
-          source_study_id uuid,
-          validation_report jsonb,
-          validation_summary jsonb
-        )
-      `,
-      [JSON.stringify(newValidations)],
-      client
-    );
+    if (updatedValidations.length)
+      await query(
+        `
+          UPDATE hat.entry_sheet_validations v
+          SET
+            entry_sheet_title = u.entry_sheet_title
+            last_synced = u.last_synced
+            last_updated = u.last_updated
+            validation_report = u.validation_report
+            validation_summary = u.validation_summary
+          FROM jsonb_to_recordset($1) as u(
+            atlas_id uuid,
+            entry_sheet_id text,
+            entry_sheet_title text,
+            last_synced timestamp,
+            last_updated jsonb,
+            source_study_id uuid,
+            validation_report jsonb,
+            validation_summary jsonb
+          )
+          WHERE v.entry_sheet_id = u.entry_sheet_id
+        `,
+        [JSON.stringify(updatedValidations)],
+        client
+      );
+    if (newValidations.length)
+      await query(
+        `
+          INSERT INTO hat.entry_sheet_validations
+          SELECT * FROM jsonb_to_recordset($1) as u(
+            atlas_id uuid,
+            entry_sheet_id text,
+            entry_sheet_title text,
+            last_synced timestamp,
+            last_updated jsonb,
+            source_study_id uuid,
+            validation_report jsonb,
+            validation_summary jsonb
+          )
+        `,
+        [JSON.stringify(newValidations)],
+        client
+      );
   });
 }
 
