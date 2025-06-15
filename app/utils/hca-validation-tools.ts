@@ -43,16 +43,17 @@ export interface EntrySheetValidationSummary {
   sample_count: number;
 }
 
-const VALIDATION_API_URL = ""; // TODO
-
 export async function validateEntrySheet(
   googleSheetId: string
 ): Promise<EntrySheetValidationResponse> {
+  const validationApiUrl = process.env.HCA_VALIDATION_TOOLS_URL;
+  if (!validationApiUrl)
+    throw new Error("HCA_VALIDATION_TOOLS_URL not specified in environment");
   const body: EntrySheetValidationRequestBody = {
     sheet_id: googleSheetId,
   };
   return await (
-    await fetch(VALIDATION_API_URL, {
+    await fetch(validationApiUrl, {
       body: JSON.stringify(body),
       method: METHOD.POST,
     })
