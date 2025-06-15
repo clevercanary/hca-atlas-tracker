@@ -7,6 +7,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 
 export enum FETCH_STATUS {
+  ACCEPTED = 202,
   CREATED = 201,
   OK = 200,
   NOT_FOUND = 404,
