@@ -850,6 +850,9 @@ export const ENTRY_SHEET_ID_NEW =
 export const ENTRY_SHEET_ID_NO_SYNC =
   "13BcErSq1NqvwFZp_DzKZ9aK0hK3D73Z3JuIoyTK4WPQ";
 
+export const ENTRY_SHEET_ID_NEW_NON_SHARED =
+  "1cCXtjK2SKkDsSiV0FmfY9FBaPLIaD6WlytLoggm3FNi";
+
 export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
   errors: [
     {
@@ -913,8 +916,24 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW = {
   summary: {
     dataset_count: 4,
     donor_count: 13,
-    error_count: 0,
+    error_count: 1,
     sample_count: 21,
+  },
+} satisfies EntrySheetValidationResponse;
+
+export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW_NON_SHARED = {
+  errors: [],
+  last_updated: {
+    by: "foobar",
+    by_email: "foobar@example.com",
+    date: "2025-06-15T20:59:56.670Z",
+  },
+  sheet_title: "Entry Sheet New Non Shared",
+  summary: {
+    dataset_count: 2,
+    donor_count: 5,
+    error_count: 0,
+    sample_count: 12,
   },
 } satisfies EntrySheetValidationResponse;
 
@@ -928,6 +947,10 @@ export const TEST_ENTRY_SHEET_VALIDATION_REPONSES_BY_ID = new Map<
     ENTRY_SHEET_VALIDATION_RESPONSE_WITH_FAILED_UPDATE,
   ],
   [ENTRY_SHEET_ID_NEW, ENTRY_SHEET_VALIDATION_RESPONSE_NEW],
+  [
+    ENTRY_SHEET_ID_NEW_NON_SHARED,
+    ENTRY_SHEET_VALIDATION_RESPONSE_NEW_NON_SHARED,
+  ],
 ]);
 
 export const TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE =
@@ -1427,6 +1450,24 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ: TestUnpublishedSourc
     },
   };
 
+export const SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "9919078a-0b51-4cd5-995e-ce311aa6e564",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet New Non Shared",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW_NON_SHARED}/edit`,
+      },
+    ],
+    unpublishedInfo: {
+      contactEmail: "barbazbarfoobar@example.com",
+      referenceAuthor: "Bar Baz Bar Foo Bar",
+      title: "Source Study With Non Shared Entry Sheet Validations",
+    },
+  };
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1460,6 +1501,7 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
   SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ,
+  SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -1720,6 +1762,8 @@ const ATLAS_ID_DRAFT = "823dcc68-340b-4a61-8883-c61dc4975ce3";
 const ATLAS_ID_PUBLIC = "94f62ad0-99cb-4f01-a1cf-cce2d56a8850";
 const ATLAS_ID_WITH_MISC_SOURCE_STUDIES =
   "8259a9b1-c149-4310-83a5-d126b675c0f1";
+const ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
+  "c41f8dd8-93ee-49f6-885a-8c5107d30229";
 
 // USERS
 
@@ -1777,6 +1821,13 @@ export const USER_DISABLED_CONTENT_ADMIN = makeTestUser(
   ROLE.CONTENT_ADMIN,
   true
 );
+export const USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
+  makeTestUser(
+    "test-integration-lead-with-non-shared-entry-sheet-validations",
+    ROLE.INTEGRATION_LEAD,
+    false,
+    [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS]
+  );
 
 // Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
@@ -1790,6 +1841,7 @@ export const INITIAL_TEST_USERS = [
   USER_INTEGRATION_LEAD_WITH_NEW_ATLAS,
   USER_CELLXGENE_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 ];
 
 export const TEST_USERS = [
@@ -1812,6 +1864,8 @@ export const INTEGRATION_LEADS_BY_ATLAS_ID: Record<string, TestUser> = {
   [ATLAS_ID_PUBLIC]: USER_INTEGRATION_LEAD_PUBLIC,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES]:
     USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+  [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS]:
+    USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 };
 
 // ATLASES
@@ -2107,6 +2161,22 @@ export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B: TestAtlas = {
   wave: "2",
 };
 
+export const ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "baz bar baz bar foo bar baz foo foo bar baz",
+  highlights: "",
+  id: ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
+  integrationLead: [],
+  network: "lung",
+  publications: [],
+  shortName: "test-with-non-shared-entry-sheet-validations",
+  sourceStudies: [SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS.id],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "6.1",
+  wave: "1",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -2126,6 +2196,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_CAP_ID,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B,
+  ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

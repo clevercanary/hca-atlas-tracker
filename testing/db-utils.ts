@@ -348,6 +348,15 @@ export async function getEntrySheetValidationBySheetId(
   ).rows[0];
 }
 
+export async function deleteEntrySheetValidationBySheetId(
+  id: string
+): Promise<void> {
+  await query<HCAAtlasTrackerDBEntrySheetValidation>(
+    "DELETE FROM hat.entry_sheet_validations WHERE entry_sheet_id=$1",
+    [id]
+  );
+}
+
 export async function getStudySourceDatasets(
   studyId: string
 ): Promise<HCAAtlasTrackerDBSourceDataset[]> {
