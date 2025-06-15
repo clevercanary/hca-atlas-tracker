@@ -99,7 +99,6 @@ export async function updateEntrySheetValidationsFromResultPromises(
             validation_report = u.validation_report,
             validation_summary = u.validation_summary
           FROM jsonb_to_recordset($1) as u(
-            atlas_id uuid,
             entry_sheet_id text,
             entry_sheet_title text,
             last_synced timestamp,
@@ -116,9 +115,10 @@ export async function updateEntrySheetValidationsFromResultPromises(
     if (newValidations.length)
       await query(
         `
-          INSERT INTO hat.entry_sheet_validations
+          INSERT INTO hat.entry_sheet_validations (
+            entry_sheet_id, entry_sheet_title, last_synced, last_updated, source_study_id, validation_report, validation_summary
+          )
           SELECT * FROM jsonb_to_recordset($1) as u(
-            atlas_id uuid,
             entry_sheet_id text,
             entry_sheet_title text,
             last_synced timestamp,
