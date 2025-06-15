@@ -70,10 +70,10 @@ export async function updateAtlasEntrySheetValidations(
         `
           UPDATE hat.entry_sheet_validations v
           SET
-            entry_sheet_title = u.entry_sheet_title
-            last_synced = u.last_synced
-            last_updated = u.last_updated
-            validation_report = u.validation_report
+            entry_sheet_title = u.entry_sheet_title,
+            last_synced = u.last_synced,
+            last_updated = u.last_updated,
+            validation_report = u.validation_report,
             validation_summary = u.validation_summary
           FROM jsonb_to_recordset($1) as u(
             atlas_id uuid,
