@@ -8,11 +8,20 @@ import {
 import { NotFoundError } from "../utils/api-handler";
 import { doTransaction, query } from "./database";
 
+interface CompletionPromiseContainer {
+  completionPromise: Promise<void>;
+}
+
 type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
 
-export async function updateAtlasEntrySheetValidations(
+/**
+ * Update entry sheet validations for source studies of the given atlas, resolving the returned promise **before** calling the validation API.
+ * @param atlasId - Atlas to update entry sheet validations for.
+ * @returns promise resolving to an object containing a promise that resolves when validations have been updated.
+ */
+export async function startAtlasEntrySheetValidationsUpdate(
   atlasId: string
-): Promise<void> {
+): Promise<CompletionPromiseContainer> {
   const atlasResult = await query<
     Pick<HCAAtlasTrackerDBAtlas, "source_studies">
   >("SELECT source_studies FROM hat.atlases WHERE id=$1", [atlasId]);
@@ -27,15 +36,29 @@ export async function updateAtlasEntrySheetValidations(
     [sourceStudyIds]
   );
 
-  const validationResults = await Promise.allSettled(
+  const validationResultPromises: Promise<ValidationUpdateData>[] =
     studiesResult.rows
       .map((study) =>
         study.study_info.metadataSpreadsheets.map((sheetInfo) =>
-          getSheetValidationResults(study.id, sheetInfo.url)
+          getSheetValidationResults(
+            study.id,
+            getSpreadsheetIdFromUrl(sheetInfo.url)
+          )
         )
       )
-      .flat()
-  );
+      .flat();
+
+  return {
+    completionPromise: updateEntrySheetValidationsFromResultPromises(
+      validationResultPromises
+    ),
+  };
+}
+
+export async function updateEntrySheetValidationsFromResultPromises(
+  resultPromises: Promise<ValidationUpdateData>[]
+): Promise<void> {
+  const validationResults = await Promise.allSettled(resultPromises);
 
   const validations: ValidationUpdateData[] = [];
   for (const responseResult of validationResults) {
@@ -113,9 +136,8 @@ export async function updateAtlasEntrySheetValidations(
 
 async function getSheetValidationResults(
   sourceStudyId: string,
-  sheetUrl: string
+  sheetId: string
 ): Promise<ValidationUpdateData> {
-  const sheetId = getSpreadsheetIdFromUrl(sheetUrl);
   const syncTime = new Date();
   try {
     const response = await validateEntrySheet(sheetId);
