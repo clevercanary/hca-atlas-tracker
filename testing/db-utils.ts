@@ -337,6 +337,17 @@ export async function getEntrySheetValidationFromDatabase(
   ).rows[0];
 }
 
+export async function getEntrySheetValidationBySheetId(
+  id: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBEntrySheetValidation>(
+      "SELECT * FROM hat.entry_sheet_validations WHERE entry_sheet_id=$1",
+      [id]
+    )
+  ).rows[0];
+}
+
 export async function getStudySourceDatasets(
   studyId: string
 ): Promise<HCAAtlasTrackerDBSourceDataset[]> {

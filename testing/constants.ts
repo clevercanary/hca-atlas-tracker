@@ -838,6 +838,18 @@ export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
 export const ENTRY_SHEET_ID_WITH_UPDATE =
   "1josZ23Q9x8tKRNk4yub5pJ66wEY2Sphf-WoOPDdm-JZ";
 
+export const ENTRY_SHEET_ID_WITH_FAILED_UPDATE =
+  "1Aip1fZ_27k93JKh5lSncYC2q7tu5sLegWca_RHrKbN1";
+
+export const ENTRY_SHEET_ID_WITH_ERRORED_UPDATE =
+  "1sxNF0nt04DFvQkP3-OCMRivLtmL73IfdAhgBVg901y9";
+
+export const ENTRY_SHEET_ID_NEW =
+  "15Nm4W5_k-e1o85KXqZAod1XwrIw7Rjmp87hbShGQ9-d";
+
+export const ENTRY_SHEET_ID_NO_SYNC =
+  "13BcErSq1NqvwFZp_DzKZ9aK0hK3D73Z3JuIoyTK4WPQ";
+
 export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
   errors: [
     {
@@ -875,8 +887,54 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
   },
 } satisfies EntrySheetValidationResponse;
 
-export const TEST_ENTRY_SHEET_VALIDATION_REPONSES_BY_ID = new Map([
+export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_FAILED_UPDATE = {
+  error: "Validation Response With Failed Update Error",
+} satisfies EntrySheetValidationResponse;
+
+export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW = {
+  errors: [
+    {
+      cell: "E12",
+      column: "sex_ontology_term",
+      entity_type: "donor",
+      input: "foobaz",
+      message: "error foobaz",
+      primary_key: "donor_id:dataset_foo_baz",
+      row: 11,
+      worksheet_id: "234293752",
+    },
+  ],
+  last_updated: {
+    by: "bar",
+    by_email: "bar@example.com",
+    date: "2025-06-15T01:37:13.784Z",
+  },
+  sheet_title: "Entry Sheet New",
+  summary: {
+    dataset_count: 4,
+    donor_count: 13,
+    error_count: 0,
+    sample_count: 21,
+  },
+} satisfies EntrySheetValidationResponse;
+
+export const TEST_ENTRY_SHEET_VALIDATION_REPONSES_BY_ID = new Map<
+  string,
+  EntrySheetValidationResponse
+>([
   [ENTRY_SHEET_ID_WITH_UPDATE, ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE],
+  [
+    ENTRY_SHEET_ID_WITH_FAILED_UPDATE,
+    ENTRY_SHEET_VALIDATION_RESPONSE_WITH_FAILED_UPDATE,
+  ],
+  [ENTRY_SHEET_ID_NEW, ENTRY_SHEET_VALIDATION_RESPONSE_NEW],
+]);
+
+export const TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE =
+  "Test entry sheet validation fetch error";
+
+export const FETCH_ERROR_ENTRY_SHEET_IDS = new Set([
+  ENTRY_SHEET_ID_WITH_ERRORED_UPDATE,
 ]);
 
 // SOURCE STUDIES
@@ -1317,6 +1375,14 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestUnpublishedSourc
         title: "Entry Sheet With Update",
         url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_UPDATE}/edit`,
       },
+      {
+        title: "Entry Sheet With Errored Update",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_ERRORED_UPDATE}/edit`,
+      },
+      {
+        title: "Entry Sheet New",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW}/edit`,
+      },
     ],
     unpublishedInfo: {
       contactEmail: "barbazfoobazbar@example.com",
@@ -1330,6 +1396,12 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestUnpublishedSourc
     cellxgeneCollectionId: null,
     hcaProjectId: null,
     id: "6ffcfd9d-3c51-4ef6-b082-b4e77ebf3327",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet With Failed Update",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_FAILED_UPDATE}/edit`,
+      },
+    ],
     unpublishedInfo: {
       contactEmail: "barbazfoobazbaz@example.com",
       referenceAuthor: "Bar Baz Foo Baz Baz",
@@ -1342,6 +1414,12 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ: TestUnpublishedSourc
     cellxgeneCollectionId: null,
     hcaProjectId: null,
     id: "e9bee7ff-a894-435a-b5fe-8af4b942cc0c",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet No Sync",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NO_SYNC}/edit`,
+      },
+    ],
     unpublishedInfo: {
       contactEmail: "barbazbarfoofoo@example.com",
       referenceAuthor: "Bar Baz Bar Foo Foo",
@@ -2142,8 +2220,75 @@ export const ENTRY_SHEET_VALIDATION_WITH_UPDATE: TestEntrySheetValidation = {
   validation_summary: null,
 };
 
+export const ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE: TestEntrySheetValidation =
+  {
+    entry_sheet_id: ENTRY_SHEET_ID_WITH_FAILED_UPDATE,
+    entry_sheet_title: "Entry Sheet With Failed Update",
+    id: "adac2d0c-34f3-404d-aa41-ddb0421bc722",
+    last_synced: new Date("2025-06-15T01:14:11.075Z"),
+    last_updated: {
+      by: "bar",
+      by_email: "bar@example.com",
+      date: "2025-06-15T01:28:26.991Z",
+    },
+    source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+    validation_report: [],
+    validation_summary: {
+      dataset_count: 5,
+      donor_count: 10,
+      error_count: 0,
+      sample_count: 30,
+    },
+  };
+
+export const ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE: TestEntrySheetValidation =
+  {
+    entry_sheet_id: ENTRY_SHEET_ID_WITH_ERRORED_UPDATE,
+    entry_sheet_title: "Entry Sheet With Errored Update",
+    id: "9b3b1316-5e54-4391-8cf7-a388d40eca12",
+    last_synced: new Date("2025-06-15T01:27:04.534Z"),
+    last_updated: {
+      by: "baz",
+      by_email: "baz@example.com",
+      date: "2025-06-15T01:29:46.048Z",
+    },
+    source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+    validation_report: [],
+    validation_summary: {
+      dataset_count: 3,
+      donor_count: 8,
+      error_count: 0,
+      sample_count: 14,
+    },
+  };
+
+export const ENTRY_SHEET_VALIDATION_NO_SYNC: TestEntrySheetValidation = {
+  entry_sheet_id: ENTRY_SHEET_ID_NO_SYNC,
+  entry_sheet_title: "Entry Sheet No Sync",
+  id: "68f048e7-563d-4ba4-be0a-7bad16499b8c",
+  last_synced: new Date("2025-06-15T04:09:53.329Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ.id,
+  validation_report: [
+    {
+      cell: null,
+      column: null,
+      entity_type: null,
+      input: null,
+      message: "error bar",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+  ],
+  validation_summary: null,
+};
+
 export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
   ENTRY_SHEET_VALIDATION_WITH_UPDATE,
+  ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
+  ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE,
+  ENTRY_SHEET_VALIDATION_NO_SYNC,
 ];
 
 // COMMENTS

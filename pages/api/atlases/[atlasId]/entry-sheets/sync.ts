@@ -1,4 +1,4 @@
-import { updateAtlasEntrySheetValidations } from "app/services/entry-sheets";
+import { startAtlasEntrySheetValidationsUpdate } from "app/services/entry-sheets";
 import { METHOD } from "../../../../../app/common/entities";
 import {
   handler,
@@ -14,7 +14,7 @@ export default handler(
   registeredUser,
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
-    updateAtlasEntrySheetValidations(atlasId);
+    await startAtlasEntrySheetValidationsUpdate(atlasId);
     res.status(202).end();
   }
 );
