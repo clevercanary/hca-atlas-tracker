@@ -937,7 +937,7 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW_NON_SHARED = {
   },
 } satisfies EntrySheetValidationResponse;
 
-export const TEST_ENTRY_SHEET_VALIDATION_REPONSES_BY_ID = new Map<
+export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
   string,
   EntrySheetValidationResponse
 >([
