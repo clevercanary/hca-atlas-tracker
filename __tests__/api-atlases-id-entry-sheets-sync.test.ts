@@ -4,7 +4,7 @@ import httpMocks from "node-mocks-http";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import { startAtlasEntrySheetValidationsUpdate } from "../app/services/entry-sheets";
-import syncHandler from "../pages/api/atlases/[atlasId]/entry-sheets/sync";
+import syncHandler from "../pages/api/atlases/[atlasId]/entry-sheet-validations/sync";
 import {
   ATLAS_NONEXISTENT,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
@@ -61,7 +61,7 @@ jest.mock("../app/services/entry-sheets", () => {
   };
 });
 
-const TEST_ROUTE = "/api/atlases/[atlasId]/entry-sheets/sync";
+const TEST_ROUTE = "/api/atlases/[atlasId]/entry-sheet-validations/sync";
 
 beforeAll(async () => {
   await resetDatabase();

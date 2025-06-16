@@ -4,7 +4,7 @@ export enum API {
   ATLAS_COMPONENT_ATLAS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]",
   ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets",
   ATLAS_COMPONENT_ATLASES = "/api/atlases/[atlasId]/component-atlases",
-  ATLAS_ENTRY_SHEETS_SYNC = "/api/atlases/[atlasId]/entry-sheets/sync",
+  ATLAS_ENTRY_SHEETS_SYNC = "/api/atlases/[atlasId]/entry-sheet-validations/sync",
   ATLAS_SOURCE_DATASET = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]",
   ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-datasets",
   ATLAS_SOURCE_STUDIES = "/api/atlases/[atlasId]/source-studies",
