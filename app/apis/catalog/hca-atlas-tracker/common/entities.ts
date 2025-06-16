@@ -165,6 +165,16 @@ export type HCAAtlasTrackerValidationRecordWithoutAtlases = Omit<
   | "waves"
 >;
 
+export interface HCAAtlasTrackerListEntrySheetValidation {
+  entrySheetId: string;
+  entrySheetTitle: string | null;
+  id: string;
+  lastSynced: string;
+  lastUpdated: GoogleLastUpdateInfo | null;
+  sourceStudyId: string;
+  validationSummary: EntrySheetValidationSummary | null;
+}
+
 export interface HCAAtlasTrackerComment {
   createdAt: string;
   createdBy: number;
@@ -418,6 +428,18 @@ export interface HCAAtlasTrackerDBEntrySheetValidation {
   validation_report: EntrySheetValidationErrorInfo[];
   validation_summary: EntrySheetValidationSummary;
 }
+
+// Specified using `Pick` rather than `Omit` in order to correspond more closely to how it's queried in Postgres
+export type HCAAtlasTrackerDBEntrySheetValidationListFields = Pick<
+  HCAAtlasTrackerDBEntrySheetValidation,
+  | "entry_sheet_id"
+  | "entry_sheet_title"
+  | "id"
+  | "last_synced"
+  | "last_updated"
+  | "source_study_id"
+  | "validation_summary"
+>;
 
 export interface HCAAtlasTrackerDBComment {
   created_at: Date;

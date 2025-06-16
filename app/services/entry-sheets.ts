@@ -1,18 +1,40 @@
 import { getSpreadsheetIdFromUrl } from "app/utils/google-sheets";
 import { validateEntrySheet } from "app/utils/hca-validation-tools";
 import {
-  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
-  HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBEntrySheetValidationListFields,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { NotFoundError } from "../utils/api-handler";
 import { doTransaction, query } from "./database";
+import { getAtlasSourceStudiesBaseModel } from "./source-studies";
 
 interface CompletionPromiseContainer {
   completionPromise: Promise<void>;
 }
 
 type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
+
+export async function getAtlasEntrySheetValidations(
+  atlasId: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidationListFields[]> {
+  const sourceStudies = await getAtlasSourceStudiesBaseModel(atlasId);
+  const validationsResult =
+    await query<HCAAtlasTrackerDBEntrySheetValidationListFields>(
+      `
+      SELECT
+        entry_sheet_id,
+        entry_sheet_title,
+        id,
+        last_synced,
+        last_updated,
+        source_study_id,
+        validation_summary
+      FROM hat.entry_sheet_validations
+      WHERE source_study_id=ANY($1)
+    `,
+      [sourceStudies.map((study) => study.id)]
+    );
+  return validationsResult.rows;
+}
 
 /**
  * Update entry sheet validations for source studies of the given atlas, resolving the returned promise **before** receiving the validation API responses.
@@ -22,22 +44,10 @@ type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
 export async function startAtlasEntrySheetValidationsUpdate(
   atlasId: string
 ): Promise<CompletionPromiseContainer> {
-  const atlasResult = await query<
-    Pick<HCAAtlasTrackerDBAtlas, "source_studies">
-  >("SELECT source_studies FROM hat.atlases WHERE id=$1", [atlasId]);
-
-  if (atlasResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-
-  const sourceStudyIds = atlasResult.rows[0].source_studies;
-
-  const studiesResult = await query<HCAAtlasTrackerDBSourceStudy>(
-    "SELECT * FROM hat.source_studies WHERE id=ANY($1)",
-    [sourceStudyIds]
-  );
+  const sourceStudies = await getAtlasSourceStudiesBaseModel(atlasId);
 
   const validationResultPromises: Promise<ValidationUpdateData>[] =
-    studiesResult.rows
+    sourceStudies
       .map((study) =>
         study.study_info.metadataSpreadsheets.map((sheetInfo) =>
           getSheetValidationResults(
