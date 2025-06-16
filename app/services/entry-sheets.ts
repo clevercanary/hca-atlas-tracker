@@ -156,7 +156,12 @@ async function getSheetValidationResults(
         last_updated: response.last_updated,
         source_study_id: sourceStudyId,
         validation_report: response.errors,
-        validation_summary: response.summary,
+        validation_summary: response.summary ?? {
+          dataset_count: null,
+          donor_count: null,
+          error_count: response.errors.length,
+          sample_count: null,
+        },
       };
     }
   } catch (err) {
@@ -194,6 +199,11 @@ function makeValidationWithErrorMessage(
         worksheet_id: null,
       },
     ],
-    validation_summary: null,
+    validation_summary: {
+      dataset_count: null,
+      donor_count: null,
+      error_count: 1,
+      sample_count: null,
+    },
   };
 }

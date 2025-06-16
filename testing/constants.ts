@@ -2288,7 +2288,12 @@ export const ENTRY_SHEET_VALIDATION_WITH_UPDATE: TestEntrySheetValidation = {
       worksheet_id: null,
     },
   ],
-  validation_summary: null,
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
 };
 
 export const ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE: TestEntrySheetValidation =
@@ -2352,7 +2357,12 @@ export const ENTRY_SHEET_VALIDATION_NO_SYNC: TestEntrySheetValidation = {
       worksheet_id: null,
     },
   ],
-  validation_summary: null,
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
 };
 
 export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [

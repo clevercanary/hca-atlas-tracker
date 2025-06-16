@@ -416,7 +416,7 @@ export interface HCAAtlasTrackerDBEntrySheetValidation {
   last_updated: GoogleLastUpdateInfo | null;
   source_study_id: string;
   validation_report: EntrySheetValidationErrorInfo[];
-  validation_summary: EntrySheetValidationSummary | null;
+  validation_summary: EntrySheetValidationSummary;
 }
 
 export interface HCAAtlasTrackerDBComment {

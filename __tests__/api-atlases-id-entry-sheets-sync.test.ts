@@ -1,4 +1,7 @@
-import { EntrySheetValidationErrorInfo } from "app/utils/hca-validation-tools";
+import {
+  EntrySheetValidationErrorInfo,
+  EntrySheetValidationSummary,
+} from "app/utils/hca-validation-tools";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { METHOD } from "../app/common/entities";
@@ -271,7 +274,14 @@ async function doMainAtlasTest(): Promise<void> {
     ]);
     expect(validationWithFailedUpdateAfter.last_updated).toBeNull();
     expect(validationWithFailedUpdateAfter.entry_sheet_title).toBeNull();
-    expect(validationWithFailedUpdateAfter.validation_summary).toBeNull();
+    expect(
+      validationWithFailedUpdateAfter.validation_summary
+    ).toEqual<EntrySheetValidationSummary>({
+      dataset_count: null,
+      donor_count: null,
+      error_count: 1,
+      sample_count: null,
+    });
   }
 
   // Check validation with error on the tracker end
@@ -305,7 +315,14 @@ async function doMainAtlasTest(): Promise<void> {
     ]);
     expect(validationWithErroredUpdateAfter.last_updated).toBeNull();
     expect(validationWithErroredUpdateAfter.entry_sheet_title).toBeNull();
-    expect(validationWithErroredUpdateAfter.validation_summary).toBeNull();
+    expect(
+      validationWithErroredUpdateAfter.validation_summary
+    ).toEqual<EntrySheetValidationSummary>({
+      dataset_count: null,
+      donor_count: null,
+      error_count: 1,
+      sample_count: null,
+    });
   }
 
   // Check new validation

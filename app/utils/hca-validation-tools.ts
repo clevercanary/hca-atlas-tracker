@@ -37,10 +37,10 @@ export interface EntrySheetValidationErrorInfo {
 }
 
 export interface EntrySheetValidationSummary {
-  dataset_count: number;
-  donor_count: number;
+  dataset_count: number | null;
+  donor_count: number | null;
   error_count: number;
-  sample_count: number;
+  sample_count: number | null;
 }
 
 export async function validateEntrySheet(
