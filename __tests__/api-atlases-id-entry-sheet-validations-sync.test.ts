@@ -87,7 +87,7 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when source datasets are requested by logged out user", async () => {
+  it("returns error 401 when requested by logged out user", async () => {
     expect(
       (
         await doSyncRequest(
@@ -100,7 +100,7 @@ describe(TEST_ROUTE, () => {
     ).toEqual(401);
   });
 
-  it("returns error 403 when source datasets are requested by unregistered user", async () => {
+  it("returns error 403 when requested by unregistered user", async () => {
     expect(
       (
         await doSyncRequest(
@@ -113,7 +113,7 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
-  it("returns error 403 when source datasets are requested by disabled user", async () => {
+  it("returns error 403 when requested by disabled user", async () => {
     expect(
       (
         await doSyncRequest(
