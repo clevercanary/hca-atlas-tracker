@@ -8,7 +8,7 @@ import {
 } from "../../../../app/utils/api-handler";
 
 /**
- * API route for triggering validation of an atlas's entry sheets.
+ * API route to get entry sheet validations of an atlas.
  */
 export default handler(method(METHOD.GET), registeredUser, async (req, res) => {
   const atlasId = req.query.atlasId as string;
