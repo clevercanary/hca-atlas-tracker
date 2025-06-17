@@ -77,7 +77,7 @@ export async function getAtlasSourceStudies(
   });
 }
 
-export async function getAtlasSourceStudiesBaseModel(
+export async function getBaseModelAtlasSourceStudies(
   atlasId: string
 ): Promise<HCAAtlasTrackerDBSourceStudy[]> {
   const atlasResult = await query<

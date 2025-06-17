@@ -5,7 +5,7 @@ import {
   HCAAtlasTrackerDBEntrySheetValidationListFields,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { doTransaction, query } from "./database";
-import { getAtlasSourceStudiesBaseModel } from "./source-studies";
+import { getBaseModelAtlasSourceStudies } from "./source-studies";
 
 interface CompletionPromiseContainer {
   completionPromise: Promise<void>;
@@ -16,7 +16,7 @@ type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
 export async function getAtlasEntrySheetValidations(
   atlasId: string
 ): Promise<HCAAtlasTrackerDBEntrySheetValidationListFields[]> {
-  const sourceStudies = await getAtlasSourceStudiesBaseModel(atlasId);
+  const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
   const validationsResult =
     await query<HCAAtlasTrackerDBEntrySheetValidationListFields>(
       `
@@ -44,7 +44,7 @@ export async function getAtlasEntrySheetValidations(
 export async function startAtlasEntrySheetValidationsUpdate(
   atlasId: string
 ): Promise<CompletionPromiseContainer> {
-  const sourceStudies = await getAtlasSourceStudiesBaseModel(atlasId);
+  const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
 
   const validationResultPromises: Promise<ValidationUpdateData>[] =
     sourceStudies
