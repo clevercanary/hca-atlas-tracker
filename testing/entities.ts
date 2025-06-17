@@ -2,6 +2,8 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
+  GoogleSheetInfo,
+  HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
   LinkInfo,
@@ -61,6 +63,7 @@ export interface TestPublishedSourceStudy {
   doiStatus: DOI_STATUS;
   hcaProjectId?: string | null;
   id: string;
+  metadataSpreadsheets?: GoogleSheetInfo[];
   publication: PublicationInfo | null;
 }
 
@@ -68,6 +71,7 @@ export interface TestUnpublishedSourceStudy {
   cellxgeneCollectionId: string | null;
   hcaProjectId: string | null;
   id: string;
+  metadataSpreadsheets?: GoogleSheetInfo[];
   unpublishedInfo: HCAAtlasTrackerDBUnpublishedSourceStudyInfo["unpublishedInfo"];
 }
 
@@ -85,6 +89,8 @@ export interface TestSourceDataset {
   tissue?: string[];
   title: string;
 }
+
+export type TestEntrySheetValidation = HCAAtlasTrackerDBEntrySheetValidation;
 
 export interface TestComment {
   createdAt: string;

@@ -7,6 +7,7 @@ import {
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
+  HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUser,
@@ -20,6 +21,7 @@ import {
   INITIAL_TEST_ATLASES,
   INITIAL_TEST_COMMENTS,
   INITIAL_TEST_COMPONENT_ATLASES,
+  INITIAL_TEST_ENTRY_SHEET_VALIDATIONS,
   INITIAL_TEST_SOURCE_DATASETS,
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
@@ -71,6 +73,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   await initAtlases(client);
 
   await initComponentAtlases(client);
+
+  await initEntrySheetValidations(client);
 
   await initComments(client, dbUsersByEmail);
 
@@ -163,6 +167,24 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.id,
         componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
         componentAtlas.title,
+      ]
+    );
+  }
+}
+
+async function initEntrySheetValidations(client: pg.PoolClient): Promise<void> {
+  for (const validation of INITIAL_TEST_ENTRY_SHEET_VALIDATIONS) {
+    await client.query(
+      "INSERT INTO hat.entry_sheet_validations (entry_sheet_id, entry_sheet_title, id, last_synced, last_updated, source_study_id, validation_report, validation_summary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+      [
+        validation.entry_sheet_id,
+        validation.entry_sheet_title,
+        validation.id,
+        validation.last_synced,
+        validation.last_updated,
+        validation.source_study_id,
+        JSON.stringify(validation.validation_report),
+        validation.validation_summary,
       ]
     );
   }
@@ -302,6 +324,37 @@ export async function getCellxGeneSourceDatasetFromDatabase(
     )
   ).rows[0];
   return result ?? null;
+}
+
+export async function getEntrySheetValidationFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBEntrySheetValidation>(
+      "SELECT * FROM hat.entry_sheet_validations WHERE id=$1",
+      [id]
+    )
+  ).rows[0];
+}
+
+export async function getEntrySheetValidationBySheetId(
+  id: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBEntrySheetValidation>(
+      "SELECT * FROM hat.entry_sheet_validations WHERE entry_sheet_id=$1",
+      [id]
+    )
+  ).rows[0];
+}
+
+export async function deleteEntrySheetValidationBySheetId(
+  id: string
+): Promise<void> {
+  await query<HCAAtlasTrackerDBEntrySheetValidation>(
+    "DELETE FROM hat.entry_sheet_validations WHERE entry_sheet_id=$1",
+    [id]
+  );
 }
 
 export async function getStudySourceDatasets(

@@ -1,3 +1,8 @@
+import {
+  EntrySheetValidationErrorInfo,
+  EntrySheetValidationSummary,
+  GoogleLastUpdateInfo,
+} from "../../../../utils/hca-validation-tools";
 import { API } from "./api";
 import { NETWORK_KEYS, WAVES } from "./constants";
 
@@ -401,6 +406,17 @@ export interface HCAAtlasTrackerDBValidationWithAtlasProperties
   atlas_versions: string[];
   networks: NetworkKey[];
   waves: Wave[];
+}
+
+export interface HCAAtlasTrackerDBEntrySheetValidation {
+  entry_sheet_id: string;
+  entry_sheet_title: string | null;
+  id: string;
+  last_synced: Date;
+  last_updated: GoogleLastUpdateInfo | null;
+  source_study_id: string;
+  validation_report: EntrySheetValidationErrorInfo[];
+  validation_summary: EntrySheetValidationSummary;
 }
 
 export interface HCAAtlasTrackerDBComment {

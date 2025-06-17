@@ -99,7 +99,7 @@ export function makeTestSourceStudyOverview(
         cellxgeneCollectionId: study.cellxgeneCollectionId,
         doiStatus: DOI_STATUS.NA,
         hcaProjectId: study.hcaProjectId,
-        metadataSpreadsheets: [],
+        metadataSpreadsheets: study.metadataSpreadsheets ?? [],
         publication: null,
         unpublishedInfo: study.unpublishedInfo,
       }
@@ -120,7 +120,7 @@ export function makeTestSourceStudyOverview(
                   .projectId) ??
               null
             : study.hcaProjectId,
-        metadataSpreadsheets: [],
+        metadataSpreadsheets: study.metadataSpreadsheets ?? [],
         publication: study.publication,
         unpublishedInfo: null,
       };
@@ -212,10 +212,13 @@ export function aggregateSourceDatasetArrayField(
 
 export async function withConsoleErrorHiding<T>(
   fn: () => Promise<T>,
-  hideConsoleError = true
+  hideConsoleError = true,
+  errorsOutputArray?: unknown[][]
 ): Promise<T> {
   const consoleErrorSpy = hideConsoleError
-    ? jest.spyOn(console, "error").mockImplementation()
+    ? jest.spyOn(console, "error").mockImplementation((...errors) => {
+        errorsOutputArray?.push(errors);
+      })
     : null;
   const result = await fn();
   consoleErrorSpy?.mockRestore();
@@ -567,4 +570,12 @@ function expectArrayToContainItems(array: unknown[], items: unknown[]): void {
 export function expectIsDefined<T>(value: T | undefined): value is T {
   expect(value).toBeDefined();
   return value !== undefined;
+}
+
+export function expectIsInstanceOf<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required to work with InstanceType
+  T extends abstract new (...args: any[]) => any
+>(value: unknown, checkClass: T): value is InstanceType<T> {
+  expect(value).toBeInstanceOf(checkClass);
+  return value instanceof checkClass;
 }

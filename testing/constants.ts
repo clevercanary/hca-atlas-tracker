@@ -1,4 +1,5 @@
 import { ProjectsResponse } from "app/apis/azul/hca-dcp/common/responses";
+import { EntrySheetValidationResponse } from "app/utils/hca-validation-tools";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
@@ -14,6 +15,7 @@ import {
   TestAtlas,
   TestComment,
   TestComponentAtlas,
+  TestEntrySheetValidation,
   TestPublishedSourceStudy,
   TestSourceDataset,
   TestUnpublishedSourceStudy,
@@ -831,6 +833,133 @@ export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
   ],
 ]);
 
+// ENTRY SHEETS
+
+export const ENTRY_SHEET_ID_WITH_UPDATE =
+  "1josZ23Q9x8tKRNk4yub5pJ66wEY2Sphf-WoOPDdm-JZ";
+
+export const ENTRY_SHEET_ID_WITH_FAILED_UPDATE =
+  "1Aip1fZ_27k93JKh5lSncYC2q7tu5sLegWca_RHrKbN1";
+
+export const ENTRY_SHEET_ID_WITH_ERRORED_UPDATE =
+  "1sxNF0nt04DFvQkP3-OCMRivLtmL73IfdAhgBVg901y9";
+
+export const ENTRY_SHEET_ID_NEW =
+  "15Nm4W5_k-e1o85KXqZAod1XwrIw7Rjmp87hbShGQ9-d";
+
+export const ENTRY_SHEET_ID_NO_SYNC =
+  "13BcErSq1NqvwFZp_DzKZ9aK0hK3D73Z3JuIoyTK4WPQ";
+
+export const ENTRY_SHEET_ID_NEW_NON_SHARED =
+  "1cCXtjK2SKkDsSiV0FmfY9FBaPLIaD6WlytLoggm3FNi";
+
+export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
+  errors: [
+    {
+      cell: "C7",
+      column: "consortia",
+      entity_type: "dataset",
+      input: "foofoo",
+      message: "error foofoo",
+      primary_key: "dataset_id:dataset_foo_foo",
+      row: 6,
+      worksheet_id: "234203429",
+    },
+    {
+      cell: "B11",
+      column: "donor_id",
+      entity_type: "sample",
+      input: "foobar",
+      message: "error foobar",
+      primary_key: "sample_id:sample_foo_bar",
+      row: 10,
+      worksheet_id: "534298734234",
+    },
+  ],
+  last_updated: {
+    by: "foo",
+    by_email: "foo@example.com",
+    date: "2025-06-13T21:11:26.090Z",
+  },
+  sheet_title: "Entry Sheet With Update Updated",
+  summary: {
+    dataset_count: 3,
+    donor_count: 9,
+    error_count: 2,
+    sample_count: 12,
+  },
+} satisfies EntrySheetValidationResponse;
+
+export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_FAILED_UPDATE = {
+  error: "Validation Response With Failed Update Error",
+} satisfies EntrySheetValidationResponse;
+
+export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW = {
+  errors: [
+    {
+      cell: "E12",
+      column: "sex_ontology_term",
+      entity_type: "donor",
+      input: "foobaz",
+      message: "error foobaz",
+      primary_key: "donor_id:dataset_foo_baz",
+      row: 11,
+      worksheet_id: "234293752",
+    },
+  ],
+  last_updated: {
+    by: "bar",
+    by_email: "bar@example.com",
+    date: "2025-06-15T01:37:13.784Z",
+  },
+  sheet_title: "Entry Sheet New",
+  summary: {
+    dataset_count: 4,
+    donor_count: 13,
+    error_count: 1,
+    sample_count: 21,
+  },
+} satisfies EntrySheetValidationResponse;
+
+export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW_NON_SHARED = {
+  errors: [],
+  last_updated: {
+    by: "foobar",
+    by_email: "foobar@example.com",
+    date: "2025-06-15T20:59:56.670Z",
+  },
+  sheet_title: "Entry Sheet New Non Shared",
+  summary: {
+    dataset_count: 2,
+    donor_count: 5,
+    error_count: 0,
+    sample_count: 12,
+  },
+} satisfies EntrySheetValidationResponse;
+
+export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
+  string,
+  EntrySheetValidationResponse
+>([
+  [ENTRY_SHEET_ID_WITH_UPDATE, ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE],
+  [
+    ENTRY_SHEET_ID_WITH_FAILED_UPDATE,
+    ENTRY_SHEET_VALIDATION_RESPONSE_WITH_FAILED_UPDATE,
+  ],
+  [ENTRY_SHEET_ID_NEW, ENTRY_SHEET_VALIDATION_RESPONSE_NEW],
+  [
+    ENTRY_SHEET_ID_NEW_NON_SHARED,
+    ENTRY_SHEET_VALIDATION_RESPONSE_NEW_NON_SHARED,
+  ],
+]);
+
+export const TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE =
+  "Test entry sheet validation fetch error";
+
+export const FETCH_ERROR_ENTRY_SHEET_IDS = new Set([
+  ENTRY_SHEET_ID_WITH_ERRORED_UPDATE,
+]);
+
 // SOURCE STUDIES
 
 export const SOURCE_STUDY_DRAFT_OK: TestPublishedSourceStudy = {
@@ -1259,6 +1388,86 @@ export const SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B: TestUnpublishedSourceStu
     },
   };
 
+export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "daf8febc-a38d-4e8e-91be-802aab281f02",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet With Update",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_UPDATE}/edit`,
+      },
+      {
+        title: "Entry Sheet With Errored Update",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_ERRORED_UPDATE}/edit`,
+      },
+      {
+        title: "Entry Sheet New",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW}/edit`,
+      },
+    ],
+    unpublishedInfo: {
+      contactEmail: "barbazfoobazbar@example.com",
+      referenceAuthor: "Bar Baz Foo Baz Bar",
+      title: "Source Study With Entry Sheet Validations Foo",
+    },
+  };
+
+export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "6ffcfd9d-3c51-4ef6-b082-b4e77ebf3327",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet With Failed Update",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_FAILED_UPDATE}/edit`,
+      },
+    ],
+    unpublishedInfo: {
+      contactEmail: "barbazfoobazbaz@example.com",
+      referenceAuthor: "Bar Baz Foo Baz Baz",
+      title: "Source Study With Entry Sheet Validations Bar",
+    },
+  };
+
+export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "e9bee7ff-a894-435a-b5fe-8af4b942cc0c",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet No Sync",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NO_SYNC}/edit`,
+      },
+    ],
+    unpublishedInfo: {
+      contactEmail: "barbazbarfoofoo@example.com",
+      referenceAuthor: "Bar Baz Bar Foo Foo",
+      title: "Source Study With Entry Sheet Validations Baz",
+    },
+  };
+
+export const SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "9919078a-0b51-4cd5-995e-ce311aa6e564",
+    metadataSpreadsheets: [
+      {
+        title: "Entry Sheet New Non Shared",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW_NON_SHARED}/edit`,
+      },
+    ],
+    unpublishedInfo: {
+      contactEmail: "barbazbarfoobar@example.com",
+      referenceAuthor: "Bar Baz Bar Foo Bar",
+      title: "Source Study With Non Shared Entry Sheet Validations",
+    },
+  };
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1289,6 +1498,10 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ,
+  SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -1549,6 +1762,8 @@ const ATLAS_ID_DRAFT = "823dcc68-340b-4a61-8883-c61dc4975ce3";
 const ATLAS_ID_PUBLIC = "94f62ad0-99cb-4f01-a1cf-cce2d56a8850";
 const ATLAS_ID_WITH_MISC_SOURCE_STUDIES =
   "8259a9b1-c149-4310-83a5-d126b675c0f1";
+const ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
+  "c41f8dd8-93ee-49f6-885a-8c5107d30229";
 
 // USERS
 
@@ -1606,6 +1821,13 @@ export const USER_DISABLED_CONTENT_ADMIN = makeTestUser(
   ROLE.CONTENT_ADMIN,
   true
 );
+export const USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
+  makeTestUser(
+    "test-integration-lead-with-non-shared-entry-sheet-validations",
+    ROLE.INTEGRATION_LEAD,
+    false,
+    [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS]
+  );
 
 // Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
@@ -1619,6 +1841,7 @@ export const INITIAL_TEST_USERS = [
   USER_INTEGRATION_LEAD_WITH_NEW_ATLAS,
   USER_CELLXGENE_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 ];
 
 export const TEST_USERS = [
@@ -1641,6 +1864,8 @@ export const INTEGRATION_LEADS_BY_ATLAS_ID: Record<string, TestUser> = {
   [ATLAS_ID_PUBLIC]: USER_INTEGRATION_LEAD_PUBLIC,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES]:
     USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+  [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS]:
+    USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 };
 
 // ATLASES
@@ -1898,6 +2123,60 @@ export const ATLAS_WITH_CAP_ID: TestAtlas = {
   wave: "1",
 };
 
+export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "foo baz baz foo bar baz baz bar foo bar",
+  highlights: "",
+  id: "035f5b25-7a2a-4351-9f61-5e6734f1f6dc",
+  integrationLead: [],
+  network: "kidney",
+  publications: [],
+  shortName: "test-with-entry-sheet-validations-a",
+  sourceStudies: [
+    SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
+    SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+  ],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "6.7",
+  wave: "2",
+};
+
+export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "foo foo foo bar bar foo baz baz foo foo bar foo",
+  highlights: "",
+  id: "7cedbe48-2e45-4246-ba09-3a90c1f29275",
+  integrationLead: [],
+  network: "nervous-system",
+  publications: [],
+  shortName: "test-with-entry-sheet-validations-b",
+  sourceStudies: [
+    SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+    SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ.id,
+  ],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "5.0",
+  wave: "2",
+};
+
+export const ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "baz bar baz bar foo bar baz foo foo bar baz",
+  highlights: "",
+  id: ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
+  integrationLead: [],
+  network: "lung",
+  publications: [],
+  shortName: "test-with-non-shared-entry-sheet-validations",
+  sourceStudies: [SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS.id],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "6.1",
+  wave: "1",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -1915,6 +2194,9 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_PUBLIC_BAZ,
   ATLAS_WITH_CAP_ID,
+  ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B,
+  ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
@@ -1983,6 +2265,111 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_MISC_FOO,
   COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
+];
+
+// ENTRY SHEET VALIDATIONS
+
+export const ENTRY_SHEET_VALIDATION_WITH_UPDATE: TestEntrySheetValidation = {
+  entry_sheet_id: ENTRY_SHEET_ID_WITH_UPDATE,
+  entry_sheet_title: "Entry Sheet With Update",
+  id: "4684a422-f3c5-4334-bc0a-df18a62bee0c",
+  last_synced: new Date("2025-06-13T21:04:33.388Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
+  validation_report: [
+    {
+      cell: null,
+      column: null,
+      entity_type: null,
+      input: null,
+      message: "error foo",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+  ],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
+};
+
+export const ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE: TestEntrySheetValidation =
+  {
+    entry_sheet_id: ENTRY_SHEET_ID_WITH_FAILED_UPDATE,
+    entry_sheet_title: "Entry Sheet With Failed Update",
+    id: "adac2d0c-34f3-404d-aa41-ddb0421bc722",
+    last_synced: new Date("2025-06-15T01:14:11.075Z"),
+    last_updated: {
+      by: "bar",
+      by_email: "bar@example.com",
+      date: "2025-06-15T01:28:26.991Z",
+    },
+    source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+    validation_report: [],
+    validation_summary: {
+      dataset_count: 5,
+      donor_count: 10,
+      error_count: 0,
+      sample_count: 30,
+    },
+  };
+
+export const ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE: TestEntrySheetValidation =
+  {
+    entry_sheet_id: ENTRY_SHEET_ID_WITH_ERRORED_UPDATE,
+    entry_sheet_title: "Entry Sheet With Errored Update",
+    id: "9b3b1316-5e54-4391-8cf7-a388d40eca12",
+    last_synced: new Date("2025-06-15T01:27:04.534Z"),
+    last_updated: {
+      by: "baz",
+      by_email: "baz@example.com",
+      date: "2025-06-15T01:29:46.048Z",
+    },
+    source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+    validation_report: [],
+    validation_summary: {
+      dataset_count: 3,
+      donor_count: 8,
+      error_count: 0,
+      sample_count: 14,
+    },
+  };
+
+export const ENTRY_SHEET_VALIDATION_NO_SYNC: TestEntrySheetValidation = {
+  entry_sheet_id: ENTRY_SHEET_ID_NO_SYNC,
+  entry_sheet_title: "Entry Sheet No Sync",
+  id: "68f048e7-563d-4ba4-be0a-7bad16499b8c",
+  last_synced: new Date("2025-06-15T04:09:53.329Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ.id,
+  validation_report: [
+    {
+      cell: null,
+      column: null,
+      entity_type: null,
+      input: null,
+      message: "error bar",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+  ],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
+};
+
+export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
+  ENTRY_SHEET_VALIDATION_WITH_UPDATE,
+  ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
+  ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE,
+  ENTRY_SHEET_VALIDATION_NO_SYNC,
 ];
 
 // COMMENTS
