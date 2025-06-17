@@ -53,7 +53,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 405 for POST request", async () => {
     expect(
       (
-        await doSyncRequest(
+        await doEntrySheetValidationsRequest(
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_CONTENT_ADMIN,
           METHOD.POST
@@ -65,7 +65,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 401 when entry sheet validations are requested by logged out user", async () => {
     expect(
       (
-        await doSyncRequest(
+        await doEntrySheetValidationsRequest(
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           undefined,
           METHOD.GET,
@@ -78,7 +78,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 when entry sheet validations are requested by unregistered user", async () => {
     expect(
       (
-        await doSyncRequest(
+        await doEntrySheetValidationsRequest(
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_UNREGISTERED,
           METHOD.GET,
@@ -91,7 +91,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 when entry sheet validations are requested by disabled user", async () => {
     expect(
       (
-        await doSyncRequest(
+        await doEntrySheetValidationsRequest(
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.GET,
@@ -104,7 +104,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 404 when entry sheet validations are requested from nonexistent atlas", async () => {
     expect(
       (
-        await doSyncRequest(
+        await doEntrySheetValidationsRequest(
           ATLAS_NONEXISTENT.id,
           USER_CONTENT_ADMIN,
           METHOD.GET,
@@ -137,7 +137,7 @@ describe(TEST_ROUTE, () => {
   }
 
   it("returns entry sheet validations when requested by content admin", async () => {
-    const res = await doSyncRequest(
+    const res = await doEntrySheetValidationsRequest(
       ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
       USER_CONTENT_ADMIN,
       METHOD.GET
@@ -185,7 +185,7 @@ function expectListEntrySheetValidationToMatchTest(
   );
 }
 
-async function doSyncRequest(
+async function doEntrySheetValidationsRequest(
   atlasId: string,
   user: TestUser | undefined,
   method: METHOD,
