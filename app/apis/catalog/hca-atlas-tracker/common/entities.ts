@@ -172,7 +172,7 @@ export interface HCAAtlasTrackerListEntrySheetValidation {
   lastSynced: string;
   lastUpdated: GoogleLastUpdateInfo | null;
   sourceStudyId: string;
-  validationSummary: EntrySheetValidationSummary | null;
+  validationSummary: EntrySheetValidationSummary;
 }
 
 export interface HCAAtlasTrackerComment {
