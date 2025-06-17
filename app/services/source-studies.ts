@@ -77,6 +77,26 @@ export async function getAtlasSourceStudies(
   });
 }
 
+export async function getBaseModelAtlasSourceStudies(
+  atlasId: string
+): Promise<HCAAtlasTrackerDBSourceStudy[]> {
+  const atlasResult = await query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_studies">
+  >("SELECT source_studies FROM hat.atlases WHERE id=$1", [atlasId]);
+
+  if (atlasResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+
+  const sourceStudyIds = atlasResult.rows[0].source_studies;
+
+  const studiesResult = await query<HCAAtlasTrackerDBSourceStudy>(
+    "SELECT * FROM hat.source_studies WHERE id=ANY($1)",
+    [sourceStudyIds]
+  );
+
+  return studiesResult.rows;
+}
+
 export async function getSourceStudy(
   atlasId: string,
   sourceStudyId: string,
