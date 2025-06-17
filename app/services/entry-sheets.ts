@@ -20,17 +20,17 @@ export async function getAtlasEntrySheetValidations(
   const validationsResult =
     await query<HCAAtlasTrackerDBEntrySheetValidationListFields>(
       `
-      SELECT
-        entry_sheet_id,
-        entry_sheet_title,
-        id,
-        last_synced,
-        last_updated,
-        source_study_id,
-        validation_summary
-      FROM hat.entry_sheet_validations
-      WHERE source_study_id=ANY($1)
-    `,
+        SELECT
+          entry_sheet_id,
+          entry_sheet_title,
+          id,
+          last_synced,
+          last_updated,
+          source_study_id,
+          validation_summary
+        FROM hat.entry_sheet_validations
+        WHERE source_study_id=ANY($1)
+      `,
       [sourceStudies.map((study) => study.id)]
     );
   return validationsResult.rows;
