@@ -1,6 +1,8 @@
+import { NotFoundError } from "app/utils/api-handler";
 import { getSpreadsheetIdFromUrl } from "app/utils/google-sheets";
 import { validateEntrySheet } from "app/utils/hca-validation-tools";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -12,6 +14,27 @@ interface CompletionPromiseContainer {
 }
 
 type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
+
+export async function getEntrySheetValidation(
+  atlasId: string,
+  entrySheetValidationId: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation> {
+  const atlasResult = await query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_studies">
+  >("SELECT source_studies FROM hat.atlases WHERE id=$1", [atlasId]);
+  if (atlasResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  const atlasSourceStudies = atlasResult.rows[0].source_studies;
+  const validationResult = await query<HCAAtlasTrackerDBEntrySheetValidation>(
+    "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=ANY($1) AND id=$2",
+    [atlasSourceStudies, entrySheetValidationId]
+  );
+  if (validationResult.rows.length === 0)
+    throw new NotFoundError(
+      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist on atlas with ID ${atlasId}`
+    );
+  return validationResult.rows[0];
+}
 
 export async function getAtlasEntrySheetValidations(
   atlasId: string
