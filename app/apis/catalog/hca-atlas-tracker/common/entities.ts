@@ -165,15 +165,21 @@ export type HCAAtlasTrackerValidationRecordWithoutAtlases = Omit<
   | "waves"
 >;
 
-export interface HCAAtlasTrackerListEntrySheetValidation {
+export interface HCAAtlasTrackerEntrySheetValidation {
   entrySheetId: string;
   entrySheetTitle: string | null;
   id: string;
   lastSynced: string;
   lastUpdated: GoogleLastUpdateInfo | null;
   sourceStudyId: string;
+  validationReport: EntrySheetValidationErrorInfo[];
   validationSummary: EntrySheetValidationSummary;
 }
+
+export type HCAAtlasTrackerListEntrySheetValidation = Omit<
+  HCAAtlasTrackerEntrySheetValidation,
+  "validationReport"
+>;
 
 export interface HCAAtlasTrackerComment {
   createdAt: string;

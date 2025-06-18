@@ -7,6 +7,7 @@ import {
   HCAAtlasTrackerDBAtlasWithComponentAtlases,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
@@ -15,6 +16,7 @@ import {
   HCAAtlasTrackerDBUserWithAssociatedResources,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
+  HCAAtlasTrackerEntrySheetValidation,
   HCAAtlasTrackerListEntrySheetValidation,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
@@ -199,6 +201,21 @@ function dbValidationToApiValidationWithoutAtlasProperties(
     validationId: validation.validation_id,
     validationStatus: validationInfo.validationStatus,
     validationType: validationInfo.validationType,
+  };
+}
+
+export function dbEntrySheetValidationToApiModel(
+  entrySheetValidation: HCAAtlasTrackerDBEntrySheetValidation
+): HCAAtlasTrackerEntrySheetValidation {
+  return {
+    entrySheetId: entrySheetValidation.entry_sheet_id,
+    entrySheetTitle: entrySheetValidation.entry_sheet_title,
+    id: entrySheetValidation.id,
+    lastSynced: entrySheetValidation.last_synced.toISOString(),
+    lastUpdated: entrySheetValidation.last_updated,
+    sourceStudyId: entrySheetValidation.source_study_id,
+    validationReport: entrySheetValidation.validation_report,
+    validationSummary: entrySheetValidation.validation_summary,
   };
 }
 
