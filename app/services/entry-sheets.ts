@@ -30,7 +30,7 @@ export async function getEntrySheetValidation(
     [atlasSourceStudies, entrySheetValidationId]
   );
   if (validationResult.rows.length === 0)
-    throw new Error(
+    throw new NotFoundError(
       `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist on atlas with ID ${atlasId}`
     );
   return validationResult.rows[0];
