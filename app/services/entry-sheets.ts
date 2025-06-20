@@ -5,6 +5,7 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
+  WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { doTransaction, query } from "./database";
 import { getBaseModelAtlasSourceStudies } from "./source-studies";
@@ -18,15 +19,25 @@ type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
 export async function getEntrySheetValidation(
   atlasId: string,
   entrySheetValidationId: string
-): Promise<HCAAtlasTrackerDBEntrySheetValidation> {
+): Promise<WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidation>> {
   const atlasResult = await query<
     Pick<HCAAtlasTrackerDBAtlas, "source_studies">
   >("SELECT source_studies FROM hat.atlases WHERE id=$1", [atlasId]);
   if (atlasResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
   const atlasSourceStudies = atlasResult.rows[0].source_studies;
-  const validationResult = await query<HCAAtlasTrackerDBEntrySheetValidation>(
-    "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=ANY($1) AND id=$2",
+  const validationResult = await query<
+    WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidation>
+  >(
+    `
+      SELECT
+        v.*,
+        s.doi,
+        s.study_info
+      FROM hat.entry_sheet_validations v
+      LEFT JOIN hat.source_studies s ON v.source_study_id=s.id
+      WHERE v.source_study_id=ANY($1) AND v.id=$2
+    `,
     [atlasSourceStudies, entrySheetValidationId]
   );
   if (validationResult.rows.length === 0)
@@ -38,24 +49,30 @@ export async function getEntrySheetValidation(
 
 export async function getAtlasEntrySheetValidations(
   atlasId: string
-): Promise<HCAAtlasTrackerDBEntrySheetValidationListFields[]> {
+): Promise<
+  WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidationListFields>[]
+> {
   const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
-  const validationsResult =
-    await query<HCAAtlasTrackerDBEntrySheetValidationListFields>(
-      `
+  const validationsResult = await query<
+    WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidationListFields>
+  >(
+    `
         SELECT
-          entry_sheet_id,
-          entry_sheet_title,
-          id,
-          last_synced,
-          last_updated,
-          source_study_id,
-          validation_summary
-        FROM hat.entry_sheet_validations
-        WHERE source_study_id=ANY($1)
+          v.entry_sheet_id,
+          v.entry_sheet_title,
+          v.id,
+          v.last_synced,
+          v.last_updated,
+          v.source_study_id,
+          v.validation_summary,
+          s.doi,
+          s.study_info
+        FROM hat.entry_sheet_validations v
+        LEFT JOIN hat.source_studies s ON v.source_study_id=s.id
+        WHERE v.source_study_id=ANY($1)
       `,
-      [sourceStudies.map((study) => study.id)]
-    );
+    [sourceStudies.map((study) => study.id)]
+  );
   return validationsResult.rows;
 }
 

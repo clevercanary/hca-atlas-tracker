@@ -108,6 +108,9 @@ export const DOI_PUBLISHED_WITH_CHANGING_IDS =
 
 export const DOI_WITH_NEW_SOURCE_DATASETS = "10.123/with-new-source-datasets";
 
+export const DOI_WITH_ENTRY_SHEET_VALIDATIONS_BAR =
+  "10.123/with-entry-sheet-validations-bar";
+
 // PUBLICATIONS
 
 export const PUBLICATION_DRAFT_OK: PublicationInfo = {
@@ -1414,9 +1417,11 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestUnpublishedSourc
     },
   };
 
-export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestUnpublishedSourceStudy =
+export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestPublishedSourceStudy =
   {
     cellxgeneCollectionId: null,
+    doi: DOI_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+    doiStatus: DOI_STATUS.OK,
     hcaProjectId: null,
     id: "6ffcfd9d-3c51-4ef6-b082-b4e77ebf3327",
     metadataSpreadsheets: [
@@ -1425,10 +1430,15 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestUnpublishedSourc
         url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_FAILED_UPDATE}/edit`,
       },
     ],
-    unpublishedInfo: {
-      contactEmail: "barbazfoobazbaz@example.com",
-      referenceAuthor: "Bar Baz Foo Baz Baz",
-      title: "Source Study With Entry Sheet Validations Bar",
+    publication: {
+      authors: [
+        { name: "Author With Entry Sheet Validations Bar", personalName: null },
+      ],
+      hasPreprintDoi: null,
+      journal: "Journal With Entry Sheet Validations Bar",
+      preprintOfDoi: null,
+      publicationDate: "2025-06-20",
+      title: "Published With Entry Sheet Validations Bar",
     },
   };
 

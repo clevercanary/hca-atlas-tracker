@@ -7,15 +7,26 @@ import entrySheetValidationHandler from "../pages/api/atlases/[atlasId]/entry-sh
 import {
   ATLAS_NONEXISTENT,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_UPDATE,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestEntrySheetValidation, TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  TestEntrySheetValidation,
+  TestSourceStudy,
+  TestUser,
+} from "../testing/entities";
+import {
+  getTestSourceStudyCitation,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -127,7 +138,7 @@ describe(TEST_ROUTE, () => {
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
-      "returns entry sheet validations",
+      "returns entry sheet validation",
       TEST_ROUTE,
       entrySheetValidationHandler,
       METHOD.GET,
@@ -144,13 +155,14 @@ describe(TEST_ROUTE, () => {
           res._getJSONData() as HCAAtlasTrackerEntrySheetValidation;
         expectEntrySheetValidationToMatchTest(
           validation,
-          ENTRY_SHEET_VALIDATION_WITH_UPDATE
+          ENTRY_SHEET_VALIDATION_WITH_UPDATE,
+          SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO
         );
       }
     );
   }
 
-  it("returns entry sheet validations when requested by content admin", async () => {
+  it("returns entry sheet validation of unpublished source study when requested by content admin", async () => {
     const res = await doEntrySheetValidationRequest(
       ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
       ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
@@ -162,14 +174,33 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerEntrySheetValidation;
     expectEntrySheetValidationToMatchTest(
       validation,
-      ENTRY_SHEET_VALIDATION_WITH_UPDATE
+      ENTRY_SHEET_VALIDATION_WITH_UPDATE,
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO
+    );
+  });
+
+  it("returns entry sheet validation of published source study when requested by content admin", async () => {
+    const res = await doEntrySheetValidationRequest(
+      ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const validation =
+      res._getJSONData() as HCAAtlasTrackerEntrySheetValidation;
+    expectEntrySheetValidationToMatchTest(
+      validation,
+      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR
     );
   });
 });
 
 function expectEntrySheetValidationToMatchTest(
   listValidation: HCAAtlasTrackerEntrySheetValidation,
-  testValidation: TestEntrySheetValidation
+  testValidation: TestEntrySheetValidation,
+  testSourceStudy: TestSourceStudy
 ): void {
   expect(listValidation.entrySheetId).toEqual(testValidation.entry_sheet_id);
   expect(listValidation.entrySheetTitle).toEqual(
@@ -186,6 +217,9 @@ function expectEntrySheetValidationToMatchTest(
   );
   expect(listValidation.validationSummary).toEqual(
     testValidation.validation_summary
+  );
+  expect(listValidation.publicationString).toEqual(
+    getTestSourceStudyCitation(testSourceStudy)
   );
 }
 
