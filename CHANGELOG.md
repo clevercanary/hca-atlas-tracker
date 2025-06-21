@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.19.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.18.0...v1.19.0) (2025-06-21)
+
+
+### Features
+
+* add api and placeholder button to fetch and save entry sheet validations ([#655](https://github.com/clevercanary/hca-atlas-tracker/issues/655)) ([#662](https://github.com/clevercanary/hca-atlas-tracker/issues/662)) ([f7b0212](https://github.com/clevercanary/hca-atlas-tracker/commit/f7b0212ce6c9a4d3ef26d6d23107bbe0c4839bf1))
+* add api to get a full individual entry sheet validation ([#658](https://github.com/clevercanary/hca-atlas-tracker/issues/658)) ([#665](https://github.com/clevercanary/hca-atlas-tracker/issues/665)) ([e1a62d0](https://github.com/clevercanary/hca-atlas-tracker/commit/e1a62d03160e62ef9b18acdb86dd74649ecffdda))
+* add api to get entry sheet validations of an atlas ([#656](https://github.com/clevercanary/hca-atlas-tracker/issues/656)) ([#664](https://github.com/clevercanary/hca-atlas-tracker/issues/664)) ([e695847](https://github.com/clevercanary/hca-atlas-tracker/commit/e695847ced9a5c1bfa7ce84748042e38aebd3c31))
+* add source study publication strings to entry sheet validations returned from apis ([#666](https://github.com/clevercanary/hca-atlas-tracker/issues/666)) ([#667](https://github.com/clevercanary/hca-atlas-tracker/issues/667)) ([2aa5be5](https://github.com/clevercanary/hca-atlas-tracker/commit/2aa5be57e3e83bdd9bbf05822d82189fa7e1c081))
+
 ## [1.18.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.17.1...v1.18.0) (2025-06-04)
 
 
