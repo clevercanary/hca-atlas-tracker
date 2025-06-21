@@ -10,15 +10,22 @@ import {
   ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_UPDATE,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestEntrySheetValidation, TestUser } from "../testing/entities";
+import {
+  TestEntrySheetValidation,
+  TestSourceStudy,
+  TestUser,
+} from "../testing/entities";
 import {
   expectIsDefined,
+  getTestSourceStudyCitation,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -39,6 +46,12 @@ const EXPECTED_ENTRY_SHEET_VALIDATIONS_A = [
   ENTRY_SHEET_VALIDATION_WITH_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
+];
+// Source studies of the respective entry sheet validations from the above array
+const EXPECTED_ENTRY_SHEET_STUDIES_A = [
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
 ];
 
 beforeAll(async () => {
@@ -130,7 +143,8 @@ describe(TEST_ROUTE, () => {
           res._getJSONData() as HCAAtlasTrackerListEntrySheetValidation[];
         expectListEntrySheetValidationsToMatchTest(
           validations,
-          EXPECTED_ENTRY_SHEET_VALIDATIONS_A
+          EXPECTED_ENTRY_SHEET_VALIDATIONS_A,
+          EXPECTED_ENTRY_SHEET_STUDIES_A
         );
       }
     );
@@ -147,28 +161,36 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerListEntrySheetValidation[];
     expectListEntrySheetValidationsToMatchTest(
       validations,
-      EXPECTED_ENTRY_SHEET_VALIDATIONS_A
+      EXPECTED_ENTRY_SHEET_VALIDATIONS_A,
+      EXPECTED_ENTRY_SHEET_STUDIES_A
     );
   });
 });
 
 function expectListEntrySheetValidationsToMatchTest(
   listValidations: HCAAtlasTrackerListEntrySheetValidation[],
-  testValidations: TestEntrySheetValidation[]
+  testValidations: TestEntrySheetValidation[],
+  testSourceStudies: TestSourceStudy[]
 ): void {
   expect(listValidations).toHaveLength(testValidations.length);
-  for (const testValidation of testValidations) {
+  for (const [i, testValidation] of testValidations.entries()) {
+    const testSourceStudy = testSourceStudies[i];
     const listValidation = listValidations.find(
       (v) => v.id === testValidation.id
     );
     if (expectIsDefined(listValidation))
-      expectListEntrySheetValidationToMatchTest(listValidation, testValidation);
+      expectListEntrySheetValidationToMatchTest(
+        listValidation,
+        testValidation,
+        testSourceStudy
+      );
   }
 }
 
 function expectListEntrySheetValidationToMatchTest(
   listValidation: HCAAtlasTrackerListEntrySheetValidation,
-  testValidation: TestEntrySheetValidation
+  testValidation: TestEntrySheetValidation,
+  testSourceStudy: TestSourceStudy
 ): void {
   expect(listValidation.entrySheetId).toEqual(testValidation.entry_sheet_id);
   expect(listValidation.entrySheetTitle).toEqual(
@@ -182,6 +204,9 @@ function expectListEntrySheetValidationToMatchTest(
   expect(listValidation.sourceStudyId).toEqual(testValidation.source_study_id);
   expect(listValidation.validationSummary).toEqual(
     testValidation.validation_summary
+  );
+  expect(listValidation.publicationString).toEqual(
+    getTestSourceStudyCitation(testSourceStudy)
   );
 }
 

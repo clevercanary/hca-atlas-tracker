@@ -24,6 +24,7 @@ import {
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   TIER_ONE_METADATA_STATUS,
+  WithSourceStudyInfo,
 } from "./entities";
 import {
   getCompositeTierOneMetadataStatus,
@@ -205,7 +206,7 @@ function dbValidationToApiValidationWithoutAtlasProperties(
 }
 
 export function dbEntrySheetValidationToApiModel(
-  entrySheetValidation: HCAAtlasTrackerDBEntrySheetValidation
+  entrySheetValidation: WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidation>
 ): HCAAtlasTrackerEntrySheetValidation {
   return {
     entrySheetId: entrySheetValidation.entry_sheet_id,
@@ -213,6 +214,7 @@ export function dbEntrySheetValidationToApiModel(
     id: entrySheetValidation.id,
     lastSynced: entrySheetValidation.last_synced.toISOString(),
     lastUpdated: entrySheetValidation.last_updated,
+    publicationString: getDbEntityCitation(entrySheetValidation),
     sourceStudyId: entrySheetValidation.source_study_id,
     validationReport: entrySheetValidation.validation_report,
     validationSummary: entrySheetValidation.validation_summary,
@@ -220,7 +222,7 @@ export function dbEntrySheetValidationToApiModel(
 }
 
 export function dbEntrySheetValidationToApiListModel(
-  entrySheetValidation: HCAAtlasTrackerDBEntrySheetValidationListFields
+  entrySheetValidation: WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidationListFields>
 ): HCAAtlasTrackerListEntrySheetValidation {
   return {
     entrySheetId: entrySheetValidation.entry_sheet_id,
@@ -228,6 +230,7 @@ export function dbEntrySheetValidationToApiListModel(
     id: entrySheetValidation.id,
     lastSynced: entrySheetValidation.last_synced.toISOString(),
     lastUpdated: entrySheetValidation.last_updated,
+    publicationString: getDbEntityCitation(entrySheetValidation),
     sourceStudyId: entrySheetValidation.source_study_id,
     validationSummary: entrySheetValidation.validation_summary,
   };
@@ -280,11 +283,7 @@ export function getCellxGeneDatasetTierOneMetadataStatus(
  * @param entity - Database model of entity with source study properties.
  * @returns citation for the associated source study.
  */
-export function getDbEntityCitation(
-  entity:
-    | HCAAtlasTrackerDBSourceStudy
-    | HCAAtlasTrackerDBSourceDatasetWithStudyProperties
-): string {
+export function getDbEntityCitation(entity: WithSourceStudyInfo): string {
   if (entity.doi === null) {
     const { contactEmail, referenceAuthor } = entity.study_info.unpublishedInfo;
     return getUnpublishedCitation(referenceAuthor, contactEmail);

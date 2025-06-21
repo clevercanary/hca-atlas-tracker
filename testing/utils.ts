@@ -25,6 +25,10 @@ import {
   NewUserData,
   UserEditData,
 } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  getPublishedCitation,
+  getUnpublishedCitation,
+} from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
 import {
@@ -208,6 +212,24 @@ export function aggregateSourceDatasetArrayField(
 ): string[] {
   if (!sourceDatasets) return [];
   return Array.from(new Set(sourceDatasets.map((d) => d[field] ?? []).flat()));
+}
+
+export function getTestSourceStudyCitation(
+  sourceStudy: TestSourceStudy
+): string {
+  if ("doi" in sourceStudy) {
+    return getPublishedCitation(
+      sourceStudy.doiStatus,
+      sourceStudy.publication?.authors[0].name ?? null,
+      sourceStudy.publication?.publicationDate ?? null,
+      sourceStudy.publication?.journal ?? null
+    );
+  } else {
+    return getUnpublishedCitation(
+      sourceStudy.unpublishedInfo.referenceAuthor,
+      sourceStudy.unpublishedInfo.contactEmail
+    );
+  }
 }
 
 export async function withConsoleErrorHiding<T>(

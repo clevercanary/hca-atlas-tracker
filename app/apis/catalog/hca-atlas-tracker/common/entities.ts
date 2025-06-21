@@ -171,6 +171,7 @@ export interface HCAAtlasTrackerEntrySheetValidation {
   id: string;
   lastSynced: string;
   lastUpdated: GoogleLastUpdateInfo | null;
+  publicationString: string;
   sourceStudyId: string;
   validationReport: EntrySheetValidationErrorInfo[];
   validationSummary: EntrySheetValidationSummary;
@@ -342,6 +343,12 @@ export type HCAAtlasTrackerDBSourceStudyWithAtlasProperties =
     networks: NetworkKey[];
   };
 
+export type WithSourceStudyInfo<T = unknown> = T &
+  (
+    | Pick<HCAAtlasTrackerDBPublishedSourceStudy, "doi" | "study_info">
+    | Pick<HCAAtlasTrackerDBUnpublishedSourceStudy, "doi" | "study_info">
+  );
+
 export interface HCAAtlasTrackerDBSourceDataset {
   created_at: Date;
   id: string;
@@ -372,11 +379,7 @@ export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
   };
 
 export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
-  HCAAtlasTrackerDBSourceDataset &
-    (
-      | Pick<HCAAtlasTrackerDBPublishedSourceStudy, "doi" | "study_info">
-      | Pick<HCAAtlasTrackerDBUnpublishedSourceStudy, "doi" | "study_info">
-    );
+  WithSourceStudyInfo<HCAAtlasTrackerDBSourceDataset>;
 
 export interface HCAAtlasTrackerListValidationRecord
   extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion" | "doi"> {
