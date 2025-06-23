@@ -1,3 +1,4 @@
+import { COLOR_MIXES } from "@databiosphere/findable-ui/lib/styles/common/constants/colorMixes";
 import {
   inkMain,
   primaryDark,
@@ -7,7 +8,6 @@ import {
   white,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import { textBody500 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
-import { black08 } from "@databiosphere/findable-ui/lib/theme/common/palette";
 import { ThemeProps } from "@databiosphere/findable-ui/lib/theme/theme";
 import { css } from "@emotion/react";
 
@@ -42,12 +42,14 @@ export const buttonPrimary = (props: ThemeProps) => css`
 export const buttonSecondary = (props: ThemeProps) => css`
   ${button(props)};
   background-color: ${white(props)};
-  box-shadow: inset 0 0 0 1px ${smokeDark(props)}, 0 1px 0 0 ${black08};
+  box-shadow: inset 0 0 0 1px ${smokeDark(props)},
+    0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08};
   color: ${inkMain(props)};
 
   &:hover {
     background-color: ${smokeLightest(props)};
-    box-shadow: inset 0 0 0 1px ${smokeDark(props)}, 0 1px 0 0 ${black08};
+    box-shadow: inset 0 0 0 1px ${smokeDark(props)},
+      0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08};
   }
 
   &:active {

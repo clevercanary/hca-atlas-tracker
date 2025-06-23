@@ -1,6 +1,6 @@
-import { black08 } from "@databiosphere/findable-ui/lib/theme/common/palette";
+import { COLOR_MIXES } from "@databiosphere/findable-ui/lib/styles/common/constants/colorMixes";
 import { Components, Theme } from "@mui/material";
-import { black20 } from "./palette";
+import { COLOR_MIXES as APP_COLOR_MIXES } from "../../styles/common/constants/colorMixes";
 
 /**
  * MuiButton Component
@@ -12,12 +12,12 @@ export const MuiButton = (theme: Theme): Components["MuiButton"] => {
     styleOverrides: {
       containedError: {
         backgroundColor: theme.palette.alert.main,
-        boxShadow: `0 1px 0 0 ${black08}, inset 0 -1px 0 0 ${black20}`,
+        boxShadow: `0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08}, inset 0 -1px 0 0 ${APP_COLOR_MIXES.COMMON_BLACK_20}`,
         color: theme.palette.common.white,
         // eslint-disable-next-line sort-keys -- disabling key order for readability
         "&:hover": {
           backgroundColor: "#901C13",
-          boxShadow: `0 1px 0 0 ${black08}, inset 0 -1px 0 0 ${black20}`,
+          boxShadow: `0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08}, inset 0 -1px 0 0 ${APP_COLOR_MIXES.COMMON_BLACK_20}`,
         },
         // eslint-disable-next-line sort-keys -- disabling key order for readability
         "&:active": {
@@ -27,7 +27,7 @@ export const MuiButton = (theme: Theme): Components["MuiButton"] => {
         // eslint-disable-next-line sort-keys -- disabling key order for readability
         "&.Mui-disabled": {
           backgroundColor: theme.palette.alert.main,
-          boxShadow: `0 1px 0 0 ${black08}, inset 0 -1px 0 0 ${black20}`,
+          boxShadow: `0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08}, inset 0 -1px 0 0 ${APP_COLOR_MIXES.COMMON_BLACK_20}`,
           color: theme.palette.common.white,
           opacity: 0.5,
         },

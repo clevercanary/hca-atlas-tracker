@@ -3,7 +3,7 @@ import {
   EntityConfig,
   ListConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
-import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode";
+import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode/types";
 import { HCAAtlasTrackerUser } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getUserId } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
 import * as C from "../../../../../app/components";
