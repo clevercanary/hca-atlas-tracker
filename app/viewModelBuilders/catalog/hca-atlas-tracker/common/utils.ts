@@ -1,4 +1,4 @@
-import { MetadataValue } from "@databiosphere/findable-ui/lib/components/Index/components/NTagCell/nTagCell";
+import { MetadataValue } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
 import { ColumnConfig } from "@databiosphere/findable-ui/lib/config/entities";
 import { RowData } from "@tanstack/react-table";
 import { MetadataValueTuple } from "../../../../components/Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";

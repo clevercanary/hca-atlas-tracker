@@ -1,7 +1,7 @@
 import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/title";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
-import { useLayoutState } from "@databiosphere/findable-ui/lib/hooks/useLayoutState";
+import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
 import { ExploreViewProps as DXExploreViewProps } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { RequestAccess } from "../../components/Detail/components/TrackerForm/components/Section/components/RequestAccess/requestAccess";
@@ -26,14 +26,12 @@ export const EntitiesView = ({
   const {
     access: { canEdit, canView },
   } = useFormManager();
-  const {
-    layoutState: { headerHeight },
-  } = useLayoutState();
+  const { dimensions } = useLayoutDimensions();
   useUpdateExploreState(canEdit);
   return canView ? (
     <ExploreView entityListType={entityListType} {...props} />
   ) : (
-    <IndexView marginTop={headerHeight}>
+    <IndexView marginTop={dimensions.header.height}>
       <IndexLayout>
         <Title title={entityConfig.explorerTitle || explorerTitle} />
         <IndexViewContent>
