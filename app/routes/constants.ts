@@ -12,6 +12,7 @@ export const ROUTE = {
   CREATE_USER: "/team/create",
   LOGIN: "/login",
   METADATA_CORRECTNESS: "/atlases/[atlasId]/metadata-correctness",
+  METADATA_ENTRY_SHEETS: "/atlases/[atlasId]/metadata-entry-sheets",
   REPORTS: "/reports",
   REQUESTING_ELEVATED_PERMISSIONS: "/requesting-elevated-permissions",
   SOURCE_DATASETS:

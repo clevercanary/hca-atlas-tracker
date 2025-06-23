@@ -41,6 +41,10 @@ export const Tabs = ({
           value: ROUTE.SOURCE_STUDIES,
         },
         {
+          label: "Metadata Entry Sheets",
+          value: ROUTE.METADATA_ENTRY_SHEETS,
+        },
+        {
           label: getTabLabelWithCount(
             "Integration Objects",
             componentAtlasCount

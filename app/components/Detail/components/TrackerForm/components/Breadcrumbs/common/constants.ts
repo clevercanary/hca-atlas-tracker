@@ -43,6 +43,12 @@ export const BREADCRUMB_METADATA_CORRECTNESS: Breadcrumb = {
   text: "Metadata Correctness",
 };
 
+export const BREADCRUMB_METADATA_ENTRY_SHEETS: Breadcrumb = {
+  path: ROUTE.METADATA_ENTRY_SHEETS,
+  route: ROUTE.METADATA_ENTRY_SHEETS,
+  text: "Metadata Entry Sheets",
+};
+
 export const BREADCRUMB_SOURCE_STUDIES: Breadcrumb = {
   path: ROUTE.SOURCE_STUDIES,
   route: ROUTE.SOURCE_STUDIES,
