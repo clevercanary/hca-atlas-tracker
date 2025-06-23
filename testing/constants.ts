@@ -1,5 +1,4 @@
-import { ProjectsResponse } from "app/apis/azul/hca-dcp/common/responses";
-import { EntrySheetValidationResponse } from "app/utils/hca-validation-tools";
+import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
@@ -11,6 +10,7 @@ import {
   CellxGeneDataset,
 } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
+import { EntrySheetValidationResponse } from "../app/utils/hca-validation-tools/hca-validation-tools";
 import {
   TestAtlas,
   TestComment,

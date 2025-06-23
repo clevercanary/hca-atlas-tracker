@@ -1,12 +1,12 @@
-import {
-  EntrySheetValidationErrorInfo,
-  EntrySheetValidationSummary,
-} from "app/utils/hca-validation-tools";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import { startAtlasEntrySheetValidationsUpdate } from "../app/services/entry-sheets";
+import {
+  EntrySheetValidationErrorInfo,
+  EntrySheetValidationSummary,
+} from "../app/utils/hca-validation-tools/hca-validation-tools";
 import syncHandler from "../pages/api/atlases/[atlasId]/entry-sheet-validations/sync";
 import {
   ATLAS_NONEXISTENT,
@@ -47,7 +47,7 @@ jest.mock(
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/utils/hca-validation-tools");
+jest.mock("../app/utils/hca-validation-tools/hca-validation-tools-api");
 
 jest.mock("next-auth");
 

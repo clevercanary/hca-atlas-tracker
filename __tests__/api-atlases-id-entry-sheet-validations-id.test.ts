@@ -34,7 +34,7 @@ jest.mock(
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/utils/hca-validation-tools");
+jest.mock("../app/utils/hca-validation-tools/hca-validation-tools-api");
 
 jest.mock("next-auth");
 
