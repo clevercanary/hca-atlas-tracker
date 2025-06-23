@@ -17,13 +17,13 @@ import { VIEW_METADATA_ENTRY_SHEET_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchEntrySheetsValidations } from "./hooks/useFetchEntrySheetValidations";
 
-interface AtlasMetadataEntrySheetViewProps {
+interface AtlasMetadataEntrySheetsViewProps {
   pathParameter: PathParameter;
 }
 
 export const AtlasMetadataEntrySheetView = ({
   pathParameter,
-}: AtlasMetadataEntrySheetViewProps): JSX.Element => {
+}: AtlasMetadataEntrySheetsViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(pathParameter);
   const { entrySheets } = useFetchEntrySheetsValidations(pathParameter);
   const formManager = useFormManager();
@@ -45,7 +45,7 @@ export const AtlasMetadataEntrySheetView = ({
           }
           status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
           tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
-          title={atlas ? getAtlasName(atlas) : "View Metadata Entry Sheet"}
+          title={atlas ? getAtlasName(atlas) : "View Metadata Entry Sheets"}
         />
       </ConditionalComponent>
     </EntityProvider>
@@ -61,7 +61,7 @@ function renderAccessFallback(formManager: FormManager): JSX.Element | null {
   const {
     access: { canEdit, canView },
   } = formManager;
-  if (!canView) return <AccessPrompt text="to view metadata entry sheet" />;
+  if (!canView) return <AccessPrompt text="to view metadata entry sheets" />;
   if (!canEdit) return <AccessDeniedPrompt />;
   return null;
 }

@@ -4,11 +4,11 @@ import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/co
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
-  getMetadataEntrySheetBreadcrumb,
+  getMetadataEntrySheetsBreadcrumb,
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
- * Returns the breadcrumbs for the metadata correctness view.
+ * Returns the breadcrumbs for the metadata entry sheets view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
@@ -20,6 +20,6 @@ export function getBreadcrumbs(
   return [
     getAtlasesBreadcrumb(),
     getAtlasBreadcrumb(pathParameter, atlas),
-    getMetadataEntrySheetBreadcrumb(),
+    getMetadataEntrySheetsBreadcrumb(),
   ];
 }

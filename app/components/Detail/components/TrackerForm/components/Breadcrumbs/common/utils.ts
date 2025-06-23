@@ -17,7 +17,7 @@ import {
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_COMPONENT_ATLASES,
   BREADCRUMB_METADATA_CORRECTNESS,
-  BREADCRUMB_METADATA_ENTRY_SHEET,
+  BREADCRUMB_METADATA_ENTRY_SHEETS,
   BREADCRUMB_SOURCE_DATASETS,
   BREADCRUMB_SOURCE_STUDIES,
   BREADCRUMB_SOURCE_STUDY,
@@ -111,14 +111,14 @@ export function getMetadataCorrectnessBreadcrumb(
 }
 
 /**
- * Returns the breadcrumb for the metadata entry sheet view.
+ * Returns the breadcrumb for the metadata entry sheets view.
  * @param pathParameter - Path parameter.
- * @returns metadata entry sheet view breadcrumb.
+ * @returns metadata entry sheets view breadcrumb.
  */
-export function getMetadataEntrySheetBreadcrumb(
+export function getMetadataEntrySheetsBreadcrumb(
   pathParameter?: PathParameter
 ): Breadcrumb {
-  return resolveBreadcrumbPath(BREADCRUMB_METADATA_ENTRY_SHEET, pathParameter);
+  return resolveBreadcrumbPath(BREADCRUMB_METADATA_ENTRY_SHEETS, pathParameter);
 }
 
 /**
