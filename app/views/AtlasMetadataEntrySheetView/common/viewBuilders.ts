@@ -1,7 +1,7 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { KeyValuePairsProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/keyValuePairs";
-import { CHIP_PROPS } from "@databiosphere/findable-ui/src/styles/common/mui/chip";
+import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { ChipProps, LinkProps } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
