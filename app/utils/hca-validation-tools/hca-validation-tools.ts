@@ -21,11 +21,11 @@ const entrySheetValidationErrorInfoSchema = object({
     .oneOf(["dataset", "donor", "sample"])
     .defined()
     .nullable(),
-  input: string().defined().nullable(),
+  input: mixed<string | Record<string, unknown>>().defined().nullable(),
   message: string().defined(),
   primary_key: string().defined().nullable(),
   row: number().defined().nullable(),
-  worksheet_id: string().defined().nullable(),
+  worksheet_id: number().defined().nullable(),
 }).strict();
 
 const entrySheetValidationResponseSuccessSchema = object({

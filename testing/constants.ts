@@ -869,7 +869,7 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
       message: "error foofoo",
       primary_key: "dataset_id:dataset_foo_foo",
       row: 6,
-      worksheet_id: "234203429",
+      worksheet_id: 234203429,
     },
     {
       cell: "B11",
@@ -879,7 +879,7 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
       message: "error foobar",
       primary_key: "sample_id:sample_foo_bar",
       row: 10,
-      worksheet_id: "534298734234",
+      worksheet_id: 534298734234,
     },
   ],
   last_updated: {
@@ -910,7 +910,7 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW = {
       message: "error foobaz",
       primary_key: "donor_id:dataset_foo_baz",
       row: 11,
-      worksheet_id: "234293752",
+      worksheet_id: 234293752,
     },
   ],
   last_updated: {
