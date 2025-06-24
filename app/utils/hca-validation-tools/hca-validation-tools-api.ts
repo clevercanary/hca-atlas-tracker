@@ -17,6 +17,9 @@ export async function fetchEntrySheetValidationResults(
   return await (
     await fetch(validationApiUrl, {
       body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+      },
       method: METHOD.POST,
     })
   ).json();
