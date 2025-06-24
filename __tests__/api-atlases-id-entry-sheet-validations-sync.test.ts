@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { ValidationError } from "yup";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import { startAtlasEntrySheetValidationsUpdate } from "../app/services/entry-sheets";
@@ -14,6 +15,7 @@ import {
   ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   ENTRY_SHEET_ID_NEW,
   ENTRY_SHEET_ID_NEW_NON_SHARED,
+  ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE,
   ENTRY_SHEET_VALIDATION_NO_SYNC,
   ENTRY_SHEET_VALIDATION_RESPONSE_NEW,
   ENTRY_SHEET_VALIDATION_RESPONSE_WITH_FAILED_UPDATE,
@@ -227,6 +229,14 @@ async function doMainAtlasTest(): Promise<void> {
   const validationNewAfter = await getEntrySheetValidationBySheetId(
     ENTRY_SHEET_ID_NEW
   );
+  const validationWithMalformedResponseAfter =
+    await getEntrySheetValidationBySheetId(
+      ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE
+    );
+
+  // Check number of Tracker-side errors
+
+  expect(consoleErrorCalls).toHaveLength(2);
 
   // Check successfully-updated validation
 
@@ -340,6 +350,42 @@ async function doMainAtlasTest(): Promise<void> {
     expect(validationNewAfter.validation_summary).toEqual(
       ENTRY_SHEET_VALIDATION_RESPONSE_NEW.summary
     );
+  }
+
+  // Check validation with error due to malformed response
+
+  let malformedResponseErrorMessage = "";
+
+  expect(consoleErrorCalls[1]).toHaveLength(1);
+  if (expectIsInstanceOf(consoleErrorCalls[1][0], ValidationError)) {
+    malformedResponseErrorMessage = consoleErrorCalls[1][0].message;
+  }
+
+  if (expectIsDefined(validationWithMalformedResponseAfter)) {
+    expect(validationWithMalformedResponseAfter.validation_report).toEqual<
+      EntrySheetValidationErrorInfo[]
+    >([
+      {
+        cell: null,
+        column: null,
+        entity_type: null,
+        input: null,
+        message: `Received unexpected response format from HCA validation tools: ${malformedResponseErrorMessage}`,
+        primary_key: null,
+        row: null,
+        worksheet_id: null,
+      },
+    ]);
+    expect(validationWithMalformedResponseAfter.last_updated).toBeNull();
+    expect(validationWithMalformedResponseAfter.entry_sheet_title).toBeNull();
+    expect(
+      validationWithMalformedResponseAfter.validation_summary
+    ).toEqual<EntrySheetValidationSummary>({
+      dataset_count: null,
+      donor_count: null,
+      error_count: 1,
+      sample_count: null,
+    });
   }
 
   // Check validation not involved in sync
