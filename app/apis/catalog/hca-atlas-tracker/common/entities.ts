@@ -2,7 +2,7 @@ import {
   EntrySheetValidationErrorInfo,
   EntrySheetValidationSummary,
   GoogleLastUpdateInfo,
-} from "../../../../utils/hca-validation-tools";
+} from "../../../../utils/hca-validation-tools/hca-validation-tools";
 import { API } from "./api";
 import { NETWORK_KEYS, WAVES } from "./constants";
 

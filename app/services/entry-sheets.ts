@@ -1,12 +1,13 @@
-import { NotFoundError } from "app/utils/api-handler";
-import { getSpreadsheetIdFromUrl } from "app/utils/google-sheets";
-import { validateEntrySheet } from "app/utils/hca-validation-tools";
+import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { NotFoundError } from "../utils/api-handler";
+import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
+import { validateEntrySheet } from "../utils/hca-validation-tools/hca-validation-tools";
 import { doTransaction, query } from "./database";
 import { getBaseModelAtlasSourceStudies } from "./source-studies";
 
@@ -216,8 +217,12 @@ async function getSheetValidationResults(
     }
   } catch (err) {
     console.error(err);
+    const message =
+      err instanceof ValidationError
+        ? `Received unexpected response format from HCA validation tools: ${err.message}`
+        : String(err);
     return makeValidationWithErrorMessage(
-      String(err),
+      message,
       sourceStudyId,
       sheetId,
       syncTime

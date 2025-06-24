@@ -1,5 +1,4 @@
-import { ProjectsResponse } from "app/apis/azul/hca-dcp/common/responses";
-import { EntrySheetValidationResponse } from "app/utils/hca-validation-tools";
+import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
@@ -11,6 +10,7 @@ import {
   CellxGeneDataset,
 } from "../app/utils/cellxgene-api";
 import { CrossrefWork } from "../app/utils/crossref/crossref";
+import { EntrySheetValidationResponse } from "../app/utils/hca-validation-tools/hca-validation-tools";
 import {
   TestAtlas,
   TestComment,
@@ -856,6 +856,9 @@ export const ENTRY_SHEET_ID_NO_SYNC =
 export const ENTRY_SHEET_ID_NEW_NON_SHARED =
   "1cCXtjK2SKkDsSiV0FmfY9FBaPLIaD6WlytLoggm3FNi";
 
+export const ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE =
+  "1OesrppsmDCTR-SeGs1gn6fIcbX6OjG5OsbOrT7Rh5dj";
+
 export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
   errors: [
     {
@@ -866,7 +869,7 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
       message: "error foofoo",
       primary_key: "dataset_id:dataset_foo_foo",
       row: 6,
-      worksheet_id: "234203429",
+      worksheet_id: 234203429,
     },
     {
       cell: "B11",
@@ -876,7 +879,7 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
       message: "error foobar",
       primary_key: "sample_id:sample_foo_bar",
       row: 10,
-      worksheet_id: "534298734234",
+      worksheet_id: 534298734234,
     },
   ],
   last_updated: {
@@ -907,7 +910,7 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW = {
       message: "error foobaz",
       primary_key: "donor_id:dataset_foo_baz",
       row: 11,
-      worksheet_id: "234293752",
+      worksheet_id: 234293752,
     },
   ],
   last_updated: {
@@ -940,9 +943,24 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_NEW_NON_SHARED = {
   },
 } satisfies EntrySheetValidationResponse;
 
+export const ENTRY_SHEET_VALIDATION_RESPONSE_MALFORMED = {
+  errors: [],
+  last_updated: {
+    by: "foobaz",
+    by_email: "foobaz@example.com",
+    date: "2025-06-24T03:40:50.763Z",
+  },
+  sheet_title: "Entry Sheet With Malformed Response",
+  summary: {
+    donor_count: 7,
+    error_count: 0,
+    sample_count: 10,
+  },
+};
+
 export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
   string,
-  EntrySheetValidationResponse
+  unknown
 >([
   [ENTRY_SHEET_ID_WITH_UPDATE, ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE],
   [
@@ -953,6 +971,10 @@ export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
   [
     ENTRY_SHEET_ID_NEW_NON_SHARED,
     ENTRY_SHEET_VALIDATION_RESPONSE_NEW_NON_SHARED,
+  ],
+  [
+    ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE,
+    ENTRY_SHEET_VALIDATION_RESPONSE_MALFORMED,
   ],
 ]);
 
@@ -1428,6 +1450,10 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestPublishedSourceS
       {
         title: "Entry Sheet With Failed Update",
         url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_FAILED_UPDATE}/edit`,
+      },
+      {
+        title: "Entry Sheet With Malformed Response",
+        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE}/edit`,
       },
     ],
     publication: {
