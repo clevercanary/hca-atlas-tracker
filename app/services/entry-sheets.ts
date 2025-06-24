@@ -1,3 +1,4 @@
+import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
@@ -216,8 +217,12 @@ async function getSheetValidationResults(
     }
   } catch (err) {
     console.error(err);
+    const message =
+      err instanceof ValidationError
+        ? `Received unexpected response format from HCA validation tools: ${err.message}`
+        : String(err);
     return makeValidationWithErrorMessage(
-      String(err),
+      message,
       sourceStudyId,
       sheetId,
       syncTime
