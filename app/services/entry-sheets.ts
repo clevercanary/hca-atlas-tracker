@@ -3,15 +3,18 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
-  HCAAtlasTrackerDBSourceStudy,
   NetworkKey,
   WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "../utils/api-handler";
 import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
 import { validateEntrySheet } from "../utils/hca-validation-tools/hca-validation-tools";
+import { getBaseModelAtlas } from "./atlases";
 import { doTransaction, query } from "./database";
-import { getBaseModelAtlasSourceStudies } from "./source-studies";
+import {
+  getBaseModelAtlasSourceStudies,
+  getBaseModelSourceStudies,
+} from "./source-studies";
 
 interface CompletionPromiseContainer {
   completionPromise: Promise<void>;
@@ -87,26 +90,15 @@ export async function getAtlasEntrySheetValidations(
 export async function startAtlasEntrySheetValidationsUpdate(
   atlasId: string
 ): Promise<CompletionPromiseContainer> {
-  const atlasResult = await query<HCAAtlasTrackerDBAtlas>(
-    "SELECT * FROM hat.atlases WHERE id=$1",
-    [atlasId]
-  );
-
-  if (atlasResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-
   const {
     overview: { network: bioNetwork },
     source_studies: sourceStudyIds,
-  } = atlasResult.rows[0];
+  } = await getBaseModelAtlas(atlasId);
 
-  const studiesResult = await query<HCAAtlasTrackerDBSourceStudy>(
-    "SELECT * FROM hat.source_studies WHERE id=ANY($1)",
-    [sourceStudyIds]
-  );
+  const sourceStudies = await getBaseModelSourceStudies(sourceStudyIds);
 
   const validationResultPromises: Promise<ValidationUpdateData>[] =
-    studiesResult.rows
+    sourceStudies
       .map((study) =>
         study.study_info.metadataSpreadsheets.map((sheetInfo) =>
           getSheetValidationResults(

@@ -54,6 +54,20 @@ export async function getAtlas(
   return queryResult.rows[0];
 }
 
+export async function getBaseModelAtlas(
+  id: string
+): Promise<HCAAtlasTrackerDBAtlas> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
+    "SELECT * FROM hat.atlases WHERE id=$1",
+    [id]
+  );
+
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
+
+  return queryResult.rows[0];
+}
+
 export async function createAtlas(
   inputData: NewAtlasData
 ): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
