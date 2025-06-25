@@ -3,13 +3,18 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
+  NetworkKey,
   WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "../utils/api-handler";
 import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
 import { validateEntrySheet } from "../utils/hca-validation-tools/hca-validation-tools";
+import { getBaseModelAtlas } from "./atlases";
 import { doTransaction, query } from "./database";
-import { getBaseModelAtlasSourceStudies } from "./source-studies";
+import {
+  getBaseModelAtlasSourceStudies,
+  getBaseModelSourceStudies,
+} from "./source-studies";
 
 interface CompletionPromiseContainer {
   completionPromise: Promise<void>;
@@ -85,7 +90,12 @@ export async function getAtlasEntrySheetValidations(
 export async function startAtlasEntrySheetValidationsUpdate(
   atlasId: string
 ): Promise<CompletionPromiseContainer> {
-  const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
+  const {
+    overview: { network: bioNetwork },
+    source_studies: sourceStudyIds,
+  } = await getBaseModelAtlas(atlasId);
+
+  const sourceStudies = await getBaseModelSourceStudies(sourceStudyIds);
 
   const validationResultPromises: Promise<ValidationUpdateData>[] =
     sourceStudies
@@ -93,7 +103,8 @@ export async function startAtlasEntrySheetValidationsUpdate(
         study.study_info.metadataSpreadsheets.map((sheetInfo) =>
           getSheetValidationResults(
             study.id,
-            getSpreadsheetIdFromUrl(sheetInfo.url)
+            getSpreadsheetIdFromUrl(sheetInfo.url),
+            bioNetwork
           )
         )
       )
@@ -187,11 +198,12 @@ export async function updateEntrySheetValidationsFromResultPromises(
 
 async function getSheetValidationResults(
   sourceStudyId: string,
-  sheetId: string
+  sheetId: string,
+  bioNetwork: NetworkKey
 ): Promise<ValidationUpdateData> {
   const syncTime = new Date();
   try {
-    const response = await validateEntrySheet(sheetId);
+    const response = await validateEntrySheet(sheetId, bioNetwork);
     if ("error" in response) {
       return makeValidationWithErrorMessage(
         response.error,

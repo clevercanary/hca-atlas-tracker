@@ -31,6 +31,7 @@ import {
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets";
+import { getBaseModelAtlas } from "./atlases";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import {
   doOrContinueTransaction,
@@ -80,21 +81,29 @@ export async function getAtlasSourceStudies(
 export async function getBaseModelAtlasSourceStudies(
   atlasId: string
 ): Promise<HCAAtlasTrackerDBSourceStudy[]> {
-  const atlasResult = await query<
-    Pick<HCAAtlasTrackerDBAtlas, "source_studies">
-  >("SELECT source_studies FROM hat.atlases WHERE id=$1", [atlasId]);
+  return await getBaseModelSourceStudies(
+    (
+      await getBaseModelAtlas(atlasId)
+    ).source_studies
+  );
+}
 
-  if (atlasResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-
-  const sourceStudyIds = atlasResult.rows[0].source_studies;
-
-  const studiesResult = await query<HCAAtlasTrackerDBSourceStudy>(
+export async function getBaseModelSourceStudies(
+  sourceStudyIds: string[]
+): Promise<HCAAtlasTrackerDBSourceStudy[]> {
+  const { rows: sourceStudies } = await query<HCAAtlasTrackerDBSourceStudy>(
     "SELECT * FROM hat.source_studies WHERE id=ANY($1)",
     [sourceStudyIds]
   );
 
-  return studiesResult.rows;
+  const presentIds = new Set(sourceStudies.map((study) => study.id));
+  const missingIds = sourceStudyIds.filter((id) => !presentIds.has(id));
+  if (missingIds.length > 0)
+    throw new NotFoundError(
+      `Source studies don't exist with IDs: ${missingIds.join(", ")}`
+    );
+
+  return sourceStudies;
 }
 
 export async function getSourceStudy(
