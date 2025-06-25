@@ -1,4 +1,5 @@
 import { array, InferType, mixed, number, object, string } from "yup";
+import { NetworkKey } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { fetchEntrySheetValidationResults } from "./hca-validation-tools-api";
 
 const googleLastUpdateInfoSchema = object({
@@ -72,9 +73,10 @@ export type EntrySheetValidationResponse =
   | EntrySheetValidationResponseError;
 
 export async function validateEntrySheet(
-  googleSheetId: string
+  googleSheetId: string,
+  bioNetwork: NetworkKey
 ): Promise<EntrySheetValidationResponse> {
   return await entrySheetValidationResponseSchema.validate(
-    await fetchEntrySheetValidationResults(googleSheetId)
+    await fetchEntrySheetValidationResults(googleSheetId, bioNetwork)
   );
 }

@@ -3,6 +3,8 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
+  HCAAtlasTrackerDBSourceStudy,
+  NetworkKey,
   WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "../utils/api-handler";
@@ -85,15 +87,32 @@ export async function getAtlasEntrySheetValidations(
 export async function startAtlasEntrySheetValidationsUpdate(
   atlasId: string
 ): Promise<CompletionPromiseContainer> {
-  const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
+  const atlasResult = await query<HCAAtlasTrackerDBAtlas>(
+    "SELECT * FROM hat.atlases WHERE id=$1",
+    [atlasId]
+  );
+
+  if (atlasResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+
+  const {
+    overview: { network: bioNetwork },
+    source_studies: sourceStudyIds,
+  } = atlasResult.rows[0];
+
+  const studiesResult = await query<HCAAtlasTrackerDBSourceStudy>(
+    "SELECT * FROM hat.source_studies WHERE id=ANY($1)",
+    [sourceStudyIds]
+  );
 
   const validationResultPromises: Promise<ValidationUpdateData>[] =
-    sourceStudies
+    studiesResult.rows
       .map((study) =>
         study.study_info.metadataSpreadsheets.map((sheetInfo) =>
           getSheetValidationResults(
             study.id,
-            getSpreadsheetIdFromUrl(sheetInfo.url)
+            getSpreadsheetIdFromUrl(sheetInfo.url),
+            bioNetwork
           )
         )
       )
@@ -187,11 +206,12 @@ export async function updateEntrySheetValidationsFromResultPromises(
 
 async function getSheetValidationResults(
   sourceStudyId: string,
-  sheetId: string
+  sheetId: string,
+  bioNetwork: NetworkKey
 ): Promise<ValidationUpdateData> {
   const syncTime = new Date();
   try {
-    const response = await validateEntrySheet(sheetId);
+    const response = await validateEntrySheet(sheetId, bioNetwork);
     if ("error" in response) {
       return makeValidationWithErrorMessage(
         response.error,
