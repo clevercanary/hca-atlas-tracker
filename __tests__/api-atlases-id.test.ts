@@ -17,6 +17,7 @@ import {
   ATLAS_PUBLIC_BAR,
   ATLAS_PUBLIC_BAZ,
   ATLAS_WITH_CAP_ID,
+  ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_IL,
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -288,6 +289,7 @@ describe(TEST_ROUTE, () => {
         const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
         expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
         expect(atlas.componentAtlasCount).toEqual(2);
+        expect(atlas.entrySheetValidationCount).toEqual(0);
       }
     );
   }
@@ -298,6 +300,19 @@ describe(TEST_ROUTE, () => {
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
     expect(atlas.componentAtlasCount).toEqual(2);
+    expect(atlas.entrySheetValidationCount).toEqual(0);
+  });
+
+  it("returns atlas with both component atlases and entry sheet validations when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doAtlasRequest(
+      ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A);
+    expect(atlas.componentAtlasCount).toEqual(2);
+    expect(atlas.entrySheetValidationCount).toEqual(3);
   });
 
   it("returns error 401 when public atlas is PUT requested by logged out user", async () => {
