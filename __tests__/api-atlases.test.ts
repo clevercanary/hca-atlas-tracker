@@ -5,6 +5,8 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import atlasesHandler from "../pages/api/atlases";
 import {
+  ATLAS_DRAFT,
+  ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   INITIAL_TEST_ATLASES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -15,6 +17,7 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import {
   expectApiAtlasToMatchTest,
+  expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -30,6 +33,19 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases";
+
+const RELATED_ENTITY_INFO_TO_CHECK = [
+  {
+    atlasId: ATLAS_DRAFT.id,
+    componentAtlasCount: 2,
+    entrySheetValidationCount: 0,
+  },
+  {
+    atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+    componentAtlasCount: 2,
+    entrySheetValidationCount: 3,
+  },
+];
 
 beforeAll(async () => {
   await resetDatabase();
@@ -78,6 +94,7 @@ describe(TEST_ROUTE, () => {
         const data = res._getJSONData() as HCAAtlasTrackerAtlas[];
         expect(res._getStatusCode()).toEqual(200);
         expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
+        expectApiAtlasesToHaveRelatedEntities(data);
       }
     );
   }
@@ -87,6 +104,7 @@ describe(TEST_ROUTE, () => {
     const data = res._getJSONData() as HCAAtlasTrackerAtlas[];
     expect(res._getStatusCode()).toEqual(200);
     expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
+    expectApiAtlasesToHaveRelatedEntities(data);
   });
 });
 
@@ -99,6 +117,23 @@ function expectApiAtlasesToIncludeTests(
     expect(apiAtlas).toBeDefined();
     if (!apiAtlas) return;
     expectApiAtlasToMatchTest(apiAtlas, testAtlas);
+  }
+}
+
+function expectApiAtlasesToHaveRelatedEntities(
+  apiAtlases: HCAAtlasTrackerAtlas[]
+): void {
+  for (const {
+    atlasId,
+    componentAtlasCount,
+    entrySheetValidationCount,
+  } of RELATED_ENTITY_INFO_TO_CHECK) {
+    const apiAtlas = apiAtlases.find((a) => a.id === atlasId);
+    if (!expectIsDefined(apiAtlas)) continue;
+    expect(apiAtlas.componentAtlasCount).toEqual(componentAtlasCount);
+    expect(apiAtlas.entrySheetValidationCount).toEqual(
+      entrySheetValidationCount
+    );
   }
 }
 

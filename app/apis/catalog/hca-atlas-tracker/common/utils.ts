@@ -42,6 +42,7 @@ export function atlasInputMapper(
     completedTaskCount: apiAtlas.completedTaskCount,
     componentAtlasCount: apiAtlas.componentAtlasCount,
     description: apiAtlas.description,
+    entrySheetValidationCount: apiAtlas.entrySheetValidationCount,
     highlights: apiAtlas.highlights,
     id: apiAtlas.id,
     ingestionTaskCounts: apiAtlas.ingestionTaskCounts,

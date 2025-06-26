@@ -2295,12 +2295,32 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS: TestComponentAtlas = {
   title: "Component Atlas Misc Foo",
 };
 
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestComponentAtlas =
+  {
+    atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+    description: "foo barbaz bazbar foofoobar",
+    id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
+    sourceDatasets: [],
+    title: "Component Atlas With Entry Sheet Validations Foo",
+  };
+
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestComponentAtlas =
+  {
+    atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+    description: "foobazbaz barfoo barfoo baz",
+    id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
+    sourceDatasets: [],
+    title: "Component Atlas With Entry Sheet Validations Bar",
+  };
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES = [
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_MISC_FOO,
   COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
+  COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
+  COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
 ];
 
 // ENTRY SHEET VALIDATIONS
