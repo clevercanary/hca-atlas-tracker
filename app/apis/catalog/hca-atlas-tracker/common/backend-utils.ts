@@ -48,6 +48,7 @@ export function dbAtlasToApiAtlas(
     completedTaskCount: dbAtlas.overview.completedTaskCount,
     componentAtlasCount: dbAtlas.component_atlas_count,
     description: dbAtlas.overview.description,
+    entrySheetValidationCount: dbAtlas.entry_sheet_validation_count,
     highlights: dbAtlas.overview.highlights,
     id: dbAtlas.id,
     ingestionTaskCounts: dbAtlas.overview.ingestionTaskCounts,

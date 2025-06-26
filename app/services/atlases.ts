@@ -35,7 +35,16 @@ export async function getAllAtlases(
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases[]> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
-    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id GROUP BY a.id",
+    `
+      SELECT
+        a.*,
+        COUNT(DISTINCT c.id)::int AS component_atlas_count,
+        COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
+      FROM hat.atlases a
+      LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id
+      LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
+      GROUP BY a.id
+    `,
     undefined,
     client
   );
@@ -46,7 +55,16 @@ export async function getAtlas(
   id: string
 ): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
-    "SELECT a.*, COUNT(c.*)::int AS component_atlas_count FROM hat.atlases a LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id WHERE a.id=$1 GROUP BY a.id",
+    `
+      SELECT
+        a.*,
+        COUNT(DISTINCT c.id)::int AS component_atlas_count,
+        COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
+      FROM hat.atlases a
+      LEFT JOIN hat.component_atlases c ON c.atlas_id=a.id
+      LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
+      WHERE a.id=$1 GROUP BY a.id
+    `,
     [id]
   );
   if (queryResult.rows.length === 0)

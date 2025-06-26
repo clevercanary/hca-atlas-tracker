@@ -27,6 +27,7 @@ export interface HCAAtlasTrackerAtlas {
   completedTaskCount: number;
   componentAtlasCount: number;
   description: string;
+  entrySheetValidationCount: number;
   highlights: string;
   id: string;
   ingestionTaskCounts: IngestionTaskCounts;
@@ -238,6 +239,7 @@ export interface HCAAtlasTrackerDBAtlas {
 export interface HCAAtlasTrackerDBAtlasWithComponentAtlases
   extends HCAAtlasTrackerDBAtlas {
   component_atlas_count: number;
+  entry_sheet_validation_count: number;
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {
