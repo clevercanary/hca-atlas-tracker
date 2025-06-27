@@ -1,6 +1,6 @@
 import { SectionConfig } from "../../../components/Entity/components/EntityView/components/Section/entities";
-import { METADATA_ENTRY_SHEET_VIEW_TABLE } from "./constants";
+import { METADATA_ENTRY_SHEETS_VIEW_TABLE } from "./constants";
 
-export const VIEW_METADATA_ENTRY_SHEET_SECTION_CONFIGS: SectionConfig[] = [
-  METADATA_ENTRY_SHEET_VIEW_TABLE,
+export const VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS: SectionConfig[] = [
+  METADATA_ENTRY_SHEETS_VIEW_TABLE,
 ];

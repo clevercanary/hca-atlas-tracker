@@ -13,7 +13,7 @@ import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
-import { VIEW_METADATA_ENTRY_SHEET_SECTION_CONFIGS } from "./common/config";
+import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchEntrySheetsValidations } from "./hooks/useFetchEntrySheetValidations";
 
@@ -21,7 +21,7 @@ interface AtlasMetadataEntrySheetsViewProps {
   pathParameter: PathParameter;
 }
 
-export const AtlasMetadataEntrySheetView = ({
+export const AtlasMetadataEntrySheetsView = ({
   pathParameter,
 }: AtlasMetadataEntrySheetsViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(pathParameter);
@@ -40,7 +40,7 @@ export const AtlasMetadataEntrySheetView = ({
           mainColumn={
             <EntityView
               accessFallback={renderAccessFallback(formManager)}
-              sectionConfigs={VIEW_METADATA_ENTRY_SHEET_SECTION_CONFIGS}
+              sectionConfigs={VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS}
             />
           }
           status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
