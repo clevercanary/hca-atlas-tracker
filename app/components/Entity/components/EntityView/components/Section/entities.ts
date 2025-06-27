@@ -7,6 +7,7 @@ export interface Props<C extends ElementType> {
 export interface SectionConfig<C extends ElementType = ElementType> {
   Component: C;
   componentProps: ComponentProps<C>;
+  showDivider?: boolean;
   slotProps?: SlotProps;
 }
 

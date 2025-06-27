@@ -3,7 +3,7 @@ import { SectionConfig } from "../../../components/Entity/components/EntityView/
 import { Table } from "../components/Table/table";
 import { COLUMNS } from "./columns";
 
-export const METADATA_ENTRY_SHEET_VIEW_TABLE: SectionConfig<typeof Table> = {
+export const METADATA_ENTRY_SHEETS_VIEW_TABLE: SectionConfig<typeof Table> = {
   Component: Table,
   componentProps: {
     tableOptions: {

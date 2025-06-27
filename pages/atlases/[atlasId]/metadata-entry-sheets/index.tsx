@@ -1,10 +1,11 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
+import { AtlasId } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../app/common/entities";
-import { AtlasMetadataEntrySheetView } from "../../../../app/views/AtlasMetadataEntrySheetsView/atlasMetadataEntrySheetsView";
+import { AtlasMetadataEntrySheetsView } from "../../../../app/views/AtlasMetadataEntrySheetsView/atlasMetadataEntrySheetsView";
 
 interface MetadataEntrySheetsPageUrlParams extends ParsedUrlQuery {
-  atlasId: string;
+  atlasId: AtlasId;
 }
 
 interface MetadataEntrySheetsPageProps {
@@ -26,7 +27,7 @@ export const getServerSideProps: GetServerSideProps = async (
 const ViewMetadataEntrySheetsPage = ({
   pathParameter,
 }: MetadataEntrySheetsPageProps): JSX.Element => {
-  return <AtlasMetadataEntrySheetView pathParameter={pathParameter} />;
+  return <AtlasMetadataEntrySheetsView pathParameter={pathParameter} />;
 };
 
 export default ViewMetadataEntrySheetsPage;

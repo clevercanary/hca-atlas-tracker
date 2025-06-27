@@ -1,7 +1,7 @@
 import { LinkCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/LinkCell/linkCell";
 import { ColumnDef } from "@tanstack/react-table";
-import { ChipCell } from "../../../components/Table/components/TableCell/components/ChipCell/chipCell";
 import { KeyValueCell } from "../../../components/Table/components/TableCell/components/KeyValueCell/keyValueCell";
+import { ValidationSummaryCell } from "../components/Table/components/TableCell/components/ValidationSummaryCell/validationSummaryCell";
 import { MetadataEntrySheet } from "../entities";
 import {
   buildDataSummary,
@@ -47,7 +47,7 @@ const COLUMN_PUBLICATION_STRING = {
 
 const COLUMN_VALIDATION_SUMMARY: ColumnDef<MetadataEntrySheet> = {
   accessorKey: "validationSummary.error_count",
-  cell: (props) => ChipCell(buildValidationSummary(props)),
+  cell: (props) => ValidationSummaryCell(buildValidationSummary(props)),
   enableSorting: false,
   header: "Validation",
   id: "validationSummary",

@@ -1,13 +1,11 @@
-import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
-import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { KeyValuePairsProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/keyValuePairs";
-import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { ChipProps, LinkProps } from "@mui/material";
+import { LinkProps } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
 import { getRouteURL } from "../../../common/utils";
 import { getPartialCellContext } from "../../../components/Table/components/utils";
 import { ROUTE } from "../../../routes/constants";
+import { ValidationSummaryCellProps } from "../components/Table/components/TableCell/components/ValidationSummaryCell/types";
 import { MetadataEntrySheet } from "../entities";
 
 /**
@@ -92,14 +90,17 @@ export function buildPublicationString(
  */
 export function buildValidationSummary(
   cellContext: CellContext<MetadataEntrySheet, unknown>
-): CellContext<MetadataEntrySheet, ChipProps> {
+): CellContext<MetadataEntrySheet, ValidationSummaryCellProps> {
   const { row } = cellContext;
-  const { validationSummary } = row.original;
-  const { error_count } = validationSummary;
+  const {
+    atlasId,
+    id: entrySheetValidationId,
+    validationSummary,
+  } = row.original;
+  const { error_count: errorCount } = validationSummary;
   return getPartialCellContext({
-    color: error_count ? CHIP_PROPS.COLOR.ERROR : CHIP_PROPS.COLOR.SUCCESS,
-    icon: error_count ? ErrorIcon({}) : SuccessIcon({}),
-    label: error_count ? `${error_count} errors` : "Valid",
-    variant: CHIP_PROPS.VARIANT.STATUS,
+    atlasId,
+    entrySheetValidationId,
+    errorCount,
   });
 }

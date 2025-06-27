@@ -1,6 +1,7 @@
 import {
   AtlasId,
   ComponentAtlasId,
+  EntrySheetValidationId,
   SourceDatasetId,
   SourceStudyId,
   UserId,
@@ -25,6 +26,7 @@ export enum METHOD {
 export interface PathParameter {
   atlasId?: AtlasId;
   componentAtlasId?: ComponentAtlasId;
+  entrySheetValidationId?: EntrySheetValidationId;
   sourceDatasetId?: SourceDatasetId;
   sourceStudyId?: SourceStudyId;
   userId?: UserId;

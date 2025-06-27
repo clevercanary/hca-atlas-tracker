@@ -1,4 +1,5 @@
 import { ElementType, Fragment } from "react";
+import { Divider } from "../../../Detail/components/TrackerForm/components/Divider/divider.styles";
 import { Section } from "./components/Section/section";
 import { Props } from "./entities";
 
@@ -10,7 +11,10 @@ export const EntityView = <C extends ElementType>({
   return (
     <Fragment>
       {sectionConfigs.map((sectionConfig, i) => (
-        <Section key={i} sectionConfig={sectionConfig} />
+        <Fragment key={i}>
+          {sectionConfig.showDivider && <Divider />}
+          <Section sectionConfig={sectionConfig} />
+        </Fragment>
       ))}
     </Fragment>
   );

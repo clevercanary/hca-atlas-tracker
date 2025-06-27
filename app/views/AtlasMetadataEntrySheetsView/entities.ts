@@ -1,4 +1,5 @@
 import {
+  AtlasId,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerListEntrySheetValidation,
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -10,5 +11,5 @@ export type EntityData = {
 
 export interface MetadataEntrySheet
   extends HCAAtlasTrackerListEntrySheetValidation {
-  atlasId: string;
+  atlasId: AtlasId;
 }

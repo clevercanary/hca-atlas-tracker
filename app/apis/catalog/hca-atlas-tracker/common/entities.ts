@@ -481,6 +481,8 @@ export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
 export type ComponentAtlasId = string;
 
+export type EntrySheetValidationId = HCAAtlasTrackerEntrySheetValidation["id"];
+
 export enum DOI_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",
   NA = "NA",
