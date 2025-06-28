@@ -1,8 +1,6 @@
-import {
-  FluidPaper,
-  GridPaper,
-} from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useReactTable } from "@tanstack/react-table";
+import { FluidPaper } from "../../../../components/common/Paper/components/FluidPaper/fluidPaper";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
 import { SORTING_OPTIONS } from "../../../../components/Table/options/sorting/constants";
@@ -24,7 +22,7 @@ export const Table = (props: Props): JSX.Element => {
   });
 
   return (
-    <FluidPaper variant="table">
+    <FluidPaper elevation={0}>
       <GridPaper>
         <CommonTable table={table} />
       </GridPaper>
