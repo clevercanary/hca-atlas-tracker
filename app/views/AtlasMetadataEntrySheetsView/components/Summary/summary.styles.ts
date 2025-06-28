@@ -3,9 +3,11 @@ import { mediaTabletDown } from "@databiosphere/findable-ui/lib/styles/common/mi
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { Grid, Typography } from "@mui/material";
+import { EntrySheetValidationSummary } from "./entities";
 
 interface Props {
-  isError: boolean;
+  summaryCount: number;
+  summaryKey: keyof EntrySheetValidationSummary;
 }
 
 export const StyledGrid = styled(Grid)`
@@ -27,7 +29,7 @@ export const StyledGrid = styled(Grid)`
 `;
 
 export const StyledTypography = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== "isError",
+  shouldForwardProp: (prop) => prop !== "summaryCount" && prop !== "summaryKey",
 })<Props>`
   align-items: center;
   display: grid;
@@ -35,9 +37,17 @@ export const StyledTypography = styled(Typography, {
   grid-auto-flow: column;
   justify-content: flex-start;
 
-  ${({ isError }) =>
-    isError &&
+  .MuiSvgIcon-root {
+    display: none;
+  }
+
+  ${({ summaryCount, summaryKey }) =>
+    summaryKey === "error_count" &&
     css`
-      color: ${PALETTE.ALERT_MAIN};
+      color: ${summaryCount > 0 ? PALETTE.ALERT_MAIN : PALETTE.SUCCESS_MAIN};
+
+      .MuiSvgIcon-root {
+        display: block;
+      }
     `}
 `;

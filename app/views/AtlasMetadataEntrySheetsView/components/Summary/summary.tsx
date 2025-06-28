@@ -1,4 +1,5 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
+import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import { RoundedPaper } from "../../../../components/common/Paper/components/RoundedPaper/roundedPaper";
@@ -15,7 +16,7 @@ export const Summary = (): JSX.Element => {
   return (
     <StyledGrid>
       {SUMMARY_KEY_VALUES.map(([key, value]) => {
-        const isErrorCount = key === "error_count";
+        const count = summary[key] ?? 0;
         return (
           <RoundedPaper elevation={0} key={key}>
             <Typography
@@ -26,12 +27,17 @@ export const Summary = (): JSX.Element => {
               {value}
             </Typography>
             <StyledTypography
-              isError={isErrorCount}
+              summaryCount={count}
+              summaryKey={key}
               // TODO(cc) update heading variant with typography props
               variant={"text-heading"}
             >
-              {summary[key]}
-              {isErrorCount && <ErrorIcon {...SVG_ICON_PROPS} />}
+              {count}
+              {count > 0 ? (
+                <ErrorIcon {...SVG_ICON_PROPS} />
+              ) : (
+                <SuccessIcon {...SVG_ICON_PROPS} />
+              )}
             </StyledTypography>
           </RoundedPaper>
         );
