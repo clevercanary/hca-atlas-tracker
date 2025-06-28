@@ -1,3 +1,4 @@
+import { LinkProps } from "next/link";
 import { ReactNode } from "react";
 import { Button, StartIcon } from "./buttonLink.styles";
 
@@ -15,7 +16,7 @@ export interface ButtonLinkProps {
   className?: string;
   color?: BUTTON_COLOR;
   disabled?: boolean;
-  href: string;
+  href: string | LinkProps["href"];
   startIcon?: ReactNode;
 }
 

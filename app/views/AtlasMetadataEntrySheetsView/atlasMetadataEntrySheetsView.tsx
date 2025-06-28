@@ -31,7 +31,11 @@ export const AtlasMetadataEntrySheetsView = ({
     access: { canView },
   } = formManager;
   return (
-    <EntityProvider data={{ atlas, entrySheets }} formManager={formManager}>
+    <EntityProvider
+      data={{ atlas, entrySheets }}
+      formManager={formManager}
+      pathParameter={pathParameter}
+    >
       <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
         <DetailView
           breadcrumbs={
