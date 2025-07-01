@@ -16,6 +16,12 @@ import {
   getBaseModelSourceStudies,
 } from "./source-studies";
 
+export interface EntrySheetValidationUpdateParameters {
+  bioNetwork: NetworkKey;
+  sourceStudyId: string;
+  spreadsheetId: string;
+}
+
 interface CompletionPromiseContainer {
   completionPromise: Promise<void>;
 }
@@ -97,18 +103,34 @@ export async function startAtlasEntrySheetValidationsUpdate(
 
   const sourceStudies = await getBaseModelSourceStudies(sourceStudyIds);
 
-  const validationResultPromises: Promise<ValidationUpdateData>[] =
-    sourceStudies
-      .map((study) =>
-        study.study_info.metadataSpreadsheets.map((sheetInfo) =>
-          getSheetValidationResults(
-            study.id,
-            getSpreadsheetIdFromUrl(sheetInfo.url),
-            bioNetwork
-          )
-        )
-      )
-      .flat();
+  const entrySheetParams: EntrySheetValidationUpdateParameters[] = sourceStudies
+    .map((study) =>
+      study.study_info.metadataSpreadsheets.map((sheetInfo) => ({
+        bioNetwork,
+        sourceStudyId: study.id,
+        spreadsheetId: getSpreadsheetIdFromUrl(sheetInfo.url),
+      }))
+    )
+    .flat();
+
+  return await startEntrySheetValidationsUpdate(entrySheetParams);
+}
+
+/**
+ * Update validations for the given entry sheets, resolving the returned promise **before** receiving the validation API responses.
+ * @param entrySheetParams - For each entry sheet to validate, an object specifying info necessary to perform the validation and save the result.
+ * @returns promise resolving to an object containing a promise that resolves when validations have been updated.
+ */
+export async function startEntrySheetValidationsUpdate(
+  entrySheetParams: EntrySheetValidationUpdateParameters[]
+): Promise<CompletionPromiseContainer> {
+  const validationResultPromises = entrySheetParams.map((sheet) =>
+    getSheetValidationResults(
+      sheet.sourceStudyId,
+      sheet.spreadsheetId,
+      sheet.bioNetwork
+    )
+  );
 
   return {
     completionPromise: updateEntrySheetValidationsFromResultPromises(

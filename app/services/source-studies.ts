@@ -30,7 +30,10 @@ import {
 } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
-import { getSheetTitleForApi } from "../utils/google-sheets";
+import {
+  getSheetTitleForApi,
+  getSpreadsheetIdFromUrl,
+} from "../utils/google-sheets";
 import { getBaseModelAtlas } from "./atlases";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import {
@@ -39,6 +42,10 @@ import {
   getPoolClient,
   query,
 } from "./database";
+import {
+  EntrySheetValidationUpdateParameters,
+  startEntrySheetValidationsUpdate,
+} from "./entry-sheets";
 import { getProjectIdByDoi } from "./hca-projects";
 import {
   deleteSourceDatasetsOfDeletedSourceStudy,
@@ -293,9 +300,29 @@ export async function updateSourceStudy(
   sourceStudyId: string,
   inputData: SourceStudyEditData
 ): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
-  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
+  const atlas = await getConfirmedSourceStudyAtlas(sourceStudyId, atlasId);
+  const [existingSourceStudy] = await getBaseModelSourceStudies([
+    sourceStudyId,
+  ]);
+  const existingEntrySheetIds = new Set(
+    existingSourceStudy.study_info.metadataSpreadsheets.map(({ url }) =>
+      getSpreadsheetIdFromUrl(url)
+    )
+  );
 
   const newInfo = await sourceStudyInputDataToDbData(inputData);
+
+  const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] = [];
+  for (const { url } of newInfo.study_info.metadataSpreadsheets) {
+    const spreadsheetId = getSpreadsheetIdFromUrl(url);
+    if (!existingEntrySheetIds.has(spreadsheetId)) {
+      newEntrySheetsInfo.push({
+        bioNetwork: atlas.overview.network,
+        sourceStudyId,
+        spreadsheetId,
+      });
+    }
+  }
 
   const client = await getPoolClient();
   try {
@@ -319,6 +346,9 @@ export async function updateSourceStudy(
     const updatedStudy = await getSourceStudy(atlasId, sourceStudyId, client);
 
     await client.query("COMMIT");
+
+    // Start entry sheet validations update without waiting for any errors
+    startEntrySheetValidationsUpdate(newEntrySheetsInfo);
 
     return updatedStudy;
   } catch (e) {
@@ -674,20 +704,41 @@ export async function confirmSourceStudyExistsOnAtlas(
   limitToStatuses?: ATLAS_STATUS[],
   client?: pg.PoolClient
 ): Promise<void> {
-  const queryResult = await query<
-    Pick<HCAAtlasTrackerDBAtlas, "source_studies" | "status">
-  >(
-    "SELECT source_studies, status FROM hat.atlases WHERE id=$1",
+  await getConfirmedSourceStudyAtlas(
+    sourceStudyId,
+    atlasId,
+    limitToStatuses,
+    client
+  );
+}
+
+/**
+ * Get the core database model of the given atlas, confirming that it contains the given source study and throwing an error otherwise.
+ * @param sourceStudyId - Source study ID.
+ * @param atlasId - Atlas ID.
+ * @param limitToStatuses - If specified, statuses that the atlas must have.
+ * @param client - Postgres client to use.
+ * @returns atlas.
+ */
+async function getConfirmedSourceStudyAtlas(
+  sourceStudyId: string,
+  atlasId: string,
+  limitToStatuses?: ATLAS_STATUS[],
+  client?: pg.PoolClient
+): Promise<HCAAtlasTrackerDBAtlas> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
+    "SELECT * FROM hat.atlases WHERE id=$1",
     [atlasId],
     client
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  const { source_studies, status } = queryResult.rows[0];
-  if (limitToStatuses && !limitToStatuses.includes(status))
+  const atlas = queryResult.rows[0];
+  if (limitToStatuses && !limitToStatuses.includes(atlas.status))
     throw new AccessError(`Can't access atlas with ID ${atlasId}`);
-  if (!source_studies.includes(sourceStudyId))
+  if (!atlas.source_studies.includes(sourceStudyId))
     throw new NotFoundError(
       `Source study with ID ${sourceStudyId} doesn't exist on atlas with ID ${atlasId}`
     );
+  return atlas;
 }
