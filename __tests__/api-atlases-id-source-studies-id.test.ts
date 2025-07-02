@@ -101,7 +101,7 @@ const entrySheetsUpdateMock = startEntrySheetValidationsUpdate as jest.Mock;
 
 jest.mock("../app/services/entry-sheets", () => {
   return {
-    startEntrySheetValidationsUpdate: jest.fn(),
+    startEntrySheetValidationsUpdate: jest.fn(() => Promise.resolve()),
   };
 });
 

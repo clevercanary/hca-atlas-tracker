@@ -348,8 +348,11 @@ export async function updateSourceStudy(
     await client.query("COMMIT");
 
     // Start entry sheet validations update without waiting for any errors
-    if (newEntrySheetsInfo.length > 0)
-      startEntrySheetValidationsUpdate(newEntrySheetsInfo);
+    if (newEntrySheetsInfo.length > 0) {
+      startEntrySheetValidationsUpdate(newEntrySheetsInfo).catch((err) =>
+        console.error(err)
+      );
+    }
 
     return updatedStudy;
   } catch (e) {
