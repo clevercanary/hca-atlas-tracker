@@ -26,7 +26,11 @@ import {
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
 } from "./constants";
-import { TestAtlas, TestSourceDataset } from "./entities";
+import {
+  TestAtlas,
+  TestEntrySheetValidation,
+  TestSourceDataset,
+} from "./entities";
 import {
   aggregateSourceDatasetArrayField,
   expectApiValidationsToMatchDb,
@@ -174,20 +178,28 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 
 async function initEntrySheetValidations(client: pg.PoolClient): Promise<void> {
   for (const validation of INITIAL_TEST_ENTRY_SHEET_VALIDATIONS) {
-    await client.query(
-      "INSERT INTO hat.entry_sheet_validations (entry_sheet_id, entry_sheet_title, id, last_synced, last_updated, source_study_id, validation_report, validation_summary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
-      [
-        validation.entry_sheet_id,
-        validation.entry_sheet_title,
-        validation.id,
-        validation.last_synced,
-        validation.last_updated,
-        validation.source_study_id,
-        JSON.stringify(validation.validation_report),
-        validation.validation_summary,
-      ]
-    );
+    await initEntrySheetValidation(validation, client);
   }
+}
+
+export async function initEntrySheetValidation(
+  validation: TestEntrySheetValidation,
+  client?: pg.PoolClient
+): Promise<void> {
+  await query(
+    "INSERT INTO hat.entry_sheet_validations (entry_sheet_id, entry_sheet_title, id, last_synced, last_updated, source_study_id, validation_report, validation_summary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+    [
+      validation.entry_sheet_id,
+      validation.entry_sheet_title,
+      validation.id,
+      validation.last_synced,
+      validation.last_updated,
+      validation.source_study_id,
+      JSON.stringify(validation.validation_report),
+      validation.validation_summary,
+    ],
+    client
+  );
 }
 
 async function initComments(
@@ -346,6 +358,15 @@ export async function getEntrySheetValidationBySheetId(
       [id]
     )
   ).rows[0];
+}
+
+export async function deleteEntrySheetValidationFromDatabase(
+  id: string
+): Promise<void> {
+  await query<HCAAtlasTrackerDBEntrySheetValidation>(
+    "DELETE FROM hat.entry_sheet_validations WHERE id=$1",
+    [id]
+  );
 }
 
 export async function deleteEntrySheetValidationBySheetId(

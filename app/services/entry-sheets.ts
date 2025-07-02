@@ -117,6 +117,44 @@ export async function startAtlasEntrySheetValidationsUpdate(
 }
 
 /**
+ * Update the given entry sheet validation, resolving the returned promise **before** receiving the validation API responses.
+ * @param atlasId - Atlas that the entry sheet validation is accessed via.
+ * @param entrySheetValidationId - Entry sheet validation to update.
+ * @returns promise resolving to an object containing a promise that resolves when the validation has been updated.
+ */
+export async function startUpdateForEntrySheetValidation(
+  atlasId: string,
+  entrySheetValidationId: string
+): Promise<CompletionPromiseContainer> {
+  const atlas = await getBaseModelAtlas(atlasId);
+
+  const existingValidationResult = await query<
+    Pick<
+      HCAAtlasTrackerDBEntrySheetValidation,
+      "source_study_id" | "entry_sheet_id"
+    >
+  >(
+    "SELECT source_study_id, entry_sheet_id FROM hat.entry_sheet_validations WHERE id=$1",
+    [entrySheetValidationId]
+  );
+  if (existingValidationResult.rows.length === 0)
+    throw new NotFoundError(
+      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist`
+    );
+  const { entry_sheet_id: spreadsheetId, source_study_id: sourceStudyId } =
+    existingValidationResult.rows[0];
+
+  if (!atlas.source_studies.includes(sourceStudyId))
+    throw new NotFoundError(
+      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist on atlas with ID ${atlasId}`
+    );
+
+  return await startEntrySheetValidationsUpdate([
+    { bioNetwork: atlas.overview.network, sourceStudyId, spreadsheetId },
+  ]);
+}
+
+/**
  * Update validations for the given entry sheets, resolving the returned promise **before** receiving the validation API responses.
  * @param entrySheetParams - For each entry sheet to validate, an object specifying info necessary to perform the validation and save the result.
  * @returns promise resolving to an object containing a promise that resolves when validations have been updated.
