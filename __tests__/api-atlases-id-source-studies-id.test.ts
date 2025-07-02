@@ -12,6 +12,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { startEntrySheetValidationsUpdate } from "../app/services/entry-sheets";
 import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 import {
   ATLAS_DRAFT,
@@ -95,6 +96,14 @@ jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 
 jest.mock("next-auth");
+
+const entrySheetsUpdateMock = startEntrySheetValidationsUpdate as jest.Mock;
+
+jest.mock("../app/services/entry-sheets", () => {
+  return {
+    startEntrySheetValidationsUpdate: jest.fn(() => Promise.resolve()),
+  };
+});
 
 const TEST_ROUTE = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 
@@ -557,10 +566,14 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     expectApiValidationsToMatchDb(updatedStudy.tasks, validationsAfter);
 
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
+
     await restoreDbStudy(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("updates and returns study with unpublished data when PUT requested", async () => {
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
+
     const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
@@ -579,7 +592,25 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK_EDIT
     );
 
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
+    expect(entrySheetsUpdateMock).toHaveBeenLastCalledWith<
+      Parameters<typeof startEntrySheetValidationsUpdate>
+    >([
+      {
+        bioNetwork: ATLAS_DRAFT.network,
+        sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+        spreadsheetId: "sheet-foo",
+      },
+      {
+        bioNetwork: ATLAS_DRAFT.network,
+        sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+        spreadsheetId: "sheet-bar",
+      },
+    ]);
+
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
+
+    entrySheetsUpdateMock.mockClear();
   });
 
   it("updates and returns study with CAP ID when PUT requested", async () => {
@@ -600,10 +631,14 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId
     );
 
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
+
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
   it("updates and returns published study with metadata spreadsheet when PUT requested", async () => {
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
+
     const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
@@ -627,7 +662,20 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       studyFromDb.study_info.metadataSpreadsheets.map(({ url }) => url)
     ).toEqual(editUrls);
 
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
+    expect(entrySheetsUpdateMock).toHaveBeenLastCalledWith<
+      Parameters<typeof startEntrySheetValidationsUpdate>
+    >([
+      {
+        bioNetwork: ATLAS_DRAFT.network,
+        sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+        spreadsheetId: "sheet-baz",
+      },
+    ]);
+
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
+
+    entrySheetsUpdateMock.mockClear();
   });
 
   it("updates and returns study with unpublished data when PUT requested by user with INTEGRATION_LEAD role for the atlas", async () => {
@@ -648,6 +696,8 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       studyFromDb,
       SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT
     );
+
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
 
     await restoreDbStudy(SOURCE_STUDY_UNPUBLISHED_WITH_HCA);
   });
@@ -709,6 +759,8 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
           CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
       )
     );
+
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
 
     await query("DELETE FROM hat.source_datasets WHERE id=ANY($1)", [
       [fooAfter?.id, barAfter?.id],
@@ -815,6 +867,8 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       componentAtlasBefore,
       [SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR]
     );
+
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
 
     await initSourceDatasets(undefined, [
       SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
