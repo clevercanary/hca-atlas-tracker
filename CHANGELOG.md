@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.19.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.18.0...v1.19.0) (2025-07-09)
+
+
+### Features
+
+* add alert to metadata entry sheets ([#683](https://github.com/clevercanary/hca-atlas-tracker/issues/683)) ([#685](https://github.com/clevercanary/hca-atlas-tracker/issues/685)) ([07f6393](https://github.com/clevercanary/hca-atlas-tracker/commit/07f639358fa92aa4714438f93d2d380aebdff7c1))
+* add api and placeholder button to fetch and save entry sheet validations ([#655](https://github.com/clevercanary/hca-atlas-tracker/issues/655)) ([#662](https://github.com/clevercanary/hca-atlas-tracker/issues/662)) ([f7b0212](https://github.com/clevercanary/hca-atlas-tracker/commit/f7b0212ce6c9a4d3ef26d6d23107bbe0c4839bf1))
+* add api to get a full individual entry sheet validation ([#658](https://github.com/clevercanary/hca-atlas-tracker/issues/658)) ([#665](https://github.com/clevercanary/hca-atlas-tracker/issues/665)) ([e1a62d0](https://github.com/clevercanary/hca-atlas-tracker/commit/e1a62d03160e62ef9b18acdb86dd74649ecffdda))
+* add api to get entry sheet validations of an atlas ([#656](https://github.com/clevercanary/hca-atlas-tracker/issues/656)) ([#664](https://github.com/clevercanary/hca-atlas-tracker/issues/664)) ([e695847](https://github.com/clevercanary/hca-atlas-tracker/commit/e695847ced9a5c1bfa7ce84748042e38aebd3c31))
+* add api to update an individual entry sheet validation ([#686](https://github.com/clevercanary/hca-atlas-tracker/issues/686)) ([#688](https://github.com/clevercanary/hca-atlas-tracker/issues/688)) ([f2c5308](https://github.com/clevercanary/hca-atlas-tracker/commit/f2c5308e30db87d862375c457db432a1ca2dbe22))
+* add count to metadata entry sheet tab ([#676](https://github.com/clevercanary/hca-atlas-tracker/issues/676)) ([#680](https://github.com/clevercanary/hca-atlas-tracker/issues/680)) ([18eb318](https://github.com/clevercanary/hca-atlas-tracker/commit/18eb3183c61ace79997c8375409156611465d3c4))
+* add prod lambda url ([#693](https://github.com/clevercanary/hca-atlas-tracker/issues/693)) ([#694](https://github.com/clevercanary/hca-atlas-tracker/issues/694)) ([5e627e1](https://github.com/clevercanary/hca-atlas-tracker/commit/5e627e14d041e1ca53c5fead1701e88f3b5146bb))
+* add source study publication strings to entry sheet validations returned from apis ([#666](https://github.com/clevercanary/hca-atlas-tracker/issues/666)) ([#667](https://github.com/clevercanary/hca-atlas-tracker/issues/667)) ([2aa5be5](https://github.com/clevercanary/hca-atlas-tracker/commit/2aa5be57e3e83bdd9bbf05822d82189fa7e1c081))
+* add summary to metadata entry sheets ([#682](https://github.com/clevercanary/hca-atlas-tracker/issues/682)) ([#684](https://github.com/clevercanary/hca-atlas-tracker/issues/684)) ([47bded5](https://github.com/clevercanary/hca-atlas-tracker/commit/47bded5431de19ca6446c3d149af3f7f44757a4a))
+* create validation report ui ([#659](https://github.com/clevercanary/hca-atlas-tracker/issues/659)) ([#681](https://github.com/clevercanary/hca-atlas-tracker/issues/681)) ([240d0f2](https://github.com/clevercanary/hca-atlas-tracker/commit/240d0f23fa01a5948c4db8f5329bd50bf8ad2795))
+* entry sheet list (bare bonez) ([#657](https://github.com/clevercanary/hca-atlas-tracker/issues/657)) ([#671](https://github.com/clevercanary/hca-atlas-tracker/issues/671)) ([5def8b0](https://github.com/clevercanary/hca-atlas-tracker/commit/5def8b07233f24b2138e8c05205f99145faef3aa))
+* return entry sheet validation count from atlas apis ([#678](https://github.com/clevercanary/hca-atlas-tracker/issues/678)) ([#679](https://github.com/clevercanary/hca-atlas-tracker/issues/679)) ([8202c9d](https://github.com/clevercanary/hca-atlas-tracker/commit/8202c9dd8d443f67b49b4abc17955033a14b7304))
+* send bionetwork in validation tools requests ([#674](https://github.com/clevercanary/hca-atlas-tracker/issues/674)) ([#677](https://github.com/clevercanary/hca-atlas-tracker/issues/677)) ([3f1c0fd](https://github.com/clevercanary/hca-atlas-tracker/commit/3f1c0fdb1c2004843df18919df492272afa68d84))
+* validate new entry sheets when a source study is updated ([#673](https://github.com/clevercanary/hca-atlas-tracker/issues/673)) ([#687](https://github.com/clevercanary/hca-atlas-tracker/issues/687)) ([3b1028d](https://github.com/clevercanary/hca-atlas-tracker/commit/3b1028d0166c75d8918803df4552918f92206ab4))
+* validate shape of data received from validation tools api ([#668](https://github.com/clevercanary/hca-atlas-tracker/issues/668)) ([#675](https://github.com/clevercanary/hca-atlas-tracker/issues/675)) ([f39afcb](https://github.com/clevercanary/hca-atlas-tracker/commit/f39afcb5e5d2ec687548e0f1fd97d95f15970d7b))
+
+
+### Chores
+
+* update findable to 37.1.0 ([#669](https://github.com/clevercanary/hca-atlas-tracker/issues/669)) ([#670](https://github.com/clevercanary/hca-atlas-tracker/issues/670)) ([5b96af2](https://github.com/clevercanary/hca-atlas-tracker/commit/5b96af245aab025a20ec2d212cc5bacd4755e9a7))
+
 ## [1.18.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.17.1...v1.18.0) (2025-06-04)
 
 
