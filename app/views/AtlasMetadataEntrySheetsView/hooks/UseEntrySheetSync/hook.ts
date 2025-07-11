@@ -12,7 +12,6 @@ export const useEntrySheetSync = (
   const onSyncEntrySheets = useCallback(() => {
     setEntrySheetSyncState({ started: true });
     startEntrySheetSync(pathParameter).catch((error: unknown) => {
-      setEntrySheetSyncState({ error, started: true });
       throw error;
     });
   }, [pathParameter]);
