@@ -1,6 +1,11 @@
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
+import { Button } from "@mui/material";
+import Link from "next/link";
 import { useMemo } from "react";
 import {
   HCAAtlasTrackerSourceDataset,
@@ -12,14 +17,9 @@ import { getRouteURL } from "../../../../common/utils";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { getAtlasSourceStudiesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import {
-  BUTTON_COLOR,
-  ButtonLink,
-} from "../../../common/Button/components/ButtonLink/buttonLink";
-import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
-import { Table } from "../../../Table/table.styles";
+import { StyledToolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Alert } from "./components/Alert/alert";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
@@ -68,18 +68,24 @@ export const ViewSourceStudies = ({
     <SubGrid>
       {/* What is a Source Study? */}
       <Alert />
-      <Paper>
+      <StyledFluidPaper elevation={0}>
         <GridPaper>
           {canEdit && (
-            <Toolbar variant="table">
-              <ButtonLink
-                color={BUTTON_COLOR.SECONDARY}
+            <StyledToolbar>
+              <Button
+                {...BUTTON_PROPS.SECONDARY_CONTAINED}
+                component={Link}
                 href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, pathParameter)}
-                startIcon={<AddIcon color="inkLight" fontSize="small" />}
+                startIcon={
+                  <AddIcon
+                    color={SVG_ICON_PROPS.COLOR.INK_LIGHT}
+                    fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
+                  />
+                }
               >
                 Add Source Study
-              </ButtonLink>
-            </Toolbar>
+              </Button>
+            </StyledToolbar>
           )}
           {sourceStudies.length > 0 && (
             <Table
@@ -98,7 +104,7 @@ export const ViewSourceStudies = ({
             rowCount={sourceStudies.length}
           />
         </GridPaper>
-      </Paper>
+      </StyledFluidPaper>
     </SubGrid>
   );
 };

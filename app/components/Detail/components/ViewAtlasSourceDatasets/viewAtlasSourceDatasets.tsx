@@ -1,13 +1,13 @@
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerSourceDataset,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { Table } from "../../../Table/table.styles";
 import { sortLinkedSourceDataset } from "../../common/utils";
 import { Alert } from "./components/Alert/alert";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -33,7 +33,7 @@ export const ViewAtlasSourceDatasets = ({
     <SubGrid>
       {/* 'What is a Source Dataset?' */}
       <Alert />
-      <Paper>
+      <StyledFluidPaper elevation={0}>
         <GridPaper>
           {atlas && atlasSourceDatasets.length > 0 && (
             <Table
@@ -49,7 +49,7 @@ export const ViewAtlasSourceDatasets = ({
             rowCount={atlasSourceDatasets.length}
           />
         </GridPaper>
-      </Paper>
+      </StyledFluidPaper>
     </SubGrid>
   );
 };

@@ -1,6 +1,6 @@
 import { LinkProps } from "next/link";
 import { ReactNode } from "react";
-import { Button, StartIcon } from "./buttonLink.styles";
+import { StartIcon, StyledLink } from "./buttonLink.styles";
 
 /**
  * Basic button component for handling client-side navigation between routes.
@@ -29,9 +29,14 @@ export const ButtonLink = ({
   startIcon,
 }: ButtonLinkProps): JSX.Element => {
   return (
-    <Button className={className} color={color} disabled={disabled} href={href}>
+    <StyledLink
+      className={className}
+      color={color}
+      disabled={disabled}
+      href={href}
+    >
       {startIcon && <StartIcon>{startIcon}</StartIcon>}
       {children}
-    </Button>
+    </StyledLink>
   );
 };

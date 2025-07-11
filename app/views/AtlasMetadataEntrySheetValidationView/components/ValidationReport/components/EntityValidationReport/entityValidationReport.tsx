@@ -18,7 +18,7 @@ export const EntityValidationReport = ({
   validationReports,
 }: Props): JSX.Element => {
   return (
-    <StyledFluidPaper>
+    <StyledFluidPaper elevation={0}>
       <Typography
         component="h3"
         variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_500}

@@ -102,7 +102,6 @@ export const tasksEntityConfig: EntityConfig = {
   },
   entityMapper: taskInputMapper,
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
-  explorerTitle: "Reports",
   getId: getTaskId,
   label: "Reports",
   list: {
@@ -112,7 +111,6 @@ export const tasksEntityConfig: EntityConfig = {
   listView: {
     disablePagination: true,
     enableDownload: true,
-    enableTab: false,
     rowPreviewView: [
       {
         children: [
@@ -136,4 +134,5 @@ export const tasksEntityConfig: EntityConfig = {
     ],
   },
   route: "reports",
+  ui: { title: "Reports" },
 };

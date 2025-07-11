@@ -15,6 +15,7 @@ const ESM_PACKAGES = [
   "string-strip-html",
   "@databiosphere/findable-ui",
   "@tanstack/react-table",
+  "@tanstack/react-virtual",
 ];
 
 const withMDX = nextMDX({

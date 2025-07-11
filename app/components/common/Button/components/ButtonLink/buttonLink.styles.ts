@@ -10,7 +10,7 @@ interface Props {
   disabled: boolean;
 }
 
-export const Button = styled(Link, {
+export const StyledLink = styled(Link, {
   shouldForwardProp: (props) => props !== "color" && props !== "disabled",
 })<Props>`
   ${getButtonStyles};

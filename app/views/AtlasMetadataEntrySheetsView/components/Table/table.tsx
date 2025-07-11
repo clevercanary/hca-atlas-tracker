@@ -1,6 +1,6 @@
+import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useReactTable } from "@tanstack/react-table";
-import { FluidPaper } from "../../../../components/common/Paper/components/FluidPaper/fluidPaper";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
 import { SORTING_OPTIONS } from "../../../../components/Table/options/sorting/constants";
