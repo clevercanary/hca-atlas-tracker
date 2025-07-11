@@ -1,4 +1,5 @@
 export interface EntrySheetSyncState {
+  error?: unknown;
   started: boolean;
 }
 

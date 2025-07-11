@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PathParameter } from "../../../../common/entities";
 import { EntrySheetSyncState, UseEntrySheetSync } from "./types";
 import { startEntrySheetSync } from "./utils";
@@ -12,9 +12,14 @@ export const useEntrySheetSync = (
   const onSyncEntrySheets = useCallback(() => {
     setEntrySheetSyncState({ started: true });
     startEntrySheetSync(pathParameter).catch((error: unknown) => {
-      throw error;
+      setEntrySheetSyncState({ error, started: true });
     });
   }, [pathParameter]);
+
+  useEffect(() => {
+    if (Object.hasOwn(entrySheetSyncState, "error"))
+      throw entrySheetSyncState.error;
+  }, [entrySheetSyncState]);
 
   return { entrySheetSyncState, onSyncEntrySheets };
 };
