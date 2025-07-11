@@ -17,8 +17,7 @@ export const useEntrySheetSync = (
   }, [pathParameter]);
 
   useEffect(() => {
-    if (Object.hasOwn(entrySheetSyncState, "error"))
-      throw entrySheetSyncState.error;
+    if (entrySheetSyncState.error) throw entrySheetSyncState.error;
   }, [entrySheetSyncState]);
 
   return { entrySheetSyncState, onSyncEntrySheets };
