@@ -9,12 +9,15 @@ import { EntityType, ValidationErrorInfo } from "./entities";
  */
 export function buildEntityValidationReports(
   data: EntityData
-): Map<EntityType | null, ValidationErrorInfo[]> | undefined {
+): Map<EntityType | "entrySheet", ValidationErrorInfo[]> | undefined {
   if (!data.entrySheetValidation) return;
 
   return data.entrySheetValidation.validationReport
     .sort(sortReport)
-    .reduce(mapReport, new Map<EntityType | null, ValidationErrorInfo[]>());
+    .reduce(
+      mapReport,
+      new Map<EntityType | "entrySheet", ValidationErrorInfo[]>()
+    );
 }
 
 /**
@@ -24,12 +27,12 @@ export function buildEntityValidationReports(
  * @returns Map of entity type to validation report.
  */
 function mapReport(
-  acc: Map<EntityType | null, ValidationErrorInfo[]>,
+  acc: Map<EntityType | "entrySheet", ValidationErrorInfo[]>,
   report: ValidationErrorInfo
-): Map<EntityType | null, ValidationErrorInfo[]> {
-  const entityReports = acc.get(report.entity_type!) || [];
+): Map<EntityType | "entrySheet", ValidationErrorInfo[]> {
+  const entityReports = acc.get(report.entity_type ?? "entrySheet") || [];
   entityReports.push(report);
-  acc.set(report.entity_type, entityReports);
+  acc.set(report.entity_type ?? "entrySheet", entityReports);
   return acc;
 }
 

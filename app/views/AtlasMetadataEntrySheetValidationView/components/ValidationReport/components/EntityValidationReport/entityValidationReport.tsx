@@ -23,7 +23,7 @@ export const EntityValidationReport = ({
         component="h3"
         variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_500}
       >
-        {ENTITY_NAME[entityType ?? "entrySheet"]}
+        {ENTITY_NAME[entityType]}
       </Typography>
       <Divider />
       <Grid {...GRID_PROPS}>
