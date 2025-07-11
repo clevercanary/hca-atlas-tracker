@@ -1,5 +1,7 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { Button } from "@mui/material";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
 import { AccessDeniedPrompt } from "../../components/common/Form/components/FormManager/components/AccessDeniedPrompt/accessDeniedPrompt";
@@ -15,6 +17,7 @@ import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
+import { useEntrySheetSync } from "./hooks/UseEntrySheetSync/hook";
 import { useFetchEntrySheetsValidations } from "./hooks/useFetchEntrySheetValidations";
 
 interface AtlasMetadataEntrySheetsViewProps {
@@ -30,6 +33,8 @@ export const AtlasMetadataEntrySheetsView = ({
   const {
     access: { canView },
   } = formManager;
+  const { entrySheetSyncState, onSyncEntrySheets } =
+    useEntrySheetSync(pathParameter);
   return (
     <EntityProvider
       data={{ atlas, entrySheets }}
@@ -38,6 +43,19 @@ export const AtlasMetadataEntrySheetsView = ({
     >
       <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
         <DetailView
+          actions={
+            <div>
+              <Button
+                {...BUTTON_PROPS.SECONDARY_CONTAINED}
+                disabled={entrySheetSyncState.started}
+                onClick={onSyncEntrySheets}
+              >
+                {entrySheetSyncState.started
+                  ? "Sync started"
+                  : "Sync entry sheets"}
+              </Button>
+            </div>
+          }
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }
