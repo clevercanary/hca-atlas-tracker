@@ -2,6 +2,7 @@ import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Button } from "@mui/material";
 import Link from "next/link";
@@ -19,7 +20,6 @@ import { getAtlasSourceStudiesTableColumns } from "../../../../viewModelBuilders
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { StyledToolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
-import { Table } from "../../../Table/table.styles";
 import { Alert } from "./components/Alert/alert";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
