@@ -1,4 +1,4 @@
-import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
 import {
   mediaDesktopSmallUp,
@@ -55,9 +55,13 @@ export const SectionText = styled.div`
   font-size: 13px;
 `;
 
-export const SectionCard = styled(FluidPaper)<
-  SectionProps & { gridAutoFlow?: "dense" | "unset" }
->`
+export const SectionCard = styled(FluidPaper, {
+  shouldForwardProp: (prop) =>
+    prop !== "gridAutoFlow" &&
+    prop !== "formManager" &&
+    prop !== "formMethod" &&
+    prop !== "fullWidth",
+})<SectionProps & { gridAutoFlow?: "dense" | "unset" }>`
   ${sectionPadding};
   display: grid;
   gap: 20px;
