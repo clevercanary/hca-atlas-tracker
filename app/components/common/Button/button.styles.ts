@@ -1,12 +1,5 @@
 import { COLOR_MIXES } from "@databiosphere/findable-ui/lib/styles/common/constants/colorMixes";
-import {
-  inkMain,
-  primaryDark,
-  primaryMain,
-  smokeDark,
-  smokeLightest,
-  white,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import { textBody500 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import { ThemeProps } from "@databiosphere/findable-ui/lib/theme/theme";
 import { css } from "@emotion/react";
@@ -24,36 +17,44 @@ export const button = (props: ThemeProps) => css`
 
 export const buttonPrimary = (props: ThemeProps) => css`
   ${button(props)};
-  background-color: ${primaryMain(props)};
-  box-shadow: 0 1px 0 0 ${primaryDark(props)};
-  color: ${white(props)};
+  background-color: ${PALETTE.PRIMARY_MAIN};
+  box-shadow: 0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08},
+    inset 0 -1px 0 0 ${COLOR_MIXES.COMMON_BLACK_20};
+  color: ${PALETTE.COMMON_WHITE};
 
-  &:hover {
-    background-color: ${primaryDark(props)};
-    box-shadow: 0 1px 0 0 ${primaryDark(props)};
+  &:hover,
+  &:active {
+    background-color: ${PALETTE.PRIMARY_DARK};
+    box-shadow: 0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08},
+      inset 0 -1px 0 0 ${COLOR_MIXES.COMMON_BLACK_20};
   }
 
-  &:active {
-    background-color: ${primaryDark(props)};
+  &.Mui-disabled {
+    background-color: ${PALETTE.PRIMARY_MAIN};
     box-shadow: none;
+    color: ${PALETTE.COMMON_WHITE};
+    opacity: 0.5;
   }
 `;
 
 export const buttonSecondary = (props: ThemeProps) => css`
   ${button(props)};
-  background-color: ${white(props)};
-  box-shadow: inset 0 0 0 1px ${smokeDark(props)},
-    0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08};
-  color: ${inkMain(props)};
+  background-color: ${PALETTE.COMMON_WHITE};
+  box-shadow: inset 0 0 0 1px ${PALETTE.SMOKE_DARK},
+    0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_05};
+  color: ${PALETTE.INK_MAIN};
 
-  &:hover {
-    background-color: ${smokeLightest(props)};
-    box-shadow: inset 0 0 0 1px ${smokeDark(props)},
-      0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08};
+  &:hover,
+  &:active {
+    background-color: ${PALETTE.SMOKE_LIGHTEST};
+    box-shadow: inset 0 0 0 1px ${PALETTE.SMOKE_DARK},
+      0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_05};
   }
 
-  &:active {
-    background-color: ${smokeLightest(props)};
-    box-shadow: inset 0 0 0 1px ${smokeDark(props)};
+  &.Mui-disabled {
+    background-color: ${PALETTE.COMMON_WHITE};
+    box-shadow: inset 0 0 0 1px ${PALETTE.SMOKE_DARK};
+    color: ${PALETTE.INK_MAIN};
+    opacity: 0.5;
   }
 `;
