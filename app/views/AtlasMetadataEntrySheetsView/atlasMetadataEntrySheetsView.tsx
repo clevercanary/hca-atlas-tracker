@@ -1,7 +1,7 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Button, Grid } from "@mui/material";
+import { Button } from "@mui/material";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
 import { AccessDeniedPrompt } from "../../components/common/Form/components/FormManager/components/AccessDeniedPrompt/accessDeniedPrompt";
@@ -44,7 +44,7 @@ export const AtlasMetadataEntrySheetsView = ({
       <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
         <DetailView
           actions={
-            <Grid>
+            <div>
               <Button
                 {...BUTTON_PROPS.SECONDARY_CONTAINED}
                 disabled={entrySheetSyncState.started}
@@ -54,7 +54,7 @@ export const AtlasMetadataEntrySheetsView = ({
                   ? "Sync started"
                   : "Sync entry sheets"}
               </Button>
-            </Grid>
+            </div>
           }
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
