@@ -9,6 +9,14 @@ export const Alert = ({
   validationReport,
   ...props
 }: Props): JSX.Element | null => {
+  if (!validationReport.entity_type)
+    return (
+      <StyledAlert {...ALERT_PROPS} {...props}>
+        <Tooltip arrow title={validationReport.message}>
+          <Typography noWrap>{validationReport.message}</Typography>
+        </Tooltip>
+      </StyledAlert>
+    );
   return (
     <StyledAlert {...ALERT_PROPS} {...props}>
       {validationReport.primary_key && (
