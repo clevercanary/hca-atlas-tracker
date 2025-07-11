@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.20.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.19.0...v1.20.0) (2025-07-11)
+
+
+### Features
+
+* add cell value to entry sheet validation report ([#691](https://github.com/clevercanary/hca-atlas-tracker/issues/691)) ([#702](https://github.com/clevercanary/hca-atlas-tracker/issues/702)) ([ed53cb8](https://github.com/clevercanary/hca-atlas-tracker/commit/ed53cb82e38ef9d7c22c80a41e68842450bbe293))
+* move sync metadata entry sheets button to the metadata entry sheets tab ([#696](https://github.com/clevercanary/hca-atlas-tracker/issues/696)) ([#701](https://github.com/clevercanary/hca-atlas-tracker/issues/701)) ([37030f5](https://github.com/clevercanary/hca-atlas-tracker/commit/37030f515ddc5d9107267a3ce9f9f50b73e0d68c))
+
+
+### Bug Fixes
+
+* show sheet related errors on error detail page ([#697](https://github.com/clevercanary/hca-atlas-tracker/issues/697)) ([#699](https://github.com/clevercanary/hca-atlas-tracker/issues/699)) ([d1a217e](https://github.com/clevercanary/hca-atlas-tracker/commit/d1a217e9f7f8955c95aa12d16ce86af0a5594ed5))
+
 ## [1.19.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.18.0...v1.19.0) (2025-07-09)
 
 
