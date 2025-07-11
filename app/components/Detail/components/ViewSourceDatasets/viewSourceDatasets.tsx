@@ -5,7 +5,7 @@ import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceStudySourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { useSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
-import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -31,7 +31,7 @@ export const ViewSourceDatasets = ({
   if (!canView) return <RequestAccess />;
   const linkedSourceDatasetIds = new Set(atlasSourceDatasets.map((d) => d.id));
   return (
-    <Paper>
+    <StyledFluidPaper elevation={0}>
       <GridPaper>
         {sourceDatasets.length > 0 && (
           <Table
@@ -52,7 +52,7 @@ export const ViewSourceDatasets = ({
           rowCount={sourceDatasets.length}
         />
       </GridPaper>
-    </Paper>
+    </StyledFluidPaper>
   );
 };
 

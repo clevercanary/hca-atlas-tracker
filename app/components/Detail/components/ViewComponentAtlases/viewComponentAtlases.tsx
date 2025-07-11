@@ -1,18 +1,18 @@
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
+import { Button } from "@mui/material";
+import Link from "next/link";
 import { HCAAtlasTrackerComponentAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { ROUTE } from "../../../../routes/constants";
 import { getAtlasComponentAtlasesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import {
-  BUTTON_COLOR,
-  ButtonLink,
-} from "../../../common/Button/components/ButtonLink/buttonLink";
-import { Paper } from "../../../Table/components/TablePaper/tablePaper.styles";
+import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { Toolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
+import { StyledToolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Table } from "../../../Table/table.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
@@ -33,18 +33,24 @@ export const ViewComponentAtlases = ({
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
-    <Paper>
+    <StyledFluidPaper elevation={0}>
       <GridPaper>
         {canEdit && (
-          <Toolbar variant="table">
-            <ButtonLink
-              color={BUTTON_COLOR.SECONDARY}
+          <StyledToolbar>
+            <Button
+              {...BUTTON_PROPS.SECONDARY_CONTAINED}
+              component={Link}
               href={getRouteURL(ROUTE.CREATE_COMPONENT_ATLAS, pathParameter)}
-              startIcon={<AddIcon color="inkLight" fontSize="small" />}
+              startIcon={
+                <AddIcon
+                  color={SVG_ICON_PROPS.COLOR.INK_LIGHT}
+                  fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
+                />
+              }
             >
               Add Integration Object
-            </ButtonLink>
-          </Toolbar>
+            </Button>
+          </StyledToolbar>
         )}
         {componentAtlases.length > 0 && (
           <Table
@@ -60,6 +66,6 @@ export const ViewComponentAtlases = ({
           rowCount={componentAtlases.length}
         />
       </GridPaper>
-    </Paper>
+    </StyledFluidPaper>
   );
 };

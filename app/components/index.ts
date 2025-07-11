@@ -20,6 +20,8 @@ export { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/compo
 export { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
 export { RowDrawer } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/RowDrawer/rowDrawer";
 export { AlertTitle } from "@mui/material";
+export { AddAtlas } from "../views/EntitiesView/components/AddAtlas/addAtlas";
+export { AddUser } from "../views/EntitiesView/components/AddUser/addUser";
 export { IconButton } from "./common/IconButton/iconButton";
 export { LinkDatasetDropdown } from "./Detail/components/ViewAtlasSourceDatasets/components/LinkDatasetDropdown/linkDatasetDropdown";
 export { FileDownload } from "./Index/components/FileDownload/fileDownload";
@@ -29,8 +31,6 @@ export { PreviewTask } from "./Index/components/ViewTasks/components/PreviewTask
 export { AlertText } from "./Layout/components/Content/components/AlertText/alertText.styles";
 export { HCABranding } from "./Layout/components/Footer/components/Branding/components/HCABranding/hcaBranding";
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";
-export { Hero } from "./Layout/components/IndexPage/components/Hero/hero";
-export { UsersHero } from "./Layout/components/IndexPage/components/UsersHero/usersHero";
 export { AnalysisPortalCell } from "./Table/components/TableCell/components/AnalysisPortalCell/analysisPortalCell";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
 export { ButtonTextPrimaryCell } from "./Table/components/TableCell/components/ButtonTextPrimaryCell/buttonTextPrimaryCell.styles";

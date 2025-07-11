@@ -1384,6 +1384,7 @@ function getComponentAtlasTitleColumnDef(
     cell: ({ row }) =>
       C.Link(buildComponentAtlasTitle(pathParameter, row.original)),
     header: "Integration object",
+    meta: { columnPinned: true },
   };
 }
 
@@ -1586,6 +1587,7 @@ function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
         value: row.original.title,
       }),
     header: "Title",
+    meta: { columnPinned: true },
   };
 }
 
@@ -1721,6 +1723,7 @@ function getSourceStudyTitleColumnDef(
     cell: ({ row }) =>
       C.Link(buildSourceStudyTitle(pathParameter, row.original)),
     header: "Source Study",
+    meta: { columnPinned: true },
   };
 }
 

@@ -42,7 +42,6 @@ export function makeConfig(
       url: browserUrl,
     },
     entities: [atlasEntityConfig, tasksEntityConfig, userEntityConfig],
-    explorerTitle: C.Hero(),
     gitHubUrl,
     layout: {
       floating,
