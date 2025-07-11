@@ -9,22 +9,15 @@ import { EntityType, ValidationErrorInfo } from "./entities";
  */
 export function buildEntityValidationReports(
   data: EntityData
-): Map<EntityType, ValidationErrorInfo[]> | undefined {
+): Map<EntityType | "entrySheet", ValidationErrorInfo[]> | undefined {
   if (!data.entrySheetValidation) return;
 
   return data.entrySheetValidation.validationReport
-    .filter(filterReport)
     .sort(sortReport)
-    .reduce(mapReport, new Map<EntityType, ValidationErrorInfo[]>());
-}
-
-/**
- * Filters validation report.
- * @param report - Validation report.
- * @returns True if report has entity type, false otherwise.
- */
-function filterReport(report: ValidationErrorInfo): boolean {
-  return Boolean(report.entity_type);
+    .reduce(
+      mapReport,
+      new Map<EntityType | "entrySheet", ValidationErrorInfo[]>()
+    );
 }
 
 /**
@@ -34,12 +27,12 @@ function filterReport(report: ValidationErrorInfo): boolean {
  * @returns Map of entity type to validation report.
  */
 function mapReport(
-  acc: Map<EntityType, ValidationErrorInfo[]>,
+  acc: Map<EntityType | "entrySheet", ValidationErrorInfo[]>,
   report: ValidationErrorInfo
-): Map<EntityType, ValidationErrorInfo[]> {
-  const entityReports = acc.get(report.entity_type!) || [];
+): Map<EntityType | "entrySheet", ValidationErrorInfo[]> {
+  const entityReports = acc.get(report.entity_type ?? "entrySheet") || [];
   entityReports.push(report);
-  acc.set(report.entity_type!, entityReports);
+  acc.set(report.entity_type ?? "entrySheet", entityReports);
   return acc;
 }
 
