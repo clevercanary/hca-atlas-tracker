@@ -1,20 +1,17 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
+import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import {
   mediaDesktopSmallUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
-import {
-  inkLight,
-  smokeMain,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
 import {
   textBody400,
   textBodyLarge500,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
-import { Table as CommonTable } from "../../../../../Table/table.styles";
 
 export interface SectionProps {
   fullWidth?: boolean;
@@ -83,8 +80,6 @@ export const SectionCard = styled(FluidPaper, {
 `;
 
 export const SectionTable = styled(CommonTable)`
-  background-color: ${smokeMain};
-
   .MuiTable-root {
     .MuiTableBody-root {
       .MuiTableRow-root[id^="sub-row"] {
