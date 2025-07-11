@@ -11,7 +11,7 @@ export const ListSection = ({
   fullWidth,
 }: ListSectionProps): JSX.Element => {
   return (
-    <SectionCard fullWidth={fullWidth} gridAutoFlow="dense">
+    <SectionCard elevation={0} fullWidth={fullWidth} gridAutoFlow="dense">
       {children}
     </SectionCard>
   );

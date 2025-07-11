@@ -27,7 +27,7 @@ export const GeneralInfo = <T extends FieldValues>({
       <SectionHero>
         <SectionTitle>General info</SectionTitle>
       </SectionHero>
-      <SectionCard>
+      <SectionCard elevation={0}>
         <Controllers
           controllerConfigs={controllerConfigs}
           formManager={formManager}

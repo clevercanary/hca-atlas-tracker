@@ -1,3 +1,4 @@
+import { PaperProps } from "@mui/material";
 import React, { ReactNode } from "react";
 import { FieldValues } from "react-hook-form";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
@@ -11,6 +12,7 @@ export interface SectionConfig<T extends FieldValues, R = undefined>
 
 export interface SectionContentProps<T extends FieldValues, R = undefined> {
   children: ReactNode;
+  elevation?: PaperProps["elevation"];
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
   fullWidth?: boolean;
