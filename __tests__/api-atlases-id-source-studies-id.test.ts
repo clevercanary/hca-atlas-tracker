@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   DOI_STATUS,
+  HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
@@ -17,6 +18,7 @@ import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceS
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
@@ -48,6 +50,7 @@ import {
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -97,10 +100,16 @@ jest.mock("../app/services/cellxgene");
 
 jest.mock("next-auth");
 
+type EntrySheetsModule = typeof import("../app/services/entry-sheets");
+
 const entrySheetsUpdateMock = startEntrySheetValidationsUpdate as jest.Mock;
+let actualDeleteEntrySheetValidationsOfDeletedSourceStudy: EntrySheetsModule["deleteEntrySheetValidationsOfDeletedSourceStudy"];
 
 jest.mock("../app/services/entry-sheets", () => {
+  const deleteEntrySheetValidationsOfDeletedSourceStudy: EntrySheetsModule["deleteEntrySheetValidationsOfDeletedSourceStudy"] =
+    (...args) => actualDeleteEntrySheetValidationsOfDeletedSourceStudy(...args);
   return {
+    deleteEntrySheetValidationsOfDeletedSourceStudy,
     startEntrySheetValidationsUpdate: jest.fn(() => Promise.resolve()),
   };
 });
@@ -167,6 +176,12 @@ const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT: SourceStudyEditData = {
 };
 
 beforeAll(async () => {
+  const entrySheets = jest.requireActual<EntrySheetsModule>(
+    "../app/services/entry-sheets"
+  );
+  actualDeleteEntrySheetValidationsOfDeletedSourceStudy =
+    entrySheets.deleteEntrySheetValidationsOfDeletedSourceStudy;
+
   await resetDatabase();
 });
 
@@ -1103,6 +1118,41 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(datasetsAfter).toHaveLength(0);
   });
 
+  it("deletes entry sheet validations when source study is fully deleted", async () => {
+    const entrySheetValidationsBefore =
+      await getEntrySheetValidationsFromDatabase(
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+      );
+    expect(entrySheetValidationsBefore).toHaveLength(1);
+
+    await expect(
+      (
+        await doStudyRequest(
+          ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+          SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    const atlasStudies = (
+      await getAtlasFromDatabase(ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id)
+    )?.source_studies;
+    expect(atlasStudies).not.toContain(
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+    );
+    const studyFromDb = await getSourceStudyFromDatabase(
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+    );
+    expect(studyFromDb).toBeUndefined();
+
+    const entrySheetValidationsAfter =
+      await getEntrySheetValidationsFromDatabase(
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+      );
+    expect(entrySheetValidationsAfter).toHaveLength(0);
+  });
+
   it("deletes source study when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     await expect(
       (
@@ -1263,6 +1313,17 @@ async function getSourceDatasetsFromDatabase(
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
+      [sourceStudyId]
+    )
+  ).rows;
+}
+
+async function getEntrySheetValidationsFromDatabase(
+  sourceStudyId: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation[]> {
+  return (
+    await query<HCAAtlasTrackerDBEntrySheetValidation>(
+      "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=$1",
       [sourceStudyId]
     )
   ).rows;
