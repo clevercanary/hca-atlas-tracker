@@ -43,6 +43,7 @@ import {
   query,
 } from "./database";
 import {
+  deleteEntrySheetValidationsOfDeletedSourceStudy,
   EntrySheetValidationUpdateParameters,
   startEntrySheetValidationsUpdate,
 } from "./entry-sheets";
@@ -513,6 +514,10 @@ export async function deleteAtlasSourceStudy(
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
       await deleteSourceDatasetsOfDeletedSourceStudy(sourceStudyId, client);
+      await deleteEntrySheetValidationsOfDeletedSourceStudy(
+        sourceStudyId,
+        client
+      );
       await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
         sourceStudyId,
       ]);
