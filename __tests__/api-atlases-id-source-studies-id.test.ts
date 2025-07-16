@@ -2,8 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   DOI_STATUS,
-  HCAAtlasTrackerDBEntrySheetValidation,
-  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -67,7 +65,10 @@ import {
   getCellxGeneSourceDatasetFromDatabase,
   getComponentAtlasFromDatabase,
   getExistingComponentAtlasFromDatabase,
+  getSourceDatasetFromDatabase,
+  getSourceStudyEntrySheetValidationsFromDatabase,
   getSourceStudyFromDatabase,
+  getSourceStudySourceDatasetsFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
   initSourceDatasets,
@@ -560,7 +561,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(studyFromDb.study_info.publication).toEqual(
@@ -597,7 +598,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData();
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
 
@@ -638,7 +639,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(updatedStudy.capId).toEqual(SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId);
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(studyFromDb.study_info.capId).toEqual(
@@ -669,7 +670,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(updatedStudy.metadataSpreadsheets.map(({ url }) => url)).toEqual(
       editUrls
     );
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(
@@ -702,7 +703,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData();
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
 
@@ -1031,7 +1032,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(2);
 
-    const datasetsBefore = await getSourceDatasetsFromDatabase(
+    const datasetsBefore = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsBefore).toHaveLength(2);
@@ -1061,7 +1062,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(validationsAfter).not.toHaveLength(0);
     expect(validationsAfter[0].atlas_ids).toHaveLength(1);
 
-    const datasetsAfter = await getSourceDatasetsFromDatabase(
+    const datasetsAfter = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsAfter).toHaveLength(2);
@@ -1083,7 +1084,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     );
     expect(validationsBefore).not.toHaveLength(0);
 
-    const datasetsBefore = await getSourceDatasetsFromDatabase(
+    const datasetsBefore = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsBefore).toHaveLength(2);
@@ -1111,7 +1112,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     );
     expect(validationsAfter).toHaveLength(0);
 
-    const datasetsAfter = await getSourceDatasetsFromDatabase(
+    const datasetsAfter = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsAfter).toHaveLength(0);
@@ -1119,7 +1120,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
 
   it("deletes entry sheet validations when source study is fully deleted", async () => {
     const entrySheetValidationsBefore =
-      await getEntrySheetValidationsFromDatabase(
+      await getSourceStudyEntrySheetValidationsFromDatabase(
         SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
       );
     expect(entrySheetValidationsBefore).toHaveLength(1);
@@ -1146,7 +1147,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(studyFromDb).toBeUndefined();
 
     const entrySheetValidationsAfter =
-      await getEntrySheetValidationsFromDatabase(
+      await getSourceStudyEntrySheetValidationsFromDatabase(
         SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
       );
     expect(entrySheetValidationsAfter).toHaveLength(0);
@@ -1267,7 +1268,7 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
 }
 
 async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {
-  const studyFromDb = await getStudyFromDatabase(study.id);
+  const studyFromDb = await getSourceStudyFromDatabase(study.id);
   expect(studyFromDb).toBeDefined();
   if (!studyFromDb) return;
   if ("unpublishedInfo" in study) {
@@ -1293,48 +1294,4 @@ async function expectSourceDatasetToExist(
   sourceDataset: TestSourceDataset
 ): Promise<void> {
   expect(await getSourceDatasetFromDatabase(sourceDataset.id)).toBeDefined();
-}
-
-async function getSourceDatasetFromDatabase(
-  sourceDatasetId: string | undefined
-): Promise<HCAAtlasTrackerDBSourceDataset> {
-  return (
-    await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
-      [sourceDatasetId]
-    )
-  ).rows[0];
-}
-
-async function getSourceDatasetsFromDatabase(
-  sourceStudyId: string
-): Promise<HCAAtlasTrackerDBSourceDataset[]> {
-  return (
-    await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
-      [sourceStudyId]
-    )
-  ).rows;
-}
-
-async function getEntrySheetValidationsFromDatabase(
-  sourceStudyId: string
-): Promise<HCAAtlasTrackerDBEntrySheetValidation[]> {
-  return (
-    await query<HCAAtlasTrackerDBEntrySheetValidation>(
-      "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=$1",
-      [sourceStudyId]
-    )
-  ).rows;
-}
-
-async function getStudyFromDatabase(
-  id: string
-): Promise<HCAAtlasTrackerDBSourceStudy | undefined> {
-  return (
-    await query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies WHERE id=$1",
-      [id]
-    )
-  ).rows[0];
 }

@@ -338,6 +338,17 @@ export async function getCellxGeneSourceDatasetFromDatabase(
   return result ?? null;
 }
 
+export async function getSourceStudySourceDatasetsFromDatabase(
+  sourceStudyId: string
+): Promise<HCAAtlasTrackerDBSourceDataset[]> {
+  return (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
+      [sourceStudyId]
+    )
+  ).rows;
+}
+
 export async function getEntrySheetValidationFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {
@@ -358,6 +369,17 @@ export async function getEntrySheetValidationBySheetId(
       [id]
     )
   ).rows[0];
+}
+
+export async function getSourceStudyEntrySheetValidationsFromDatabase(
+  sourceStudyId: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation[]> {
+  return (
+    await query<HCAAtlasTrackerDBEntrySheetValidation>(
+      "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=$1",
+      [sourceStudyId]
+    )
+  ).rows;
 }
 
 export async function deleteEntrySheetValidationFromDatabase(
