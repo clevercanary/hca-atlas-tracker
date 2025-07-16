@@ -100,14 +100,15 @@ jest.mock("../app/services/cellxgene");
 
 jest.mock("next-auth");
 
-type EntrySheetsModule = typeof import("../app/services/entry-sheets");
-
 const entrySheetsUpdateMock = startEntrySheetValidationsUpdate as jest.Mock;
-let actualDeleteEntrySheetValidationsOfDeletedSourceStudy: EntrySheetsModule["deleteEntrySheetValidationsOfDeletedSourceStudy"];
+let actualEntrySheetsModule: typeof import("../app/services/entry-sheets");
 
 jest.mock("../app/services/entry-sheets", () => {
-  const deleteEntrySheetValidationsOfDeletedSourceStudy: EntrySheetsModule["deleteEntrySheetValidationsOfDeletedSourceStudy"] =
-    (...args) => actualDeleteEntrySheetValidationsOfDeletedSourceStudy(...args);
+  const deleteEntrySheetValidationsOfDeletedSourceStudy: typeof import("../app/services/entry-sheets")["deleteEntrySheetValidationsOfDeletedSourceStudy"] =
+    (...args) =>
+      actualEntrySheetsModule.deleteEntrySheetValidationsOfDeletedSourceStudy(
+        ...args
+      );
   return {
     deleteEntrySheetValidationsOfDeletedSourceStudy,
     startEntrySheetValidationsUpdate: jest.fn(() => Promise.resolve()),
@@ -176,11 +177,9 @@ const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT: SourceStudyEditData = {
 };
 
 beforeAll(async () => {
-  const entrySheets = jest.requireActual<EntrySheetsModule>(
-    "../app/services/entry-sheets"
-  );
-  actualDeleteEntrySheetValidationsOfDeletedSourceStudy =
-    entrySheets.deleteEntrySheetValidationsOfDeletedSourceStudy;
+  actualEntrySheetsModule = jest.requireActual<
+    typeof import("../app/services/entry-sheets")
+  >("../app/services/entry-sheets");
 
   await resetDatabase();
 });
