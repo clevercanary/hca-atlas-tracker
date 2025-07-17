@@ -14,6 +14,7 @@ import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { VIEW_METADATA_ENTRY_SHEET_SECTION_CONFIGS } from "./common/config";
 import { Actions } from "./components/Actions/actions";
+import { useEntrySheetSync } from "./hooks/UseEntrySheetSync/hook";
 import { useFetchEntrySheetValidation } from "./hooks/useFetchEntrySheetValidations";
 import { renderSubTitle, renderTitle } from "./utils";
 
@@ -30,6 +31,7 @@ export const AtlasMetadataEntrySheetValidationView = ({
   const {
     access: { canView },
   } = formManager;
+  const syncInfo = useEntrySheetSync(pathParameter);
   return (
     <EntityProvider
       data={{ atlas, entrySheetValidation }}
@@ -39,7 +41,7 @@ export const AtlasMetadataEntrySheetValidationView = ({
         isIn={shouldRenderView(canView, Boolean(entrySheetValidation))}
       >
         <DetailView
-          actions={<Actions />}
+          actions={<Actions {...syncInfo} />}
           mainColumn={
             <EntityView
               accessFallback={renderAccessFallback(formManager)}

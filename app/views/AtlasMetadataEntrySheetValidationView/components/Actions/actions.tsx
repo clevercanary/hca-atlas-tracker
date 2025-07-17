@@ -7,10 +7,16 @@ import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/b
 import { Button } from "@mui/material";
 import { useEntity } from "../../../../providers/entity/hook";
 import { EntityData } from "../../entities";
+import { UseEntrySheetSync } from "../../hooks/UseEntrySheetSync/types";
 import { HeroActions } from "./actions.styles";
 import { buildSheetsUrl } from "./utils";
 
-export const Actions = (): JSX.Element | null => {
+type Props = UseEntrySheetSync;
+
+export const Actions = ({
+  entrySheetSyncState,
+  onSyncEntrySheets,
+}: Props): JSX.Element | null => {
   const { data } = useEntity();
 
   // Coerce the entity data provided by EntityProvider to the EntityData type -- safe to assume that the data structure conforms to EntityData.
@@ -23,6 +29,15 @@ export const Actions = (): JSX.Element | null => {
 
   return (
     <HeroActions>
+      <Button
+        color={BUTTON_PROPS.COLOR.SECONDARY}
+        disabled={entrySheetSyncState.started}
+        onClick={onSyncEntrySheets}
+        size={BUTTON_PROPS.SIZE.MEDIUM}
+        variant={BUTTON_PROPS.VARIANT.CONTAINED}
+      >
+        {entrySheetSyncState.started ? "Sync started" : "Sync entry sheet"}
+      </Button>
       <Button
         color={BUTTON_PROPS.COLOR.PRIMARY}
         href={buildSheetsUrl(entrySheetId, null, null, null)}
