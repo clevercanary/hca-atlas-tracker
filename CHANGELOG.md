@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.21.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.20.1...v1.21.0) (2025-07-17)
+
+
+### Features
+
+* add sync button to entry sheet validation view ([#713](https://github.com/clevercanary/hca-atlas-tracker/issues/713)) ([#714](https://github.com/clevercanary/hca-atlas-tracker/issues/714)) ([3e82cb8](https://github.com/clevercanary/hca-atlas-tracker/commit/3e82cb8202bff9925b6d2783e358120b06c1c7d0))
+
 ## [1.20.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.20.0...v1.20.1) (2025-07-17)
 
 
