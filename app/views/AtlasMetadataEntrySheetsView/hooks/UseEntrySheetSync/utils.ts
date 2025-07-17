@@ -7,11 +7,11 @@ import {
 } from "../../../../common/entities";
 
 /**
- * Starts the entry sheet sync process.
+ * Starts the entry sheets sync process for an atlas.
  * @param pathParameter - Path parameter.
  * @returns Promise that resolves when the entry sheet sync process is started.
  */
-export async function startEntrySheetSync(
+export async function startAtlasEntrySheetsSync(
   pathParameter: PathParameter
 ): Promise<void> {
   const res = await fetch(
