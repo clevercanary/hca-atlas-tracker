@@ -17,7 +17,7 @@ import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
-import { useEntrySheetSync } from "./hooks/UseEntrySheetSync/hook";
+import { useAtlasEntrySheetsSync } from "./hooks/UseEntrySheetSync/hook";
 import { useFetchEntrySheetsValidations } from "./hooks/useFetchEntrySheetValidations";
 
 interface AtlasMetadataEntrySheetsViewProps {
@@ -34,7 +34,7 @@ export const AtlasMetadataEntrySheetsView = ({
     access: { canView },
   } = formManager;
   const { entrySheetSyncState, onSyncEntrySheets } =
-    useEntrySheetSync(pathParameter);
+    useAtlasEntrySheetsSync(pathParameter);
   return (
     <EntityProvider
       data={{ atlas, entrySheets }}

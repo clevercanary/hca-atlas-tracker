@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { PathParameter } from "../../../../common/entities";
-import { AtlasEntrySheetsSyncState, UseAtlasEntrySheetsSync } from "./types";
-import { startAtlasEntrySheetsSync } from "./utils";
+import { EntrySheetSyncState, UseEntrySheetSync } from "./types";
+import { startEntrySheetSync } from "./utils";
 
-export const useAtlasEntrySheetsSync = (
+export const useEntrySheetSync = (
   pathParameter: PathParameter
-): UseAtlasEntrySheetsSync => {
+): UseEntrySheetSync => {
   const [entrySheetSyncState, setEntrySheetSyncState] =
-    useState<AtlasEntrySheetsSyncState>({ started: false });
+    useState<EntrySheetSyncState>({ started: false });
 
   const onSyncEntrySheets = useCallback(() => {
     setEntrySheetSyncState({ started: true });
-    startAtlasEntrySheetsSync(pathParameter).catch((error: unknown) => {
+    startEntrySheetSync(pathParameter).catch((error: unknown) => {
       setEntrySheetSyncState({ error, started: true });
     });
   }, [pathParameter]);
