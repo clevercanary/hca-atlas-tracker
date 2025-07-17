@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.20.0...v1.20.1) (2025-07-17)
+
+
+### Bug Fixes
+
+* delete associated entry sheet validations when source study is deleted ([#705](https://github.com/clevercanary/hca-atlas-tracker/issues/705)) ([#710](https://github.com/clevercanary/hca-atlas-tracker/issues/710)) ([456028f](https://github.com/clevercanary/hca-atlas-tracker/commit/456028ff5d4c266697a5878579a4911b6788c589))
+
 ## [1.20.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.19.0...v1.20.0) (2025-07-11)
 
 
