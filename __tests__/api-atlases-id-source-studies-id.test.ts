@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   DOI_STATUS,
-  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -17,6 +16,7 @@ import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceS
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
@@ -48,6 +48,7 @@ import {
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
+  SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -64,7 +65,10 @@ import {
   getCellxGeneSourceDatasetFromDatabase,
   getComponentAtlasFromDatabase,
   getExistingComponentAtlasFromDatabase,
+  getSourceDatasetFromDatabase,
+  getSourceStudyEntrySheetValidationsFromDatabase,
   getSourceStudyFromDatabase,
+  getSourceStudySourceDatasetsFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
   initSourceDatasets,
@@ -98,9 +102,16 @@ jest.mock("../app/services/cellxgene");
 jest.mock("next-auth");
 
 const entrySheetsUpdateMock = startEntrySheetValidationsUpdate as jest.Mock;
+let actualEntrySheetsModule: typeof import("../app/services/entry-sheets");
 
 jest.mock("../app/services/entry-sheets", () => {
+  const deleteEntrySheetValidationsOfDeletedSourceStudy: typeof import("../app/services/entry-sheets")["deleteEntrySheetValidationsOfDeletedSourceStudy"] =
+    (...args) =>
+      actualEntrySheetsModule.deleteEntrySheetValidationsOfDeletedSourceStudy(
+        ...args
+      );
   return {
+    deleteEntrySheetValidationsOfDeletedSourceStudy,
     startEntrySheetValidationsUpdate: jest.fn(() => Promise.resolve()),
   };
 });
@@ -167,6 +178,10 @@ const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT: SourceStudyEditData = {
 };
 
 beforeAll(async () => {
+  actualEntrySheetsModule = jest.requireActual<
+    typeof import("../app/services/entry-sheets")
+  >("../app/services/entry-sheets");
+
   await resetDatabase();
 });
 
@@ -546,7 +561,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(studyFromDb.study_info.publication).toEqual(
@@ -583,7 +598,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData();
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
 
@@ -624,7 +639,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(updatedStudy.capId).toEqual(SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId);
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(studyFromDb.study_info.capId).toEqual(
@@ -655,7 +670,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(updatedStudy.metadataSpreadsheets.map(({ url }) => url)).toEqual(
       editUrls
     );
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(
@@ -688,7 +703,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData();
-    const studyFromDb = await getStudyFromDatabase(updatedStudy.id);
+    const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
 
@@ -1017,7 +1032,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(2);
 
-    const datasetsBefore = await getSourceDatasetsFromDatabase(
+    const datasetsBefore = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsBefore).toHaveLength(2);
@@ -1047,7 +1062,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(validationsAfter).not.toHaveLength(0);
     expect(validationsAfter[0].atlas_ids).toHaveLength(1);
 
-    const datasetsAfter = await getSourceDatasetsFromDatabase(
+    const datasetsAfter = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsAfter).toHaveLength(2);
@@ -1069,7 +1084,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     );
     expect(validationsBefore).not.toHaveLength(0);
 
-    const datasetsBefore = await getSourceDatasetsFromDatabase(
+    const datasetsBefore = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsBefore).toHaveLength(2);
@@ -1097,10 +1112,45 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     );
     expect(validationsAfter).toHaveLength(0);
 
-    const datasetsAfter = await getSourceDatasetsFromDatabase(
+    const datasetsAfter = await getSourceStudySourceDatasetsFromDatabase(
       SOURCE_STUDY_DRAFT_OK.id
     );
     expect(datasetsAfter).toHaveLength(0);
+  });
+
+  it("deletes entry sheet validations when source study is fully deleted", async () => {
+    const entrySheetValidationsBefore =
+      await getSourceStudyEntrySheetValidationsFromDatabase(
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+      );
+    expect(entrySheetValidationsBefore).toHaveLength(1);
+
+    await expect(
+      (
+        await doStudyRequest(
+          ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+          SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE
+        )
+      )._getStatusCode()
+    ).toEqual(200);
+    const atlasStudies = (
+      await getAtlasFromDatabase(ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id)
+    )?.source_studies;
+    expect(atlasStudies).not.toContain(
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+    );
+    const studyFromDb = await getSourceStudyFromDatabase(
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+    );
+    expect(studyFromDb).toBeUndefined();
+
+    const entrySheetValidationsAfter =
+      await getSourceStudyEntrySheetValidationsFromDatabase(
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+      );
+    expect(entrySheetValidationsAfter).toHaveLength(0);
   });
 
   it("deletes source study when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
@@ -1218,7 +1268,7 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
 }
 
 async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {
-  const studyFromDb = await getStudyFromDatabase(study.id);
+  const studyFromDb = await getSourceStudyFromDatabase(study.id);
   expect(studyFromDb).toBeDefined();
   if (!studyFromDb) return;
   if ("unpublishedInfo" in study) {
@@ -1244,37 +1294,4 @@ async function expectSourceDatasetToExist(
   sourceDataset: TestSourceDataset
 ): Promise<void> {
   expect(await getSourceDatasetFromDatabase(sourceDataset.id)).toBeDefined();
-}
-
-async function getSourceDatasetFromDatabase(
-  sourceDatasetId: string | undefined
-): Promise<HCAAtlasTrackerDBSourceDataset> {
-  return (
-    await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
-      [sourceDatasetId]
-    )
-  ).rows[0];
-}
-
-async function getSourceDatasetsFromDatabase(
-  sourceStudyId: string
-): Promise<HCAAtlasTrackerDBSourceDataset[]> {
-  return (
-    await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
-      [sourceStudyId]
-    )
-  ).rows;
-}
-
-async function getStudyFromDatabase(
-  id: string
-): Promise<HCAAtlasTrackerDBSourceStudy | undefined> {
-  return (
-    await query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies WHERE id=$1",
-      [id]
-    )
-  ).rows[0];
 }

@@ -1,3 +1,4 @@
+import pg from "pg";
 import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBAtlas,
@@ -254,6 +255,16 @@ export async function updateEntrySheetValidationsFromResultPromises(
         client
       );
   });
+}
+
+export async function deleteEntrySheetValidationsOfDeletedSourceStudy(
+  sourceStudyId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await client.query(
+    "DELETE FROM hat.entry_sheet_validations WHERE source_study_id=$1",
+    [sourceStudyId]
+  );
 }
 
 async function getSheetValidationResults(
