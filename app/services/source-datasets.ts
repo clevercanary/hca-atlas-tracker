@@ -15,7 +15,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { CellxGeneDataset } from "../utils/cellxgene-api";
-import { getSheetTitleForApi } from "../utils/google-sheets";
+import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { removeSourceDatasetsFromAllAtlases } from "./atlases";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
