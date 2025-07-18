@@ -256,6 +256,16 @@ export async function updateEntrySheetValidationsFromResultPromises(
   });
 }
 
+export async function deleteEntrySheetValidationsBySpreadsheet(
+  spreadsheetIds: string[],
+  client: pg.PoolClient
+): Promise<void> {
+  await client.query(
+    "DELETE FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
+    [spreadsheetIds]
+  );
+}
+
 export async function deleteEntrySheetValidationsOfDeletedSourceStudy(
   sourceStudyId: string,
   client: pg.PoolClient

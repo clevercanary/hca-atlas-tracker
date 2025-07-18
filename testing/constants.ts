@@ -838,6 +838,14 @@ export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
 
 // ENTRY SHEETS
 
+export const ENTRY_SHEET_ID_DRAFT_OK_FOO =
+  "1WYVCCPyldD5H4XPWoo54DWuJpCxZBkT8dsQAUm70YAU";
+export const ENTRY_SHEET_TITLE_DRAFT_OK_FOO = "Entry Sheet Draft OK Foo";
+
+export const ENTRY_SHEET_ID_DRAFT_OK_BAR =
+  "1WT0EHqvxtnWfE2Bc5we6FJ9tx01pk5D19YXPJX1ZBMk";
+export const ENTRY_SHEET_TITLE_DRAFT_OK_BAR = "Entry Sheet Draft OK Bar";
+
 export const ENTRY_SHEET_ID_WITH_UPDATE =
   "1josZ23Q9x8tKRNk4yub5pJ66wEY2Sphf-WoOPDdm-JZ";
 
@@ -991,6 +999,16 @@ export const SOURCE_STUDY_DRAFT_OK: TestPublishedSourceStudy = {
   doi: DOI_DRAFT_OK,
   doiStatus: DOI_STATUS.OK,
   id: "d2932506-0af5-4030-920c-07f6beeb817a",
+  metadataSpreadsheets: [
+    {
+      id: ENTRY_SHEET_ID_DRAFT_OK_FOO,
+      title: ENTRY_SHEET_TITLE_DRAFT_OK_FOO,
+    },
+    {
+      id: ENTRY_SHEET_ID_DRAFT_OK_BAR,
+      title: ENTRY_SHEET_TITLE_DRAFT_OK_BAR,
+    },
+  ],
   publication: PUBLICATION_DRAFT_OK,
 };
 
@@ -2337,6 +2355,60 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
 
 // ENTRY SHEET VALIDATIONS
 
+export const ENTRY_SHEET_VALIDATION_DRAFT_OK_FOO: TestEntrySheetValidation = {
+  entry_sheet_id: ENTRY_SHEET_ID_DRAFT_OK_FOO,
+  entry_sheet_title: ENTRY_SHEET_TITLE_DRAFT_OK_FOO,
+  id: "aa8d5ffb-0fdc-4352-b35d-146fdb2c26ac",
+  last_synced: new Date("2025-07-18T23:00:12.149Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_DRAFT_OK.id,
+  validation_report: [
+    {
+      cell: null,
+      column: null,
+      entity_type: null,
+      input: null,
+      message: "error foo foo",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+  ],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
+};
+
+export const ENTRY_SHEET_VALIDATION_DRAFT_OK_BAR: TestEntrySheetValidation = {
+  entry_sheet_id: ENTRY_SHEET_ID_DRAFT_OK_BAR,
+  entry_sheet_title: ENTRY_SHEET_TITLE_DRAFT_OK_BAR,
+  id: "1a76610a-41ba-40c4-8413-c983e5cb4d3e",
+  last_synced: new Date("2025-07-18T23:00:22.150Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_DRAFT_OK.id,
+  validation_report: [
+    {
+      cell: null,
+      column: null,
+      entity_type: null,
+      input: null,
+      message: "error foo bar",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+  ],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
+};
+
 export const ENTRY_SHEET_VALIDATION_WITH_UPDATE: TestEntrySheetValidation = {
   entry_sheet_id: ENTRY_SHEET_ID_WITH_UPDATE,
   entry_sheet_title: "Entry Sheet With Update",
@@ -2434,6 +2506,8 @@ export const ENTRY_SHEET_VALIDATION_NO_SYNC: TestEntrySheetValidation = {
 };
 
 export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
+  ENTRY_SHEET_VALIDATION_DRAFT_OK_FOO,
+  ENTRY_SHEET_VALIDATION_DRAFT_OK_BAR,
   ENTRY_SHEET_VALIDATION_WITH_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE,
@@ -2671,6 +2745,8 @@ export const TEST_COMMENTS_BY_THREAD_ID = TEST_COMMENTS.reduce(
 export const TEST_UNSHARED_GOOGLE_SHEET_IDS = new Set(["sheet-unshared"]);
 
 export const TEST_GOOGLE_SHEET_TITLES_BY_ID: Record<string, string> = {
+  [ENTRY_SHEET_ID_DRAFT_OK_BAR]: ENTRY_SHEET_TITLE_DRAFT_OK_BAR,
+  [ENTRY_SHEET_ID_DRAFT_OK_FOO]: ENTRY_SHEET_TITLE_DRAFT_OK_FOO,
   "atlas-public-baz": "Atlas Public Baz Sheet",
   "new-atlas-with-metadata-specification":
     "New Atlas With Metadata Specification Sheet",

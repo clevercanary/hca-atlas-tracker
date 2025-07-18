@@ -41,6 +41,7 @@ import {
   query,
 } from "./database";
 import {
+  deleteEntrySheetValidationsBySpreadsheet,
   deleteEntrySheetValidationsOfDeletedSourceStudy,
   EntrySheetValidationUpdateParameters,
   startEntrySheetValidationsUpdate,
@@ -310,6 +311,7 @@ export async function updateSourceStudy(
   const newInfo = await sourceStudyInputDataToDbData(inputData);
 
   const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] = [];
+  const removedEntrySheetIds = new Set(existingEntrySheetIds);
   for (const { id: spreadsheetId } of newInfo.study_info.metadataSpreadsheets) {
     if (!existingEntrySheetIds.has(spreadsheetId)) {
       newEntrySheetsInfo.push({
@@ -318,10 +320,13 @@ export async function updateSourceStudy(
         spreadsheetId,
       });
     }
+    removedEntrySheetIds.delete(spreadsheetId);
   }
 
   const client = await getPoolClient();
   try {
+    // Update source study entry
+
     await client.query("BEGIN");
 
     const queryResult = await client.query<HCAAtlasTrackerDBSourceStudy>(
@@ -336,9 +341,18 @@ export async function updateSourceStudy(
 
     const updatedStudyRow = queryResult.rows[0];
 
+    // Delete entry sheet validations for removed entry sheets
+    if (removedEntrySheetIds.size)
+      await deleteEntrySheetValidationsBySpreadsheet(
+        Array.from(removedEntrySheetIds),
+        client
+      );
+
+    // Update associated CELLxGENE datasets and source study validations
     await updateSourceStudyCellxGeneDatasets(updatedStudyRow, client);
     await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
 
+    // Get updated study with related entities to return
     const updatedStudy = await getSourceStudy(atlasId, sourceStudyId, client);
 
     await client.query("COMMIT");
