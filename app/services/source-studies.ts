@@ -30,10 +30,8 @@ import {
 } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
-import {
-  getSheetTitleForApi,
-  getSpreadsheetIdFromUrl,
-} from "../utils/google-sheets";
+import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
+import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { getBaseModelAtlas } from "./atlases";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import {

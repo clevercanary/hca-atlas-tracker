@@ -1,4 +1,5 @@
-import { getSheetTitle, InvalidSheetError } from "app/utils/google-sheets";
+import { InvalidSheetError } from "app/utils/google-sheets";
+import { getSheetTitle } from "app/utils/google-sheets-api";
 import { withConsoleErrorHiding } from "testing/utils";
 
 jest.mock("googleapis");
