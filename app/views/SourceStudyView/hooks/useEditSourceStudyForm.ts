@@ -6,6 +6,7 @@ import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-trac
 import { PathParameter } from "../../../common/entities";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
+import { buildSheetsUrl } from "../../../utils/google-sheets";
 import { PUBLICATION_STATUS } from "../../AddNewSourceStudyView/common/entities";
 import { FIELD_NAME } from "../common/constants";
 import { SourceStudyEditData } from "../common/entities";
@@ -80,7 +81,7 @@ function mapSchemaValues(
     ),
     [FIELD_NAME.METADATA_SPREADSHEETS]:
       sourceStudy?.metadataSpreadsheets.map(({ id, ...props }) => ({
-        url: `https://docs.google.com/spreadsheets/d/${id}/edit`,
+        url: buildSheetsUrl(id),
         ...props,
       })) ?? [],
     [FIELD_NAME.PUBLICATION_STATUS]: mapPublicationStatus(sourceStudy?.doi),

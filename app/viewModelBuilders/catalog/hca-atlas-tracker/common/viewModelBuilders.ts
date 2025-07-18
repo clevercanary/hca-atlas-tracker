@@ -53,6 +53,7 @@ import {
 } from "../../../../components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
+import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 import { UseSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { EXTRA_PROPS } from "./constants";
@@ -332,7 +333,7 @@ export function buildMetadataSpreadsheets(
 ): ComponentProps<typeof C.LinksCell> {
   return {
     links: sourceStudy.metadataSpreadsheets.map(({ id, title }) => {
-      const url = `https://docs.google.com/spreadsheets/d/${id}/edit`;
+      const url = buildSheetsUrl(id);
       return {
         label: title ?? url,
         noWrap: true,
