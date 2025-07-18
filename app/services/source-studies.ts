@@ -306,16 +306,13 @@ export async function updateSourceStudy(
     sourceStudyId,
   ]);
   const existingEntrySheetIds = new Set(
-    existingSourceStudy.study_info.metadataSpreadsheets.map(({ url }) =>
-      getSpreadsheetIdFromUrl(url)
-    )
+    existingSourceStudy.study_info.metadataSpreadsheets.map(({ id }) => id)
   );
 
   const newInfo = await sourceStudyInputDataToDbData(inputData);
 
   const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] = [];
-  for (const { url } of newInfo.study_info.metadataSpreadsheets) {
-    const spreadsheetId = getSpreadsheetIdFromUrl(url);
+  for (const { id: spreadsheetId } of newInfo.study_info.metadataSpreadsheets) {
     if (!existingEntrySheetIds.has(spreadsheetId)) {
       newEntrySheetsInfo.push({
         bioNetwork: atlas.overview.network,
@@ -473,8 +470,8 @@ async function getMetadataSpreadsheetsInfo(
     const info: GoogleSheetInfo[] = [];
     for (const [i, { url }] of inputData.metadataSpreadsheets.entries()) {
       info.push({
+        id: getSpreadsheetIdFromUrl(url),
         title: await getSheetTitleForApi(url, `metadataSpreadsheets.${i}.url`),
-        url,
       });
     }
     return info;

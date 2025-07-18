@@ -331,12 +331,15 @@ export function buildMetadataSpreadsheets(
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): ComponentProps<typeof C.LinksCell> {
   return {
-    links: sourceStudy.metadataSpreadsheets.map(({ title, url }) => ({
-      label: title ?? url,
-      noWrap: true,
-      target: ANCHOR_TARGET.BLANK,
-      url,
-    })),
+    links: sourceStudy.metadataSpreadsheets.map(({ id, title }) => {
+      const url = `https://docs.google.com/spreadsheets/d/${id}/edit`;
+      return {
+        label: title ?? url,
+        noWrap: true,
+        target: ANCHOR_TARGET.BLANK,
+        url,
+      };
+    }),
   };
 }
 

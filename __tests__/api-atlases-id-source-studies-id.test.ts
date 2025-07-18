@@ -12,6 +12,7 @@ import {
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import { startEntrySheetValidationsUpdate } from "../app/services/entry-sheets";
+import { getSpreadsheetIdFromUrl } from "../app/utils/google-sheets";
 import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 import {
   ATLAS_DRAFT,
@@ -662,20 +663,20 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const editUrls =
+    const editIds =
       SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT.metadataSpreadsheets.map(
-        ({ url }) => url
+        ({ url }) => getSpreadsheetIdFromUrl(url)
       );
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(updatedStudy.metadataSpreadsheets.map(({ url }) => url)).toEqual(
-      editUrls
+    expect(updatedStudy.metadataSpreadsheets.map(({ id }) => id)).toEqual(
+      editIds
     );
     const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(
-      studyFromDb.study_info.metadataSpreadsheets.map(({ url }) => url)
-    ).toEqual(editUrls);
+      studyFromDb.study_info.metadataSpreadsheets.map(({ id }) => id)
+    ).toEqual(editIds);
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
     expect(entrySheetsUpdateMock).toHaveBeenLastCalledWith<
@@ -1263,8 +1264,12 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
   );
   expect(studyFromDb.study_info.hcaProjectId).toEqual(editData.hcaProjectId);
   expect(
-    studyFromDb.study_info.metadataSpreadsheets.map((sheet) => sheet.url)
-  ).toEqual(editData.metadataSpreadsheets.map((sheet) => sheet.url));
+    studyFromDb.study_info.metadataSpreadsheets.map((sheet) => sheet.id)
+  ).toEqual(
+    editData.metadataSpreadsheets.map((sheet) =>
+      getSpreadsheetIdFromUrl(sheet.url)
+    )
+  );
 }
 
 async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {
