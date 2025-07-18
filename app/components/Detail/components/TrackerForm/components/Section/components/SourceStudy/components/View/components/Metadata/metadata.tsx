@@ -3,6 +3,7 @@ import { useFieldArray } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
+import { getSpreadsheetIdFromUrl } from "../../../../../../../../../../../../utils/google-sheets";
 import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
 import { InputController } from "../../../../../../../../../../../common/Form/components/Controllers/components/InputController/inputController";
 import {
@@ -78,8 +79,14 @@ function getMetadataSpreadsheetHelperText(
   sheetUrl: string
 ): string | null {
   if (sourceStudy) {
+    let sheetId: string;
+    try {
+      sheetId = getSpreadsheetIdFromUrl(sheetUrl);
+    } catch (_) {
+      return null;
+    }
     for (const sheet of sourceStudy.metadataSpreadsheets) {
-      if (sheet.url === sheetUrl) return sheet.title;
+      if (sheet.id === sheetId) return sheet.title;
     }
   }
   return null;

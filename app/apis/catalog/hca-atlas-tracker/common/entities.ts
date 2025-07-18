@@ -547,8 +547,8 @@ export interface LinkInfo {
 }
 
 export interface GoogleSheetInfo {
+  id: string;
   title: string | null;
-  url: string;
 }
 
 export type SourceDatasetId = string;

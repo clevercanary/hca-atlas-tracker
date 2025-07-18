@@ -1420,16 +1420,16 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestUnpublishedSourc
     id: "daf8febc-a38d-4e8e-91be-802aab281f02",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_WITH_UPDATE,
         title: "Entry Sheet With Update",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_UPDATE}/edit`,
       },
       {
+        id: ENTRY_SHEET_ID_WITH_ERRORED_UPDATE,
         title: "Entry Sheet With Errored Update",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_ERRORED_UPDATE}/edit`,
       },
       {
+        id: ENTRY_SHEET_ID_NEW,
         title: "Entry Sheet New",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW}/edit`,
       },
     ],
     unpublishedInfo: {
@@ -1448,12 +1448,12 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestPublishedSourceS
     id: "6ffcfd9d-3c51-4ef6-b082-b4e77ebf3327",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_WITH_FAILED_UPDATE,
         title: "Entry Sheet With Failed Update",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_FAILED_UPDATE}/edit`,
       },
       {
+        id: ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE,
         title: "Entry Sheet With Malformed Response",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE}/edit`,
       },
     ],
     publication: {
@@ -1475,8 +1475,8 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ: TestUnpublishedSourc
     id: "e9bee7ff-a894-435a-b5fe-8af4b942cc0c",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_NO_SYNC,
         title: "Entry Sheet No Sync",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NO_SYNC}/edit`,
       },
     ],
     unpublishedInfo: {
@@ -1493,8 +1493,8 @@ export const SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestUnpublish
     id: "9919078a-0b51-4cd5-995e-ce311aa6e564",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_NEW_NON_SHARED,
         title: "Entry Sheet New Non Shared",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW_NON_SHARED}/edit`,
       },
     ],
     unpublishedInfo: {

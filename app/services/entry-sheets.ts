@@ -8,7 +8,6 @@ import {
   WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "../utils/api-handler";
-import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
 import { validateEntrySheet } from "../utils/hca-validation-tools/hca-validation-tools";
 import { getBaseModelAtlas } from "./atlases";
 import { doTransaction, query } from "./database";
@@ -109,7 +108,7 @@ export async function startAtlasEntrySheetValidationsUpdate(
       study.study_info.metadataSpreadsheets.map((sheetInfo) => ({
         bioNetwork,
         sourceStudyId: study.id,
-        spreadsheetId: getSpreadsheetIdFromUrl(sheetInfo.url),
+        spreadsheetId: sheetInfo.id,
       }))
     )
     .flat();
