@@ -867,6 +867,9 @@ export const ENTRY_SHEET_ID_NEW_NON_SHARED =
 export const ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE =
   "1OesrppsmDCTR-SeGs1gn6fIcbX6OjG5OsbOrT7Rh5dj";
 
+export const ENTRY_SHEET_ID_NO_STUDY =
+  "12yIrZ_ZRpPMJgNa0BmoyQEJZTTO3QUxvDiMtcqHal-o";
+
 export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
   errors: [
     {
@@ -966,6 +969,22 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_MALFORMED = {
   },
 };
 
+export const ENTRY_SHEET_VALIDATION_RESPONSE_NO_STUDY = {
+  errors: [],
+  last_updated: {
+    by: "barfoo",
+    by_email: "barfoo@example.com",
+    date: "2025-07-19T06:35:15.565Z",
+  },
+  sheet_title: "Entry Sheet No Study",
+  summary: {
+    dataset_count: 3,
+    donor_count: 14,
+    error_count: 0,
+    sample_count: 19,
+  },
+} satisfies EntrySheetValidationResponse;
+
 export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
   string,
   unknown
@@ -984,6 +1003,7 @@ export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
     ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE,
     ENTRY_SHEET_VALIDATION_RESPONSE_MALFORMED,
   ],
+  [ENTRY_SHEET_ID_NO_STUDY, ENTRY_SHEET_VALIDATION_RESPONSE_NO_STUDY],
 ]);
 
 export const TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE =
