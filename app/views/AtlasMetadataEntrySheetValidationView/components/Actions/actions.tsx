@@ -6,10 +6,10 @@ import {
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
 import { useEntity } from "../../../../providers/entity/hook";
+import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { EntityData } from "../../entities";
 import { UseEntrySheetSync } from "../../hooks/UseEntrySheetSync/types";
 import { HeroActions } from "./actions.styles";
-import { buildSheetsUrl } from "./utils";
 
 type Props = UseEntrySheetSync;
 
@@ -40,7 +40,7 @@ export const Actions = ({
       </Button>
       <Button
         color={BUTTON_PROPS.COLOR.PRIMARY}
-        href={buildSheetsUrl(entrySheetId, null, null, null)}
+        href={buildSheetsUrl(entrySheetId)}
         startIcon={<OpenInNewIcon />}
         rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
         size={BUTTON_PROPS.SIZE.MEDIUM}

@@ -5,6 +5,7 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { getRouteURL } from "../../../common/utils";
 import { getPartialCellContext } from "../../../components/Table/components/utils";
 import { ROUTE } from "../../../routes/constants";
+import { buildSheetsUrl } from "../../../utils/google-sheets";
 import { ValidationSummaryCellProps } from "../components/Table/components/TableCell/components/ValidationSummaryCell/types";
 import { MetadataEntrySheet } from "../entities";
 
@@ -39,7 +40,7 @@ export function buildEntrySheetTitle(
   const { entrySheetId, entrySheetTitle } = row.original;
   return getPartialCellContext({
     children: entrySheetTitle,
-    href: `https://docs.google.com/spreadsheets/d/${entrySheetId}`,
+    href: buildSheetsUrl(entrySheetId),
   });
 }
 

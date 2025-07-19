@@ -53,6 +53,7 @@ import {
 } from "../../../../components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
+import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 import { UseSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { EXTRA_PROPS } from "./constants";
@@ -331,12 +332,15 @@ export function buildMetadataSpreadsheets(
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): ComponentProps<typeof C.LinksCell> {
   return {
-    links: sourceStudy.metadataSpreadsheets.map(({ title, url }) => ({
-      label: title ?? url,
-      noWrap: true,
-      target: ANCHOR_TARGET.BLANK,
-      url,
-    })),
+    links: sourceStudy.metadataSpreadsheets.map(({ id, title }) => {
+      const url = buildSheetsUrl(id);
+      return {
+        label: title ?? url,
+        noWrap: true,
+        target: ANCHOR_TARGET.BLANK,
+        url,
+      };
+    }),
   };
 }
 

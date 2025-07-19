@@ -8,7 +8,6 @@ import {
   WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "../utils/api-handler";
-import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
 import { validateEntrySheet } from "../utils/hca-validation-tools/hca-validation-tools";
 import { getBaseModelAtlas } from "./atlases";
 import { doTransaction, query } from "./database";
@@ -109,7 +108,7 @@ export async function startAtlasEntrySheetValidationsUpdate(
       study.study_info.metadataSpreadsheets.map((sheetInfo) => ({
         bioNetwork,
         sourceStudyId: study.id,
-        spreadsheetId: getSpreadsheetIdFromUrl(sheetInfo.url),
+        spreadsheetId: sheetInfo.id,
       }))
     )
     .flat();
@@ -193,68 +192,112 @@ export async function updateEntrySheetValidationsFromResultPromises(
   }
 
   await doTransaction(async (client) => {
-    const sheetIds = validations.map((v) => v.entry_sheet_id);
-    const existingValidationsResult = await query<
-      Pick<HCAAtlasTrackerDBEntrySheetValidation, "entry_sheet_id">
-    >(
-      "SELECT entry_sheet_id FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
-      [sheetIds],
+    // Determine which entry sheets still exist
+    const sourceStudyIds = new Set(validations.map((v) => v.source_study_id));
+    const studiesSheetsResult = await query<{ id: string }>(
+      `
+        SELECT jsonb_array_elements(study_info -> 'metadataSpreadsheets') ->> 'id' AS id
+        FROM hat.source_studies s
+        WHERE s.id = ANY($1)
+      `,
+      [Array.from(sourceStudyIds)],
       client
     );
-    const existingValidationSheetIds = existingValidationsResult.rows.map(
-      (v) => v.entry_sheet_id
+    const studiesSheetIds = new Set(
+      studiesSheetsResult.rows.map(({ id }) => id)
     );
-    const updatedValidations: ValidationUpdateData[] = [];
-    const newValidations: ValidationUpdateData[] = [];
-    for (const validation of validations) {
-      if (existingValidationSheetIds.includes(validation.entry_sheet_id))
-        updatedValidations.push(validation);
-      else newValidations.push(validation);
-    }
-    if (updatedValidations.length)
-      await query(
-        `
-          UPDATE hat.entry_sheet_validations v
-          SET
-            entry_sheet_title = u.entry_sheet_title,
-            last_synced = u.last_synced,
-            last_updated = u.last_updated,
-            validation_report = u.validation_report,
-            validation_summary = u.validation_summary
-          FROM jsonb_to_recordset($1) as u(
-            entry_sheet_id text,
-            entry_sheet_title text,
-            last_synced timestamp,
-            last_updated jsonb,
-            source_study_id uuid,
-            validation_report jsonb,
-            validation_summary jsonb
-          )
-          WHERE v.entry_sheet_id = u.entry_sheet_id
-        `,
-        [JSON.stringify(updatedValidations)],
-        client
-      );
-    if (newValidations.length)
-      await query(
-        `
-          INSERT INTO hat.entry_sheet_validations (
-            entry_sheet_id, entry_sheet_title, last_synced, last_updated, source_study_id, validation_report, validation_summary
-          )
-          SELECT * FROM jsonb_to_recordset($1) as u(
-            entry_sheet_id text,
-            entry_sheet_title text,
-            last_synced timestamp,
-            last_updated jsonb,
-            source_study_id uuid,
-            validation_report jsonb,
-            validation_summary jsonb
-          )
-        `,
-        [JSON.stringify(newValidations)],
-        client
-      );
+    const validationsToKeep = validations.filter((v) =>
+      studiesSheetIds.has(v.entry_sheet_id)
+    );
+
+    // If none are present, there are no changes to make
+    if (validationsToKeep.length === 0) return;
+
+    // Create and update validations
+    await createAndUpdateEntrySheetValidations(validationsToKeep, client);
   });
+}
+
+async function createAndUpdateEntrySheetValidations(
+  validations: ValidationUpdateData[],
+  client: pg.PoolClient
+): Promise<void> {
+  // Get existing entry sheet validations
+  const sheetIds = validations.map((v) => v.entry_sheet_id);
+  const existingValidationsResult = await query<
+    Pick<HCAAtlasTrackerDBEntrySheetValidation, "entry_sheet_id">
+  >(
+    "SELECT entry_sheet_id FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
+    [sheetIds],
+    client
+  );
+  const existingValidationSheetIds = existingValidationsResult.rows.map(
+    (v) => v.entry_sheet_id
+  );
+
+  // Split validations into new and updated
+  const updatedValidations: ValidationUpdateData[] = [];
+  const newValidations: ValidationUpdateData[] = [];
+  for (const validation of validations) {
+    if (existingValidationSheetIds.includes(validation.entry_sheet_id))
+      updatedValidations.push(validation);
+    else newValidations.push(validation);
+  }
+
+  // Update and create validations as appropriate
+  if (updatedValidations.length)
+    await query(
+      `
+        UPDATE hat.entry_sheet_validations v
+        SET
+          entry_sheet_title = u.entry_sheet_title,
+          last_synced = u.last_synced,
+          last_updated = u.last_updated,
+          validation_report = u.validation_report,
+          validation_summary = u.validation_summary
+        FROM jsonb_to_recordset($1) as u(
+          entry_sheet_id text,
+          entry_sheet_title text,
+          last_synced timestamp,
+          last_updated jsonb,
+          source_study_id uuid,
+          validation_report jsonb,
+          validation_summary jsonb
+        )
+        WHERE v.entry_sheet_id = u.entry_sheet_id
+      `,
+      [JSON.stringify(updatedValidations)],
+      client
+    );
+  if (newValidations.length)
+    await query(
+      `
+        INSERT INTO hat.entry_sheet_validations (
+          entry_sheet_id, entry_sheet_title, last_synced, last_updated, source_study_id, validation_report, validation_summary
+        )
+        SELECT * FROM jsonb_to_recordset($1) as u(
+          entry_sheet_id text,
+          entry_sheet_title text,
+          last_synced timestamp,
+          last_updated jsonb,
+          source_study_id uuid,
+          validation_report jsonb,
+          validation_summary jsonb
+        )
+      `,
+      [JSON.stringify(newValidations)],
+      client
+    );
+}
+
+export async function deleteEntrySheetValidationsBySpreadsheet(
+  spreadsheetIds: string[],
+  client: pg.PoolClient
+): Promise<void> {
+  await client.query(
+    "DELETE FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
+    [spreadsheetIds]
+  );
 }
 
 export async function deleteEntrySheetValidationsOfDeletedSourceStudy(

@@ -1,7 +1,3 @@
-import { google } from "googleapis";
-import { GaxiosError } from "googleapis-common";
-import { ValidationError } from "yup";
-
 export class InvalidSheetError extends Error {
   name = "InvalidSheetError";
 }
@@ -18,68 +14,33 @@ export function getSpreadsheetIdFromUrl(urlString: string): string {
   return spreadsheetId;
 }
 
-export async function getSheetTitle(
-  spreadsheetUrl: string
-): Promise<string | null> {
-  // Get credentials from environment variable
-  const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT;
-  if (!credentialsJson) {
-    console.error("GOOGLE_SERVICE_ACCOUNT environment variable not found");
-    return null;
-  }
-  // Parse JSON credentials
-  const credentials = JSON.parse(credentialsJson);
-
-  // Create a JWT client
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-  });
-
-  // Create Sheets API client
-  const sheets = google.sheets({ auth, version: "v4" });
-
-  const spreadsheetId = getSpreadsheetIdFromUrl(spreadsheetUrl);
-
-  try {
-    // Get spreadsheet metadata
-    const response = await sheets.spreadsheets.get({
-      spreadsheetId: spreadsheetId,
-    });
-    return response.data.properties?.title ?? "Untitled";
-  } catch (error) {
-    if (error instanceof GaxiosError) {
-      if (error.response?.status === 404) {
-        throw new InvalidSheetError(
-          `The sheet with ID ${JSON.stringify(
-            spreadsheetId
-          )} does not exist. Please check if the URL is correct.`
-        );
-      } else if (error.response?.status === 403) {
-        throw new InvalidSheetError(
-          `To enable the tracker to read the spreadsheet, please share it with ${process.env.SERVICE_ACCOUNT_EMAIL}`
-        );
-      }
-    }
-    throw error;
-  }
-}
-
 /**
- * Get title of given spreadsheet if specified, throwing a validation error if the title isn't accessible.
- * @param spreadsheetUrl - URL of spreadsheet to get title of.
- * @param schemaKey - Key of the field containing the spreadsheet URL, to be used in a validation error.
- * @returns spreadsheet title or null.
+ * Generates a Google Sheets URL pointing to a specific sheet tab and optionally to a specific cell or row.
+ *
+ * The generated URL includes the `/edit` path and a fragment with the sheet `gid` and a `range` if a cell or row is specified.
+ * - If both `cell` and `row` are provided, `cell` takes precedence.
+ * - If neither `cell` nor `row` is provided, the URL will point only to the sheet/tab (or just the sheet if no `gid`).
+ *
+ * @param entrySheetId - The Google Sheets document ID (from the URL).
+ * @param gid - The numeric worksheet (tab) ID. If null, no sheet will be specified.
+ * @param cell - A specific cell to link to (e.g. "B7"). Takes precedence over `row` if provided.
+ * @param row - A row number to highlight (e.g. 5). Used only if `cell` is null.
+ * @returns A complete URL string that opens the Google Sheet at the desired location.
  */
-export async function getSheetTitleForApi(
-  spreadsheetUrl: string | null | undefined,
-  schemaKey: string
-): Promise<string | null> {
-  return spreadsheetUrl
-    ? await getSheetTitle(spreadsheetUrl).catch((err) => {
-        throw err instanceof InvalidSheetError
-          ? new ValidationError(err.message, undefined, schemaKey)
-          : err;
-      })
-    : null;
+export function buildSheetsUrl(
+  entrySheetId: string,
+  gid: number | null = null,
+  cell: string | null = null,
+  row: number | null = null
+): string {
+  const base = `https://docs.google.com/spreadsheets/d/${entrySheetId}/edit`;
+
+  const fragments: string[] = [];
+  if (gid !== null) fragments.push(`gid=${gid}`);
+  if (cell) fragments.push(`range=${cell}`);
+  else if (row !== null) fragments.push(`range=${row + 1}:${row + 1}`);
+
+  const fragmentString = fragments.length ? `#${fragments.join("&")}` : "";
+
+  return `${base}${fragmentString}`;
 }

@@ -12,6 +12,7 @@ import {
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import { startEntrySheetValidationsUpdate } from "../app/services/entry-sheets";
+import { getSpreadsheetIdFromUrl } from "../app/utils/google-sheets";
 import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 import {
   ATLAS_DRAFT,
@@ -30,6 +31,8 @@ import {
   DOI_DRAFT_OK,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
+  ENTRY_SHEET_ID_DRAFT_OK_BAR,
+  ENTRY_SHEET_ID_DRAFT_OK_FOO,
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
@@ -105,13 +108,21 @@ const entrySheetsUpdateMock = startEntrySheetValidationsUpdate as jest.Mock;
 let actualEntrySheetsModule: typeof import("../app/services/entry-sheets");
 
 jest.mock("../app/services/entry-sheets", () => {
-  const deleteEntrySheetValidationsOfDeletedSourceStudy: typeof import("../app/services/entry-sheets")["deleteEntrySheetValidationsOfDeletedSourceStudy"] =
-    (...args) =>
-      actualEntrySheetsModule.deleteEntrySheetValidationsOfDeletedSourceStudy(
-        ...args
-      );
+  const unchangedItems: Partial<typeof import("../app/services/entry-sheets")> =
+    {
+      deleteEntrySheetValidationsBySpreadsheet(...args) {
+        return actualEntrySheetsModule.deleteEntrySheetValidationsBySpreadsheet(
+          ...args
+        );
+      },
+      deleteEntrySheetValidationsOfDeletedSourceStudy(...args) {
+        return actualEntrySheetsModule.deleteEntrySheetValidationsOfDeletedSourceStudy(
+          ...args
+        );
+      },
+    };
   return {
-    deleteEntrySheetValidationsOfDeletedSourceStudy,
+    ...unchangedItems,
     startEntrySheetValidationsUpdate: jest.fn(() => Promise.resolve()),
   };
 });
@@ -130,6 +141,9 @@ const SOURCE_STUDY_DRAFT_OK_EDIT: SourceStudyEditData = {
   contactEmail: "bar@example.com",
   hcaProjectId: null,
   metadataSpreadsheets: [
+    {
+      url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_DRAFT_OK_FOO}/edit`,
+    },
     { url: "https://docs.google.com/spreadsheets/d/sheet-foo/edit" },
     { url: "https://docs.google.com/spreadsheets/d/sheet-bar/edit" },
   ],
@@ -589,6 +603,19 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
   it("updates and returns study with unpublished data when PUT requested", async () => {
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
 
+    const validationEntrySheetIdsBefore = (
+      await getSourceStudyEntrySheetValidationsFromDatabase(
+        SOURCE_STUDY_DRAFT_OK.id
+      )
+    ).map((v) => v.entry_sheet_id);
+
+    expect(validationEntrySheetIdsBefore).toContain(
+      ENTRY_SHEET_ID_DRAFT_OK_FOO
+    );
+    expect(validationEntrySheetIdsBefore).toContain(
+      ENTRY_SHEET_ID_DRAFT_OK_BAR
+    );
+
     const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
@@ -605,6 +632,17 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expectDbSourceStudyToMatchUnpublishedEdit(
       studyFromDb,
       SOURCE_STUDY_DRAFT_OK_EDIT
+    );
+
+    const validationEntrySheetIdsAfter = (
+      await getSourceStudyEntrySheetValidationsFromDatabase(
+        SOURCE_STUDY_DRAFT_OK.id
+      )
+    ).map((v) => v.entry_sheet_id);
+
+    expect(validationEntrySheetIdsAfter).toContain(ENTRY_SHEET_ID_DRAFT_OK_FOO);
+    expect(validationEntrySheetIdsAfter).not.toContain(
+      ENTRY_SHEET_ID_DRAFT_OK_BAR
     );
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
@@ -662,20 +700,20 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT
     );
     expect(res._getStatusCode()).toEqual(200);
-    const editUrls =
+    const editIds =
       SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT.metadataSpreadsheets.map(
-        ({ url }) => url
+        ({ url }) => getSpreadsheetIdFromUrl(url)
       );
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(updatedStudy.metadataSpreadsheets.map(({ url }) => url)).toEqual(
-      editUrls
+    expect(updatedStudy.metadataSpreadsheets.map(({ id }) => id)).toEqual(
+      editIds
     );
     const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(
-      studyFromDb.study_info.metadataSpreadsheets.map(({ url }) => url)
-    ).toEqual(editUrls);
+      studyFromDb.study_info.metadataSpreadsheets.map(({ id }) => id)
+    ).toEqual(editIds);
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
     expect(entrySheetsUpdateMock).toHaveBeenLastCalledWith<
@@ -1263,8 +1301,12 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
   );
   expect(studyFromDb.study_info.hcaProjectId).toEqual(editData.hcaProjectId);
   expect(
-    studyFromDb.study_info.metadataSpreadsheets.map((sheet) => sheet.url)
-  ).toEqual(editData.metadataSpreadsheets.map((sheet) => sheet.url));
+    studyFromDb.study_info.metadataSpreadsheets.map((sheet) => sheet.id)
+  ).toEqual(
+    editData.metadataSpreadsheets.map((sheet) =>
+      getSpreadsheetIdFromUrl(sheet.url)
+    )
+  );
 }
 
 async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {

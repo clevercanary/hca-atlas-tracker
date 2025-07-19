@@ -18,7 +18,7 @@ import {
   NewAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { normalizeDoi } from "../utils/doi";
-import { getSheetTitleForApi } from "../utils/google-sheets";
+import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { query } from "./database";
 import { confirmSourceDatasetStudyIsOnAtlas } from "./source-datasets";
 

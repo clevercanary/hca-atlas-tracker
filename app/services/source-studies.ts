@@ -30,10 +30,8 @@ import {
 } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
-import {
-  getSheetTitleForApi,
-  getSpreadsheetIdFromUrl,
-} from "../utils/google-sheets";
+import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
+import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { getBaseModelAtlas } from "./atlases";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import {
@@ -43,6 +41,7 @@ import {
   query,
 } from "./database";
 import {
+  deleteEntrySheetValidationsBySpreadsheet,
   deleteEntrySheetValidationsOfDeletedSourceStudy,
   EntrySheetValidationUpdateParameters,
   startEntrySheetValidationsUpdate,
@@ -306,16 +305,14 @@ export async function updateSourceStudy(
     sourceStudyId,
   ]);
   const existingEntrySheetIds = new Set(
-    existingSourceStudy.study_info.metadataSpreadsheets.map(({ url }) =>
-      getSpreadsheetIdFromUrl(url)
-    )
+    existingSourceStudy.study_info.metadataSpreadsheets.map(({ id }) => id)
   );
 
   const newInfo = await sourceStudyInputDataToDbData(inputData);
 
   const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] = [];
-  for (const { url } of newInfo.study_info.metadataSpreadsheets) {
-    const spreadsheetId = getSpreadsheetIdFromUrl(url);
+  const removedEntrySheetIds = new Set(existingEntrySheetIds);
+  for (const { id: spreadsheetId } of newInfo.study_info.metadataSpreadsheets) {
     if (!existingEntrySheetIds.has(spreadsheetId)) {
       newEntrySheetsInfo.push({
         bioNetwork: atlas.overview.network,
@@ -323,10 +320,13 @@ export async function updateSourceStudy(
         spreadsheetId,
       });
     }
+    removedEntrySheetIds.delete(spreadsheetId);
   }
 
   const client = await getPoolClient();
   try {
+    // Update source study entry
+
     await client.query("BEGIN");
 
     const queryResult = await client.query<HCAAtlasTrackerDBSourceStudy>(
@@ -341,9 +341,18 @@ export async function updateSourceStudy(
 
     const updatedStudyRow = queryResult.rows[0];
 
+    // Delete entry sheet validations for removed entry sheets
+    if (removedEntrySheetIds.size)
+      await deleteEntrySheetValidationsBySpreadsheet(
+        Array.from(removedEntrySheetIds),
+        client
+      );
+
+    // Update associated CELLxGENE datasets and source study validations
     await updateSourceStudyCellxGeneDatasets(updatedStudyRow, client);
     await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
 
+    // Get updated study with related entities to return
     const updatedStudy = await getSourceStudy(atlasId, sourceStudyId, client);
 
     await client.query("COMMIT");
@@ -473,8 +482,8 @@ async function getMetadataSpreadsheetsInfo(
     const info: GoogleSheetInfo[] = [];
     for (const [i, { url }] of inputData.metadataSpreadsheets.entries()) {
       info.push({
+        id: getSpreadsheetIdFromUrl(url),
         title: await getSheetTitleForApi(url, `metadataSpreadsheets.${i}.url`),
-        url,
       });
     }
     return info;
