@@ -1,6 +1,7 @@
 import { MigrationBuilder } from "node-pg-migrate";
 
 export function up(pgm: MigrationBuilder): void {
+  // Get list of entry sheet IDs that appear on source studies, and delete entry sheet validations for sheets not in that list
   pgm.sql(
     `
       WITH study_sheets AS (
