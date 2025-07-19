@@ -210,7 +210,7 @@ export async function updateEntrySheetValidationsFromResultPromises(
       studiesSheetIds.has(v.entry_sheet_id)
     );
 
-    // If none are present, return early
+    // If none are present, there are no changes to make
     if (validationsToKeep.length === 0) return;
 
     // Create and update validations
