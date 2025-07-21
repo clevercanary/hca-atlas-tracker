@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.22.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.21.0...v1.22.0) (2025-07-21)
+
+
+### Features
+
+* delete validations for removed entry sheets and use ids instead of urls ([#716](https://github.com/clevercanary/hca-atlas-tracker/issues/716)) ([#718](https://github.com/clevercanary/hca-atlas-tracker/issues/718)) ([4a932af](https://github.com/clevercanary/hca-atlas-tracker/commit/4a932af5c86b8bc0c697b77bc2e806b72b2f7bee))
+
+
+### Chores
+
+* update findable-ui to latest v38.2.0 ([#692](https://github.com/clevercanary/hca-atlas-tracker/issues/692)) ([#703](https://github.com/clevercanary/hca-atlas-tracker/issues/703)) ([5f2a5c6](https://github.com/clevercanary/hca-atlas-tracker/commit/5f2a5c66c50e919f8c01548b6532951ff2684fb0))
+
 ## [1.21.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.20.1...v1.21.0) (2025-07-17)
 
 
