@@ -9,7 +9,7 @@ import {
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
-import { getSheetTitleForApi } from "../app/utils/google-sheets";
+import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
   ATLAS_DRAFT,
@@ -53,13 +53,12 @@ jest.mock("next-auth");
 
 const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
 
-jest.mock("../app/utils/google-sheets", () => {
-  const googleSheets: typeof import("../app/utils/google-sheets") =
-    jest.requireActual("../app/utils/google-sheets");
+jest.mock("../app/utils/google-sheets-api", () => {
+  const googleSheetsApi: typeof import("../app/utils/google-sheets-api") =
+    jest.requireActual("../app/utils/google-sheets-api");
 
   return {
-    InvalidSheetError: googleSheets.InvalidSheetError,
-    getSheetTitleForApi: jest.fn(googleSheets.getSheetTitleForApi),
+    getSheetTitleForApi: jest.fn(googleSheetsApi.getSheetTitleForApi),
   };
 });
 
@@ -289,7 +288,7 @@ describe(TEST_ROUTE, () => {
         const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
         expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
         expect(atlas.componentAtlasCount).toEqual(2);
-        expect(atlas.entrySheetValidationCount).toEqual(0);
+        expect(atlas.entrySheetValidationCount).toEqual(2);
       }
     );
   }
@@ -300,7 +299,7 @@ describe(TEST_ROUTE, () => {
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
     expect(atlas.componentAtlasCount).toEqual(2);
-    expect(atlas.entrySheetValidationCount).toEqual(0);
+    expect(atlas.entrySheetValidationCount).toEqual(2);
   });
 
   it("returns atlas with both component atlases and entry sheet validations when GET requested by logged in user with CONTENT_ADMIN role", async () => {

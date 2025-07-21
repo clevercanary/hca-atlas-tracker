@@ -838,6 +838,14 @@ export const TEST_CELLXGENE_DATASETS_BY_COLLECTION_ID = new Map([
 
 // ENTRY SHEETS
 
+export const ENTRY_SHEET_ID_DRAFT_OK_FOO =
+  "1WYVCCPyldD5H4XPWoo54DWuJpCxZBkT8dsQAUm70YAU";
+export const ENTRY_SHEET_TITLE_DRAFT_OK_FOO = "Entry Sheet Draft OK Foo";
+
+export const ENTRY_SHEET_ID_DRAFT_OK_BAR =
+  "1WT0EHqvxtnWfE2Bc5we6FJ9tx01pk5D19YXPJX1ZBMk";
+export const ENTRY_SHEET_TITLE_DRAFT_OK_BAR = "Entry Sheet Draft OK Bar";
+
 export const ENTRY_SHEET_ID_WITH_UPDATE =
   "1josZ23Q9x8tKRNk4yub5pJ66wEY2Sphf-WoOPDdm-JZ";
 
@@ -858,6 +866,9 @@ export const ENTRY_SHEET_ID_NEW_NON_SHARED =
 
 export const ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE =
   "1OesrppsmDCTR-SeGs1gn6fIcbX6OjG5OsbOrT7Rh5dj";
+
+export const ENTRY_SHEET_ID_NO_STUDY =
+  "12yIrZ_ZRpPMJgNa0BmoyQEJZTTO3QUxvDiMtcqHal-o";
 
 export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
   errors: [
@@ -958,6 +969,22 @@ export const ENTRY_SHEET_VALIDATION_RESPONSE_MALFORMED = {
   },
 };
 
+export const ENTRY_SHEET_VALIDATION_RESPONSE_NO_STUDY = {
+  errors: [],
+  last_updated: {
+    by: "barfoo",
+    by_email: "barfoo@example.com",
+    date: "2025-07-19T06:35:15.565Z",
+  },
+  sheet_title: "Entry Sheet No Study",
+  summary: {
+    dataset_count: 3,
+    donor_count: 14,
+    error_count: 0,
+    sample_count: 19,
+  },
+} satisfies EntrySheetValidationResponse;
+
 export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
   string,
   unknown
@@ -976,6 +1003,7 @@ export const TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID = new Map<
     ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE,
     ENTRY_SHEET_VALIDATION_RESPONSE_MALFORMED,
   ],
+  [ENTRY_SHEET_ID_NO_STUDY, ENTRY_SHEET_VALIDATION_RESPONSE_NO_STUDY],
 ]);
 
 export const TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE =
@@ -991,6 +1019,16 @@ export const SOURCE_STUDY_DRAFT_OK: TestPublishedSourceStudy = {
   doi: DOI_DRAFT_OK,
   doiStatus: DOI_STATUS.OK,
   id: "d2932506-0af5-4030-920c-07f6beeb817a",
+  metadataSpreadsheets: [
+    {
+      id: ENTRY_SHEET_ID_DRAFT_OK_FOO,
+      title: ENTRY_SHEET_TITLE_DRAFT_OK_FOO,
+    },
+    {
+      id: ENTRY_SHEET_ID_DRAFT_OK_BAR,
+      title: ENTRY_SHEET_TITLE_DRAFT_OK_BAR,
+    },
+  ],
   publication: PUBLICATION_DRAFT_OK,
 };
 
@@ -1420,16 +1458,16 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestUnpublishedSourc
     id: "daf8febc-a38d-4e8e-91be-802aab281f02",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_WITH_UPDATE,
         title: "Entry Sheet With Update",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_UPDATE}/edit`,
       },
       {
+        id: ENTRY_SHEET_ID_WITH_ERRORED_UPDATE,
         title: "Entry Sheet With Errored Update",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_ERRORED_UPDATE}/edit`,
       },
       {
+        id: ENTRY_SHEET_ID_NEW,
         title: "Entry Sheet New",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW}/edit`,
       },
     ],
     unpublishedInfo: {
@@ -1448,12 +1486,12 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestPublishedSourceS
     id: "6ffcfd9d-3c51-4ef6-b082-b4e77ebf3327",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_WITH_FAILED_UPDATE,
         title: "Entry Sheet With Failed Update",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_FAILED_UPDATE}/edit`,
       },
       {
+        id: ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE,
         title: "Entry Sheet With Malformed Response",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE}/edit`,
       },
     ],
     publication: {
@@ -1475,8 +1513,8 @@ export const SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ: TestUnpublishedSourc
     id: "e9bee7ff-a894-435a-b5fe-8af4b942cc0c",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_NO_SYNC,
         title: "Entry Sheet No Sync",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NO_SYNC}/edit`,
       },
     ],
     unpublishedInfo: {
@@ -1493,8 +1531,8 @@ export const SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestUnpublish
     id: "9919078a-0b51-4cd5-995e-ce311aa6e564",
     metadataSpreadsheets: [
       {
+        id: ENTRY_SHEET_ID_NEW_NON_SHARED,
         title: "Entry Sheet New Non Shared",
-        url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_NEW_NON_SHARED}/edit`,
       },
     ],
     unpublishedInfo: {
@@ -2337,6 +2375,60 @@ export const INITIAL_TEST_COMPONENT_ATLASES = [
 
 // ENTRY SHEET VALIDATIONS
 
+export const ENTRY_SHEET_VALIDATION_DRAFT_OK_FOO: TestEntrySheetValidation = {
+  entry_sheet_id: ENTRY_SHEET_ID_DRAFT_OK_FOO,
+  entry_sheet_title: ENTRY_SHEET_TITLE_DRAFT_OK_FOO,
+  id: "aa8d5ffb-0fdc-4352-b35d-146fdb2c26ac",
+  last_synced: new Date("2025-07-18T23:00:12.149Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_DRAFT_OK.id,
+  validation_report: [
+    {
+      cell: null,
+      column: null,
+      entity_type: null,
+      input: null,
+      message: "error foo foo",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+  ],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
+};
+
+export const ENTRY_SHEET_VALIDATION_DRAFT_OK_BAR: TestEntrySheetValidation = {
+  entry_sheet_id: ENTRY_SHEET_ID_DRAFT_OK_BAR,
+  entry_sheet_title: ENTRY_SHEET_TITLE_DRAFT_OK_BAR,
+  id: "1a76610a-41ba-40c4-8413-c983e5cb4d3e",
+  last_synced: new Date("2025-07-18T23:00:22.150Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_DRAFT_OK.id,
+  validation_report: [
+    {
+      cell: null,
+      column: null,
+      entity_type: null,
+      input: null,
+      message: "error foo bar",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+  ],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 1,
+    sample_count: null,
+  },
+};
+
 export const ENTRY_SHEET_VALIDATION_WITH_UPDATE: TestEntrySheetValidation = {
   entry_sheet_id: ENTRY_SHEET_ID_WITH_UPDATE,
   entry_sheet_title: "Entry Sheet With Update",
@@ -2434,6 +2526,8 @@ export const ENTRY_SHEET_VALIDATION_NO_SYNC: TestEntrySheetValidation = {
 };
 
 export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
+  ENTRY_SHEET_VALIDATION_DRAFT_OK_FOO,
+  ENTRY_SHEET_VALIDATION_DRAFT_OK_BAR,
   ENTRY_SHEET_VALIDATION_WITH_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE,
@@ -2671,6 +2765,8 @@ export const TEST_COMMENTS_BY_THREAD_ID = TEST_COMMENTS.reduce(
 export const TEST_UNSHARED_GOOGLE_SHEET_IDS = new Set(["sheet-unshared"]);
 
 export const TEST_GOOGLE_SHEET_TITLES_BY_ID: Record<string, string> = {
+  [ENTRY_SHEET_ID_DRAFT_OK_BAR]: ENTRY_SHEET_TITLE_DRAFT_OK_BAR,
+  [ENTRY_SHEET_ID_DRAFT_OK_FOO]: ENTRY_SHEET_TITLE_DRAFT_OK_FOO,
   "atlas-public-baz": "Atlas Public Baz Sheet",
   "new-atlas-with-metadata-specification":
     "New Atlas With Metadata Specification Sheet",

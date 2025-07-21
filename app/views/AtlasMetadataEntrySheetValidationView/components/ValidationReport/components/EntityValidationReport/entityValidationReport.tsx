@@ -6,7 +6,7 @@ import {
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Button, Divider, Grid, Typography } from "@mui/material";
-import { buildSheetsUrl } from "../../../Actions/utils";
+import { buildSheetsUrl } from "../../../../../../utils/google-sheets";
 import { Alert } from "../Alert/alert";
 import { ENTITY_NAME, GRID_PROPS } from "./constants";
 import { Props } from "./entities";

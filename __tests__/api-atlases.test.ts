@@ -38,7 +38,7 @@ const RELATED_ENTITY_INFO_TO_CHECK = [
   {
     atlasId: ATLAS_DRAFT.id,
     componentAtlasCount: 2,
-    entrySheetValidationCount: 0,
+    entrySheetValidationCount: 2,
   },
   {
     atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
