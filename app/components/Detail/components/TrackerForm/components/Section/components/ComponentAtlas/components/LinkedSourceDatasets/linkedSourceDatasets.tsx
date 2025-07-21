@@ -2,9 +2,9 @@ import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Pape
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../../../../../common/entities";
 import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
-import { Paper } from "../../../../../../../../../Table/components/TablePaper/tablePaper.styles";
+import { StyledFluidPaper } from "../../../../../../../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../../../../../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { Toolbar } from "../../../../../../../../../Table/components/TableToolbar/tableToolbar.styles";
+import { StyledToolbar } from "../../../../../../../../../Table/components/TableToolbar/tableToolbar.styles";
 import { ViewSourceStudiesSourceDatasets } from "../../../../../../../ViewSourceStudiesSourceDatasets/viewSourceStudiesSourceDatasets";
 import { Section, SectionHero, SectionTitle } from "../../../../section.styles";
 import { Table } from "./components/Table/table";
@@ -30,16 +30,16 @@ export const LinkedSourceDatasets = ({
       <SectionHero fullWidth>
         <SectionTitle>Linked source datasets</SectionTitle>
       </SectionHero>
-      <Paper>
+      <StyledFluidPaper elevation={0}>
         <GridPaper>
           {canEdit && (
-            <Toolbar variant="table">
+            <StyledToolbar>
               <ViewSourceStudiesSourceDatasets
                 componentAtlasSourceDatasets={componentAtlasSourceDatasets}
                 pathParameter={pathParameter}
                 sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
               />
-            </Toolbar>
+            </StyledToolbar>
           )}
           {componentAtlasSourceDatasets.length > 0 && (
             <Table
@@ -54,7 +54,7 @@ export const LinkedSourceDatasets = ({
             rowCount={componentAtlasSourceDatasets.length}
           />
         </GridPaper>
-      </Paper>
+      </StyledFluidPaper>
     </Section>
   );
 };

@@ -221,7 +221,10 @@ export const atlasEntityConfig: EntityConfig = {
   listView: {
     disablePagination: true,
     enableDownload: true,
-    enableTab: false,
   },
   route: "atlases",
+  ui: {
+    actionButton: C.AddAtlas(),
+    title: "Atlases",
+  },
 };

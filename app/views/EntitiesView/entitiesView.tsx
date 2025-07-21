@@ -1,18 +1,15 @@
-import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/title";
+import { Title } from "@databiosphere/findable-ui/lib/components/Index/components/EntityView/components/layout/Title/title";
+import { StyledGridEntityLayout } from "@databiosphere/findable-ui/lib/components/Index/index.styles";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
-import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
-import { ExploreViewProps as DXExploreViewProps } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
-import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
-import { RequestAccess } from "../../components/Detail/components/TrackerForm/components/Section/components/RequestAccess/requestAccess";
+import { useLayoutSpacing } from "@databiosphere/findable-ui/lib/hooks/UseLayoutSpacing/hook";
+import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
+import {
+  ExploreViewProps as DXExploreViewProps,
+  ExploreView,
+} from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../routes/constants";
-import {
-  ExploreView,
-  IndexLayout,
-  IndexView,
-  IndexViewContent,
-} from "./entitiesView.styles";
+import { StyledGrid, StyledTypography } from "./entitiesView.styles";
 import { useUpdateExploreState } from "./hooks/useUpdateExploreState";
 
 export const EntitiesView = ({
@@ -20,26 +17,22 @@ export const EntitiesView = ({
   ...props
 }: DXExploreViewProps): JSX.Element => {
   const {
-    config: { explorerTitle },
-    entityConfig,
-  } = useConfig();
-  const {
     access: { canEdit, canView },
   } = useFormManager();
-  const { dimensions } = useLayoutDimensions();
+  const { spacing } = useLayoutSpacing();
   useUpdateExploreState(canEdit);
-  return canView ? (
-    <ExploreView entityListType={entityListType} {...props} />
-  ) : (
-    <IndexView marginTop={dimensions.header.height}>
-      <IndexLayout>
-        <Title title={entityConfig.explorerTitle || explorerTitle} />
-        <IndexViewContent>
-          <RequestAccess divider={<Divider />}>
-            <Link label="Sign in" url={ROUTE.LOGIN} /> to Atlas Tracker.
-          </RequestAccess>
-        </IndexViewContent>
-      </IndexLayout>
-    </IndexView>
+
+  if (canView)
+    return <ExploreView entityListType={entityListType} {...props} />;
+
+  return (
+    <StyledGrid {...spacing}>
+      <StyledGridEntityLayout container>
+        <Title />
+      </StyledGridEntityLayout>
+      <StyledTypography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_400}>
+        <Link label="Sign in" url={ROUTE.LOGIN} /> to Atlas Tracker.
+      </StyledTypography>
+    </StyledGrid>
   );
 };

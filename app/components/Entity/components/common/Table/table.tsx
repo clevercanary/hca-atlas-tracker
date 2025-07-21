@@ -22,7 +22,7 @@ export const Table = <T extends RowData>({
           table.getVisibleFlatColumns()
         )}
       >
-        <TableHead rowDirection={rowDirection} tableInstance={table} />
+        <TableHead tableInstance={table} />
         <TableBody rowDirection={rowDirection} tableInstance={table} />
       </GridTable>
     </TableContainer>

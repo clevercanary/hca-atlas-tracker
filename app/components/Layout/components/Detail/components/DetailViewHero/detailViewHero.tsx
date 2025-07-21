@@ -38,7 +38,7 @@ export const DetailViewHero = ({
             {breadcrumbs}
             <HeroTitle>
               <Titles>
-                {title && <Title title={title} />}
+                <Title>{title}</Title>
                 {subTitle && <SubTitle subTitle={subTitle} />}
               </Titles>
               {status && <Statuses>{status}</Statuses>}

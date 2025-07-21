@@ -1,8 +1,8 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
+import { RoundedPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/RoundedPaper/roundedPaper";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
-import { RoundedPaper } from "../../../../components/common/Paper/components/RoundedPaper/roundedPaper";
 import { useEntity } from "../../../../providers/entity/hook";
 import { EntityData } from "../../entities";
 import { SUMMARY_KEY_VALUES, SVG_ICON_PROPS } from "./constants";

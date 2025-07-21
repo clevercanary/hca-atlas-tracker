@@ -51,7 +51,7 @@ export const UserForm = ({
         <SectionHero>
           <SectionTitle>General info</SectionTitle>
         </SectionHero>
-        <SectionCard>
+        <SectionCard elevation={0}>
           <Controller
             control={control}
             key={FIELD_NAME.FULL_NAME}

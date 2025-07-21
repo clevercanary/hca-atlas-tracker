@@ -56,7 +56,6 @@ export const userEntityConfig: EntityConfig = {
     top: [],
   },
   exploreMode: EXPLORE_MODE.SS_FETCH_CS_FILTERING,
-  explorerTitle: C.UsersHero(),
   getId: getUserId,
   label: "Team",
   list: {
@@ -128,7 +127,7 @@ export const userEntityConfig: EntityConfig = {
   listView: {
     disablePagination: true,
     enableDownload: true,
-    enableTab: false,
   },
   route: "team",
+  ui: { actionButton: C.AddUser(), title: "Team" },
 };

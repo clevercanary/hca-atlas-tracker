@@ -21,7 +21,7 @@ export const ViewAtlasMetadataCorrectness = ({
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
-    <SectionPaper>
+    <SectionPaper elevation={0}>
       <SectionTitle title="Metadata Correctness Report" />
       <Typography variant={TEXT_BODY_400}>
         {atlas?.metadataCorrectnessUrl ? (

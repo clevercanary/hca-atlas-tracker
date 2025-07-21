@@ -57,7 +57,7 @@ export const GeneralInfo = ({
       <SectionHero>
         <SectionTitle>General info</SectionTitle>
       </SectionHero>
-      <SectionCard>
+      <SectionCard elevation={0}>
         <Tabs
           onTabChange={onTabChange}
           tabs={getSectionTabs(hasDoi)}

@@ -44,7 +44,7 @@ export const Identifiers = ({
       <SectionHero>
         <SectionTitle>Identifiers</SectionTitle>
       </SectionHero>
-      <SectionCard>
+      <SectionCard elevation={0}>
         <Controller
           control={control}
           name={FIELD_NAME.HCA_PROJECT_ID}
