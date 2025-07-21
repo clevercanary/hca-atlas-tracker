@@ -288,7 +288,7 @@ describe(TEST_ROUTE, () => {
         const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
         expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
         expect(atlas.componentAtlasCount).toEqual(2);
-        expect(atlas.entrySheetValidationCount).toEqual(0);
+        expect(atlas.entrySheetValidationCount).toEqual(2);
       }
     );
   }
@@ -299,7 +299,7 @@ describe(TEST_ROUTE, () => {
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
     expect(atlas.componentAtlasCount).toEqual(2);
-    expect(atlas.entrySheetValidationCount).toEqual(0);
+    expect(atlas.entrySheetValidationCount).toEqual(2);
   });
 
   it("returns atlas with both component atlases and entry sheet validations when GET requested by logged in user with CONTENT_ADMIN role", async () => {
