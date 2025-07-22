@@ -1,23 +1,28 @@
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
 import { EntityData } from "../../entities";
+import { COLUMN_KEY, MAX_REPORTS_TO_DISPLAY } from "./constants";
 import { EntityType, ValidationErrorInfo } from "./entities";
 
 /**
- * Builds entity validation reports for each entity type.
+ * Builds entity validation reports for each entity type, keyed by entity type and then column.
  * @param data - Entity data.
- * @returns Map of entity type to validation report.
+ * @returns Map of entity type to validation report, keyed by entity type, and then column.
  */
 export function buildEntityValidationReports(
   data: EntityData
-): Map<EntityType | "entrySheet", ValidationErrorInfo[]> | undefined {
+):
+  | Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>>
+  | undefined {
   if (!data.entrySheetValidation) return;
 
-  return data.entrySheetValidation.validationReport
+  const entityReports = data.entrySheetValidation.validationReport
     .sort(sortReport)
     .reduce(
       mapReport,
-      new Map<EntityType | "entrySheet", ValidationErrorInfo[]>()
+      new Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>>()
     );
+
+  return moveShortValidationErrorsToOther(entityReports);
 }
 
 /**
@@ -27,13 +32,54 @@ export function buildEntityValidationReports(
  * @returns Map of entity type to validation report.
  */
 function mapReport(
-  acc: Map<EntityType | "entrySheet", ValidationErrorInfo[]>,
+  acc: Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>>,
   report: ValidationErrorInfo
-): Map<EntityType | "entrySheet", ValidationErrorInfo[]> {
-  const entityReports = acc.get(report.entity_type ?? "entrySheet") || [];
-  entityReports.push(report);
+): Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>> {
+  const entityReports =
+    acc.get(report.entity_type ?? "entrySheet") || new Map();
+
+  // Group each report by column.
+  const entityColumn =
+    entityReports.get(report.column ?? COLUMN_KEY.OTHER) || [];
+  entityColumn.push(report);
+  entityReports.set(report.column ?? COLUMN_KEY.OTHER, entityColumn);
+
   acc.set(report.entity_type ?? "entrySheet", entityReports);
   return acc;
+}
+
+/**
+ * Moves grouped by column validation errors to the "other" group when
+ * there are only a few reports for the column.
+ * @param entityReports - Map of entity type to validation report.
+ * @returns Map of entity type to validation report.
+ */
+function moveShortValidationErrorsToOther(
+  entityReports: Map<
+    EntityType | "entrySheet",
+    Map<string, ValidationErrorInfo[]>
+  >
+): Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>> {
+  const columnsToDelete = [];
+  for (const [, columnReports] of entityReports) {
+    for (const [column, reports] of columnReports) {
+      // Skip the group "other".
+      if (column === COLUMN_KEY.OTHER) continue;
+      // If there are more than the maximum number of reports to display, leave them grouped.
+      if (reports.length >= MAX_REPORTS_TO_DISPLAY) continue;
+      // Otherwise, move the reports to the "other" group.
+      const otherReports = columnReports.get(COLUMN_KEY.OTHER) || [];
+      otherReports.push(...reports);
+      columnReports.set(COLUMN_KEY.OTHER, otherReports);
+      // Mark the column for deletion, as it is bundled with the "other" group.
+      columnsToDelete.push(column);
+    }
+    // Delete the columns that were bundled with the "other" group.
+    for (const column of columnsToDelete) {
+      columnReports.delete(column);
+    }
+  }
+  return entityReports;
 }
 
 /**

@@ -22,20 +22,3 @@ export const StyledSection = styled.div<Props>`
       grid-template-columns: 1fr;
     `}
 `;
-
-export const SectionHero = styled.div<Props>`
-  display: grid;
-  gap: 8px;
-  padding: 0 16px;
-
-  ${mediaTabletUp} {
-    grid-column: span 4;
-    padding: 0;
-
-    ${({ fullWidth }) =>
-      fullWidth &&
-      css`
-        grid-column: 1 / -1;
-      `}
-  }
-`;

@@ -6,9 +6,10 @@ import { Alert } from "@mui/material";
 
 export const StyledAlert = styled(Alert)`
   align-items: center;
+  border-radius: 4px;
   cursor: pointer;
   gap: 24px;
-  padding: 12px 16px;
+  padding: 4px 16px;
 
   .MuiAlert-message {
     ${textBody400};
