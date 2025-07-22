@@ -48,7 +48,7 @@ export const EntityValidationReport = ({
               : validationReports.slice(0, MAX_REPORTS_TO_DISPLAY);
             const reportCount = validationReports.length;
             return (
-              <Fragment key={j}>
+              <Fragment key={column}>
                 {j > 0 && <Divider />}
                 <Typography
                   component="div"
@@ -58,9 +58,9 @@ export const EntityValidationReport = ({
                   {column === COLUMN_KEY.OTHER ? "Other errors" : column} (
                   {reportCount})
                 </Typography>
-                {reports.map((report, k) => (
+                {reports.map((report) => (
                   <Alert
-                    key={k}
+                    key={`${report.row}-${report.message}`}
                     action={
                       <Button
                         color={BUTTON_PROPS.COLOR.INHERIT}
