@@ -60,15 +60,22 @@ function moveShortValidationErrorsToOther(
     Map<string, ValidationErrorInfo[]>
   >
 ): Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>> {
+  const columnsToDelete = [];
   for (const [, columnReports] of entityReports) {
     for (const [column, reports] of columnReports) {
+      // Skip the group "other".
+      if (column === COLUMN_KEY.OTHER) continue;
       // If there are more than the maximum number of reports to display, leave them grouped.
       if (reports.length >= MAX_REPORTS_TO_DISPLAY) continue;
       // Otherwise, move the reports to the "other" group.
       const otherReports = columnReports.get(COLUMN_KEY.OTHER) || [];
       otherReports.push(...reports);
       columnReports.set(COLUMN_KEY.OTHER, otherReports);
-      // Remove the column, as it is bundled with the "other" group.
+      // Mark the column for deletion, as it is bundled with the "other" group.
+      columnsToDelete.push(column);
+    }
+    // Delete the columns that were bundled with the "other" group.
+    for (const column of columnsToDelete) {
       columnReports.delete(column);
     }
   }

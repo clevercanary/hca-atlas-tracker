@@ -58,9 +58,9 @@ export const EntityValidationReport = ({
                   {column === COLUMN_KEY.OTHER ? "Other errors" : column} (
                   {reportCount})
                 </Typography>
-                {reports.map((report) => (
+                {reports.map((report, k) => (
                   <Alert
-                    key={`${report.row}-${report.message}`}
+                    key={k}
                     action={
                       <Button
                         color={BUTTON_PROPS.COLOR.INHERIT}
