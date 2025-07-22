@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.22.0...v1.23.0) (2025-07-22)
+
+
+### Features
+
+* update metadata entry sheet validation report ([#720](https://github.com/clevercanary/hca-atlas-tracker/issues/720)) ([#724](https://github.com/clevercanary/hca-atlas-tracker/issues/724)) ([09846f7](https://github.com/clevercanary/hca-atlas-tracker/commit/09846f7e82d86dcf005774ac24436f0c21ff475e))
+
 ## [1.22.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.21.0...v1.22.0) (2025-07-21)
 
 
