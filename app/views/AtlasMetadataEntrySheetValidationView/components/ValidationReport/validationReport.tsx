@@ -1,7 +1,4 @@
-import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
-import { Typography } from "@mui/material";
 import { Fragment } from "react";
-import { SectionHero } from "../../../../components/Entity/components/EntityView/components/Section/section.styles";
 import { useEntity } from "../../../../providers/entity/hook";
 import { EntityData } from "../../entities";
 import { EntityValidationReport } from "./components/EntityValidationReport/entityValidationReport";
@@ -26,21 +23,13 @@ export const ValidationReport = (): JSX.Element | null => {
 
   return (
     <Fragment>
-      <SectionHero>
-        <Typography
-          component="h2"
-          variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_HEADING_XSMALL}
-        >
-          Validation Report
-        </Typography>
-      </SectionHero>
       {[...entityValidationReports].map(
         ([entityType, validationReports], i) => (
           <EntityValidationReport
             key={i}
+            columnValidationReports={validationReports}
             entityType={entityType}
             entrySheetId={entrySheetId}
-            validationReports={validationReports}
           />
         )
       )}
