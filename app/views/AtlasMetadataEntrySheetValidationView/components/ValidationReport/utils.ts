@@ -62,7 +62,7 @@ function moveShortValidationErrorsToOther(
 ): Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>> {
   for (const [, columnReports] of entityReports) {
     for (const [column, reports] of columnReports) {
-      // If there are more than the minimum number of reports, leave them grouped.
+      // If there are more than the maximum number of reports to display, leave them grouped.
       if (reports.length >= MAX_REPORTS_TO_DISPLAY) continue;
       // Otherwise, move the reports to the "other" group.
       const otherReports = columnReports.get(COLUMN_KEY.OTHER) || [];
