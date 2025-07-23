@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.23.0...v1.24.0) (2025-07-23)
+
+
+### Features
+
+* add stats to metadata validation report page ([#721](https://github.com/clevercanary/hca-atlas-tracker/issues/721)) ([#726](https://github.com/clevercanary/hca-atlas-tracker/issues/726)) ([5db618e](https://github.com/clevercanary/hca-atlas-tracker/commit/5db618ed61841b26e861584963bb5ab3261305c7))
+
 ## [1.23.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.22.0...v1.23.0) (2025-07-22)
 
 
