@@ -4,10 +4,18 @@ import { EntityData } from "../../entities";
 import { SUMMARY_KEY_VALUES } from "./constants";
 import { buildSummaryValues } from "./utils";
 
-export const Summary = (): JSX.Element => {
+export const Summary = (): JSX.Element | null => {
   const { data } = useEntity();
-  const { entrySheets = [] } = data as EntityData;
-  const summary = buildSummaryValues(entrySheets);
+
+  // Coerce the entity data provided by EntityProvider to the EntityData type -- safe to assume that the data structure conforms to EntityData.
+  const entityData = data as EntityData;
+
+  const summary = buildSummaryValues(
+    entityData.entrySheetValidation?.validationSummary
+  );
+
+  if (!summary) return null;
+
   return (
     <BaseSummary summary={summary} summaryKeyValues={SUMMARY_KEY_VALUES} />
   );

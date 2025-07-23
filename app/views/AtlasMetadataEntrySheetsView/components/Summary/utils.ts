@@ -1,22 +1,21 @@
 import { MetadataEntrySheet } from "../../entities";
-import { EntrySheetValidationSummary } from "./entities";
 
 /**
- * Returns the validation summary counts for the given entry sheets.
+ * Builds a summary object from the given entry sheets.
  * @param entrySheets - Entry sheets.
- * @returns Validation summary counts.
+ * @returns Summary object.
  */
-export function getValidationSummaryCounts(
+export function buildSummaryValues(
   entrySheets: MetadataEntrySheet[]
-): EntrySheetValidationSummary {
+): Record<string, number> {
   return entrySheets.reduce(
     (acc, entrySheet) => {
-      acc.dataset_count += entrySheet.validationSummary?.dataset_count || 0;
-      acc.donor_count += entrySheet.validationSummary?.donor_count || 0;
-      acc.error_count += entrySheet.validationSummary?.error_count || 0;
-      acc.sample_count += entrySheet.validationSummary?.sample_count || 0;
+      acc.datasetCount += entrySheet.validationSummary?.dataset_count || 0;
+      acc.donorCount += entrySheet.validationSummary?.donor_count || 0;
+      acc.errorCount += entrySheet.validationSummary?.error_count || 0;
+      acc.sampleCount += entrySheet.validationSummary?.sample_count || 0;
       return acc;
     },
-    { dataset_count: 0, donor_count: 0, error_count: 0, sample_count: 0 }
+    { datasetCount: 0, donorCount: 0, errorCount: 0, sampleCount: 0 }
   );
 }
