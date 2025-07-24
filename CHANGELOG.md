@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.24.0...v1.25.0) (2025-07-24)
+
+
+### Features
+
+* validation report - link column name to data dictionary ([#723](https://github.com/clevercanary/hca-atlas-tracker/issues/723)) ([#730](https://github.com/clevercanary/hca-atlas-tracker/issues/730)) ([bac81d2](https://github.com/clevercanary/hca-atlas-tracker/commit/bac81d2a1e77965d559fdf4b1a80e0156778a76d))
+
 ## [1.24.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.23.0...v1.24.0) (2025-07-23)
 
 
