@@ -1,5 +1,9 @@
+import {
+  ANCHOR_TARGET,
+  REL_ATTRIBUTE,
+} from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
-import { Tooltip, Typography } from "@mui/material";
+import { Link, Tooltip, Typography } from "@mui/material";
 import { Fragment } from "react";
 import { isValueString } from "../../../../../../utils/typeGuards";
 import { StyledAlert, StyledDot } from "./alert.styles";
@@ -38,7 +42,15 @@ export const Alert = ({
         <Fragment>
           <StyledDot />
           <Tooltip arrow title={column}>
-            <Typography noWrap>{column}</Typography>
+            <Link
+              color="inherit"
+              href={`https://data.humancellatlas.dev.clevercanary.com/metadata/tier-1-schema-ann-data#${column}`}
+              onClick={(e) => e.stopPropagation()}
+              rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
+              target={ANCHOR_TARGET.BLANK}
+            >
+              {column}
+            </Link>
           </Tooltip>
         </Fragment>
       )}

@@ -16,7 +16,7 @@
     "migrate": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts"
   },
   "dependencies": {
-    "@databiosphere/findable-ui": "^38.2.0",
+    "@databiosphere/findable-ui": "^39.1.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.3.4",

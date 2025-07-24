@@ -65,23 +65,23 @@ export const EntityValidationReport = ({
                       <Button
                         color={BUTTON_PROPS.COLOR.INHERIT}
                         endIcon={<OpenInNewIcon />}
+                        onClick={() => {
+                          window.open(
+                            buildSheetsUrl(
+                              entrySheetId,
+                              report.worksheet_id,
+                              report.cell,
+                              report.row
+                            ),
+                            ANCHOR_TARGET.BLANK,
+                            REL_ATTRIBUTE.NO_OPENER_NO_REFERRER
+                          );
+                        }}
                         variant={BUTTON_PROPS.VARIANT.TEXT}
                       >
                         Open
                       </Button>
                     }
-                    onClick={() => {
-                      window.open(
-                        buildSheetsUrl(
-                          entrySheetId,
-                          report.worksheet_id,
-                          report.cell,
-                          report.row
-                        ),
-                        ANCHOR_TARGET.BLANK,
-                        REL_ATTRIBUTE.NO_OPENER_NO_REFERRER
-                      );
-                    }}
                     validationReport={report}
                   />
                 ))}

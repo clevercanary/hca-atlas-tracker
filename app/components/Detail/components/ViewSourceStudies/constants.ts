@@ -4,6 +4,7 @@ import { HCAAtlasTrackerSourceStudy } from "../../../../apis/catalog/hca-atlas-t
 
 export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerSourceStudy>["tableOptions"] =
   {
+    getRowId: (row) => row.id,
     initialState: {
       columnVisibility: { [COLUMN_IDENTIFIER.ROW_POSITION]: true },
     },
