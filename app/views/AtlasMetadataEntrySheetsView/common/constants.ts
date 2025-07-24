@@ -22,6 +22,7 @@ export const METADATA_ENTRY_SHEETS_VIEW_TABLE: SectionConfig<typeof Table> = {
   componentProps: {
     tableOptions: {
       columns: COLUMNS,
+      getRowId: (row) => row.id,
       initialState: {
         sorting: [
           { desc: SORT_DIRECTION.ASCENDING, id: "publicationString" },
