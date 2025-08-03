@@ -10,3 +10,6 @@ export const ALERT_PROPS: Partial<AlertProps> = {
   severity: COLOR.ERROR,
   variant: VARIANT.STANDARD,
 };
+
+export const METADATA_TIER_1_URL =
+  "https://data.humancellatlas.dev.clevercanary.com/metadata/tier-1";
