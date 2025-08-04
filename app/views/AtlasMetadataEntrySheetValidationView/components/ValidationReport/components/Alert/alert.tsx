@@ -5,12 +5,14 @@ import {
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Link, Tooltip, Typography } from "@mui/material";
 import { Fragment } from "react";
+import slugify from "slugify";
 import { isValueString } from "../../../../../../utils/typeGuards";
 import { StyledAlert, StyledDot } from "./alert.styles";
 import { ALERT_PROPS } from "./constants";
 import { Props } from "./entities";
 
 export const Alert = ({
+  metadataUrl,
   validationReport,
   ...props
 }: Props): JSX.Element | null => {
@@ -44,7 +46,7 @@ export const Alert = ({
           <Tooltip arrow title={column}>
             <Link
               color="inherit"
-              href={`https://data.humancellatlas.dev.clevercanary.com/metadata/tier-1-schema-ann-data#${column}`}
+              href={`${metadataUrl}#${slugify(column)}`}
               onClick={(e) => e.stopPropagation()}
               rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
               target={ANCHOR_TARGET.BLANK}

@@ -3,10 +3,12 @@ import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Button, Divider, Typography } from "@mui/material";
 import { Fragment, useMemo, useState } from "react";
+import { SiteConfig } from "../../../../../../../site-config/common/entities";
 import { buildSheetsUrl } from "../../../../../../utils/google-sheets";
 import { COLUMN_KEY, MAX_REPORTS_TO_DISPLAY } from "../../constants";
 import { Alert } from "../Alert/alert";
@@ -31,6 +33,9 @@ export const EntityValidationReport = ({
     () => getEntityReportCount(columnValidationReports),
     [columnValidationReports]
   );
+  const { config } = useConfig();
+  const { portalURL } = config as SiteConfig;
+  const metadataUrl = `${portalURL}/metadata/tier-1`;
   return (
     <StyledFluidPaper elevation={0}>
       <StyledTypography
@@ -82,6 +87,7 @@ export const EntityValidationReport = ({
                         Open
                       </Button>
                     }
+                    metadataUrl={metadataUrl}
                     validationReport={report}
                   />
                 ))}
