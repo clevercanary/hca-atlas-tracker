@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.25.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.24.0...v1.25.0) (2025-08-04)
+
+
+### Features
+
+* validation report - link column name to data dictionary ([#723](https://github.com/clevercanary/hca-atlas-tracker/issues/723)) ([#730](https://github.com/clevercanary/hca-atlas-tracker/issues/730)) ([bac81d2](https://github.com/clevercanary/hca-atlas-tracker/commit/bac81d2a1e77965d559fdf4b1a80e0156778a76d))
+
+
+### Bug Fixes
+
+* update metadata report link to data dictionary tier 1 ([#732](https://github.com/clevercanary/hca-atlas-tracker/issues/732)) ([#735](https://github.com/clevercanary/hca-atlas-tracker/issues/735)) ([b02e7f6](https://github.com/clevercanary/hca-atlas-tracker/commit/b02e7f6105e1b2ca00c1af4c3b54f1ab70433f8b))
+
+
+### Chores
+
+* update findable-ui to latest verion v41.2.0 ([#733](https://github.com/clevercanary/hca-atlas-tracker/issues/733)) ([#734](https://github.com/clevercanary/hca-atlas-tracker/issues/734)) ([05390cb](https://github.com/clevercanary/hca-atlas-tracker/commit/05390cb5c4ce8396a83b1616ebc9f867e85446f9))
+
 ## [1.24.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.23.0...v1.24.0) (2025-07-23)
 
 
