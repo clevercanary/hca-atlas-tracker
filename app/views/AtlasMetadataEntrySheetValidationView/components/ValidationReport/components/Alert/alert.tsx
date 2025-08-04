@@ -8,10 +8,11 @@ import { Fragment } from "react";
 import slugify from "slugify";
 import { isValueString } from "../../../../../../utils/typeGuards";
 import { StyledAlert, StyledDot } from "./alert.styles";
-import { ALERT_PROPS, METADATA_TIER_1_URL } from "./constants";
+import { ALERT_PROPS } from "./constants";
 import { Props } from "./entities";
 
 export const Alert = ({
+  metadataUrl,
   validationReport,
   ...props
 }: Props): JSX.Element | null => {
@@ -45,7 +46,7 @@ export const Alert = ({
           <Tooltip arrow title={column}>
             <Link
               color="inherit"
-              href={`${METADATA_TIER_1_URL}#${slugify(column)}`}
+              href={`${metadataUrl}#${slugify(column)}`}
               onClick={(e) => e.stopPropagation()}
               rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
               target={ANCHOR_TARGET.BLANK}
