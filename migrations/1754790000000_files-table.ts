@@ -42,8 +42,29 @@ export const up = (pgm: MigrationBuilder): void => {
         notNull: true,
         type: "bigint",
       },
-      sha256: {
+      
+      // SHA256 Integrity Validation
+      sha256_client: {
         type: "varchar(64)",
+        comment: "SHA256 checksum provided by client"
+      },
+      sha256_server: {
+        type: "varchar(64)", 
+        comment: "SHA256 checksum calculated by server"
+      },
+      integrity_status: {
+        notNull: true,
+        default: "'pending'",
+        type: "varchar(20)",
+        comment: "Status: pending, validating, valid, invalid, error"
+      },
+      integrity_checked_at: {
+        type: "timestamp",
+        comment: "When integrity was last checked"
+      },
+      integrity_error: {
+        type: "text",
+        comment: "Error message if integrity check failed"
       },
       
       // File Metadata
@@ -92,6 +113,26 @@ export const up = (pgm: MigrationBuilder): void => {
   pgm.createIndex(
     { name: "files", schema: "hat" },
     ["created_at"]
+  );
+
+  // Integrity validation indexes
+  pgm.createIndex(
+    { name: "files", schema: "hat" },
+    ["integrity_status"]
+  );
+
+  pgm.createIndex(
+    { name: "files", schema: "hat" },
+    ["sha256_client"]
+  );
+
+  // Constraint for valid integrity status values
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "ck_files_integrity_status",
+    {
+      check: "integrity_status IN ('pending', 'validating', 'valid', 'invalid', 'error')"
+    }
   );
 
   // Add updated_at trigger following existing pattern
