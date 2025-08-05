@@ -14,7 +14,8 @@
     "test": "jest --runInBand",
     "build-catalog": "esrun ./files/build-catalog.ts",
     "migrate": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts",
-    "download-data-dictionary": "esrun ./catalog/build/download-data-dictionary.ts"
+    "download-data-dictionary": "esrun ./catalog/build/download-data-dictionary.ts",
+    "migrate:down": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-down.ts -j ts"
   },
   "dependencies": {
     "@databiosphere/findable-ui": "^41.2.0",

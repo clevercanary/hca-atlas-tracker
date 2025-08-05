@@ -74,7 +74,7 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toBe(400);
   });
 
-  it("successfully processes valid SNS notification with S3 ObjectCreated event", async () => {
+  it("returns error 400 for S3 event missing SHA256 metadata", async () => {
     const s3Event = {
       Records: [
         {
@@ -92,6 +92,7 @@ describe(TEST_ROUTE, () => {
               size: 1024000,
               eTag: "d41d8cd98f00b204e9800998ecf8427e",
               versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko"
+              // Missing userMetadata with source-sha256
             }
           }
         }
@@ -117,7 +118,65 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await s3NotificationHandler(req, res);
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res._getJSONData()).toEqual({
+      error: "SHA256 metadata is required for file integrity validation"
+    });
+  });
+
+  it("successfully processes valid SNS notification with S3 ObjectCreated event", async () => {
+    const s3Event = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
+              size: 1024000,
+              eTag: "d41d8cd98f00b204e9800998ecf8427e",
+              versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+              userMetadata: {
+                "source-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessage = {
+      Type: "Notification",
+      MessageId: "12345678-1234-1234-1234-123456789012",
+      TopicArn: "arn:aws:sns:us-east-1:123456789012:s3-notifications",
+      Subject: "Amazon S3 Notification",
+      Message: JSON.stringify(s3Event),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "fake-signature-for-testing",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: METHOD.POST,
+        body: snsMessage,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
 
     expect(res.statusCode).toBe(200);
     
@@ -129,10 +188,17 @@ describe(TEST_ROUTE, () => {
     
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
+    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.key).toBe("bio_network/gut-v1/source-datasets/test-file.h5ad");
     expect(file.etag).toBe("d41d8cd98f00b204e9800998ecf8427e");
     expect(file.size_bytes).toBe("1024000"); // PostgreSQL bigint returns as string
     expect(file.version_id).toBe("096fKKXTRTtl3on89fVO.nfljtsv6qko");
     expect(file.status).toBe("uploaded");
+    expect(file.sha256_client).toBe("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+    expect(file.integrity_status).toBe("pending");
+    expect(file.sha256_server).toBeNull();
+    expect(file.integrity_checked_at).toBeNull();
+    expect(file.integrity_error).toBeNull();
   });
 
   it("handles duplicate notifications idempotently", async () => {
@@ -152,7 +218,10 @@ describe(TEST_ROUTE, () => {
               key: "bio_network/gut-v1/source-datasets/duplicate-test.h5ad",
               size: 2048000,
               eTag: "e1234567890abcdef1234567890abcdef",
-              versionId: "abc123def456ghi789jkl012mno345pqr"
+              versionId: "abc123def456ghi789jkl012mno345pqr",
+              userMetadata: {
+                "source-sha256": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+              }
             }
           }
         }
@@ -179,7 +248,9 @@ describe(TEST_ROUTE, () => {
     );
 
     // First request
-    await s3NotificationHandler(req1, res1);
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req1, res1);
+    });
     expect(res1.statusCode).toBe(200);
 
     const { req: req2, res: res2 } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
@@ -190,7 +261,9 @@ describe(TEST_ROUTE, () => {
     );
 
     // Second request with same data
-    await s3NotificationHandler(req2, res2);
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req2, res2);
+    });
     expect(res2.statusCode).toBe(200);
 
     // Should still only have one record
@@ -219,6 +292,9 @@ describe(TEST_ROUTE, () => {
               size: 256000,
               eTag: "invalid-signature-test",
               versionId: "auth-test-version",
+              userMetadata: {
+                "source-sha256": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+              }
             },
           },
         },
@@ -244,7 +320,9 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await s3NotificationHandler(req, res);
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
 
     // Should reject with 401 Unauthorized due to invalid signature
     expect(res.statusCode).toBe(401);
@@ -278,6 +356,9 @@ describe(TEST_ROUTE, () => {
               size: 128000,
               eTag: "original-etag-12345",
               versionId: "version-123",
+              userMetadata: {
+                "source-sha256": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+              }
             },
           },
         },
@@ -304,7 +385,9 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await s3NotificationHandler(req1, res1);
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req1, res1);
+    });
     expect(res1.statusCode).toBe(200);
 
     // Second notification with different ETag - should be rejected
@@ -318,6 +401,9 @@ describe(TEST_ROUTE, () => {
             object: {
               ...s3Event.Records[0].s3.object,
               eTag: "different-etag-67890", // Different ETag!
+              userMetadata: {
+                "source-sha256": "6789012345678901234567890123456789012345678901234567890123456789"
+              }
             },
           },
         },
@@ -337,7 +423,9 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await s3NotificationHandler(req2, res2);
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req2, res2);
+    });
 
     // Should reject with 500 Internal Server Error due to ETag mismatch
     expect(res2.statusCode).toBe(500);

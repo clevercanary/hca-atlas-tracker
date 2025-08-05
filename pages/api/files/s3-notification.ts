@@ -71,6 +71,17 @@ function isValidSNSMessage(payload: any): payload is SNSMessage {
   );
 }
 
+function extractSHA256FromS3Object(s3Object: any): string {
+  const sha256 = s3Object.userMetadata?.["source-sha256"];
+  if (!sha256) {
+    throw new Error("SHA256 metadata is required for file integrity validation");
+  }
+  if (typeof sha256 !== "string" || sha256.length !== 64 || !/^[a-fA-F0-9]{64}$/.test(sha256)) {
+    throw new Error("Invalid SHA256 format - must be 64 character hexadecimal string");
+  }
+  return sha256.toLowerCase();
+}
+
 async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
   return new Promise((resolve, reject) => {
     const validator = new MessageValidator();
@@ -84,12 +95,6 @@ async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
       try {
         // Parse the S3 event from the SNS message
         const s3Event = JSON.parse(validatedMessage.Message);
-        
-        if (!isValidS3Event(s3Event)) {
-          reject(new Error("Invalid S3 event in SNS message"));
-          return;
-        }
-
         resolve(s3Event);
       } catch (parseError) {
         reject(new Error("Failed to parse S3 event from SNS message"));
@@ -107,10 +112,13 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
     contentType: null,
   };
 
+  // Extract and validate SHA256 from S3 object metadata
+  const sha256 = extractSHA256FromS3Object(object);
+
   // Single database operation that handles all cases
   const result = await query(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, file_info, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, file_info, sha256_client, integrity_status, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      ON CONFLICT (bucket, key, version_id) 
      DO UPDATE SET 
        etag = files.etag,  -- Keep existing ETag (no change)
@@ -128,6 +136,8 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
       object.eTag,
       object.size,
       JSON.stringify(fileInfo),
+      sha256,
+      "pending",
       "uploaded"
     ]
   );
@@ -150,9 +160,9 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   const operation = result.rows[0]?.operation;
   
   if (operation === 'inserted') {
-    console.log(`New file record created for ${bucket.name}/${object.key}`);
+    console.error(`New file record created for ${bucket.name}/${object.key}`);
   } else if (operation === 'updated') {
-    console.log(`Duplicate notification for ${bucket.name}/${object.key} - ignoring`);
+    console.error(`Duplicate notification for ${bucket.name}/${object.key} - ignoring`);
   }
 }
 
@@ -179,9 +189,25 @@ export default async function handler(
       return res.status(401).json({ error: "SNS signature validation failed" });
     }
 
+    // Validate S3 event structure and SHA256 metadata
+    if (!isValidS3Event(s3Event)) {
+      console.error("S3 event validation failed: Missing or invalid SHA256 metadata");
+      return res.status(400).json({ error: "SHA256 metadata is required for file integrity validation" });
+    }
+
     // Process each S3 event record
     for (const record of s3Event.Records) {
-      await saveFileRecord(record);
+      try {
+        await saveFileRecord(record);
+      } catch (error: any) {
+        // Handle SHA256 validation errors
+        if (error.message.includes("SHA256")) {
+          console.error("SHA256 validation error:", error.message);
+          return res.status(400).json({ error: error.message });
+        }
+        // Re-throw other errors to be handled by outer catch
+        throw error;
+      }
     }
 
     return res.status(200).json({ 
