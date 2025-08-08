@@ -7,6 +7,7 @@ import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { SectionPaper } from "./vewAtlasMetadataCorrectness.styles";
 
+// TODO!
 interface ViewAtlasMetadataCorrectness {
   atlas?: HCAAtlasTrackerAtlas;
   formManager: FormManager;

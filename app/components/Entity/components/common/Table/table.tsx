@@ -10,6 +10,7 @@ import { getRowDirection } from "./utils";
 
 export const Table = <T extends RowData>({
   className,
+  gridTemplateColumns,
   table,
 }: Props<T>): JSX.Element => {
   const bp = useCurrentBreakpoint();
@@ -18,9 +19,10 @@ export const Table = <T extends RowData>({
     <TableContainer className={className}>
       <GridTable
         collapsable
-        gridTemplateColumns={getColumnTrackSizing(
-          table.getVisibleFlatColumns()
-        )}
+        gridTemplateColumns={
+          gridTemplateColumns ||
+          getColumnTrackSizing(table.getVisibleFlatColumns())
+        }
       >
         <TableHead tableInstance={table} />
         <TableBody rowDirection={rowDirection} tableInstance={table} />
