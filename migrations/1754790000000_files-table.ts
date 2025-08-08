@@ -75,10 +75,11 @@ export const up = (pgm: MigrationBuilder): void => {
         comment: "Whether this is the latest version of the file"
       },
       
-      // File Metadata
+      // S3 Event Context (minimized)
       file_info: {
         notNull: true,
         type: "jsonb",
+        comment: "S3 event metadata: {eventTime, eventName}"
       },
       
       // Status & Processing

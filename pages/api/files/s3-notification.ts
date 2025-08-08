@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 const MessageValidator = require("sns-validator");
 import { doTransaction, query } from "../../../app/services/database";
 import { isAuthorizedSNSTopic, isAuthorizedS3Bucket } from "../../../app/config/aws-resources";
-import { object, string, number, array } from "yup";
+import { object, string, number, array, InferType } from "yup";
 
 // Yup schemas following established codebase pattern
 const s3ObjectSchema = object({
@@ -50,6 +50,10 @@ const snsMessageSchema = object({
   Token: string().optional()
 }).required();
 
+// Infer types from Yup schemas
+type S3EventRecordType = InferType<typeof s3RecordSchema>;
+type S3EventType = InferType<typeof s3EventSchema>;
+
 // TypeScript interfaces (derived from schemas)
 interface S3EventRecord {
   eventSource: string;
@@ -90,7 +94,7 @@ interface SNSMessage {
   Token?: string;
 }
 
-function extractSHA256FromS3Object(s3Object: S3EventRecord['s3']['object']): string {
+function extractSHA256FromS3Object(s3Object: S3EventRecordType['s3']['object']): string {
   // SHA256 validation is now handled by Yup schema
   // This function just extracts the validated value
   return s3Object.userMetadata["source-sha256"];
@@ -117,13 +121,12 @@ async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
   });
 }
 
-async function saveFileRecord(record: S3EventRecord): Promise<void> {
+async function saveFileRecord(record: S3EventRecordType): Promise<void> {
   const { bucket, object } = record.s3;
   
-  const fileInfo = {
+  const eventInfo = {
     eventTime: record.eventTime,
     eventName: record.eventName,
-    contentType: null,
   };
 
   // Extract SHA256 from validated S3 object metadata
@@ -189,7 +192,7 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
         object.versionId || null,
         object.eTag,
         object.size,
-        JSON.stringify(fileInfo),
+        JSON.stringify(eventInfo),
         sha256,
         "pending",
         "uploaded"
