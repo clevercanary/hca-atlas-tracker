@@ -64,7 +64,15 @@ export const up = (pgm: MigrationBuilder): void => {
       },
       integrity_error: {
         type: "text",
-        comment: "Error message if integrity check failed"
+        comment: "Error message if integrity validation fails"
+      },
+      
+      // Version Management
+      is_latest: {
+        type: "boolean",
+        notNull: true,
+        default: true,
+        comment: "Whether this is the latest version of the file"
       },
       
       // File Metadata

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { query } from "../../../app/services/database";
+import { query, doTransaction } from "../../../app/services/database";
 
 // SNS message validator for authentication
 const MessageValidator = require('sns-validator');
@@ -115,55 +115,102 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   // Extract and validate SHA256 from S3 object metadata
   const sha256 = extractSHA256FromS3Object(object);
 
-  // Single database operation that handles all cases
-  const result = await query(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, file_info, sha256_client, integrity_status, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-     ON CONFLICT (bucket, key, version_id) 
-     DO UPDATE SET 
-       etag = files.etag,  -- Keep existing ETag (no change)
-       size_bytes = files.size_bytes,  -- Keep existing values
-       file_info = files.file_info,
-       updated_at = CURRENT_TIMESTAMP
-     WHERE files.etag = EXCLUDED.etag  -- Only update if ETags match
-     RETURNING 
-       (CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END) as operation,
-       etag`,
-    [
-      bucket.name,
-      object.key,
-      object.versionId || null,
-      object.eTag,
-      object.size,
-      JSON.stringify(fileInfo),
-      sha256,
-      "pending",
-      "uploaded"
-    ]
-  );
-
-  // Check if we got a result back
-  if (result.rows.length === 0) {
-    // No rows returned means ON CONFLICT happened but WHERE clause failed
-    // This indicates an ETag mismatch - get the existing ETag for error message
-    const existingRecord = await query(
-      `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
-      [bucket.name, object.key, object.versionId || null]
+  // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
+  // 
+  // We use a single atomic database operation that handles all cases:
+  // 1. New file version: INSERT succeeds, record created
+  // 2. Duplicate notification: INSERT conflicts, UPDATE executed instead
+  // 3. ETag mismatch: UPDATE condition fails, no rows returned (indicates corruption)
+  //
+  // This approach provides several key benefits:
+  // - ATOMIC: Single operation, no race conditions between concurrent requests
+  // - EFFICIENT: No separate existence checks or multiple queries needed
+  // - SAFE: Database constraint enforcement prevents data corruption
+  // - INFORMATIVE: Returns metadata about whether record was inserted vs updated
+  //
+  // Alternative approaches we rejected:
+  // - Pre-read + conditional insert: Race conditions, multiple queries, performance impact
+  // - Application-level locking: Complex, doesn't scale, potential deadlocks
+  // - Ignore duplicates: Loses important ETag mismatch detection
+  await doTransaction(async (transaction) => {
+    // STEP 1: Mark all previous versions of this file as no longer latest
+    // This ensures only one version per (bucket, key) has is_latest = true
+    await transaction.query(
+      `UPDATE hat.files SET is_latest = FALSE WHERE bucket = $1 AND key = $2`,
+      [bucket.name, object.key]
     );
-    
-    const existingETag = existingRecord.rows[0]?.etag;
-    const errorMsg = `ETag mismatch for ${bucket.name}/${object.key} (version: ${object.versionId || 'null'}): existing=${existingETag}, new=${object.eTag}`;
-    console.error(errorMsg);
-    throw new Error(`ETag mismatch detected - possible data corruption or AWS infrastructure issue`);
-  }
 
-  const operation = result.rows[0]?.operation;
-  
-  if (operation === 'inserted') {
-    console.error(`New file record created for ${bucket.name}/${object.key}`);
-  } else if (operation === 'updated') {
-    console.error(`Duplicate notification for ${bucket.name}/${object.key} - ignoring`);
-  }
+    // STEP 2: Insert new version with ON CONFLICT handling
+    // The unique constraint on (bucket, key, version_id) will trigger ON CONFLICT
+    // if we receive a duplicate notification for the same S3 object version
+    const result = await transaction.query(
+      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, file_info, sha256_client, integrity_status, status, is_latest)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE)
+       
+       -- ON CONFLICT: Handle duplicate notifications gracefully
+       -- This triggers when (bucket, key, version_id) already exists
+       ON CONFLICT (bucket, key, version_id) 
+       DO UPDATE SET 
+         etag = files.etag,  -- Keep existing ETag (no change)
+         size_bytes = files.size_bytes,  -- Keep existing values
+         file_info = files.file_info,
+         is_latest = TRUE,  -- Ensure this version is marked as latest
+         updated_at = CURRENT_TIMESTAMP
+         
+       -- CRITICAL: Only update if ETags match
+       -- This WHERE clause provides data integrity protection:
+       -- - If ETags match: Same S3 object, safe to update (idempotent)
+       -- - If ETags differ: Potential corruption, reject update (no rows returned)
+       WHERE files.etag = EXCLUDED.etag
+       
+       -- RETURNING clause provides operation metadata:
+       -- - xmax = 0: Record was INSERTed (new file version)
+       -- - xmax > 0: Record was UPDATEd (duplicate notification)
+       RETURNING 
+         (CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END) as operation,
+         etag`,
+      [
+        bucket.name,
+        object.key,
+        object.versionId || null,
+        object.eTag,
+        object.size,
+        JSON.stringify(fileInfo),
+        sha256,
+        "pending",
+        "uploaded"
+      ]
+    );
+
+    // STEP 3: Handle the three possible outcomes
+    
+    // CASE 1: No rows returned = ETag mismatch detected
+    // This happens when ON CONFLICT triggered but WHERE clause failed
+    // Indicates potential data corruption or AWS infrastructure issue
+    if (result.rows.length === 0) {
+      // Get the existing ETag for detailed error reporting
+      const existingRecord = await transaction.query(
+        `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
+        [bucket.name, object.key, object.versionId || null]
+      );
+      
+      const existingETag = existingRecord.rows[0]?.etag;
+      const errorMsg = `ETag mismatch for ${bucket.name}/${object.key} (version: ${object.versionId || 'null'}): existing=${existingETag}, new=${object.eTag}`;
+      console.error(errorMsg);
+      throw new Error(`ETag mismatch detected - possible data corruption or AWS infrastructure issue`);
+    }
+
+    // CASE 2 & 3: Success - log the operation type for monitoring
+    const operation = result.rows[0]?.operation;
+    
+    if (operation === 'inserted') {
+      // New file version successfully created
+      console.error(`New file record created for ${bucket.name}/${object.key}`);
+    } else if (operation === 'updated') {
+      // Duplicate notification handled idempotently
+      console.error(`Duplicate notification for ${bucket.name}/${object.key} - ignoring`);
+    }
+  });
 }
 
 export default async function handler(
