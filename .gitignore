@@ -52,8 +52,11 @@ _templates
 
 # script output
 /catalog/build/temporary
+/catalog/downloaded/*
 
 #python
 venv/
 __pycache__
 
+# keep gitkeep
+!.gitkeep
