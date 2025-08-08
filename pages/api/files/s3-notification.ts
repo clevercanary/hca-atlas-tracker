@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { query, doTransaction } from "../../../app/services/database";
+import { doTransaction } from "../../../app/services/database";
+import { isAuthorizedSNSTopic, isAuthorizedS3Bucket } from "../../../app/config/aws-resources";
 
 // SNS message validator for authentication
 const MessageValidator = require('sns-validator');
@@ -233,16 +234,50 @@ export default async function handler(
       return res.status(401).json({ error: "SNS signature validation failed" });
     }
 
+    // Validate SNS topic authorization
+    if (!isAuthorizedSNSTopic(req.body.TopicArn)) {
+      console.error(`Unauthorized SNS topic: ${req.body.TopicArn}`);
+      return res.status(403).json({ 
+        error: 'Unauthorized SNS topic',
+        topicArn: req.body.TopicArn 
+      });
+    }
+
     // Validate S3 event structure and SHA256 metadata
     if (!isValidS3Event(s3Event)) {
       console.error("S3 event validation failed: Missing or invalid SHA256 metadata");
       return res.status(400).json({ error: "SHA256 metadata is required for file integrity validation" });
     }
 
-    // Process each S3 event record
+    // STRICT MODE: Validate ALL S3 buckets are authorized before processing ANY records
+    // This ensures we reject the entire request if any bucket is unauthorized
+    const unauthorizedBuckets: string[] = [];
+    
+    for (const record of s3Event.Records) {
+      const bucketName = record.s3.bucket.name;
+      if (!isAuthorizedS3Bucket(bucketName)) {
+        unauthorizedBuckets.push(bucketName);
+      }
+    }
+
+    // If any unauthorized buckets found, reject the entire request
+    if (unauthorizedBuckets.length > 0) {
+      console.error(`Unauthorized S3 buckets detected: ${unauthorizedBuckets.join(', ')}`);
+      return res.status(403).json({ 
+        error: 'Unauthorized S3 buckets',
+        unauthorizedBuckets,
+        message: 'Request rejected due to unauthorized bucket access'
+      });
+    }
+
+    // All buckets are authorized - proceed with processing all records
+    let recordsProcessed = 0;
+    const errors: string[] = [];
+
     for (const record of s3Event.Records) {
       try {
         await saveFileRecord(record);
+        recordsProcessed++;
       } catch (error: any) {
         // Handle SHA256 validation errors
         if (error.message.includes("SHA256")) {
@@ -256,7 +291,7 @@ export default async function handler(
 
     return res.status(200).json({ 
       message: "S3 notification processed successfully",
-      recordsProcessed: s3Event.Records.length
+      recordsProcessed
     });
 
   } catch (error) {
