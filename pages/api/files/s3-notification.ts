@@ -161,7 +161,7 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
     // The unique constraint on (bucket, key, version_id) will trigger ON CONFLICT
     // if we receive a duplicate notification for the same S3 object version
     const result = await transaction.query(
-      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, file_info, sha256_client, integrity_status, status, is_latest)
+      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE)
        
        -- ON CONFLICT: Handle duplicate notifications gracefully
@@ -170,7 +170,7 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
        DO UPDATE SET 
          etag = files.etag,  -- Keep existing ETag (no change)
          size_bytes = files.size_bytes,  -- Keep existing values
-         file_info = files.file_info,
+         event_info = files.event_info,
          is_latest = TRUE,  -- Ensure this version is marked as latest
          updated_at = CURRENT_TIMESTAMP
          

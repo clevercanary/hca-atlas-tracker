@@ -76,7 +76,7 @@ export const up = (pgm: MigrationBuilder): void => {
       },
       
       // S3 Event Context (minimized)
-      file_info: {
+      event_info: {
         notNull: true,
         type: "jsonb",
         comment: "S3 event metadata: {eventTime, eventName}"
