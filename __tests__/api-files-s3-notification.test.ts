@@ -92,19 +92,36 @@ describe(TEST_ROUTE, () => {
         {
           eventVersion: "2.1",
           eventSource: "aws:s3",
+          awsRegion: "us-east-1",
           eventTime: "2024-01-01T12:00:00.000Z",
           eventName: "s3:ObjectCreated:Put",
+          userIdentity: {
+            principalId: "AIDAJDPLRKLG7UEXAMPLE"
+          },
+          requestParameters: {
+            sourceIPAddress: "127.0.0.1"
+          },
+          responseElements: {
+            "x-amz-request-id": "C3D13FE58DE4C818",
+            "x-amz-id-2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpL"
+          },
           s3: {
             s3SchemaVersion: "1.0",
+            configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev"
+              name: "hca-atlas-tracker-data-dev",
+              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
+              ownerIdentity: {
+                principalId: "A3NL1KOZZKExample"
+              }
             },
             object: {
               key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
               size: 1024000,
               eTag: "d41d8cd98f00b204e9800998ecf8427e",
-              versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko"
-              // Missing userMetadata with source-sha256
+              versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+              sequencer: "0055AED6DCD90281ED"
+              // Missing userMetadata with source-sha256 - this is intentional for this test
             }
           }
         }
@@ -186,8 +203,9 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    // Temporarily remove console hiding to see debug output
-    await s3NotificationHandler(req, res);
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
 
     expect(res.statusCode).toBe(200);
     
@@ -292,24 +310,42 @@ describe(TEST_ROUTE, () => {
         {
           eventVersion: "2.1",
           eventSource: "aws:s3",
+          awsRegion: "us-east-1",
           eventTime: "2023-01-01T00:00:00.000Z",
-          eventName: "ObjectCreated:Put",
+          eventName: "s3:ObjectCreated:Put",
+          userIdentity: {
+            principalId: "AIDAJDPLRKLG7UEXAMPLE"
+          },
+          requestParameters: {
+            sourceIPAddress: "127.0.0.1"
+          },
+          responseElements: {
+            "x-amz-request-id": "C3D13FE58DE4C812",
+            "x-amz-id-2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpF"
+          },
           s3: {
+            s3SchemaVersion: "1.0",
+            configurationId: "testConfigRule",
             bucket: {
               name: "hca-atlas-tracker-data-dev",
+              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
+              ownerIdentity: {
+                principalId: "A3NL1KOZZKExample"
+              }
             },
             object: {
               key: "bio_network/gut-v1/source-datasets/auth-test.h5ad",
               size: 256000,
               eTag: "invalid-signature-test",
               versionId: "auth-test-version",
+              sequencer: "0055AED6DCD90281E7",
               userMetadata: {
                 "source-sha256": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
               }
-            },
-          },
-        },
-      ],
+            }
+          }
+        }
+      ]
     };
 
     const snsMessageWithInvalidSignature = {
@@ -356,24 +392,42 @@ describe(TEST_ROUTE, () => {
         {
           eventVersion: "2.1",
           eventSource: "aws:s3",
+          awsRegion: "us-east-1",
           eventTime: "2023-01-01T00:00:00.000Z",
-          eventName: "ObjectCreated:Put",
+          eventName: "s3:ObjectCreated:Put",
+          userIdentity: {
+            principalId: "AIDAJDPLRKLG7UEXAMPLE"
+          },
+          requestParameters: {
+            sourceIPAddress: "127.0.0.1"
+          },
+          responseElements: {
+            "x-amz-request-id": "C3D13FE58DE4C813",
+            "x-amz-id-2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpG"
+          },
           s3: {
+            s3SchemaVersion: "1.0",
+            configurationId: "testConfigRule",
             bucket: {
               name: "hca-atlas-tracker-data-dev",
+              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
+              ownerIdentity: {
+                principalId: "A3NL1KOZZKExample"
+              }
             },
             object: {
               key: "bio_network/gut-v1/source-datasets/etag-test.h5ad",
               size: 128000,
               eTag: "original-etag-12345",
               versionId: "version-123",
+              sequencer: "0055AED6DCD90281E8",
               userMetadata: {
                 "source-sha256": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
               }
-            },
-          },
-        },
-      ],
+            }
+          }
+        }
+      ]
     };
 
     const snsMessage = {
@@ -441,7 +495,7 @@ describe(TEST_ROUTE, () => {
     // Should reject with 500 Internal Server Error due to ETag mismatch
     expect(res2.statusCode).toBe(500);
     expect(JSON.parse(res2._getData())).toEqual({
-      error: "Internal server error",
+      error: "Data integrity error - ETag mismatch detected",
     });
 
     // Verify only one record exists with original ETag
@@ -461,20 +515,37 @@ describe(TEST_ROUTE, () => {
         {
           eventVersion: "2.1",
           eventSource: "aws:s3",
+          awsRegion: "us-east-1",
           eventTime: "2024-01-01T12:00:00.000Z",
           eventName: "s3:ObjectCreated:Put",
+          userIdentity: {
+            principalId: "AIDAJDPLRKLG7UEXAMPLE"
+          },
+          requestParameters: {
+            sourceIPAddress: "127.0.0.1"
+          },
+          responseElements: {
+            "x-amz-request-id": "C3D13FE58DE4C814",
+            "x-amz-id-2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpH"
+          },
           s3: {
             s3SchemaVersion: "1.0",
+            configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev"
+              name: "hca-atlas-tracker-data-dev",
+              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
+              ownerIdentity: {
+                principalId: "A3NL1KOZZKExample"
+              }
             },
             object: {
               key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
               size: 1024000,
               eTag: "version1-etag-12345678901234567890123456789012",
               versionId: "version-1",
+              sequencer: "0055AED6DCD90281E9",
               userMetadata: {
-             "source-sha256": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+                "source-sha256": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
               }
             }
           }
@@ -512,18 +583,35 @@ describe(TEST_ROUTE, () => {
         {
           eventVersion: "2.1",
           eventSource: "aws:s3",
+          awsRegion: "us-east-1",
           eventTime: "2024-01-01T13:00:00.000Z",
           eventName: "s3:ObjectCreated:Put",
+          userIdentity: {
+            principalId: "AIDAJDPLRKLG7UEXAMPLE"
+          },
+          requestParameters: {
+            sourceIPAddress: "127.0.0.1"
+          },
+          responseElements: {
+            "x-amz-request-id": "C3D13FE58DE4C815",
+            "x-amz-id-2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpI"
+          },
           s3: {
             s3SchemaVersion: "1.0",
+            configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev"
+              name: "hca-atlas-tracker-data-dev",
+              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
+              ownerIdentity: {
+                principalId: "A3NL1KOZZKExample"
+              }
             },
             object: {
               key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad", // Same key
               size: 2048000,
               eTag: "version2-etag-98765432109876543210987654321098",
               versionId: "version-2", // Different version
+              sequencer: "0055AED6DCD90281EA",
               userMetadata: {
                 "source-sha256": "b2c3d4e5f678901234567890123456789012345678901234567890123456789a"
               }
@@ -593,18 +681,35 @@ describe(TEST_ROUTE, () => {
           {
             eventVersion: "2.1",
             eventSource: "aws:s3",
+            awsRegion: "us-east-1",
             eventTime: "2024-01-01T12:00:00.000Z",
             eventName: "s3:ObjectCreated:Put",
+            userIdentity: {
+              principalId: "AIDAJDPLRKLG7UEXAMPLE"
+            },
+            requestParameters: {
+              sourceIPAddress: "127.0.0.1"
+            },
+            responseElements: {
+              "x-amz-request-id": "C3D13FE58DE4C816",
+              "x-amz-id-2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpJ"
+            },
             s3: {
               s3SchemaVersion: "1.0",
+              configurationId: "testConfigRule",
               bucket: {
-                name: "hca-atlas-tracker-data-dev"
+                name: "hca-atlas-tracker-data-dev",
+                arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
+                ownerIdentity: {
+                  principalId: "A3NL1KOZZKExample"
+                }
               },
               object: {
                 key: "test-file.h5ad",
                 size: 1024000,
                 eTag: "d41d8cd98f00b204e9800998ecf8427e",
                 versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+                sequencer: "0055AED6DCD90281EB",
                 userMetadata: {
                   "source-sha256": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890"
                 }
@@ -650,21 +755,37 @@ describe(TEST_ROUTE, () => {
         {
           eventVersion: "2.1",
           eventSource: "aws:s3",
+          awsRegion: "us-east-1",
           eventTime: "2024-01-01T12:00:00.000Z",
           eventName: "s3:ObjectCreated:Put",
+          userIdentity: {
+            principalId: "AIDAJDPLRKLG7UEXAMPLE"
+          },
+          requestParameters: {
+            sourceIPAddress: "127.0.0.1"
+          },
+          responseElements: {
+            "x-amz-request-id": "C3D13FE58DE4C817",
+            "x-amz-id-2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpK"
+          },
           s3: {
             s3SchemaVersion: "1.0",
+            configurationId: "testConfigRule",
             bucket: {
               name: "unauthorized-bucket",
-              arn: "arn:aws:s3:::unauthorized-bucket"
+              arn: "arn:aws:s3:::unauthorized-bucket",
+              ownerIdentity: {
+                principalId: "A3NL1KOZZKExample"
+              }
             },
             object: {
               key: "test-file.h5ad",
               size: 1024000,
               eTag: "d41d8cd98f00b204e9800998ecf8427e",
               versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+              sequencer: "0055AED6DCD90281EC",
               userMetadata: {
-                "source-sha256": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890"
+                "source-sha256": "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678"
               }
             }
           }
@@ -692,7 +813,9 @@ describe(TEST_ROUTE, () => {
     );
 
     const handler = (await import("../pages/api/files/s3-notification")).default;
-    await handler(req, res);
+    await withConsoleErrorHiding(async () => {
+      await handler(req, res);
+    });
 
     expect(res._getStatusCode()).toBe(403);
     expect(JSON.parse(res._getData())).toEqual({
