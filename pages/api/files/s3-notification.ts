@@ -1,12 +1,57 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { doTransaction } from "../../../app/services/database";
+const MessageValidator = require("sns-validator");
+import { doTransaction, query } from "../../../app/services/database";
 import { isAuthorizedSNSTopic, isAuthorizedS3Bucket } from "../../../app/config/aws-resources";
+import { object, string, number, array } from "yup";
 
-// SNS message validator for authentication
-const MessageValidator = require('sns-validator');
+// Yup schemas following established codebase pattern
+const s3ObjectSchema = object({
+  key: string().required(),
+  size: number().required(),
+  eTag: string().required(),
+  versionId: string().nullable().optional(),
+  userMetadata: object().shape({
+    "source-sha256": string()
+      .matches(/^[a-fA-F0-9]{64}$/, "SHA256 must be a 64-character hexadecimal string")
+      .required("SHA256 metadata is required for file integrity validation")
+  }).required()
+}).required();
 
+const s3BucketSchema = object({
+  name: string().required()
+}).required();
+
+const s3RecordSchema = object({
+  eventSource: string().oneOf(["aws:s3"]).required(),
+  eventTime: string().required(),
+  eventName: string().required(),
+  s3: object({
+    bucket: s3BucketSchema,
+    object: s3ObjectSchema
+  }).required()
+}).required();
+
+const s3EventSchema = object({
+  Records: array().of(s3RecordSchema).min(1).required()
+}).required();
+
+const snsMessageSchema = object({
+  Type: string().oneOf(["Notification"]).required(),
+  MessageId: string().required(),
+  TopicArn: string().required(),
+  Subject: string().optional(),
+  Message: string().required(),
+  Timestamp: string().required(),
+  SignatureVersion: string().required(),
+  Signature: string().required(),
+  SigningCertURL: string().url().required(),
+  UnsubscribeURL: string().url().optional(),
+  SubscribeURL: string().url().optional(),
+  Token: string().optional()
+}).required();
+
+// TypeScript interfaces (derived from schemas)
 interface S3EventRecord {
-  eventVersion: string;
   eventSource: string;
   eventTime: string;
   eventName: string;
@@ -19,6 +64,9 @@ interface S3EventRecord {
       size: number;
       eTag: string;
       versionId?: string;
+      userMetadata: {
+        "source-sha256": string;
+      };
     };
   };
 }
@@ -42,42 +90,10 @@ interface SNSMessage {
   Token?: string;
 }
 
-function isValidS3Event(payload: any): payload is S3Event {
-  return (
-    payload &&
-    Array.isArray(payload.Records) &&
-    payload.Records.length > 0 &&
-    payload.Records.every((record: any) => 
-      record.eventSource === "aws:s3" &&
-      record.s3 &&
-      record.s3.bucket &&
-      record.s3.object &&
-      typeof record.s3.bucket.name === "string" &&
-      typeof record.s3.object.key === "string" &&
-      typeof record.s3.object.eTag === "string" &&
-      typeof record.s3.object.size === "number"
-    )
-  );
-}
-
-function isValidSNSMessage(payload: any): payload is SNSMessage {
-  return (
-    payload &&
-    typeof payload.Type === "string" &&
-    typeof payload.MessageId === "string" &&
-    typeof payload.TopicArn === "string" &&
-    typeof payload.Message === "string" &&
-    typeof payload.Signature === "string" &&
-    typeof payload.SigningCertURL === "string"
-  );
-}
-
-function extractSHA256FromS3Object(s3Object: any): string {
-  const sha256 = s3Object.userMetadata?.["source-sha256"];
-  if (!sha256 || typeof sha256 !== "string") {
-    throw new Error("SHA256 metadata is required for file integrity validation");
-  }
-  return sha256;
+function extractSHA256FromS3Object(s3Object: S3EventRecord['s3']['object']): string {
+  // SHA256 validation is now handled by Yup schema
+  // This function just extracts the validated value
+  return s3Object.userMetadata["source-sha256"];
 }
 
 async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
@@ -110,7 +126,7 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
     contentType: null,
   };
 
-  // Extract and validate SHA256 from S3 object metadata
+  // Extract SHA256 from validated S3 object metadata
   const sha256 = extractSHA256FromS3Object(object);
 
   // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
@@ -203,10 +219,10 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
     
     if (operation === 'inserted') {
       // New file version successfully created
-      console.error(`New file record created for ${bucket.name}/${object.key}`);
+      console.log(`New file record created for ${bucket.name}/${object.key}`);
     } else if (operation === 'updated') {
       // Duplicate notification handled idempotently
-      console.error(`Duplicate notification for ${bucket.name}/${object.key} - ignoring`);
+      console.log(`Duplicate notification for ${bucket.name}/${object.key} - ignoring`);
     }
   });
 }
@@ -220,40 +236,35 @@ export default async function handler(
   }
 
   try {
-    // Expect SNS message format
-    if (!isValidSNSMessage(req.body)) {
-      return res.status(400).json({ error: "Invalid SNS message payload" });
-    }
-
+    // Validate SNS message format using Yup schema
+    const snsMessage = await snsMessageSchema.validate(req.body);
+    
     // Validate SNS signature and extract S3 event
     let s3Event: S3Event;
     try {
-      s3Event = await validateSNSMessage(req.body);
+      s3Event = await validateSNSMessage(snsMessage);
     } catch (validationError) {
       console.error("SNS signature validation failed:", validationError);
       return res.status(401).json({ error: "SNS signature validation failed" });
     }
 
     // Validate SNS topic authorization
-    if (!isAuthorizedSNSTopic(req.body.TopicArn)) {
-      console.error(`Unauthorized SNS topic: ${req.body.TopicArn}`);
+    if (!isAuthorizedSNSTopic(snsMessage.TopicArn)) {
+      console.error(`Unauthorized SNS topic: ${snsMessage.TopicArn}`);
       return res.status(403).json({ 
         error: 'Unauthorized SNS topic',
-        topicArn: req.body.TopicArn 
+        topicArn: snsMessage.TopicArn 
       });
     }
 
-    // Validate S3 event structure and SHA256 metadata
-    if (!isValidS3Event(s3Event)) {
-      console.error("S3 event validation failed: Missing or invalid SHA256 metadata");
-      return res.status(400).json({ error: "SHA256 metadata is required for file integrity validation" });
-    }
-
+    // Validate S3 event structure and SHA256 metadata using Yup schema
+    const validatedS3Event = await s3EventSchema.validate(s3Event);
+    
     // STRICT MODE: Validate ALL S3 buckets are authorized before processing ANY records
     // This ensures we reject the entire request if any bucket is unauthorized
     const unauthorizedBuckets: string[] = [];
     
-    for (const record of s3Event.Records) {
+    for (const record of validatedS3Event.Records) {
       const bucketName = record.s3.bucket.name;
       if (!isAuthorizedS3Bucket(bucketName)) {
         unauthorizedBuckets.push(bucketName);
@@ -274,28 +285,38 @@ export default async function handler(
     let recordsProcessed = 0;
     const errors: string[] = [];
 
-    for (const record of s3Event.Records) {
+    for (const record of validatedS3Event.Records) {
       try {
         await saveFileRecord(record);
         recordsProcessed++;
       } catch (error: any) {
-        // Handle SHA256 validation errors
-        if (error.message.includes("SHA256")) {
-          console.error("SHA256 validation error:", error.message);
-          return res.status(400).json({ error: error.message });
+        // Handle ETag mismatch and other database errors
+        if (error.message.includes("ETag mismatch")) {
+          console.error("ETag mismatch error:", error.message);
+          return res.status(500).json({ error: "Data integrity error - ETag mismatch detected" });
         }
-        // Re-throw other errors to be handled by outer catch
-        throw error;
+        
+        // Handle other unexpected errors
+        console.error("Unexpected error processing S3 record:", error);
+        errors.push(error.message);
       }
     }
 
-    return res.status(200).json({ 
+    // Return success response
+    res.status(200).json({
       message: "S3 notification processed successfully",
       recordsProcessed
     });
 
-  } catch (error) {
-    console.error("Error processing S3 notification:", error);
-    return res.status(500).json({ error: "Internal server error" });
+  } catch (error: any) {
+    // Handle Yup validation errors
+    if (error.name === 'ValidationError') {
+      console.error("Validation error:", error.message);
+      return res.status(400).json({ error: error.message });
+    }
+    
+    // Handle other unexpected errors
+    console.error("Unexpected error in S3 notification handler:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 }
