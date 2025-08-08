@@ -53,6 +53,7 @@ _templates
 # script output
 /catalog/build/temporary
 /catalog/downloaded/*
+!/catalog/downloaded/*.d.ts
 
 #python
 venv/
