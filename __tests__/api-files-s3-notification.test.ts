@@ -220,7 +220,7 @@ describe(TEST_ROUTE, () => {
               eTag: "e1234567890abcdef1234567890abcdef",
               versionId: "abc123def456ghi789jkl012mno345pqr",
               userMetadata: {
-                "source-sha256": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+                "source-sha256": "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678"
               }
             }
           }
@@ -441,5 +441,137 @@ describe(TEST_ROUTE, () => {
     
     expect(fileRows.rows).toHaveLength(1);
     expect(fileRows.rows[0].etag).toBe("original-etag-12345");
+  });
+
+  it("maintains is_latest flag correctly for file versions", async () => {
+    // First version of the file
+    const s3EventV1 = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
+              size: 1024000,
+              eTag: "version1-etag-12345678901234567890123456789012",
+              versionId: "version-1",
+              userMetadata: {
+             "source-sha256": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessageV1 = {
+      Type: "Notification",
+      MessageId: "test-message-id-v1",
+      TopicArn: "arn:aws:sns:us-east-1:123456789012:test-topic",
+      Message: JSON.stringify(s3EventV1),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "valid-signature",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req: req1, res: res1 } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: "POST",
+        body: snsMessageV1,
+      }
+    );
+
+    // Process first version
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req1, res1);
+    });
+    expect(res1.statusCode).toBe(200);
+
+    // Second version of the same file (different version_id and etag)
+    const s3EventV2 = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T13:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad", // Same key
+              size: 2048000,
+              eTag: "version2-etag-98765432109876543210987654321098",
+              versionId: "version-2", // Different version
+              userMetadata: {
+                "source-sha256": "b2c3d4e5f678901234567890123456789012345678901234567890123456789a"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessageV2 = {
+      Type: "Notification",
+      MessageId: "test-message-id-v2",
+      TopicArn: "arn:aws:sns:us-east-1:123456789012:test-topic",
+      Message: JSON.stringify(s3EventV2),
+      Timestamp: "2024-01-01T13:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "valid-signature",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req: req2, res: res2 } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: "POST",
+        body: snsMessageV2,
+      }
+    );
+
+    // Process second version
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req2, res2);
+    });
+    expect(res2.statusCode).toBe(200);
+
+    // Check database state - should have 2 records for the same file
+    const allVersions = await query(
+      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 ORDER BY created_at ASC",
+      ["hca-atlas-tracker-data-dev", "bio_network/gut-v1/source-datasets/versioned-file.h5ad"]
+    );
+
+    expect(allVersions.rows).toHaveLength(2);
+
+    // First version should NOT be latest
+    const firstVersion = allVersions.rows[0];
+    expect(firstVersion.version_id).toBe("version-1");
+    expect(firstVersion.is_latest).toBe(false);
+
+    // Second version should BE latest
+    const secondVersion = allVersions.rows[1];
+    expect(secondVersion.version_id).toBe("version-2");
+    expect(secondVersion.is_latest).toBe(true);
+
+    // Verify we can easily query for latest version only
+    const latestOnly = await query(
+      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+      ["hca-atlas-tracker-data-dev", "bio_network/gut-v1/source-datasets/versioned-file.h5ad"]
+    );
+
+    expect(latestOnly.rows).toHaveLength(1);
+    expect(latestOnly.rows[0].version_id).toBe("version-2");
+    expect(latestOnly.rows[0].etag).toBe("version2-etag-98765432109876543210987654321098");
   });
 });
