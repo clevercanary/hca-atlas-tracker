@@ -1,9 +1,17 @@
+// Set up AWS resource configuration BEFORE any other imports
+const TEST_AWS_CONFIG = {
+  sns_topics: ["arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications"],
+  s3_buckets: ["hca-atlas-tracker-data-dev"]
+};
+process.env.AWS_RESOURCE_CONFIG = JSON.stringify(TEST_AWS_CONFIG);
+
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import { resetDatabase } from "../testing/db-utils";
 import { withConsoleErrorHiding } from "../testing/utils";
+import { resetConfigCache } from "../app/config/aws-resources";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -14,6 +22,10 @@ jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
+
+afterEach(() => {
+  resetConfigCache();
+});
 
 jest.mock('sns-validator', () => {
   return jest.fn().mockImplementation(() => ({
@@ -102,7 +114,7 @@ describe(TEST_ROUTE, () => {
     const snsMessage = {
       Type: "Notification",
       MessageId: "12345678-1234-1234-1234-123456789012",
-      TopicArn: "arn:aws:sns:us-east-1:123456789012:s3-notifications",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
       Subject: "Amazon S3 Notification",
       Message: JSON.stringify(s3Event),
       Timestamp: "2024-01-01T12:00:00.000Z",
@@ -158,7 +170,7 @@ describe(TEST_ROUTE, () => {
     const snsMessage = {
       Type: "Notification",
       MessageId: "12345678-1234-1234-1234-123456789012",
-      TopicArn: "arn:aws:sns:us-east-1:123456789012:s3-notifications",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
       Subject: "Amazon S3 Notification",
       Message: JSON.stringify(s3Event),
       Timestamp: "2024-01-01T12:00:00.000Z",
@@ -174,9 +186,8 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
-    });
+    // Temporarily remove console hiding to see debug output
+    await s3NotificationHandler(req, res);
 
     expect(res.statusCode).toBe(200);
     
@@ -231,7 +242,7 @@ describe(TEST_ROUTE, () => {
     const snsMessage = {
       Type: "Notification",
       MessageId: "duplicate-test-message",
-      TopicArn: "arn:aws:sns:us-east-1:123456789012:s3-notifications",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
       Subject: "Amazon S3 Notification",
       Message: JSON.stringify(s3Event),
       Timestamp: "2024-01-01T12:00:00.000Z",
@@ -304,7 +315,7 @@ describe(TEST_ROUTE, () => {
     const snsMessageWithInvalidSignature = {
       Type: "Notification",
       MessageId: "auth-test-message",
-      TopicArn: "arn:aws:sns:us-east-1:123456789012:s3-notifications",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
       Subject: "Amazon S3 Notification",
       Message: JSON.stringify(s3Event),
       Timestamp: "2023-01-01T00:00:00.000Z",
@@ -368,7 +379,7 @@ describe(TEST_ROUTE, () => {
     const snsMessage = {
       Type: "Notification",
       MessageId: "etag-test-message-1",
-      TopicArn: "arn:aws:sns:us-east-1:123456789012:s3-notifications",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
       Subject: "Amazon S3 Notification",
       Message: JSON.stringify(s3Event),
       Timestamp: "2023-01-01T00:00:00.000Z",
@@ -474,7 +485,7 @@ describe(TEST_ROUTE, () => {
     const snsMessageV1 = {
       Type: "Notification",
       MessageId: "test-message-id-v1",
-      TopicArn: "arn:aws:sns:us-east-1:123456789012:test-topic",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
       Message: JSON.stringify(s3EventV1),
       Timestamp: "2024-01-01T12:00:00.000Z",
       SignatureVersion: "1",
@@ -525,7 +536,7 @@ describe(TEST_ROUTE, () => {
     const snsMessageV2 = {
       Type: "Notification",
       MessageId: "test-message-id-v2",
-      TopicArn: "arn:aws:sns:us-east-1:123456789012:test-topic",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
       Message: JSON.stringify(s3EventV2),
       Timestamp: "2024-01-01T13:00:00.000Z",
       SignatureVersion: "1",
@@ -573,5 +584,121 @@ describe(TEST_ROUTE, () => {
     expect(latestOnly.rows).toHaveLength(1);
     expect(latestOnly.rows[0].version_id).toBe("version-2");
     expect(latestOnly.rows[0].etag).toBe("version2-etag-98765432109876543210987654321098");
+  });
+
+  it("rejects notifications from unauthorized SNS topics", async () => {
+    await withConsoleErrorHiding(async () => {
+      const s3Event = {
+        Records: [
+          {
+            eventVersion: "2.1",
+            eventSource: "aws:s3",
+            eventTime: "2024-01-01T12:00:00.000Z",
+            eventName: "s3:ObjectCreated:Put",
+            s3: {
+              s3SchemaVersion: "1.0",
+              bucket: {
+                name: "hca-atlas-tracker-data-dev"
+              },
+              object: {
+                key: "test-file.h5ad",
+                size: 1024000,
+                eTag: "d41d8cd98f00b204e9800998ecf8427e",
+                versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+                userMetadata: {
+                  "source-sha256": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890"
+                }
+              }
+            }
+          }
+        ]
+      };
+
+      const unauthorizedSnsMessage = {
+        Type: "Notification",
+        MessageId: "unauthorized-topic-test",
+        TopicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+        Subject: "Amazon S3 Notification",
+        Message: JSON.stringify(s3Event),
+        Timestamp: "2024-01-01T12:00:00.000Z",
+        SignatureVersion: "1",
+        Signature: "fake-signature-for-testing",
+        SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+      };
+
+      const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+        {
+          method: METHOD.POST,
+          body: unauthorizedSnsMessage,
+        }
+      );
+
+      const handler = (await import("../pages/api/files/s3-notification")).default;
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(403);
+      expect(JSON.parse(res._getData())).toEqual({
+        error: "Unauthorized SNS topic",
+        topicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic"
+      });
+    });
+  });
+
+  it("rejects notifications from unauthorized S3 buckets", async () => {
+    const s3Event = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "unauthorized-bucket",
+              arn: "arn:aws:s3:::unauthorized-bucket"
+            },
+            object: {
+              key: "test-file.h5ad",
+              size: 1024000,
+              eTag: "d41d8cd98f00b204e9800998ecf8427e",
+              versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+              userMetadata: {
+                "source-sha256": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessage = {
+      Type: "Notification",
+      MessageId: "unauthorized-bucket-test",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+      Subject: "Amazon S3 Notification",
+      Message: JSON.stringify(s3Event),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "fake-signature-for-testing",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: "POST",
+        body: snsMessage,
+      }
+    );
+
+    const handler = (await import("../pages/api/files/s3-notification")).default;
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(403);
+    expect(JSON.parse(res._getData())).toEqual({
+      error: "Unauthorized S3 buckets",
+      unauthorizedBuckets: ["unauthorized-bucket"],
+      message: "Request rejected due to unauthorized bucket access"
+    });
   });
 });
