@@ -73,13 +73,10 @@ function isValidSNSMessage(payload: any): payload is SNSMessage {
 
 function extractSHA256FromS3Object(s3Object: any): string {
   const sha256 = s3Object.userMetadata?.["source-sha256"];
-  if (!sha256) {
+  if (!sha256 || typeof sha256 !== "string") {
     throw new Error("SHA256 metadata is required for file integrity validation");
   }
-  if (typeof sha256 !== "string" || sha256.length !== 64 || !/^[a-fA-F0-9]{64}$/.test(sha256)) {
-    throw new Error("Invalid SHA256 format - must be 64 character hexadecimal string");
-  }
-  return sha256.toLowerCase();
+  return sha256;
 }
 
 async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
