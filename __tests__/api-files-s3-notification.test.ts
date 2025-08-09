@@ -229,6 +229,7 @@ describe(TEST_ROUTE, () => {
     expect(file.integrity_checked_at).toBeNull();
     expect(file.integrity_error).toBeNull();
     expect(file.file_type).toBe("source_dataset"); // New field - should be derived from S3 path
+    expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
   });
 
   it("handles duplicate notifications idempotently", async () => {
@@ -305,6 +306,7 @@ describe(TEST_ROUTE, () => {
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
+    expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
   });
 
   it("rejects SNS messages with invalid signatures", async () => {
