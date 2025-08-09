@@ -97,6 +97,37 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
   - Rationale: Fast queries for integrity validation workflows
   - Supports future batch integrity checking operations
 
+## File Classification & Entity Relationships
+
+### **File Type Determination**
+• **S3 path-based classification** using folder structure
+  - **Pattern**: `bio_network/atlas-name/folder-type/filename`
+  - **Mapping**: 
+    - `source-datasets/` → `file_type = 'source_dataset'`
+    - `integrated-objects/` → `file_type = 'integrated_object'`
+    - `manifests/` → `file_type = 'ingest_manifest'`
+  - **Rationale**: Authoritative source of truth, consistent with S3 organization
+  - **Error handling**: Invalid paths or unknown folder types rejected with HTTP 400
+
+### **Foreign Key Relationships**
+• **Exclusive foreign key assignment** based on file type
+  - **Source datasets**: `source_study_id = NULL` (staged validation), `atlas_id = NULL`
+  - **Integrated objects**: `atlas_id = atlas_uuid` (from database lookup), `source_study_id = NULL`
+  - **Ingest manifests**: `atlas_id = atlas_uuid` (from database lookup), `source_study_id = NULL`
+  - **Database constraint**: CHECK constraint enforces exclusive relationships at schema level
+
+### **Atlas Lookup Strategy**
+• **Atlas name extraction** from S3 path second segment
+  - **Lookup query**: `SELECT id FROM hat.atlases WHERE overview->>'shortName' = atlas_name`
+  - **Error handling**: Atlas not found → reject early, send to DLQ for operational review
+  - **Rationale**: Fail fast prevents orphaned data, DLQ provides operational visibility
+
+### **Staged Validation Workflow**
+• **Source study linkage deferred** to validation stage
+  - **S3 notification stage**: Create file record with `source_study_id = NULL`
+  - **Validation stage**: Extract DOI from `.h5ad` metadata, lookup source study, update FK
+  - **Rationale**: Allows immediate file ingestion, validation can happen asynchronously
+
 ## Error Handling & Monitoring
 
 ### **Error Classification**
