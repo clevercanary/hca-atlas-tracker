@@ -162,22 +162,65 @@ function determineFileType(s3Key: string): string {
   }
 }
 
+// Parse S3 atlas name (e.g., 'gut-v1', 'retina-v1-1') into base name and version
+// S3 format supports: 'name-v1' (v1.0), 'name-v1-1' (v1.1), 'name-v2-3' (v2.3)
+function parseS3AtlasName(s3AtlasName: string): { atlasBaseName: string; s3Version: string } {
+  // Match patterns like 'gut-v1' or 'gut-v1-1' (for v1.1)
+  const versionMatch = s3AtlasName.match(/^(.+)-v(\d+(?:-\d+)*)$/);
+  
+  if (!versionMatch) {
+    throw new Error(`Invalid S3 atlas name format: ${s3AtlasName}. Expected format: name-v1 or name-v1-1`);
+  }
+  
+  const [, atlasBaseName, s3Version] = versionMatch;
+  return { atlasBaseName, s3Version };
+}
+
+// Convert S3 version format to database version format
+// S3: 'v1' -> DB: '1.0', S3: 'v1-1' -> DB: '1.1', S3: 'v2-3' -> DB: '2.3'
+function convertS3VersionToDbVersion(s3Version: string): string {
+  if (s3Version.includes('-')) {
+    // Convert 'v1-1' to '1.1'
+    return s3Version.replace('-', '.');
+  } else {
+    // Convert 'v1' to '1.0'
+    return s3Version + '.0';
+  }
+}
+
 async function determineAtlasId(s3Key: string, fileType: string): Promise<string | null> {
   // Source datasets don't use atlas_id, they use source_study_id
   if (fileType === 'source_dataset') {
     return null;
   }
   
-  const { atlasName } = parseS3KeyPath(s3Key);
+  const { network, atlasName } = parseS3KeyPath(s3Key);
   
-  // Look up atlas ID by shortName in the overview JSONB field
+  // Parse S3 atlas name into base name and version
+  const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
+  
+  // Convert S3 version to database version format
+  const dbVersion = convertS3VersionToDbVersion(s3Version);
+  
+  // Look up atlas by network and version, then filter by shortName match
+  // We need to do a case-insensitive match since S3 names may have different casing
+  // Also check for both version formats: "1" and "1.0" since databases might store either
+  const versionWithoutDecimal = dbVersion.replace('.0', '');
+  
   const result = await query(
-    `SELECT id FROM hat.atlases WHERE overview->>'shortName' = $1`,
-    [atlasName]
+    `SELECT id, overview->>'shortName' as short_name, overview->>'version' as version
+     FROM hat.atlases 
+     WHERE overview->>'network' = $1 
+     AND (overview->>'version' = $2 OR overview->>'version' = $3)
+     AND LOWER(overview->>'shortName') = LOWER($4)
+     ORDER BY 
+       CASE WHEN overview->>'version' = $3 THEN 1 ELSE 2 END,
+       overview->>'version'`,
+    [network, dbVersion, versionWithoutDecimal, atlasBaseName]
   );
   
   if (result.rows.length === 0) {
-    throw new Error(`Atlas not found for name: ${atlasName}`);
+    throw new Error(`Atlas not found for network: ${network}, shortName: ${atlasBaseName}, version: ${dbVersion} or ${versionWithoutDecimal} (from S3 path: ${atlasName})`);
   }
   
   return result.rows[0].id;
