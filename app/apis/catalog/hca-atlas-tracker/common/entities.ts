@@ -480,8 +480,9 @@ export type HCAAtlasTrackerDBUserWithAssociatedResources =
 export interface Heatmap {
   classes: Array<{
     fields: Array<{
-      category: HEATMAP_FIELD_CATEGORY;
       name: string;
+      organSpecific: boolean;
+      required: boolean;
       title: string;
     }>;
     sheets: Array<{
@@ -493,12 +494,6 @@ export interface Heatmap {
     }>;
     title: string;
   }>;
-}
-
-export enum HEATMAP_FIELD_CATEGORY {
-  MUST = "MUST",
-  ORGAN_SPECIFIC = "ORGAN_SPECIFIC",
-  RECOMMENDED = "RECOMMENDED",
 }
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];

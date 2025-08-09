@@ -3,7 +3,6 @@ import dataDictionary from "../../catalog/downloaded/data-dictionary.json";
 import {
   HCAAtlasTrackerDBEntrySheetValidation,
   Heatmap,
-  HEATMAP_FIELD_CATEGORY,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { EntrySheetValidationErrorInfo } from "../utils/hca-validation-tools/hca-validation-tools";
 import { getBaseModelAtlasEntrySheetValidations } from "./entry-sheets";
@@ -56,8 +55,9 @@ function getClassHeatmap(
   return {
     fields: ddClass.attributes.map((ddAttribute) => {
       return {
-        category: HEATMAP_FIELD_CATEGORY.MUST,
         name: ddAttribute.name,
+        organSpecific: false,
+        required: ddAttribute.required,
         title: ddAttribute.title,
       };
     }),
