@@ -48,21 +48,53 @@ import s3NotificationHandler from "../pages/api/files/s3-notification";
 
 // Helper function to create test atlas data
 async function createTestAtlasData() {
-  // Create test atlas with shortName 'gut-v1' for integrated object and manifest tests
-  await query(
-    `INSERT INTO hat.atlases (id, overview, source_studies, status, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, NOW(), NOW())`,
-    [
-      '550e8400-e29b-41d4-a716-446655440000', // Fixed UUID for consistent tests
-      JSON.stringify({
-        shortName: 'gut-v1',
+  // Create multiple test atlases to cover different network/version scenarios
+  const atlases = [
+    {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      overview: {
+        network: 'gut',         // Matches S3 path 'gut/gut-v1/...'
+        version: '1',           // DB version format (S3 'v1' -> DB '1') 
+        shortName: 'Gut',       // Case-insensitive match with S3 atlas base name 'gut'
         title: 'Test Gut Atlas v1',
-        description: 'Test atlas for S3 notification integration tests'
-      }),
-      JSON.stringify([]), // Empty source studies array
-      'draft' // Status field
-    ]
-  );
+        description: 'Test gut atlas for S3 notification integration tests'
+      }
+    },
+    {
+      id: '550e8400-e29b-41d4-a716-446655440001', 
+      overview: {
+        network: 'eye',         // Matches S3 path 'eye/retina-v1/...'
+        version: '1',           // DB version format (S3 'v1' -> DB '1')
+        shortName: 'Retina',    // Case-insensitive match with S3 atlas base name 'retina'
+        title: 'Test Retina Atlas v1',
+        description: 'Test retina atlas for S3 notification integration tests'
+      }
+    },
+    {
+      id: '550e8400-e29b-41d4-a716-446655440002',
+      overview: {
+        network: 'gut',         // Same network as first gut atlas
+        version: '1.1',         // DB version format (S3 'v1-1' -> DB '1.1')
+        shortName: 'Gut',       // Same shortName but different version
+        title: 'Test Gut Atlas v1.1', 
+        description: 'Test gut atlas v1.1 for S3 notification integration tests'
+      }
+    }
+  ];
+
+  // Insert all test atlases
+  for (const atlas of atlases) {
+    await query(
+      `INSERT INTO hat.atlases (id, overview, source_studies, status, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, NOW(), NOW())`,
+      [
+        atlas.id,
+        JSON.stringify(atlas.overview),
+        JSON.stringify([]), // Empty source studies array
+        'draft' // Status field
+      ]
+    );
+  }
 }
 
 beforeEach(async () => {
@@ -866,7 +898,7 @@ describe(TEST_ROUTE, () => {
               name: "hca-atlas-tracker-data-dev"
             },
             object: {
-              key: "bio_network/gut-v1/integrated-objects/atlas.h5ad",
+              key: "gut/gut-v1/integrated-objects/atlas.h5ad",
               size: 5120000,
               eTag: "f1234567890abcdef1234567890abcdef",
               versionId: "integrated-version-123",
@@ -907,13 +939,13 @@ describe(TEST_ROUTE, () => {
     // Check that file was saved with correct file_type
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      ["hca-atlas-tracker-data-dev", "bio_network/gut-v1/integrated-objects/atlas.h5ad"]
+      ["hca-atlas-tracker-data-dev", "gut/gut-v1/integrated-objects/atlas.h5ad"]
     );
     
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
-    expect(file.key).toBe("bio_network/gut-v1/integrated-objects/atlas.h5ad");
+    expect(file.key).toBe("gut/gut-v1/integrated-objects/atlas.h5ad");
     expect(file.file_type).toBe("integrated_object"); // Should be derived from integrated-objects folder
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
     expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
@@ -939,7 +971,7 @@ describe(TEST_ROUTE, () => {
               name: "hca-atlas-tracker-data-dev"
             },
             object: {
-              key: "bio_network/gut-v1/manifests/upload-manifest.json",
+              key: "gut/gut-v1/manifests/upload-manifest.json",
               size: 2048,
               eTag: "c9876543210fedcba9876543210fedcba",
               versionId: "manifest-version-456",
@@ -980,13 +1012,13 @@ describe(TEST_ROUTE, () => {
     // Check that file was saved with correct file_type
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      ["hca-atlas-tracker-data-dev", "bio_network/gut-v1/manifests/upload-manifest.json"]
+      ["hca-atlas-tracker-data-dev", "gut/gut-v1/manifests/upload-manifest.json"]
     );
     
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
-    expect(file.key).toBe("bio_network/gut-v1/manifests/upload-manifest.json");
+    expect(file.key).toBe("gut/gut-v1/manifests/upload-manifest.json");
     expect(file.file_type).toBe("ingest_manifest"); // Should be derived from manifests folder
     expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
     expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
@@ -995,6 +1027,225 @@ describe(TEST_ROUTE, () => {
     expect(file.version_id).toBe("manifest-version-456");
     expect(file.status).toBe("uploaded");
     expect(file.sha256_client).toBe("c2d3e4f5678901234567890123456789012345678901234567890123456789ab");
+    expect(file.integrity_status).toBe("pending");
+  });
+
+  it("correctly identifies retina atlas from eye network S3 path", async () => {
+    const s3Event = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
+              size: 8192000,
+              eTag: "d4e5f6789012345678901234567890ab",
+              versionId: "retina-version-789",
+              userMetadata: {
+                "source-sha256": "d4e5f6789012345678901234567890abcdef1234567890123456789012345678"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessage = {
+      Type: "Notification",
+      MessageId: "retina-test-message",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+      Subject: "Amazon S3 Notification",
+      Message: JSON.stringify(s3Event),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "fake-signature-for-testing",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: METHOD.POST,
+        body: snsMessage,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+    
+    // Check that file was saved with correct atlas_id for retina atlas
+    const fileRows = await query(
+      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+      ["hca-atlas-tracker-data-dev", "eye/retina-v1/integrated-objects/retina-data.h5ad"]
+    );
+    
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.key).toBe("eye/retina-v1/integrated-objects/retina-data.h5ad");
+    expect(file.file_type).toBe("integrated_object");
+    expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
+    expect(file.atlas_id).toBe("550e8400-e29b-41d4-a716-446655440001"); // Should be retina atlas ID
+    expect(file.etag).toBe("d4e5f6789012345678901234567890ab");
+    expect(file.size_bytes).toBe("8192000");
+    expect(file.version_id).toBe("retina-version-789");
+    expect(file.status).toBe("uploaded");
+    expect(file.sha256_client).toBe("d4e5f6789012345678901234567890abcdef1234567890123456789012345678");
+    expect(file.integrity_status).toBe("pending");
+  });
+
+  it("correctly identifies gut v1.1 atlas with version parsing", async () => {
+    const s3Event = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
+              size: 6144000,
+              eTag: "e5f6789012345678901234567890abcd",
+              versionId: "gut-v11-version-101",
+              userMetadata: {
+                "source-sha256": "e5f6789012345678901234567890abcdef12345678901234567890123456789a"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessage = {
+      Type: "Notification",
+      MessageId: "gut-v11-test-message",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+      Subject: "Amazon S3 Notification",
+      Message: JSON.stringify(s3Event),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "fake-signature-for-testing",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: METHOD.POST,
+        body: snsMessage,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+    
+    // Check that file was saved with correct atlas_id for gut v1.1 atlas
+    const fileRows = await query(
+      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+      ["hca-atlas-tracker-data-dev", "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad"]
+    );
+    
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.key).toBe("gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad");
+    expect(file.file_type).toBe("integrated_object");
+    expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
+    expect(file.atlas_id).toBe("550e8400-e29b-41d4-a716-446655440002"); // Should be gut v1.1 atlas ID
+    expect(file.etag).toBe("e5f6789012345678901234567890abcd");
+    expect(file.size_bytes).toBe("6144000");
+    expect(file.version_id).toBe("gut-v11-version-101");
+    expect(file.status).toBe("uploaded");
+    expect(file.sha256_client).toBe("e5f6789012345678901234567890abcdef12345678901234567890123456789a");
+    expect(file.integrity_status).toBe("pending");
+  });
+
+  it("correctly identifies gut v1 atlas with integer version (no decimal)", async () => {
+    const s3Event = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
+              size: 1024,
+              eTag: "f6789012345678901234567890abcdef",
+              versionId: "gut-v1-no-decimal-version",
+              userMetadata: {
+                "source-sha256": "f6789012345678901234567890abcdef123456789012345678901234567890bc"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessage = {
+      Type: "Notification",
+      MessageId: "gut-v1-no-decimal-test-message",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+      Subject: "Amazon S3 Notification",
+      Message: JSON.stringify(s3Event),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "fake-signature-for-testing",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: METHOD.POST,
+        body: snsMessage,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+    
+    // Check that file was saved with correct atlas_id for gut v1 (no decimal) atlas
+    const fileRows = await query(
+      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+      ["hca-atlas-tracker-data-dev", "gut/gut-v1/manifests/gut-v1-no-decimal.json"]
+    );
+    
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.key).toBe("gut/gut-v1/manifests/gut-v1-no-decimal.json");
+    expect(file.file_type).toBe("ingest_manifest");
+    expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
+    expect(file.atlas_id).toBe("550e8400-e29b-41d4-a716-446655440000"); // Should be gut v1 atlas ID
+    expect(file.etag).toBe("f6789012345678901234567890abcdef");
+    expect(file.size_bytes).toBe("1024");
+    expect(file.version_id).toBe("gut-v1-no-decimal-version");
+    expect(file.status).toBe("uploaded");
+    expect(file.sha256_client).toBe("f6789012345678901234567890abcdef123456789012345678901234567890bc");
     expect(file.integrity_status).toBe("pending");
   });
 
