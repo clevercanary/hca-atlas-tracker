@@ -228,6 +228,7 @@ describe(TEST_ROUTE, () => {
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
     expect(file.integrity_error).toBeNull();
+    expect(file.file_type).toBe("source_dataset"); // New field - should be derived from S3 path
   });
 
   it("handles duplicate notifications idempotently", async () => {
@@ -302,6 +303,8 @@ describe(TEST_ROUTE, () => {
     );
     
     expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
   });
 
   it("rejects SNS messages with invalid signatures", async () => {
@@ -822,6 +825,260 @@ describe(TEST_ROUTE, () => {
       error: "Unauthorized S3 buckets",
       unauthorizedBuckets: ["unauthorized-bucket"],
       message: "Request rejected due to unauthorized bucket access"
+    });
+  });
+
+  it("correctly identifies integrated object file type from S3 path", async () => {
+    const s3Event = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "bio_network/gut-v1/integrated-objects/atlas.h5ad",
+              size: 5120000,
+              eTag: "f1234567890abcdef1234567890abcdef",
+              versionId: "integrated-version-123",
+              userMetadata: {
+                "source-sha256": "b1c2d3e4f5678901234567890123456789012345678901234567890123456789"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessage = {
+      Type: "Notification",
+      MessageId: "integrated-object-test-message",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+      Subject: "Amazon S3 Notification",
+      Message: JSON.stringify(s3Event),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "fake-signature-for-testing",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: METHOD.POST,
+        body: snsMessage,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+    
+    // Check that file was saved with correct file_type
+    const fileRows = await query(
+      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+      ["hca-atlas-tracker-data-dev", "bio_network/gut-v1/integrated-objects/atlas.h5ad"]
+    );
+    
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.key).toBe("bio_network/gut-v1/integrated-objects/atlas.h5ad");
+    expect(file.file_type).toBe("integrated_object"); // Should be derived from integrated-objects folder
+    expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
+    expect(file.size_bytes).toBe("5120000");
+    expect(file.version_id).toBe("integrated-version-123");
+    expect(file.status).toBe("uploaded");
+    expect(file.sha256_client).toBe("b1c2d3e4f5678901234567890123456789012345678901234567890123456789");
+    expect(file.integrity_status).toBe("pending");
+  });
+
+  it("correctly identifies ingest manifest file type from S3 path", async () => {
+    const s3Event = {
+      Records: [
+        {
+          eventVersion: "2.1",
+          eventSource: "aws:s3",
+          eventTime: "2024-01-01T12:00:00.000Z",
+          eventName: "s3:ObjectCreated:Put",
+          s3: {
+            s3SchemaVersion: "1.0",
+            bucket: {
+              name: "hca-atlas-tracker-data-dev"
+            },
+            object: {
+              key: "bio_network/gut-v1/manifests/upload-manifest.json",
+              size: 2048,
+              eTag: "c9876543210fedcba9876543210fedcba",
+              versionId: "manifest-version-456",
+              userMetadata: {
+                "source-sha256": "c2d3e4f5678901234567890123456789012345678901234567890123456789ab"
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    const snsMessage = {
+      Type: "Notification",
+      MessageId: "manifest-test-message",
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+      Subject: "Amazon S3 Notification",
+      Message: JSON.stringify(s3Event),
+      Timestamp: "2024-01-01T12:00:00.000Z",
+      SignatureVersion: "1",
+      Signature: "fake-signature-for-testing",
+      SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        method: METHOD.POST,
+        body: snsMessage,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+    
+    // Check that file was saved with correct file_type
+    const fileRows = await query(
+      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+      ["hca-atlas-tracker-data-dev", "bio_network/gut-v1/manifests/upload-manifest.json"]
+    );
+    
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.key).toBe("bio_network/gut-v1/manifests/upload-manifest.json");
+    expect(file.file_type).toBe("ingest_manifest"); // Should be derived from manifests folder
+    expect(file.etag).toBe("c9876543210fedcba9876543210fedcba");
+    expect(file.size_bytes).toBe("2048");
+    expect(file.version_id).toBe("manifest-version-456");
+    expect(file.status).toBe("uploaded");
+    expect(file.sha256_client).toBe("c2d3e4f5678901234567890123456789012345678901234567890123456789ab");
+    expect(file.integrity_status).toBe("pending");
+  });
+
+  it("rejects S3 notifications with invalid key format (too few path segments)", async () => {
+    await withConsoleErrorHiding(async () => {
+      const s3Event = {
+        Records: [
+          {
+            eventVersion: "2.1",
+            eventSource: "aws:s3",
+            eventTime: "2024-01-01T12:00:00.000Z",
+            eventName: "s3:ObjectCreated:Put",
+            s3: {
+              s3SchemaVersion: "1.0",
+              bucket: {
+                name: "hca-atlas-tracker-data-dev"
+              },
+              object: {
+                key: "invalid/path.h5ad", // Only 2 segments, need 4+
+                size: 1024,
+                eTag: "invalid-etag-test",
+                versionId: "invalid-version",
+                userMetadata: {
+                  "source-sha256": "d3e4f5678901234567890123456789012345678901234567890123456789abcd"
+                }
+              }
+            }
+          }
+        ]
+      };
+
+      const snsMessage = {
+        Type: "Notification",
+        MessageId: "invalid-path-test",
+        TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+        Subject: "Amazon S3 Notification",
+        Message: JSON.stringify(s3Event),
+        Timestamp: "2024-01-01T12:00:00.000Z",
+        SignatureVersion: "1",
+        Signature: "fake-signature-for-testing",
+        SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+      };
+
+      const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+        {
+          method: METHOD.POST,
+          body: snsMessage,
+        }
+      );
+
+      await s3NotificationHandler(req, res);
+
+      expect(res.statusCode).toBe(400);
+      const responseBody = JSON.parse(res._getData());
+      expect(responseBody.error).toContain("Invalid S3 key format");
+      expect(responseBody.error).toContain("Expected format: bio_network/atlas-name/folder-type/filename");
+    });
+  });
+
+  it("rejects S3 notifications with unknown folder type", async () => {
+    await withConsoleErrorHiding(async () => {
+      const s3Event = {
+        Records: [
+          {
+            eventVersion: "2.1",
+            eventSource: "aws:s3",
+            eventTime: "2024-01-01T12:00:00.000Z",
+            eventName: "s3:ObjectCreated:Put",
+            s3: {
+              s3SchemaVersion: "1.0",
+              bucket: {
+                name: "hca-atlas-tracker-data-dev"
+              },
+              object: {
+                key: "bio_network/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
+                size: 1024,
+                eTag: "unknown-folder-etag",
+                versionId: "unknown-folder-version",
+                userMetadata: {
+                  "source-sha256": "e4f5678901234567890123456789012345678901234567890123456789abcdef"
+                }
+              }
+            }
+          }
+        ]
+      };
+
+      const snsMessage = {
+        Type: "Notification",
+        MessageId: "unknown-folder-test",
+        TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+        Subject: "Amazon S3 Notification",
+        Message: JSON.stringify(s3Event),
+        Timestamp: "2024-01-01T12:00:00.000Z",
+        SignatureVersion: "1",
+        Signature: "fake-signature-for-testing",
+        SigningCertURL: "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+      };
+
+      const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+        {
+          method: METHOD.POST,
+          body: snsMessage,
+        }
+      );
+
+      await s3NotificationHandler(req, res);
+
+      expect(res.statusCode).toBe(400);
+      const responseBody = JSON.parse(res._getData());
+      expect(responseBody.error).toContain("Unknown folder type: unknown-folder");
+      expect(responseBody.error).toContain("Expected: source-datasets, integrated-objects, or manifests");
     });
   });
 });
