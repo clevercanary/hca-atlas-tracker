@@ -49,24 +49,28 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 
 ### 5. Files (`hat.files`)
 - **Primary Key**: `id` (UUID)
-- **Purpose**: S3 objects that ARE either source datasets or integrated objects
+- **Purpose**: Physical files stored in S3 that represent source datasets, integrated objects, or ingest manifests
+- **Business Rule**: Files ARE the datasets/integrated objects, not containers for them
 - **Key Fields**:
   - `bucket` (VARCHAR) - S3 bucket name
-  - `key` (TEXT) - S3 object key
+  - `key` (VARCHAR) - S3 object key (file path)
   - `version_id` (VARCHAR) - S3 object version
-  - `etag` (VARCHAR) - S3 ETag for integrity
-  - `size_bytes` (BIGINT) - File size
-  - `event_info` (JSONB) - S3 event metadata
-  - `is_latest` (BOOLEAN) - Latest version flag
-  - `source_study_id` (UUID, NULL) - Foreign key to source study (for source dataset files)
-  - `atlas_id` (UUID, NULL) - Foreign key to atlas (for integrated object files)
-  - `file_type` (VARCHAR(50), NOT NULL) - "source_dataset" or "integrated_object"
-- **Unique Constraints**:
-  - `(bucket, key, version_id)` - Ensures S3 object uniqueness
+  - `file_type` (VARCHAR) - Discriminator: 'source_dataset', 'integrated_object', 'ingest_manifest'
+  - `source_study_id` (UUID, NULLABLE) - FK to source study (for source datasets only)
+  - `atlas_id` (UUID, NULLABLE) - FK to atlas (for integrated objects and manifests only)
+  - `sha256_client` (VARCHAR) - Client-provided SHA256 hash for integrity validation
+  - `integrity_status` (VARCHAR) - Validation status: 'pending', 'valid', 'invalid'
+  - `is_latest` (BOOLEAN) - Flag indicating if this is the latest version of the file
 - **Foreign Keys**:
-  - `source_study_id` → `hat.source_studies.id`
-  - `atlas_id` → `hat.atlases.id`
-- **Relationships**: Source dataset files belong to a single source study, integrated object files belong to a single atlas
+  - `source_study_id` → `hat.source_studies.id` (ON DELETE SET NULL, ON UPDATE CASCADE)
+  - `atlas_id` → `hat.atlases.id` (ON DELETE SET NULL, ON UPDATE CASCADE)
+- **Constraints**:
+  - UNIQUE(`bucket`, `key`, `version_id`) - Prevents duplicate S3 object versions
+  - CHECK constraint enforces exclusive foreign key relationships based on file_type
+- **Relationships**:
+  - Source dataset files: Belong to one source study (via `source_study_id`)
+  - Integrated object files: Belong to one atlas (via `atlas_id`)
+  - Ingest manifest files: Belong to one atlas (via `atlas_id`)
 
 ## Relationship Model
 
@@ -91,95 +95,123 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 - Integrated Object File → Atlas: **N:1** (each integrated object file belongs to one atlas)
 - Source Dataset File → Atlas: **N:M** (one source dataset file can be used by multiple atlases)
 
-## Recommended Schema Implementation
+## Current Schema Implementation
 
-### Option B: Derived Atlas Linkage (Recommended)
+### Files Table Schema (Implemented)
 ```sql
--- Add to files table
-source_study_id: uuid NULL       -- For source dataset files (populated during validation)
-atlas_id: uuid NULL              -- For integrated object files
-file_type: varchar(50) NOT NULL   -- "source_dataset" or "integrated_object" or "ingest_manifest"
-file_extension: varchar(10) NULL  -- ".h5ad", ".json", etc.
-
--- Note: data_modality belongs on source_datasets table, not files
--- Note: mime_type stored in S3 metadata, not needed in database
-
-FOREIGN KEY (source_study_id) REFERENCES hat.source_studies(id)
-FOREIGN KEY (atlas_id) REFERENCES hat.atlases(id)
-
--- Constraint: allows source_study_id to be NULL initially for source datasets (populated during validation)
-CONSTRAINT ck_files_single_type 
-  CHECK ((file_type = 'source_dataset' AND atlas_id IS NULL) OR 
-         (file_type = 'integrated_object' AND atlas_id IS NOT NULL AND source_study_id IS NULL) OR
-         (file_type = 'ingest_manifest' AND atlas_id IS NOT NULL AND source_study_id IS NULL))
+CREATE TABLE hat.files (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  bucket varchar(255) NOT NULL,
+  key text NOT NULL,
+  version_id varchar(255),
+  etag varchar(255) NOT NULL,
+  size_bytes bigint NOT NULL,
+  
+  -- File Classification
+  file_type varchar(50) NOT NULL, -- 'source_dataset', 'integrated_object', 'ingest_manifest'
+  
+  -- Foreign Key Relationships (Exclusive based on file_type)
+  source_study_id uuid NULL,      -- FK to source_studies.id (for source datasets only)
+  atlas_id uuid NULL,             -- FK to atlases.id (for integrated objects and manifests only)
+  
+  -- S3 Event Context
+  event_info jsonb NOT NULL,      -- S3 event metadata: {eventTime, eventName}
+  
+  -- Integrity Validation
+  sha256_client varchar(64),      -- Client-provided SHA256 hash
+  integrity_status varchar(50) DEFAULT 'pending', -- 'pending', 'valid', 'invalid'
+  
+  -- Version Management
+  is_latest boolean DEFAULT TRUE, -- Flag for latest version queries
+  
+  -- Timestamps
+  status varchar(50) DEFAULT 'uploaded',
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  
+  -- Constraints
+  CONSTRAINT uq_files_bucket_key_version UNIQUE (bucket, key, version_id),
+  CONSTRAINT fk_files_source_study_id FOREIGN KEY (source_study_id) 
+    REFERENCES hat.source_studies(id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_files_atlas_id FOREIGN KEY (atlas_id) 
+    REFERENCES hat.atlases(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    
+  -- Business Logic Constraint: Enforce exclusive foreign key relationships
+  CONSTRAINT ck_files_exclusive_parent_relationship CHECK (
+    (file_type = 'source_dataset' AND atlas_id IS NULL) OR
+    (file_type IN ('integrated_object', 'ingest_manifest') AND source_study_id IS NULL AND atlas_id IS NOT NULL)
+  )
+);
 ```
 
-### Validation Workflow
-1. **S3 Notification**: File uploaded, record created with `file_type` but `source_study_id = NULL`
-2. **Validation Step**: Download file, read contents, determine source study, update `source_study_id`
-3. **Atlas Linkage**: 
-   - **Source Dataset Files**: Derived through existing relationships (Source Dataset File → Source Study → Atlas)
-   - **Integrated Object Files**: Direct linkage via `atlas_id` foreign key
+## File Processing and Validation Workflow
 
-## Implementation Plan
+### Stage 1: S3 Notification Ingestion
 
-### Database Changes
-1. **Add foreign keys** to `files` table:
-   - `source_study_id` for source dataset files (initially NULL, populated during validation)
-   - `atlas_id` for integrated object files
-2. **Add `file_type` discriminator** field
-3. **Add constraint** to allow staged validation workflow
-4. **Add classification fields**:
-   - `file_extension` (e.g., ".h5ad", ".json")
+When a file is uploaded to S3, the system processes it through the S3 notification API:
 
-### Migration Strategy
-1. **Add new columns** to the empty files table:
-   - `source_study_id` (nullable for staged validation)
-   - `atlas_id` (nullable)
-   - `file_type` (NOT NULL)
-   - `file_extension` (nullable)
-2. **Create indexes** on new foreign keys and classification fields
-3. **Add constraint** to enforce file type rules
-4. **All future files** will have proper relationships from the start
+1. **S3 Path Analysis**: Parse S3 key structure `bio_network/atlas-name/folder-type/filename`
+2. **File Type Determination**: Based on folder type:
+   - `source-datasets/` → `file_type = 'source_dataset'`
+   - `integrated-objects/` → `file_type = 'integrated_object'`
+   - `manifests/` → `file_type = 'ingest_manifest'`
+3. **Foreign Key Assignment**:
+   - **Source datasets**: `source_study_id = NULL` (staged validation), `atlas_id = NULL`
+   - **Integrated objects**: `atlas_id = atlas_uuid` (from atlas lookup), `source_study_id = NULL`
+   - **Ingest manifests**: `atlas_id = atlas_uuid` (from atlas lookup), `source_study_id = NULL`
+4. **Database Insert**: Create file record with appropriate foreign keys and constraints
+
+### Stage 2: File Content Validation (Future)
+
+For source dataset files that need source study linkage:
+
+1. **Content Extraction**: Read `.h5ad` file metadata to extract DOI or other study references
+2. **Source Study Lookup**: Query `hat.source_studies` table to find matching study
+3. **Foreign Key Update**: `UPDATE hat.files SET source_study_id = ? WHERE id = ?`
+4. **Validation Status**: Update `integrity_status` based on validation results
+
+### Stage 3: Data Integrity Validation
+
+1. **SHA256 Verification**: Compare client-provided hash with server-computed hash
+2. **Status Update**: Set `integrity_status` to 'valid' or 'invalid'
+3. **Error Handling**: Log and alert on integrity failures
+
+### Error Handling Strategy
+
+- **Atlas Lookup Failures**: Reject early, send to DLQ for operational review
+- **Source Study Lookup Failures**: Allow file creation, flag for manual review during validation
+- **Integrity Failures**: Mark as invalid, preserve for investigation
+- **Constraint Violations**: Database-level rejection with clear error messages
 
 ### Query Patterns
+
 ```sql
--- Find all source dataset files for a study
+-- Find latest files for an atlas
 SELECT * FROM hat.files 
-WHERE source_study_id = $study_id AND file_type = 'source_dataset';
+WHERE atlas_id = ? AND is_latest = TRUE;
 
--- Find all integrated object files for an atlas
+-- Find source dataset files pending validation
 SELECT * FROM hat.files 
-WHERE atlas_id = $atlas_id AND file_type = 'integrated_object';
+WHERE file_type = 'source_dataset' AND source_study_id IS NULL;
 
--- Find which atlases use a source dataset file (derived)
-SELECT DISTINCT a.* FROM hat.atlases a
-JOIN hat.source_datasets sd ON sd.id = ANY(a.source_datasets)
-JOIN hat.files f ON f.source_study_id = sd.source_study_id
-WHERE f.id = $file_id AND f.file_type = 'source_dataset';
-
--- Find all source datasets for an atlas (derived relationship)
-SELECT DISTINCT f.* FROM hat.files f
-JOIN hat.source_datasets sd ON f.source_study_id = sd.source_study_id
-JOIN hat.atlases a ON sd.id = ANY(a.source_datasets)
-WHERE a.id = $atlas_id AND f.file_type = 'source_dataset';
-
--- Find all source datasets with no source study assigned (staged validation)
+-- Find files with integrity issues
 SELECT * FROM hat.files 
-WHERE source_study_id IS NULL AND file_type = 'source_dataset';
+WHERE integrity_status = 'invalid';
 
--- Find all source studies used in an integrated object
-SELECT DISTINCT ss.* FROM hat.source_studies ss
-JOIN hat.source_datasets sd ON ss.id = sd.source_study_id
-JOIN hat.atlases a ON sd.id = ANY(a.source_datasets)
-JOIN hat.files f ON f.atlas_id = a.id
-WHERE f.id = $integrated_object_file_id AND f.file_type = 'integrated_object';
-
--- Find all source datasets used in an integrated object
-SELECT DISTINCT sd.* FROM hat.source_datasets sd
-JOIN hat.atlases a ON sd.id = ANY(a.source_datasets)
-JOIN hat.files f ON f.atlas_id = a.id
-WHERE f.id = $integrated_object_file_id AND f.file_type = 'integrated_object';
+-- Get all files for a source study (via source datasets)
+SELECT f.* FROM hat.files f
+JOIN hat.source_studies ss ON f.source_study_id = ss.id
+WHERE ss.id = ?;
 ```
 
-This design maintains consistency with existing patterns while supporting both source data and integration workflows in the HCA Atlas Tracker system.
+## Summary
+
+The HCA Atlas Tracker file system is now fully integrated with the entity relationship model:
+
+- **Files ARE the datasets/integrated objects**, not containers for them
+- **Database constraints enforce data integrity** at the schema level
+- **Staged validation workflow** allows files to be ingested immediately and validated later
+- **Clear error handling** with operational visibility through DLQ processing
+- **Comprehensive test coverage** ensures reliability and maintainability
+
+This implementation provides a robust foundation for managing biological data files with proper relationships, validation workflows, and data integrity guarantees.
