@@ -4,6 +4,28 @@ import { doTransaction, query } from "../../../app/services/database";
 import { isAuthorizedSNSTopic, isAuthorizedS3Bucket } from "../../../app/config/aws-resources";
 import { object, string, number, array, InferType } from "yup";
 
+// Custom error classes for file type determination
+class InvalidS3KeyFormatError extends Error {
+  constructor(key: string) {
+    super(`Invalid S3 key format: ${key}. Expected format: bio_network/atlas-name/folder-type/filename`);
+    this.name = 'InvalidS3KeyFormatError';
+  }
+}
+
+class UnknownFolderTypeError extends Error {
+  constructor(folderType: string) {
+    super(`Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`);
+    this.name = 'UnknownFolderTypeError';
+  }
+}
+
+class ETagMismatchError extends Error {
+  constructor(bucket: string, key: string, versionId: string | null, existingETag: string, newETag: string) {
+    super(`ETag mismatch for ${bucket}/${key} (version: ${versionId || 'null'}): existing=${existingETag}, new=${newETag}`);
+    this.name = 'ETagMismatchError';
+  }
+}
+
 // Yup schemas following established codebase pattern
 const s3ObjectSchema = object({
   key: string().required(),
@@ -100,6 +122,30 @@ function extractSHA256FromS3Object(s3Object: S3EventRecordType['s3']['object']):
   return s3Object.userMetadata["source-sha256"];
 }
 
+function determineFileType(s3Key: string): string {
+  // Extract the folder type from S3 key path structure
+  // Expected format: bio_network/atlas-name/folder-type/filename
+  // folder-type can be: source-datasets, integrated-objects, manifests
+  const pathParts = s3Key.split('/');
+  
+  if (pathParts.length < 4) {
+    throw new InvalidS3KeyFormatError(s3Key);
+  }
+  
+  const folderType = pathParts[pathParts.length - 2]; // Second to last segment
+  
+  switch (folderType) {
+    case 'source-datasets':
+      return 'source_dataset';
+    case 'integrated-objects':
+      return 'integrated_object';
+    case 'manifests':
+      return 'ingest_manifest';
+    default:
+      throw new UnknownFolderTypeError(folderType);
+  }
+}
+
 async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
   return new Promise((resolve, reject) => {
     const validator = new MessageValidator();
@@ -131,6 +177,17 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
 
   // Extract SHA256 from validated S3 object metadata
   const sha256 = extractSHA256FromS3Object(object);
+  
+  // Determine file type from S3 key path structure
+  let fileType: string;
+  try {
+    fileType = determineFileType(object.key);
+  } catch (error) {
+    // Log the error for monitoring
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`File type determination failed for ${bucket.name}/${object.key}: ${errorMessage}`);
+    throw error; // Re-throw to be handled by the main handler
+  }
 
   // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
   // 
@@ -161,8 +218,8 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
     // The unique constraint on (bucket, key, version_id) will trigger ON CONFLICT
     // if we receive a duplicate notification for the same S3 object version
     const result = await transaction.query(
-      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE)
+      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10)
        
        -- ON CONFLICT: Handle duplicate notifications gracefully
        -- This triggers when (bucket, key, version_id) already exists
@@ -195,7 +252,8 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
         JSON.stringify(eventInfo),
         sha256,
         "pending",
-        "uploaded"
+        "uploaded",
+        fileType
       ]
     );
 
@@ -214,7 +272,7 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
       const existingETag = existingRecord.rows[0]?.etag;
       const errorMsg = `ETag mismatch for ${bucket.name}/${object.key} (version: ${object.versionId || 'null'}): existing=${existingETag}, new=${object.eTag}`;
       console.error(errorMsg);
-      throw new Error(`ETag mismatch detected - possible data corruption or AWS infrastructure issue`);
+      throw new ETagMismatchError(bucket.name, object.key, object.versionId || null, existingETag, object.eTag);
     }
 
     // CASE 2 & 3: Success - log the operation type for monitoring
@@ -293,8 +351,14 @@ export default async function handler(
         await saveFileRecord(record);
         recordsProcessed++;
       } catch (error: any) {
-        // Handle ETag mismatch and other database errors
-        if (error.message.includes("ETag mismatch")) {
+        // Handle file type determination errors (client data issues)
+        if (error instanceof InvalidS3KeyFormatError || error instanceof UnknownFolderTypeError) {
+          console.error("File type determination error:", error.message);
+          return res.status(400).json({ error: error.message });
+        }
+        
+        // Handle ETag mismatch errors (data integrity issues)
+        if (error instanceof ETagMismatchError) {
           console.error("ETag mismatch error:", error.message);
           return res.status(500).json({ error: "Data integrity error - ETag mismatch detected" });
         }

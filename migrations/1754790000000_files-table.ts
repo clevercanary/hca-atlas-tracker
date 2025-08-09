@@ -75,6 +75,13 @@ export const up = (pgm: MigrationBuilder): void => {
         comment: "Whether this is the latest version of the file"
       },
       
+      // File Classification
+      file_type: {
+        type: "varchar(50)",
+        notNull: true,
+        comment: "File type: source_dataset, integrated_object, or ingest_manifest"
+      },
+      
       // S3 Event Context (minimized)
       event_info: {
         notNull: true,
