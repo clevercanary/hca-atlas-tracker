@@ -122,17 +122,33 @@ function extractSHA256FromS3Object(s3Object: S3EventRecordType['s3']['object']):
   return s3Object.userMetadata["source-sha256"];
 }
 
-function determineFileType(s3Key: string): string {
-  // Extract the folder type from S3 key path structure
-  // Expected format: bio_network/atlas-name/folder-type/filename
-  // folder-type can be: source-datasets, integrated-objects, manifests
+// Parsed S3 key path components
+interface S3KeyPathComponents {
+  network: string;      // e.g., 'bio_network'
+  atlasName: string;    // e.g., 'gut-v1'
+  folderType: string;   // e.g., 'source-datasets', 'integrated-objects', 'manifests'
+  filename: string;     // e.g., 'file.h5ad'
+}
+
+// Parse S3 key path into standardized components
+// Expected format: bio_network/atlas-name/folder-type/filename
+function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   const pathParts = s3Key.split('/');
   
   if (pathParts.length < 4) {
     throw new InvalidS3KeyFormatError(s3Key);
   }
   
-  const folderType = pathParts[pathParts.length - 2]; // Second to last segment
+  return {
+    network: pathParts[0],
+    atlasName: pathParts[1],
+    folderType: pathParts[pathParts.length - 2], // Second to last segment
+    filename: pathParts[pathParts.length - 1]    // Last segment
+  };
+}
+
+function determineFileType(s3Key: string): string {
+  const { folderType } = parseS3KeyPath(s3Key);
   
   switch (folderType) {
     case 'source-datasets':
@@ -144,6 +160,27 @@ function determineFileType(s3Key: string): string {
     default:
       throw new UnknownFolderTypeError(folderType);
   }
+}
+
+async function determineAtlasId(s3Key: string, fileType: string): Promise<string | null> {
+  // Source datasets don't use atlas_id, they use source_study_id
+  if (fileType === 'source_dataset') {
+    return null;
+  }
+  
+  const { atlasName } = parseS3KeyPath(s3Key);
+  
+  // Look up atlas ID by shortName in the overview JSONB field
+  const result = await query(
+    `SELECT id FROM hat.atlases WHERE overview->>'shortName' = $1`,
+    [atlasName]
+  );
+  
+  if (result.rows.length === 0) {
+    throw new Error(`Atlas not found for name: ${atlasName}`);
+  }
+  
+  return result.rows[0].id;
 }
 
 async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
@@ -188,6 +225,17 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
     console.error(`File type determination failed for ${bucket.name}/${object.key}: ${errorMessage}`);
     throw error; // Re-throw to be handled by the main handler
   }
+  
+  // Determine atlas ID for integrated objects and ingest manifests
+  let atlasId: string | null;
+  try {
+    atlasId = await determineAtlasId(object.key, fileType);
+  } catch (error) {
+    // Log the error for monitoring
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`Atlas ID determination failed for ${bucket.name}/${object.key}: ${errorMessage}`);
+    throw error; // Re-throw to be handled by the main handler
+  }
 
   // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
   // 
@@ -218,8 +266,8 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
     // The unique constraint on (bucket, key, version_id) will trigger ON CONFLICT
     // if we receive a duplicate notification for the same S3 object version
     const result = await transaction.query(
-      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL)
+      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)
        
        -- ON CONFLICT: Handle duplicate notifications gracefully
        -- This triggers when (bucket, key, version_id) already exists
@@ -253,7 +301,8 @@ async function saveFileRecord(record: S3EventRecordType): Promise<void> {
         sha256,
         "pending",
         "uploaded",
-        fileType
+        fileType,
+        atlasId
       ]
     );
 
