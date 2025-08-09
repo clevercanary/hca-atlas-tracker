@@ -18,6 +18,7 @@ node_modules
 # script output
 /catalog/temporary
 /catalog/output
+/catalog/downloaded
 
 # editors
 .vscode

@@ -88,6 +88,17 @@ export async function getAtlasEntrySheetValidations(
   return validationsResult.rows;
 }
 
+export async function getBaseModelAtlasEntrySheetValidations(
+  atlasId: string
+): Promise<HCAAtlasTrackerDBEntrySheetValidation[]> {
+  const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
+  const validationsResult = await query<HCAAtlasTrackerDBEntrySheetValidation>(
+    "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=ANY($1)",
+    [sourceStudies.map((study) => study.id)]
+  );
+  return validationsResult.rows;
+}
+
 /**
  * Update entry sheet validations for source studies of the given atlas, resolving the returned promise **before** receiving the validation API responses.
  * @param atlasId - Atlas to update entry sheet validations for.

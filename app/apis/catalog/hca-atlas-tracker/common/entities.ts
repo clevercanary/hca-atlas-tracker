@@ -477,6 +477,25 @@ export type HCAAtlasTrackerDBUserWithAssociatedResources =
     role_associated_resource_names: string[];
   };
 
+export interface Heatmap {
+  classes: Array<{
+    fields: Array<{
+      name: string;
+      organSpecific: boolean;
+      required: boolean;
+      title: string;
+    }>;
+    sheets: Array<{
+      correctness: {
+        correctCounts: Record<string, number>;
+        rowCount: number;
+      } | null;
+      title: string;
+    }>;
+    title: string;
+  }>;
+}
+
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
 export type ComponentAtlasId = string;
