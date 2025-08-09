@@ -82,6 +82,13 @@ export const up = (pgm: MigrationBuilder): void => {
         comment: "File type: source_dataset, integrated_object, or ingest_manifest"
       },
       
+      // Foreign Key Relationships
+      source_study_id: {
+        type: "uuid",
+        notNull: false,
+        comment: "FK to source_studies.id - NULL for staged validation, set later"
+      },
+      
       // S3 Event Context (minimized)
       event_info: {
         notNull: true,
@@ -112,6 +119,21 @@ export const up = (pgm: MigrationBuilder): void => {
     "uq_files_bucket_key_version",
     {
       unique: ["bucket", "key", "version_id"],
+    }
+  );
+
+  // Foreign key constraint for source study relationship
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_source_study_id",
+    {
+      foreignKeys: {
+        columns: "source_study_id",
+        references: { name: "source_studies", schema: "hat" },
+        referencesConstraintName: "pk_source_studies_id",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE"
+      }
     }
   );
 
