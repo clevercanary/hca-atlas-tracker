@@ -46,8 +46,28 @@ const TEST_ROUTE = "/api/files/s3-notification";
 
 import s3NotificationHandler from "../pages/api/files/s3-notification";
 
-beforeAll(async () => {
+// Helper function to create test atlas data
+async function createTestAtlasData() {
+  // Create test atlas with shortName 'gut-v1' for integrated object and manifest tests
+  await query(
+    `INSERT INTO hat.atlases (id, overview, source_studies, status, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, NOW(), NOW())`,
+    [
+      '550e8400-e29b-41d4-a716-446655440000', // Fixed UUID for consistent tests
+      JSON.stringify({
+        shortName: 'gut-v1',
+        title: 'Test Gut Atlas v1',
+        description: 'Test atlas for S3 notification integration tests'
+      }),
+      JSON.stringify([]), // Empty source studies array
+      'draft' // Status field
+    ]
+  );
+}
+
+beforeEach(async () => {
   await resetDatabase();
+  await createTestAtlasData();
 });
 
 afterAll(() => {
@@ -230,6 +250,7 @@ describe(TEST_ROUTE, () => {
     expect(file.integrity_error).toBeNull();
     expect(file.file_type).toBe("source_dataset"); // New field - should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
+    expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
   });
 
   it("handles duplicate notifications idempotently", async () => {
@@ -307,6 +328,7 @@ describe(TEST_ROUTE, () => {
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
+    expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
   });
 
   it("rejects SNS messages with invalid signatures", async () => {
@@ -893,6 +915,8 @@ describe(TEST_ROUTE, () => {
     expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
     expect(file.key).toBe("bio_network/gut-v1/integrated-objects/atlas.h5ad");
     expect(file.file_type).toBe("integrated_object"); // Should be derived from integrated-objects folder
+    expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
+    expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
     expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");
@@ -964,6 +988,8 @@ describe(TEST_ROUTE, () => {
     expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
     expect(file.key).toBe("bio_network/gut-v1/manifests/upload-manifest.json");
     expect(file.file_type).toBe("ingest_manifest"); // Should be derived from manifests folder
+    expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
+    expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
     expect(file.etag).toBe("c9876543210fedcba9876543210fedcba");
     expect(file.size_bytes).toBe("2048");
     expect(file.version_id).toBe("manifest-version-456");
@@ -1075,12 +1101,64 @@ describe(TEST_ROUTE, () => {
         }
       );
 
-      await s3NotificationHandler(req, res);
+      await withConsoleErrorHiding(async () => {
+        await s3NotificationHandler(req, res);
+      });
 
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());
       expect(responseBody.error).toContain("Unknown folder type: unknown-folder");
       expect(responseBody.error).toContain("Expected: source-datasets, integrated-objects, or manifests");
     });
+  });
+
+  it("database constraint prevents source_dataset files from having atlas_id", async () => {
+    // This test verifies the database constraint by attempting a direct INSERT that violates it
+    // The constraint should prevent source_dataset files from having atlas_id set
+    
+    await expect(
+      query(
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)`,
+        [
+          "test-bucket",
+          "bio_network/test/source-datasets/invalid.h5ad",
+          "version123",
+          "abc123def456",
+          1024,
+          JSON.stringify({ eventTime: "2023-01-01T00:00:00.000Z", eventName: "ObjectCreated:Put" }),
+          "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "pending",
+          "uploaded",
+          "source_dataset", // source_dataset with atlas_id should be rejected
+          "550e8400-e29b-41d4-a716-446655440000" // This should cause constraint violation
+        ]
+      )
+    ).rejects.toThrow(/constraint/);
+  });
+
+  it("database constraint prevents integrated_object files from missing atlas_id", async () => {
+    // This test verifies the database constraint by attempting a direct INSERT that violates it
+    // The constraint should require integrated_object files to have atlas_id set
+    
+    await expect(
+      query(
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, NULL)`,
+        [
+          "test-bucket",
+          "bio_network/test/integrated-objects/invalid.h5ad",
+          "version123",
+          "abc123def456",
+          1024,
+          JSON.stringify({ eventTime: "2023-01-01T00:00:00.000Z", eventName: "ObjectCreated:Put" }),
+          "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "pending",
+          "uploaded",
+          "integrated_object", // integrated_object without atlas_id should be rejected
+          // atlas_id is NULL, which should cause constraint violation
+        ]
+      )
+    ).rejects.toThrow(/constraint/);
   });
 });

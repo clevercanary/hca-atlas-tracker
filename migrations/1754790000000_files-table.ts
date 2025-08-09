@@ -88,6 +88,11 @@ export const up = (pgm: MigrationBuilder): void => {
         notNull: false,
         comment: "FK to source_studies.id - NULL for staged validation, set later"
       },
+      atlas_id: {
+        type: "uuid",
+        notNull: false,
+        comment: "FK to atlases.id - set for integrated_object and ingest_manifest files"
+      },
       
       // S3 Event Context (minimized)
       event_info: {
@@ -134,6 +139,36 @@ export const up = (pgm: MigrationBuilder): void => {
         onDelete: "SET NULL",
         onUpdate: "CASCADE"
       }
+    }
+  );
+
+  // Foreign key constraint for atlas relationship
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_atlas_id",
+    {
+      foreignKeys: {
+        columns: "atlas_id",
+        references: { name: "atlases", schema: "hat" },
+        referencesConstraintName: "pk_atlases_id",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE"
+      }
+    }
+  );
+
+  // Business logic constraint: Enforce exclusive foreign key relationships based on file_type
+  // - source_dataset files: source_study_id can be NULL (staged validation), atlas_id must be NULL
+  // - integrated_object files: source_study_id must be NULL, atlas_id must be NOT NULL
+  // - ingest_manifest files: source_study_id must be NULL, atlas_id must be NOT NULL
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "ck_files_exclusive_parent_relationship",
+    {
+      check: `(
+        (file_type = 'source_dataset' AND atlas_id IS NULL) OR
+        (file_type IN ('integrated_object', 'ingest_manifest') AND source_study_id IS NULL AND atlas_id IS NOT NULL)
+      )`
     }
   );
 
