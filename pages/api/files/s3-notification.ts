@@ -176,14 +176,15 @@ function parseS3AtlasName(s3AtlasName: string): { atlasBaseName: string; s3Versi
   return { atlasBaseName, s3Version };
 }
 
-// Convert S3 version format to database version format
-// S3: 'v1' -> DB: '1.0', S3: 'v1-1' -> DB: '1.1', S3: 'v2-3' -> DB: '2.3'
+// Convert parsed S3 version to database version format
+// Input: '1' -> DB: '1.0', Input: '1-1' -> DB: '1.1', Input: '2-3' -> DB: '2.3'
+// Note: The 'v' prefix has already been stripped by parseS3AtlasName
 function convertS3VersionToDbVersion(s3Version: string): string {
   if (s3Version.includes('-')) {
-    // Convert 'v1-1' to '1.1'
+    // Convert '1-1' to '1.1'
     return s3Version.replace('-', '.');
   } else {
-    // Convert 'v1' to '1.0'
+    // Convert '1' to '1.0'
     return s3Version + '.0';
   }
 }
