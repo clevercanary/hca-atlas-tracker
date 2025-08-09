@@ -36,20 +36,20 @@ function getClassHeatmap(
     const sheetTitle =
       validation.entry_sheet_title ?? validation.entry_sheet_id;
     const rowCount = validation.validation_summary[`${entityType}_count`];
-    const applicableErrors = validation.validation_report.filter(
-      (error) => error.entity_type === entityType || error.entity_type === null
-    );
-    if (
-      rowCount === null ||
-      (applicableErrors.length === 1 && applicableErrors[0].column === null)
-    ) {
+    if (rowCount === null) {
       sheetsInfo.push({
         correctness: null,
         title: sheetTitle,
       });
     } else {
       sheetsInfo.push(
-        getSheetHeatmap(ddClass, sheetTitle, rowCount, applicableErrors)
+        getSheetHeatmap(
+          entityType,
+          ddClass,
+          sheetTitle,
+          rowCount,
+          validation.validation_report
+        )
       );
     }
   }
@@ -67,26 +67,32 @@ function getClassHeatmap(
 }
 
 function getSheetHeatmap(
+  entityType: EntityType,
   ddClass: Class,
   sheetTitle: string,
   rowCount: number,
-  classErrors: EntrySheetValidationErrorInfo[]
+  errors: EntrySheetValidationErrorInfo[]
 ): Heatmap["classes"][number]["sheets"][number] {
   const correctCounts: Record<string, number> = Object.fromEntries(
     ddClass.attributes.map((a) => [a.name, rowCount])
   );
   const countedCells = new Set<string>();
-  for (const error of classErrors) {
-    if (error.column !== null && Object.hasOwn(correctCounts, error.column)) {
-      if (error.cell === null) {
-        correctCounts[error.column] = 0;
-      } else if (
-        correctCounts[error.column] > 0 &&
-        !countedCells.has(error.cell)
-      ) {
-        correctCounts[error.column]--;
-        countedCells.add(error.cell);
-      }
+  for (const error of errors) {
+    if (
+      error.entity_type !== entityType ||
+      error.column === null ||
+      !Object.hasOwn(correctCounts, error.column)
+    ) {
+      continue;
+    }
+    if (error.cell === null) {
+      correctCounts[error.column] = 0;
+    } else if (
+      correctCounts[error.column] > 0 &&
+      !countedCells.has(error.cell)
+    ) {
+      correctCounts[error.column]--;
+      countedCells.add(error.cell);
     }
   }
   return {
