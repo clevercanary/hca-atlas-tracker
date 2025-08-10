@@ -1,6 +1,7 @@
 // Set up AWS resource configuration BEFORE any other imports
+const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 const TEST_AWS_CONFIG = {
-  s3_buckets: ["hca-atlas-tracker-data-dev"],
+  s3_buckets: [TEST_S3_BUCKET],
   sns_topics: [
     "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications",
   ],
@@ -165,7 +166,7 @@ describe(TEST_ROUTE, () => {
             s3SchemaVersion: "1.0",
             configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
               arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
               ownerIdentity: {
                 principalId: "A3NL1KOZZKExample",
@@ -225,7 +226,7 @@ describe(TEST_ROUTE, () => {
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
             },
             object: {
               key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
@@ -272,14 +273,14 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "bio_network/gut-v1/source-datasets/test-file.h5ad",
       ]
     );
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
-    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe("bio_network/gut-v1/source-datasets/test-file.h5ad");
     expect(file.etag).toBe("d41d8cd98f00b204e9800998ecf8427e");
     expect(file.size_bytes).toBe("1024000"); // PostgreSQL bigint returns as string
@@ -308,7 +309,7 @@ describe(TEST_ROUTE, () => {
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
             },
             object: {
               key: "bio_network/gut-v1/source-datasets/duplicate-test.h5ad",
@@ -370,7 +371,7 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "bio_network/gut-v1/source-datasets/duplicate-test.h5ad",
       ]
     );
@@ -406,7 +407,7 @@ describe(TEST_ROUTE, () => {
             s3SchemaVersion: "1.0",
             configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
               arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
               ownerIdentity: {
                 principalId: "A3NL1KOZZKExample",
@@ -462,7 +463,7 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "bio_network/gut-v1/source-datasets/auth-test.h5ad",
       ]
     );
@@ -494,7 +495,7 @@ describe(TEST_ROUTE, () => {
             s3SchemaVersion: "1.0",
             configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
               arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
               ownerIdentity: {
                 principalId: "A3NL1KOZZKExample",
@@ -592,7 +593,7 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "bio_network/gut-v1/source-datasets/etag-test.h5ad",
       ]
     );
@@ -626,7 +627,7 @@ describe(TEST_ROUTE, () => {
             s3SchemaVersion: "1.0",
             configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
               arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
               ownerIdentity: {
                 principalId: "A3NL1KOZZKExample",
@@ -698,7 +699,7 @@ describe(TEST_ROUTE, () => {
             s3SchemaVersion: "1.0",
             configurationId: "testConfigRule",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
               arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
               ownerIdentity: {
                 principalId: "A3NL1KOZZKExample",
@@ -750,7 +751,7 @@ describe(TEST_ROUTE, () => {
     const allVersions = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 ORDER BY created_at ASC",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
       ]
     );
@@ -771,7 +772,7 @@ describe(TEST_ROUTE, () => {
     const latestOnly = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
       ]
     );
@@ -808,7 +809,7 @@ describe(TEST_ROUTE, () => {
               s3SchemaVersion: "1.0",
               configurationId: "testConfigRule",
               bucket: {
-                name: "hca-atlas-tracker-data-dev",
+                name: TEST_S3_BUCKET,
                 arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
                 ownerIdentity: {
                   principalId: "A3NL1KOZZKExample",
@@ -954,7 +955,7 @@ describe(TEST_ROUTE, () => {
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
             },
             object: {
               key: "gut/gut-v1/integrated-objects/atlas.h5ad",
@@ -1000,12 +1001,12 @@ describe(TEST_ROUTE, () => {
     // Check that file was saved with correct file_type
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      ["hca-atlas-tracker-data-dev", "gut/gut-v1/integrated-objects/atlas.h5ad"]
+      [TEST_S3_BUCKET, "gut/gut-v1/integrated-objects/atlas.h5ad"]
     );
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
-    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe("gut/gut-v1/integrated-objects/atlas.h5ad");
     expect(file.file_type).toBe("integrated_object"); // Should be derived from integrated-objects folder
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
@@ -1031,7 +1032,7 @@ describe(TEST_ROUTE, () => {
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
             },
             object: {
               key: "gut/gut-v1/manifests/upload-manifest.json",
@@ -1078,14 +1079,14 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "gut/gut-v1/manifests/upload-manifest.json",
       ]
     );
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
-    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe("gut/gut-v1/manifests/upload-manifest.json");
     expect(file.file_type).toBe("ingest_manifest"); // Should be derived from manifests folder
     expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
@@ -1111,7 +1112,7 @@ describe(TEST_ROUTE, () => {
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
             },
             object: {
               key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
@@ -1158,14 +1159,14 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "eye/retina-v1/integrated-objects/retina-data.h5ad",
       ]
     );
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
-    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe("eye/retina-v1/integrated-objects/retina-data.h5ad");
     expect(file.file_type).toBe("integrated_object");
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
@@ -1191,7 +1192,7 @@ describe(TEST_ROUTE, () => {
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
             },
             object: {
               key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
@@ -1238,14 +1239,14 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
       ]
     );
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
-    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe("gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad");
     expect(file.file_type).toBe("integrated_object");
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
@@ -1271,7 +1272,7 @@ describe(TEST_ROUTE, () => {
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
-              name: "hca-atlas-tracker-data-dev",
+              name: TEST_S3_BUCKET,
             },
             object: {
               key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
@@ -1318,14 +1319,14 @@ describe(TEST_ROUTE, () => {
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
       [
-        "hca-atlas-tracker-data-dev",
+        TEST_S3_BUCKET,
         "gut/gut-v1/manifests/gut-v1-no-decimal.json",
       ]
     );
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
-    expect(file.bucket).toBe("hca-atlas-tracker-data-dev");
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe("gut/gut-v1/manifests/gut-v1-no-decimal.json");
     expect(file.file_type).toBe("ingest_manifest");
     expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
@@ -1352,7 +1353,7 @@ describe(TEST_ROUTE, () => {
             s3: {
               s3SchemaVersion: "1.0",
               bucket: {
-                name: "hca-atlas-tracker-data-dev",
+                name: TEST_S3_BUCKET,
               },
               object: {
                 key: "invalid/path.h5ad", // Only 2 segments, need 4+
@@ -1413,7 +1414,7 @@ describe(TEST_ROUTE, () => {
             s3: {
               s3SchemaVersion: "1.0",
               bucket: {
-                name: "hca-atlas-tracker-data-dev",
+                name: TEST_S3_BUCKET,
               },
               object: {
                 key: "bio_network/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
