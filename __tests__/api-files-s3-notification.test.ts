@@ -49,7 +49,7 @@ const TEST_ROUTE = "/api/files/s3-notification";
 import s3NotificationHandler from "../pages/api/files/s3-notification";
 
 // Helper function to create test atlas data
-async function createTestAtlasData() {
+async function createTestAtlasData(): Promise<void> {
   // Create multiple test atlases to cover different network/version scenarios
   const atlases = [
     {
