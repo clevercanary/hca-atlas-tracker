@@ -35,13 +35,8 @@ interface AWSResourceConfig {
   export function isAuthorizedSNSTopic(topicArn: string): boolean {
     try {
       const config = getAWSResourceConfig();
-      console.error(`DEBUG: Checking SNS topic authorization for: ${topicArn}`);
-      console.error(`DEBUG: Authorized topics: ${JSON.stringify(config.sns_topics)}`);
-      const isAuthorized = config.sns_topics.includes(topicArn);
-      console.error(`DEBUG: Authorization result: ${isAuthorized}`);
-      return isAuthorized;
+      return config.sns_topics.includes(topicArn);
     } catch (error) {
-      console.error(`DEBUG: Error in SNS topic authorization: ${String(error)}`);
       return false;
     }
   }
@@ -49,13 +44,8 @@ interface AWSResourceConfig {
   export function isAuthorizedS3Bucket(bucketName: string): boolean {
     try {
       const config = getAWSResourceConfig();
-      console.error(`DEBUG: Checking S3 bucket authorization for: ${bucketName}`);
-      console.error(`DEBUG: Authorized buckets: ${JSON.stringify(config.s3_buckets)}`);
-      const isAuthorized = config.s3_buckets.includes(bucketName);
-      console.error(`DEBUG: Authorization result: ${isAuthorized}`);
-      return isAuthorized;
+      return config.s3_buckets.includes(bucketName);
     } catch (error) {
-      console.error(`DEBUG: Error in S3 bucket authorization: ${String(error)}`);
       return false;
     }
   }
