@@ -35,8 +35,15 @@ interface AWSResourceConfig {
   export function isAuthorizedSNSTopic(topicArn: string): boolean {
     try {
       const config = getAWSResourceConfig();
-      return config.sns_topics.includes(topicArn);
+      const isAuthorized = config.sns_topics.includes(topicArn);
+      
+      if (!isAuthorized) {
+        console.warn(`Unauthorized SNS topic access attempt: ${topicArn}`);
+      }
+      
+      return isAuthorized;
     } catch (error) {
+      console.error(`Error checking SNS topic authorization: ${String(error)}`);
       return false;
     }
   }
@@ -44,8 +51,15 @@ interface AWSResourceConfig {
   export function isAuthorizedS3Bucket(bucketName: string): boolean {
     try {
       const config = getAWSResourceConfig();
-      return config.s3_buckets.includes(bucketName);
+      const isAuthorized = config.s3_buckets.includes(bucketName);
+      
+      if (!isAuthorized) {
+        console.warn(`Unauthorized S3 bucket access attempt: ${bucketName}`);
+      }
+      
+      return isAuthorized;
     } catch (error) {
+      console.error(`Error checking S3 bucket authorization: ${String(error)}`);
       return false;
     }
   }
