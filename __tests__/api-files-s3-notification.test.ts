@@ -1,9 +1,9 @@
 // Set up AWS resource configuration BEFORE any other imports
 const TEST_AWS_CONFIG = {
+  s3_buckets: ["hca-atlas-tracker-data-dev"],
   sns_topics: [
     "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications",
   ],
-  s3_buckets: ["hca-atlas-tracker-data-dev"],
 };
 process.env.AWS_RESOURCE_CONFIG = JSON.stringify(TEST_AWS_CONFIG);
 
@@ -55,32 +55,32 @@ async function createTestAtlasData() {
     {
       id: "550e8400-e29b-41d4-a716-446655440000",
       overview: {
+        description: "Test gut atlas for S3 notification integration tests",
         network: "gut", // Matches S3 path 'gut/gut-v1/...'
-        version: "1", // DB version format (S3 'v1' -> DB '1')
         shortName: "Gut", // Case-insensitive match with S3 atlas base name 'gut'
         title: "Test Gut Atlas v1",
-        description: "Test gut atlas for S3 notification integration tests",
+        version: "1", // DB version format (S3 'v1' -> DB '1')
       },
     },
     {
       id: "550e8400-e29b-41d4-a716-446655440001",
       overview: {
+        description: "Test retina atlas for S3 notification integration tests",
         network: "eye", // Matches S3 path 'eye/retina-v1/...'
-        version: "1", // DB version format (S3 'v1' -> DB '1')
         shortName: "Retina", // Case-insensitive match with S3 atlas base name 'retina'
         title: "Test Retina Atlas v1",
-        description: "Test retina atlas for S3 notification integration tests",
+        version: "1", // DB version format (S3 'v1' -> DB '1')
       },
     },
     {
       id: "550e8400-e29b-41d4-a716-446655440002",
       overview: {
         network: "gut", // Same network as first gut atlas
-        version: "1.1", // DB version format (S3 'v1-1' -> DB '1.1')
-        shortName: "Gut", // Same shortName but different version
-        title: "Test Gut Atlas v1.1",
         description:
           "Test gut atlas v1.1 for S3 notification integration tests",
+        shortName: "Gut", // Same shortName but different version
+        title: "Test Gut Atlas v1.1",
+        version: "1.1", // DB version format (S3 'v1-1' -> DB '1.1')
       },
     },
   ];
