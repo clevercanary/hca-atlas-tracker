@@ -10,6 +10,47 @@ const TEST_AWS_CONFIG = {
 };
 process.env.AWS_RESOURCE_CONFIG = JSON.stringify(TEST_AWS_CONFIG);
 
+// Test file path constants
+const TEST_PATH_SEGMENTS = {
+  BIO_NETWORK_GUT_V1_SOURCE_DATASETS: "bio_network/gut-v1/source-datasets",
+  GUT_V1_INTEGRATED_OBJECTS: "gut/gut-v1/integrated-objects",
+  GUT_V1_MANIFESTS: "gut/gut-v1/manifests",
+} as const;
+
+const TEST_FILE_PATHS = {
+  INTEGRATED_OBJECT: `${TEST_PATH_SEGMENTS.GUT_V1_INTEGRATED_OBJECTS}/atlas.h5ad`,
+  MANIFEST: `${TEST_PATH_SEGMENTS.GUT_V1_MANIFESTS}/upload-manifest.json`,
+  SOURCE_DATASET_AUTH: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/auth-test.h5ad`,
+  SOURCE_DATASET_DUPLICATE: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/duplicate-test.h5ad`,
+  SOURCE_DATASET_ETAG: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/etag-test.h5ad`,
+  SOURCE_DATASET_TEST: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/test-file.h5ad`,
+  SOURCE_DATASET_VERSIONED: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/versioned-file.h5ad`,
+} as const;
+
+// SQL query constants
+const SQL_QUERIES = {
+  SELECT_FILE_BY_BUCKET_AND_KEY:
+    "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+  SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED:
+    "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 ORDER BY created_at ASC",
+  SELECT_LATEST_FILE_BY_BUCKET_AND_KEY:
+    "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+} as const;
+
+// SNS message constants
+const SNS_MESSAGE_DEFAULTS = {
+  SUBJECT: "Amazon S3 Notification",
+} as const;
+
+// Test data constants
+const TEST_VERSION_IDS = {
+  DEFAULT: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+} as const;
+
+const TEST_TIMESTAMP = "2024-01-01T12:00:00.000Z";
+const TEST_TIMESTAMP_ALT = "2023-01-01T00:00:00.000Z";
+const TEST_SIGNATURE = "fake-signature-for-testing";
+
 // S3 Event and SNS Message Factory Functions
 interface S3EventOptions {
   bucket?: string;
@@ -42,7 +83,7 @@ function createS3Event(options: S3EventOptions): any {
       {
         eventName: options.eventName || TEST_S3_EVENT_NAME,
         eventSource: "aws:s3",
-        eventTime: options.eventTime || "2024-01-01T12:00:00.000Z",
+        eventTime: options.eventTime || TEST_TIMESTAMP,
         eventVersion: "2.1",
         s3: {
           bucket: {
@@ -70,13 +111,13 @@ function createSNSMessage(options: SNSMessageOptions): any {
   return {
     Message: JSON.stringify(options.s3Event),
     MessageId: options.messageId || "test-message-id",
-    Signature: options.signature || "fake-signature-for-testing",
+    Signature: options.signature || TEST_SIGNATURE,
     SignatureVersion: "1",
     SigningCertURL:
       options.signingCertURL ||
       "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    Subject: options.subject || "Amazon S3 Notification",
-    Timestamp: options.timestamp || "2024-01-01T12:00:00.000Z",
+    Subject: options.subject || SNS_MESSAGE_DEFAULTS.SUBJECT,
+    Timestamp: options.timestamp || TEST_TIMESTAMP,
     TopicArn: options.topicArn || TEST_AWS_CONFIG.sns_topics[0],
     Type: "Notification",
   };
@@ -220,18 +261,18 @@ describe(TEST_ROUTE, () => {
     // Create S3 event without SHA256 metadata - this is intentional for this test
     const s3Event = createS3Event({
       etag: "d41d8cd98f00b204e9800998ecf8427e",
-      key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
       size: 1024000,
-      versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+      versionId: TEST_VERSION_IDS.DEFAULT,
       // Intentionally omitting sha256 parameter to test missing metadata
     });
 
     const snsMessage = createSNSMessage({
       messageId: "12345678-1234-1234-1234-123456789012",
       s3Event,
-      signature: "fake-signature-for-testing",
-      subject: "Amazon S3 Notification",
-      timestamp: "2024-01-01T12:00:00.000Z",
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
     });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
@@ -254,11 +295,11 @@ describe(TEST_ROUTE, () => {
   it("successfully processes valid SNS notification with S3 ObjectCreated event", async () => {
     const s3Event = createS3Event({
       etag: "d41d8cd98f00b204e9800998ecf8427e",
-      key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
       sha256:
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       size: 1024000,
-      versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+      versionId: TEST_VERSION_IDS.DEFAULT,
     });
 
     const snsMessage = createSNSMessage({
@@ -280,18 +321,18 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toBe(200);
 
     // Check that file was saved to database
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/test-file.h5ad"]
-    );
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+    ]);
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.bucket).toBe(TEST_S3_BUCKET);
-    expect(file.key).toBe("bio_network/gut-v1/source-datasets/test-file.h5ad");
+    expect(file.key).toBe(TEST_FILE_PATHS.SOURCE_DATASET_TEST);
     expect(file.etag).toBe("d41d8cd98f00b204e9800998ecf8427e");
     expect(file.size_bytes).toBe("1024000"); // PostgreSQL bigint returns as string
-    expect(file.version_id).toBe("096fKKXTRTtl3on89fVO.nfljtsv6qko");
+    expect(file.version_id).toBe(TEST_VERSION_IDS.DEFAULT);
     expect(file.status).toBe("uploaded");
     expect(file.sha256_client).toBe(
       "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -308,7 +349,7 @@ describe(TEST_ROUTE, () => {
   it("handles duplicate notifications idempotently", async () => {
     const s3Event = createS3Event({
       etag: "e1234567890abcdef1234567890abcdef",
-      key: "bio_network/gut-v1/source-datasets/duplicate-test.h5ad",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE,
       sha256:
         "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
       size: 2048000,
@@ -349,10 +390,10 @@ describe(TEST_ROUTE, () => {
     expect(res2.statusCode).toBe(200);
 
     // Should still only have one record
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/duplicate-test.h5ad"]
-    );
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE,
+    ]);
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
@@ -364,8 +405,8 @@ describe(TEST_ROUTE, () => {
   it("rejects SNS messages with invalid signatures", async () => {
     const s3Event = createS3Event({
       etag: "invalid-signature-test",
-      eventTime: "2023-01-01T00:00:00.000Z",
-      key: "bio_network/gut-v1/source-datasets/auth-test.h5ad",
+      eventTime: TEST_TIMESTAMP_ALT,
+      key: TEST_FILE_PATHS.SOURCE_DATASET_AUTH,
       sha256:
         "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       size: 256000,
@@ -376,7 +417,7 @@ describe(TEST_ROUTE, () => {
       messageId: "auth-test-message",
       s3Event,
       signature: "INVALID-SIGNATURE-SHOULD-BE-REJECTED",
-      timestamp: "2023-01-01T00:00:00.000Z",
+      timestamp: TEST_TIMESTAMP_ALT,
     });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
@@ -397,10 +438,10 @@ describe(TEST_ROUTE, () => {
     });
 
     // Verify no file was saved to database
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/auth-test.h5ad"]
-    );
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_AUTH,
+    ]);
 
     expect(fileRows.rows).toHaveLength(0);
   });
@@ -408,8 +449,8 @@ describe(TEST_ROUTE, () => {
   it("rejects notifications with ETag mismatches for existing files", async () => {
     const s3Event = createS3Event({
       etag: "original-etag-12345",
-      eventTime: "2023-01-01T00:00:00.000Z",
-      key: "bio_network/gut-v1/source-datasets/etag-test.h5ad",
+      eventTime: TEST_TIMESTAMP_ALT,
+      key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
       sha256:
         "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       size: 128000,
@@ -420,7 +461,7 @@ describe(TEST_ROUTE, () => {
       messageId: "etag-test-message-1",
       s3Event,
       signature: "valid-signature-for-testing",
-      timestamp: "2023-01-01T00:00:00.000Z",
+      timestamp: TEST_TIMESTAMP_ALT,
     });
 
     // First notification - should succeed
@@ -440,8 +481,8 @@ describe(TEST_ROUTE, () => {
     // Second notification with different ETag - should be rejected
     const s3EventWithDifferentETag = createS3Event({
       etag: "different-etag-67890", // Different ETag!
-      eventTime: "2023-01-01T00:00:00.000Z",
-      key: "bio_network/gut-v1/source-datasets/etag-test.h5ad",
+      eventTime: TEST_TIMESTAMP_ALT,
+      key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
       sha256:
         "6789012345678901234567890123456789012345678901234567890123456789",
       size: 128000,
@@ -452,7 +493,7 @@ describe(TEST_ROUTE, () => {
       messageId: "etag-test-message-2",
       s3Event: s3EventWithDifferentETag,
       signature: "valid-signature-for-testing",
-      timestamp: "2023-01-01T00:00:00.000Z",
+      timestamp: TEST_TIMESTAMP_ALT,
     });
 
     const { req: req2, res: res2 } = httpMocks.createMocks<
@@ -474,10 +515,10 @@ describe(TEST_ROUTE, () => {
     });
 
     // Verify only one record exists with original ETag
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/etag-test.h5ad"]
-    );
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
+    ]);
 
     expect(fileRows.rows).toHaveLength(1);
     expect(fileRows.rows[0].etag).toBe("original-etag-12345");
@@ -488,7 +529,7 @@ describe(TEST_ROUTE, () => {
     const s3EventV1 = createS3Event({
       etag: "version1-etag-12345678901234567890123456789012",
       eventTime: "2024-01-01T12:00:00.000Z",
-      key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
       sha256:
         "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
       size: 1024000,
@@ -499,7 +540,7 @@ describe(TEST_ROUTE, () => {
       messageId: "test-message-id-v1",
       s3Event: s3EventV1,
       signature: "valid-signature",
-      timestamp: "2024-01-01T12:00:00.000Z",
+      timestamp: TEST_TIMESTAMP,
     });
 
     const { req: req1, res: res1 } = httpMocks.createMocks<
@@ -520,7 +561,7 @@ describe(TEST_ROUTE, () => {
     const s3EventV2 = createS3Event({
       etag: "version2-etag-98765432109876543210987654321098",
       eventTime: "2024-01-01T13:00:00.000Z",
-      key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad", // Same key
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED, // Same key
       sha256:
         "b2c3d4e5f678901234567890123456789012345678901234567890123456789a",
       size: 2048000,
@@ -550,8 +591,8 @@ describe(TEST_ROUTE, () => {
 
     // Check database state - should have 2 records for the same file
     const allVersions = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 ORDER BY created_at ASC",
-      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/versioned-file.h5ad"]
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
     );
 
     expect(allVersions.rows).toHaveLength(2);
@@ -568,8 +609,8 @@ describe(TEST_ROUTE, () => {
 
     // Verify we can easily query for latest version only
     const latestOnly = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
-      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/versioned-file.h5ad"]
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
     );
 
     expect(latestOnly.rows).toHaveLength(1);
@@ -587,15 +628,15 @@ describe(TEST_ROUTE, () => {
         sha256:
           "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890",
         size: 1024000,
-        versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+        versionId: TEST_VERSION_IDS.DEFAULT,
       });
 
       const unauthorizedSnsMessage = createSNSMessage({
         messageId: "unauthorized-topic-test",
         s3Event,
-        signature: "fake-signature-for-testing",
-        subject: "Amazon S3 Notification",
-        timestamp: "2024-01-01T12:00:00.000Z",
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
         topicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
       });
 
@@ -603,8 +644,8 @@ describe(TEST_ROUTE, () => {
         NextApiRequest,
         NextApiResponse
       >({
-        method: METHOD.POST,
         body: unauthorizedSnsMessage,
+        method: METHOD.POST,
       });
 
       const handler = (await import("../pages/api/files/s3-notification"))
@@ -627,21 +668,21 @@ describe(TEST_ROUTE, () => {
       sha256:
         "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
       size: 1024000,
-      versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+      versionId: TEST_VERSION_IDS.DEFAULT,
     });
 
     const snsMessage = createSNSMessage({
       messageId: "unauthorized-bucket-test",
       s3Event,
-      signature: "fake-signature-for-testing",
-      subject: "Amazon S3 Notification",
-      timestamp: "2024-01-01T12:00:00.000Z",
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
     });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
-        method: "POST",
         body: snsMessage,
+        method: "POST",
       }
     );
 
@@ -662,7 +703,7 @@ describe(TEST_ROUTE, () => {
   it("correctly identifies integrated object file type from S3 path", async () => {
     const s3Event = createS3Event({
       etag: "f1234567890abcdef1234567890abcdef",
-      key: "gut/gut-v1/integrated-objects/atlas.h5ad",
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
       sha256:
         "b1c2d3e4f5678901234567890123456789012345678901234567890123456789",
       size: 5120000,
@@ -672,15 +713,15 @@ describe(TEST_ROUTE, () => {
     const snsMessage = createSNSMessage({
       messageId: "integrated-object-test-message",
       s3Event,
-      signature: "fake-signature-for-testing",
-      subject: "Amazon S3 Notification",
-      timestamp: "2024-01-01T12:00:00.000Z",
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
     });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
-        method: METHOD.POST,
         body: snsMessage,
+        method: METHOD.POST,
       }
     );
 
@@ -691,15 +732,15 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toBe(200);
 
     // Check that file was saved with correct file_type
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, "gut/gut-v1/integrated-objects/atlas.h5ad"]
-    );
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.INTEGRATED_OBJECT,
+    ]);
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.bucket).toBe(TEST_S3_BUCKET);
-    expect(file.key).toBe("gut/gut-v1/integrated-objects/atlas.h5ad");
+    expect(file.key).toBe(TEST_FILE_PATHS.INTEGRATED_OBJECT);
     expect(file.file_type).toBe("integrated_object"); // Should be derived from integrated-objects folder
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
     expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
@@ -716,7 +757,7 @@ describe(TEST_ROUTE, () => {
   it("correctly identifies ingest manifest file type from S3 path", async () => {
     const s3Event = createS3Event({
       etag: "c9876543210fedcba9876543210fedcba",
-      key: "gut/gut-v1/manifests/upload-manifest.json",
+      key: TEST_FILE_PATHS.MANIFEST,
       sha256:
         "c2d3e4f5678901234567890123456789012345678901234567890123456789ab",
       size: 2048,
@@ -726,15 +767,15 @@ describe(TEST_ROUTE, () => {
     const snsMessage = createSNSMessage({
       messageId: "manifest-test-message",
       s3Event,
-      signature: "fake-signature-for-testing",
-      subject: "Amazon S3 Notification",
-      timestamp: "2024-01-01T12:00:00.000Z",
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
     });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
-        method: METHOD.POST,
         body: snsMessage,
+        method: METHOD.POST,
       }
     );
 
@@ -745,15 +786,15 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toBe(200);
 
     // Check that file was saved with correct file_type
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, "gut/gut-v1/manifests/upload-manifest.json"]
-    );
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.MANIFEST,
+    ]);
 
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.bucket).toBe(TEST_S3_BUCKET);
-    expect(file.key).toBe("gut/gut-v1/manifests/upload-manifest.json");
+    expect(file.key).toBe(TEST_FILE_PATHS.MANIFEST);
     expect(file.file_type).toBe("ingest_manifest"); // Should be derived from manifests folder
     expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
     expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
@@ -813,17 +854,17 @@ describe(TEST_ROUTE, () => {
       const snsMessage = createSNSMessage({
         messageId: "atlas-lookup-test-message",
         s3Event,
-        signature: "fake-signature-for-testing",
-        subject: "Amazon S3 Notification",
-        timestamp: "2024-01-01T12:00:00.000Z",
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
       });
 
       const { req, res } = httpMocks.createMocks<
         NextApiRequest,
         NextApiResponse
       >({
-        method: METHOD.POST,
         body: snsMessage,
+        method: METHOD.POST,
       });
 
       await withConsoleErrorHiding(async () => {
@@ -833,10 +874,10 @@ describe(TEST_ROUTE, () => {
       expect(res.statusCode).toBe(200);
 
       // Check that file was saved with correct atlas_id
-      const fileRows = await query(
-        "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-        [TEST_S3_BUCKET, key]
-      );
+      const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+        TEST_S3_BUCKET,
+        key,
+      ]);
 
       expect(fileRows.rows).toHaveLength(1);
       const file = fileRows.rows[0];
@@ -866,17 +907,17 @@ describe(TEST_ROUTE, () => {
       const snsMessage = createSNSMessage({
         messageId: "invalid-path-test",
         s3Event,
-        signature: "fake-signature-for-testing",
-        subject: "Amazon S3 Notification",
-        timestamp: "2024-01-01T12:00:00.000Z",
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
       });
 
       const { req, res } = httpMocks.createMocks<
         NextApiRequest,
         NextApiResponse
       >({
-        method: METHOD.POST,
         body: snsMessage,
+        method: METHOD.POST,
       });
 
       await s3NotificationHandler(req, res);
@@ -904,17 +945,17 @@ describe(TEST_ROUTE, () => {
       const snsMessage = createSNSMessage({
         messageId: "unknown-folder-test",
         s3Event,
-        signature: "fake-signature-for-testing",
-        subject: "Amazon S3 Notification",
-        timestamp: "2024-01-01T12:00:00.000Z",
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
       });
 
       const { req, res } = httpMocks.createMocks<
         NextApiRequest,
         NextApiResponse
       >({
-        method: METHOD.POST,
         body: snsMessage,
+        method: METHOD.POST,
       });
 
       await withConsoleErrorHiding(async () => {
@@ -947,7 +988,7 @@ describe(TEST_ROUTE, () => {
           "abc123def456",
           1024,
           JSON.stringify({
-            eventTime: "2023-01-01T00:00:00.000Z",
+            eventTime: TEST_TIMESTAMP_ALT,
             eventName: "ObjectCreated:Put",
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -975,7 +1016,7 @@ describe(TEST_ROUTE, () => {
           "abc123def456",
           1024,
           JSON.stringify({
-            eventTime: "2023-01-01T00:00:00.000Z",
+            eventTime: TEST_TIMESTAMP_ALT,
             eventName: "ObjectCreated:Put",
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
