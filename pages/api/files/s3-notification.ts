@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-const MessageValidator = require("sns-validator");
+import MessageValidator from "sns-validator";
 import { doTransaction, query } from "../../../app/services/database";
 import { isAuthorizedSNSTopic, isAuthorizedS3Bucket } from "../../../app/config/aws-resources";
 import { object, string, number, array, InferType } from "yup";
