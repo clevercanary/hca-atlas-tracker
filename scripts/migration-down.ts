@@ -4,7 +4,7 @@ import { getPoolConfig } from "../app/utils/pg-migrate-connect-config";
 
 const { Pool } = pg;
 
-const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
+const green = (text: string): string => `\x1b[32m${text}\x1b[0m`;
 
 const runMigrationsDown = async (): Promise<void> => {
   const poolConfig = getPoolConfig();
