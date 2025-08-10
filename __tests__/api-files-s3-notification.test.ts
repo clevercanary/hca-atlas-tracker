@@ -1,5 +1,6 @@
 // Set up AWS resource configuration BEFORE any other imports
 const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
+const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
 const TEST_AWS_CONFIG = {
   s3_buckets: [TEST_S3_BUCKET],
   sns_topics: [
@@ -54,7 +55,7 @@ async function createTestAtlasData(): Promise<void> {
   // Create multiple test atlases to cover different network/version scenarios
   const atlases = [
     {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: TEST_GUT_ATLAS_ID,
       overview: {
         description: "Test gut atlas for S3 notification integration tests",
         network: "gut", // Matches S3 path 'gut/gut-v1/...'
@@ -1330,7 +1331,7 @@ describe(TEST_ROUTE, () => {
     expect(file.key).toBe("gut/gut-v1/manifests/gut-v1-no-decimal.json");
     expect(file.file_type).toBe("ingest_manifest");
     expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
-    expect(file.atlas_id).toBe("550e8400-e29b-41d4-a716-446655440000"); // Should be gut v1 atlas ID
+    expect(file.atlas_id).toBe(TEST_GUT_ATLAS_ID); // Should be gut v1 atlas ID
     expect(file.etag).toBe("f6789012345678901234567890abcdef");
     expect(file.size_bytes).toBe("1024");
     expect(file.version_id).toBe("gut-v1-no-decimal-version");
@@ -1489,7 +1490,7 @@ describe(TEST_ROUTE, () => {
           "pending",
           "uploaded",
           "source_dataset", // source_dataset with atlas_id should be rejected
-          "550e8400-e29b-41d4-a716-446655440000", // This should cause constraint violation
+          TEST_GUT_ATLAS_ID, // This should cause constraint violation
         ]
       )
     ).rejects.toThrow(/constraint/);
