@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import MessageValidator from "sns-validator";
-import { array, InferType, number, object, string } from "yup";
+import { array, InferType, number, object, string, ValidationError } from "yup";
 import {
   isAuthorizedS3Bucket,
   isAuthorizedSNSTopic,
@@ -43,12 +43,18 @@ class ETagMismatchError extends Error {
   }
 }
 
+class SNSSignatureValidationError extends Error {
+  constructor() {
+    super("SNS signature validation failed");
+    this.name = "SNSSignatureValidationError";
+  }
+}
+
 // Yup schemas following established codebase pattern
 const s3ObjectSchema = object({
+  eTag: string().required(),
   key: string().required(),
   size: number().required(),
-  eTag: string().required(),
-  versionId: string().nullable().optional(),
   userMetadata: object()
     .shape({
       "source-sha256": string()
@@ -59,6 +65,7 @@ const s3ObjectSchema = object({
         .required("SHA256 metadata is required for file integrity validation"),
     })
     .required(),
+  versionId: string().nullable().optional(),
 }).required();
 
 const s3BucketSchema = object({
@@ -66,9 +73,9 @@ const s3BucketSchema = object({
 }).required();
 
 const s3RecordSchema = object({
+  eventName: string().required(),
   eventSource: string().oneOf(["aws:s3"]).required(),
   eventTime: string().required(),
-  eventName: string().required(),
   s3: object({
     bucket: s3BucketSchema,
     object: s3ObjectSchema,
@@ -80,18 +87,18 @@ const s3EventSchema = object({
 }).required();
 
 const snsMessageSchema = object({
-  Type: string().oneOf(["Notification"]).required(),
-  MessageId: string().required(),
-  TopicArn: string().required(),
-  Subject: string().optional(),
   Message: string().required(),
-  Timestamp: string().required(),
-  SignatureVersion: string().required(),
+  MessageId: string().required(),
   Signature: string().required(),
+  SignatureVersion: string().required(),
   SigningCertURL: string().url().required(),
-  UnsubscribeURL: string().url().optional(),
+  Subject: string().optional(),
   SubscribeURL: string().url().optional(),
+  Timestamp: string().required(),
   Token: string().optional(),
+  TopicArn: string().required(),
+  Type: string().oneOf(["Notification"]).required(),
+  UnsubscribeURL: string().url().optional(),
 }).required();
 
 // Infer types from Yup schemas
@@ -109,10 +116,10 @@ function extractSHA256FromS3Object(
 
 // Parsed S3 key path components
 interface S3KeyPathComponents {
-  network: string; // e.g., 'bio_network'
   atlasName: string; // e.g., 'gut-v1'
-  folderType: string; // e.g., 'source-datasets', 'integrated-objects', 'manifests'
   filename: string; // e.g., 'file.h5ad'
+  folderType: string; // e.g., 'source-datasets', 'integrated-objects', 'manifests'
+  network: string; // e.g., 'bio_network'
 }
 
 // Parse S3 key path into standardized components
@@ -125,10 +132,10 @@ function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   }
 
   return {
-    network: pathParts[0],
     atlasName: pathParts[1],
-    folderType: pathParts[pathParts.length - 2], // Second to last segment
     filename: pathParts[pathParts.length - 1], // Last segment
+    folderType: pathParts[pathParts.length - 2], // Second to last segment
+    network: pathParts[0],
   };
 }
 
@@ -188,7 +195,7 @@ async function determineAtlasId(
     return null;
   }
 
-  const { network, atlasName } = parseS3KeyPath(s3Key);
+  const { atlasName, network } = parseS3KeyPath(s3Key);
 
   // Parse S3 atlas name into base name and version
   const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
@@ -256,8 +263,8 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   const { bucket, object } = record.s3;
 
   const eventInfo = {
-    eventTime: record.eventTime,
     eventName: record.eventName,
+    eventTime: record.eventTime,
   };
 
   // Extract SHA256 from validated S3 object metadata
@@ -401,108 +408,261 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   });
 }
 
+/**
+ * Validates the incoming request and extracts the S3 event
+ * @param req - The Next.js API request object
+ * @returns Promise containing both the validated SNS message and extracted S3 event
+ */
+async function validateRequest(req: NextApiRequest): Promise<{
+  s3Event: S3Event;
+  snsMessage: SNSMessage;
+}> {
+  // Validate SNS message format using Yup schema
+  const snsMessage = await snsMessageSchema.validate(req.body);
+
+  // Validate SNS signature and extract S3 event
+  try {
+    const s3Event = await validateSNSMessage(snsMessage);
+    return { s3Event, snsMessage };
+  } catch (validationError) {
+    console.error("SNS signature validation failed:", validationError);
+    throw new SNSSignatureValidationError();
+  }
+}
+
+/**
+ * Processes all S3 records and handles errors appropriately
+ * @param s3Event - The validated S3 event containing records to process
+ * @returns Promise containing processing results
+ */
+async function processS3Records(s3Event: S3Event): Promise<{
+  errors: string[];
+  recordsProcessed: number;
+}> {
+  let recordsProcessed = 0;
+  const errors: string[] = [];
+
+  for (const record of s3Event.Records) {
+    try {
+      await saveFileRecord(record);
+      recordsProcessed++;
+    } catch (error: unknown) {
+      // Handle file type determination errors (client data issues)
+      if (
+        error instanceof InvalidS3KeyFormatError ||
+        error instanceof UnknownFolderTypeError
+      ) {
+        console.error("File type determination error:", error.message);
+        throw error; // Re-throw to be handled by caller with 400 status
+      }
+
+      // Handle ETag mismatch errors (data integrity issues)
+      if (error instanceof ETagMismatchError) {
+        console.error("ETag mismatch error:", error.message);
+        throw error; // Re-throw to be handled by caller with 500 status
+      }
+
+      // Handle other unexpected errors
+      console.error("Unexpected error processing S3 record:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      errors.push(errorMessage);
+    }
+  }
+
+  return { errors, recordsProcessed };
+}
+
+/**
+ * Creates the response object for successful processing
+ * @param recordsProcessed - Number of records successfully processed
+ * @param errors - Array of error messages from processing
+ * @returns Response object
+ */
+function createResponse(
+  recordsProcessed: number,
+  errors: string[]
+): {
+  errors?: string[];
+  message: string;
+  recordsProcessed: number;
+} {
+  const response: {
+    errors?: string[];
+    message: string;
+    recordsProcessed: number;
+  } = {
+    message: "S3 notification processed successfully",
+    recordsProcessed,
+  };
+
+  // Include errors in response if any occurred
+  if (errors.length > 0) {
+    response.errors = errors;
+    response.message = `S3 notification processed with ${errors.length} error(s)`;
+  }
+
+  return response;
+}
+
+/**
+ * Extracts and validates the request, handling errors with appropriate HTTP responses
+ * @param req - The Next.js API request
+ * @param res - The Next.js API response
+ * @returns Promise containing extracted data, or null if response was sent
+ */
+async function extractAndValidateRequest(
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<{ s3Event: S3Event; snsMessage: SNSMessage } | null> {
+  try {
+    return await validateRequest(req);
+  } catch (validationError: unknown) {
+    if (validationError instanceof SNSSignatureValidationError) {
+      res.status(401).json({ error: "SNS signature validation failed" });
+      return null;
+    }
+    if (validationError instanceof ValidationError) {
+      console.error("Validation error:", validationError.message);
+      res.status(400).json({ error: validationError.message });
+      return null;
+    }
+    // Handle other unexpected validation errors
+    console.error("Unexpected validation error:", validationError);
+    res.status(500).json({ error: INTERNAL_SERVER_ERROR });
+    return null;
+  }
+}
+
+// Constants for duplicated literals
+const INTERNAL_SERVER_ERROR = "Internal server error";
+
+/**
+ * Authorizes the SNS topic, handling errors with appropriate HTTP responses
+ * @param snsMessage - The validated SNS message
+ * @param res - The Next.js API response
+ * @returns Promise<boolean> - true if authorized, false if response was sent
+ */
+async function authorizeSNSTopic(
+  snsMessage: SNSMessage,
+  res: NextApiResponse
+): Promise<boolean> {
+  if (!isAuthorizedSNSTopic(snsMessage.TopicArn)) {
+    console.warn("Unauthorized SNS topic:", snsMessage.TopicArn);
+    res.status(403).json({
+      error: "Unauthorized SNS topic",
+      topicArn: snsMessage.TopicArn,
+    });
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Authorizes S3 buckets, handling errors with appropriate HTTP responses
+ * @param s3Event - The validated S3 event
+ * @param res - The Next.js API response
+ * @returns Promise<boolean> - true if authorized, false if response was sent
+ */
+async function authorizeS3Buckets(
+  s3Event: S3Event,
+  res: NextApiResponse
+): Promise<boolean> {
+  // Validate S3 event format
+  try {
+    s3EventSchema.validateSync(s3Event);
+  } catch (schemaError: unknown) {
+    if (schemaError instanceof ValidationError) {
+      console.error("S3 event validation error:", schemaError.message);
+      res.status(400).json({ error: schemaError.message });
+      return false;
+    }
+    throw schemaError;
+  }
+
+  // Validate all S3 buckets are authorized (strict mode)
+  const unauthorizedBuckets = s3Event.Records.filter(
+    (record) => !isAuthorizedS3Bucket(record.s3.bucket.name)
+  ).map((record) => record.s3.bucket.name);
+
+  if (unauthorizedBuckets.length > 0) {
+    console.warn("Unauthorized S3 buckets:", unauthorizedBuckets);
+    res.status(403).json({
+      error: "Unauthorized S3 buckets",
+      message: "Request rejected due to unauthorized bucket access",
+      unauthorizedBuckets,
+    });
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Processes S3 records and sends the response
+ * @param s3Event - The validated S3 event
+ * @param res - The Next.js API response
+ */
+async function processRecordsAndRespond(
+  s3Event: S3Event,
+  res: NextApiResponse
+): Promise<void> {
+  try {
+    const { errors, recordsProcessed } = await processS3Records(s3Event);
+    const response = createResponse(recordsProcessed, errors);
+    res.status(200).json(response);
+  } catch (processingError: unknown) {
+    // Handle file type determination errors (client data issues)
+    if (
+      processingError instanceof InvalidS3KeyFormatError ||
+      processingError instanceof UnknownFolderTypeError
+    ) {
+      res.status(400).json({ error: processingError.message });
+      return;
+    }
+
+    // Handle ETag mismatch errors (data integrity issues)
+    if (processingError instanceof ETagMismatchError) {
+      res
+        .status(500)
+        .json({ error: "Data integrity error - ETag mismatch detected" });
+      return;
+    }
+
+    // Handle other unexpected processing errors
+    console.error("Unexpected processing error:", processingError);
+    res.status(500).json({ error: INTERNAL_SERVER_ERROR });
+  }
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
-) {
+): Promise<void> {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    // Validate SNS message format using Yup schema
-    const snsMessage = await snsMessageSchema.validate(req.body);
+    // Step 1: Extract and validate request
+    const requestData = await extractAndValidateRequest(req, res);
+    if (!requestData) return; // Response already sent
 
-    // Validate SNS signature and extract S3 event
-    let s3Event: S3Event;
-    try {
-      s3Event = await validateSNSMessage(snsMessage);
-    } catch (validationError) {
-      console.error("SNS signature validation failed:", validationError);
-      return res.status(401).json({ error: "SNS signature validation failed" });
-    }
+    const { s3Event, snsMessage } = requestData;
 
-    // Validate SNS topic authorization
-    if (!isAuthorizedSNSTopic(snsMessage.TopicArn)) {
-      console.error(`Unauthorized SNS topic: ${snsMessage.TopicArn}`);
-      return res.status(403).json({
-        error: "Unauthorized SNS topic",
-        topicArn: snsMessage.TopicArn,
-      });
-    }
+    // Step 2: Authorize SNS topic
+    const snsAuthorized = await authorizeSNSTopic(snsMessage, res);
+    if (!snsAuthorized) return; // Response already sent
 
-    // Validate S3 event structure and SHA256 metadata using Yup schema
-    const validatedS3Event = await s3EventSchema.validate(s3Event);
+    // Step 3: Authorize S3 buckets
+    const s3Authorized = await authorizeS3Buckets(s3Event, res);
+    if (!s3Authorized) return; // Response already sent
 
-    // STRICT MODE: Validate ALL S3 buckets are authorized before processing ANY records
-    // This ensures we reject the entire request if any bucket is unauthorized
-    const unauthorizedBuckets: string[] = [];
-
-    for (const record of validatedS3Event.Records) {
-      const bucketName = record.s3.bucket.name;
-      if (!isAuthorizedS3Bucket(bucketName)) {
-        unauthorizedBuckets.push(bucketName);
-      }
-    }
-
-    // If any unauthorized buckets found, reject the entire request
-    if (unauthorizedBuckets.length > 0) {
-      console.error(
-        `Unauthorized S3 buckets detected: ${unauthorizedBuckets.join(", ")}`
-      );
-      return res.status(403).json({
-        error: "Unauthorized S3 buckets",
-        unauthorizedBuckets,
-        message: "Request rejected due to unauthorized bucket access",
-      });
-    }
-
-    // All buckets are authorized - proceed with processing all records
-    let recordsProcessed = 0;
-    const errors: string[] = [];
-
-    for (const record of validatedS3Event.Records) {
-      try {
-        await saveFileRecord(record);
-        recordsProcessed++;
-      } catch (error: any) {
-        // Handle file type determination errors (client data issues)
-        if (
-          error instanceof InvalidS3KeyFormatError ||
-          error instanceof UnknownFolderTypeError
-        ) {
-          console.error("File type determination error:", error.message);
-          return res.status(400).json({ error: error.message });
-        }
-
-        // Handle ETag mismatch errors (data integrity issues)
-        if (error instanceof ETagMismatchError) {
-          console.error("ETag mismatch error:", error.message);
-          return res
-            .status(500)
-            .json({ error: "Data integrity error - ETag mismatch detected" });
-        }
-
-        // Handle other unexpected errors
-        console.error("Unexpected error processing S3 record:", error);
-        errors.push(error.message);
-      }
-    }
-
-    // Return success response
-    res.status(200).json({
-      message: "S3 notification processed successfully",
-      recordsProcessed,
-    });
-  } catch (error: any) {
-    // Handle Yup validation errors
-    if (error.name === "ValidationError") {
-      console.error("Validation error:", error.message);
-      return res.status(400).json({ error: error.message });
-    }
-
-    // Handle other unexpected errors
+    // Step 4: Process records and send response
+    await processRecordsAndRespond(s3Event, res);
+  } catch (error: unknown) {
+    // Handle any unexpected errors that weren't caught by individual functions
     console.error("Unexpected error in S3 notification handler:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: INTERNAL_SERVER_ERROR });
   }
 }
