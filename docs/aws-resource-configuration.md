@@ -31,16 +31,19 @@ The `AWS_RESOURCE_CONFIG` environment variable should contain a JSON object with
 ## Environment-Specific Examples
 
 ### Development
+
 ```bash
 AWS_RESOURCE_CONFIG={"sns_topics":["arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications-dev"],"s3_buckets":["hca-atlas-tracker-data-dev"]}
 ```
 
 ### Production
+
 ```bash
 AWS_RESOURCE_CONFIG={"sns_topics":["arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications-prod"],"s3_buckets":["hca-atlas-tracker-data-prod"]}
 ```
 
 ### Local Testing
+
 ```bash
 AWS_RESOURCE_CONFIG={"sns_topics":["arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications"],"s3_buckets":["hca-atlas-tracker-data-dev","hca-atlas-tracker-data-local"]}
 ```
@@ -62,6 +65,7 @@ This configuration provides:
 ## Configuration Management
 
 The configuration is:
+
 - **Cached in memory** for performance
 - **Validated at startup** to ensure proper JSON format
 - **Environment-specific** via different JSON values

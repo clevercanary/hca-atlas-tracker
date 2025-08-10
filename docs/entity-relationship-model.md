@@ -7,6 +7,7 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 ## Core Entities
 
 ### 1. Atlas (`hat.atlases`)
+
 - **Primary Key**: `id` (UUID)
 - **Purpose**: Top-level research projects that combine multiple datasets
 - **Key Fields**:
@@ -16,6 +17,7 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 - **Relationships**: Contains multiple source datasets and integrated objects
 
 ### 2. Source Study (`hat.source_studies`)
+
 - **Primary Key**: `id` (UUID)
 - **Purpose**: Scientific studies that publish datasets (associated with publications)
 - **Key Fields**:
@@ -25,6 +27,7 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 - **Relationships**: Publishes multiple source datasets
 
 ### 3. Source Dataset (`hat.source_datasets`)
+
 - **Primary Key**: `id` (UUID)
 - **Purpose**: Individual datasets from scientific studies
 - **Key Fields**:
@@ -36,6 +39,7 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 - **Relationships**: Belongs to one source study, can be used by multiple atlases
 
 ### 4. Integrated Object (`hat.component_atlases`)
+
 - **Primary Key**: `id` (UUID)
 - **Purpose**: Integrated objects that combine source datasets into processed/analyzed outputs
 - **Business Term**: "Integrated Object" (backed by `component_atlases` table)
@@ -48,6 +52,7 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 - **Relationships**: Belongs to one atlas, uses multiple source datasets
 
 ### 5. Files (`hat.files`)
+
 - **Primary Key**: `id` (UUID)
 - **Purpose**: Physical files stored in S3 that represent source datasets, integrated objects, or ingest manifests
 - **Business Rule**: Files ARE the datasets/integrated objects, not containers for them
@@ -75,22 +80,27 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 ## Relationship Model
 
 ### Atlas ↔ Source Dataset (Many-to-Many via Array)
+
 - Atlas → Source Dataset: **1:N** (one atlas contains many source datasets)
 - Source Dataset → Atlas: **N:M** (one source dataset can belong to multiple atlases)
 
 ### Atlas ↔ Integrated Object (One-to-Many)
+
 - Atlas → Integrated Object: **1:N** (one atlas has multiple integrated objects)
 - Integrated Object → Atlas: **N:1** (each integrated object belongs to one atlas)
 
 ### Integrated Object ↔ Source Dataset (Many-to-Many via Array)
+
 - Integrated Object → Source Dataset: **1:N** (one integrated object uses many source datasets)
 - Source Dataset → Integrated Object: **N:M** (one source dataset can be used by multiple integrated objects)
 
 ### Source Study ↔ Source Dataset (One-to-Many)
+
 - Source Study → Source Dataset: **1:N** (one study publishes multiple datasets)
 - Source Dataset → Source Study: **N:1** (each dataset belongs to one study)
 
 ### File Relationships
+
 - Source Dataset File → Source Study: **N:1** (each source dataset file belongs to one study)
 - Integrated Object File → Atlas: **N:1** (each integrated object file belongs to one atlas)
 - Source Dataset File → Atlas: **N:M** (one source dataset file can be used by multiple atlases)
@@ -98,6 +108,7 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 ## Current Schema Implementation
 
 ### Files Table Schema (Implemented)
+
 ```sql
 CREATE TABLE hat.files (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -106,36 +117,36 @@ CREATE TABLE hat.files (
   version_id varchar(255),
   etag varchar(255) NOT NULL,
   size_bytes bigint NOT NULL,
-  
+
   -- File Classification
   file_type varchar(50) NOT NULL, -- 'source_dataset', 'integrated_object', 'ingest_manifest'
-  
+
   -- Foreign Key Relationships (Exclusive based on file_type)
   source_study_id uuid NULL,      -- FK to source_studies.id (for source datasets only)
   atlas_id uuid NULL,             -- FK to atlases.id (for integrated objects and manifests only)
-  
+
   -- S3 Event Context
   event_info jsonb NOT NULL,      -- S3 event metadata: {eventTime, eventName}
-  
+
   -- Integrity Validation
   sha256_client varchar(64),      -- Client-provided SHA256 hash
   integrity_status varchar(50) DEFAULT 'pending', -- 'pending', 'valid', 'invalid'
-  
+
   -- Version Management
   is_latest boolean DEFAULT TRUE, -- Flag for latest version queries
-  
+
   -- Timestamps
   status varchar(50) DEFAULT 'uploaded',
   created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   updated_at timestamp DEFAULT CURRENT_TIMESTAMP,
-  
+
   -- Constraints
   CONSTRAINT uq_files_bucket_key_version UNIQUE (bucket, key, version_id),
-  CONSTRAINT fk_files_source_study_id FOREIGN KEY (source_study_id) 
+  CONSTRAINT fk_files_source_study_id FOREIGN KEY (source_study_id)
     REFERENCES hat.source_studies(id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_files_atlas_id FOREIGN KEY (atlas_id) 
+  CONSTRAINT fk_files_atlas_id FOREIGN KEY (atlas_id)
     REFERENCES hat.atlases(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    
+
   -- Business Logic Constraint: Enforce exclusive foreign key relationships
   CONSTRAINT ck_files_exclusive_parent_relationship CHECK (
     (file_type = 'source_dataset' AND atlas_id IS NULL) OR
@@ -187,15 +198,15 @@ For source dataset files that need source study linkage:
 
 ```sql
 -- Find latest files for an atlas
-SELECT * FROM hat.files 
+SELECT * FROM hat.files
 WHERE atlas_id = ? AND is_latest = TRUE;
 
 -- Find source dataset files pending validation
-SELECT * FROM hat.files 
+SELECT * FROM hat.files
 WHERE file_type = 'source_dataset' AND source_study_id IS NULL;
 
 -- Find files with integrity issues
-SELECT * FROM hat.files 
+SELECT * FROM hat.files
 WHERE integrity_status = 'invalid';
 
 -- Get all files for a source study (via source datasets)
