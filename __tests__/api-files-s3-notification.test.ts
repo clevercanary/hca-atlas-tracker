@@ -17,12 +17,26 @@ interface S3EventOptions {
   eventName?: string;
   eventTime?: string;
   key: string;
-  sha256: string;
+  sha256?: string; // Optional to support tests that intentionally omit SHA256
   size: number;
   versionId: string;
 }
 
 function createS3Event(options: S3EventOptions): any {
+  const objectData: any = {
+    eTag: options.etag,
+    key: options.key,
+    size: options.size,
+    versionId: options.versionId,
+  };
+
+  // Only add userMetadata if sha256 is provided
+  if (options.sha256) {
+    objectData.userMetadata = {
+      "source-sha256": options.sha256,
+    };
+  }
+
   return {
     Records: [
       {
@@ -34,15 +48,7 @@ function createS3Event(options: S3EventOptions): any {
           bucket: {
             name: options.bucket || TEST_S3_BUCKET,
           },
-          object: {
-            eTag: options.etag,
-            key: options.key,
-            size: options.size,
-            userMetadata: {
-              "source-sha256": options.sha256,
-            },
-            versionId: options.versionId,
-          },
+          object: objectData,
           s3SchemaVersion: "1.0",
         },
       },
@@ -196,10 +202,10 @@ describe(TEST_ROUTE, () => {
   it("returns error 400 for invalid SNS message payload", async () => {
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
-        method: METHOD.POST,
         body: {
           invalid: "payload",
         },
+        method: METHOD.POST,
       }
     );
 
@@ -211,65 +217,27 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 400 for S3 event missing SHA256 metadata", async () => {
-    const s3Event = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          awsRegion: "us-east-1",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          userIdentity: {
-            principalId: "AIDAJDPLRKLG7UEXAMPLE",
-          },
-          requestParameters: {
-            sourceIPAddress: "127.0.0.1",
-          },
-          responseElements: {
-            "x-amz-request-id": "C3D13FE58DE4C818",
-            "x-amz-id-2":
-              "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpL",
-          },
-          s3: {
-            s3SchemaVersion: "1.0",
-            configurationId: "testConfigRule",
-            bucket: {
-              name: TEST_S3_BUCKET,
-              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
-              ownerIdentity: {
-                principalId: "A3NL1KOZZKExample",
-              },
-            },
-            object: {
-              key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
-              size: 1024000,
-              eTag: "d41d8cd98f00b204e9800998ecf8427e",
-              versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
-              sequencer: "0055AED6DCD90281ED",
-              // Missing userMetadata with source-sha256 - this is intentional for this test
-            },
-          },
-        },
-      ],
-    };
+    // Create S3 event without SHA256 metadata - this is intentional for this test
+    const s3Event = createS3Event({
+      etag: "d41d8cd98f00b204e9800998ecf8427e",
+      key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
+      size: 1024000,
+      versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+      // Intentionally omitting sha256 parameter to test missing metadata
+    });
 
-    const snsMessage = {
-      Type: "Notification",
-      MessageId: "12345678-1234-1234-1234-123456789012",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Subject: "Amazon S3 Notification",
-      Message: JSON.stringify(s3Event),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "fake-signature-for-testing",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
+    const snsMessage = createSNSMessage({
+      messageId: "12345678-1234-1234-1234-123456789012",
+      s3Event,
+      signature: "fake-signature-for-testing",
+      subject: "Amazon S3 Notification",
+      timestamp: "2024-01-01T12:00:00.000Z",
+    });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
-        method: METHOD.POST,
         body: snsMessage,
+        method: METHOD.POST,
       }
     );
 
@@ -287,7 +255,8 @@ describe(TEST_ROUTE, () => {
     const s3Event = createS3Event({
       etag: "d41d8cd98f00b204e9800998ecf8427e",
       key: "bio_network/gut-v1/source-datasets/test-file.h5ad",
-      sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      sha256:
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       size: 1024000,
       versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
     });
@@ -299,8 +268,8 @@ describe(TEST_ROUTE, () => {
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
-        method: METHOD.POST,
         body: snsMessage,
+        method: METHOD.POST,
       }
     );
 
@@ -340,7 +309,8 @@ describe(TEST_ROUTE, () => {
     const s3Event = createS3Event({
       etag: "e1234567890abcdef1234567890abcdef",
       key: "bio_network/gut-v1/source-datasets/duplicate-test.h5ad",
-      sha256: "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
+      sha256:
+        "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
       size: 2048000,
       versionId: "abc123def456ghi789jkl012mno345pqr",
     });
@@ -354,8 +324,8 @@ describe(TEST_ROUTE, () => {
       NextApiRequest,
       NextApiResponse
     >({
-      method: METHOD.POST,
       body: snsMessage,
+      method: METHOD.POST,
     });
 
     // First request
@@ -368,8 +338,8 @@ describe(TEST_ROUTE, () => {
       NextApiRequest,
       NextApiResponse
     >({
-      method: METHOD.POST,
       body: snsMessage,
+      method: METHOD.POST,
     });
 
     // Second request with same data
@@ -396,7 +366,8 @@ describe(TEST_ROUTE, () => {
       etag: "invalid-signature-test",
       eventTime: "2023-01-01T00:00:00.000Z",
       key: "bio_network/gut-v1/source-datasets/auth-test.h5ad",
-      sha256: "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      sha256:
+        "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       size: 256000,
       versionId: "auth-test-version",
     });
@@ -410,8 +381,8 @@ describe(TEST_ROUTE, () => {
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
-        method: "POST",
         body: snsMessageWithInvalidSignature,
+        method: "POST",
       }
     );
 
@@ -439,7 +410,8 @@ describe(TEST_ROUTE, () => {
       etag: "original-etag-12345",
       eventTime: "2023-01-01T00:00:00.000Z",
       key: "bio_network/gut-v1/source-datasets/etag-test.h5ad",
-      sha256: "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      sha256:
+        "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       size: 128000,
       versionId: "version-123",
     });
@@ -456,8 +428,8 @@ describe(TEST_ROUTE, () => {
       NextApiRequest,
       NextApiResponse
     >({
-      method: "POST",
       body: snsMessage,
+      method: "POST",
     });
 
     await withConsoleErrorHiding(async () => {
@@ -470,7 +442,8 @@ describe(TEST_ROUTE, () => {
       etag: "different-etag-67890", // Different ETag!
       eventTime: "2023-01-01T00:00:00.000Z",
       key: "bio_network/gut-v1/source-datasets/etag-test.h5ad",
-      sha256: "6789012345678901234567890123456789012345678901234567890123456789",
+      sha256:
+        "6789012345678901234567890123456789012345678901234567890123456789",
       size: 128000,
       versionId: "version-123",
     });
@@ -486,8 +459,8 @@ describe(TEST_ROUTE, () => {
       NextApiRequest,
       NextApiResponse
     >({
-      method: "POST",
       body: snsMessageWithDifferentETag,
+      method: "POST",
     });
 
     await withConsoleErrorHiding(async () => {
@@ -512,69 +485,29 @@ describe(TEST_ROUTE, () => {
 
   it("maintains is_latest flag correctly for file versions", async () => {
     // First version of the file
-    const s3EventV1 = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          awsRegion: "us-east-1",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          userIdentity: {
-            principalId: "AIDAJDPLRKLG7UEXAMPLE",
-          },
-          requestParameters: {
-            sourceIPAddress: "127.0.0.1",
-          },
-          responseElements: {
-            "x-amz-request-id": "C3D13FE58DE4C814",
-            "x-amz-id-2":
-              "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpH",
-          },
-          s3: {
-            s3SchemaVersion: "1.0",
-            configurationId: "testConfigRule",
-            bucket: {
-              name: TEST_S3_BUCKET,
-              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
-              ownerIdentity: {
-                principalId: "A3NL1KOZZKExample",
-              },
-            },
-            object: {
-              key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
-              size: 1024000,
-              eTag: "version1-etag-12345678901234567890123456789012",
-              versionId: "version-1",
-              sequencer: "0055AED6DCD90281E9",
-              userMetadata: {
-                "source-sha256":
-                  "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-              },
-            },
-          },
-        },
-      ],
-    };
+    const s3EventV1 = createS3Event({
+      etag: "version1-etag-12345678901234567890123456789012",
+      eventTime: "2024-01-01T12:00:00.000Z",
+      key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
+      sha256:
+        "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      size: 1024000,
+      versionId: "version-1",
+    });
 
-    const snsMessageV1 = {
-      Type: "Notification",
-      MessageId: "test-message-id-v1",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Message: JSON.stringify(s3EventV1),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "valid-signature",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
+    const snsMessageV1 = createSNSMessage({
+      messageId: "test-message-id-v1",
+      s3Event: s3EventV1,
+      signature: "valid-signature",
+      timestamp: "2024-01-01T12:00:00.000Z",
+    });
 
     const { req: req1, res: res1 } = httpMocks.createMocks<
       NextApiRequest,
       NextApiResponse
     >({
-      method: "POST",
       body: snsMessageV1,
+      method: "POST",
     });
 
     // Process first version
@@ -584,69 +517,29 @@ describe(TEST_ROUTE, () => {
     expect(res1.statusCode).toBe(200);
 
     // Second version of the same file (different version_id and etag)
-    const s3EventV2 = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          awsRegion: "us-east-1",
-          eventTime: "2024-01-01T13:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          userIdentity: {
-            principalId: "AIDAJDPLRKLG7UEXAMPLE",
-          },
-          requestParameters: {
-            sourceIPAddress: "127.0.0.1",
-          },
-          responseElements: {
-            "x-amz-request-id": "C3D13FE58DE4C815",
-            "x-amz-id-2":
-              "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpI",
-          },
-          s3: {
-            s3SchemaVersion: "1.0",
-            configurationId: "testConfigRule",
-            bucket: {
-              name: TEST_S3_BUCKET,
-              arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
-              ownerIdentity: {
-                principalId: "A3NL1KOZZKExample",
-              },
-            },
-            object: {
-              key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad", // Same key
-              size: 2048000,
-              eTag: "version2-etag-98765432109876543210987654321098",
-              versionId: "version-2", // Different version
-              sequencer: "0055AED6DCD90281EA",
-              userMetadata: {
-                "source-sha256":
-                  "b2c3d4e5f678901234567890123456789012345678901234567890123456789a",
-              },
-            },
-          },
-        },
-      ],
-    };
+    const s3EventV2 = createS3Event({
+      etag: "version2-etag-98765432109876543210987654321098",
+      eventTime: "2024-01-01T13:00:00.000Z",
+      key: "bio_network/gut-v1/source-datasets/versioned-file.h5ad", // Same key
+      sha256:
+        "b2c3d4e5f678901234567890123456789012345678901234567890123456789a",
+      size: 2048000,
+      versionId: "version-2", // Different version
+    });
 
-    const snsMessageV2 = {
-      Type: "Notification",
-      MessageId: "test-message-id-v2",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Message: JSON.stringify(s3EventV2),
-      Timestamp: "2024-01-01T13:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "valid-signature",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
+    const snsMessageV2 = createSNSMessage({
+      messageId: "test-message-id-v2",
+      s3Event: s3EventV2,
+      signature: "valid-signature",
+      timestamp: "2024-01-01T13:00:00.000Z",
+    });
 
     const { req: req2, res: res2 } = httpMocks.createMocks<
       NextApiRequest,
       NextApiResponse
     >({
-      method: "POST",
       body: snsMessageV2,
+      method: "POST",
     });
 
     // Process second version
@@ -688,63 +581,23 @@ describe(TEST_ROUTE, () => {
 
   it("rejects notifications from unauthorized SNS topics", async () => {
     await withConsoleErrorHiding(async () => {
-      const s3Event = {
-        Records: [
-          {
-            eventVersion: "2.1",
-            eventSource: "aws:s3",
-            awsRegion: "us-east-1",
-            eventTime: "2024-01-01T12:00:00.000Z",
-            eventName: TEST_S3_EVENT_NAME,
-            userIdentity: {
-              principalId: "AIDAJDPLRKLG7UEXAMPLE",
-            },
-            requestParameters: {
-              sourceIPAddress: "127.0.0.1",
-            },
-            responseElements: {
-              "x-amz-request-id": "C3D13FE58DE4C816",
-              "x-amz-id-2":
-                "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpJ",
-            },
-            s3: {
-              s3SchemaVersion: "1.0",
-              configurationId: "testConfigRule",
-              bucket: {
-                name: TEST_S3_BUCKET,
-                arn: "arn:aws:s3:::hca-atlas-tracker-data-dev",
-                ownerIdentity: {
-                  principalId: "A3NL1KOZZKExample",
-                },
-              },
-              object: {
-                key: "test-file.h5ad",
-                size: 1024000,
-                eTag: "d41d8cd98f00b204e9800998ecf8427e",
-                versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
-                sequencer: "0055AED6DCD90281EB",
-                userMetadata: {
-                  "source-sha256":
-                    "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890",
-                },
-              },
-            },
-          },
-        ],
-      };
+      const s3Event = createS3Event({
+        etag: "d41d8cd98f00b204e9800998ecf8427e",
+        key: "test-file.h5ad",
+        sha256:
+          "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890",
+        size: 1024000,
+        versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+      });
 
-      const unauthorizedSnsMessage = {
-        Type: "Notification",
-        MessageId: "unauthorized-topic-test",
-        TopicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
-        Subject: "Amazon S3 Notification",
-        Message: JSON.stringify(s3Event),
-        Timestamp: "2024-01-01T12:00:00.000Z",
-        SignatureVersion: "1",
-        Signature: "fake-signature-for-testing",
-        SigningCertURL:
-          "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-      };
+      const unauthorizedSnsMessage = createSNSMessage({
+        messageId: "unauthorized-topic-test",
+        s3Event,
+        signature: "fake-signature-for-testing",
+        subject: "Amazon S3 Notification",
+        timestamp: "2024-01-01T12:00:00.000Z",
+        topicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+      });
 
       const { req, res } = httpMocks.createMocks<
         NextApiRequest,
@@ -767,63 +620,23 @@ describe(TEST_ROUTE, () => {
   });
 
   it("rejects notifications from unauthorized S3 buckets", async () => {
-    const s3Event = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          awsRegion: "us-east-1",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          userIdentity: {
-            principalId: "AIDAJDPLRKLG7UEXAMPLE",
-          },
-          requestParameters: {
-            sourceIPAddress: "127.0.0.1",
-          },
-          responseElements: {
-            "x-amz-request-id": "C3D13FE58DE4C817",
-            "x-amz-id-2":
-              "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpK",
-          },
-          s3: {
-            s3SchemaVersion: "1.0",
-            configurationId: "testConfigRule",
-            bucket: {
-              name: "unauthorized-bucket",
-              arn: "arn:aws:s3:::unauthorized-bucket",
-              ownerIdentity: {
-                principalId: "A3NL1KOZZKExample",
-              },
-            },
-            object: {
-              key: "test-file.h5ad",
-              size: 1024000,
-              eTag: "d41d8cd98f00b204e9800998ecf8427e",
-              versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
-              sequencer: "0055AED6DCD90281EC",
-              userMetadata: {
-                "source-sha256":
-                  "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
-              },
-            },
-          },
-        },
-      ],
-    };
+    const s3Event = createS3Event({
+      bucket: "unauthorized-bucket",
+      etag: "d41d8cd98f00b204e9800998ecf8427e",
+      key: "test-file.h5ad",
+      sha256:
+        "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
+      size: 1024000,
+      versionId: "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+    });
 
-    const snsMessage = {
-      Type: "Notification",
-      MessageId: "unauthorized-bucket-test",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Subject: "Amazon S3 Notification",
-      Message: JSON.stringify(s3Event),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "fake-signature-for-testing",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
+    const snsMessage = createSNSMessage({
+      messageId: "unauthorized-bucket-test",
+      s3Event,
+      signature: "fake-signature-for-testing",
+      subject: "Amazon S3 Notification",
+      timestamp: "2024-01-01T12:00:00.000Z",
+    });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
@@ -847,45 +660,22 @@ describe(TEST_ROUTE, () => {
   });
 
   it("correctly identifies integrated object file type from S3 path", async () => {
-    const s3Event = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          s3: {
-            s3SchemaVersion: "1.0",
-            bucket: {
-              name: TEST_S3_BUCKET,
-            },
-            object: {
-              key: "gut/gut-v1/integrated-objects/atlas.h5ad",
-              size: 5120000,
-              eTag: "f1234567890abcdef1234567890abcdef",
-              versionId: "integrated-version-123",
-              userMetadata: {
-                "source-sha256":
-                  "b1c2d3e4f5678901234567890123456789012345678901234567890123456789",
-              },
-            },
-          },
-        },
-      ],
-    };
+    const s3Event = createS3Event({
+      etag: "f1234567890abcdef1234567890abcdef",
+      key: "gut/gut-v1/integrated-objects/atlas.h5ad",
+      sha256:
+        "b1c2d3e4f5678901234567890123456789012345678901234567890123456789",
+      size: 5120000,
+      versionId: "integrated-version-123",
+    });
 
-    const snsMessage = {
-      Type: "Notification",
-      MessageId: "integrated-object-test-message",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Subject: "Amazon S3 Notification",
-      Message: JSON.stringify(s3Event),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "fake-signature-for-testing",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
+    const snsMessage = createSNSMessage({
+      messageId: "integrated-object-test-message",
+      s3Event,
+      signature: "fake-signature-for-testing",
+      subject: "Amazon S3 Notification",
+      timestamp: "2024-01-01T12:00:00.000Z",
+    });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
@@ -924,45 +714,22 @@ describe(TEST_ROUTE, () => {
   });
 
   it("correctly identifies ingest manifest file type from S3 path", async () => {
-    const s3Event = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          s3: {
-            s3SchemaVersion: "1.0",
-            bucket: {
-              name: TEST_S3_BUCKET,
-            },
-            object: {
-              key: "gut/gut-v1/manifests/upload-manifest.json",
-              size: 2048,
-              eTag: "c9876543210fedcba9876543210fedcba",
-              versionId: "manifest-version-456",
-              userMetadata: {
-                "source-sha256":
-                  "c2d3e4f5678901234567890123456789012345678901234567890123456789ab",
-              },
-            },
-          },
-        },
-      ],
-    };
+    const s3Event = createS3Event({
+      etag: "c9876543210fedcba9876543210fedcba",
+      key: "gut/gut-v1/manifests/upload-manifest.json",
+      sha256:
+        "c2d3e4f5678901234567890123456789012345678901234567890123456789ab",
+      size: 2048,
+      versionId: "manifest-version-456",
+    });
 
-    const snsMessage = {
-      Type: "Notification",
-      MessageId: "manifest-test-message",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Subject: "Amazon S3 Notification",
-      Message: JSON.stringify(s3Event),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "fake-signature-for-testing",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
+    const snsMessage = createSNSMessage({
+      messageId: "manifest-test-message",
+      s3Event,
+      signature: "fake-signature-for-testing",
+      subject: "Amazon S3 Notification",
+      timestamp: "2024-01-01T12:00:00.000Z",
+    });
 
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
@@ -1035,44 +802,21 @@ describe(TEST_ROUTE, () => {
   ])(
     "correctly identifies $description",
     async ({ key, expectedAtlasId, etag, size, versionId, sha256 }) => {
-      const s3Event = {
-        Records: [
-          {
-            eventVersion: "2.1",
-            eventSource: "aws:s3",
-            eventTime: "2024-01-01T12:00:00.000Z",
-            eventName: TEST_S3_EVENT_NAME,
-            s3: {
-              s3SchemaVersion: "1.0",
-              bucket: {
-                name: TEST_S3_BUCKET,
-              },
-              object: {
-                key,
-                size,
-                eTag: etag,
-                versionId,
-                userMetadata: {
-                  "source-sha256": sha256,
-                },
-              },
-            },
-          },
-        ],
-      };
+      const s3Event = createS3Event({
+        etag,
+        key,
+        sha256,
+        size,
+        versionId,
+      });
 
-      const snsMessage = {
-        Type: "Notification",
-        MessageId: "atlas-lookup-test-message",
-        TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-        Subject: "Amazon S3 Notification",
-        Message: JSON.stringify(s3Event),
-        Timestamp: "2024-01-01T12:00:00.000Z",
-        SignatureVersion: "1",
-        Signature: "fake-signature-for-testing",
-        SigningCertURL:
-          "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-      };
+      const snsMessage = createSNSMessage({
+        messageId: "atlas-lookup-test-message",
+        s3Event,
+        signature: "fake-signature-for-testing",
+        subject: "Amazon S3 Notification",
+        timestamp: "2024-01-01T12:00:00.000Z",
+      });
 
       const { req, res } = httpMocks.createMocks<
         NextApiRequest,
@@ -1110,45 +854,22 @@ describe(TEST_ROUTE, () => {
 
   it("rejects S3 notifications with invalid key format (too few path segments)", async () => {
     await withConsoleErrorHiding(async () => {
-      const s3Event = {
-        Records: [
-          {
-            eventVersion: "2.1",
-            eventSource: "aws:s3",
-            eventTime: "2024-01-01T12:00:00.000Z",
-            eventName: TEST_S3_EVENT_NAME,
-            s3: {
-              s3SchemaVersion: "1.0",
-              bucket: {
-                name: TEST_S3_BUCKET,
-              },
-              object: {
-                key: "invalid/path.h5ad", // Only 2 segments, need 4+
-                size: 1024,
-                eTag: "invalid-etag-test",
-                versionId: "invalid-version",
-                userMetadata: {
-                  "source-sha256":
-                    "d3e4f5678901234567890123456789012345678901234567890123456789abcd",
-                },
-              },
-            },
-          },
-        ],
-      };
+      const s3Event = createS3Event({
+        etag: "invalid-etag-test",
+        key: "invalid/path.h5ad", // Only 2 segments, need 4+
+        sha256:
+          "d3e4f5678901234567890123456789012345678901234567890123456789abcd",
+        size: 1024,
+        versionId: "invalid-version",
+      });
 
-      const snsMessage = {
-        Type: "Notification",
-        MessageId: "invalid-path-test",
-        TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-        Subject: "Amazon S3 Notification",
-        Message: JSON.stringify(s3Event),
-        Timestamp: "2024-01-01T12:00:00.000Z",
-        SignatureVersion: "1",
-        Signature: "fake-signature-for-testing",
-        SigningCertURL:
-          "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-      };
+      const snsMessage = createSNSMessage({
+        messageId: "invalid-path-test",
+        s3Event,
+        signature: "fake-signature-for-testing",
+        subject: "Amazon S3 Notification",
+        timestamp: "2024-01-01T12:00:00.000Z",
+      });
 
       const { req, res } = httpMocks.createMocks<
         NextApiRequest,
@@ -1171,45 +892,22 @@ describe(TEST_ROUTE, () => {
 
   it("rejects S3 notifications with unknown folder type", async () => {
     await withConsoleErrorHiding(async () => {
-      const s3Event = {
-        Records: [
-          {
-            eventVersion: "2.1",
-            eventSource: "aws:s3",
-            eventTime: "2024-01-01T12:00:00.000Z",
-            eventName: TEST_S3_EVENT_NAME,
-            s3: {
-              s3SchemaVersion: "1.0",
-              bucket: {
-                name: TEST_S3_BUCKET,
-              },
-              object: {
-                key: "bio_network/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
-                size: 1024,
-                eTag: "unknown-folder-etag",
-                versionId: "unknown-folder-version",
-                userMetadata: {
-                  "source-sha256":
-                    "e4f5678901234567890123456789012345678901234567890123456789abcdef",
-                },
-              },
-            },
-          },
-        ],
-      };
+      const s3Event = createS3Event({
+        etag: "unknown-folder-etag",
+        key: "bio_network/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
+        sha256:
+          "e4f5678901234567890123456789012345678901234567890123456789abcdef",
+        size: 1024,
+        versionId: "unknown-folder-version",
+      });
 
-      const snsMessage = {
-        Type: "Notification",
-        MessageId: "unknown-folder-test",
-        TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-        Subject: "Amazon S3 Notification",
-        Message: JSON.stringify(s3Event),
-        Timestamp: "2024-01-01T12:00:00.000Z",
-        SignatureVersion: "1",
-        Signature: "fake-signature-for-testing",
-        SigningCertURL:
-          "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-      };
+      const snsMessage = createSNSMessage({
+        messageId: "unknown-folder-test",
+        s3Event,
+        signature: "fake-signature-for-testing",
+        subject: "Amazon S3 Notification",
+        timestamp: "2024-01-01T12:00:00.000Z",
+      });
 
       const { req, res } = httpMocks.createMocks<
         NextApiRequest,
