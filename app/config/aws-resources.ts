@@ -1,6 +1,6 @@
 interface AWSResourceConfig {
-  sns_topics: string[];
   s3_buckets: string[];
+  sns_topics: string[];
 }
 
 let cachedConfig: AWSResourceConfig | null = null;
