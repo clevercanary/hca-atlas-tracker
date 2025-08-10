@@ -4,14 +4,16 @@ import { getPoolConfig } from "../app/utils/pg-migrate-connect-config";
 
 const { Pool } = pg;
 
+const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
+
 const runMigrationsDown = async (): Promise<void> => {
   const poolConfig = getPoolConfig();
   const pool = new Pool(poolConfig);
   const client = await pool.connect();
-  console.log`Connected to database: ${poolConfig.database}`;
+  console.log(green(`Connected to database: ${poolConfig.database}`));
 
   await client.query("CREATE SCHEMA IF NOT EXISTS hat");
-  console.log`Schema hat created successfully`;
+  console.log(green(`Schema hat created successfully`));
 
   await migrate({
     // specify the client to the migrate function
