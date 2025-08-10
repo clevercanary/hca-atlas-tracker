@@ -63,8 +63,36 @@ interface S3EventOptions {
   versionId: string;
 }
 
-function createS3Event(options: S3EventOptions): any {
-  const objectData: any = {
+interface S3Object {
+  eTag: string;
+  key: string;
+  size: number;
+  userMetadata?: {
+    "source-sha256": string;
+  };
+  versionId: string;
+}
+
+interface S3EventRecord {
+  eventName: string;
+  eventSource: string;
+  eventTime: string;
+  eventVersion: string;
+  s3: {
+    bucket: {
+      name: string;
+    };
+    object: S3Object;
+    s3SchemaVersion: string;
+  };
+}
+
+interface S3Event {
+  Records: S3EventRecord[];
+}
+
+function createS3Event(options: S3EventOptions): S3Event {
+  const objectData: S3Object = {
     eTag: options.etag,
     key: options.key,
     size: options.size,
@@ -99,7 +127,7 @@ function createS3Event(options: S3EventOptions): any {
 
 interface SNSMessageOptions {
   messageId?: string;
-  s3Event: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  s3Event: S3Event;
   signature?: string;
   signingCertURL?: string;
   subject?: string;
@@ -107,7 +135,19 @@ interface SNSMessageOptions {
   topicArn?: string;
 }
 
-function createSNSMessage(options: SNSMessageOptions): any {
+interface SNSMessage {
+  Message: string;
+  MessageId: string;
+  Signature: string;
+  SignatureVersion: string;
+  SigningCertURL: string;
+  Subject: string;
+  Timestamp: string;
+  TopicArn: string;
+  Type: string;
+}
+
+function createSNSMessage(options: SNSMessageOptions): SNSMessage {
   return {
     Message: JSON.stringify(options.s3Event),
     MessageId: options.messageId || "test-message-id",
@@ -191,9 +231,9 @@ async function createTestAtlasData(): Promise<void> {
     {
       id: "550e8400-e29b-41d4-a716-446655440002",
       overview: {
-        network: "gut", // Same network as first gut atlas
         description:
           "Test gut atlas v1.1 for S3 notification integration tests",
+        network: "gut", // Same network as first gut atlas
         shortName: "Gut", // Same shortName but different version
         title: "Test Gut Atlas v1.1",
         version: "1.1", // DB version format (S3 'v1-1' -> DB '1.1')
@@ -695,8 +735,8 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toBe(403);
     expect(JSON.parse(res._getData())).toEqual({
       error: "Unauthorized S3 buckets",
-      unauthorizedBuckets: ["unauthorized-bucket"],
       message: "Request rejected due to unauthorized bucket access",
+      unauthorizedBuckets: ["unauthorized-bucket"],
     });
   });
 
@@ -812,37 +852,37 @@ describe(TEST_ROUTE, () => {
   test.each([
     {
       description: "retina atlas from eye network S3 path",
-      key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
-      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440001", // Retina atlas ID
       etag: "d4e5f6789012345678901234567890ab",
-      size: 8192000,
-      versionId: "retina-version-789",
+      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440001", // Retina atlas ID
+      key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
       sha256:
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      size: 8192000,
+      versionId: "retina-version-789",
     },
     {
       description: "gut v1.1 atlas with version parsing",
-      key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
-      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440002", // Gut v1.1 atlas ID
       etag: "e5f6789012345678901234567890abcd",
-      size: 4096000,
-      versionId: "gut-v11-version-012",
+      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440002", // Gut v1.1 atlas ID
+      key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
       sha256:
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      size: 4096000,
+      versionId: "gut-v11-version-012",
     },
     {
       description: "gut v1 atlas with integer version (no decimal)",
-      key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
-      expectedAtlasId: TEST_GUT_ATLAS_ID, // Gut v1 atlas ID
       etag: "f6789012345678901234567890abcdef",
-      size: 1024,
-      versionId: "gut-v1-no-decimal-version",
+      expectedAtlasId: TEST_GUT_ATLAS_ID, // Gut v1 atlas ID
+      key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
       sha256:
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      size: 1024,
+      versionId: "gut-v1-no-decimal-version",
     },
   ])(
     "correctly identifies $description",
-    async ({ key, expectedAtlasId, etag, size, versionId, sha256 }) => {
+    async ({ etag, expectedAtlasId, key, sha256, size, versionId }) => {
       const s3Event = createS3Event({
         etag,
         key,
@@ -988,8 +1028,8 @@ describe(TEST_ROUTE, () => {
           "abc123def456",
           1024,
           JSON.stringify({
-            eventTime: TEST_TIMESTAMP_ALT,
             eventName: "ObjectCreated:Put",
+            eventTime: TEST_TIMESTAMP_ALT,
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "pending",
@@ -1016,8 +1056,8 @@ describe(TEST_ROUTE, () => {
           "abc123def456",
           1024,
           JSON.stringify({
-            eventTime: TEST_TIMESTAMP_ALT,
             eventName: "ObjectCreated:Put",
+            eventTime: TEST_TIMESTAMP_ALT,
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "pending",
