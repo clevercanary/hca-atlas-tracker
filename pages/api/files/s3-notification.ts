@@ -75,21 +75,7 @@ const snsMessageSchema = object({
 // Infer types from Yup schemas
 type S3EventRecord = InferType<typeof s3RecordSchema>;
 type S3Event = InferType<typeof s3EventSchema>;
-
-interface SNSMessage {
-  Type: string;
-  MessageId: string;
-  TopicArn: string;
-  Subject?: string;
-  Message: string;
-  Timestamp: string;
-  SignatureVersion: string;
-  Signature: string;
-  SigningCertURL: string;
-  UnsubscribeURL?: string;
-  SubscribeURL?: string;
-  Token?: string;
-}
+type SNSMessage = InferType<typeof snsMessageSchema>;
 
 function extractSHA256FromS3Object(s3Object: S3EventRecord['s3']['object']): string {
   // SHA256 validation is now handled by Yup schema
@@ -206,15 +192,21 @@ async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
   return new Promise((resolve, reject) => {
     const validator = new MessageValidator();
     
-    validator.validate(message, (err: Error | null, validatedMessage: SNSMessage) => {
+    // Cast to compatible type for sns-validator library
+    validator.validate(message as Record<string, unknown>, (err: Error | null, validatedMessage?: Record<string, unknown>) => {
       if (err) {
         reject(new Error(`SNS signature validation failed: ${err.message}`));
         return;
       }
 
+      if (!validatedMessage) {
+        reject(new Error("SNS validation returned no message"));
+        return;
+      }
+
       try {
         // Parse the S3 event from the SNS message
-        const s3Event = JSON.parse(validatedMessage.Message);
+        const s3Event = JSON.parse(validatedMessage.Message as string);
         resolve(s3Event);
       } catch (parseError) {
         reject(new Error("Failed to parse S3 event from SNS message"));
