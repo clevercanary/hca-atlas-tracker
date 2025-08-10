@@ -1,6 +1,7 @@
 // Set up AWS resource configuration BEFORE any other imports
 const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
+const TEST_S3_EVENT_NAME = "s3:ObjectCreated:Put";
 const TEST_AWS_CONFIG = {
   s3_buckets: [TEST_S3_BUCKET],
   sns_topics: [
@@ -151,7 +152,7 @@ describe(TEST_ROUTE, () => {
           eventSource: "aws:s3",
           awsRegion: "us-east-1",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           userIdentity: {
             principalId: "AIDAJDPLRKLG7UEXAMPLE",
           },
@@ -223,7 +224,7 @@ describe(TEST_ROUTE, () => {
           eventVersion: "2.1",
           eventSource: "aws:s3",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
@@ -306,7 +307,7 @@ describe(TEST_ROUTE, () => {
           eventVersion: "2.1",
           eventSource: "aws:s3",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
@@ -392,7 +393,7 @@ describe(TEST_ROUTE, () => {
           eventSource: "aws:s3",
           awsRegion: "us-east-1",
           eventTime: "2023-01-01T00:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           userIdentity: {
             principalId: "AIDAJDPLRKLG7UEXAMPLE",
           },
@@ -480,7 +481,7 @@ describe(TEST_ROUTE, () => {
           eventSource: "aws:s3",
           awsRegion: "us-east-1",
           eventTime: "2023-01-01T00:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           userIdentity: {
             principalId: "AIDAJDPLRKLG7UEXAMPLE",
           },
@@ -612,7 +613,7 @@ describe(TEST_ROUTE, () => {
           eventSource: "aws:s3",
           awsRegion: "us-east-1",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           userIdentity: {
             principalId: "AIDAJDPLRKLG7UEXAMPLE",
           },
@@ -684,7 +685,7 @@ describe(TEST_ROUTE, () => {
           eventSource: "aws:s3",
           awsRegion: "us-east-1",
           eventTime: "2024-01-01T13:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           userIdentity: {
             principalId: "AIDAJDPLRKLG7UEXAMPLE",
           },
@@ -794,7 +795,7 @@ describe(TEST_ROUTE, () => {
             eventSource: "aws:s3",
             awsRegion: "us-east-1",
             eventTime: "2024-01-01T12:00:00.000Z",
-            eventName: "s3:ObjectCreated:Put",
+            eventName: TEST_S3_EVENT_NAME,
             userIdentity: {
               principalId: "AIDAJDPLRKLG7UEXAMPLE",
             },
@@ -873,7 +874,7 @@ describe(TEST_ROUTE, () => {
           eventSource: "aws:s3",
           awsRegion: "us-east-1",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           userIdentity: {
             principalId: "AIDAJDPLRKLG7UEXAMPLE",
           },
@@ -952,7 +953,7 @@ describe(TEST_ROUTE, () => {
           eventVersion: "2.1",
           eventSource: "aws:s3",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
@@ -1029,7 +1030,7 @@ describe(TEST_ROUTE, () => {
           eventVersion: "2.1",
           eventSource: "aws:s3",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
@@ -1109,7 +1110,7 @@ describe(TEST_ROUTE, () => {
           eventVersion: "2.1",
           eventSource: "aws:s3",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
@@ -1189,7 +1190,7 @@ describe(TEST_ROUTE, () => {
           eventVersion: "2.1",
           eventSource: "aws:s3",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
@@ -1269,7 +1270,7 @@ describe(TEST_ROUTE, () => {
           eventVersion: "2.1",
           eventSource: "aws:s3",
           eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: "s3:ObjectCreated:Put",
+          eventName: TEST_S3_EVENT_NAME,
           s3: {
             s3SchemaVersion: "1.0",
             bucket: {
@@ -1350,7 +1351,7 @@ describe(TEST_ROUTE, () => {
             eventVersion: "2.1",
             eventSource: "aws:s3",
             eventTime: "2024-01-01T12:00:00.000Z",
-            eventName: "s3:ObjectCreated:Put",
+            eventName: TEST_S3_EVENT_NAME,
             s3: {
               s3SchemaVersion: "1.0",
               bucket: {
@@ -1411,7 +1412,7 @@ describe(TEST_ROUTE, () => {
             eventVersion: "2.1",
             eventSource: "aws:s3",
             eventTime: "2024-01-01T12:00:00.000Z",
-            eventName: "s3:ObjectCreated:Put",
+            eventName: TEST_S3_EVENT_NAME,
             s3: {
               s3SchemaVersion: "1.0",
               bucket: {
