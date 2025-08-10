@@ -73,33 +73,8 @@ const snsMessageSchema = object({
 }).required();
 
 // Infer types from Yup schemas
-type S3EventRecordType = InferType<typeof s3RecordSchema>;
-type S3EventType = InferType<typeof s3EventSchema>;
-
-// TypeScript interfaces (derived from schemas)
-interface S3EventRecord {
-  eventSource: string;
-  eventTime: string;
-  eventName: string;
-  s3: {
-    bucket: {
-      name: string;
-    };
-    object: {
-      key: string;
-      size: number;
-      eTag: string;
-      versionId?: string;
-      userMetadata: {
-        "source-sha256": string;
-      };
-    };
-  };
-}
-
-interface S3Event {
-  Records: S3EventRecord[];
-}
+type S3EventRecord = InferType<typeof s3RecordSchema>;
+type S3Event = InferType<typeof s3EventSchema>;
 
 interface SNSMessage {
   Type: string;
@@ -116,7 +91,7 @@ interface SNSMessage {
   Token?: string;
 }
 
-function extractSHA256FromS3Object(s3Object: S3EventRecordType['s3']['object']): string {
+function extractSHA256FromS3Object(s3Object: S3EventRecord['s3']['object']): string {
   // SHA256 validation is now handled by Yup schema
   // This function just extracts the validated value
   return s3Object.userMetadata["source-sha256"];
@@ -248,7 +223,7 @@ async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
   });
 }
 
-async function saveFileRecord(record: S3EventRecordType): Promise<void> {
+async function saveFileRecord(record: S3EventRecord): Promise<void> {
   const { bucket, object } = record.s3;
   
   const eventInfo = {
