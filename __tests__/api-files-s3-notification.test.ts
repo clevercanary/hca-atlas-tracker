@@ -274,10 +274,7 @@ describe(TEST_ROUTE, () => {
     // Check that file was saved to database
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "bio_network/gut-v1/source-datasets/test-file.h5ad",
-      ]
+      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/test-file.h5ad"]
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -372,10 +369,7 @@ describe(TEST_ROUTE, () => {
     // Should still only have one record
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "bio_network/gut-v1/source-datasets/duplicate-test.h5ad",
-      ]
+      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/duplicate-test.h5ad"]
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -464,10 +458,7 @@ describe(TEST_ROUTE, () => {
     // Verify no file was saved to database
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "bio_network/gut-v1/source-datasets/auth-test.h5ad",
-      ]
+      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/auth-test.h5ad"]
     );
 
     expect(fileRows.rows).toHaveLength(0);
@@ -594,10 +585,7 @@ describe(TEST_ROUTE, () => {
     // Verify only one record exists with original ETag
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "bio_network/gut-v1/source-datasets/etag-test.h5ad",
-      ]
+      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/etag-test.h5ad"]
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -752,10 +740,7 @@ describe(TEST_ROUTE, () => {
     // Check database state - should have 2 records for the same file
     const allVersions = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 ORDER BY created_at ASC",
-      [
-        TEST_S3_BUCKET,
-        "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
-      ]
+      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/versioned-file.h5ad"]
     );
 
     expect(allVersions.rows).toHaveLength(2);
@@ -773,10 +758,7 @@ describe(TEST_ROUTE, () => {
     // Verify we can easily query for latest version only
     const latestOnly = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
-      [
-        TEST_S3_BUCKET,
-        "bio_network/gut-v1/source-datasets/versioned-file.h5ad",
-      ]
+      [TEST_S3_BUCKET, "bio_network/gut-v1/source-datasets/versioned-file.h5ad"]
     );
 
     expect(latestOnly.rows).toHaveLength(1);
@@ -1080,10 +1062,7 @@ describe(TEST_ROUTE, () => {
     // Check that file was saved with correct file_type
     const fileRows = await query(
       "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "gut/gut-v1/manifests/upload-manifest.json",
-      ]
+      [TEST_S3_BUCKET, "gut/gut-v1/manifests/upload-manifest.json"]
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -1103,245 +1082,113 @@ describe(TEST_ROUTE, () => {
     expect(file.integrity_status).toBe("pending");
   });
 
-  it("correctly identifies retina atlas from eye network S3 path", async () => {
-    const s3Event = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          s3: {
-            s3SchemaVersion: "1.0",
-            bucket: {
-              name: TEST_S3_BUCKET,
-            },
-            object: {
-              key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
-              size: 8192000,
-              eTag: "d4e5f6789012345678901234567890ab",
-              versionId: "retina-version-789",
-              userMetadata: {
-                "source-sha256":
-                  "d4e5f6789012345678901234567890abcdef1234567890123456789012345678",
+  // Parameterized test for atlas lookup from S3 paths
+  test.each([
+    {
+      description: "retina atlas from eye network S3 path",
+      key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
+      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440001", // Retina atlas ID
+      etag: "d4e5f6789012345678901234567890ab",
+      size: 8192000,
+      versionId: "retina-version-789",
+      sha256:
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    },
+    {
+      description: "gut v1.1 atlas with version parsing",
+      key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
+      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440002", // Gut v1.1 atlas ID
+      etag: "e5f6789012345678901234567890abcd",
+      size: 4096000,
+      versionId: "gut-v11-version-012",
+      sha256:
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    },
+    {
+      description: "gut v1 atlas with integer version (no decimal)",
+      key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
+      expectedAtlasId: TEST_GUT_ATLAS_ID, // Gut v1 atlas ID
+      etag: "f6789012345678901234567890abcdef",
+      size: 1024,
+      versionId: "gut-v1-no-decimal-version",
+      sha256:
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    },
+  ])(
+    "correctly identifies $description",
+    async ({ key, expectedAtlasId, etag, size, versionId, sha256 }) => {
+      const s3Event = {
+        Records: [
+          {
+            eventVersion: "2.1",
+            eventSource: "aws:s3",
+            eventTime: "2024-01-01T12:00:00.000Z",
+            eventName: TEST_S3_EVENT_NAME,
+            s3: {
+              s3SchemaVersion: "1.0",
+              bucket: {
+                name: TEST_S3_BUCKET,
+              },
+              object: {
+                key,
+                size,
+                eTag: etag,
+                versionId,
+                userMetadata: {
+                  "source-sha256": sha256,
+                },
               },
             },
           },
-        },
-      ],
-    };
+        ],
+      };
 
-    const snsMessage = {
-      Type: "Notification",
-      MessageId: "retina-test-message",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Subject: "Amazon S3 Notification",
-      Message: JSON.stringify(s3Event),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "fake-signature-for-testing",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
+      const snsMessage = {
+        Type: "Notification",
+        MessageId: "atlas-lookup-test-message",
+        TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+        Subject: "Amazon S3 Notification",
+        Message: JSON.stringify(s3Event),
+        Timestamp: "2024-01-01T12:00:00.000Z",
+        SignatureVersion: "1",
+        Signature: "fake-signature-for-testing",
+        SigningCertURL:
+          "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+      };
 
-    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
-      {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
         method: METHOD.POST,
         body: snsMessage,
-      }
-    );
+      });
 
-    await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
-    });
+      await withConsoleErrorHiding(async () => {
+        await s3NotificationHandler(req, res);
+      });
 
-    expect(res.statusCode).toBe(200);
+      expect(res.statusCode).toBe(200);
 
-    // Check that file was saved with correct atlas_id for retina atlas
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "eye/retina-v1/integrated-objects/retina-data.h5ad",
-      ]
-    );
+      // Check that file was saved with correct atlas_id
+      const fileRows = await query(
+        "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+        [TEST_S3_BUCKET, key]
+      );
 
-    expect(fileRows.rows).toHaveLength(1);
-    const file = fileRows.rows[0];
-    expect(file.bucket).toBe(TEST_S3_BUCKET);
-    expect(file.key).toBe("eye/retina-v1/integrated-objects/retina-data.h5ad");
-    expect(file.file_type).toBe("integrated_object");
-    expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
-    expect(file.atlas_id).toBe("550e8400-e29b-41d4-a716-446655440001"); // Should be retina atlas ID
-    expect(file.etag).toBe("d4e5f6789012345678901234567890ab");
-    expect(file.size_bytes).toBe("8192000");
-    expect(file.version_id).toBe("retina-version-789");
-    expect(file.status).toBe("uploaded");
-    expect(file.sha256_client).toBe(
-      "d4e5f6789012345678901234567890abcdef1234567890123456789012345678"
-    );
-    expect(file.integrity_status).toBe("pending");
-  });
-
-  it("correctly identifies gut v1.1 atlas with version parsing", async () => {
-    const s3Event = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          s3: {
-            s3SchemaVersion: "1.0",
-            bucket: {
-              name: TEST_S3_BUCKET,
-            },
-            object: {
-              key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
-              size: 6144000,
-              eTag: "e5f6789012345678901234567890abcd",
-              versionId: "gut-v11-version-101",
-              userMetadata: {
-                "source-sha256":
-                  "e5f6789012345678901234567890abcdef12345678901234567890123456789a",
-              },
-            },
-          },
-        },
-      ],
-    };
-
-    const snsMessage = {
-      Type: "Notification",
-      MessageId: "gut-v11-test-message",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Subject: "Amazon S3 Notification",
-      Message: JSON.stringify(s3Event),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "fake-signature-for-testing",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
-
-    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
-      {
-        method: METHOD.POST,
-        body: snsMessage,
-      }
-    );
-
-    await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
-    });
-
-    expect(res.statusCode).toBe(200);
-
-    // Check that file was saved with correct atlas_id for gut v1.1 atlas
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
-      ]
-    );
-
-    expect(fileRows.rows).toHaveLength(1);
-    const file = fileRows.rows[0];
-    expect(file.bucket).toBe(TEST_S3_BUCKET);
-    expect(file.key).toBe("gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad");
-    expect(file.file_type).toBe("integrated_object");
-    expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
-    expect(file.atlas_id).toBe("550e8400-e29b-41d4-a716-446655440002"); // Should be gut v1.1 atlas ID
-    expect(file.etag).toBe("e5f6789012345678901234567890abcd");
-    expect(file.size_bytes).toBe("6144000");
-    expect(file.version_id).toBe("gut-v11-version-101");
-    expect(file.status).toBe("uploaded");
-    expect(file.sha256_client).toBe(
-      "e5f6789012345678901234567890abcdef12345678901234567890123456789a"
-    );
-    expect(file.integrity_status).toBe("pending");
-  });
-
-  it("correctly identifies gut v1 atlas with integer version (no decimal)", async () => {
-    const s3Event = {
-      Records: [
-        {
-          eventVersion: "2.1",
-          eventSource: "aws:s3",
-          eventTime: "2024-01-01T12:00:00.000Z",
-          eventName: TEST_S3_EVENT_NAME,
-          s3: {
-            s3SchemaVersion: "1.0",
-            bucket: {
-              name: TEST_S3_BUCKET,
-            },
-            object: {
-              key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
-              size: 1024,
-              eTag: "f6789012345678901234567890abcdef",
-              versionId: "gut-v1-no-decimal-version",
-              userMetadata: {
-                "source-sha256":
-                  "f6789012345678901234567890abcdef123456789012345678901234567890bc",
-              },
-            },
-          },
-        },
-      ],
-    };
-
-    const snsMessage = {
-      Type: "Notification",
-      MessageId: "gut-v1-no-decimal-test-message",
-      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
-      Subject: "Amazon S3 Notification",
-      Message: JSON.stringify(s3Event),
-      Timestamp: "2024-01-01T12:00:00.000Z",
-      SignatureVersion: "1",
-      Signature: "fake-signature-for-testing",
-      SigningCertURL:
-        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
-    };
-
-    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
-      {
-        method: METHOD.POST,
-        body: snsMessage,
-      }
-    );
-
-    await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
-    });
-
-    expect(res.statusCode).toBe(200);
-
-    // Check that file was saved with correct atlas_id for gut v1 (no decimal) atlas
-    const fileRows = await query(
-      "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-      [
-        TEST_S3_BUCKET,
-        "gut/gut-v1/manifests/gut-v1-no-decimal.json",
-      ]
-    );
-
-    expect(fileRows.rows).toHaveLength(1);
-    const file = fileRows.rows[0];
-    expect(file.bucket).toBe(TEST_S3_BUCKET);
-    expect(file.key).toBe("gut/gut-v1/manifests/gut-v1-no-decimal.json");
-    expect(file.file_type).toBe("ingest_manifest");
-    expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
-    expect(file.atlas_id).toBe(TEST_GUT_ATLAS_ID); // Should be gut v1 atlas ID
-    expect(file.etag).toBe("f6789012345678901234567890abcdef");
-    expect(file.size_bytes).toBe("1024");
-    expect(file.version_id).toBe("gut-v1-no-decimal-version");
-    expect(file.status).toBe("uploaded");
-    expect(file.sha256_client).toBe(
-      "f6789012345678901234567890abcdef123456789012345678901234567890bc"
-    );
-    expect(file.integrity_status).toBe("pending");
-  });
+      expect(fileRows.rows).toHaveLength(1);
+      const file = fileRows.rows[0];
+      expect(file.bucket).toBe(TEST_S3_BUCKET);
+      expect(file.key).toBe(key);
+      expect(file.atlas_id).toBe(expectedAtlasId);
+      expect(file.etag).toBe(etag);
+      expect(file.size_bytes).toBe(size.toString());
+      expect(file.version_id).toBe(versionId);
+      expect(file.status).toBe("uploaded");
+      expect(file.sha256_client).toBe(sha256);
+      expect(file.integrity_status).toBe("pending");
+    }
+  );
 
   it("rejects S3 notifications with invalid key format (too few path segments)", async () => {
     await withConsoleErrorHiding(async () => {
