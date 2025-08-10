@@ -1,5 +1,8 @@
 import { MigrationBuilder } from "node-pg-migrate";
 
+// Constants for common field types
+const VARCHAR_255 = "varchar(255)";
+
 export const up = (pgm: MigrationBuilder): void => {
   pgm.createTable(
     { name: "files", schema: "hat" },
@@ -23,20 +26,20 @@ export const up = (pgm: MigrationBuilder): void => {
       // S3 Object Identity
       bucket: {
         notNull: true,
-        type: "varchar(255)",
+        type: VARCHAR_255,
       },
       key: {
         notNull: true,
         type: "text",
       },
       version_id: {
-        type: "varchar(255)",
+        type: VARCHAR_255,
       },
 
       // File Identity & Integrity
       etag: {
         notNull: true,
-        type: "varchar(255)",
+        type: VARCHAR_255,
       },
       size_bytes: {
         notNull: true,
@@ -133,10 +136,10 @@ export const up = (pgm: MigrationBuilder): void => {
     {
       foreignKeys: {
         columns: "source_study_id",
-        references: { name: "source_studies", schema: "hat" },
-        referencesConstraintName: "pk_source_studies_id",
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
+        references: { name: "source_studies", schema: "hat" },
+        referencesConstraintName: "pk_source_studies_id",
       },
     }
   );
@@ -145,10 +148,10 @@ export const up = (pgm: MigrationBuilder): void => {
   pgm.addConstraint({ name: "files", schema: "hat" }, "fk_files_atlas_id", {
     foreignKeys: {
       columns: "atlas_id",
-      references: { name: "atlases", schema: "hat" },
-      referencesConstraintName: "pk_atlases_id",
       onDelete: "SET NULL",
       onUpdate: "CASCADE",
+      references: { name: "atlases", schema: "hat" },
+      referencesConstraintName: "pk_atlases_id",
     },
   });
 
