@@ -10,10 +10,10 @@ const runMigrations = async (): Promise<void> => {
   const poolConfig = getPoolConfig();
   const pool = new Pool(poolConfig);
   const client = await pool.connect();
-  console.log(green(`Connected to database: ${poolConfig.database}`));
+  console.log(green("Connected to database: ${poolConfig.database}"));
 
   await client.query("CREATE SCHEMA IF NOT EXISTS hat");
-  console.log(green(`Schema hat created successfully`));
+  console.log(green("Schema hat created successfully"));
 
   await migrate({
     // specify the client to the migrate function
