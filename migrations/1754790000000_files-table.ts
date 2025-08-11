@@ -7,111 +7,96 @@ export const up = (pgm: MigrationBuilder): void => {
   pgm.createTable(
     { name: "files", schema: "hat" },
     {
+      atlas_id: {
+        comment:
+          "FK to atlases.id - set for integrated_object and ingest_manifest files",
+        notNull: false,
+        type: "uuid",
+      },
+      bucket: {
+        notNull: true,
+        type: VARCHAR_255,
+      },
       created_at: {
         default: pgm.func("CURRENT_TIMESTAMP"),
         notNull: true,
         type: "timestamp",
+      },
+      etag: {
+        notNull: true,
+        type: VARCHAR_255,
+      },
+      event_info: {
+        comment: "S3 event metadata: {eventTime, eventName}",
+        notNull: true,
+        type: "jsonb",
+      },
+      file_type: {
+        comment:
+          "File type: source_dataset, integrated_object, or ingest_manifest",
+        notNull: true,
+        type: "varchar(50)",
       },
       id: {
         default: pgm.func("gen_random_uuid ()"),
         notNull: true,
         type: "uuid",
       },
-      updated_at: {
-        default: pgm.func("CURRENT_TIMESTAMP"),
-        notNull: true,
+      integrity_checked_at: {
+        comment: "When integrity was last checked",
         type: "timestamp",
       },
-
-      // S3 Object Identity
-      bucket: {
+      integrity_error: {
+        comment: "Error message if integrity validation fails",
+        type: "text",
+      },
+      integrity_status: {
+        comment: "Status: pending, validating, valid, invalid, error",
+        default: "'pending'",
         notNull: true,
-        type: VARCHAR_255,
+        type: "varchar(20)",
+      },
+      is_latest: {
+        comment: "Whether this is the latest version of the file",
+        default: true,
+        notNull: true,
+        type: "boolean",
       },
       key: {
         notNull: true,
         type: "text",
       },
-      version_id: {
-        type: VARCHAR_255,
+      // SHA256 Integrity Validation
+      sha256_client: {
+        comment: "SHA256 checksum provided by client",
+        type: "varchar(64)",
       },
-
-      // File Identity & Integrity
-      etag: {
-        notNull: true,
-        type: VARCHAR_255,
+      sha256_server: {
+        comment: "SHA256 checksum calculated by server",
+        type: "varchar(64)",
       },
       size_bytes: {
         notNull: true,
         type: "bigint",
       },
-
-      // SHA256 Integrity Validation
-      sha256_client: {
-        type: "varchar(64)",
-        comment: "SHA256 checksum provided by client",
-      },
-      sha256_server: {
-        type: "varchar(64)",
-        comment: "SHA256 checksum calculated by server",
-      },
-      integrity_status: {
-        notNull: true,
-        default: "'pending'",
-        type: "varchar(20)",
-        comment: "Status: pending, validating, valid, invalid, error",
-      },
-      integrity_checked_at: {
-        type: "timestamp",
-        comment: "When integrity was last checked",
-      },
-      integrity_error: {
-        type: "text",
-        comment: "Error message if integrity validation fails",
-      },
-
-      // Version Management
-      is_latest: {
-        type: "boolean",
-        notNull: true,
-        default: true,
-        comment: "Whether this is the latest version of the file",
-      },
-
-      // File Classification
-      file_type: {
-        type: "varchar(50)",
-        notNull: true,
-        comment:
-          "File type: source_dataset, integrated_object, or ingest_manifest",
-      },
-
-      // Foreign Key Relationships
       source_study_id: {
-        type: "uuid",
-        notNull: false,
         comment:
           "FK to source_studies.id - NULL for staged validation, set later",
-      },
-      atlas_id: {
-        type: "uuid",
         notNull: false,
-        comment:
-          "FK to atlases.id - set for integrated_object and ingest_manifest files",
+        type: "uuid",
       },
-
-      // S3 Event Context (minimized)
-      event_info: {
-        notNull: true,
-        type: "jsonb",
-        comment: "S3 event metadata: {eventTime, eventName}",
-      },
-
-      // Status & Processing
       status: {
         default: "'uploaded'",
         notNull: true,
         type: "varchar(50)",
+      },
+      updated_at: {
+        default: pgm.func("CURRENT_TIMESTAMP"),
+        notNull: true,
+        type: "timestamp",
+      },
+      version_id: {
+        type: VARCHAR_255,
       },
     }
   );
