@@ -478,22 +478,28 @@ export type HCAAtlasTrackerDBUserWithAssociatedResources =
   };
 
 export interface Heatmap {
-  classes: Array<{
-    fields: Array<{
-      name: string;
-      organSpecific: boolean;
-      required: boolean;
-      title: string;
-    }>;
-    sheets: Array<{
-      correctness: {
-        correctCounts: Record<string, number>;
-        rowCount: number;
-      } | null;
-      title: string;
-    }>;
-    title: string;
-  }>;
+  classes: HeatmapClass[];
+}
+
+export interface HeatmapClass {
+  fields: HeatmapField[];
+  sheets: HeatmapEntrySheet[];
+  title: string;
+}
+
+export interface HeatmapField {
+  name: string;
+  organSpecific: boolean;
+  required: boolean;
+  title: string;
+}
+
+export interface HeatmapEntrySheet {
+  correctness: {
+    correctCounts: Record<string, number>;
+    rowCount: number;
+  } | null;
+  title: string;
 }
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
