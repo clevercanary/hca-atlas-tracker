@@ -109,51 +109,27 @@ The HCA Atlas Tracker uses a hierarchical data model to organize biological data
 
 ### Files Table Schema (Implemented)
 
-```sql
-CREATE TABLE hat.files (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  bucket varchar(255) NOT NULL,
-  key text NOT NULL,
-  version_id varchar(255),
-  etag varchar(255) NOT NULL,
-  size_bytes bigint NOT NULL,
+The files table is organized into logical column categories for maintainability:
 
-  -- File Classification
-  file_type varchar(50) NOT NULL, -- 'source_dataset', 'integrated_object', 'ingest_manifest'
+- **Standard Metadata**: `id`, `created_at`, `updated_at`
+- **S3 Object Identity**: `bucket`, `key`, `version_id`
+- **File Identity & Integrity**: `etag`, `size_bytes`
+- **SHA256 Integrity Validation**: `sha256_client`, `sha256_server`, `integrity_status`, `integrity_checked_at`, `integrity_error`
+- **Version Management**: `is_latest`
+- **File Classification**: `file_type`
+- **Foreign Key Relationships**: `source_study_id`, `atlas_id`
+- **S3 Event Context**: `event_info`
+- **Status & Processing**: `status`
 
-  -- Foreign Key Relationships (Exclusive based on file_type)
-  source_study_id uuid NULL,      -- FK to source_studies.id (for source datasets only)
-  atlas_id uuid NULL,             -- FK to atlases.id (for integrated objects and manifests only)
+**Schema Definition**: See [`migrations/1754790000000_files-table.ts`](../migrations/1754790000000_files-table.ts) for the authoritative schema definition, constraints, and indexes.
 
-  -- S3 Event Context
-  event_info jsonb NOT NULL,      -- S3 event metadata: {eventTime, eventName}
+**Key Schema Features**:
 
-  -- Integrity Validation
-  sha256_client varchar(64),      -- Client-provided SHA256 hash
-  integrity_status varchar(50) DEFAULT 'pending', -- 'pending', 'valid', 'invalid'
-
-  -- Version Management
-  is_latest boolean DEFAULT TRUE, -- Flag for latest version queries
-
-  -- Timestamps
-  status varchar(50) DEFAULT 'uploaded',
-  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
-  updated_at timestamp DEFAULT CURRENT_TIMESTAMP,
-
-  -- Constraints
-  CONSTRAINT uq_files_bucket_key_version UNIQUE (bucket, key, version_id),
-  CONSTRAINT fk_files_source_study_id FOREIGN KEY (source_study_id)
-    REFERENCES hat.source_studies(id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_files_atlas_id FOREIGN KEY (atlas_id)
-    REFERENCES hat.atlases(id) ON DELETE SET NULL ON UPDATE CASCADE,
-
-  -- Business Logic Constraint: Enforce exclusive foreign key relationships
-  CONSTRAINT ck_files_exclusive_parent_relationship CHECK (
-    (file_type = 'source_dataset' AND atlas_id IS NULL) OR
-    (file_type IN ('integrated_object', 'ingest_manifest') AND source_study_id IS NULL AND atlas_id IS NOT NULL)
-  )
-);
-```
+- **Unique constraint** on `(bucket, key, version_id)` for S3 object identity
+- **Foreign key constraints** with CASCADE/SET NULL behavior for data integrity
+- **CHECK constraint** enforcing exclusive foreign key relationships based on file type
+- **Indexes** optimized for common query patterns (latest versions, file types, integrity status)
+- **Comprehensive integrity validation** fields for SHA256 verification workflow
 
 ## File Processing and Validation Workflow
 
@@ -224,5 +200,3 @@ The HCA Atlas Tracker file system is now fully integrated with the entity relati
 - **Staged validation workflow** allows files to be ingested immediately and validated later
 - **Clear error handling** with operational visibility through DLQ processing
 - **Comprehensive test coverage** ensures reliability and maintainability
-
-This implementation provides a robust foundation for managing biological data files with proper relationships, validation workflows, and data integrity guarantees.

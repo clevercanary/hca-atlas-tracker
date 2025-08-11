@@ -266,6 +266,7 @@ afterAll(() => {
 });
 
 describe(TEST_ROUTE, () => {
+  // HTTP Method Validation Tests
   it("returns error 405 for non-POST request", async () => {
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
@@ -280,6 +281,7 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toBe(405);
   });
 
+  // SNS Message Structure Validation Tests
   it("returns error 400 for invalid SNS message payload", async () => {
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
@@ -297,6 +299,7 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toBe(400);
   });
 
+  // SHA256 Integrity Validation Tests
   it("returns error 400 for S3 event missing SHA256 metadata", async () => {
     // Create S3 event without SHA256 metadata - this is intentional for this test
     const s3Event = createS3Event({
@@ -332,6 +335,7 @@ describe(TEST_ROUTE, () => {
     });
   });
 
+  // Happy Path Processing Tests
   it("successfully processes valid SNS notification with S3 ObjectCreated event", async () => {
     const s3Event = createS3Event({
       etag: "d41d8cd98f00b204e9800998ecf8427e",
@@ -386,6 +390,7 @@ describe(TEST_ROUTE, () => {
     expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
   });
 
+  // Idempotency and Data Integrity Tests
   it("handles duplicate notifications idempotently", async () => {
     const s3Event = createS3Event({
       etag: "e1234567890abcdef1234567890abcdef",
@@ -442,6 +447,7 @@ describe(TEST_ROUTE, () => {
     expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
   });
 
+  // Security and Authentication Tests
   it("rejects SNS messages with invalid signatures", async () => {
     const s3Event = createS3Event({
       etag: "invalid-signature-test",
@@ -564,6 +570,7 @@ describe(TEST_ROUTE, () => {
     expect(fileRows.rows[0].etag).toBe("original-etag-12345");
   });
 
+  // File Versioning Tests
   it("maintains is_latest flag correctly for file versions", async () => {
     // First version of the file
     const s3EventV1 = createS3Event({
@@ -740,6 +747,7 @@ describe(TEST_ROUTE, () => {
     });
   });
 
+  // File Classification and Atlas Lookup Tests
   it("correctly identifies integrated object file type from S3 path", async () => {
     const s3Event = createS3Event({
       etag: "f1234567890abcdef1234567890abcdef",
@@ -933,6 +941,7 @@ describe(TEST_ROUTE, () => {
     }
   );
 
+  // S3 Path Validation Tests
   it("rejects S3 notifications with invalid key format (too few path segments)", async () => {
     await withConsoleErrorHiding(async () => {
       const s3Event = createS3Event({
@@ -1013,6 +1022,7 @@ describe(TEST_ROUTE, () => {
     });
   });
 
+  // Database Constraint Validation Tests
   it("database constraint prevents source_dataset files from having atlas_id", async () => {
     // This test verifies the database constraint by attempting a direct INSERT that violates it
     // The constraint should prevent source_dataset files from having atlas_id set

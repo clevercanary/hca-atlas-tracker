@@ -40,12 +40,26 @@
 - Strict 64-character hex format validation
 - Rejects missing/invalid SHA256 with HTTP 400
 
+### **AWS Resource Allowlisting**
+
+• **SNS Topic and S3 Bucket authorization** via environment configuration
+
+- **Configuration**: `AWS_RESOURCE_CONFIG` environment variable with JSON allowlists
+- **SNS Topic Validation**: Checks `TopicArn` against authorized topics list
+- **S3 Bucket Validation**: Checks bucket names against authorized buckets list
+- **Strict Mode**: Rejects entire request with HTTP 403 if ANY bucket is unauthorized
+- **Security Logging**: Logs unauthorized access attempts for monitoring
+- **Rationale**: Prevents processing of notifications from unauthorized AWS resources
+- **Reference**: See `docs/aws-resource-configuration.md` for setup details
+
 ### **Input Validation**
 
 • **Strict event structure validation** for S3 and SNS formats
 
-- Rationale: Fail fast on malformed data, clear error messages
-- Type guards for compile-time and runtime safety
+- **Yup Schema Validation**: Uses established codebase pattern for consistent validation
+- **AWS-Compliant Schemas**: Matches official AWS S3 event notification structure
+- **Type Safety**: Eliminates `any` types, uses proper TypeScript interfaces
+- **Rationale**: Fail fast on malformed data, clear error messages, compile-time safety
 
 ## Data Integrity & Idempotency
 
@@ -149,11 +163,24 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 
 ### **Atlas Lookup Strategy**
 
-• **Atlas name extraction** from S3 path second segment
+• **S3 atlas name parsing and database lookup** with version handling
 
-- **Lookup query**: `SELECT id FROM hat.atlases WHERE overview->>'shortName' = atlas_name`
-- **Error handling**: Atlas not found → reject early, send to DLQ for operational review
-- **Rationale**: Fail fast prevents orphaned data, DLQ provides operational visibility
+- **S3 Path Format**: `bio_network/atlas-name/folder-type/filename`
+- **Atlas Name Parsing**: Extracts `network` and `atlas-name` from S3 path
+- **S3 Atlas Name Format**: `shortName-vX` or `shortName-vX-Y` (e.g., `gut-v1`, `retina-v1-1`)
+- **Version Conversion**: 
+  - S3 `gut-v1` → Database lookup: `network="gut"`, `shortName="gut"`, `version="1.0"`
+  - S3 `retina-v1-1` → Database lookup: `network="retina"`, `shortName="retina"`, `version="1.1"`
+- **Database Query**: Multi-field lookup with case-insensitive shortName matching:
+  ```sql
+  SELECT id FROM hat.atlases 
+  WHERE overview->>'network' = $network
+  AND (overview->>'version' = $dbVersion OR overview->>'version' = $versionWithoutDecimal)
+  AND LOWER(overview->>'shortName') = LOWER($atlasBaseName)
+  ```
+- **Version Flexibility**: Handles both `"1.0"` and `"1"` formats in database
+- **Error Handling**: Atlas not found → reject with detailed error including all lookup parameters
+- **Rationale**: Robust parsing handles real S3 naming conventions, version flexibility accommodates database variations
 
 ### **Staged Validation Workflow**
 
@@ -169,9 +196,10 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 
 • **HTTP status codes** by error type:
 
-- 400: Client errors (missing SHA256, invalid format)
+- 400: Client errors (missing SHA256, invalid format, invalid S3 key format, unknown folder type)
 - 401: Authentication failures (invalid SNS signature)
-- 500: Server errors (ETag mismatches, database issues)
+- 403: Authorization failures (unauthorized SNS topic, unauthorized S3 bucket)
+- 500: Server errors (ETag mismatches, database issues, atlas lookup failures)
 
 ### **Production Logging**
 
@@ -203,12 +231,26 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 - Rationale: Faster troubleshooting, clear failure reasons
 - Examples: "SHA256 metadata is required", "ETag mismatch detected"
 
-### **Code Organization**
+### **Code Architecture & Refactoring**
 
-• **Separation of concerns**: validation, authentication, persistence
+• **Functional decomposition** to reduce cognitive complexity
 
-- Rationale: Maintainable, testable, follows single responsibility principle
-- Clear function boundaries with focused responsibilities
+- **Sequential processing functions**: `extractAndValidateRequest`, `authorizeSNSTopic`, `authorizeS3Buckets`, `processRecordsAndRespond`
+- **Single responsibility**: Each function handles one aspect of request processing
+- **Error handling**: Centralized error responses, no nested try/catch blocks
+- **Type safety**: Eliminated all `any` types, proper TypeScript interfaces throughout
+- **Rationale**: Maintainable, testable, follows single responsibility principle, reduces cognitive complexity
+
+### **Test Organization**
+
+• **Factory pattern** for test data generation
+
+- **S3 Event Factory**: `createS3Event()` for consistent test event generation
+- **SNS Message Factory**: `createSNSMessage()` for consistent SNS wrapper generation
+- **Parameterized tests**: Consolidated duplicate test cases using `test.each()`
+- **Constants extraction**: Eliminated duplicate string literals for maintainability
+- **Clean output**: `withConsoleErrorHiding` suppresses logs during tests
+- **Rationale**: DRY principle, consistent test data, improved maintainability
 
 ## Implementation Summary
 
