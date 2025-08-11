@@ -168,12 +168,12 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 - **S3 Path Format**: `bio_network/atlas-name/folder-type/filename`
 - **Atlas Name Parsing**: Extracts `network` and `atlas-name` from S3 path
 - **S3 Atlas Name Format**: `shortName-vX` or `shortName-vX-Y` (e.g., `gut-v1`, `retina-v1-1`)
-- **Version Conversion**: 
+- **Version Conversion**:
   - S3 `gut-v1` → Database lookup: `network="gut"`, `shortName="gut"`, `version="1.0"`
   - S3 `retina-v1-1` → Database lookup: `network="retina"`, `shortName="retina"`, `version="1.1"`
 - **Database Query**: Multi-field lookup with case-insensitive shortName matching:
   ```sql
-  SELECT id FROM hat.atlases 
+  SELECT id FROM hat.atlases
   WHERE overview->>'network' = $network
   AND (overview->>'version' = $dbVersion OR overview->>'version' = $versionWithoutDecimal)
   AND LOWER(overview->>'shortName') = LOWER($atlasBaseName)
