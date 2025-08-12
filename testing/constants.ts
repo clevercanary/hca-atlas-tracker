@@ -2774,3 +2774,236 @@ export const TEST_GOOGLE_SHEET_TITLES_BY_ID: Record<string, string> = {
   "sheet-baz": "Sheet Baz",
   "sheet-foo": "Sheet Foo",
 };
+
+// Heatmap test data constants
+
+// Test entry sheet validation with complete data and mixed error patterns
+export const ENTRY_SHEET_VALIDATION_HEATMAP_COMPLETE: TestEntrySheetValidation =
+  {
+    entry_sheet_id: "sheet-heatmap-complete",
+    entry_sheet_title: "Complete Heatmap Test Sheet",
+    id: "heatmap-validation-complete-id",
+    last_synced: new Date("2024-01-15T10:00:00Z"),
+    last_updated: {
+      by: "test-user",
+      by_email: "test@example.com",
+      date: "2024-01-15T09:30:00Z",
+    },
+    source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
+    validation_report: [
+      // Cell-specific errors for different entity types
+      {
+        cell: "A1",
+        column: "biomaterial_id",
+        entity_type: "dataset",
+        input: "invalid-id",
+        message: "Invalid biomaterial ID format",
+        primary_key: "dataset-1",
+        row: 1,
+        worksheet_id: 0,
+      },
+      {
+        cell: "B2",
+        column: "donor_organism.genus_species",
+        entity_type: "donor",
+        input: "invalid-species",
+        message: "Invalid genus species",
+        primary_key: "donor-1",
+        row: 2,
+        worksheet_id: 1,
+      },
+      {
+        cell: "C3",
+        column: "sample_core.biomaterial_core.biomaterial_id",
+        entity_type: "sample",
+        input: "missing-id",
+        message: "Missing required biomaterial ID",
+        primary_key: "sample-1",
+        row: 3,
+        worksheet_id: 2,
+      },
+      // Column-wide error (cell: null)
+      {
+        cell: null,
+        column: "dataset_core.dataset_title",
+        entity_type: "dataset",
+        input: null,
+        message: "Entire column has formatting issues",
+        primary_key: null,
+        row: null,
+        worksheet_id: 0,
+      },
+      // Duplicate cell error (should only count once)
+      {
+        cell: "A1",
+        column: "biomaterial_id",
+        entity_type: "dataset",
+        input: "invalid-id",
+        message: "Duplicate error for same cell",
+        primary_key: "dataset-1",
+        row: 1,
+        worksheet_id: 0,
+      },
+      // Irrelevant errors that should be ignored
+      {
+        cell: "D4",
+        column: null, // No column - should be ignored
+        entity_type: "dataset",
+        input: "some-value-foo",
+        message: "Error with no column",
+        primary_key: "dataset-2",
+        row: 4,
+        worksheet_id: 0,
+      },
+      {
+        cell: "E5",
+        column: "biomaterial_id",
+        entity_type: null, // No entity type - should be ignored
+        input: "some-value-bar",
+        message: "Error for unknown entity type",
+        primary_key: "unknown-1",
+        row: 5,
+        worksheet_id: 0,
+      },
+      {
+        cell: "F6",
+        column: "nonexistent_field", // Non-existent column - should be ignored
+        entity_type: "dataset",
+        input: "some-value-baz",
+        message: "Error for non-existent field",
+        primary_key: "dataset-3",
+        row: 6,
+        worksheet_id: 0,
+      },
+    ],
+    validation_summary: {
+      dataset_count: 10,
+      donor_count: 5,
+      error_count: 8,
+      sample_count: 15,
+    },
+  };
+
+// Test entry sheet validation with missing title and partial data
+export const ENTRY_SHEET_VALIDATION_HEATMAP_PARTIAL: TestEntrySheetValidation =
+  {
+    entry_sheet_id: "sheet-heatmap-partial",
+    entry_sheet_title: null, // No title - should fall back to ID
+    id: "heatmap-validation-partial-id",
+    last_synced: new Date("2024-01-16T11:00:00Z"),
+    last_updated: {
+      by: "test-user-2",
+      by_email: "test2@example.com",
+      date: "2024-01-16T10:30:00Z",
+    },
+    source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+    validation_report: [
+      {
+        cell: "A1",
+        column: "donor_organism.genus_species",
+        entity_type: "donor",
+        input: "invalid-species",
+        message: "Invalid species for donor",
+        primary_key: "donor-1",
+        row: 1,
+        worksheet_id: 1,
+      },
+      // This error should be ignored because dataset_count is null
+      {
+        cell: "B2",
+        column: "biomaterial_id",
+        entity_type: "dataset",
+        input: "some-id",
+        message: "Dataset error (should be ignored)",
+        primary_key: "dataset-1",
+        row: 2,
+        worksheet_id: 0,
+      },
+    ],
+    validation_summary: {
+      dataset_count: null, // No dataset data
+      donor_count: 3, // Has donor data
+      error_count: 2,
+      sample_count: null, // No sample data
+    },
+  };
+
+// Test entry sheet validation with no data (all null counts)
+export const ENTRY_SHEET_VALIDATION_HEATMAP_EMPTY: TestEntrySheetValidation = {
+  entry_sheet_id: "sheet-heatmap-empty",
+  entry_sheet_title: "Empty Heatmap Test Sheet",
+  id: "heatmap-validation-empty-id",
+  last_synced: new Date("2024-01-17T12:00:00Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
+  validation_report: [],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 0,
+    sample_count: null,
+  },
+};
+
+// Test entry sheet validation with perfect data (no errors)
+export const ENTRY_SHEET_VALIDATION_HEATMAP_PERFECT: TestEntrySheetValidation =
+  {
+    entry_sheet_id: "sheet-heatmap-perfect",
+    entry_sheet_title: "Perfect Heatmap Test Sheet",
+    id: "heatmap-validation-perfect-id",
+    last_synced: new Date("2024-01-18T13:00:00Z"),
+    last_updated: {
+      by: "perfect-user",
+      by_email: "perfect@example.com",
+      date: "2024-01-18T12:30:00Z",
+    },
+    source_study_id: SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+    validation_report: [], // No errors
+    validation_summary: {
+      dataset_count: 5,
+      donor_count: 3,
+      error_count: 0,
+      sample_count: 8,
+    },
+  };
+
+// Test atlas specifically for heatmap testing
+export const ATLAS_HEATMAP_TEST: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "Test atlas for comprehensive heatmap testing",
+  highlights: "",
+  id: "atlas-heatmap-test-id",
+  integrationLead: [],
+  network: "eye",
+  publications: [],
+  shortName: "heatmap-test-atlas",
+  sourceStudies: [
+    SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
+    SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
+  ],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "1.0",
+  wave: "1",
+};
+
+// Source study for heatmap testing
+export const SOURCE_STUDY_HEATMAP_TEST: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "source-study-heatmap-test-id",
+  unpublishedInfo: {
+    contactEmail: "heatmap-test@example.com",
+    referenceAuthor: "Test Author",
+    title: "Heatmap Test Source Study",
+  },
+};
+
+// Component atlas for heatmap testing
+export const COMPONENT_ATLAS_HEATMAP_TEST: TestComponentAtlas = {
+  atlasId: ATLAS_HEATMAP_TEST.id,
+  description: "Test component atlas for heatmap testing",
+  id: "component-atlas-heatmap-test-id",
+  sourceDatasets: [],
+  title: "Heatmap Test Component Atlas",
+};
