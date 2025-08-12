@@ -1542,6 +1542,30 @@ export const SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestUnpublish
     },
   };
 
+// Source study for heatmap testing
+export const SOURCE_STUDY_HEATMAP_TEST_FOO: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "a559645e-9e11-47cf-90bd-04e7c2b90afa",
+  unpublishedInfo: {
+    contactEmail: "heatmap-test-foo@example.com",
+    referenceAuthor: "Test Author Foo",
+    title: "Heatmap Test Source Study Foo",
+  },
+};
+
+// Source study for heatmap testing
+export const SOURCE_STUDY_HEATMAP_TEST_BAR: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "b1857909-6554-4083-97fc-0de334ba2d12",
+  unpublishedInfo: {
+    contactEmail: "heatmap-test-bar@example.com",
+    referenceAuthor: "Test Author Bar",
+    title: "Heatmap Test Source Study Bar",
+  },
+};
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1576,6 +1600,8 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
   SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ,
   SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
+  SOURCE_STUDY_HEATMAP_TEST_FOO,
+  SOURCE_STUDY_HEATMAP_TEST_BAR,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -2263,6 +2289,26 @@ export const ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestAtlas = {
   wave: "1",
 };
 
+// Test atlas specifically for heatmap testing
+export const ATLAS_HEATMAP_TEST: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "Test atlas for comprehensive heatmap testing",
+  highlights: "",
+  id: "16a9a162-cdf5-42cd-a84b-f5f49e9bea22",
+  integrationLead: [],
+  network: "eye",
+  publications: [],
+  shortName: "heatmap-test-atlas",
+  sourceStudies: [
+    SOURCE_STUDY_HEATMAP_TEST_FOO.id,
+    SOURCE_STUDY_HEATMAP_TEST_BAR.id,
+  ],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "1.0",
+  wave: "1",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -2283,6 +2329,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B,
   ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
+  ATLAS_HEATMAP_TEST,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
@@ -2525,6 +2572,204 @@ export const ENTRY_SHEET_VALIDATION_NO_SYNC: TestEntrySheetValidation = {
   },
 };
 
+// Test entry sheet validation with complete data and mixed error patterns
+export const ENTRY_SHEET_VALIDATION_HEATMAP_COMPLETE = {
+  entry_sheet_id: "1gylPiLAob4PK7FtcSXXaWX9SzW8dj-iOCkB9pW6Wj5M",
+  entry_sheet_title: "Complete Heatmap Test Sheet",
+  id: "e50b3db4-031e-4f3f-9876-83dc398f6286",
+  last_synced: new Date("2024-01-15T10:00:00Z"),
+  last_updated: {
+    by: "test-user",
+    by_email: "test@example.com",
+    date: "2024-01-15T09:30:00Z",
+  },
+  source_study_id: SOURCE_STUDY_HEATMAP_TEST_FOO.id,
+  validation_report: [
+    // Cell-specific errors for different entity types
+    {
+      cell: "A2",
+      column: "dataset_id",
+      entity_type: "dataset",
+      input: "invalid-id",
+      message: "Invalid dataset ID format",
+      primary_key: "dataset_id",
+      row: 1,
+      worksheet_id: 0,
+    },
+    {
+      cell: "B3",
+      column: "organism_ontology_term_id",
+      entity_type: "donor",
+      input: "invalid-organism",
+      message: "Invalid organism ontology term ID",
+      primary_key: "donor_id",
+      row: 2,
+      worksheet_id: 1,
+    },
+    {
+      cell: "C4",
+      column: "tissue_ontology_term_id",
+      entity_type: "sample",
+      input: null,
+      message: "Missing required tissue ontology term ID",
+      primary_key: "sample_id",
+      row: 3,
+      worksheet_id: 2,
+    },
+    // Column-wide error (cell: null)
+    {
+      cell: null,
+      column: "title",
+      entity_type: "dataset",
+      input: null,
+      message: "Missing title",
+      primary_key: null,
+      row: null,
+      worksheet_id: 0,
+    },
+    // Duplicate cell error (should only count once)
+    {
+      cell: "A2",
+      column: "dataset_id",
+      entity_type: "dataset",
+      input: "invalid-id",
+      message: "Duplicate error for same cell",
+      primary_key: "dataset_id",
+      row: 1,
+      worksheet_id: 0,
+    },
+    // Irrelevant errors that should be ignored
+    {
+      cell: "D5",
+      column: null, // No column - should be ignored
+      entity_type: "dataset",
+      input: "some-value-foo",
+      message: "Error with no column",
+      primary_key: "dataset_id",
+      row: 4,
+      worksheet_id: 0,
+    },
+    {
+      cell: null,
+      column: null,
+      entity_type: null, // No entity type - should be ignored
+      input: null,
+      message: "Error without entity type",
+      primary_key: null,
+      row: null,
+      worksheet_id: null,
+    },
+    {
+      cell: "F7",
+      column: "nonexistent_field", // Non-existent column - should be ignored
+      entity_type: "dataset",
+      input: "some-value-baz",
+      message: "Error for non-existent field",
+      primary_key: "dataset_id",
+      row: 6,
+      worksheet_id: 0,
+    },
+  ],
+  validation_summary: {
+    dataset_count: 10,
+    donor_count: 5,
+    error_count: 8,
+    sample_count: 15,
+  },
+} satisfies TestEntrySheetValidation;
+
+// Test entry sheet validation with missing title and partial data
+export const ENTRY_SHEET_VALIDATION_HEATMAP_PARTIAL = {
+  entry_sheet_id: "1GFtQ77wyASnRaONdiAflm6mW7thXVATdngN2rLxuaFW",
+  entry_sheet_title: null, // No title - should fall back to ID
+  id: "bb22f192-73a5-4492-9895-d6fce4588513",
+  last_synced: new Date("2024-01-16T11:00:00Z"),
+  last_updated: {
+    by: "test-user-2",
+    by_email: "test2@example.com",
+    date: "2024-01-16T10:30:00Z",
+  },
+  source_study_id: SOURCE_STUDY_HEATMAP_TEST_FOO.id,
+  validation_report: [
+    // Two errors in different cells in the same column
+    {
+      cell: "A2",
+      column: "organism_ontology_term_id",
+      entity_type: "donor",
+      input: "invalid-organism",
+      message: "Invalid organism ontology term ID",
+      primary_key: "donor_id",
+      row: 1,
+      worksheet_id: 1,
+    },
+    {
+      cell: "A3",
+      column: "organism_ontology_term_id",
+      entity_type: "donor",
+      input: null,
+      message: "Missing required organism ontology term ID",
+      primary_key: "donor_id",
+      row: 2,
+      worksheet_id: 1,
+    },
+    // This error should be ignored because dataset_count is null
+    {
+      cell: "B3",
+      column: "dataset_id",
+      entity_type: "dataset",
+      input: "some-id",
+      message: "Dataset error (should be ignored)",
+      primary_key: "dataset_id",
+      row: 2,
+      worksheet_id: 0,
+    },
+  ],
+  validation_summary: {
+    dataset_count: null, // No dataset data
+    donor_count: 3, // Has donor data
+    error_count: 2,
+    sample_count: null, // No sample data
+  },
+} satisfies TestEntrySheetValidation;
+
+// Test entry sheet validation with no data (all null counts)
+export const ENTRY_SHEET_VALIDATION_HEATMAP_EMPTY = {
+  entry_sheet_id: "17gay2myiOJryicniEHDHra3kGxL5Ps6V0Tvx9LxjGku",
+  entry_sheet_title: "Empty Heatmap Test Sheet",
+  id: "38c1880a-2b0a-49df-8879-b9fc9879869e",
+  last_synced: new Date("2024-01-17T12:00:00Z"),
+  last_updated: null,
+  source_study_id: SOURCE_STUDY_HEATMAP_TEST_BAR.id,
+  validation_report: [],
+  validation_summary: {
+    dataset_count: null,
+    donor_count: null,
+    error_count: 0,
+    sample_count: null,
+  },
+} satisfies TestEntrySheetValidation;
+
+// Test entry sheet validation with perfect data (no errors)
+export const ENTRY_SHEET_VALIDATION_HEATMAP_PERFECT = {
+  entry_sheet_id: "1xZPXuQ9UqY7JO2uUj+G6/uboUht2jI7rqt1bJ/Cnpc1",
+  entry_sheet_title: "Perfect Heatmap Test Sheet",
+  id: "7a6414b4-7269-455d-8b0f-9dfec214d1f3",
+  last_synced: new Date("2024-01-18T13:00:00Z"),
+  last_updated: {
+    by: "perfect-user",
+    by_email: "perfect@example.com",
+    date: "2024-01-18T12:30:00Z",
+  },
+  source_study_id: SOURCE_STUDY_HEATMAP_TEST_BAR.id,
+  validation_report: [], // No errors
+  validation_summary: {
+    dataset_count: 5,
+    donor_count: 3,
+    error_count: 0,
+    sample_count: 8,
+  },
+} satisfies TestEntrySheetValidation;
+
 export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
   ENTRY_SHEET_VALIDATION_DRAFT_OK_FOO,
   ENTRY_SHEET_VALIDATION_DRAFT_OK_BAR,
@@ -2532,6 +2777,10 @@ export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
   ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE,
   ENTRY_SHEET_VALIDATION_NO_SYNC,
+  ENTRY_SHEET_VALIDATION_HEATMAP_COMPLETE,
+  ENTRY_SHEET_VALIDATION_HEATMAP_PARTIAL,
+  ENTRY_SHEET_VALIDATION_HEATMAP_EMPTY,
+  ENTRY_SHEET_VALIDATION_HEATMAP_PERFECT,
 ];
 
 // COMMENTS
