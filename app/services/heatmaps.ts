@@ -31,7 +31,7 @@ function getClassHeatmap(
 ): Heatmap["classes"][number] {
   const sheetsInfo: Heatmap["classes"][number]["sheets"] = [];
   for (const validation of entrySheetValidations) {
-    // TODO the ID would be unnecessary if we change entry sheet validations to fall back to the source study's record of the sheet title
+    // TODO the ID would be unnecessary if we change entry sheet validations to fall back to the source study's record of the sheet title (see issue #704)
     const sheetTitle =
       validation.entry_sheet_title ?? validation.entry_sheet_id;
     const rowCount = validation.validation_summary[`${entityType}_count`];
