@@ -1,3 +1,5 @@
+import { UnauthorizedAWSResourceError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
+
 interface AWSResourceConfig {
   s3_buckets: string[];
   sns_topics: string[];
@@ -39,35 +41,27 @@ export function getAWSResourceConfig(): AWSResourceConfig {
   }
 }
 
-export function isAuthorizedSNSTopic(topicArn: string): boolean {
-  try {
-    const config = getAWSResourceConfig();
-    const isAuthorized = config.sns_topics.includes(topicArn);
-
-    if (!isAuthorized) {
-      console.warn(`Unauthorized SNS topic access attempt: ${topicArn}`);
-    }
-
-    return isAuthorized;
-  } catch (error) {
-    console.error(`Error checking SNS topic authorization: ${String(error)}`);
-    return false;
+/**
+ * Validates SNS topic authorization and throws error if unauthorized
+ * @param topicArn - The SNS topic ARN to validate
+ * @throws UnauthorizedAWSResourceError if topic is not authorized
+ */
+export function validateSNSTopicAuthorization(topicArn: string): void {
+  const config = getAWSResourceConfig();
+  if (!config.sns_topics.includes(topicArn)) {
+    throw new UnauthorizedAWSResourceError("SNS topic", topicArn);
   }
 }
 
-export function isAuthorizedS3Bucket(bucketName: string): boolean {
-  try {
-    const config = getAWSResourceConfig();
-    const isAuthorized = config.s3_buckets.includes(bucketName);
-
-    if (!isAuthorized) {
-      console.warn(`Unauthorized S3 bucket access attempt: ${bucketName}`);
-    }
-
-    return isAuthorized;
-  } catch (error) {
-    console.error(`Error checking S3 bucket authorization: ${String(error)}`);
-    return false;
+/**
+ * Validates S3 bucket authorization and throws error if unauthorized
+ * @param bucketName - The S3 bucket name to validate
+ * @throws UnauthorizedAWSResourceError if bucket is not authorized
+ */
+export function validateS3BucketAuthorization(bucketName: string): void {
+  const config = getAWSResourceConfig();
+  if (!config.s3_buckets.includes(bucketName)) {
+    throw new UnauthorizedAWSResourceError("S3 bucket", bucketName);
   }
 }
 

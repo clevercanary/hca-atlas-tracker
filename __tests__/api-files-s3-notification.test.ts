@@ -297,7 +297,11 @@ describe(TEST_ROUTE, () => {
 
     expect(res.statusCode).toBe(400);
     expect(res._getJSONData()).toEqual({
-      error: "SHA256 metadata is required for file integrity validation",
+      errors: {
+        "Records[0].s3.object.userMetadata.source-sha256": [
+          "SHA256 metadata is required for file integrity validation",
+        ],
+      },
     });
   });
 
@@ -667,8 +671,8 @@ describe(TEST_ROUTE, () => {
 
       expect(res._getStatusCode()).toBe(403);
       expect(JSON.parse(res._getData())).toEqual({
-        error: "Unauthorized SNS topic",
-        topicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+        message:
+          "Unauthorized SNS topic: arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
       });
     });
   });
@@ -707,9 +711,7 @@ describe(TEST_ROUTE, () => {
 
     expect(res._getStatusCode()).toBe(403);
     expect(JSON.parse(res._getData())).toEqual({
-      error: "Unauthorized S3 buckets",
-      message: "Request rejected due to unauthorized bucket access",
-      unauthorizedBuckets: ["unauthorized-bucket"],
+      message: "Unauthorized S3 bucket: unauthorized-bucket",
     });
   });
 

@@ -2,6 +2,7 @@
 // These errors are used for AWS S3/SNS event processing and validation
 
 import {
+  ForbiddenError,
   InvalidOperationError,
   UnauthenticatedError,
 } from "../../../../utils/api-handler";
@@ -65,5 +66,17 @@ export class SNSSignatureValidationError extends UnauthenticatedError {
 
   constructor() {
     super("SNS signature validation failed");
+  }
+}
+
+/**
+ * Error thrown when accessing unauthorized AWS resources (SNS topics, S3 buckets)
+ * Maps to HTTP 403 Forbidden
+ */
+export class UnauthorizedAWSResourceError extends ForbiddenError {
+  name = "UnauthorizedAWSResourceError";
+
+  constructor(resourceType: string, resourceArn: string) {
+    super(`Unauthorized ${resourceType}: ${resourceArn}`);
   }
 }

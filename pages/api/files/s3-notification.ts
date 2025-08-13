@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import MessageValidator from "sns-validator";
-import { ValidationError } from "yup";
 import {
   ETagMismatchError,
   InvalidS3KeyFormatError,
@@ -16,8 +15,8 @@ import {
 } from "../../../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { METHOD } from "../../../app/common/entities";
 import {
-  isAuthorizedS3Bucket,
-  isAuthorizedSNSTopic,
+  validateS3BucketAuthorization,
+  validateSNSTopicAuthorization,
 } from "../../../app/config/aws-resources";
 import { doTransaction, query } from "../../../app/services/database";
 import { handler, method } from "../../../app/utils/api-handler";
@@ -425,64 +424,27 @@ function createResponse(
 const INTERNAL_SERVER_ERROR = "Internal server error";
 
 /**
- * Authorizes the SNS topic, handling errors with appropriate HTTP responses
+ * Authorizes the SNS topic
  * @param snsMessage - The validated SNS message
- * @param res - The Next.js API response
- * @returns Promise<boolean> - true if authorized, false if response was sent
+ * @throws UnauthorizedAWSResourceError if topic is not authorized
  */
-async function authorizeSNSTopic(
-  snsMessage: SNSMessage,
-  res: NextApiResponse
-): Promise<boolean> {
-  if (!isAuthorizedSNSTopic(snsMessage.TopicArn)) {
-    console.warn("Unauthorized SNS topic:", snsMessage.TopicArn);
-    res.status(403).json({
-      error: "Unauthorized SNS topic",
-      topicArn: snsMessage.TopicArn,
-    });
-    return false;
-  }
-  return true;
+function authorizeSNSTopic(snsMessage: SNSMessage): void {
+  validateSNSTopicAuthorization(snsMessage.TopicArn);
 }
 
 /**
- * Authorizes S3 buckets, handling errors with appropriate HTTP responses
+ * Authorizes S3 buckets
  * @param s3Event - The validated S3 event
- * @param res - The Next.js API response
- * @returns Promise<boolean> - true if authorized, false if response was sent
+ * @throws UnauthorizedAWSResourceError if any bucket is not authorized
  */
-async function authorizeS3Buckets(
-  s3Event: S3Event,
-  res: NextApiResponse
-): Promise<boolean> {
-  // Validate S3 event format
-  try {
-    s3EventSchema.validateSync(s3Event);
-  } catch (schemaError: unknown) {
-    if (schemaError instanceof ValidationError) {
-      console.error("S3 event validation error:", schemaError.message);
-      res.status(400).json({ error: schemaError.message });
-      return false;
-    }
-    throw schemaError;
-  }
+function authorizeS3Buckets(s3Event: S3Event): void {
+  // Validate S3 event structure and metadata (including SHA256)
+  s3EventSchema.validateSync(s3Event);
 
   // Validate all S3 buckets are authorized (strict mode)
-  const unauthorizedBuckets = s3Event.Records.filter(
-    (record) => !isAuthorizedS3Bucket(record.s3.bucket.name)
-  ).map((record) => record.s3.bucket.name);
-
-  if (unauthorizedBuckets.length > 0) {
-    console.warn("Unauthorized S3 buckets:", unauthorizedBuckets);
-    res.status(403).json({
-      error: "Unauthorized S3 buckets",
-      message: "Request rejected due to unauthorized bucket access",
-      unauthorizedBuckets,
-    });
-    return false;
+  for (const record of s3Event.Records) {
+    validateS3BucketAuthorization(record.s3.bucket.name);
   }
-
-  return true;
 }
 
 /**
@@ -527,12 +489,10 @@ export default handler(method(METHOD.POST), async (req, res) => {
   const { s3Event, snsMessage } = await validateRequest(req);
 
   // Step 2: Authorize SNS topic
-  const snsAuthorized = await authorizeSNSTopic(snsMessage, res);
-  if (!snsAuthorized) return; // Response already sent
+  authorizeSNSTopic(snsMessage);
 
-  // Step 3: Authorize S3 buckets
-  const s3Authorized = await authorizeS3Buckets(s3Event, res);
-  if (!s3Authorized) return; // Response already sent
+  // Step 3: Authorize S3 buckets (includes S3 event validation)
+  authorizeS3Buckets(s3Event);
 
   // Step 4: Process records and send response
   await processRecordsAndRespond(s3Event, res);
