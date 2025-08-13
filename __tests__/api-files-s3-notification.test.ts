@@ -10,6 +10,20 @@ const TEST_AWS_CONFIG = {
 };
 process.env.AWS_RESOURCE_CONFIG = JSON.stringify(TEST_AWS_CONFIG);
 
+// Imports
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
+import {
+  S3Event,
+  S3Object,
+  SNSMessage,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "../app/common/entities";
+import { resetConfigCache } from "../app/config/aws-resources";
+import { endPgPool, query } from "../app/services/database";
+import { resetDatabase } from "../testing/db-utils";
+import { withConsoleErrorHiding } from "../testing/utils";
+
 // Test file path constants
 const TEST_PATH_SEGMENTS = {
   BIO_NETWORK_GUT_V1_SOURCE_DATASETS: "bio_network/gut-v1/source-datasets",
@@ -63,34 +77,6 @@ interface S3EventOptions {
   versionId: string;
 }
 
-interface S3Object {
-  eTag: string;
-  key: string;
-  size: number;
-  userMetadata?: {
-    "source-sha256": string;
-  };
-  versionId: string;
-}
-
-interface S3EventRecord {
-  eventName: string;
-  eventSource: string;
-  eventTime: string;
-  eventVersion: string;
-  s3: {
-    bucket: {
-      name: string;
-    };
-    object: S3Object;
-    s3SchemaVersion: string;
-  };
-}
-
-interface S3Event {
-  Records: S3EventRecord[];
-}
-
 function createS3Event(options: S3EventOptions): S3Event {
   const objectData: S3Object = {
     eTag: options.etag,
@@ -135,18 +121,6 @@ interface SNSMessageOptions {
   topicArn?: string;
 }
 
-interface SNSMessage {
-  Message: string;
-  MessageId: string;
-  Signature: string;
-  SignatureVersion: string;
-  SigningCertURL: string;
-  Subject: string;
-  Timestamp: string;
-  TopicArn: string;
-  Type: string;
-}
-
 function createSNSMessage(options: SNSMessageOptions): SNSMessage {
   return {
     Message: JSON.stringify(options.s3Event),
@@ -162,14 +136,6 @@ function createSNSMessage(options: SNSMessageOptions): SNSMessage {
     Type: "Notification",
   };
 }
-
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { METHOD } from "../app/common/entities";
-import { resetConfigCache } from "../app/config/aws-resources";
-import { endPgPool, query } from "../app/services/database";
-import { resetDatabase } from "../testing/db-utils";
-import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
