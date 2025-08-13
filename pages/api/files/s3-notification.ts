@@ -420,27 +420,12 @@ function createResponse(
   return response;
 }
 
-// Constants for duplicated literals
-const INTERNAL_SERVER_ERROR = "Internal server error";
-
-/**
- * Authorizes the SNS topic
- * @param snsMessage - The validated SNS message
- * @throws UnauthorizedAWSResourceError if topic is not authorized
- */
-function authorizeSNSTopic(snsMessage: SNSMessage): void {
-  validateSNSTopicAuthorization(snsMessage.TopicArn);
-}
-
 /**
  * Authorizes S3 buckets
  * @param s3Event - The validated S3 event
  * @throws UnauthorizedAWSResourceError if any bucket is not authorized
  */
 function authorizeS3Buckets(s3Event: S3Event): void {
-  // Validate S3 event structure and metadata (including SHA256)
-  s3EventSchema.validateSync(s3Event);
-
   // Validate all S3 buckets are authorized (strict mode)
   for (const record of s3Event.Records) {
     validateS3BucketAuthorization(record.s3.bucket.name);
@@ -456,32 +441,9 @@ async function processRecordsAndRespond(
   s3Event: S3Event,
   res: NextApiResponse
 ): Promise<void> {
-  try {
-    const { errors, recordsProcessed } = await processS3Records(s3Event);
-    const response = createResponse(recordsProcessed, errors);
-    res.status(200).json(response);
-  } catch (processingError: unknown) {
-    // Handle file type determination errors (client data issues)
-    if (
-      processingError instanceof InvalidS3KeyFormatError ||
-      processingError instanceof UnknownFolderTypeError
-    ) {
-      res.status(400).json({ error: processingError.message });
-      return;
-    }
-
-    // Handle ETag mismatch errors (data integrity issues)
-    if (processingError instanceof ETagMismatchError) {
-      res
-        .status(500)
-        .json({ error: "Data integrity error - ETag mismatch detected" });
-      return;
-    }
-
-    // Handle other unexpected processing errors
-    console.error("Unexpected processing error:", processingError);
-    res.status(500).json({ error: INTERNAL_SERVER_ERROR });
-  }
+  const { errors, recordsProcessed } = await processS3Records(s3Event);
+  const response = createResponse(recordsProcessed, errors);
+  res.status(200).json(response);
 }
 
 export default handler(method(METHOD.POST), async (req, res) => {
@@ -489,7 +451,10 @@ export default handler(method(METHOD.POST), async (req, res) => {
   const { s3Event, snsMessage } = await validateRequest(req);
 
   // Step 2: Authorize SNS topic
-  authorizeSNSTopic(snsMessage);
+  validateSNSTopicAuthorization(snsMessage.TopicArn);
+
+  // Validate S3 event structure and metadata (including SHA256)
+  s3EventSchema.validateSync(s3Event);
 
   // Step 3: Authorize S3 buckets (includes S3 event validation)
   authorizeS3Buckets(s3Event);

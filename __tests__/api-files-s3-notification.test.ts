@@ -526,9 +526,9 @@ describe(TEST_ROUTE, () => {
 
     // Should reject with 500 Internal Server Error due to ETag mismatch
     expect(res2.statusCode).toBe(500);
-    expect(JSON.parse(res2._getData())).toEqual({
-      error: "Data integrity error - ETag mismatch detected",
-    });
+    const responseBody = JSON.parse(res2._getData());
+    expect(responseBody.message).toContain("ETagMismatchError");
+    expect(responseBody.message).toContain("ETag mismatch");
 
     // Verify only one record exists with original ETag
     const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
@@ -941,8 +941,8 @@ describe(TEST_ROUTE, () => {
 
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());
-      expect(responseBody.error).toContain("Invalid S3 key format");
-      expect(responseBody.error).toContain(
+      expect(responseBody.message).toContain("Invalid S3 key format");
+      expect(responseBody.message).toContain(
         "Expected format: bio_network/atlas-name/folder-type/filename"
       );
     });
@@ -981,10 +981,10 @@ describe(TEST_ROUTE, () => {
 
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());
-      expect(responseBody.error).toContain(
+      expect(responseBody.message).toContain(
         "Unknown folder type: unknown-folder"
       );
-      expect(responseBody.error).toContain(
+      expect(responseBody.message).toContain(
         "Expected: source-datasets, integrated-objects, or manifests"
       );
     });
