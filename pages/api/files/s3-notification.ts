@@ -2,6 +2,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 import MessageValidator from "sns-validator";
 import { ValidationError } from "yup";
 import {
+  ETagMismatchError,
+  InvalidS3KeyFormatError,
+  SNSSignatureValidationError,
+  UnknownFolderTypeError,
+} from "../../../app/apis/catalog/hca-atlas-tracker/aws/errors";
+import {
   S3Event,
   S3EventRecord,
   s3EventSchema,
@@ -13,49 +19,6 @@ import {
   isAuthorizedSNSTopic,
 } from "../../../app/config/aws-resources";
 import { doTransaction, query } from "../../../app/services/database";
-
-// Custom error classes for file type determination
-class InvalidS3KeyFormatError extends Error {
-  constructor(key: string) {
-    super(
-      `Invalid S3 key format: ${key}. Expected format: bio_network/atlas-name/folder-type/filename`
-    );
-    this.name = "InvalidS3KeyFormatError";
-  }
-}
-
-class UnknownFolderTypeError extends Error {
-  constructor(folderType: string) {
-    super(
-      `Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`
-    );
-    this.name = "UnknownFolderTypeError";
-  }
-}
-
-class ETagMismatchError extends Error {
-  constructor(
-    bucket: string,
-    key: string,
-    versionId: string | null,
-    existingETag: string,
-    newETag: string
-  ) {
-    super(
-      `ETag mismatch for ${bucket}/${key} (version: ${
-        versionId || "null"
-      }): existing=${existingETag}, new=${newETag}`
-    );
-    this.name = "ETagMismatchError";
-  }
-}
-
-class SNSSignatureValidationError extends Error {
-  constructor() {
-    super("SNS signature validation failed");
-    this.name = "SNSSignatureValidationError";
-  }
-}
 
 function extractSHA256FromS3Object(
   s3Object: S3EventRecord["s3"]["object"]
