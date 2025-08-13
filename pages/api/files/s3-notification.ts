@@ -14,11 +14,13 @@ import {
   SNSMessage,
   snsMessageSchema,
 } from "../../../app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { METHOD } from "../../../app/common/entities";
 import {
   isAuthorizedS3Bucket,
   isAuthorizedSNSTopic,
 } from "../../../app/config/aws-resources";
 import { doTransaction, query } from "../../../app/services/database";
+import { handler, method } from "../../../app/utils/api-handler";
 
 function extractSHA256FromS3Object(
   s3Object: S3EventRecord["s3"]["object"]
@@ -549,34 +551,21 @@ async function processRecordsAndRespond(
   }
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+export default handler(method(METHOD.POST), async (req, res) => {
+  // Step 1: Extract and validate request
+  const requestData = await extractAndValidateRequest(req, res);
+  if (!requestData) return; // Response already sent
 
-  try {
-    // Step 1: Extract and validate request
-    const requestData = await extractAndValidateRequest(req, res);
-    if (!requestData) return; // Response already sent
+  const { s3Event, snsMessage } = requestData;
 
-    const { s3Event, snsMessage } = requestData;
+  // Step 2: Authorize SNS topic
+  const snsAuthorized = await authorizeSNSTopic(snsMessage, res);
+  if (!snsAuthorized) return; // Response already sent
 
-    // Step 2: Authorize SNS topic
-    const snsAuthorized = await authorizeSNSTopic(snsMessage, res);
-    if (!snsAuthorized) return; // Response already sent
+  // Step 3: Authorize S3 buckets
+  const s3Authorized = await authorizeS3Buckets(s3Event, res);
+  if (!s3Authorized) return; // Response already sent
 
-    // Step 3: Authorize S3 buckets
-    const s3Authorized = await authorizeS3Buckets(s3Event, res);
-    if (!s3Authorized) return; // Response already sent
-
-    // Step 4: Process records and send response
-    await processRecordsAndRespond(s3Event, res);
-  } catch (error: unknown) {
-    // Handle any unexpected errors that weren't caught by individual functions
-    console.error("Unexpected error in S3 notification handler:", error);
-    res.status(500).json({ error: INTERNAL_SERVER_ERROR });
-  }
-}
+  // Step 4: Process records and send response
+  await processRecordsAndRespond(s3Event, res);
+});
