@@ -421,35 +421,6 @@ function createResponse(
   return response;
 }
 
-/**
- * Extracts and validates the request, handling errors with appropriate HTTP responses
- * @param req - The Next.js API request
- * @param res - The Next.js API response
- * @returns Promise containing extracted data, or null if response was sent
- */
-async function extractAndValidateRequest(
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<{ s3Event: S3Event; snsMessage: SNSMessage } | null> {
-  try {
-    return await validateRequest(req);
-  } catch (validationError: unknown) {
-    if (validationError instanceof SNSSignatureValidationError) {
-      res.status(401).json({ error: "SNS signature validation failed" });
-      return null;
-    }
-    if (validationError instanceof ValidationError) {
-      console.error("Validation error:", validationError.message);
-      res.status(400).json({ error: validationError.message });
-      return null;
-    }
-    // Handle other unexpected validation errors
-    console.error("Unexpected validation error:", validationError);
-    res.status(500).json({ error: INTERNAL_SERVER_ERROR });
-    return null;
-  }
-}
-
 // Constants for duplicated literals
 const INTERNAL_SERVER_ERROR = "Internal server error";
 
@@ -553,10 +524,7 @@ async function processRecordsAndRespond(
 
 export default handler(method(METHOD.POST), async (req, res) => {
   // Step 1: Extract and validate request
-  const requestData = await extractAndValidateRequest(req, res);
-  if (!requestData) return; // Response already sent
-
-  const { s3Event, snsMessage } = requestData;
+  const { s3Event, snsMessage } = await validateRequest(req);
 
   // Step 2: Authorize SNS topic
   const snsAuthorized = await authorizeSNSTopic(snsMessage, res);

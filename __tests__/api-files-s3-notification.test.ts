@@ -446,7 +446,7 @@ describe(TEST_ROUTE, () => {
     // Should reject with 401 Unauthorized due to invalid signature
     expect(res.statusCode).toBe(401);
     expect(JSON.parse(res._getData())).toEqual({
-      error: "SNS signature validation failed",
+      message: "SNS signature validation failed",
     });
 
     // Verify no file was saved to database
