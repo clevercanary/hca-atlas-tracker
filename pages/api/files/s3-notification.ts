@@ -1,6 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import MessageValidator from "sns-validator";
-import { array, InferType, number, object, string, ValidationError } from "yup";
+import { ValidationError } from "yup";
+import {
+  S3Event,
+  S3EventRecord,
+  s3EventSchema,
+  SNSMessage,
+  snsMessageSchema,
+} from "../../../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   isAuthorizedS3Bucket,
   isAuthorizedSNSTopic,
@@ -49,62 +56,6 @@ class SNSSignatureValidationError extends Error {
     this.name = "SNSSignatureValidationError";
   }
 }
-
-// Yup schemas following established codebase pattern
-const s3ObjectSchema = object({
-  eTag: string().required(),
-  key: string().required(),
-  size: number().required(),
-  userMetadata: object()
-    .shape({
-      "source-sha256": string()
-        .matches(
-          /^[a-fA-F0-9]{64}$/,
-          "SHA256 must be a 64-character hexadecimal string"
-        )
-        .required("SHA256 metadata is required for file integrity validation"),
-    })
-    .required(),
-  versionId: string().nullable().optional(),
-}).required();
-
-const s3BucketSchema = object({
-  name: string().required(),
-}).required();
-
-const s3RecordSchema = object({
-  eventName: string().required(),
-  eventSource: string().oneOf(["aws:s3"]).required(),
-  eventTime: string().required(),
-  s3: object({
-    bucket: s3BucketSchema,
-    object: s3ObjectSchema,
-  }).required(),
-}).required();
-
-const s3EventSchema = object({
-  Records: array().of(s3RecordSchema).min(1).required(),
-}).required();
-
-const snsMessageSchema = object({
-  Message: string().required(),
-  MessageId: string().required(),
-  Signature: string().required(),
-  SignatureVersion: string().required(),
-  SigningCertURL: string().url().required(),
-  Subject: string().optional(),
-  SubscribeURL: string().url().optional(),
-  Timestamp: string().required(),
-  Token: string().optional(),
-  TopicArn: string().required(),
-  Type: string().oneOf(["Notification"]).required(),
-  UnsubscribeURL: string().url().optional(),
-}).required();
-
-// Infer types from Yup schemas
-type S3EventRecord = InferType<typeof s3RecordSchema>;
-type S3Event = InferType<typeof s3EventSchema>;
-type SNSMessage = InferType<typeof snsMessageSchema>;
 
 function extractSHA256FromS3Object(
   s3Object: S3EventRecord["s3"]["object"]
