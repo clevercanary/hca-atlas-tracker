@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.26.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.25.0...v1.26.0) (2025-08-13)
+
+
+### Features
+
+* add api to get heatmap data ([#728](https://github.com/clevercanary/hca-atlas-tracker/issues/728)) ([#738](https://github.com/clevercanary/hca-atlas-tracker/issues/738)) ([1d1b9d8](https://github.com/clevercanary/hca-atlas-tracker/commit/1d1b9d89d95040c53c5174bd1d6b6aaf19ce4a2c))
+* metadata completeness heatmap ([#729](https://github.com/clevercanary/hca-atlas-tracker/issues/729)) ([#739](https://github.com/clevercanary/hca-atlas-tracker/issues/739)) ([7804f4d](https://github.com/clevercanary/hca-atlas-tracker/commit/7804f4d59748e66867632650493f405ee581c291))
+
+
+### Chores
+
+* update cellxgene files info ([#740](https://github.com/clevercanary/hca-atlas-tracker/issues/740)) ([#744](https://github.com/clevercanary/hca-atlas-tracker/issues/744)) ([7dd79d8](https://github.com/clevercanary/hca-atlas-tracker/commit/7dd79d8cb41a41a10f288106ba6938851cff813b))
+
 ## [1.25.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.24.0...v1.25.0) (2025-08-04)
 
 
