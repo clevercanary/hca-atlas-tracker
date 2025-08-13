@@ -17,7 +17,7 @@ import {
   S3Event,
   S3Object,
   SNSMessage,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+} from "../app/apis/catalog/hca-atlas-tracker/aws/entities";
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
