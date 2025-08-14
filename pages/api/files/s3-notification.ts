@@ -31,6 +31,23 @@ async function validateRequest(req: NextApiRequest): Promise<{
   return { s3Event, snsMessage };
 }
 
+/**
+ * S3 Notification API Handler
+ *
+ * Processes AWS S3 object creation notifications sent via SNS.
+ * This endpoint receives SNS messages containing S3 event data when files are uploaded
+ * to authorized S3 buckets, validates the request, and creates database records.
+ *
+ * The handler delegates to validateRequest() and processS3Record() from the service layer.
+ * All error handling is managed by the centralized handler wrapper which maps errors
+ * to appropriate HTTP status codes based on error type inheritance.
+ *
+ * @route POST /api/files/s3-notification
+ * @param req - Next.js API request containing SNS message in body
+ * @param res - Next.js API response object
+ * @returns 200 on successful processing
+ * @note Error responses are handled by centralized error handler based on thrown error types
+ */
 export default handler(method(METHOD.POST), async (req, res) => {
   // Extract and validate request
   const { s3Event, snsMessage } = await validateRequest(req);
@@ -42,6 +59,13 @@ export default handler(method(METHOD.POST), async (req, res) => {
   res.status(200).end();
 });
 
+/**
+ * Validates the cryptographic signature of an SNS message and extracts the S3 event
+ * @param message - The SNS message to validate
+ * @returns Promise resolving to the extracted and parsed S3 event
+ * @throws SNSSignatureValidationError if the SNS signature is invalid (401)
+ * @throws InvalidOperationError if the message is malformed or JSON is unparseable (400)
+ */
 async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
   return new Promise((resolve, reject) => {
     const validator = new MessageValidator();

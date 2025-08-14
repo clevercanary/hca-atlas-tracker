@@ -15,6 +15,12 @@ import {
 } from "../config/aws-resources";
 import { InvalidOperationError } from "../utils/api-handler";
 import { doTransaction, query } from "./database";
+/**
+ * Extracts the SHA256 hash from S3 object metadata
+ * @param s3Object - The S3 object from the event record
+ * @returns The SHA256 hash value from the 'source-sha256' metadata field
+ * @note SHA256 validation is handled by Yup schema before this function is called
+ */
 function extractSHA256FromS3Object(
   s3Object: S3EventRecord["s3"]["object"]
 ): string {
@@ -31,8 +37,15 @@ interface S3KeyPathComponents {
   network: string; // e.g., 'bio_network'
 }
 
-// Parse S3 key path into standardized components
-// Expected format: bio_network/atlas-name/folder-type/filename
+/**
+ * Parses S3 key path into standardized components
+ * @param s3Key - The S3 object key to parse
+ * @returns Parsed components including network, atlas name, folder type, and filename
+ * @throws InvalidS3KeyFormatError if the S3 key doesn't have at least 4 path segments
+ * @example
+ * parseS3KeyPath('bio_network/gut-v1/integrated-objects/file.h5ad')
+ * // Returns: { network: 'bio_network', atlasName: 'gut-v1', folderType: 'integrated-objects', filename: 'file.h5ad' }
+ */
 function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   const pathParts = s3Key.split("/");
 
@@ -48,6 +61,12 @@ function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   };
 }
 
+/**
+ * Determines the file type based on the S3 key folder structure
+ * @param s3Key - The S3 object key to analyze
+ * @returns The file type: 'source_dataset', 'integrated_object', or 'ingest_manifest'
+ * @throws UnknownFolderTypeError if the folder type is not recognized
+ */
 function determineFileType(s3Key: string): string {
   const { folderType } = parseS3KeyPath(s3Key);
 
@@ -63,8 +82,15 @@ function determineFileType(s3Key: string): string {
   }
 }
 
-// Parse S3 atlas name (e.g., 'gut-v1', 'retina-v1-1') into base name and version
-// S3 format supports: 'name-v1' (v1.0), 'name-v1-1' (v1.1), 'name-v2-3' (v2.3)
+/**
+ * Parses S3 atlas name into base name and version components
+ * @param s3AtlasName - The atlas name from S3 path (e.g., 'gut-v1', 'retina-v1-1')
+ * @returns Object containing the atlas base name and S3 version string
+ * @throws Error if the atlas name doesn't match the expected format
+ * @example
+ * parseS3AtlasName('gut-v1') // Returns: { atlasBaseName: 'gut', s3Version: '1' }
+ * parseS3AtlasName('retina-v1-1') // Returns: { atlasBaseName: 'retina', s3Version: '1-1' }
+ */
 function parseS3AtlasName(s3AtlasName: string): {
   atlasBaseName: string;
   s3Version: string;
@@ -82,9 +108,15 @@ function parseS3AtlasName(s3AtlasName: string): {
   return { atlasBaseName, s3Version };
 }
 
-// Convert parsed S3 version to database version format
-// Input: '1' -> DB: '1.0', Input: '1-1' -> DB: '1.1', Input: '2-3' -> DB: '2.3'
-// Note: The 'v' prefix has already been stripped by parseS3AtlasName
+/**
+ * Converts S3 version format to database version format
+ * @param s3Version - The version string from S3 (without 'v' prefix)
+ * @returns Database-compatible version string
+ * @example
+ * convertS3VersionToDbVersion('1') // Returns: '1.0'
+ * convertS3VersionToDbVersion('1-1') // Returns: '1.1'
+ * convertS3VersionToDbVersion('2-3') // Returns: '2.3'
+ */
 function convertS3VersionToDbVersion(s3Version: string): string {
   if (s3Version.includes("-")) {
     // Convert '1-1' to '1.1'
@@ -95,6 +127,15 @@ function convertS3VersionToDbVersion(s3Version: string): string {
   }
 }
 
+/**
+ * Determines the atlas ID for integrated objects and ingest manifests
+ * @param s3Key - The S3 object key containing atlas information
+ * @param fileType - The file type ('source_dataset', 'integrated_object', or 'ingest_manifest')
+ * @returns The atlas ID from the database, or null for source datasets
+ * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
+ * @throws Error if atlas name format is invalid or atlas not found in database
+ * @note Source datasets return null as they use source_study_id instead of atlas_id
+ */
 async function determineAtlasId(
   s3Key: string,
   fileType: string
@@ -138,6 +179,16 @@ async function determineAtlasId(
   return result.rows[0].id;
 }
 
+/**
+ * Saves or updates a file record in the database with idempotency handling
+ * @param record - The S3 event record containing bucket, object, and event metadata
+ * @throws ETagMismatchError if ETags don't match (indicates potential corruption)
+ * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
+ * @throws UnknownFolderTypeError if folder type is not recognized
+ * @throws Error if atlas lookup fails for integrated objects/manifests
+ * @note Uses PostgreSQL ON CONFLICT for atomic idempotency handling
+ * @note Implements database transaction to ensure is_latest flag consistency
+ */
 async function saveFileRecord(record: S3EventRecord): Promise<void> {
   const { bucket, object } = record.s3;
 
