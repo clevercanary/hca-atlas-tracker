@@ -199,30 +199,10 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   const sha256 = extractSHA256FromS3Object(object);
 
   // Determine file type from S3 key path structure
-  let fileType: string;
-  try {
-    fileType = determineFileType(object.key);
-  } catch (error) {
-    // Log the error for monitoring
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(
-      `File type determination failed for ${bucket.name}/${object.key}: ${errorMessage}`
-    );
-    throw error; // Re-throw to be handled by the main handler
-  }
+  const fileType = determineFileType(object.key);
 
   // Determine atlas ID for integrated objects and ingest manifests
-  let atlasId: string | null;
-  try {
-    atlasId = await determineAtlasId(object.key, fileType);
-  } catch (error) {
-    // Log the error for monitoring
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(
-      `Atlas ID determination failed for ${bucket.name}/${object.key}: ${errorMessage}`
-    );
-    throw error; // Re-throw to be handled by the main handler
-  }
+  const atlasId = await determineAtlasId(object.key, fileType);
 
   // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
   //
@@ -356,15 +336,28 @@ async function validateRequest(req: NextApiRequest): Promise<{
 /**
  * Processes the S3 record from the event
  * @param s3Event - The validated S3 event containing a single record
+ * @param snsMessage - The validated SNS message containing the S3 event
  * @throws InvalidOperationError if multiple records are present
  */
-async function processS3Record(s3Event: S3Event): Promise<void> {
+async function processS3Record(
+  s3Event: S3Event,
+  snsMessage: SNSMessage
+): Promise<void> {
+  // Authorize SNS topic
+  validateSNSTopicAuthorization(snsMessage.TopicArn);
+
   // S3 ObjectCreated events should contain exactly one record per SNS message
   if (s3Event.Records.length !== 1) {
     throw new InvalidOperationError(
       `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`
     );
   }
+
+  // Validate S3 event structure and metadata (including SHA256)
+  s3EventSchema.validateSync(s3Event);
+
+  // Authorize S3 buckets
+  authorizeS3Buckets(s3Event);
 
   const record = s3Event.Records[0];
   await saveFileRecord(record);
@@ -390,21 +383,12 @@ function authorizeS3Buckets(s3Event: S3Event): void {
 }
 
 export default handler(method(METHOD.POST), async (req, res) => {
-  // Step 1: Extract and validate request
+  // Extract and validate request
   const { s3Event, snsMessage } = await validateRequest(req);
 
-  // Step 2: Authorize SNS topic
-  validateSNSTopicAuthorization(snsMessage.TopicArn);
+  // Process S3 record
+  await processS3Record(s3Event, snsMessage);
 
-  // Step 3: Validate S3 event structure and metadata (including SHA256)
-  s3EventSchema.validateSync(s3Event);
-
-  // Step 4: Authorize S3 buckets
-  authorizeS3Buckets(s3Event);
-
-  // Step 5: Process S3 record
-  await processS3Record(s3Event);
-
-  // Step 6: Return success response
+  // Return success response
   res.status(200).end();
 });
