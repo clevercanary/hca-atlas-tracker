@@ -157,12 +157,16 @@ async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
       message as Record<string, unknown>,
       (err: Error | null, validatedMessage?: Record<string, unknown>) => {
         if (err) {
-          reject(new Error(`SNS signature validation failed: ${err.message}`));
+          // SNS signature validation failure → 401 Unauthorized
+          reject(new SNSSignatureValidationError());
           return;
         }
 
         if (!validatedMessage) {
-          reject(new Error("SNS validation returned no message"));
+          // Malformed SNS message → 400 Bad Request
+          reject(
+            new InvalidOperationError("SNS validation returned no message")
+          );
           return;
         }
 
@@ -171,7 +175,12 @@ async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
           const s3Event = JSON.parse(validatedMessage.Message as string);
           resolve(s3Event);
         } catch (parseError) {
-          reject(new Error("Failed to parse S3 event from SNS message"));
+          // Malformed JSON in SNS message → 400 Bad Request
+          reject(
+            new InvalidOperationError(
+              "Failed to parse S3 event from SNS message"
+            )
+          );
         }
       }
     );
@@ -340,13 +349,8 @@ async function validateRequest(req: NextApiRequest): Promise<{
   const snsMessage = await snsMessageSchema.validate(req.body);
 
   // Validate SNS signature and extract S3 event
-  try {
-    const s3Event = await validateSNSMessage(snsMessage);
-    return { s3Event, snsMessage };
-  } catch (validationError) {
-    console.error("SNS signature validation failed:", validationError);
-    throw new SNSSignatureValidationError();
-  }
+  const s3Event = await validateSNSMessage(snsMessage);
+  return { s3Event, snsMessage };
 }
 
 /**

@@ -64,6 +64,11 @@ const TEST_VERSION_IDS = {
 const TEST_TIMESTAMP = "2024-01-01T12:00:00.000Z";
 const TEST_TIMESTAMP_ALT = "2023-01-01T00:00:00.000Z";
 const TEST_SIGNATURE = "fake-signature-for-testing";
+const TEST_SIGNATURE_VALID = "valid-signature";
+const TEST_SIGNATURE_VALID_FOR_TESTING = "valid-signature-for-testing";
+const TEST_SIGNATURE_INVALID = "INVALID-SIGNATURE-SHOULD-BE-REJECTED";
+const TEST_ERROR_MESSAGE_INVALID_SIGNATURE = "Invalid signature";
+const TEST_MODULE_SNS_VALIDATOR = "sns-validator";
 const TEST_S3_EVENT_NAME_OBJECT_CREATED = "ObjectCreated:Put";
 
 // S3 Event and SNS Message Factory Functions
@@ -156,8 +161,8 @@ jest.mock("sns-validator", () => {
   return jest.fn().mockImplementation(() => ({
     validate: jest.fn((message, callback) => {
       // Check if this is our test case for invalid signatures
-      if (message.Signature === "INVALID-SIGNATURE-SHOULD-BE-REJECTED") {
-        callback(new Error("Invalid signature"));
+      if (message.Signature === TEST_SIGNATURE_INVALID) {
+        callback(new Error(TEST_ERROR_MESSAGE_INVALID_SIGNATURE));
         return;
       }
 
@@ -433,7 +438,7 @@ describe(TEST_ROUTE, () => {
     const snsMessageWithInvalidSignature = createSNSMessage({
       messageId: "auth-test-message",
       s3Event,
-      signature: "INVALID-SIGNATURE-SHOULD-BE-REJECTED",
+      signature: TEST_SIGNATURE_INVALID,
       timestamp: TEST_TIMESTAMP_ALT,
     });
 
@@ -463,6 +468,107 @@ describe(TEST_ROUTE, () => {
     expect(fileRows.rows).toHaveLength(0);
   });
 
+  // Test data for SNS validator edge cases
+  const snsValidatorEdgeCases = [
+    {
+      expectedMessage: "SNS validation returned no message",
+      mockBehavior: (
+        message: Record<string, unknown>,
+        callback: (err: Error | null, result?: Record<string, unknown>) => void
+      ): void => callback(null, undefined),
+      sha256:
+        "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      size: 128000,
+      testId: "no-validated-message",
+      testName:
+        "rejects SNS messages when validator returns no validated message",
+    },
+    {
+      expectedMessage: "Failed to parse S3 event from SNS message",
+      mockBehavior: (
+        message: Record<string, unknown>,
+        callback: (err: Error | null, result?: Record<string, unknown>) => void
+      ): void => {
+        const malformedMessage = {
+          ...message,
+          Message: "{ invalid json syntax here }",
+        };
+        callback(null, malformedMessage);
+      },
+      sha256:
+        "fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+      size: 64000,
+      testId: "malformed-json",
+      testName: "rejects SNS messages with unparseable JSON in Message field",
+    },
+  ];
+
+  test.each(snsValidatorEdgeCases)(
+    "$testName",
+    async ({ expectedMessage, mockBehavior, sha256, size, testId }) => {
+      // Temporarily override the mock with specific behavior
+      const MockedMessageValidator = jest.mocked(
+        jest.requireMock(TEST_MODULE_SNS_VALIDATOR)
+      );
+      MockedMessageValidator.mockImplementation(() => ({
+        validate: jest.fn(mockBehavior),
+      }));
+
+      const s3Event = createS3Event({
+        etag: `${testId}-test`,
+        eventTime: TEST_TIMESTAMP_ALT,
+        key: TEST_FILE_PATHS.SOURCE_DATASET_AUTH,
+        sha256,
+        size,
+        versionId: `${testId}-version`,
+      });
+
+      const snsMessage = createSNSMessage({
+        messageId: `${testId}-test`,
+        s3Event,
+        signature: TEST_SIGNATURE_VALID,
+        timestamp: TEST_TIMESTAMP_ALT,
+      });
+
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: snsMessage,
+        method: "POST",
+      });
+
+      await withConsoleErrorHiding(async () => {
+        await s3NotificationHandler(req, res);
+      });
+
+      // Should reject with 400 Bad Request
+      expect(res.statusCode).toBe(400);
+      expect(JSON.parse(res._getData())).toEqual({
+        message: expectedMessage,
+      });
+
+      // Verify no file was saved to database
+      const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+        TEST_S3_BUCKET,
+        TEST_FILE_PATHS.SOURCE_DATASET_AUTH,
+      ]);
+
+      expect(fileRows.rows).toHaveLength(0);
+
+      // Restore original mock
+      MockedMessageValidator.mockImplementation(() => ({
+        validate: jest.fn((message, callback) => {
+          if (message.Signature === TEST_SIGNATURE_INVALID) {
+            callback(new Error(TEST_ERROR_MESSAGE_INVALID_SIGNATURE));
+            return;
+          }
+          callback(null, message);
+        }),
+      }));
+    }
+  );
+
   it("rejects notifications with ETag mismatches for existing files", async () => {
     const s3Event = createS3Event({
       etag: "original-etag-12345",
@@ -477,7 +583,7 @@ describe(TEST_ROUTE, () => {
     const snsMessage = createSNSMessage({
       messageId: "etag-test-message-1",
       s3Event,
-      signature: "valid-signature-for-testing",
+      signature: TEST_SIGNATURE_VALID_FOR_TESTING,
       timestamp: TEST_TIMESTAMP_ALT,
     });
 
@@ -509,7 +615,7 @@ describe(TEST_ROUTE, () => {
     const snsMessageWithDifferentETag = createSNSMessage({
       messageId: "etag-test-message-2",
       s3Event: s3EventWithDifferentETag,
-      signature: "valid-signature-for-testing",
+      signature: TEST_SIGNATURE_VALID_FOR_TESTING,
       timestamp: TEST_TIMESTAMP_ALT,
     });
 
@@ -557,7 +663,7 @@ describe(TEST_ROUTE, () => {
     const snsMessageV1 = createSNSMessage({
       messageId: "test-message-id-v1",
       s3Event: s3EventV1,
-      signature: "valid-signature",
+      signature: TEST_SIGNATURE_VALID,
       timestamp: TEST_TIMESTAMP,
     });
 
@@ -589,7 +695,7 @@ describe(TEST_ROUTE, () => {
     const snsMessageV2 = createSNSMessage({
       messageId: "test-message-id-v2",
       s3Event: s3EventV2,
-      signature: "valid-signature",
+      signature: TEST_SIGNATURE_VALID,
       timestamp: "2024-01-01T13:00:00.000Z",
     });
 
