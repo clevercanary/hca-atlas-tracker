@@ -1,4 +1,5 @@
 import { NextApiRequest } from "next";
+import getRawBody from "raw-body";
 import MessageValidator from "sns-validator";
 import { SNSSignatureValidationError } from "../../../app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
@@ -23,12 +24,60 @@ async function validateRequest(req: NextApiRequest): Promise<{
   s3Event: S3Event;
   snsMessage: SNSMessage;
 }> {
+  // Get raw body for SNS signature verification
+  const body = await getRequestBody(req);
+
   // Validate SNS message format using Yup schema
-  const snsMessage = await snsMessageSchema.validate(req.body);
+  const snsMessage = await snsMessageSchema.validate(body);
 
   // Validate SNS signature and extract S3 event
   const s3Event = await validateSNSMessage(snsMessage);
   return { s3Event, snsMessage };
+}
+
+/**
+ * Gets request body handling both production (raw stream) and test environments
+ * @param req - The Next.js API request object
+ * @returns Promise resolving to the parsed request body
+ * @throws InvalidOperationError if request body is missing or malformed
+ */
+async function getRequestBody(req: NextApiRequest): Promise<unknown> {
+  // In test environment, req.body is already parsed by node-mocks-http
+  if (req.body !== undefined) {
+    return req.body;
+  }
+
+  // Check for missing Content-Length header (indicates no body)
+  const contentLength = req.headers["content-length"];
+  if (!contentLength || contentLength === "0") {
+    throw new InvalidOperationError("Request body is required");
+  }
+
+  // In production with bodyParser: false, read from raw stream with timeout
+  try {
+    const rawBuffer = await Promise.race([
+      getRawBody(req, {
+        encoding: "utf8",
+        length: contentLength,
+        limit: "1mb",
+      }),
+      // Timeout after 10 seconds to prevent hanging
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Request body timeout")), 10000)
+      ),
+    ]);
+
+    if (!rawBuffer || rawBuffer.length === 0) {
+      throw new InvalidOperationError("Request body is empty");
+    }
+
+    return JSON.parse(rawBuffer);
+  } catch (error) {
+    if (error instanceof Error && error.message === "Request body timeout") {
+      throw new InvalidOperationError("Request body read timeout");
+    }
+    throw new InvalidOperationError("Failed to parse request body");
+  }
 }
 
 /**
@@ -104,3 +153,10 @@ async function validateSNSMessage(message: SNSMessage): Promise<S3Event> {
     );
   });
 }
+
+// Disable Next.js body parsing to preserve raw body for SNS signature verification
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
