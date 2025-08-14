@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest } from "next";
 import MessageValidator from "sns-validator";
 import {
   ETagMismatchError,
@@ -432,20 +432,6 @@ function authorizeS3Buckets(s3Event: S3Event): void {
   }
 }
 
-/**
- * Processes S3 records and sends the response
- * @param s3Event - The validated S3 event
- * @param res - The Next.js API response
- */
-async function processRecordsAndRespond(
-  s3Event: S3Event,
-  res: NextApiResponse
-): Promise<void> {
-  const { errors, recordsProcessed } = await processS3Records(s3Event);
-  const response = createResponse(recordsProcessed, errors);
-  res.status(200).json(response);
-}
-
 export default handler(method(METHOD.POST), async (req, res) => {
   // Step 1: Extract and validate request
   const { s3Event, snsMessage } = await validateRequest(req);
@@ -453,12 +439,14 @@ export default handler(method(METHOD.POST), async (req, res) => {
   // Step 2: Authorize SNS topic
   validateSNSTopicAuthorization(snsMessage.TopicArn);
 
-  // Validate S3 event structure and metadata (including SHA256)
+  // Step 3: Validate S3 event structure and metadata (including SHA256)
   s3EventSchema.validateSync(s3Event);
 
-  // Step 3: Authorize S3 buckets (includes S3 event validation)
+  // Step 4: Authorize S3 buckets
   authorizeS3Buckets(s3Event);
 
-  // Step 4: Process records and send response
-  await processRecordsAndRespond(s3Event, res);
+  // Step 5: Process records and respond
+  const { errors, recordsProcessed } = await processS3Records(s3Event);
+  const response = createResponse(recordsProcessed, errors);
+  res.status(200).json(response);
 });
