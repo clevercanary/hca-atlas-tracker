@@ -153,6 +153,11 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
+// Mock ky HTTP client for Jest compatibility
+jest.mock("ky", () => ({
+  get: jest.fn().mockResolvedValue({ ok: true }),
+}));
+
 afterEach(() => {
   resetConfigCache();
 });
@@ -172,9 +177,9 @@ jest.mock("sns-validator", () => {
   }));
 });
 
-const TEST_ROUTE = "/api/files/s3-notification";
+const TEST_ROUTE = "/api/sns";
 
-import s3NotificationHandler from "../pages/api/files/s3-notification";
+import snsHandler from "../pages/api/sns";
 
 // Helper function to create test atlas data
 async function createTestAtlasData(): Promise<void> {
@@ -247,7 +252,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     expect(res.statusCode).toBe(405);
@@ -265,7 +270,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     expect(res.statusCode).toBe(400);
@@ -298,7 +303,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     expect(res.statusCode).toBe(400);
@@ -335,7 +340,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     expect(res.statusCode).toBe(200);
@@ -366,6 +371,52 @@ describe(TEST_ROUTE, () => {
     expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
   });
 
+  test("rejects SNS messages with unparseable JSON in Message field", async () => {
+    // Create SNS message with malformed JSON that will fail parsing in service layer
+    const malformedSNSMessage: SNSMessage = {
+      Message:
+        '{ "Records": [ { "eventName": "s3:ObjectCreated:Put", "invalid": }', // Truncated/invalid JSON
+      MessageId: "malformed-json-test",
+      Signature: TEST_SIGNATURE_VALID,
+      SignatureVersion: "1",
+      SigningCertURL:
+        "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
+      Subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      Timestamp: TEST_TIMESTAMP,
+      TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+      Type: "Notification",
+    };
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: malformedSNSMessage,
+        method: "POST",
+      }
+    );
+
+    // Mock SNS validator to pass signature validation but preserve malformed JSON
+    const mockValidate = jest.fn((message, callback) => {
+      callback(null, message); // Pass through the malformed message
+    });
+    jest.doMock(TEST_MODULE_SNS_VALIDATOR, () => ({
+      MessageValidator: jest.fn(() => ({
+        validate: mockValidate,
+      })),
+    }));
+
+    const { default: snsHandler } = await import("../pages/api/sns");
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    // Should reject with 400 Bad Request due to JSON parsing error
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res._getData())).toEqual({
+      message: "Failed to parse S3 event from SNS message",
+    });
+  });
+
   // Idempotency and Data Integrity Tests
   it("handles duplicate notifications idempotently", async () => {
     const s3Event = createS3Event({
@@ -392,7 +443,7 @@ describe(TEST_ROUTE, () => {
 
     // First request
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req1, res1);
+      await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
 
@@ -406,7 +457,7 @@ describe(TEST_ROUTE, () => {
 
     // Second request with same data
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req2, res2);
+      await snsHandler(req2, res2);
     });
     expect(res2.statusCode).toBe(200);
 
@@ -450,7 +501,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     // Should reject with 401 Unauthorized due to invalid signature
@@ -482,24 +533,6 @@ describe(TEST_ROUTE, () => {
       testId: "no-validated-message",
       testName:
         "rejects SNS messages when validator returns no validated message",
-    },
-    {
-      expectedMessage: "Failed to parse S3 event from SNS message",
-      mockBehavior: (
-        message: Record<string, unknown>,
-        callback: (err: Error | null, result?: Record<string, unknown>) => void
-      ): void => {
-        const malformedMessage = {
-          ...message,
-          Message: "{ invalid json syntax here }",
-        };
-        callback(null, malformedMessage);
-      },
-      sha256:
-        "fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
-      size: 64000,
-      testId: "malformed-json",
-      testName: "rejects SNS messages with unparseable JSON in Message field",
     },
   ];
 
@@ -539,7 +572,7 @@ describe(TEST_ROUTE, () => {
       });
 
       await withConsoleErrorHiding(async () => {
-        await s3NotificationHandler(req, res);
+        await snsHandler(req, res);
       });
 
       // Should reject with 400 Bad Request
@@ -597,7 +630,7 @@ describe(TEST_ROUTE, () => {
     });
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req1, res1);
+      await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
 
@@ -628,7 +661,7 @@ describe(TEST_ROUTE, () => {
     });
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req2, res2);
+      await snsHandler(req2, res2);
     });
 
     // Should reject with 500 Internal Server Error due to ETag mismatch
@@ -677,7 +710,7 @@ describe(TEST_ROUTE, () => {
 
     // Process first version
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req1, res1);
+      await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
 
@@ -709,7 +742,7 @@ describe(TEST_ROUTE, () => {
 
     // Process second version
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req2, res2);
+      await snsHandler(req2, res2);
     });
     expect(res2.statusCode).toBe(200);
 
@@ -772,8 +805,7 @@ describe(TEST_ROUTE, () => {
         method: METHOD.POST,
       });
 
-      const handler = (await import("../pages/api/files/s3-notification"))
-        .default;
+      const handler = (await import("../pages/api/sns")).default;
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(403);
@@ -810,8 +842,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    const handler = (await import("../pages/api/files/s3-notification"))
-      .default;
+    const handler = (await import("../pages/api/sns")).default;
     await withConsoleErrorHiding(async () => {
       await handler(req, res);
     });
@@ -849,7 +880,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     expect(res.statusCode).toBe(200);
@@ -903,7 +934,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     expect(res.statusCode).toBe(200);
@@ -991,7 +1022,7 @@ describe(TEST_ROUTE, () => {
       });
 
       await withConsoleErrorHiding(async () => {
-        await s3NotificationHandler(req, res);
+        await snsHandler(req, res);
       });
 
       expect(res.statusCode).toBe(200);
@@ -1044,7 +1075,7 @@ describe(TEST_ROUTE, () => {
         method: METHOD.POST,
       });
 
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
 
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());
@@ -1083,7 +1114,7 @@ describe(TEST_ROUTE, () => {
       });
 
       await withConsoleErrorHiding(async () => {
-        await s3NotificationHandler(req, res);
+        await snsHandler(req, res);
       });
 
       expect(res.statusCode).toBe(400);
@@ -1187,7 +1218,7 @@ describe(TEST_ROUTE, () => {
     );
 
     await withConsoleErrorHiding(async () => {
-      await s3NotificationHandler(req, res);
+      await snsHandler(req, res);
     });
 
     expect(res.statusCode).toBe(400);

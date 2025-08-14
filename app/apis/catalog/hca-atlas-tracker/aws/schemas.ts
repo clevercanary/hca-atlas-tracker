@@ -49,7 +49,13 @@ export const snsMessageSchema = object({
   Timestamp: string().required(),
   Token: string().optional(),
   TopicArn: string().required(),
-  Type: string().oneOf(["Notification"]).required(),
+  Type: string()
+    .oneOf([
+      "Notification",
+      "SubscriptionConfirmation",
+      "UnsubscribeConfirmation",
+    ])
+    .required(),
   UnsubscribeURL: string().url().optional(),
 }).required();
 

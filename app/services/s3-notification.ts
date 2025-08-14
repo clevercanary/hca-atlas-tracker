@@ -15,6 +15,31 @@ import {
 } from "../config/aws-resources";
 import { InvalidOperationError } from "../utils/api-handler";
 import { doTransaction, query } from "./database";
+
+/**
+ * Processes an SNS notification message containing S3 events
+ * @param snsMessage - The SNS message containing S3 event data
+ * @throws InvalidOperationError if the SNS message doesn't contain valid S3 event data
+ * @throws InvalidOperationError if multiple S3 records are present
+ * @throws UnauthorizedAWSResourceError if SNS topic or S3 bucket is not authorized
+ */
+export async function processS3NotificationMessage(
+  snsMessage: SNSMessage
+): Promise<void> {
+  // Parse S3 event from SNS message
+  let s3Event: S3Event;
+  try {
+    s3Event = JSON.parse(snsMessage.Message);
+  } catch (parseError) {
+    throw new InvalidOperationError(
+      "Failed to parse S3 event from SNS message"
+    );
+  }
+
+  // Delegate to existing S3 processing logic
+  await processS3Record(s3Event, snsMessage);
+}
+
 /**
  * Extracts the SHA256 hash from S3 object metadata
  * @param s3Object - The S3 object from the event record
