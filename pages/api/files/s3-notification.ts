@@ -19,7 +19,11 @@ import {
   validateSNSTopicAuthorization,
 } from "../../../app/config/aws-resources";
 import { doTransaction, query } from "../../../app/services/database";
-import { handler, method } from "../../../app/utils/api-handler";
+import {
+  handler,
+  InvalidOperationError,
+  method,
+} from "../../../app/utils/api-handler";
 
 function extractSHA256FromS3Object(
   s3Object: S3EventRecord["s3"]["object"]
@@ -346,90 +350,39 @@ async function validateRequest(req: NextApiRequest): Promise<{
 }
 
 /**
- * Processes all S3 records and handles errors appropriately
- * @param s3Event - The validated S3 event containing records to process
- * @returns Promise containing processing results
+ * Processes the S3 record from the event
+ * @param s3Event - The validated S3 event containing a single record
+ * @throws InvalidOperationError if multiple records are present
  */
-async function processS3Records(s3Event: S3Event): Promise<{
-  errors: string[];
-  recordsProcessed: number;
-}> {
-  let recordsProcessed = 0;
-  const errors: string[] = [];
-
-  for (const record of s3Event.Records) {
-    try {
-      await saveFileRecord(record);
-      recordsProcessed++;
-    } catch (error: unknown) {
-      // Handle file type determination errors (client data issues)
-      if (
-        error instanceof InvalidS3KeyFormatError ||
-        error instanceof UnknownFolderTypeError
-      ) {
-        console.error("File type determination error:", error.message);
-        throw error; // Re-throw to be handled by caller with 400 status
-      }
-
-      // Handle ETag mismatch errors (data integrity issues)
-      if (error instanceof ETagMismatchError) {
-        console.error("ETag mismatch error:", error.message);
-        throw error; // Re-throw to be handled by caller with 500 status
-      }
-
-      // Handle other unexpected errors
-      console.error("Unexpected error processing S3 record:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      errors.push(errorMessage);
-    }
+async function processS3Record(s3Event: S3Event): Promise<void> {
+  // S3 ObjectCreated events should contain exactly one record per SNS message
+  if (s3Event.Records.length !== 1) {
+    throw new InvalidOperationError(
+      `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`
+    );
   }
 
-  return { errors, recordsProcessed };
-}
-
-/**
- * Creates the response object for successful processing
- * @param recordsProcessed - Number of records successfully processed
- * @param errors - Array of error messages from processing
- * @returns Response object
- */
-function createResponse(
-  recordsProcessed: number,
-  errors: string[]
-): {
-  errors?: string[];
-  message: string;
-  recordsProcessed: number;
-} {
-  const response: {
-    errors?: string[];
-    message: string;
-    recordsProcessed: number;
-  } = {
-    message: "S3 notification processed successfully",
-    recordsProcessed,
-  };
-
-  // Include errors in response if any occurred
-  if (errors.length > 0) {
-    response.errors = errors;
-    response.message = `S3 notification processed with ${errors.length} error(s)`;
-  }
-
-  return response;
+  const record = s3Event.Records[0];
+  await saveFileRecord(record);
 }
 
 /**
  * Authorizes S3 buckets
- * @param s3Event - The validated S3 event
+ * @param s3Event - The validated S3 event containing a single record
+ * @throws InvalidOperationError if multiple records are present
  * @throws UnauthorizedAWSResourceError if any bucket is not authorized
  */
 function authorizeS3Buckets(s3Event: S3Event): void {
-  // Validate all S3 buckets are authorized (strict mode)
-  for (const record of s3Event.Records) {
-    validateS3BucketAuthorization(record.s3.bucket.name);
+  // S3 ObjectCreated events should contain exactly one record per SNS message
+  if (s3Event.Records.length !== 1) {
+    throw new InvalidOperationError(
+      `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`
+    );
   }
+
+  // Validate the S3 bucket is authorized
+  const record = s3Event.Records[0];
+  validateS3BucketAuthorization(record.s3.bucket.name);
 }
 
 export default handler(method(METHOD.POST), async (req, res) => {
@@ -445,8 +398,9 @@ export default handler(method(METHOD.POST), async (req, res) => {
   // Step 4: Authorize S3 buckets
   authorizeS3Buckets(s3Event);
 
-  // Step 5: Process records and respond
-  const { errors, recordsProcessed } = await processS3Records(s3Event);
-  const response = createResponse(recordsProcessed, errors);
-  res.status(200).json(response);
+  // Step 5: Process S3 record
+  await processS3Record(s3Event);
+
+  // Step 6: Return success response
+  res.status(200).end();
 });

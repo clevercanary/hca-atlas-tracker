@@ -64,6 +64,7 @@ const TEST_VERSION_IDS = {
 const TEST_TIMESTAMP = "2024-01-01T12:00:00.000Z";
 const TEST_TIMESTAMP_ALT = "2023-01-01T00:00:00.000Z";
 const TEST_SIGNATURE = "fake-signature-for-testing";
+const TEST_S3_EVENT_NAME_OBJECT_CREATED = "ObjectCreated:Put";
 
 // S3 Event and SNS Message Factory Functions
 interface S3EventOptions {
@@ -1006,7 +1007,7 @@ describe(TEST_ROUTE, () => {
           "abc123def456",
           1024,
           JSON.stringify({
-            eventName: "ObjectCreated:Put",
+            eventName: TEST_S3_EVENT_NAME_OBJECT_CREATED,
             eventTime: TEST_TIMESTAMP_ALT,
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -1034,7 +1035,7 @@ describe(TEST_ROUTE, () => {
           "abc123def456",
           1024,
           JSON.stringify({
-            eventName: "ObjectCreated:Put",
+            eventName: TEST_S3_EVENT_NAME_OBJECT_CREATED,
             eventTime: TEST_TIMESTAMP_ALT,
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -1045,5 +1046,47 @@ describe(TEST_ROUTE, () => {
         ]
       )
     ).rejects.toThrow(/constraint/);
+  });
+
+  it("rejects S3 events with multiple records", async () => {
+    // Create an S3 event with multiple records (duplicate the same record)
+    const s3Event = createS3Event({
+      etag: "abc123def456",
+      eventName: TEST_S3_EVENT_NAME_OBJECT_CREATED,
+      key: "bio_network/test/integrated-objects/test.h5ad",
+      sha256:
+        "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      size: 1024,
+      versionId: "version123",
+    });
+
+    // Add a second record to make it invalid
+    s3Event.Records.push(s3Event.Records[0]);
+
+    const snsMessage = createSNSMessage({
+      messageId: "test-message-id",
+      s3Event,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    // Override the message content with our multi-record S3 event
+    snsMessage.Message = JSON.stringify(s3Event);
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await s3NotificationHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res._getData())).toEqual({
+      message: "Expected exactly 1 S3 record, but received 2 records",
+    });
   });
 });
