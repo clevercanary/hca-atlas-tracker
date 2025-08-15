@@ -7,18 +7,19 @@
 • **S3 → SNS → HTTP Endpoint** (not S3 → SQS or direct S3)
 
 - Rationale: App Runner requires HTTP endpoints; SQS needs polling/Lambda; SNS supports push notifications
-- Alternative rejected: Direct S3 notifications (not supported for HTTP endpoints)
+- Alternative rejected: SQS (adds complexity, delayed processing)
 
 ### **API Design**
 
-• **Next.js API Route** (`/api/files/s3-notification`)
+• **Centralized SNS Webhook** (`/api/sns`)
 
 - Rationale: Integrates with existing Next.js application architecture
-- Single endpoint handles all S3 object events via SNS wrapper
+- Single endpoint handles all SNS messages (SubscriptionConfirmation, Notification, etc.)
+- Routes S3 notifications and other SNS message types to appropriate service handlers
 
 ### **Event Processing**
 
-• **Individual S3 object events** (not manifest/batch processing)
+• **Individual S3 object events** (not processing on upload of manifest files)
 
 - Rationale: Simpler implementation, immediate processing, easier error handling
 - Alternative rejected: Manifest files (adds complexity, delayed processing)
@@ -256,7 +257,10 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 
 ### **Key Files**
 
-- `pages/api/files/s3-notification.ts` - Main API handler
+- `pages/api/sns.ts` - Centralized SNS webhook handler
+- `app/services/sns-dispatcher.ts` - SNS notification routing service
+- `app/services/sns-subscription.ts` - SNS subscription lifecycle handler
+- `app/services/s3-notification.ts` - S3 notification processing service
 - `migrations/1754790000000_files-table.ts` - Database schema
 - `__tests__/api-files-s3-notification.test.ts` - Comprehensive test suite
 

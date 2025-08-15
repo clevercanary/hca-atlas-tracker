@@ -153,7 +153,7 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
-// Mock ky HTTP client for Jest compatibility
+// Mock ky HTTP client for Jest compatibility (ky is ES module, Jest runs in CommonJS)
 jest.mock("ky", () => ({
   get: jest.fn().mockResolvedValue({ ok: true }),
 }));
