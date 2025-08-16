@@ -800,7 +800,7 @@ describe(TEST_ROUTE, () => {
         signature: TEST_SIGNATURE,
         subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
         timestamp: TEST_TIMESTAMP,
-        topicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+        topicArn: UNAUTHORIZED_TOPIC_ARN,
       });
 
       const { req, res } = httpMocks.createMocks<
@@ -816,8 +816,7 @@ describe(TEST_ROUTE, () => {
 
       expect(res._getStatusCode()).toBe(403);
       expect(JSON.parse(res._getData())).toEqual({
-        message:
-          "Unauthorized SNS topic: arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+        message: `Unauthorized SNS topic: ${UNAUTHORIZED_TOPIC_ARN}`,
       });
     });
   });
@@ -1245,6 +1244,9 @@ describe(TEST_ROUTE, () => {
   const SUBSCRIBE_URL_BASE =
     "https://sns.us-east-1.amazonaws.com/?Action=ConfirmSubscription&TopicArn=";
   const SUBSCRIBE_URL = `${SUBSCRIBE_URL_BASE}test&Token=test-token`;
+  const UNAUTHORIZED_TOPIC_ARN =
+    "arn:aws:sns:us-east-1:123456789012:unauthorized-topic";
+  const UNSUBSCRIBE_MESSAGE = "You have unsubscribed from the topic";
 
   describe("SNS SubscriptionConfirmation handling", () => {
     beforeEach(() => {
@@ -1295,7 +1297,7 @@ describe(TEST_ROUTE, () => {
           Subject: SUBSCRIPTION_CONFIRMATION_SUBJECT,
           SubscribeURL: SUBSCRIBE_URL,
           Timestamp: TEST_TIMESTAMP,
-          TopicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+          TopicArn: UNAUTHORIZED_TOPIC_ARN,
           Type: SUBSCRIPTION_CONFIRMATION_TYPE,
         };
 
@@ -1314,8 +1316,7 @@ describe(TEST_ROUTE, () => {
 
         expect(res.statusCode).toBe(403);
         expect(JSON.parse(res._getData())).toEqual({
-          message:
-            "Unauthorized SNS topic: arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+          message: `Unauthorized SNS topic: ${UNAUTHORIZED_TOPIC_ARN}`,
         });
       });
 
@@ -1356,7 +1357,7 @@ describe(TEST_ROUTE, () => {
     describe("UnsubscribeConfirmation", () => {
       it("handles valid unsubscribe confirmation with proper topic authorization", async () => {
         const unsubscribeConfirmationMessage = {
-          Message: "You have unsubscribed from the topic",
+          Message: UNSUBSCRIBE_MESSAGE,
           MessageId: "unsubscribe-test-message-id",
           Signature: TEST_SIGNATURE,
           SignatureVersion: SNS_SIGNATURE_VERSION,
@@ -1385,14 +1386,14 @@ describe(TEST_ROUTE, () => {
 
       it("rejects unsubscribe confirmation from unauthorized topic", async () => {
         const unauthorizedUnsubscribeMessage = {
-          Message: "You have unsubscribed from the topic",
+          Message: UNSUBSCRIBE_MESSAGE,
           MessageId: "unauthorized-unsubscribe-message-id",
           Signature: TEST_SIGNATURE,
           SignatureVersion: SNS_SIGNATURE_VERSION,
           SigningCertURL: SIGNING_CERT_URL,
           Subject: "AWS Notification - Unsubscribe Confirmation",
           Timestamp: TEST_TIMESTAMP,
-          TopicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+          TopicArn: UNAUTHORIZED_TOPIC_ARN,
           Type: "UnsubscribeConfirmation",
         };
 
@@ -1411,14 +1412,13 @@ describe(TEST_ROUTE, () => {
 
         expect(res.statusCode).toBe(403);
         expect(JSON.parse(res._getData())).toEqual({
-          message:
-            "Unauthorized SNS topic: arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+          message: `Unauthorized SNS topic: ${UNAUTHORIZED_TOPIC_ARN}`,
         });
       });
 
       it("handles unsubscribe confirmation without Subject field", async () => {
         const unsubscribeMessageWithoutSubject = {
-          Message: "You have unsubscribed from the topic",
+          Message: UNSUBSCRIBE_MESSAGE,
           MessageId: "no-subject-unsubscribe-message-id",
           Signature: TEST_SIGNATURE,
           SignatureVersion: SNS_SIGNATURE_VERSION,
