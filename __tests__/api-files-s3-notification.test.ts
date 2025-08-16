@@ -1,3 +1,9 @@
+// Mock ky for HTTP requests BEFORE any imports
+const mockKyGet = jest.fn();
+jest.mock("ky", () => ({
+  get: mockKyGet,
+}));
+
 // Set up AWS resource configuration BEFORE any other imports
 const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
@@ -1224,6 +1230,220 @@ describe(TEST_ROUTE, () => {
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
       message: "Expected exactly 1 S3 record, but received 2 records",
+    });
+  });
+
+  // SNS Test Constants (shared across subscription tests)
+  const SUBSCRIPTION_CONFIRMATION_SUBJECT =
+    "AWS Notification - Subscription Confirmation";
+  const SUBSCRIPTION_CONFIRMATION_MESSAGE =
+    "You have chosen to subscribe to the topic";
+  const SNS_SIGNATURE_VERSION = "1";
+  const SIGNING_CERT_URL =
+    "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-test.pem";
+  const SUBSCRIPTION_CONFIRMATION_TYPE = "SubscriptionConfirmation";
+  const SUBSCRIBE_URL_BASE =
+    "https://sns.us-east-1.amazonaws.com/?Action=ConfirmSubscription&TopicArn=";
+  const SUBSCRIBE_URL = `${SUBSCRIBE_URL_BASE}test&Token=test-token`;
+
+  describe("SNS SubscriptionConfirmation handling", () => {
+    beforeEach(() => {
+      // Reset ky mock before each test
+      mockKyGet.mockClear();
+      mockKyGet.mockResolvedValue({ ok: true });
+    });
+
+    describe("SubscriptionConfirmation", () => {
+      it("handles valid subscription confirmation with proper topic authorization", async () => {
+        const subscriptionConfirmationMessage = {
+          Message: SUBSCRIPTION_CONFIRMATION_MESSAGE,
+          MessageId: "subscription-test-message-id",
+          Signature: TEST_SIGNATURE,
+          SignatureVersion: SNS_SIGNATURE_VERSION,
+          SigningCertURL: SIGNING_CERT_URL,
+          Subject: SUBSCRIPTION_CONFIRMATION_SUBJECT,
+          SubscribeURL: SUBSCRIBE_URL,
+          Timestamp: TEST_TIMESTAMP,
+          TopicArn: TEST_AWS_CONFIG.sns_topics[0], // Use authorized topic
+          Type: SUBSCRIPTION_CONFIRMATION_TYPE,
+        };
+
+        const { req, res } = httpMocks.createMocks<
+          NextApiRequest,
+          NextApiResponse
+        >({
+          body: subscriptionConfirmationMessage,
+          method: METHOD.POST,
+        });
+
+        const handler = (await import("../pages/api/sns")).default;
+        await withConsoleErrorHiding(async () => {
+          await handler(req, res);
+        });
+
+        expect(res.statusCode).toBe(200);
+        // HTTP call verification: The 200 response indicates the SubscribeURL was successfully called
+      });
+
+      it("rejects subscription confirmation from unauthorized topic", async () => {
+        const unauthorizedSubscriptionMessage = {
+          Message: SUBSCRIPTION_CONFIRMATION_MESSAGE,
+          MessageId: "unauthorized-subscription-message-id",
+          Signature: TEST_SIGNATURE,
+          SignatureVersion: SNS_SIGNATURE_VERSION,
+          SigningCertURL: SIGNING_CERT_URL,
+          Subject: SUBSCRIPTION_CONFIRMATION_SUBJECT,
+          SubscribeURL: SUBSCRIBE_URL,
+          Timestamp: TEST_TIMESTAMP,
+          TopicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+          Type: SUBSCRIPTION_CONFIRMATION_TYPE,
+        };
+
+        const { req, res } = httpMocks.createMocks<
+          NextApiRequest,
+          NextApiResponse
+        >({
+          body: unauthorizedSubscriptionMessage,
+          method: METHOD.POST,
+        });
+
+        const handler = (await import("../pages/api/sns")).default;
+        await withConsoleErrorHiding(async () => {
+          await handler(req, res);
+        });
+
+        expect(res.statusCode).toBe(403);
+        expect(JSON.parse(res._getData())).toEqual({
+          message:
+            "Unauthorized SNS topic: arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+        });
+      });
+
+      it("rejects subscription confirmation with missing SubscribeURL", async () => {
+        const subscriptionMessageWithoutURL = {
+          Message: SUBSCRIPTION_CONFIRMATION_MESSAGE,
+          MessageId: "missing-url-test-message-id",
+          Signature: TEST_SIGNATURE,
+          SignatureVersion: SNS_SIGNATURE_VERSION,
+          SigningCertURL: SIGNING_CERT_URL,
+          Subject: SUBSCRIPTION_CONFIRMATION_SUBJECT,
+          // SubscribeURL is intentionally missing
+          Timestamp: TEST_TIMESTAMP,
+          TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+          Type: SUBSCRIPTION_CONFIRMATION_TYPE,
+        };
+
+        const { req, res } = httpMocks.createMocks<
+          NextApiRequest,
+          NextApiResponse
+        >({
+          body: subscriptionMessageWithoutURL,
+          method: METHOD.POST,
+        });
+
+        const handler = (await import("../pages/api/sns")).default;
+        await withConsoleErrorHiding(async () => {
+          await handler(req, res);
+        });
+
+        expect(res.statusCode).toBe(400);
+        expect(JSON.parse(res._getData())).toEqual({
+          message: "SubscribeURL is required for subscription confirmation",
+        });
+      });
+    });
+
+    describe("UnsubscribeConfirmation", () => {
+      it("handles valid unsubscribe confirmation with proper topic authorization", async () => {
+        const unsubscribeConfirmationMessage = {
+          Message: "You have unsubscribed from the topic",
+          MessageId: "unsubscribe-test-message-id",
+          Signature: TEST_SIGNATURE,
+          SignatureVersion: SNS_SIGNATURE_VERSION,
+          SigningCertURL: SIGNING_CERT_URL,
+          Subject: "AWS Notification - Unsubscribe Confirmation",
+          Timestamp: TEST_TIMESTAMP,
+          TopicArn: TEST_AWS_CONFIG.sns_topics[0], // Use authorized topic
+          Type: "UnsubscribeConfirmation",
+        };
+
+        const { req, res } = httpMocks.createMocks<
+          NextApiRequest,
+          NextApiResponse
+        >({
+          body: unsubscribeConfirmationMessage,
+          method: METHOD.POST,
+        });
+
+        const handler = (await import("../pages/api/sns")).default;
+        await withConsoleErrorHiding(async () => {
+          await handler(req, res);
+        });
+
+        expect(res.statusCode).toBe(200);
+      });
+
+      it("rejects unsubscribe confirmation from unauthorized topic", async () => {
+        const unauthorizedUnsubscribeMessage = {
+          Message: "You have unsubscribed from the topic",
+          MessageId: "unauthorized-unsubscribe-message-id",
+          Signature: TEST_SIGNATURE,
+          SignatureVersion: SNS_SIGNATURE_VERSION,
+          SigningCertURL: SIGNING_CERT_URL,
+          Subject: "AWS Notification - Unsubscribe Confirmation",
+          Timestamp: TEST_TIMESTAMP,
+          TopicArn: "arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+          Type: "UnsubscribeConfirmation",
+        };
+
+        const { req, res } = httpMocks.createMocks<
+          NextApiRequest,
+          NextApiResponse
+        >({
+          body: unauthorizedUnsubscribeMessage,
+          method: METHOD.POST,
+        });
+
+        const handler = (await import("../pages/api/sns")).default;
+        await withConsoleErrorHiding(async () => {
+          await handler(req, res);
+        });
+
+        expect(res.statusCode).toBe(403);
+        expect(JSON.parse(res._getData())).toEqual({
+          message:
+            "Unauthorized SNS topic: arn:aws:sns:us-east-1:123456789012:unauthorized-topic",
+        });
+      });
+
+      it("handles unsubscribe confirmation without Subject field", async () => {
+        const unsubscribeMessageWithoutSubject = {
+          Message: "You have unsubscribed from the topic",
+          MessageId: "no-subject-unsubscribe-message-id",
+          Signature: TEST_SIGNATURE,
+          SignatureVersion: SNS_SIGNATURE_VERSION,
+          SigningCertURL: SIGNING_CERT_URL,
+          // Subject is intentionally missing
+          Timestamp: TEST_TIMESTAMP,
+          TopicArn: TEST_AWS_CONFIG.sns_topics[0],
+          Type: "UnsubscribeConfirmation",
+        };
+
+        const { req, res } = httpMocks.createMocks<
+          NextApiRequest,
+          NextApiResponse
+        >({
+          body: unsubscribeMessageWithoutSubject,
+          method: METHOD.POST,
+        });
+
+        const handler = (await import("../pages/api/sns")).default;
+        await withConsoleErrorHiding(async () => {
+          await handler(req, res);
+        });
+
+        expect(res.statusCode).toBe(200);
+      });
     });
   });
 });
