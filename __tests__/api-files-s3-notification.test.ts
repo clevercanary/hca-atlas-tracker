@@ -97,13 +97,6 @@ function createS3Event(options: S3EventOptions): S3Event {
     versionId: options.versionId,
   };
 
-  // Only add userMetadata if sha256 is provided
-  if (options.sha256) {
-    objectData.userMetadata = {
-      "source-sha256": options.sha256,
-    };
-  }
-
   return {
     Records: [
       {
@@ -283,14 +276,12 @@ describe(TEST_ROUTE, () => {
   });
 
   // SHA256 Integrity Validation Tests
-  it("returns error 400 for S3 event missing SHA256 metadata", async () => {
-    // Create S3 event without SHA256 metadata - this is intentional for this test
+  test("successfully processes S3 event without SHA256 metadata", async () => {
     const s3Event = createS3Event({
       etag: "d41d8cd98f00b204e9800998ecf8427e",
       key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
       size: 1024000,
       versionId: TEST_VERSION_IDS.DEFAULT,
-      // Intentionally omitting sha256 parameter to test missing metadata
     });
 
     const snsMessage = createSNSMessage({
@@ -312,14 +303,18 @@ describe(TEST_ROUTE, () => {
       await snsHandler(req, res);
     });
 
-    expect(res.statusCode).toBe(400);
-    expect(res._getJSONData()).toEqual({
-      errors: {
-        "Records[0].s3.object.userMetadata.source-sha256": [
-          "SHA256 metadata is required for file integrity validation",
-        ],
-      },
-    });
+    expect(res.statusCode).toBe(200);
+
+    // Check that file was saved to database with NULL SHA256
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+    ]);
+
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.sha256_client).toBeNull(); // Should be NULL since no SHA256 provided
+    expect(file.integrity_status).toBe("pending");
   });
 
   // Happy Path Processing Tests
@@ -327,8 +322,6 @@ describe(TEST_ROUTE, () => {
     const s3Event = createS3Event({
       etag: "d41d8cd98f00b204e9800998ecf8427e",
       key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
-      sha256:
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       size: 1024000,
       versionId: TEST_VERSION_IDS.DEFAULT,
     });
@@ -365,9 +358,7 @@ describe(TEST_ROUTE, () => {
     expect(file.size_bytes).toBe("1024000"); // PostgreSQL bigint returns as string
     expect(file.version_id).toBe(TEST_VERSION_IDS.DEFAULT);
     expect(file.status).toBe("uploaded");
-    expect(file.sha256_client).toBe(
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    );
+    expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
     expect(file.integrity_status).toBe("pending");
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
@@ -428,8 +419,6 @@ describe(TEST_ROUTE, () => {
     const s3Event = createS3Event({
       etag: "e1234567890abcdef1234567890abcdef",
       key: TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE,
-      sha256:
-        "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
       size: 2048000,
       versionId: "abc123def456ghi789jkl012mno345pqr",
     });
@@ -486,8 +475,6 @@ describe(TEST_ROUTE, () => {
       etag: "invalid-signature-test",
       eventTime: TEST_TIMESTAMP_ALT,
       key: TEST_FILE_PATHS.SOURCE_DATASET_AUTH,
-      sha256:
-        "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       size: 256000,
       versionId: "auth-test-version",
     });
@@ -533,8 +520,6 @@ describe(TEST_ROUTE, () => {
         message: Record<string, unknown>,
         callback: (err: Error | null, result?: Record<string, unknown>) => void
       ): void => callback(null, undefined),
-      sha256:
-        "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
       size: 128000,
       testId: "no-validated-message",
       testName:
@@ -544,7 +529,7 @@ describe(TEST_ROUTE, () => {
 
   test.each(snsValidatorEdgeCases)(
     "$testName",
-    async ({ expectedMessage, mockBehavior, sha256, size, testId }) => {
+    async ({ expectedMessage, mockBehavior, size, testId }) => {
       // Temporarily override the mock with specific behavior
       const MockedMessageValidator = jest.mocked(
         jest.requireMock(TEST_MODULE_SNS_VALIDATOR)
@@ -557,7 +542,6 @@ describe(TEST_ROUTE, () => {
         etag: `${testId}-test`,
         eventTime: TEST_TIMESTAMP_ALT,
         key: TEST_FILE_PATHS.SOURCE_DATASET_AUTH,
-        sha256,
         size,
         versionId: `${testId}-version`,
       });
@@ -613,8 +597,6 @@ describe(TEST_ROUTE, () => {
       etag: "original-etag-12345",
       eventTime: TEST_TIMESTAMP_ALT,
       key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
-      sha256:
-        "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       size: 128000,
       versionId: "version-123",
     });
@@ -645,8 +627,6 @@ describe(TEST_ROUTE, () => {
       etag: "different-etag-67890", // Different ETag!
       eventTime: TEST_TIMESTAMP_ALT,
       key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
-      sha256:
-        "6789012345678901234567890123456789012345678901234567890123456789",
       size: 128000,
       versionId: "version-123",
     });
@@ -693,8 +673,6 @@ describe(TEST_ROUTE, () => {
       etag: "version1-etag-12345678901234567890123456789012",
       eventTime: "2024-01-01T12:00:00.000Z",
       key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
-      sha256:
-        "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
       size: 1024000,
       versionId: "version-1",
     });
@@ -725,8 +703,6 @@ describe(TEST_ROUTE, () => {
       etag: "version2-etag-98765432109876543210987654321098",
       eventTime: "2024-01-01T13:00:00.000Z",
       key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED, // Same key
-      sha256:
-        "b2c3d4e5f678901234567890123456789012345678901234567890123456789a",
       size: 2048000,
       versionId: "version-2", // Different version
     });
@@ -788,8 +764,6 @@ describe(TEST_ROUTE, () => {
       const s3Event = createS3Event({
         etag: "d41d8cd98f00b204e9800998ecf8427e",
         key: "test-file.h5ad",
-        sha256:
-          "a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890",
         size: 1024000,
         versionId: TEST_VERSION_IDS.DEFAULT,
       });
@@ -826,8 +800,6 @@ describe(TEST_ROUTE, () => {
       bucket: "unauthorized-bucket",
       etag: "d41d8cd98f00b204e9800998ecf8427e",
       key: "test-file.h5ad",
-      sha256:
-        "a1b2c3d4e5f67890123456789012345678901234567890123456789012345678",
       size: 1024000,
       versionId: TEST_VERSION_IDS.DEFAULT,
     });
@@ -863,8 +835,6 @@ describe(TEST_ROUTE, () => {
     const s3Event = createS3Event({
       etag: "f1234567890abcdef1234567890abcdef",
       key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      sha256:
-        "b1c2d3e4f5678901234567890123456789012345678901234567890123456789",
       size: 5120000,
       versionId: "integrated-version-123",
     });
@@ -907,9 +877,7 @@ describe(TEST_ROUTE, () => {
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");
     expect(file.status).toBe("uploaded");
-    expect(file.sha256_client).toBe(
-      "b1c2d3e4f5678901234567890123456789012345678901234567890123456789"
-    );
+    expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
     expect(file.integrity_status).toBe("pending");
   });
 
@@ -917,8 +885,6 @@ describe(TEST_ROUTE, () => {
     const s3Event = createS3Event({
       etag: "c9876543210fedcba9876543210fedcba",
       key: TEST_FILE_PATHS.MANIFEST,
-      sha256:
-        "c2d3e4f5678901234567890123456789012345678901234567890123456789ab",
       size: 2048,
       versionId: "manifest-version-456",
     });
@@ -961,9 +927,7 @@ describe(TEST_ROUTE, () => {
     expect(file.size_bytes).toBe("2048");
     expect(file.version_id).toBe("manifest-version-456");
     expect(file.status).toBe("uploaded");
-    expect(file.sha256_client).toBe(
-      "c2d3e4f5678901234567890123456789012345678901234567890123456789ab"
-    );
+    expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
     expect(file.integrity_status).toBe("pending");
   });
 
@@ -974,8 +938,6 @@ describe(TEST_ROUTE, () => {
       etag: "d4e5f6789012345678901234567890ab",
       expectedAtlasId: "550e8400-e29b-41d4-a716-446655440001", // Retina atlas ID
       key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
-      sha256:
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       size: 8192000,
       versionId: "retina-version-789",
     },
@@ -984,8 +946,6 @@ describe(TEST_ROUTE, () => {
       etag: "e5f6789012345678901234567890abcd",
       expectedAtlasId: "550e8400-e29b-41d4-a716-446655440002", // Gut v1.1 atlas ID
       key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
-      sha256:
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       size: 4096000,
       versionId: "gut-v11-version-012",
     },
@@ -994,18 +954,15 @@ describe(TEST_ROUTE, () => {
       etag: "f6789012345678901234567890abcdef",
       expectedAtlasId: TEST_GUT_ATLAS_ID, // Gut v1 atlas ID
       key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
-      sha256:
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       size: 1024,
       versionId: "gut-v1-no-decimal-version",
     },
   ])(
     "correctly identifies $description",
-    async ({ etag, expectedAtlasId, key, sha256, size, versionId }) => {
+    async ({ etag, expectedAtlasId, key, size, versionId }) => {
       const s3Event = createS3Event({
         etag,
         key,
-        sha256,
         size,
         versionId,
       });
@@ -1047,7 +1004,7 @@ describe(TEST_ROUTE, () => {
       expect(file.size_bytes).toBe(size.toString());
       expect(file.version_id).toBe(versionId);
       expect(file.status).toBe("uploaded");
-      expect(file.sha256_client).toBe(sha256);
+      expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
       expect(file.integrity_status).toBe("pending");
     }
   );
@@ -1058,8 +1015,6 @@ describe(TEST_ROUTE, () => {
       const s3Event = createS3Event({
         etag: "invalid-etag-test",
         key: "invalid/path.h5ad", // Only 2 segments, need 4+
-        sha256:
-          "d3e4f5678901234567890123456789012345678901234567890123456789abcd",
         size: 1024,
         versionId: "invalid-version",
       });
@@ -1096,8 +1051,6 @@ describe(TEST_ROUTE, () => {
       const s3Event = createS3Event({
         etag: "unknown-folder-etag",
         key: "bio_network/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
-        sha256:
-          "e4f5678901234567890123456789012345678901234567890123456789abcdef",
         size: 1024,
         versionId: "unknown-folder-version",
       });
@@ -1196,8 +1149,6 @@ describe(TEST_ROUTE, () => {
       etag: "abc123def456",
       eventName: TEST_S3_EVENT_NAME_OBJECT_CREATED,
       key: "bio_network/test/integrated-objects/test.h5ad",
-      sha256:
-        "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       size: 1024,
       versionId: "version123",
     });

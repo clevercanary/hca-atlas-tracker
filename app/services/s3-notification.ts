@@ -40,20 +40,6 @@ export async function processS3NotificationMessage(
   await processS3Record(s3Event, snsMessage);
 }
 
-/**
- * Extracts the SHA256 hash from S3 object metadata
- * @param s3Object - The S3 object from the event record
- * @returns The SHA256 hash value from the 'source-sha256' metadata field
- * @note SHA256 validation is handled by Yup schema before this function is called
- */
-function extractSHA256FromS3Object(
-  s3Object: S3EventRecord["s3"]["object"]
-): string {
-  // SHA256 validation is now handled by Yup schema
-  // This function just extracts the validated value
-  return s3Object.userMetadata["source-sha256"];
-}
-
 // Parsed S3 key path components
 interface S3KeyPathComponents {
   atlasName: string; // e.g., 'gut-v1'
@@ -222,8 +208,8 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
     eventTime: record.eventTime,
   };
 
-  // Extract SHA256 from validated S3 object metadata
-  const sha256 = extractSHA256FromS3Object(object);
+  // S3 notifications don't include SHA256 metadata - will be populated later via separate integrity validation
+  const sha256 = null;
 
   // Determine file type from S3 key path structure
   const fileType = determineFileType(object.key);

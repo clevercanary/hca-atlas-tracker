@@ -7,16 +7,6 @@ export const s3ObjectSchema = object({
   eTag: string().required(),
   key: string().required(),
   size: number().required(),
-  userMetadata: object()
-    .shape({
-      "source-sha256": string()
-        .matches(
-          /^[a-fA-F0-9]{64}$/,
-          "SHA256 must be a 64-character hexadecimal string"
-        )
-        .required("SHA256 metadata is required for file integrity validation"),
-    })
-    .required(),
   versionId: string().nullable().optional(),
 }).required();
 

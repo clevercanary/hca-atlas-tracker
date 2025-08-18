@@ -5,9 +5,6 @@ export interface S3Object {
   eTag: string;
   key: string;
   size: number;
-  userMetadata?: {
-    "source-sha256": string;
-  };
   versionId: string;
 }
 

@@ -35,11 +35,11 @@
 
 ### **SHA256 Integrity Validation**
 
-• **Client-provided SHA256** in S3 object metadata (`source-sha256`)
+• **Deferred SHA256 validation** (S3 notifications don't include user metadata)
 
-- Rationale: Ensures data integrity, matches smart-sync tool expectations
-- Strict 64-character hex format validation
-- Rejects missing/invalid SHA256 with HTTP 400
+- **S3 Notification Stage**: Files saved with `sha256_client = NULL`, `integrity_status = "pending"`
+- **Separate Validation Stage**: SHA256 validation occurs via dedicated integrity checking process
+- **Rationale**: S3 event notifications don't include user metadata, immediate file ingestion more important than integrity validation
 
 ### **AWS Resource Allowlisting**
 
@@ -59,8 +59,7 @@
 
 - **Yup Schema Validation**: Uses established codebase pattern for consistent validation
 - **AWS-Compliant Schemas**: Matches official AWS S3 event notification structure
-- **Type Safety**: Eliminates `any` types, uses proper TypeScript interfaces
-- **Rationale**: Fail fast on malformed data, clear error messages, compile-time safety
+- **Rationale**: Fail fast on malformed data, clear error messages, compile-time safety, matches real AWS behavior
 
 ## Data Integrity & Idempotency
 
@@ -197,7 +196,7 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 
 • **HTTP status codes** by error type:
 
-- 400: Client errors (missing SHA256, invalid format, invalid S3 key format, unknown folder type)
+- 400: Client errors (invalid format, invalid S3 key format, unknown folder type)
 - 401: Authentication failures (invalid SNS signature)
 - 403: Authorization failures (unauthorized SNS topic, unauthorized S3 bucket)
 - 500: Server errors (ETag mismatches, database issues, atlas lookup failures)
@@ -229,8 +228,8 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 
 • **Detailed error messages** for debugging
 
-- Rationale: Faster troubleshooting, clear failure reasons
-- Examples: "SHA256 metadata is required", "ETag mismatch detected"
+- **Rationale**: Faster troubleshooting, clear failure reasons
+- Examples: "Invalid S3 key format", "ETag mismatch detected"
 
 ### **Code Architecture & Refactoring**
 
@@ -273,9 +272,9 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 ### **Production Readiness**
 
 ✅ Secure SNS authentication  
-✅ SHA256 integrity validation  
+✅ Deferred SHA256 integrity validation (pending status)  
 ✅ Idempotent duplicate handling  
 ✅ File versioning with `is_latest` tracking  
 ✅ Comprehensive error handling and logging  
-✅ Complete test coverage (8/8 tests passing)  
+✅ Complete test coverage (28/28 tests passing)  
 ✅ Production monitoring capabilities
