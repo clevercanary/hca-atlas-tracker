@@ -7,7 +7,7 @@ This guide defines the architectural patterns and guidelines for creating APIs i
 **Guidelines:**
 
 - Use `handler()` wrapper from `utils/api-handler.ts`
-- Declare supported methods with `method(METHOD.POST)` or `method([METHOD.GET, METHOD.POST])`
+- Single method: `method(METHOD.POST)` | Multiple methods: `handleByMethod({[METHOD.GET]: getHandler, [METHOD.PUT]: putHandler})`
 - Use `role(ROLE.CONTENT_ADMIN)` for standard authentication OR handle custom auth in service layer
 - Validate request body with Yup schemas before calling service layer
 - Delegate all business logic to service layer functions
