@@ -242,8 +242,21 @@ export async function withConsoleErrorHiding<T>(
         errorsOutputArray?.push(errors);
       })
     : null;
+
+  // Also suppress console.log messages during testing for clean output
+  const consoleLogSpy = hideConsoleError
+    ? jest.spyOn(console, "log").mockImplementation(() => {})
+    : null;
+
+  // Also suppress console.warn messages during testing for clean output
+  const consoleWarnSpy = hideConsoleError
+    ? jest.spyOn(console, "warn").mockImplementation(() => {})
+    : null;
+
   const result = await fn();
   consoleErrorSpy?.mockRestore();
+  consoleLogSpy?.mockRestore();
+  consoleWarnSpy?.mockRestore();
   return result;
 }
 

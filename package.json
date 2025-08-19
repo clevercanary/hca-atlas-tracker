@@ -14,7 +14,8 @@
     "test": "jest --runInBand",
     "build-catalog": "esrun ./files/build-catalog.ts",
     "migrate": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts",
-    "download-data-dictionary": "esrun ./catalog/build/download-data-dictionary.ts"
+    "download-data-dictionary": "esrun ./catalog/build/download-data-dictionary.ts",
+    "migrate:down": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-down.ts -j ts"
   },
   "dependencies": {
     "@databiosphere/findable-ui": "^41.2.0",
@@ -38,6 +39,7 @@
     "next": "^14.2.30",
     "next-auth": "^4.24.11",
     "next-compose-plugins": "^2.2.1",
+    "raw-body": "^3.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.51.2",
@@ -50,6 +52,7 @@
     "remark-parse": "^10.0.2",
     "remark-rehype": "^10.1.0",
     "slugify": "^1.6.6",
+    "sns-validator": "^0.3.5",
     "string-strip-html": "^13.4.8",
     "unified": "^10.1.2",
     "uuid": "8.3.2",
@@ -71,6 +74,7 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@types/react-table": "^7.7.12",
+    "@types/sns-validator": "^0.3.3",
     "@types/uuid": "8.3.4",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "babel-loader": "^8.2.5",
