@@ -1,13 +1,5 @@
 import pg from "pg";
-import { ValidationError } from "yup";
-import {
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBComponentAtlasInfo,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import {
-  ComponentAtlasEditData,
-  NewComponentAtlasData,
-} from "../apis/catalog/hca-atlas-tracker/common/schema";
+import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doTransaction, query } from "./database";
@@ -15,19 +7,6 @@ import {
   confirmSourceDatasetsExist,
   UpdatedSourceDatasetsInfo,
 } from "./source-datasets";
-
-interface ComponentAtlasDbEditData {
-  componentInfoEdit: Pick<
-    HCAAtlasTrackerDBComponentAtlasInfo,
-    "description" | "cellxgeneDatasetId" | "cellxgeneDatasetVersion"
-  >;
-  title: HCAAtlasTrackerDBComponentAtlas["title"];
-}
-
-interface NewComponentAtlasDbData {
-  componentInfo: HCAAtlasTrackerDBComponentAtlasInfo;
-  title: HCAAtlasTrackerDBComponentAtlas["title"];
-}
 
 /**
  * Get all component atlases of the given atlas.
@@ -63,115 +42,6 @@ export async function getComponentAtlas(
   if (queryResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
   return queryResult.rows[0];
-}
-
-/**
- * Create a new component atlas.
- * @param atlasId - ID of the associated atlas.
- * @param inputData - Values for the new component atlas.
- * @returns database model of new component atlas.
- */
-export async function createComponentAtlas(
-  atlasId: string,
-  inputData: NewComponentAtlasData
-): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  await confirmAtlasExists(atlasId);
-  const { componentInfo, title } = await newComponentAtlasDataToDbData(
-    inputData
-  );
-  const queryResult = await withTitleConflictHandling(
-    async () =>
-      await query<HCAAtlasTrackerDBComponentAtlas>(
-        "INSERT INTO hat.component_atlases (atlas_id, component_info, title) VALUES ($1, $2, $3) RETURNING *",
-        [atlasId, componentInfo, title]
-      )
-  );
-  return queryResult.rows[0];
-}
-
-/**
- * Update a component atlas.
- * @param atlasId - ID of the atlas that the component atlas is accessed through.
- * @param componentAtlasId - ID of the component atlas to update.
- * @param inputData - Values to update the component atlas with.
- * @returns database model of the updated component atlas.
- */
-export async function updateComponentAtlas(
-  atlasId: string,
-  componentAtlasId: string,
-  inputData: ComponentAtlasEditData
-): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const { componentInfoEdit, title } = await componentAtlasEditDataToDbData(
-    inputData
-  );
-  const queryResult = await withTitleConflictHandling(
-    async () =>
-      await query<HCAAtlasTrackerDBComponentAtlas>(
-        "UPDATE hat.component_atlases SET component_info=component_info||$1, title=$2 WHERE id=$3 AND atlas_id=$4 RETURNING *",
-        [JSON.stringify(componentInfoEdit), title, componentAtlasId, atlasId]
-      )
-  );
-  if (queryResult.rows.length === 0)
-    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
-  return queryResult.rows[0];
-}
-
-/**
- * Derive new component atlas information from input values.
- * @param inputData - Values to derive component atlas from.
- * @returns database model of values needed to create a component atlas.
- */
-async function newComponentAtlasDataToDbData(
-  inputData: NewComponentAtlasData
-): Promise<NewComponentAtlasDbData> {
-  return {
-    componentInfo: {
-      assay: [],
-      cellCount: 0,
-      cellxgeneDatasetId: null,
-      cellxgeneDatasetVersion: null,
-      description: inputData.description ?? "",
-      disease: [],
-      suspensionType: [],
-      tissue: [],
-    },
-    title: inputData.title,
-  };
-}
-
-/**
- * Derive updated component atlas information from input values.
- * @param inputData - Values to derive component atlas from.
- * @returns database model of values needed to update a component atlas.
- */
-async function componentAtlasEditDataToDbData(
-  inputData: ComponentAtlasEditData
-): Promise<ComponentAtlasDbEditData> {
-  return {
-    componentInfoEdit: {
-      cellxgeneDatasetId: null,
-      cellxgeneDatasetVersion: null,
-      description: inputData.description ?? "",
-    },
-    title: inputData.title,
-  };
-}
-
-/**
- * Delete a component atlas.
- * @param atlasId - ID of the atlas that the component atlas is accessed through.
- * @param componentAtlasId - ID of the component atlas to delete.
- */
-export async function deleteComponentAtlas(
-  atlasId: string,
-  componentAtlasId: string
-): Promise<void> {
-  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "DELETE FROM hat.component_atlases WHERE id=$1 AND atlas_id=$2",
-    [componentAtlasId, atlasId]
-  );
-  if (queryResult.rowCount === 0)
-    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
 }
 
 /**
@@ -394,30 +264,6 @@ export async function getComponentAtlasIdsHavingSourceDatasets(
       client
     )
   ).rows.map(({ id }) => id);
-}
-
-/**
- * Call a function that sets a component atlas title in the database, and throw an appropriate error if a conflict occurs.
- * @param f - Function to call.
- * @returns result of calling the function.
- */
-async function withTitleConflictHandling<T>(f: () => Promise<T>): Promise<T> {
-  try {
-    return await f();
-  } catch (err) {
-    if (
-      err instanceof Error &&
-      "constraint" in err &&
-      err.constraint === "unique_component_atlases_title_atlas_id"
-    ) {
-      throw new ValidationError(
-        "Title already exists in this atlas",
-        undefined,
-        "title"
-      );
-    }
-    throw err;
-  }
 }
 
 export function getComponentAtlasNotFoundError(

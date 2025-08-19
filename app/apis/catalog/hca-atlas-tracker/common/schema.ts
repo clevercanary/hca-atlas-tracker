@@ -98,23 +98,6 @@ export const atlasEditSchema = newAtlasSchema;
 export type AtlasEditData = InferType<typeof atlasEditSchema>;
 
 /**
- * Schema for data used to create a new component atlas.
- */
-export const newComponentAtlasSchema = object({
-  description: string().max(10000),
-  title: string().required(),
-}).strict(true);
-
-export type NewComponentAtlasData = InferType<typeof newComponentAtlasSchema>;
-
-/**
- * Schema for data used to apply edits to a component atlas.
- */
-export const componentAtlasEditSchema = newComponentAtlasSchema;
-
-export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
-
-/**
  * Schema for data used to add source datasets to a component atlas.
  */
 export const componentAtlasAddSourceDatasetsSchema = object({
