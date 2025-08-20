@@ -3,7 +3,6 @@ import { Fragment } from "react";
 import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
-import { Actions } from "../../components/Detail/components/ViewComponentAtlas/components/Actions/actions";
 import { ViewComponentAtlas } from "../../components/Detail/components/ViewComponentAtlas/viewComponentAtlas";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { getBreadcrumbs } from "./common/utils";
@@ -25,7 +24,7 @@ export const ComponentAtlasView = ({
     formMethod
   );
   const {
-    access: { canEdit, canView },
+    access: { canView },
     formAction,
     isLoading,
   } = formManager;
@@ -46,7 +45,6 @@ export const ComponentAtlasView = ({
       )}
     >
       <DetailView
-        actions={canEdit && <Actions formManager={formManager} />}
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(pathParameter, atlas)}

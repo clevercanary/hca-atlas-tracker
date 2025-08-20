@@ -1,5 +1,4 @@
 import { array, object, string } from "yup";
-import { newComponentAtlasSchema } from "../../AddNewComponentAtlasView/common/schema";
 import { FIELD_NAME } from "./constants";
 
 export const componentAtlasDeleteSourceDatasetsSchema = object({
@@ -8,4 +7,6 @@ export const componentAtlasDeleteSourceDatasetsSchema = object({
     .default([]),
 }).strict(true);
 
-export const componentAtlasEditSchema = newComponentAtlasSchema;
+export const componentAtlasViewSchema = object({
+  [FIELD_NAME.TITLE]: string().default(""),
+}).strict(true);

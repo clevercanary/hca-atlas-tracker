@@ -14,17 +14,7 @@ export const useEditComponentAtlasFormManager = (
   pathParameter: PathParameter,
   formMethod: FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>
 ): FormManager => {
-  const { onDelete: onDeleteComponentAtlas, onSubmit, reset } = formMethod;
-
-  const onDelete = useCallback(() => {
-    onDeleteComponentAtlas(
-      getRequestURL(API.ATLAS_COMPONENT_ATLAS, pathParameter),
-      METHOD.DELETE,
-      {
-        onSuccess: () => onDeleteSuccess(pathParameter),
-      }
-    );
-  }, [onDeleteComponentAtlas, pathParameter]);
+  const { onSubmit, reset } = formMethod;
 
   const onDiscard = useCallback(
     (url?: string) => {
@@ -48,16 +38,8 @@ export const useEditComponentAtlasFormManager = (
     [onSubmit, pathParameter, reset]
   );
 
-  return useFormManager(formMethod, { onDelete, onDiscard, onSave });
+  return useFormManager(formMethod, { onDiscard, onSave });
 };
-
-/**
- * Delete side effect "onSuccess"; redirects to the component atlases page.
- * @param pathParameter - Path parameter.
- */
-function onDeleteSuccess(pathParameter: PathParameter): void {
-  Router.push(getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter));
-}
 
 /**
  * Submit side effect "onSuccess"; redirects to the component atlas page, or to the specified URL.
