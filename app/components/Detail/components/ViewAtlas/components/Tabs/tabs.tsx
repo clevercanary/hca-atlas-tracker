@@ -50,7 +50,7 @@ export const Tabs = ({
         },
         {
           label: getTabLabelWithCount(
-            "Integration Objects",
+            "Integrated Objects",
             componentAtlasCount
           ),
           value: ROUTE.COMPONENT_ATLASES,
