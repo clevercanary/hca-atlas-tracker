@@ -13,7 +13,7 @@ export const TablePlaceholder = ({
   message,
   rowCount,
 }: TablePlaceholderProps): JSX.Element | null => {
-  if (canEdit || rowCount > 0) return null;
+  if (canEdit && rowCount > 0) return null;
   return (
     <GridPaperSection>
       <TypographyTextBody400>{message}</TypographyTextBody400>
