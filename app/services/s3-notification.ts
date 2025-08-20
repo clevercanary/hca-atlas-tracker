@@ -10,6 +10,12 @@ import {
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
+  FILE_STATUS,
+  FILE_TYPE,
+  FileEventInfo,
+  INTEGRITY_STATUS,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
@@ -78,16 +84,16 @@ function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
  * @returns The file type: 'source_dataset', 'integrated_object', or 'ingest_manifest'
  * @throws UnknownFolderTypeError if the folder type is not recognized
  */
-function determineFileType(s3Key: string): string {
+function determineFileType(s3Key: string): FILE_TYPE {
   const { folderType } = parseS3KeyPath(s3Key);
 
   switch (folderType) {
     case "source-datasets":
-      return "source_dataset";
+      return FILE_TYPE.SOURCE_DATASET;
     case "integrated-objects":
-      return "integrated_object";
+      return FILE_TYPE.INTEGRATED_OBJECT;
     case "manifests":
-      return "ingest_manifest";
+      return FILE_TYPE.INGEST_MANIFEST;
     default:
       throw new UnknownFolderTypeError(folderType);
   }
@@ -149,10 +155,10 @@ function convertS3VersionToDbVersion(s3Version: string): string {
  */
 async function determineAtlasId(
   s3Key: string,
-  fileType: string
+  fileType: FILE_TYPE
 ): Promise<string | null> {
   // Source datasets don't use atlas_id, they use source_study_id
-  if (fileType === "source_dataset") {
+  if (fileType === FILE_TYPE.SOURCE_DATASET) {
     return null;
   }
 
@@ -203,7 +209,7 @@ async function determineAtlasId(
 async function saveFileRecord(record: S3EventRecord): Promise<void> {
   const { bucket, object } = record.s3;
 
-  const eventInfo = {
+  const eventInfo: FileEventInfo = {
     eventName: record.eventName,
     eventTime: record.eventTime,
   };
@@ -279,8 +285,8 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
         object.size,
         JSON.stringify(eventInfo),
         sha256,
-        "pending",
-        "uploaded",
+        INTEGRITY_STATUS.PENDING,
+        FILE_STATUS.UPLOADED,
         fileType,
         atlasId,
       ]

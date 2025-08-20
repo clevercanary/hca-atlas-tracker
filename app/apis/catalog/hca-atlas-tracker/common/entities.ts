@@ -383,6 +383,28 @@ export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
 export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
   WithSourceStudyInfo<HCAAtlasTrackerDBSourceDataset>;
 
+export interface HCAAtlasTrackerDBFile {
+  atlas_id: string | null;
+  bucket: string;
+  created_at: Date;
+  etag: string;
+  event_info: FileEventInfo;
+  file_type: FILE_TYPE;
+  id: string;
+  integrity_checked_at: Date | null;
+  integrity_error: string | null;
+  integrity_status: INTEGRITY_STATUS;
+  is_latest: boolean;
+  key: string;
+  sha256_client: string | null;
+  sha256_server: string | null;
+  size_bytes: string;
+  source_study_id: string | null;
+  status: FILE_STATUS;
+  updated_at: Date;
+  version_id: string | null;
+}
+
 export interface HCAAtlasTrackerListValidationRecord
   extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion" | "doi"> {
   doi: string;
@@ -588,6 +610,11 @@ export enum TIER_ONE_METADATA_STATUS {
   NEEDS_VALIDATION = "NEEDS_VALIDATION",
 }
 
+export interface FileEventInfo {
+  eventName: string;
+  eventTime: string;
+}
+
 export type UserId = number;
 
 export interface ValidationDifference {
@@ -600,6 +627,24 @@ export enum ENTITY_TYPE {
   ATLAS = "ATLAS",
   COMPONENT_ATLAS = "COMPONENT_ATLAS",
   SOURCE_STUDY = "SOURCE_STUDY",
+}
+
+export enum FILE_STATUS {
+  UPLOADED = "uploaded",
+}
+
+export enum FILE_TYPE {
+  INGEST_MANIFEST = "ingest_manifest",
+  INTEGRATED_OBJECT = "integrated_object",
+  SOURCE_DATASET = "source_dataset",
+}
+
+export enum INTEGRITY_STATUS {
+  ERROR = "error",
+  INVALID = "invalid",
+  PENDING = "pending",
+  VALID = "valid",
+  VALIDATING = "validating",
 }
 
 export enum SYSTEM {
