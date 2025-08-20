@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
@@ -6,12 +7,10 @@ import { PathParameter } from "../../../../common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { ComponentAtlasViewData } from "../../../../views/ComponentAtlasView/common/entities";
-import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS } from "../TrackerForm/components/Section/components/ComponentAtlas/common/constants";
 import { GeneralInfo } from "../TrackerForm/components/Section/components/ComponentAtlas/components/GeneralInfo/generalInfo";
 import { LinkedSourceDatasets } from "../TrackerForm/components/Section/components/ComponentAtlas/components/LinkedSourceDatasets/linkedSourceDatasets";
-import { TrackerForm } from "../TrackerForm/trackerForm";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface ViewComponentAtlasProps {
@@ -34,8 +33,7 @@ export const ViewComponentAtlas = ({
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
-    <TrackerForm>
-      <FormManager {...formManager} />
+    <Fragment>
       <Divider />
       <GeneralInfo<ComponentAtlasViewData>
         controllerConfigs={GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS}
@@ -49,6 +47,6 @@ export const ViewComponentAtlas = ({
         pathParameter={pathParameter}
         sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
       />
-    </TrackerForm>
+    </Fragment>
   );
 };
