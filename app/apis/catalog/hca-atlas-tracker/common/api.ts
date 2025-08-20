@@ -17,7 +17,6 @@ export enum API {
   ATLAS_SOURCE_STUDY_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   ATLASES = "/api/atlases",
   CREATE_ATLAS = "/api/atlases/create",
-  CREATE_ATLAS_COMPONENT_ATLAS = "/api/atlases/[atlasId]/component-atlases/create",
   CREATE_ATLAS_SOURCE_STUDY = "/api/atlases/[atlasId]/source-studies/create",
   CREATE_SOURCE_DATASET = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create",
   CREATE_USER = "/api/users/create",
