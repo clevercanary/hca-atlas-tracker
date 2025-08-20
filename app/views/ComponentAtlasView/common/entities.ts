@@ -8,4 +8,4 @@ export type ComponentAtlasDeleteSourceDatasetsData = InferType<
   typeof componentAtlasDeleteSourceDatasetsSchema
 >;
 
-export type ComponentAtlasEditData = InferType<typeof componentAtlasViewSchema>;
+export type ComponentAtlasViewData = InferType<typeof componentAtlasViewSchema>;

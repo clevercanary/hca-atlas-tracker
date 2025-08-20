@@ -5,10 +5,10 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ViewComponentAtlas } from "../../components/Detail/components/ViewComponentAtlas/viewComponentAtlas";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "./common/utils";
-import { useEditComponentAtlasForm } from "./hooks/useEditComponentAtlasForm";
-import { useEditComponentAtlasFormManager } from "./hooks/useEditComponentAtlasFormManager";
 import { useFetchComponentAtlasData } from "./hooks/useFetchComponentAtlasData";
+import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
 
 interface ComponentAtlasViewProps {
   pathParameter: PathParameter;
@@ -18,14 +18,10 @@ export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
   const componentAtlasData = useFetchComponentAtlasData(pathParameter);
-  const formMethod = useEditComponentAtlasForm(pathParameter);
-  const formManager = useEditComponentAtlasFormManager(
-    pathParameter,
-    formMethod
-  );
+  const formMethod = useViewComponentAtlasForm(pathParameter);
+  const formManager = useFormManager();
   const {
     access: { canView },
-    formAction,
     isLoading,
   } = formManager;
   const { data: componentAtlas } = formMethod;
@@ -46,10 +42,7 @@ export const ComponentAtlasView = ({
     >
       <DetailView
         breadcrumbs={
-          <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
-            onNavigate={formAction?.onNavigate}
-          />
+          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
         }
         mainColumn={
           <ViewComponentAtlas

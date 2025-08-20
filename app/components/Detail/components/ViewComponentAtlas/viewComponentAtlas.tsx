@@ -5,7 +5,7 @@ import {
 import { PathParameter } from "../../../../common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { ComponentAtlasEditData } from "../../../../views/ComponentAtlasView/common/entities";
+import { ComponentAtlasViewData } from "../../../../views/ComponentAtlasView/common/entities";
 import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS } from "../TrackerForm/components/Section/components/ComponentAtlas/common/constants";
@@ -17,7 +17,7 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 interface ViewComponentAtlasProps {
   componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
-  formMethod: FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>;
+  formMethod: FormMethod<ComponentAtlasViewData, HCAAtlasTrackerComponentAtlas>;
   pathParameter: PathParameter;
   sourceStudiesSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
@@ -37,7 +37,7 @@ export const ViewComponentAtlas = ({
     <TrackerForm>
       <FormManager {...formManager} />
       <Divider />
-      <GeneralInfo<ComponentAtlasEditData>
+      <GeneralInfo<ComponentAtlasViewData>
         controllerConfigs={GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS}
         formManager={formManager}
         formMethod={formMethod}
