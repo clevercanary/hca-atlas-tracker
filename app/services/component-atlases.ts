@@ -31,7 +31,7 @@ export async function getAtlasComponentAtlases(
           size_bytes,
           status
         FROM hat.files
-        WHERE entity_type='integrated_object' AND atlas_id=$1
+        WHERE file_type='integrated_object' AND atlas_id=$1
       `,
     [atlasId]
   );
