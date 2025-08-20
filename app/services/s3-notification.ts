@@ -63,7 +63,7 @@ interface S3KeyPathComponents {
  * parseS3KeyPath('bio_network/gut-v1/integrated-objects/file.h5ad')
  * // Returns: { network: 'bio_network', atlasName: 'gut-v1', folderType: 'integrated-objects', filename: 'file.h5ad' }
  */
-function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
+export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   const pathParts = s3Key.split("/");
 
   if (pathParts.length < 4) {

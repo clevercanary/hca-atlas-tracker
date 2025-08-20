@@ -1,5 +1,8 @@
 import pg from "pg";
-import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBComponentAtlasFile,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doTransaction, query } from "./database";
@@ -11,37 +14,61 @@ import {
 /**
  * Get all component atlases of the given atlas.
  * @param atlasId - ID of the atlas to get component atlases for.
- * @returns component atlases.
+ * @returns component atlas files.
  */
 export async function getAtlasComponentAtlases(
   atlasId: string
-): Promise<HCAAtlasTrackerDBComponentAtlas[]> {
+): Promise<HCAAtlasTrackerDBComponentAtlasFile[]> {
   await confirmAtlasExists(atlasId);
-  return (
-    await query<HCAAtlasTrackerDBComponentAtlas>(
-      "SELECT * FROM hat.component_atlases WHERE atlas_id=$1",
-      [atlasId]
-    )
-  ).rows;
+  const { rows } = await query<
+    Omit<HCAAtlasTrackerDBComponentAtlasFile, "atlas_id">
+  >(
+    `
+        SELECT
+          id,
+          integrity_status,
+          key,
+          size_bytes,
+          status
+        FROM hat.files
+        WHERE entity_type='integrated_object' AND atlas_id=$1
+      `,
+    [atlasId]
+  );
+  return rows.map((row) => ({ atlas_id: atlasId, ...row }));
 }
 
 /**
  * Get a component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
- * @param componentAtlasId - ID of the component atlas to get.
- * @returns database model of the component atlas.
+ * @param fileId - ID of the component atlas's associated file.
+ * @returns database model of the component atlas file.
  */
 export async function getComponentAtlas(
   atlasId: string,
-  componentAtlasId: string
-): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "SELECT * FROM hat.component_atlases WHERE id=$1 AND atlas_id=$2",
-    [componentAtlasId, atlasId]
+  fileId: string
+): Promise<HCAAtlasTrackerDBComponentAtlasFile> {
+  const queryResult = await query<
+    Omit<HCAAtlasTrackerDBComponentAtlasFile, "atlas_id">
+  >(
+    `
+      SELECT
+        id,
+        integrity_status,
+        key,
+        size_bytes,
+        status
+      FROM hat.files
+      WHERE id=$1 AND atlas_id=$2
+    `,
+    [fileId, atlasId]
   );
   if (queryResult.rows.length === 0)
-    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
-  return queryResult.rows[0];
+    throw getComponentAtlasFileNotFoundError(atlasId, fileId);
+  return {
+    atlas_id: atlasId,
+    ...queryResult.rows[0],
+  };
 }
 
 /**
@@ -272,5 +299,14 @@ export function getComponentAtlasNotFoundError(
 ): NotFoundError {
   return new NotFoundError(
     `Component atlas with ID ${componentAtlasId} doesn't exist on atlas with ID ${atlasId}`
+  );
+}
+
+export function getComponentAtlasFileNotFoundError(
+  atlasId: string,
+  fileId: string
+): NotFoundError {
+  return new NotFoundError(
+    `Component atlas file with ID ${fileId} doesn't exist on atlas with ID ${atlasId}`
   );
 }

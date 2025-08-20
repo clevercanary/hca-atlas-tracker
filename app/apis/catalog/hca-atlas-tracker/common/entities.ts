@@ -55,11 +55,15 @@ export interface HCAAtlasTrackerComponentAtlas {
   cellxgeneDatasetVersion: string | null;
   description: string;
   disease: string[];
+  fileName: string;
   id: string;
+  integrityStatus: INTEGRITY_STATUS;
+  sizeBytes: number;
   sourceDatasetCount: number;
   suspensionType: string[];
   tissue: string[];
   title: string;
+  validationStatus: INTEGRITY_STATUS;
 }
 
 export interface HCAAtlasTrackerNetworkCoordinator {
@@ -282,6 +286,12 @@ export interface HCAAtlasTrackerDBComponentAtlasInfo {
   suspensionType: string[];
   tissue: string[];
 }
+
+export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
+  HCAAtlasTrackerDBFile,
+  "id" | "integrity_status" | "key" | "size_bytes" | "status"
+> &
+  Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">;
 
 export interface HCAAtlasTrackerDBPublishedSourceStudy {
   created_at: Date;
