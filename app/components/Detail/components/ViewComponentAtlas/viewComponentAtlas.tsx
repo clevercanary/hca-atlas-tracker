@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
@@ -7,9 +8,9 @@ import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { ComponentAtlasEditData } from "../../../../views/ComponentAtlasView/common/entities";
 import { FormManager } from "../../../common/Form/components/FormManager/formManager";
+import { TrackerFormSection as Section } from "../../../Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
+import { SectionConfig } from "../../../Forms/common/entities";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS } from "../TrackerForm/components/Section/components/ComponentAtlas/common/constants";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/ComponentAtlas/components/GeneralInfo/generalInfo";
 import { LinkedSourceDatasets } from "../TrackerForm/components/Section/components/ComponentAtlas/components/LinkedSourceDatasets/linkedSourceDatasets";
 import { TrackerForm } from "../TrackerForm/trackerForm";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -19,6 +20,10 @@ interface ViewComponentAtlasProps {
   formManager: FormManagerProps;
   formMethod: FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>;
   pathParameter: PathParameter;
+  sectionConfigs: SectionConfig<
+    ComponentAtlasEditData,
+    HCAAtlasTrackerComponentAtlas
+  >[];
   sourceStudiesSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
@@ -27,6 +32,7 @@ export const ViewComponentAtlas = ({
   formManager,
   formMethod,
   pathParameter,
+  sectionConfigs,
   sourceStudiesSourceDatasets = [],
 }: ViewComponentAtlasProps): JSX.Element => {
   const {
@@ -36,12 +42,16 @@ export const ViewComponentAtlas = ({
   return (
     <TrackerForm>
       <FormManager {...formManager} />
-      <Divider />
-      <GeneralInfo<ComponentAtlasEditData>
-        controllerConfigs={GENERAL_INFO_VIEW_COMPONENT_ATLAS_CONTROLLERS}
-        formManager={formManager}
-        formMethod={formMethod}
-      />
+      {sectionConfigs.map(({ showDivider, ...sectionConfig }, i) => (
+        <Fragment key={i}>
+          {(i !== 0 || showDivider) && <Divider />}
+          <Section<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>
+            formManager={formManager}
+            formMethod={formMethod}
+            {...sectionConfig}
+          />
+        </Fragment>
+      ))}
       <Divider />
       <LinkedSourceDatasets
         componentAtlasSourceDatasets={componentAtlasSourceDatasets}
