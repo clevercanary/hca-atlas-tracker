@@ -6,6 +6,7 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { ViewComponentAtlas } from "../../components/Detail/components/ViewComponentAtlas/viewComponentAtlas";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
+import { VIEW_COMPONENT_ATLAS_VIEW_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchComponentAtlasData } from "./hooks/useFetchComponentAtlasData";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
@@ -50,6 +51,7 @@ export const ComponentAtlasView = ({
             formManager={formManager}
             formMethod={formMethod}
             pathParameter={pathParameter}
+            sectionConfigs={VIEW_COMPONENT_ATLAS_VIEW_SECTION_CONFIGS}
             sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
           />
         }
