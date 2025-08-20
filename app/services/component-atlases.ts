@@ -74,14 +74,16 @@ export async function getComponentAtlas(
 /**
  * Add the given source datasets to the specified comonent atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
- * @param componentAtlasId - Component atlas ID.
+ * @param fileId - Component atlas file ID.
  * @param sourceDatasetIds - IDs of source datasets to add.
  */
 export async function addSourceDatasetsToComponentAtlas(
   atlasId: string,
-  componentAtlasId: string,
+  fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
+  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
   const existingDatasetsResult = await query<{ array: string[] }>(
@@ -117,14 +119,16 @@ export async function addSourceDatasetsToComponentAtlas(
 /**
  * Remove the given source datasets from the specified comonent atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
- * @param componentAtlasId - Component atlas ID.
+ * @param fileId - Component atlas file ID.
  * @param sourceDatasetIds - IDs of source datasets to remove.
  */
 export async function deleteSourceDatasetsFromComponentAtlas(
   atlasId: string,
-  componentAtlasId: string,
+  fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
+  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
   const missingDatasetsResult = await query<{ array: string[] }>(
@@ -291,6 +295,34 @@ export async function getComponentAtlasIdsHavingSourceDatasets(
       client
     )
   ).rows.map(({ id }) => id);
+}
+
+/**
+ * Get the ID of the component atlas associated with the given file, throwing an error if there is none.
+ * @param fileId - ID of the file to get the associated component atlas of.
+ * @returns component atlas ID.
+ */
+export async function getPresentComponentAtlasIdForFile(
+  fileId: string
+): Promise<string> {
+  const componentAtlasId = await getComponentAtlasIdForFile(fileId);
+  if (componentAtlasId === null)
+    throw new InvalidOperationError(
+      `File with ID ${fileId} has no associated component atlas`
+    );
+  return componentAtlasId;
+}
+
+/**
+ * Get the ID of the component atlas associated with the given file, or null if there is none.
+ * @param fileId - ID of the file to get the associated component atlas of.
+ * @returns component atlas ID or null.
+ */
+export async function getComponentAtlasIdForFile(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder until we actually link files to component atlases
+  fileId: string
+): Promise<string | null> {
+  return null;
 }
 
 export function getComponentAtlasNotFoundError(
