@@ -24,7 +24,7 @@ import {
 } from "../../../../../../section.styles";
 import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
 import { getSectionTabs } from "./common/utils";
-import { SectionCard, SectionContent } from "./generalInfo.styles";
+import { SectionContent, StyledSectionCard } from "./generalInfo.styles";
 
 export interface GeneralInfoProps {
   formManager: FormManager;
@@ -65,7 +65,7 @@ export const GeneralInfo = ({
       <SectionHero>
         <SectionTitle>General info</SectionTitle>
       </SectionHero>
-      <SectionCard elevation={0}>
+      <StyledSectionCard elevation={0}>
         <Tabs
           onTabChange={onTabChange}
           tabs={getSectionTabs(isReadOnly, hasDoi)}
@@ -175,7 +175,7 @@ export const GeneralInfo = ({
             </Fragment>
           )}
         </SectionContent>
-      </SectionCard>
+      </StyledSectionCard>
     </Section>
   );
 };
