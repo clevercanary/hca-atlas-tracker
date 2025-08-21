@@ -41,7 +41,7 @@ export const ViewSourceDatasets = ({
               canEdit,
               linkedSourceDatasetIds
             )}
-            gridTemplateColumns="max-content minmax(140px, auto) minmax(200px, 1.4fr) repeat(7, minmax(180px, 1fr)) minmax(180px, .5fr)"
+            gridTemplateColumns="max-content minmax(140px, 140px) minmax(300px, 2fr) repeat(7, minmax(180px, 1fr)) minmax(180px, .5fr)"
             items={sourceDatasets.sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />
