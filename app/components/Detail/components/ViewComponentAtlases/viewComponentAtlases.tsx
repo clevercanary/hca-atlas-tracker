@@ -30,7 +30,7 @@ export const ViewComponentAtlases = ({
         {componentAtlases.length > 0 && (
           <Table
             columns={getAtlasComponentAtlasesTableColumns(pathParameter)}
-            gridTemplateColumns="max-content minmax(260px, 1fr) repeat(5, minmax(88px, 128px)) auto"
+            gridTemplateColumns="max-content minmax(260px, 1.2fr) repeat(5, minmax(180px, 1fr)) minmax(160px, 0.75fr)"
             items={componentAtlases}
             tableOptions={TABLE_OPTIONS}
           />

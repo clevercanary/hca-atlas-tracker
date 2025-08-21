@@ -17,7 +17,7 @@ const COLUMN_DATA_SUMMARY = {
   enableSorting: false,
   header: "Data summary",
   id: "dataSummary",
-  meta: { width: { max: "1.2fr", min: "200px" } },
+  meta: { width: { max: "1fr", min: "200px" } },
 } as ColumnDef<MetadataEntrySheet>;
 
 const COLUMN_ENTRY_SHEET_TITLE = {
@@ -25,7 +25,7 @@ const COLUMN_ENTRY_SHEET_TITLE = {
   cell: (props) => LinkCell(buildEntrySheetTitle(props)),
   header: "Sheet name",
   id: "entrySheetTitle",
-  meta: { columnPinned: true, width: { max: "5.5fr", min: "240px" } },
+  meta: { columnPinned: true, width: { max: "1.4fr", min: "240px" } },
 } as ColumnDef<MetadataEntrySheet>;
 
 const COLUMN_LAST_UPDATED = {
@@ -34,7 +34,7 @@ const COLUMN_LAST_UPDATED = {
   enableSorting: false,
   header: "Last updated",
   id: "lastUpdated",
-  meta: { width: { max: "1.8fr", min: "200px" } },
+  meta: { width: { max: "1fr", min: "200px" } },
 } as ColumnDef<MetadataEntrySheet>;
 
 const COLUMN_PUBLICATION_STRING = {
@@ -42,7 +42,7 @@ const COLUMN_PUBLICATION_STRING = {
   cell: (props) => LinkCell(buildPublicationString(props)),
   header: "Source study",
   id: "publicationString",
-  meta: { width: { max: "1.6fr", min: "200px" } },
+  meta: { width: { max: "1fr", min: "200px" } },
 } as ColumnDef<MetadataEntrySheet>;
 
 const COLUMN_VALIDATION_SUMMARY: ColumnDef<MetadataEntrySheet> = {

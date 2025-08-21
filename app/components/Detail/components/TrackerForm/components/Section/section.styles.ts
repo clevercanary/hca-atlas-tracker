@@ -3,6 +3,7 @@ import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common
 import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import {
   mediaDesktopSmallUp,
+  mediaDesktopUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
@@ -38,6 +39,10 @@ export const SectionHero = styled("div")<SectionProps>`
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "span 4")};
     padding: 0;
   }
+
+  ${mediaDesktopUp} {
+    grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "1")};
+  }
 `;
 
 export const SectionTitle = styled.h3`
@@ -50,6 +55,10 @@ export const SectionText = styled.div`
   ${textBody400};
   color: ${inkLight};
   font-size: 13px;
+
+  ${mediaDesktopSmallUp} {
+    max-width: 400px;
+  }
 `;
 
 export const SectionCard = styled(FluidPaper, {
@@ -65,17 +74,30 @@ export const SectionCard = styled(FluidPaper, {
   grid-template-columns: 1fr;
 
   ${mediaTabletUp} {
-    grid-column: ${({ fullWidth }) => (fullWidth ? "1fr" : "6 / span 7")};
+    grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "6 / span 7")};
   }
 
   ${mediaDesktopSmallUp} {
     grid-template-columns: 1fr 1fr;
   }
 
-  ${(props) =>
-    props.gridAutoFlow &&
+  ${mediaDesktopUp} {
+    grid-column: 1 / -1;
+
+    ${({ fullWidth }) =>
+      !fullWidth &&
+      css`
+        grid-column: 2;
+        margin: 0 auto;
+        max-width: 712px;
+        width: 100%;
+      `}
+  }
+
+  ${({ gridAutoFlow }) =>
+    gridAutoFlow &&
     css`
-      grid-auto-flow: ${props.gridAutoFlow};
+      grid-auto-flow: ${gridAutoFlow};
     `}
 `;
 
