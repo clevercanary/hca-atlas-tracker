@@ -100,7 +100,6 @@ export function dbComponentAtlasToApiComponentAtlas(
 export function dbComponentAtlasFileToApiComponentAtlas(
   dbComponentAtlasFile: HCAAtlasTrackerDBComponentAtlasFile
 ): HCAAtlasTrackerComponentAtlas {
-  const fileName = parseS3KeyPath(dbComponentAtlasFile.key).filename;
   return {
     assay: [],
     atlasId: dbComponentAtlasFile.atlas_id,
@@ -109,14 +108,14 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     cellxgeneDatasetVersion: null,
     description: "",
     disease: [],
-    fileName,
+    fileName: parseS3KeyPath(dbComponentAtlasFile.key).filename,
     id: dbComponentAtlasFile.id,
     integrityStatus: dbComponentAtlasFile.integrity_status,
     sizeBytes: Number(dbComponentAtlasFile.size_bytes),
     sourceDatasetCount: 0,
     suspensionType: [],
     tissue: [],
-    title: fileName,
+    title: "",
     validationStatus: INTEGRITY_STATUS.PENDING,
   };
 }
