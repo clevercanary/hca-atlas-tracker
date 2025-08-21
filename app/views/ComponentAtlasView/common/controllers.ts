@@ -1,10 +1,10 @@
 import { HCAAtlasTrackerComponentAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { ControllerConfig } from "../../../components/common/Form/components/Controllers/common/entities";
 import { FIELD_NAME } from "./constants";
-import { ComponentAtlasEditData } from "./entities";
+import { ViewIntegratedObjectData } from "./entities";
 
 type CommonControllerConfig = ControllerConfig<
-  ComponentAtlasEditData,
+  ViewIntegratedObjectData,
   HCAAtlasTrackerComponentAtlas
 >;
 
@@ -17,7 +17,7 @@ const TITLE: CommonControllerConfig = {
   name: FIELD_NAME.TITLE,
 };
 
-export const GENERAL_INFO_INTEGRATED_OBJECTS_CONTROLLERS: ControllerConfig<
-  ComponentAtlasEditData,
+export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: ControllerConfig<
+  ViewIntegratedObjectData,
   HCAAtlasTrackerComponentAtlas
 >[] = [TITLE];

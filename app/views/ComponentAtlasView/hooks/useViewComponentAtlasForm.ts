@@ -3,17 +3,17 @@ import { PathParameter } from "../../../common/entities";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { FIELD_NAME } from "../common/constants";
-import { ComponentAtlasEditData } from "../common/entities";
-import { componentAtlasEditSchema } from "../common/schema";
+import { ViewIntegratedObjectData } from "../common/entities";
+import { viewIntegratedObjectSchema } from "../common/schema";
 import { useFetchComponentAtlas } from "./useFetchComponentAtlas";
 
-const SCHEMA = componentAtlasEditSchema;
+const SCHEMA = viewIntegratedObjectSchema;
 
-export const useEditComponentAtlasForm = (
+export const useViewComponentAtlasForm = (
   pathParameter: PathParameter
-): FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas> => {
+): FormMethod<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas> => {
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
-  return useForm<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>(
+  return useForm<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas>(
     SCHEMA,
     componentAtlas,
     mapSchemaValues
@@ -21,15 +21,15 @@ export const useEditComponentAtlasForm = (
 };
 
 /**
- * Returns schema default values mapped from component atlas.
- * @param componentAtlas - Component atlas.
+ * Returns schema default values mapped from integrated object.
+ * @param integratedObject - Integrated object.
  * @returns schema default values.
  */
 function mapSchemaValues(
-  componentAtlas?: HCAAtlasTrackerComponentAtlas
-): ComponentAtlasEditData | undefined {
-  if (!componentAtlas) return;
+  integratedObject?: HCAAtlasTrackerComponentAtlas
+): ViewIntegratedObjectData | undefined {
+  if (!integratedObject) return;
   return {
-    [FIELD_NAME.TITLE]: componentAtlas.title,
+    [FIELD_NAME.TITLE]: integratedObject.title,
   };
 }

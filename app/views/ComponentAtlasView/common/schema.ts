@@ -7,6 +7,6 @@ export const componentAtlasDeleteSourceDatasetsSchema = object({
     .default([]),
 }).strict(true);
 
-export const componentAtlasEditSchema = object({
+export const viewIntegratedObjectSchema = object({
   [FIELD_NAME.TITLE]: string().default("").required("Title is required"),
 }).strict(true);
