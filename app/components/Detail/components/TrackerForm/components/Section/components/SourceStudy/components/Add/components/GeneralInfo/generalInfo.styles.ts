@@ -1,18 +1,13 @@
-import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
-import {
-  mediaDesktopSmallUp,
-  mediaTabletUp,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { mediaDesktopSmallUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
+import { SectionCard } from "../../../../../../section.styles";
 
-export const SectionCard = styled(FluidPaper)`
-  ${mediaTabletUp} {
-    grid-column: 6 / span 7;
-  }
-
-  ${mediaDesktopSmallUp} {
-    grid-template-columns: 1fr 1fr;
+export const StyledSectionCard = styled(SectionCard)`
+  & {
+    display: block;
+    gap: 0;
+    padding: 0;
   }
 `;
 
