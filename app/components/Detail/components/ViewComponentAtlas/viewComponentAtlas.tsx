@@ -6,22 +6,23 @@ import {
 import { PathParameter } from "../../../../common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { ComponentAtlasEditData } from "../../../../views/ComponentAtlasView/common/entities";
-import { FormManager } from "../../../common/Form/components/FormManager/formManager";
+import { ViewIntegratedObjectData } from "../../../../views/ComponentAtlasView/common/entities";
 import { TrackerFormSection as Section } from "../../../Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
 import { SectionConfig } from "../../../Forms/common/entities";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { LinkedSourceDatasets } from "../TrackerForm/components/Section/components/ComponentAtlas/components/LinkedSourceDatasets/linkedSourceDatasets";
-import { TrackerForm } from "../TrackerForm/trackerForm";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface ViewComponentAtlasProps {
   componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
-  formMethod: FormMethod<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>;
+  formMethod: FormMethod<
+    ViewIntegratedObjectData,
+    HCAAtlasTrackerComponentAtlas
+  >;
   pathParameter: PathParameter;
   sectionConfigs: SectionConfig<
-    ComponentAtlasEditData,
+    ViewIntegratedObjectData,
     HCAAtlasTrackerComponentAtlas
   >[];
   sourceStudiesSourceDatasets?: HCAAtlasTrackerSourceDataset[];
@@ -40,12 +41,11 @@ export const ViewComponentAtlas = ({
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
-    <TrackerForm>
-      <FormManager {...formManager} />
+    <Fragment>
       {sectionConfigs.map(({ showDivider, ...sectionConfig }, i) => (
         <Fragment key={i}>
           {(i !== 0 || showDivider) && <Divider />}
-          <Section<ComponentAtlasEditData, HCAAtlasTrackerComponentAtlas>
+          <Section<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas>
             formManager={formManager}
             formMethod={formMethod}
             {...sectionConfig}
@@ -59,6 +59,6 @@ export const ViewComponentAtlas = ({
         pathParameter={pathParameter}
         sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
       />
-    </TrackerForm>
+    </Fragment>
   );
 };

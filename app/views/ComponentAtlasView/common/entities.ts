@@ -1,11 +1,13 @@
 import { InferType } from "yup";
 import {
   componentAtlasDeleteSourceDatasetsSchema,
-  componentAtlasEditSchema,
+  viewIntegratedObjectSchema,
 } from "./schema";
 
 export type ComponentAtlasDeleteSourceDatasetsData = InferType<
   typeof componentAtlasDeleteSourceDatasetsSchema
 >;
 
-export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
+export type ViewIntegratedObjectData = InferType<
+  typeof viewIntegratedObjectSchema
+>;
