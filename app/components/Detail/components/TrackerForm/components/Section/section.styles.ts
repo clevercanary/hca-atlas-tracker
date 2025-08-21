@@ -13,14 +13,6 @@ import {
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
-import {
-  RESPONSIVE_BREAKPOINT,
-  RESPONSIVE_BREAKPOINT_RANGE,
-} from "../../../../../Layout/components/Detail/constants";
-import {
-  SECTION_CONTENT_MARGIN,
-  SECTION_CONTENT_MARGIN_RANGE,
-} from "./constants";
 
 export interface SectionProps {
   fullWidth?: boolean;
@@ -48,7 +40,7 @@ export const SectionHero = styled("div")<SectionProps>`
     padding: 0;
   }
 
-  ${mediaDesktopSmallUp} {
+  ${mediaDesktopUp} {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "1")};
   }
 `;
@@ -86,36 +78,19 @@ export const SectionCard = styled(FluidPaper, {
   }
 
   ${mediaDesktopSmallUp} {
-    grid-column: 1 / -1;
     grid-template-columns: 1fr 1fr;
+  }
+
+  ${mediaDesktopUp} {
+    grid-column: 1 / -1;
 
     ${({ fullWidth }) =>
       !fullWidth &&
       css`
         grid-column: 2;
-        margin: 0 auto 0
-          clamp(
-            ${SECTION_CONTENT_MARGIN.MIN}px,
-            calc(
-              ${SECTION_CONTENT_MARGIN.MAX}px -
-                (
-                  ${SECTION_CONTENT_MARGIN_RANGE} *
-                    (100vw - ${RESPONSIVE_BREAKPOINT.START}px) /
-                    ${RESPONSIVE_BREAKPOINT_RANGE}
-                )
-            ),
-            ${SECTION_CONTENT_MARGIN.MAX}px
-          );
+        margin: 0 auto;
         max-width: 712px;
         width: 100%;
-      `}
-  }
-
-  ${mediaDesktopUp} {
-    ${({ fullWidth }) =>
-      !fullWidth &&
-      css`
-        margin: 0 auto;
       `}
   }
 
