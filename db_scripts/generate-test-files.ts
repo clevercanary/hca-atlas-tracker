@@ -14,6 +14,12 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { doTransaction, endPgPool } from "../app/services/database";
 
+/**
+ * Usage: `npx esrun db_scripts/generate-test-files.ts`
+ * Any number of existing atlas IDs can be added as arguments to the command; if none are specified, new atlases will be generated.
+ * File entries will be randomly generated for the given or generated atlases.
+ */
+
 const GENERATED_ATLAS_AMOUNT = 2;
 
 const GENERATED_MANIFEST_AMOUNT_MIN = 1;
