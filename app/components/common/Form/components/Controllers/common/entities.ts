@@ -17,7 +17,9 @@ type PickedInputProps =
   | "label"
   | "helperTextProps"
   | "isFullWidth"
-  | "placeholder";
+  | "placeholder"
+  | "readOnly";
+
 type PickedSelectProps = "displayEmpty" | "label";
 
 export interface ControllerConfig<T extends FieldValues, R = undefined> {

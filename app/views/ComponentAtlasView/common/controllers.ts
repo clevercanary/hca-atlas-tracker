@@ -12,6 +12,7 @@ const TITLE: CommonControllerConfig = {
   inputProps: {
     isFullWidth: true,
     label: "Title",
+    readOnly: true,
   },
   name: FIELD_NAME.TITLE,
 };
