@@ -5,9 +5,13 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
+  FILE_STATUS,
+  FILE_TYPE,
+  FileEventInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   IntegrationLead,
+  INTEGRITY_STATUS,
   NetworkKey,
   SYSTEM,
   Wave,
@@ -125,7 +129,7 @@ async function generateAndAddFilesForAtlas(
       bucketName,
       versioned,
       "manifests",
-      "ingest_manifest",
+      FILE_TYPE.INGEST_MANIFEST,
       ".json"
     );
   }
@@ -136,7 +140,7 @@ async function generateAndAddFilesForAtlas(
       bucketName,
       versioned,
       "integrated-objects",
-      "integrated_object",
+      FILE_TYPE.INTEGRATED_OBJECT,
       ".h5ad"
     );
   }
@@ -147,7 +151,7 @@ async function generateAndAddFilesForAtlas(
       bucketName,
       versioned,
       "source-datasets",
-      "source_dataset",
+      FILE_TYPE.SOURCE_DATASET,
       ".h5ad"
     );
   }
@@ -161,7 +165,7 @@ async function generateAndAddFile(
   bucketName: string,
   versioned: boolean,
   folderName: string,
-  fileType: string,
+  fileType: FILE_TYPE,
   extension: string
 ): Promise<void> {
   const fileName = crypto.randomUUID() + extension;
@@ -172,9 +176,9 @@ async function generateAndAddFile(
     ? randomInRange(0, 999999).toString().padStart(6, "0")
     : null;
   const eTag = crypto.randomUUID().replaceAll("-", "");
-  const eventInfo = {
+  const eventInfo: FileEventInfo = {
     eventName: "ObjectCreated:*",
-    eventTime: new Date(randomInRange(1755755554042, Date.now())),
+    eventTime: new Date(randomInRange(1755755554042, Date.now())).toISOString(),
   };
 
   await client.query(
@@ -190,10 +194,10 @@ async function generateAndAddFile(
       randomInRange(1e3, 1e12),
       JSON.stringify(eventInfo),
       null,
-      "pending",
-      "uploaded",
+      INTEGRITY_STATUS.PENDING,
+      FILE_STATUS.UPLOADED,
       fileType,
-      fileType === "source_dataset" ? null : atlas.id,
+      fileType === FILE_TYPE.SOURCE_DATASET ? null : atlas.id,
     ]
   );
 }

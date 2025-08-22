@@ -1,27 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import {
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerSourceDataset,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
-import { endPgPool, query } from "../app/services/database";
+import { endPgPool } from "../app/services/database";
 import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets/[sourceDatasetId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
-  COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
-  COMPONENT_ATLAS_MISC_FOO,
-  SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+  FILE_COMPONENT_ATLAS_DRAFT_BAR,
+  FILE_COMPONENT_ATLAS_DRAFT_FOO,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
-  SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
-  STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
-  TEST_SOURCE_STUDIES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
@@ -32,17 +24,8 @@ import {
   getComponentAtlasFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
-import {
-  TestComponentAtlas,
-  TestSourceDataset,
-  TestUser,
-} from "../testing/entities";
-import {
-  expectComponentAtlasDatasetsToHaveDifference,
-  expectIsDefined,
-  testApiRole,
-  withConsoleErrorHiding,
-} from "../testing/utils";
+import { TestComponentAtlas, TestUser } from "../testing/entities";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -72,7 +55,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           undefined,
           METHOD.PUT
@@ -86,7 +69,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOBAZ.id,
           undefined,
           METHOD.GET,
@@ -101,7 +84,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOBAZ.id,
           USER_UNREGISTERED,
           METHOD.GET,
@@ -116,7 +99,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOBAZ.id,
           USER_DISABLED_CONTENT_ADMIN
         )
@@ -124,47 +107,14 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
-    testApiRole(
-      "returns source dataset",
-      TEST_ROUTE,
-      sourceDatasetHandler,
-      METHOD.GET,
-      role,
-      getQueryValues(
-        ATLAS_DRAFT.id,
-        COMPONENT_ATLAS_DRAFT_FOO.id,
-        SOURCE_DATASET_FOOBAZ.id
-      ),
-      undefined,
-      false,
-      (res) => {
-        expect(res._getStatusCode()).toEqual(200);
-        const sourceDataset =
-          res._getJSONData() as HCAAtlasTrackerSourceDataset;
-        expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
-      }
-    );
-  }
-
-  it("returns source dataset when requested by logged in user with CONTENT_ADMIN role", async () => {
-    const res = await doSourceDatasetRequest(
-      ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.id,
-      SOURCE_DATASET_FOOBAZ.id,
-      USER_CONTENT_ADMIN
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expectSourceDatasetsToMatch([sourceDataset], [SOURCE_DATASET_FOOBAZ]);
-  });
+  // TODO: test for successful GET once datasets are available again
 
   it("returns error 401 when POST requested from draft atlas by logged out user", async () => {
     expect(
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           undefined,
           METHOD.POST,
@@ -180,7 +130,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_UNREGISTERED,
           METHOD.POST,
@@ -196,7 +146,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST
@@ -215,7 +165,7 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_DRAFT.id,
-        COMPONENT_ATLAS_DRAFT_FOO.id,
+        FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
         SOURCE_DATASET_FOO.id
       ),
       undefined,
@@ -232,7 +182,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.POST
@@ -247,7 +197,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_PUBLIC.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_CONTENT_ADMIN,
           METHOD.POST,
@@ -258,28 +208,14 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 400 when POST requested from component atlas that already has the source dataset", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOOFOO.id,
-          USER_CONTENT_ADMIN,
-          METHOD.POST,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(400);
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
+  // TODO: test component atlas that already has the source dataset once available
 
   it("returns error 400 when POST requested with nonexistent source dataset", async () => {
     expect(
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_ID_NONEXISTENT,
           USER_CONTENT_ADMIN,
           METHOD.POST,
@@ -290,107 +226,30 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("adds source dataset and updates related fields when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    const componentAtlasBefore = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_BAR.id
-    );
+  // TODO: test for successful requests once the component_atlases table is used again
 
-    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_BAR.id
-    );
-
+  it("returns error 400 when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_BAR.id,
+      FILE_COMPONENT_ATLAS_DRAFT_BAR.id,
       SOURCE_DATASET_FOO.id,
       USER_INTEGRATION_LEAD_DRAFT,
-      METHOD.POST
+      METHOD.POST,
+      true
     );
-    expect(res._getStatusCode()).toEqual(201);
-
-    const componentAtlasAfter = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_BAR.id
-    );
-
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
-      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
-      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
-      SOURCE_DATASET_FOO,
-    ]);
-
-    if (
-      expectIsDefined(componentAtlasBefore) &&
-      expectIsDefined(componentAtlasAfter)
-    ) {
-      expectComponentAtlasDatasetsToHaveDifference(
-        componentAtlasBefore,
-        componentAtlasAfter,
-        [SOURCE_DATASET_FOO]
-      );
-    }
-
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
-
-    await query(
-      "UPDATE hat.component_atlases SET source_datasets=$1, component_info=$2 WHERE id=$3",
-      [
-        sourceDatasetsBefore,
-        JSON.stringify(componentAtlasBefore?.component_info),
-        COMPONENT_ATLAS_DRAFT_BAR.id,
-      ]
-    );
+    expect(res._getStatusCode()).toEqual(400);
   });
 
-  it("adds source dataset and updates related fields when POST requested by user with CONTENT_ADMIN role", async () => {
-    const componentAtlasBefore = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
-    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
+  it("returns error 400 when POST requested by user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.id,
+      FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
       SOURCE_DATASET_FOO.id,
       USER_CONTENT_ADMIN,
-      METHOD.POST
+      METHOD.POST,
+      true
     );
-    expect(res._getStatusCode()).toEqual(201);
-
-    const componentAtlasAfter = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
-      SOURCE_DATASET_FOOFOO,
-      SOURCE_DATASET_FOOBAR,
-      SOURCE_DATASET_FOOBAZ,
-      SOURCE_DATASET_FOO,
-    ]);
-
-    if (
-      expectIsDefined(componentAtlasBefore) &&
-      expectIsDefined(componentAtlasAfter)
-    ) {
-      expectComponentAtlasDatasetsToHaveDifference(
-        componentAtlasBefore,
-        componentAtlasAfter,
-        [SOURCE_DATASET_FOO]
-      );
-    }
-
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
-
-    await query(
-      "UPDATE hat.component_atlases SET source_datasets=$1, component_info=$2 WHERE id=$3",
-      [
-        sourceDatasetsBefore,
-        JSON.stringify(componentAtlasBefore?.component_info),
-        COMPONENT_ATLAS_DRAFT_FOO.id,
-      ]
-    );
+    expect(res._getStatusCode()).toEqual(400);
   });
 
   it("returns error 401 when DELETE requested from draft atlas by logged out user", async () => {
@@ -398,7 +257,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           undefined,
           METHOD.DELETE,
@@ -414,7 +273,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_UNREGISTERED,
           METHOD.DELETE,
@@ -430,7 +289,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE
@@ -449,7 +308,7 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_DRAFT.id,
-        COMPONENT_ATLAS_DRAFT_FOO.id,
+        FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
         SOURCE_DATASET_FOOFOO.id
       ),
       undefined,
@@ -466,7 +325,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.DELETE
@@ -481,7 +340,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_PUBLIC.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
@@ -497,7 +356,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_ID_NONEXISTENT,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
@@ -508,117 +367,38 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 400 when DELETE requested from component atlas the source dataset doesn't exist on", async () => {
+  // TODO: test for when DELETE requested from component atlas the source dataset doesn't exist on once datasets are available again
+
+  // TODO: test for successful requests once the component_atlases table is used again
+
+  it("returns error 400 when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     expect(
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOO.id,
+          FILE_COMPONENT_ATLAS_DRAFT_BAR.id,
+          SOURCE_DATASET_CELLXGENE_WITH_UPDATE.id,
+          USER_INTEGRATION_LEAD_DRAFT,
+          METHOD.DELETE,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when requested by user with CONTENT_ADMIN role", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_DRAFT.id,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          SOURCE_DATASET_FOOFOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           true
         )
       )._getStatusCode()
     ).toEqual(400);
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-  });
-
-  it("deletes source dataset and updates related fields when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    const componentAtlasBefore = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_BAR.id
-    );
-
-    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_BAR.id
-    );
-
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_BAR.id,
-          SOURCE_DATASET_CELLXGENE_WITH_UPDATE.id,
-          USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-
-    const componentAtlasAfter = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_BAR.id
-    );
-
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
-      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
-    ]);
-
-    if (
-      expectIsDefined(componentAtlasBefore) &&
-      expectIsDefined(componentAtlasAfter)
-    ) {
-      expectComponentAtlasDatasetsToHaveDifference(
-        componentAtlasAfter,
-        componentAtlasBefore,
-        [SOURCE_DATASET_CELLXGENE_WITH_UPDATE]
-      );
-    }
-
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
-
-    await query(
-      "UPDATE hat.component_atlases SET source_datasets=$1 WHERE id=$2",
-      [sourceDatasetsBefore, COMPONENT_ATLAS_DRAFT_BAR.id]
-    );
-  });
-
-  it("deletes source dataset and updates related fields when requested by user with CONTENT_ADMIN role", async () => {
-    const componentAtlasBefore = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
-    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          SOURCE_DATASET_FOOFOO.id,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-
-    const componentAtlasAfter = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
-      SOURCE_DATASET_FOOBAR,
-      SOURCE_DATASET_FOOBAZ,
-    ]);
-
-    if (
-      expectIsDefined(componentAtlasBefore) &&
-      expectIsDefined(componentAtlasAfter)
-    ) {
-      expectComponentAtlasDatasetsToHaveDifference(
-        componentAtlasAfter,
-        componentAtlasBefore,
-        [SOURCE_DATASET_FOOFOO]
-      );
-    }
-
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
-
-    await query(
-      "UPDATE hat.component_atlases SET source_datasets=$1 WHERE id=$2",
-      [sourceDatasetsBefore, COMPONENT_ATLAS_DRAFT_FOO.id]
-    );
   });
 });
 
@@ -660,52 +440,4 @@ async function expectComponentAtlasToBeUnchanged(
   if (!componentAtlasFromDb) return;
   expect(componentAtlasFromDb.atlas_id).toEqual(componentAtlas.atlasId);
   expect(componentAtlasFromDb.title).toEqual(componentAtlas.title);
-}
-
-async function expectComponentAtlasToHaveSourceDatasets(
-  componentAtlas: TestComponentAtlas,
-  expectedSourceDatasets: TestSourceDataset[]
-): Promise<void> {
-  const sourceDatasets = await getComponentAtlasSourceDatasets(
-    componentAtlas.id
-  );
-  expect(sourceDatasets).toHaveLength(expectedSourceDatasets.length);
-  for (const expectedDataset of expectedSourceDatasets) {
-    expect(sourceDatasets).toContain(expectedDataset.id);
-  }
-}
-
-function expectSourceDatasetsToMatch(
-  sourceDatasets: HCAAtlasTrackerSourceDataset[],
-  expectedTestSourceDatasets: TestSourceDataset[]
-): void {
-  for (const testSourceDataset of expectedTestSourceDatasets) {
-    const sourceDataset = sourceDatasets.find(
-      (c) => c.id === testSourceDataset.id
-    );
-    expect(sourceDataset).toBeDefined();
-    if (!sourceDataset) continue;
-    expect(sourceDataset.sourceStudyId).toEqual(
-      testSourceDataset.sourceStudyId
-    );
-    expect(sourceDataset.title).toEqual(testSourceDataset.title);
-    const sourceStudy = TEST_SOURCE_STUDIES.find(
-      (s) => s.id === testSourceDataset.sourceStudyId
-    );
-    if (sourceStudy)
-      expect(sourceDataset.sourceStudyTitle).toEqual(
-        "publication" in sourceStudy
-          ? sourceStudy.publication?.title
-          : sourceStudy.unpublishedInfo?.title ?? null
-      );
-  }
-}
-
-async function getComponentAtlasSourceDatasets(id: string): Promise<string[]> {
-  return (
-    await query<HCAAtlasTrackerDBComponentAtlas>(
-      "SELECT * FROM hat.component_atlases WHERE id=$1",
-      [id]
-    )
-  ).rows[0].source_datasets;
 }

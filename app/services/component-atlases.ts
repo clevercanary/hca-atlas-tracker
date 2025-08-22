@@ -1,8 +1,12 @@
 import pg from "pg";
-import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBComponentAtlasFile,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doTransaction, query } from "./database";
+import { confirmFileExistsOnAtlas } from "./files";
 import {
   confirmSourceDatasetsExist,
   UpdatedSourceDatasetsInfo,
@@ -11,50 +15,78 @@ import {
 /**
  * Get all component atlases of the given atlas.
  * @param atlasId - ID of the atlas to get component atlases for.
- * @returns component atlases.
+ * @returns component atlas files.
  */
 export async function getAtlasComponentAtlases(
   atlasId: string
-): Promise<HCAAtlasTrackerDBComponentAtlas[]> {
+): Promise<HCAAtlasTrackerDBComponentAtlasFile[]> {
   await confirmAtlasExists(atlasId);
-  return (
-    await query<HCAAtlasTrackerDBComponentAtlas>(
-      "SELECT * FROM hat.component_atlases WHERE atlas_id=$1",
-      [atlasId]
-    )
-  ).rows;
+  const { rows } = await query<
+    Omit<HCAAtlasTrackerDBComponentAtlasFile, "atlas_id">
+  >(
+    `
+        SELECT
+          id,
+          integrity_status,
+          key,
+          size_bytes,
+          status
+        FROM hat.files
+        WHERE file_type='integrated_object' AND atlas_id=$1
+      `,
+    [atlasId]
+  );
+  return rows.map((row) => ({ atlas_id: atlasId, ...row }));
 }
 
 /**
  * Get a component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
- * @param componentAtlasId - ID of the component atlas to get.
- * @returns database model of the component atlas.
+ * @param fileId - ID of the component atlas's associated file.
+ * @returns database model of the component atlas file.
  */
 export async function getComponentAtlas(
   atlasId: string,
-  componentAtlasId: string
-): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-    "SELECT * FROM hat.component_atlases WHERE id=$1 AND atlas_id=$2",
-    [componentAtlasId, atlasId]
+  fileId: string
+): Promise<HCAAtlasTrackerDBComponentAtlasFile> {
+  const queryResult = await query<
+    Omit<HCAAtlasTrackerDBComponentAtlasFile, "atlas_id">
+  >(
+    `
+      SELECT
+        id,
+        integrity_status,
+        key,
+        size_bytes,
+        status
+      FROM hat.files
+      WHERE id=$1 AND atlas_id=$2
+    `,
+    [fileId, atlasId]
   );
   if (queryResult.rows.length === 0)
-    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
-  return queryResult.rows[0];
+    throw getComponentAtlasFileNotFoundError(atlasId, fileId);
+  return {
+    atlas_id: atlasId,
+    ...queryResult.rows[0],
+  };
 }
 
 /**
  * Add the given source datasets to the specified comonent atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
- * @param componentAtlasId - Component atlas ID.
+ * @param fileId - Component atlas file ID.
  * @param sourceDatasetIds - IDs of source datasets to add.
  */
 export async function addSourceDatasetsToComponentAtlas(
   atlasId: string,
-  componentAtlasId: string,
+  fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
+  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+
+  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
   const existingDatasetsResult = await query<{ array: string[] }>(
@@ -90,14 +122,18 @@ export async function addSourceDatasetsToComponentAtlas(
 /**
  * Remove the given source datasets from the specified comonent atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
- * @param componentAtlasId - Component atlas ID.
+ * @param fileId - Component atlas file ID.
  * @param sourceDatasetIds - IDs of source datasets to remove.
  */
 export async function deleteSourceDatasetsFromComponentAtlas(
   atlasId: string,
-  componentAtlasId: string,
+  fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
+  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+
+  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
   const missingDatasetsResult = await query<{ array: string[] }>(
@@ -266,11 +302,48 @@ export async function getComponentAtlasIdsHavingSourceDatasets(
   ).rows.map(({ id }) => id);
 }
 
+/**
+ * Get the ID of the component atlas associated with the given file, throwing an error if there is none.
+ * @param fileId - ID of the file to get the associated component atlas of.
+ * @returns component atlas ID.
+ */
+export async function getPresentComponentAtlasIdForFile(
+  fileId: string
+): Promise<string> {
+  const componentAtlasId = await getComponentAtlasIdForFile(fileId);
+  if (componentAtlasId === null)
+    throw new InvalidOperationError(
+      `File with ID ${fileId} has no associated component atlas`
+    );
+  return componentAtlasId;
+}
+
+/**
+ * Get the ID of the component atlas associated with the given file, or null if there is none.
+ * @param fileId - ID of the file to get the associated component atlas of.
+ * @returns component atlas ID or null.
+ */
+export async function getComponentAtlasIdForFile(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder until we actually link files to component atlases
+  fileId: string
+): Promise<string | null> {
+  return null;
+}
+
 export function getComponentAtlasNotFoundError(
   atlasId: string,
   componentAtlasId: string
 ): NotFoundError {
   return new NotFoundError(
     `Component atlas with ID ${componentAtlasId} doesn't exist on atlas with ID ${atlasId}`
+  );
+}
+
+export function getComponentAtlasFileNotFoundError(
+  atlasId: string,
+  fileId: string
+): NotFoundError {
+  return new NotFoundError(
+    `Component atlas file with ID ${fileId} doesn't exist on atlas with ID ${atlasId}`
   );
 }

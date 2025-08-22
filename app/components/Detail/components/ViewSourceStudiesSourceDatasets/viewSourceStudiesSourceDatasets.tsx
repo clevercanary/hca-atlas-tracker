@@ -22,11 +22,14 @@ export const ViewSourceStudiesSourceDatasets = ({
   const [open, setOpen] = useState<boolean>(false);
   const onClose = (): void => setOpen(false);
   const onOpen = (): void => setOpen(true);
+  const hasComponentAtlasesEntry = false; // TODO: base this on something once it's possible for it to be true
   return (
     <Fragment>
       <Button
         {...BUTTON_PROPS.SECONDARY_CONTAINED}
-        disabled={sourceStudiesSourceDatasets.length === 0}
+        disabled={
+          !hasComponentAtlasesEntry || sourceStudiesSourceDatasets.length === 0
+        }
         onClick={onOpen}
         startIcon={
           <AddLinkIcon

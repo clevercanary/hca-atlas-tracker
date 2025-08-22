@@ -3,6 +3,8 @@ import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
+  FILE_TYPE,
+  FileEventInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
@@ -22,6 +24,7 @@ import {
   INITIAL_TEST_COMMENTS,
   INITIAL_TEST_COMPONENT_ATLASES,
   INITIAL_TEST_ENTRY_SHEET_VALIDATIONS,
+  INITIAL_TEST_FILES,
   INITIAL_TEST_SOURCE_DATASETS,
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
@@ -36,6 +39,7 @@ import {
   expectApiValidationsToMatchDb,
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
+  fillTestFileDefaults,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
@@ -75,6 +79,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   await initSourceDatasets(client);
 
   await initAtlases(client);
+
+  await initFiles(client);
 
   await initComponentAtlases(client);
 
@@ -171,6 +177,75 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.id,
         componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
         componentAtlas.title,
+      ]
+    );
+  }
+}
+
+async function initFiles(client: pg.PoolClient): Promise<void> {
+  for (const file of INITIAL_TEST_FILES) {
+    const {
+      atlas,
+      bucket,
+      etag,
+      eventName,
+      eventTime,
+      fileName,
+      fileType,
+      id,
+      integrityCheckedAt,
+      integrityError,
+      integrityStatus,
+      isLatest,
+      sha256Client,
+      sha256Server,
+      sizeBytes,
+      sourceStudyId,
+      status,
+      versionId,
+    } = fillTestFileDefaults(file);
+    let folderName: string;
+    switch (fileType) {
+      case FILE_TYPE.INGEST_MANIFEST:
+        folderName = "manifests";
+        break;
+      case FILE_TYPE.INTEGRATED_OBJECT:
+        folderName = "integrated-objects";
+        break;
+      case FILE_TYPE.SOURCE_DATASET:
+        folderName = "source-datasets";
+        break;
+    }
+    const key = `${atlas.network}/${
+      atlas.shortName
+    }-v${atlas.version.replaceAll(".", "-")}/${folderName}/${fileName}`;
+    const eventInfo: FileEventInfo = {
+      eventName,
+      eventTime,
+    };
+    await client.query(
+      `
+        INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      `,
+      [
+        id,
+        bucket,
+        key,
+        versionId,
+        etag,
+        sizeBytes,
+        JSON.stringify(eventInfo),
+        sha256Client,
+        sha256Server,
+        integrityCheckedAt,
+        integrityError,
+        integrityStatus,
+        status,
+        isLatest,
+        fileType,
+        sourceStudyId,
+        fileType === FILE_TYPE.SOURCE_DATASET ? null : atlas.id,
       ]
     );
   }

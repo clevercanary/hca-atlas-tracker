@@ -1,3 +1,4 @@
+import { parseS3KeyPath } from "app/services/s3-notification";
 import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import {
@@ -6,7 +7,7 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlasWithComponentAtlases,
   HCAAtlasTrackerDBComment,
-  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBComponentAtlasFile,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
@@ -23,6 +24,7 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
+  INTEGRITY_STATUS,
   TIER_ONE_METADATA_STATUS,
   WithSourceStudyInfo,
 } from "./entities";
@@ -69,23 +71,26 @@ export function dbAtlasToApiAtlas(
   };
 }
 
-export function dbComponentAtlasToApiComponentAtlas(
-  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlas
+export function dbComponentAtlasFileToApiComponentAtlas(
+  dbComponentAtlasFile: HCAAtlasTrackerDBComponentAtlasFile
 ): HCAAtlasTrackerComponentAtlas {
   return {
-    assay: dbComponentAtlas.component_info.assay,
-    atlasId: dbComponentAtlas.atlas_id,
-    cellCount: dbComponentAtlas.component_info.cellCount,
-    cellxgeneDatasetId: dbComponentAtlas.component_info.cellxgeneDatasetId,
-    cellxgeneDatasetVersion:
-      dbComponentAtlas.component_info.cellxgeneDatasetVersion,
-    description: dbComponentAtlas.component_info.description,
-    disease: dbComponentAtlas.component_info.disease,
-    id: dbComponentAtlas.id,
-    sourceDatasetCount: dbComponentAtlas.source_datasets.length,
-    suspensionType: dbComponentAtlas.component_info.suspensionType,
-    tissue: dbComponentAtlas.component_info.tissue,
-    title: dbComponentAtlas.title,
+    assay: [],
+    atlasId: dbComponentAtlasFile.atlas_id,
+    cellCount: 0,
+    cellxgeneDatasetId: null,
+    cellxgeneDatasetVersion: null,
+    description: "",
+    disease: [],
+    fileName: parseS3KeyPath(dbComponentAtlasFile.key).filename,
+    id: dbComponentAtlasFile.id,
+    integrityStatus: dbComponentAtlasFile.integrity_status,
+    sizeBytes: Number(dbComponentAtlasFile.size_bytes),
+    sourceDatasetCount: 0,
+    suspensionType: [],
+    tissue: [],
+    title: "",
+    validationStatus: INTEGRITY_STATUS.PENDING,
   };
 }
 

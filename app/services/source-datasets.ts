@@ -19,7 +19,9 @@ import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { removeSourceDatasetsFromAllAtlases } from "./atlases";
 import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
+  getComponentAtlasIdForFile,
   getComponentAtlasNotFoundError,
+  getPresentComponentAtlasIdForFile,
   removeSourceDatasetsFromAllComponentAtlases,
   updateComponentAtlasesForUpdatedSourceDatasets,
   updateFieldsForComponentAtlasesHavingSourceDatasets,
@@ -90,13 +92,15 @@ export async function getAtlasDatasets(
 /**
  * Get all source datasets of the given component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
- * @param componentAtlasId - Component atlas ID.
+ * @param fileId - Component atlas file ID.
  * @returns database-model source datasets.
  */
 export async function getComponentAtlasDatasets(
   atlasId: string,
-  componentAtlasId: string
+  fileId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+  const componentAtlasId = await getComponentAtlasIdForFile(fileId);
+  if (componentAtlasId === null) return [];
   const componentAtlasResult = await query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
   >(
@@ -171,15 +175,16 @@ export async function getAtlasSourceDataset(
 /**
  * Get a source dataset of a component atlas.
  * @param atlasId - ID of the atlas that the source dataset is accessed through.
- * @param componentAtlasId - ID of the component atlas that the source dataset is accessed through.
+ * @param fileId - ID of the file of the component atlas that the source dataset is accessed through.
  * @param sourceDatasetId - Source dataset ID.
  * @returns database model of the source dataset.
  */
 export async function getComponentAtlasSourceDataset(
   atlasId: string,
-  componentAtlasId: string,
+  fileId: string,
   sourceDatasetId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
   const { exists } = (
     await query<{ exists: boolean }>(
       "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND id=$2 AND atlas_id=$3)",
