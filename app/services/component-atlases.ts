@@ -6,6 +6,7 @@ import {
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doTransaction, query } from "./database";
+import { confirmFileExistsOnAtlas } from "./files";
 import {
   confirmSourceDatasetsExist,
   UpdatedSourceDatasetsInfo,
@@ -82,6 +83,8 @@ export async function addSourceDatasetsToComponentAtlas(
   fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
+  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
@@ -127,6 +130,8 @@ export async function deleteSourceDatasetsFromComponentAtlas(
   fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
+  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
