@@ -2,10 +2,13 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
+  FILE_STATUS,
+  FILE_TYPE,
   GoogleSheetInfo,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
+  INTEGRITY_STATUS,
   LinkInfo,
   NetworkKey,
   PublicationInfo,
@@ -88,6 +91,27 @@ export interface TestSourceDataset {
   suspensionType?: string[];
   tissue?: string[];
   title: string;
+}
+
+export interface TestFile {
+  atlas: TestAtlas;
+  bucket: string;
+  etag: string;
+  eventName?: string;
+  eventTime: string;
+  fileName: string;
+  fileType: FILE_TYPE;
+  id: string;
+  integrityCheckedAt?: string;
+  integrityError?: string;
+  integrityStatus?: INTEGRITY_STATUS;
+  isLatest?: boolean;
+  sha256Client?: string;
+  sha256Server?: string;
+  sizeBytes: string;
+  sourceStudyId?: string;
+  status?: FILE_STATUS;
+  versionId: string | null;
 }
 
 export type TestEntrySheetValidation = HCAAtlasTrackerDBEntrySheetValidation;
