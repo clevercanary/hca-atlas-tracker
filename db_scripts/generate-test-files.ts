@@ -197,7 +197,7 @@ async function generateAndAddFile(
       INTEGRITY_STATUS.PENDING,
       FILE_STATUS.UPLOADED,
       fileType,
-      fileType === "source_dataset" ? null : atlas.id,
+      fileType === FILE_TYPE.SOURCE_DATASET ? null : atlas.id,
     ]
   );
 }
