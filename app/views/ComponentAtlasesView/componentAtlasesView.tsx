@@ -42,7 +42,7 @@ export const ComponentAtlasesView = ({
         }
         status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
         tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
-        title={atlas ? getAtlasName(atlas) : "View Integration Objects"}
+        title={atlas ? getAtlasName(atlas) : "View Integrated Objects"}
       />
     </ConditionalComponent>
   );

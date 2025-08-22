@@ -188,7 +188,7 @@ export async function getComponentAtlasSourceDataset(
   ).rows[0];
   if (!exists)
     throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} doesn't exist on integration object with ID ${componentAtlasId} on atlas with ID ${atlasId}`
+      `Source dataset with ID ${sourceDatasetId} doesn't exist on integrated object with ID ${componentAtlasId} on atlas with ID ${atlasId}`
     );
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(

@@ -17,7 +17,7 @@ export const getServerSideProps: GetServerSideProps = async (
   const { atlasId } = context.params as ComponentAtlasesPageUrlParams;
   return {
     props: {
-      pageTitle: "Integration Objects",
+      pageTitle: "Integrated Objects",
       pathParameter: { atlasId },
     },
   };
