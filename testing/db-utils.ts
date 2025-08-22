@@ -3,7 +3,6 @@ import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
-  FILE_STATUS,
   FILE_TYPE,
   FileEventInfo,
   HCAAtlasTrackerDBAtlas,
@@ -16,7 +15,6 @@ import {
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
-  INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
 import { query } from "../app/services/database";
@@ -41,6 +39,7 @@ import {
   expectApiValidationsToMatchDb,
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
+  fillTestFileDefaults,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
@@ -189,22 +188,22 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
       atlas,
       bucket,
       etag,
-      eventName = "ObjectCreated:*",
+      eventName,
       eventTime,
       fileName,
       fileType,
       id,
-      integrityCheckedAt = null,
-      integrityError = null,
-      integrityStatus = INTEGRITY_STATUS.PENDING,
-      isLatest = true,
-      sha256Client = null,
-      sha256Server = null,
+      integrityCheckedAt,
+      integrityError,
+      integrityStatus,
+      isLatest,
+      sha256Client,
+      sha256Server,
       sizeBytes,
-      sourceStudyId = null,
-      status = FILE_STATUS.UPLOADED,
+      sourceStudyId,
+      status,
       versionId,
-    } = file;
+    } = fillTestFileDefaults(file);
     let folderName: string;
     switch (fileType) {
       case FILE_TYPE.INGEST_MANIFEST:

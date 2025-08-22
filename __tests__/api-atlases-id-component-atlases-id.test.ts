@@ -8,6 +8,7 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   COMPONENT_ATLAS_DRAFT_FOO,
+  FILE_COMPONENT_ATLAS_DRAFT_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -15,7 +16,11 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  expectApiComponentAtlasToMatchTest,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -141,16 +146,17 @@ describe(TEST_ROUTE, () => {
       componentAtlasHandler,
       METHOD.GET,
       role,
-      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.id),
+      getQueryValues(ATLAS_DRAFT.id, FILE_COMPONENT_ATLAS_DRAFT_FOO.id),
       undefined,
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(200);
         const componentAtlas =
           res._getJSONData() as HCAAtlasTrackerComponentAtlas;
-        expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
-        expect(componentAtlas.description).toEqual(
-          COMPONENT_ATLAS_DRAFT_FOO.description
+        expectApiComponentAtlasToMatchTest(
+          componentAtlas,
+          FILE_COMPONENT_ATLAS_DRAFT_FOO,
+          COMPONENT_ATLAS_DRAFT_FOO
         );
       }
     );
@@ -159,14 +165,15 @@ describe(TEST_ROUTE, () => {
   it("returns component atlas from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.id,
+      FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
-    expect(componentAtlas.title).toEqual(COMPONENT_ATLAS_DRAFT_FOO.title);
-    expect(componentAtlas.description).toEqual(
-      COMPONENT_ATLAS_DRAFT_FOO.description
+    expectApiComponentAtlasToMatchTest(
+      componentAtlas,
+      FILE_COMPONENT_ATLAS_DRAFT_FOO,
+      COMPONENT_ATLAS_DRAFT_FOO
     );
   });
 });

@@ -3,7 +3,9 @@ import httpMocks from "node-mocks-http";
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
+  FILE_STATUS,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBComponentAtlas,
@@ -18,6 +20,7 @@ import {
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
+  INTEGRITY_STATUS,
   ROLE,
   SYSTEM,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -42,6 +45,8 @@ import {
 } from "./constants";
 import {
   TestAtlas,
+  TestComponentAtlas,
+  TestFile,
   TestSourceDataset,
   TestSourceStudy,
   TestUser,
@@ -203,6 +208,33 @@ export function makeTestProjectsResponse(
     protocols: [],
     samples: [],
     specimens: [],
+  };
+}
+
+export function fillTestFileDefaults(file: TestFile): Required<TestFile> {
+  const {
+    eventName = "ObjectCreated:*",
+    integrityCheckedAt = null,
+    integrityError = null,
+    integrityStatus = INTEGRITY_STATUS.PENDING,
+    isLatest = true,
+    sha256Client = null,
+    sha256Server = null,
+    sourceStudyId = null,
+    status = FILE_STATUS.UPLOADED,
+    ...restFields
+  } = file;
+  return {
+    eventName,
+    integrityCheckedAt,
+    integrityError,
+    integrityStatus,
+    isLatest,
+    sha256Client,
+    sha256Server,
+    sourceStudyId,
+    status,
+    ...restFields,
   };
 }
 
@@ -465,6 +497,20 @@ export function expectDbSourceDatasetToMatchTest(
     testSourceDataset.tissue ?? []
   );
   expect(dbSourceDataset.sd_info.title).toEqual(testSourceDataset.title);
+}
+
+export function expectApiComponentAtlasToMatchTest(
+  apiComponentAtlas: HCAAtlasTrackerComponentAtlas,
+  sourceTestFile: TestFile,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder
+  testComponentAtlas: TestComponentAtlas
+): void {
+  const testFile = fillTestFileDefaults(sourceTestFile);
+  expect(apiComponentAtlas.atlasId).toEqual(testFile.atlas.id);
+  expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
+  expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
+  expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
+  // TODO: check for test component atlas fields once they're included
 }
 
 export function expectAtlasDatasetsToHaveDifference(

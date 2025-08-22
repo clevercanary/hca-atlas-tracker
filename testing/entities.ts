@@ -102,14 +102,14 @@ export interface TestFile {
   fileName: string;
   fileType: FILE_TYPE;
   id: string;
-  integrityCheckedAt?: string;
-  integrityError?: string;
+  integrityCheckedAt?: string | null;
+  integrityError?: string | null;
   integrityStatus?: INTEGRITY_STATUS;
   isLatest?: boolean;
-  sha256Client?: string;
-  sha256Server?: string;
+  sha256Client?: string | null;
+  sha256Server?: string | null;
   sizeBytes: string;
-  sourceStudyId?: string;
+  sourceStudyId?: string | null;
   status?: FILE_STATUS;
   versionId: string | null;
 }
