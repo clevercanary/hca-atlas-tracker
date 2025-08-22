@@ -1387,7 +1387,7 @@ function getComponentAtlasTitleColumnDef(
     accessorKey: "title",
     cell: ({ row }) =>
       C.Link(buildComponentAtlasTitle(pathParameter, row.original)),
-    header: "Integration object",
+    header: "Integrated object",
     meta: { columnPinned: true },
   };
 }

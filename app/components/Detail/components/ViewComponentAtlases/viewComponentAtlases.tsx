@@ -37,7 +37,7 @@ export const ViewComponentAtlases = ({
         )}
         <TablePlaceholder
           canEdit={canEdit}
-          message="No integration objects"
+          message="No integrated objects"
           rowCount={componentAtlases.length}
         />
       </GridPaper>

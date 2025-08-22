@@ -28,13 +28,13 @@ export const BREADCRUMB_ATLAS_SOURCE_DATASET: Breadcrumb = {
 export const BREADCRUMB_COMPONENT_ATLASES: Breadcrumb = {
   path: ROUTE.COMPONENT_ATLASES,
   route: ROUTE.COMPONENT_ATLASES,
-  text: "Integration Objects",
+  text: "Integrated Objects",
 };
 
 export const BREADCRUMB_COMPONENT_ATLAS: Breadcrumb = {
   path: ROUTE.COMPONENT_ATLAS,
   route: ROUTE.COMPONENT_ATLAS,
-  text: "Integration Object",
+  text: "Integrated Object",
 };
 
 export const BREADCRUMB_METADATA_CORRECTNESS: Breadcrumb = {
