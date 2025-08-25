@@ -1,4 +1,4 @@
-import { ChipCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/ChipCell/chipCell";
+import { ChipCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/ChipCell/ChipCell";
 import styled from "@emotion/styled";
 
 export const StyledChipCell = styled(ChipCell)`

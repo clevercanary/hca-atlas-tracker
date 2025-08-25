@@ -6,9 +6,13 @@ import {
   ColumnConfig,
   ViewContext,
 } from "@databiosphere/findable-ui/lib/config/entities";
+import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
+import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
+import { ChipProps } from "@mui/material";
 import {
   CellContext,
   ColumnDef,
+  Getter,
   Row,
   RowData,
   Table,
@@ -179,7 +183,7 @@ export const buildComponentAtlasTitle = (
 ): ComponentProps<typeof C.Link> => {
   const { id: componentAtlasId } = componentAtlas;
   return {
-    label: componentAtlas.title,
+    label: componentAtlas.title || LABEL.UNSPECIFIED,
     url: getRouteURL(ROUTE.COMPONENT_ATLAS, {
       ...pathParameter,
       componentAtlasId,
@@ -307,6 +311,28 @@ export const buildIngestionCountsHca = (
   atlas: HCAAtlasTrackerListAtlas
 ): ComponentProps<typeof C.TaskCountsCell> => {
   return buildIngestionCountsForSystem(atlas, SYSTEM.HCA_DATA_REPOSITORY);
+};
+
+/**
+ * Build props for the integrated object validation status ChipCell component.
+ * @param ctx - Cell context.
+ * @returns Props to be used for the ChipCell component.
+ */
+export const buildIntegratedObjectValidationStatus = (
+  ctx: CellContext<
+    HCAAtlasTrackerComponentAtlas,
+    HCAAtlasTrackerComponentAtlas["validationStatus"]
+  >
+): ComponentProps<typeof C.ChipCell> => {
+  return {
+    getValue: (() => {
+      return {
+        color: CHIP_PROPS.COLOR.WARNING,
+        label: ctx.getValue().replace(/^./, (match) => match.toUpperCase()),
+        variant: CHIP_PROPS.VARIANT.STATUS,
+      };
+    }) as Getter<ChipProps>,
+  } as ComponentProps<typeof C.ChipCell>;
 };
 
 /**
@@ -1056,16 +1082,19 @@ function getAssayColumnDef<
  */
 export function getAtlasComponentAtlasesTableColumns(
   pathParameter: PathParameter
-): ColumnDef<HCAAtlasTrackerComponentAtlas>[] {
+): ColumnDef<HCAAtlasTrackerComponentAtlas, unknown>[] {
   return [
     getComponentAtlasTitleColumnDef(pathParameter),
+    getIntegratedObjectFileNameColumnDef(),
+    getIntegratedObjectFileSizeColumnDef(),
+    getIntegratedObjectValidationStatusColumnDef(),
     getComponentAtlasSourceDatasetCountColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
     getDiseaseColumnDef(),
     getCellCountColumnDef(),
-  ];
+  ] as ColumnDef<HCAAtlasTrackerComponentAtlas, unknown>[];
 }
 
 /**
@@ -1440,6 +1469,51 @@ function getEntityFromRowData<T extends RowData>(
   if (isEntity?.(row.original)) {
     return row.original;
   }
+}
+
+/**
+ * Returns the integrated object file name column def.
+ * @returns ColumnDef.
+ */
+function getIntegratedObjectFileNameColumnDef(): ColumnDef<
+  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerComponentAtlas["fileName"]
+> {
+  return {
+    accessorKey: "fileName",
+    cell: (ctx) => C.BasicCell({ value: ctx.getValue() }),
+    header: "File Name",
+  };
+}
+
+/**
+ * Returns the integrated object file size column def.
+ * @returns ColumnDef.
+ */
+function getIntegratedObjectFileSizeColumnDef(): ColumnDef<
+  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerComponentAtlas["sizeBytes"]
+> {
+  return {
+    accessorKey: "sizeBytes",
+    cell: (ctx) => formatFileSize(ctx.getValue()),
+    header: "File Size",
+  };
+}
+
+/**
+ * Returns the integrated object validation status column def.
+ * @returns ColumnDef.
+ */
+function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
+  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerComponentAtlas["validationStatus"]
+> {
+  return {
+    accessorKey: "validationStatus",
+    cell: (ctx) => C.ChipCell(buildIntegratedObjectValidationStatus(ctx)),
+    header: "Validation Status",
+  };
 }
 
 /**
