@@ -37,7 +37,6 @@ export const ComponentAtlasesView = ({
           <ViewComponentAtlases
             formManager={formManager}
             componentAtlases={componentAtlases}
-            pathParameter={pathParameter}
           />
         }
         status={atlas && <AtlasStatus atlasStatus={atlas.status} />}

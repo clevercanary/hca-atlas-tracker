@@ -6,6 +6,10 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerComponentAtlas>["tableOpti
   {
     getRowId: (row) => row.id,
     initialState: {
-      columnVisibility: { [COLUMN_IDENTIFIER.ROW_POSITION]: true },
+      columnVisibility: {
+        [COLUMN_IDENTIFIER.ROW_POSITION]: true,
+        atlasId: false,
+        id: false,
+      },
     },
   };
