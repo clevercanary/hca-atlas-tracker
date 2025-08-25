@@ -32,9 +32,9 @@ function mapSchemaValues(
 ): ViewIntegratedObjectData | undefined {
   if (!integratedObject) return;
   return {
-    [FIELD_NAME.TITLE]: integratedObject.title,
     [FIELD_NAME.FILE_NAME]: integratedObject.fileName,
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),
+    [FIELD_NAME.TITLE]: integratedObject.title,
     [FIELD_NAME.VALIDATION_STATUS]: capitalizeFirst(
       integratedObject.validationStatus
     ),
