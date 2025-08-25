@@ -8,6 +8,24 @@ type CommonControllerConfig = ControllerConfig<
   HCAAtlasTrackerComponentAtlas
 >;
 
+const FILE_NAME: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: true,
+    label: "File",
+    readOnly: true,
+  },
+  name: FIELD_NAME.FILE_NAME,
+};
+
+const SIZE_BY_BYTES: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: true,
+    label: "Size",
+    readOnly: true,
+  },
+  name: FIELD_NAME.SIZE_BY_BYTES,
+};
+
 const TITLE: CommonControllerConfig = {
   inputProps: {
     isFullWidth: true,
@@ -17,7 +35,16 @@ const TITLE: CommonControllerConfig = {
   name: FIELD_NAME.TITLE,
 };
 
+const VALIDATION_STATUS: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: true,
+    label: "Validation Status",
+    readOnly: true,
+  },
+  name: FIELD_NAME.VALIDATION_STATUS,
+};
+
 export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: ControllerConfig<
   ViewIntegratedObjectData,
   HCAAtlasTrackerComponentAtlas
->[] = [TITLE];
+>[] = [TITLE, FILE_NAME, SIZE_BY_BYTES, VALIDATION_STATUS];

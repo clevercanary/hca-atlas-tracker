@@ -8,5 +8,8 @@ export const componentAtlasDeleteSourceDatasetsSchema = object({
 }).strict(true);
 
 export const viewIntegratedObjectSchema = object({
-  [FIELD_NAME.TITLE]: string().default("").required("Title is required"),
+  [FIELD_NAME.TITLE]: string(),
+  [FIELD_NAME.FILE_NAME]: string(),
+  [FIELD_NAME.SIZE_BY_BYTES]: string(),
+  [FIELD_NAME.VALIDATION_STATUS]: string(),
 }).strict(true);
