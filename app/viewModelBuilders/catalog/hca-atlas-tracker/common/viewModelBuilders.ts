@@ -172,21 +172,26 @@ export const buildComponentAtlasCount = (
 };
 
 /**
- * Build props for the component atlas title Link component.
- * @param pathParameter - Path parameter.
- * @param componentAtlas - Component atlas entity.
- * @returns Props to be used for the Link component.
+ * Build props for the component atlas file name LinkCell component.
+ * @param ctx - Cell context.
+ * @param ctx.getValue - Get the value of the cell.
+ * @param ctx.row - Get the row of the cell.
+ * @returns Props to be used for the LinkCell component.
  */
-export const buildComponentAtlasTitle = (
-  pathParameter: PathParameter,
-  componentAtlas: HCAAtlasTrackerComponentAtlas
-): ComponentProps<typeof C.Link> => {
-  const { id: componentAtlasId } = componentAtlas;
+export const buildComponentAtlasFileName = ({
+  getValue,
+  row,
+}: CellContext<
+  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerComponentAtlas["fileName"]
+>): ComponentProps<typeof C.LinkCell> => {
+  const fileName = getValue();
+  const atlasId = row.getValue("atlasId") as string;
+  const componentAtlasId = row.getValue("id") as string;
   return {
-    label: componentAtlas.title || LABEL.UNSPECIFIED,
-    url: getRouteURL(ROUTE.COMPONENT_ATLAS, {
-      ...pathParameter,
-      componentAtlasId,
+    getValue: () => ({
+      children: fileName,
+      href: getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
     }),
   };
 };
@@ -1077,15 +1082,15 @@ function getAssayColumnDef<
 
 /**
  * Returns the table column definition model for the atlas (edit mode) component atlases table.
- * @param pathParameter - Path parameter.
  * @returns Table column definition.
  */
-export function getAtlasComponentAtlasesTableColumns(
-  pathParameter: PathParameter
-): ColumnDef<HCAAtlasTrackerComponentAtlas, unknown>[] {
+export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
+  HCAAtlasTrackerComponentAtlas,
+  unknown
+>[] {
   return [
-    getComponentAtlasTitleColumnDef(pathParameter),
     getIntegratedObjectFileNameColumnDef(),
+    getComponentAtlasTitleColumnDef(),
     getIntegratedObjectFileSizeColumnDef(),
     getIntegratedObjectValidationStatusColumnDef(),
     getComponentAtlasSourceDatasetCountColumnDef(),
@@ -1094,6 +1099,9 @@ export function getAtlasComponentAtlasesTableColumns(
     getTissueColumnDef(),
     getDiseaseColumnDef(),
     getCellCountColumnDef(),
+    /* Hidden columns */
+    { accessorKey: "atlasId" },
+    { accessorKey: "id" },
   ] as ColumnDef<HCAAtlasTrackerComponentAtlas, unknown>[];
 }
 
@@ -1406,18 +1414,12 @@ function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<HCAAtlasTrack
 
 /**
  * Returns component atlas title column def.
- * @param pathParameter - Path parameter.
  * @returns ColumnDef.
  */
-function getComponentAtlasTitleColumnDef(
-  pathParameter: PathParameter
-): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
   return {
     accessorKey: "title",
-    cell: ({ row }) =>
-      C.Link(buildComponentAtlasTitle(pathParameter, row.original)),
-    header: "Integrated object",
-    meta: { columnPinned: true },
+    header: "Title",
   };
 }
 
@@ -1481,8 +1483,9 @@ function getIntegratedObjectFileNameColumnDef(): ColumnDef<
 > {
   return {
     accessorKey: "fileName",
-    cell: (ctx) => C.BasicCell({ value: ctx.getValue() }),
+    cell: (ctx) => C.LinkCell(buildComponentAtlasFileName(ctx)),
     header: "File Name",
+    meta: { columnPinned: true },
   };
 }
 
