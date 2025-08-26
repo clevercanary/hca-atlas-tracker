@@ -15,7 +15,8 @@
     "build-catalog": "esrun ./files/build-catalog.ts",
     "migrate": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts",
     "download-data-dictionary": "esrun ./catalog/build/download-data-dictionary.ts",
-    "migrate:down": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-down.ts -j ts"
+    "migrate:down": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-down.ts -j ts",
+    "dump-schema": "pg_dump --schema-only --schema=hat --no-owner --no-privileges atlas-tracker > schema.sql"
   },
   "dependencies": {
     "@databiosphere/findable-ui": "^41.2.0",
