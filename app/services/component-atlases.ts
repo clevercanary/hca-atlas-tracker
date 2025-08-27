@@ -85,7 +85,7 @@ export async function addSourceDatasetsToComponentAtlas(
   fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
-  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+  await confirmFileExistsOnAtlas(fileId, atlasId);
 
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
 
@@ -132,7 +132,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
   fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
-  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+  await confirmFileExistsOnAtlas(fileId, atlasId);
 
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
 

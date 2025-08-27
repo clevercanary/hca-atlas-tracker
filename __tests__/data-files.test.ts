@@ -1,9 +1,13 @@
 import { FILE_TYPE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { confirmFileExistsOnAtlas } from "../app/data/files";
+import {
+  confirmFileExistsOnAtlas,
+  getAtlasByNetworkVersionAndShortName,
+} from "../app/data/files";
 import { endPgPool } from "../app/services/database";
 import { NotFoundError } from "../app/utils/api-handler";
 import {
   ATLAS_DRAFT,
+  ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   FILE_COMPONENT_ATLAS_DRAFT_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
@@ -54,7 +58,7 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, wrongAtlasId)
       ).rejects.toThrow(
-        `File with id ${fileId} doesn't exist on atlas with ID ${wrongAtlasId}`
+        `File with id ${fileId} doesn't exist on the specified atlas.`
       );
     });
   });
@@ -96,7 +100,7 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
       ).rejects.toThrow(
-        `File with id ${nonExistentFileId} doesn't exist on atlas with ID ${ATLAS_DRAFT.id}`
+        `File with id ${nonExistentFileId} doesn't exist on the specified atlas.`
       );
     });
 
@@ -117,18 +121,13 @@ describe("confirmFileExistsOnAtlas", () => {
       ).rejects.toThrow(NotFoundError);
     });
 
-    it("should use custom fileTypeDescription in error message", async () => {
-      const customDescription = "Component atlas file";
+    it("should use standard error message", async () => {
       const nonExistentFileId = "550e8400-e29b-41d4-a716-446655440098";
 
       await expect(
-        confirmFileExistsOnAtlas(
-          nonExistentFileId,
-          ATLAS_DRAFT.id,
-          customDescription
-        )
+        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
       ).rejects.toThrow(
-        `${customDescription} with id ${nonExistentFileId} doesn't exist on atlas with ID ${ATLAS_DRAFT.id}`
+        `File with id ${nonExistentFileId} doesn't exist on the specified atlas.`
       );
     });
   });
@@ -149,6 +148,112 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, "invalid-uuid")
       ).rejects.toThrow(); // Any error is fine
+    });
+  });
+});
+
+describe("getAtlasByNetworkVersionAndShortName", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
+  describe("successful lookups", () => {
+    it("should find atlas by exact version match", async () => {
+      const atlasId = await getAtlasByNetworkVersionAndShortName(
+        ATLAS_DRAFT.network,
+        ATLAS_DRAFT.version,
+        ATLAS_DRAFT.shortName
+      );
+
+      expect(atlasId).toBe(ATLAS_DRAFT.id);
+    });
+
+    it("should find atlas with version without decimal (2.0 -> 2)", async () => {
+      const atlasId = await getAtlasByNetworkVersionAndShortName(
+        ATLAS_WITH_IL.network,
+        "2.0",
+        ATLAS_WITH_IL.shortName
+      );
+
+      expect(atlasId).toBe(ATLAS_WITH_IL.id);
+    });
+
+    it("should find atlas with case-insensitive short name match", async () => {
+      const atlasId = await getAtlasByNetworkVersionAndShortName(
+        ATLAS_DRAFT.network,
+        ATLAS_DRAFT.version,
+        "TEST-DRAFT"
+      );
+
+      expect(atlasId).toBe(ATLAS_DRAFT.id);
+    });
+
+    it("should prioritize exact version match over decimal-stripped version", async () => {
+      const atlasId = await getAtlasByNetworkVersionAndShortName(
+        ATLAS_WITH_IL.network,
+        ATLAS_WITH_IL.version,
+        ATLAS_WITH_IL.shortName
+      );
+
+      expect(atlasId).toBe(ATLAS_WITH_IL.id);
+    });
+  });
+
+  describe("error cases", () => {
+    it("should throw error when atlas not found by network", async () => {
+      await expect(
+        getAtlasByNetworkVersionAndShortName(
+          "nonexistent-network",
+          ATLAS_DRAFT.version,
+          ATLAS_DRAFT.shortName
+        )
+      ).rejects.toThrow(
+        `Atlas not found for network: nonexistent-network, shortName: ${ATLAS_DRAFT.shortName}, version: ${ATLAS_DRAFT.version}`
+      );
+    });
+
+    it("should throw error when atlas not found by version", async () => {
+      await expect(
+        getAtlasByNetworkVersionAndShortName(
+          ATLAS_DRAFT.network,
+          "99.99",
+          ATLAS_DRAFT.shortName
+        )
+      ).rejects.toThrow(
+        `Atlas not found for network: ${ATLAS_DRAFT.network}, shortName: ${ATLAS_DRAFT.shortName}, version: 99.99`
+      );
+    });
+
+    it("should throw error when atlas not found by short name", async () => {
+      await expect(
+        getAtlasByNetworkVersionAndShortName(
+          ATLAS_DRAFT.network,
+          ATLAS_DRAFT.version,
+          "nonexistent-atlas"
+        )
+      ).rejects.toThrow("Atlas not found");
+    });
+  });
+
+  describe("version matching edge cases", () => {
+    it("should handle version with multiple decimals", async () => {
+      const atlasId = await getAtlasByNetworkVersionAndShortName(
+        ATLAS_WITH_IL.network,
+        "2.0.0",
+        ATLAS_WITH_IL.shortName
+      );
+
+      expect(atlasId).toBe(ATLAS_WITH_IL.id);
+    });
+
+    it("should handle single digit version matching decimal version", async () => {
+      const atlasId = await getAtlasByNetworkVersionAndShortName(
+        ATLAS_WITH_IL.network,
+        "2",
+        ATLAS_WITH_IL.shortName
+      );
+
+      expect(atlasId).toBe(ATLAS_WITH_IL.id);
     });
   });
 });

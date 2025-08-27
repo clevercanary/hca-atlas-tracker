@@ -4,3 +4,5 @@ Object.assign(global, { TextDecoder, TextEncoder }); // https://stackoverflow.co
 
 process.env.GOOGLE_SERVICE_ACCOUNT =
   '"TEST_GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"';
+process.env.GOOGLE_AUTH =
+  '{"type": "service_account", "client_email": "test@example.com"}';

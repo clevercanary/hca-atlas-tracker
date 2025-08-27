@@ -19,8 +19,9 @@ import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
+import { getAtlasByNetworkVersionAndShortName } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
-import { doTransaction, query } from "./database";
+import { doTransaction } from "./database";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -170,30 +171,11 @@ async function determineAtlasId(
   // Convert S3 version to database version format
   const dbVersion = convertS3VersionToDbVersion(s3Version);
 
-  // Look up atlas by network and version, then filter by shortName match
-  // We need to do a case-insensitive match since S3 names may have different casing
-  // Also check for both version formats: "1" and "1.0" since databases might store either
-  const versionWithoutDecimal = dbVersion.replace(".0", "");
-
-  const result = await query(
-    `SELECT id, overview->>'shortName' as short_name, overview->>'version' as version
-       FROM hat.atlases 
-       WHERE overview->>'network' = $1 
-       AND (overview->>'version' = $2 OR overview->>'version' = $3)
-       AND LOWER(overview->>'shortName') = LOWER($4)
-       ORDER BY 
-         CASE WHEN overview->>'version' = $3 THEN 1 ELSE 2 END,
-         overview->>'version'`,
-    [network, dbVersion, versionWithoutDecimal, atlasBaseName]
+  return await getAtlasByNetworkVersionAndShortName(
+    network,
+    dbVersion,
+    atlasBaseName
   );
-
-  if (result.rows.length === 0) {
-    throw new Error(
-      `Atlas not found for network: ${network}, shortName: ${atlasBaseName}, version: ${dbVersion} or ${versionWithoutDecimal} (from S3 path: ${atlasName})`
-    );
-  }
-
-  return result.rows[0].id;
 }
 
 /**
