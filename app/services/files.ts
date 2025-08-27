@@ -13,7 +13,14 @@ export async function confirmFileExistsOnAtlas(
   fileTypeDescription = "File"
 ): Promise<void> {
   const result = await query(
-    "SELECT 1 FROM hat.files WHERE id=$1 AND atlas_id=$2",
+    `SELECT 1 FROM hat.files f 
+     WHERE f.id = $1 AND (
+       -- Integrated object files via component atlas
+       EXISTS(SELECT 1 FROM hat.component_atlases ca WHERE f.component_atlas_id = ca.id AND ca.atlas_id = $2)
+       OR
+       -- Source dataset files (with or without source study)
+       f.source_dataset_id IS NOT NULL
+     )`,
     [fileId, atlasId]
   );
   if (result.rows.length === 0)

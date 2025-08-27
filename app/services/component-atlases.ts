@@ -26,13 +26,14 @@ export async function getAtlasComponentAtlases(
   >(
     `
         SELECT
-          id,
-          integrity_status,
-          key,
-          size_bytes,
-          status
-        FROM hat.files
-        WHERE file_type='integrated_object' AND atlas_id=$1
+          f.id,
+          f.integrity_status,
+          f.key,
+          f.size_bytes,
+          f.status
+        FROM hat.files f
+        JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
+        WHERE f.file_type='integrated_object' AND ca.atlas_id=$1
       `,
     [atlasId]
   );
@@ -54,13 +55,14 @@ export async function getComponentAtlas(
   >(
     `
       SELECT
-        id,
-        integrity_status,
-        key,
-        size_bytes,
-        status
-      FROM hat.files
-      WHERE id=$1 AND atlas_id=$2
+        f.id,
+        f.integrity_status,
+        f.key,
+        f.size_bytes,
+        f.status
+      FROM hat.files f
+      JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
+      WHERE f.id=$1 AND ca.atlas_id=$2
     `,
     [fileId, atlasId]
   );

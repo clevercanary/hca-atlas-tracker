@@ -145,14 +145,14 @@ function convertS3VersionToDbVersion(s3Version: string): string {
 }
 
 /**
- * Determines the atlas ID for integrated objects and ingest manifests
- * @param s3Key - The S3 object key containing atlas information
- * @param fileType - The file type ('source_dataset', 'integrated_object', or 'ingest_manifest')
- * @returns The atlas ID from the database, or null for source datasets
- * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
+ * Determines the atlas ID for integrated objects and ingest manifests based on S3 key path
+ * @param s3Key - The S3 object key (path)
+ * @param fileType - The determined file type
+ * @returns Atlas ID for integrated objects/manifests, null for source datasets
  * @throws Error if atlas name format is invalid or atlas not found in database
- * @note Source datasets return null as they use source_study_id instead of atlas_id
+ * @note Will be used in next phase to create/link metadata objects (source datasets, component atlases)
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Will be used in next phase for metadata object creation
 async function determineAtlasId(
   s3Key: string,
   fileType: FILE_TYPE
@@ -220,8 +220,7 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   // Determine file type from S3 key path structure
   const fileType = determineFileType(object.key);
 
-  // Determine atlas ID for integrated objects and ingest manifests
-  const atlasId = await determineAtlasId(object.key, fileType);
+  // Note: Atlas ID determination removed - will be handled when creating metadata objects
 
   // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
   //
@@ -252,8 +251,8 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
     // The unique constraint on (bucket, key, version_id) will trigger ON CONFLICT
     // if we receive a duplicate notification for the same S3 object version
     const result = await transaction.query(
-      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)
+      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12)
          
          -- ON CONFLICT: Handle duplicate notifications gracefully
          -- This triggers when (bucket, key, version_id) already exists
@@ -288,7 +287,8 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
         INTEGRITY_STATUS.PENDING,
         FILE_STATUS.UPLOADED,
         fileType,
-        atlasId,
+        null, // source_dataset_id - will be set when metadata objects are created
+        null, // component_atlas_id - will be set when metadata objects are created
       ]
     );
 
