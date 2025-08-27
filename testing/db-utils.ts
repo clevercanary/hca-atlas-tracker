@@ -273,8 +273,8 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
     };
     await client.query(
       `
-        INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       `,
       [
         id,
@@ -298,6 +298,7 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
         fileType === FILE_TYPE.INTEGRATED_OBJECT
           ? fileToComponentAtlasMap.get(id)
           : null,
+        `test-sns-message-${id}`, // Generate unique SNS message ID for test data
       ]
     );
   }
@@ -380,8 +381,8 @@ export async function initTestFile(
   };
   await query(
     `INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, 
-     sha256_client, integrity_status, status, is_latest, file_type, component_atlas_id, source_dataset_id, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())`,
+     sha256_client, integrity_status, status, is_latest, file_type, component_atlas_id, source_dataset_id, sns_message_id, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
     [
       fileId,
       config.bucket,
@@ -397,6 +398,7 @@ export async function initTestFile(
       config.fileType,
       config.componentAtlasId ?? null,
       config.sourceDatasetId ?? null,
+      `test-sns-message-${fileId}`, // Generate unique SNS message ID for test data
     ],
     client
   );

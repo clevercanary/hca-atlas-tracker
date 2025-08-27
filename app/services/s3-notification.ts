@@ -19,7 +19,10 @@ import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
-import { getAtlasByNetworkVersionAndShortName } from "../data/files";
+import {
+  getAtlasByNetworkVersionAndShortName,
+  upsertFileRecord,
+} from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
 import { doTransaction } from "./database";
 
@@ -181,6 +184,7 @@ async function determineAtlasId(
 /**
  * Saves or updates a file record in the database with idempotency handling
  * @param record - The S3 event record containing bucket, object, and event metadata
+ * @param snsMessageId - SNS MessageId for proper message-level idempotency
  * @throws ETagMismatchError if ETags don't match (indicates potential corruption)
  * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
  * @throws UnknownFolderTypeError if folder type is not recognized
@@ -188,7 +192,10 @@ async function determineAtlasId(
  * @note Uses PostgreSQL ON CONFLICT for atomic idempotency handling
  * @note Implements database transaction to ensure is_latest flag consistency
  */
-async function saveFileRecord(record: S3EventRecord): Promise<void> {
+async function saveFileRecord(
+  record: S3EventRecord,
+  snsMessageId: string
+): Promise<void> {
   const { bucket, object } = record.s3;
 
   const eventInfo: FileEventInfo = {
@@ -230,56 +237,31 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
     );
 
     // STEP 2: Insert new version with ON CONFLICT handling
-    // The unique constraint on (bucket, key, version_id) will trigger ON CONFLICT
-    // if we receive a duplicate notification for the same S3 object version
-    const result = await transaction.query(
-      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12)
-         
-         -- ON CONFLICT: Handle duplicate notifications gracefully
-         -- This triggers when (bucket, key, version_id) already exists
-         ON CONFLICT (bucket, key, version_id) 
-         DO UPDATE SET 
-           etag = files.etag,  -- Keep existing ETag (no change)
-           size_bytes = files.size_bytes,  -- Keep existing values
-           event_info = files.event_info,
-           is_latest = TRUE,  -- Ensure this version is marked as latest
-           updated_at = CURRENT_TIMESTAMP
-           
-         -- CRITICAL: Only update if ETags match
-         -- This WHERE clause provides data integrity protection:
-         -- - If ETags match: Same S3 object, safe to update (idempotent)
-         -- - If ETags differ: Potential corruption, reject update (no rows returned)
-         WHERE files.etag = EXCLUDED.etag
-         
-         -- RETURNING clause provides operation metadata:
-         -- - xmax = 0: Record was INSERTed (new file version)
-         -- - xmax > 0: Record was UPDATEd (duplicate notification)
-         RETURNING 
-           (CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END) as operation,
-           etag`,
-      [
-        bucket.name,
-        object.key,
-        object.versionId || null,
-        object.eTag,
-        object.size,
-        JSON.stringify(eventInfo),
-        sha256,
-        INTEGRITY_STATUS.PENDING,
-        FILE_STATUS.UPLOADED,
+    const result = await upsertFileRecord(
+      {
+        bucket: bucket.name,
+        componentAtlasId: null, // will be set when metadata objects are created
+        etag: object.eTag,
+        eventInfo: JSON.stringify(eventInfo),
         fileType,
-        null, // source_dataset_id - will be set when metadata objects are created
-        null, // component_atlas_id - will be set when metadata objects are created
-      ]
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: object.key,
+        sha256Client: sha256,
+        sizeBytes: object.size,
+        snsMessageId,
+        sourceDatasetId: null, // will be set when metadata objects are created
+        status: FILE_STATUS.UPLOADED,
+        versionId: object.versionId || null,
+      },
+      transaction
     );
 
     // STEP 3: Handle the three possible outcomes
 
-    // CASE 1: No rows returned = ETag mismatch detected
+    // CASE 1: No result returned = ETag mismatch detected
     // This happens when ON CONFLICT triggered but WHERE clause failed
     // Indicates potential data corruption or AWS infrastructure issue
-    if (result.rows.length === 0) {
+    if (!result) {
       // Get the existing ETag for detailed error reporting
       const existingRecord = await transaction.query(
         `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
@@ -303,7 +285,7 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
     }
 
     // CASE 2 & 3: Success - log the operation type for monitoring
-    const operation = result.rows[0]?.operation;
+    const operation = result.operation;
 
     if (operation === "inserted") {
       // New file version successfully created
@@ -344,7 +326,7 @@ export async function processS3Record(
   authorizeS3Buckets(s3Event);
 
   const record = s3Event.Records[0];
-  await saveFileRecord(record);
+  await saveFileRecord(record, snsMessage.MessageId);
 }
 
 /**

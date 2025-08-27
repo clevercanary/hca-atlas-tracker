@@ -128,7 +128,8 @@ CREATE TABLE hat.files (
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id character varying(255),
     component_atlas_id uuid,
-    CONSTRAINT ck_files_exclusive_parent_relationship CHECK (((((file_type)::text = 'source_dataset'::text) AND (atlas_id IS NULL)) OR (((file_type)::text = ANY ((ARRAY['integrated_object'::character varying, 'ingest_manifest'::character varying])::text[])) AND (source_study_id IS NULL) AND (atlas_id IS NOT NULL)))),
+    source_dataset_id uuid,
+    CONSTRAINT ck_files_exclusive_parent_relationship CHECK (((((file_type)::text = 'source_dataset'::text) AND (source_dataset_id IS NOT NULL) AND (component_atlas_id IS NULL)) OR (((file_type)::text = 'integrated_object'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NOT NULL)) OR (((file_type)::text = 'ingest_manifest'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NULL)))),
     CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'validating'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[])))
 );
 
@@ -211,6 +212,13 @@ COMMENT ON COLUMN hat.files.component_atlas_id IS 'FK to component_atlases.id - 
 
 
 --
+-- Name: COLUMN files.source_dataset_id; Type: COMMENT; Schema: hat; Owner: -
+--
+
+COMMENT ON COLUMN hat.files.source_dataset_id IS 'FK to source_datasets.id - set for source_dataset files';
+
+
+--
 -- Name: pgmigrations; Type: TABLE; Schema: hat; Owner: -
 --
 
@@ -249,7 +257,7 @@ CREATE TABLE hat.source_datasets (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     sd_info jsonb NOT NULL,
-    source_study_id uuid NOT NULL,
+    source_study_id uuid,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -498,6 +506,13 @@ CREATE INDEX files_sha256_client_index ON hat.files USING btree (sha256_client);
 
 
 --
+-- Name: files_source_dataset_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX files_source_dataset_id_index ON hat.files USING btree (source_dataset_id);
+
+
+--
 -- Name: files_status_index; Type: INDEX; Schema: hat; Owner: -
 --
 
@@ -583,6 +598,14 @@ ALTER TABLE ONLY hat.comments
 
 ALTER TABLE ONLY hat.files
     ADD CONSTRAINT fk_files_component_atlas_id FOREIGN KEY (component_atlas_id) REFERENCES hat.component_atlases(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: files fk_files_source_dataset_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.files
+    ADD CONSTRAINT fk_files_source_dataset_id FOREIGN KEY (source_dataset_id) REFERENCES hat.source_datasets(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

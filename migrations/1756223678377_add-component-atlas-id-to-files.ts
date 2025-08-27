@@ -27,6 +27,19 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     }
   );
 
+  // Add sns_message_id column for proper SNS message idempotency
+  pgm.addColumn(
+    { name: "files", schema: "hat" },
+    {
+      sns_message_id: {
+        comment:
+          "SNS MessageId for deduplication of duplicate SNS notifications",
+        notNull: true,
+        type: "varchar(255)",
+      },
+    }
+  );
+
   // Add foreign key constraint for component atlas relationship
   pgm.addConstraint(
     { name: "files", schema: "hat" },
@@ -58,6 +71,15 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   // Add indexes for efficient queries
   pgm.createIndex({ name: "files", schema: "hat" }, ["component_atlas_id"]);
   pgm.createIndex({ name: "files", schema: "hat" }, ["source_dataset_id"]);
+
+  // Add unique constraint for SNS MessageId (proper SNS idempotency)
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "uq_files_sns_message_id",
+    {
+      unique: ["sns_message_id"],
+    }
+  );
 
   // Clear existing file data (nothing links to files, safe to delete)
   // Note: Run manually if needed - pgm.sql("DELETE FROM hat.files;");
@@ -130,11 +152,21 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
     ifExists: true,
   });
 
+  // Remove SNS MessageId unique constraint (if exists)
+  pgm.dropConstraint(
+    { name: "files", schema: "hat" },
+    "uq_files_sns_message_id",
+    { ifExists: true }
+  );
+
   // Remove columns (if exists)
   pgm.dropColumn({ name: "files", schema: "hat" }, "component_atlas_id", {
     ifExists: true,
   });
   pgm.dropColumn({ name: "files", schema: "hat" }, "source_dataset_id", {
+    ifExists: true,
+  });
+  pgm.dropColumn({ name: "files", schema: "hat" }, "sns_message_id", {
     ifExists: true,
   });
 }

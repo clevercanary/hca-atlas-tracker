@@ -1,14 +1,20 @@
-import { FILE_TYPE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  FILE_STATUS,
+  FILE_TYPE,
+  INTEGRITY_STATUS,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmFileExistsOnAtlas,
   getAtlasByNetworkVersionAndShortName,
+  upsertFileRecord,
 } from "../app/data/files";
-import { endPgPool } from "../app/services/database";
+import { doTransaction, endPgPool, query } from "../app/services/database";
 import { NotFoundError } from "../app/utils/api-handler";
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  COMPONENT_ATLAS_DRAFT_FOO,
   FILE_COMPONENT_ATLAS_DRAFT_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
 } from "../testing/constants";
@@ -148,6 +154,184 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, "invalid-uuid")
       ).rejects.toThrow(); // Any error is fine
+    });
+  });
+});
+
+describe("upsertFileRecord", () => {
+  // Test constants to avoid duplication
+  const TEST_BUCKET = "test-bucket";
+  const TEST_KEY = "test/path/file.h5ad";
+  const TEST_ETAG = "test-etag-123";
+  const TEST_ETAG_ALT = "test-etag-456";
+  const TEST_SNS_MESSAGE_ID = "test-sns-message-id-123";
+  const TEST_SHA256 = null;
+  const TEST_VERSION_ID = "test-version-123";
+  const TEST_SIZE_BYTES = 1024;
+  const TEST_EVENT_INFO = JSON.stringify({
+    eventName: "s3:ObjectCreated:Put",
+    eventTime: "2023-01-01T00:00:00.000Z",
+  });
+  const SELECT_FILE_QUERY =
+    "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2";
+
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
+  describe("successful operations", () => {
+    it("should insert a new file record", async () => {
+      const mockFileData = {
+        bucket: TEST_BUCKET,
+        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID
+        etag: TEST_ETAG,
+        eventInfo: TEST_EVENT_INFO,
+        fileType: FILE_TYPE.INTEGRATED_OBJECT,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: TEST_KEY,
+        sha256Client: TEST_SHA256,
+        sizeBytes: TEST_SIZE_BYTES,
+        snsMessageId: TEST_SNS_MESSAGE_ID,
+        sourceDatasetId: null,
+        status: FILE_STATUS.UPLOADED,
+        versionId: TEST_VERSION_ID,
+      };
+
+      const result = await doTransaction(async (transaction) => {
+        return await upsertFileRecord(mockFileData, transaction);
+      });
+
+      const EXPECTED_OPERATION = "inserted";
+      const EXPECTED_ETAG = TEST_ETAG; // Should match the input etag
+
+      expect(result.operation).toBe(EXPECTED_OPERATION);
+      expect(result.etag).toBe(EXPECTED_ETAG);
+
+      // Verify the record was actually inserted
+      const queryResult = await query(SELECT_FILE_QUERY, [
+        mockFileData.bucket,
+        mockFileData.key,
+      ]);
+      expect(queryResult.rows).toHaveLength(1);
+      expect(queryResult.rows[0].etag).toBe(TEST_ETAG);
+      expect(queryResult.rows[0].is_latest).toBe(true);
+    });
+
+    it("should update existing file record with identical request (true idempotency)", async () => {
+      const fileData = {
+        bucket: TEST_BUCKET,
+        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        etag: TEST_ETAG,
+        eventInfo: TEST_EVENT_INFO,
+        fileType: FILE_TYPE.INTEGRATED_OBJECT,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: TEST_KEY,
+        sha256Client: null,
+        sizeBytes: TEST_SIZE_BYTES,
+        snsMessageId: TEST_SNS_MESSAGE_ID,
+        sourceDatasetId: null, // Must be null for integrated_object
+        status: FILE_STATUS.UPLOADED,
+        versionId: TEST_VERSION_ID,
+      };
+
+      // First insert
+      await doTransaction(async (transaction) => {
+        return await upsertFileRecord(fileData, transaction);
+      });
+
+      // Second insert with IDENTICAL data (duplicate S3 notification)
+      const result = await doTransaction(async (transaction) => {
+        return await upsertFileRecord(fileData, transaction);
+      });
+
+      expect(result.operation).toBe("updated");
+      expect(result.etag).toBe(TEST_ETAG);
+
+      // Verify only one record exists
+      const queryResult = await query(SELECT_FILE_QUERY, [
+        fileData.bucket,
+        fileData.key,
+      ]);
+      expect(queryResult.rows).toHaveLength(1);
+    });
+
+    it("should handle null values correctly", async () => {
+      const fileData = {
+        bucket: TEST_BUCKET,
+        componentAtlasId: null, // Must be null for source_dataset
+        etag: TEST_ETAG_ALT,
+        eventInfo: TEST_EVENT_INFO,
+        fileType: FILE_TYPE.SOURCE_DATASET,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: "test/path/dataset.h5ad",
+        sha256Client: null, // This should be allowed
+        sizeBytes: 2048,
+        snsMessageId: "test-sns-message-789",
+        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id, // Valid UUID for source_dataset
+        status: FILE_STATUS.UPLOADED,
+        versionId: null, // This should be allowed
+      };
+
+      const result = await doTransaction(async (transaction) => {
+        return await upsertFileRecord(fileData, transaction);
+      });
+
+      expect(result.operation).toBe("inserted");
+      expect(result.etag).toBe(TEST_ETAG_ALT);
+
+      // Verify null values were stored correctly
+      const queryResult = await query(SELECT_FILE_QUERY, [
+        fileData.bucket,
+        fileData.key,
+      ]);
+      expect(queryResult.rows[0].sha256_client).toBeNull();
+      expect(queryResult.rows[0].version_id).toBeNull();
+    });
+  });
+
+  describe("conflict handling", () => {
+    it("should throw error when ETag differs (data integrity protection)", async () => {
+      const originalFileData = {
+        bucket: TEST_BUCKET,
+        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        etag: "original-etag",
+        eventInfo: TEST_EVENT_INFO,
+        fileType: FILE_TYPE.INTEGRATED_OBJECT,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: TEST_KEY,
+        sha256Client: null,
+        sizeBytes: TEST_SIZE_BYTES,
+        snsMessageId: "original-sns-message",
+        sourceDatasetId: null,
+        status: FILE_STATUS.UPLOADED,
+        versionId: "test-version-123",
+      };
+
+      // Insert original file
+      await doTransaction(async (transaction) => {
+        return await upsertFileRecord(originalFileData, transaction);
+      });
+
+      // Try to update with different ETag (should throw error)
+      const conflictingFileData = {
+        ...originalFileData,
+        etag: "different-etag", // Different ETag indicates potential corruption
+        snsMessageId: originalFileData.snsMessageId, // Same SNS message ID to trigger conflict
+      };
+
+      // Should throw error when ETag mismatch is detected
+      await expect(
+        doTransaction(async (transaction) => {
+          return await upsertFileRecord(conflictingFileData, transaction);
+        })
+      ).rejects.toThrow("ETag mismatch detected");
+
+      // Verify original record unchanged
+      const queryResult = await query(
+        "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
+        [originalFileData.bucket, originalFileData.key]
+      );
+      expect(queryResult.rows[0].etag).toBe("original-etag");
     });
   });
 });
