@@ -3,10 +3,10 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasFile,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { confirmFileExistsOnAtlas } from "../data/files";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doTransaction, query } from "./database";
-import { confirmFileExistsOnAtlas } from "./files";
 import {
   confirmSourceDatasetsExist,
   UpdatedSourceDatasetsInfo,

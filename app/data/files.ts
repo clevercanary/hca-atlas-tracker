@@ -1,5 +1,5 @@
 import { NotFoundError } from "app/utils/api-handler";
-import { query } from "./database";
+import { query } from "../services/database";
 
 /**
  * Check that the specified file exists and has the specified atlas ID, throwing and error otherwise.

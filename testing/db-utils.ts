@@ -360,6 +360,48 @@ async function initComments(
   }
 }
 
+export async function initTestFile(
+  fileId: string,
+  config: {
+    bucket: string;
+    componentAtlasId?: string;
+    etag: string;
+    fileType: FILE_TYPE;
+    key: string;
+    sizeBytes: number;
+    sourceDatasetId?: string;
+  },
+  client?: pg.PoolClient
+): Promise<void> {
+  // Use the same defaults as fillTestFileDefaults for consistency
+  const eventInfo = {
+    eventName: "ObjectCreated:*",
+    eventTime: new Date().toISOString(),
+  };
+  await query(
+    `INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, 
+     sha256_client, integrity_status, status, is_latest, file_type, component_atlas_id, source_dataset_id, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())`,
+    [
+      fileId,
+      config.bucket,
+      config.key,
+      null, // versionId - matches fillTestFileDefaults pattern
+      config.etag,
+      config.sizeBytes,
+      JSON.stringify(eventInfo),
+      null, // sha256Client
+      "pending", // integrityStatus - matches INTEGRITY_STATUS.PENDING
+      "uploaded", // status - matches FILE_STATUS.UPLOADED
+      true, // isLatest
+      config.fileType,
+      config.componentAtlasId ?? null,
+      config.sourceDatasetId ?? null,
+    ],
+    client
+  );
+}
+
 async function runMigrations(
   direction: MigrationDirection,
   client: pg.PoolClient
