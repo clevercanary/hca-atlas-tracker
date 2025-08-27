@@ -21,6 +21,7 @@ import {
 } from "../config/aws-resources";
 import {
   getAtlasByNetworkVersionAndShortName,
+  markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
@@ -231,10 +232,12 @@ async function saveFileRecord(
   await doTransaction(async (transaction) => {
     // STEP 1: Mark all previous versions of this file as no longer latest
     // This ensures only one version per (bucket, key) has is_latest = true
-    await transaction.query(
-      `UPDATE hat.files SET is_latest = FALSE WHERE bucket = $1 AND key = $2`,
-      [bucket.name, object.key]
+    const updatedRows = await markPreviousVersionsAsNotLatest(
+      bucket.name,
+      object.key,
+      transaction
     );
+    const isNewFile = updatedRows === 0;
 
     // STEP 2: Insert new version with ON CONFLICT handling
     const result = await upsertFileRecord(
@@ -289,7 +292,12 @@ async function saveFileRecord(
 
     if (operation === "inserted") {
       // New file version successfully created
-      console.log(`New file record created for ${bucket.name}/${object.key}`);
+      const fileStatus = isNewFile
+        ? "New file"
+        : "New version of existing file";
+      console.log(
+        `${fileStatus} record created for ${bucket.name}/${object.key}`
+      );
     } else if (operation === "updated") {
       // Duplicate notification handled idempotently
       console.log(

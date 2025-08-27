@@ -3,6 +3,25 @@ import { query } from "../services/database";
 import { NotFoundError } from "../utils/api-handler";
 
 /**
+ * Marks all previous versions of a file as no longer latest
+ * @param bucket - S3 bucket name
+ * @param key - S3 object key
+ * @param transaction - Database transaction client
+ * @returns Number of rows updated (0 = new file, >0 = existing file with previous versions)
+ */
+export async function markPreviousVersionsAsNotLatest(
+  bucket: string,
+  key: string,
+  transaction: pg.PoolClient
+): Promise<number> {
+  const result = await transaction.query(
+    `UPDATE hat.files SET is_latest = FALSE WHERE bucket = $1 AND key = $2`,
+    [bucket, key]
+  );
+  return result.rowCount || 0;
+}
+
+/**
  * Generate version variants for flexible matching.
  * @param version - Original version string.
  * @returns Array of version variants to match against.

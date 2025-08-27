@@ -6,6 +6,7 @@ import {
 import {
   confirmFileExistsOnAtlas,
   getAtlasByNetworkVersionAndShortName,
+  markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../app/data/files";
 import { doTransaction, endPgPool, query } from "../app/services/database";
@@ -333,6 +334,155 @@ describe("upsertFileRecord", () => {
       );
       expect(queryResult.rows[0].etag).toBe("original-etag");
     });
+  });
+});
+
+describe("markPreviousVersionsAsNotLatest", () => {
+  // Test constants for this describe block
+  const TEST_EVENT_INFO = JSON.stringify({
+    eventName: "s3:ObjectCreated:Put",
+    eventTime: "2023-01-01T00:00:00.000Z",
+  });
+  const SELECT_IS_LATEST_QUERY =
+    "SELECT is_latest FROM hat.files WHERE bucket = $1 AND key = $2";
+
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
+  it("should return 0 for new file (no previous versions)", async () => {
+    const bucket = "test-bucket-new";
+    const key = "test/path/new-file.h5ad";
+
+    const rowsUpdated = await doTransaction(async (transaction) => {
+      return await markPreviousVersionsAsNotLatest(bucket, key, transaction);
+    });
+
+    expect(rowsUpdated).toBe(0);
+  });
+
+  it("should return count of updated rows for existing file with previous versions", async () => {
+    const bucket = "test-bucket-existing";
+    const key = "test/path/existing-file.h5ad";
+
+    // Create multiple versions of the same file
+    await doTransaction(async (transaction) => {
+      // Insert first version
+      await upsertFileRecord(
+        {
+          bucket,
+          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          etag: "etag-v1",
+          eventInfo: TEST_EVENT_INFO,
+          fileType: FILE_TYPE.INTEGRATED_OBJECT,
+          integrityStatus: INTEGRITY_STATUS.PENDING,
+          key,
+          sha256Client: null,
+          sizeBytes: 1024,
+          snsMessageId: "sns-message-v1",
+          sourceDatasetId: null,
+          status: FILE_STATUS.UPLOADED,
+          versionId: "version-1",
+        },
+        transaction
+      );
+
+      // Insert second version
+      await upsertFileRecord(
+        {
+          bucket,
+          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          etag: "etag-v2",
+          eventInfo: TEST_EVENT_INFO,
+          fileType: FILE_TYPE.INTEGRATED_OBJECT,
+          integrityStatus: INTEGRITY_STATUS.PENDING,
+          key,
+          sha256Client: null,
+          sizeBytes: 2048,
+          snsMessageId: "sns-message-v2",
+          sourceDatasetId: null,
+          status: FILE_STATUS.UPLOADED,
+          versionId: "version-2",
+        },
+        transaction
+      );
+    });
+
+    // Now mark previous versions as not latest
+    const rowsUpdated = await doTransaction(async (transaction) => {
+      return await markPreviousVersionsAsNotLatest(bucket, key, transaction);
+    });
+
+    // Should have updated 2 rows (both previous versions)
+    expect(rowsUpdated).toBe(2);
+
+    // Verify all versions are now marked as not latest
+    const queryResult = await query(SELECT_IS_LATEST_QUERY, [bucket, key]);
+    expect(queryResult.rows).toHaveLength(2);
+    expect(queryResult.rows.every((row) => row.is_latest === false)).toBe(true);
+  });
+
+  it("should only affect files with matching bucket and key", async () => {
+    const bucket1 = "test-bucket-1";
+    const bucket2 = "test-bucket-2";
+    const key1 = "test/path/file1.h5ad";
+    const key2 = "test/path/file2.h5ad";
+
+    // Create files in different buckets and with different keys
+    await doTransaction(async (transaction) => {
+      await upsertFileRecord(
+        {
+          bucket: bucket1,
+          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          etag: "etag-1",
+          eventInfo: TEST_EVENT_INFO,
+          fileType: FILE_TYPE.INTEGRATED_OBJECT,
+          integrityStatus: INTEGRITY_STATUS.PENDING,
+          key: key1,
+          sha256Client: null,
+          sizeBytes: 1024,
+          snsMessageId: "sns-message-1",
+          sourceDatasetId: null,
+          status: FILE_STATUS.UPLOADED,
+          versionId: "version-1",
+        },
+        transaction
+      );
+
+      await upsertFileRecord(
+        {
+          bucket: bucket2,
+          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          etag: "etag-2",
+          eventInfo: TEST_EVENT_INFO,
+          fileType: FILE_TYPE.INTEGRATED_OBJECT,
+          integrityStatus: INTEGRITY_STATUS.PENDING,
+          key: key2,
+          sha256Client: null,
+          sizeBytes: 1024,
+          snsMessageId: "sns-message-2",
+          sourceDatasetId: null,
+          status: FILE_STATUS.UPLOADED,
+          versionId: "version-2",
+        },
+        transaction
+      );
+    });
+
+    // Mark previous versions as not latest for bucket1/key1 only
+    const rowsUpdated = await doTransaction(async (transaction) => {
+      return await markPreviousVersionsAsNotLatest(bucket1, key1, transaction);
+    });
+
+    // Should have updated only 1 row
+    expect(rowsUpdated).toBe(1);
+
+    // Verify only the matching file was affected
+    const bucket1Result = await query(SELECT_IS_LATEST_QUERY, [bucket1, key1]);
+    expect(bucket1Result.rows[0].is_latest).toBe(false);
+
+    const bucket2Result = await query(SELECT_IS_LATEST_QUERY, [bucket2, key2]);
+    expect(bucket2Result.rows[0].is_latest).toBe(true);
   });
 });
 
