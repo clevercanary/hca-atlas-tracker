@@ -854,9 +854,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
-      await snsHandler(req, res);
-    });
+    await snsHandler(req, res);
 
     expect(res.statusCode).toBe(200);
 
@@ -872,7 +870,7 @@ describe(TEST_ROUTE, () => {
     expect(file.key).toBe(TEST_FILE_PATHS.INTEGRATED_OBJECT);
     expect(file.file_type).toBe("integrated_object"); // Should be derived from integrated-objects folder
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
-    expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
+    expect(file.component_atlas_id).not.toBeNull(); // Should be set to component atlas ID
     expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");

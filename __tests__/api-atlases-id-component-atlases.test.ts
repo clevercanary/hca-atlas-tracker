@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
+import { createComponentAtlas } from "../app/services/component-atlases";
 import { endPgPool } from "../app/services/database";
 import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
 import {
@@ -126,6 +127,67 @@ describe(TEST_ROUTE, () => {
       [FILE_COMPONENT_ATLAS_DRAFT_FOO, FILE_COMPONENT_ATLAS_DRAFT_BAR],
       [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR]
     );
+  });
+});
+
+describe("createComponentAtlas", () => {
+  const TEST_COMPONENT_ATLAS_TITLE = "Test Component Atlas";
+
+  it("creates a new component atlas successfully", async () => {
+    const testComponentInfo = {
+      assay: ["RNA sequencing"],
+      cellCount: 1000,
+      disease: ["normal"],
+      suspensionType: ["cell"],
+      tissue: ["brain"],
+    };
+
+    const result = await createComponentAtlas(
+      ATLAS_DRAFT.id,
+      TEST_COMPONENT_ATLAS_TITLE,
+      testComponentInfo
+    );
+
+    expect(result).toBeDefined();
+    expect(result.atlas_id).toBe(ATLAS_DRAFT.id);
+    expect(result.title).toBe(TEST_COMPONENT_ATLAS_TITLE);
+    expect(result.component_info).toEqual(testComponentInfo);
+    expect(result.id).toBeDefined();
+    expect(result.created_at).toBeDefined();
+    expect(result.updated_at).toBeDefined();
+  });
+
+  it("throws error when creating component atlas for non-existent atlas", async () => {
+    const testComponentInfo = {
+      assay: ["RNA sequencing"],
+      cellCount: 500,
+      disease: ["normal"],
+      suspensionType: ["cell"],
+      tissue: ["liver"],
+    };
+
+    await expect(
+      createComponentAtlas(
+        "non-existent-atlas-id",
+        TEST_COMPONENT_ATLAS_TITLE,
+        testComponentInfo
+      )
+    ).rejects.toThrow();
+  });
+
+  it("creates component atlas with empty component info", async () => {
+    const emptyComponentInfo = {};
+
+    const result = await createComponentAtlas(
+      ATLAS_DRAFT.id,
+      "Empty Component Atlas",
+      emptyComponentInfo
+    );
+
+    expect(result).toBeDefined();
+    expect(result.atlas_id).toBe(ATLAS_DRAFT.id);
+    expect(result.title).toBe("Empty Component Atlas");
+    expect(result.component_info).toEqual(emptyComponentInfo);
   });
 });
 

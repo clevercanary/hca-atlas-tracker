@@ -25,6 +25,7 @@ import {
   upsertFileRecord,
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
+import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 
 /**
@@ -239,11 +240,47 @@ async function saveFileRecord(
     );
     const isNewFile = updatedRows === 0;
 
+    // Determine atlas ID once for reuse
+    const atlasId = await determineAtlasId(object.key, fileType);
+
+    // need to create metadata object first before inserting file record
+    let componentAtlasId: string | null = null;
+    const sourceDatasetId: string | null = null;
+
+    if (isNewFile) {
+      if (fileType === FILE_TYPE.INTEGRATED_OBJECT && atlasId) {
+        // Create component atlas with file name as title
+        const fileName = object.key.split("/").pop() || "Unknown";
+        const title = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension
+
+        const componentAtlas = await createComponentAtlas(
+          atlasId,
+          title,
+          {
+            bucket: bucket.name,
+            fileName,
+            key: object.key,
+            uploadedAt: eventInfo.eventTime,
+          },
+          transaction
+        );
+
+        componentAtlasId = componentAtlas.id;
+      } else if (fileType === FILE_TYPE.SOURCE_DATASET) {
+        // TODO: Implement source dataset creation for S3 uploads
+        // The existing createSourceDataset function requires atlasId, sourceStudyId, and NewSourceDatasetData
+        // but we need to determine how to handle source dataset creation from S3 file uploads
+        console.log(
+          "Source dataset file uploaded, but creation logic not yet implemented"
+        );
+      }
+    }
+
     // STEP 2: Insert new version with ON CONFLICT handling
     const result = await upsertFileRecord(
       {
         bucket: bucket.name,
-        componentAtlasId: null, // will be set when metadata objects are created
+        componentAtlasId,
         etag: object.eTag,
         eventInfo: JSON.stringify(eventInfo),
         fileType,
@@ -252,7 +289,7 @@ async function saveFileRecord(
         sha256Client: sha256,
         sizeBytes: object.size,
         snsMessageId,
-        sourceDatasetId: null, // will be set when metadata objects are created
+        sourceDatasetId,
         status: FILE_STATUS.UPLOADED,
         versionId: object.versionId || null,
       },

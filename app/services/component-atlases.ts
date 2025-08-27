@@ -321,6 +321,33 @@ export async function getPresentComponentAtlasIdForFile(
 }
 
 /**
+ * Create a new component atlas.
+ * @param atlasId - ID of the parent atlas.
+ * @param title - Title of the component atlas.
+ * @param componentInfo - JSON metadata for the component atlas.
+ * @param client - Optional database client for transactions.
+ * @returns the created component atlas.
+ */
+export async function createComponentAtlas(
+  atlasId: string,
+  title: string,
+  componentInfo: object,
+  client?: pg.PoolClient
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const result = await query<HCAAtlasTrackerDBComponentAtlas>(
+    `
+      INSERT INTO hat.component_atlases (atlas_id, title, component_info)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `,
+    [atlasId, title, componentInfo],
+    client
+  );
+
+  return result.rows[0];
+}
+
+/**
  * Get the ID of the component atlas associated with the given file, or null if there is none.
  * @param fileId - ID of the file to get the associated component atlas of.
  * @returns component atlas ID or null.
