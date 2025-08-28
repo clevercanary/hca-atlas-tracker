@@ -672,7 +672,7 @@ describe(TEST_ROUTE, () => {
     const s3EventV1 = createS3Event({
       etag: "version1-etag-12345678901234567890123456789012",
       eventTime: "2024-01-01T12:00:00.000Z",
-      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
       size: 1024000,
       versionId: "version-1",
     });
@@ -702,7 +702,7 @@ describe(TEST_ROUTE, () => {
     const s3EventV2 = createS3Event({
       etag: "version2-etag-98765432109876543210987654321098",
       eventTime: "2024-01-01T13:00:00.000Z",
-      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED, // Same key
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT, // Same key
       size: 2048000,
       versionId: "version-2", // Different version
     });
@@ -731,7 +731,7 @@ describe(TEST_ROUTE, () => {
     // Check database state - should have 2 records for the same file
     const allVersions = await query(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
 
     expect(allVersions.rows).toHaveLength(2);
@@ -749,7 +749,7 @@ describe(TEST_ROUTE, () => {
     // Verify we can easily query for latest version only
     const latestOnly = await query(
       SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
 
     expect(latestOnly.rows).toHaveLength(1);
@@ -854,7 +854,9 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await snsHandler(req, res);
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req, res);
+    });
 
     expect(res.statusCode).toBe(200);
 
@@ -1033,7 +1035,9 @@ describe(TEST_ROUTE, () => {
         method: METHOD.POST,
       });
 
-      await snsHandler(req, res);
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
 
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());

@@ -348,6 +348,38 @@ export async function createComponentAtlas(
 }
 
 /**
+ * Update component atlas metadata.
+ * @param componentAtlasId - ID of the component atlas to update.
+ * @param componentInfo - New JSON metadata for the component atlas.
+ * @param client - Optional database client for transactions.
+ * @returns the updated component atlas.
+ */
+export async function updateComponentAtlas(
+  componentAtlasId: string,
+  componentInfo: object,
+  client?: pg.PoolClient
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const result = await query<HCAAtlasTrackerDBComponentAtlas>(
+    `
+      UPDATE hat.component_atlases 
+      SET component_info = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING *
+    `,
+    [componentAtlasId, componentInfo],
+    client
+  );
+
+  if (result.rows.length === 0) {
+    throw new NotFoundError(
+      `Component atlas with ID ${componentAtlasId} not found`
+    );
+  }
+
+  return result.rows[0];
+}
+
+/**
  * Get the ID of the component atlas associated with the given file, or null if there is none.
  * @param fileId - ID of the file to get the associated component atlas of.
  * @returns component atlas ID or null.

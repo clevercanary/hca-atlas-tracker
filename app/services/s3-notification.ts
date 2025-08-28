@@ -1,3 +1,4 @@
+import { PoolClient } from "pg";
 import {
   ETagMismatchError,
   InvalidS3KeyFormatError,
@@ -21,11 +22,16 @@ import {
 } from "../config/aws-resources";
 import {
   getAtlasByNetworkVersionAndShortName,
+  getExistingComponentAtlasId,
+  getExistingETag,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
-import { createComponentAtlas } from "./component-atlases";
+import {
+  createComponentAtlas,
+  updateComponentAtlas,
+} from "./component-atlases";
 import { doTransaction } from "./database";
 
 /**
@@ -184,6 +190,75 @@ async function determineAtlasId(
 }
 
 /**
+ * Handle ETag mismatch error case.
+ * This happens when ON CONFLICT triggered but WHERE clause failed,
+ * indicating potential data corruption or AWS infrastructure issue.
+ *
+ * @param bucket - S3 bucket information
+ * @param bucket.name - S3 bucket name
+ * @param object - S3 object information
+ * @param object.eTag - S3 object ETag
+ * @param object.key - S3 object key
+ * @param object.versionId - S3 object version ID
+ * @param transaction - Database transaction client
+ */
+async function handleETagMismatch(
+  bucket: { name: string },
+  object: { eTag: string; key: string; versionId?: string | null },
+  transaction: PoolClient
+): Promise<never> {
+  // Get the existing ETag for detailed error reporting
+  const existingETag = await getExistingETag(
+    bucket.name,
+    object.key,
+    object.versionId || null,
+    transaction
+  );
+
+  const errorMsg = `ETag mismatch for ${bucket.name}/${object.key} (version: ${
+    object.versionId || "null"
+  }): existing=${existingETag}, new=${object.eTag}`;
+  console.error(errorMsg);
+  throw new ETagMismatchError(
+    bucket.name,
+    object.key,
+    object.versionId || null,
+    existingETag || "unknown",
+    object.eTag
+  );
+}
+
+/**
+ * Log file operation results for monitoring.
+ *
+ * @param operation - Database operation result ("inserted" or "updated")
+ * @param bucket - S3 bucket information
+ * @param bucket.name - S3 bucket name
+ * @param object - S3 object information
+ * @param object.key - S3 object key
+ * @param isNewFile - Whether this is a completely new file or new version
+ */
+function logFileOperation(
+  operation: string,
+  bucket: { name: string },
+  object: { key: string },
+  isNewFile: boolean
+): void {
+  if (operation === "inserted") {
+    // New file version successfully created
+    const fileStatus = isNewFile ? "New file" : "New version of existing file";
+    console.log(
+      `${fileStatus} record created for ${bucket.name}/${object.key}`
+    );
+  } else if (operation === "updated") {
+    // Duplicate notification handled idempotently
+    console.log(
+      `Duplicate notification for ${bucket.name}/${object.key} - ignoring`
+    );
+  }
+}
+
+/**
  * Saves or updates a file record in the database with idempotency handling
  * @param record - The S3 event record containing bucket, object, and event metadata
  * @param snsMessageId - SNS MessageId for proper message-level idempotency
@@ -231,21 +306,24 @@ async function saveFileRecord(
   // - Application-level locking: Complex, doesn't scale, potential deadlocks
   // - Ignore duplicates: Loses important ETag mismatch detection
   await doTransaction(async (transaction) => {
-    // STEP 1: Mark all previous versions of this file as no longer latest
-    // This ensures only one version per (bucket, key) has is_latest = true
-    const updatedRows = await markPreviousVersionsAsNotLatest(
+    // STEP 1: Check if this is a new file by looking for existing versions
+    // Get existing component atlas ID before marking previous versions as not latest
+    let componentAtlasId: string | null = null;
+    const sourceDatasetId: string | null = null;
+
+    componentAtlasId = await getExistingComponentAtlasId(
       bucket.name,
       object.key,
       transaction
     );
-    const isNewFile = updatedRows === 0;
+    const isNewFile = componentAtlasId === null;
+
+    // STEP 2: Mark all previous versions of this file as no longer latest
+    // This ensures only one version per (bucket, key) has is_latest = true
+    await markPreviousVersionsAsNotLatest(bucket.name, object.key, transaction);
 
     // Determine atlas ID once for reuse
     const atlasId = await determineAtlasId(object.key, fileType);
-
-    // need to create metadata object first before inserting file record
-    let componentAtlasId: string | null = null;
-    const sourceDatasetId: string | null = null;
 
     if (isNewFile) {
       if (fileType === FILE_TYPE.INTEGRATED_OBJECT && atlasId) {
@@ -256,12 +334,7 @@ async function saveFileRecord(
         const componentAtlas = await createComponentAtlas(
           atlasId,
           title,
-          {
-            bucket: bucket.name,
-            fileName,
-            key: object.key,
-            uploadedAt: eventInfo.eventTime,
-          },
+          {}, // Empty component_info - will be populated with actual integrated object metadata later
           transaction
         );
 
@@ -272,6 +345,20 @@ async function saveFileRecord(
         // but we need to determine how to handle source dataset creation from S3 file uploads
         console.log(
           "Source dataset file uploaded, but creation logic not yet implemented"
+        );
+
+        // Skip file record creation until source dataset logic is implemented
+        // This prevents database constraint violations
+        return;
+      }
+    } else {
+      // File update case - reset component atlas metadata if it exists
+      if (fileType === FILE_TYPE.INTEGRATED_OBJECT && componentAtlasId) {
+        // Reset component_info to empty object - will be populated with actual integrated object metadata later
+        await updateComponentAtlas(
+          componentAtlasId,
+          {}, // Empty component_info
+          transaction
         );
       }
     }
@@ -299,48 +386,12 @@ async function saveFileRecord(
     // STEP 3: Handle the three possible outcomes
 
     // CASE 1: No result returned = ETag mismatch detected
-    // This happens when ON CONFLICT triggered but WHERE clause failed
-    // Indicates potential data corruption or AWS infrastructure issue
     if (!result) {
-      // Get the existing ETag for detailed error reporting
-      const existingRecord = await transaction.query(
-        `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
-        [bucket.name, object.key, object.versionId || null]
-      );
-
-      const existingETag = existingRecord.rows[0]?.etag;
-      const errorMsg = `ETag mismatch for ${bucket.name}/${
-        object.key
-      } (version: ${
-        object.versionId || "null"
-      }): existing=${existingETag}, new=${object.eTag}`;
-      console.error(errorMsg);
-      throw new ETagMismatchError(
-        bucket.name,
-        object.key,
-        object.versionId || null,
-        existingETag,
-        object.eTag
-      );
+      await handleETagMismatch(bucket, object, transaction);
     }
 
     // CASE 2 & 3: Success - log the operation type for monitoring
-    const operation = result.operation;
-
-    if (operation === "inserted") {
-      // New file version successfully created
-      const fileStatus = isNewFile
-        ? "New file"
-        : "New version of existing file";
-      console.log(
-        `${fileStatus} record created for ${bucket.name}/${object.key}`
-      );
-    } else if (operation === "updated") {
-      // Duplicate notification handled idempotently
-      console.log(
-        `Duplicate notification for ${bucket.name}/${object.key} - ignoring`
-      );
-    }
+    logFileOperation(result.operation, bucket, object, isNewFile);
   });
 }
 

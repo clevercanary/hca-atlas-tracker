@@ -22,6 +22,46 @@ export async function markPreviousVersionsAsNotLatest(
 }
 
 /**
+ * Get existing component atlas ID for a file.
+ * @param bucket - S3 bucket name
+ * @param key - S3 object key
+ * @param transaction - Database transaction client
+ * @returns Component atlas ID if found, null otherwise
+ */
+export async function getExistingComponentAtlasId(
+  bucket: string,
+  key: string,
+  transaction: pg.PoolClient
+): Promise<string | null> {
+  const result = await transaction.query(
+    "SELECT component_atlas_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+    [bucket, key]
+  );
+  return result.rows.length > 0 ? result.rows[0].component_atlas_id : null;
+}
+
+/**
+ * Get existing ETag for a specific file version.
+ * @param bucket - S3 bucket name
+ * @param key - S3 object key
+ * @param versionId - S3 version ID
+ * @param transaction - Database transaction client
+ * @returns Existing ETag if found, null otherwise
+ */
+export async function getExistingETag(
+  bucket: string,
+  key: string,
+  versionId: string | null,
+  transaction: pg.PoolClient
+): Promise<string | null> {
+  const result = await transaction.query(
+    `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
+    [bucket, key, versionId]
+  );
+  return result.rows[0]?.etag || null;
+}
+
+/**
  * Generate version variants for flexible matching.
  * @param version - Original version string.
  * @returns Array of version variants to match against.
