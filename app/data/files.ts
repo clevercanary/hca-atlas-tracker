@@ -22,22 +22,34 @@ export async function markPreviousVersionsAsNotLatest(
 }
 
 /**
- * Get existing component atlas ID for a file.
+ * Get existing metadata object ID for a file based on file type.
  * @param bucket - S3 bucket name
  * @param key - S3 object key
+ * @param fileType - Type of file (source_dataset, integrated_object, etc.)
  * @param transaction - Database transaction client
- * @returns Component atlas ID if found, null otherwise
+ * @returns Metadata object ID if found, null otherwise
  */
-export async function getExistingComponentAtlasId(
+export async function getExistingMetadataObjectId(
   bucket: string,
   key: string,
+  fileType: string,
   transaction: pg.PoolClient
 ): Promise<string | null> {
+  let column: string;
+
+  if (fileType === "integrated_object") {
+    column = "component_atlas_id";
+  } else if (fileType === "source_dataset") {
+    column = "source_dataset_id";
+  } else {
+    return null; // ingest_manifest files don't have metadata objects
+  }
+
   const result = await transaction.query(
-    "SELECT component_atlas_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+    `SELECT ${column} FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
     [bucket, key]
   );
-  return result.rows.length > 0 ? result.rows[0].component_atlas_id : null;
+  return result.rows.length > 0 ? result.rows[0][column] : null;
 }
 
 /**
@@ -98,7 +110,7 @@ export async function getAtlasByNetworkVersionAndShortName(
   );
 
   if (result.rows.length === 0) {
-    throw new Error(
+    throw new NotFoundError(
       `Atlas not found for network: ${network}, shortName: ${shortName}, version: ${version}`
     );
   }
@@ -147,17 +159,18 @@ export async function confirmFileExistsOnAtlas(
 /**
  * Insert or update a file record with conflict handling for duplicate S3 notifications.
  * @param fileData - File data to insert/update
+ * @param fileData.atlasId - Atlas ID (set for integrated_object and ingest_manifest files, null for source_dataset files)
  * @param fileData.bucket - S3 bucket name
  * @param fileData.componentAtlasId - Component atlas ID (if applicable)
  * @param fileData.etag - S3 object ETag
  * @param fileData.eventInfo - S3 event information as JSON string
- * @param fileData.snsMessageId - SNS MessageId for deduplication
- * @param fileData.fileType - Type of file
+ * @param fileData.fileType - Type of file (source_dataset, integrated_object, etc.)
  * @param fileData.integrityStatus - File integrity status
  * @param fileData.key - S3 object key
  * @param fileData.sha256Client - SHA256 hash from client
  * @param fileData.sizeBytes - File size in bytes
  * @param fileData.sourceDatasetId - Source dataset ID (if applicable)
+ * @param fileData.snsMessageId - SNS MessageId for deduplication
  * @param fileData.status - File processing status
  * @param fileData.versionId - S3 object version ID
  * @param transaction - Database transaction to use
@@ -165,6 +178,7 @@ export async function confirmFileExistsOnAtlas(
  */
 export async function upsertFileRecord(
   fileData: {
+    atlasId: string | null;
     bucket: string;
     componentAtlasId: string | null;
     etag: string;
@@ -180,13 +194,29 @@ export async function upsertFileRecord(
     versionId: string | null;
   },
   transaction: pg.PoolClient
-): Promise<{ etag: string; operation: string }> {
+): Promise<{ etag: string; operation: string } | null> {
+  // First check if a file with same bucket/key/version already exists
+  const existingResult = await transaction.query(
+    `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
+    [fileData.bucket, fileData.key, fileData.versionId]
+  );
+
+  if (existingResult.rows.length > 0) {
+    const existingETag = existingResult.rows[0].etag;
+    if (existingETag !== fileData.etag) {
+      // ETag mismatch detected - this indicates potential data corruption
+      throw new Error(
+        `ETag mismatch detected for ${fileData.bucket}/${fileData.key} (version ${fileData.versionId}): expected ${existingETag}, got ${fileData.etag}`
+      );
+    }
+    // Same ETag - this is likely a duplicate notification, handle via ON CONFLICT
+  }
+
   const result = await transaction.query(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12, $13)
+    `INSERT INTO hat.files (atlas_id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, TRUE, $11, $12, $13, $14)
        
-       -- ON CONFLICT: Handle duplicate SNS messages gracefully
-       -- This triggers when sns_message_id already exists (proper SNS idempotency)
+       -- Handle conflicts on sns_message_id (proper SNS idempotency)
        ON CONFLICT (sns_message_id) 
        DO UPDATE SET 
          etag = files.etag,  -- Keep existing ETag (no change)
@@ -194,10 +224,12 @@ export async function upsertFileRecord(
          is_latest = TRUE,
          updated_at = CURRENT_TIMESTAMP
        WHERE files.etag = EXCLUDED.etag
+       
        RETURNING 
          (CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END) as operation,
          etag`,
     [
+      fileData.atlasId,
       fileData.bucket,
       fileData.key,
       fileData.versionId,
@@ -217,11 +249,8 @@ export async function upsertFileRecord(
   // Check if the operation succeeded
   if (result.rows.length === 0) {
     // This happens when ON CONFLICT DO UPDATE WHERE condition fails
-    // Meaning ETags don't match - potential data corruption
-    throw new Error(
-      `ETag mismatch detected for file ${fileData.bucket}/${fileData.key}. ` +
-        `This indicates potential data corruption or conflicting S3 notifications.`
-    );
+    // Meaning ETags don't match - return null to signal ETag mismatch
+    return null;
   }
 
   return result.rows[0];

@@ -6,6 +6,7 @@ import {
 import {
   confirmFileExistsOnAtlas,
   getAtlasByNetworkVersionAndShortName,
+  getExistingMetadataObjectId,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../app/data/files";
@@ -20,6 +21,12 @@ import {
   SOURCE_DATASET_DRAFT_OK_FOO,
 } from "../testing/constants";
 import { initTestFile, resetDatabase } from "../testing/db-utils";
+
+// Shared test constants
+const TEST_EVENT_INFO = JSON.stringify({
+  eventName: "s3:ObjectCreated:Put",
+  eventTime: "2023-01-01T00:00:00.000Z",
+});
 
 // Mock external dependencies
 jest.mock(
@@ -169,10 +176,6 @@ describe("upsertFileRecord", () => {
   const TEST_SHA256 = null;
   const TEST_VERSION_ID = "test-version-123";
   const TEST_SIZE_BYTES = 1024;
-  const TEST_EVENT_INFO = JSON.stringify({
-    eventName: "s3:ObjectCreated:Put",
-    eventTime: "2023-01-01T00:00:00.000Z",
-  });
   const SELECT_FILE_QUERY =
     "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2";
 
@@ -183,6 +186,7 @@ describe("upsertFileRecord", () => {
   describe("successful operations", () => {
     it("should insert a new file record", async () => {
       const mockFileData = {
+        atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
         componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID
         etag: TEST_ETAG,
@@ -205,8 +209,9 @@ describe("upsertFileRecord", () => {
       const EXPECTED_OPERATION = "inserted";
       const EXPECTED_ETAG = TEST_ETAG; // Should match the input etag
 
-      expect(result.operation).toBe(EXPECTED_OPERATION);
-      expect(result.etag).toBe(EXPECTED_ETAG);
+      expect(result).not.toBeNull();
+      expect(result!.operation).toBe(EXPECTED_OPERATION);
+      expect(result!.etag).toBe(EXPECTED_ETAG);
 
       // Verify the record was actually inserted
       const queryResult = await query(SELECT_FILE_QUERY, [
@@ -220,6 +225,7 @@ describe("upsertFileRecord", () => {
 
     it("should update existing file record with identical request (true idempotency)", async () => {
       const fileData = {
+        atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
         componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
         etag: TEST_ETAG,
@@ -245,8 +251,9 @@ describe("upsertFileRecord", () => {
         return await upsertFileRecord(fileData, transaction);
       });
 
-      expect(result.operation).toBe("updated");
-      expect(result.etag).toBe(TEST_ETAG);
+      expect(result).not.toBeNull();
+      expect(result!.operation).toBe("updated");
+      expect(result!.etag).toBe(TEST_ETAG);
 
       // Verify only one record exists
       const queryResult = await query(SELECT_FILE_QUERY, [
@@ -258,6 +265,7 @@ describe("upsertFileRecord", () => {
 
     it("should handle null values correctly", async () => {
       const fileData = {
+        atlasId: null,
         bucket: TEST_BUCKET,
         componentAtlasId: null, // Must be null for source_dataset
         etag: TEST_ETAG_ALT,
@@ -277,8 +285,9 @@ describe("upsertFileRecord", () => {
         return await upsertFileRecord(fileData, transaction);
       });
 
-      expect(result.operation).toBe("inserted");
-      expect(result.etag).toBe(TEST_ETAG_ALT);
+      expect(result).not.toBeNull();
+      expect(result!.operation).toBe("inserted");
+      expect(result!.etag).toBe(TEST_ETAG_ALT);
 
       // Verify null values were stored correctly
       const queryResult = await query(SELECT_FILE_QUERY, [
@@ -293,6 +302,7 @@ describe("upsertFileRecord", () => {
   describe("conflict handling", () => {
     it("should throw error when ETag differs (data integrity protection)", async () => {
       const originalFileData = {
+        atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
         componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
         etag: "original-etag",
@@ -339,10 +349,6 @@ describe("upsertFileRecord", () => {
 
 describe("markPreviousVersionsAsNotLatest", () => {
   // Test constants for this describe block
-  const TEST_EVENT_INFO = JSON.stringify({
-    eventName: "s3:ObjectCreated:Put",
-    eventTime: "2023-01-01T00:00:00.000Z",
-  });
   const SELECT_IS_LATEST_QUERY =
     "SELECT is_latest FROM hat.files WHERE bucket = $1 AND key = $2";
 
@@ -370,6 +376,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
       // Insert first version
       await upsertFileRecord(
         {
+          atlasId: ATLAS_DRAFT.id,
           bucket,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-v1",
@@ -390,6 +397,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
       // Insert second version
       await upsertFileRecord(
         {
+          atlasId: ATLAS_DRAFT.id,
           bucket,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-v2",
@@ -432,6 +440,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
     await doTransaction(async (transaction) => {
       await upsertFileRecord(
         {
+          atlasId: ATLAS_DRAFT.id,
           bucket: bucket1,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-1",
@@ -451,6 +460,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
       await upsertFileRecord(
         {
+          atlasId: ATLAS_DRAFT.id,
           bucket: bucket2,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-2",
@@ -483,6 +493,299 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
     const bucket2Result = await query(SELECT_IS_LATEST_QUERY, [bucket2, key2]);
     expect(bucket2Result.rows[0].is_latest).toBe(true);
+  });
+});
+
+describe("getExistingMetadataObjectId", () => {
+  // Test constants
+  const TEST_BUCKET = "test-bucket-metadata";
+  const TEST_KEY_INTEGRATED = "test/path/integrated-object.h5ad";
+  const TEST_KEY_SOURCE_DATASET = "test/path/source-dataset.h5ad";
+
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
+  describe("integrated object files", () => {
+    it("should return component atlas ID for existing integrated object file", async () => {
+      // First create a file record with component atlas ID
+      await doTransaction(async (transaction) => {
+        await upsertFileRecord(
+          {
+            atlasId: ATLAS_DRAFT.id,
+            bucket: TEST_BUCKET,
+            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+            etag: "test-etag-integrated",
+            eventInfo: TEST_EVENT_INFO,
+            fileType: FILE_TYPE.INTEGRATED_OBJECT,
+            integrityStatus: INTEGRITY_STATUS.PENDING,
+            key: TEST_KEY_INTEGRATED,
+            sha256Client: null,
+            sizeBytes: 2048,
+            snsMessageId: "test-sns-integrated",
+            sourceDatasetId: null,
+            status: FILE_STATUS.UPLOADED,
+            versionId: "test-version-integrated",
+          },
+          transaction
+        );
+      });
+
+      // Now test getExistingMetadataObjectId
+      const result = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          TEST_KEY_INTEGRATED,
+          FILE_TYPE.INTEGRATED_OBJECT,
+          transaction
+        );
+      });
+
+      expect(result).toBe(COMPONENT_ATLAS_DRAFT_FOO.id);
+    });
+
+    it("should return null for non-existent integrated object file", async () => {
+      const result = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          "non/existent/file.h5ad",
+          FILE_TYPE.INTEGRATED_OBJECT,
+          transaction
+        );
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it("should return null for integrated object file that is not latest", async () => {
+      // Create two versions of the same file
+      await doTransaction(async (transaction) => {
+        // First version
+        await upsertFileRecord(
+          {
+            atlasId: ATLAS_DRAFT.id,
+            bucket: TEST_BUCKET,
+            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+            etag: "test-etag-v1",
+            eventInfo: TEST_EVENT_INFO,
+            fileType: FILE_TYPE.INTEGRATED_OBJECT,
+            integrityStatus: INTEGRITY_STATUS.PENDING,
+            key: TEST_KEY_INTEGRATED,
+            sha256Client: null,
+            sizeBytes: 1024,
+            snsMessageId: "test-sns-1",
+            sourceDatasetId: null,
+            status: FILE_STATUS.UPLOADED,
+            versionId: "test-version-v1",
+          },
+          transaction
+        );
+
+        // Second version (this will mark the first as not latest)
+        await upsertFileRecord(
+          {
+            atlasId: ATLAS_DRAFT.id,
+            bucket: TEST_BUCKET,
+            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+            etag: "test-etag-v2",
+            eventInfo: TEST_EVENT_INFO,
+            fileType: FILE_TYPE.INTEGRATED_OBJECT,
+            integrityStatus: INTEGRITY_STATUS.PENDING,
+            key: TEST_KEY_INTEGRATED,
+            sha256Client: null,
+            sizeBytes: 2048,
+            snsMessageId: "test-sns-2",
+            sourceDatasetId: null,
+            status: FILE_STATUS.UPLOADED,
+            versionId: "test-version-2",
+          },
+          transaction
+        );
+      });
+
+      // Mark all versions as not latest
+      await doTransaction(async (transaction) => {
+        await markPreviousVersionsAsNotLatest(
+          TEST_BUCKET,
+          TEST_KEY_INTEGRATED,
+          transaction
+        );
+      });
+
+      // Should return null since no version is marked as latest
+      const result = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          TEST_KEY_INTEGRATED,
+          FILE_TYPE.INTEGRATED_OBJECT,
+          transaction
+        );
+      });
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("source dataset files", () => {
+    it("should return source dataset ID for existing source dataset file", async () => {
+      // First create a file record with source dataset ID
+      await doTransaction(async (transaction) => {
+        await upsertFileRecord(
+          {
+            atlasId: null,
+            bucket: TEST_BUCKET,
+            componentAtlasId: null,
+            etag: "test-etag-source",
+            eventInfo: TEST_EVENT_INFO,
+            fileType: FILE_TYPE.SOURCE_DATASET,
+            integrityStatus: INTEGRITY_STATUS.PENDING,
+            key: TEST_KEY_SOURCE_DATASET,
+            sha256Client: null,
+            sizeBytes: 1024,
+            snsMessageId: "test-sns-source",
+            sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
+            status: FILE_STATUS.UPLOADED,
+            versionId: "test-version-source",
+          },
+          transaction
+        );
+      });
+
+      // Now test getExistingMetadataObjectId
+      const result = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          TEST_KEY_SOURCE_DATASET,
+          FILE_TYPE.SOURCE_DATASET,
+          transaction
+        );
+      });
+
+      expect(result).toBe(SOURCE_DATASET_DRAFT_OK_FOO.id);
+    });
+
+    it("should return null for non-existent source dataset file", async () => {
+      const result = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          "non/existent/dataset.h5ad",
+          FILE_TYPE.SOURCE_DATASET,
+          transaction
+        );
+      });
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("edge cases", () => {
+    it("should handle different file types correctly", async () => {
+      // Create files of different types with the same bucket/key pattern
+      const baseKey = "test/path/file";
+      await doTransaction(async (transaction) => {
+        // Integrated object file
+        await upsertFileRecord(
+          {
+            atlasId: ATLAS_DRAFT.id,
+            bucket: TEST_BUCKET,
+            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+            etag: "test-etag-integrated",
+            eventInfo: TEST_EVENT_INFO,
+            fileType: FILE_TYPE.INTEGRATED_OBJECT,
+            integrityStatus: INTEGRITY_STATUS.PENDING,
+            key: `${baseKey}.h5ad`,
+            sha256Client: null,
+            sizeBytes: 1024,
+            snsMessageId: "test-sns-integrated",
+            sourceDatasetId: null,
+            status: FILE_STATUS.UPLOADED,
+            versionId: "test-version-integrated",
+          },
+          transaction
+        );
+
+        // Source dataset file
+        await upsertFileRecord(
+          {
+            atlasId: null,
+            bucket: TEST_BUCKET,
+            componentAtlasId: null,
+            etag: "test-etag-source",
+            eventInfo: TEST_EVENT_INFO,
+            fileType: FILE_TYPE.SOURCE_DATASET,
+            integrityStatus: INTEGRITY_STATUS.PENDING,
+            key: `${baseKey}-dataset.h5ad`,
+            sha256Client: null,
+            sizeBytes: 2048,
+            snsMessageId: "test-sns-source",
+            sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
+            status: FILE_STATUS.UPLOADED,
+            versionId: "test-version-source",
+          },
+          transaction
+        );
+      });
+
+      // Test integrated object lookup
+      const integratedResult = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          `${baseKey}.h5ad`,
+          FILE_TYPE.INTEGRATED_OBJECT,
+          transaction
+        );
+      });
+
+      // Test source dataset lookup
+      const sourceResult = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          `${baseKey}-dataset.h5ad`,
+          FILE_TYPE.SOURCE_DATASET,
+          transaction
+        );
+      });
+
+      expect(integratedResult).toBe(COMPONENT_ATLAS_DRAFT_FOO.id);
+      expect(sourceResult).toBe(SOURCE_DATASET_DRAFT_OK_FOO.id);
+    });
+
+    it("should return null for unsupported file types", async () => {
+      // Create a file with an unsupported file type
+      await doTransaction(async (transaction) => {
+        await upsertFileRecord(
+          {
+            atlasId: ATLAS_DRAFT.id,
+            bucket: TEST_BUCKET,
+            componentAtlasId: null,
+            etag: "test-etag-manifest",
+            eventInfo: TEST_EVENT_INFO,
+            fileType: FILE_TYPE.INGEST_MANIFEST,
+            integrityStatus: INTEGRITY_STATUS.PENDING,
+            key: "test/path/manifest.json",
+            sha256Client: null,
+            sizeBytes: 512,
+            snsMessageId: "test-sns-manifest",
+            sourceDatasetId: null,
+            status: FILE_STATUS.UPLOADED,
+            versionId: "test-version-manifest",
+          },
+          transaction
+        );
+      });
+
+      // Should return null for unsupported file type
+      const result = await doTransaction(async (transaction) => {
+        return await getExistingMetadataObjectId(
+          TEST_BUCKET,
+          "test/path/manifest.json",
+          FILE_TYPE.INGEST_MANIFEST,
+          transaction
+        );
+      });
+
+      expect(result).toBeNull();
+    });
   });
 });
 

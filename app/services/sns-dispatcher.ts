@@ -1,5 +1,5 @@
+import { SNSMessage } from "../apis/catalog/hca-atlas-tracker/aws/entities";
 import { UnauthorizedAWSResourceError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
-import { SNSMessage } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { validateSNSTopicAuthorization } from "../config/aws-resources";
 import { processS3NotificationMessage } from "./s3-notification";
 
