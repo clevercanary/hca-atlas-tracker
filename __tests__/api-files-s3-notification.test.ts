@@ -32,19 +32,19 @@ import { withConsoleErrorHiding } from "../testing/utils";
 
 // Test file path constants
 const TEST_PATH_SEGMENTS = {
-  BIO_NETWORK_GUT_V1_SOURCE_DATASETS: "bio_network/gut-v1/source-datasets",
   GUT_V1_INTEGRATED_OBJECTS: "gut/gut-v1/integrated-objects",
   GUT_V1_MANIFESTS: "gut/gut-v1/manifests",
+  GUT_V1_SOURCE_DATASETS: "gut/gut-v1/source-datasets",
 } as const;
 
 const TEST_FILE_PATHS = {
   INTEGRATED_OBJECT: `${TEST_PATH_SEGMENTS.GUT_V1_INTEGRATED_OBJECTS}/atlas.h5ad`,
   MANIFEST: `${TEST_PATH_SEGMENTS.GUT_V1_MANIFESTS}/upload-manifest.json`,
-  SOURCE_DATASET_AUTH: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/auth-test.h5ad`,
-  SOURCE_DATASET_DUPLICATE: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/duplicate-test.h5ad`,
-  SOURCE_DATASET_ETAG: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/etag-test.h5ad`,
-  SOURCE_DATASET_TEST: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/test-file.h5ad`,
-  SOURCE_DATASET_VERSIONED: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/versioned-file.h5ad`,
+  SOURCE_DATASET_AUTH: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/auth-test.h5ad`,
+  SOURCE_DATASET_DUPLICATE: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/duplicate-test.h5ad`,
+  SOURCE_DATASET_ETAG: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/etag-test.h5ad`,
+  SOURCE_DATASET_TEST: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/test-file.h5ad`,
+  SOURCE_DATASET_VERSIONED: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/versioned-file.h5ad`,
 } as const;
 
 // SQL query constants
@@ -366,6 +366,22 @@ describe(TEST_ROUTE, () => {
     expect(file.file_type).toBe("source_dataset"); // New field - should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
     expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
+
+    // Verify source dataset was created and linked to atlas
+    const sourceDatasetRows = await query(
+      "SELECT id FROM hat.source_datasets WHERE sd_info->>'s3Key' = $1",
+      [TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+    );
+    expect(sourceDatasetRows.rows).toHaveLength(1);
+    const sourceDatasetId = sourceDatasetRows.rows[0].id;
+
+    // Verify atlas has the source dataset in its source_datasets array
+    const atlasRows = await query(
+      "SELECT source_datasets FROM hat.atlases WHERE id = $1",
+      [TEST_GUT_ATLAS_ID]
+    );
+    expect(atlasRows.rows).toHaveLength(1);
+    expect(atlasRows.rows[0].source_datasets).toContain(sourceDatasetId);
   });
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {
@@ -650,10 +666,9 @@ describe(TEST_ROUTE, () => {
       await snsHandler(req2, res2);
     });
 
-    // Should reject with 500 Internal Server Error due to ETag mismatch
-    expect(res2.statusCode).toBe(500);
+    // Should reject with 400 Bad Request due to ETag mismatch (InvalidOperationError)
+    expect(res2.statusCode).toBe(400);
     const responseBody = JSON.parse(res2._getData());
-    expect(responseBody.message).toContain("ETagMismatchError");
     expect(responseBody.message).toContain("ETag mismatch");
 
     // Verify only one record exists with original ETag
