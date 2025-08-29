@@ -365,7 +365,6 @@ describe(TEST_ROUTE, () => {
     expect(file.integrity_error).toBeNull();
     expect(file.file_type).toBe("source_dataset"); // New field - should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
-    expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
 
     // Verify source dataset was created and linked to atlas
     const sourceDatasetRows = await query(
@@ -482,7 +481,6 @@ describe(TEST_ROUTE, () => {
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
-    expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
   });
 
   // Security and Authentication Tests
@@ -937,7 +935,6 @@ describe(TEST_ROUTE, () => {
     expect(file.key).toBe(TEST_FILE_PATHS.MANIFEST);
     expect(file.file_type).toBe("ingest_manifest"); // Should be derived from manifests folder
     expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
-    expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
     expect(file.etag).toBe("c9876543210fedcba9876543210fedcba");
     expect(file.size_bytes).toBe("2048");
     expect(file.version_id).toBe("manifest-version-456");
@@ -951,7 +948,6 @@ describe(TEST_ROUTE, () => {
     {
       description: "retina atlas from eye network S3 path",
       etag: "d4e5f6789012345678901234567890ab",
-      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440001", // Retina atlas ID
       key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
       size: 8192000,
       versionId: "retina-version-789",
@@ -959,7 +955,6 @@ describe(TEST_ROUTE, () => {
     {
       description: "gut v1.1 atlas with version parsing",
       etag: "e5f6789012345678901234567890abcd",
-      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440002", // Gut v1.1 atlas ID
       key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
       size: 4096000,
       versionId: "gut-v11-version-012",
@@ -967,14 +962,13 @@ describe(TEST_ROUTE, () => {
     {
       description: "gut v1 atlas with integer version (no decimal)",
       etag: "f6789012345678901234567890abcdef",
-      expectedAtlasId: TEST_GUT_ATLAS_ID, // Gut v1 atlas ID
       key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
       size: 1024,
       versionId: "gut-v1-no-decimal-version",
     },
   ])(
     "correctly identifies $description",
-    async ({ etag, expectedAtlasId, key, size, versionId }) => {
+    async ({ etag, key, size, versionId }) => {
       const s3Event = createS3Event({
         etag,
         key,
@@ -1004,7 +998,7 @@ describe(TEST_ROUTE, () => {
 
       expect(res.statusCode).toBe(200);
 
-      // Check that file was saved with correct atlas_id
+      // Check that file was saved and linked appropriately when applicable
       const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
         TEST_S3_BUCKET,
         key,
@@ -1014,7 +1008,10 @@ describe(TEST_ROUTE, () => {
       const file = fileRows.rows[0];
       expect(file.bucket).toBe(TEST_S3_BUCKET);
       expect(file.key).toBe(key);
-      expect(file.atlas_id).toBe(expectedAtlasId);
+      if (key.includes("integrated-objects")) {
+        // Integrated objects should link to a component atlas
+        expect(file.component_atlas_id).not.toBeNull();
+      }
       expect(file.etag).toBe(etag);
       expect(file.size_bytes).toBe(size.toString());
       expect(file.version_id).toBe(versionId);
@@ -1104,13 +1101,13 @@ describe(TEST_ROUTE, () => {
   });
 
   // Database Constraint Validation Tests
-  it("database constraint prevents source_dataset files from having atlas_id", async () => {
+  it("database constraint prevents source_dataset files from having component_atlas_id", async () => {
     // This test verifies the database constraint by attempting a direct INSERT that violates it
-    // The constraint should prevent source_dataset files from having atlas_id set
+    // The constraint should prevent source_dataset files from having component_atlas_id set
 
     await expect(
       query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, component_atlas_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)`,
         [
           "test-bucket",
@@ -1125,20 +1122,20 @@ describe(TEST_ROUTE, () => {
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "pending",
           "uploaded",
-          "source_dataset", // source_dataset with atlas_id should be rejected
+          "source_dataset", // source_dataset with component_atlas_id should be rejected
           TEST_GUT_ATLAS_ID, // This should cause constraint violation
         ]
       )
     ).rejects.toThrow(/constraint/);
   });
 
-  it("database constraint prevents integrated_object files from missing atlas_id", async () => {
+  it("database constraint prevents integrated_object files from missing component_atlas_id", async () => {
     // This test verifies the database constraint by attempting a direct INSERT that violates it
-    // The constraint should require integrated_object files to have atlas_id set
+    // The constraint should require integrated_object files to have component_atlas_id set
 
     await expect(
       query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, component_atlas_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, NULL)`,
         [
           "test-bucket",
@@ -1153,8 +1150,8 @@ describe(TEST_ROUTE, () => {
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "pending",
           "uploaded",
-          "integrated_object", // integrated_object without atlas_id should be rejected
-          // atlas_id is NULL, which should cause constraint violation
+          "integrated_object", // integrated_object without component_atlas_id should be rejected
+          // component_atlas_id is NULL, which should cause constraint violation
         ]
       )
     ).rejects.toThrow(/constraint/);

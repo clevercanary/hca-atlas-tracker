@@ -376,7 +376,6 @@ describe("markPreviousVersionsAsNotLatest", () => {
       // Insert first version
       await upsertFileRecord(
         {
-          atlasId: ATLAS_DRAFT.id,
           bucket,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-v1",
@@ -397,7 +396,6 @@ describe("markPreviousVersionsAsNotLatest", () => {
       // Insert second version
       await upsertFileRecord(
         {
-          atlasId: ATLAS_DRAFT.id,
           bucket,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-v2",
@@ -440,7 +438,6 @@ describe("markPreviousVersionsAsNotLatest", () => {
     await doTransaction(async (transaction) => {
       await upsertFileRecord(
         {
-          atlasId: ATLAS_DRAFT.id,
           bucket: bucket1,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-1",
@@ -460,7 +457,6 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
       await upsertFileRecord(
         {
-          atlasId: ATLAS_DRAFT.id,
           bucket: bucket2,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
           etag: "etag-2",
@@ -512,7 +508,6 @@ describe("getExistingMetadataObjectId", () => {
       await doTransaction(async (transaction) => {
         await upsertFileRecord(
           {
-            atlasId: ATLAS_DRAFT.id,
             bucket: TEST_BUCKET,
             componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
             etag: "test-etag-integrated",
@@ -563,7 +558,6 @@ describe("getExistingMetadataObjectId", () => {
         // First version
         await upsertFileRecord(
           {
-            atlasId: ATLAS_DRAFT.id,
             bucket: TEST_BUCKET,
             componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
             etag: "test-etag-v1",
@@ -584,7 +578,6 @@ describe("getExistingMetadataObjectId", () => {
         // Second version (this will mark the first as not latest)
         await upsertFileRecord(
           {
-            atlasId: ATLAS_DRAFT.id,
             bucket: TEST_BUCKET,
             componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
             etag: "test-etag-v2",
@@ -632,7 +625,6 @@ describe("getExistingMetadataObjectId", () => {
       await doTransaction(async (transaction) => {
         await upsertFileRecord(
           {
-            atlasId: null,
             bucket: TEST_BUCKET,
             componentAtlasId: null,
             etag: "test-etag-source",
@@ -686,7 +678,6 @@ describe("getExistingMetadataObjectId", () => {
         // Integrated object file
         await upsertFileRecord(
           {
-            atlasId: ATLAS_DRAFT.id,
             bucket: TEST_BUCKET,
             componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
             etag: "test-etag-integrated",
@@ -707,7 +698,6 @@ describe("getExistingMetadataObjectId", () => {
         // Source dataset file
         await upsertFileRecord(
           {
-            atlasId: null,
             bucket: TEST_BUCKET,
             componentAtlasId: null,
             etag: "test-etag-source",
@@ -755,7 +745,6 @@ describe("getExistingMetadataObjectId", () => {
       await doTransaction(async (transaction) => {
         await upsertFileRecord(
           {
-            atlasId: ATLAS_DRAFT.id,
             bucket: TEST_BUCKET,
             componentAtlasId: null,
             etag: "test-etag-manifest",

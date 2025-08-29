@@ -159,7 +159,6 @@ export async function confirmFileExistsOnAtlas(
 /**
  * Insert or update a file record with conflict handling for duplicate S3 notifications.
  * @param fileData - File data to insert/update
- * @param fileData.atlasId - Atlas ID (set for integrated_object and ingest_manifest files, null for source_dataset files)
  * @param fileData.bucket - S3 bucket name
  * @param fileData.componentAtlasId - Component atlas ID (if applicable)
  * @param fileData.etag - S3 object ETag
@@ -178,7 +177,6 @@ export async function confirmFileExistsOnAtlas(
  */
 export async function upsertFileRecord(
   fileData: {
-    atlasId: string | null;
     bucket: string;
     componentAtlasId: string | null;
     etag: string;
@@ -213,8 +211,8 @@ export async function upsertFileRecord(
   }
 
   const result = await transaction.query(
-    `INSERT INTO hat.files (atlas_id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, TRUE, $11, $12, $13, $14)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12, $13)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
        ON CONFLICT (sns_message_id) 
@@ -229,7 +227,6 @@ export async function upsertFileRecord(
          (CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END) as operation,
          etag`,
     [
-      fileData.atlasId,
       fileData.bucket,
       fileData.key,
       fileData.versionId,

@@ -417,7 +417,6 @@ async function saveFileRecord(
     // STEP 6: Insert new file version with ON CONFLICT handling
     const result = await upsertFileRecord(
       {
-        atlasId: fileType !== FILE_TYPE.SOURCE_DATASET ? atlasId : null,
         bucket: bucket.name,
         componentAtlasId:
           fileType === FILE_TYPE.INTEGRATED_OBJECT ? metadataObjectId : null,

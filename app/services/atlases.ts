@@ -41,7 +41,7 @@ export async function getAllAtlases(
         COUNT(DISTINCT c.id)::int AS component_atlas_count,
         COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
       FROM hat.atlases a
-      LEFT JOIN hat.files c ON c.file_type = 'integrated_object' AND c.atlas_id=a.id
+      LEFT JOIN hat.component_atlases c ON c.atlas_id = a.id
       LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
       GROUP BY a.id
     `,
@@ -86,7 +86,7 @@ export async function getAtlas(
         COUNT(DISTINCT c.id)::int AS component_atlas_count,
         COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
       FROM hat.atlases a
-      LEFT JOIN hat.files c ON c.file_type = 'integrated_object' AND c.atlas_id=a.id
+      LEFT JOIN hat.component_atlases c ON c.atlas_id = a.id
       LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
       WHERE a.id=$1 GROUP BY a.id
     `,
