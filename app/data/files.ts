@@ -1,6 +1,6 @@
 import pg from "pg";
 import { query } from "../services/database";
-import { NotFoundError } from "../utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 
 /**
  * Marks all previous versions of a file as no longer latest
@@ -205,7 +205,7 @@ export async function upsertFileRecord(
     const existingETag = existingResult.rows[0].etag;
     if (existingETag !== fileData.etag) {
       // ETag mismatch detected - this indicates potential data corruption
-      throw new Error(
+      throw new InvalidOperationError(
         `ETag mismatch detected for ${fileData.bucket}/${fileData.key} (version ${fileData.versionId}): expected ${existingETag}, got ${fileData.etag}`
       );
     }
