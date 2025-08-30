@@ -19,6 +19,7 @@ import {
   getAtlasByNetworkVersionAndShortName,
   getExistingMetadataObjectId,
   markPreviousVersionsAsNotLatest,
+  normalizeAtlasVersion,
   upsertFileRecord,
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
@@ -392,7 +393,8 @@ async function saveFileRecord(
     // STEP 3: Determine atlas ID from S3 path
     const { atlasName, network } = parseS3KeyPath(object.key);
     const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
-    const dbVersion = convertS3VersionToDbVersion(s3Version);
+    const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
+    const dbVersion = normalizeAtlasVersion(dbVersionRaw);
     const atlasId: string = await getAtlasByNetworkVersionAndShortName(
       network,
       dbVersion,

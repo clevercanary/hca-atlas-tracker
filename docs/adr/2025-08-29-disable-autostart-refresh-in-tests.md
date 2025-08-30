@@ -96,6 +96,16 @@ Verification:
 - Avoid accessing data getters before a refresh initializes state.
 - Expect initial refresh status to have `previousOutcome: NA` until a refresh completes.
 
+- For tests that do not intend to exercise refresh flows (e.g., unit/integration tests that call `resetDatabase()` and may import code paths that read from refresh services), mock the services at the top of the test file to avoid `RefreshDataNotReadyError` from `refreshService.getData()`:
+
+  ```ts
+  // Must be the first statements, before any imports that transitively import these services
+  jest.mock("../app/services/hca-projects");
+  jest.mock("../app/services/cellxgene");
+  ```
+
+  Do not place these mocks globally in `testing/setup.ts`; keep them local to tests that don't care about refresh behavior so that other tests can still assert real refresh flows.
+
 ## Alternatives / Future Considerations
 
 - If a specific test needs auto-start semantics, consider temporarily passing `autoStart: true` via a dedicated test harness or environment override, though this is discouraged for determinism.

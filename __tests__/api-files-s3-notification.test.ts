@@ -1101,6 +1101,39 @@ describe(TEST_ROUTE, () => {
       );
     });
   });
+  it("rejects S3 notifications with invalid atlas version in key (strict normalization)", async () => {
+    await withConsoleErrorHiding(async () => {
+      const s3Event = createS3Event({
+        etag: "invalid-atlas-version-etag",
+        key: "gut/gut-v1-10/source-datasets/invalid-version.h5ad", // v1-10 -> DB 1.10 (invalid per strict normalization)
+        size: 1024,
+        versionId: "invalid-atlas-version",
+      });
+
+      const snsMessage = createSNSMessage({
+        messageId: "invalid-atlas-version-test",
+        s3Event,
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
+      });
+
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: snsMessage,
+        method: METHOD.POST,
+      });
+
+      await snsHandler(req, res);
+
+      // Expect 400 once strict normalization is enforced in s3-notification service
+      expect(res.statusCode).toBe(400);
+      const responseBody = JSON.parse(res._getData());
+      expect(responseBody.message).toContain("Invalid atlas version");
+    });
+  });
 
   // Database Constraint Validation Tests
   it("database constraint prevents source_dataset files from having component_atlas_id", async () => {

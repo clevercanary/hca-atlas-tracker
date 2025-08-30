@@ -1,8 +1,11 @@
 import { getAtlasByNetworkVersionAndShortName } from "../app/data/files";
 import { ATLAS_DRAFT, ATLAS_WITH_IL } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
+// Mock refresh-dependent services to avoid RefreshDataNotReadyError
+jest.mock("../app/services/hca-projects");
+jest.mock("../app/services/cellxgene");
 
-describe.skip("getAtlasByNetworkVersionAndShortName", () => {
+describe("getAtlasByNetworkVersionAndShortName", () => {
   beforeEach(async () => {
     await resetDatabase();
   });
@@ -24,14 +27,14 @@ describe.skip("getAtlasByNetworkVersionAndShortName", () => {
       expect(atlasId).toBe(DRAFT_ATLAS_ID);
     });
 
-    it("should find atlas with version without decimal (1.0 -> 1)", async () => {
+    it("should match 2.0 and 2 interchangeably", async () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
-        DRAFT_NETWORK,
-        "1.0",
-        DRAFT_SHORT_NAME
+        ATLAS_WITH_IL.network,
+        "2.0",
+        ATLAS_WITH_IL.shortName
       );
 
-      expect(atlasId).toBe(DRAFT_ATLAS_ID);
+      expect(atlasId).toBe(IL_ATLAS_ID);
     });
 
     it("should find atlas with case-insensitive short name match", async () => {
@@ -64,7 +67,7 @@ describe.skip("getAtlasByNetworkVersionAndShortName", () => {
           DRAFT_SHORT_NAME
         )
       ).rejects.toThrow(
-        `Atlas not found for network: nonexistent-network, shortName: ${DRAFT_SHORT_NAME}, version: ${DRAFT_VERSION} or ${DRAFT_VERSION}`
+        `Atlas not found for network: nonexistent-network, shortName: ${DRAFT_SHORT_NAME}, version: ${DRAFT_VERSION}`
       );
     });
 
@@ -76,7 +79,7 @@ describe.skip("getAtlasByNetworkVersionAndShortName", () => {
           DRAFT_SHORT_NAME
         )
       ).rejects.toThrow(
-        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: ${DRAFT_SHORT_NAME}, version: 99.99 or 99`
+        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: ${DRAFT_SHORT_NAME}, version: 99.99`
       );
     });
 
@@ -88,7 +91,7 @@ describe.skip("getAtlasByNetworkVersionAndShortName", () => {
           "nonexistent-atlas"
         )
       ).rejects.toThrow(
-        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: nonexistent-atlas, version: ${DRAFT_VERSION} or ${DRAFT_VERSION}`
+        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: nonexistent-atlas, version: ${DRAFT_VERSION}`
       );
     });
   });
