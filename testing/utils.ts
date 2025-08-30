@@ -304,7 +304,7 @@ export async function withConsoleMessageHiding<T>(
       })
     : [];
   const result = await fn();
-  spies.map((spy) => spy.mockRestore());
+  spies.forEach((spy) => spy.mockRestore());
   return result;
 }
 
