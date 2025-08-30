@@ -84,13 +84,13 @@ afterAll(() => {
 
 test("source studies are not revalidated when no refresh happens", async () => {
   await delay();
-  expect(refreshValidations).toHaveBeenCalledTimes(1);
-  hcaService.getProjectIdByDoi([""]);
-  cellxgeneService.getCellxGeneIdByDoi([""]);
+  // With auto-start disabled in tests, no refresh should have occurred yet.
+  expect(refreshValidations).toHaveBeenCalledTimes(0);
+  // Do not call data getters here, as cache is intentionally uninitialized.
   await delay();
   expect(hcaService.areProjectsRefreshing()).toBe(false);
   expect(cellxgeneService.isCellxGeneRefreshing()).toBe(false);
-  expect(refreshValidations).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(0);
 });
 
 test("source studies are revalidated when last refresh completes", async () => {
@@ -102,15 +102,16 @@ test("source studies are revalidated when last refresh completes", async () => {
   getLatestCatalog.mockResolvedValue(HCA_CATALOG_TEST2);
   jest.setSystemTime(jest.now() + 14400001);
 
-  hcaService.getProjectIdByDoi([""]);
-  cellxgeneService.getCellxGeneIdByDoi([""]);
+  // Explicitly trigger refreshes instead of relying on getters to auto-start
+  hcaService.forceProjectsRefresh();
+  cellxgeneService.forceCellxGeneRefresh();
 
   await delay();
-  expect(refreshValidations).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(0);
   resolveProjects();
   await delay();
-  expect(refreshValidations).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(0);
   resolveCellxGene();
   await delay();
-  expect(refreshValidations).toHaveBeenCalledTimes(2);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
 });

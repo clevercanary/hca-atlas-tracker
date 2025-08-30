@@ -135,16 +135,13 @@ describe(TEST_ROUTE, () => {
       REFRESH_ACTIVITY.NOT_REFRESHING
     );
     expect(refreshStatus.cellxgene.errorMessage).toBeNull();
-    expect(refreshStatus.cellxgene.previousOutcome).toEqual(
-      REFRESH_OUTCOME.COMPLETED
-    );
+    // With auto-start disabled in tests, there has been no prior refresh yet.
+    expect(refreshStatus.cellxgene.previousOutcome).toEqual(REFRESH_OUTCOME.NA);
     expect(refreshStatus.hca.currentActivity).toEqual(
       REFRESH_ACTIVITY.NOT_REFRESHING
     );
     expect(refreshStatus.hca.errorMessage).toBeNull();
-    expect(refreshStatus.hca.previousOutcome).toEqual(
-      REFRESH_OUTCOME.COMPLETED
-    );
+    expect(refreshStatus.hca.previousOutcome).toEqual(REFRESH_OUTCOME.NA);
   });
 
   it("returns error 401 when POST requested by logged out user", async () => {
@@ -185,15 +182,16 @@ describe(TEST_ROUTE, () => {
 
   it("starts refreshes when POST requested by user with CONTENT_ADMIN role", async () => {
     [getCollectionsBlock, resolveGetCollections] = promiseWithResolvers<void>();
-    expect(refreshValidations).toHaveBeenCalledTimes(1);
-    expect(getAllProjects).toHaveBeenCalledTimes(1);
-    expect(getCellxGeneCollections).toHaveBeenCalledTimes(1);
+    // No auto-start: no prior calls
+    expect(refreshValidations).toHaveBeenCalledTimes(0);
+    expect(getAllProjects).toHaveBeenCalledTimes(0);
+    expect(getCellxGeneCollections).toHaveBeenCalledTimes(0);
     expect(
       (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode()
     ).toEqual(202);
     await delay();
-    expect(getAllProjects).toHaveBeenCalledTimes(2);
-    expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
+    expect(getAllProjects).toHaveBeenCalledTimes(1);
+    expect(getCellxGeneCollections).toHaveBeenCalledTimes(1);
   });
 
   it("does not start refresh that is already in progress", async () => {
@@ -201,17 +199,18 @@ describe(TEST_ROUTE, () => {
       (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode()
     ).toEqual(202);
     await delay();
-    expect(getAllProjects).toHaveBeenCalledTimes(3);
-    expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
+    // Projects can refresh again; CELLxGENE remains in-progress (blocked)
+    expect(getAllProjects).toHaveBeenCalledTimes(2);
+    expect(getCellxGeneCollections).toHaveBeenCalledTimes(1);
   });
 
   it("updates validations when refreshes complete", async () => {
-    expect(refreshValidations).toHaveBeenCalledTimes(1);
+    expect(refreshValidations).toHaveBeenCalledTimes(0);
     resolveGetCollections();
     await delay();
-    expect(getAllProjects).toHaveBeenCalledTimes(3);
-    expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
-    expect(refreshValidations).toHaveBeenCalledTimes(2);
+    expect(getAllProjects).toHaveBeenCalledTimes(2);
+    expect(getCellxGeneCollections).toHaveBeenCalledTimes(1);
+    expect(refreshValidations).toHaveBeenCalledTimes(1);
   });
 });
 
