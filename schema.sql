@@ -108,7 +108,6 @@ CREATE TABLE hat.entry_sheet_validations (
 --
 
 CREATE TABLE hat.files (
-    atlas_id uuid,
     bucket character varying(255) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     etag character varying(255) NOT NULL,
@@ -129,16 +128,10 @@ CREATE TABLE hat.files (
     version_id character varying(255),
     component_atlas_id uuid,
     source_dataset_id uuid,
+    sns_message_id character varying(255) NOT NULL,
     CONSTRAINT ck_files_exclusive_parent_relationship CHECK (((((file_type)::text = 'source_dataset'::text) AND (source_dataset_id IS NOT NULL) AND (component_atlas_id IS NULL)) OR (((file_type)::text = 'integrated_object'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NOT NULL)) OR (((file_type)::text = 'ingest_manifest'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NULL)))),
     CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'validating'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[])))
 );
-
-
---
--- Name: COLUMN files.atlas_id; Type: COMMENT; Schema: hat; Owner: -
---
-
-COMMENT ON COLUMN hat.files.atlas_id IS 'FK to atlases.id - set for integrated_object and ingest_manifest files';
 
 
 --
@@ -216,6 +209,13 @@ COMMENT ON COLUMN hat.files.component_atlas_id IS 'FK to component_atlases.id - 
 --
 
 COMMENT ON COLUMN hat.files.source_dataset_id IS 'FK to source_datasets.id - set for source_dataset files';
+
+
+--
+-- Name: COLUMN files.sns_message_id; Type: COMMENT; Schema: hat; Owner: -
+--
+
+COMMENT ON COLUMN hat.files.sns_message_id IS 'SNS MessageId for deduplication of duplicate SNS notifications';
 
 
 --
@@ -455,6 +455,14 @@ ALTER TABLE ONLY hat.files
 
 
 --
+-- Name: files uq_files_sns_message_id; Type: CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.files
+    ADD CONSTRAINT uq_files_sns_message_id UNIQUE (sns_message_id);
+
+
+--
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: hat; Owner: -
 --
 
@@ -614,14 +622,6 @@ ALTER TABLE ONLY hat.files
 
 ALTER TABLE ONLY hat.source_datasets
     ADD CONSTRAINT fk_source_datasets_source_study_id FOREIGN KEY (source_study_id) REFERENCES hat.source_studies(id);
-
-
---
--- Name: files pk_atlases_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
---
-
-ALTER TABLE ONLY hat.files
-    ADD CONSTRAINT pk_atlases_id FOREIGN KEY (atlas_id) REFERENCES hat.atlases(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
