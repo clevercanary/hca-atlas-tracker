@@ -52,6 +52,17 @@ import {
   TestUser,
 } from "./entities";
 
+type ConsoleMessageFunctionName =
+  (typeof CONSOLE_MESSAGE_FUNCTION_NAMES)[number];
+
+const CONSOLE_MESSAGE_FUNCTION_NAMES = [
+  "debug",
+  "error",
+  "info",
+  "log",
+  "warn",
+] as const;
+
 export function makeTestUser(
   nameId: string,
   role = ROLE.UNREGISTERED,
@@ -264,31 +275,36 @@ export function getTestSourceStudyCitation(
   }
 }
 
-export async function withConsoleErrorHiding<T>(
+export function withConsoleErrorHiding<T>(
   fn: () => Promise<T>,
   hideConsoleError = true,
   errorsOutputArray?: unknown[][]
 ): Promise<T> {
-  const consoleErrorSpy = hideConsoleError
-    ? jest.spyOn(console, "error").mockImplementation((...errors) => {
-        errorsOutputArray?.push(errors);
+  return withConsoleMessageHiding(
+    fn,
+    hideConsoleError,
+    { error: errorsOutputArray },
+    ["error"]
+  );
+}
+
+export async function withConsoleMessageHiding<T>(
+  fn: () => Promise<T>,
+  enableHiding = true,
+  outputArrays?: Partial<Record<ConsoleMessageFunctionName, unknown[][]>>,
+  messageTypes: readonly ConsoleMessageFunctionName[] = CONSOLE_MESSAGE_FUNCTION_NAMES
+): Promise<T> {
+  const spies = enableHiding
+    ? Array.from(new Set(messageTypes), (messageType) => {
+        return jest
+          .spyOn(console, messageType)
+          .mockImplementation((...messages) => {
+            outputArrays?.[messageType]?.push(messages);
+          });
       })
-    : null;
-
-  // Also suppress console.log messages during testing for clean output
-  const consoleLogSpy = hideConsoleError
-    ? jest.spyOn(console, "log").mockImplementation(() => {})
-    : null;
-
-  // Also suppress console.warn messages during testing for clean output
-  const consoleWarnSpy = hideConsoleError
-    ? jest.spyOn(console, "warn").mockImplementation(() => {})
-    : null;
-
+    : [];
   const result = await fn();
-  consoleErrorSpy?.mockRestore();
-  consoleLogSpy?.mockRestore();
-  consoleWarnSpy?.mockRestore();
+  spies.map((spy) => spy.mockRestore());
   return result;
 }
 
