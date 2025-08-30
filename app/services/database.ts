@@ -3,7 +3,14 @@ import { getPoolConfig } from "../utils/pg-app-connect-config";
 
 const { Pool } = pg;
 
-const pool = new Pool(getPoolConfig());
+let pool: pg.Pool | null = null;
+
+function getPool(): pg.Pool {
+  if (!pool) {
+    pool = new Pool(getPoolConfig());
+  }
+  return pool;
+}
 
 export function query<T extends pg.QueryResultRow>(
   queryTextOrConfig: string | pg.QueryConfig<unknown[]>,
@@ -12,7 +19,7 @@ export function query<T extends pg.QueryResultRow>(
 ): Promise<pg.QueryResult<T>> {
   return client
     ? client.query<T>(queryTextOrConfig, values)
-    : pool.query<T>(queryTextOrConfig, values);
+    : getPool().query<T>(queryTextOrConfig, values);
 }
 
 /**
@@ -58,9 +65,13 @@ export function doOrContinueTransaction<T>(
 }
 
 export function getPoolClient(): Promise<pg.PoolClient> {
-  return pool.connect();
+  return getPool().connect();
 }
 
-export function endPgPool(): void {
-  pool.end();
+export async function endPgPool(): Promise<void> {
+  if (pool) {
+    const p = pool;
+    pool = null;
+    await p.end();
+  }
 }

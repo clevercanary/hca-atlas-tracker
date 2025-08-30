@@ -1,8 +1,7 @@
-// Mock ky for HTTP requests BEFORE any imports
-const mockKyGet = jest.fn();
-jest.mock("ky", () => ({
-  get: mockKyGet,
-}));
+// Mock HTTP wrapper for outbound requests BEFORE any imports
+jest.mock("../app/utils/http", () => {
+  return { httpGet: jest.fn() };
+});
 
 // Set up AWS resource configuration BEFORE any other imports
 const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
@@ -29,6 +28,12 @@ import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
 import { resetDatabase } from "../testing/db-utils";
 import { withConsoleErrorHiding } from "../testing/utils";
+
+// Retrieve the mock function created in the jest.mock factory above
+const { httpGet } = jest.requireMock("../app/utils/http") as {
+  httpGet: jest.Mock;
+};
+const mockHttpGet = httpGet as jest.Mock;
 
 // Test file path constants
 const TEST_PATH_SEGMENTS = {
@@ -152,10 +157,7 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
-// Mock ky HTTP client for Jest compatibility (ky is ES module, Jest runs in CommonJS)
-jest.mock("ky", () => ({
-  get: jest.fn().mockResolvedValue({ ok: true }),
-}));
+// (Removed ky mock) Using http wrapper mock at top of file instead
 
 afterEach(() => {
   resetConfigCache();
@@ -1215,9 +1217,9 @@ describe(TEST_ROUTE, () => {
 
   describe("SNS SubscriptionConfirmation handling", () => {
     beforeEach(() => {
-      // Reset ky mock before each test
-      mockKyGet.mockClear();
-      mockKyGet.mockResolvedValue({ ok: true });
+      // Reset HTTP wrapper mock before each test
+      mockHttpGet.mockClear();
+      mockHttpGet.mockResolvedValue({ ok: true });
     });
 
     describe("SubscriptionConfirmation", () => {

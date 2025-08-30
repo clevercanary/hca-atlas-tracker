@@ -17,7 +17,7 @@ const customJestConfig = {
   moduleNameMapper: {
     "^ky$": "<rootDir>/__mocks__/ky.ts",
   },
-  setupFiles: ["./testing/setup.ts"],
+  setupFilesAfterEnv: ["<rootDir>/testing/setup.ts"],
   testEnvironment: "jest-environment-jsdom",
   testPathIgnorePatterns: ["/node_modules/", "/e2e/"],
 };

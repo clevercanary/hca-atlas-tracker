@@ -167,8 +167,8 @@ beforeAll(async () => {
   await resetDatabase();
 });
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
 });
 
 describe("updateValidations", () => {

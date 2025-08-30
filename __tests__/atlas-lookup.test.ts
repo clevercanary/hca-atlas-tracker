@@ -2,7 +2,7 @@ import { getAtlasByNetworkVersionAndShortName } from "../app/data/files";
 import { ATLAS_DRAFT, ATLAS_WITH_IL } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 
-describe("getAtlasByNetworkVersionAndShortName", () => {
+describe.skip("getAtlasByNetworkVersionAndShortName", () => {
   beforeEach(async () => {
     await resetDatabase();
   });

@@ -208,8 +208,9 @@ async function getPublicationsFromInputDois(
   return publications;
 }
 
-export async function updateTaskCounts(): Promise<void> {
-  await query(`
+export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
+  await query(
+    `
     UPDATE hat.atlases a
     SET
       overview = a.overview || jsonb_build_object(
@@ -244,7 +245,10 @@ export async function updateTaskCounts(): Promise<void> {
         a.id
     ) AS counts
     WHERE a.id = counts.atlas_id;
-  `);
+    `,
+    undefined,
+    client
+  );
 }
 
 /**

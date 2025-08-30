@@ -6,3 +6,9 @@ process.env.GOOGLE_SERVICE_ACCOUNT =
   '"TEST_GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"';
 process.env.GOOGLE_AUTH =
   '{"type": "service_account", "client_email": "test@example.com"}';
+
+// Loaded via setupFilesAfterEnv: hooks are available synchronously.
+afterAll(async () => {
+  const { endPgPool } = await import("../app/services/database");
+  await endPgPool();
+});

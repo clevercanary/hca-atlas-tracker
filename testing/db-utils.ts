@@ -18,8 +18,7 @@ import {
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
-import { query } from "../app/services/database";
-import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
+import { endPgPool, getPoolClient, query } from "../app/services/database";
 import {
   INITIAL_TEST_ATLASES,
   INITIAL_TEST_COMMENTS,
@@ -48,15 +47,17 @@ import {
 
 export async function resetDatabase(): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
-  const poolConfig = getPoolConfig();
-  const pool = new pg.Pool(poolConfig);
-  const client = await pool.connect();
-  await runMigrations("down", client);
-  await runMigrations("up", client);
-  await initDatabaseEntries(client);
-  client.release();
-  await pool.end();
-  consoleInfoSpy.mockRestore();
+  // Ensure any existing global pool is fully closed before starting fresh.
+  await endPgPool();
+  const client = await getPoolClient();
+  try {
+    await runMigrations("down", client);
+    await runMigrations("up", client);
+    await initDatabaseEntries(client);
+  } finally {
+    client.release();
+    consoleInfoSpy.mockRestore();
+  }
 }
 
 async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
@@ -73,7 +74,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     );
   }
 
-  const dbUsersByEmail = await getDbUsersByEmail();
+  const dbUsersByEmail = await getDbUsersByEmail(client);
 
   await initSourceStudies(client);
 
@@ -98,7 +99,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     await updateSourceStudyValidationsByEntityId(study.id, client);
   }
 
-  await updateTaskCounts();
+  await updateTaskCounts(client);
 }
 
 async function initSourceStudies(client: pg.PoolClient): Promise<void> {
@@ -419,13 +420,17 @@ async function runMigrations(
   });
 }
 
-export async function getDbUsersByEmail(): Promise<
-  Record<string, HCAAtlasTrackerDBUser>
-> {
+export async function getDbUsersByEmail(
+  client?: pg.PoolClient
+): Promise<Record<string, HCAAtlasTrackerDBUser>> {
   return Object.fromEntries(
-    (await query<HCAAtlasTrackerDBUser>("SELECT * FROM hat.users")).rows.map(
-      (u) => [u.email, u]
-    )
+    (
+      await query<HCAAtlasTrackerDBUser>(
+        "SELECT * FROM hat.users",
+        undefined,
+        client
+      )
+    ).rows.map((u) => [u.email, u])
   );
 }
 
