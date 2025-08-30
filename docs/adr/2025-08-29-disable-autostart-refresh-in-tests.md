@@ -9,6 +9,7 @@
 Background refresh logic created by `makeRefreshService()` auto-started a refresh on initialization when no cached data existed. In tests, importing services caused background HTTP requests and asynchronous logs to continue after tests finished, leading to warnings like "Cannot log after tests are done" and potential open handles.
 
 Goals:
+
 - Eliminate late logging and open handles in tests.
 - Keep production/development behavior unchanged.
 - Make refresh triggering explicit and deterministic in tests.
@@ -27,10 +28,12 @@ Even though external HTTP was mocked in tests, import/mocking order likely allow
 ## Considered Options
 
 1. Suppress or stub logs in tests (e.g., spy on `console`).
+
    - Pros: Quick to implement.
    - Cons: Hides symptoms, not the cause. Background work still runs; risks open handles.
 
 2. Disable auto-start refresh in tests via a flag on the refresh service (selected).
+
    - Pros: Structural fix, prevents background work on import; clean and explicit tests.
    - Cons: Tests that assumed auto-start must be updated to trigger refresh explicitly and use relative call counts.
 
@@ -45,11 +48,13 @@ Add an optional `autoStart?: boolean` to `RefreshServiceParams` and gate the ini
 ## Consequences
 
 Positive:
+
 - No background refreshes start during tests; no late logs or open handles.
 - Tests become explicit and deterministic (refreshes triggered via `force...Refresh()` functions).
 - Production behavior unchanged.
 
 Negative:
+
 - Tests that relied on auto-start needed updates:
   - Use explicit `forceProjectsRefresh()` and `forceCellxGeneRefresh()`.
   - Assert relative call increments instead of absolute totals that assumed an initial auto-start.
@@ -59,6 +64,7 @@ Negative:
 ## Implementation
 
 Changed:
+
 - `app/services/common/refresh-service.ts`
   - Added `autoStart?: boolean` to `RefreshServiceParams`.
   - Only auto-start the initial refresh when `autoStart !== false`.
@@ -70,6 +76,7 @@ Changed:
   - Kept object keys sorted to satisfy ESLint.
 
 Tests updated (examples):
+
 - `__tests__/revalidate-on-refresh.test.ts`
   - Avoid getters before initialization; trigger refresh via `force...Refresh()`; expect validations only after both refreshes complete.
 - `__tests__/api-refresh.test.ts`
@@ -77,6 +84,7 @@ Tests updated (examples):
   - Start from zero call counts; assert relative increments after explicit POST or refresh calls.
 
 Verification:
+
 - Full test suite passes with `jest --detectOpenHandles`.
 - No late logging after tests complete.
 

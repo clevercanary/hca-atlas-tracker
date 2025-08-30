@@ -7,6 +7,7 @@
 ## Context
 
 Intermittent test instability arose from PostgreSQL connections not being closed predictably:
+
 - Multiple code paths implicitly created `pg.Pool` instances during imports.
 - Some tests left clients checked out or created work during teardown, leading to open handles and port exhaustion.
 - Jest occasionally reported lingering handles and late logs.
@@ -21,21 +22,25 @@ We need a deterministic, centralized lifecycle for the database pool during test
 
 ## Considered Options
 
-1) Ad-hoc: keep creating pools in tests and rely on higher Jest timeouts/`--detectOpenHandles` to identify leaks
+1. Ad-hoc: keep creating pools in tests and rely on higher Jest timeouts/`--detectOpenHandles` to identify leaks
+
 - Pros: No refactor.
 - Cons: Flaky, hard to maintain; leaks persist.
 
-2) Pool-per-test or pool-per-suite
+2. Pool-per-test or pool-per-suite
+
 - Pros: Isolation.
 - Cons: Heavyweight, slower test runs; more moving parts to close correctly.
 
-3) Single lazy-initialized pool with explicit client release and orderly shutdown (selected)
+3. Single lazy-initialized pool with explicit client release and orderly shutdown (selected)
+
 - Pros: Predictable; minimal overhead; easy to reason about.
 - Cons: Requires test discipline to avoid holding long-lived clients.
 
 ## Decision
 
 Adopt a lazy singleton `pg.Pool` in application code and standardize Jest setup/teardown to ensure:
+
 - Clients are explicitly released after use.
 - We wait for all clients to release before closing the pool.
 - The global pool is properly ended once per test session.
@@ -43,12 +48,14 @@ Adopt a lazy singleton `pg.Pool` in application code and standardize Jest setup/
 ## Implementation
 
 - `app/services/database.ts`
+
   - Lazy singleton pool in `getPool()`.
   - `getPoolClient()` to acquire a client.
   - `doTransaction()` wrapper to automatically `BEGIN`/`COMMIT`/`ROLLBACK` and `client.release()` in `finally`.
   - `endPgPool()` sets the module-level `pool` to `null` first, then awaits `p.end()` to finish closing connections.
 
 - `testing/setup.ts`
+
   - Registered via Jest `setupFilesAfterEnv`.
   - `afterAll(async () => { const { endPgPool } = await import("../app/services/database"); await endPgPool(); });`
   - Ensures the pool is closed exactly once after the entire test run.
@@ -60,11 +67,13 @@ Adopt a lazy singleton `pg.Pool` in application code and standardize Jest setup/
 ## Consequences
 
 Positive:
+
 - Eliminates lingering DB handles after tests; fewer Jest hangs and late logs.
 - Centralized pattern for DB access in tests (either `doTransaction()` or `getPoolClient()` with explicit `release()`).
 - Production behavior remains unchanged; app still uses one pool.
 
 Negative:
+
 - Tests must avoid holding onto a client across tests/suites.
 - If a test spawns async DB work that outlives the test, it must be awaited or canceled.
 
