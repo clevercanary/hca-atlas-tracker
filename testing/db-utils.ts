@@ -635,3 +635,26 @@ export async function expectApiSourceStudyToHaveMatchingDbValidations(
   const validations = await getValidationsByEntityId(sourceStudy.id);
   expectApiValidationsToMatchDb(sourceStudy.tasks, validations);
 }
+
+// Simple count helpers for tests
+export async function countSourceDatasets(
+  client?: pg.PoolClient
+): Promise<number> {
+  const result = await query<{ count: number }>(
+    "SELECT COUNT(*)::int AS count FROM hat.source_datasets",
+    undefined,
+    client
+  );
+  return result.rows[0].count;
+}
+
+export async function countComponentAtlases(
+  client?: pg.PoolClient
+): Promise<number> {
+  const result = await query<{ count: number }>(
+    "SELECT COUNT(*)::int AS count FROM hat.component_atlases",
+    undefined,
+    client
+  );
+  return result.rows[0].count;
+}

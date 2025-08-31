@@ -26,7 +26,11 @@ import {
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  countComponentAtlases,
+  countSourceDatasets,
+  resetDatabase,
+} from "../testing/db-utils";
 import { withConsoleErrorHiding } from "../testing/utils";
 
 // Retrieve the mock function created in the jest.mock factory above
@@ -894,6 +898,57 @@ describe(TEST_ROUTE, () => {
     expect(file.status).toBe("uploaded");
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
     expect(file.integrity_status).toBe("pending");
+  });
+
+  it("ingest manifest does not create metadata objects", async () => {
+    // Capture metadata object counts before processing
+    const beforeSdCount = await countSourceDatasets();
+    const beforeCaCount = await countComponentAtlases();
+
+    const s3Event = createS3Event({
+      etag: "abcdefabcdefabcdefabcdefabcdefab",
+      key: TEST_FILE_PATHS.MANIFEST,
+      size: 4096,
+      versionId: "manifest-noop-123",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "manifest-noop-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Verify file saved as ingest_manifest and not linked to any metadata objects
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.MANIFEST,
+    ]);
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.file_type).toBe("ingest_manifest");
+    expect(file.component_atlas_id).toBeNull();
+    expect(file.source_dataset_id).toBeNull();
+
+    // Verify no new metadata objects were created
+    const afterSdCount = await countSourceDatasets();
+    const afterCaCount = await countComponentAtlases();
+    expect(afterSdCount).toBe(beforeSdCount);
+    expect(afterCaCount).toBe(beforeCaCount);
   });
 
   it("correctly identifies ingest manifest file type from S3 path", async () => {

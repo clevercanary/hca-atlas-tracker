@@ -235,7 +235,7 @@ async function updateIntegratedObject(
   if (metadataObjectId) {
     await updateComponentAtlas(
       metadataObjectId,
-      {}, // Empty component_info
+      {}, // Clear component_info on edit. This will be repopulated with actual integrated object metadata when it is validated.
       transaction
     );
   }
@@ -243,6 +243,15 @@ async function updateIntegratedObject(
 }
 
 async function updateSourceDataset(
+  _: string | null,
+  __: { eTag: string; key: string },
+  metadataObjectId: string | null
+): Promise<string | null> {
+  return metadataObjectId;
+}
+
+// No-op handler: used for file types that should not create or modify metadata objects
+async function noopFileHandler(
   _: string | null,
   __: { eTag: string; key: string },
   metadataObjectId: string | null
@@ -264,8 +273,8 @@ const FILE_OPERATION_HANDLERS: Partial<
     update: updateSourceDataset,
   },
   [FILE_TYPE.INGEST_MANIFEST]: {
-    create: createSourceDataset,
-    update: updateSourceDataset,
+    create: noopFileHandler,
+    update: noopFileHandler,
   },
   // INGEST_MANIFEST files don't need special handling - they just get file records
 };
