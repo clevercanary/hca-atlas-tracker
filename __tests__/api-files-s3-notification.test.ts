@@ -77,6 +77,7 @@ const TEST_VERSION_IDS = {
 } as const;
 
 const TEST_TIMESTAMP = "2024-01-01T12:00:00.000Z";
+const TEST_TIMESTAMP_PLUS_1H = "2024-01-01T13:00:00.000Z";
 const TEST_TIMESTAMP_ALT = "2023-01-01T00:00:00.000Z";
 const TEST_SIGNATURE = "fake-signature-for-testing";
 const TEST_SIGNATURE_VALID = "valid-signature";
@@ -261,6 +262,48 @@ describe(TEST_ROUTE, () => {
     });
 
     expect(res.statusCode).toBe(405);
+  });
+
+  it("rejects S3 record when eventTime is missing", async () => {
+    // Start with a valid event and then remove eventTime to simulate missing timestamp
+    const s3Event = createS3Event({
+      etag: "missing-event-time-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+      size: 1234,
+      versionId: "missing-event-time-version",
+    });
+
+    // Remove eventTime to simulate missing value in the incoming event
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mutates mock to drop eventTime
+    delete (s3Event as any).Records[0].eventTime;
+
+    const snsMessage = createSNSMessage({
+      messageId: "missing-event-time-message-id",
+      s3Event,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    // Should reject with 400 due to schema validation (missing required eventTime)
+    expect(res.statusCode).toBe(400);
+
+    // Verify that no file was written to the database for this key
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+    ]);
+    expect(fileRows.rows).toHaveLength(0);
   });
 
   // SNS Message Structure Validation Tests
@@ -794,7 +837,7 @@ describe(TEST_ROUTE, () => {
     // Second version of the same file (different version_id and etag)
     const s3EventV2 = createS3Event({
       etag: "version2-etag-98765432109876543210987654321098",
-      eventTime: "2024-01-01T13:00:00.000Z",
+      eventTime: TEST_TIMESTAMP_PLUS_1H,
       key: TEST_FILE_PATHS.INTEGRATED_OBJECT, // Same key
       size: 2048000,
       versionId: "version-2", // Different version
@@ -804,7 +847,7 @@ describe(TEST_ROUTE, () => {
       messageId: "test-message-id-v2",
       s3Event: s3EventV2,
       signature: TEST_SIGNATURE_VALID,
-      timestamp: "2024-01-01T13:00:00.000Z",
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
     });
 
     const { req: req2, res: res2 } = httpMocks.createMocks<
@@ -838,17 +881,83 @@ describe(TEST_ROUTE, () => {
     const secondVersion = allVersions.rows[1];
     expect(secondVersion.version_id).toBe("version-2");
     expect(secondVersion.is_latest).toBe(true);
+  });
 
-    // Verify we can easily query for latest version only
+  it("does not flip is_latest when older version arrives after newer version", async () => {
+    // Process newer version first
+    const s3EventV2 = createS3Event({
+      etag: "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      eventTime: TEST_TIMESTAMP_PLUS_1H,
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 2048000,
+      versionId: "ooo-version-2",
+    });
+
+    const snsMessageV2 = createSNSMessage({
+      messageId: "out-of-order-v2",
+      s3Event: s3EventV2,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    const { req: reqNewer, res: resNewer } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV2,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(reqNewer, resNewer);
+    });
+    expect(resNewer.statusCode).toBe(200);
+
+    // Now process an older version afterwards (out-of-order arrival)
+    const s3EventV1 = createS3Event({
+      etag: "ooo-version1-etag-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      eventTime: TEST_TIMESTAMP, // earlier than V2
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 1024000,
+      versionId: "ooo-version-1",
+    });
+
+    const snsMessageV1 = createSNSMessage({
+      messageId: "out-of-order-v1",
+      s3Event: s3EventV1,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req: reqOlder, res: resOlder } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV1,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(reqOlder, resOlder);
+    });
+    expect(resOlder.statusCode).toBe(200);
+
+    // Expect two versions exist for this key
+    const allRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.INTEGRATED_OBJECT,
+    ]);
+    expect(allRows.rows).toHaveLength(2);
+
+    // Latest should remain the newer (V2), not be flipped by the older V1 arrival
     const latestOnly = await query(
       SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
-
     expect(latestOnly.rows).toHaveLength(1);
-    expect(latestOnly.rows[0].version_id).toBe("version-2");
+    expect(latestOnly.rows[0].version_id).toBe("ooo-version-2");
     expect(latestOnly.rows[0].etag).toBe(
-      "version2-etag-98765432109876543210987654321098"
+      "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     );
   });
 

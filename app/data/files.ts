@@ -189,6 +189,7 @@ export async function confirmFileExistsOnAtlas(
  * @param fileData.eventInfo - S3 event information as JSON string
  * @param fileData.fileType - Type of file (source_dataset, integrated_object, etc.)
  * @param fileData.integrityStatus - File integrity status
+ * @param fileData.isLatest - Whether this insert should set is_latest for the record
  * @param fileData.key - S3 object key
  * @param fileData.sha256Client - SHA256 hash from client
  * @param fileData.sizeBytes - File size in bytes
@@ -207,6 +208,7 @@ export async function upsertFileRecord(
     eventInfo: string;
     fileType: string;
     integrityStatus: string;
+    isLatest?: boolean;
     key: string;
     sha256Client: string | null;
     sizeBytes: number;
@@ -234,16 +236,17 @@ export async function upsertFileRecord(
     // Same ETag - this is likely a duplicate notification, handle via ON CONFLICT
   }
 
+  const isLatest = fileData.isLatest ?? true;
+
   const result = await transaction.query(
     `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12, $13)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
        ON CONFLICT (sns_message_id) 
        DO UPDATE SET 
          etag = files.etag,  -- Keep existing ETag (no change)
          event_info = files.event_info,
-         is_latest = TRUE,
          updated_at = CURRENT_TIMESTAMP
        WHERE files.etag = EXCLUDED.etag
        
@@ -260,6 +263,7 @@ export async function upsertFileRecord(
       fileData.sha256Client,
       fileData.integrityStatus,
       fileData.status,
+      isLatest,
       fileData.fileType,
       fileData.sourceDatasetId,
       fileData.componentAtlasId,

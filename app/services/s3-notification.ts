@@ -391,13 +391,40 @@ async function saveFileRecord(
       transaction
     );
 
-    // STEP 2: Mark previous versions as not latest and determine if this is a new file
-    // Returns 0 for new files, >0 for existing files with previous versions
-    const isNewFile = !(await markPreviousVersionsAsNotLatest(
-      bucket.name,
-      object.key,
-      transaction
-    ));
+    // STEP 2: Determine recency and whether incoming record should be latest
+    const latestResult = await transaction.query(
+      `SELECT event_info FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
+      [bucket.name, object.key]
+    );
+
+    const isNewFile = latestResult.rows.length === 0;
+
+    const parseEventInfo = (val: unknown): FileEventInfo | null => {
+      if (!val) return null;
+      try {
+        if (typeof val === "string") return JSON.parse(val) as FileEventInfo;
+        return val as FileEventInfo;
+      } catch {
+        return null;
+      }
+    };
+
+    let isLatestForInsert = isNewFile;
+    if (!isNewFile) {
+      const currentLatestInfo = parseEventInfo(latestResult.rows[0].event_info);
+      const currentLatestTime = currentLatestInfo?.eventTime ?? "";
+      // ISO 8601 timestamps compare lexicographically for ordering
+      isLatestForInsert = eventInfo.eventTime > currentLatestTime;
+    }
+
+    // Only clear previous versions if this incoming record is newer
+    if (isLatestForInsert) {
+      await markPreviousVersionsAsNotLatest(
+        bucket.name,
+        object.key,
+        transaction
+      );
+    }
 
     // STEP 3: Determine atlas ID from S3 path
     const { atlasName, network } = parseS3KeyPath(object.key);
@@ -435,6 +462,7 @@ async function saveFileRecord(
         eventInfo: JSON.stringify(eventInfo),
         fileType,
         integrityStatus: INTEGRITY_STATUS.PENDING,
+        isLatest: isLatestForInsert,
         key: object.key,
         sha256Client: sha256,
         sizeBytes: object.size,
