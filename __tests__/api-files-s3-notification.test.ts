@@ -489,6 +489,80 @@ describe(TEST_ROUTE, () => {
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
   });
 
+  it("rejects replay with same SNS MessageId but altered ETag", async () => {
+    // First notification inserts the record
+    const s3Event1 = createS3Event({
+      etag: "original-replay-etag-11111111111111111111111111111111",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
+      size: 128000,
+      versionId: "replay-version-1",
+    });
+
+    const messageId = "replay-same-id-message";
+
+    const snsMessage1 = createSNSMessage({
+      messageId,
+      s3Event: s3Event1,
+      signature: TEST_SIGNATURE_VALID_FOR_TESTING,
+      timestamp: TEST_TIMESTAMP_ALT,
+    });
+
+    const { req: req1, res: res1 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessage1,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req1, res1);
+    });
+    expect(res1.statusCode).toBe(200);
+
+    // Replay with the SAME MessageId but tampered ETag should be rejected
+    const s3Event2 = createS3Event({
+      etag: "tampered-replay-etag-22222222222222222222222222222222", // different ETag
+      key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
+      size: 128000,
+      versionId: "replay-version-1", // same version
+    });
+
+    const snsMessage2 = createSNSMessage({
+      messageId, // same MessageId as first message
+      s3Event: s3Event2,
+      signature: TEST_SIGNATURE_VALID_FOR_TESTING,
+      timestamp: TEST_TIMESTAMP_ALT,
+    });
+
+    const { req: req2, res: res2 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessage2,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req2, res2);
+    });
+
+    // Should reject with 400 due to ETag mismatch during replay
+    expect(res2.statusCode).toBe(400);
+    const responseBody = JSON.parse(res2._getData());
+    expect(responseBody.message).toContain("ETag mismatch");
+
+    // Verify only one record exists and it remains the original
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
+    ]);
+    expect(fileRows.rows).toHaveLength(1);
+    expect(fileRows.rows[0].etag).toBe(
+      "original-replay-etag-11111111111111111111111111111111"
+    );
+  });
+
   // Security and Authentication Tests
   it("rejects SNS messages with invalid signatures", async () => {
     const s3Event = createS3Event({
