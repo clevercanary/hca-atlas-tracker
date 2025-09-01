@@ -222,15 +222,13 @@ async function testSuccessfulCreate(
   const res = await doCreateTest(user, atlas, sourceStudy, newData);
   expect(res._getStatusCode()).toEqual(201);
   const newSourceDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-  const newSourceDatasetFromDb = await getSourceDataset(
-    atlas.id,
-    sourceStudy.id,
-    newSourceDataset.id
-  );
+  const newSourceDatasetFromDb = await getSourceDataset({
+    atlasId: atlas.id,
+    sourceDatasetId: newSourceDataset.id,
+  });
   expectDbSourceDatasetToMatch(
     newSourceDatasetFromDb,
     newSourceDataset,
-    sourceStudy.id,
     expectedTitle
   );
   return newSourceDatasetFromDb;
@@ -264,11 +262,10 @@ function getQueryValues(
 function expectDbSourceDatasetToMatch(
   dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
-  sourceStudyId: string,
   title: string
 ): void {
   expect(dbSourceDataset).toBeDefined();
-  expect(dbSourceDataset.source_study_id).toEqual(sourceStudyId);
+  expect(dbSourceDataset.source_study_id).toBeNull();
   expect(dbSourceDataset.sd_info.title).toEqual(title);
   expect(dbSourceDatasetToApiSourceDataset(dbSourceDataset)).toEqual(
     apiSourceDataset

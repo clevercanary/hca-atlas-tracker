@@ -382,11 +382,11 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedSourceDataset = res._getJSONData();
-    const sourceDatasetFromDb = await getSourceDataset(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-      updatedSourceDataset.id
-    );
+    const sourceDatasetFromDb = await getSourceDataset({
+      atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      sourceDatasetId: updatedSourceDataset.id,
+      sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+    });
     expect(sourceDatasetFromDb).toBeDefined();
     if (!sourceDatasetFromDb) return;
     expect(sourceDatasetFromDb.sd_info.title).toEqual(
@@ -412,11 +412,11 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedSourceDataset = res._getJSONData();
-    const sourceDatasetFromDb = await getSourceDataset(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-      updatedSourceDataset.id
-    );
+    const sourceDatasetFromDb = await getSourceDataset({
+      atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      sourceDatasetId: updatedSourceDataset.id,
+      sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+    });
     expect(sourceDatasetFromDb).toBeDefined();
     if (!sourceDatasetFromDb) return;
     expect(sourceDatasetFromDb.sd_info.title).toEqual(

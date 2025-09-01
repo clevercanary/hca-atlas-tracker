@@ -6,7 +6,7 @@ import {
 import { confirmFileExistsOnAtlas } from "../data/files";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
-import { doTransaction, query } from "./database";
+import { doOrContinueTransaction, doTransaction, query } from "./database";
 import {
   confirmSourceDatasetsExist,
   UpdatedSourceDatasetsInfo,
@@ -345,6 +345,23 @@ export async function createComponentAtlas(
   );
 
   return result.rows[0];
+}
+
+/**
+ * Clear component atlas metadata (component_info) without triggering aggregate recomputation.
+ * @param componentAtlasId - ID of the component atlas to clear info for.
+ * @param client - Optional database client to reuse an existing transaction.
+ */
+export async function clearComponentAtlasInfo(
+  componentAtlasId: string,
+  client?: pg.PoolClient
+): Promise<void> {
+  await doOrContinueTransaction(client, async (tx) => {
+    await tx.query(
+      "UPDATE hat.component_atlases SET component_info = '{}'::jsonb, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+      [componentAtlasId]
+    );
+  });
 }
 
 /**

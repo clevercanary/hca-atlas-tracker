@@ -24,10 +24,14 @@ import {
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
 import {
+  clearComponentAtlasInfo,
   createComponentAtlas,
-  updateComponentAtlas,
 } from "./component-atlases";
 import { doTransaction } from "./database";
+import {
+  clearSourceDatasetInfo,
+  createSourceDataset as createSourceDatasetService,
+} from "./source-datasets";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -155,6 +159,17 @@ function convertS3VersionToDbVersion(s3Version: string): string {
   }
 }
 
+/**
+ * Derive a human-friendly title from an S3 key by taking the filename and removing the final extension.
+ * @param key - The S3 object key.
+ * @returns filename without extension, or "Unknown" if not determinable.
+ */
+function getTitleFromS3Key(key: string): string {
+  const fileName = key.split("/").pop() || "Unknown";
+  // Remove only the last extension (handles multi-dot filenames)
+  return fileName.replace(/\.[^/.]+$/, "");
+}
+
 // File operation handler functions
 type FileOperationHandler = (
   atlasId: string | null,
@@ -169,8 +184,7 @@ async function createIntegratedObject(
   _: string | null,
   transaction: PoolClient
 ): Promise<string> {
-  const fileName = s3Object.key.split("/").pop() || "Unknown";
-  const title = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension
+  const title = getTitleFromS3Key(s3Object.key);
 
   const componentAtlas = await createComponentAtlas(
     atlasId!,
@@ -182,46 +196,39 @@ async function createIntegratedObject(
   return componentAtlas.id;
 }
 
-async function createSourceDataset(
+async function createSourceDatasetFromS3(
   atlasId: string | null,
   object: { eTag: string; key: string },
   metadataObjectId: string | null,
   transaction: PoolClient
 ): Promise<string> {
-  // Extract filename from S3 key for source dataset info
-  const filename = object.key.split("/").pop() || "unknown";
+  // Derive title from S3 key filename (without extension)
+  const title = getTitleFromS3Key(object.key);
 
-  // Create minimal source dataset info for S3 uploads
-  const sdInfo = {
-    etag: object.eTag,
-    filename,
-    s3Key: object.key,
-    uploadedAt: new Date().toISOString(),
-  };
-
-  // Insert new source dataset record without source_study_id (will be linked later)
-  const result = await transaction.query(
-    `INSERT INTO hat.source_datasets (sd_info, source_study_id)
-     VALUES ($1, $2)
-     RETURNING id`,
-    [JSON.stringify(sdInfo), null]
+  // Create source dataset using canonical service within the existing transaction
+  const created = await createSourceDatasetService(
+    atlasId!,
+    { title },
+    transaction
   );
+  const sourceDatasetId = created.id;
 
-  const sourceDatasetId = result.rows[0].id;
-
-  // Link source dataset to atlas's source_datasets array
-  // Check if already linked to avoid duplicates
+  // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(
     "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
     [atlasId, sourceDatasetId]
   );
 
-  if (!alreadyLinkedResult.rows[0].exists) {
-    await transaction.query(
-      "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
-      [atlasId, sourceDatasetId]
+  if (alreadyLinkedResult.rows[0].exists) {
+    throw new InvalidOperationError(
+      `Source dataset ${sourceDatasetId} is unexpectedly already linked to atlas ${atlasId} during create flow`
     );
   }
+
+  await transaction.query(
+    "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
+    [atlasId, sourceDatasetId]
+  );
 
   return sourceDatasetId;
 }
@@ -233,20 +240,28 @@ async function updateIntegratedObject(
   transaction: PoolClient
 ): Promise<string | null> {
   if (metadataObjectId) {
-    await updateComponentAtlas(
-      metadataObjectId,
-      {}, // Clear component_info on edit. This will be repopulated with actual integrated object metadata when it is validated.
-      transaction
-    );
+    // Clear component_info on edit. This will be repopulated with actual integrated object metadata when it is validated.
+    await clearComponentAtlasInfo(metadataObjectId, transaction);
   }
   return metadataObjectId;
 }
 
-async function updateSourceDataset(
+export async function updateSourceDataset(
   _: string | null,
   __: { eTag: string; key: string },
-  metadataObjectId: string | null
+  metadataObjectId: string | null,
+  transaction: PoolClient
 ): Promise<string | null> {
+  // On update, a corresponding source dataset metadata object must exist.
+  if (!metadataObjectId) {
+    throw new InvalidOperationError(
+      `Missing source dataset metadata object for update of file ${__.key}`
+    );
+  }
+
+  // Clear sd_info on the linked source dataset when a source_dataset file is updated.
+  // This signals that dataset metadata should be refreshed by downstream processes.
+  await clearSourceDatasetInfo(metadataObjectId, transaction);
   return metadataObjectId;
 }
 
@@ -269,7 +284,7 @@ const FILE_OPERATION_HANDLERS: Partial<
     update: updateIntegratedObject,
   },
   [FILE_TYPE.SOURCE_DATASET]: {
-    create: createSourceDataset,
+    create: createSourceDatasetFromS3,
     update: updateSourceDataset,
   },
   [FILE_TYPE.INGEST_MANIFEST]: {

@@ -33,6 +33,10 @@ import {
 } from "../testing/db-utils";
 import { withConsoleErrorHiding } from "../testing/utils";
 
+// Additional imports for direct service testing
+import { updateSourceDataset } from "../app/services/s3-notification";
+import { InvalidOperationError } from "../app/utils/api-handler";
+
 // Retrieve the mock function created in the jest.mock factory above
 const { httpGet } = jest.requireMock("../app/utils/http") as {
   httpGet: jest.Mock;
@@ -263,7 +267,6 @@ describe(TEST_ROUTE, () => {
 
     expect(res.statusCode).toBe(405);
   });
-
   it("rejects S3 record when eventTime is missing", async () => {
     // Start with a valid event and then remove eventTime to simulate missing timestamp
     const s3Event = createS3Event({
@@ -366,6 +369,112 @@ describe(TEST_ROUTE, () => {
     expect(file.integrity_status).toBe("pending");
   });
 
+  it("clears sd_info on source_dataset update while preserving is_latest", async () => {
+    // First upload (creates source dataset and file record)
+    const firstEvent = createS3Event({
+      etag: "sd-v1-etag-11111111111111111111111111111111",
+      eventTime: TEST_TIMESTAMP, // older
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 12345,
+      versionId: "sd-version-1",
+    });
+
+    const firstMessage = createSNSMessage({
+      messageId: "sd-update-test-v1",
+      s3Event: firstEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Capture the created source dataset id before update
+    const sdBefore = await query(
+      "SELECT source_dataset_id AS id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+    );
+    expect(sdBefore.rows).toHaveLength(1);
+    const sourceDatasetId: string = sdBefore.rows[0].id;
+
+    // Ensure first file is marked latest
+    const firstFile = await query(
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+    );
+    expect(firstFile.rows).toHaveLength(1);
+    expect(firstFile.rows[0].is_latest).toBe(true);
+
+    // Second upload (update) with newer eventTime
+    const secondEvent = createS3Event({
+      etag: "sd-v2-etag-22222222222222222222222222222222",
+      eventTime: TEST_TIMESTAMP_PLUS_1H, // newer
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 23456,
+      versionId: "sd-version-2",
+    });
+
+    const secondMessage = createSNSMessage({
+      messageId: "sd-update-test-v2",
+      s3Event: secondEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Verify sd_info is cleared on the linked source dataset
+    const sdAfter = await query(
+      "SELECT sd_info FROM hat.source_datasets WHERE id = $1",
+      [sourceDatasetId]
+    );
+    expect(sdAfter.rows).toHaveLength(1);
+    expect(sdAfter.rows[0].sd_info).toEqual({});
+
+    // Verify file versioning flags: latest remains true on newest, previous false
+    const versions = await query(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+    );
+    expect(versions.rows).toHaveLength(2);
+    expect(versions.rows[0].is_latest).toBe(false); // older
+    expect(versions.rows[1].is_latest).toBe(true); // newer
+  });
+
+  it("updateSourceDataset throws when metadataObjectId is missing", async () => {
+    await expect(
+      updateSourceDataset(
+        null,
+        { eTag: "abc", key: TEST_FILE_PATHS.SOURCE_DATASET_TEST },
+        null,
+        {} as unknown as import("pg").PoolClient
+      )
+    ).rejects.toThrow(InvalidOperationError);
+  });
+
   // Happy Path Processing Tests
   it("successfully processes valid SNS notification with S3 ObjectCreated event", async () => {
     const s3Event = createS3Event({
@@ -417,8 +526,8 @@ describe(TEST_ROUTE, () => {
 
     // Verify source dataset was created and linked to atlas
     const sourceDatasetRows = await query(
-      "SELECT id FROM hat.source_datasets WHERE sd_info->>'s3Key' = $1",
-      [TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+      "SELECT DISTINCT source_dataset_id AS id FROM hat.files WHERE bucket = $1 AND key = $2",
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
     );
     expect(sourceDatasetRows.rows).toHaveLength(1);
     const sourceDatasetId = sourceDatasetRows.rows[0].id;
