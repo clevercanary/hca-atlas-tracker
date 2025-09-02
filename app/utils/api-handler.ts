@@ -32,6 +32,12 @@ export class InvalidOperationError extends Error {
   name = "InvalidOperationError";
 }
 
+// Represents a request conflict (e.g., ETag mismatch/version conflicts)
+// Maps to HTTP 409 Conflict
+export class ConflictError extends InvalidOperationError {
+  name = "ConflictError";
+}
+
 export class UnauthenticatedError extends Error {
   name = "UnauthenticatedError";
 }
@@ -237,7 +243,9 @@ export async function getRegisteredActiveUser(
  * @param error - Error or other thrown value.
  */
 function respondError(res: NextApiResponse, error: unknown): void {
-  if (error instanceof InvalidOperationError)
+  if (error instanceof ConflictError)
+    res.status(409).json({ message: error.message });
+  else if (error instanceof InvalidOperationError)
     res.status(400).json({ message: error.message });
   else if (error instanceof UnauthenticatedError)
     res.status(401).json({ message: error.message });

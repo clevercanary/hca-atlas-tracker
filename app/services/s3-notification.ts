@@ -18,6 +18,7 @@ import {
 import {
   getAtlasByNetworkVersionAndShortName,
   getExistingMetadataObjectId,
+  getLatestEventInfo,
   markPreviousVersionsAsNotLatest,
   normalizeAtlasVersion,
   upsertFileRecord,
@@ -170,6 +171,30 @@ function getTitleFromS3Key(key: string): string {
   return fileName.replace(/\.[^/.]+$/, "");
 }
 
+// Helper: Parse event_info column which may be JSON or stringified JSON
+function parseEventInfoValue(val: unknown): FileEventInfo | null {
+  if (!val) return null;
+  try {
+    if (typeof val === "string") return JSON.parse(val) as FileEventInfo;
+    return val as FileEventInfo;
+  } catch {
+    return null;
+  }
+}
+
+// Helper: Determine whether incoming record should be latest based on event times
+function computeIsLatestForInsert(
+  isNewFile: boolean,
+  latestEventInfoRaw: unknown,
+  incomingEventInfo: FileEventInfo
+): boolean {
+  if (isNewFile) return true;
+  const currentLatestInfo = parseEventInfoValue(latestEventInfoRaw);
+  const currentLatestTime = currentLatestInfo?.eventTime ?? "";
+  // ISO 8601 timestamps compare lexicographically for ordering
+  return incomingEventInfo.eventTime > currentLatestTime;
+}
+
 // File operation handler functions
 type FileOperationHandler = (
   atlasId: string | null,
@@ -295,29 +320,6 @@ const FILE_OPERATION_HANDLERS: Partial<
 };
 
 /**
- * Handle ETag mismatch error case.
- * This happens when ON CONFLICT triggered but WHERE clause failed,
- * indicating potential data corruption or AWS infrastructure issue.
- *
- * @param bucket - S3 bucket information
- * @param bucket.name - S3 bucket name
- * @param object - S3 object information
- * @param object.eTag - S3 object ETag
- * @param object.key - S3 object key
- * @param object.versionId - S3 object version ID
- */
-async function handleETagMismatch(
-  bucket: { name: string },
-  object: { eTag: string; key: string; versionId?: string | null }
-): Promise<never> {
-  const errorMsg = `ETag mismatch for ${bucket.name}/${object.key} (version: ${
-    object.versionId || "null"
-  }): new=${object.eTag}`;
-  console.error(errorMsg);
-  throw new InvalidOperationError(errorMsg);
-}
-
-/**
  * Log file operation results for monitoring.
  *
  * @param operation - Database operation result ("inserted" or "updated")
@@ -407,30 +409,19 @@ async function saveFileRecord(
     );
 
     // STEP 2: Determine recency and whether incoming record should be latest
-    const latestResult = await transaction.query(
-      `SELECT event_info FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
-      [bucket.name, object.key]
+    const latestEventInfo = await getLatestEventInfo(
+      bucket.name,
+      object.key,
+      transaction
     );
 
-    const isNewFile = latestResult.rows.length === 0;
+    const isNewFile = latestEventInfo === null;
 
-    const parseEventInfo = (val: unknown): FileEventInfo | null => {
-      if (!val) return null;
-      try {
-        if (typeof val === "string") return JSON.parse(val) as FileEventInfo;
-        return val as FileEventInfo;
-      } catch {
-        return null;
-      }
-    };
-
-    let isLatestForInsert = isNewFile;
-    if (!isNewFile) {
-      const currentLatestInfo = parseEventInfo(latestResult.rows[0].event_info);
-      const currentLatestTime = currentLatestInfo?.eventTime ?? "";
-      // ISO 8601 timestamps compare lexicographically for ordering
-      isLatestForInsert = eventInfo.eventTime > currentLatestTime;
-    }
+    const isLatestForInsert = computeIsLatestForInsert(
+      isNewFile,
+      latestEventInfo,
+      eventInfo
+    );
 
     // Only clear previous versions if this incoming record is newer
     if (isLatestForInsert) {
@@ -489,14 +480,6 @@ async function saveFileRecord(
       },
       transaction
     );
-
-    // STEP 7: Handle the three possible outcomes
-
-    // CASE 1: No result returned = ETag mismatch detected
-    if (!result) {
-      await handleETagMismatch(bucket, object);
-      return; // handleETagMismatch throws, but TypeScript needs this
-    }
 
     // CASE 2 & 3: Success - log the operation type for monitoring
     logFileOperation(result.operation, bucket, object, isNewFile);

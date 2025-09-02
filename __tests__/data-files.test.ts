@@ -1,3 +1,4 @@
+import { ETagMismatchError } from "../app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_STATUS,
   FILE_TYPE,
@@ -300,7 +301,7 @@ describe("upsertFileRecord", () => {
   });
 
   describe("conflict handling", () => {
-    it("should throw error when ETag differs (data integrity protection)", async () => {
+    it("should throw ETagMismatchError when ETag differs", async () => {
       const originalFileData = {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
@@ -323,19 +324,26 @@ describe("upsertFileRecord", () => {
         return await upsertFileRecord(originalFileData, transaction);
       });
 
-      // Try to update with different ETag (should throw error)
+      // Try to update with different ETag (upsertFileRecord now throws on mismatch)
       const conflictingFileData = {
         ...originalFileData,
         etag: "different-etag", // Different ETag indicates potential corruption
         snsMessageId: originalFileData.snsMessageId, // Same SNS message ID to trigger conflict
       };
 
-      // Should throw error when ETag mismatch is detected
-      await expect(
-        doTransaction(async (transaction) => {
+      // Should throw ETagMismatchError with both existing and new ETags in the message
+      try {
+        await doTransaction(async (transaction) => {
           return await upsertFileRecord(conflictingFileData, transaction);
-        })
-      ).rejects.toThrow("ETag mismatch detected");
+        });
+        // If we get here, test should fail
+        throw new Error("Expected ETagMismatchError to be thrown");
+      } catch (e: unknown) {
+        const err = e as Error;
+        expect(err).toBeInstanceOf(ETagMismatchError);
+        expect(err.message).toContain("existing=original-etag");
+        expect(err.message).toContain("new=different-etag");
+      }
 
       // Verify original record unchanged
       const queryResult = await query(

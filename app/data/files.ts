@@ -1,4 +1,6 @@
 import pg from "pg";
+import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
+import type { FileEventInfo } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 
@@ -71,6 +73,25 @@ export async function getExistingETag(
     [bucket, key, versionId]
   );
   return result.rows[0]?.etag || null;
+}
+
+/**
+ * Get the latest event_info for a file by bucket/key.
+ * @param bucket - S3 bucket name
+ * @param key - S3 object key
+ * @param transaction - Database transaction client
+ * @returns Latest event_info JSON if present, otherwise null
+ */
+export async function getLatestEventInfo(
+  bucket: string,
+  key: string,
+  transaction: pg.PoolClient
+): Promise<FileEventInfo | null> {
+  const result = await transaction.query(
+    `SELECT event_info FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
+    [bucket, key]
+  );
+  return result.rows[0]?.event_info ?? null;
 }
 
 /**
@@ -198,6 +219,7 @@ export async function confirmFileExistsOnAtlas(
  * @param fileData.status - File processing status
  * @param fileData.versionId - S3 object version ID
  * @param transaction - Database transaction to use
+ * @throws {ETagMismatchError} When an existing record has a different ETag for the same bucket/key/version
  * @returns Operation result with etag and operation type
  */
 export async function upsertFileRecord(
@@ -218,7 +240,7 @@ export async function upsertFileRecord(
     versionId: string | null;
   },
   transaction: pg.PoolClient
-): Promise<{ etag: string; operation: string } | null> {
+): Promise<{ etag: string; operation: string }> {
   // First check if a file with same bucket/key/version already exists
   const existingResult = await transaction.query(
     `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
@@ -228,16 +250,19 @@ export async function upsertFileRecord(
   if (existingResult.rows.length > 0) {
     const existingETag = existingResult.rows[0].etag;
     if (existingETag !== fileData.etag) {
-      // ETag mismatch detected - this indicates potential data corruption
-      throw new InvalidOperationError(
-        `ETag mismatch detected for ${fileData.bucket}/${fileData.key} (version ${fileData.versionId}): expected ${existingETag}, got ${fileData.etag}`
+      // ETag mismatch detected - throw to map to HTTP 409 at API layer
+      throw new ETagMismatchError(
+        fileData.bucket,
+        fileData.key,
+        fileData.versionId,
+        existingETag,
+        fileData.etag
       );
     }
     // Same ETag - this is likely a duplicate notification, handle via ON CONFLICT
   }
 
   const isLatest = fileData.isLatest ?? true;
-
   const result = await transaction.query(
     `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
@@ -274,8 +299,25 @@ export async function upsertFileRecord(
   // Check if the operation succeeded
   if (result.rows.length === 0) {
     // This happens when ON CONFLICT DO UPDATE WHERE condition fails
-    // Meaning ETags don't match - return null to signal ETag mismatch
-    return null;
+    // Meaning ETags don't match - throw ETagMismatchError
+    // Fetch the existing ETag so the caller can construct a detailed error without extra reads
+    const existingETag = await getExistingETag(
+      fileData.bucket,
+      fileData.key,
+      fileData.versionId,
+      transaction
+    );
+    if (existingETag) {
+      throw new ETagMismatchError(
+        fileData.bucket,
+        fileData.key,
+        fileData.versionId,
+        existingETag,
+        fileData.etag
+      );
+    }
+    // Fallback: if we could not retrieve the existing ETag, throw a generic mismatch error
+    throw new Error("ETag mismatch detected");
   }
 
   return result.rows[0];

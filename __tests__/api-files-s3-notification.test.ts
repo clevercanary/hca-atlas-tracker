@@ -699,10 +699,16 @@ describe(TEST_ROUTE, () => {
       await snsHandler(req2, res2);
     });
 
-    // Should reject with 400 due to ETag mismatch during replay
-    expect(res2.statusCode).toBe(400);
+    // Should reject with 409 Conflict due to ETag mismatch during replay (triggers SNS retry/DLQ)
+    expect(res2.statusCode).toBe(409);
     const responseBody = JSON.parse(res2._getData());
     expect(responseBody.message).toContain("ETag mismatch");
+    expect(responseBody.message).toContain(
+      "existing=original-replay-etag-11111111111111111111111111111111"
+    );
+    expect(responseBody.message).toContain(
+      "new=tampered-replay-etag-22222222222222222222222222222222"
+    );
 
     // Verify only one record exists and it remains the original
     const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
@@ -896,10 +902,12 @@ describe(TEST_ROUTE, () => {
       await snsHandler(req2, res2);
     });
 
-    // Should reject with 400 Bad Request due to ETag mismatch (InvalidOperationError)
-    expect(res2.statusCode).toBe(400);
+    // Should reject with 409 Conflict due to ETag mismatch
+    expect(res2.statusCode).toBe(409);
     const responseBody = JSON.parse(res2._getData());
     expect(responseBody.message).toContain("ETag mismatch");
+    expect(responseBody.message).toContain("existing=original-etag-12345");
+    expect(responseBody.message).toContain("new=different-etag-67890");
 
     // Verify only one record exists with original ETag
     const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [

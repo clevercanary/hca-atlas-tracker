@@ -2,6 +2,7 @@
 // These errors are used for AWS S3/SNS event processing and validation
 
 import {
+  ConflictError,
   ForbiddenError,
   InvalidOperationError,
   UnauthenticatedError,
@@ -38,9 +39,9 @@ export class UnknownFolderTypeError extends InvalidOperationError {
 /**
  * Error thrown when S3 object ETag doesn't match expected value
  * This indicates potential data corruption or integrity issues
- * Maps to HTTP 500 Internal Server Error
+ * Maps to HTTP 409 Conflict
  */
-export class ETagMismatchError extends Error {
+export class ETagMismatchError extends ConflictError {
   constructor(
     bucket: string,
     key: string,
