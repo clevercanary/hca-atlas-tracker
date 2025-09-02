@@ -45,9 +45,10 @@ This guide defines the architectural patterns and guidelines for creating APIs i
 - Should be documented in service function JSDoc with @throws
 
 **AWS-Specific Errors:** `app/apis/catalog/hca-atlas-tracker/aws/errors.ts`
-  - `ETagMismatchError` extends `ConflictError` and maps to HTTP 409 (used in S3/SNS notification processing to signal conflicts)
-**Service-Specific Errors:** Within respective service files
-**Base Classes:** `utils/api-handler.ts`
+
+- `ETagMismatchError` extends `ConflictError` and maps to HTTP 409 (used in S3/SNS notification processing to signal conflicts)
+  **Service-Specific Errors:** Within respective service files
+  **Base Classes:** `utils/api-handler.ts`
 
 ## Authentication & Authorization
 
