@@ -4,6 +4,7 @@ import { resetDatabase } from "../testing/db-utils";
 // Mock refresh-dependent services to avoid RefreshDataNotReadyError
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
+jest.mock("../app/utils/pg-app-connect-config");
 
 describe("getAtlasByNetworkVersionAndShortName", () => {
   beforeEach(async () => {
