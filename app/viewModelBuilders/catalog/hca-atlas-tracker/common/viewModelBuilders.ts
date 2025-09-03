@@ -1633,10 +1633,12 @@ function getSourceDatasetSourceStudyColumnDef(
     cell: ({ row }) =>
       C.Link({
         label: row.original.publicationString,
-        url: getRouteURL(ROUTE.SOURCE_STUDY, {
-          atlasId: atlas.id,
-          sourceStudyId: row.original.sourceStudyId,
-        }),
+        url: row.original.sourceStudyId
+          ? getRouteURL(ROUTE.SOURCE_STUDY, {
+              atlasId: atlas.id,
+              sourceStudyId: row.original.sourceStudyId,
+            })
+          : "",
       }),
     header: "Source Study",
   };

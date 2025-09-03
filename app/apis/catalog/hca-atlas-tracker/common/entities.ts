@@ -119,7 +119,7 @@ export interface HCAAtlasTrackerSourceDataset {
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationString: string;
-  sourceStudyId: string;
+  sourceStudyId: string | null;
   sourceStudyTitle: string | null;
   suspensionType: string[];
   tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
@@ -365,7 +365,7 @@ export interface HCAAtlasTrackerDBSourceDataset {
   created_at: Date;
   id: string;
   sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
-  source_study_id: string;
+  source_study_id: string | null;
   updated_at: Date;
 }
 
@@ -394,8 +394,8 @@ export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
   WithSourceStudyInfo<HCAAtlasTrackerDBSourceDataset>;
 
 export interface HCAAtlasTrackerDBFile {
-  atlas_id: string | null;
   bucket: string;
+  component_atlas_id: string | null;
   created_at: Date;
   etag: string;
   event_info: FileEventInfo;
@@ -409,6 +409,8 @@ export interface HCAAtlasTrackerDBFile {
   sha256_client: string | null;
   sha256_server: string | null;
   size_bytes: string;
+  sns_message_id: string;
+  source_dataset_id: string | null;
   source_study_id: string | null;
   status: FILE_STATUS;
   updated_at: Date;

@@ -50,6 +50,7 @@ export const ViewSourceStudies = ({
   const atlasLinkedDatasetsByStudyId = useMemo(
     () =>
       sourceStudiesSourceDatasets.reduce((datasets, sourceDataset) => {
+        if (sourceDataset.sourceStudyId === null) return datasets;
         const linkedDataset = atlasSourceDatasets.find(
           (atlasSourceDataset) => atlasSourceDataset.id === sourceDataset.id
         );
