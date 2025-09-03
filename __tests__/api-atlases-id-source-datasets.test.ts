@@ -10,7 +10,6 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-  SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -45,7 +44,6 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           undefined,
           METHOD.POST
         )
@@ -58,7 +56,6 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           undefined,
           METHOD.GET,
           true
@@ -72,7 +69,6 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           USER_UNREGISTERED,
           METHOD.GET,
           true
@@ -86,7 +82,6 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           USER_DISABLED_CONTENT_ADMIN
         )
       )._getStatusCode()
@@ -100,10 +95,7 @@ describe(TEST_ROUTE, () => {
       sourceDatasetsHandler,
       METHOD.GET,
       role,
-      getQueryValues(
-        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-        SOURCE_STUDY_WITH_SOURCE_DATASETS.id
-      ),
+      getQueryValues(ATLAS_WITH_MISC_SOURCE_STUDIES.id),
       undefined,
       false,
       (res) => {
@@ -124,7 +116,6 @@ describe(TEST_ROUTE, () => {
   it("returns source datasets when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
@@ -141,7 +132,6 @@ describe(TEST_ROUTE, () => {
 
 async function doSourceDatasetsRequest(
   atlasId: string,
-  sourceStudyId: string,
   user?: TestUser,
   method = METHOD.GET,
   hideConsoleError = false
@@ -149,7 +139,7 @@ async function doSourceDatasetsRequest(
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: getQueryValues(atlasId, sourceStudyId),
+    query: getQueryValues(atlasId),
   });
   await withConsoleErrorHiding(
     () => sourceDatasetsHandler(req, res),
@@ -158,11 +148,8 @@ async function doSourceDatasetsRequest(
   return res;
 }
 
-function getQueryValues(
-  atlasId: string,
-  sourceStudyId: string
-): Record<string, string> {
-  return { atlasId, sourceStudyId };
+function getQueryValues(atlasId: string): Record<string, string> {
+  return { atlasId };
 }
 
 function expectSourceDatasetsToMatch(
