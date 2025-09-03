@@ -632,33 +632,6 @@ export const buildSourceStudyCount = (
 };
 
 /**
- * Build props for the used source datasets cell component.
- * @param sourceStudy - Source study entity.
- * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked source datasets indexed by source study.
- * @returns Props to be used for the cell.
- */
-export const buildSourceStudySourceDatasetCount = (
-  sourceStudy: HCAAtlasTrackerSourceStudy,
-  pathParameter: PathParameter,
-  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
-): ComponentProps<typeof C.Link> => {
-  const label =
-    sourceStudy.sourceDatasetCount === 0
-      ? "--"
-      : `${
-          atlasLinkedDatasetsByStudyId.get(sourceStudy.id)?.length ?? 0
-        } of ${sourceStudy.sourceDatasetCount.toLocaleString()}`;
-  return {
-    label,
-    url: getRouteURL(ROUTE.SOURCE_DATASETS, {
-      ...pathParameter,
-      sourceStudyId: sourceStudy.id,
-    }),
-  };
-};
-
-/**
  * Build props for the status cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -1289,13 +1262,11 @@ export function getAtlasSourceStudiesTableColumns(
   atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
   return [
+    { accessorKey: "id" },
     getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
     getSourceStudyMetadataSpreadsheetColumnDef(),
-    getSourceStudySourceDatasetCountColumnDef(
-      pathParameter,
-      atlasLinkedDatasetsByStudyId
-    ),
+    getSourceStudySourceDatasetCountColumnDef(pathParameter),
     getSourceStudyCELLxGENEStatusColumnDef(atlasLinkedDatasetsByStudyId),
     getSourceStudyCapStatusColumnDef(),
     getSourceStudyHCADataRepositoryStatusColumnDef(),
@@ -1772,24 +1743,24 @@ function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceSt
 /**
  * Returns source study source datasets count column def.
  * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked datasets indexed by source study.
  * @returns Column def.
  */
 function getSourceStudySourceDatasetCountColumnDef(
-  pathParameter: PathParameter,
-  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
+  pathParameter: PathParameter
 ): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
     accessorKey: "sourceDatasetCount",
-    cell: ({ row }) =>
-      C.Link(
-        buildSourceStudySourceDatasetCount(
-          row.original,
-          pathParameter,
-          atlasLinkedDatasetsByStudyId
-        )
-      ),
-    header: "Datasets Used",
+    cell: (ctx) =>
+      C.LinkCell({
+        getValue: () => ({
+          children: ctx.getValue(),
+          href: getRouteURL(ROUTE.SOURCE_DATASETS, {
+            ...pathParameter,
+            sourceStudyId: ctx.row.getValue("id"),
+          }),
+        }),
+      }),
+    header: "Datasets",
   };
 }
 
