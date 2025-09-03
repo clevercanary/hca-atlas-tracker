@@ -1,5 +1,4 @@
 import { updateSourceStudyValidationsByEntityId } from "app/services/source-studies";
-import crypto from "crypto";
 import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
@@ -32,6 +31,10 @@ import {
   FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
   FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   INITIAL_TEST_ATLASES,
   INITIAL_TEST_COMMENTS,
   INITIAL_TEST_COMPONENT_ATLASES,
@@ -40,6 +43,10 @@ import {
   INITIAL_TEST_SOURCE_DATASETS,
   INITIAL_TEST_SOURCE_STUDIES,
   INITIAL_TEST_USERS,
+  SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+  SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
 } from "./constants";
 import {
   TestAtlas,
@@ -198,52 +205,49 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 
 async function initFiles(client: pg.PoolClient): Promise<void> {
   // Create a mapping of file IDs to their corresponding component atlas IDs
-  const fileToComponentAtlasMap = new Map<string, string>();
+  const fileToMetaDataObjectMap = new Map<string, string>();
 
   // Map specific files to their component atlases based on test constants
-  fileToComponentAtlasMap.set(
+  fileToMetaDataObjectMap.set(
     FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
     COMPONENT_ATLAS_DRAFT_FOO.id
   ); // FILE_COMPONENT_ATLAS_DRAFT_FOO -> COMPONENT_ATLAS_DRAFT_FOO
-  fileToComponentAtlasMap.set(
+  fileToMetaDataObjectMap.set(
     FILE_COMPONENT_ATLAS_DRAFT_BAR.id,
     COMPONENT_ATLAS_DRAFT_BAR.id
   ); // FILE_COMPONENT_ATLAS_DRAFT_BAR -> COMPONENT_ATLAS_DRAFT_BAR
-  fileToComponentAtlasMap.set(
+  fileToMetaDataObjectMap.set(
     FILE_COMPONENT_ATLAS_MISC_FOO.id,
     COMPONENT_ATLAS_MISC_FOO.id
   ); // FILE_COMPONENT_ATLAS_MISC_FOO -> COMPONENT_ATLAS_MISC_FOO
-  fileToComponentAtlasMap.set(
+  fileToMetaDataObjectMap.set(
     FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id,
     COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
   ); // FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS -> COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS
-  fileToComponentAtlasMap.set(
+  fileToMetaDataObjectMap.set(
     FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
     COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
   ); // FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO -> COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO
-  fileToComponentAtlasMap.set(
+  fileToMetaDataObjectMap.set(
     FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
     COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id
   ); // FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR -> COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR
-
-  // Create source datasets for files that need them (only for SOURCE_DATASET file types)
-  const sourceDatasetIds = new Map<string, string>();
-
-  for (const file of INITIAL_TEST_FILES) {
-    const { atlas, fileType } = fillTestFileDefaults(file);
-
-    if (
-      fileType === FILE_TYPE.SOURCE_DATASET &&
-      !sourceDatasetIds.has(atlas.id)
-    ) {
-      const sourceDatasetId = crypto.randomUUID();
-      await client.query(
-        `INSERT INTO hat.source_datasets (id, sd_info, source_study_id) VALUES ($1, $2, $3)`,
-        [sourceDatasetId, "{}", null]
-      );
-      sourceDatasetIds.set(atlas.id, sourceDatasetId);
-    }
-  }
+  fileToMetaDataObjectMap.set(
+    FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+    SOURCE_DATASET_ATLAS_LINKED_A_FOO.id
+  ); // FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO -> SOURCE_DATASET_ATLAS_LINKED_A_FOO
+  fileToMetaDataObjectMap.set(
+    FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
+    SOURCE_DATASET_ATLAS_LINKED_B_FOO.id
+  ); // FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO -> SOURCE_DATASET_ATLAS_LINKED_B_FOO
+  fileToMetaDataObjectMap.set(
+    FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+    SOURCE_DATASET_ATLAS_LINKED_B_BAR.id
+  ); // FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR -> SOURCE_DATASET_ATLAS_LINKED_B_BAR
+  fileToMetaDataObjectMap.set(
+    FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.id,
+    SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.id
+  ); // FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO -> SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO
 
   // Create all files
   for (const file of INITIAL_TEST_FILES) {
@@ -307,10 +311,10 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
         isLatest,
         fileType,
         fileType === FILE_TYPE.SOURCE_DATASET
-          ? sourceDatasetIds.get(atlas.id)
+          ? fileToMetaDataObjectMap.get(id)
           : null,
         fileType === FILE_TYPE.INTEGRATED_OBJECT
-          ? fileToComponentAtlasMap.get(id)
+          ? fileToMetaDataObjectMap.get(id)
           : null,
         `test-sns-message-${id}`, // Generate unique SNS message ID for test data
       ]

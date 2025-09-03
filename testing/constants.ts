@@ -2345,7 +2345,7 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
 );
 
 // FILES
-
+// COMPONENT ATLAS FILES
 export const FILE_COMPONENT_ATLAS_DRAFT_FOO = {
   atlas: ATLAS_DRAFT,
   bucket: "bucket-draft-foo",
@@ -2418,6 +2418,57 @@ export const FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   versionId: null,
 } satisfies TestFile;
 
+const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BUCKET = "kidney-v6-2/source-datasets";
+
+// SOURCE DATASET FILES
+export const FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
+  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  bucket: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BUCKET,
+  etag: "0f2c44131f918ae62c87e1902e6cafe5",
+  eventTime: "2025-08-22T05:47:21.456Z",
+  fileName: "source-dataset-linked-a-foo.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  id: "ae69f574-43a5-4848-b3e3-29f11c56bccb",
+  sizeBytes: "1654321",
+  versionId: null,
+} satisfies TestFile;
+
+export const FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO = {
+  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  bucket: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BUCKET,
+  etag: "0f2c44131f918ae62c87e1902e6cafe6",
+  eventTime: "2025-08-22T05:47:22.456Z",
+  fileName: "source-dataset-linked-b-foo.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  id: "838146dd-2ce9-4602-9995-5cd0787776c4",
+  sizeBytes: "1654322",
+  versionId: null,
+} satisfies TestFile;
+
+export const FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR = {
+  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  bucket: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BUCKET,
+  etag: "0f2c44131f918ae62c87e1902e6cafe7",
+  eventTime: "2025-08-22T05:47:23.456Z",
+  fileName: "source-dataset-linked-b-bar.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  id: "1fc8b1c8-5b2c-4273-8aec-a717da567a5f",
+  sizeBytes: "1654323",
+  versionId: null,
+} satisfies TestFile;
+
+export const FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO = {
+  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  bucket: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BUCKET,
+  etag: "0f2c44131f918ae62c87e1902e6cafe8",
+  eventTime: "2025-08-22T05:47:24.456Z",
+  fileName: "source-dataset-published-without-cellxgene-id-foo.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  id: "8756d457-d6be-4bfd-aa31-e9724b443e19",
+  sizeBytes: "1654324",
+  versionId: null,
+} satisfies TestFile;
+
 export const INITIAL_TEST_FILES: TestFile[] = [
   FILE_COMPONENT_ATLAS_DRAFT_FOO,
   FILE_COMPONENT_ATLAS_DRAFT_BAR,
@@ -2425,6 +2476,10 @@ export const INITIAL_TEST_FILES: TestFile[] = [
   FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+  FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
 ];
 
 // COMPONENT ATLASES
