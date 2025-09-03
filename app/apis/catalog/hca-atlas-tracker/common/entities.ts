@@ -115,6 +115,28 @@ export interface HCAAtlasTrackerSourceDataset {
   createdAt: string;
   disease: string[];
   doi: string | null;
+  id: string;
+  metadataSpreadsheetTitle: string | null;
+  metadataSpreadsheetUrl: string | null;
+  publicationString: string;
+  sourceStudyId: string;
+  sourceStudyTitle: string | null;
+  suspensionType: string[];
+  tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
+  tissue: string[];
+  title: string;
+  updatedAt: string;
+}
+
+export interface HCAAtlasTrackerFileSourceDataset {
+  assay: string[];
+  cellCount: number;
+  cellxgeneDatasetId: string | null;
+  cellxgeneDatasetVersion: string | null;
+  cellxgeneExplorerUrl: string | null;
+  createdAt: string;
+  disease: string[];
+  doi: string | null;
   fileName: string;
   id: string;
   integrityStatus: INTEGRITY_STATUS;
@@ -122,7 +144,7 @@ export interface HCAAtlasTrackerSourceDataset {
   metadataSpreadsheetUrl: string | null;
   publicationString: string;
   sizeBytes: number;
-  sourceStudyId: string;
+  sourceStudyId: string | null;
   sourceStudyTitle: string | null;
   suspensionType: string[];
   tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
@@ -396,6 +418,11 @@ export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
 
 export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
   WithSourceStudyInfo<HCAAtlasTrackerDBSourceDataset>;
+
+export type HCAAtlasTrackerDBSourceDatasetFile = Pick<
+  HCAAtlasTrackerDBFile,
+  "id" | "integrity_status" | "key" | "size_bytes" | "status"
+>;
 
 export interface HCAAtlasTrackerDBFile {
   atlas_id: string | null;

@@ -11,6 +11,7 @@ import {
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceDatasetFile,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
@@ -18,6 +19,7 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
   HCAAtlasTrackerEntrySheetValidation,
+  HCAAtlasTrackerFileSourceDataset,
   HCAAtlasTrackerListEntrySheetValidation,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
@@ -141,6 +143,36 @@ export function dbSourceStudyToApiSourceStudy(
   }
 }
 
+export function dbSourceDatasetToApiFileSourceDataset(
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetFile
+): HCAAtlasTrackerFileSourceDataset {
+  return {
+    assay: [],
+    cellCount: 0,
+    cellxgeneDatasetId: "123",
+    cellxgeneDatasetVersion: "446",
+    cellxgeneExplorerUrl: "",
+    createdAt: "",
+    disease: [],
+    doi: "",
+    fileName: parseS3KeyPath(dbSourceDataset.key).filename,
+    id: dbSourceDataset.id,
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    metadataSpreadsheetTitle: "",
+    metadataSpreadsheetUrl: "",
+    publicationString: "",
+    sizeBytes: Number(dbSourceDataset.size_bytes),
+    sourceStudyId: null,
+    sourceStudyTitle: null,
+    suspensionType: [],
+    tierOneMetadataStatus: TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION,
+    tissue: [],
+    title: "",
+    updatedAt: "",
+    validationStatus: INTEGRITY_STATUS.PENDING,
+  };
+}
+
 export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties
 ): HCAAtlasTrackerSourceDataset {
@@ -154,13 +186,10 @@ export function dbSourceDatasetToApiSourceDataset(
     createdAt: dbSourceDataset.created_at.toISOString(),
     disease: dbSourceDataset.sd_info.disease,
     doi: dbSourceDataset.doi,
-    fileName: "TODO",
     id: dbSourceDataset.id,
-    integrityStatus: INTEGRITY_STATUS.PENDING,
     metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
     publicationString: getDbEntityCitation(dbSourceDataset),
-    sizeBytes: 123,
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:
       studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
@@ -170,7 +199,6 @@ export function dbSourceDatasetToApiSourceDataset(
     tissue: dbSourceDataset.sd_info.tissue,
     title: dbSourceDataset.sd_info.title,
     updatedAt: dbSourceDataset.updated_at.toISOString(),
-    validationStatus: INTEGRITY_STATUS.PENDING,
   };
 }
 

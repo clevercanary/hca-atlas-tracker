@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerFileSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
@@ -105,7 +105,7 @@ describe(TEST_ROUTE, () => {
       (res) => {
         expect(res._getStatusCode()).toEqual(200);
         const sourceDatasets =
-          res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+          res._getJSONData() as HCAAtlasTrackerFileSourceDataset[];
         expect(sourceDatasets).toHaveLength(4);
         expectSourceDatasetsToMatch(
           sourceDatasets,
@@ -132,7 +132,8 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    const sourceDatasets =
+      res._getJSONData() as HCAAtlasTrackerFileSourceDataset[];
     expect(sourceDatasets).toHaveLength(4);
     expectSourceDatasetsToMatch(
       sourceDatasets,
@@ -175,26 +176,20 @@ function getQueryValues(atlasId: string): Record<string, string> {
 }
 
 function expectSourceDatasetsToMatch(
-  responseSourceDatasets: HCAAtlasTrackerSourceDataset[],
+  responseSourceDatasets: HCAAtlasTrackerFileSourceDataset[],
   expectedTestSourceDatasets: TestSourceDataset[],
   expectedTestFiles: TestFile[]
 ): void {
-  for (const expectedTestSourceDataset of expectedTestSourceDatasets) {
+  for (const expectedFile of expectedTestFiles) {
     const responseSourceDataset = responseSourceDatasets.find(
-      (c) => c.id === expectedTestSourceDataset.id
+      (c) => c.id === expectedFile.id
     );
     expect(responseSourceDataset).toBeDefined();
     if (!responseSourceDataset) continue;
-    // Ensure there is a corresponding expected test file with matching id
-    const matchingExpectedFile = expectedTestFiles.find(
-      (f) => f.id === responseSourceDataset.id
-    );
-    expect(matchingExpectedFile).toBeDefined();
-    expect(responseSourceDataset.sourceStudyId).toEqual(
-      expectedTestSourceDataset.sourceStudyId
-    );
-    expect(responseSourceDataset.title).toEqual(
-      expectedTestSourceDataset.title
+
+    expect(responseSourceDataset.fileName).toEqual(expectedFile.fileName);
+    expect(responseSourceDataset.sizeBytes).toEqual(
+      Number(expectedFile.sizeBytes)
     );
   }
 }

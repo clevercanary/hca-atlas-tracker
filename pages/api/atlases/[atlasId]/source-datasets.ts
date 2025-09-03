@@ -1,4 +1,4 @@
-import { dbSourceDatasetToApiSourceDataset } from "../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { dbSourceDatasetToApiFileSourceDataset } from "app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { METHOD } from "../../../../app/common/entities";
 import { getAtlasDatasets } from "../../../../app/services/source-datasets";
@@ -17,7 +17,9 @@ export default handler(
     res
       .status(200)
       .json(
-        (await getAtlasDatasets(atlasId)).map(dbSourceDatasetToApiSourceDataset)
+        (await getAtlasDatasets(atlasId)).map(
+          dbSourceDatasetToApiFileSourceDataset
+        )
       );
   }
 );
