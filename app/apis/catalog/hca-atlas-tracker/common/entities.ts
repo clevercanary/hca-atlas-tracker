@@ -115,10 +115,13 @@ export interface HCAAtlasTrackerSourceDataset {
   createdAt: string;
   disease: string[];
   doi: string | null;
+  fileName: string;
   id: string;
+  integrityStatus: INTEGRITY_STATUS;
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationString: string;
+  sizeBytes: number;
   sourceStudyId: string;
   sourceStudyTitle: string | null;
   suspensionType: string[];
@@ -126,6 +129,7 @@ export interface HCAAtlasTrackerSourceDataset {
   tissue: string[];
   title: string;
   updatedAt: string;
+  validationStatus: INTEGRITY_STATUS;
 }
 
 export interface HCAAtlasTrackerValidationResult {

@@ -6,6 +6,10 @@ import { endPgPool } from "../app/services/database";
 import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+  FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
@@ -16,7 +20,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestSourceDataset, TestUser } from "../testing/entities";
+import { TestFile, TestSourceDataset, TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
@@ -103,12 +107,21 @@ describe(TEST_ROUTE, () => {
         const sourceDatasets =
           res._getJSONData() as HCAAtlasTrackerSourceDataset[];
         expect(sourceDatasets).toHaveLength(4);
-        expectSourceDatasetsToMatch(sourceDatasets, [
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO,
-          SOURCE_DATASET_ATLAS_LINKED_B_FOO,
-          SOURCE_DATASET_ATLAS_LINKED_B_BAR,
-          SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-        ]);
+        expectSourceDatasetsToMatch(
+          sourceDatasets,
+          [
+            SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+            SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+            SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+            SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+          ],
+          [
+            FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+            FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+            FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+            FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+          ]
+        );
       }
     );
   }
@@ -121,12 +134,21 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expect(sourceDatasets).toHaveLength(4);
-    expectSourceDatasetsToMatch(sourceDatasets, [
-      SOURCE_DATASET_ATLAS_LINKED_A_FOO,
-      SOURCE_DATASET_ATLAS_LINKED_B_FOO,
-      SOURCE_DATASET_ATLAS_LINKED_B_BAR,
-      SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-    ]);
+    expectSourceDatasetsToMatch(
+      sourceDatasets,
+      [
+        SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+        SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+        SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+        SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+      ],
+      [
+        FILE_SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+        FILE_SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+        FILE_SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+        FILE_SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+      ]
+    );
   });
 });
 
@@ -153,18 +175,26 @@ function getQueryValues(atlasId: string): Record<string, string> {
 }
 
 function expectSourceDatasetsToMatch(
-  sourceDatasets: HCAAtlasTrackerSourceDataset[],
-  expectedTestSourceDatasets: TestSourceDataset[]
+  responseSourceDatasets: HCAAtlasTrackerSourceDataset[],
+  expectedTestSourceDatasets: TestSourceDataset[],
+  expectedTestFiles: TestFile[]
 ): void {
-  for (const testSourceDataset of expectedTestSourceDatasets) {
-    const sourceDataset = sourceDatasets.find(
-      (c) => c.id === testSourceDataset.id
+  for (const expectedTestSourceDataset of expectedTestSourceDatasets) {
+    const responseSourceDataset = responseSourceDatasets.find(
+      (c) => c.id === expectedTestSourceDataset.id
     );
-    expect(sourceDataset).toBeDefined();
-    if (!sourceDataset) continue;
-    expect(sourceDataset.sourceStudyId).toEqual(
-      testSourceDataset.sourceStudyId
+    expect(responseSourceDataset).toBeDefined();
+    if (!responseSourceDataset) continue;
+    // Ensure there is a corresponding expected test file with matching id
+    const matchingExpectedFile = expectedTestFiles.find(
+      (f) => f.id === responseSourceDataset.id
     );
-    expect(sourceDataset.title).toEqual(testSourceDataset.title);
+    expect(matchingExpectedFile).toBeDefined();
+    expect(responseSourceDataset.sourceStudyId).toEqual(
+      expectedTestSourceDataset.sourceStudyId
+    );
+    expect(responseSourceDataset.title).toEqual(
+      expectedTestSourceDataset.title
+    );
   }
 }

@@ -154,10 +154,13 @@ export function dbSourceDatasetToApiSourceDataset(
     createdAt: dbSourceDataset.created_at.toISOString(),
     disease: dbSourceDataset.sd_info.disease,
     doi: dbSourceDataset.doi,
+    fileName: "TODO",
     id: dbSourceDataset.id,
+    integrityStatus: INTEGRITY_STATUS.PENDING,
     metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
     publicationString: getDbEntityCitation(dbSourceDataset),
+    sizeBytes: 123,
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:
       studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
@@ -167,6 +170,7 @@ export function dbSourceDatasetToApiSourceDataset(
     tissue: dbSourceDataset.sd_info.tissue,
     title: dbSourceDataset.sd_info.title,
     updatedAt: dbSourceDataset.updated_at.toISOString(),
+    validationStatus: INTEGRITY_STATUS.PENDING,
   };
 }
 
