@@ -19,15 +19,13 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   const atlasId = req.query.atlasId as string;
   const sourceStudyId = req.query.sourceStudyId as string;
   const sourceDatasetId = req.query.sourceDatasetId as string;
-  res.status(200).json(
-    dbSourceDatasetToApiSourceDataset(
-      await getSourceDataset({
-        atlasId,
-        sourceDatasetId,
-        sourceStudyId,
-      })
-    )
-  );
+  res
+    .status(200)
+    .json(
+      dbSourceDatasetToApiSourceDataset(
+        await getSourceDataset(atlasId, sourceStudyId, sourceDatasetId)
+      )
+    );
 });
 
 const patchHandler = handler(

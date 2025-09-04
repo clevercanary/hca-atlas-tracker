@@ -29,10 +29,7 @@ import {
   resetComponentAtlasInfo,
 } from "./component-atlases";
 import { doTransaction } from "./database";
-import {
-  createSourceDataset as createSourceDatasetService,
-  resetSourceDatasetInfo,
-} from "./source-datasets";
+import { createSourceDataset, resetSourceDatasetInfo } from "./source-datasets";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -230,12 +227,8 @@ async function createSourceDatasetFromS3(
   const title = getTitleFromS3Key(object.key);
 
   // Create source dataset using canonical service within the existing transaction
-  const created = await createSourceDatasetService(
-    atlasId,
-    { title },
-    transaction
-  );
-  const sourceDatasetId = created.id;
+  const createdId = await createSourceDataset(null, { title }, transaction);
+  const sourceDatasetId = createdId;
 
   // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(

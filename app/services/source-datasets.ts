@@ -1,6 +1,5 @@
 import pg from "pg";
 import {
-  DOI_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
@@ -121,66 +120,33 @@ export async function getComponentAtlasDatasets(
 
 /**
  * Get a source dataset.
- * @param options - Options for retrieving the source dataset.
- * @param options.atlasId - ID of the atlas the dataset is accessed through.
- * @param options.client - Postgres client to use.
- * @param options.sourceDatasetId - Source dataset ID.
- * @param options.sourceStudyId - Optional source study ID. If provided, enforces that the dataset belongs to the specified study on the atlas.
+ * @param atlasId - ID of the atlas that the source dataset is accessed through.
+ * @param sourceStudyId - ID of the source study that the source dataset is accessed through.
+ * @param sourceDatasetId - Source dataset ID.
+ * @param client - Postgres client to use.
  * @returns database model of the source dataset.
  */
-export async function getSourceDataset(options: {
-  atlasId: string;
-  client?: pg.PoolClient;
-  sourceDatasetId: string;
-  sourceStudyId?: string;
-}): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
-  const { atlasId, client, sourceDatasetId, sourceStudyId } = options;
-
-  if (sourceStudyId) {
-    await confirmSourceStudyExistsOnAtlas(
-      sourceStudyId,
-      atlasId,
-      undefined,
-      client
-    );
-    const queryResult =
-      await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-        "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1 AND s.id = $2",
-        [sourceDatasetId, sourceStudyId],
-        client
-      );
-    if (queryResult.rows.length === 0)
-      throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
-    return queryResult.rows[0];
-  }
-
-  // LEFT JOIN to allow null source_study_id
+export async function getSourceDataset(
+  atlasId: string,
+  sourceStudyId: string,
+  sourceDatasetId: string,
+  client?: pg.PoolClient
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+  await confirmSourceStudyExistsOnAtlas(
+    sourceStudyId,
+    atlasId,
+    undefined,
+    client
+  );
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
-      [sourceDatasetId],
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1 AND s.id = $2",
+      [sourceDatasetId, sourceStudyId],
       client
     );
   if (queryResult.rows.length === 0)
-    throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} does not exist`
-    );
-  const row = queryResult.rows[0];
-  // Synthesize default unpublished study_info if absent to satisfy downstream mapping
-  const defaultUnpublishedStudyInfo = {
-    capId: null,
-    cellxgeneCollectionId: null,
-    doiStatus: DOI_STATUS.NA,
-    hcaProjectId: null,
-    metadataSpreadsheets: [],
-    publication: null,
-    unpublishedInfo: { contactEmail: null, referenceAuthor: "", title: "" },
-  };
-  return {
-    ...row,
-    doi: row.doi ?? null,
-    study_info: row.study_info ?? defaultUnpublishedStudyInfo,
-  } as HCAAtlasTrackerDBSourceDatasetWithStudyProperties;
+    throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
+  return queryResult.rows[0];
 }
 
 /**
@@ -242,30 +208,50 @@ export async function getComponentAtlasSourceDataset(
 }
 
 /**
- * Create a source dataset.
- * @param atlasId - ID of the atlas that the source dataset is accessed through.
+ * Create a source dataset for the given source study.
+ * @param atlasId - ID of the atlas that the source study is accessed through.
+ * @param sourceStudyId - Source study ID.
  * @param inputData - Values for the new source dataset.
- * @param client - Optional Postgres client to reuse an existing transaction.
  * @returns database model of the new source dataset.
  */
-export async function createSourceDataset(
+export async function createSourceDatasetForAtlasSourceStudy(
   atlasId: string,
+  sourceStudyId: string,
+  inputData: NewSourceDatasetData
+): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
+  return await doTransaction(async (client) => {
+    const sourceDatasetId = await createSourceDataset(sourceStudyId, inputData);
+    return await getSourceDataset(
+      atlasId,
+      sourceStudyId,
+      sourceDatasetId,
+      client
+    );
+  });
+}
+
+/**
+ * Create a source dataset.
+ * @param sourceStudyId - ID of the source study to associate the source dataset with, if any.
+ * @param inputData - Values for the new source dataset.
+ * @param client - Optional Postgres client to reuse an existing transaction.
+ * @returns ID of the created source dataset.
+ */
+export async function createSourceDataset(
+  sourceStudyId: string | null,
   inputData: NewSourceDatasetData,
   client?: pg.PoolClient
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+): Promise<string> {
   const info = sourceDatasetInputDataToDbData(inputData);
   return await doOrContinueTransaction(client, async (tx) => {
     const insertResult = await tx.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "id">
     >(
       "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2) RETURNING id",
-      [JSON.stringify(info), null]
+      [JSON.stringify(info), sourceStudyId]
     );
-    return await getSourceDataset({
-      atlasId,
-      client: tx,
-      sourceDatasetId: insertResult.rows[0].id,
-    });
+    return insertResult.rows[0].id;
   });
 }
 
@@ -299,12 +285,12 @@ export async function updateSourceDataset(
       [sourceDatasetId],
       client
     );
-    return await getSourceDataset({
+    return await getSourceDataset(
       atlasId,
-      client,
-      sourceDatasetId: updateResult.rows[0].id,
       sourceStudyId,
-    });
+      updateResult.rows[0].id,
+      client
+    );
   });
 }
 
