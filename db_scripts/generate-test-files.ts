@@ -277,6 +277,11 @@ async function createSourceDataset(
     ]
   );
 
+  await client.query(
+    "UPDATE hat.atlases SET source_datasets = source_datasets || $1::uuid WHERE id=$2",
+    [sourceDatasetId, atlas.id]
+  );
+
   return sourceDatasetId;
 }
 
