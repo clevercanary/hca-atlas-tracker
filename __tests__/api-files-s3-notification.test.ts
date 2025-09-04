@@ -31,7 +31,10 @@ import {
   countSourceDatasets,
   resetDatabase,
 } from "../testing/db-utils";
-import { withConsoleErrorHiding } from "../testing/utils";
+import {
+  withConsoleErrorHiding,
+  withConsoleMessageHiding,
+} from "../testing/utils";
 
 // Additional imports for direct service testing
 import { updateSourceDataset } from "../app/services/s3-notification";
@@ -261,9 +264,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
-      await snsHandler(req, res);
-    });
+    await snsHandler(req, res);
 
     expect(res.statusCode).toBe(405);
   });
@@ -294,7 +295,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -351,7 +352,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -394,7 +395,7 @@ describe(TEST_ROUTE, () => {
         body: firstMessage,
         method: METHOD.POST,
       });
-      await withConsoleErrorHiding(async () => {
+      await withConsoleMessageHiding(async () => {
         await snsHandler(req, res);
       });
       expect(res.statusCode).toBe(200);
@@ -440,7 +441,7 @@ describe(TEST_ROUTE, () => {
         body: secondMessage,
         method: METHOD.POST,
       });
-      await withConsoleErrorHiding(async () => {
+      await withConsoleMessageHiding(async () => {
         await snsHandler(req, res);
       });
       expect(res.statusCode).toBe(200);
@@ -513,7 +514,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -593,7 +594,7 @@ describe(TEST_ROUTE, () => {
 
     const { default: snsHandler } = await import("../pages/api/sns");
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -627,7 +628,7 @@ describe(TEST_ROUTE, () => {
     });
 
     // First request
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
@@ -641,7 +642,7 @@ describe(TEST_ROUTE, () => {
     });
 
     // Second request with same data
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req2, res2);
     });
     expect(res2.statusCode).toBe(200);
@@ -684,7 +685,7 @@ describe(TEST_ROUTE, () => {
       method: METHOD.POST,
     });
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
@@ -712,7 +713,7 @@ describe(TEST_ROUTE, () => {
       method: METHOD.POST,
     });
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req2, res2);
     });
 
@@ -886,7 +887,7 @@ describe(TEST_ROUTE, () => {
       method: "POST",
     });
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
@@ -915,7 +916,7 @@ describe(TEST_ROUTE, () => {
       method: "POST",
     });
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req2, res2);
     });
 
@@ -963,7 +964,7 @@ describe(TEST_ROUTE, () => {
     });
 
     // Process first version
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
@@ -993,7 +994,7 @@ describe(TEST_ROUTE, () => {
     });
 
     // Process second version
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req2, res2);
     });
     expect(res2.statusCode).toBe(200);
@@ -1042,7 +1043,7 @@ describe(TEST_ROUTE, () => {
       method: METHOD.POST,
     });
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(reqNewer, resNewer);
     });
     expect(resNewer.statusCode).toBe(200);
@@ -1071,7 +1072,7 @@ describe(TEST_ROUTE, () => {
       method: METHOD.POST,
     });
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(reqOlder, resOlder);
     });
     expect(resOlder.statusCode).toBe(200);
@@ -1096,7 +1097,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("rejects notifications from unauthorized SNS topics", async () => {
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       const s3Event = createS3Event({
         etag: "d41d8cd98f00b204e9800998ecf8427e",
         key: "test-file.h5ad",
@@ -1156,7 +1157,7 @@ describe(TEST_ROUTE, () => {
     );
 
     const handler = (await import("../pages/api/sns")).default;
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await handler(req, res);
     });
 
@@ -1190,7 +1191,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -1244,7 +1245,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -1291,7 +1292,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -1366,7 +1367,7 @@ describe(TEST_ROUTE, () => {
         method: METHOD.POST,
       });
 
-      await withConsoleErrorHiding(async () => {
+      await withConsoleMessageHiding(async () => {
         await snsHandler(req, res);
       });
 
@@ -1398,44 +1399,41 @@ describe(TEST_ROUTE, () => {
   // S3 Path Validation Tests
 
   it("rejects S3 notifications with unknown network", async () => {
-    await withConsoleErrorHiding(async () => {
-      const s3Event = createS3Event({
-        etag: "unknown-network-etag",
-        key: "not-a-bionetwork/gut-v1/integrated-objects/test.h5ad", // Invalid folder type
-        size: 1024,
-        versionId: "unknown-network-version",
-      });
+    const s3Event = createS3Event({
+      etag: "unknown-network-etag",
+      key: "not-a-bionetwork/gut-v1/integrated-objects/test.h5ad", // Invalid folder type
+      size: 1024,
+      versionId: "unknown-network-version",
+    });
 
-      const snsMessage = createSNSMessage({
-        messageId: "unknown-network-test",
-        s3Event,
-        signature: TEST_SIGNATURE,
-        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
-        timestamp: TEST_TIMESTAMP,
-      });
+    const snsMessage = createSNSMessage({
+      messageId: "unknown-network-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
 
-      const { req, res } = httpMocks.createMocks<
-        NextApiRequest,
-        NextApiResponse
-      >({
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
         body: snsMessage,
         method: METHOD.POST,
-      });
+      }
+    );
 
-      await withConsoleErrorHiding(async () => {
-        await snsHandler(req, res);
-      });
-
-      expect(res.statusCode).toBe(400);
-      const responseBody = JSON.parse(res._getData());
-      expect(responseBody.message).toContain(
-        "Unknown bionetwork: not-a-bionetwork"
-      );
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
     });
+
+    expect(res.statusCode).toBe(400);
+    const responseBody = JSON.parse(res._getData());
+    expect(responseBody.message).toContain(
+      "Unknown bionetwork: not-a-bionetwork"
+    );
   });
 
   it("rejects S3 notifications with invalid key format (too few path segments)", async () => {
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       const s3Event = createS3Event({
         etag: "invalid-etag-test",
         key: "invalid/path.h5ad", // Only 2 segments, need 4+
@@ -1459,9 +1457,7 @@ describe(TEST_ROUTE, () => {
         method: METHOD.POST,
       });
 
-      await withConsoleErrorHiding(async () => {
-        await snsHandler(req, res);
-      });
+      await snsHandler(req, res);
 
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());
@@ -1473,47 +1469,44 @@ describe(TEST_ROUTE, () => {
   });
 
   it("rejects S3 notifications with unknown folder type", async () => {
-    await withConsoleErrorHiding(async () => {
-      const s3Event = createS3Event({
-        etag: "unknown-folder-etag",
-        key: "gut/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
-        size: 1024,
-        versionId: "unknown-folder-version",
-      });
+    const s3Event = createS3Event({
+      etag: "unknown-folder-etag",
+      key: "gut/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
+      size: 1024,
+      versionId: "unknown-folder-version",
+    });
 
-      const snsMessage = createSNSMessage({
-        messageId: "unknown-folder-test",
-        s3Event,
-        signature: TEST_SIGNATURE,
-        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
-        timestamp: TEST_TIMESTAMP,
-      });
+    const snsMessage = createSNSMessage({
+      messageId: "unknown-folder-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
 
-      const { req, res } = httpMocks.createMocks<
-        NextApiRequest,
-        NextApiResponse
-      >({
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
         body: snsMessage,
         method: METHOD.POST,
-      });
+      }
+    );
 
-      await withConsoleErrorHiding(async () => {
-        await snsHandler(req, res);
-      });
-
-      expect(res.statusCode).toBe(400);
-      const responseBody = JSON.parse(res._getData());
-      expect(responseBody.message).toContain(
-        "Unknown folder type: unknown-folder"
-      );
-      expect(responseBody.message).toContain(
-        "Expected: source-datasets, integrated-objects, or manifests"
-      );
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
     });
+
+    expect(res.statusCode).toBe(400);
+    const responseBody = JSON.parse(res._getData());
+    expect(responseBody.message).toContain(
+      "Unknown folder type: unknown-folder"
+    );
+    expect(responseBody.message).toContain(
+      "Expected: source-datasets, integrated-objects, or manifests"
+    );
   });
 
   it("rejects S3 notifications with invalid atlas version in key (strict normalization)", async () => {
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       const s3Event = createS3Event({
         etag: "invalid-atlas-version-etag",
         key: "gut/gut-v1-10/source-datasets/invalid-version.h5ad", // v1-10 -> DB 1.10 (invalid per strict normalization)
@@ -1633,7 +1626,7 @@ describe(TEST_ROUTE, () => {
       }
     );
 
-    await withConsoleErrorHiding(async () => {
+    await withConsoleMessageHiding(async () => {
       await snsHandler(req, res);
     });
 
@@ -1690,7 +1683,7 @@ describe(TEST_ROUTE, () => {
         });
 
         const handler = (await import("../pages/api/sns")).default;
-        await withConsoleErrorHiding(async () => {
+        await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
 
@@ -1721,7 +1714,7 @@ describe(TEST_ROUTE, () => {
         });
 
         const handler = (await import("../pages/api/sns")).default;
-        await withConsoleErrorHiding(async () => {
+        await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
 
@@ -1754,7 +1747,7 @@ describe(TEST_ROUTE, () => {
         });
 
         const handler = (await import("../pages/api/sns")).default;
-        await withConsoleErrorHiding(async () => {
+        await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
 
@@ -1788,7 +1781,7 @@ describe(TEST_ROUTE, () => {
         });
 
         const handler = (await import("../pages/api/sns")).default;
-        await withConsoleErrorHiding(async () => {
+        await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
 
@@ -1817,7 +1810,7 @@ describe(TEST_ROUTE, () => {
         });
 
         const handler = (await import("../pages/api/sns")).default;
-        await withConsoleErrorHiding(async () => {
+        await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
 
@@ -1849,7 +1842,7 @@ describe(TEST_ROUTE, () => {
         });
 
         const handler = (await import("../pages/api/sns")).default;
-        await withConsoleErrorHiding(async () => {
+        await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
 
