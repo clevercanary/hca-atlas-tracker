@@ -83,7 +83,7 @@ export async function getAtlasDatasets(
   const sourceDatasetIds = atlasResult.rows[0].source_datasets;
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
       [sourceDatasetIds]
     );
   return queryResult.rows;
@@ -112,7 +112,7 @@ export async function getComponentAtlasDatasets(
   const sourceDatasetIds = componentAtlasResult.rows[0].source_datasets;
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
       [sourceDatasetIds]
     );
   return queryResult.rows;
@@ -162,7 +162,7 @@ export async function getAtlasSourceDataset(
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
       [sourceDatasetId]
     );
   if (queryResult.rows.length === 0)
@@ -197,7 +197,7 @@ export async function getComponentAtlasSourceDataset(
     );
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
       [sourceDatasetId]
     );
   if (queryResult.rows.length === 0)
