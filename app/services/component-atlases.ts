@@ -360,7 +360,7 @@ export async function resetComponentAtlasInfo(
   const info = getInitialComponentAtlasInfo();
   await doOrContinueTransaction(client, async (tx) => {
     const result = await tx.query(
-      "UPDATE hat.component_atlases SET component_info = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+      "UPDATE hat.component_atlases SET component_info = $2 WHERE id = $1",
       [componentAtlasId, JSON.stringify(info)]
     );
     if (!result.rowCount)
