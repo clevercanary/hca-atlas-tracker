@@ -95,7 +95,9 @@ export async function getLatestEventInfo(
   key: string,
   transaction: pg.PoolClient
 ): Promise<FileEventInfo | null> {
-  const result = await transaction.query(
+  const result = await transaction.query<
+    Pick<HCAAtlasTrackerDBFile, "event_info">
+  >(
     `SELECT event_info FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
     [bucket, key]
   );

@@ -168,25 +168,13 @@ function getTitleFromS3Key(key: string): string {
   return fileName.replace(/\.[^/.]+$/, "");
 }
 
-// Helper: Parse event_info column which may be JSON or stringified JSON
-function parseEventInfoValue(val: unknown): FileEventInfo | null {
-  if (!val) return null;
-  try {
-    if (typeof val === "string") return JSON.parse(val) as FileEventInfo;
-    return val as FileEventInfo;
-  } catch {
-    return null;
-  }
-}
-
 // Helper: Determine whether incoming record should be latest based on event times
 function computeIsLatestForInsert(
   isNewFile: boolean,
-  latestEventInfoRaw: unknown,
+  currentLatestInfo: FileEventInfo | null,
   incomingEventInfo: FileEventInfo
 ): boolean {
   if (isNewFile) return true;
-  const currentLatestInfo = parseEventInfoValue(latestEventInfoRaw);
   const currentLatestTime = currentLatestInfo?.eventTime ?? "";
   // ISO 8601 timestamps compare lexicographically for ordering
   return incomingEventInfo.eventTime > currentLatestTime;
