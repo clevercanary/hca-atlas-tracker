@@ -1,8 +1,13 @@
 import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
-import type { FileEventInfo } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBFile,
+  type FileEventInfo,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+
+type MetadataObjectIdField = "component_atlas_id" | "source_dataset_id";
 
 /**
  * Marks all previous versions of a file as no longer latest
@@ -37,7 +42,7 @@ export async function getExistingMetadataObjectId(
   fileType: string,
   transaction: pg.PoolClient
 ): Promise<string | null> {
-  let column: string;
+  let column: MetadataObjectIdField;
 
   if (fileType === "integrated_object") {
     column = "component_atlas_id";
@@ -47,10 +52,13 @@ export async function getExistingMetadataObjectId(
     return null; // ingest_manifest files don't have metadata objects
   }
 
-  const result = await transaction.query(
-    `SELECT ${column} FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
+  const result = await transaction.query<
+    Pick<HCAAtlasTrackerDBFile, MetadataObjectIdField>
+  >(
+    `SELECT component_atlas_id, source_dataset_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
     [bucket, key]
   );
+
   return result.rows.length > 0 ? result.rows[0][column] : null;
 }
 
