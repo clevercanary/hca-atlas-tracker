@@ -10,6 +10,8 @@ import {
   FileEventInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
+  HCAAtlasTrackerDBComponentAtlasInfo,
+  HCAAtlasTrackerDBSourceDatasetInfo,
   IntegrationLead,
   INTEGRITY_STATUS,
   NetworkKey,
@@ -125,14 +127,14 @@ async function generateAndAddFilesForAtlas(
   // Create component atlases for integrated objects
   const componentAtlasIds: string[] = [];
   for (let i = 0; i < integratedObjectAmount; i++) {
-    const componentAtlasId = await createComponentAtlas(client, atlas, i);
+    const componentAtlasId = await createComponentAtlas(client, atlas);
     componentAtlasIds.push(componentAtlasId);
   }
 
   // Create source datasets for source dataset files
   const sourceDatasetIds: string[] = [];
   for (let i = 0; i < sourceDatasetAmount; i++) {
-    const sourceDatasetId = await createSourceDataset(client, atlas, i);
+    const sourceDatasetId = await createSourceDataset(client, atlas);
     sourceDatasetIds.push(sourceDatasetId);
   }
 
@@ -234,23 +236,27 @@ async function generateAndAddFile(
 
 async function createComponentAtlas(
   client: pg.PoolClient,
-  atlas: HCAAtlasTrackerDBAtlas,
-  index: number
+  atlas: HCAAtlasTrackerDBAtlas
 ): Promise<string> {
   const componentAtlasId = crypto.randomUUID();
-  const title = `Component Atlas ${index + 1} for ${atlas.overview.shortName}`;
+  const title = `Test ${componentAtlasId}`;
+  const info: HCAAtlasTrackerDBComponentAtlasInfo = {
+    assay: [],
+    cellCount: 0,
+    cellxgeneDatasetId: null,
+    cellxgeneDatasetVersion: null,
+    description: "",
+    disease: [],
+    suspensionType: [],
+    tissue: [],
+  };
 
   await client.query(
     `
       INSERT INTO hat.component_atlases (id, title, component_info, atlas_id)
       VALUES ($1, $2, $3, $4)
     `,
-    [
-      componentAtlasId,
-      title,
-      JSON.stringify({ description: `Generated component atlas ${index + 1}` }),
-      atlas.id,
-    ]
+    [componentAtlasId, title, JSON.stringify(info), atlas.id]
   );
 
   return componentAtlasId;
@@ -258,10 +264,23 @@ async function createComponentAtlas(
 
 async function createSourceDataset(
   client: pg.PoolClient,
-  atlas: HCAAtlasTrackerDBAtlas,
-  index: number
+  atlas: HCAAtlasTrackerDBAtlas
 ): Promise<string> {
   const sourceDatasetId = crypto.randomUUID();
+
+  const sd_info: HCAAtlasTrackerDBSourceDatasetInfo = {
+    assay: [],
+    cellCount: 0,
+    cellxgeneDatasetId: null,
+    cellxgeneDatasetVersion: null,
+    cellxgeneExplorerUrl: null,
+    disease: [],
+    metadataSpreadsheetTitle: null,
+    metadataSpreadsheetUrl: null,
+    suspensionType: [],
+    tissue: [],
+    title: `Test ${sourceDatasetId}`,
+  };
 
   await client.query(
     `
@@ -270,9 +289,7 @@ async function createSourceDataset(
     `,
     [
       sourceDatasetId,
-      JSON.stringify({
-        title: `Source Dataset ${index + 1} for ${atlas.overview.shortName}`,
-      }),
+      JSON.stringify(sd_info),
       null, // source_study_id is nullable now
     ]
   );
