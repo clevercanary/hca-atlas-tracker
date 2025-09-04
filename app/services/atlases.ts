@@ -51,31 +51,6 @@ export async function getAllAtlases(
   return queryResult.rows;
 }
 
-export async function getAtlasByNetworkVersionAndShortName(
-  network: string,
-  version: string,
-  shortName: string
-): Promise<string> {
-  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    `
-      SELECT id
-      FROM hat.atlases
-      WHERE overview->>'network' = $1
-        AND overview->>'version' = $2
-        AND LOWER(overview->>'shortName') = LOWER($3)
-    `,
-    [network, version, shortName]
-  );
-
-  if (queryResult.rows.length === 0) {
-    throw new NotFoundError(
-      `Atlas not found for network: ${network}, version: ${version}, shortName: ${shortName}`
-    );
-  }
-
-  return queryResult.rows[0].id;
-}
-
 export async function getAtlas(
   id: string
 ): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
