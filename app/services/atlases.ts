@@ -211,40 +211,40 @@ async function getPublicationsFromInputDois(
 export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
   await query(
     `
-    UPDATE hat.atlases a
-    SET
-      overview = a.overview || jsonb_build_object(
-        'taskCount', counts.task_count,
-        'completedTaskCount', counts.completed_task_count,
-        'ingestionTaskCounts', counts.ingestion_task_counts
-      )
-    FROM (
-      SELECT
-        a.id AS atlas_id,
-        COUNT(v.*) AS task_count,
-        COUNT(v.*) FILTER (WHERE v.validation_info->>'validationStatus' = 'PASSED') AS completed_task_count,
-        jsonb_build_object(
-          'CAP', jsonb_build_object(
-            'count', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CAP'),
-            'completedCount', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CAP' AND v.validation_info->>'validationStatus' = 'PASSED')
-          ),
-          'CELLXGENE', jsonb_build_object(
-            'count', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CELLXGENE'),
-            'completedCount', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CELLXGENE' AND v.validation_info->>'validationStatus' = 'PASSED')
-          ),
-          'HCA_DATA_REPOSITORY', jsonb_build_object(
-            'count', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_HCA_DATA_REPOSITORY'),
-            'completedCount', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_HCA_DATA_REPOSITORY' AND v.validation_info->>'validationStatus' = 'PASSED')
-          )
-        ) AS ingestion_task_counts
-      FROM
-        hat.atlases a
-      LEFT JOIN
-        hat.validations v ON a.id = ANY(v.atlas_ids)
-      GROUP BY
-        a.id
-    ) AS counts
-    WHERE a.id = counts.atlas_id;
+      UPDATE hat.atlases a
+      SET
+        overview = a.overview || jsonb_build_object(
+          'taskCount', counts.task_count,
+          'completedTaskCount', counts.completed_task_count,
+          'ingestionTaskCounts', counts.ingestion_task_counts
+        )
+      FROM (
+        SELECT
+          a.id AS atlas_id,
+          COUNT(v.*) AS task_count,
+          COUNT(v.*) FILTER (WHERE v.validation_info->>'validationStatus' = 'PASSED') AS completed_task_count,
+          jsonb_build_object(
+            'CAP', jsonb_build_object(
+              'count', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CAP'),
+              'completedCount', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CAP' AND v.validation_info->>'validationStatus' = 'PASSED')
+            ),
+            'CELLXGENE', jsonb_build_object(
+              'count', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CELLXGENE'),
+              'completedCount', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_CELLXGENE' AND v.validation_info->>'validationStatus' = 'PASSED')
+            ),
+            'HCA_DATA_REPOSITORY', jsonb_build_object(
+              'count', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_HCA_DATA_REPOSITORY'),
+              'completedCount', COUNT(v.*) FILTER (WHERE v.validation_id = 'SOURCE_STUDY_IN_HCA_DATA_REPOSITORY' AND v.validation_info->>'validationStatus' = 'PASSED')
+            )
+          ) AS ingestion_task_counts
+        FROM
+          hat.atlases a
+        LEFT JOIN
+          hat.validations v ON a.id = ANY(v.atlas_ids)
+        GROUP BY
+          a.id
+      ) AS counts
+      WHERE a.id = counts.atlas_id;
     `,
     undefined,
     client
