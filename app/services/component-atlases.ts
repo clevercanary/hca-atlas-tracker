@@ -359,10 +359,14 @@ export async function resetComponentAtlasInfo(
 ): Promise<void> {
   const info = getInitialComponentAtlasInfo();
   await doOrContinueTransaction(client, async (tx) => {
-    await tx.query(
+    const result = await tx.query(
       "UPDATE hat.component_atlases SET component_info = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
       [componentAtlasId, JSON.stringify(info)]
     );
+    if (!result.rowCount)
+      throw new NotFoundError(
+        `Component atlas with ID ${componentAtlasId} doesn't exist`
+      );
   });
 }
 
