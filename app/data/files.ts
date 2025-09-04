@@ -79,6 +79,7 @@ export async function getExistingETag(
   versionId: string | null,
   transaction: pg.PoolClient
 ): Promise<string | null> {
+  if (versionId === null) return null; // The query will not have any results if versionId is null, so return null early
   const result = await transaction.query<Pick<HCAAtlasTrackerDBFile, "etag">>(
     `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
     [bucket, key, versionId]
@@ -255,27 +256,24 @@ export async function upsertFileRecord(
   transaction: pg.PoolClient
 ): Promise<{ etag: string; operation: string }> {
   // First check if a file with same bucket/key/version already exists
-  const existingResult = await transaction.query<
-    Pick<HCAAtlasTrackerDBFile, "etag">
-  >(
-    `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
-    [fileData.bucket, fileData.key, fileData.versionId]
+  const existingETag = await getExistingETag(
+    fileData.bucket,
+    fileData.key,
+    fileData.versionId,
+    transaction
   );
 
-  if (existingResult.rows.length > 0) {
-    const existingETag = existingResult.rows[0].etag;
-    if (existingETag !== fileData.etag) {
-      // ETag mismatch detected - throw to map to HTTP 409 at API layer
-      throw new ETagMismatchError(
-        fileData.bucket,
-        fileData.key,
-        fileData.versionId,
-        existingETag,
-        fileData.etag
-      );
-    }
-    // Same ETag - this is likely a duplicate notification, handle via ON CONFLICT
+  if (existingETag !== null && existingETag !== fileData.etag) {
+    // ETag mismatch detected - throw to map to HTTP 409 at API layer
+    throw new ETagMismatchError(
+      fileData.bucket,
+      fileData.key,
+      fileData.versionId,
+      existingETag,
+      fileData.etag
+    );
   }
+  // For same ETag, this is likely a duplicate notification; handle via ON CONFLICT
 
   const isLatest = fileData.isLatest ?? true;
   const result = await transaction.query<{ etag: string; operation: string }>(
