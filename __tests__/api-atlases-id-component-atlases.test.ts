@@ -1,10 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerDBComponentAtlasInfo,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import {
   createComponentAtlas,
-  updateComponentAtlas,
+  resetComponentAtlasInfo,
 } from "../app/services/component-atlases";
 import { endPgPool } from "../app/services/database";
 import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
@@ -19,7 +22,11 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  createTestComponentAtlas,
+  getExistingComponentAtlasFromDatabase,
+  resetDatabase,
+} from "../testing/db-utils";
 import { TestComponentAtlas, TestFile, TestUser } from "../testing/entities";
 import {
   expectApiComponentAtlasToMatchTest,
@@ -133,104 +140,84 @@ describe(TEST_ROUTE, () => {
   });
 });
 
+const EMPTY_COMPONENT_INFO = {
+  assay: [],
+  cellCount: 0,
+  cellxgeneDatasetId: null,
+  cellxgeneDatasetVersion: null,
+  description: "",
+  disease: [],
+  suspensionType: [],
+  tissue: [],
+};
+
 describe("createComponentAtlas", () => {
   const TEST_COMPONENT_ATLAS_TITLE = "Test Component Atlas";
-  const TEST_COMPONENT_INFO = {
-    assay: ["RNA sequencing"],
-    cellCount: 1000,
-    disease: ["normal"],
-    suspensionType: ["cell"],
-    tissue: ["brain"],
-  };
-
-  it("creates a new component atlas successfully", async () => {
-    const testComponentInfo = TEST_COMPONENT_INFO;
-
-    const result = await createComponentAtlas(
-      ATLAS_DRAFT.id,
-      TEST_COMPONENT_ATLAS_TITLE,
-      testComponentInfo
-    );
-
-    expect(result).toBeDefined();
-    expect(result.atlas_id).toBe(ATLAS_DRAFT.id);
-    expect(result.title).toBe(TEST_COMPONENT_ATLAS_TITLE);
-    expect(result.component_info).toEqual(testComponentInfo);
-    expect(result.id).toBeDefined();
-    expect(result.created_at).toBeDefined();
-    expect(result.updated_at).toBeDefined();
-  });
 
   it("throws error when creating component atlas for non-existent atlas", async () => {
-    const testComponentInfo = {
-      assay: ["RNA sequencing"],
-      cellCount: 500,
-      disease: ["normal"],
-      suspensionType: ["cell"],
-      tissue: ["liver"],
-    };
-
     await expect(
-      createComponentAtlas(
-        "non-existent-atlas-id",
-        TEST_COMPONENT_ATLAS_TITLE,
-        testComponentInfo
-      )
+      createComponentAtlas("non-existent-atlas-id", TEST_COMPONENT_ATLAS_TITLE)
     ).rejects.toThrow();
   });
 
-  it("creates component atlas with empty component info", async () => {
-    const emptyComponentInfo = {};
-
+  it("creates component atlas with empty values in component info", async () => {
     const result = await createComponentAtlas(
       ATLAS_DRAFT.id,
-      "Empty Component Atlas",
-      emptyComponentInfo
+      "Empty Component Atlas"
     );
 
     expect(result).toBeDefined();
     expect(result.atlas_id).toBe(ATLAS_DRAFT.id);
     expect(result.title).toBe("Empty Component Atlas");
-    expect(result.component_info).toEqual(emptyComponentInfo);
+    expect(result.component_info).toEqual(EMPTY_COMPONENT_INFO);
+    expect(result.id).toBeDefined();
+    expect(result.created_at).toBeDefined();
+    expect(result.updated_at).toBeDefined();
   });
+});
+
+describe("resetComponentAtlasInfo", () => {
+  const TEST_COMPONENT_INFO: HCAAtlasTrackerDBComponentAtlasInfo = {
+    assay: ["RNA sequencing"],
+    cellCount: 1000,
+    cellxgeneDatasetId: null,
+    cellxgeneDatasetVersion: null,
+    description: "",
+    disease: ["normal"],
+    suspensionType: ["cell"],
+    tissue: ["brain"],
+  };
 
   it("updates component atlas metadata successfully", async () => {
     // First create a component atlas
     const initialComponentInfo = TEST_COMPONENT_INFO;
 
-    const createdAtlas = await createComponentAtlas(
+    const createdAtlas = await createTestComponentAtlas(
       ATLAS_DRAFT.id,
       "Test Update Atlas",
       initialComponentInfo
     );
 
-    // Then update it with new metadata (empty object for S3 notification workflow)
-    const updatedComponentInfo = {};
+    // Then update it to reset metadata (empty values for S3 notification workflow)
 
     // Add a small delay to ensure timestamp difference
     await new Promise((resolve) => setTimeout(resolve, 10));
-    const updatedAtlas = await updateComponentAtlas(
-      createdAtlas.id,
-      updatedComponentInfo
+    await resetComponentAtlasInfo(createdAtlas.id);
+    const updatedAtlas = await getExistingComponentAtlasFromDatabase(
+      createdAtlas.id
     );
 
     expect(updatedAtlas).toBeDefined();
     expect(updatedAtlas.id).toBe(createdAtlas.id);
-    expect(updatedAtlas.component_info).toEqual(updatedComponentInfo);
+    expect(updatedAtlas.component_info).toEqual(EMPTY_COMPONENT_INFO);
     expect(new Date(updatedAtlas.updated_at).getTime()).toBeGreaterThan(
       new Date(createdAtlas.updated_at).getTime()
     );
   });
 
   it("throws error when updating non-existent component atlas", async () => {
-    const updatedComponentInfo = {
-      bucket: "test-bucket",
-      fileName: "test-file.h5ad",
-    };
-
-    await expect(
-      updateComponentAtlas("non-existent-id", updatedComponentInfo)
-    ).rejects.toThrow();
+    const nonexistentId = "f24386f9-bc72-48ce-8f91-2992b17df164";
+    await expect(resetComponentAtlasInfo(nonexistentId)).rejects.toThrow();
   });
 });
 

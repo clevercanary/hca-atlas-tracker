@@ -452,7 +452,19 @@ describe(TEST_ROUTE, () => {
       [sourceDatasetId]
     );
     expect(sdAfter.rows).toHaveLength(1);
-    expect(sdAfter.rows[0].sd_info).toEqual({});
+    expect(sdAfter.rows[0].sd_info).toEqual({
+      assay: [],
+      cellCount: 0,
+      cellxgeneDatasetId: null,
+      cellxgeneDatasetVersion: null,
+      cellxgeneExplorerUrl: null,
+      disease: [],
+      metadataSpreadsheetTitle: null,
+      metadataSpreadsheetUrl: null,
+      suspensionType: [],
+      tissue: [],
+      title: "versioned-file",
+    });
 
     // Verify file versioning flags: latest remains true on newest, previous false
     const versions = await query(

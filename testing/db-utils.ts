@@ -420,6 +420,23 @@ async function runMigrations(
   });
 }
 
+export async function createTestComponentAtlas(
+  atlasId: string,
+  title: string,
+  info: HCAAtlasTrackerDBComponentAtlasInfo
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  return (
+    await query<HCAAtlasTrackerDBComponentAtlas>(
+      `
+      INSERT INTO hat.component_atlases (atlas_id, title, component_info)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `,
+      [atlasId, title, JSON.stringify(info)]
+    )
+  ).rows[0];
+}
+
 export async function getDbUsersByEmail(
   client?: pg.PoolClient
 ): Promise<Record<string, HCAAtlasTrackerDBUser>> {
