@@ -308,15 +308,17 @@ export async function updateSourceDataset(
   });
 }
 
-export async function clearSourceDatasetInfo(
+export async function resetSourceDatasetInfo(
   sourceDatasetId: string,
+  inputData: NewSourceDatasetData,
   client?: pg.PoolClient
 ): Promise<void> {
+  const info = sourceDatasetInputDataToDbData(inputData);
   await doOrContinueTransaction(client, async (tx) => {
     await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "edit", tx);
     await tx.query(
-      "UPDATE hat.source_datasets SET sd_info = '{}'::jsonb WHERE id = $1",
-      [sourceDatasetId]
+      "UPDATE hat.source_datasets SET sd_info = $2 WHERE id = $1",
+      [sourceDatasetId, JSON.stringify(info)]
     );
     await updateFieldsForComponentAtlasesHavingSourceDatasets(
       [sourceDatasetId],

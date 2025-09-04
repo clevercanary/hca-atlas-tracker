@@ -30,8 +30,8 @@ import {
 } from "./component-atlases";
 import { doTransaction } from "./database";
 import {
-  clearSourceDatasetInfo,
   createSourceDataset as createSourceDatasetService,
+  resetSourceDatasetInfo,
 } from "./source-datasets";
 
 /**
@@ -273,20 +273,23 @@ async function updateIntegratedObject(
 
 export async function updateSourceDataset(
   _: string | null,
-  __: { eTag: string; key: string },
+  object: { eTag: string; key: string },
   metadataObjectId: string | null,
   transaction: PoolClient
 ): Promise<string | null> {
   // On update, a corresponding source dataset metadata object must exist.
   if (!metadataObjectId) {
     throw new InvalidOperationError(
-      `Missing source dataset metadata object for update of file ${__.key}`
+      `Missing source dataset metadata object for update of file ${object.key}`
     );
   }
 
-  // Clear sd_info on the linked source dataset when a source_dataset file is updated.
-  // This signals that dataset metadata should be refreshed by downstream processes.
-  await clearSourceDatasetInfo(metadataObjectId, transaction);
+  // Derive title from S3 key filename (without extension)
+  const title = getTitleFromS3Key(object.key);
+
+  // Reset sd_info on the linked source dataset when a source_dataset file is updated.
+  await resetSourceDatasetInfo(metadataObjectId, { title }, transaction);
+
   return metadataObjectId;
 }
 
