@@ -64,16 +64,11 @@ let consoleLogSpy: jest.SpyInstance;
 beforeAll(async () => {
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
 
-  const [projectsPromise, resolveProjects] = promiseWithResolvers<void>();
-  getAllProjectsBlock = projectsPromise;
-  const [cellxgenePromise, resolveCellxGene] = promiseWithResolvers<void>();
-  getCollectionsBlock = cellxgenePromise;
-
   hcaService = await import("../app/services/hca-projects");
   cellxgeneService = await import("../app/services/cellxgene");
 
-  resolveProjects();
-  resolveCellxGene();
+  hcaService.forceProjectsRefresh();
+  cellxgeneService.forceCellxGeneRefresh();
 });
 
 afterAll(() => {
@@ -82,15 +77,15 @@ afterAll(() => {
   globalThis.hcaAtlasTrackerCellxGeneInfoCache = undefined;
 });
 
-test("source studies are not revalidated when no refresh happens", async () => {
+test("source studies are not revalidated when not enough time has passed for a refresh to happen", async () => {
   await delay();
-  // With auto-start disabled in tests, no refresh should have occurred yet.
-  expect(refreshValidations).toHaveBeenCalledTimes(0);
-  // Do not call data getters here, as cache is intentionally uninitialized.
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
+  hcaService.getProjectIdByDoi([""]);
+  cellxgeneService.getCellxGeneIdByDoi([""]);
   await delay();
   expect(hcaService.areProjectsRefreshing()).toBe(false);
   expect(cellxgeneService.isCellxGeneRefreshing()).toBe(false);
-  expect(refreshValidations).toHaveBeenCalledTimes(0);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
 });
 
 test("source studies are revalidated when last refresh completes", async () => {
@@ -102,16 +97,15 @@ test("source studies are revalidated when last refresh completes", async () => {
   getLatestCatalog.mockResolvedValue(HCA_CATALOG_TEST2);
   jest.setSystemTime(jest.now() + 14400001);
 
-  // Explicitly trigger refreshes instead of relying on getters to auto-start
-  hcaService.forceProjectsRefresh();
-  cellxgeneService.forceCellxGeneRefresh();
+  hcaService.getProjectIdByDoi([""]);
+  cellxgeneService.getCellxGeneIdByDoi([""]);
 
   await delay();
-  expect(refreshValidations).toHaveBeenCalledTimes(0);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
   resolveProjects();
   await delay();
-  expect(refreshValidations).toHaveBeenCalledTimes(0);
+  expect(refreshValidations).toHaveBeenCalledTimes(1);
   resolveCellxGene();
   await delay();
-  expect(refreshValidations).toHaveBeenCalledTimes(1);
+  expect(refreshValidations).toHaveBeenCalledTimes(2);
 });
