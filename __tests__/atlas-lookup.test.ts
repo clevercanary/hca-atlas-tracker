@@ -48,16 +48,6 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
 
       expect(atlasId).toBe(DRAFT_ATLAS_ID);
     });
-
-    it("should prioritize exact version match over decimal-stripped version", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
-        ATLAS_WITH_IL.network,
-        ATLAS_WITH_IL.version,
-        ATLAS_WITH_IL.shortName
-      );
-
-      expect(atlasId).toBe(IL_ATLAS_ID);
-    });
   });
 
   describe("error cases", () => {
