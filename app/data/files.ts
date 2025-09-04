@@ -1,6 +1,7 @@
 import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBFile,
   type FileEventInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -76,7 +77,7 @@ export async function getExistingETag(
   versionId: string | null,
   transaction: pg.PoolClient
 ): Promise<string | null> {
-  const result = await transaction.query(
+  const result = await transaction.query<Pick<HCAAtlasTrackerDBFile, "etag">>(
     `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
     [bucket, key, versionId]
   );
@@ -155,8 +156,8 @@ export async function getAtlasByNetworkVersionAndShortName(
 ): Promise<string> {
   const versionVariants = getVersionVariants(version);
 
-  const result = await query(
-    `SELECT id, overview->>'shortName' as short_name, overview->>'version' as version
+  const result = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+    `SELECT id
        FROM hat.atlases 
        WHERE overview->>'network' = $1 
        AND overview->>'version' = ANY($2)
@@ -189,7 +190,7 @@ export async function confirmFileExistsOnAtlas(
   atlasId: string
 ): Promise<void> {
   const result = await query(
-    `SELECT f.id FROM hat.files f
+    `SELECT 1 FROM hat.files f
        WHERE f.id = $1
        AND (
          -- Integrated object files via component atlas
@@ -252,7 +253,9 @@ export async function upsertFileRecord(
   transaction: pg.PoolClient
 ): Promise<{ etag: string; operation: string }> {
   // First check if a file with same bucket/key/version already exists
-  const existingResult = await transaction.query(
+  const existingResult = await transaction.query<
+    Pick<HCAAtlasTrackerDBFile, "etag">
+  >(
     `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
     [fileData.bucket, fileData.key, fileData.versionId]
   );
@@ -273,7 +276,7 @@ export async function upsertFileRecord(
   }
 
   const isLatest = fileData.isLatest ?? true;
-  const result = await transaction.query(
+  const result = await transaction.query<{ etag: string; operation: string }>(
     `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        

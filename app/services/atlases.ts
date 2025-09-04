@@ -56,7 +56,7 @@ export async function getAtlasByNetworkVersionAndShortName(
   version: string,
   shortName: string
 ): Promise<string> {
-  const queryResult = await query<{ id: string }>(
+  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     `
       SELECT id
       FROM hat.atlases
