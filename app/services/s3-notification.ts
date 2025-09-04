@@ -25,8 +25,8 @@ import {
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
 import {
-  clearComponentAtlasInfo,
   createComponentAtlas,
+  resetComponentAtlasInfo,
 } from "./component-atlases";
 import { doTransaction } from "./database";
 import {
@@ -214,7 +214,6 @@ async function createIntegratedObject(
   const componentAtlas = await createComponentAtlas(
     atlasId!,
     title,
-    {}, // Empty component_info - will be populated with actual integrated object metadata later
     transaction
   );
 
@@ -265,8 +264,8 @@ async function updateIntegratedObject(
   transaction: PoolClient
 ): Promise<string | null> {
   if (metadataObjectId) {
-    // Clear component_info on edit. This will be repopulated with actual integrated object metadata when it is validated.
-    await clearComponentAtlasInfo(metadataObjectId, transaction);
+    // Reset component_info to empty values on edit. This will be repopulated with actual integrated object metadata when it is validated.
+    await resetComponentAtlasInfo(metadataObjectId, transaction);
   }
   return metadataObjectId;
 }

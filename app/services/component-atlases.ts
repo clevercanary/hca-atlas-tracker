@@ -2,6 +2,7 @@ import pg from "pg";
 import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasFile,
+  HCAAtlasTrackerDBComponentAtlasInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { confirmFileExistsOnAtlas } from "../data/files";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
@@ -324,23 +325,23 @@ export async function getPresentComponentAtlasIdForFile(
  * Create a new component atlas.
  * @param atlasId - ID of the parent atlas.
  * @param title - Title of the component atlas.
- * @param componentInfo - JSON metadata for the component atlas.
  * @param client - Optional database client for transactions.
  * @returns the created component atlas.
  */
 export async function createComponentAtlas(
   atlasId: string,
   title: string,
-  componentInfo: object,
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const info = getInitialComponentAtlasInfo();
+
   const result = await query<HCAAtlasTrackerDBComponentAtlas>(
     `
       INSERT INTO hat.component_atlases (atlas_id, title, component_info)
       VALUES ($1, $2, $3)
       RETURNING *
     `,
-    [atlasId, title, componentInfo],
+    [atlasId, title, JSON.stringify(info)],
     client
   );
 
@@ -348,20 +349,34 @@ export async function createComponentAtlas(
 }
 
 /**
- * Clear component atlas metadata (component_info) without triggering aggregate recomputation.
- * @param componentAtlasId - ID of the component atlas to clear info for.
+ * Reset component atlas metadata (component_info).
+ * @param componentAtlasId - ID of the component atlas to reset info for.
  * @param client - Optional database client to reuse an existing transaction.
  */
-export async function clearComponentAtlasInfo(
+export async function resetComponentAtlasInfo(
   componentAtlasId: string,
   client?: pg.PoolClient
 ): Promise<void> {
+  const info = getInitialComponentAtlasInfo();
   await doOrContinueTransaction(client, async (tx) => {
     await tx.query(
-      "UPDATE hat.component_atlases SET component_info = '{}'::jsonb, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
-      [componentAtlasId]
+      "UPDATE hat.component_atlases SET component_info = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+      [componentAtlasId, JSON.stringify(info)]
     );
   });
+}
+
+function getInitialComponentAtlasInfo(): HCAAtlasTrackerDBComponentAtlasInfo {
+  return {
+    assay: [],
+    cellCount: 0,
+    cellxgeneDatasetId: null,
+    cellxgeneDatasetVersion: null,
+    description: "",
+    disease: [],
+    suspensionType: [],
+    tissue: [],
+  };
 }
 
 /**
