@@ -30,13 +30,21 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
     });
 
     it("should match 2.0 and 2 interchangeably", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
+      const atlasIdDecimal = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2.0",
         ATLAS_WITH_IL.shortName
       );
 
-      expect(atlasId).toBe(IL_ATLAS_ID);
+      expect(atlasIdDecimal).toBe(IL_ATLAS_ID);
+
+      const atlasIdNoDecimal = await getAtlasByNetworkVersionAndShortName(
+        ATLAS_WITH_IL.network,
+        "2",
+        ATLAS_WITH_IL.shortName
+      );
+
+      expect(atlasIdNoDecimal).toBe(IL_ATLAS_ID);
     });
 
     it("should find atlas with case-insensitive short name match", async () => {
