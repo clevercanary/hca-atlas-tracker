@@ -145,6 +145,10 @@ export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties
 ): HCAAtlasTrackerSourceDataset {
   const studyInfo = dbSourceDataset.study_info;
+  const publicationString =
+    dbSourceDataset.study_info === null
+      ? ""
+      : getDbEntityCitation(dbSourceDataset);
   return {
     assay: dbSourceDataset.sd_info.assay,
     cellCount: dbSourceDataset.sd_info.cellCount,
@@ -157,10 +161,12 @@ export function dbSourceDatasetToApiSourceDataset(
     id: dbSourceDataset.id,
     metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
-    publicationString: getDbEntityCitation(dbSourceDataset),
+    publicationString,
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:
-      studyInfo.publication?.title ?? studyInfo.unpublishedInfo?.title ?? null,
+      studyInfo?.publication?.title ??
+      studyInfo?.unpublishedInfo?.title ??
+      null,
     suspensionType: dbSourceDataset.sd_info.suspensionType,
     tierOneMetadataStatus:
       getDbSourceDatasetTierOneMetadataStatus(dbSourceDataset),

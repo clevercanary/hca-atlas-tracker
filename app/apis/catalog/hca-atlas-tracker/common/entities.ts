@@ -355,10 +355,11 @@ export type HCAAtlasTrackerDBSourceStudyWithAtlasProperties =
     networks: NetworkKey[];
   };
 
-export type WithSourceStudyInfo<T = unknown> = T &
+export type WithSourceStudyInfo<T = unknown, TAltValue = never> = T &
   (
     | Pick<HCAAtlasTrackerDBPublishedSourceStudy, "doi" | "study_info">
     | Pick<HCAAtlasTrackerDBUnpublishedSourceStudy, "doi" | "study_info">
+    | { doi: TAltValue; study_info: TAltValue }
   );
 
 export interface HCAAtlasTrackerDBSourceDataset {
@@ -391,7 +392,7 @@ export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
   };
 
 export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
-  WithSourceStudyInfo<HCAAtlasTrackerDBSourceDataset>;
+  WithSourceStudyInfo<HCAAtlasTrackerDBSourceDataset, null>;
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;
