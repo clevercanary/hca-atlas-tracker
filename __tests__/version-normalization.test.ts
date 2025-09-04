@@ -1,5 +1,5 @@
-import { normalizeAtlasVersion } from "../app/data/files";
 import { InvalidOperationError } from "../app/utils/api-handler";
+import { normalizeAtlasVersion } from "../app/utils/atlases";
 
 /**
  * Parameterized tests for version normalization and validation.

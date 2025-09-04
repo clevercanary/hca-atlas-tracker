@@ -23,10 +23,10 @@ import {
   getExistingMetadataObjectId,
   getLatestEventInfo,
   markPreviousVersionsAsNotLatest,
-  normalizeAtlasVersion,
   upsertFileRecord,
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
+import { normalizeAtlasVersion } from "../utils/atlases";
 import {
   createComponentAtlas,
   resetComponentAtlasInfo,
