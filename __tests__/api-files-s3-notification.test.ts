@@ -480,7 +480,12 @@ describe(TEST_ROUTE, () => {
     await expect(
       updateSourceDataset(
         TEST_GUT_ATLAS_ID,
-        { eTag: "abc", key: TEST_FILE_PATHS.SOURCE_DATASET_TEST },
+        {
+          eTag: "abc",
+          key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+          size: 123,
+          versionId: "xyz",
+        },
         null,
         {} as unknown as import("pg").PoolClient
       )
@@ -1391,6 +1396,44 @@ describe(TEST_ROUTE, () => {
   );
 
   // S3 Path Validation Tests
+
+  it("rejects S3 notifications with unknown network", async () => {
+    await withConsoleErrorHiding(async () => {
+      const s3Event = createS3Event({
+        etag: "unknown-network-etag",
+        key: "not-a-bionetwork/gut-v1/integrated-objects/test.h5ad", // Invalid folder type
+        size: 1024,
+        versionId: "unknown-network-version",
+      });
+
+      const snsMessage = createSNSMessage({
+        messageId: "unknown-network-test",
+        s3Event,
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
+      });
+
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: snsMessage,
+        method: METHOD.POST,
+      });
+
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
+
+      expect(res.statusCode).toBe(400);
+      const responseBody = JSON.parse(res._getData());
+      expect(responseBody.message).toContain(
+        "Unknown bionetwork: not-a-bionetwork"
+      );
+    });
+  });
+
   it("rejects S3 notifications with invalid key format (too few path segments)", async () => {
     await withConsoleErrorHiding(async () => {
       const s3Event = createS3Event({
@@ -1433,7 +1476,7 @@ describe(TEST_ROUTE, () => {
     await withConsoleErrorHiding(async () => {
       const s3Event = createS3Event({
         etag: "unknown-folder-etag",
-        key: "bio_network/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
+        key: "gut/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
         size: 1024,
         versionId: "unknown-folder-version",
       });
@@ -1468,6 +1511,7 @@ describe(TEST_ROUTE, () => {
       );
     });
   });
+
   it("rejects S3 notifications with invalid atlas version in key (strict normalization)", async () => {
     await withConsoleErrorHiding(async () => {
       const s3Event = createS3Event({

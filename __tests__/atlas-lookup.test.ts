@@ -1,3 +1,4 @@
+import { NetworkKey } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasByNetworkVersionAndShortName } from "../app/data/files";
 import { ATLAS_DRAFT, ATLAS_WITH_IL } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -63,7 +64,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
     it("should throw error when atlas not found by network", async () => {
       await expect(
         getAtlasByNetworkVersionAndShortName(
-          "nonexistent-network",
+          "nonexistent-network" as NetworkKey,
           DRAFT_VERSION,
           DRAFT_SHORT_NAME
         )

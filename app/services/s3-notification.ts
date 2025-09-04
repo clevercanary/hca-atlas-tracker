@@ -2,6 +2,7 @@ import { PoolClient } from "pg";
 import {
   S3Event,
   S3EventRecord,
+  S3Object,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/entities";
 import { s3EventSchema } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
@@ -10,7 +11,9 @@ import {
   FILE_TYPE,
   FileEventInfo,
   INTEGRITY_STATUS,
+  NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { isNetworkKey } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
@@ -60,7 +63,7 @@ interface S3KeyPathComponents {
   atlasName: string; // e.g., 'gut-v1'
   filename: string; // e.g., 'file.h5ad'
   folderType: string; // e.g., 'source-datasets', 'integrated-objects', 'manifests'
-  network: string; // e.g., 'bio_network'
+  network: NetworkKey; // e.g., 'bio_network'
 }
 
 /**
@@ -81,11 +84,17 @@ export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
     );
   }
 
+  const network = pathParts[0];
+
+  if (!isNetworkKey(network)) {
+    throw new InvalidOperationError(`Unknown bionetwork: ${network}`);
+  }
+
   return {
     atlasName: pathParts[1],
     filename: pathParts[pathParts.length - 1], // Last segment
     folderType: pathParts[pathParts.length - 2], // Second to last segment
-    network: pathParts[0],
+    network,
   };
 }
 
@@ -183,14 +192,14 @@ function computeIsLatestForInsert(
 // File operation handler functions
 type FileOperationHandler = (
   atlasId: string,
-  s3Object: { eTag: string; key: string },
+  s3Object: S3Object,
   metadataObjectId: string | null,
   transaction: PoolClient
 ) => Promise<string | null>;
 
 async function createIntegratedObject(
   atlasId: string,
-  s3Object: { eTag: string; key: string },
+  s3Object: S3Object,
   _: string | null,
   transaction: PoolClient
 ): Promise<string> {
@@ -207,7 +216,7 @@ async function createIntegratedObject(
 
 async function createSourceDatasetFromS3(
   atlasId: string,
-  object: { eTag: string; key: string },
+  object: S3Object,
   metadataObjectId: string | null,
   transaction: PoolClient
 ): Promise<string> {
@@ -240,7 +249,7 @@ async function createSourceDatasetFromS3(
 
 async function updateIntegratedObject(
   _: string,
-  __: { eTag: string; key: string },
+  __: S3Object,
   metadataObjectId: string | null,
   transaction: PoolClient
 ): Promise<string | null> {
@@ -253,7 +262,7 @@ async function updateIntegratedObject(
 
 export async function updateSourceDataset(
   _: string,
-  object: { eTag: string; key: string },
+  object: S3Object,
   metadataObjectId: string | null,
   transaction: PoolClient
 ): Promise<string | null> {
@@ -276,7 +285,7 @@ export async function updateSourceDataset(
 // No-op handler: used for file types that should not create or modify metadata objects
 async function noopFileHandler(
   _: string,
-  __: { eTag: string; key: string },
+  __: S3Object,
   metadataObjectId: string | null
 ): Promise<string | null> {
   return metadataObjectId;

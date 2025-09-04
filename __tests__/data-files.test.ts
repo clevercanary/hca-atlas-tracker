@@ -3,6 +3,7 @@ import {
   FILE_STATUS,
   FILE_TYPE,
   INTEGRITY_STATUS,
+  NetworkKey,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmFileExistsOnAtlas,
@@ -837,7 +838,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
     it("should throw error when atlas not found by network", async () => {
       await expect(
         getAtlasByNetworkVersionAndShortName(
-          "nonexistent-network",
+          "nonexistent-network" as NetworkKey,
           ATLAS_DRAFT.version,
           ATLAS_DRAFT.shortName
         )

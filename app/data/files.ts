@@ -1,8 +1,10 @@
 import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
 import {
+  FILE_TYPE,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBFile,
+  NetworkKey,
   type FileEventInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
@@ -40,7 +42,7 @@ export async function markPreviousVersionsAsNotLatest(
 export async function getExistingMetadataObjectId(
   bucket: string,
   key: string,
-  fileType: string,
+  fileType: FILE_TYPE,
   transaction: pg.PoolClient
 ): Promise<string | null> {
   let column: MetadataObjectIdField;
@@ -150,7 +152,7 @@ export function normalizeAtlasVersion(version: string): string {
  * @returns Atlas ID.
  */
 export async function getAtlasByNetworkVersionAndShortName(
-  network: string,
+  network: NetworkKey,
   version: string,
   shortName: string
 ): Promise<string> {
