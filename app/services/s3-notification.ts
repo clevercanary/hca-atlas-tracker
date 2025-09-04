@@ -197,14 +197,14 @@ function computeIsLatestForInsert(
 
 // File operation handler functions
 type FileOperationHandler = (
-  atlasId: string | null,
+  atlasId: string,
   s3Object: { eTag: string; key: string },
   metadataObjectId: string | null,
   transaction: PoolClient
 ) => Promise<string | null>;
 
 async function createIntegratedObject(
-  atlasId: string | null,
+  atlasId: string,
   s3Object: { eTag: string; key: string },
   _: string | null,
   transaction: PoolClient
@@ -212,7 +212,7 @@ async function createIntegratedObject(
   const title = getTitleFromS3Key(s3Object.key);
 
   const componentAtlas = await createComponentAtlas(
-    atlasId!,
+    atlasId,
     title,
     transaction
   );
@@ -221,7 +221,7 @@ async function createIntegratedObject(
 }
 
 async function createSourceDatasetFromS3(
-  atlasId: string | null,
+  atlasId: string,
   object: { eTag: string; key: string },
   metadataObjectId: string | null,
   transaction: PoolClient
@@ -231,7 +231,7 @@ async function createSourceDatasetFromS3(
 
   // Create source dataset using canonical service within the existing transaction
   const created = await createSourceDatasetService(
-    atlasId!,
+    atlasId,
     { title },
     transaction
   );
@@ -258,7 +258,7 @@ async function createSourceDatasetFromS3(
 }
 
 async function updateIntegratedObject(
-  _: string | null,
+  _: string,
   __: { eTag: string; key: string },
   metadataObjectId: string | null,
   transaction: PoolClient
@@ -271,7 +271,7 @@ async function updateIntegratedObject(
 }
 
 export async function updateSourceDataset(
-  _: string | null,
+  _: string,
   object: { eTag: string; key: string },
   metadataObjectId: string | null,
   transaction: PoolClient
@@ -294,7 +294,7 @@ export async function updateSourceDataset(
 
 // No-op handler: used for file types that should not create or modify metadata objects
 async function noopFileHandler(
-  _: string | null,
+  _: string,
   __: { eTag: string; key: string },
   metadataObjectId: string | null
 ): Promise<string | null> {

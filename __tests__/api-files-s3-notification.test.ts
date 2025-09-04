@@ -479,7 +479,7 @@ describe(TEST_ROUTE, () => {
   it("updateSourceDataset throws when metadataObjectId is missing", async () => {
     await expect(
       updateSourceDataset(
-        null,
+        TEST_GUT_ATLAS_ID,
         { eTag: "abc", key: TEST_FILE_PATHS.SOURCE_DATASET_TEST },
         null,
         {} as unknown as import("pg").PoolClient
