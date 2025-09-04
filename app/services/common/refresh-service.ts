@@ -12,6 +12,11 @@ export interface RefreshInfo<TData, TRefreshParams = undefined> {
 }
 
 export interface RefreshServiceParams<TData, TRefreshParams> {
+  /**
+   * Whether to automatically start a refresh if there is no stored info at initialization time.
+   * Defaults to true. Set to false (e.g., in tests) to prevent background refresh on import.
+   */
+  autoStart?: boolean;
   getRefreshedData: (
     refreshParams: TRefreshParams,
     prevData?: TData
@@ -56,14 +61,16 @@ export class RefreshDataNotReadyError extends Error {
 export function makeRefreshService<TData, TRefreshParams>(
   params: RefreshServiceParams<TData, TRefreshParams>
 ): RefreshService<TData> {
-  const { getStoredInfo, notReadyMessage, setStoredInfo } = params;
+  const { autoStart, getStoredInfo, notReadyMessage, setStoredInfo } = params;
   const initStoredInfo = getStoredInfo();
   let info: RefreshInfo<TData, TRefreshParams>;
   if (initStoredInfo) {
     info = initStoredInfo;
   } else {
     setStoredInfo((info = {}));
-    startRefreshIfNeeded(params, info, true);
+    if (autoStart !== false) {
+      startRefreshIfNeeded(params, info, true);
+    }
   }
 
   return {

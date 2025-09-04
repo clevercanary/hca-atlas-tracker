@@ -1,8 +1,7 @@
-// Mock ky for HTTP requests BEFORE any imports
-const mockKyGet = jest.fn();
-jest.mock("ky", () => ({
-  get: mockKyGet,
-}));
+// Mock HTTP wrapper for outbound requests BEFORE any imports
+jest.mock("../app/utils/http", () => {
+  return { httpGet: jest.fn() };
+});
 
 // Set up AWS resource configuration BEFORE any other imports
 const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
@@ -27,24 +26,38 @@ import {
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  countComponentAtlases,
+  countSourceDatasets,
+  resetDatabase,
+} from "../testing/db-utils";
 import { withConsoleErrorHiding } from "../testing/utils";
+
+// Additional imports for direct service testing
+import { updateSourceDataset } from "../app/services/s3-notification";
+import { InvalidOperationError } from "../app/utils/api-handler";
+
+// Retrieve the mock function created in the jest.mock factory above
+const { httpGet } = jest.requireMock("../app/utils/http") as {
+  httpGet: jest.Mock;
+};
+const mockHttpGet = httpGet as jest.Mock;
 
 // Test file path constants
 const TEST_PATH_SEGMENTS = {
-  BIO_NETWORK_GUT_V1_SOURCE_DATASETS: "bio_network/gut-v1/source-datasets",
   GUT_V1_INTEGRATED_OBJECTS: "gut/gut-v1/integrated-objects",
   GUT_V1_MANIFESTS: "gut/gut-v1/manifests",
+  GUT_V1_SOURCE_DATASETS: "gut/gut-v1/source-datasets",
 } as const;
 
 const TEST_FILE_PATHS = {
   INTEGRATED_OBJECT: `${TEST_PATH_SEGMENTS.GUT_V1_INTEGRATED_OBJECTS}/atlas.h5ad`,
   MANIFEST: `${TEST_PATH_SEGMENTS.GUT_V1_MANIFESTS}/upload-manifest.json`,
-  SOURCE_DATASET_AUTH: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/auth-test.h5ad`,
-  SOURCE_DATASET_DUPLICATE: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/duplicate-test.h5ad`,
-  SOURCE_DATASET_ETAG: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/etag-test.h5ad`,
-  SOURCE_DATASET_TEST: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/test-file.h5ad`,
-  SOURCE_DATASET_VERSIONED: `${TEST_PATH_SEGMENTS.BIO_NETWORK_GUT_V1_SOURCE_DATASETS}/versioned-file.h5ad`,
+  SOURCE_DATASET_AUTH: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/auth-test.h5ad`,
+  SOURCE_DATASET_DUPLICATE: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/duplicate-test.h5ad`,
+  SOURCE_DATASET_ETAG: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/etag-test.h5ad`,
+  SOURCE_DATASET_TEST: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/test-file.h5ad`,
+  SOURCE_DATASET_VERSIONED: `${TEST_PATH_SEGMENTS.GUT_V1_SOURCE_DATASETS}/versioned-file.h5ad`,
 } as const;
 
 // SQL query constants
@@ -68,6 +81,7 @@ const TEST_VERSION_IDS = {
 } as const;
 
 const TEST_TIMESTAMP = "2024-01-01T12:00:00.000Z";
+const TEST_TIMESTAMP_PLUS_1H = "2024-01-01T13:00:00.000Z";
 const TEST_TIMESTAMP_ALT = "2023-01-01T00:00:00.000Z";
 const TEST_SIGNATURE = "fake-signature-for-testing";
 const TEST_SIGNATURE_VALID = "valid-signature";
@@ -152,10 +166,7 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
-// Mock ky HTTP client for Jest compatibility (ky is ES module, Jest runs in CommonJS)
-jest.mock("ky", () => ({
-  get: jest.fn().mockResolvedValue({ ok: true }),
-}));
+// (Removed ky mock) Using http wrapper mock at top of file instead
 
 afterEach(() => {
   resetConfigCache();
@@ -256,6 +267,47 @@ describe(TEST_ROUTE, () => {
 
     expect(res.statusCode).toBe(405);
   });
+  it("rejects S3 record when eventTime is missing", async () => {
+    // Start with a valid event and then remove eventTime to simulate missing timestamp
+    const s3Event = createS3Event({
+      etag: "missing-event-time-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+      size: 1234,
+      versionId: "missing-event-time-version",
+    });
+
+    // Remove eventTime to simulate missing value in the incoming event
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mutates mock to drop eventTime
+    delete (s3Event as any).Records[0].eventTime;
+
+    const snsMessage = createSNSMessage({
+      messageId: "missing-event-time-message-id",
+      s3Event,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    // Should reject with 400 due to schema validation (missing required eventTime)
+    expect(res.statusCode).toBe(400);
+
+    // Verify that no file was written to the database for this key
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+    ]);
+    expect(fileRows.rows).toHaveLength(0);
+  });
 
   // SNS Message Structure Validation Tests
   it("returns error 400 for invalid SNS message payload", async () => {
@@ -317,6 +369,129 @@ describe(TEST_ROUTE, () => {
     expect(file.integrity_status).toBe("pending");
   });
 
+  it("clears sd_info on source_dataset update while preserving is_latest", async () => {
+    // First upload (creates source dataset and file record)
+    const firstEvent = createS3Event({
+      etag: "sd-v1-etag-11111111111111111111111111111111",
+      eventTime: TEST_TIMESTAMP, // older
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 12345,
+      versionId: "sd-version-1",
+    });
+
+    const firstMessage = createSNSMessage({
+      messageId: "sd-update-test-v1",
+      s3Event: firstEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Capture the created source dataset id before update
+    const sdBefore = await query(
+      "SELECT source_dataset_id AS id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+    );
+    expect(sdBefore.rows).toHaveLength(1);
+    const sourceDatasetId: string = sdBefore.rows[0].id;
+
+    // Ensure first file is marked latest
+    const firstFile = await query(
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+    );
+    expect(firstFile.rows).toHaveLength(1);
+    expect(firstFile.rows[0].is_latest).toBe(true);
+
+    // Second upload (update) with newer eventTime
+    const secondEvent = createS3Event({
+      etag: "sd-v2-etag-22222222222222222222222222222222",
+      eventTime: TEST_TIMESTAMP_PLUS_1H, // newer
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 23456,
+      versionId: "sd-version-2",
+    });
+
+    const secondMessage = createSNSMessage({
+      messageId: "sd-update-test-v2",
+      s3Event: secondEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Verify sd_info is cleared on the linked source dataset
+    const sdAfter = await query(
+      "SELECT sd_info FROM hat.source_datasets WHERE id = $1",
+      [sourceDatasetId]
+    );
+    expect(sdAfter.rows).toHaveLength(1);
+    expect(sdAfter.rows[0].sd_info).toEqual({
+      assay: [],
+      cellCount: 0,
+      cellxgeneDatasetId: null,
+      cellxgeneDatasetVersion: null,
+      cellxgeneExplorerUrl: null,
+      disease: [],
+      metadataSpreadsheetTitle: null,
+      metadataSpreadsheetUrl: null,
+      suspensionType: [],
+      tissue: [],
+      title: "versioned-file",
+    });
+
+    // Verify file versioning flags: latest remains true on newest, previous false
+    const versions = await query(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+    );
+    expect(versions.rows).toHaveLength(2);
+    expect(versions.rows[0].is_latest).toBe(false); // older
+    expect(versions.rows[1].is_latest).toBe(true); // newer
+  });
+
+  it("updateSourceDataset throws when metadataObjectId is missing", async () => {
+    await expect(
+      updateSourceDataset(
+        TEST_GUT_ATLAS_ID,
+        {
+          eTag: "abc",
+          key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+          size: 123,
+          versionId: "xyz",
+        },
+        null,
+        {} as unknown as import("pg").PoolClient
+      )
+    ).rejects.toThrow(InvalidOperationError);
+  });
+
   // Happy Path Processing Tests
   it("successfully processes valid SNS notification with S3 ObjectCreated event", async () => {
     const s3Event = createS3Event({
@@ -365,7 +540,22 @@ describe(TEST_ROUTE, () => {
     expect(file.integrity_error).toBeNull();
     expect(file.file_type).toBe("source_dataset"); // New field - should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
-    expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
+
+    // Verify source dataset was created and linked to atlas
+    const sourceDatasetRows = await query(
+      "SELECT DISTINCT source_dataset_id AS id FROM hat.files WHERE bucket = $1 AND key = $2",
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+    );
+    expect(sourceDatasetRows.rows).toHaveLength(1);
+    const sourceDatasetId = sourceDatasetRows.rows[0].id;
+
+    // Verify atlas has the source dataset in its source_datasets array
+    const atlasRows = await query(
+      "SELECT source_datasets FROM hat.atlases WHERE id = $1",
+      [TEST_GUT_ATLAS_ID]
+    );
+    expect(atlasRows.rows).toHaveLength(1);
+    expect(atlasRows.rows[0].source_datasets).toContain(sourceDatasetId);
   });
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {
@@ -466,7 +656,86 @@ describe(TEST_ROUTE, () => {
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
-    expect(file.atlas_id).toBeNull(); // Source datasets use source_study_id, not atlas_id
+  });
+
+  it("rejects replay with same SNS MessageId but altered ETag", async () => {
+    // First notification inserts the record
+    const s3Event1 = createS3Event({
+      etag: "original-replay-etag-11111111111111111111111111111111",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
+      size: 128000,
+      versionId: "replay-version-1",
+    });
+
+    const messageId = "replay-same-id-message";
+
+    const snsMessage1 = createSNSMessage({
+      messageId,
+      s3Event: s3Event1,
+      signature: TEST_SIGNATURE_VALID_FOR_TESTING,
+      timestamp: TEST_TIMESTAMP_ALT,
+    });
+
+    const { req: req1, res: res1 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessage1,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req1, res1);
+    });
+    expect(res1.statusCode).toBe(200);
+
+    // Replay with the SAME MessageId but tampered ETag should be rejected
+    const s3Event2 = createS3Event({
+      etag: "tampered-replay-etag-22222222222222222222222222222222", // different ETag
+      key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
+      size: 128000,
+      versionId: "replay-version-1", // same version
+    });
+
+    const snsMessage2 = createSNSMessage({
+      messageId, // same MessageId as first message
+      s3Event: s3Event2,
+      signature: TEST_SIGNATURE_VALID_FOR_TESTING,
+      timestamp: TEST_TIMESTAMP_ALT,
+    });
+
+    const { req: req2, res: res2 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessage2,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req2, res2);
+    });
+
+    // Should reject with 409 Conflict due to ETag mismatch during replay (triggers SNS retry/DLQ)
+    expect(res2.statusCode).toBe(409);
+    const responseBody = JSON.parse(res2._getData());
+    expect(responseBody.message).toContain("ETag mismatch");
+    expect(responseBody.message).toContain(
+      "existing=original-replay-etag-11111111111111111111111111111111"
+    );
+    expect(responseBody.message).toContain(
+      "new=tampered-replay-etag-22222222222222222222222222222222"
+    );
+
+    // Verify only one record exists and it remains the original
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
+    ]);
+    expect(fileRows.rows).toHaveLength(1);
+    expect(fileRows.rows[0].etag).toBe(
+      "original-replay-etag-11111111111111111111111111111111"
+    );
   });
 
   // Security and Authentication Tests
@@ -650,11 +919,12 @@ describe(TEST_ROUTE, () => {
       await snsHandler(req2, res2);
     });
 
-    // Should reject with 500 Internal Server Error due to ETag mismatch
-    expect(res2.statusCode).toBe(500);
+    // Should reject with 409 Conflict due to ETag mismatch
+    expect(res2.statusCode).toBe(409);
     const responseBody = JSON.parse(res2._getData());
-    expect(responseBody.message).toContain("ETagMismatchError");
     expect(responseBody.message).toContain("ETag mismatch");
+    expect(responseBody.message).toContain("existing=original-etag-12345");
+    expect(responseBody.message).toContain("new=different-etag-67890");
 
     // Verify only one record exists with original ETag
     const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
@@ -672,7 +942,7 @@ describe(TEST_ROUTE, () => {
     const s3EventV1 = createS3Event({
       etag: "version1-etag-12345678901234567890123456789012",
       eventTime: "2024-01-01T12:00:00.000Z",
-      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
       size: 1024000,
       versionId: "version-1",
     });
@@ -701,8 +971,8 @@ describe(TEST_ROUTE, () => {
     // Second version of the same file (different version_id and etag)
     const s3EventV2 = createS3Event({
       etag: "version2-etag-98765432109876543210987654321098",
-      eventTime: "2024-01-01T13:00:00.000Z",
-      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED, // Same key
+      eventTime: TEST_TIMESTAMP_PLUS_1H,
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT, // Same key
       size: 2048000,
       versionId: "version-2", // Different version
     });
@@ -711,7 +981,7 @@ describe(TEST_ROUTE, () => {
       messageId: "test-message-id-v2",
       s3Event: s3EventV2,
       signature: TEST_SIGNATURE_VALID,
-      timestamp: "2024-01-01T13:00:00.000Z",
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
     });
 
     const { req: req2, res: res2 } = httpMocks.createMocks<
@@ -731,7 +1001,7 @@ describe(TEST_ROUTE, () => {
     // Check database state - should have 2 records for the same file
     const allVersions = await query(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
 
     expect(allVersions.rows).toHaveLength(2);
@@ -745,17 +1015,83 @@ describe(TEST_ROUTE, () => {
     const secondVersion = allVersions.rows[1];
     expect(secondVersion.version_id).toBe("version-2");
     expect(secondVersion.is_latest).toBe(true);
+  });
 
-    // Verify we can easily query for latest version only
+  it("does not flip is_latest when older version arrives after newer version", async () => {
+    // Process newer version first
+    const s3EventV2 = createS3Event({
+      etag: "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      eventTime: TEST_TIMESTAMP_PLUS_1H,
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 2048000,
+      versionId: "ooo-version-2",
+    });
+
+    const snsMessageV2 = createSNSMessage({
+      messageId: "out-of-order-v2",
+      s3Event: s3EventV2,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    const { req: reqNewer, res: resNewer } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV2,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(reqNewer, resNewer);
+    });
+    expect(resNewer.statusCode).toBe(200);
+
+    // Now process an older version afterwards (out-of-order arrival)
+    const s3EventV1 = createS3Event({
+      etag: "ooo-version1-etag-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      eventTime: TEST_TIMESTAMP, // earlier than V2
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 1024000,
+      versionId: "ooo-version-1",
+    });
+
+    const snsMessageV1 = createSNSMessage({
+      messageId: "out-of-order-v1",
+      s3Event: s3EventV1,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req: reqOlder, res: resOlder } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV1,
+      method: METHOD.POST,
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(reqOlder, resOlder);
+    });
+    expect(resOlder.statusCode).toBe(200);
+
+    // Expect two versions exist for this key
+    const allRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.INTEGRATED_OBJECT,
+    ]);
+    expect(allRows.rows).toHaveLength(2);
+
+    // Latest should remain the newer (V2), not be flipped by the older V1 arrival
     const latestOnly = await query(
       SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
-
     expect(latestOnly.rows).toHaveLength(1);
-    expect(latestOnly.rows[0].version_id).toBe("version-2");
+    expect(latestOnly.rows[0].version_id).toBe("ooo-version-2");
     expect(latestOnly.rows[0].etag).toBe(
-      "version2-etag-98765432109876543210987654321098"
+      "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     );
   });
 
@@ -872,13 +1208,64 @@ describe(TEST_ROUTE, () => {
     expect(file.key).toBe(TEST_FILE_PATHS.INTEGRATED_OBJECT);
     expect(file.file_type).toBe("integrated_object"); // Should be derived from integrated-objects folder
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
-    expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
+    expect(file.component_atlas_id).not.toBeNull(); // Should be set to component atlas ID
     expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");
     expect(file.status).toBe("uploaded");
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
     expect(file.integrity_status).toBe("pending");
+  });
+
+  it("ingest manifest does not create metadata objects", async () => {
+    // Capture metadata object counts before processing
+    const beforeSdCount = await countSourceDatasets();
+    const beforeCaCount = await countComponentAtlases();
+
+    const s3Event = createS3Event({
+      etag: "abcdefabcdefabcdefabcdefabcdefab",
+      key: TEST_FILE_PATHS.MANIFEST,
+      size: 4096,
+      versionId: "manifest-noop-123",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "manifest-noop-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleErrorHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Verify file saved as ingest_manifest and not linked to any metadata objects
+    const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
+      TEST_S3_BUCKET,
+      TEST_FILE_PATHS.MANIFEST,
+    ]);
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.file_type).toBe("ingest_manifest");
+    expect(file.component_atlas_id).toBeNull();
+    expect(file.source_dataset_id).toBeNull();
+
+    // Verify no new metadata objects were created
+    const afterSdCount = await countSourceDatasets();
+    const afterCaCount = await countComponentAtlases();
+    expect(afterSdCount).toBe(beforeSdCount);
+    expect(afterCaCount).toBe(beforeCaCount);
   });
 
   it("correctly identifies ingest manifest file type from S3 path", async () => {
@@ -922,7 +1309,6 @@ describe(TEST_ROUTE, () => {
     expect(file.key).toBe(TEST_FILE_PATHS.MANIFEST);
     expect(file.file_type).toBe("ingest_manifest"); // Should be derived from manifests folder
     expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
-    expect(file.atlas_id).not.toBeNull(); // Should be set to gut-v1 atlas ID
     expect(file.etag).toBe("c9876543210fedcba9876543210fedcba");
     expect(file.size_bytes).toBe("2048");
     expect(file.version_id).toBe("manifest-version-456");
@@ -936,7 +1322,6 @@ describe(TEST_ROUTE, () => {
     {
       description: "retina atlas from eye network S3 path",
       etag: "d4e5f6789012345678901234567890ab",
-      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440001", // Retina atlas ID
       key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
       size: 8192000,
       versionId: "retina-version-789",
@@ -944,7 +1329,6 @@ describe(TEST_ROUTE, () => {
     {
       description: "gut v1.1 atlas with version parsing",
       etag: "e5f6789012345678901234567890abcd",
-      expectedAtlasId: "550e8400-e29b-41d4-a716-446655440002", // Gut v1.1 atlas ID
       key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
       size: 4096000,
       versionId: "gut-v11-version-012",
@@ -952,14 +1336,13 @@ describe(TEST_ROUTE, () => {
     {
       description: "gut v1 atlas with integer version (no decimal)",
       etag: "f6789012345678901234567890abcdef",
-      expectedAtlasId: TEST_GUT_ATLAS_ID, // Gut v1 atlas ID
       key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
       size: 1024,
       versionId: "gut-v1-no-decimal-version",
     },
   ])(
     "correctly identifies $description",
-    async ({ etag, expectedAtlasId, key, size, versionId }) => {
+    async ({ etag, key, size, versionId }) => {
       const s3Event = createS3Event({
         etag,
         key,
@@ -989,7 +1372,7 @@ describe(TEST_ROUTE, () => {
 
       expect(res.statusCode).toBe(200);
 
-      // Check that file was saved with correct atlas_id
+      // Check that file was saved and linked appropriately when applicable
       const fileRows = await query(SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY, [
         TEST_S3_BUCKET,
         key,
@@ -999,7 +1382,10 @@ describe(TEST_ROUTE, () => {
       const file = fileRows.rows[0];
       expect(file.bucket).toBe(TEST_S3_BUCKET);
       expect(file.key).toBe(key);
-      expect(file.atlas_id).toBe(expectedAtlasId);
+      if (key.includes("integrated-objects")) {
+        // Integrated objects should link to a component atlas
+        expect(file.component_atlas_id).not.toBeNull();
+      }
       expect(file.etag).toBe(etag);
       expect(file.size_bytes).toBe(size.toString());
       expect(file.version_id).toBe(versionId);
@@ -1010,6 +1396,44 @@ describe(TEST_ROUTE, () => {
   );
 
   // S3 Path Validation Tests
+
+  it("rejects S3 notifications with unknown network", async () => {
+    await withConsoleErrorHiding(async () => {
+      const s3Event = createS3Event({
+        etag: "unknown-network-etag",
+        key: "not-a-bionetwork/gut-v1/integrated-objects/test.h5ad", // Invalid folder type
+        size: 1024,
+        versionId: "unknown-network-version",
+      });
+
+      const snsMessage = createSNSMessage({
+        messageId: "unknown-network-test",
+        s3Event,
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
+      });
+
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: snsMessage,
+        method: METHOD.POST,
+      });
+
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
+
+      expect(res.statusCode).toBe(400);
+      const responseBody = JSON.parse(res._getData());
+      expect(responseBody.message).toContain(
+        "Unknown bionetwork: not-a-bionetwork"
+      );
+    });
+  });
+
   it("rejects S3 notifications with invalid key format (too few path segments)", async () => {
     await withConsoleErrorHiding(async () => {
       const s3Event = createS3Event({
@@ -1035,7 +1459,9 @@ describe(TEST_ROUTE, () => {
         method: METHOD.POST,
       });
 
-      await snsHandler(req, res);
+      await withConsoleErrorHiding(async () => {
+        await snsHandler(req, res);
+      });
 
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());
@@ -1050,7 +1476,7 @@ describe(TEST_ROUTE, () => {
     await withConsoleErrorHiding(async () => {
       const s3Event = createS3Event({
         etag: "unknown-folder-etag",
-        key: "bio_network/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
+        key: "gut/gut-v1/unknown-folder/test.h5ad", // Invalid folder type
         size: 1024,
         versionId: "unknown-folder-version",
       });
@@ -1086,14 +1512,48 @@ describe(TEST_ROUTE, () => {
     });
   });
 
+  it("rejects S3 notifications with invalid atlas version in key (strict normalization)", async () => {
+    await withConsoleErrorHiding(async () => {
+      const s3Event = createS3Event({
+        etag: "invalid-atlas-version-etag",
+        key: "gut/gut-v1-10/source-datasets/invalid-version.h5ad", // v1-10 -> DB 1.10 (invalid per strict normalization)
+        size: 1024,
+        versionId: "invalid-atlas-version",
+      });
+
+      const snsMessage = createSNSMessage({
+        messageId: "invalid-atlas-version-test",
+        s3Event,
+        signature: TEST_SIGNATURE,
+        subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+        timestamp: TEST_TIMESTAMP,
+      });
+
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: snsMessage,
+        method: METHOD.POST,
+      });
+
+      await snsHandler(req, res);
+
+      // Expect 400 once strict normalization is enforced in s3-notification service
+      expect(res.statusCode).toBe(400);
+      const responseBody = JSON.parse(res._getData());
+      expect(responseBody.message).toContain("Invalid atlas version");
+    });
+  });
+
   // Database Constraint Validation Tests
-  it("database constraint prevents source_dataset files from having atlas_id", async () => {
+  it("database constraint prevents source_dataset files from having component_atlas_id", async () => {
     // This test verifies the database constraint by attempting a direct INSERT that violates it
-    // The constraint should prevent source_dataset files from having atlas_id set
+    // The constraint should prevent source_dataset files from having component_atlas_id set
 
     await expect(
       query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, component_atlas_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)`,
         [
           "test-bucket",
@@ -1108,20 +1568,20 @@ describe(TEST_ROUTE, () => {
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "pending",
           "uploaded",
-          "source_dataset", // source_dataset with atlas_id should be rejected
+          "source_dataset", // source_dataset with component_atlas_id should be rejected
           TEST_GUT_ATLAS_ID, // This should cause constraint violation
         ]
       )
     ).rejects.toThrow(/constraint/);
   });
 
-  it("database constraint prevents integrated_object files from missing atlas_id", async () => {
+  it("database constraint prevents integrated_object files from missing component_atlas_id", async () => {
     // This test verifies the database constraint by attempting a direct INSERT that violates it
-    // The constraint should require integrated_object files to have atlas_id set
+    // The constraint should require integrated_object files to have component_atlas_id set
 
     await expect(
       query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, component_atlas_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, NULL)`,
         [
           "test-bucket",
@@ -1136,8 +1596,8 @@ describe(TEST_ROUTE, () => {
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "pending",
           "uploaded",
-          "integrated_object", // integrated_object without atlas_id should be rejected
-          // atlas_id is NULL, which should cause constraint violation
+          "integrated_object", // integrated_object without component_atlas_id should be rejected
+          // component_atlas_id is NULL, which should cause constraint violation
         ]
       )
     ).rejects.toThrow(/constraint/);
@@ -1201,9 +1661,9 @@ describe(TEST_ROUTE, () => {
 
   describe("SNS SubscriptionConfirmation handling", () => {
     beforeEach(() => {
-      // Reset ky mock before each test
-      mockKyGet.mockClear();
-      mockKyGet.mockResolvedValue({ ok: true });
+      // Reset HTTP wrapper mock before each test
+      mockHttpGet.mockClear();
+      mockHttpGet.mockResolvedValue({ ok: true });
     });
 
     describe("SubscriptionConfirmation", () => {

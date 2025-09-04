@@ -26,7 +26,7 @@ import {
   updateComponentAtlasesForUpdatedSourceDatasets,
   updateFieldsForComponentAtlasesHavingSourceDatasets,
 } from "./component-atlases";
-import { doTransaction, query } from "./database";
+import { doOrContinueTransaction, doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
 export interface UpdatedSourceDatasetsInfo {
@@ -83,7 +83,7 @@ export async function getAtlasDatasets(
   const sourceDatasetIds = atlasResult.rows[0].source_datasets;
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
       [sourceDatasetIds]
     );
   return queryResult.rows;
@@ -112,7 +112,7 @@ export async function getComponentAtlasDatasets(
   const sourceDatasetIds = componentAtlasResult.rows[0].source_datasets;
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
       [sourceDatasetIds]
     );
   return queryResult.rows;
@@ -162,7 +162,7 @@ export async function getAtlasSourceDataset(
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
       [sourceDatasetId]
     );
   if (queryResult.rows.length === 0)
@@ -197,7 +197,7 @@ export async function getComponentAtlasSourceDataset(
     );
   const queryResult =
     await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
+      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
       [sourceDatasetId]
     );
   if (queryResult.rows.length === 0)
@@ -214,26 +214,44 @@ export async function getComponentAtlasSourceDataset(
  * @param inputData - Values for the new source dataset.
  * @returns database model of the new source dataset.
  */
-export async function createSourceDataset(
+export async function createSourceDatasetForAtlasSourceStudy(
   atlasId: string,
   sourceStudyId: string,
   inputData: NewSourceDatasetData
 ): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  const info = sourceDatasetInputDataToDbData(inputData);
   return await doTransaction(async (client) => {
-    const insertResult = await client.query<
+    const sourceDatasetId = await createSourceDataset(sourceStudyId, inputData);
+    return await getSourceDataset(
+      atlasId,
+      sourceStudyId,
+      sourceDatasetId,
+      client
+    );
+  });
+}
+
+/**
+ * Create a source dataset.
+ * @param sourceStudyId - ID of the source study to associate the source dataset with, if any.
+ * @param inputData - Values for the new source dataset.
+ * @param client - Optional Postgres client to reuse an existing transaction.
+ * @returns ID of the created source dataset.
+ */
+export async function createSourceDataset(
+  sourceStudyId: string | null,
+  inputData: NewSourceDatasetData,
+  client?: pg.PoolClient
+): Promise<string> {
+  const info = sourceDatasetInputDataToDbData(inputData);
+  return await doOrContinueTransaction(client, async (tx) => {
+    const insertResult = await tx.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "id">
     >(
       "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2) RETURNING id",
       [JSON.stringify(info), sourceStudyId]
     );
-    return await getSourceDataset(
-      atlasId,
-      sourceStudyId,
-      insertResult.rows[0].id,
-      client
-    );
+    return insertResult.rows[0].id;
   });
 }
 
@@ -272,6 +290,25 @@ export async function updateSourceDataset(
       sourceStudyId,
       updateResult.rows[0].id,
       client
+    );
+  });
+}
+
+export async function resetSourceDatasetInfo(
+  sourceDatasetId: string,
+  inputData: NewSourceDatasetData,
+  client?: pg.PoolClient
+): Promise<void> {
+  const info = sourceDatasetInputDataToDbData(inputData);
+  await doOrContinueTransaction(client, async (tx) => {
+    await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "edit", tx);
+    await tx.query(
+      "UPDATE hat.source_datasets SET sd_info = $2 WHERE id = $1",
+      [sourceDatasetId, JSON.stringify(info)]
+    );
+    await updateFieldsForComponentAtlasesHavingSourceDatasets(
+      [sourceDatasetId],
+      tx
     );
   });
 }

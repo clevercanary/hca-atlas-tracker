@@ -1,7 +1,7 @@
-import ky from "ky";
 import { SNSMessage } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { validateSNSTopicAuthorization } from "../config/aws-resources";
 import { InvalidOperationError } from "../utils/api-handler";
+import { httpGet } from "../utils/http";
 
 /**
  * Handles SNS subscription lifecycle messages (SubscriptionConfirmation, UnsubscribeConfirmation)
@@ -43,8 +43,8 @@ async function confirmSubscription(message: SNSMessage): Promise<void> {
 
   console.log(`Confirming SNS subscription for topic: ${message.TopicArn}`);
 
-  // Make GET request to confirm subscription using ky
-  await ky.get(message.SubscribeURL, {
+  // Make GET request to confirm subscription using HTTP wrapper
+  await httpGet(message.SubscribeURL, {
     timeout: 10000, // 10 second timeout
   });
 

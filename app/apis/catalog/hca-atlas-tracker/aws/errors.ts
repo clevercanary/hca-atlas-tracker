@@ -2,45 +2,17 @@
 // These errors are used for AWS S3/SNS event processing and validation
 
 import {
+  ConflictError,
   ForbiddenError,
-  InvalidOperationError,
   UnauthenticatedError,
 } from "../../../../utils/api-handler";
 
 /**
- * Error thrown when an S3 key doesn't match the expected format
- * Maps to HTTP 400 Bad Request
- */
-export class InvalidS3KeyFormatError extends InvalidOperationError {
-  name = "InvalidS3KeyFormatError";
-
-  constructor(key: string) {
-    super(
-      `Invalid S3 key format: ${key}. Expected format: bio_network/atlas-name/folder-type/filename`
-    );
-  }
-}
-
-/**
- * Error thrown when an S3 folder type is not recognized
- * Maps to HTTP 400 Bad Request
- */
-export class UnknownFolderTypeError extends InvalidOperationError {
-  name = "UnknownFolderTypeError";
-
-  constructor(folderType: string) {
-    super(
-      `Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`
-    );
-  }
-}
-
-/**
  * Error thrown when S3 object ETag doesn't match expected value
  * This indicates potential data corruption or integrity issues
- * Maps to HTTP 500 Internal Server Error
+ * Maps to HTTP 409 Conflict
  */
-export class ETagMismatchError extends Error {
+export class ETagMismatchError extends ConflictError {
   constructor(
     bucket: string,
     key: string,

@@ -278,3 +278,74 @@ Our system uses the unique constraint `(bucket, key, version_id)` to identify du
 ✅ Comprehensive error handling and logging  
 ✅ Complete test coverage (28/28 tests passing)  
 ✅ Production monitoring capabilities
+
+---
+
+## Addendum: Simplified File Versioning Architecture (August 25, 2025)
+
+### **Current Problem**
+
+• **Complex versioning cascade** with metadata objects
+
+- Files invisible until validation completes (delayed visibility)
+- Redundant `atlas_id` link on files (derivable via `component_atlas`)
+
+### **Proposed Solution**
+
+• **Exclusive foreign key pattern** with immediate metadata creation
+
+- **Schema Changes**:
+  • Remove `atlas_id` from files table (redundant)
+  • Keep `source_study_id` XOR `component_atlas_id` (exclusive)
+  • Add `component_atlas_id uuid` for integrated objects
+
+- **Updated Constraint**: Enforce exclusive foreign key relationships where each file type has exactly one parent reference:
+  • source_dataset files → source_study_id
+  • integrated_object files → component_atlas_id  
+  • ingest_manifest files → no parent
+
+- **Notification Processing**:
+  • Create metadata objects immediately (not at validation)
+  • Multiple file versions → same metadata object
+  • Query latest files with `is_latest = true`
+
+### **Benefits**
+
+• **Immediate visibility**: Files appear in UI after S3 notification
+• **Simple versioning**: Only files versioned, metadata objects stable
+• **Clean relationships**: No redundant foreign keys
+• **Reduced complexity**: No cascading version management
+
+### **Query Patterns**
+
+```sql
+-- Source datasets for atlas (via component_atlases)
+SELECT sd.* FROM source_datasets sd
+JOIN files f ON f.source_study_id = sd.id
+WHERE f.is_latest = true;
+
+-- Integrated objects for atlas
+SELECT ca.* FROM component_atlases ca
+JOIN files f ON f.component_atlas_id = ca.id
+WHERE ca.atlas_id = ? AND f.is_latest = true;
+```
+
+### **Version Relationship Strategy**
+
+• **Preserve component_atlas_id across file versions**
+
+- **Approach**: Keep `component_atlas_id` on old file versions when new versions arrive
+- **Rationale**: Maintains historical integrity and audit trail
+- **Query Pattern**: Use `is_latest = true` filters for current relationships
+- **Benefits**: Complete version history, rollback capability, analytics support
+- **Trade-off**: Requires `is_latest` filters but preserves maximum information
+
+### **Implementation Strategy**
+
+• **Incremental migration** with testing at each step
+
+1. Add `component_atlas_id` column to files table
+2. Update constraint to support new pattern
+3. Migrate existing data
+4. Remove `atlas_id` column
+5. Update notification handler to create metadata immediately

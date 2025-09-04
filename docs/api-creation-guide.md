@@ -39,14 +39,16 @@ This guide defines the architectural patterns and guidelines for creating APIs i
 **Guidelines:**
 
 - Inherit from base error classes in `utils/api-handler.ts`
-- Use appropriate base class: `ValidationError` (400), `UnauthenticatedError` (401), `ForbiddenError` (403), `NotFoundError` (404)
+- Use appropriate base class: `ValidationError` (400), `UnauthenticatedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` (409)
 - Set descriptive error messages in constructor
 - Should be thrown by service layer, never by HTTP handlers
 - Should be documented in service function JSDoc with @throws
 
 **AWS-Specific Errors:** `app/apis/catalog/hca-atlas-tracker/aws/errors.ts`
-**Service-Specific Errors:** Within respective service files
-**Base Classes:** `utils/api-handler.ts`
+
+- `ETagMismatchError` extends `ConflictError` and maps to HTTP 409 (used in S3/SNS notification processing to signal conflicts)
+  **Service-Specific Errors:** Within respective service files
+  **Base Classes:** `utils/api-handler.ts`
 
 ## Authentication & Authorization
 
@@ -96,7 +98,16 @@ This guide defines the architectural patterns and guidelines for creating APIs i
 - Service layer throws domain-specific errors
 - HTTP handler catches nothing (centralized wrapper handles all errors)
 - `handler()` wrapper automatically maps error classes to HTTP status codes
-- Error inheritance determines HTTP status: `ValidationError` → 400, `UnauthenticatedError` → 401, etc.
+- Error inheritance determines HTTP status: `ValidationError` → 400, `UnauthenticatedError` → 401, `ForbiddenError` → 403, `NotFoundError` → 404, `ConflictError` → 409
 - Error messages are preserved and returned to client for debugging
 
 **Implementation:** `utils/api-handler.ts` contains centralized error mapping logic
+
+## SNS/S3 ETag Mismatch Handling
+
+When processing S3 notifications (SNS → `/api/sns`):
+
+- The data layer (`app/data/files.ts`) performs a pre-check on ETag. If a record exists with the same bucket/key/version but a different ETag, `upsertFileRecord()` throws `ETagMismatchError` directly. It also throws `ETagMismatchError` when the `ON CONFLICT (sns_message_id) ... WHERE files.etag = EXCLUDED.etag` condition fails (idempotent re-delivery with a different ETag).
+- The service layer (`app/services/s3-notification.ts`) no longer checks for `null` from `upsertFileRecord()`; it simply calls it and propagates `ETagMismatchError`.
+- `respondError()` maps `ConflictError` to HTTP 409, causing SNS to retry and eventually route to the DLQ after max retries.
+- Rationale: treat ETag mismatches as server-side conflicts to ensure reliable DLQ capture rather than a 400/500 ambiguity.

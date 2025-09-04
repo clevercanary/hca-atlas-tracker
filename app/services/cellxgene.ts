@@ -33,6 +33,7 @@ const KY_OPTIONS: KyOptions = {
 };
 
 const refreshService = makeRefreshService({
+  autoStart: process.env.NODE_ENV !== "test",
   getRefreshParams: () => undefined,
   async getRefreshedData() {
     const time = Date.now();

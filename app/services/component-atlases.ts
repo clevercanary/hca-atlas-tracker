@@ -2,11 +2,12 @@ import pg from "pg";
 import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasFile,
+  HCAAtlasTrackerDBComponentAtlasInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { confirmFileExistsOnAtlas } from "../data/files";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
-import { doTransaction, query } from "./database";
-import { confirmFileExistsOnAtlas } from "./files";
+import { doOrContinueTransaction, doTransaction, query } from "./database";
 import {
   confirmSourceDatasetsExist,
   UpdatedSourceDatasetsInfo,
@@ -26,13 +27,14 @@ export async function getAtlasComponentAtlases(
   >(
     `
         SELECT
-          id,
-          integrity_status,
-          key,
-          size_bytes,
-          status
-        FROM hat.files
-        WHERE file_type='integrated_object' AND atlas_id=$1
+          f.id,
+          f.integrity_status,
+          f.key,
+          f.size_bytes,
+          f.status
+        FROM hat.files f
+        JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
+        WHERE f.file_type='integrated_object' AND ca.atlas_id=$1
       `,
     [atlasId]
   );
@@ -54,13 +56,14 @@ export async function getComponentAtlas(
   >(
     `
       SELECT
-        id,
-        integrity_status,
-        key,
-        size_bytes,
-        status
-      FROM hat.files
-      WHERE id=$1 AND atlas_id=$2
+        f.id,
+        f.integrity_status,
+        f.key,
+        f.size_bytes,
+        f.status
+      FROM hat.files f
+      JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
+      WHERE f.id=$1 AND ca.atlas_id=$2
     `,
     [fileId, atlasId]
   );
@@ -83,7 +86,7 @@ export async function addSourceDatasetsToComponentAtlas(
   fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
-  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+  await confirmFileExistsOnAtlas(fileId, atlasId);
 
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
 
@@ -130,7 +133,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
   fileId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
-  await confirmFileExistsOnAtlas(fileId, atlasId, "Component atlas file");
+  await confirmFileExistsOnAtlas(fileId, atlasId);
 
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
 
@@ -316,6 +319,68 @@ export async function getPresentComponentAtlasIdForFile(
       `File with ID ${fileId} has no associated component atlas`
     );
   return componentAtlasId;
+}
+
+/**
+ * Create a new component atlas.
+ * @param atlasId - ID of the parent atlas.
+ * @param title - Title of the component atlas.
+ * @param client - Optional database client for transactions.
+ * @returns the created component atlas.
+ */
+export async function createComponentAtlas(
+  atlasId: string,
+  title: string,
+  client?: pg.PoolClient
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const info = getInitialComponentAtlasInfo();
+
+  const result = await query<HCAAtlasTrackerDBComponentAtlas>(
+    `
+      INSERT INTO hat.component_atlases (atlas_id, title, component_info)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `,
+    [atlasId, title, JSON.stringify(info)],
+    client
+  );
+
+  return result.rows[0];
+}
+
+/**
+ * Reset component atlas metadata (component_info).
+ * @param componentAtlasId - ID of the component atlas to reset info for.
+ * @param client - Optional database client to reuse an existing transaction.
+ */
+export async function resetComponentAtlasInfo(
+  componentAtlasId: string,
+  client?: pg.PoolClient
+): Promise<void> {
+  const info = getInitialComponentAtlasInfo();
+  await doOrContinueTransaction(client, async (tx) => {
+    const result = await tx.query(
+      "UPDATE hat.component_atlases SET component_info = $2 WHERE id = $1",
+      [componentAtlasId, JSON.stringify(info)]
+    );
+    if (!result.rowCount)
+      throw new NotFoundError(
+        `Component atlas with ID ${componentAtlasId} doesn't exist`
+      );
+  });
+}
+
+function getInitialComponentAtlasInfo(): HCAAtlasTrackerDBComponentAtlasInfo {
+  return {
+    assay: [],
+    cellCount: 0,
+    cellxgeneDatasetId: null,
+    cellxgeneDatasetVersion: null,
+    description: "",
+    disease: [],
+    suspensionType: [],
+    tissue: [],
+  };
 }
 
 /**

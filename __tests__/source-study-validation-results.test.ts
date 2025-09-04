@@ -7,7 +7,7 @@ import {
   VALIDATION_VARIABLE,
 } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
-import pg from "pg";
+import type { PoolClient } from "pg";
 import { endPgPool, getPoolClient } from "../app/services/database";
 import { getSourceStudyValidationResults } from "../app/services/validations";
 import {
@@ -25,6 +25,8 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestSourceStudy } from "../testing/entities";
+
+let client: PoolClient;
 
 type ExpectedValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
@@ -339,19 +341,17 @@ const VALIDATIONS_PUBLISHED_WITH_CAP_AND_CELLXGENE: ExpectedValidationProperties
     },
   ];
 
-let client: pg.PoolClient;
-
-beforeAll(async () => {
-  await resetDatabase();
-  client = await getPoolClient();
-});
-
-afterAll(() => {
-  client.release();
-  endPgPool();
-});
-
 describe("getSourceStudyValidationResults", () => {
+  beforeAll(async () => {
+    await resetDatabase();
+    client = await getPoolClient();
+  });
+
+  afterAll(async () => {
+    client.release();
+    await endPgPool();
+  });
+
   it("returns validations for source study with CELLxGENE collection and multiple atlases", async () => {
     await testValidations(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,

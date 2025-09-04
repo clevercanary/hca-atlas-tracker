@@ -1,26 +1,38 @@
-import {
-  ETagMismatchError,
-  InvalidS3KeyFormatError,
-  UnknownFolderTypeError,
-} from "../apis/catalog/hca-atlas-tracker/aws/errors";
+import { PoolClient } from "pg";
 import {
   S3Event,
   S3EventRecord,
-  s3EventSchema,
+  S3Object,
   SNSMessage,
-} from "../apis/catalog/hca-atlas-tracker/aws/schemas";
+} from "../apis/catalog/hca-atlas-tracker/aws/entities";
+import { s3EventSchema } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_STATUS,
   FILE_TYPE,
   FileEventInfo,
   INTEGRITY_STATUS,
+  NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { isNetworkKey } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
+import {
+  getAtlasByNetworkVersionAndShortName,
+  getExistingMetadataObjectId,
+  getLatestEventInfo,
+  markPreviousVersionsAsNotLatest,
+  upsertFileRecord,
+} from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
-import { doTransaction, query } from "./database";
+import { normalizeAtlasVersion } from "../utils/atlases";
+import {
+  createComponentAtlas,
+  resetComponentAtlasInfo,
+} from "./component-atlases";
+import { doTransaction } from "./database";
+import { createSourceDataset, resetSourceDatasetInfo } from "./source-datasets";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -51,7 +63,7 @@ interface S3KeyPathComponents {
   atlasName: string; // e.g., 'gut-v1'
   filename: string; // e.g., 'file.h5ad'
   folderType: string; // e.g., 'source-datasets', 'integrated-objects', 'manifests'
-  network: string; // e.g., 'bio_network'
+  network: NetworkKey; // e.g., 'bio_network'
 }
 
 /**
@@ -67,14 +79,22 @@ export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   const pathParts = s3Key.split("/");
 
   if (pathParts.length < 4) {
-    throw new InvalidS3KeyFormatError(s3Key);
+    throw new InvalidOperationError(
+      `Invalid S3 key format: ${s3Key}. Expected format: bio_network/atlas-name/folder-type/filename`
+    );
+  }
+
+  const network = pathParts[0];
+
+  if (!isNetworkKey(network)) {
+    throw new InvalidOperationError(`Unknown bionetwork: ${network}`);
   }
 
   return {
     atlasName: pathParts[1],
     filename: pathParts[pathParts.length - 1], // Last segment
     folderType: pathParts[pathParts.length - 2], // Second to last segment
-    network: pathParts[0],
+    network,
   };
 }
 
@@ -95,7 +115,9 @@ function determineFileType(s3Key: string): FILE_TYPE {
     case "manifests":
       return FILE_TYPE.INGEST_MANIFEST;
     default:
-      throw new UnknownFolderTypeError(folderType);
+      throw new InvalidOperationError(
+        `Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`
+      );
   }
 }
 
@@ -130,7 +152,7 @@ function parseS3AtlasName(s3AtlasName: string): {
  * @param s3Version - The version string from S3 (without 'v' prefix)
  * @returns Database-compatible version string
  * @example
- * convertS3VersionToDbVersion('1') // Returns: '1.0'
+ * convertS3VersionToDbVersion('1') // Returns: '1'
  * convertS3VersionToDbVersion('1-1') // Returns: '1.1'
  * convertS3VersionToDbVersion('2-3') // Returns: '2.3'
  */
@@ -139,66 +161,190 @@ function convertS3VersionToDbVersion(s3Version: string): string {
     // Convert '1-1' to '1.1'
     return s3Version.replace("-", ".");
   } else {
-    // Convert '1' to '1.0'
-    return s3Version + ".0";
+    // Keep as-is: '1' stays '1'
+    return s3Version;
   }
 }
 
 /**
- * Determines the atlas ID for integrated objects and ingest manifests
- * @param s3Key - The S3 object key containing atlas information
- * @param fileType - The file type ('source_dataset', 'integrated_object', or 'ingest_manifest')
- * @returns The atlas ID from the database, or null for source datasets
- * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
- * @throws Error if atlas name format is invalid or atlas not found in database
- * @note Source datasets return null as they use source_study_id instead of atlas_id
+ * Derive a human-friendly title from an S3 key by taking the filename and removing the final extension.
+ * @param key - The S3 object key.
+ * @returns filename without extension, or "Unknown" if not determinable.
  */
-async function determineAtlasId(
-  s3Key: string,
-  fileType: FILE_TYPE
-): Promise<string | null> {
-  // Source datasets don't use atlas_id, they use source_study_id
-  if (fileType === FILE_TYPE.SOURCE_DATASET) {
-    return null;
-  }
+function getTitleFromS3Key(key: string): string {
+  const fileName = key.split("/").pop() || "Unknown";
+  // Remove only the last extension (handles multi-dot filenames)
+  return fileName.replace(/\.[^/.]+$/, "");
+}
 
-  const { atlasName, network } = parseS3KeyPath(s3Key);
+// Helper: Determine whether incoming record should be latest based on event times
+function computeIsLatestForInsert(
+  isNewFile: boolean,
+  currentLatestInfo: FileEventInfo | null,
+  incomingEventInfo: FileEventInfo
+): boolean {
+  if (isNewFile) return true;
+  const currentLatestTime = currentLatestInfo?.eventTime ?? "";
+  // ISO 8601 timestamps compare lexicographically for ordering
+  return incomingEventInfo.eventTime > currentLatestTime;
+}
 
-  // Parse S3 atlas name into base name and version
-  const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
+// File operation handler functions
+type FileOperationHandler = (
+  atlasId: string,
+  s3Object: S3Object,
+  metadataObjectId: string | null,
+  transaction: PoolClient
+) => Promise<string | null>;
 
-  // Convert S3 version to database version format
-  const dbVersion = convertS3VersionToDbVersion(s3Version);
+async function createIntegratedObject(
+  atlasId: string,
+  s3Object: S3Object,
+  _: string | null,
+  transaction: PoolClient
+): Promise<string> {
+  const title = getTitleFromS3Key(s3Object.key);
 
-  // Look up atlas by network and version, then filter by shortName match
-  // We need to do a case-insensitive match since S3 names may have different casing
-  // Also check for both version formats: "1" and "1.0" since databases might store either
-  const versionWithoutDecimal = dbVersion.replace(".0", "");
-
-  const result = await query(
-    `SELECT id, overview->>'shortName' as short_name, overview->>'version' as version
-       FROM hat.atlases 
-       WHERE overview->>'network' = $1 
-       AND (overview->>'version' = $2 OR overview->>'version' = $3)
-       AND LOWER(overview->>'shortName') = LOWER($4)
-       ORDER BY 
-         CASE WHEN overview->>'version' = $3 THEN 1 ELSE 2 END,
-         overview->>'version'`,
-    [network, dbVersion, versionWithoutDecimal, atlasBaseName]
+  const componentAtlas = await createComponentAtlas(
+    atlasId,
+    title,
+    transaction
   );
 
-  if (result.rows.length === 0) {
-    throw new Error(
-      `Atlas not found for network: ${network}, shortName: ${atlasBaseName}, version: ${dbVersion} or ${versionWithoutDecimal} (from S3 path: ${atlasName})`
+  return componentAtlas.id;
+}
+
+async function createSourceDatasetFromS3(
+  atlasId: string,
+  object: S3Object,
+  metadataObjectId: string | null,
+  transaction: PoolClient
+): Promise<string> {
+  // Derive title from S3 key filename (without extension)
+  const title = getTitleFromS3Key(object.key);
+
+  // Create source dataset using canonical service within the existing transaction
+  const createdId = await createSourceDataset(null, { title }, transaction);
+  const sourceDatasetId = createdId;
+
+  // Link source dataset to atlas's source_datasets array if not already linked
+  const alreadyLinkedResult = await transaction.query(
+    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
+    [atlasId, sourceDatasetId]
+  );
+
+  if (alreadyLinkedResult.rows[0].exists) {
+    throw new InvalidOperationError(
+      `Source dataset ${sourceDatasetId} is unexpectedly already linked to atlas ${atlasId} during create flow`
     );
   }
 
-  return result.rows[0].id;
+  await transaction.query(
+    "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
+    [atlasId, sourceDatasetId]
+  );
+
+  return sourceDatasetId;
+}
+
+async function updateIntegratedObject(
+  _: string,
+  __: S3Object,
+  metadataObjectId: string | null,
+  transaction: PoolClient
+): Promise<string | null> {
+  if (metadataObjectId) {
+    // Reset component_info to empty values on edit. This will be repopulated with actual integrated object metadata when it is validated.
+    await resetComponentAtlasInfo(metadataObjectId, transaction);
+  }
+  return metadataObjectId;
+}
+
+export async function updateSourceDataset(
+  _: string,
+  object: S3Object,
+  metadataObjectId: string | null,
+  transaction: PoolClient
+): Promise<string | null> {
+  // On update, a corresponding source dataset metadata object must exist.
+  if (!metadataObjectId) {
+    throw new InvalidOperationError(
+      `Missing source dataset metadata object for update of file ${object.key}`
+    );
+  }
+
+  // Derive title from S3 key filename (without extension)
+  const title = getTitleFromS3Key(object.key);
+
+  // Reset sd_info on the linked source dataset when a source_dataset file is updated.
+  await resetSourceDatasetInfo(metadataObjectId, { title }, transaction);
+
+  return metadataObjectId;
+}
+
+// No-op handler: used for file types that should not create or modify metadata objects
+async function noopFileHandler(
+  _: string,
+  __: S3Object,
+  metadataObjectId: string | null
+): Promise<string | null> {
+  return metadataObjectId;
+}
+
+// Dispatch map
+type Operation = "create" | "update";
+const FILE_OPERATION_HANDLERS: Partial<
+  Record<FILE_TYPE, Record<Operation, FileOperationHandler>>
+> = {
+  [FILE_TYPE.INTEGRATED_OBJECT]: {
+    create: createIntegratedObject,
+    update: updateIntegratedObject,
+  },
+  [FILE_TYPE.SOURCE_DATASET]: {
+    create: createSourceDatasetFromS3,
+    update: updateSourceDataset,
+  },
+  [FILE_TYPE.INGEST_MANIFEST]: {
+    create: noopFileHandler,
+    update: noopFileHandler,
+  },
+  // INGEST_MANIFEST files don't need special handling - they just get file records
+};
+
+/**
+ * Log file operation results for monitoring.
+ *
+ * @param operation - Database operation result ("inserted" or "updated")
+ * @param bucket - S3 bucket information
+ * @param bucket.name - S3 bucket name
+ * @param object - S3 object information
+ * @param object.key - S3 object key
+ * @param isNewFile - Whether this is a completely new file or new version
+ */
+function logFileOperation(
+  operation: string,
+  bucket: { name: string },
+  object: { key: string },
+  isNewFile: boolean
+): void {
+  if (operation === "inserted") {
+    // New file version successfully created
+    const fileStatus = isNewFile ? "New file" : "New version of existing file";
+    console.log(
+      `${fileStatus} record created for ${bucket.name}/${object.key}`
+    );
+  } else if (operation === "updated") {
+    // Duplicate notification handled idempotently
+    console.log(
+      `Duplicate notification for ${bucket.name}/${object.key} - ignoring`
+    );
+  }
 }
 
 /**
  * Saves or updates a file record in the database with idempotency handling
  * @param record - The S3 event record containing bucket, object, and event metadata
+ * @param snsMessageId - SNS MessageId for proper message-level idempotency
  * @throws ETagMismatchError if ETags don't match (indicates potential corruption)
  * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
  * @throws UnknownFolderTypeError if folder type is not recognized
@@ -206,7 +352,10 @@ async function determineAtlasId(
  * @note Uses PostgreSQL ON CONFLICT for atomic idempotency handling
  * @note Implements database transaction to ensure is_latest flag consistency
  */
-async function saveFileRecord(record: S3EventRecord): Promise<void> {
+async function saveFileRecord(
+  record: S3EventRecord,
+  snsMessageId: string
+): Promise<void> {
   const { bucket, object } = record.s3;
 
   const eventInfo: FileEventInfo = {
@@ -220,8 +369,7 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   // Determine file type from S3 key path structure
   const fileType = determineFileType(object.key);
 
-  // Determine atlas ID for integrated objects and ingest manifests
-  const atlasId = await determineAtlasId(object.key, fileType);
+  // Note: Atlas ID determination removed - will be handled when creating metadata objects
 
   // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
   //
@@ -241,97 +389,92 @@ async function saveFileRecord(record: S3EventRecord): Promise<void> {
   // - Application-level locking: Complex, doesn't scale, potential deadlocks
   // - Ignore duplicates: Loses important ETag mismatch detection
   await doTransaction(async (transaction) => {
-    // STEP 1: Mark all previous versions of this file as no longer latest
-    // This ensures only one version per (bucket, key) has is_latest = true
-    await transaction.query(
-      `UPDATE hat.files SET is_latest = FALSE WHERE bucket = $1 AND key = $2`,
-      [bucket.name, object.key]
+    // STEP 1: Get existing metadata object ID based on file type
+    // This is needed before creating new metadata objects or updating existing ones
+    let metadataObjectId: string | null = null;
+
+    metadataObjectId = await getExistingMetadataObjectId(
+      bucket.name,
+      object.key,
+      fileType,
+      transaction
     );
 
-    // STEP 2: Insert new version with ON CONFLICT handling
-    // The unique constraint on (bucket, key, version_id) will trigger ON CONFLICT
-    // if we receive a duplicate notification for the same S3 object version
-    const result = await transaction.query(
-      `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)
-         
-         -- ON CONFLICT: Handle duplicate notifications gracefully
-         -- This triggers when (bucket, key, version_id) already exists
-         ON CONFLICT (bucket, key, version_id) 
-         DO UPDATE SET 
-           etag = files.etag,  -- Keep existing ETag (no change)
-           size_bytes = files.size_bytes,  -- Keep existing values
-           event_info = files.event_info,
-           is_latest = TRUE,  -- Ensure this version is marked as latest
-           updated_at = CURRENT_TIMESTAMP
-           
-         -- CRITICAL: Only update if ETags match
-         -- This WHERE clause provides data integrity protection:
-         -- - If ETags match: Same S3 object, safe to update (idempotent)
-         -- - If ETags differ: Potential corruption, reject update (no rows returned)
-         WHERE files.etag = EXCLUDED.etag
-         
-         -- RETURNING clause provides operation metadata:
-         -- - xmax = 0: Record was INSERTed (new file version)
-         -- - xmax > 0: Record was UPDATEd (duplicate notification)
-         RETURNING 
-           (CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END) as operation,
-           etag`,
-      [
-        bucket.name,
-        object.key,
-        object.versionId || null,
-        object.eTag,
-        object.size,
-        JSON.stringify(eventInfo),
-        sha256,
-        INTEGRITY_STATUS.PENDING,
-        FILE_STATUS.UPLOADED,
-        fileType,
-        atlasId,
-      ]
+    // STEP 2: Determine recency and whether incoming record should be latest
+    const latestEventInfo = await getLatestEventInfo(
+      bucket.name,
+      object.key,
+      transaction
     );
 
-    // STEP 3: Handle the three possible outcomes
+    const isNewFile = latestEventInfo === null;
 
-    // CASE 1: No rows returned = ETag mismatch detected
-    // This happens when ON CONFLICT triggered but WHERE clause failed
-    // Indicates potential data corruption or AWS infrastructure issue
-    if (result.rows.length === 0) {
-      // Get the existing ETag for detailed error reporting
-      const existingRecord = await transaction.query(
-        `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
-        [bucket.name, object.key, object.versionId || null]
-      );
+    const isLatestForInsert = computeIsLatestForInsert(
+      isNewFile,
+      latestEventInfo,
+      eventInfo
+    );
 
-      const existingETag = existingRecord.rows[0]?.etag;
-      const errorMsg = `ETag mismatch for ${bucket.name}/${
-        object.key
-      } (version: ${
-        object.versionId || "null"
-      }): existing=${existingETag}, new=${object.eTag}`;
-      console.error(errorMsg);
-      throw new ETagMismatchError(
+    // Only clear previous versions if this incoming record is newer
+    if (isLatestForInsert) {
+      await markPreviousVersionsAsNotLatest(
         bucket.name,
         object.key,
-        object.versionId || null,
-        existingETag,
-        object.eTag
+        transaction
       );
     }
+
+    // STEP 3: Determine atlas ID from S3 path
+    const { atlasName, network } = parseS3KeyPath(object.key);
+    const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
+    const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
+    const dbVersion = normalizeAtlasVersion(dbVersionRaw);
+    const atlasId: string = await getAtlasByNetworkVersionAndShortName(
+      network,
+      dbVersion,
+      atlasBaseName
+    );
+
+    // STEP 4 & 5: Dispatch file operations based on state and type
+    const operation: Operation = isNewFile ? "create" : "update";
+    const fileHandlers = FILE_OPERATION_HANDLERS[fileType];
+
+    if (fileHandlers) {
+      const handler = fileHandlers[operation];
+      const result = await handler(
+        atlasId,
+        object,
+        metadataObjectId,
+        transaction
+      );
+      metadataObjectId = result;
+    }
+
+    // STEP 6: Insert new file version with ON CONFLICT handling
+    const result = await upsertFileRecord(
+      {
+        bucket: bucket.name,
+        componentAtlasId:
+          fileType === FILE_TYPE.INTEGRATED_OBJECT ? metadataObjectId : null,
+        etag: object.eTag,
+        eventInfo: JSON.stringify(eventInfo),
+        fileType,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        isLatest: isLatestForInsert,
+        key: object.key,
+        sha256Client: sha256,
+        sizeBytes: object.size,
+        snsMessageId,
+        sourceDatasetId:
+          fileType === FILE_TYPE.SOURCE_DATASET ? metadataObjectId : null,
+        status: FILE_STATUS.UPLOADED,
+        versionId: object.versionId || null,
+      },
+      transaction
+    );
 
     // CASE 2 & 3: Success - log the operation type for monitoring
-    const operation = result.rows[0]?.operation;
-
-    if (operation === "inserted") {
-      // New file version successfully created
-      console.log(`New file record created for ${bucket.name}/${object.key}`);
-    } else if (operation === "updated") {
-      // Duplicate notification handled idempotently
-      console.log(
-        `Duplicate notification for ${bucket.name}/${object.key} - ignoring`
-      );
-    }
+    logFileOperation(result.operation, bucket, object, isNewFile);
   });
 }
 
@@ -362,7 +505,7 @@ export async function processS3Record(
   authorizeS3Buckets(s3Event);
 
   const record = s3Event.Records[0];
-  await saveFileRecord(record);
+  await saveFileRecord(record, snsMessage.MessageId);
 }
 
 /**

@@ -64,16 +64,11 @@ let consoleLogSpy: jest.SpyInstance;
 beforeAll(async () => {
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
 
-  const [projectsPromise, resolveProjects] = promiseWithResolvers<void>();
-  getAllProjectsBlock = projectsPromise;
-  const [cellxgenePromise, resolveCellxGene] = promiseWithResolvers<void>();
-  getCollectionsBlock = cellxgenePromise;
-
   hcaService = await import("../app/services/hca-projects");
   cellxgeneService = await import("../app/services/cellxgene");
 
-  resolveProjects();
-  resolveCellxGene();
+  hcaService.forceProjectsRefresh();
+  cellxgeneService.forceCellxGeneRefresh();
 });
 
 afterAll(() => {
@@ -82,7 +77,7 @@ afterAll(() => {
   globalThis.hcaAtlasTrackerCellxGeneInfoCache = undefined;
 });
 
-test("source studies are not revalidated when no refresh happens", async () => {
+test("source studies are not revalidated when not enough time has passed for a refresh to happen", async () => {
   await delay();
   expect(refreshValidations).toHaveBeenCalledTimes(1);
   hcaService.getProjectIdByDoi([""]);

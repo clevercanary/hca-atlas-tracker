@@ -230,7 +230,6 @@ async function testSuccessfulCreate(
   expectDbSourceDatasetToMatch(
     newSourceDatasetFromDb,
     newSourceDataset,
-    sourceStudy.id,
     expectedTitle
   );
   return newSourceDatasetFromDb;
@@ -264,11 +263,12 @@ function getQueryValues(
 function expectDbSourceDatasetToMatch(
   dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
-  sourceStudyId: string,
   title: string
 ): void {
   expect(dbSourceDataset).toBeDefined();
-  expect(dbSourceDataset.source_study_id).toEqual(sourceStudyId);
+  expect(dbSourceDataset.source_study_id).toEqual(
+    apiSourceDataset.sourceStudyId
+  );
   expect(dbSourceDataset.sd_info.title).toEqual(title);
   expect(dbSourceDatasetToApiSourceDataset(dbSourceDataset)).toEqual(
     apiSourceDataset

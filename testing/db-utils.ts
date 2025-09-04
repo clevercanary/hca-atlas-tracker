@@ -1,4 +1,5 @@
 import { updateSourceStudyValidationsByEntityId } from "app/services/source-studies";
+import crypto from "crypto";
 import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
@@ -17,8 +18,7 @@ import {
   HCAAtlasTrackerSourceStudy,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
-import { query } from "../app/services/database";
-import { getPoolConfig } from "../app/utils/__mocks__/pg-app-connect-config";
+import { endPgPool, getPoolClient, query } from "../app/services/database";
 import {
   INITIAL_TEST_ATLASES,
   INITIAL_TEST_COMMENTS,
@@ -47,15 +47,17 @@ import {
 
 export async function resetDatabase(): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
-  const poolConfig = getPoolConfig();
-  const pool = new pg.Pool(poolConfig);
-  const client = await pool.connect();
-  await runMigrations("down", client);
-  await runMigrations("up", client);
-  await initDatabaseEntries(client);
-  client.release();
-  await pool.end();
-  consoleInfoSpy.mockRestore();
+  // Ensure any existing global pool is fully closed before starting fresh.
+  await endPgPool();
+  const client = await getPoolClient();
+  try {
+    await runMigrations("down", client);
+    await runMigrations("up", client);
+    await initDatabaseEntries(client);
+  } finally {
+    client.release();
+    consoleInfoSpy.mockRestore();
+  }
 }
 
 async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
@@ -72,7 +74,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     );
   }
 
-  const dbUsersByEmail = await getDbUsersByEmail();
+  const dbUsersByEmail = await getDbUsersByEmail(client);
 
   await initSourceStudies(client);
 
@@ -80,9 +82,9 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
 
   await initAtlases(client);
 
-  await initFiles(client);
-
   await initComponentAtlases(client);
+
+  await initFiles(client);
 
   await initEntrySheetValidations(client);
 
@@ -97,7 +99,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
     await updateSourceStudyValidationsByEntityId(study.id, client);
   }
 
-  await updateTaskCounts();
+  await updateTaskCounts(client);
 }
 
 async function initSourceStudies(client: pg.PoolClient): Promise<void> {
@@ -183,6 +185,54 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 }
 
 async function initFiles(client: pg.PoolClient): Promise<void> {
+  // Create a mapping of file IDs to their corresponding component atlas IDs
+  const fileToComponentAtlasMap = new Map<string, string>();
+
+  // Map specific files to their component atlases based on test constants
+  fileToComponentAtlasMap.set(
+    "2dfcd615-391f-452c-b981-d0124583c97f",
+    "b1820416-5886-4585-b0fe-7f70487331d8"
+  ); // FILE_COMPONENT_ATLAS_DRAFT_FOO -> COMPONENT_ATLAS_DRAFT_FOO
+  fileToComponentAtlasMap.set(
+    "3efde726-402f-563d-c092-e1235694d08f",
+    "484bc93b-836d-4efe-880a-de90eb1c4dfb"
+  ); // FILE_COMPONENT_ATLAS_DRAFT_BAR -> COMPONENT_ATLAS_DRAFT_BAR
+  fileToComponentAtlasMap.set(
+    "4faef837-513a-674e-d103-f2346705e19b",
+    "b95614cc-5356-4f47-b3a2-da05d23e86ce"
+  ); // FILE_COMPONENT_ATLAS_MISC_FOO -> COMPONENT_ATLAS_MISC_FOO
+  fileToComponentAtlasMap.set(
+    "5abfa948-624b-785f-e214-a3457816f20c",
+    "6feee158-5e54-4f46-8695-360c89ef9916"
+  ); // FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS -> COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS
+  fileToComponentAtlasMap.set(
+    "6bcac059-735c-896a-f325-b4568927a31d",
+    "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8"
+  ); // FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO -> COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO
+  fileToComponentAtlasMap.set(
+    "7cdbd160-846d-907b-a436-c5679038b42e",
+    "f3551bcf-31ae-4640-9bd5-68d8cdcb586b"
+  ); // FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR -> COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR
+
+  // Create source datasets for files that need them (only for SOURCE_DATASET file types)
+  const sourceDatasetIds = new Map<string, string>();
+
+  for (const file of INITIAL_TEST_FILES) {
+    const { atlas, fileType } = fillTestFileDefaults(file);
+
+    if (
+      fileType === FILE_TYPE.SOURCE_DATASET &&
+      !sourceDatasetIds.has(atlas.id)
+    ) {
+      const sourceDatasetId = crypto.randomUUID();
+      await client.query(
+        `INSERT INTO hat.source_datasets (id, sd_info, source_study_id) VALUES ($1, $2, $3)`,
+        [sourceDatasetId, "{}", null]
+      );
+      sourceDatasetIds.set(atlas.id, sourceDatasetId);
+    }
+  }
+
   for (const file of INITIAL_TEST_FILES) {
     const {
       atlas,
@@ -200,7 +250,6 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
       sha256Client,
       sha256Server,
       sizeBytes,
-      sourceStudyId,
       status,
       versionId,
     } = fillTestFileDefaults(file);
@@ -225,8 +274,8 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
     };
     await client.query(
       `
-        INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_study_id, atlas_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       `,
       [
         id,
@@ -244,8 +293,13 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
         status,
         isLatest,
         fileType,
-        sourceStudyId,
-        fileType === FILE_TYPE.SOURCE_DATASET ? null : atlas.id,
+        fileType === FILE_TYPE.SOURCE_DATASET
+          ? sourceDatasetIds.get(atlas.id)
+          : null,
+        fileType === FILE_TYPE.INTEGRATED_OBJECT
+          ? fileToComponentAtlasMap.get(id)
+          : null,
+        `test-sns-message-${id}`, // Generate unique SNS message ID for test data
       ]
     );
   }
@@ -308,6 +362,49 @@ async function initComments(
   }
 }
 
+export async function initTestFile(
+  fileId: string,
+  config: {
+    bucket: string;
+    componentAtlasId?: string;
+    etag: string;
+    fileType: FILE_TYPE;
+    key: string;
+    sizeBytes: number;
+    sourceDatasetId?: string;
+  },
+  client?: pg.PoolClient
+): Promise<void> {
+  // Use the same defaults as fillTestFileDefaults for consistency
+  const eventInfo = {
+    eventName: "ObjectCreated:*",
+    eventTime: new Date().toISOString(),
+  };
+  await query(
+    `INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, 
+     sha256_client, integrity_status, status, is_latest, file_type, component_atlas_id, source_dataset_id, sns_message_id, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
+    [
+      fileId,
+      config.bucket,
+      config.key,
+      null, // versionId - matches fillTestFileDefaults pattern
+      config.etag,
+      config.sizeBytes,
+      JSON.stringify(eventInfo),
+      null, // sha256Client
+      "pending", // integrityStatus - matches INTEGRITY_STATUS.PENDING
+      "uploaded", // status - matches FILE_STATUS.UPLOADED
+      true, // isLatest
+      config.fileType,
+      config.componentAtlasId ?? null,
+      config.sourceDatasetId ?? null,
+      `test-sns-message-${fileId}`, // Generate unique SNS message ID for test data
+    ],
+    client
+  );
+}
+
 async function runMigrations(
   direction: MigrationDirection,
   client: pg.PoolClient
@@ -323,13 +420,34 @@ async function runMigrations(
   });
 }
 
-export async function getDbUsersByEmail(): Promise<
-  Record<string, HCAAtlasTrackerDBUser>
-> {
-  return Object.fromEntries(
-    (await query<HCAAtlasTrackerDBUser>("SELECT * FROM hat.users")).rows.map(
-      (u) => [u.email, u]
+export async function createTestComponentAtlas(
+  atlasId: string,
+  title: string,
+  info: HCAAtlasTrackerDBComponentAtlasInfo
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  return (
+    await query<HCAAtlasTrackerDBComponentAtlas>(
+      `
+      INSERT INTO hat.component_atlases (atlas_id, title, component_info)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `,
+      [atlasId, title, JSON.stringify(info)]
     )
+  ).rows[0];
+}
+
+export async function getDbUsersByEmail(
+  client?: pg.PoolClient
+): Promise<Record<string, HCAAtlasTrackerDBUser>> {
+  return Object.fromEntries(
+    (
+      await query<HCAAtlasTrackerDBUser>(
+        "SELECT * FROM hat.users",
+        undefined,
+        client
+      )
+    ).rows.map((u) => [u.email, u])
   );
 }
 
@@ -533,4 +651,27 @@ export async function expectApiSourceStudyToHaveMatchingDbValidations(
 ): Promise<void> {
   const validations = await getValidationsByEntityId(sourceStudy.id);
   expectApiValidationsToMatchDb(sourceStudy.tasks, validations);
+}
+
+// Simple count helpers for tests
+export async function countSourceDatasets(
+  client?: pg.PoolClient
+): Promise<number> {
+  const result = await query<{ count: number }>(
+    "SELECT COUNT(*)::int AS count FROM hat.source_datasets",
+    undefined,
+    client
+  );
+  return result.rows[0].count;
+}
+
+export async function countComponentAtlases(
+  client?: pg.PoolClient
+): Promise<number> {
+  const result = await query<{ count: number }>(
+    "SELECT COUNT(*)::int AS count FROM hat.component_atlases",
+    undefined,
+    client
+  );
+  return result.rows[0].count;
 }
