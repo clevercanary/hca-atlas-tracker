@@ -180,7 +180,7 @@ export async function getAtlasByNetworkVersionAndShortName(
 }
 
 /**
- * Check that the specified file exists and has the specified atlas ID, throwing and error otherwise.
+ * Check that the specified file exists and has the specified atlas ID, throwing an error otherwise.
  * @param fileId - ID of the file to check.
  * @param atlasId - ID of the atlas to check for.
  */
