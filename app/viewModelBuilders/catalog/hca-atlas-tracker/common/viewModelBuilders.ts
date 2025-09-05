@@ -1111,7 +1111,7 @@ export function getAtlasComponentSourceDatasetsTableColumns(
  */
 export function getAtlasSourceDatasetsTableColumns(
   atlas: HCAAtlasTrackerAtlas
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+): ColumnDef<HCAAtlasTrackerSourceDataset, unknown>[] {
   return [
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
@@ -1124,7 +1124,9 @@ export function getAtlasSourceDatasetsTableColumns(
     getTissueColumnDef(),
     getDiseaseColumnDef(),
     getCellCountColumnDef(),
-  ];
+    getCreatedAtColumnDef(),
+    getUpdatedAtColumnDef(),
+  ] as ColumnDef<HCAAtlasTrackerSourceDataset, unknown>[];
 }
 
 /**
@@ -1393,6 +1395,21 @@ function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAt
   return {
     accessorKey: "title",
     header: "Title",
+  };
+}
+
+/**
+ * Returns created at column def.
+ * @returns ColumnDef.
+ */
+function getCreatedAtColumnDef(): ColumnDef<
+  HCAAtlasTrackerSourceDataset,
+  string
+> {
+  return {
+    accessorKey: "createdAt",
+    cell: (ctx) => getDateFromIsoString(ctx.getValue()),
+    header: "Created At",
   };
 }
 
@@ -1878,5 +1895,20 @@ function getTissueColumnDef<
     accessorKey: "tissue",
     cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
+  };
+}
+
+/**
+ * Returns updated at column def.
+ * @returns ColumnDef.
+ */
+function getUpdatedAtColumnDef(): ColumnDef<
+  HCAAtlasTrackerSourceDataset,
+  string
+> {
+  return {
+    accessorKey: "updatedAt",
+    cell: (ctx) => getDateFromIsoString(ctx.getValue()),
+    header: "Updated At",
   };
 }

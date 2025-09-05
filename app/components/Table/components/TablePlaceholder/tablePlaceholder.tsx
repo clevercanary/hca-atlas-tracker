@@ -3,7 +3,7 @@ import { TypographyTextBody400 } from "../../../common/Typography/components/Typ
 import { GridPaperSection } from "./tablePlaceholder.styles";
 
 interface TablePlaceholderProps {
-  canEdit: boolean;
+  canEdit?: boolean;
   message: ReactNode | ReactNode[];
   rowCount: number;
 }
