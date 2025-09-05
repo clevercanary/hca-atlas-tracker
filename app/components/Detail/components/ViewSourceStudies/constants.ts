@@ -6,6 +6,6 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerSourceStudy>["tableOptions
   {
     getRowId: (row) => row.id,
     initialState: {
-      columnVisibility: { id: false, [COLUMN_IDENTIFIER.ROW_POSITION]: true },
+      columnVisibility: { [COLUMN_IDENTIFIER.ROW_POSITION]: true },
     },
   };

@@ -1262,11 +1262,13 @@ export function getAtlasSourceStudiesTableColumns(
   atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
   return [
-    { accessorKey: "id" },
     getSourceStudyTitleColumnDef(pathParameter),
     getSourceStudyPublicationColumnDef(),
     getSourceStudyMetadataSpreadsheetColumnDef(),
-    getSourceStudySourceDatasetCountColumnDef(pathParameter),
+    getSourceStudySourceDatasetCountColumnDef(
+      pathParameter,
+      atlasLinkedDatasetsByStudyId
+    ),
     getSourceStudyCELLxGENEStatusColumnDef(atlasLinkedDatasetsByStudyId),
     getSourceStudyCapStatusColumnDef(),
     getSourceStudyHCADataRepositoryStatusColumnDef(),
@@ -1743,20 +1745,22 @@ function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceSt
 /**
  * Returns source study source datasets count column def.
  * @param pathParameter - Path parameter.
+ * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked datasets indexed by source study.
  * @returns Column def.
  */
 function getSourceStudySourceDatasetCountColumnDef(
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
+  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorKey: "sourceDatasetCount",
-    cell: (ctx) =>
+    cell: ({ row }) =>
       C.LinkCell({
         getValue: () => ({
-          children: ctx.getValue(),
+          children:
+            atlasLinkedDatasetsByStudyId.get(row.original.id)?.length ?? 0,
           href: getRouteURL(ROUTE.SOURCE_DATASETS, {
             ...pathParameter,
-            sourceStudyId: ctx.row.getValue("id"),
+            sourceStudyId: row.original.id,
           }),
         }),
       }),
