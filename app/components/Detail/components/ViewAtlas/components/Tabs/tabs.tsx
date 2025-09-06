@@ -22,8 +22,12 @@ export const Tabs = ({
   pathParameter,
 }: TabsProps): JSX.Element => {
   const { route } = useRouter();
-  const { componentAtlasCount, entrySheetValidationCount, sourceStudyCount } =
-    atlas || {};
+  const {
+    componentAtlasCount,
+    entrySheetValidationCount,
+    sourceDatasetCount,
+    sourceStudyCount,
+  } = atlas || {};
 
   const onChange = useCallback(
     (tabValue: TabValue): void => {
@@ -47,6 +51,10 @@ export const Tabs = ({
             entrySheetValidationCount
           ),
           value: ROUTE.METADATA_ENTRY_SHEETS,
+        },
+        {
+          label: getTabLabelWithCount("Source Datasets", sourceDatasetCount),
+          value: ROUTE.ATLAS_SOURCE_DATASETS,
         },
         {
           label: getTabLabelWithCount(

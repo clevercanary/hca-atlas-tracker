@@ -420,23 +420,6 @@ export const buildSourceDatasetCount = (
 };
 
 /**
- * Build props for the source dataset download component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the cell.
- */
-export const buildSourceDatasetDownload = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): ComponentProps<typeof C.FileDownload> => {
-  const versionId = sourceDataset.cellxgeneDatasetVersion;
-  return {
-    fileName: `${versionId}.h5ad`,
-    fileUrl: versionId
-      ? `https://datasets.cellxgene.cziscience.com/${versionId}.h5ad`
-      : undefined,
-  };
-};
-
-/**
  * Build props for the source dataset Tier 1 metadata StatusBadge component.
  * @param sourceDataset - Source dataset entity.
  * @returns Props to be used for the StatusBadge component.
@@ -1111,19 +1094,20 @@ export function getAtlasComponentSourceDatasetsTableColumns(
  */
 export function getAtlasSourceDatasetsTableColumns(
   atlas: HCAAtlasTrackerAtlas
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+): ColumnDef<HCAAtlasTrackerSourceDataset, unknown>[] {
   return [
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetSourceStudyColumnDef(atlas),
     getAtlasSourceDatasetPublicationColumnDef(),
     getSourceDatasetTierOneMetadataStatusColumnDef(),
-    getSourceDatasetMetadataSpreadsheetColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
     getDiseaseColumnDef(),
     getCellCountColumnDef(),
+    getCreatedAtColumnDef(),
+    getUpdatedAtColumnDef(),
   ];
 }
 
@@ -1397,6 +1381,18 @@ function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAt
 }
 
 /**
+ * Returns created at column def.
+ * @returns ColumnDef.
+ */
+function getCreatedAtColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "createdAt",
+    cell: ({ row }) => getDateFromIsoString(row.original.createdAt),
+    header: "Created At",
+  };
+}
+
+/**
  * Returns component atlas or source dataset disease column def.
  * @returns ColumnDef.
  */
@@ -1509,12 +1505,10 @@ function getProgressValue(numerator: number, denominator: number): number {
  */
 function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
-    accessorKey: "cellxgeneDatasetVersion",
-    cell: ({ row }): JSX.Element => {
-      return C.FileDownload(buildSourceDatasetDownload(row.original));
-    },
+    accessorKey: "download",
+    cell: (): JSX.Element => C.FileDownload({ disabled: true, fileName: "" }),
     enableSorting: false,
-    header: "Download from CELLxGENE",
+    header: "Download",
   };
 }
 
@@ -1569,27 +1563,6 @@ function getSourceDatasetLinkedColumnDef(
       }),
     enableSorting: false,
     header: "Used In Atlas",
-  };
-}
-
-/**
- * Returns source dataset metadata spreadsheet column def.
- * @returns Column def.
- */
-function getSourceDatasetMetadataSpreadsheetColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "metadataSpreadsheetUrl",
-    cell: ({ row }): JSX.Element => {
-      return C.Link({
-        label:
-          row.original.metadataSpreadsheetTitle ||
-          row.original.metadataSpreadsheetUrl,
-        target: ANCHOR_TARGET.BLANK,
-        url: row.original.metadataSpreadsheetUrl ?? "",
-      });
-    },
-    enableSorting: false,
-    header: "Metadata Entry Sheet",
   };
 }
 
@@ -1878,5 +1851,17 @@ function getTissueColumnDef<
     accessorKey: "tissue",
     cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
+  };
+}
+
+/**
+ * Returns updated at column def.
+ * @returns ColumnDef.
+ */
+function getUpdatedAtColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "updatedAt",
+    cell: ({ row }) => getDateFromIsoString(row.original.updatedAt),
+    header: "Updated At",
   };
 }
