@@ -1108,7 +1108,7 @@ export function getAtlasSourceDatasetsTableColumns(
     getCellCountColumnDef(),
     getCreatedAtColumnDef(),
     getUpdatedAtColumnDef(),
-  ] as ColumnDef<HCAAtlasTrackerSourceDataset, unknown>[];
+  ];
 }
 
 /**
@@ -1384,13 +1384,10 @@ function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAt
  * Returns created at column def.
  * @returns ColumnDef.
  */
-function getCreatedAtColumnDef(): ColumnDef<
-  HCAAtlasTrackerSourceDataset,
-  string
-> {
+function getCreatedAtColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "createdAt",
-    cell: (ctx) => getDateFromIsoString(ctx.getValue()),
+    cell: ({ row }) => getDateFromIsoString(row.original.createdAt),
     header: "Created At",
   };
 }
@@ -1861,13 +1858,10 @@ function getTissueColumnDef<
  * Returns updated at column def.
  * @returns ColumnDef.
  */
-function getUpdatedAtColumnDef(): ColumnDef<
-  HCAAtlasTrackerSourceDataset,
-  string
-> {
+function getUpdatedAtColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "updatedAt",
-    cell: (ctx) => getDateFromIsoString(ctx.getValue()),
+    cell: ({ row }) => getDateFromIsoString(row.original.updatedAt),
     header: "Updated At",
   };
 }
