@@ -632,33 +632,6 @@ export const buildSourceStudyCount = (
 };
 
 /**
- * Build props for the used source datasets cell component.
- * @param sourceStudy - Source study entity.
- * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked source datasets indexed by source study.
- * @returns Props to be used for the cell.
- */
-export const buildSourceStudySourceDatasetCount = (
-  sourceStudy: HCAAtlasTrackerSourceStudy,
-  pathParameter: PathParameter,
-  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
-): ComponentProps<typeof C.Link> => {
-  const label =
-    sourceStudy.sourceDatasetCount === 0
-      ? "--"
-      : `${
-          atlasLinkedDatasetsByStudyId.get(sourceStudy.id)?.length ?? 0
-        } of ${sourceStudy.sourceDatasetCount.toLocaleString()}`;
-  return {
-    label,
-    url: getRouteURL(ROUTE.SOURCE_DATASETS, {
-      ...pathParameter,
-      sourceStudyId: sourceStudy.id,
-    }),
-  };
-};
-
-/**
  * Build props for the status cell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the cell.
@@ -1780,16 +1753,18 @@ function getSourceStudySourceDatasetCountColumnDef(
   atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
 ): ColumnDef<HCAAtlasTrackerSourceStudy> {
   return {
-    accessorKey: "sourceDatasetCount",
     cell: ({ row }) =>
-      C.Link(
-        buildSourceStudySourceDatasetCount(
-          row.original,
-          pathParameter,
-          atlasLinkedDatasetsByStudyId
-        )
-      ),
-    header: "Datasets Used",
+      C.LinkCell({
+        getValue: () => ({
+          children:
+            atlasLinkedDatasetsByStudyId.get(row.original.id)?.length ?? 0,
+          href: getRouteURL(ROUTE.SOURCE_DATASETS, {
+            ...pathParameter,
+            sourceStudyId: row.original.id,
+          }),
+        }),
+      }),
+    header: "Datasets",
   };
 }
 
