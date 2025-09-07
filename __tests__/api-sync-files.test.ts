@@ -7,13 +7,17 @@ import { mockClient } from "aws-sdk-client-mock";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { resetDatabase } from "testing/db-utils";
-import { HCAAtlasTrackerDBFile } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  FILE_TYPE,
+  HCAAtlasTrackerDBFile,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import { syncFilesFromS3 } from "../app/services/s3-sync";
 import syncFilesHandler from "../pages/api/sync-files";
 import {
   STAKEHOLDER_ANALOGOUS_ROLES,
+  TEST_S3_BUCKET,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
@@ -22,6 +26,7 @@ import { TestUser } from "../testing/entities";
 import { setTestRandomUuids } from "../testing/setup";
 import {
   delay,
+  expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
   withConsoleMessageHiding,
@@ -68,6 +73,8 @@ afterAll(() => {
 });
 
 const TEST_ROUTE = "/api/sync-files";
+
+const OBJECT_CREATED = "ObjectCreated:*";
 
 const KEY_COMPLETE_FOO = "eye/test-draft-v1-2/integrated-objects/test-a.h5ad";
 const KEY_COMPLETE_BAR = "eye/test-draft-v1-2/source-datasets/test-b.h5ad";
@@ -119,6 +126,67 @@ const HEAD_RESPONSE_NO_VERSION = {
   LastModified: new Date("2025-09-07T04:18:28.171Z"),
   VersionId: undefined,
 };
+
+const EXPECTED_FILE_COMPLETE_FOO = {
+  bucket: TEST_S3_BUCKET,
+  etag: HEAD_RESPONSE_COMPLETE_FOO.ETag,
+  event_info: {
+    eventName: OBJECT_CREATED,
+    eventTime: HEAD_RESPONSE_COMPLETE_FOO.LastModified.toISOString(),
+  },
+  file_type: FILE_TYPE.INTEGRATED_OBJECT,
+  key: KEY_COMPLETE_FOO,
+  size_bytes: String(HEAD_RESPONSE_COMPLETE_FOO.ContentLength),
+  version_id: HEAD_RESPONSE_COMPLETE_FOO.VersionId,
+} satisfies Partial<HCAAtlasTrackerDBFile>;
+
+const EXPECTED_FILE_COMPLETE_BAR = {
+  bucket: TEST_S3_BUCKET,
+  etag: HEAD_RESPONSE_COMPLETE_BAR.ETag,
+  event_info: {
+    eventName: OBJECT_CREATED,
+    eventTime: HEAD_RESPONSE_COMPLETE_BAR.LastModified.toISOString(),
+  },
+  file_type: FILE_TYPE.SOURCE_DATASET,
+  key: KEY_COMPLETE_BAR,
+  size_bytes: String(HEAD_RESPONSE_COMPLETE_BAR.ContentLength),
+  version_id: HEAD_RESPONSE_COMPLETE_BAR.VersionId,
+} satisfies Partial<HCAAtlasTrackerDBFile>;
+
+const EXPECTED_FILE_NO_LENGTH = {
+  bucket: TEST_S3_BUCKET,
+  etag: HEAD_RESPONSE_NO_LENGTH.ETag,
+  event_info: {
+    eventName: OBJECT_CREATED,
+    eventTime: HEAD_RESPONSE_NO_LENGTH.LastModified.toISOString(),
+  },
+  file_type: FILE_TYPE.INGEST_MANIFEST,
+  key: KEY_NO_LENGTH,
+  size_bytes: "0",
+  version_id: HEAD_RESPONSE_NO_LENGTH.VersionId,
+} satisfies Partial<HCAAtlasTrackerDBFile>;
+
+const EXPECTED_FILE_NO_MODIFIED = {
+  bucket: TEST_S3_BUCKET,
+  etag: HEAD_RESPONSE_NO_MODIFIED.ETag,
+  file_type: FILE_TYPE.SOURCE_DATASET,
+  key: KEY_NO_MODIFIED,
+  size_bytes: String(HEAD_RESPONSE_NO_MODIFIED.ContentLength),
+  version_id: HEAD_RESPONSE_NO_MODIFIED.VersionId,
+} satisfies Partial<HCAAtlasTrackerDBFile>;
+
+const EXPECTED_FILE_NO_VERSION = {
+  bucket: TEST_S3_BUCKET,
+  etag: HEAD_RESPONSE_NO_VERSION.ETag,
+  event_info: {
+    eventName: OBJECT_CREATED,
+    eventTime: HEAD_RESPONSE_NO_VERSION.LastModified.toISOString(),
+  },
+  file_type: FILE_TYPE.INGEST_MANIFEST,
+  key: KEY_NO_VERSION,
+  size_bytes: String(HEAD_RESPONSE_NO_VERSION.ContentLength),
+  version_id: null,
+} satisfies Partial<HCAAtlasTrackerDBFile>;
 
 const HEAD_RESPONSES_BY_KEY = {
   [KEY_COMPLETE_BAR]: HEAD_RESPONSE_COMPLETE_BAR,
@@ -212,10 +280,65 @@ describe(TEST_ROUTE, () => {
 
     expect(res._getStatusCode()).toBe(202);
 
+    const warningMessages = consoleMessages.warn.flat();
+
+    // Check that no errors were reported
     expect(consoleMessages.error).toHaveLength(0);
 
+    // Check that the expected number of objects without keys were skipped
+    expect(warningMessages).toContain(
+      "S3 sync: Skipped 3 objects without keys"
+    );
+
     const files = await getDbFilesCreatedAfter(startTime);
+
+    // Check that the expected number of files are present
     expect(files).toHaveLength(5);
+
+    // Check that random UUIDs were used to create fake message IDs
+    const filesMessageIds = files.map((f) => f.sns_message_id);
+    for (const uuid of TEST_UUIDS) {
+      expect(filesMessageIds).toContain(`SYNTHETIC-${uuid}`);
+    }
+
+    const filesByKey = new Map(files.map((f) => [f.key, f]));
+
+    // Check that files are still distinguished in the mapping
+    expect(filesByKey.size).toEqual(5);
+
+    // Check files from responses with all fields filled
+    expect(filesByKey.get(KEY_COMPLETE_FOO)).toMatchObject(
+      EXPECTED_FILE_COMPLETE_FOO
+    );
+    expect(filesByKey.get(KEY_COMPLETE_BAR)).toMatchObject(
+      EXPECTED_FILE_COMPLETE_BAR
+    );
+
+    // Check file from response without content length
+    // Expected data has length set to 0
+    expect(filesByKey.get(KEY_NO_LENGTH)).toMatchObject(
+      EXPECTED_FILE_NO_LENGTH
+    );
+
+    // Check that response without etag was skipped
+    expect(warningMessages).toContain(
+      `S3 sync: No ETag received for s3://${TEST_S3_BUCKET}/${KEY_NO_ETAG} -- skipping`
+    );
+    expect(filesByKey.get(KEY_NO_ETAG)).toBeUndefined();
+
+    // Check file from response without last modified time
+    const fileNoModified = filesByKey.get(KEY_NO_MODIFIED);
+    expect(fileNoModified).toMatchObject(EXPECTED_FILE_NO_MODIFIED);
+    if (expectIsDefined(fileNoModified)) {
+      const fileTime = new Date(fileNoModified.event_info.eventTime).getTime();
+      expect(fileTime).toBeGreaterThan(startTime.getTime());
+    }
+
+    // Check file from response without version ID
+    // Expected data has version ID set to null
+    expect(filesByKey.get(KEY_NO_VERSION)).toMatchObject(
+      EXPECTED_FILE_NO_VERSION
+    );
   });
 });
 

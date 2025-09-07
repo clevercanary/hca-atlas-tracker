@@ -1,4 +1,5 @@
 import { TextDecoder, TextEncoder } from "util";
+import { TEST_S3_BUCKET } from "./constants";
 
 Object.assign(global, { TextDecoder, TextEncoder }); // https://stackoverflow.com/questions/68468203/why-am-i-getting-textencoder-is-not-defined-in-jest
 
@@ -23,7 +24,7 @@ process.env.GOOGLE_SERVICE_ACCOUNT =
 process.env.GOOGLE_AUTH =
   '{"type": "service_account", "client_email": "test@example.com"}';
 
-process.env.AWS_DATA_BUCKET = "test-bucket";
+process.env.AWS_DATA_BUCKET = TEST_S3_BUCKET;
 
 // Loaded via setupFilesAfterEnv: hooks are available synchronously.
 afterAll(async () => {

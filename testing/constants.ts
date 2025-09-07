@@ -25,6 +25,8 @@ import {
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
+export const TEST_S3_BUCKET = "test-bucket";
+
 export const STAKEHOLDER_ANALOGOUS_ROLES = [
   ROLE.STAKEHOLDER,
   ROLE.INTEGRATION_LEAD,
