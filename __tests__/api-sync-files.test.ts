@@ -10,6 +10,7 @@ import { resetDatabase } from "testing/db-utils";
 import { HCAAtlasTrackerDBFile } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { syncFilesFromS3 } from "../app/services/s3-sync";
 import syncFilesHandler from "../pages/api/sync-files";
 import {
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -18,7 +19,9 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
+import { setTestRandomUuids } from "../testing/setup";
 import {
+  delay,
   testApiRole,
   withConsoleErrorHiding,
   withConsoleMessageHiding,
@@ -33,11 +36,28 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
+const syncMock = syncFilesFromS3 as jest.Mock;
+
+jest.mock("../app/services/s3-sync", () => {
+  const s3Sync = jest.requireActual<typeof import("../app/services/s3-sync")>(
+    "../app/services/s3-sync"
+  );
+  return {
+    syncFilesFromS3: jest.fn(s3Sync.syncFilesFromS3),
+  };
+});
+
+const TEST_UUIDS = [
+  "9ac2e257-76ae-4220-bcb4-31709533e00d",
+  "135d67d9-2a56-42f5-886f-a4c50c239aea",
+  "77c65c60-948f-4b0d-be91-6b07bfaa3af8",
+  "5126915c-9824-4bd6-8eff-d46ce6e5ab73",
+  "ca1a73e7-d7b0-476e-b8db-88ed90c8eb6a",
+];
+
+setTestRandomUuids(TEST_UUIDS);
+
 const s3Mock = mockClient(S3Client);
-
-beforeEach(() => s3Mock.reset());
-
-afterEach(() => jest.useRealTimers());
 
 beforeAll(async () => {
   await resetDatabase();
@@ -49,13 +69,13 @@ afterAll(() => {
 
 const TEST_ROUTE = "/api/sync-files";
 
-const KEY_COMPLETE_FOO = "adipose/adipose-v1/integrated-objects/test-a.h5ad";
-const KEY_COMPLETE_BAR = "adipose/adipose-v1/source-datasets/test-b.h5ad";
-const KEY_NO_LENGTH = "adipose/adipose-v1/manifests/test-c.json";
-const KEY_NO_ETAG = "gut/gut-v1/integrated-objects/test-d.h5ad";
-const KEY_NO_MODIFIED = "gut/gut-v1/source-datasets/test-e.h5ad";
-const KEY_NO_VERSION = "gut/gut-v1/manifests/test-f.h5ad";
-const KEY_KEEP_SUBPATH = "adipose/adipose-v1/integrated-objects/.keep";
+const KEY_COMPLETE_FOO = "eye/test-draft-v1-2/integrated-objects/test-a.h5ad";
+const KEY_COMPLETE_BAR = "eye/test-draft-v1-2/source-datasets/test-b.h5ad";
+const KEY_NO_LENGTH = "eye/test-draft-v1-2/manifests/test-c.json";
+const KEY_NO_ETAG = "lung/test-public-v2-3/integrated-objects/test-d.h5ad";
+const KEY_NO_MODIFIED = "lung/test-public-v2-3/source-datasets/test-e.h5ad";
+const KEY_NO_VERSION = "lung/test-public-v2-3/manifests/test-f.h5ad";
+const KEY_KEEP_SUBPATH = "eye/test-draft-v1-2/integrated-objects/.keep";
 const KEY_KEEP_ROOT = ".keep";
 
 const HEAD_RESPONSE_COMPLETE_FOO = {
@@ -170,18 +190,31 @@ describe(TEST_ROUTE, () => {
       s3Mock.on(HeadObjectCommand, { Key: key }).resolves(response);
     }
 
-    jest.useFakeTimers();
+    // Add a minimal delay to guarantee that the new files will be created after the pre-initialized files
+    await delay(10);
+
+    const startTime = new Date();
 
     const consoleMessages = {
+      error: [] as unknown[][],
       warn: [] as unknown[][],
     };
-    await withConsoleMessageHiding(
-      () => doSyncFilesRequest(USER_CONTENT_ADMIN, METHOD.POST),
+
+    const res = await withConsoleMessageHiding(
+      async () => {
+        const res = await doSyncFilesRequest(USER_CONTENT_ADMIN, METHOD.POST);
+        await resolveSync();
+        return res;
+      },
       true,
       consoleMessages
     );
 
-    const files = await getDbFilesCreatedAt(new Date());
+    expect(res._getStatusCode()).toBe(202);
+
+    expect(consoleMessages.error).toHaveLength(0);
+
+    const files = await getDbFilesCreatedAfter(startTime);
     expect(files).toHaveLength(5);
   });
 });
@@ -202,12 +235,16 @@ async function doSyncFilesRequest(
   return res;
 }
 
-async function getDbFilesCreatedAt(
+async function getDbFilesCreatedAfter(
   date: Date
 ): Promise<HCAAtlasTrackerDBFile[]> {
   const result = await query<HCAAtlasTrackerDBFile>(
-    "SELECT * FROM hat.files WHERE created_at=$1",
+    "SELECT * FROM hat.files WHERE created_at >= $1",
     [date]
   );
   return result.rows;
+}
+
+async function resolveSync(): Promise<void> {
+  await syncMock.mock.results[syncMock.mock.results.length - 1].value;
 }

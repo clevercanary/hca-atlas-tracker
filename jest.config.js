@@ -16,6 +16,7 @@ const customJestConfig = {
   moduleDirectories: ["node_modules", "<rootDir>/"],
   moduleNameMapper: {
     "^ky$": "<rootDir>/__mocks__/ky.ts",
+    "^sinon$": "sinon/pkg/sinon.js",
   },
   setupFilesAfterEnv: ["<rootDir>/testing/setup.ts"],
   testEnvironment: "jest-environment-jsdom",
