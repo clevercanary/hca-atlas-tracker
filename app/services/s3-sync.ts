@@ -95,7 +95,7 @@ function makeSyntheticEventRecordFromHeadResult(
     s3: {
       bucket: { name: bucket },
       object: {
-        eTag: result.ETag,
+        eTag: removeETagQuotes(result.ETag),
         key,
         size: result.ContentLength ?? 0,
         versionId: result.VersionId ?? "",
@@ -149,4 +149,8 @@ export async function getBucketFileKeys(
   console.log(`S3 sync: Got object list`);
 
   return keys;
+}
+
+function removeETagQuotes(eTag: string): string {
+  return eTag.replaceAll(/^[^"]*"|"[^"]*$/g, "");
 }

@@ -62,6 +62,7 @@ const TEST_UUID_COMPLETE_BAR = "135d67d9-2a56-42f5-886f-a4c50c239aea";
 const TEST_UUID_NO_LENGTH = "77c65c60-948f-4b0d-be91-6b07bfaa3af8";
 const TEST_UUID_NO_MODIFIED = "5126915c-9824-4bd6-8eff-d46ce6e5ab73";
 const TEST_UUID_NO_VERSION = "ca1a73e7-d7b0-476e-b8db-88ed90c8eb6a";
+const TEST_UUID_QUOTED_ETAG = "561fbc54-e806-4b15-870e-2b67c5f47ace";
 const TEST_UUID_EXISTING_UNCHANGED = "96e89fc4-8bc7-4a5c-8d81-0f87c58e073f";
 const TEST_UUID_EXISTING_CHANGED = "51938c9b-ac8f-4dac-8e14-0178b491730c";
 
@@ -72,6 +73,7 @@ setTestRandomUuids([
   TEST_UUID_NO_LENGTH,
   TEST_UUID_NO_MODIFIED,
   TEST_UUID_NO_VERSION,
+  TEST_UUID_QUOTED_ETAG,
   TEST_UUID_EXISTING_UNCHANGED,
   TEST_UUID_EXISTING_CHANGED,
 ]);
@@ -100,6 +102,8 @@ const KEY_NO_ETAG =
 const KEY_NO_MODIFIED =
   "lung/test-public-v2-3/source-datasets/test-no-modified.h5ad";
 const KEY_NO_VERSION = "lung/test-public-v2-3/manifests/test-no-version.json";
+const KEY_QUOTED_ETAG =
+  "lung/test-public-v2-3/source-datasets/test-quoted-etag.json";
 const KEY_EXISTING_UNCHANGED =
   "lung/test-public-v2-3/manifests/test-existing-unchanged.json";
 const KEY_EXISTING_CHANGED =
@@ -147,6 +151,14 @@ const HEAD_RESPONSE_NO_VERSION = {
   ETag: "2f97b65a573443989ee9f5d8eef7ada4",
   LastModified: new Date("2025-09-07T04:18:28.171Z"),
   VersionId: undefined,
+};
+
+const ETAG_TO_QUOTE = "116cbb47a9184dd08494e33aa0009d75";
+const HEAD_RESPONSE_QUOTED_ETAG = {
+  ContentLength: 8979,
+  ETag: `"${ETAG_TO_QUOTE}"`,
+  LastModified: new Date("2025-09-08T04:44:43.573Z"),
+  VersionId: "324279",
 };
 
 const HEAD_RESPONSE_EXISTING_UNCHANGED = {
@@ -229,6 +241,20 @@ const EXPECTED_FILE_NO_VERSION = {
   version_id: null,
 } satisfies Partial<HCAAtlasTrackerDBFile>;
 
+const EXPECTED_FILE_QUOTED_ETAG = {
+  bucket: TEST_S3_BUCKET,
+  etag: ETAG_TO_QUOTE,
+  event_info: {
+    eventName: OBJECT_CREATED,
+    eventTime: HEAD_RESPONSE_QUOTED_ETAG.LastModified.toISOString(),
+  },
+  file_type: FILE_TYPE.SOURCE_DATASET,
+  key: KEY_QUOTED_ETAG,
+  size_bytes: String(HEAD_RESPONSE_QUOTED_ETAG.ContentLength),
+  sns_message_id: `SYNTHETIC-${TEST_UUID_QUOTED_ETAG}`,
+  version_id: HEAD_RESPONSE_QUOTED_ETAG.VersionId,
+} satisfies Partial<HCAAtlasTrackerDBFile>;
+
 const HEAD_RESPONSES_BY_KEY = new Map<string, Partial<HeadObjectCommandOutput>>(
   [
     [KEY_COMPLETE_FOO, HEAD_RESPONSE_COMPLETE_FOO],
@@ -237,6 +263,7 @@ const HEAD_RESPONSES_BY_KEY = new Map<string, Partial<HeadObjectCommandOutput>>(
     [KEY_NO_ETAG, HEAD_RESPONSE_NO_ETAG],
     [KEY_NO_MODIFIED, HEAD_RESPONSE_NO_MODIFIED],
     [KEY_NO_VERSION, HEAD_RESPONSE_NO_VERSION],
+    [KEY_QUOTED_ETAG, HEAD_RESPONSE_QUOTED_ETAG],
     [KEY_EXISTING_CHANGED, HEAD_RESPONSE_EXISTING_CHANGED],
     [KEY_EXISTING_UNCHANGED, HEAD_RESPONSE_EXISTING_UNCHANGED],
   ]
@@ -373,7 +400,7 @@ describe(TEST_ROUTE, () => {
     const files = await getDbFilesModifiedAfter(startTime);
 
     // Check that the expected number of modified files are present
-    expect(files).toHaveLength(7);
+    expect(files).toHaveLength(8);
 
     // Get latest versions of updated files
     const filesByKey = new Map(
@@ -382,7 +409,7 @@ describe(TEST_ROUTE, () => {
 
     // Check that the expected number of files are distinguished in the mapping
     // The old version of the existing changed file should be set to non-latest and so isn't included
-    expect(filesByKey.size).toEqual(6);
+    expect(filesByKey.size).toEqual(7);
 
     // Check files from responses with all fields filled
     expect(filesByKey.get(KEY_COMPLETE_FOO)).toMatchObject(
@@ -416,6 +443,12 @@ describe(TEST_ROUTE, () => {
     // Expected data has version ID set to null
     expect(filesByKey.get(KEY_NO_VERSION)).toMatchObject(
       EXPECTED_FILE_NO_VERSION
+    );
+
+    // Check file with quoted etag
+    // Expected data has etag without quotes
+    expect(filesByKey.get(KEY_QUOTED_ETAG)).toMatchObject(
+      EXPECTED_FILE_QUOTED_ETAG
     );
 
     // Check that existing file is not changed and no new file is created when version ID is the same
