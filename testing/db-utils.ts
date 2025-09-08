@@ -519,6 +519,18 @@ export async function getSourceDatasetFromDatabase(
   ).rows[0];
 }
 
+export async function getAllSourceDatasetsFromDatabase(
+  sort = false
+): Promise<HCAAtlasTrackerDBSourceDataset[]> {
+  const datasets = (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets"
+    )
+  ).rows;
+  if (sort) datasets.sort((a, b) => a.id.localeCompare(b.id));
+  return datasets;
+}
+
 export async function getCellxGeneSourceDatasetFromDatabase(
   cellxgeneId: string
 ): Promise<HCAAtlasTrackerDBSourceDataset | null> {

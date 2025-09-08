@@ -13,8 +13,6 @@ import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
   ATLAS_PUBLIC,
-  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
-  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
   CELLXGENE_ID_JOURNAL_COUNTERPART,
   CELLXGENE_ID_NORMAL,
   CELLXGENE_ID_PREPRINT_COUNTERPART,
@@ -48,7 +46,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
-  getCellxGeneSourceDatasetFromDatabase,
+  getAllSourceDatasetsFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
   resetDatabase,
@@ -441,16 +439,8 @@ describe(TEST_ROUTE, () => {
     expect(dbStudy.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id);
   });
 
-  it("updates CELLxGENE source datasets with source study is created", async () => {
-    const fooBefore = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
-    );
-    const barBefore = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
-    );
-
-    expect(fooBefore).toBeNull();
-    expect(barBefore).toBeNull();
+  it("does not update CELLxGENE source datasets when source study is created", async () => {
+    const datasetsBefore = await getAllSourceDatasetsFromDatabase(true);
 
     const { apiStudy } = await testSuccessfulCreate(
       ATLAS_DRAFT,
@@ -460,33 +450,15 @@ describe(TEST_ROUTE, () => {
       CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS
     );
 
-    expect(apiStudy.sourceDatasetCount).toEqual(2);
+    expect(apiStudy.sourceDatasetCount).toEqual(0);
 
     const studyDatasets = await getStudySourceDatasets(apiStudy.id);
 
-    expect(studyDatasets).toHaveLength(2);
+    expect(studyDatasets).toHaveLength(0);
 
-    const fooAfter = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
-    );
-    const barAfter = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
-    );
+    const datasetsAfter = await getAllSourceDatasetsFromDatabase(true);
 
-    expect(fooAfter).toEqual(
-      studyDatasets.find(
-        (d) =>
-          d.sd_info.cellxgeneDatasetId ===
-          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
-      )
-    );
-    expect(barAfter).toEqual(
-      studyDatasets.find(
-        (d) =>
-          d.sd_info.cellxgeneDatasetId ===
-          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
-      )
-    );
+    expect(datasetsAfter).toEqual(datasetsBefore);
   });
 });
 
