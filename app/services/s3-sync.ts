@@ -152,5 +152,7 @@ export async function getBucketFileKeys(
 }
 
 function removeETagQuotes(eTag: string): string {
-  return eTag.replaceAll(/^[^"]*"|"[^"]*$/g, "");
+  const quotesMatch = /^"(.*)"$/.exec(eTag);
+  if (!quotesMatch) return eTag;
+  return quotesMatch[1];
 }
