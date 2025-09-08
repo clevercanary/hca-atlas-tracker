@@ -59,7 +59,6 @@ import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
-import { UseSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { EXTRA_PROPS } from "./constants";
 import {
   COMPONENT_NAME,
@@ -1151,27 +1150,13 @@ function getAtlasSourceDatasetTitleColumnDef(
 }
 
 /**
- * Returns the table column definition model for the atlas (edit mode) source datasets table.
- * @param pathParameter - Path parameter.
- * @param onSetLinked - Set linked source datasets function.
- * @param canEdit - Edit state for user.
- * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
+ * Returns the table column definition model for the atlas source datasets table.
  * @returns Table column definition.
  */
-export function getAtlasSourceStudySourceDatasetsTableColumns(
-  pathParameter: PathParameter,
-  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
-  canEdit: boolean,
-  linkedSourceDatasetIds: Set<string>
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+export function getAtlasSourceStudySourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetDownloadColumnDef(),
     getSourceDatasetTitleColumnDef(),
-    getSourceDatasetLinkedColumnDef(
-      onSetLinked,
-      canEdit,
-      linkedSourceDatasetIds
-    ),
     getSourceDatasetTierOneMetadataStatusColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
@@ -1537,32 +1522,6 @@ function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
     },
     enableSorting: false,
     header: "Explore",
-  };
-}
-
-/**
- * Returns source dataset linked column def.
- * @param onSetLinked - Set linked source dataset function.
- * @param canEdit - Edit state for user.
- * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
- * @returns ColumnDef.
- */
-function getSourceDatasetLinkedColumnDef(
-  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
-  canEdit: boolean,
-  linkedSourceDatasetIds: Set<string>
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "linked",
-    cell: ({ row }) =>
-      C.LinkDatasetDropdown({
-        disabled: !canEdit,
-        linked: linkedSourceDatasetIds.has(row.original.id),
-        onSetLinked,
-        sourceDatasetId: row.original.id,
-      }),
-    enableSorting: false,
-    header: "Used In Atlas",
   };
 }
 
