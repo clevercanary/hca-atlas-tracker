@@ -1,12 +1,17 @@
 import {
   HeadObjectCommand,
+  HeadObjectCommandOutput,
   ListObjectsV2Command,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { mockClient } from "aws-sdk-client-mock";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { resetDatabase } from "testing/db-utils";
+import {
+  getFileFromDatabase,
+  initTestFile,
+  resetDatabase,
+} from "testing/db-utils";
 import {
   FILE_TYPE,
   HCAAtlasTrackerDBFile,
@@ -52,15 +57,24 @@ jest.mock("../app/services/s3-sync", () => {
   };
 });
 
-const TEST_UUIDS = [
-  "9ac2e257-76ae-4220-bcb4-31709533e00d",
-  "135d67d9-2a56-42f5-886f-a4c50c239aea",
-  "77c65c60-948f-4b0d-be91-6b07bfaa3af8",
-  "5126915c-9824-4bd6-8eff-d46ce6e5ab73",
-  "ca1a73e7-d7b0-476e-b8db-88ed90c8eb6a",
-];
+const TEST_UUID_COMPLETE_FOO = "9ac2e257-76ae-4220-bcb4-31709533e00d";
+const TEST_UUID_COMPLETE_BAR = "135d67d9-2a56-42f5-886f-a4c50c239aea";
+const TEST_UUID_NO_LENGTH = "77c65c60-948f-4b0d-be91-6b07bfaa3af8";
+const TEST_UUID_NO_MODIFIED = "5126915c-9824-4bd6-8eff-d46ce6e5ab73";
+const TEST_UUID_NO_VERSION = "ca1a73e7-d7b0-476e-b8db-88ed90c8eb6a";
+const TEST_UUID_EXISTING_UNCHANGED = "96e89fc4-8bc7-4a5c-8d81-0f87c58e073f";
+const TEST_UUID_EXISTING_CHANGED = "51938c9b-ac8f-4dac-8e14-0178b491730c";
 
-setTestRandomUuids(TEST_UUIDS);
+// These should be in the same order as HEAD_RESPONSES_BY_KEY
+setTestRandomUuids([
+  TEST_UUID_COMPLETE_FOO,
+  TEST_UUID_COMPLETE_BAR,
+  TEST_UUID_NO_LENGTH,
+  TEST_UUID_NO_MODIFIED,
+  TEST_UUID_NO_VERSION,
+  TEST_UUID_EXISTING_UNCHANGED,
+  TEST_UUID_EXISTING_CHANGED,
+]);
 
 const s3Mock = mockClient(S3Client);
 
@@ -76,12 +90,20 @@ const TEST_ROUTE = "/api/sync-files";
 
 const OBJECT_CREATED = "ObjectCreated:*";
 
-const KEY_COMPLETE_FOO = "eye/test-draft-v1-2/integrated-objects/test-a.h5ad";
-const KEY_COMPLETE_BAR = "eye/test-draft-v1-2/source-datasets/test-b.h5ad";
-const KEY_NO_LENGTH = "eye/test-draft-v1-2/manifests/test-c.json";
-const KEY_NO_ETAG = "lung/test-public-v2-3/integrated-objects/test-d.h5ad";
-const KEY_NO_MODIFIED = "lung/test-public-v2-3/source-datasets/test-e.h5ad";
-const KEY_NO_VERSION = "lung/test-public-v2-3/manifests/test-f.h5ad";
+const KEY_COMPLETE_FOO =
+  "eye/test-draft-v1-2/integrated-objects/test-complete-foo.h5ad";
+const KEY_COMPLETE_BAR =
+  "eye/test-draft-v1-2/source-datasets/test-complete-bar.h5ad";
+const KEY_NO_LENGTH = "eye/test-draft-v1-2/manifests/test-no-length.json";
+const KEY_NO_ETAG =
+  "lung/test-public-v2-3/integrated-objects/test-no-etag.h5ad";
+const KEY_NO_MODIFIED =
+  "lung/test-public-v2-3/source-datasets/test-no-modified.h5ad";
+const KEY_NO_VERSION = "lung/test-public-v2-3/manifests/test-no-version.json";
+const KEY_EXISTING_UNCHANGED =
+  "lung/test-public-v2-3/manifests/test-existing-unchanged.json";
+const KEY_EXISTING_CHANGED =
+  "lung/test-public-v2-3/manifests/test-existing-changed.json";
 const KEY_KEEP_SUBPATH = "eye/test-draft-v1-2/integrated-objects/.keep";
 const KEY_KEEP_ROOT = ".keep";
 
@@ -127,6 +149,20 @@ const HEAD_RESPONSE_NO_VERSION = {
   VersionId: undefined,
 };
 
+const HEAD_RESPONSE_EXISTING_UNCHANGED = {
+  ContentLength: 14345,
+  ETag: "b1b3203bd85d43908183c75930174b35",
+  LastModified: new Date("2025-09-07T23:15:04.425Z"),
+  VersionId: "235345",
+};
+
+const HEAD_RESPONSE_EXISTING_CHANGED = {
+  ContentLength: 2523,
+  ETag: "e19edaa3a4a04487bc3ebcf662d56559",
+  LastModified: new Date("2025-09-07T23:20:58.267Z"),
+  VersionId: "645643",
+};
+
 const EXPECTED_FILE_COMPLETE_FOO = {
   bucket: TEST_S3_BUCKET,
   etag: HEAD_RESPONSE_COMPLETE_FOO.ETag,
@@ -137,6 +173,7 @@ const EXPECTED_FILE_COMPLETE_FOO = {
   file_type: FILE_TYPE.INTEGRATED_OBJECT,
   key: KEY_COMPLETE_FOO,
   size_bytes: String(HEAD_RESPONSE_COMPLETE_FOO.ContentLength),
+  sns_message_id: `SYNTHETIC-${TEST_UUID_COMPLETE_FOO}`,
   version_id: HEAD_RESPONSE_COMPLETE_FOO.VersionId,
 } satisfies Partial<HCAAtlasTrackerDBFile>;
 
@@ -150,6 +187,7 @@ const EXPECTED_FILE_COMPLETE_BAR = {
   file_type: FILE_TYPE.SOURCE_DATASET,
   key: KEY_COMPLETE_BAR,
   size_bytes: String(HEAD_RESPONSE_COMPLETE_BAR.ContentLength),
+  sns_message_id: `SYNTHETIC-${TEST_UUID_COMPLETE_BAR}`,
   version_id: HEAD_RESPONSE_COMPLETE_BAR.VersionId,
 } satisfies Partial<HCAAtlasTrackerDBFile>;
 
@@ -163,6 +201,7 @@ const EXPECTED_FILE_NO_LENGTH = {
   file_type: FILE_TYPE.INGEST_MANIFEST,
   key: KEY_NO_LENGTH,
   size_bytes: "0",
+  sns_message_id: `SYNTHETIC-${TEST_UUID_NO_LENGTH}`,
   version_id: HEAD_RESPONSE_NO_LENGTH.VersionId,
 } satisfies Partial<HCAAtlasTrackerDBFile>;
 
@@ -172,6 +211,7 @@ const EXPECTED_FILE_NO_MODIFIED = {
   file_type: FILE_TYPE.SOURCE_DATASET,
   key: KEY_NO_MODIFIED,
   size_bytes: String(HEAD_RESPONSE_NO_MODIFIED.ContentLength),
+  sns_message_id: `SYNTHETIC-${TEST_UUID_NO_MODIFIED}`,
   version_id: HEAD_RESPONSE_NO_MODIFIED.VersionId,
 } satisfies Partial<HCAAtlasTrackerDBFile>;
 
@@ -185,24 +225,29 @@ const EXPECTED_FILE_NO_VERSION = {
   file_type: FILE_TYPE.INGEST_MANIFEST,
   key: KEY_NO_VERSION,
   size_bytes: String(HEAD_RESPONSE_NO_VERSION.ContentLength),
+  sns_message_id: `SYNTHETIC-${TEST_UUID_NO_VERSION}`,
   version_id: null,
 } satisfies Partial<HCAAtlasTrackerDBFile>;
 
-const HEAD_RESPONSES_BY_KEY = {
-  [KEY_COMPLETE_BAR]: HEAD_RESPONSE_COMPLETE_BAR,
-  [KEY_COMPLETE_FOO]: HEAD_RESPONSE_COMPLETE_FOO,
-  [KEY_NO_ETAG]: HEAD_RESPONSE_NO_ETAG,
-  [KEY_NO_LENGTH]: HEAD_RESPONSE_NO_LENGTH,
-  [KEY_NO_MODIFIED]: HEAD_RESPONSE_NO_MODIFIED,
-  [KEY_NO_VERSION]: HEAD_RESPONSE_NO_VERSION,
-};
+const HEAD_RESPONSES_BY_KEY = new Map<string, Partial<HeadObjectCommandOutput>>(
+  [
+    [KEY_COMPLETE_FOO, HEAD_RESPONSE_COMPLETE_FOO],
+    [KEY_COMPLETE_BAR, HEAD_RESPONSE_COMPLETE_BAR],
+    [KEY_NO_LENGTH, HEAD_RESPONSE_NO_LENGTH],
+    [KEY_NO_ETAG, HEAD_RESPONSE_NO_ETAG],
+    [KEY_NO_MODIFIED, HEAD_RESPONSE_NO_MODIFIED],
+    [KEY_NO_VERSION, HEAD_RESPONSE_NO_VERSION],
+    [KEY_EXISTING_CHANGED, HEAD_RESPONSE_EXISTING_CHANGED],
+    [KEY_EXISTING_UNCHANGED, HEAD_RESPONSE_EXISTING_UNCHANGED],
+  ]
+);
 
 const LIST_OBJECTS_RESPONSE = {
   Contents: [
     // Includes empty objects to test missing key case
     {},
     { Key: KEY_KEEP_SUBPATH },
-    ...Object.keys(HEAD_RESPONSES_BY_KEY).map((key) => ({ Key: key })),
+    ...Array.from(HEAD_RESPONSES_BY_KEY.keys(), (key) => ({ Key: key })),
     {},
     {},
     { Key: KEY_KEEP_ROOT },
@@ -253,8 +298,40 @@ describe(TEST_ROUTE, () => {
   }
 
   it("processes s3 data, logs warnings, and creates files as appropriate when requested by content admin", async () => {
+    const FILE_ID_EXISTING_UNCHANGED = "3c324e37-ff0a-4b2b-8c23-b80eb277a222";
+    const FILE_ID_EXISTING_CHANGED = "7306f44c-ef9b-4adc-9280-ebdf1e902f3e";
+
+    await initTestFile(FILE_ID_EXISTING_UNCHANGED, {
+      bucket: TEST_S3_BUCKET,
+      etag: HEAD_RESPONSE_EXISTING_UNCHANGED.ETag,
+      eventTime: HEAD_RESPONSE_EXISTING_UNCHANGED.LastModified.toISOString(),
+      fileType: FILE_TYPE.INGEST_MANIFEST,
+      key: KEY_EXISTING_UNCHANGED,
+      sizeBytes: HEAD_RESPONSE_EXISTING_UNCHANGED.ContentLength,
+      versionId: HEAD_RESPONSE_EXISTING_UNCHANGED.VersionId,
+    });
+
+    await initTestFile(FILE_ID_EXISTING_CHANGED, {
+      bucket: TEST_S3_BUCKET,
+      etag: HEAD_RESPONSE_EXISTING_CHANGED.ETag,
+      eventTime: "2025-09-07T23:20:33.500Z",
+      fileType: FILE_TYPE.INGEST_MANIFEST,
+      key: KEY_EXISTING_CHANGED,
+      sizeBytes: HEAD_RESPONSE_EXISTING_CHANGED.ContentLength,
+      versionId: "434532",
+    });
+
+    const fileExistingUnchangedBefore = await getFileFromDatabase(
+      FILE_ID_EXISTING_UNCHANGED
+    );
+    const fileExistingChangedBefore = await getFileFromDatabase(
+      FILE_ID_EXISTING_CHANGED
+    );
+    expect(fileExistingChangedBefore).toBeDefined();
+    expect(fileExistingUnchangedBefore).toBeDefined();
+
     s3Mock.on(ListObjectsV2Command).resolves(LIST_OBJECTS_RESPONSE);
-    for (const [key, response] of Object.entries(HEAD_RESPONSES_BY_KEY)) {
+    for (const [key, response] of HEAD_RESPONSES_BY_KEY.entries()) {
       s3Mock.on(HeadObjectCommand, { Key: key }).resolves(response);
     }
 
@@ -281,30 +358,31 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toBe(202);
 
     const warningMessages = consoleMessages.warn.flat();
+    const errorMessageStrings = consoleMessages.error.flatMap((value) =>
+      String(value)
+    );
 
-    // Check that no errors were reported
-    expect(consoleMessages.error).toHaveLength(0);
+    // Check that the expected number of errors were reported
+    expect(errorMessageStrings).toHaveLength(2);
 
     // Check that the expected number of objects without keys were skipped
     expect(warningMessages).toContain(
       "S3 sync: Skipped 3 objects without keys"
     );
 
-    const files = await getDbFilesCreatedAfter(startTime);
+    const files = await getDbFilesModifiedAfter(startTime);
 
-    // Check that the expected number of files are present
-    expect(files).toHaveLength(5);
+    // Check that the expected number of modified files are present
+    expect(files).toHaveLength(7);
 
-    // Check that random UUIDs were used to create fake message IDs
-    const filesMessageIds = files.map((f) => f.sns_message_id);
-    for (const uuid of TEST_UUIDS) {
-      expect(filesMessageIds).toContain(`SYNTHETIC-${uuid}`);
-    }
+    // Get latest versions of updated files
+    const filesByKey = new Map(
+      files.filter((f) => f.is_latest).map((f) => [f.key, f])
+    );
 
-    const filesByKey = new Map(files.map((f) => [f.key, f]));
-
-    // Check that files are still distinguished in the mapping
-    expect(filesByKey.size).toEqual(5);
+    // Check that the expected number of files are distinguished in the mapping
+    // The old version of the existing changed file should be set to non-latest and so isn't included
+    expect(filesByKey.size).toEqual(6);
 
     // Check files from responses with all fields filled
     expect(filesByKey.get(KEY_COMPLETE_FOO)).toMatchObject(
@@ -339,6 +417,36 @@ describe(TEST_ROUTE, () => {
     expect(filesByKey.get(KEY_NO_VERSION)).toMatchObject(
       EXPECTED_FILE_NO_VERSION
     );
+
+    // Check that existing file is not changed and no new file is created when version ID is the same
+    expect(errorMessageStrings).toContain(
+      'error: duplicate key value violates unique constraint "uq_files_bucket_key_version"'
+    );
+    expect(filesByKey.get(KEY_EXISTING_UNCHANGED)).toBeUndefined();
+    const fileExistingUnchangedAfter = await getFileFromDatabase(
+      FILE_ID_EXISTING_UNCHANGED
+    );
+    expect(fileExistingUnchangedAfter).toEqual(fileExistingUnchangedBefore);
+
+    // Check that existing file is set to non-latest and a new file is created when version ID is different
+    expect(filesByKey.get(KEY_EXISTING_CHANGED)).toBeDefined();
+    expect(filesByKey.get(KEY_EXISTING_CHANGED)).not.toEqual(
+      fileExistingChangedBefore
+    );
+    const fileExistingChangedAfter = await getFileFromDatabase(
+      FILE_ID_EXISTING_CHANGED
+    );
+    expect(fileExistingChangedBefore?.is_latest).toEqual(true);
+    expect(fileExistingChangedAfter?.is_latest).toEqual(false);
+    expect({
+      ...fileExistingChangedAfter,
+      is_latest: undefined,
+      updated_at: undefined,
+    }).toEqual({
+      ...fileExistingChangedBefore,
+      is_latest: undefined,
+      updated_at: undefined,
+    });
   });
 });
 
@@ -358,11 +466,11 @@ async function doSyncFilesRequest(
   return res;
 }
 
-async function getDbFilesCreatedAfter(
+async function getDbFilesModifiedAfter(
   date: Date
 ): Promise<HCAAtlasTrackerDBFile[]> {
   const result = await query<HCAAtlasTrackerDBFile>(
-    "SELECT * FROM hat.files WHERE created_at >= $1",
+    "SELECT * FROM hat.files WHERE updated_at >= $1",
     [date]
   );
   return result.rows;

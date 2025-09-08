@@ -11,6 +11,7 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBEntrySheetValidation,
+  HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBUser,
@@ -368,17 +369,19 @@ export async function initTestFile(
     bucket: string;
     componentAtlasId?: string;
     etag: string;
+    eventTime?: string;
     fileType: FILE_TYPE;
     key: string;
     sizeBytes: number;
     sourceDatasetId?: string;
+    versionId?: string;
   },
   client?: pg.PoolClient
 ): Promise<void> {
   // Use the same defaults as fillTestFileDefaults for consistency
   const eventInfo = {
     eventName: "ObjectCreated:*",
-    eventTime: new Date().toISOString(),
+    eventTime: config.eventTime ?? new Date().toISOString(),
   };
   await query(
     `INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, 
@@ -388,7 +391,7 @@ export async function initTestFile(
       fileId,
       config.bucket,
       config.key,
-      null, // versionId - matches fillTestFileDefaults pattern
+      config.versionId ?? null,
       config.etag,
       config.sizeBytes,
       JSON.stringify(eventInfo),
@@ -614,6 +617,16 @@ export async function getStudySourceDatasets(
       [studyId]
     )
   ).rows;
+}
+
+export async function getFileFromDatabase(
+  id: string
+): Promise<HCAAtlasTrackerDBFile | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBFile>("SELECT * FROM hat.files WHERE id=$1", [
+      id,
+    ])
+  ).rows[0];
 }
 
 export async function getValidationsByEntityId(
