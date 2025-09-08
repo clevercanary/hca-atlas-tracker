@@ -1061,7 +1061,6 @@ export function getAtlasSourceDatasetsTableColumns(
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetSourceStudyColumnDef(atlas),
-    getAtlasSourceDatasetPublicationColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
@@ -1070,22 +1069,6 @@ export function getAtlasSourceDatasetsTableColumns(
     getCreatedAtColumnDef(),
     getUpdatedAtColumnDef(),
   ];
-}
-
-/**
- * Returns source dataset publication column def.
- * @returns Column def.
- */
-function getAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "publicationString",
-    cell: ({ row }) =>
-      C.Link({
-        label: row.original.doi === null ? "" : C.OpenInNewIcon({}),
-        url: getDOILink(row.original.doi),
-      }),
-    header: "Publication",
-  };
 }
 
 /**
