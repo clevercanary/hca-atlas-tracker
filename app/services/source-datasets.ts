@@ -4,9 +4,7 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
-  HCAAtlasTrackerDBSourceDatasetWithCellxGeneId,
   HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
-  HCAAtlasTrackerDBSourceStudy,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasSourceDatasetEditData,
@@ -14,16 +12,12 @@ import {
   SourceDatasetEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
-import { CellxGeneDataset } from "../utils/cellxgene-api";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { removeSourceDatasetsFromAllAtlases } from "./atlases";
-import { getCellxGeneDatasetsByCollectionId } from "./cellxgene";
 import {
   getComponentAtlasIdForFile,
   getComponentAtlasNotFoundError,
   getPresentComponentAtlasIdForFile,
   removeSourceDatasetsFromAllComponentAtlases,
-  updateComponentAtlasesForUpdatedSourceDatasets,
   updateFieldsForComponentAtlasesHavingSourceDatasets,
 } from "./component-atlases";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
@@ -34,19 +28,6 @@ export interface UpdatedSourceDatasetsInfo {
   deleted: string[];
   modified: string[];
 }
-
-type CellxGeneSourceDatasetUpdateInfo = Pick<
-  HCAAtlasTrackerDBSourceDatasetInfo,
-  | "assay"
-  | "cellCount"
-  | "cellxgeneDatasetId"
-  | "cellxgeneDatasetVersion"
-  | "cellxgeneExplorerUrl"
-  | "disease"
-  | "suspensionType"
-  | "tissue"
-  | "title"
->;
 
 /**
  * Get all source datasets of the given source study.
@@ -405,206 +386,6 @@ export async function deleteSourceDatasetsOfDeletedSourceStudy(
     deletedSourceDatasetIds,
     client
   );
-}
-
-/**
- * Create and update CELLxGENE source datasets for all source studies with CELLxGENE IDs.
- */
-export async function updateCellxGeneSourceDatasets(): Promise<void> {
-  await doTransaction(async (client) => {
-    const existingDatasets = (
-      await client.query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
-        "SELECT * FROM hat.source_datasets WHERE NOT sd_info->'cellxgeneDatasetId' = 'null'"
-      )
-    ).rows;
-
-    const existingDatasetsByCxgId = new Map(
-      existingDatasets.map((dataset) => [
-        dataset.sd_info.cellxgeneDatasetId,
-        dataset,
-      ])
-    );
-
-    const sourceStudies = (
-      await client.query<
-        Pick<HCAAtlasTrackerDBSourceStudy, "id" | "study_info">
-      >("SELECT id, study_info FROM hat.source_studies")
-    ).rows;
-
-    const updatedDatasetsInfo: UpdatedSourceDatasetsInfo = {
-      created: [],
-      deleted: [],
-      modified: [],
-    };
-
-    for (const sourceStudy of sourceStudies) {
-      const studyUpdatedDatasetsInfo =
-        await updateCellxGeneSourceDatasetsForStudy(
-          sourceStudy.id,
-          sourceStudy.study_info.cellxgeneCollectionId,
-          client,
-          existingDatasetsByCxgId
-        );
-      updatedDatasetsInfo.created.push(...studyUpdatedDatasetsInfo.created);
-      updatedDatasetsInfo.deleted.push(...studyUpdatedDatasetsInfo.deleted);
-      updatedDatasetsInfo.modified.push(...studyUpdatedDatasetsInfo.modified);
-    }
-
-    await updateLinkedEntitiesForUpdatedSourceDatasets(
-      updatedDatasetsInfo,
-      client
-    );
-  });
-}
-
-/**
- * Create and update CELLxGENE source datasets for an individual source study.
- * @param sourceStudy - Source study to update source datasets for.
- * @param client - Postgres client to use.
- */
-export async function updateSourceStudyCellxGeneDatasets(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy,
-  client: pg.PoolClient
-): Promise<void> {
-  const updatedDatasetsInfo = await updateCellxGeneSourceDatasetsForStudy(
-    sourceStudy.id,
-    sourceStudy.study_info.cellxgeneCollectionId,
-    client
-  );
-
-  await updateLinkedEntitiesForUpdatedSourceDatasets(
-    updatedDatasetsInfo,
-    client
-  );
-}
-
-/**
- * Create missing source datasets and update outdated source datasets for a given source study from a given CELLxGENE collection.
- * @param sourceStudyId - ID of the source study to update source datasets for.
- * @param cellxgeneCollectionId - ID of the source study's CELLxGENE collection, to get datasets from.
- * @param client - Postgres client to use.
- * @param existingDatasetsByCxgId - Map of existing CELLxGENE source datasets of the source study.
- * @returns IDs of any source datasets that were created or updated.
- */
-async function updateCellxGeneSourceDatasetsForStudy(
-  sourceStudyId: string,
-  cellxgeneCollectionId: string | null,
-  client?: pg.PoolClient,
-  existingDatasetsByCxgId?: Map<string, HCAAtlasTrackerDBSourceDataset>
-): Promise<UpdatedSourceDatasetsInfo> {
-  if (!cellxgeneCollectionId) {
-    const queryResult = await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
-      "DELETE FROM hat.source_datasets WHERE source_study_id=$1 AND NOT sd_info->'cellxgeneDatasetId' = 'null' RETURNING id",
-      [sourceStudyId],
-      client
-    );
-    return {
-      created: [],
-      deleted: queryResult.rows.map(({ id }) => id),
-      modified: [],
-    };
-  }
-
-  if (!existingDatasetsByCxgId) {
-    const existingDatasets = (
-      await query<HCAAtlasTrackerDBSourceDatasetWithCellxGeneId>(
-        "SELECT * FROM hat.source_datasets WHERE source_study_id=$1 AND NOT sd_info->'cellxgeneDatasetId' = 'null'",
-        [sourceStudyId],
-        client
-      )
-    ).rows;
-
-    existingDatasetsByCxgId = new Map(
-      existingDatasets.map((dataset) => [
-        dataset.sd_info.cellxgeneDatasetId,
-        dataset,
-      ])
-    );
-  }
-
-  const updatedDatasetsInfo: UpdatedSourceDatasetsInfo = {
-    created: [],
-    deleted: [],
-    modified: [],
-  };
-
-  const collectionDatasets = getCellxGeneDatasetsByCollectionId(
-    cellxgeneCollectionId
-  );
-
-  if (!collectionDatasets) return updatedDatasetsInfo;
-
-  for (const cxgDataset of collectionDatasets) {
-    const existingDataset = existingDatasetsByCxgId.get(cxgDataset.dataset_id);
-
-    if (
-      existingDataset?.sd_info.cellxgeneDatasetVersion ===
-      cxgDataset.dataset_version_id
-    ) {
-      continue;
-    }
-
-    const updateInfo = getCellxGeneSourceDatasetInfo(cxgDataset);
-
-    if (existingDataset) {
-      const infoJson = JSON.stringify(updateInfo);
-      await query(
-        "UPDATE hat.source_datasets SET sd_info=sd_info||$1 WHERE id=$2",
-        [infoJson, existingDataset.id],
-        client
-      );
-      updatedDatasetsInfo.modified.push(existingDataset.id);
-    } else {
-      const newInfo: HCAAtlasTrackerDBSourceDatasetInfo = {
-        ...updateInfo,
-        metadataSpreadsheetTitle: null,
-        metadataSpreadsheetUrl: null,
-      };
-      const infoJson = JSON.stringify(newInfo);
-      const { id: newId } = (
-        await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
-          "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2) RETURNING id",
-          [infoJson, sourceStudyId],
-          client
-        )
-      ).rows[0];
-      updatedDatasetsInfo.created.push(newId);
-    }
-  }
-
-  return updatedDatasetsInfo;
-}
-
-function getCellxGeneSourceDatasetInfo(
-  cxgDataset: CellxGeneDataset
-): CellxGeneSourceDatasetUpdateInfo {
-  return {
-    assay: cxgDataset.assay.map((a) => a.label),
-    cellCount: cxgDataset.cell_count,
-    cellxgeneDatasetId: cxgDataset.dataset_id,
-    cellxgeneDatasetVersion: cxgDataset.dataset_version_id,
-    cellxgeneExplorerUrl: cxgDataset.explorer_url,
-    disease: cxgDataset.disease.map((d) => d.label),
-    suspensionType: cxgDataset.suspension_type,
-    tissue: cxgDataset.tissue.map((t) => t.label),
-    title: cxgDataset.title,
-  };
-}
-
-/**
- * Update properties of entities with linked source datasets based on lists of created, modified, and deleted datasets.
- * @param updatedDatasetsInfo - Object containing lists of IDs of source datasets to update linked entities of.
- * @param client - Postgres client to use.
- */
-async function updateLinkedEntitiesForUpdatedSourceDatasets(
-  updatedDatasetsInfo: UpdatedSourceDatasetsInfo,
-  client: pg.PoolClient
-): Promise<void> {
-  await updateComponentAtlasesForUpdatedSourceDatasets(
-    updatedDatasetsInfo,
-    client
-  );
-  await removeSourceDatasetsFromAllAtlases(updatedDatasetsInfo.deleted, client);
 }
 
 /**
