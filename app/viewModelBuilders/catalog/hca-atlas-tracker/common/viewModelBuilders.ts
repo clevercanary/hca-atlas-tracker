@@ -419,43 +419,6 @@ export const buildSourceDatasetCount = (
 };
 
 /**
- * Build props for the source dataset Tier 1 metadata StatusBadge component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the StatusBadge component.
- */
-export const buildSourceDatasetTierOneMetadataStatus = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): ComponentProps<typeof C.IconStatusBadge> => {
-  switch (sourceDataset.tierOneMetadataStatus) {
-    case TIER_ONE_METADATA_STATUS.COMPLETE:
-      return {
-        label: STATUS_LABEL.TIER_ONE,
-        status: ICON_STATUS.DONE,
-      };
-    case TIER_ONE_METADATA_STATUS.INCOMPLETE:
-      return {
-        label: STATUS_LABEL.INCOMPLETE_TIER_ONE,
-        status: ICON_STATUS.PARTIALLY_COMPLETE,
-      };
-    case TIER_ONE_METADATA_STATUS.MISSING:
-      return {
-        label: STATUS_LABEL.NO_TIER_ONE,
-        status: ICON_STATUS.PARTIALLY_COMPLETE,
-      };
-    case TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION:
-      return {
-        label: STATUS_LABEL.NEEDS_VALIDATION,
-        status: ICON_STATUS.REQUIRED,
-      };
-    case TIER_ONE_METADATA_STATUS.NA:
-      return {
-        label: STATUS_LABEL.NO_CELLXGENE_ID,
-        status: ICON_STATUS.REQUIRED,
-      };
-  }
-};
-
-/**
  * Build props for the CAP IconStatusBadge component.
  * @param sourceStudy - Source study entity.
  * @returns Props to be used for the IconStatusBadge component.
@@ -1099,7 +1062,6 @@ export function getAtlasSourceDatasetsTableColumns(
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetSourceStudyColumnDef(atlas),
     getAtlasSourceDatasetPublicationColumnDef(),
-    getSourceDatasetTierOneMetadataStatusColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
@@ -1544,20 +1506,6 @@ function getSourceDatasetSourceStudyColumnDef(
           : "",
       }),
     header: "Source Study",
-  };
-}
-
-/**
- * Returns source dataset Tier 1 metadata status column def.
- * @returns Column def.
- */
-function getSourceDatasetTierOneMetadataStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "tierOneMetadataStatus",
-    cell: ({ row }): JSX.Element =>
-      C.IconStatusBadge(buildSourceDatasetTierOneMetadataStatus(row.original)),
-    enableSorting: false,
-    header: "Tier 1 Metadata",
   };
 }
 
