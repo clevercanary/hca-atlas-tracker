@@ -54,7 +54,7 @@ async function getSyntheticEventRecordsForObjects(
   const records: S3EventRecord[] = [];
   for (let i = 0; i < keys.length; i += HEAD_BATCH_SIZE) {
     console.log(
-      `S3 sync: Getting page ${
+      `S3 sync: Getting batch ${
         Math.floor(i / HEAD_BATCH_SIZE) + 1
       } of objects info`
     );
