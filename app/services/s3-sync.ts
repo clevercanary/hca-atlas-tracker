@@ -105,7 +105,7 @@ function makeSyntheticEventRecordFromHeadResult(
   };
 }
 
-async function getBucketFileKeys(
+export async function getBucketFileKeys(
   bucket: string,
   s3: S3Client
 ): Promise<string[]> {
