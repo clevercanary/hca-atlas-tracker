@@ -5,7 +5,7 @@ import {
   ListObjectsV2CommandOutput,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { S3EventRecord } from "../apis/catalog/hca-atlas-tracker/aws/entities";
+import { S3EventRecord } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { saveFileRecord } from "./s3-notification";
 
 const HEAD_BATCH_SIZE = 20;
@@ -91,7 +91,6 @@ function makeSyntheticEventRecordFromHeadResult(
     eventName: "ObjectCreated:*",
     eventSource: "aws:s3",
     eventTime: (result.LastModified ?? new Date()).toISOString(),
-    eventVersion: "2.1",
     s3: {
       bucket: { name: bucket },
       object: {
@@ -100,7 +99,6 @@ function makeSyntheticEventRecordFromHeadResult(
         size: result.ContentLength ?? 0,
         versionId: result.VersionId ?? "",
       },
-      s3SchemaVersion: "1.0",
     },
   };
 }

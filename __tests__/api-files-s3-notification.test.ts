@@ -22,7 +22,7 @@ import {
   S3Event,
   S3Object,
   SNSMessage,
-} from "../app/apis/catalog/hca-atlas-tracker/aws/entities";
+} from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
@@ -120,13 +120,11 @@ function createS3Event(options: S3EventOptions): S3Event {
         eventName: options.eventName || TEST_S3_EVENT_NAME,
         eventSource: "aws:s3",
         eventTime: options.eventTime || TEST_TIMESTAMP,
-        eventVersion: "2.1",
         s3: {
           bucket: {
             name: options.bucket || TEST_S3_BUCKET,
           },
           object: objectData,
-          s3SchemaVersion: "1.0",
         },
       },
     ],
