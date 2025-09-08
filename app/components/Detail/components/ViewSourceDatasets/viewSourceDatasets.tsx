@@ -2,46 +2,33 @@ import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../../common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceStudySourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { useSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceDatasetsProps {
-  atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
-  pathParameter: PathParameter;
   sourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewSourceDatasets = ({
-  atlasSourceDatasets = [],
   formManager,
-  pathParameter,
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
   const {
     access: { canEdit, canView },
   } = formManager;
-  const { onSetLinked } = useSetLinkedAtlasSourceDatasets(pathParameter);
   if (!canView) return <RequestAccess />;
-  const linkedSourceDatasetIds = new Set(atlasSourceDatasets.map((d) => d.id));
   return (
     <StyledFluidPaper elevation={0}>
       <GridPaper>
         {sourceDatasets.length > 0 && (
           <Table
-            columns={getAtlasSourceStudySourceDatasetsTableColumns(
-              pathParameter,
-              onSetLinked,
-              canEdit,
-              linkedSourceDatasetIds
-            )}
-            gridTemplateColumns="max-content minmax(112px, 140px) minmax(200px, 2fr) minmax(auto, 1fr) minmax(auto, 1fr) minmax(168px, 1fr) repeat(4, minmax(128px, 1fr)) minmax(124px, .75fr)"
+            columns={getAtlasSourceStudySourceDatasetsTableColumns()}
+            gridTemplateColumns="max-content max-content minmax(240px, 1.6fr) repeat(4, minmax(128px, 1fr)) minmax(124px, .75fr)"
             items={sourceDatasets.sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />

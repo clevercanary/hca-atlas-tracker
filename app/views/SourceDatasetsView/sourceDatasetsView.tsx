@@ -9,7 +9,6 @@ import { Tabs } from "../../components/Detail/components/ViewSourceStudy/compone
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
-import { useFetchAtlasSourceDatasets } from "../AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
 import { useFetchSourceStudy } from "../SourceStudyView/hooks/useFetchSourceStudy";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
@@ -24,7 +23,6 @@ export const SourceDatasetsView = ({
   const { atlas } = useFetchAtlas(pathParameter);
   const { sourceStudy } = useFetchSourceStudy(pathParameter);
   const { sourceDatasets } = useFetchSourceDatasets(pathParameter);
-  const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const {
     access: { canEdit, canView },
@@ -43,9 +41,7 @@ export const SourceDatasetsView = ({
         }
         mainColumn={
           <ViewSourceDatasets
-            atlasSourceDatasets={atlasSourceDatasets}
             formManager={formManager}
-            pathParameter={pathParameter}
             sourceDatasets={sourceDatasets}
           />
         }

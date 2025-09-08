@@ -59,7 +59,6 @@ import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
-import { UseSetLinkedAtlasSourceDatasets } from "../../../../views/SourceDatasetsView/hooks/useSetLinkedAtlasSourceDatasets";
 import { EXTRA_PROPS } from "./constants";
 import {
   COMPONENT_NAME,
@@ -417,43 +416,6 @@ export const buildSourceDatasetCount = (
   return {
     value: componentAtlas.sourceDatasetCount.toLocaleString(),
   };
-};
-
-/**
- * Build props for the source dataset Tier 1 metadata StatusBadge component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the StatusBadge component.
- */
-export const buildSourceDatasetTierOneMetadataStatus = (
-  sourceDataset: HCAAtlasTrackerSourceDataset
-): ComponentProps<typeof C.IconStatusBadge> => {
-  switch (sourceDataset.tierOneMetadataStatus) {
-    case TIER_ONE_METADATA_STATUS.COMPLETE:
-      return {
-        label: STATUS_LABEL.TIER_ONE,
-        status: ICON_STATUS.DONE,
-      };
-    case TIER_ONE_METADATA_STATUS.INCOMPLETE:
-      return {
-        label: STATUS_LABEL.INCOMPLETE_TIER_ONE,
-        status: ICON_STATUS.PARTIALLY_COMPLETE,
-      };
-    case TIER_ONE_METADATA_STATUS.MISSING:
-      return {
-        label: STATUS_LABEL.NO_TIER_ONE,
-        status: ICON_STATUS.PARTIALLY_COMPLETE,
-      };
-    case TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION:
-      return {
-        label: STATUS_LABEL.NEEDS_VALIDATION,
-        status: ICON_STATUS.REQUIRED,
-      };
-    case TIER_ONE_METADATA_STATUS.NA:
-      return {
-        label: STATUS_LABEL.NO_CELLXGENE_ID,
-        status: ICON_STATUS.REQUIRED,
-      };
-  }
 };
 
 /**
@@ -1099,8 +1061,6 @@ export function getAtlasSourceDatasetsTableColumns(
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetSourceStudyColumnDef(atlas),
-    getAtlasSourceDatasetPublicationColumnDef(),
-    getSourceDatasetTierOneMetadataStatusColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
@@ -1109,22 +1069,6 @@ export function getAtlasSourceDatasetsTableColumns(
     getCreatedAtColumnDef(),
     getUpdatedAtColumnDef(),
   ];
-}
-
-/**
- * Returns source dataset publication column def.
- * @returns Column def.
- */
-function getAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "publicationString",
-    cell: ({ row }) =>
-      C.Link({
-        label: row.original.doi === null ? "" : C.OpenInNewIcon({}),
-        url: getDOILink(row.original.doi),
-      }),
-    header: "Publication",
-  };
 }
 
 /**
@@ -1151,29 +1095,13 @@ function getAtlasSourceDatasetTitleColumnDef(
 }
 
 /**
- * Returns the table column definition model for the atlas (edit mode) source datasets table.
- * @param pathParameter - Path parameter.
- * @param onSetLinked - Set linked source datasets function.
- * @param canEdit - Edit state for user.
- * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
+ * Returns the table column definition model for the atlas source datasets table.
  * @returns Table column definition.
  */
-export function getAtlasSourceStudySourceDatasetsTableColumns(
-  pathParameter: PathParameter,
-  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
-  canEdit: boolean,
-  linkedSourceDatasetIds: Set<string>
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+export function getAtlasSourceStudySourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetDownloadColumnDef(),
     getSourceDatasetTitleColumnDef(),
-    getSourceDatasetLinkedColumnDef(
-      onSetLinked,
-      canEdit,
-      linkedSourceDatasetIds
-    ),
-    getSourceDatasetTierOneMetadataStatusColumnDef(),
-    getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
@@ -1541,32 +1469,6 @@ function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
 }
 
 /**
- * Returns source dataset linked column def.
- * @param onSetLinked - Set linked source dataset function.
- * @param canEdit - Edit state for user.
- * @param linkedSourceDatasetIds - IDs of currently-linked source datasets.
- * @returns ColumnDef.
- */
-function getSourceDatasetLinkedColumnDef(
-  onSetLinked: UseSetLinkedAtlasSourceDatasets["onSetLinked"],
-  canEdit: boolean,
-  linkedSourceDatasetIds: Set<string>
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "linked",
-    cell: ({ row }) =>
-      C.LinkDatasetDropdown({
-        disabled: !canEdit,
-        linked: linkedSourceDatasetIds.has(row.original.id),
-        onSetLinked,
-        sourceDatasetId: row.original.id,
-      }),
-    enableSorting: false,
-    header: "Used In Atlas",
-  };
-}
-
-/**
  * Returns source dataset source study column def.
  * @param atlas - Linked atlas.
  * @returns Column def.
@@ -1587,20 +1489,6 @@ function getSourceDatasetSourceStudyColumnDef(
           : "",
       }),
     header: "Source Study",
-  };
-}
-
-/**
- * Returns source dataset Tier 1 metadata status column def.
- * @returns Column def.
- */
-function getSourceDatasetTierOneMetadataStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "tierOneMetadataStatus",
-    cell: ({ row }): JSX.Element =>
-      C.IconStatusBadge(buildSourceDatasetTierOneMetadataStatus(row.original)),
-    enableSorting: false,
-    header: "Tier 1 Metadata",
   };
 }
 
