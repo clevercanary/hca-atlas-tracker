@@ -352,7 +352,7 @@ function logFileOperation(
  * @note Uses PostgreSQL ON CONFLICT for atomic idempotency handling
  * @note Implements database transaction to ensure is_latest flag consistency
  */
-async function saveFileRecord(
+export async function saveFileRecord(
   record: S3EventRecord,
   snsMessageId: string
 ): Promise<void> {
