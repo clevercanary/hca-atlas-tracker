@@ -1158,7 +1158,6 @@ export function getAtlasSourceStudySourceDatasetsTableColumns(): ColumnDef<HCAAt
     getSourceDatasetDownloadColumnDef(),
     getSourceDatasetTitleColumnDef(),
     getSourceDatasetTierOneMetadataStatusColumnDef(),
-    getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
