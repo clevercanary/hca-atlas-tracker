@@ -20,14 +20,9 @@ import {
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
-  CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
-  CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
-  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR,
-  CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO,
   CELLXGENE_ID_NORMAL,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_MISC_FOO,
-  COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   DOI_DRAFT_OK,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
@@ -36,13 +31,9 @@ import {
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
-  SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_OTHER_BAR,
   SOURCE_DATASET_OTHER_FOO,
-  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
-  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
-  SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
@@ -64,9 +55,8 @@ import {
 } from "../testing/constants";
 import {
   expectApiSourceStudyToHaveMatchingDbValidations,
+  getAllSourceDatasetsFromDatabase,
   getAtlasFromDatabase,
-  getCellxGeneSourceDatasetFromDatabase,
-  getComponentAtlasFromDatabase,
   getExistingComponentAtlasFromDatabase,
   getSourceDatasetFromDatabase,
   getSourceStudyEntrySheetValidationsFromDatabase,
@@ -74,7 +64,6 @@ import {
   getSourceStudySourceDatasetsFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
-  initSourceDatasets,
   resetDatabase,
 } from "../testing/db-utils";
 import {
@@ -85,9 +74,7 @@ import {
 } from "../testing/entities";
 import {
   expectApiValidationsToMatchDb,
-  expectAtlasDatasetsToHaveDifference,
   expectComponentAtlasDatasetsToHaveDifference,
-  expectIsDefined,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
   testApiRole,
@@ -755,22 +742,14 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     await restoreDbStudy(SOURCE_STUDY_UNPUBLISHED_WITH_HCA);
   });
 
-  it("updates CELLxGENE datasets when source study is PUT requested", async () => {
+  it("does not update CELLxGENE datasets when source study is PUT requested", async () => {
     const studyDatasetsBefore = await getStudySourceDatasets(
       SOURCE_STUDY_DRAFT_OK.id
     );
 
     expect(studyDatasetsBefore).toHaveLength(2);
 
-    const fooBefore = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
-    );
-    const barBefore = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
-    );
-
-    expect(fooBefore).toBeNull();
-    expect(barBefore).toBeNull();
+    const datasetsBefore = await getAllSourceDatasetsFromDatabase();
 
     const res = await doStudyRequest(
       ATLAS_DRAFT.id,
@@ -783,79 +762,31 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
 
-    expect(updatedStudy.sourceDatasetCount).toEqual(4);
+    expect(updatedStudy.sourceDatasetCount).toEqual(2);
 
     const studyDatasetsAfter = await getStudySourceDatasets(
       SOURCE_STUDY_DRAFT_OK.id
     );
 
-    expect(studyDatasetsAfter).toHaveLength(4);
+    expect(studyDatasetsAfter).toHaveLength(2);
 
-    const fooAfter = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
-    );
-    const barAfter = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
-    );
+    const datasetsAfter = await getAllSourceDatasetsFromDatabase();
 
-    expect(fooAfter).toEqual(
-      studyDatasetsAfter.find(
-        (d) =>
-          d.sd_info.cellxgeneDatasetId ===
-          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_FOO.dataset_id
-      )
-    );
-    expect(barAfter).toEqual(
-      studyDatasetsAfter.find(
-        (d) =>
-          d.sd_info.cellxgeneDatasetId ===
-          CELLXGENE_DATASET_WITH_NEW_SOURCE_DATASETS_BAR.dataset_id
-      )
-    );
+    expect(datasetsAfter).toEqual(datasetsBefore);
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
 
-    await query("DELETE FROM hat.source_datasets WHERE id=ANY($1)", [
-      [fooAfter?.id, barAfter?.id],
-    ]);
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 
-  it("deletes CELLxGENE datasets, updating linked entities, when source study is PUT requested with CELLxGENE ID removed", async () => {
+  it("does not delete CELLxGENE datasets when source study is PUT requested with CELLxGENE ID removed", async () => {
     const studyDatasetsBefore = await getStudySourceDatasets(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
     );
 
-    const atlasBefore = await getAtlasFromDatabase(
-      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id
-    );
-    const componentAtlasBefore = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
-    );
-
     expect(studyDatasetsBefore).toHaveLength(3);
 
-    const fooBefore = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.dataset_id
-    );
-    const barBefore = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR.dataset_id
-    );
-
-    expect(fooBefore).toEqual(
-      studyDatasetsBefore.find(
-        (d) =>
-          d.sd_info.cellxgeneDatasetId ===
-          CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.dataset_id
-      )
-    );
-    expect(barBefore).toEqual(
-      studyDatasetsBefore.find(
-        (d) =>
-          d.sd_info.cellxgeneDatasetId ===
-          CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR.dataset_id
-      )
-    );
+    const datasetsBefore = await getAllSourceDatasetsFromDatabase(true);
 
     const res = await doStudyRequest(
       ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
@@ -868,65 +799,20 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
 
-    expect(updatedStudy.sourceDatasetCount).toEqual(1);
+    expect(updatedStudy.sourceDatasetCount).toEqual(3);
 
     const studyDatasetsAfter = await getStudySourceDatasets(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
     );
 
-    expect(studyDatasetsAfter).toHaveLength(1);
-    expect(studyDatasetsAfter[0].id).toEqual(
-      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ.id
-    );
+    expect(studyDatasetsAfter).toHaveLength(3);
 
-    const fooAfter = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.dataset_id
-    );
-    const barAfter = await getCellxGeneSourceDatasetFromDatabase(
-      CELLXGENE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR.dataset_id
-    );
+    const datasetsAfter = await getAllSourceDatasetsFromDatabase(true);
 
-    expect(fooAfter).toBeNull();
-    expect(barAfter).toBeNull();
-
-    expect(
-      await getSourceDatasetFromDatabase(
-        SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.id
-      )
-    ).toBeTruthy();
-
-    const atlasAfter = await getAtlasFromDatabase(
-      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id
-    );
-    const componentAtlasAfter = await getComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.id
-    );
-
-    if (
-      !(
-        expectIsDefined(atlasBefore) &&
-        expectIsDefined(atlasAfter) &&
-        expectIsDefined(componentAtlasBefore) &&
-        expectIsDefined(componentAtlasAfter)
-      )
-    ) {
-      return;
-    }
-    expectAtlasDatasetsToHaveDifference(atlasAfter, atlasBefore, [
-      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
-    ]);
-    expectComponentAtlasDatasetsToHaveDifference(
-      componentAtlasAfter,
-      componentAtlasBefore,
-      [SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR]
-    );
+    expect(datasetsAfter).toEqual(datasetsBefore);
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
 
-    await initSourceDatasets(undefined, [
-      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
-      SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
-    ]);
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
 });

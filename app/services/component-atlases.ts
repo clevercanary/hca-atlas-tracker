@@ -8,10 +8,7 @@ import { confirmFileExistsOnAtlas } from "../data/files";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
-import {
-  confirmSourceDatasetsExist,
-  UpdatedSourceDatasetsInfo,
-} from "./source-datasets";
+import { confirmSourceDatasetsExist } from "./source-datasets";
 
 /**
  * Get all component atlases of the given atlas.
@@ -171,30 +168,6 @@ export async function deleteSourceDatasetsFromComponentAtlas(
     );
     await updateComponentAtlasFieldsFromDatasets([componentAtlasId], client);
   });
-}
-
-/**
- * Update component atlases' aggregate fields and source dataset lists based on lists of created, modified, and deleted source datasets.
- * @param updatedDatasetsInfo - Object containing lists of IDs of source datasets to update component atlases of.
- * @param client - Postgres client to use.
- */
-export async function updateComponentAtlasesForUpdatedSourceDatasets(
-  updatedDatasetsInfo: UpdatedSourceDatasetsInfo,
-  client: pg.PoolClient
-): Promise<void> {
-  const componentAtlasIds = await getComponentAtlasIdsHavingSourceDatasets(
-    updatedDatasetsInfo.created.concat(
-      updatedDatasetsInfo.modified,
-      updatedDatasetsInfo.deleted
-    ),
-    client
-  );
-  await removeSourceDatasetsFromAllComponentAtlases(
-    updatedDatasetsInfo.deleted,
-    client,
-    false
-  );
-  await updateComponentAtlasFieldsFromDatasets(componentAtlasIds, client);
 }
 
 /**

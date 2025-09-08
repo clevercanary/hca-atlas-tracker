@@ -47,10 +47,7 @@ import {
   startEntrySheetValidationsUpdate,
 } from "./entry-sheets";
 import { getProjectIdByDoi } from "./hca-projects";
-import {
-  deleteSourceDatasetsOfDeletedSourceStudy,
-  updateSourceStudyCellxGeneDatasets,
-} from "./source-datasets";
+import { deleteSourceDatasetsOfDeletedSourceStudy } from "./source-datasets";
 import {
   getValidationRecordsWithoutAtlasPropertiesForEntities,
   updateSourceStudyValidations,
@@ -234,8 +231,7 @@ export async function createSourceStudy(
       "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2",
       [JSON.stringify([newStudyRow.id]), atlasId]
     );
-    // Add source datasets and validations
-    await updateSourceStudyCellxGeneDatasets(newStudyRow, client);
+    // Add validations
     await updateSourceStudyValidationsByEntityId(newStudyRow.id, client);
     const newStudy = await getSourceStudy(atlasId, newStudyRow.id, client);
     await client.query("COMMIT");
@@ -339,8 +335,6 @@ export async function updateSourceStudy(
         `Source study with ID ${sourceStudyId} doesn't exist`
       );
 
-    const updatedStudyRow = queryResult.rows[0];
-
     // Delete entry sheet validations for removed entry sheets
     if (removedEntrySheetIds.size)
       await deleteEntrySheetValidationsBySpreadsheet(
@@ -348,8 +342,7 @@ export async function updateSourceStudy(
         client
       );
 
-    // Update associated CELLxGENE datasets and source study validations
-    await updateSourceStudyCellxGeneDatasets(updatedStudyRow, client);
+    // Update associated source study validations
     await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
 
     // Get updated study with related entities to return
