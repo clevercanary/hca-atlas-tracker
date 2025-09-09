@@ -222,8 +222,11 @@ export function makeTestProjectsResponse(
   };
 }
 
-export function fillTestFileDefaults(file: TestFile): Required<TestFile> {
+export function fillTestFileDefaults(
+  file: TestFile
+): Required<TestFile> & { resolvedAtlas: TestAtlas } {
   const {
+    atlas,
     eventName = "ObjectCreated:*",
     integrityCheckedAt = null,
     integrityError = null,
@@ -235,12 +238,15 @@ export function fillTestFileDefaults(file: TestFile): Required<TestFile> {
     status = FILE_STATUS.UPLOADED,
     ...restFields
   } = file;
+  const resolvedAtlas = typeof atlas === "function" ? atlas() : atlas;
   return {
+    atlas,
     eventName,
     integrityCheckedAt,
     integrityError,
     integrityStatus,
     isLatest,
+    resolvedAtlas,
     sha256Client,
     sha256Server,
     sourceStudyId,
@@ -521,7 +527,7 @@ export function expectApiComponentAtlasToMatchTest(
 ): void {
   if (testComponentAtlas.file) {
     const testFile = fillTestFileDefaults(testComponentAtlas.file);
-    expect(apiComponentAtlas.atlasId).toEqual(testFile.atlas.id);
+    expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
     expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
     expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
     expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));

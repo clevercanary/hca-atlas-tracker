@@ -85,6 +85,7 @@ export interface TestSourceDataset {
   cellxgeneDatasetId?: string;
   cellxgeneDatasetVersion?: string;
   disease?: string[];
+  file?: TestFile;
   id: string;
   metadataSpreadsheetTitle?: string;
   metadataSpreadsheetUrl?: string;
@@ -95,7 +96,7 @@ export interface TestSourceDataset {
 }
 
 export interface TestFile {
-  atlas: TestAtlas;
+  atlas: TestAtlas | (() => TestAtlas);
   bucket: string;
   etag: string;
   eventName?: string;

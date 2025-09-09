@@ -189,6 +189,10 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
     if (componentAtlas.file)
       await initTestFile(client, componentAtlas.file, componentAtlas.id, null);
   }
+  for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
+    if (sourceDataset.file)
+      await initTestFile(client, sourceDataset.file, null, sourceDataset.id);
+  }
 }
 
 async function initTestFile(
@@ -198,7 +202,6 @@ async function initTestFile(
   sourceDatasetId: string | null
 ): Promise<void> {
   const {
-    atlas,
     bucket,
     etag,
     eventName,
@@ -210,6 +213,7 @@ async function initTestFile(
     integrityError,
     integrityStatus,
     isLatest,
+    resolvedAtlas: atlas,
     sha256Client,
     sha256Server,
     sizeBytes,
