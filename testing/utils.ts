@@ -517,15 +517,15 @@ export function expectDbSourceDatasetToMatchTest(
 
 export function expectApiComponentAtlasToMatchTest(
   apiComponentAtlas: HCAAtlasTrackerComponentAtlas,
-  sourceTestFile: TestFile,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder
   testComponentAtlas: TestComponentAtlas
 ): void {
-  const testFile = fillTestFileDefaults(sourceTestFile);
-  expect(apiComponentAtlas.atlasId).toEqual(testFile.atlas.id);
-  expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
-  expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
-  expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
+  if (testComponentAtlas.file) {
+    const testFile = fillTestFileDefaults(testComponentAtlas.file);
+    expect(apiComponentAtlas.atlasId).toEqual(testFile.atlas.id);
+    expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
+    expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
+    expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
+  }
   // TODO: check for test component atlas fields once they're included
 }
 

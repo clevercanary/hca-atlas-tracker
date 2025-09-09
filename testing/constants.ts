@@ -14,7 +14,6 @@ import {
   TestComment,
   TestComponentAtlas,
   TestEntrySheetValidation,
-  TestFile,
   TestPublishedSourceStudy,
   TestSourceDataset,
   TestUnpublishedSourceStudy,
@@ -2199,94 +2198,22 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
   {} as Record<string, TestAtlas[]>
 );
 
-// FILES
-
-export const FILE_COMPONENT_ATLAS_DRAFT_FOO = {
-  atlas: ATLAS_DRAFT,
-  bucket: "bucket-draft-foo",
-  etag: "6b8f00707b574ca28e43a7568a2eaca1",
-  eventTime: "2025-08-22T05:45:49.432Z",
-  fileName: "component-atlas-draft-foo.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "2dfcd615-391f-452c-b981-d0124583c97f",
-  sizeBytes: "2342325",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_DRAFT_BAR = {
-  atlas: ATLAS_DRAFT,
-  bucket: "bucket-draft-bar",
-  etag: "7c9f11808c685db39f54b8679b3fbcb2",
-  eventTime: "2025-08-22T05:46:12.567Z",
-  fileName: "component-atlas-draft-bar.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "3efde726-402f-563d-c092-e1235694d08f",
-  sizeBytes: "1987456",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_MISC_FOO = {
-  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
-  bucket: "bucket-misc-foo",
-  etag: "8d0a22919d796ec40a65c9780c4acdbe",
-  eventTime: "2025-08-22T05:46:35.891Z",
-  fileName: "component-atlas-misc-foo.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "4faef837-513a-674e-d103-f2346705e19b",
-  sizeBytes: "3456789",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
-  atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
-  bucket: "bucket-cellxgene-datasets",
-  etag: "9e1b33020e807fd51b76d0891d5bdef4",
-  eventTime: "2025-08-22T05:46:58.234Z",
-  fileName: "component-atlas-with-cellxgene-datasets.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "5abfa948-624b-785f-e214-a3457816f20c",
-  sizeBytes: "2789123",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
-  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
-  bucket: "bucket-entry-sheet-validations-foo",
-  etag: "0f2c44131f918ae62c87e1902e6cafe5",
-  eventTime: "2025-08-22T05:47:21.456Z",
-  fileName: "component-atlas-with-entry-sheet-validations-foo.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "6bcac059-735c-896a-f325-b4568927a31d",
-  sizeBytes: "1654321",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
-  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
-  bucket: "bucket-entry-sheet-validations-bar",
-  etag: "1a3d55242a029bf73d98f2013f7dbab6",
-  eventTime: "2025-08-22T05:47:44.789Z",
-  fileName: "component-atlas-with-entry-sheet-validations-bar.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "7cdbd160-846d-907b-a436-c5679038b42e",
-  sizeBytes: "2123456",
-  versionId: null,
-} satisfies TestFile;
-
-export const INITIAL_TEST_FILES: TestFile[] = [
-  FILE_COMPONENT_ATLAS_DRAFT_FOO,
-  FILE_COMPONENT_ATLAS_DRAFT_BAR,
-  FILE_COMPONENT_ATLAS_MISC_FOO,
-  FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
-  FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
-  FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
-];
-
 // COMPONENT ATLASES
 
-export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
+export const COMPONENT_ATLAS_DRAFT_FOO = {
   atlasId: ATLAS_DRAFT.id,
   description: "bar baz baz foo baz foo bar",
+  file: {
+    atlas: ATLAS_DRAFT,
+    bucket: "bucket-draft-foo",
+    etag: "6b8f00707b574ca28e43a7568a2eaca1",
+    eventTime: "2025-08-22T05:45:49.432Z",
+    fileName: "component-atlas-draft-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "2dfcd615-391f-452c-b981-d0124583c97f",
+    sizeBytes: "2342325",
+    versionId: null,
+  },
   id: "b1820416-5886-4585-b0fe-7f70487331d8",
   sourceDatasets: [
     SOURCE_DATASET_FOOFOO,
@@ -2294,22 +2221,44 @@ export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
     SOURCE_DATASET_FOOBAZ,
   ],
   title: "Component Atlas Draft Foo",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_DRAFT_BAR: TestComponentAtlas = {
+export const COMPONENT_ATLAS_DRAFT_BAR = {
   atlasId: ATLAS_DRAFT.id,
   description: "baz baz bar foo baz",
+  file: {
+    atlas: ATLAS_DRAFT,
+    bucket: "bucket-draft-bar",
+    etag: "7c9f11808c685db39f54b8679b3fbcb2",
+    eventTime: "2025-08-22T05:46:12.567Z",
+    fileName: "component-atlas-draft-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "3efde726-402f-563d-c092-e1235694d08f",
+    sizeBytes: "1987456",
+    versionId: null,
+  },
   id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
   sourceDatasets: [
     SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   ],
   title: "Component Atlas Draft Bar",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_MISC_FOO: TestComponentAtlas = {
+export const COMPONENT_ATLAS_MISC_FOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
   description: "foo foo bar baz bar bar",
+  file: {
+    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-misc-foo",
+    etag: "8d0a22919d796ec40a65c9780c4acdbe",
+    eventTime: "2025-08-22T05:46:35.891Z",
+    fileName: "component-atlas-misc-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "4faef837-513a-674e-d103-f2346705e19b",
+    sizeBytes: "3456789",
+    versionId: null,
+  },
   id: "b95614cc-5356-4f47-b3a2-da05d23e86ce",
   sourceDatasets: [
     SOURCE_DATASET_FOO,
@@ -2318,11 +2267,22 @@ export const COMPONENT_ATLAS_MISC_FOO: TestComponentAtlas = {
     SOURCE_DATASET_OTHER_BAR,
   ],
   title: "Component Atlas Misc Foo",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS: TestComponentAtlas = {
+export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
   atlasId: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
   description: "barfoo foo baz barbar",
+  file: {
+    atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+    bucket: "bucket-cellxgene-datasets",
+    etag: "9e1b33020e807fd51b76d0891d5bdef4",
+    eventTime: "2025-08-22T05:46:58.234Z",
+    fileName: "component-atlas-with-cellxgene-datasets.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "5abfa948-624b-785f-e214-a3457816f20c",
+    sizeBytes: "2789123",
+    versionId: null,
+  },
   id: "6feee158-5e54-4f46-8695-360c89ef9916",
   sourceDatasets: [
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
@@ -2330,25 +2290,45 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS: TestComponentAtlas = {
     SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   ],
   title: "Component Atlas Misc Foo",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestComponentAtlas =
-  {
-    atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-    description: "foo barbaz bazbar foofoobar",
-    id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
-    sourceDatasets: [],
-    title: "Component Atlas With Entry Sheet Validations Foo",
-  };
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
+  atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+  description: "foo barbaz bazbar foofoobar",
+  file: {
+    atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+    bucket: "bucket-entry-sheet-validations-foo",
+    etag: "0f2c44131f918ae62c87e1902e6cafe5",
+    eventTime: "2025-08-22T05:47:21.456Z",
+    fileName: "component-atlas-with-entry-sheet-validations-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "6bcac059-735c-896a-f325-b4568927a31d",
+    sizeBytes: "1654321",
+    versionId: null,
+  },
+  id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
+  sourceDatasets: [],
+  title: "Component Atlas With Entry Sheet Validations Foo",
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestComponentAtlas =
-  {
-    atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-    description: "foobazbaz barfoo barfoo baz",
-    id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
-    sourceDatasets: [],
-    title: "Component Atlas With Entry Sheet Validations Bar",
-  };
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
+  atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+  description: "foobazbaz barfoo barfoo baz",
+  file: {
+    atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+    bucket: "bucket-entry-sheet-validations-bar",
+    etag: "1a3d55242a029bf73d98f2013f7dbab6",
+    eventTime: "2025-08-22T05:47:44.789Z",
+    fileName: "component-atlas-with-entry-sheet-validations-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "7cdbd160-846d-907b-a436-c5679038b42e",
+    sizeBytes: "2123456",
+    versionId: null,
+  },
+  id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
+  sourceDatasets: [],
+  title: "Component Atlas With Entry Sheet Validations Bar",
+} satisfies TestComponentAtlas;
 
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES = [

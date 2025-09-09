@@ -15,8 +15,6 @@ import {
   ATLAS_DRAFT,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
-  FILE_COMPONENT_ATLAS_DRAFT_BAR,
-  FILE_COMPONENT_ATLAS_DRAFT_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -27,7 +25,7 @@ import {
   getExistingComponentAtlasFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
-import { TestComponentAtlas, TestFile, TestUser } from "../testing/entities";
+import { TestComponentAtlas, TestUser } from "../testing/entities";
 import {
   expectApiComponentAtlasToMatchTest,
   testApiRole,
@@ -114,11 +112,10 @@ describe(TEST_ROUTE, () => {
         const componentAtlases =
           res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
         expect(componentAtlases).toHaveLength(2);
-        expectComponentAtlasesToMatch(
-          componentAtlases,
-          [FILE_COMPONENT_ATLAS_DRAFT_FOO, FILE_COMPONENT_ATLAS_DRAFT_BAR],
-          [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR]
-        );
+        expectComponentAtlasesToMatch(componentAtlases, [
+          COMPONENT_ATLAS_DRAFT_FOO,
+          COMPONENT_ATLAS_DRAFT_BAR,
+        ]);
       }
     );
   }
@@ -132,11 +129,10 @@ describe(TEST_ROUTE, () => {
     const componentAtlases =
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
     expect(componentAtlases).toHaveLength(2);
-    expectComponentAtlasesToMatch(
-      componentAtlases,
-      [FILE_COMPONENT_ATLAS_DRAFT_FOO, FILE_COMPONENT_ATLAS_DRAFT_BAR],
-      [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR]
-    );
+    expectComponentAtlasesToMatch(componentAtlases, [
+      COMPONENT_ATLAS_DRAFT_FOO,
+      COMPONENT_ATLAS_DRAFT_BAR,
+    ]);
   });
 });
 
@@ -245,18 +241,13 @@ function getQueryValues(atlasId: string): Record<string, string> {
 
 function expectComponentAtlasesToMatch(
   componentAtlases: HCAAtlasTrackerComponentAtlas[],
-  expectedTestFiles: TestFile[],
   expectedTestComponentAtlases: TestComponentAtlas[]
 ): void {
-  for (const [i, testFile] of expectedTestFiles.entries()) {
-    const testComponentAtlas = expectedTestComponentAtlases[i];
-    const componentAtlas = componentAtlases.find((c) => c.id === testFile.id);
+  for (const testComponentAtlas of expectedTestComponentAtlases) {
+    const fileId = testComponentAtlas.file?.id;
+    const componentAtlas = componentAtlases.find((c) => c.id === fileId);
     expect(componentAtlas).toBeDefined();
     if (!componentAtlas) continue;
-    expectApiComponentAtlasToMatchTest(
-      componentAtlas,
-      testFile,
-      testComponentAtlas
-    );
+    expectApiComponentAtlasToMatchTest(componentAtlas, testComponentAtlas);
   }
 }

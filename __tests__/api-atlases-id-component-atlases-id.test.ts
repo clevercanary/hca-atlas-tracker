@@ -8,7 +8,6 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   COMPONENT_ATLAS_DRAFT_FOO,
-  FILE_COMPONENT_ATLAS_DRAFT_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -146,7 +145,7 @@ describe(TEST_ROUTE, () => {
       componentAtlasHandler,
       METHOD.GET,
       role,
-      getQueryValues(ATLAS_DRAFT.id, FILE_COMPONENT_ATLAS_DRAFT_FOO.id),
+      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.file.id),
       undefined,
       false,
       (res) => {
@@ -155,7 +154,6 @@ describe(TEST_ROUTE, () => {
           res._getJSONData() as HCAAtlasTrackerComponentAtlas;
         expectApiComponentAtlasToMatchTest(
           componentAtlas,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO,
           COMPONENT_ATLAS_DRAFT_FOO
         );
       }
@@ -165,14 +163,13 @@ describe(TEST_ROUTE, () => {
   it("returns component atlas from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
-      FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+      COMPONENT_ATLAS_DRAFT_FOO.file.id,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
     expectApiComponentAtlasToMatchTest(
       componentAtlas,
-      FILE_COMPONENT_ATLAS_DRAFT_FOO,
       COMPONENT_ATLAS_DRAFT_FOO
     );
   });

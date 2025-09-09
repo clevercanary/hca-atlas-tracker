@@ -50,6 +50,7 @@ export interface TestAtlas {
 export interface TestComponentAtlas {
   atlasId: string;
   description: string;
+  file?: TestFile;
   id: string;
   sourceDatasets?: TestSourceDataset[];
   title: string;
