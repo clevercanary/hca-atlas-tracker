@@ -1,8 +1,5 @@
 import { RefreshDataNotReadyError } from "../app/services/common/refresh-service";
-import {
-  CellxGeneCollection,
-  CellxGeneDataset,
-} from "../app/utils/cellxgene-api";
+import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import {
   CELLXGENE_ID_NORMAL,
   CELLXGENE_ID_NORMAL2,
@@ -24,7 +21,6 @@ jest.useFakeTimers({
 });
 
 let [getCollectionsBlock, resolveGetCollections] = promiseWithResolvers<void>();
-const [getDatasetsBlock, resolveGetDatasets] = promiseWithResolvers<void>();
 let cellxgeneCollections = TEST_CELLXGENE_COLLECTIONS_A;
 
 const getCellxGeneCollections = jest
@@ -34,16 +30,8 @@ const getCellxGeneCollections = jest
     return cellxgeneCollections;
   });
 
-const getCellxGeneDatasets = jest
-  .fn()
-  .mockImplementation(async (): Promise<CellxGeneDataset[]> => {
-    await getDatasetsBlock;
-    return [];
-  });
-
 jest.mock("../app/utils/cellxgene-api", () => ({
   getCellxGeneCollections,
-  getCellxGeneDatasets,
 }));
 
 let getCellxGeneIdByDoi: typeof import("../app/services/cellxgene").getCellxGeneIdByDoi;
@@ -68,16 +56,8 @@ describe("getCellxGeneIdByDoi", () => {
     );
   });
 
-  it("Throws RefreshDataNotReadyError when called after collections initially resolve but datasets have not resolved", async () => {
-    resolveGetCollections();
-    await delay();
-    expect(() => getCellxGeneIdByDoi([DOI_NORMAL])).toThrow(
-      RefreshDataNotReadyError
-    );
-  });
-
   it("Returns ID for project in initial catalog", async () => {
-    resolveGetDatasets();
+    resolveGetCollections();
     await delay();
     expect(getCellxGeneIdByDoi([DOI_NORMAL])).toEqual(CELLXGENE_ID_NORMAL);
   });

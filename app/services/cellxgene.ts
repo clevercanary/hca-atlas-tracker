@@ -1,9 +1,5 @@
 import { Options as KyOptions } from "ky";
-import {
-  CellxGeneDataset,
-  getCellxGeneCollections,
-  getCellxGeneDatasets,
-} from "../utils/cellxgene-api";
+import { getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
 import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
@@ -16,7 +12,6 @@ export interface CollectionInfo {
 interface CellxGeneData {
   collectionInfoByDoi: Map<string, CollectionInfo>;
   collectionInfoById: Map<string, CollectionInfo>;
-  datasetsByCollectionId: Map<string, CellxGeneDataset[]>;
   lastRefreshTime: number;
 }
 
@@ -37,21 +32,16 @@ const refreshService = makeRefreshService({
   getRefreshParams: () => undefined,
   async getRefreshedData() {
     const time = Date.now();
-    const [collectionMaps, datasetsByCollectionId] = await Promise.all([
-      getRefreshedCollectionMaps(),
-      getRefreshedDatasetsByCollectionId(),
-    ]);
+    const collectionMaps = await getRefreshedCollectionMaps();
     return {
       ...collectionMaps,
-      datasetsByCollectionId,
       lastRefreshTime: time,
     };
   },
   getStoredInfo() {
     return globalThis.hcaAtlasTrackerCellxGeneInfoCache;
   },
-  notReadyMessage:
-    "Cache of CELLxGENE collections and datasets not initialized",
+  notReadyMessage: "Cache of CELLxGENE collections not initialized",
   onRefreshSuccess() {
     doUpdatesIfRefreshesComplete();
   },
@@ -77,12 +67,6 @@ export const isCellxGeneRefreshing = refreshService.isRefreshing;
  */
 export function getCellxGeneIdByDoi(dois: string[]): string | null {
   return getCellxGeneInfoByDoi(dois)?.id ?? null;
-}
-
-export function getCellxGeneDatasetsByCollectionId(
-  collectionId: string
-): CellxGeneDataset[] | undefined {
-  return refreshService.getData().datasetsByCollectionId.get(collectionId);
 }
 
 /**
@@ -138,32 +122,4 @@ async function getRefreshedCollectionMaps(): Promise<
     collectionInfoByDoi: byDoi,
     collectionInfoById: byId,
   };
-}
-
-async function getRefreshedDatasetsByCollectionId(): Promise<
-  Map<string, CellxGeneDataset[]>
-> {
-  console.log("Requesting CELLxGENE datasets");
-  const datasets = await getCellxGeneDatasets({
-    hooks: {
-      beforeRetry: [
-        (): void => {
-          console.log("Retrying CELLxGENE datasets request");
-        },
-      ],
-    },
-    ...KY_OPTIONS,
-  });
-  console.log("Loaded CELLxGENE datasets");
-  const datasetsByCollectionId = new Map<string, CellxGeneDataset[]>();
-  for (const dataset of datasets) {
-    let collectionDatasets = datasetsByCollectionId.get(dataset.collection_id);
-    if (!collectionDatasets)
-      datasetsByCollectionId.set(
-        dataset.collection_id,
-        (collectionDatasets = [])
-      );
-    collectionDatasets.push(dataset);
-  }
-  return datasetsByCollectionId;
 }
