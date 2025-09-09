@@ -3,8 +3,8 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
-  HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasSourceDatasetEditData,
@@ -38,13 +38,17 @@ export interface UpdatedSourceDatasetsInfo {
 export async function getSourceStudyDatasets(
   atlasId: string,
   sourceStudyId: string
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  const queryResult =
-    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE s.id = $1",
-      [sourceStudyId]
-    );
+  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    `
+      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      FROM hat.source_datasets d
+      JOIN hat.files f ON f.source_dataset_id = d.id
+      JOIN hat.source_studies s ON d.source_study_id = s.id
+      WHERE s.id = $1`,
+    [sourceStudyId]
+  );
   return queryResult.rows;
 }
 
@@ -55,18 +59,23 @@ export async function getSourceStudyDatasets(
  */
 export async function getAtlasDatasets(
   atlasId: string
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   const atlasResult = await query<
     Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
   >("SELECT source_datasets FROM hat.atlases WHERE id=$1", [atlasId]);
   if (atlasResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
   const sourceDatasetIds = atlasResult.rows[0].source_datasets;
-  const queryResult =
-    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
-      [sourceDatasetIds]
-    );
+  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    `
+      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      FROM hat.source_datasets d
+      JOIN hat.files f ON f.source_dataset_id = d.id
+      LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
+      WHERE d.id = ANY($1)
+    `,
+    [sourceDatasetIds]
+  );
   return queryResult.rows;
 }
 
@@ -79,7 +88,7 @@ export async function getAtlasDatasets(
 export async function getComponentAtlasDatasets(
   atlasId: string,
   fileId: string
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   const componentAtlasId = await getComponentAtlasIdForFile(fileId);
   if (componentAtlasId === null) return [];
   const componentAtlasResult = await query<
@@ -91,11 +100,16 @@ export async function getComponentAtlasDatasets(
   if (componentAtlasResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
   const sourceDatasetIds = componentAtlasResult.rows[0].source_datasets;
-  const queryResult =
-    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = ANY($1)",
-      [sourceDatasetIds]
-    );
+  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    `
+      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      FROM hat.source_datasets d
+      JOIN hat.files f ON f.source_dataset_id = d.id
+      LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
+      WHERE d.id = ANY($1)
+    `,
+    [sourceDatasetIds]
+  );
   return queryResult.rows;
 }
 
@@ -112,19 +126,24 @@ export async function getSourceDataset(
   sourceStudyId: string,
   sourceDatasetId: string,
   client?: pg.PoolClient
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceStudyExistsOnAtlas(
     sourceStudyId,
     atlasId,
     undefined,
     client
   );
-  const queryResult =
-    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1 AND s.id = $2",
-      [sourceDatasetId, sourceStudyId],
-      client
-    );
+  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    `
+      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      FROM hat.source_datasets d
+      JOIN hat.files f ON f.source_dataset_id = d.id
+      JOIN hat.source_studies s ON d.source_study_id = s.id
+      WHERE d.id = $1 AND s.id = $2
+    `,
+    [sourceDatasetId, sourceStudyId],
+    client
+  );
   if (queryResult.rows.length === 0)
     throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
   return queryResult.rows[0];
@@ -139,13 +158,18 @@ export async function getSourceDataset(
 export async function getAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
-  const queryResult =
-    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
-      [sourceDatasetId]
-    );
+  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    `
+      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      FROM hat.source_datasets d
+      JOIN hat.files f ON f.source_dataset_id = d.id
+      LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
+      WHERE d.id = $1
+    `,
+    [sourceDatasetId]
+  );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
       `Source dataset with ID ${sourceDatasetId} does not exist`
@@ -164,7 +188,7 @@ export async function getComponentAtlasSourceDataset(
   atlasId: string,
   fileId: string,
   sourceDatasetId: string
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
   const { exists } = (
     await query<{ exists: boolean }>(
@@ -176,11 +200,16 @@ export async function getComponentAtlasSourceDataset(
     throw new NotFoundError(
       `Source dataset with ID ${sourceDatasetId} doesn't exist on integrated object with ID ${componentAtlasId} on atlas with ID ${atlasId}`
     );
-  const queryResult =
-    await query<HCAAtlasTrackerDBSourceDatasetWithStudyProperties>(
-      "SELECT d.*, s.doi, s.study_info FROM hat.source_datasets d LEFT JOIN hat.source_studies s ON d.source_study_id = s.id WHERE d.id = $1",
-      [sourceDatasetId]
-    );
+  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    `
+      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      FROM hat.source_datasets d
+      JOIN hat.files f ON f.source_dataset_id = d.id
+      LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
+      WHERE d.id = $1
+    `,
+    [sourceDatasetId]
+  );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
       `Source dataset with ID ${sourceDatasetId} doesn't exist`
@@ -199,7 +228,7 @@ export async function createSourceDatasetForAtlasSourceStudy(
   atlasId: string,
   sourceStudyId: string,
   inputData: NewSourceDatasetData
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   return await doTransaction(async (client) => {
     const sourceDatasetId = await createSourceDataset(sourceStudyId, inputData);
@@ -249,7 +278,7 @@ export async function updateSourceDataset(
   sourceStudyId: string,
   sourceDatasetId: string,
   inputData: SourceDatasetEditData
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "edit");
   const info = sourceDatasetInputDataToDbData(inputData);
@@ -316,7 +345,7 @@ export async function updateAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
   inputData: AtlasSourceDatasetEditData
-): Promise<HCAAtlasTrackerDBSourceDatasetWithStudyProperties> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   const updatedInfoFields: Pick<
     HCAAtlasTrackerDBSourceDatasetInfo,

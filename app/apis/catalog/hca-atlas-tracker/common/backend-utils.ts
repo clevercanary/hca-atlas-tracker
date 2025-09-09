@@ -11,7 +11,7 @@ import {
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
+  HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBUserWithAssociatedResources,
@@ -142,7 +142,7 @@ export function dbSourceStudyToApiSourceStudy(
 }
 
 export function dbSourceDatasetToApiSourceDataset(
-  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForAPI
 ): HCAAtlasTrackerSourceDataset {
   const studyInfo = dbSourceDataset.study_info;
   const publicationString =

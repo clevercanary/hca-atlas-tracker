@@ -3,7 +3,7 @@ import httpMocks from "node-mocks-http";
 import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
+  HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
@@ -261,7 +261,7 @@ function getQueryValues(
 }
 
 function expectDbSourceDatasetToMatch(
-  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForAPI,
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
   title: string
 ): void {

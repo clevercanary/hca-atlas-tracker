@@ -391,8 +391,11 @@ export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
     };
   };
 
-export type HCAAtlasTrackerDBSourceDatasetWithStudyProperties =
-  WithSourceStudyInfo<HCAAtlasTrackerDBSourceDataset, null>;
+export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
+  HCAAtlasTrackerDBSourceDataset,
+  null
+> &
+  Pick<HCAAtlasTrackerDBFile, "key" | "size_bytes">;
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;
