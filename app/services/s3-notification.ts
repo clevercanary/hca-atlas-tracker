@@ -2,10 +2,10 @@ import { PoolClient } from "pg";
 import {
   S3Event,
   S3EventRecord,
+  s3EventSchema,
   S3Object,
   SNSMessage,
-} from "../apis/catalog/hca-atlas-tracker/aws/entities";
-import { s3EventSchema } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
+} from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_STATUS,
   FILE_TYPE,
@@ -45,7 +45,7 @@ export async function processS3NotificationMessage(
   snsMessage: SNSMessage
 ): Promise<void> {
   // Parse S3 event from SNS message
-  let s3Event: S3Event;
+  let s3Event: unknown;
   try {
     s3Event = JSON.parse(snsMessage.Message);
   } catch (parseError) {
@@ -480,16 +480,19 @@ export async function saveFileRecord(
 
 /**
  * Processes the S3 record from the event
- * @param s3Event - The validated S3 event containing a single record
+ * @param s3EventInput - The unvalidated S3 event, which should contain a single record
  * @param snsMessage - The validated SNS message containing the S3 event
  * @throws InvalidOperationError if multiple records are present
  */
 export async function processS3Record(
-  s3Event: S3Event,
+  s3EventInput: unknown,
   snsMessage: SNSMessage
 ): Promise<void> {
   // Authorize SNS topic
   validateSNSTopicAuthorization(snsMessage.TopicArn);
+
+  // Validate S3 event structure and metadata
+  const s3Event = s3EventSchema.validateSync(s3EventInput);
 
   // S3 ObjectCreated events should contain exactly one record per SNS message
   if (s3Event.Records.length !== 1) {
@@ -497,9 +500,6 @@ export async function processS3Record(
       `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`
     );
   }
-
-  // Validate S3 event structure and metadata (including SHA256)
-  s3EventSchema.validateSync(s3Event);
 
   // Authorize S3 buckets
   authorizeS3Buckets(s3Event);

@@ -145,9 +145,7 @@ export default handler(method(METHOD.POST), async (req, res) => {
     case "Notification":
       // Handle notification messages
       console.log(`Processing notification from topic: ${snsMessage.TopicArn}`);
-      await dispatchSNSNotification(
-        snsMessage as Parameters<typeof dispatchSNSNotification>[0]
-      );
+      await dispatchSNSNotification(snsMessage);
       break;
 
     default:
