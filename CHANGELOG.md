@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.27.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.26.0...v1.27.0) (2025-09-09)
+
+
+### Features
+
+* add api to accept SNS notifications of S3 file added ([#736](https://github.com/clevercanary/hca-atlas-tracker/issues/736)) ([#737](https://github.com/clevercanary/hca-atlas-tracker/issues/737)) ([83bec66](https://github.com/clevercanary/hca-atlas-tracker/commit/83bec663ad34bfa63ecbf7ec4ee96b8083816a6d))
+* add back source datasets tab to atlas ([#794](https://github.com/clevercanary/hca-atlas-tracker/issues/794)) ([#799](https://github.com/clevercanary/hca-atlas-tracker/issues/799)) ([2b898bc](https://github.com/clevercanary/hca-atlas-tracker/commit/2b898bc2d57bb266619c3dcb38cb814bdaa9f37f))
+* add page to sync files from s3 ([#801](https://github.com/clevercanary/hca-atlas-tracker/issues/801)) ([#804](https://github.com/clevercanary/hca-atlas-tracker/issues/804)) ([b93cb72](https://github.com/clevercanary/hca-atlas-tracker/commit/b93cb72213bd202399f48f9d85888d8469960b1b))
+* add script to generate fake files in the database ([#772](https://github.com/clevercanary/hca-atlas-tracker/issues/772)) ([#776](https://github.com/clevercanary/hca-atlas-tracker/issues/776)) ([490a59a](https://github.com/clevercanary/hca-atlas-tracker/commit/490a59adb335dfcee131b4fd5de687dee639e23f))
+* allow the integrated objects list to take up the full width of the page ([#760](https://github.com/clevercanary/hca-atlas-tracker/issues/760)) ([#777](https://github.com/clevercanary/hca-atlas-tracker/issues/777)) ([cb2bb46](https://github.com/clevercanary/hca-atlas-tracker/commit/cb2bb461b7bd055316149749a3c4f6d41e64381a))
+* derive integrated object get api responses from files ([#753](https://github.com/clevercanary/hca-atlas-tracker/issues/753)) ([#766](https://github.com/clevercanary/hca-atlas-tracker/issues/766)) ([8255897](https://github.com/clevercanary/hca-atlas-tracker/commit/8255897c19e82b76805e8440a622bb64a7c3e620))
+* don't do automatic creation or updating of cellxgene source datasets ([#802](https://github.com/clevercanary/hca-atlas-tracker/issues/802)) ([#806](https://github.com/clevercanary/hca-atlas-tracker/issues/806)) ([76fe2ce](https://github.com/clevercanary/hca-atlas-tracker/commit/76fe2ce7dab5544d34481251d10f9fe2a03304cc))
+* don't load cellxgene dataset list ([#808](https://github.com/clevercanary/hca-atlas-tracker/issues/808)) ([#811](https://github.com/clevercanary/hca-atlas-tracker/issues/811)) ([0cae6d0](https://github.com/clevercanary/hca-atlas-tracker/commit/0cae6d0ff5e86e7313097c93f2d36fefa255cd2e))
+* Immediate file visibility for new integrated objects  ([#781](https://github.com/clevercanary/hca-atlas-tracker/issues/781)) ([#782](https://github.com/clevercanary/hca-atlas-tracker/issues/782)) ([b929f10](https://github.com/clevercanary/hca-atlas-tracker/commit/b929f10ffd0f54646db95b96b5f8b22a06075909))
+* make the title not editable on the integrated object detail page general Info section ([#755](https://github.com/clevercanary/hca-atlas-tracker/issues/755)) ([#773](https://github.com/clevercanary/hca-atlas-tracker/issues/773)) ([a2b2626](https://github.com/clevercanary/hca-atlas-tracker/commit/a2b2626b00b6e2a88a5c507e3ce0491427c9ac9d))
+* migrate text references to 'integrated object' throughout the site ([#770](https://github.com/clevercanary/hca-atlas-tracker/issues/770)) ([#778](https://github.com/clevercanary/hca-atlas-tracker/issues/778)) ([070b683](https://github.com/clevercanary/hca-atlas-tracker/commit/070b683e0497f377168dd63cb461a25ff69a8510))
+* move the path of integrated objects to atlases/{atlas_id}/integrated-objects ([#751](https://github.com/clevercanary/hca-atlas-tracker/issues/751)) ([#764](https://github.com/clevercanary/hca-atlas-tracker/issues/764)) ([64fae44](https://github.com/clevercanary/hca-atlas-tracker/commit/64fae44ea476e67deca78e441ccdc9f0fb2d4091))
+* remove 'createintegrated object' page and related code ([#763](https://github.com/clevercanary/hca-atlas-tracker/issues/763)) ([#768](https://github.com/clevercanary/hca-atlas-tracker/issues/768)) ([fffea54](https://github.com/clevercanary/hca-atlas-tracker/commit/fffea548a4111d7fa645591683ca397d87bd73fb))
+* remove 'delete integrated object' ui and rel fns in the front end ([#767](https://github.com/clevercanary/hca-atlas-tracker/issues/767)) ([#769](https://github.com/clevercanary/hca-atlas-tracker/issues/769)) ([4597572](https://github.com/clevercanary/hca-atlas-tracker/commit/4597572c7b307a5be720fcddcb186da9aba4afec))
+* remove "used in atlas" and other columns from atlas source study / source datasets ([#800](https://github.com/clevercanary/hca-atlas-tracker/issues/800)) ([#805](https://github.com/clevercanary/hca-atlas-tracker/issues/805)) ([46c9e2f](https://github.com/clevercanary/hca-atlas-tracker/commit/46c9e2f235416df97b066e068a602f4997faa608))
+* remove soon-obsolete write apis for integrated objects ([#750](https://github.com/clevercanary/hca-atlas-tracker/issues/750)) ([#756](https://github.com/clevercanary/hca-atlas-tracker/issues/756)) ([f7546cf](https://github.com/clevercanary/hca-atlas-tracker/commit/f7546cf728179e52212ecf03e592ebe29a724ec2))
+* remove the 'add integration object' button from the component atlases page ([#749](https://github.com/clevercanary/hca-atlas-tracker/issues/749)) ([#762](https://github.com/clevercanary/hca-atlas-tracker/issues/762)) ([fd45cb0](https://github.com/clevercanary/hca-atlas-tracker/commit/fd45cb023f9c33b03b16c9c83d50ca0ec6d5f1a1))
+* rename datasets used to datasets on alas source studies ([#795](https://github.com/clevercanary/hca-atlas-tracker/issues/795)) ([#796](https://github.com/clevercanary/hca-atlas-tracker/issues/796)) ([9476de9](https://github.com/clevercanary/hca-atlas-tracker/commit/9476de9b3b1cc318eaea342d1b3ce340271a77cb))
+* rename tab to 'integrated objects' (instead of integration objects) ([#752](https://github.com/clevercanary/hca-atlas-tracker/issues/752)) ([#765](https://github.com/clevercanary/hca-atlas-tracker/issues/765)) ([e9b3857](https://github.com/clevercanary/hca-atlas-tracker/commit/e9b38577882688ded12426fb7d3223758f8f57f5))
+* update integrated object list columns to include file and status information ([#754](https://github.com/clevercanary/hca-atlas-tracker/issues/754)) ([#779](https://github.com/clevercanary/hca-atlas-tracker/issues/779)) ([7909c7e](https://github.com/clevercanary/hca-atlas-tracker/commit/7909c7ec1534a8db8903582cba568b98724dc97e))
+* update the general info section on the integrated object detail page ([#771](https://github.com/clevercanary/hca-atlas-tracker/issues/771)) ([#780](https://github.com/clevercanary/hca-atlas-tracker/issues/780)) ([5a5f48e](https://github.com/clevercanary/hca-atlas-tracker/commit/5a5f48e05b053bcc052f01c8306735dc2b80405a))
+
+
+### Bug Fixes
+
+* use schemas for aws types ([#784](https://github.com/clevercanary/hca-atlas-tracker/issues/784)) ([#810](https://github.com/clevercanary/hca-atlas-tracker/issues/810)) ([cc53bcc](https://github.com/clevercanary/hca-atlas-tracker/commit/cc53bccc69ec93d65d440833993f9635d5f42df4))
+
+
+### Tests
+
+* add separate function to cover broadened `withConsoleErrorHiding` behavior ([#786](https://github.com/clevercanary/hca-atlas-tracker/issues/786), [#787](https://github.com/clevercanary/hca-atlas-tracker/issues/787)) ([#788](https://github.com/clevercanary/hca-atlas-tracker/issues/788)) ([a940b43](https://github.com/clevercanary/hca-atlas-tracker/commit/a940b433d153b2ab1071b251b130d727ab1ede7e))
+
 ## [1.26.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.25.0...v1.26.0) (2025-08-13)
 
 
