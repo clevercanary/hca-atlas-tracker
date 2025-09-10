@@ -34,6 +34,7 @@ import {
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   IngestionTaskCounts,
+  INTEGRITY_STATUS,
   Network,
   NetworkKey,
   SYSTEM,
@@ -318,21 +319,18 @@ export const buildIngestionCountsHca = (
 };
 
 /**
- * Build props for the integrated object validation status ChipCell component.
- * @param ctx - Cell context.
+ * Build props for the validation status ChipCell component.
+ * @param validationStatus - Validation status.
  * @returns Props to be used for the ChipCell component.
  */
-export const buildIntegratedObjectValidationStatus = (
-  ctx: CellContext<
-    HCAAtlasTrackerComponentAtlas,
-    HCAAtlasTrackerComponentAtlas["validationStatus"]
-  >
+export const buildValidationStatus = (
+  validationStatus: INTEGRITY_STATUS
 ): ComponentProps<typeof C.ChipCell> => {
   return {
     getValue: (() => {
       return {
         color: CHIP_PROPS.COLOR.WARNING,
-        label: ctx.getValue().replace(/^./, (match) => match.toUpperCase()),
+        label: validationStatus.replace(/^./, (match) => match.toUpperCase()),
         variant: CHIP_PROPS.VARIANT.STATUS,
       };
     }) as Getter<ChipProps>,
@@ -1061,6 +1059,9 @@ export function getAtlasSourceDatasetsTableColumns(
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetSourceStudyColumnDef(atlas),
+    getSourceDatasetFileNameColumnDef(),
+    getSourceDatasetSizeBytesColumnDef(),
+    getSourceDatasetValidationStatusColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
@@ -1411,7 +1412,7 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
 > {
   return {
     accessorKey: "validationStatus",
-    cell: (ctx) => C.ChipCell(buildIntegratedObjectValidationStatus(ctx)),
+    cell: (ctx) => C.ChipCell(buildValidationStatus(ctx.getValue())),
     header: "Validation Status",
   };
 }
@@ -1438,6 +1439,18 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
     enableSorting: false,
     header: "Download",
   };
+}
+
+/**
+ * Returns source dataset file name column def.
+ * @returns Column def.
+ */
+function getSourceDatasetFileNameColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "fileName",
+    cell: (ctx) => C.BasicCell({ value: ctx.getValue() }),
+    header: "File Name",
+  } as ColumnDef<HCAAtlasTrackerSourceDataset, string>;
 }
 
 /**
@@ -1468,6 +1481,20 @@ function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
   };
 }
 
+/**
+ * Returns source dataset size bytes column def.
+ * @returns Column def.
+ */
+function getSourceDatasetSizeBytesColumnDef(): ColumnDef<
+  HCAAtlasTrackerSourceDataset,
+  number
+> {
+  return {
+    accessorKey: "sizeBytes",
+    cell: (ctx) => formatFileSize(ctx.getValue()),
+    header: "File Size",
+  } as ColumnDef<HCAAtlasTrackerSourceDataset, number>;
+}
 /**
  * Returns source dataset source study column def.
  * @param atlas - Linked atlas.
@@ -1506,6 +1533,24 @@ function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
     header: "Title",
     meta: { columnPinned: true },
   };
+}
+
+/**
+ * Returns source dataset validation status column def.
+ * @returns Column def.
+ */
+function getSourceDatasetValidationStatusColumnDef(): ColumnDef<
+  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerSourceDataset["validationStatus"]
+> {
+  return {
+    accessorKey: "validationStatus",
+    cell: (ctx) => C.ChipCell(buildValidationStatus(ctx.getValue())),
+    header: "Validation Status",
+  } as ColumnDef<
+    HCAAtlasTrackerSourceDataset,
+    HCAAtlasTrackerSourceDataset["validationStatus"]
+  >;
 }
 
 /**
