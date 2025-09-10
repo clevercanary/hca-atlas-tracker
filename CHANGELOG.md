@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.28.0...v1.29.0) (2025-09-10)
+
+
+### Features
+
+* source dataset column tweaks ([#815](https://github.com/clevercanary/hca-atlas-tracker/issues/815)) ([#817](https://github.com/clevercanary/hca-atlas-tracker/issues/817)) ([3190b94](https://github.com/clevercanary/hca-atlas-tracker/commit/3190b94eef8f70c654951d4a0f376e00ff96c723))
+
 ## [1.28.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.27.0...v1.28.0) (2025-09-10)
 
 
