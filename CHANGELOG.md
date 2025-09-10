@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.28.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.27.0...v1.28.0) (2025-09-10)
+
+
+### Features
+
+* add file fields to source source datasets ([#812](https://github.com/clevercanary/hca-atlas-tracker/issues/812)) ([#816](https://github.com/clevercanary/hca-atlas-tracker/issues/816)) ([6abdb72](https://github.com/clevercanary/hca-atlas-tracker/commit/6abdb725422451b44084ebd350f9138041d1850d))
+* add file name, size, and validation status to source dataset api responses ([#812](https://github.com/clevercanary/hca-atlas-tracker/issues/812)) ([#813](https://github.com/clevercanary/hca-atlas-tracker/issues/813)) ([bac8769](https://github.com/clevercanary/hca-atlas-tracker/commit/bac8769ddb78061d68c69f6e5dff13498e009397))
+
 ## [1.27.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.26.0...v1.27.0) (2025-09-09)
 
 
