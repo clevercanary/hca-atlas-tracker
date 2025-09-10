@@ -1,3 +1,5 @@
 export const FIELD_NAME = {
-  METADATA_SPREADSHEET_URL: "metadataSpreadsheetUrl",
+  FILE_NAME: "fileName",
+  SIZE_BYTES: "sizeBytes",
+  VALIDATION_STATUS: "validationStatus",
 } as const;

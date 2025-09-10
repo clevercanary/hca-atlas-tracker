@@ -34,6 +34,7 @@ import {
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   IngestionTaskCounts,
+  INTEGRITY_STATUS,
   Network,
   NetworkKey,
   SYSTEM,
@@ -318,21 +319,18 @@ export const buildIngestionCountsHca = (
 };
 
 /**
- * Build props for the integrated object validation status ChipCell component.
- * @param ctx - Cell context.
+ * Build props for the validation status ChipCell component.
+ * @param validationStatus - Validation status.
  * @returns Props to be used for the ChipCell component.
  */
-export const buildIntegratedObjectValidationStatus = (
-  ctx: CellContext<
-    HCAAtlasTrackerComponentAtlas,
-    HCAAtlasTrackerComponentAtlas["validationStatus"]
-  >
+export const buildValidationStatus = (
+  validationStatus: INTEGRITY_STATUS
 ): ComponentProps<typeof C.ChipCell> => {
   return {
     getValue: (() => {
       return {
         color: CHIP_PROPS.COLOR.WARNING,
-        label: ctx.getValue().replace(/^./, (match) => match.toUpperCase()),
+        label: validationStatus.replace(/^./, (match) => match.toUpperCase()),
         variant: CHIP_PROPS.VARIANT.STATUS,
       };
     }) as Getter<ChipProps>,
@@ -1056,18 +1054,19 @@ export function getAtlasComponentSourceDatasetsTableColumns(
  */
 export function getAtlasSourceDatasetsTableColumns(
   atlas: HCAAtlasTrackerAtlas
-): ColumnDef<HCAAtlasTrackerSourceDataset, unknown>[] {
+): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getSourceDatasetDownloadColumnDef(),
     getAtlasSourceDatasetTitleColumnDef(atlas),
     getSourceDatasetSourceStudyColumnDef(atlas),
+    getSourceDatasetFileNameColumnDef(),
+    getSourceDatasetSizeBytesColumnDef(),
+    getSourceDatasetValidationStatusColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
     getDiseaseColumnDef(),
     getCellCountColumnDef(),
-    getCreatedAtColumnDef(),
-    getUpdatedAtColumnDef(),
   ];
 }
 
@@ -1309,18 +1308,6 @@ function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAt
 }
 
 /**
- * Returns created at column def.
- * @returns ColumnDef.
- */
-function getCreatedAtColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "createdAt",
-    cell: ({ row }) => getDateFromIsoString(row.original.createdAt),
-    header: "Created At",
-  };
-}
-
-/**
  * Returns component atlas or source dataset disease column def.
  * @returns ColumnDef.
  */
@@ -1411,7 +1398,7 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
 > {
   return {
     accessorKey: "validationStatus",
-    cell: (ctx) => C.ChipCell(buildIntegratedObjectValidationStatus(ctx)),
+    cell: (ctx) => C.ChipCell(buildValidationStatus(ctx.getValue())),
     header: "Validation Status",
   };
 }
@@ -1441,6 +1428,18 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
 }
 
 /**
+ * Returns source dataset file name column def.
+ * @returns Column def.
+ */
+function getSourceDatasetFileNameColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "fileName",
+    cell: (ctx) => C.BasicCell({ value: ctx.getValue() as string }),
+    header: "File Name",
+  };
+}
+
+/**
  * Returns source dataset explore column def.
  * @returns Column def.
  */
@@ -1465,6 +1464,18 @@ function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
     },
     enableSorting: false,
     header: "Explore",
+  };
+}
+
+/**
+ * Returns source dataset size bytes column def.
+ * @returns Column def.
+ */
+function getSourceDatasetSizeBytesColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "sizeBytes",
+    cell: (ctx) => formatFileSize(ctx.getValue() as number),
+    header: "File Size",
   };
 }
 
@@ -1505,6 +1516,19 @@ function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
       }),
     header: "Title",
     meta: { columnPinned: true },
+  };
+}
+
+/**
+ * Returns source dataset validation status column def.
+ * @returns Column def.
+ */
+function getSourceDatasetValidationStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "validationStatus",
+    cell: (ctx) =>
+      C.ChipCell(buildValidationStatus(ctx.getValue() as INTEGRITY_STATUS)),
+    header: "Validation Status",
   };
 }
 
@@ -1739,17 +1763,5 @@ function getTissueColumnDef<
     accessorKey: "tissue",
     cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
-  };
-}
-
-/**
- * Returns updated at column def.
- * @returns ColumnDef.
- */
-function getUpdatedAtColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "updatedAt",
-    cell: ({ row }) => getDateFromIsoString(row.original.updatedAt),
-    header: "Updated At",
   };
 }
