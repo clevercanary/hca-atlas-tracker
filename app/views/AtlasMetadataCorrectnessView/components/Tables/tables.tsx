@@ -1,7 +1,9 @@
+import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
+import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { useEntity } from "../../../../providers/entity/hook";
 import { EntityData } from "../../entities";
 import { Table } from "../Table/table";
-import { StyledFluidPaper, StyledGrid } from "./tables.styles";
+import { StyledGrid } from "./tables.styles";
 import { filterClasses } from "./utils";
 
 export const Tables = (): JSX.Element => {
@@ -11,9 +13,12 @@ export const Tables = (): JSX.Element => {
 
   if (classes.length === 0) {
     return (
-      <StyledFluidPaper>
-        No metadata entry sheets registered for this atlas
-      </StyledFluidPaper>
+      <FluidPaper>
+        <TablePlaceholder
+          message="No metadata entry sheets registered for this atlas"
+          rowCount={classes.length}
+        />
+      </FluidPaper>
     );
   }
 
