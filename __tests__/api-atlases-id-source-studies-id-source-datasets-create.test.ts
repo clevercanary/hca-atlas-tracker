@@ -1,15 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { dbSourceDatasetToApiSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import {
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
-  HCAAtlasTrackerSourceDataset,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewSourceDatasetData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
-import { getSourceDataset } from "../app/services/source-datasets";
 import createHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/create";
 import {
   ATLAS_DRAFT,
@@ -23,9 +16,16 @@ import {
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import {
+  getSourceDatasetFromDatabase,
+  resetDatabase,
+} from "../testing/db-utils";
 import { TestAtlas, TestSourceStudy, TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  expectIsDefined,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -192,48 +192,40 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
-  it("creates and returns source dataset entry when requested by user with CONTENT_ADMIN role", async () => {
-    await testSuccessfulCreate(
+  it("fails to create source dataset due to lack of file when requested by user with CONTENT_ADMIN role", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       SOURCE_STUDY_WITH_SOURCE_DATASETS,
       NEW_SOURCE_DATASET_DATA,
-      NEW_SOURCE_DATASET_DATA.title
+      true
     );
+    expect(res._getStatusCode()).toEqual(404);
+    const message = res._getJSONData().message;
+    expect(message).toEqual(expect.stringContaining("Source dataset with ID"));
+    const id = /Source dataset with ID (\S+)/.exec(message)?.[1];
+    if (expectIsDefined(id)) {
+      expect(await getSourceDatasetFromDatabase(id)).toBeUndefined();
+    }
   });
 
-  it("creates and returns source dataset entry when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    await testSuccessfulCreate(
+  it("fails to create source dataset due to lack of file when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const res = await doCreateTest(
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       SOURCE_STUDY_WITH_SOURCE_DATASETS,
       NEW_SOURCE_DATASET_DATA_FOO,
-      NEW_SOURCE_DATASET_DATA_FOO.title,
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES
+      true
     );
+    expect(res._getStatusCode()).toEqual(404);
+    const message = res._getJSONData().message;
+    expect(message).toEqual(expect.stringContaining("Source dataset with ID"));
+    const id = /Source dataset with ID (\S+)/.exec(message)?.[1];
+    if (expectIsDefined(id)) {
+      expect(await getSourceDatasetFromDatabase(id)).toBeUndefined();
+    }
   });
 });
-
-async function testSuccessfulCreate(
-  atlas: TestAtlas,
-  sourceStudy: TestSourceStudy,
-  newData: Record<string, unknown>,
-  expectedTitle: string,
-  user = USER_CONTENT_ADMIN
-): Promise<HCAAtlasTrackerDBSourceDataset> {
-  const res = await doCreateTest(user, atlas, sourceStudy, newData);
-  expect(res._getStatusCode()).toEqual(201);
-  const newSourceDataset: HCAAtlasTrackerSourceDataset = res._getJSONData();
-  const newSourceDatasetFromDb = await getSourceDataset(
-    atlas.id,
-    sourceStudy.id,
-    newSourceDataset.id
-  );
-  expectDbSourceDatasetToMatch(
-    newSourceDatasetFromDb,
-    newSourceDataset,
-    expectedTitle
-  );
-  return newSourceDatasetFromDb;
-}
 
 async function doCreateTest(
   user: TestUser | undefined,
@@ -258,19 +250,4 @@ function getQueryValues(
   sourceStudy: TestSourceStudy
 ): Record<string, string> {
   return { atlasId: atlas.id, sourceStudyId: sourceStudy.id };
-}
-
-function expectDbSourceDatasetToMatch(
-  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
-  apiSourceDataset: HCAAtlasTrackerSourceDataset,
-  title: string
-): void {
-  expect(dbSourceDataset).toBeDefined();
-  expect(dbSourceDataset.source_study_id).toEqual(
-    apiSourceDataset.sourceStudyId
-  );
-  expect(dbSourceDataset.sd_info.title).toEqual(title);
-  expect(dbSourceDatasetToApiSourceDataset(dbSourceDataset)).toEqual(
-    apiSourceDataset
-  );
 }

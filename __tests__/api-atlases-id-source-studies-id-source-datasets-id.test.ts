@@ -13,7 +13,6 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-studies/
 import {
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
-  COMPONENT_ATLAS_DRAFT_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
@@ -32,16 +31,9 @@ import {
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import {
-  getExistingComponentAtlasFromDatabase,
-  resetDatabase,
-} from "../testing/db-utils";
+import { resetDatabase } from "../testing/db-utils";
 import { TestSourceDataset, TestUser } from "../testing/entities";
-import {
-  makeTestSourceDatasetInfo,
-  testApiRole,
-  withConsoleErrorHiding,
-} from "../testing/utils";
+import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -582,72 +574,42 @@ describe(TEST_ROUTE, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
-  it("deletes source dataset when requested by user with CONTENT_ADMIN role", async () => {
-    const caDraftFooBefore = await getExistingComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
+  it("fails to delete source dataset due to files constraint when requested by user with CONTENT_ADMIN role", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+      SOURCE_DATASET_FOOFOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.DELETE,
+      undefined,
+      true
     );
-    expect(caDraftFooBefore.source_datasets).toContain(
-      SOURCE_DATASET_FOOFOO.id
+    expect(res._getStatusCode()).toEqual(500);
+    expect(res._getJSONData().message).toEqual(
+      expect.stringContaining("ck_files_exclusive_parent_relationship")
     );
-
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          SOURCE_DATASET_FOOFOO.id,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(200);
     expect(
       await getSourceDatasetFromDatabase(SOURCE_DATASET_FOOFOO.id)
-    ).toBeUndefined();
-
-    const caDraftFooAfter = await getExistingComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-    expect(caDraftFooAfter.source_datasets).not.toContain(
-      SOURCE_DATASET_FOOFOO.id
-    );
-
-    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_BAR);
-
-    await query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
-      [
-        SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-        JSON.stringify(makeTestSourceDatasetInfo(SOURCE_DATASET_FOOFOO)),
-        SOURCE_DATASET_FOOFOO.id,
-      ]
-    );
+    ).toBeDefined();
   });
 
-  it("deletes source dataset when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          SOURCE_DATASET_FOOBAR.id,
-          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(200);
+  it("fails to delete source dataset due to files constraint when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+      SOURCE_DATASET_FOOBAR.id,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      METHOD.DELETE,
+      undefined,
+      true
+    );
+    expect(res._getStatusCode()).toEqual(500);
+    expect(res._getJSONData().message).toEqual(
+      expect.stringContaining("ck_files_exclusive_parent_relationship")
+    );
     expect(
       await getSourceDatasetFromDatabase(SOURCE_DATASET_FOOBAR.id)
-    ).toBeUndefined();
-
-    await query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
-      [
-        SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-        JSON.stringify(makeTestSourceDatasetInfo(SOURCE_DATASET_FOOBAR)),
-        SOURCE_DATASET_FOOBAR.id,
-      ]
-    );
+    ).toBeDefined();
   });
 });
 

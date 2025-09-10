@@ -19,10 +19,9 @@ import {
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
-  FILE_COMPONENT_ATLAS_DRAFT_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
 } from "../testing/constants";
-import { initTestFile, resetDatabase } from "../testing/db-utils";
+import { createTestFile, resetDatabase } from "../testing/db-utils";
 
 // Shared test constants
 const TEST_EVENT_INFO = JSON.stringify({
@@ -52,7 +51,7 @@ describe("confirmFileExistsOnAtlas", () => {
   describe("integrated object files via component atlas", () => {
     it("should pass when file exists on the specified atlas via component atlas", async () => {
       // Use existing test file that's linked to component atlas
-      const fileId = FILE_COMPONENT_ATLAS_DRAFT_FOO.id;
+      const fileId = COMPONENT_ATLAS_DRAFT_FOO.file.id;
       const atlasId = ATLAS_DRAFT.id;
 
       // Should not throw an error
@@ -63,7 +62,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
     it("should throw NotFoundError when file exists but on different atlas", async () => {
       // Use existing test file linked to one atlas, but check against different atlas
-      const fileId = FILE_COMPONENT_ATLAS_DRAFT_FOO.id;
+      const fileId = COMPONENT_ATLAS_DRAFT_FOO.file.id;
       const wrongAtlasId = ATLAS_WITH_MISC_SOURCE_STUDIES.id;
 
       // Should throw NotFoundError when checking for different atlas
@@ -81,11 +80,11 @@ describe("confirmFileExistsOnAtlas", () => {
 
   describe("source dataset files", () => {
     it("should pass when source dataset file exists (source datasets are atlas-agnostic)", async () => {
-      // Create a source dataset file using initTestFile
+      // Create a source dataset file using createTestFile
       const testFileId = "550e8400-e29b-41d4-a716-446655440010";
       const sourceDatasetId = SOURCE_DATASET_DRAFT_OK_FOO.id;
 
-      await initTestFile(testFileId, {
+      await createTestFile(testFileId, {
         bucket: "test-bucket-source-dataset",
         etag: "550e8400-e29b-41d4-a716-test-etag",
         fileType: FILE_TYPE.SOURCE_DATASET,
@@ -124,7 +123,7 @@ describe("confirmFileExistsOnAtlas", () => {
       // Create an orphan file that doesn't match either condition (no component_atlas_id and no source_dataset_id)
       const testFileId = "550e8400-e29b-41d4-a716-446655440011";
 
-      await initTestFile(testFileId, {
+      await createTestFile(testFileId, {
         bucket: "test-bucket-orphan",
         etag: "550e8400-e29b-41d4-a716-test-etag2",
         fileType: FILE_TYPE.INGEST_MANIFEST,
@@ -158,7 +157,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
     it("should handle invalid UUID format for atlas ID", async () => {
       // Use existing test file
-      const fileId = FILE_COMPONENT_ATLAS_DRAFT_FOO.id;
+      const fileId = COMPONENT_ATLAS_DRAFT_FOO.file.id;
 
       // Should get database error due to invalid UUID format
       await expect(

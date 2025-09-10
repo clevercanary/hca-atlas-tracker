@@ -11,7 +11,7 @@ import {
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetWithStudyProperties,
+  HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBUserWithAssociatedResources,
@@ -142,7 +142,7 @@ export function dbSourceStudyToApiSourceStudy(
 }
 
 export function dbSourceDatasetToApiSourceDataset(
-  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetWithStudyProperties
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForAPI
 ): HCAAtlasTrackerSourceDataset {
   const studyInfo = dbSourceDataset.study_info;
   const publicationString =
@@ -158,10 +158,12 @@ export function dbSourceDatasetToApiSourceDataset(
     createdAt: dbSourceDataset.created_at.toISOString(),
     disease: dbSourceDataset.sd_info.disease,
     doi: dbSourceDataset.doi,
+    fileName: parseS3KeyPath(dbSourceDataset.key).filename,
     id: dbSourceDataset.id,
     metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
     publicationString,
+    sizeBytes: Number(dbSourceDataset.size_bytes),
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:
       studyInfo?.publication?.title ??
@@ -173,6 +175,7 @@ export function dbSourceDatasetToApiSourceDataset(
     tissue: dbSourceDataset.sd_info.tissue,
     title: dbSourceDataset.sd_info.title,
     updatedAt: dbSourceDataset.updated_at.toISOString(),
+    validationStatus: INTEGRITY_STATUS.PENDING,
   };
 }
 

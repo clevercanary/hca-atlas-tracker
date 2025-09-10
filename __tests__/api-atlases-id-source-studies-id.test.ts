@@ -21,8 +21,6 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   CELLXGENE_ID_NORMAL,
-  COMPONENT_ATLAS_DRAFT_FOO,
-  COMPONENT_ATLAS_MISC_FOO,
   DOI_DRAFT_OK,
   DOI_PREPRINT_NO_JOURNAL,
   DOI_WITH_NEW_SOURCE_DATASETS,
@@ -32,8 +30,6 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_FOO,
-  SOURCE_DATASET_OTHER_BAR,
-  SOURCE_DATASET_OTHER_FOO,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
@@ -43,7 +39,6 @@ import {
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
   SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
-  SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -57,7 +52,6 @@ import {
   expectApiSourceStudyToHaveMatchingDbValidations,
   getAllSourceDatasetsFromDatabase,
   getAtlasFromDatabase,
-  getExistingComponentAtlasFromDatabase,
   getSourceDatasetFromDatabase,
   getSourceStudyEntrySheetValidationsFromDatabase,
   getSourceStudyFromDatabase,
@@ -74,7 +68,6 @@ import {
 } from "../testing/entities";
 import {
   expectApiValidationsToMatchDb,
-  expectComponentAtlasDatasetsToHaveDifference,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
   testApiRole,
@@ -1002,44 +995,52 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     ]);
   });
 
-  it("deletes source study entirely, including validations and source datasets, when only in one atlas", async () => {
+  it("fails to delete source study containing source datasets due to linked entity constraint on files", async () => {
+    const res = await doStudyRequest(
+      ATLAS_DRAFT.id,
+      SOURCE_STUDY_DRAFT_OK.id,
+      USER_CONTENT_ADMIN,
+      METHOD.DELETE,
+      undefined,
+      true
+    );
+    expect(res._getStatusCode()).toEqual(500);
+    expect(res._getJSONData().message).toEqual(
+      expect.stringContaining("ck_files_exclusive_parent_relationship")
+    );
+    expect(
+      await getSourceStudyFromDatabase(SOURCE_STUDY_DRAFT_OK.id)
+    ).toBeDefined();
+  });
+
+  it("deletes source study entirely, including validations, when only in one atlas", async () => {
     const validationsBefore = await getValidationsByEntityId(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
     );
     expect(validationsBefore).not.toHaveLength(0);
-
-    const datasetsBefore = await getSourceStudySourceDatasetsFromDatabase(
-      SOURCE_STUDY_DRAFT_OK.id
-    );
-    expect(datasetsBefore).toHaveLength(2);
 
     await expect(
       (
         await doStudyRequest(
-          ATLAS_DRAFT.id,
-          SOURCE_STUDY_DRAFT_OK.id,
+          ATLAS_PUBLIC.id,
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE
         )
       )._getStatusCode()
     ).toEqual(200);
-    const draftStudies = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
+    const publicStudies = (await getAtlasFromDatabase(ATLAS_PUBLIC.id))
       ?.source_studies;
-    expect(draftStudies).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
+    expect(publicStudies).not.toContain(SOURCE_STUDY_PUBLIC_NO_CROSSREF.id);
     const studyFromDb = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
     );
     expect(studyFromDb).toBeUndefined();
 
     const validationsAfter = await getValidationsByEntityId(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
     );
     expect(validationsAfter).toHaveLength(0);
-
-    const datasetsAfter = await getSourceStudySourceDatasetsFromDatabase(
-      SOURCE_STUDY_DRAFT_OK.id
-    );
-    expect(datasetsAfter).toHaveLength(0);
   });
 
   it("deletes entry sheet validations when source study is fully deleted", async () => {
@@ -1090,46 +1091,11 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     ).toEqual(200);
     const draftStudies = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
       ?.source_studies;
-    expect(draftStudies).not.toContain(SOURCE_STUDY_DRAFT_OK.id);
+    expect(draftStudies).not.toContain(SOURCE_STUDY_DRAFT_NO_CROSSREF.id);
     const studyFromDb = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_NO_CROSSREF.id
     );
     expect(studyFromDb).toBeUndefined();
-  });
-
-  it("updates component atlas that had relevent source datasets when source study is deleted", async () => {
-    const caMiscFooBefore = await getExistingComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_MISC_FOO.id
-    );
-    const caDraftFooBefore = await getExistingComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
-    await expect(
-      (
-        await doStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-
-    const caMiscFooAfter = await getExistingComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_MISC_FOO.id
-    );
-    const caDraftFooAfter = await getExistingComponentAtlasFromDatabase(
-      COMPONENT_ATLAS_DRAFT_FOO.id
-    );
-
-    expectComponentAtlasDatasetsToHaveDifference(
-      caMiscFooAfter,
-      caMiscFooBefore,
-      [SOURCE_DATASET_OTHER_FOO, SOURCE_DATASET_OTHER_BAR]
-    );
-
-    expect(caDraftFooAfter).toEqual(caDraftFooBefore);
   });
 });
 

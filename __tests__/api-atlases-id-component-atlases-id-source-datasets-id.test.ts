@@ -6,9 +6,8 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/component-atlas
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
-  FILE_COMPONENT_ATLAS_DRAFT_BAR,
-  FILE_COMPONENT_ATLAS_DRAFT_FOO,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAZ,
@@ -55,7 +54,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOO.id,
           undefined,
           METHOD.PUT
@@ -69,7 +68,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOBAZ.id,
           undefined,
           METHOD.GET,
@@ -84,7 +83,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOBAZ.id,
           USER_UNREGISTERED,
           METHOD.GET,
@@ -99,7 +98,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOBAZ.id,
           USER_DISABLED_CONTENT_ADMIN
         )
@@ -114,7 +113,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOO.id,
           undefined,
           METHOD.POST,
@@ -130,7 +129,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOO.id,
           USER_UNREGISTERED,
           METHOD.POST,
@@ -146,7 +145,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOO.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST
@@ -165,7 +164,7 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_DRAFT.id,
-        FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+        COMPONENT_ATLAS_DRAFT_FOO.file.id,
         SOURCE_DATASET_FOO.id
       ),
       undefined,
@@ -182,7 +181,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOO.id,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.POST
@@ -197,7 +196,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_PUBLIC.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOO.id,
           USER_CONTENT_ADMIN,
           METHOD.POST,
@@ -215,7 +214,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_ID_NONEXISTENT,
           USER_CONTENT_ADMIN,
           METHOD.POST,
@@ -231,7 +230,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 400 when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_DRAFT.id,
-      FILE_COMPONENT_ATLAS_DRAFT_BAR.id,
+      COMPONENT_ATLAS_DRAFT_BAR.file.id,
       SOURCE_DATASET_FOO.id,
       USER_INTEGRATION_LEAD_DRAFT,
       METHOD.POST,
@@ -243,7 +242,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 400 when POST requested by user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_DRAFT.id,
-      FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+      COMPONENT_ATLAS_DRAFT_FOO.file.id,
       SOURCE_DATASET_FOO.id,
       USER_CONTENT_ADMIN,
       METHOD.POST,
@@ -257,7 +256,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOFOO.id,
           undefined,
           METHOD.DELETE,
@@ -273,7 +272,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_UNREGISTERED,
           METHOD.DELETE,
@@ -289,7 +288,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE
@@ -308,7 +307,7 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_DRAFT.id,
-        FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+        COMPONENT_ATLAS_DRAFT_FOO.file.id,
         SOURCE_DATASET_FOOFOO.id
       ),
       undefined,
@@ -325,7 +324,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.DELETE
@@ -340,7 +339,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_PUBLIC.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
@@ -356,7 +355,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_ID_NONEXISTENT,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
@@ -376,7 +375,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_BAR.id,
+          COMPONENT_ATLAS_DRAFT_BAR.file.id,
           SOURCE_DATASET_CELLXGENE_WITH_UPDATE.id,
           USER_INTEGRATION_LEAD_DRAFT,
           METHOD.DELETE,
@@ -391,7 +390,7 @@ describe(TEST_ROUTE, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_DRAFT.id,
-          FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+          COMPONENT_ATLAS_DRAFT_FOO.file.id,
           SOURCE_DATASET_FOOFOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,

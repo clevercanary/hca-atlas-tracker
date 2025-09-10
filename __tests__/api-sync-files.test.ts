@@ -8,8 +8,8 @@ import { mockClient } from "aws-sdk-client-mock";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  createTestFile,
   getFileFromDatabase,
-  initTestFile,
   resetDatabase,
 } from "testing/db-utils";
 import {
@@ -328,7 +328,7 @@ describe(TEST_ROUTE, () => {
     const FILE_ID_EXISTING_UNCHANGED = "3c324e37-ff0a-4b2b-8c23-b80eb277a222";
     const FILE_ID_EXISTING_CHANGED = "7306f44c-ef9b-4adc-9280-ebdf1e902f3e";
 
-    await initTestFile(FILE_ID_EXISTING_UNCHANGED, {
+    await createTestFile(FILE_ID_EXISTING_UNCHANGED, {
       bucket: TEST_S3_BUCKET,
       etag: HEAD_RESPONSE_EXISTING_UNCHANGED.ETag,
       eventTime: HEAD_RESPONSE_EXISTING_UNCHANGED.LastModified.toISOString(),
@@ -338,7 +338,7 @@ describe(TEST_ROUTE, () => {
       versionId: HEAD_RESPONSE_EXISTING_UNCHANGED.VersionId,
     });
 
-    await initTestFile(FILE_ID_EXISTING_CHANGED, {
+    await createTestFile(FILE_ID_EXISTING_CHANGED, {
       bucket: TEST_S3_BUCKET,
       etag: HEAD_RESPONSE_EXISTING_CHANGED.ETag,
       eventTime: "2025-09-07T23:20:33.500Z",

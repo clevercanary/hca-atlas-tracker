@@ -14,7 +14,6 @@ import {
   TestComment,
   TestComponentAtlas,
   TestEntrySheetValidation,
-  TestFile,
   TestPublishedSourceStudy,
   TestSourceDataset,
   TestUnpublishedSourceStudy,
@@ -1469,6 +1468,17 @@ export const SOURCE_DATASET_FOO: TestSourceDataset = {
   assay: ["assay foo"],
   cellCount: 354,
   disease: ["disease foo"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-foo",
+    etag: "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+    eventTime: "2025-08-22T06:10:15.123Z",
+    fileName: "source-dataset-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    sizeBytes: "1234567",
+    versionId: null,
+  },
   id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   suspensionType: ["suspension type foo"],
@@ -1477,12 +1487,34 @@ export const SOURCE_DATASET_FOO: TestSourceDataset = {
 };
 
 export const SOURCE_DATASET_BAR: TestSourceDataset = {
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-bar",
+    etag: "2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e",
+    eventTime: "2025-08-22T06:10:32.456Z",
+    fileName: "source-dataset-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "b2c3d4e5-f6a7-8901-bcde-f23456789012",
+    sizeBytes: "2345678",
+    versionId: null,
+  },
   id: "cd053619-8b50-4e2d-ba62-96fbbcad6011",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Bar",
 };
 
 export const SOURCE_DATASET_BAZ: TestSourceDataset = {
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-baz",
+    etag: "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f",
+    eventTime: "2025-08-22T06:10:49.789Z",
+    fileName: "source-dataset-baz.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "c3d4e5f6-a7b8-9012-cdef-345678901234",
+    sizeBytes: "3456789",
+    versionId: null,
+  },
   id: "3682751a-7a97-48e1-a43e-d355c1707e26",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Baz",
@@ -1492,6 +1524,17 @@ export const SOURCE_DATASET_FOOFOO: TestSourceDataset = {
   assay: ["assay foofoo"],
   cellCount: 534,
   disease: ["disease foofoo"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-foofoo",
+    etag: "4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90",
+    eventTime: "2025-08-22T06:11:06.012Z",
+    fileName: "source-dataset-foofoo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "d4e5f6a7-b8c9-0123-def4-456789012345",
+    sizeBytes: "4567890",
+    versionId: null,
+  },
   id: "5c42bc65-93ad-4191-95bc-a40d56f2bb6b",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   suspensionType: ["suspension type foofoo"],
@@ -1500,12 +1543,34 @@ export const SOURCE_DATASET_FOOFOO: TestSourceDataset = {
 };
 
 export const SOURCE_DATASET_FOOBAR: TestSourceDataset = {
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-foobar",
+    etag: "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9012",
+    eventTime: "2025-08-22T06:11:23.345Z",
+    fileName: "source-dataset-foobar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "e5f6a7b8-c9d0-1234-ef56-567890123456",
+    sizeBytes: "5678901",
+    versionId: null,
+  },
   id: "4de3dadd-a35c-4386-be62-4536934e9179",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Foobar",
 };
 
 export const SOURCE_DATASET_FOOBAZ: TestSourceDataset = {
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-foobaz",
+    etag: "6f7a8b9c0d1e2f3a4b5c6d7e8f901234",
+    eventTime: "2025-08-22T06:11:40.678Z",
+    fileName: "source-dataset-foobaz.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "f6a7b8c9-d0e1-2345-fa67-678901234567",
+    sizeBytes: "6789012",
+    versionId: null,
+  },
   id: "7ac2afd8-493d-46e5-b9d8-cadc512bb2cc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Foobar",
@@ -1517,6 +1582,17 @@ export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE: TestSourceDataset = {
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
   cellxgeneDatasetVersion: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
   disease: ["bar"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-cellxgene-without-update",
+    etag: "7a8b9c0d1e2f3a4b5c6d7e8f90123456",
+    eventTime: "2025-08-22T06:11:57.901Z",
+    fileName: "source-dataset-cellxgene-without-update.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "a7b8c9d0-e1f2-3456-ab78-789012345678",
+    sizeBytes: "7890123",
+    versionId: null,
+  },
   id: "afcb9181-5a6b-45a8-89c0-1790def2d7dc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   suspensionType: ["foobarbaz"],
@@ -1530,6 +1606,17 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITH_UPDATE,
   cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
   disease: ["barbarfoo"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-cellxgene-with-update",
+    etag: "8b9c0d1e2f3a4b5c6d7e8f9012345678",
+    eventTime: "2025-08-22T06:12:14.234Z",
+    fileName: "source-dataset-cellxgene-with-update.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "b8c9d0e1-f2a3-4567-bc89-890123456789",
+    sizeBytes: "8901234",
+    versionId: null,
+  },
   id: "04ccf7fd-22eb-4236-829c-9a0058580d36",
   metadataSpreadsheetTitle: "Source Dataset CELLxGENE With Update Metadata",
   metadataSpreadsheetUrl:
@@ -1541,12 +1628,34 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
 };
 
 export const SOURCE_DATASET_DRAFT_OK_FOO: TestSourceDataset = {
+  file: {
+    atlas: () => ATLAS_DRAFT,
+    bucket: "bucket-source-dataset-draft-ok-foo",
+    etag: "9c0d1e2f3a4b5c6d7e8f901234567890",
+    eventTime: "2025-08-22T06:12:31.567Z",
+    fileName: "source-dataset-draft-ok-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "c9d0e1f2-a3b4-5678-cd90-901234567890",
+    sizeBytes: "9012345",
+    versionId: null,
+  },
   id: "edf62340-8180-4206-87f2-d95e388a3a4c",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
   title: "Source Dataset Draft OK Foo",
 };
 
 export const SOURCE_DATASET_DRAFT_OK_BAR: TestSourceDataset = {
+  file: {
+    atlas: () => ATLAS_DRAFT,
+    bucket: "bucket-source-dataset-draft-ok-bar",
+    etag: "0d1e2f3a4b5c6d7e8f90123456789012",
+    eventTime: "2025-08-22T06:12:48.890Z",
+    fileName: "source-dataset-draft-ok-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "d0e1f2a3-b4c5-6789-de01-012345678901",
+    sizeBytes: "1023456",
+    versionId: null,
+  },
   id: "3b41d607-05ff-48a7-92bd-9d257a230b3d",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
   title: "Source Dataset Draft OK Bar",
@@ -1556,6 +1665,17 @@ export const SOURCE_DATASET_OTHER_FOO: TestSourceDataset = {
   assay: ["assay other foo"],
   cellCount: 23424,
   disease: ["disease other foo"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-other-foo",
+    etag: "1e2f3a4b5c6d7e8f9012345678901234",
+    eventTime: "2025-08-22T06:13:05.123Z",
+    fileName: "source-dataset-other-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "e1f2a3b4-c5d6-7890-ef12-123456789012",
+    sizeBytes: "1134567",
+    versionId: null,
+  },
   id: "d85cf1fd-3b70-4f6a-812c-583941362117",
   sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
   suspensionType: ["suspension type other foo"],
@@ -1567,6 +1687,17 @@ export const SOURCE_DATASET_OTHER_BAR: TestSourceDataset = {
   assay: ["assay other bar"],
   cellCount: 23424,
   disease: ["disease other bar"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-other-bar",
+    etag: "2f3a4b5c6d7e8f90123456789012345a",
+    eventTime: "2025-08-22T06:13:22.456Z",
+    fileName: "source-dataset-other-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "f2a3b4c5-d6e7-8901-fa23-234567890123",
+    sizeBytes: "1245678",
+    versionId: null,
+  },
   id: "e3878dde-ffe5-4193-9b7f-5a395541ba25",
   sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
   suspensionType: ["suspension type other bar"],
@@ -1582,6 +1713,17 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO: TestSourceDataset =
     cellxgeneDatasetVersion:
       CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
     disease: ["disease unpublished with cellxgene foo"],
+    file: {
+      atlas: () => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+      bucket: "bucket-source-dataset-unpublished-with-cellxgene-foo",
+      etag: "3a4b5c6d7e8f90123456789012345678",
+      eventTime: "2025-08-22T06:13:39.789Z",
+      fileName: "source-dataset-unpublished-with-cellxgene-foo.h5ad",
+      fileType: FILE_TYPE.SOURCE_DATASET,
+      id: "a3b4c5d6-e7f8-9012-ab34-345678901234",
+      sizeBytes: "1356789",
+      versionId: null,
+    },
     id: "1d872ee4-cfb3-4893-a275-fe0f105697c4",
     sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
     suspensionType: ["suspension type unpublished with cellxgene foo"],
@@ -1597,6 +1739,17 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR: TestSourceDataset =
     cellxgeneDatasetVersion:
       CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
     disease: ["disease unpublished with cellxgene bar"],
+    file: {
+      atlas: () => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+      bucket: "bucket-source-dataset-unpublished-with-cellxgene-bar",
+      etag: "4b5c6d7e8f90123456789012345678901",
+      eventTime: "2025-08-22T06:13:56.012Z",
+      fileName: "source-dataset-unpublished-with-cellxgene-bar.h5ad",
+      fileType: FILE_TYPE.SOURCE_DATASET,
+      id: "b4c5d6e7-f8a9-0123-bc45-456789012345",
+      sizeBytes: "1467890",
+      versionId: null,
+    },
     id: "30bd81d7-1db7-4f28-b6d3-6afa73066f99",
     sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
     suspensionType: ["suspension type unpublished with cellxgene bar"],
@@ -1609,6 +1762,17 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ: TestSourceDataset =
     assay: ["assay unpublished with cellxgene baz"],
     cellCount: 64345,
     disease: ["disease unpublished with cellxgene baz"],
+    file: {
+      atlas: () => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+      bucket: "bucket-source-dataset-unpublished-with-cellxgene-baz",
+      etag: "5c6d7e8f90123456789012345678901a",
+      eventTime: "2025-08-22T06:14:12.345Z",
+      fileName: "source-dataset-unpublished-with-cellxgene-baz.h5ad",
+      fileType: FILE_TYPE.SOURCE_DATASET,
+      id: "c5d6e7f8-a9b0-1234-cd56-567890123456",
+      sizeBytes: "1578901",
+      versionId: null,
+    },
     id: "4b7acc76-89f2-4839-a15c-fc79183c1ed7",
     sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
     suspensionType: ["suspension type unpublished with cellxgene baz"],
@@ -1624,6 +1788,17 @@ export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO: TestSourceDatase
     cellxgeneDatasetVersion:
       CELLXGENE_VERSION_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
     disease: ["disease published without cellxgene id foo"],
+    file: {
+      atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+      bucket: "bucket-source-dataset-published-without-cellxgene-id-foo",
+      etag: "6d7e8f90123456789012345678901234",
+      eventTime: "2025-08-22T06:14:29.678Z",
+      fileName: "source-dataset-published-without-cellxgene-id-foo.h5ad",
+      fileType: FILE_TYPE.SOURCE_DATASET,
+      id: "d6e7f8a9-b0c1-2345-de67-678901234567",
+      sizeBytes: "1689012",
+      versionId: null,
+    },
     id: "68dbf3ec-45a5-43a4-b806-97923de1df2c",
     sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
     suspensionType: ["suspension type published without cellxgene id foo"],
@@ -1636,6 +1811,17 @@ export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR: TestSourceDatase
     assay: ["assay published without cellxgene id bar"],
     cellCount: 2348,
     disease: ["disease published without cellxgene id bar"],
+    file: {
+      atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+      bucket: "bucket-source-dataset-published-without-cellxgene-id-bar",
+      etag: "7e8f90123456789012345678901234ab",
+      eventTime: "2025-08-22T06:14:46.901Z",
+      fileName: "source-dataset-published-without-cellxgene-id-bar.h5ad",
+      fileType: FILE_TYPE.SOURCE_DATASET,
+      id: "e7f8a9b0-c1d2-3456-ef78-789012345678",
+      sizeBytes: "1790123",
+      versionId: null,
+    },
     id: "2d4f2d93-7c2c-4c1f-94af-566f3d3ed8ec",
     sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
     suspensionType: ["suspension type published without cellxgene id bar"],
@@ -1647,6 +1833,17 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO: TestSourceDataset = {
   assay: ["assay atlas linked a foo"],
   cellCount: 3982,
   disease: ["disease atlas linked a foo"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-atlas-linked-a-foo",
+    etag: "8f90123456789012345678901234567b",
+    eventTime: "2025-08-22T06:15:03.234Z",
+    fileName: "source-dataset-atlas-linked-a-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "f8a9b0c1-d2e3-4567-fa89-890123456789",
+    sizeBytes: "1801234",
+    versionId: null,
+  },
   id: "4d08641d-be55-440b-8a19-b67c965cc2bf",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
   suspensionType: ["suspension type atlas linked a foo"],
@@ -1658,6 +1855,17 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_FOO: TestSourceDataset = {
   assay: ["assay atlas linked b foo"],
   cellCount: 81283,
   disease: ["disease atlas linked b foo"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-atlas-linked-b-foo",
+    etag: "90123456789012345678901234567890",
+    eventTime: "2025-08-22T06:15:20.567Z",
+    fileName: "source-dataset-atlas-linked-b-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "a9b0c1d2-e3f4-5678-ab90-901234567890",
+    sizeBytes: "1912345",
+    versionId: null,
+  },
   id: "9d361a63-78bb-487c-8af5-160de4782eb2",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
   suspensionType: ["suspension type atlas linked b foo"],
@@ -1669,6 +1877,17 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAR: TestSourceDataset = {
   assay: ["assay atlas linked b bar"],
   cellCount: 12353,
   disease: ["disease atlas linked b bar"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-atlas-linked-b-bar",
+    etag: "01234567890123456789012345678901",
+    eventTime: "2025-08-22T06:15:37.890Z",
+    fileName: "source-dataset-atlas-linked-b-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "b0c1d2e3-f4a5-6789-bc01-012345678901",
+    sizeBytes: "2023456",
+    versionId: null,
+  },
   id: "a710a258-c48c-4185-9d28-9e9429c989fd",
   metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/baz",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
@@ -1681,6 +1900,17 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ: TestSourceDataset = {
   assay: ["assay atlas linked b baz"],
   cellCount: 38429,
   disease: ["disease atlas linked b baz"],
+  file: {
+    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-atlas-linked-b-baz",
+    etag: "12345678901234567890123456789012",
+    eventTime: "2025-08-22T06:15:54.123Z",
+    fileName: "source-dataset-atlas-linked-b-baz.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "c1d2e3f4-a5b6-7890-cd12-123456789012",
+    sizeBytes: "2134567",
+    versionId: null,
+  },
   id: "79446f6f-0f3a-4915-a019-090189947223",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
   suspensionType: ["suspension type atlas linked b baz"],
@@ -2199,94 +2429,22 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
   {} as Record<string, TestAtlas[]>
 );
 
-// FILES
-
-export const FILE_COMPONENT_ATLAS_DRAFT_FOO = {
-  atlas: ATLAS_DRAFT,
-  bucket: "bucket-draft-foo",
-  etag: "6b8f00707b574ca28e43a7568a2eaca1",
-  eventTime: "2025-08-22T05:45:49.432Z",
-  fileName: "component-atlas-draft-foo.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "2dfcd615-391f-452c-b981-d0124583c97f",
-  sizeBytes: "2342325",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_DRAFT_BAR = {
-  atlas: ATLAS_DRAFT,
-  bucket: "bucket-draft-bar",
-  etag: "7c9f11808c685db39f54b8679b3fbcb2",
-  eventTime: "2025-08-22T05:46:12.567Z",
-  fileName: "component-atlas-draft-bar.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "3efde726-402f-563d-c092-e1235694d08f",
-  sizeBytes: "1987456",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_MISC_FOO = {
-  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
-  bucket: "bucket-misc-foo",
-  etag: "8d0a22919d796ec40a65c9780c4acdbe",
-  eventTime: "2025-08-22T05:46:35.891Z",
-  fileName: "component-atlas-misc-foo.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "4faef837-513a-674e-d103-f2346705e19b",
-  sizeBytes: "3456789",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
-  atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
-  bucket: "bucket-cellxgene-datasets",
-  etag: "9e1b33020e807fd51b76d0891d5bdef4",
-  eventTime: "2025-08-22T05:46:58.234Z",
-  fileName: "component-atlas-with-cellxgene-datasets.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "5abfa948-624b-785f-e214-a3457816f20c",
-  sizeBytes: "2789123",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
-  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
-  bucket: "bucket-entry-sheet-validations-foo",
-  etag: "0f2c44131f918ae62c87e1902e6cafe5",
-  eventTime: "2025-08-22T05:47:21.456Z",
-  fileName: "component-atlas-with-entry-sheet-validations-foo.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "6bcac059-735c-896a-f325-b4568927a31d",
-  sizeBytes: "1654321",
-  versionId: null,
-} satisfies TestFile;
-
-export const FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
-  atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
-  bucket: "bucket-entry-sheet-validations-bar",
-  etag: "1a3d55242a029bf73d98f2013f7dbab6",
-  eventTime: "2025-08-22T05:47:44.789Z",
-  fileName: "component-atlas-with-entry-sheet-validations-bar.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  id: "7cdbd160-846d-907b-a436-c5679038b42e",
-  sizeBytes: "2123456",
-  versionId: null,
-} satisfies TestFile;
-
-export const INITIAL_TEST_FILES: TestFile[] = [
-  FILE_COMPONENT_ATLAS_DRAFT_FOO,
-  FILE_COMPONENT_ATLAS_DRAFT_BAR,
-  FILE_COMPONENT_ATLAS_MISC_FOO,
-  FILE_COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
-  FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
-  FILE_COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
-];
-
 // COMPONENT ATLASES
 
-export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
+export const COMPONENT_ATLAS_DRAFT_FOO = {
   atlasId: ATLAS_DRAFT.id,
   description: "bar baz baz foo baz foo bar",
+  file: {
+    atlas: ATLAS_DRAFT,
+    bucket: "bucket-draft-foo",
+    etag: "6b8f00707b574ca28e43a7568a2eaca1",
+    eventTime: "2025-08-22T05:45:49.432Z",
+    fileName: "component-atlas-draft-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "2dfcd615-391f-452c-b981-d0124583c97f",
+    sizeBytes: "2342325",
+    versionId: null,
+  },
   id: "b1820416-5886-4585-b0fe-7f70487331d8",
   sourceDatasets: [
     SOURCE_DATASET_FOOFOO,
@@ -2294,22 +2452,44 @@ export const COMPONENT_ATLAS_DRAFT_FOO: TestComponentAtlas = {
     SOURCE_DATASET_FOOBAZ,
   ],
   title: "Component Atlas Draft Foo",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_DRAFT_BAR: TestComponentAtlas = {
+export const COMPONENT_ATLAS_DRAFT_BAR = {
   atlasId: ATLAS_DRAFT.id,
   description: "baz baz bar foo baz",
+  file: {
+    atlas: ATLAS_DRAFT,
+    bucket: "bucket-draft-bar",
+    etag: "7c9f11808c685db39f54b8679b3fbcb2",
+    eventTime: "2025-08-22T05:46:12.567Z",
+    fileName: "component-atlas-draft-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "3efde726-402f-563d-c092-e1235694d08f",
+    sizeBytes: "1987456",
+    versionId: null,
+  },
   id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
   sourceDatasets: [
     SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   ],
   title: "Component Atlas Draft Bar",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_MISC_FOO: TestComponentAtlas = {
+export const COMPONENT_ATLAS_MISC_FOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
   description: "foo foo bar baz bar bar",
+  file: {
+    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-misc-foo",
+    etag: "8d0a22919d796ec40a65c9780c4acdbe",
+    eventTime: "2025-08-22T05:46:35.891Z",
+    fileName: "component-atlas-misc-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "4faef837-513a-674e-d103-f2346705e19b",
+    sizeBytes: "3456789",
+    versionId: null,
+  },
   id: "b95614cc-5356-4f47-b3a2-da05d23e86ce",
   sourceDatasets: [
     SOURCE_DATASET_FOO,
@@ -2318,11 +2498,22 @@ export const COMPONENT_ATLAS_MISC_FOO: TestComponentAtlas = {
     SOURCE_DATASET_OTHER_BAR,
   ],
   title: "Component Atlas Misc Foo",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS: TestComponentAtlas = {
+export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
   atlasId: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
   description: "barfoo foo baz barbar",
+  file: {
+    atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+    bucket: "bucket-cellxgene-datasets",
+    etag: "9e1b33020e807fd51b76d0891d5bdef4",
+    eventTime: "2025-08-22T05:46:58.234Z",
+    fileName: "component-atlas-with-cellxgene-datasets.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "5abfa948-624b-785f-e214-a3457816f20c",
+    sizeBytes: "2789123",
+    versionId: null,
+  },
   id: "6feee158-5e54-4f46-8695-360c89ef9916",
   sourceDatasets: [
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
@@ -2330,25 +2521,45 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS: TestComponentAtlas = {
     SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   ],
   title: "Component Atlas Misc Foo",
-};
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO: TestComponentAtlas =
-  {
-    atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-    description: "foo barbaz bazbar foofoobar",
-    id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
-    sourceDatasets: [],
-    title: "Component Atlas With Entry Sheet Validations Foo",
-  };
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
+  atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+  description: "foo barbaz bazbar foofoobar",
+  file: {
+    atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+    bucket: "bucket-entry-sheet-validations-foo",
+    etag: "0f2c44131f918ae62c87e1902e6cafe5",
+    eventTime: "2025-08-22T05:47:21.456Z",
+    fileName: "component-atlas-with-entry-sheet-validations-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "6bcac059-735c-896a-f325-b4568927a31d",
+    sizeBytes: "1654321",
+    versionId: null,
+  },
+  id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
+  sourceDatasets: [],
+  title: "Component Atlas With Entry Sheet Validations Foo",
+} satisfies TestComponentAtlas;
 
-export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR: TestComponentAtlas =
-  {
-    atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-    description: "foobazbaz barfoo barfoo baz",
-    id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
-    sourceDatasets: [],
-    title: "Component Atlas With Entry Sheet Validations Bar",
-  };
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
+  atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
+  description: "foobazbaz barfoo barfoo baz",
+  file: {
+    atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+    bucket: "bucket-entry-sheet-validations-bar",
+    etag: "1a3d55242a029bf73d98f2013f7dbab6",
+    eventTime: "2025-08-22T05:47:44.789Z",
+    fileName: "component-atlas-with-entry-sheet-validations-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "7cdbd160-846d-907b-a436-c5679038b42e",
+    sizeBytes: "2123456",
+    versionId: null,
+  },
+  id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
+  sourceDatasets: [],
+  title: "Component Atlas With Entry Sheet Validations Bar",
+} satisfies TestComponentAtlas;
 
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES = [
