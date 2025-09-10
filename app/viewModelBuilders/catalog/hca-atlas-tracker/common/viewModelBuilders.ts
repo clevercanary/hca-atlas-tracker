@@ -1066,7 +1066,7 @@ export function getAtlasSourceDatasetsTableColumns(
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
     getDiseaseColumnDef(),
-    getCellCountColumnDef(),
+    getSourceDatasetCellCountColumnDef(),
   ];
 }
 
@@ -1412,6 +1412,20 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
 function getProgressValue(numerator: number, denominator: number): number {
   if (denominator === 0) return 0;
   return (numerator / denominator) * 100;
+}
+
+/**
+ * Returns the source dataset cell count column def.
+ * If the validation status is PENDING, returns an empty string.
+ * Otherwise, returns the cell count, formatted as a number.
+ * @returns ColumnDef.
+ */
+function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "cellCount",
+    cell: renderSourceDatasetCellCount,
+    header: "Cell Count",
+  };
 }
 
 /**
@@ -1764,4 +1778,19 @@ function getTissueColumnDef<
     cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
   };
+}
+
+/**
+ * Returns the source dataset cell count.
+ * If the validation status is PENDING, returns an empty string.
+ * Otherwise, returns the cell count, formatted as a number.
+ * @param ctx - Cell context.
+ * @returns Cell count.
+ */
+function renderSourceDatasetCellCount(
+  ctx: CellContext<HCAAtlasTrackerSourceDataset, number>
+): string {
+  const { getValue, row } = ctx;
+  if (row.getValue("validationStatus") === INTEGRITY_STATUS.PENDING) return "";
+  return getValue().toLocaleString();
 }
