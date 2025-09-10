@@ -153,11 +153,13 @@ export async function getSourceDataset(
  * Get a source dataset linked to an atlas.
  * @param atlasId - Atlas ID.
  * @param sourceDatasetId - Source dataset ID.
+ * @param client - Postgres client to use.
  * @returns database-model source dataset.
  */
 export async function getAtlasSourceDataset(
   atlasId: string,
-  sourceDatasetId: string
+  sourceDatasetId: string,
+  client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
@@ -168,7 +170,8 @@ export async function getAtlasSourceDataset(
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
       WHERE d.id = $1
     `,
-    [sourceDatasetId]
+    [sourceDatasetId],
+    client
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
@@ -231,7 +234,11 @@ export async function createSourceDatasetForAtlasSourceStudy(
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   return await doTransaction(async (client) => {
-    const sourceDatasetId = await createSourceDataset(sourceStudyId, inputData);
+    const sourceDatasetId = await createSourceDataset(
+      sourceStudyId,
+      inputData,
+      client
+    );
     return await getSourceDataset(
       atlasId,
       sourceStudyId,
@@ -357,11 +364,14 @@ export async function updateAtlasSourceDataset(
     ),
     metadataSpreadsheetUrl: inputData.metadataSpreadsheetUrl || null,
   };
-  await query(
-    "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = $2",
-    [JSON.stringify(updatedInfoFields), sourceDatasetId]
-  );
-  return await getAtlasSourceDataset(atlasId, sourceDatasetId);
+  return await doTransaction(async (client) => {
+    await query(
+      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = $2",
+      [JSON.stringify(updatedInfoFields), sourceDatasetId],
+      client
+    );
+    return await getAtlasSourceDataset(atlasId, sourceDatasetId, client);
+  });
 }
 
 /**
