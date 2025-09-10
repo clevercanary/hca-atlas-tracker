@@ -197,11 +197,11 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       SOURCE_STUDY_WITH_SOURCE_DATASETS,
-      NEW_SOURCE_DATASET_DATA
+      NEW_SOURCE_DATASET_DATA,
+      true
     );
     expect(res._getStatusCode()).toEqual(404);
     const message = res._getJSONData().message;
-    console.log(message);
     expect(message).toEqual(expect.stringContaining("Source dataset with ID"));
     const id = /Source dataset with ID (\S+)/.exec(message)?.[1];
     if (expectIsDefined(id)) {
@@ -214,7 +214,8 @@ describe(TEST_ROUTE, () => {
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       SOURCE_STUDY_WITH_SOURCE_DATASETS,
-      NEW_SOURCE_DATASET_DATA_FOO
+      NEW_SOURCE_DATASET_DATA_FOO,
+      true
     );
     expect(res._getStatusCode()).toEqual(404);
     const message = res._getJSONData().message;

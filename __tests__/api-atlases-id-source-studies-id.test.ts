@@ -1000,7 +1000,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN,
-      METHOD.DELETE
+      METHOD.DELETE,
+      undefined,
+      true
     );
     expect(res._getStatusCode()).toEqual(500);
     expect(res._getJSONData().message).toEqual(

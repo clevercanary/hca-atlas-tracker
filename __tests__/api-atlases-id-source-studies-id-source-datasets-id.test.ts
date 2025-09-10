@@ -580,7 +580,9 @@ describe(TEST_ROUTE, () => {
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
       SOURCE_DATASET_FOOFOO.id,
       USER_CONTENT_ADMIN,
-      METHOD.DELETE
+      METHOD.DELETE,
+      undefined,
+      true
     );
     expect(res._getStatusCode()).toEqual(500);
     expect(res._getJSONData().message).toEqual(
@@ -597,7 +599,9 @@ describe(TEST_ROUTE, () => {
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
       SOURCE_DATASET_FOOBAR.id,
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-      METHOD.DELETE
+      METHOD.DELETE,
+      undefined,
+      true
     );
     expect(res._getStatusCode()).toEqual(500);
     expect(res._getJSONData().message).toEqual(
