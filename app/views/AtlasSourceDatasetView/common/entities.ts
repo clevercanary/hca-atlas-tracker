@@ -1,6 +1,6 @@
 import { InferType } from "yup";
-import { atlasSourceDatasetEditSchema } from "./schema";
+import { viewAtlasSourceDatasetSchema } from "./schema";
 
-export type AtlasSourceDatasetEditData = InferType<
-  typeof atlasSourceDatasetEditSchema
+export type ViewAtlasSourceDatasetData = InferType<
+  typeof viewAtlasSourceDatasetSchema
 >;

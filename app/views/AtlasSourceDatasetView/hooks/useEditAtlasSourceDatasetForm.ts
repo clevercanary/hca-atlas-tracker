@@ -1,19 +1,21 @@
+import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
+import { capitalizeFirst } from "../../utils";
 import { FIELD_NAME } from "../common/constants";
-import { AtlasSourceDatasetEditData } from "../common/entities";
-import { atlasSourceDatasetEditSchema } from "../common/schema";
+import { ViewAtlasSourceDatasetData } from "../common/entities";
+import { viewAtlasSourceDatasetSchema } from "../common/schema";
 import { useFetchAtlasSourceDataset } from "./useFetchAtlasSourceDataset";
 
-const SCHEMA = atlasSourceDatasetEditSchema;
+const SCHEMA = viewAtlasSourceDatasetSchema;
 
 export const useEditAtlasSourceDatasetForm = (
   pathParameter: PathParameter
-): FormMethod<AtlasSourceDatasetEditData, HCAAtlasTrackerSourceDataset> => {
+): FormMethod<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset> => {
   const { sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
-  return useForm<AtlasSourceDatasetEditData, HCAAtlasTrackerSourceDataset>(
+  return useForm<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset>(
     SCHEMA,
     sourceDataset,
     mapSchemaValues
@@ -27,10 +29,13 @@ export const useEditAtlasSourceDatasetForm = (
  */
 function mapSchemaValues(
   sourceDataset?: HCAAtlasTrackerSourceDataset
-): AtlasSourceDatasetEditData | undefined {
+): ViewAtlasSourceDatasetData | undefined {
   if (!sourceDataset) return;
   return {
-    [FIELD_NAME.METADATA_SPREADSHEET_URL]:
-      sourceDataset.metadataSpreadsheetUrl ?? "",
+    [FIELD_NAME.FILE_NAME]: sourceDataset.fileName,
+    [FIELD_NAME.SIZE_BYTES]: formatFileSize(sourceDataset.sizeBytes),
+    [FIELD_NAME.VALIDATION_STATUS]: capitalizeFirst(
+      sourceDataset.validationStatus
+    ),
   };
 }
