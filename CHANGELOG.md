@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.30.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.29.0...v1.30.0) (2025-09-11)
+
+
+### Features
+
+* provide a "no metadata entry sheets" message when there are no entry sheets ([#757](https://github.com/clevercanary/hca-atlas-tracker/issues/757)) ([#824](https://github.com/clevercanary/hca-atlas-tracker/issues/824)) ([80a34b0](https://github.com/clevercanary/hca-atlas-tracker/commit/80a34b039ce2fe6e8751be88f9c9ffba010f76bb))
+* provide a proper "no integrated objects" message for the atlas integrated objects ([#820](https://github.com/clevercanary/hca-atlas-tracker/issues/820)) ([#826](https://github.com/clevercanary/hca-atlas-tracker/issues/826)) ([f7a9988](https://github.com/clevercanary/hca-atlas-tracker/commit/f7a99887ef5cdf3ca2148c2015a6d9c69f9a8771))
+* remove cellxgene collections count from atlases list ([#821](https://github.com/clevercanary/hca-atlas-tracker/issues/821)) ([#827](https://github.com/clevercanary/hca-atlas-tracker/issues/827)) ([7494b0c](https://github.com/clevercanary/hca-atlas-tracker/commit/7494b0cd210ac89a146a1391297be75625d4402f))
+* remove the cellxgene column form the source studies page ([#822](https://github.com/clevercanary/hca-atlas-tracker/issues/822)) ([#828](https://github.com/clevercanary/hca-atlas-tracker/issues/828)) ([62689e9](https://github.com/clevercanary/hca-atlas-tracker/commit/62689e9ed66ed26d8e8d9bf262205500d91738eb))
+* update banner help text for key entities ([#819](https://github.com/clevercanary/hca-atlas-tracker/issues/819)) ([#823](https://github.com/clevercanary/hca-atlas-tracker/issues/823)) ([b9c6c68](https://github.com/clevercanary/hca-atlas-tracker/commit/b9c6c68e08e607e671d5f99423e346e10e34bb65))
+* update metadata correctness 'no entry sheets' to use tableplaceholder component ([#758](https://github.com/clevercanary/hca-atlas-tracker/issues/758)) ([#825](https://github.com/clevercanary/hca-atlas-tracker/issues/825)) ([90a78b2](https://github.com/clevercanary/hca-atlas-tracker/commit/90a78b294dfc0ca0bb8f9aad2ef066de47a200fa))
+
 ## [1.29.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.28.0...v1.29.0) (2025-09-10)
 
 
