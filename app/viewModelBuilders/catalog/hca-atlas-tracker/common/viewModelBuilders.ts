@@ -39,12 +39,10 @@ import {
   NetworkKey,
   SYSTEM,
   TASK_STATUS,
-  TIER_ONE_METADATA_STATUS,
   VALIDATION_DESCRIPTION,
   VALIDATION_ID,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  getSourceDatasetsTierOneMetadataStatus,
   getSourceStudyCitation,
   getSourceStudyTaskStatus,
   isTask,
@@ -417,60 +415,6 @@ export const buildSourceStudyCapStatus = (
     sourceStudy,
     VALIDATION_ID.SOURCE_STUDY_IN_CAP
   );
-};
-
-/**
- * Build props for the CELLxGENE IconStatusBadge component.
- * @param sourceStudy - Source study entity.
- * @param atlasLinkedDatasetsByStudyId - Atlas linked source datasets indexed by source study.
- * @returns Props to be used for the IconStatusBadge component.
- */
-export const buildSourceStudyCellxGeneStatus = (
-  sourceStudy: HCAAtlasTrackerSourceStudy,
-  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
-): ComponentProps<typeof C.IconStatusBadge> => {
-  const ingestStatus = getSourceStudyTaskStatus(
-    sourceStudy,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
-  );
-  if (ingestStatus === TASK_STATUS.DONE) {
-    const sourceDatasets =
-      atlasLinkedDatasetsByStudyId.get(sourceStudy.id) ?? [];
-    if (sourceDatasets.length === 0)
-      return {
-        label: STATUS_LABEL.NO_DATASETS_USED,
-        status: ICON_STATUS.REQUIRED,
-      };
-    const tierOneMetadataStatus =
-      getSourceDatasetsTierOneMetadataStatus(sourceDatasets);
-    switch (tierOneMetadataStatus) {
-      case TIER_ONE_METADATA_STATUS.COMPLETE:
-        return {
-          label: STATUS_LABEL.TIER_ONE,
-          status: ICON_STATUS.DONE,
-        };
-      case TIER_ONE_METADATA_STATUS.INCOMPLETE:
-        return {
-          label: STATUS_LABEL.INCOMPLETE_TIER_ONE,
-          status: ICON_STATUS.PARTIALLY_COMPLETE,
-        };
-      case TIER_ONE_METADATA_STATUS.MISSING:
-        return {
-          label: STATUS_LABEL.NO_TIER_ONE,
-          status: ICON_STATUS.PARTIALLY_COMPLETE,
-        };
-      default:
-        return {
-          label: STATUS_LABEL.NEEDS_VALIDATION,
-          status: ICON_STATUS.REQUIRED,
-        };
-    }
-  } else {
-    return {
-      label: STATUS_LABEL.TODO,
-      status: ICON_STATUS.REQUIRED,
-    };
-  }
 };
 
 /**
@@ -1169,7 +1113,6 @@ export function getAtlasSourceStudiesTableColumns(
       pathParameter,
       atlasLinkedDatasetsByStudyId
     ),
-    getSourceStudyCELLxGENEStatusColumnDef(atlasLinkedDatasetsByStudyId),
     getSourceStudyCapStatusColumnDef(),
     getSourceStudyHCADataRepositoryStatusColumnDef(),
   ];
@@ -1544,26 +1487,6 @@ function getSourceStudyCapStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStud
     cell: ({ row }) =>
       C.IconStatusBadge(buildSourceStudyCapStatus(row.original)),
     header: "CAP",
-  };
-}
-
-/**
- * Returns source study in CELLxGENE column def.
- * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked source datasets indexed by source study.
- * @returns Column def.
- */
-function getSourceStudyCELLxGENEStatusColumnDef(
-  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>
-): ColumnDef<HCAAtlasTrackerSourceStudy> {
-  return {
-    cell: ({ row }) =>
-      C.IconStatusBadge(
-        buildSourceStudyCellxGeneStatus(
-          row.original,
-          atlasLinkedDatasetsByStudyId
-        )
-      ),
-    header: "CELLxGENE",
   };
 }
 
