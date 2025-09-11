@@ -18,7 +18,7 @@ export const ViewComponentAtlases = ({
   formManager,
 }: ViewComponentAtlasesProps): JSX.Element => {
   const {
-    access: { canEdit, canView },
+    access: { canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
@@ -33,7 +33,6 @@ export const ViewComponentAtlases = ({
           />
         )}
         <TablePlaceholder
-          canEdit={canEdit}
           message="No integrated objects"
           rowCount={componentAtlases.length}
         />
