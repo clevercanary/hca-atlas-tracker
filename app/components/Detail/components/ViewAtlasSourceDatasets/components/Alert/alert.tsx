@@ -9,13 +9,8 @@ export const Alert = (): JSX.Element => {
       <div>
         <p>
           A source dataset is a dataset (AnnData file) from a Source Study that
-          has been selected for integration into the atlas. Datasets are
-          considered &quot;Source Datasets&quot; if marked as &quot;In use&quot;
-          on the Source Study’s datasets tab.
-        </p>
-        <p>
-          Source datasets are downloadable from the CELLxGENE public collection
-          for the source study.
+          has been selected for integration into the atlas and uploaded into the
+          Tracker.
         </p>
       </div>
     </StyledAlert>
