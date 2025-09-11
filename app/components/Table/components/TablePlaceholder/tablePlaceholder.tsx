@@ -5,13 +5,13 @@ import { GridPaperSection } from "./tablePlaceholder.styles";
 interface TablePlaceholderProps {
   canEdit?: boolean;
   message: ReactNode | ReactNode[];
-  rowCount: number;
+  rowCount?: number;
 }
 
 export const TablePlaceholder = ({
   canEdit,
   message,
-  rowCount,
+  rowCount = 0,
 }: TablePlaceholderProps): JSX.Element | null => {
   if (canEdit || rowCount > 0) return null;
   return (
