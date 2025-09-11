@@ -275,17 +275,6 @@ export const buildIngestionCountsCap = (
 };
 
 /**
- * Build props for the CELLxGENE ingestion counts TaskCountsCell component.
- * @param atlas - Atlas entity.
- * @returns Props to be used for the TaskCountsCell.
- */
-export const buildIngestionCountsCellxGene = (
-  atlas: HCAAtlasTrackerListAtlas
-): ComponentProps<typeof C.TaskCountsCell> => {
-  return buildIngestionCountsForSystem(atlas, SYSTEM.CELLXGENE);
-};
-
-/**
  * Build props for the ingestion counts TaskCountsCell component for the given system.
  * @param atlas - Atlas entity.
  * @param system - System.
