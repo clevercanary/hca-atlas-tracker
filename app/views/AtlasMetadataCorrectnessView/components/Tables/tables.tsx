@@ -14,10 +14,7 @@ export const Tables = (): JSX.Element => {
   if (classes.length === 0) {
     return (
       <FluidPaper>
-        <TablePlaceholder
-          message="No metadata entry sheets registered for this atlas"
-          rowCount={classes.length}
-        />
+        <TablePlaceholder message="No metadata entry sheets registered for this atlas" />
       </FluidPaper>
     );
   }
