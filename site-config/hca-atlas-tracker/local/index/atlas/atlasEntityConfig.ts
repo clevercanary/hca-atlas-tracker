@@ -180,15 +180,6 @@ export const atlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.TaskCountsCell,
-          viewBuilder: V.buildIngestionCountsCellxGene,
-        } as ComponentConfig<typeof C.TaskCountsCell, HCAAtlasTrackerListAtlas>,
-        enableGrouping: false,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INGESTION_COUNTS_CELLXGENE,
-        width: { max: "128px", min: "128px" },
-      },
-      {
-        componentConfig: {
-          component: C.TaskCountsCell,
           viewBuilder: V.buildIngestionCountsCap,
         } as ComponentConfig<typeof C.TaskCountsCell, HCAAtlasTrackerListAtlas>,
         enableGrouping: false,
