@@ -660,6 +660,7 @@ export enum FILE_TYPE {
 
 export enum FILE_VALIDATION_STATUS {
   FAILURE = "failure",
+  PENDING = "pending",
   SUCCESS = "succes",
 }
 
