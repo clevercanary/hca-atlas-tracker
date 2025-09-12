@@ -49,8 +49,18 @@ export const snsMessageSchema = object({
   UnsubscribeURL: string().url().optional(),
 }).required();
 
+// Dataset validator results schema
+// Validates the structure of validation results received via SNS notification
+
+export const datasetValidatorResultsSchema = object({});
+
 // Type inference from Yup schemas
+
 export type S3Object = InferType<typeof s3ObjectSchema>;
 export type S3EventRecord = InferType<typeof s3RecordSchema>;
 export type S3Event = InferType<typeof s3EventSchema>;
 export type SNSMessage = InferType<typeof snsMessageSchema>;
+
+export type DatasetValidatorResults = InferType<
+  typeof datasetValidatorResultsSchema
+>;

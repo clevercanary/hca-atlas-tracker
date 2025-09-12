@@ -2,6 +2,7 @@ import { UnauthorizedAWSResourceError } from "../apis/catalog/hca-atlas-tracker/
 import { SNSMessage } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { validateSNSTopicAuthorization } from "../config/aws-resources";
 import { processS3NotificationMessage } from "./s3-notification";
+import { processValidationResultsMessage } from "./validation-results-notification";
 
 /**
  * Dispatches SNS notification messages to appropriate handlers based on topic
@@ -15,17 +16,16 @@ export async function dispatchSNSNotification(
   validateSNSTopicAuthorization(message.TopicArn);
 
   // Route to appropriate handler based on topic
-  // For now, we only have S3 notification topics, but this is extensible
+
   if (isS3NotificationTopic(message.TopicArn)) {
     await processS3NotificationMessage(message);
     return;
   }
 
-  // Future: Add other topic handlers here
-  // if (isLambdaNotificationTopic(message.TopicArn)) {
-  //   await processLambdaNotificationMessage(message);
-  //   return;
-  // }
+  if (isValidationResultsTopic(message.TopicArn)) {
+    await processValidationResultsMessage(message);
+    return;
+  }
 
   throw new UnauthorizedAWSResourceError("SNS topic", message.TopicArn);
 }
@@ -41,4 +41,13 @@ function isS3NotificationTopic(topicArn: string): boolean {
   return (
     topicArn.includes("s3-notifications") || topicArn.includes("s3-events")
   );
+}
+
+/**
+ * Determines if a topic ARN is for dataset validator results
+ * @param topicArn - The SNS topic ARN
+ * @returns True if this is the validation results topic
+ */
+function isValidationResultsTopic(topicArn: string): boolean {
+  return topicArn === "validation-results";
 }
