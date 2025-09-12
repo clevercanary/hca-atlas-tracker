@@ -1,5 +1,5 @@
 import { array, InferType, number, object, string } from "yup";
-import { FILE_VALIDATION_STATUS, INTEGRITY_STATUS } from "../common/entities";
+import { INTEGRITY_STATUS } from "../common/entities";
 
 // AWS S3 and SNS Event Validation Schemas
 // These schemas validate the structure of AWS events received via SNS notifications
@@ -76,7 +76,9 @@ export const datasetValidatorResultsSchema = object({
     .defined()
     .nullable(),
   source_sha256: string().defined().nullable(),
-  status: string().required().oneOf(Object.values(FILE_VALIDATION_STATUS)),
+  status: string()
+    .required()
+    .oneOf(["failure", "success"] as const),
   timestamp: string().required(),
 })
   .strict()
