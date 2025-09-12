@@ -1,4 +1,5 @@
 import { array, InferType, number, object, string } from "yup";
+import { FILE_VALIDATION_STATUS, INTEGRITY_STATUS } from "../common/entities";
 
 // AWS S3 and SNS Event Validation Schemas
 // These schemas validate the structure of AWS events received via SNS notifications
@@ -52,7 +53,34 @@ export const snsMessageSchema = object({
 // Dataset validator results schema
 // Validates the structure of validation results received via SNS notification
 
-export const datasetValidatorResultsSchema = object({});
+export const datasetValidatorResultsSchema = object({
+  batch_job_id: string().required(),
+  batch_job_name: string().defined().nullable(),
+  bucket: string().required(),
+  downloaded_sha256: string().defined().nullable(),
+  error_message: string().defined().nullable(),
+  file_id: string().required(),
+  integrity_status: string()
+    .oneOf(Object.values(INTEGRITY_STATUS))
+    .defined()
+    .nullable(),
+  key: string().required(),
+  metadata_summary: object({
+    assay: array(string().required()).required(),
+    cell_count: number().required(),
+    disease: array(string().required()).required(),
+    suspension_type: array(string().required()).required(),
+    tissue: array(string().required()).required(),
+    title: string().defined(),
+  })
+    .defined()
+    .nullable(),
+  source_sha256: string().defined().nullable(),
+  status: string().required().oneOf(Object.values(FILE_VALIDATION_STATUS)),
+  timestamp: string().required(),
+})
+  .strict()
+  .required();
 
 // Type inference from Yup schemas
 

@@ -658,6 +658,11 @@ export enum FILE_TYPE {
   SOURCE_DATASET = "source_dataset",
 }
 
+export enum FILE_VALIDATION_STATUS {
+  FAILURE = "failure",
+  SUCCESS = "succes",
+}
+
 export enum INTEGRITY_STATUS {
   ERROR = "error",
   INVALID = "invalid",
