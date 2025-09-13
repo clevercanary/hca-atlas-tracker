@@ -1464,12 +1464,12 @@ export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
 
 // SOURCE DATASETS
 
-export const SOURCE_DATASET_FOO: TestSourceDataset = {
+export const SOURCE_DATASET_FOO = {
   assay: ["assay foo"],
   cellCount: 354,
   disease: ["disease foo"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-foo",
     etag: "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
     eventTime: "2025-08-22T06:10:15.123Z",
@@ -1484,11 +1484,11 @@ export const SOURCE_DATASET_FOO: TestSourceDataset = {
   suspensionType: ["suspension type foo"],
   tissue: ["tissue foo"],
   title: "Source Dataset Foo",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_BAR: TestSourceDataset = {
+export const SOURCE_DATASET_BAR = {
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-bar",
     etag: "2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e",
     eventTime: "2025-08-22T06:10:32.456Z",
@@ -1501,11 +1501,11 @@ export const SOURCE_DATASET_BAR: TestSourceDataset = {
   id: "cd053619-8b50-4e2d-ba62-96fbbcad6011",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Bar",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_BAZ: TestSourceDataset = {
+export const SOURCE_DATASET_BAZ = {
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-baz",
     etag: "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f",
     eventTime: "2025-08-22T06:10:49.789Z",
@@ -1518,14 +1518,14 @@ export const SOURCE_DATASET_BAZ: TestSourceDataset = {
   id: "3682751a-7a97-48e1-a43e-d355c1707e26",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Baz",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_FOOFOO: TestSourceDataset = {
+export const SOURCE_DATASET_FOOFOO = {
   assay: ["assay foofoo"],
   cellCount: 534,
   disease: ["disease foofoo"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-foofoo",
     etag: "4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90",
     eventTime: "2025-08-22T06:11:06.012Z",
@@ -1540,11 +1540,11 @@ export const SOURCE_DATASET_FOOFOO: TestSourceDataset = {
   suspensionType: ["suspension type foofoo"],
   tissue: ["tissue foofoo"],
   title: "Source Dataset Foofoo",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_FOOBAR: TestSourceDataset = {
+export const SOURCE_DATASET_FOOBAR = {
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-foobar",
     etag: "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9012",
     eventTime: "2025-08-22T06:11:23.345Z",
@@ -1557,11 +1557,11 @@ export const SOURCE_DATASET_FOOBAR: TestSourceDataset = {
   id: "4de3dadd-a35c-4386-be62-4536934e9179",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Foobar",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_FOOBAZ: TestSourceDataset = {
+export const SOURCE_DATASET_FOOBAZ = {
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-foobaz",
     etag: "6f7a8b9c0d1e2f3a4b5c6d7e8f901234",
     eventTime: "2025-08-22T06:11:40.678Z",
@@ -1574,16 +1574,16 @@ export const SOURCE_DATASET_FOOBAZ: TestSourceDataset = {
   id: "7ac2afd8-493d-46e5-b9d8-cadc512bb2cc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   title: "Source Dataset Foobar",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE: TestSourceDataset = {
+export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE = {
   assay: ["foo"],
   cellCount: 123,
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
   cellxgeneDatasetVersion: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
   disease: ["bar"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-cellxgene-without-update",
     etag: "7a8b9c0d1e2f3a4b5c6d7e8f90123456",
     eventTime: "2025-08-22T06:11:57.901Z",
@@ -1598,16 +1598,16 @@ export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE: TestSourceDataset = {
   suspensionType: ["foobarbaz"],
   tissue: ["baz"],
   title: "Source Dataset CELLxGENE Without Update",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
+export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE = {
   assay: ["foobarfoo"],
   cellCount: 4567,
   cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITH_UPDATE,
   cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
   disease: ["barbarfoo"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-cellxgene-with-update",
     etag: "8b9c0d1e2f3a4b5c6d7e8f9012345678",
     eventTime: "2025-08-22T06:12:14.234Z",
@@ -1625,11 +1625,11 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE: TestSourceDataset = {
   suspensionType: ["foobazbarfoo"],
   tissue: ["bazbarfoo"],
   title: "Source Dataset CELLxGENE With Update",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_DRAFT_OK_FOO: TestSourceDataset = {
+export const SOURCE_DATASET_DRAFT_OK_FOO = {
   file: {
-    atlas: () => ATLAS_DRAFT,
+    atlas: (): TestAtlas => ATLAS_DRAFT,
     bucket: "bucket-source-dataset-draft-ok-foo",
     etag: "9c0d1e2f3a4b5c6d7e8f901234567890",
     eventTime: "2025-08-22T06:12:31.567Z",
@@ -1642,11 +1642,11 @@ export const SOURCE_DATASET_DRAFT_OK_FOO: TestSourceDataset = {
   id: "edf62340-8180-4206-87f2-d95e388a3a4c",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
   title: "Source Dataset Draft OK Foo",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_DRAFT_OK_BAR: TestSourceDataset = {
+export const SOURCE_DATASET_DRAFT_OK_BAR = {
   file: {
-    atlas: () => ATLAS_DRAFT,
+    atlas: (): TestAtlas => ATLAS_DRAFT,
     bucket: "bucket-source-dataset-draft-ok-bar",
     etag: "0d1e2f3a4b5c6d7e8f90123456789012",
     eventTime: "2025-08-22T06:12:48.890Z",
@@ -1659,14 +1659,14 @@ export const SOURCE_DATASET_DRAFT_OK_BAR: TestSourceDataset = {
   id: "3b41d607-05ff-48a7-92bd-9d257a230b3d",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
   title: "Source Dataset Draft OK Bar",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_OTHER_FOO: TestSourceDataset = {
+export const SOURCE_DATASET_OTHER_FOO = {
   assay: ["assay other foo"],
   cellCount: 23424,
   disease: ["disease other foo"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-other-foo",
     etag: "1e2f3a4b5c6d7e8f9012345678901234",
     eventTime: "2025-08-22T06:13:05.123Z",
@@ -1681,14 +1681,14 @@ export const SOURCE_DATASET_OTHER_FOO: TestSourceDataset = {
   suspensionType: ["suspension type other foo"],
   tissue: ["tissue other foo"],
   title: "Source Dataset Other Foo",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_OTHER_BAR: TestSourceDataset = {
+export const SOURCE_DATASET_OTHER_BAR = {
   assay: ["assay other bar"],
   cellCount: 23424,
   disease: ["disease other bar"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-other-bar",
     etag: "2f3a4b5c6d7e8f90123456789012345a",
     eventTime: "2025-08-22T06:13:22.456Z",
@@ -1703,138 +1703,133 @@ export const SOURCE_DATASET_OTHER_BAR: TestSourceDataset = {
   suspensionType: ["suspension type other bar"],
   tissue: ["tissue other bar"],
   title: "Source Dataset Other Bar",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO: TestSourceDataset =
-  {
-    assay: ["assay unpublished with cellxgene foo"],
-    cellCount: 5464,
-    cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
-    cellxgeneDatasetVersion:
-      CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
-    disease: ["disease unpublished with cellxgene foo"],
-    file: {
-      atlas: () => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
-      bucket: "bucket-source-dataset-unpublished-with-cellxgene-foo",
-      etag: "3a4b5c6d7e8f90123456789012345678",
-      eventTime: "2025-08-22T06:13:39.789Z",
-      fileName: "source-dataset-unpublished-with-cellxgene-foo.h5ad",
-      fileType: FILE_TYPE.SOURCE_DATASET,
-      id: "a3b4c5d6-e7f8-9012-ab34-345678901234",
-      sizeBytes: "1356789",
-      versionId: null,
-    },
-    id: "1d872ee4-cfb3-4893-a275-fe0f105697c4",
-    sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
-    suspensionType: ["suspension type unpublished with cellxgene foo"],
-    tissue: ["tissue unpublished with cellxgene foo"],
-    title: "Source Dataset Unpublished With CELLxGENE Foo",
-  };
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO = {
+  assay: ["assay unpublished with cellxgene foo"],
+  cellCount: 5464,
+  cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+  cellxgeneDatasetVersion:
+    CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
+  disease: ["disease unpublished with cellxgene foo"],
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+    bucket: "bucket-source-dataset-unpublished-with-cellxgene-foo",
+    etag: "3a4b5c6d7e8f90123456789012345678",
+    eventTime: "2025-08-22T06:13:39.789Z",
+    fileName: "source-dataset-unpublished-with-cellxgene-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "a3b4c5d6-e7f8-9012-ab34-345678901234",
+    sizeBytes: "1356789",
+    versionId: null,
+  },
+  id: "1d872ee4-cfb3-4893-a275-fe0f105697c4",
+  sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+  suspensionType: ["suspension type unpublished with cellxgene foo"],
+  tissue: ["tissue unpublished with cellxgene foo"],
+  title: "Source Dataset Unpublished With CELLxGENE Foo",
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR: TestSourceDataset =
-  {
-    assay: ["assay unpublished with cellxgene bar"],
-    cellCount: 3493,
-    cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
-    cellxgeneDatasetVersion:
-      CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
-    disease: ["disease unpublished with cellxgene bar"],
-    file: {
-      atlas: () => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
-      bucket: "bucket-source-dataset-unpublished-with-cellxgene-bar",
-      etag: "4b5c6d7e8f90123456789012345678901",
-      eventTime: "2025-08-22T06:13:56.012Z",
-      fileName: "source-dataset-unpublished-with-cellxgene-bar.h5ad",
-      fileType: FILE_TYPE.SOURCE_DATASET,
-      id: "b4c5d6e7-f8a9-0123-bc45-456789012345",
-      sizeBytes: "1467890",
-      versionId: null,
-    },
-    id: "30bd81d7-1db7-4f28-b6d3-6afa73066f99",
-    sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
-    suspensionType: ["suspension type unpublished with cellxgene bar"],
-    tissue: ["tissue unpublished with cellxgene bar"],
-    title: "Source Dataset Unpublished With CELLxGENE Bar",
-  };
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR = {
+  assay: ["assay unpublished with cellxgene bar"],
+  cellCount: 3493,
+  cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+  cellxgeneDatasetVersion:
+    CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+  disease: ["disease unpublished with cellxgene bar"],
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+    bucket: "bucket-source-dataset-unpublished-with-cellxgene-bar",
+    etag: "4b5c6d7e8f90123456789012345678901",
+    eventTime: "2025-08-22T06:13:56.012Z",
+    fileName: "source-dataset-unpublished-with-cellxgene-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "b4c5d6e7-f8a9-0123-bc45-456789012345",
+    sizeBytes: "1467890",
+    versionId: null,
+  },
+  id: "30bd81d7-1db7-4f28-b6d3-6afa73066f99",
+  sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+  suspensionType: ["suspension type unpublished with cellxgene bar"],
+  tissue: ["tissue unpublished with cellxgene bar"],
+  title: "Source Dataset Unpublished With CELLxGENE Bar",
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ: TestSourceDataset =
-  {
-    assay: ["assay unpublished with cellxgene baz"],
-    cellCount: 64345,
-    disease: ["disease unpublished with cellxgene baz"],
-    file: {
-      atlas: () => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
-      bucket: "bucket-source-dataset-unpublished-with-cellxgene-baz",
-      etag: "5c6d7e8f90123456789012345678901a",
-      eventTime: "2025-08-22T06:14:12.345Z",
-      fileName: "source-dataset-unpublished-with-cellxgene-baz.h5ad",
-      fileType: FILE_TYPE.SOURCE_DATASET,
-      id: "c5d6e7f8-a9b0-1234-cd56-567890123456",
-      sizeBytes: "1578901",
-      versionId: null,
-    },
-    id: "4b7acc76-89f2-4839-a15c-fc79183c1ed7",
-    sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
-    suspensionType: ["suspension type unpublished with cellxgene baz"],
-    tissue: ["tissue unpublished with cellxgene baz"],
-    title: "Source Dataset Unpublished With CELLxGENE Baz",
-  };
+export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ = {
+  assay: ["assay unpublished with cellxgene baz"],
+  cellCount: 64345,
+  disease: ["disease unpublished with cellxgene baz"],
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
+    bucket: "bucket-source-dataset-unpublished-with-cellxgene-baz",
+    etag: "5c6d7e8f90123456789012345678901a",
+    eventTime: "2025-08-22T06:14:12.345Z",
+    fileName: "source-dataset-unpublished-with-cellxgene-baz.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "c5d6e7f8-a9b0-1234-cd56-567890123456",
+    sizeBytes: "1578901",
+    versionId: null,
+  },
+  id: "4b7acc76-89f2-4839-a15c-fc79183c1ed7",
+  sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+  suspensionType: ["suspension type unpublished with cellxgene baz"],
+  tissue: ["tissue unpublished with cellxgene baz"],
+  title: "Source Dataset Unpublished With CELLxGENE Baz",
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO: TestSourceDataset =
-  {
-    assay: ["assay published without cellxgene id foo"],
-    cellCount: 34538,
-    cellxgeneDatasetId: CELLXGENE_ID_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-    cellxgeneDatasetVersion:
-      CELLXGENE_VERSION_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-    disease: ["disease published without cellxgene id foo"],
-    file: {
-      atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
-      bucket: "bucket-source-dataset-published-without-cellxgene-id-foo",
-      etag: "6d7e8f90123456789012345678901234",
-      eventTime: "2025-08-22T06:14:29.678Z",
-      fileName: "source-dataset-published-without-cellxgene-id-foo.h5ad",
-      fileType: FILE_TYPE.SOURCE_DATASET,
-      id: "d6e7f8a9-b0c1-2345-de67-678901234567",
-      sizeBytes: "1689012",
-      versionId: null,
-    },
-    id: "68dbf3ec-45a5-43a4-b806-97923de1df2c",
-    sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
-    suspensionType: ["suspension type published without cellxgene id foo"],
-    tissue: ["tissue published without cellxgene id foo"],
-    title: "Source Dataset Published Without CELLxGENE ID Foo",
-  };
+export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO = {
+  assay: ["assay published without cellxgene id foo"],
+  cellCount: 34538,
+  cellxgeneDatasetId: CELLXGENE_ID_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+  cellxgeneDatasetVersion:
+    CELLXGENE_VERSION_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+  disease: ["disease published without cellxgene id foo"],
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-published-without-cellxgene-id-foo",
+    etag: "6d7e8f90123456789012345678901234",
+    eventTime: "2025-08-22T06:14:29.678Z",
+    fileName: "source-dataset-published-without-cellxgene-id-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "d6e7f8a9-b0c1-2345-de67-678901234567",
+    sizeBytes: "1689012",
+    versionId: null,
+  },
+  id: "68dbf3ec-45a5-43a4-b806-97923de1df2c",
+  sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
+  suspensionType: ["suspension type published without cellxgene id foo"],
+  tissue: ["tissue published without cellxgene id foo"],
+  title: "Source Dataset Published Without CELLxGENE ID Foo",
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR: TestSourceDataset =
-  {
-    assay: ["assay published without cellxgene id bar"],
-    cellCount: 2348,
-    disease: ["disease published without cellxgene id bar"],
-    file: {
-      atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
-      bucket: "bucket-source-dataset-published-without-cellxgene-id-bar",
-      etag: "7e8f90123456789012345678901234ab",
-      eventTime: "2025-08-22T06:14:46.901Z",
-      fileName: "source-dataset-published-without-cellxgene-id-bar.h5ad",
-      fileType: FILE_TYPE.SOURCE_DATASET,
-      id: "e7f8a9b0-c1d2-3456-ef78-789012345678",
-      sizeBytes: "1790123",
-      versionId: null,
-    },
-    id: "2d4f2d93-7c2c-4c1f-94af-566f3d3ed8ec",
-    sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
-    suspensionType: ["suspension type published without cellxgene id bar"],
-    tissue: ["tissue published without cellxgene id bar"],
-    title: "Source Dataset Published Without CELLxGENE ID Bar",
-  };
+export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR = {
+  assay: ["assay published without cellxgene id bar"],
+  cellCount: 2348,
+  disease: ["disease published without cellxgene id bar"],
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-published-without-cellxgene-id-bar",
+    etag: "7e8f90123456789012345678901234ab",
+    eventTime: "2025-08-22T06:14:46.901Z",
+    fileName: "source-dataset-published-without-cellxgene-id-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "e7f8a9b0-c1d2-3456-ef78-789012345678",
+    sizeBytes: "1790123",
+    versionId: null,
+  },
+  id: "2d4f2d93-7c2c-4c1f-94af-566f3d3ed8ec",
+  sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
+  suspensionType: ["suspension type published without cellxgene id bar"],
+  tissue: ["tissue published without cellxgene id bar"],
+  title: "Source Dataset Published Without CELLxGENE ID Bar",
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_ATLAS_LINKED_A_FOO: TestSourceDataset = {
+export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
   assay: ["assay atlas linked a foo"],
   cellCount: 3982,
   disease: ["disease atlas linked a foo"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-atlas-linked-a-foo",
     etag: "8f90123456789012345678901234567b",
     eventTime: "2025-08-22T06:15:03.234Z",
@@ -1849,14 +1844,14 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO: TestSourceDataset = {
   suspensionType: ["suspension type atlas linked a foo"],
   tissue: ["tissue atlas linked a foo"],
   title: "Source Dataset Atlas Linked A Foo",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_ATLAS_LINKED_B_FOO: TestSourceDataset = {
+export const SOURCE_DATASET_ATLAS_LINKED_B_FOO = {
   assay: ["assay atlas linked b foo"],
   cellCount: 81283,
   disease: ["disease atlas linked b foo"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-atlas-linked-b-foo",
     etag: "90123456789012345678901234567890",
     eventTime: "2025-08-22T06:15:20.567Z",
@@ -1871,14 +1866,14 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_FOO: TestSourceDataset = {
   suspensionType: ["suspension type atlas linked b foo"],
   tissue: ["tissue atlas linked b foo"],
   title: "Source Dataset Atlas Linked B Foo",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_ATLAS_LINKED_B_BAR: TestSourceDataset = {
+export const SOURCE_DATASET_ATLAS_LINKED_B_BAR = {
   assay: ["assay atlas linked b bar"],
   cellCount: 12353,
   disease: ["disease atlas linked b bar"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-atlas-linked-b-bar",
     etag: "01234567890123456789012345678901",
     eventTime: "2025-08-22T06:15:37.890Z",
@@ -1894,14 +1889,14 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAR: TestSourceDataset = {
   suspensionType: ["suspension type atlas linked b bar"],
   tissue: ["tissue atlas linked b bar"],
   title: "Source Dataset Atlas Linked B Bar",
-};
+} satisfies TestSourceDataset;
 
-export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ: TestSourceDataset = {
+export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ = {
   assay: ["assay atlas linked b baz"],
   cellCount: 38429,
   disease: ["disease atlas linked b baz"],
   file: {
-    atlas: () => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-atlas-linked-b-baz",
     etag: "12345678901234567890123456789012",
     eventTime: "2025-08-22T06:15:54.123Z",
@@ -1916,7 +1911,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ: TestSourceDataset = {
   suspensionType: ["suspension type atlas linked b baz"],
   tissue: ["tissue atlas linked b baz"],
   title: "Source Dataset Atlas Linked B Baz",
-};
+} satisfies TestSourceDataset;
 
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS = [
@@ -2562,7 +2557,7 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
 } satisfies TestComponentAtlas;
 
 // Component atlases to initialize in the database before tests
-export const INITIAL_TEST_COMPONENT_ATLASES = [
+export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_MISC_FOO,

@@ -1,4 +1,6 @@
+import { INTEGRITY_STATUS } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
+  DatasetValidatorResults,
   S3Event,
   S3Object,
   SNSMessage,
@@ -8,10 +10,15 @@ import { query } from "../app/services/database";
 export const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 export const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
 export const TEST_S3_EVENT_NAME = "s3:ObjectCreated:Put";
+export const TEST_SNS_TOPIC_S3_NOTIFICATIONS =
+  "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications";
+export const TEST_SNS_TOPIC_VALIDATION_RESULTS =
+  "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-validation-results";
 export const TEST_AWS_CONFIG = {
   s3_buckets: [TEST_S3_BUCKET],
   sns_topics: [
-    "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications",
+    TEST_SNS_TOPIC_S3_NOTIFICATIONS,
+    TEST_SNS_TOPIC_VALIDATION_RESULTS,
   ],
 };
 
@@ -104,9 +111,61 @@ export function createS3Event(options: S3EventOptions): S3Event {
   };
 }
 
+export interface ValidationResultsOptions {
+  downloadedSha256?: string | null;
+  errorMessage?: string | null;
+  fileId: string;
+  integrityStatus?: INTEGRITY_STATUS | null;
+  key: string;
+  metadata?: {
+    assay: string[];
+    cellCount: number;
+    disease: string[];
+    suspensionType: string[];
+    tissue: string[];
+    title: string;
+  } | null;
+  sha256?: string | null;
+  sourceSha256?: string | null;
+  status?: DatasetValidatorResults["status"];
+  timestamp?: string;
+}
+
+export function createValidationResults(
+  options: ValidationResultsOptions
+): DatasetValidatorResults {
+  const { integrityStatus = INTEGRITY_STATUS.VALID, sha256 = "test-sha256" } =
+    options;
+  const { downloadedSha256 = sha256, sourceSha256 = sha256 } = options;
+  return {
+    batch_job_id: "test-batch-job-id",
+    batch_job_name: "test-batch-job",
+    bucket: TEST_S3_BUCKET,
+    downloaded_sha256: downloadedSha256,
+    error_message: options.errorMessage ?? null,
+    file_id: options.fileId,
+    integrity_status: integrityStatus,
+    key: options.key,
+    metadata_summary: options.metadata
+      ? {
+          assay: options.metadata.assay,
+          cell_count: options.metadata.cellCount,
+          disease: options.metadata.disease,
+          suspension_type: options.metadata.suspensionType,
+          tissue: options.metadata.tissue,
+          title: options.metadata.title,
+        }
+      : null,
+    source_sha256: sourceSha256,
+    status: options.status ?? "success",
+    timestamp: options.timestamp ?? TEST_TIMESTAMP,
+  };
+}
+
 export interface SNSMessageOptions {
+  message?: unknown;
   messageId?: string;
-  s3Event: S3Event;
+  s3Event?: S3Event;
   signature?: string;
   signingCertURL?: string;
   subject?: string;
@@ -116,7 +175,7 @@ export interface SNSMessageOptions {
 
 export function createSNSMessage(options: SNSMessageOptions): SNSMessage {
   return {
-    Message: JSON.stringify(options.s3Event),
+    Message: JSON.stringify(options.s3Event ?? options.message),
     MessageId: options.messageId || "test-message-id",
     Signature: options.signature || TEST_SIGNATURE,
     SignatureVersion: "1",
@@ -125,7 +184,7 @@ export function createSNSMessage(options: SNSMessageOptions): SNSMessage {
       "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-fake.pem",
     Subject: options.subject || SNS_MESSAGE_DEFAULTS.SUBJECT,
     Timestamp: options.timestamp || TEST_TIMESTAMP,
-    TopicArn: options.topicArn || TEST_AWS_CONFIG.sns_topics[0],
+    TopicArn: options.topicArn || TEST_SNS_TOPIC_S3_NOTIFICATIONS,
     Type: "Notification",
   };
 }
