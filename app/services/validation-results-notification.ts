@@ -7,8 +7,12 @@ import {
   HCAAtlasTrackerDBFileDatasetInfo,
   INTEGRITY_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { addValidationResultsToFile } from "../data/files";
-import { InvalidOperationError } from "../utils/api-handler";
+import {
+  addValidationResultsToFile,
+  getLastValidationTimestamp,
+} from "../data/files";
+import { ConflictError, InvalidOperationError } from "../utils/api-handler";
+import { doTransaction } from "./database";
 
 /**
  * Processes an SNS notification message containing dataset validation results
@@ -35,15 +39,28 @@ export async function processValidationResultsMessage(
 
   // Save validation results
 
+  const fileId = validationResults.file_id;
+  const newValidationTime = new Date(validationResults.timestamp);
   const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
 
-  await addValidationResultsToFile({
-    datasetInfo,
-    fileId: validationResults.file_id,
-    integrityStatus:
-      validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
-    snsMessageId: snsMessage.MessageId,
-    validatedAt: new Date(validationResults.timestamp),
+  await doTransaction(async (client) => {
+    const lastValidationTime = await getLastValidationTimestamp(fileId, client);
+
+    if (lastValidationTime && newValidationTime < lastValidationTime) {
+      throw new ConflictError(
+        `Newer validation results already exist for file with ID ${fileId}`
+      );
+    }
+
+    await addValidationResultsToFile({
+      client,
+      datasetInfo,
+      fileId,
+      integrityStatus:
+        validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
+      snsMessageId: snsMessage.MessageId,
+      validatedAt: newValidationTime,
+    });
   });
 }
 

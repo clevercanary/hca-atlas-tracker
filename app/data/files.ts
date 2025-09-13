@@ -303,8 +303,27 @@ export async function upsertFileRecord(
 }
 
 /**
+ * Get the currently-stored date at which the given file was last validated.
+ * @param fileId - ID of file to get validation timestamp of.
+ * @param client - Postgres client to use.
+ * @returns validation date, or null if absent.
+ */
+export async function getLastValidationTimestamp(
+  fileId: string,
+  client: pg.PoolClient
+): Promise<Date | null> {
+  const result = await client.query<
+    Pick<HCAAtlasTrackerDBFile, "integrity_checked_at">
+  >("SELECT integrity_checked_at FROM hat.files WHERE id=$1", [fileId]);
+  if (result.rows.length === 0)
+    throw new NotFoundError(`File with id ${fileId} doesn't exist`);
+  return result.rows[0].integrity_checked_at;
+}
+
+/**
  * Add info from validation results to a file record, implicitly handling duplicate SNS notifications.
  * @param params - Parameters.
+ * @param params.client - Postgres client to use.
  * @param params.datasetInfo - Dataset info to add to the file.
  * @param params.fileId - ID of the file to update.
  * @param params.integrityStatus - Integrity status to set on the file.
@@ -312,15 +331,22 @@ export async function upsertFileRecord(
  * @param params.validatedAt - Time at which the validation started.
  */
 export async function addValidationResultsToFile(params: {
+  client: pg.PoolClient;
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
   fileId: string;
   integrityStatus: INTEGRITY_STATUS;
   snsMessageId: string;
   validatedAt: Date;
 }): Promise<void> {
-  const { datasetInfo, fileId, integrityStatus, snsMessageId, validatedAt } =
-    params;
-  await query(
+  const {
+    client,
+    datasetInfo,
+    fileId,
+    integrityStatus,
+    snsMessageId,
+    validatedAt,
+  } = params;
+  await client.query(
     `
       UPDATE hat.files
       -- Setting validation_sns_message_id will implicitly ensure that the same SNS message is not used multiple times
