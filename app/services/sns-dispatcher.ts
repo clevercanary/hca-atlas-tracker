@@ -49,5 +49,5 @@ function isS3NotificationTopic(topicArn: string): boolean {
  * @returns True if this is the validation results topic
  */
 function isValidationResultsTopic(topicArn: string): boolean {
-  return topicArn === "validation-results";
+  return topicArn.includes("validation-results");
 }
