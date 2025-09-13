@@ -43,6 +43,7 @@ export async function processValidationResultsMessage(
     integrityStatus:
       validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
     snsMessageId: snsMessage.MessageId,
+    validatedAt: new Date(validationResults.timestamp),
   });
 }
 

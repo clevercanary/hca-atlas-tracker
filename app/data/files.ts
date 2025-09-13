@@ -309,21 +309,34 @@ export async function upsertFileRecord(
  * @param params.fileId - ID of the file to update.
  * @param params.integrityStatus - Integrity status to set on the file.
  * @param params.snsMessageId - ID of the SNS message that triggered the update, for deduplication.
+ * @param params.validatedAt - Time at which the validation started.
  */
 export async function addValidationResultsToFile(params: {
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
   fileId: string;
   integrityStatus: INTEGRITY_STATUS;
   snsMessageId: string;
+  validatedAt: Date;
 }): Promise<void> {
-  const { datasetInfo, fileId, integrityStatus, snsMessageId } = params;
+  const { datasetInfo, fileId, integrityStatus, snsMessageId, validatedAt } =
+    params;
   await query(
     `
       UPDATE hat.files
       -- Setting validation_sns_message_id will implicitly ensure that the same SNS message is not used multiple times
-      SET validation_sns_message_id = $1, integrity_status = $2, dataset_info = $3
-      WHERE id = $4
+      SET
+        validation_sns_message_id = $1,
+        integrity_status = $2,
+        dataset_info = $3,
+        integrity_checked_at = $4
+      WHERE id = $5
     `,
-    [snsMessageId, integrityStatus, JSON.stringify(datasetInfo), fileId]
+    [
+      snsMessageId,
+      integrityStatus,
+      JSON.stringify(datasetInfo),
+      validatedAt,
+      fileId,
+    ]
   );
 }
