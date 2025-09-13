@@ -321,7 +321,7 @@ export async function getLastValidationTimestamp(
 }
 
 /**
- * Add info from validation results to a file record, implicitly handling duplicate SNS notifications.
+ * Add info from validation results to a file record.
  * @param params - Parameters.
  * @param params.client - Postgres client to use.
  * @param params.datasetInfo - Dataset info to add to the file.
@@ -349,7 +349,6 @@ export async function addValidationResultsToFile(params: {
   await client.query(
     `
       UPDATE hat.files
-      -- Setting validation_sns_message_id will implicitly ensure that the same SNS message is not used multiple times
       SET
         validation_sns_message_id = $1,
         integrity_status = $2,
