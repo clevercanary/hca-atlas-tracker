@@ -4,6 +4,8 @@ import {
   FILE_TYPE,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBFile,
+  HCAAtlasTrackerDBFileDatasetInfo,
+  INTEGRITY_STATUS,
   NetworkKey,
   type FileEventInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -298,4 +300,30 @@ export async function upsertFileRecord(
   }
 
   return result.rows[0];
+}
+
+/**
+ * Add info from validation results to a file record, implicitly handling duplicate SNS notifications.
+ * @param params - Parameters.
+ * @param params.datasetInfo - Dataset info to add to the file.
+ * @param params.fileId - ID of the file to update.
+ * @param params.integrityStatus - Integrity status to set on the file.
+ * @param params.snsMessageId - ID of the SNS message that triggered the update, for deduplication.
+ */
+export async function addValidationResultsToFile(params: {
+  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
+  fileId: string;
+  integrityStatus: INTEGRITY_STATUS;
+  snsMessageId: string;
+}): Promise<void> {
+  const { datasetInfo, fileId, integrityStatus, snsMessageId } = params;
+  await query(
+    `
+      UPDATE hat.files
+      -- Setting validation_sns_message_id will implicitly ensure that the same SNS message is not used multiple times
+      SET validation_sns_message_id = $1, integrity_status = $2, dataset_info = $3
+      WHERE id = $4
+    `,
+    [snsMessageId, integrityStatus, JSON.stringify(datasetInfo), fileId]
+  );
 }
