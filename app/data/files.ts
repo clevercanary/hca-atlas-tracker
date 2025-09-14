@@ -5,6 +5,7 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
+  HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
   NetworkKey,
   type FileEventInfo,
@@ -327,39 +328,39 @@ export async function getLastValidationTimestamp(
  * @param params.datasetInfo - Dataset info to add to the file.
  * @param params.fileId - ID of the file to update.
  * @param params.integrityStatus - Integrity status to set on the file.
- * @param params.snsMessageId - ID of the SNS message that triggered the update, for deduplication.
  * @param params.validatedAt - Time at which the validation started.
+ * @param params.validationInfo - Metadata of the validation.
  */
 export async function addValidationResultsToFile(params: {
   client: pg.PoolClient;
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
   fileId: string;
   integrityStatus: INTEGRITY_STATUS;
-  snsMessageId: string;
   validatedAt: Date;
+  validationInfo: HCAAtlasTrackerDBFileValidationInfo;
 }): Promise<void> {
   const {
     client,
     datasetInfo,
     fileId,
     integrityStatus,
-    snsMessageId,
     validatedAt,
+    validationInfo,
   } = params;
   await client.query(
     `
       UPDATE hat.files
       SET
-        validation_sns_message_id = $1,
-        integrity_status = $2,
-        dataset_info = $3,
+        integrity_status = $1,
+        dataset_info = $2,
+        validation_info = $3,
         integrity_checked_at = $4
       WHERE id = $5
     `,
     [
-      snsMessageId,
       integrityStatus,
       JSON.stringify(datasetInfo),
+      JSON.stringify(validationInfo),
       validatedAt,
       fileId,
     ]

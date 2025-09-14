@@ -422,7 +422,7 @@ export interface HCAAtlasTrackerDBFile {
   source_study_id: string | null;
   status: FILE_STATUS;
   updated_at: Date;
-  validation_sns_message_id: string | null;
+  validation_info: HCAAtlasTrackerDBFileValidationInfo | null;
   version_id: string | null;
 }
 
@@ -433,6 +433,12 @@ export interface HCAAtlasTrackerDBFileDatasetInfo {
   suspensionType: string[];
   tissue: string[];
   title: string;
+}
+
+export interface HCAAtlasTrackerDBFileValidationInfo {
+  batchJobId: string;
+  snsMessageId: string;
+  snsMessageTime: string;
 }
 
 export interface HCAAtlasTrackerListValidationRecord

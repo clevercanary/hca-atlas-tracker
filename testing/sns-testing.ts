@@ -112,6 +112,8 @@ export function createS3Event(options: S3EventOptions): S3Event {
 }
 
 export interface ValidationResultsOptions {
+  batchJobId?: string;
+  batchJobName?: string | null;
   downloadedSha256?: string | null;
   errorMessage?: string | null;
   fileId: string;
@@ -134,12 +136,15 @@ export interface ValidationResultsOptions {
 export function createValidationResults(
   options: ValidationResultsOptions
 ): DatasetValidatorResults {
-  const { integrityStatus = INTEGRITY_STATUS.VALID, sha256 = "test-sha256" } =
-    options;
+  const {
+    batchJobName = "test-batch-job",
+    integrityStatus = INTEGRITY_STATUS.VALID,
+    sha256 = "test-sha256",
+  } = options;
   const { downloadedSha256 = sha256, sourceSha256 = sha256 } = options;
   return {
-    batch_job_id: "test-batch-job-id",
-    batch_job_name: "test-batch-job",
+    batch_job_id: options.batchJobId ?? "test-batch-job-id",
+    batch_job_name: batchJobName,
     bucket: TEST_S3_BUCKET,
     downloaded_sha256: downloadedSha256,
     error_message: options.errorMessage ?? null,

@@ -92,7 +92,10 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
   });
 
   it("successfully saves validation results for dataset file", async () => {
-    const timestamp = "2025-09-13T22:53:03.314Z";
+    const snsMessageId = "sns-message-dataset-successfull";
+    const snsMessageTime = "2025-09-14T00:00:36.672Z";
+    const batchJobId = "batch-job-dataset-successful";
+    const validationTime = "2025-09-13T22:53:03.314Z";
     const metadata: HCAAtlasTrackerDBFileDatasetInfo = {
       assay: ["assay-dataset-successful-a", "assay-dataset-successful-b"],
       cellCount: 2232,
@@ -102,6 +105,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       title: "Dataset Successful",
     };
     const validationResults = createValidationResults({
+      batchJobId,
       fileId: FILE_SOURCE_DATASET_FOO.id,
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
@@ -109,11 +113,12 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         FILE_SOURCE_DATASET_FOO.resolvedAtlas
       ),
       metadata,
-      timestamp,
+      timestamp: validationTime,
     });
     const snsMessage = createSNSMessage({
       message: validationResults,
-      messageId: "test-message-successful",
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
       topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
     });
 
@@ -123,8 +128,13 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     if (!expectIsDefined(file)) return;
 
     expect(file.dataset_info).toEqual(metadata);
-    expect(file.integrity_checked_at?.toISOString()).toEqual(timestamp);
+    expect(file.integrity_checked_at?.toISOString()).toEqual(validationTime);
     expect(file.integrity_status).toEqual(INTEGRITY_STATUS.VALID);
+    expect(file.validation_info).toEqual({
+      batchJobId,
+      snsMessageId,
+      snsMessageTime,
+    });
   });
 });
 

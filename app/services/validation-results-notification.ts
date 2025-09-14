@@ -5,6 +5,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   HCAAtlasTrackerDBFileDatasetInfo,
+  HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -42,6 +43,7 @@ export async function processValidationResultsMessage(
   const fileId = validationResults.file_id;
   const newValidationTime = new Date(validationResults.timestamp);
   const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
+  const validationInfo = getValidationInfo(validationResults, snsMessage);
 
   await doTransaction(async (client) => {
     const lastValidationTime = await getLastValidationTimestamp(fileId, client);
@@ -58,8 +60,8 @@ export async function processValidationResultsMessage(
       fileId,
       integrityStatus:
         validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
-      snsMessageId: snsMessage.MessageId,
       validatedAt: newValidationTime,
+      validationInfo,
     });
   });
 }
@@ -81,5 +83,22 @@ function getDatasetInfoFromValidationResults(
     suspensionType: metadataSummary.suspension_type,
     tissue: metadataSummary.tissue,
     title: metadataSummary.title,
+  };
+}
+
+/**
+ * Get validation metadata to be saved in a file record.
+ * @param validationResults - Validation results to get info from.
+ * @param snsMessage - SNS message to get info from.
+ * @returns - Validation info.
+ */
+function getValidationInfo(
+  validationResults: DatasetValidatorResults,
+  snsMessage: SNSMessage
+): HCAAtlasTrackerDBFileValidationInfo {
+  return {
+    batchJobId: validationResults.batch_job_id,
+    snsMessageId: snsMessage.MessageId,
+    snsMessageTime: snsMessage.Timestamp,
   };
 }

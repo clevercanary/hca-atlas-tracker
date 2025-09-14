@@ -10,12 +10,11 @@ export function up(pgm: MigrationBuilder): void {
         notNull: false,
         type: "jsonb",
       },
-      validation_sns_message_id: {
+      validation_info: {
         comment:
-          "SNS MessageId for deduplication of duplicate validation results SNS notifications",
+          "Metadata of the batch job and SNS message used in validating the file",
         notNull: false,
-        type: "varchar(255)",
-        unique: true,
+        type: "jsonb",
       },
     }
   );
