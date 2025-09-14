@@ -350,7 +350,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.metadataSpreadsheetUrl).toEqual(null);
     expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_ATLAS_LINKED_B_BAR.title
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.file.datasetInfo.title
     );
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
@@ -372,7 +372,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       A_FOO_EDIT_DATA.metadataSpreadsheetUrl
     );
     expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_ATLAS_LINKED_A_FOO.title
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.datasetInfo.title
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);

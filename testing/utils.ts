@@ -541,7 +541,7 @@ export function expectApiSourceDatasetToMatchTest(
     testFile.datasetInfo?.suspensionType ?? []
   );
   expect(apiSourceDataset.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
-  expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title);
+  expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title ?? "");
 }
 
 export function expectDbSourceDatasetToMatchTest(

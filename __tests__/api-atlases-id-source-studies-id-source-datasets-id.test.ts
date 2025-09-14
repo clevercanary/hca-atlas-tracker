@@ -33,7 +33,11 @@ import {
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestSourceDataset, TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  expectApiSourceDatasetToMatchTest,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -173,7 +177,7 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const sourceDataset =
           res._getJSONData() as HCAAtlasTrackerSourceDataset;
-        expect(sourceDataset.title).toEqual(SOURCE_DATASET_FOO.title);
+        expectApiSourceDatasetToMatchTest(sourceDataset, SOURCE_DATASET_FOO);
       }
     );
   }
@@ -187,7 +191,7 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.title).toEqual(SOURCE_DATASET_FOO.title);
+    expectApiSourceDatasetToMatchTest(sourceDataset, SOURCE_DATASET_FOO);
   });
 
   it("returns CELLxGENE source dataset when GET requested by logged in user with CONTENT_ADMIN role", async () => {
@@ -199,8 +203,9 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.title
+    expectApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE
     );
   });
 
