@@ -29,7 +29,7 @@ import {
   expectIsDefined,
   fillTestFileDefaults,
   getTestFileKey,
-  withConsoleErrorHiding,
+  withConsoleMessageHiding,
 } from "../testing/utils";
 
 jest.mock(
@@ -82,7 +82,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       Type: "Notification",
     };
 
-    const res = await doSnsRequest(malformedSNSMessage);
+    const res = await doSnsRequest(malformedSNSMessage, true);
 
     // Should reject with 400 Bad Request due to JSON parsing error
     expect(res.statusCode).toBe(400);
@@ -122,7 +122,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
     });
 
-    expect((await doSnsRequest(snsMessage)).statusCode).toEqual(200);
+    expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
     const file = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
     if (!expectIsDefined(file)) return;
@@ -140,12 +140,15 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
 async function doSnsRequest(
   body: Record<string, unknown>,
-  hideConsoleError = false
+  hideConsoleMessages = false
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
     method: METHOD.POST,
   });
-  await withConsoleErrorHiding(() => snsHandler(req, res), hideConsoleError);
+  await withConsoleMessageHiding(
+    () => snsHandler(req, res),
+    hideConsoleMessages
+  );
   return res;
 }
