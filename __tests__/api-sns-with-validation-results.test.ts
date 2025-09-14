@@ -1,6 +1,7 @@
 import {
   createSNSMessage,
   createValidationResults,
+  expectDbFileValidationFieldsToMatch,
   setUpAwsConfig,
   SNS_MESSAGE_DEFAULTS,
   TEST_SIGNATURE_VALID,
@@ -23,10 +24,14 @@ import {
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool } from "../app/services/database";
-import { SOURCE_DATASET_FOO } from "../testing/constants";
+import {
+  COMPONENT_ATLAS_DRAFT_FOO,
+  SOURCE_DATASET_BAR,
+  SOURCE_DATASET_BAZ,
+  SOURCE_DATASET_FOO,
+} from "../testing/constants";
 import { getFileFromDatabase, resetDatabase } from "../testing/db-utils";
 import {
-  expectIsDefined,
   fillTestFileDefaults,
   getTestFileKey,
   withConsoleMessageHiding,
@@ -57,6 +62,10 @@ const TEST_ROUTE = "/api/sns";
 import snsHandler from "../pages/api/sns";
 
 const FILE_SOURCE_DATASET_FOO = fillTestFileDefaults(SOURCE_DATASET_FOO.file);
+const FILE_SOURCE_DATASET_BAR = fillTestFileDefaults(SOURCE_DATASET_BAR.file);
+const FILE_SOURCE_DATASET_BAZ = fillTestFileDefaults(SOURCE_DATASET_BAZ.file);
+
+const FILE_COMPONENT_ATLAS_DRAFT_FOO = COMPONENT_ATLAS_DRAFT_FOO.file;
 
 beforeAll(async () => {
   await resetDatabase();
@@ -91,8 +100,131 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     });
   });
 
+  it("returns error 400 when message content has invalid shape", async () => {
+    const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+    const snsMessageId = "sns-message-invalid-message";
+    const snsMessageTime = "2025-09-14T00:00:36.672Z";
+    const batchJobId = "batch-job-invalid-message";
+    const validationTime = "2025-09-13T22:53:03.314Z";
+    const validationResults: Record<string, unknown> = createValidationResults({
+      batchJobId,
+      fileId: FILE_SOURCE_DATASET_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: getTestFileKey(
+        FILE_SOURCE_DATASET_FOO,
+        FILE_SOURCE_DATASET_FOO.resolvedAtlas
+      ),
+      metadata: null,
+      timestamp: validationTime,
+    });
+    // Set metadata_summary to an invalid value
+    validationResults.metadata_summary = "not-a-metadata-summary";
+    const snsMessage = createSNSMessage({
+      message: validationResults,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    const res = await doSnsRequest(snsMessage, true);
+    expect(res.statusCode).toEqual(400);
+    expect(res._getJSONData().errors?.metadata_summary).toBeDefined();
+
+    const fileAfter = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+    expect(fileAfter).toEqual(fileBefore);
+  });
+
+  it("returns error 409 when validation results are sent with out-of-order timestamps", async () => {
+    // First request with later timestamp (2025-09-14)
+    const firstSnsMessageId = "sns-message-ooo-first";
+    const firstSnsMessageTime = "2025-09-14T12:00:00.000Z";
+    const firstBatchJobId = "batch-job-ooo-first";
+    const firstValidationTime = "2025-09-14T10:00:00.000Z";
+    const firstMetadata: HCAAtlasTrackerDBFileDatasetInfo = {
+      assay: ["assay-ooo-first"],
+      cellCount: 1000,
+      disease: ["disease-ooo-first"],
+      suspensionType: ["suspension-type-ooo-first"],
+      tissue: ["tissue-ooo-first"],
+      title: "Out-of-Order First",
+    };
+    const firstValidationResults = createValidationResults({
+      batchJobId: firstBatchJobId,
+      fileId: FILE_SOURCE_DATASET_BAR.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: getTestFileKey(
+        FILE_SOURCE_DATASET_BAR,
+        FILE_SOURCE_DATASET_BAR.resolvedAtlas
+      ),
+      metadata: firstMetadata,
+      timestamp: firstValidationTime,
+    });
+    const firstSnsMessage = createSNSMessage({
+      message: firstValidationResults,
+      messageId: firstSnsMessageId,
+      timestamp: firstSnsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    // Send first request - should succeed
+    expect((await doSnsRequest(firstSnsMessage, true)).statusCode).toEqual(200);
+
+    // Second request with earlier timestamp (2025-09-13) - should fail with 409
+    const secondSnsMessageId = "sns-message-ooo-second";
+    const secondSnsMessageTime = "2025-09-13T12:00:00.000Z";
+    const secondBatchJobId = "batch-job-ooo-second";
+    const secondValidationTime = "2025-09-13T10:00:00.000Z"; // Earlier than first
+    const secondMetadata: HCAAtlasTrackerDBFileDatasetInfo = {
+      assay: ["assay-ooo-second"],
+      cellCount: 2000,
+      disease: ["disease-ooo-second"],
+      suspensionType: ["suspension-type-ooo-second"],
+      tissue: ["tissue-ooo-second"],
+      title: "Out-of-Order Second",
+    };
+    const secondValidationResults = createValidationResults({
+      batchJobId: secondBatchJobId,
+      fileId: FILE_SOURCE_DATASET_BAR.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: getTestFileKey(
+        FILE_SOURCE_DATASET_BAR,
+        FILE_SOURCE_DATASET_BAR.resolvedAtlas
+      ),
+      metadata: secondMetadata,
+      timestamp: secondValidationTime,
+    });
+    const secondSnsMessage = createSNSMessage({
+      message: secondValidationResults,
+      messageId: secondSnsMessageId,
+      timestamp: secondSnsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    // Send second request - should return 409 due to out-of-order timestamp
+    const res = await doSnsRequest(secondSnsMessage, true);
+    expect(res.statusCode).toBe(409);
+    expect(res._getJSONData()).toEqual({
+      message: `Newer validation results already exist for file with ID ${FILE_SOURCE_DATASET_BAR.id}`,
+    });
+
+    // Verify the file still has the first validation results (not overwritten)
+    await expectDbFileValidationFieldsToMatch(
+      FILE_SOURCE_DATASET_BAR.id,
+      firstValidationTime,
+      INTEGRITY_STATUS.VALID,
+      firstMetadata,
+      {
+        batchJobId: firstBatchJobId,
+        snsMessageId: firstSnsMessageId,
+        snsMessageTime: firstSnsMessageTime,
+      }
+    );
+  });
+
   it("successfully saves validation results for dataset file", async () => {
-    const snsMessageId = "sns-message-dataset-successfull";
+    const snsMessageId = "sns-message-dataset-successful";
     const snsMessageTime = "2025-09-14T00:00:36.672Z";
     const batchJobId = "batch-job-dataset-successful";
     const validationTime = "2025-09-13T22:53:03.314Z";
@@ -100,7 +232,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       assay: ["assay-dataset-successful-a", "assay-dataset-successful-b"],
       cellCount: 2232,
       disease: ["disease-dataset-successful"],
-      suspensionType: ["suspension-dataset-type-successful"],
+      suspensionType: ["suspension-type-dataset-successful"],
       tissue: ["tissue-dataset-successful"],
       title: "Dataset Successful",
     };
@@ -124,17 +256,134 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
     expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
-    const file = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
-    if (!expectIsDefined(file)) return;
+    await expectDbFileValidationFieldsToMatch(
+      FILE_SOURCE_DATASET_FOO.id,
+      validationTime,
+      INTEGRITY_STATUS.VALID,
+      metadata,
+      {
+        batchJobId,
+        snsMessageId,
+        snsMessageTime,
+      }
+    );
+  });
 
-    expect(file.dataset_info).toEqual(metadata);
-    expect(file.integrity_checked_at?.toISOString()).toEqual(validationTime);
-    expect(file.integrity_status).toEqual(INTEGRITY_STATUS.VALID);
-    expect(file.validation_info).toEqual({
+  it("successfully saves validation results for integrated object file", async () => {
+    const snsMessageId = "sns-message-io-successful";
+    const snsMessageTime = "2025-09-14T01:05:55.532Z";
+    const batchJobId = "batch-job-io-successful";
+    const validationTime = "2025-09-14T01:05:37.734Z";
+    const metadata: HCAAtlasTrackerDBFileDatasetInfo = {
+      assay: ["assay-io-successful", "assay-io-successful"],
+      cellCount: 53453,
+      disease: ["disease-io-successful-a", "disease-io-successful-b"],
+      suspensionType: ["suspension-type-io-successful"],
+      tissue: [
+        "tissue-io-successful-a",
+        "tissue-io-successful-b",
+        "tissue-io-successful-c",
+      ],
+      title: "Integrated Object Successful",
+    };
+    const validationResults = createValidationResults({
       batchJobId,
-      snsMessageId,
-      snsMessageTime,
+      fileId: FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: getTestFileKey(
+        FILE_COMPONENT_ATLAS_DRAFT_FOO,
+        FILE_COMPONENT_ATLAS_DRAFT_FOO.atlas
+      ),
+      metadata,
+      timestamp: validationTime,
     });
+    const snsMessage = createSNSMessage({
+      message: validationResults,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+    await expectDbFileValidationFieldsToMatch(
+      FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+      validationTime,
+      INTEGRITY_STATUS.VALID,
+      metadata,
+      {
+        batchJobId,
+        snsMessageId,
+        snsMessageTime,
+      }
+    );
+  });
+
+  it("successfully saves validation results from duplicate notification", async () => {
+    const snsMessageId = "sns-message-duplicate";
+    const snsMessageTime = "2025-09-14T01:10:45.293Z";
+    const batchJobId = "batch-job-duplicate";
+    const validationTime = "2025-09-14T01:10:31.843Z";
+    const metadata: HCAAtlasTrackerDBFileDatasetInfo = {
+      assay: ["assay-duplicate-a", "assay-duplicate-b", "assay-duplicate-b"],
+      cellCount: 12314,
+      disease: ["disease-duplicate"],
+      suspensionType: [
+        "suspension-type-duplicate-a",
+        "suspension-type-duplicate-b",
+      ],
+      tissue: ["tissue-duplicate"],
+      title: "Duplicate",
+    };
+    const validationResults = createValidationResults({
+      batchJobId,
+      fileId: FILE_SOURCE_DATASET_BAZ.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: getTestFileKey(
+        FILE_SOURCE_DATASET_BAZ,
+        FILE_SOURCE_DATASET_BAZ.resolvedAtlas
+      ),
+      metadata,
+      timestamp: validationTime,
+    });
+    const snsMessage = createSNSMessage({
+      message: validationResults,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    // Expect initial request to be successful
+
+    expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+    await expectDbFileValidationFieldsToMatch(
+      FILE_SOURCE_DATASET_BAZ.id,
+      validationTime,
+      INTEGRITY_STATUS.VALID,
+      metadata,
+      {
+        batchJobId,
+        snsMessageId,
+        snsMessageTime,
+      }
+    );
+
+    // Expect second, duplicate request to be successful
+
+    expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+    await expectDbFileValidationFieldsToMatch(
+      FILE_SOURCE_DATASET_BAZ.id,
+      validationTime,
+      INTEGRITY_STATUS.VALID,
+      metadata,
+      {
+        batchJobId,
+        snsMessageId,
+        snsMessageTime,
+      }
+    );
   });
 });
 

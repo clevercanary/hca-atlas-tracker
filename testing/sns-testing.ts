@@ -1,11 +1,17 @@
-import { INTEGRITY_STATUS } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   DatasetValidatorResults,
   S3Event,
   S3Object,
   SNSMessage,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import {
+  HCAAtlasTrackerDBFileDatasetInfo,
+  HCAAtlasTrackerDBFileValidationInfo,
+  INTEGRITY_STATUS,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../app/services/database";
+import { getFileFromDatabase } from "./db-utils";
+import { expectIsDefined } from "./utils";
 
 export const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 export const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
@@ -258,4 +264,20 @@ export async function createTestAtlasData(): Promise<void> {
       ]
     );
   }
+}
+
+export async function expectDbFileValidationFieldsToMatch(
+  fileId: string,
+  validationTime: string,
+  integrityStatus: INTEGRITY_STATUS,
+  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo,
+  validationInfo: HCAAtlasTrackerDBFileValidationInfo
+): Promise<void> {
+  const file = await getFileFromDatabase(fileId);
+  if (!expectIsDefined(file)) return;
+
+  expect(file.dataset_info).toEqual(datasetInfo);
+  expect(file.integrity_checked_at?.toISOString()).toEqual(validationTime);
+  expect(file.integrity_status).toEqual(integrityStatus);
+  expect(file.validation_info).toEqual(validationInfo);
 }
