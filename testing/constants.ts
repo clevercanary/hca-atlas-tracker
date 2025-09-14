@@ -1919,6 +1919,23 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_ATLAS_LINKED_A_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-source-dataset-atlas-linked-a-bar",
+    etag: "12345678901234567b8f901234567890",
+    eventTime: "2025-09-14T19:31:56.685Z",
+    fileName: "source-dataset-atlas-linked-a-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "cd32420d-f540-4f97-87c8-41872c05d9a4",
+    sizeBytes: "45345",
+    versionId: null,
+  },
+  id: "41e20a89-48c4-4fd6-85b1-6f6a02f03b35",
+  sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
 export const SOURCE_DATASET_ATLAS_LINKED_B_FOO = {
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -2021,6 +2038,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
@@ -2248,6 +2266,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   shortName: "test-with-misc-source-studies",
   sourceDatasets: [
     SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+    SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
     SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
     SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
     SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.id,

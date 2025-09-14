@@ -6,6 +6,7 @@ import { endPgPool } from "../app/services/database";
 import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
@@ -114,9 +115,10 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const sourceDatasets =
           res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-        expect(sourceDatasets).toHaveLength(4);
+        expect(sourceDatasets).toHaveLength(5);
         expectApiSourceDatasetsToMatchTest(sourceDatasets, [
           SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+          SOURCE_DATASET_ATLAS_LINKED_A_BAR,
           SOURCE_DATASET_ATLAS_LINKED_B_FOO,
           SOURCE_DATASET_ATLAS_LINKED_B_BAR,
           SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
@@ -133,9 +135,10 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(sourceDatasets).toHaveLength(4);
+    expect(sourceDatasets).toHaveLength(5);
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
       SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR,
       SOURCE_DATASET_ATLAS_LINKED_B_FOO,
       SOURCE_DATASET_ATLAS_LINKED_B_BAR,
       SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
