@@ -404,6 +404,7 @@ export interface HCAAtlasTrackerDBFile {
   bucket: string;
   component_atlas_id: string | null;
   created_at: Date;
+  dataset_info: HCAAtlasTrackerDBFileDatasetInfo | null;
   etag: string;
   event_info: FileEventInfo;
   file_type: FILE_TYPE;
@@ -421,7 +422,23 @@ export interface HCAAtlasTrackerDBFile {
   source_study_id: string | null;
   status: FILE_STATUS;
   updated_at: Date;
+  validation_info: HCAAtlasTrackerDBFileValidationInfo | null;
   version_id: string | null;
+}
+
+export interface HCAAtlasTrackerDBFileDatasetInfo {
+  assay: string[];
+  cellCount: number;
+  disease: string[];
+  suspensionType: string[];
+  tissue: string[];
+  title: string;
+}
+
+export interface HCAAtlasTrackerDBFileValidationInfo {
+  batchJobId: string;
+  snsMessageId: string;
+  snsMessageTime: string;
 }
 
 export interface HCAAtlasTrackerListValidationRecord

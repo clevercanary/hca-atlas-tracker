@@ -40,6 +40,7 @@ import {
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
   fillTestFileDefaults,
+  getTestFileKey,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
@@ -206,7 +207,6 @@ async function initTestFile(
     etag,
     eventName,
     eventTime,
-    fileName,
     fileType,
     id,
     integrityCheckedAt,
@@ -220,22 +220,7 @@ async function initTestFile(
     status,
     versionId,
   } = fillTestFileDefaults(file);
-  let folderName: string;
-  switch (fileType) {
-    case FILE_TYPE.INGEST_MANIFEST:
-      folderName = "manifests";
-      break;
-    case FILE_TYPE.INTEGRATED_OBJECT:
-      folderName = "integrated-objects";
-      break;
-    case FILE_TYPE.SOURCE_DATASET:
-      folderName = "source-datasets";
-      break;
-  }
-  const key = `${atlas.network}/${atlas.shortName}-v${atlas.version.replaceAll(
-    ".",
-    "-"
-  )}/${folderName}/${fileName}`;
+  const key = getTestFileKey(file, atlas);
   const eventInfo: FileEventInfo = {
     eventName,
     eventTime,

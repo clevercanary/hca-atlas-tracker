@@ -4,6 +4,7 @@ import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
   FILE_STATUS,
+  FILE_TYPE,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
@@ -253,6 +254,25 @@ export function fillTestFileDefaults(
     status,
     ...restFields,
   };
+}
+
+export function getTestFileKey(file: TestFile, atlas: TestAtlas): string {
+  let folderName: string;
+  switch (file.fileType) {
+    case FILE_TYPE.INGEST_MANIFEST:
+      folderName = "manifests";
+      break;
+    case FILE_TYPE.INTEGRATED_OBJECT:
+      folderName = "integrated-objects";
+      break;
+    case FILE_TYPE.SOURCE_DATASET:
+      folderName = "source-datasets";
+      break;
+  }
+  return `${atlas.network}/${atlas.shortName}-v${atlas.version.replaceAll(
+    ".",
+    "-"
+  )}/${folderName}/${file.fileName}`;
 }
 
 export function aggregateSourceDatasetArrayField(

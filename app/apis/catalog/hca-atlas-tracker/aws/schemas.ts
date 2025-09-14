@@ -1,4 +1,5 @@
 import { array, InferType, number, object, string } from "yup";
+import { INTEGRITY_STATUS } from "../common/entities";
 
 // AWS S3 and SNS Event Validation Schemas
 // These schemas validate the structure of AWS events received via SNS notifications
@@ -49,8 +50,47 @@ export const snsMessageSchema = object({
   UnsubscribeURL: string().url().optional(),
 }).required();
 
+// Dataset validator results schema
+// Validates the structure of validation results received via SNS notification
+
+export const datasetValidatorResultsSchema = object({
+  batch_job_id: string().required(),
+  batch_job_name: string().defined().nullable(),
+  bucket: string().required(),
+  downloaded_sha256: string().defined().nullable(),
+  error_message: string().defined().nullable(),
+  file_id: string().required(),
+  integrity_status: string()
+    .oneOf(Object.values(INTEGRITY_STATUS))
+    .defined()
+    .nullable(),
+  key: string().required(),
+  metadata_summary: object({
+    assay: array(string().required()).required(),
+    cell_count: number().required(),
+    disease: array(string().required()).required(),
+    suspension_type: array(string().required()).required(),
+    tissue: array(string().required()).required(),
+    title: string().defined(),
+  })
+    .defined()
+    .nullable(),
+  source_sha256: string().defined().nullable(),
+  status: string()
+    .required()
+    .oneOf(["failure", "success"] as const),
+  timestamp: string().required(),
+})
+  .strict()
+  .required();
+
 // Type inference from Yup schemas
+
 export type S3Object = InferType<typeof s3ObjectSchema>;
 export type S3EventRecord = InferType<typeof s3RecordSchema>;
 export type S3Event = InferType<typeof s3EventSchema>;
 export type SNSMessage = InferType<typeof snsMessageSchema>;
+
+export type DatasetValidatorResults = InferType<
+  typeof datasetValidatorResultsSchema
+>;
