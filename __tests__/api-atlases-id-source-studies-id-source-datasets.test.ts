@@ -17,8 +17,12 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestSourceDataset, TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import { TestUser } from "../testing/entities";
+import {
+  expectApiSourceDatasetsToMatchTest,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -112,7 +116,7 @@ describe(TEST_ROUTE, () => {
         const sourceDatasets =
           res._getJSONData() as HCAAtlasTrackerSourceDataset[];
         expect(sourceDatasets).toHaveLength(8);
-        expectSourceDatasetsToMatch(sourceDatasets, [
+        expectApiSourceDatasetsToMatchTest(sourceDatasets, [
           SOURCE_DATASET_FOO,
           SOURCE_DATASET_BAR,
           SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
@@ -131,7 +135,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expect(sourceDatasets).toHaveLength(8);
-    expectSourceDatasetsToMatch(sourceDatasets, [
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
       SOURCE_DATASET_FOO,
       SOURCE_DATASET_BAR,
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
@@ -164,21 +168,4 @@ function getQueryValues(
   sourceStudyId: string
 ): Record<string, string> {
   return { atlasId, sourceStudyId };
-}
-
-function expectSourceDatasetsToMatch(
-  sourceDatasets: HCAAtlasTrackerSourceDataset[],
-  expectedTestSourceDatasets: TestSourceDataset[]
-): void {
-  for (const testSourceDataset of expectedTestSourceDatasets) {
-    const sourceDataset = sourceDatasets.find(
-      (c) => c.id === testSourceDataset.id
-    );
-    expect(sourceDataset).toBeDefined();
-    if (!sourceDataset) continue;
-    expect(sourceDataset.sourceStudyId).toEqual(
-      testSourceDataset.sourceStudyId
-    );
-    expect(sourceDataset.title).toEqual(testSourceDataset.title);
-  }
 }

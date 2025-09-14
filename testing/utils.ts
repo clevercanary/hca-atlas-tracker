@@ -10,6 +10,7 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBFileValidationInfo,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
@@ -228,6 +229,7 @@ export function fillTestFileDefaults(
 ): Required<TestFile> & { resolvedAtlas: TestAtlas } {
   const {
     atlas,
+    datasetInfo = null,
     eventName = "ObjectCreated:*",
     integrityCheckedAt = null,
     integrityError = null,
@@ -240,8 +242,19 @@ export function fillTestFileDefaults(
     ...restFields
   } = file;
   const resolvedAtlas = typeof atlas === "function" ? atlas() : atlas;
+  const validationInfo: HCAAtlasTrackerDBFileValidationInfo | null =
+    file.validationInfo !== undefined
+      ? file.validationInfo
+      : integrityCheckedAt === null
+      ? null
+      : {
+          batchJobId: `batch-job-${file.id}`,
+          snsMessageId: `sns-message-${file.id}`,
+          snsMessageTime: integrityCheckedAt,
+        };
   return {
     atlas,
+    datasetInfo,
     eventName,
     integrityCheckedAt,
     integrityError,
@@ -252,6 +265,7 @@ export function fillTestFileDefaults(
     sha256Server,
     sourceStudyId,
     status,
+    validationInfo,
     ...restFields,
   };
 }
@@ -489,27 +503,45 @@ export function expectSourceStudyToMatch(
   }
 }
 
+export function expectApiSourceDatasetsToMatchTest(
+  apiSourceDatasets: HCAAtlasTrackerSourceDataset[],
+  testSourceDatasets: TestSourceDataset[]
+): void {
+  for (const testSourceDataset of testSourceDatasets) {
+    const apiSourceDataset = apiSourceDatasets.find(
+      (c) => c.id === testSourceDataset.id
+    );
+    if (!expectIsDefined(apiSourceDataset)) continue;
+    expectApiSourceDatasetToMatchTest(apiSourceDataset, testSourceDataset);
+  }
+}
+
 export function expectApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
   testSourceDataset: TestSourceDataset
 ): void {
-  expect(apiSourceDataset.assay).toEqual(testSourceDataset.assay ?? []);
-  expect(apiSourceDataset.cellCount).toEqual(testSourceDataset.cellCount ?? 0);
+  if (!expectIsDefined(testSourceDataset.file)) return;
+  const testFile = fillTestFileDefaults(testSourceDataset.file);
+
+  expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
+  expect(apiSourceDataset.cellCount).toEqual(
+    testFile.datasetInfo?.cellCount ?? 0
+  );
   expect(apiSourceDataset.cellxgeneDatasetId).toEqual(
     testSourceDataset.cellxgeneDatasetId ?? null
   );
   expect(apiSourceDataset.cellxgeneDatasetVersion).toEqual(
     testSourceDataset.cellxgeneDatasetVersion ?? null
   );
-  expect(apiSourceDataset.disease).toEqual(testSourceDataset.disease ?? []);
+  expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
   expect(apiSourceDataset.sourceStudyId).toEqual(
     testSourceDataset.sourceStudyId
   );
   expect(apiSourceDataset.suspensionType).toEqual(
-    testSourceDataset.suspensionType ?? []
+    testFile.datasetInfo?.suspensionType ?? []
   );
-  expect(apiSourceDataset.tissue).toEqual(testSourceDataset.tissue ?? []);
-  expect(apiSourceDataset.title).toEqual(testSourceDataset.title);
+  expect(apiSourceDataset.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
+  expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title);
 }
 
 export function expectDbSourceDatasetToMatchTest(

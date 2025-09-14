@@ -6,6 +6,8 @@ import {
   FILE_TYPE,
   GoogleSheetInfo,
   HCAAtlasTrackerDBEntrySheetValidation,
+  HCAAtlasTrackerDBFileDatasetInfo,
+  HCAAtlasTrackerDBFileValidationInfo,
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   IntegrationLead,
   INTEGRITY_STATUS,
@@ -98,6 +100,7 @@ export interface TestSourceDataset {
 export interface TestFile {
   atlas: TestAtlas | (() => TestAtlas);
   bucket: string;
+  datasetInfo?: HCAAtlasTrackerDBFileDatasetInfo | null;
   etag: string;
   eventName?: string;
   eventTime: string;
@@ -113,6 +116,7 @@ export interface TestFile {
   sizeBytes: string;
   sourceStudyId?: string | null;
   status?: FILE_STATUS;
+  validationInfo?: HCAAtlasTrackerDBFileValidationInfo | null;
   versionId: string | null;
 }
 
