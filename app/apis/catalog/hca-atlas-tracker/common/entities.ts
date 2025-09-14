@@ -398,7 +398,7 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
   HCAAtlasTrackerDBSourceDataset,
   null
 > &
-  Pick<HCAAtlasTrackerDBFile, "key" | "size_bytes">;
+  Pick<HCAAtlasTrackerDBFile, "key" | "size_bytes" | "dataset_info">;
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;

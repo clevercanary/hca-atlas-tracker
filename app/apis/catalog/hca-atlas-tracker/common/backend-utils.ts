@@ -150,13 +150,13 @@ export function dbSourceDatasetToApiSourceDataset(
       ? ""
       : getDbEntityCitation(dbSourceDataset);
   return {
-    assay: dbSourceDataset.sd_info.assay,
-    cellCount: dbSourceDataset.sd_info.cellCount,
+    assay: dbSourceDataset.dataset_info?.assay ?? [],
+    cellCount: dbSourceDataset.dataset_info?.cellCount ?? 0,
     cellxgeneDatasetId: dbSourceDataset.sd_info.cellxgeneDatasetId,
     cellxgeneDatasetVersion: dbSourceDataset.sd_info.cellxgeneDatasetVersion,
     cellxgeneExplorerUrl: dbSourceDataset.sd_info.cellxgeneExplorerUrl,
     createdAt: dbSourceDataset.created_at.toISOString(),
-    disease: dbSourceDataset.sd_info.disease,
+    disease: dbSourceDataset.dataset_info?.disease ?? [],
     doi: dbSourceDataset.doi,
     fileName: parseS3KeyPath(dbSourceDataset.key).filename,
     id: dbSourceDataset.id,
@@ -169,11 +169,11 @@ export function dbSourceDatasetToApiSourceDataset(
       studyInfo?.publication?.title ??
       studyInfo?.unpublishedInfo?.title ??
       null,
-    suspensionType: dbSourceDataset.sd_info.suspensionType,
+    suspensionType: dbSourceDataset.dataset_info?.suspensionType ?? [],
     tierOneMetadataStatus:
       getDbSourceDatasetTierOneMetadataStatus(dbSourceDataset),
-    tissue: dbSourceDataset.sd_info.tissue,
-    title: dbSourceDataset.sd_info.title,
+    tissue: dbSourceDataset.dataset_info?.tissue ?? [],
+    title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
     validationStatus: INTEGRITY_STATUS.PENDING,
   };

@@ -42,7 +42,7 @@ export async function getSourceStudyDatasets(
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
     `
-      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      SELECT d.*, f.key, f.size_bytes, f.dataset_info, s.doi, s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       JOIN hat.source_studies s ON d.source_study_id = s.id
@@ -68,7 +68,7 @@ export async function getAtlasDatasets(
   const sourceDatasetIds = atlasResult.rows[0].source_datasets;
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
     `
-      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      SELECT d.*, f.key, f.size_bytes, f.dataset_info, s.doi, s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
@@ -102,7 +102,7 @@ export async function getComponentAtlasDatasets(
   const sourceDatasetIds = componentAtlasResult.rows[0].source_datasets;
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
     `
-      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      SELECT d.*, f.key, f.size_bytes, f.dataset_info, s.doi, s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
@@ -135,7 +135,7 @@ export async function getSourceDataset(
   );
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
     `
-      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      SELECT d.*, f.key, f.size_bytes, f.dataset_info, s.doi, s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       JOIN hat.source_studies s ON d.source_study_id = s.id
@@ -164,7 +164,7 @@ export async function getAtlasSourceDataset(
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
     `
-      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      SELECT d.*, f.key, f.size_bytes, f.dataset_info, s.doi, s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
@@ -205,7 +205,7 @@ export async function getComponentAtlasSourceDataset(
     );
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
     `
-      SELECT d.*, f.key, f.size_bytes, s.doi, s.study_info
+      SELECT d.*, f.key, f.size_bytes, f.dataset_info, s.doi, s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
