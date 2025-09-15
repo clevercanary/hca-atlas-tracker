@@ -292,7 +292,7 @@ export interface HCAAtlasTrackerDBComponentAtlasInfo {
 
 export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
   HCAAtlasTrackerDBFile,
-  "id" | "integrity_status" | "key" | "size_bytes" | "status"
+  "dataset_info" | "id" | "integrity_status" | "key" | "size_bytes" | "status"
 > &
   Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">;
 
