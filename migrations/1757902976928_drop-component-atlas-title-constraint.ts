@@ -8,7 +8,7 @@ export function up(pgm: MigrationBuilder): void {
 }
 
 export function down(pgm: MigrationBuilder): void {
-  // Add placeholder constraint so that duplicate titles won't cause issues but migrating migrating back up is still possible
+  // Add placeholder constraint so that duplicate titles won't cause issues but migrating back up is still possible
   pgm.addConstraint(
     { name: "component_atlases", schema: "hat" },
     "unique_component_atlases_title_atlas_id",
