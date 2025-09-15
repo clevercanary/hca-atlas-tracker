@@ -19,6 +19,7 @@
     "dump-schema": "pg_dump --schema-only --schema=hat --no-owner --no-privileges atlas-tracker > schema.sql"
   },
   "dependencies": {
+    "@aws-sdk/client-batch": "^3.888.0",
     "@aws-sdk/client-s3": "^3.883.0",
     "@databiosphere/findable-ui": "^41.2.0",
     "@emotion/react": "^11.13.3",
