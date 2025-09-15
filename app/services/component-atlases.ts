@@ -24,6 +24,7 @@ export async function getAtlasComponentAtlases(
   >(
     `
         SELECT
+          f.dataset_info,
           f.id,
           f.integrity_status,
           f.key,
@@ -53,6 +54,7 @@ export async function getComponentAtlas(
   >(
     `
       SELECT
+        f.dataset_info,
         f.id,
         f.integrity_status,
         f.key,
