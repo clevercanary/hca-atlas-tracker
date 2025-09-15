@@ -9,7 +9,6 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFileValidationInfo,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
   HCAAtlasTrackerDBSourceDataset,
@@ -577,13 +576,26 @@ export function expectApiComponentAtlasToMatchTest(
   apiComponentAtlas: HCAAtlasTrackerComponentAtlas,
   testComponentAtlas: TestComponentAtlas
 ): void {
-  if (testComponentAtlas.file) {
-    const testFile = fillTestFileDefaults(testComponentAtlas.file);
-    expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
-    expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
-    expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
-    expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
-  }
+  if (!expectIsDefined(testComponentAtlas.file)) return;
+  const testFile = fillTestFileDefaults(testComponentAtlas.file);
+
+  expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
+  expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
+  expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
+  expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
+  expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
+  expect(apiComponentAtlas.cellCount).toEqual(
+    testFile.datasetInfo?.cellCount ?? 0
+  );
+  expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
+  expect(apiComponentAtlas.disease).toEqual(
+    testFile.datasetInfo?.disease ?? []
+  );
+  expect(apiComponentAtlas.suspensionType).toEqual(
+    testFile.datasetInfo?.suspensionType ?? []
+  );
+  expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
+
   // TODO: check for test component atlas fields once they're included
 }
 
@@ -598,38 +610,6 @@ export function expectAtlasDatasetsToHaveDifference(
   );
   for (const { id } of sourceDatasets) {
     expect(atlasWithout.source_datasets).not.toContain(id);
-  }
-}
-
-export function expectComponentAtlasDatasetsToHaveDifference(
-  componentAtlasWithout: HCAAtlasTrackerDBComponentAtlas,
-  componentAtlasWith: HCAAtlasTrackerDBComponentAtlas,
-  sourceDatasets: TestSourceDataset[]
-): void {
-  const infoWithout = componentAtlasWithout.component_info;
-  const infoWith = componentAtlasWith.component_info;
-  const expectedCellCountDiff = sourceDatasets.reduce(
-    (sum, d) => sum + (d.cellCount ?? 0),
-    0
-  );
-  expect(infoWith.cellCount - infoWithout.cellCount).toEqual(
-    expectedCellCountDiff
-  );
-  expectArrayToContainItems(infoWith.assay, infoWithout.assay);
-  expectArrayToContainItems(infoWith.disease, infoWithout.disease);
-  expectArrayToContainItems(
-    infoWith.suspensionType,
-    infoWithout.suspensionType
-  );
-  expectArrayToContainItems(infoWith.tissue, infoWithout.tissue);
-  for (const sourceDataset of sourceDatasets) {
-    expectArrayToContainItems(infoWith.assay, sourceDataset.assay ?? []);
-    expectArrayToContainItems(infoWith.disease, sourceDataset.disease ?? []);
-    expectArrayToContainItems(
-      infoWith.suspensionType,
-      sourceDataset.suspensionType ?? []
-    );
-    expectArrayToContainItems(infoWith.tissue, sourceDataset.tissue ?? []);
   }
 }
 

@@ -2553,7 +2553,7 @@ export const COMPONENT_ATLAS_DRAFT_FOO = {
     SOURCE_DATASET_FOOBAR,
     SOURCE_DATASET_FOOBAZ,
   ],
-  title: "Component Atlas Draft Foo",
+  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_DRAFT_BAR = {
@@ -2562,11 +2562,21 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
   file: {
     atlas: ATLAS_DRAFT,
     bucket: "bucket-draft-bar",
+    datasetInfo: {
+      assay: ["assay draft bar"],
+      cellCount: 453453,
+      disease: ["disease draft bar"],
+      suspensionType: ["suspension type draft bar"],
+      tissue: ["tissue draft bar"],
+      title: "Component Atlas Draft Bar",
+    },
     etag: "7c9f11808c685db39f54b8679b3fbcb2",
     eventTime: "2025-08-22T05:46:12.567Z",
     fileName: "component-atlas-draft-bar.h5ad",
     fileType: FILE_TYPE.INTEGRATED_OBJECT,
     id: "3efde726-402f-563d-c092-e1235694d08f",
+    integrityCheckedAt: "2025-09-15T01:09:19.036Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1987456",
     versionId: null,
   },
@@ -2575,7 +2585,7 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
     SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   ],
-  title: "Component Atlas Draft Bar",
+  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_FOO = {
@@ -2584,11 +2594,21 @@ export const COMPONENT_ATLAS_MISC_FOO = {
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-misc-foo",
+    datasetInfo: {
+      assay: ["assay misc foo"],
+      cellCount: 534534,
+      disease: ["disease misc foo"],
+      suspensionType: ["suspension type misc foo"],
+      tissue: ["tissue misc foo"],
+      title: "Component Atlas Misc Foo",
+    },
     etag: "8d0a22919d796ec40a65c9780c4acdbe",
     eventTime: "2025-08-22T05:46:35.891Z",
     fileName: "component-atlas-misc-foo.h5ad",
     fileType: FILE_TYPE.INTEGRATED_OBJECT,
     id: "4faef837-513a-674e-d103-f2346705e19b",
+    integrityCheckedAt: "2025-09-15T01:11:04.489Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "3456789",
     versionId: null,
   },
@@ -2599,7 +2619,7 @@ export const COMPONENT_ATLAS_MISC_FOO = {
     SOURCE_DATASET_OTHER_FOO,
     SOURCE_DATASET_OTHER_BAR,
   ],
-  title: "Component Atlas Misc Foo",
+  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
@@ -2608,11 +2628,21 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
   file: {
     atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
     bucket: "bucket-cellxgene-datasets",
+    datasetInfo: {
+      assay: ["assay with cellxgene datasets"],
+      cellCount: 90898,
+      disease: ["disease with cellxgene datasets"],
+      suspensionType: ["suspension type with cellxgene datasets"],
+      tissue: ["tissue with cellxgene datasets"],
+      title: "Component Atlas Misc Foo",
+    },
     etag: "9e1b33020e807fd51b76d0891d5bdef4",
     eventTime: "2025-08-22T05:46:58.234Z",
     fileName: "component-atlas-with-cellxgene-datasets.h5ad",
     fileType: FILE_TYPE.INTEGRATED_OBJECT,
     id: "5abfa948-624b-785f-e214-a3457816f20c",
+    integrityCheckedAt: "2025-09-15T01:46:37.534Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "2789123",
     versionId: null,
   },
@@ -2622,7 +2652,7 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
     SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   ],
-  title: "Component Atlas Misc Foo",
+  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
@@ -2631,17 +2661,27 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
   file: {
     atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
     bucket: "bucket-entry-sheet-validations-foo",
+    datasetInfo: {
+      assay: ["assay with entry sheet validations foo"],
+      cellCount: 45345,
+      disease: ["disease with entry sheet validations foo"],
+      suspensionType: ["suspension type with entry sheet validations foo"],
+      tissue: ["tissue with entry sheet validations foo"],
+      title: "Component Atlas With Entry Sheet Validations Foo",
+    },
     etag: "0f2c44131f918ae62c87e1902e6cafe5",
     eventTime: "2025-08-22T05:47:21.456Z",
     fileName: "component-atlas-with-entry-sheet-validations-foo.h5ad",
     fileType: FILE_TYPE.INTEGRATED_OBJECT,
     id: "6bcac059-735c-896a-f325-b4568927a31d",
+    integrityCheckedAt: "2025-09-15T01:49:12.588Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1654321",
     versionId: null,
   },
   id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
   sourceDatasets: [],
-  title: "Component Atlas With Entry Sheet Validations Foo",
+  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
@@ -2650,17 +2690,27 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   file: {
     atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
     bucket: "bucket-entry-sheet-validations-bar",
+    datasetInfo: {
+      assay: ["assay with entry sheet validations bar"],
+      cellCount: 29348,
+      disease: ["disease with entry sheet validations bar"],
+      suspensionType: ["suspension type with entry sheet validations bar"],
+      tissue: ["tissue with entry sheet validations bar"],
+      title: "Component Atlas With Entry Sheet Validations Bar",
+    },
     etag: "1a3d55242a029bf73d98f2013f7dbab6",
     eventTime: "2025-08-22T05:47:44.789Z",
     fileName: "component-atlas-with-entry-sheet-validations-bar.h5ad",
     fileType: FILE_TYPE.INTEGRATED_OBJECT,
     id: "7cdbd160-846d-907b-a436-c5679038b42e",
+    integrityCheckedAt: "2025-09-15T02:40:50.214Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "2123456",
     versionId: null,
   },
   id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
   sourceDatasets: [],
-  title: "Component Atlas With Entry Sheet Validations Bar",
+  title: "",
 } satisfies TestComponentAtlas;
 
 // Component atlases to initialize in the database before tests

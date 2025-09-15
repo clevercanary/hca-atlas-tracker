@@ -7,6 +7,7 @@ import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atla
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -160,7 +161,7 @@ describe(TEST_ROUTE, () => {
     );
   }
 
-  it("returns component atlas from draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+  it("returns component atlas without metadata when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
       COMPONENT_ATLAS_DRAFT_FOO.file.id,
@@ -172,6 +173,32 @@ describe(TEST_ROUTE, () => {
       componentAtlas,
       COMPONENT_ATLAS_DRAFT_FOO
     );
+    expect(componentAtlas.title).toEqual("");
+    expect(componentAtlas.cellCount).toEqual(0);
+    expect(componentAtlas.assay).toEqual([]);
+    expect(componentAtlas.disease).toEqual([]);
+    expect(componentAtlas.suspensionType).toEqual([]);
+    expect(componentAtlas.tissue).toEqual([]);
+  });
+
+  it("returns component atlas with metadata when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_BAR.file.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
+    expectApiComponentAtlasToMatchTest(
+      componentAtlas,
+      COMPONENT_ATLAS_DRAFT_BAR
+    );
+    expect(componentAtlas.title).not.toEqual("");
+    expect(componentAtlas.cellCount).not.toEqual(0);
+    expect(componentAtlas.assay).not.toEqual([]);
+    expect(componentAtlas.disease).not.toEqual([]);
+    expect(componentAtlas.suspensionType).not.toEqual([]);
+    expect(componentAtlas.tissue).not.toEqual([]);
   });
 });
 
