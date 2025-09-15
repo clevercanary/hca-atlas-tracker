@@ -85,7 +85,8 @@ export async function submitDatasetValidationJob(
     })
   );
 
-  const jobId = resp.jobId ?? resp.jobId ?? "";
+  const jobId = resp.jobId;
+
   if (!jobId) {
     throw new Error("AWS Batch SubmitJob returned no jobId");
   }
