@@ -2634,7 +2634,7 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
       disease: ["disease with cellxgene datasets"],
       suspensionType: ["suspension type with cellxgene datasets"],
       tissue: ["tissue with cellxgene datasets"],
-      title: "Component Atlas Misc Foo",
+      title: "Component Atlas With CELLxGENE Datasets",
     },
     etag: "9e1b33020e807fd51b76d0891d5bdef4",
     eventTime: "2025-08-22T05:46:58.234Z",
