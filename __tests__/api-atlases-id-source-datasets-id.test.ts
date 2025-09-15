@@ -12,6 +12,7 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
@@ -164,7 +165,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     );
   }
 
-  it("returns source dataset when requested by logged in user with CONTENT_ADMIN role", async () => {
+  it("returns source dataset with metadata when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
@@ -177,6 +178,33 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       sourceDataset,
       SOURCE_DATASET_ATLAS_LINKED_A_FOO
     );
+    expect(sourceDataset.title).not.toEqual("");
+    expect(sourceDataset.cellCount).not.toEqual(0);
+    expect(sourceDataset.assay).not.toEqual([]);
+    expect(sourceDataset.disease).not.toEqual([]);
+    expect(sourceDataset.suspensionType).not.toEqual([]);
+    expect(sourceDataset.tissue).not.toEqual([]);
+  });
+
+  it("returns source dataset without metadata when requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR
+    );
+    expect(sourceDataset.title).toEqual("");
+    expect(sourceDataset.cellCount).toEqual(0);
+    expect(sourceDataset.assay).toEqual([]);
+    expect(sourceDataset.disease).toEqual([]);
+    expect(sourceDataset.suspensionType).toEqual([]);
+    expect(sourceDataset.tissue).toEqual([]);
   });
 });
 
@@ -350,7 +378,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.metadataSpreadsheetUrl).toEqual(null);
     expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_ATLAS_LINKED_B_BAR.title
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.file.datasetInfo.title
     );
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
@@ -372,7 +400,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       A_FOO_EDIT_DATA.metadataSpreadsheetUrl
     );
     expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_ATLAS_LINKED_A_FOO.title
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.datasetInfo.title
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);

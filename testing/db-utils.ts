@@ -204,6 +204,7 @@ async function initTestFile(
 ): Promise<void> {
   const {
     bucket,
+    datasetInfo,
     etag,
     eventName,
     eventTime,
@@ -218,6 +219,7 @@ async function initTestFile(
     sha256Server,
     sizeBytes,
     status,
+    validationInfo,
     versionId,
   } = fillTestFileDefaults(file);
   const key = getTestFileKey(file, atlas);
@@ -227,8 +229,8 @@ async function initTestFile(
   };
   await client.query(
     `
-      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id, dataset_info, validation_info)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
     `,
     [
       id,
@@ -249,6 +251,8 @@ async function initTestFile(
       sourceDatasetId,
       componentAtlasId,
       `test-sns-message-${id}`, // Generate unique SNS message ID for test data
+      JSON.stringify(datasetInfo),
+      JSON.stringify(validationInfo),
     ]
   );
 }
