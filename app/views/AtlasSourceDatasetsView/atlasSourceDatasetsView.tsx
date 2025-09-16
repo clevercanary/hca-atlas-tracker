@@ -6,11 +6,11 @@ import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils"
 import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
-import { ViewAtlasSourceDatasets } from "../../components/Detail/components/ViewAtlasSourceDatasets/viewAtlasSourceDatasets";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { getBreadcrumbs } from "./common/utils";
+import { ViewAtlasSourceDatasets } from "./components/ViewAtlasSourceDatasets/viewAtlasSourceDatasets";
 import { useFetchAtlasSourceDatasets } from "./hooks/useFetchAtlasSourceDatasets";
 
 interface AtlasSourceDatasetsViewProps {

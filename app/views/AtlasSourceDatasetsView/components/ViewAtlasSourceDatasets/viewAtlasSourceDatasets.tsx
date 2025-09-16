@@ -4,11 +4,11 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerSourceDataset,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { sortLinkedSourceDataset } from "../../../../components/Detail/common/utils";
+import { StyledFluidPaper } from "../../../../components/Table/components/TablePaper/tablePaper.styles";
+import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
-import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { sortLinkedSourceDataset } from "../../common/utils";
 import { Alert } from "./components/Alert/alert";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
