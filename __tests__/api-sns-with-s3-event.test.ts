@@ -1469,7 +1469,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(mockSubmitJob).not.toHaveBeenCalled();
   });
 
-  it("does not call the dataset validator for a duplicate message", async () => {
+  it("does not start a validation job for a duplicate message", async () => {
     mockSubmitJob.mockClear();
 
     const s3Event = createS3Event({
@@ -1519,6 +1519,79 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       await snsHandler(req2, res2);
     });
     expect(res2.statusCode).toBe(200);
+
+    // Check that the dataset validator has still only been called once
+    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not start a validation job when older version arrives after newer version", async () => {
+    mockSubmitJob.mockClear();
+
+    // Process newer version first
+    const s3EventV2 = createS3Event({
+      etag: "ooo-foo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      eventTime: TEST_TIMESTAMP_PLUS_1H,
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 2048000,
+      versionId: "ooo-foo-version-2",
+    });
+
+    const snsMessageV2 = createSNSMessage({
+      messageId: "out-of-order-foo-v2",
+      s3Event: s3EventV2,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    const { req: reqNewer, res: resNewer } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV2,
+      method: METHOD.POST,
+    });
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(reqNewer, resNewer);
+    });
+    expect(resNewer.statusCode).toBe(200);
+
+    // Check that the dataset validator was called for the initial request
+    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
+    expect(mockSubmitJob).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      })
+    );
+
+    // Now process an older version afterwards (out-of-order arrival)
+    const s3EventV1 = createS3Event({
+      etag: "ooo-foo-version1-etag-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      eventTime: TEST_TIMESTAMP, // earlier than V2
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 1024000,
+      versionId: "ooo-foo-version-1",
+    });
+
+    const snsMessageV1 = createSNSMessage({
+      messageId: "out-of-order-foo-v1",
+      s3Event: s3EventV1,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req: reqOlder, res: resOlder } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV1,
+      method: METHOD.POST,
+    });
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(reqOlder, resOlder);
+    });
+    expect(resOlder.statusCode).toBe(200);
 
     // Check that the dataset validator has still only been called once
     expect(mockSubmitJob).toHaveBeenCalledTimes(1);

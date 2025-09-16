@@ -477,9 +477,10 @@ export async function saveFileRecord(
     // CASE 2 & 3: Success - log the operation type for monitoring
     logFileOperation(result.operation, bucket, object, isNewFile);
 
-    // Start validation job if a new record of the appropriate type was created
+    // Start validation job if a new latest record of the appropriate type was created
     if (
       result.operation === "inserted" &&
+      isLatestForInsert &&
       (fileType === FILE_TYPE.INTEGRATED_OBJECT ||
         fileType === FILE_TYPE.SOURCE_DATASET)
     ) {
