@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.31.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.30.0...v1.31.0) (2025-09-16)
+
+
+### Features
+
+* handle validation result sns messages ([#803](https://github.com/clevercanary/hca-atlas-tracker/issues/803)) ([#830](https://github.com/clevercanary/hca-atlas-tracker/issues/830)) ([d0f79fd](https://github.com/clevercanary/hca-atlas-tracker/commit/d0f79fd49c20b74de43dd31b28c23db4c94e13b6))
+* use dataset info from files for source dataset api responses ([#832](https://github.com/clevercanary/hca-atlas-tracker/issues/832)) ([#836](https://github.com/clevercanary/hca-atlas-tracker/issues/836)) ([c0a510b](https://github.com/clevercanary/hca-atlas-tracker/commit/c0a510bc362cd2f93dcd3cbaef06150c615378f0))
+* use metadata from files in component atlas api responses ([#837](https://github.com/clevercanary/hca-atlas-tracker/issues/837)) ([#841](https://github.com/clevercanary/hca-atlas-tracker/issues/841)) ([6d4e3fa](https://github.com/clevercanary/hca-atlas-tracker/commit/6d4e3fa6b1feef948b81df58af9686834f834e47))
+
+
+### Bug Fixes
+
+* use latest file version where unspecified for source dataset and integrated object apis ([#840](https://github.com/clevercanary/hca-atlas-tracker/issues/840)) ([#844](https://github.com/clevercanary/hca-atlas-tracker/issues/844)) ([ff09c8d](https://github.com/clevercanary/hca-atlas-tracker/commit/ff09c8d5c1193f60df7c1303f266aeaebddea212))
+
+
+### Chores
+
+* **batch:** add validator batch submit service and tests ([#834](https://github.com/clevercanary/hca-atlas-tracker/issues/834)) ([#838](https://github.com/clevercanary/hca-atlas-tracker/issues/838)) ([1e2652e](https://github.com/clevercanary/hca-atlas-tracker/commit/1e2652eda053a52b79bad5eff7feb0044c28a7e9))
+
 ## [1.30.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.29.0...v1.30.0) (2025-09-11)
 
 
