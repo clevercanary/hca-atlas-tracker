@@ -1,4 +1,5 @@
 import {
+  FILE_TYPE,
   Network,
   NetworkKey,
   ROLE,
@@ -191,3 +192,8 @@ export const CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES = new Set([
 ]);
 
 export const UNPUBLISHED = "Unpublished";
+
+export const VALID_FILE_TYPES_FOR_VALIDATION = [
+  FILE_TYPE.INTEGRATED_OBJECT,
+  FILE_TYPE.SOURCE_DATASET,
+];

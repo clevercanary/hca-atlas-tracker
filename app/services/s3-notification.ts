@@ -6,6 +6,7 @@ import {
   S3Object,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
+import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_STATUS,
   FILE_TYPE,
@@ -481,8 +482,7 @@ export async function saveFileRecord(
     if (
       result.operation === "inserted" &&
       isLatestForInsert &&
-      (fileType === FILE_TYPE.INTEGRATED_OBJECT ||
-        fileType === FILE_TYPE.SOURCE_DATASET)
+      VALID_FILE_TYPES_FOR_VALIDATION.includes(fileType)
     ) {
       const { jobId } = await submitDatasetValidationJob({
         fileId: result.id,
