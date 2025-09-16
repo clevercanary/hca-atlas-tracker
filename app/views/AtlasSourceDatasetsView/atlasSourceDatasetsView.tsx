@@ -1,16 +1,21 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { useFetchAtlas } from "app/hooks/useFetchAtlas";
 import { Fragment } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
+import { AccessDeniedPrompt } from "../../components/common/Form/components/FormManager/components/AccessDeniedPrompt/accessDeniedPrompt";
+import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
+import { EntityView } from "../../components/Entity/components/EntityView/entityView";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { useFetchAtlas } from "../../hooks/useFetchAtlas";
+import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
+import { EntityProvider } from "../../providers/entity/provider";
+import { VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
-import { ViewAtlasSourceDatasets } from "./components/ViewAtlasSourceDatasets/viewAtlasSourceDatasets";
 import { useFetchAtlasSourceDatasets } from "./hooks/useFetchAtlasSourceDatasets";
 
 interface AtlasSourceDatasetsViewProps {
@@ -27,26 +32,47 @@ export const AtlasSourceDatasetsView = ({
   } = formManager;
   const { atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
+
   if (isLoading) return <Fragment />;
+
   return (
-    <ConditionalComponent
-      isIn={shouldRenderView(canView, Boolean(atlas && atlasSourceDatasets))}
+    <EntityProvider
+      data={{ atlas, atlasSourceDatasets }}
+      formManager={formManager}
+      pathParameter={pathParameter}
     >
-      <DetailView
-        breadcrumbs={
-          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
-        }
-        mainColumn={
-          <ViewAtlasSourceDatasets
-            formManager={formManager}
-            atlas={atlas}
-            atlasSourceDatasets={atlasSourceDatasets}
-          />
-        }
-        status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
-        tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
-        title={atlas ? getAtlasName(atlas) : "View Source Datasets"}
-      />
-    </ConditionalComponent>
+      <ConditionalComponent
+        isIn={shouldRenderView(canView, Boolean(atlas && atlasSourceDatasets))}
+      >
+        <DetailView
+          breadcrumbs={
+            <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+          }
+          mainColumn={
+            <EntityView
+              accessFallback={renderAccessFallback(formManager)}
+              sectionConfigs={VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS}
+            />
+          }
+          status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
+          tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
+          title={atlas ? getAtlasName(atlas) : "View Source Datasets"}
+        />
+      </ConditionalComponent>
+    </EntityProvider>
   );
 };
+
+/**
+ * Returns the access fallback component from the form manager access state.
+ * @param formManager - Form manager.
+ * @returns access fallback component.
+ */
+function renderAccessFallback(formManager: FormManager): JSX.Element | null {
+  const {
+    access: { canEdit, canView },
+  } = formManager;
+  if (!canView) return <AccessPrompt text="to view the source datasets" />;
+  if (!canEdit) return <AccessDeniedPrompt />;
+  return null;
+}
