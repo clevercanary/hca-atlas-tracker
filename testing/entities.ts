@@ -52,7 +52,7 @@ export interface TestAtlas {
 export interface TestComponentAtlas {
   atlasId: string;
   description: string;
-  file?: TestFile;
+  file?: TestFile | TestFile[];
   id: string;
   sourceDatasets?: TestSourceDataset[];
   title: string;
@@ -87,11 +87,11 @@ export interface TestSourceDataset {
   cellxgeneDatasetId?: string;
   cellxgeneDatasetVersion?: string;
   disease?: string[];
-  file?: TestFile;
+  file?: TestFile | TestFile[];
   id: string;
   metadataSpreadsheetTitle?: string;
   metadataSpreadsheetUrl?: string;
-  sourceStudyId: string;
+  sourceStudyId?: string;
   suspensionType?: string[];
   tissue?: string[];
   title: string;
@@ -119,6 +119,10 @@ export interface TestFile {
   validationInfo?: HCAAtlasTrackerDBFileValidationInfo | null;
   versionId: string | null;
 }
+
+export type NormalizedTestFile = Required<TestFile> & {
+  resolvedAtlas: TestAtlas;
+};
 
 export type TestEntrySheetValidation = HCAAtlasTrackerDBEntrySheetValidation;
 

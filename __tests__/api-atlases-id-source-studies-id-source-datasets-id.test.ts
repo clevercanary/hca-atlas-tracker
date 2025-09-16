@@ -13,13 +13,17 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-studies/
 import {
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -206,6 +210,24 @@ describe(TEST_ROUTE, () => {
     expectApiSourceDatasetToMatchTest(
       sourceDataset,
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE
+    );
+  });
+
+  it("returns data from latest file version", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES
+    );
+    expect(sourceDataset.sizeBytes).toEqual(
+      Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
     );
   });
 
@@ -671,7 +693,7 @@ async function expectSourceDatasetToBeUnchanged(
   expect(sourceDatasetFromDb).toBeDefined();
   if (!sourceDatasetFromDb) return;
   expect(sourceDatasetFromDb.source_study_id).toEqual(
-    sourceDataset.sourceStudyId
+    sourceDataset.sourceStudyId ?? null
   );
   expect(sourceDatasetFromDb.sd_info.title).toEqual(sourceDataset.title);
 }

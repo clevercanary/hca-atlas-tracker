@@ -6,10 +6,20 @@ import { endPgPool } from "../app/services/database";
 import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_ATLAS_LINKED_A_BAR,
+  SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_BAR,
+  SOURCE_DATASET_BAZ,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_FOOBAR,
+  SOURCE_DATASET_FOOBAZ,
+  SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -20,6 +30,7 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
   expectApiSourceDatasetsToMatchTest,
+  expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -115,10 +126,13 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const sourceDatasets =
           res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-        expect(sourceDatasets).toHaveLength(8);
         expectApiSourceDatasetsToMatchTest(sourceDatasets, [
           SOURCE_DATASET_FOO,
           SOURCE_DATASET_BAR,
+          SOURCE_DATASET_BAZ,
+          SOURCE_DATASET_FOOFOO,
+          SOURCE_DATASET_FOOBAR,
+          SOURCE_DATASET_FOOBAZ,
           SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
           SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
         ]);
@@ -134,13 +148,38 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
-    expect(sourceDatasets).toHaveLength(8);
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
       SOURCE_DATASET_FOO,
       SOURCE_DATASET_BAR,
+      SOURCE_DATASET_BAZ,
+      SOURCE_DATASET_FOOFOO,
+      SOURCE_DATASET_FOOBAR,
+      SOURCE_DATASET_FOOBAZ,
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
       SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
     ]);
+  });
+
+  it("returns source datasets for latest file versions only", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES,
+    ]);
+    const datasetWithMultipleFiles = sourceDatasets.find(
+      (d) => d.id === SOURCE_DATASET_WITH_MULTIPLE_FILES.id
+    );
+    if (!expectIsDefined(datasetWithMultipleFiles)) return;
+    expect(datasetWithMultipleFiles.sizeBytes).toEqual(
+      Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
+    );
   });
 });
 

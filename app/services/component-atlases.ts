@@ -32,7 +32,7 @@ export async function getAtlasComponentAtlases(
           f.status
         FROM hat.files f
         JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-        WHERE f.file_type='integrated_object' AND ca.atlas_id=$1
+        WHERE f.is_latest AND f.file_type='integrated_object' AND ca.atlas_id=$1
       `,
     [atlasId]
   );

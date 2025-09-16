@@ -13,8 +13,11 @@ import { endPgPool } from "../app/services/database";
 import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
 import {
   ATLAS_DRAFT,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -28,6 +31,8 @@ import {
 import { TestComponentAtlas, TestUser } from "../testing/entities";
 import {
   expectApiComponentAtlasToMatchTest,
+  expectIsDefined,
+  getLatestFileForTestEntity,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -111,7 +116,6 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const componentAtlases =
           res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-        expect(componentAtlases).toHaveLength(2);
         expectComponentAtlasesToMatch(componentAtlases, [
           COMPONENT_ATLAS_DRAFT_FOO,
           COMPONENT_ATLAS_DRAFT_BAR,
@@ -128,11 +132,28 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-    expect(componentAtlases).toHaveLength(2);
     expectComponentAtlasesToMatch(componentAtlases, [
       COMPONENT_ATLAS_DRAFT_FOO,
       COMPONENT_ATLAS_DRAFT_BAR,
     ]);
+  });
+
+  it("returns component atlas for latest file version only", async () => {
+    const res = await doComponentAtlasesRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(componentAtlases, [
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+    ]);
+    const componentAtlas = componentAtlases[0];
+    if (!expectIsDefined(componentAtlas)) return;
+    expect(componentAtlas.sizeBytes).toEqual(
+      Number(FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES.sizeBytes)
+    );
   });
 });
 
@@ -243,8 +264,9 @@ function expectComponentAtlasesToMatch(
   componentAtlases: HCAAtlasTrackerComponentAtlas[],
   expectedTestComponentAtlases: TestComponentAtlas[]
 ): void {
+  expect(componentAtlases).toHaveLength(expectedTestComponentAtlases.length);
   for (const testComponentAtlas of expectedTestComponentAtlases) {
-    const fileId = testComponentAtlas.file?.id;
+    const fileId = getLatestFileForTestEntity(testComponentAtlas).id;
     const componentAtlas = componentAtlases.find((c) => c.id === fileId);
     expect(componentAtlas).toBeDefined();
     if (!componentAtlas) continue;

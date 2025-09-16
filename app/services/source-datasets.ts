@@ -46,7 +46,7 @@ export async function getSourceStudyDatasets(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE s.id = $1`,
+      WHERE s.id = $1 AND f.is_latest`,
     [sourceStudyId]
   );
   return queryResult.rows;
@@ -72,7 +72,7 @@ export async function getAtlasDatasets(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE d.id = ANY($1)
+      WHERE d.id = ANY($1) AND f.is_latest
     `,
     [sourceDatasetIds]
   );
@@ -106,7 +106,7 @@ export async function getComponentAtlasDatasets(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE d.id = ANY($1)
+      WHERE d.id = ANY($1) AND f.is_latest
     `,
     [sourceDatasetIds]
   );
@@ -139,7 +139,7 @@ export async function getSourceDataset(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE d.id = $1 AND s.id = $2
+      WHERE d.id = $1 AND s.id = $2 AND f.is_latest
     `,
     [sourceDatasetId, sourceStudyId],
     client
@@ -168,7 +168,7 @@ export async function getAtlasSourceDataset(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE d.id = $1
+      WHERE d.id = $1 AND f.is_latest
     `,
     [sourceDatasetId],
     client
@@ -209,7 +209,7 @@ export async function getComponentAtlasSourceDataset(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE d.id = $1
+      WHERE d.id = $1 AND f.is_latest
     `,
     [sourceDatasetId]
   );
