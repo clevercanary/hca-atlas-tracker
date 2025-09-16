@@ -33,6 +33,7 @@ import {
 } from "./component-atlases";
 import { doTransaction } from "./database";
 import { createSourceDataset, resetSourceDatasetInfo } from "./source-datasets";
+import { submitDatasetValidationJob } from "./validator-batch";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -475,6 +476,16 @@ export async function saveFileRecord(
 
     // CASE 2 & 3: Success - log the operation type for monitoring
     logFileOperation(result.operation, bucket, object, isNewFile);
+
+    // Start validation job
+    const { jobId } = await submitDatasetValidationJob({
+      fileId: result.id,
+      s3Key: object.key,
+    });
+
+    console.log(
+      `Started Batch job ${jobId} to validate ${object.key} (file ${result.id})`
+    );
   });
 }
 
