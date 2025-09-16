@@ -45,6 +45,7 @@ import {
   USER_INTEGRATION_LEAD_PUBLIC,
 } from "./constants";
 import {
+  NormalizedTestFile,
   TestAtlas,
   TestComponentAtlas,
   TestFile,
@@ -223,9 +224,34 @@ export function makeTestProjectsResponse(
   };
 }
 
-export function fillTestFileDefaults(
-  file: TestFile
-): Required<TestFile> & { resolvedAtlas: TestAtlas } {
+export function getNormalizedFileForTestEntity(
+  testEntity: TestSourceDataset | TestComponentAtlas
+): NormalizedTestFile {
+  return fillTestFileDefaults(getLatestFileForTestEntity(testEntity));
+}
+
+export function getLatestFileForTestEntity(
+  testEntity: TestSourceDataset | TestComponentAtlas
+): TestFile {
+  const testFile = getTestEntityFilesArray(testEntity).find(
+    (f) => f.isLatest !== false
+  );
+  if (!testFile)
+    throw new Error(`Test entity ${testEntity.id} has no latest file`);
+  return testFile;
+}
+
+export function getTestEntityFilesArray(
+  testEntity: TestSourceDataset | TestComponentAtlas
+): TestFile[] {
+  return testEntity.file
+    ? Array.isArray(testEntity.file)
+      ? testEntity.file
+      : [testEntity.file]
+    : [];
+}
+
+export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
   const {
     atlas,
     datasetInfo = null,
@@ -506,6 +532,7 @@ export function expectApiSourceDatasetsToMatchTest(
   apiSourceDatasets: HCAAtlasTrackerSourceDataset[],
   testSourceDatasets: TestSourceDataset[]
 ): void {
+  expect(apiSourceDatasets).toHaveLength(testSourceDatasets.length);
   for (const testSourceDataset of testSourceDatasets) {
     const apiSourceDataset = apiSourceDatasets.find(
       (c) => c.id === testSourceDataset.id
@@ -520,7 +547,7 @@ export function expectApiSourceDatasetToMatchTest(
   testSourceDataset: TestSourceDataset
 ): void {
   if (!expectIsDefined(testSourceDataset.file)) return;
-  const testFile = fillTestFileDefaults(testSourceDataset.file);
+  const testFile = getNormalizedFileForTestEntity(testSourceDataset);
 
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiSourceDataset.cellCount).toEqual(
@@ -534,7 +561,7 @@ export function expectApiSourceDatasetToMatchTest(
   );
   expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
   expect(apiSourceDataset.sourceStudyId).toEqual(
-    testSourceDataset.sourceStudyId
+    testSourceDataset.sourceStudyId ?? null
   );
   expect(apiSourceDataset.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? []
@@ -561,7 +588,7 @@ export function expectDbSourceDatasetToMatchTest(
     testSourceDataset.disease ?? []
   );
   expect(dbSourceDataset.source_study_id).toEqual(
-    testSourceDataset.sourceStudyId
+    testSourceDataset.sourceStudyId ?? null
   );
   expect(dbSourceDataset.sd_info.suspensionType).toEqual(
     testSourceDataset.suspensionType ?? []
@@ -577,7 +604,7 @@ export function expectApiComponentAtlasToMatchTest(
   testComponentAtlas: TestComponentAtlas
 ): void {
   if (!expectIsDefined(testComponentAtlas.file)) return;
-  const testFile = fillTestFileDefaults(testComponentAtlas.file);
+  const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
 
   expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
   expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);

@@ -12,11 +12,13 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -205,6 +207,24 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     expect(sourceDataset.disease).toEqual([]);
     expect(sourceDataset.suspensionType).toEqual([]);
     expect(sourceDataset.tissue).toEqual([]);
+  });
+
+  it("returns data from latest of multiple file versions", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES
+    );
+    expect(sourceDataset.sizeBytes).toEqual(
+      Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
+    );
   });
 });
 

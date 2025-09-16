@@ -15,6 +15,7 @@ import {
   TestComment,
   TestComponentAtlas,
   TestEntrySheetValidation,
+  TestFile,
   TestPublishedSourceStudy,
   TestSourceDataset,
   TestUnpublishedSourceStudy,
@@ -2018,8 +2019,63 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ = {
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
+const BASE_FILE_SOURCE_DATASET_WITH_MULTIPLE_FILES = {
+  atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  bucket: "bucket-source-dataset-with-multiple-files",
+  datasetInfo: {
+    assay: ["assay with multiple files"],
+    cellCount: 6457,
+    disease: ["disease with multiple files"],
+    suspensionType: ["suspension type with multiple files"],
+    tissue: ["tissue with multiple files"],
+    title: "Source Dataset With Multiple Files",
+  },
+  fileName: "source-dataset-with-multiple-files.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  versionId: null,
+} satisfies Partial<TestFile>;
+export const FILE_A_SOURCE_DATASET_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  etag: "620667d77ed3460983851d94b9ea30c5",
+  eventTime: "2025-09-16T02:22:05.004Z",
+  id: "d27b67ec-5b2f-4211-ad69-20bd5f5d3634",
+  integrityCheckedAt: "2025-09-16T02:24:14.022Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+  isLatest: false,
+  sizeBytes: "234234",
+} satisfies TestFile;
+export const FILE_B_SOURCE_DATASET_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  etag: "b4a2018644c54214b0a5beb17fa41ee1",
+  eventTime: "2025-09-16T02:46:30.663Z",
+  id: "9b2e29f2-5864-4bee-ae8b-22cb8a101b24",
+  integrityCheckedAt: "2025-09-16T02:47:14.216Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+  isLatest: false,
+  sizeBytes: "345345",
+} satisfies TestFile;
+export const FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  etag: "a3acab069db94cbe81eb4eeaaad04df1",
+  eventTime: "2025-09-16T02:47:35.035Z",
+  id: "c42081da-f7e3-4fdb-b8c5-c02854215659",
+  integrityCheckedAt: "2025-09-16T02:48:08.838Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+  sizeBytes: "434534",
+} satisfies TestFile;
+export const SOURCE_DATASET_WITH_MULTIPLE_FILES = {
+  file: [
+    FILE_A_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+    FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+    FILE_B_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  ],
+  id: "3a4658fa-049f-4465-9a10-9f411dbcfb7c",
+  sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
-export const INITIAL_TEST_SOURCE_DATASETS = [
+export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_BAZ,
@@ -2042,6 +2098,7 @@ export const INITIAL_TEST_SOURCE_DATASETS = [
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES,
 ];
 
 // ATLAS IDS
@@ -2304,6 +2361,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   network: "eye",
   publications: [],
   shortName: "test-with-misc-source-studies-b",
+  sourceDatasets: [SOURCE_DATASET_WITH_MULTIPLE_FILES.id],
   sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
   status: ATLAS_STATUS.IN_PROGRESS,
   version: "5.3",
@@ -2713,6 +2771,61 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   title: "",
 } satisfies TestComponentAtlas;
 
+const BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  bucket: "bucket-with-multiple-files",
+  datasetInfo: {
+    assay: ["assay with multiple files"],
+    cellCount: 43453,
+    disease: ["disease with multiple files"],
+    suspensionType: ["suspension type with multiple files"],
+    tissue: ["tissue with multiple files"],
+    title: "Component Atlas With Multiple Files",
+  },
+  fileName: "component-atlas-with-multiple-files.h5ad",
+  fileType: FILE_TYPE.INTEGRATED_OBJECT,
+  sizeBytes: "59456",
+  versionId: null,
+} satisfies Partial<TestFile>;
+export const FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  etag: "ba58c1a1fbea4a1086f7a0a767364cca",
+  eventTime: "2025-09-16T02:59:48.485Z",
+  id: "7e4b60ae-2d78-47ac-8e5c-83196047a7f3",
+  integrityCheckedAt: "2025-09-16T03:00:11.886Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+  isLatest: false,
+} satisfies TestFile;
+export const FILE_B_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  etag: "55bcb2de7f144a829bfcf3aa5712d47d",
+  eventTime: "2025-09-16T03:00:35.982Z",
+  id: "f1a1496f-4a00-43cc-881b-2b5e3360cc5d",
+  integrityCheckedAt: "2025-09-16T03:00:55.834Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+  isLatest: false,
+} satisfies TestFile;
+export const FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  etag: "0e1b0a46450b475b82d095265034bfeb",
+  eventTime: "2025-09-16T03:01:23.949Z",
+  id: "69586fc2-95d3-415e-b505-9d5768feb1bb",
+  integrityCheckedAt: "2025-09-16T03:02:19.235Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+} satisfies TestFile;
+export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+  description: "",
+  file: [
+    FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+    FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+    FILE_B_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  ],
+  id: "235920d2-b08b-408a-aa1a-9a1af9a98297",
+  sourceDatasets: [],
+  title: "",
+} satisfies TestComponentAtlas;
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
@@ -2721,6 +2834,7 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
 ];
 
 // ENTRY SHEET VALIDATIONS

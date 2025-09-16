@@ -40,6 +40,7 @@ import {
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
   fillTestFileDefaults,
+  getTestEntityFilesArray,
   getTestFileKey,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
@@ -121,7 +122,7 @@ export async function initSourceDatasets(
     const info = makeTestSourceDatasetInfo(sourceDataset);
     await query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
-      [sourceDataset.sourceStudyId, info, sourceDataset.id],
+      [sourceDataset.sourceStudyId ?? null, info, sourceDataset.id],
       client
     );
   }
@@ -187,12 +188,14 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 
 async function initFiles(client: pg.PoolClient): Promise<void> {
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
-    if (componentAtlas.file)
-      await initTestFile(client, componentAtlas.file, componentAtlas.id, null);
+    for (const file of getTestEntityFilesArray(componentAtlas)) {
+      await initTestFile(client, file, componentAtlas.id, null);
+    }
   }
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
-    if (sourceDataset.file)
-      await initTestFile(client, sourceDataset.file, null, sourceDataset.id);
+    for (const file of getTestEntityFilesArray(sourceDataset)) {
+      await initTestFile(client, file, null, sourceDataset.id);
+    }
   }
 }
 
