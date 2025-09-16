@@ -49,6 +49,7 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("../app/services/validator-batch");
 
 jest.mock("next-auth");
 
@@ -63,6 +64,10 @@ jest.mock("sns-validator", () => {
     validate: jest.fn(validateTestSnsMessage),
   }));
 });
+
+const mockSubmitJob = jest.requireMock<
+  typeof import("../app/services/__mocks__/validator-batch")
+>("../app/services/validator-batch").submitDatasetValidationJob;
 
 const TEST_ROUTE = "/api/sns";
 
@@ -1267,5 +1272,255 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(JSON.parse(res._getData())).toEqual({
       message: "Expected exactly 1 S3 record, but received 2 records",
     });
+  });
+
+  it("starts a validation job after saving a new source dataset file and after saving an updated source dataset file", async () => {
+    mockSubmitJob.mockClear();
+
+    // First upload (creates source dataset and file record)
+    const firstEvent = createS3Event({
+      etag: "sd-v1-etag-11111111111111111111111111111111",
+      eventTime: TEST_TIMESTAMP, // older
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 12345,
+      versionId: "sd-version-1",
+    });
+
+    const firstMessage = createSNSMessage({
+      messageId: "sd-update-test-v1",
+      s3Event: firstEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Check that the dataset validator was called
+    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
+    expect(mockSubmitJob).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        s3Key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      })
+    );
+
+    // Second upload (update) with newer eventTime
+    const secondEvent = createS3Event({
+      etag: "sd-v2-etag-22222222222222222222222222222222",
+      eventTime: TEST_TIMESTAMP_PLUS_1H, // newer
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 23456,
+      versionId: "sd-version-2",
+    });
+
+    const secondMessage = createSNSMessage({
+      messageId: "sd-update-test-v2",
+      s3Event: secondEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Check that the dataset validator was called again
+    expect(mockSubmitJob).toHaveBeenCalledTimes(2);
+    expect(mockSubmitJob).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        s3Key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      })
+    );
+  });
+
+  it("starts a validation job after saving a new integrated object file and after saving an updated integrated object file", async () => {
+    mockSubmitJob.mockClear();
+
+    // First upload (creates source dataset and file record)
+    const firstEvent = createS3Event({
+      etag: "io-v1-etag-11111111111111111111111111111111",
+      eventTime: TEST_TIMESTAMP, // older
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 12345,
+      versionId: "io-version-1",
+    });
+
+    const firstMessage = createSNSMessage({
+      messageId: "io-update-test-v1",
+      s3Event: firstEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Check that the dataset validator was called
+    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
+    expect(mockSubmitJob).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      })
+    );
+
+    // Second upload (update) with newer eventTime
+    const secondEvent = createS3Event({
+      etag: "io-v2-etag-22222222222222222222222222222222",
+      eventTime: TEST_TIMESTAMP_PLUS_1H, // newer
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 23456,
+      versionId: "io-version-2",
+    });
+
+    const secondMessage = createSNSMessage({
+      messageId: "io-update-test-v2",
+      s3Event: secondEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Check that the dataset validator was called again
+    expect(mockSubmitJob).toHaveBeenCalledTimes(2);
+    expect(mockSubmitJob).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      })
+    );
+  });
+
+  it("does not start a validation job after saving a manifest file", async () => {
+    mockSubmitJob.mockClear();
+
+    const s3Event = createS3Event({
+      etag: "c9876543210fedcba9876543210fedcba",
+      key: TEST_FILE_PATHS.MANIFEST,
+      size: 2048,
+      versionId: "manifest-version-789",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "manifest-test-message",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Check that the dataset validator was not called
+    expect(mockSubmitJob).not.toHaveBeenCalled();
+  });
+
+  it("does not call the dataset validator for a duplicate message", async () => {
+    mockSubmitJob.mockClear();
+
+    const s3Event = createS3Event({
+      etag: "e1234567890abcdef1234567890abcdef",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE,
+      size: 2048000,
+      versionId: "abc123def456ghi789jkl012mno345pqr",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "duplicate-test-message",
+      s3Event,
+    });
+
+    const { req: req1, res: res1 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessage,
+      method: METHOD.POST,
+    });
+
+    // First request
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req1, res1);
+    });
+    expect(res1.statusCode).toBe(200);
+
+    // Check that the dataset validator was called for the initial request
+    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
+    expect(mockSubmitJob).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        s3Key: TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE,
+      })
+    );
+
+    const { req: req2, res: res2 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessage,
+      method: METHOD.POST,
+    });
+
+    // Second request with same data
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req2, res2);
+    });
+    expect(res2.statusCode).toBe(200);
+
+    // Check that the dataset validator has still only been called once
+    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
   });
 });

@@ -573,6 +573,12 @@ export async function getStudySourceDatasets(
   ).rows;
 }
 
+export async function getAllFileIdsFromDatabase(): Promise<string[]> {
+  return (
+    await query<Pick<HCAAtlasTrackerDBFile, "id">>("SELECT id FROM hat.files")
+  ).rows.map(({ id }) => id);
+}
+
 export async function getFileFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBFile | undefined> {
