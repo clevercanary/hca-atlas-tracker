@@ -1936,6 +1936,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_BAR = {
     versionId: null,
   },
   id: "41e20a89-48c4-4fd6-85b1-6f6a02f03b35",
+  reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;

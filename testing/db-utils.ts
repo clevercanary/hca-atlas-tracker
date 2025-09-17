@@ -471,6 +471,17 @@ export async function getSourceStudyFromDatabase(
   ).rows[0];
 }
 
+export async function getAtlasSourceDatasetsFromDatabase(
+  atlasId: string
+): Promise<HCAAtlasTrackerDBSourceDataset[]> {
+  return (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT d.* FROM hat.source_datasets d JOIN hat.atlases a ON d.id=ANY(a.source_datasets) WHERE a.id=$1",
+      [atlasId]
+    )
+  ).rows;
+}
+
 export async function getSourceDatasetFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBSourceDataset | undefined> {
