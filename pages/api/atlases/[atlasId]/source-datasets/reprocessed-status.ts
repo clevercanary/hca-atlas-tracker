@@ -10,7 +10,7 @@ import {
 } from "../../../../../app/utils/api-handler";
 
 /**
- * API route for getting an atlas's component atlases.
+ * API route for setting the reprocessed status of source datasets for a given atlas.
  */
 export default handler(
   method(METHOD.PATCH),
