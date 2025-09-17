@@ -11,7 +11,7 @@ import {
 } from "yup";
 import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
-import { ATLAS_STATUS, ROLE } from "./entities";
+import { ATLAS_STATUS, REPROCESSED_STATUS, ROLE } from "./entities";
 
 export const CAP_PROJECT_URL_REGEXP = new RegExp(
   `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+)?$`
@@ -330,6 +330,20 @@ export const atlasSourceDatasetEditSchema = object({
 
 export type AtlasSourceDatasetEditData = InferType<
   typeof atlasSourceDatasetEditSchema
+>;
+
+/**
+ * Schema for data used to set the reprocessed status of source datasets.
+ */
+export const sourceDatasetsSetReprocessedStatusSchema = object({
+  reprocessedStatus: string()
+    .required()
+    .oneOf(Object.values(REPROCESSED_STATUS)),
+  sourceDatasetIds: array(string().required()).required(),
+}).strict();
+
+export type SourceDatasetsSetReprocessedStatusData = InferType<
+  typeof sourceDatasetsSetReprocessedStatusSchema
 >;
 
 /**
