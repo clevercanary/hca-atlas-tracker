@@ -339,7 +339,7 @@ export const sourceDatasetsSetReprocessedStatusSchema = object({
   reprocessedStatus: string()
     .required()
     .oneOf(Object.values(REPROCESSED_STATUS)),
-  sourceDatasetIds: array(string().required()).required(),
+  sourceDatasetIds: array(string().required()).min(1).required(),
 }).strict();
 
 export type SourceDatasetsSetReprocessedStatusData = InferType<
