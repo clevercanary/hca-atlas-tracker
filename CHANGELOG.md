@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.32.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.31.0...v1.32.0) (2025-09-17)
+
+
+### Features
+
+* start validation job when a file is added or updated ([#839](https://github.com/clevercanary/hca-atlas-tracker/issues/839)) ([#846](https://github.com/clevercanary/hca-atlas-tracker/issues/846)) ([c25c3ac](https://github.com/clevercanary/hca-atlas-tracker/commit/c25c3acbe532e9d9d4de6b54305288bff824b62e))
+
 ## [1.31.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.30.0...v1.31.0) (2025-09-16)
 
 
