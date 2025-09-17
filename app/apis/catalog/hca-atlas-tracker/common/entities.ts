@@ -120,6 +120,7 @@ export interface HCAAtlasTrackerSourceDataset {
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationString: string;
+  reprocessedStatus: REPROCESSED_STATUS;
   sizeBytes: number;
   sourceStudyId: string | null;
   sourceStudyTitle: string | null;
