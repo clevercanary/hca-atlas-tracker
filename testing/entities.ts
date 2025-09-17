@@ -14,6 +14,7 @@ import {
   LinkInfo,
   NetworkKey,
   PublicationInfo,
+  REPROCESSED_STATUS,
   ROLE,
   Wave,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -91,6 +92,7 @@ export interface TestSourceDataset {
   id: string;
   metadataSpreadsheetTitle?: string;
   metadataSpreadsheetUrl?: string;
+  reprocessedStatus?: REPROCESSED_STATUS;
   sourceStudyId?: string;
   suspensionType?: string[];
   tissue?: string[];

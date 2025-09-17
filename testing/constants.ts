@@ -5,6 +5,7 @@ import {
   FILE_TYPE,
   INTEGRITY_STATUS,
   PublicationInfo,
+  REPROCESSED_STATUS,
   ROLE,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CellxGeneCollection } from "../app/utils/cellxgene-api";
@@ -1501,6 +1502,7 @@ export const SOURCE_DATASET_FOO = {
     versionId: null,
   },
   id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
+  reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
@@ -1916,6 +1918,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
     versionId: null,
   },
   id: "4d08641d-be55-440b-8a19-b67c965cc2bf",
+  reprocessedStatus: REPROCESSED_STATUS.REPROCESSED,
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
