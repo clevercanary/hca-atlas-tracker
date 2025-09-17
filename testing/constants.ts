@@ -2591,6 +2591,17 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
 
 // COMPONENT ATLASES
 
+export const EMPTY_COMPONENT_INFO = {
+  assay: [],
+  cellCount: 0,
+  cellxgeneDatasetId: null,
+  cellxgeneDatasetVersion: null,
+  description: "",
+  disease: [],
+  suspensionType: [],
+  tissue: [],
+};
+
 export const COMPONENT_ATLAS_DRAFT_FOO = {
   atlasId: ATLAS_DRAFT.id,
   description: "bar baz baz foo baz foo bar",

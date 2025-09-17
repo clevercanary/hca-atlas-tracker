@@ -6,6 +6,7 @@ import {
   S3Object,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
+import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_STATUS,
   FILE_TYPE,
@@ -33,6 +34,7 @@ import {
 } from "./component-atlases";
 import { doTransaction } from "./database";
 import { createSourceDataset, resetSourceDatasetInfo } from "./source-datasets";
+import { submitDatasetValidationJob } from "./validator-batch";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -475,6 +477,22 @@ export async function saveFileRecord(
 
     // CASE 2 & 3: Success - log the operation type for monitoring
     logFileOperation(result.operation, bucket, object, isNewFile);
+
+    // Start validation job if a new latest record of the appropriate type was created
+    if (
+      result.operation === "inserted" &&
+      isLatestForInsert &&
+      VALID_FILE_TYPES_FOR_VALIDATION.includes(fileType)
+    ) {
+      const { jobId } = await submitDatasetValidationJob({
+        fileId: result.id,
+        s3Key: object.key,
+      });
+
+      console.log(
+        `Started Batch job ${jobId} to validate ${object.key} (file ${result.id})`
+      );
+    }
   });
 }
 

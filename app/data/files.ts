@@ -16,6 +16,10 @@ import { getVersionVariants } from "../utils/atlases";
 
 type MetadataObjectIdField = "component_atlas_id" | "source_dataset_id";
 
+export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {
+  operation: "inserted" | "updated";
+};
+
 /**
  * Marks all previous versions of a file as no longer latest
  * @param bucket - S3 bucket name
@@ -221,7 +225,7 @@ export async function upsertFileRecord(
     versionId: string | null;
   },
   transaction: pg.PoolClient
-): Promise<{ etag: string; operation: string }> {
+): Promise<FileUpsertResult> {
   // First check if a file with same bucket/key/version already exists
   const existingETag = await getExistingETag(
     fileData.bucket,
@@ -243,7 +247,7 @@ export async function upsertFileRecord(
   // For same ETag, this is likely a duplicate notification; handle via ON CONFLICT
 
   const isLatest = fileData.isLatest ?? true;
-  const result = await transaction.query<{ etag: string; operation: string }>(
+  const result = await transaction.query<FileUpsertResult>(
     `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        
@@ -257,7 +261,8 @@ export async function upsertFileRecord(
        
        RETURNING 
          (CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END) as operation,
-         etag`,
+         etag,
+         id`,
     [
       fileData.bucket,
       fileData.key,

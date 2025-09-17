@@ -17,6 +17,7 @@ import {
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  EMPTY_COMPONENT_INFO,
   FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -156,17 +157,6 @@ describe(TEST_ROUTE, () => {
     );
   });
 });
-
-const EMPTY_COMPONENT_INFO = {
-  assay: [],
-  cellCount: 0,
-  cellxgeneDatasetId: null,
-  cellxgeneDatasetVersion: null,
-  description: "",
-  disease: [],
-  suspensionType: [],
-  tissue: [],
-};
 
 describe("createComponentAtlas", () => {
   const TEST_COMPONENT_ATLAS_TITLE = "Test Component Atlas";

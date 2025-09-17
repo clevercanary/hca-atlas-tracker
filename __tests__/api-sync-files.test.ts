@@ -8,7 +8,9 @@ import { mockClient } from "aws-sdk-client-mock";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  createTestComponentAtlas,
   createTestFile,
+  getAllFileIdsFromDatabase,
   getFileFromDatabase,
   resetDatabase,
 } from "testing/db-utils";
@@ -21,6 +23,8 @@ import { endPgPool, query } from "../app/services/database";
 import { syncFilesFromS3 } from "../app/services/s3-sync";
 import syncFilesHandler from "../pages/api/sync-files";
 import {
+  ATLAS_DRAFT,
+  EMPTY_COMPONENT_INFO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   TEST_S3_BUCKET,
   USER_CONTENT_ADMIN,
@@ -43,6 +47,7 @@ jest.mock(
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("../app/services/validator-batch");
 
 jest.mock("next-auth");
 
@@ -80,6 +85,10 @@ setTestRandomUuids([
 
 const s3Mock = mockClient(S3Client);
 
+const mockSubmitJob = jest.requireMock<
+  typeof import("../app/services/__mocks__/validator-batch")
+>("../app/services/validator-batch").submitDatasetValidationJob;
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -105,9 +114,9 @@ const KEY_NO_VERSION = "lung/test-public-v2-3/manifests/test-no-version.json";
 const KEY_QUOTED_ETAG =
   "lung/test-public-v2-3/source-datasets/test-quoted-etag.json";
 const KEY_EXISTING_UNCHANGED =
-  "lung/test-public-v2-3/manifests/test-existing-unchanged.json";
+  "lung/test-public-v2-3/integrated-objects/test-existing-unchanged.h5ad";
 const KEY_EXISTING_CHANGED =
-  "lung/test-public-v2-3/manifests/test-existing-changed.json";
+  "lung/test-public-v2-3/integrated-objects/test-existing-changed.h5ad";
 const KEY_KEEP_SUBPATH = "eye/test-draft-v1-2/integrated-objects/.keep";
 const KEY_KEEP_ROOT = ".keep";
 
@@ -281,6 +290,18 @@ const LIST_OBJECTS_RESPONSE = {
   ],
 };
 
+const EXPECTED_VALIDATED_KEYS = [
+  KEY_COMPLETE_FOO,
+  KEY_COMPLETE_BAR,
+  KEY_NO_MODIFIED,
+  KEY_QUOTED_ETAG,
+  KEY_EXISTING_CHANGED,
+];
+// Not validated:
+// KEY_NO_ETAG, KEY_KEEP_SUBPATH, KEY_KEEP_ROOT -- skipped entirely
+// KEY_NO_LENGTH, KEY_NO_VERSION -- are manifest files
+// KEY_EXISTING_UNCHANGED -- errors on insertion
+
 describe(TEST_ROUTE, () => {
   it("returns error 405 for GET request", async () => {
     expect(
@@ -324,29 +345,39 @@ describe(TEST_ROUTE, () => {
     );
   }
 
-  it("processes s3 data, logs warnings, and creates files as appropriate when requested by content admin", async () => {
+  it("processes s3 data, logs warnings, and creates and validates files as appropriate when requested by content admin", async () => {
     const FILE_ID_EXISTING_UNCHANGED = "3c324e37-ff0a-4b2b-8c23-b80eb277a222";
     const FILE_ID_EXISTING_CHANGED = "7306f44c-ef9b-4adc-9280-ebdf1e902f3e";
 
+    const componentAtlasIdExistingUnchanged = (
+      await createTestComponentAtlas(ATLAS_DRAFT.id, "", EMPTY_COMPONENT_INFO)
+    ).id;
     await createTestFile(FILE_ID_EXISTING_UNCHANGED, {
       bucket: TEST_S3_BUCKET,
+      componentAtlasId: componentAtlasIdExistingUnchanged,
       etag: HEAD_RESPONSE_EXISTING_UNCHANGED.ETag,
       eventTime: HEAD_RESPONSE_EXISTING_UNCHANGED.LastModified.toISOString(),
-      fileType: FILE_TYPE.INGEST_MANIFEST,
+      fileType: FILE_TYPE.INTEGRATED_OBJECT,
       key: KEY_EXISTING_UNCHANGED,
       sizeBytes: HEAD_RESPONSE_EXISTING_UNCHANGED.ContentLength,
       versionId: HEAD_RESPONSE_EXISTING_UNCHANGED.VersionId,
     });
 
+    const componentAtlasIdExistingChanged = (
+      await createTestComponentAtlas(ATLAS_DRAFT.id, "", EMPTY_COMPONENT_INFO)
+    ).id;
     await createTestFile(FILE_ID_EXISTING_CHANGED, {
       bucket: TEST_S3_BUCKET,
+      componentAtlasId: componentAtlasIdExistingChanged,
       etag: HEAD_RESPONSE_EXISTING_CHANGED.ETag,
       eventTime: "2025-09-07T23:20:33.500Z",
-      fileType: FILE_TYPE.INGEST_MANIFEST,
+      fileType: FILE_TYPE.INTEGRATED_OBJECT,
       key: KEY_EXISTING_CHANGED,
       sizeBytes: HEAD_RESPONSE_EXISTING_CHANGED.ContentLength,
       versionId: "434532",
     });
+
+    const fileIdsBefore = await getAllFileIdsFromDatabase();
 
     const fileExistingUnchangedBefore = await getFileFromDatabase(
       FILE_ID_EXISTING_UNCHANGED
@@ -396,6 +427,19 @@ describe(TEST_ROUTE, () => {
     expect(warningMessages).toContain(
       "S3 sync: Skipped 3 objects without keys"
     );
+
+    // Check that the dataset validator was called for the expected keys
+    expect(mockSubmitJob.mock.calls).toEqual(
+      EXPECTED_VALIDATED_KEYS.map((key) => [
+        expect.objectContaining({ s3Key: key }),
+      ])
+    );
+
+    // Check that all file IDs passed to the dataset validator are new ones
+    for (const [{ fileId }] of mockSubmitJob.mock.calls) {
+      expect(fileId).toBeTruthy();
+      expect(fileIdsBefore).not.toContain(fileId);
+    }
 
     const files = await getDbFilesModifiedAfter(startTime);
 
