@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.33.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.32.0...v1.33.0) (2025-09-18)
+
+
+### Features
+
+* add api and database column for setting reprocessed status of source datasets ([#842](https://github.com/clevercanary/hca-atlas-tracker/issues/842)) ([#850](https://github.com/clevercanary/hca-atlas-tracker/issues/850)) ([222b112](https://github.com/clevercanary/hca-atlas-tracker/commit/222b11220bbcccf920aad5e78797877f7b86f22f))
+* front end for setting "reprocessed status" on source datasets ([#843](https://github.com/clevercanary/hca-atlas-tracker/issues/843)) ([#853](https://github.com/clevercanary/hca-atlas-tracker/issues/853)) ([f0e2522](https://github.com/clevercanary/hca-atlas-tracker/commit/f0e2522097def08a3641f8a160d18502b5283aad))
+
 ## [1.32.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.31.0...v1.32.0) (2025-09-17)
 
 
