@@ -16,6 +16,7 @@ import {
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
+  REPROCESSED_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
 import { endPgPool, getPoolClient, query } from "../app/services/database";
@@ -121,8 +122,13 @@ export async function initSourceDatasets(
   for (const sourceDataset of testSourceDatasets) {
     const info = makeTestSourceDatasetInfo(sourceDataset);
     await query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id) VALUES ($1, $2, $3)",
-      [sourceDataset.sourceStudyId ?? null, info, sourceDataset.id],
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status) VALUES ($1, $2, $3, $4)",
+      [
+        sourceDataset.sourceStudyId ?? null,
+        info,
+        sourceDataset.id,
+        sourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
+      ],
       client
     );
   }
@@ -463,6 +469,17 @@ export async function getSourceStudyFromDatabase(
       [id]
     )
   ).rows[0];
+}
+
+export async function getAtlasSourceDatasetsFromDatabase(
+  atlasId: string
+): Promise<HCAAtlasTrackerDBSourceDataset[]> {
+  return (
+    await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT d.* FROM hat.source_datasets d JOIN hat.atlases a ON d.id=ANY(a.source_datasets) WHERE a.id=$1",
+      [atlasId]
+    )
+  ).rows;
 }
 
 export async function getSourceDatasetFromDatabase(

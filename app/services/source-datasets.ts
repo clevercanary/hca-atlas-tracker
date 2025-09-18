@@ -10,6 +10,7 @@ import {
   AtlasSourceDatasetEditData,
   NewSourceDatasetData,
   SourceDatasetEditData,
+  SourceDatasetsSetReprocessedStatusData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
@@ -60,12 +61,7 @@ export async function getSourceStudyDatasets(
 export async function getAtlasDatasets(
   atlasId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
-  const atlasResult = await query<
-    Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
-  >("SELECT source_datasets FROM hat.atlases WHERE id=$1", [atlasId]);
-  if (atlasResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  const sourceDatasetIds = atlasResult.rows[0].source_datasets;
+  const sourceDatasetIds = await getAtlasSourceDatasetIds(atlasId);
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
     `
       SELECT d.*, f.key, f.size_bytes, f.dataset_info, s.doi, s.study_info
@@ -375,6 +371,33 @@ export async function updateAtlasSourceDataset(
 }
 
 /**
+ * Set the reprocessed status of each of a list of source datasets to a specified value.
+ * @param atlasId - ID of the atlas that the source datasets are accessed through.
+ * @param inputData - Input data containing the reprocessed status to set and the IDs of the source datasets to set it on.
+ */
+export async function setAtlasSourceDatasetsReprocessedStatus(
+  atlasId: string,
+  inputData: SourceDatasetsSetReprocessedStatusData
+): Promise<void> {
+  const atlasSourceDatasetIds = await getAtlasSourceDatasetIds(atlasId);
+
+  const missingSourceDatasetIds = inputData.sourceDatasetIds.filter(
+    (id) => !atlasSourceDatasetIds.includes(id)
+  );
+  if (missingSourceDatasetIds.length > 0)
+    throw new NotFoundError(
+      `Atlas with ID ${atlasId} does not have source dataset(s): ${missingSourceDatasetIds.join(
+        ", "
+      )}`
+    );
+
+  await query(
+    "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE id = ANY($2)",
+    [inputData.reprocessedStatus, inputData.sourceDatasetIds]
+  );
+}
+
+/**
  * Delete a source dataset.
  * @param atlasId - ID of the atlas that the source dataset is accessed through.
  * @param sourceStudyId - ID of the source study that the source dataset is accessed through.
@@ -514,12 +537,8 @@ async function confirmSourceDatasetIsLinkedToAtlas(
   sourceDatasetId: string,
   atlasId: string
 ): Promise<void> {
-  const atlasResult = await query<
-    Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
-  >("SELECT source_datasets FROM hat.atlases WHERE id=$1", [atlasId]);
-  if (atlasResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  if (!atlasResult.rows[0].source_datasets.includes(sourceDatasetId))
+  const atlasSourceDatasetIds = await getAtlasSourceDatasetIds(atlasId);
+  if (!atlasSourceDatasetIds.includes(sourceDatasetId))
     throw new NotFoundError(
       `Source dataset with ID ${sourceDatasetId} is not linked to atlas with ID ${atlasId}`
     );
@@ -543,6 +562,15 @@ export async function confirmSourceDatasetsExist(
       `No source datasets exist with IDs: ${missingIds.join(", ")}`
     );
   }
+}
+
+async function getAtlasSourceDatasetIds(atlasId: string): Promise<string[]> {
+  const atlasResult = await query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
+  >("SELECT source_datasets FROM hat.atlases WHERE id=$1", [atlasId]);
+  if (atlasResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  return atlasResult.rows[0].source_datasets;
 }
 
 function getSourceDatasetNotFoundError(

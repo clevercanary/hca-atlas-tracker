@@ -163,6 +163,7 @@ export function dbSourceDatasetToApiSourceDataset(
     metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
     publicationString,
+    reprocessedStatus: dbSourceDataset.reprocessed_status,
     sizeBytes: Number(dbSourceDataset.size_bytes),
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:

@@ -22,6 +22,7 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   INTEGRITY_STATUS,
+  REPROCESSED_STATUS,
   ROLE,
   SYSTEM,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -560,6 +561,9 @@ export function expectApiSourceDatasetToMatchTest(
     testSourceDataset.cellxgeneDatasetVersion ?? null
   );
   expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
+  expect(apiSourceDataset.reprocessedStatus).toEqual(
+    testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
+  );
   expect(apiSourceDataset.sourceStudyId).toEqual(
     testSourceDataset.sourceStudyId ?? null
   );
@@ -586,6 +590,9 @@ export function expectDbSourceDatasetToMatchTest(
   );
   expect(dbSourceDataset.sd_info.disease).toEqual(
     testSourceDataset.disease ?? []
+  );
+  expect(dbSourceDataset.reprocessed_status).toEqual(
+    testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
   );
   expect(dbSourceDataset.source_study_id).toEqual(
     testSourceDataset.sourceStudyId ?? null

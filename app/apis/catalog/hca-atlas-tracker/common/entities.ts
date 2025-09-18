@@ -120,6 +120,7 @@ export interface HCAAtlasTrackerSourceDataset {
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationString: string;
+  reprocessedStatus: REPROCESSED_STATUS;
   sizeBytes: number;
   sourceStudyId: string | null;
   sourceStudyTitle: string | null;
@@ -368,6 +369,7 @@ export type WithSourceStudyInfo<T = unknown, TAltValue = never> = T &
 export interface HCAAtlasTrackerDBSourceDataset {
   created_at: Date;
   id: string;
+  reprocessed_status: REPROCESSED_STATUS;
   sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
   source_study_id: string | null;
   updated_at: Date;
@@ -681,6 +683,12 @@ export enum INTEGRITY_STATUS {
   PENDING = "pending",
   VALID = "valid",
   VALIDATING = "validating",
+}
+
+export enum REPROCESSED_STATUS {
+  ORIGINAL = "Original",
+  REPROCESSED = "Reprocessed",
+  UNSPECIFIED = "Unspecified",
 }
 
 export enum SYSTEM {
