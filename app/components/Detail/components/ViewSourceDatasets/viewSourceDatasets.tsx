@@ -19,7 +19,7 @@ export const ViewSourceDatasets = ({
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
   const {
-    access: { canEdit, canView },
+    access: { canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
@@ -34,7 +34,6 @@ export const ViewSourceDatasets = ({
           />
         )}
         <TablePlaceholder
-          canEdit={canEdit}
           message="No source datasets"
           rowCount={sourceDatasets.length}
         />
