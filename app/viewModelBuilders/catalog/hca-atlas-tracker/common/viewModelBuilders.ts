@@ -26,7 +26,6 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
-  HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
@@ -982,52 +981,6 @@ export function getAtlasComponentSourceDatasetsTableColumns(
 
 /**
  * Returns the table column definition model for the atlas source datasets table.
- * @param atlas - Atlas.
- * @returns Table column definition.
- */
-export function getAtlasSourceDatasetsTableColumns(
-  atlas: HCAAtlasTrackerAtlas
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [
-    getSourceDatasetDownloadColumnDef(),
-    getAtlasSourceDatasetTitleColumnDef(atlas),
-    getSourceDatasetSourceStudyColumnDef(atlas),
-    getSourceDatasetFileNameColumnDef(),
-    getSourceDatasetSizeBytesColumnDef(),
-    getSourceDatasetValidationStatusColumnDef(),
-    getAssayColumnDef(),
-    getSuspensionTypeColumnDef(),
-    getTissueColumnDef(),
-    getDiseaseColumnDef(),
-    getSourceDatasetCellCountColumnDef(),
-  ];
-}
-
-/**
- * Returns linked source dataset title column def.
- * @param atlas - Atlas.
- * @returns ColumnDef.
- */
-function getAtlasSourceDatasetTitleColumnDef(
-  atlas: HCAAtlasTrackerAtlas
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "title",
-    cell: ({ row }) =>
-      C.Link({
-        label: row.original.title,
-        url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
-          atlasId: atlas.id,
-          sourceDatasetId: row.original.id,
-        }),
-      }),
-    header: "Source Dataset",
-    meta: { columnPinned: true },
-  };
-}
-
-/**
- * Returns the table column definition model for the atlas source datasets table.
  * @returns Table column definition.
  */
 export function getAtlasSourceStudySourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
@@ -1347,21 +1300,8 @@ function getProgressValue(numerator: number, denominator: number): number {
 }
 
 /**
- * Returns the source dataset cell count column def.
- * If the validation status is PENDING, returns an empty string.
- * Otherwise, returns the cell count, formatted as a number.
- * @returns ColumnDef.
- */
-function getSourceDatasetCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "cellCount",
-    cell: renderSourceDatasetCellCount,
-    header: "Cell Count",
-  };
-}
-
-/**
  * Returns source dataset download column def.
+ * CHECK
  * @returns Column def.
  */
 function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
@@ -1370,18 +1310,6 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
     cell: (): JSX.Element => C.FileDownload({ disabled: true, fileName: "" }),
     enableSorting: false,
     header: "Download",
-  };
-}
-
-/**
- * Returns source dataset file name column def.
- * @returns Column def.
- */
-function getSourceDatasetFileNameColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "fileName",
-    cell: (ctx) => C.BasicCell({ value: ctx.getValue() as string }),
-    header: "File Name",
   };
 }
 
@@ -1414,42 +1342,6 @@ function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceData
 }
 
 /**
- * Returns source dataset size bytes column def.
- * @returns Column def.
- */
-function getSourceDatasetSizeBytesColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "sizeBytes",
-    cell: (ctx) => formatFileSize(ctx.getValue() as number),
-    header: "File Size",
-  };
-}
-
-/**
- * Returns source dataset source study column def.
- * @param atlas - Linked atlas.
- * @returns Column def.
- */
-function getSourceDatasetSourceStudyColumnDef(
-  atlas: HCAAtlasTrackerAtlas
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "sourceStudyTitle",
-    cell: ({ row }) =>
-      C.Link({
-        label: row.original.publicationString,
-        url: row.original.sourceStudyId
-          ? getRouteURL(ROUTE.SOURCE_STUDY, {
-              atlasId: atlas.id,
-              sourceStudyId: row.original.sourceStudyId,
-            })
-          : "",
-      }),
-    header: "Source Study",
-  };
-}
-
-/**
  * Returns source dataset title column def.
  * @returns Column def.
  */
@@ -1462,19 +1354,6 @@ function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
       }),
     header: "Title",
     meta: { columnPinned: true },
-  };
-}
-
-/**
- * Returns source dataset validation status column def.
- * @returns Column def.
- */
-function getSourceDatasetValidationStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "validationStatus",
-    cell: (ctx) =>
-      C.ChipCell(buildValidationStatus(ctx.getValue() as INTEGRITY_STATUS)),
-    header: "Validation Status",
   };
 }
 
@@ -1690,19 +1569,4 @@ function getTissueColumnDef<
     cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
   };
-}
-
-/**
- * Returns the source dataset cell count.
- * If the validation status is PENDING, returns an empty string.
- * Otherwise, returns the cell count, formatted as a number.
- * @param ctx - Cell context.
- * @returns Cell count.
- */
-function renderSourceDatasetCellCount(
-  ctx: CellContext<HCAAtlasTrackerSourceDataset, number>
-): string {
-  const { getValue, row } = ctx;
-  if (row.getValue("validationStatus") === INTEGRITY_STATUS.PENDING) return "";
-  return getValue().toLocaleString();
 }

@@ -6,7 +6,7 @@ import {
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerValidationRecord,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { Dialog } from "../../../../../common/Dialog/dialog.styles";
+import { StyledDialog } from "../../../../../common/Dialog/dialog.styles";
 import { DialogFormValue } from "./common/entities";
 import { DialogForm } from "./components/DialogForm/dialogForm";
 import { TaskCompletionDatesData } from "./components/EditTargetCompletion/common/entities";
@@ -53,9 +53,9 @@ export const EditTasks = <
           />,
         ]}
       </DropdownMenu>
-      <Dialog maxWidth={false} open={open} onClose={onClose}>
+      <StyledDialog maxWidth={false} open={open} onClose={onClose}>
         <DialogForm formValue={formValue} onClose={onClose} taskIds={taskIds} />
-      </Dialog>
+      </StyledDialog>
     </Fragment>
   );
 };
