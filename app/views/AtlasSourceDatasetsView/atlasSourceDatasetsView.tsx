@@ -38,7 +38,6 @@ export const AtlasSourceDatasetsView = ({
   return (
     <EntityProvider
       data={{ atlas, atlasSourceDatasets }}
-      formManager={formManager}
       pathParameter={pathParameter}
     >
       <ConditionalComponent

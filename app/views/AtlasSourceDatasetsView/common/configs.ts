@@ -2,8 +2,8 @@ import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Tab
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { SectionConfig } from "../../../components/Entity/components/EntityView/components/Section/entities";
 import { Alert } from "../components/Alert/alert";
+import { COLUMNS } from "../components/Table/columns";
 import { Table } from "../components/Table/table";
-import { COLUMNS } from "./columns";
 
 export const VIEW_SOURCE_DATASETS_INFO: SectionConfig<typeof Alert> = {
   Component: Alert,
@@ -16,6 +16,8 @@ export const VIEW_SOURCE_DATASETS_TABLE: SectionConfig<typeof Table> = {
   componentProps: {
     tableOptions: {
       columns: COLUMNS,
+      enableMultiRowSelection: true,
+      enableRowSelection: true,
       getRowId: (row) => row.id,
       initialState: {
         columnVisibility: { [COLUMN_IDENTIFIER.ROW_POSITION]: true },

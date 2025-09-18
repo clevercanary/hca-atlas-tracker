@@ -3,7 +3,7 @@ import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/co
 import { textBodyLarge500 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import styled from "@emotion/styled";
 
-export const Dialog = styled(DXDialog)`
+export const StyledDialog = styled(DXDialog)`
   & .MuiDialog-paper {
     border-radius: 8px;
   }

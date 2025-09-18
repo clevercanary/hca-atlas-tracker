@@ -2,7 +2,7 @@ import { SectionConfig } from "../../../components/Entity/components/EntityView/
 import {
   VIEW_SOURCE_DATASETS_INFO,
   VIEW_SOURCE_DATASETS_TABLE,
-} from "./constants";
+} from "./configs";
 
 export const VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS: SectionConfig[] = [
   VIEW_SOURCE_DATASETS_INFO,

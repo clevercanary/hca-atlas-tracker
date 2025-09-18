@@ -1,6 +1,6 @@
 import { CellContext } from "@tanstack/react-table";
-import { INTEGRITY_STATUS } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasSourceDataset } from "../entities";
+import { INTEGRITY_STATUS } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { AtlasSourceDataset } from "../../entities";
 
 /**
  * Returns the source dataset cell count.

@@ -1,17 +1,18 @@
+import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { ColumnDef } from "@tanstack/react-table";
-import { INTEGRITY_STATUS } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getRouteURL } from "../../../common/utils";
-import * as C from "../../../components";
-import { ROUTE } from "../../../routes/constants";
+import { INTEGRITY_STATUS } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getRouteURL } from "../../../../common/utils";
+import * as C from "../../../../components";
+import { ROUTE } from "../../../../routes/constants";
 import {
   buildAssay,
   buildDisease,
   buildSuspensionType,
   buildTissue,
   buildValidationStatus,
-} from "../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { AtlasSourceDataset } from "../entities";
+} from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { AtlasSourceDataset } from "../../entities";
 import { renderSourceDatasetCellCount } from "./viewBuilders";
 
 const COLUMN_ASSAY = {
@@ -48,6 +49,12 @@ const COLUMN_FILE_NAME = {
   cell: (ctx) => C.BasicCell({ value: ctx.getValue() as string }),
   header: "File Name",
   meta: { columnPinned: true, width: { max: "0.5fr", min: "120px" } },
+} as ColumnDef<AtlasSourceDataset>;
+
+const COLUMN_REPROCESSED_STATUS = {
+  accessorKey: "reprocessedStatus",
+  header: "Reprocessed Status",
+  meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_SIZE_BYTES = {
@@ -110,11 +117,13 @@ const COLUMN_VALIDATION_STATUS = {
 } as ColumnDef<AtlasSourceDataset>;
 
 export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
+  COLUMN_DEF.ROW_SELECTION as ColumnDef<AtlasSourceDataset>,
   COLUMN_DOWNLOAD,
   COLUMN_TITLE,
   COLUMN_SOURCE_STUDY,
   COLUMN_FILE_NAME,
   COLUMN_SIZE_BYTES,
+  COLUMN_REPROCESSED_STATUS,
   COLUMN_VALIDATION_STATUS,
   COLUMN_ASSAY,
   COLUMN_SUSPENSION_TYPE,

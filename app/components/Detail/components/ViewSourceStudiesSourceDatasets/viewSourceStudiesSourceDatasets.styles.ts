@@ -1,6 +1,6 @@
 import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
-import { Dialog as CommonDialog } from "../../../common/Dialog/dialog.styles";
+import { StyledDialog as CommonDialog } from "../../../common/Dialog/dialog.styles";
 
 export const Dialog = styled(CommonDialog)`
   .MuiPaper-root {
