@@ -1613,4 +1613,61 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that the dataset validator has still only been called once
     expect(mockSubmitJob).toHaveBeenCalledTimes(1);
   });
+
+  it("sets validation status to request_failed and leaves integrity status as pending when an error occurs while starting validation job", async () => {
+    mockSubmitJob.mockClear();
+
+    // Mock submitDatasetValidationJob to throw an error
+    mockSubmitJob.mockImplementationOnce(() => {
+      throw new Error("Validation job submission failed");
+    });
+
+    const s3Event = createS3Event({
+      etag: "validation-error-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
+      size: 1024000,
+      versionId: "validation-error-version",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "validation-error-test-message",
+      s3Event,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Check that file was saved to database with correct status
+    const fileRows = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+    );
+
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
+    expect(file.key).toBe(TEST_FILE_PATHS.SOURCE_DATASET_TEST);
+    expect(file.etag).toBe(
+      "validation-error-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    );
+    expect(file.size_bytes).toBe("1024000");
+    expect(file.version_id).toBe("validation-error-version");
+    expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.REQUEST_FAILED);
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.PENDING);
+    expect(file.file_type).toBe(FILE_TYPE.SOURCE_DATASET);
+
+    // Verify that submitJob was called once and failed
+    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
+    expect(mockSubmitJob).not.toHaveReturned();
+  });
 });
