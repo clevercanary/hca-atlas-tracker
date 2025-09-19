@@ -170,7 +170,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.sha256_client).toBeNull(); // Should be NULL since no SHA256 provided
-    expect(file.integrity_status).toBe("pending");
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.VALIDATING);
   });
 
   it("clears sd_info on source_dataset update while preserving is_latest", async () => {
@@ -336,9 +336,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.etag).toBe("d41d8cd98f00b204e9800998ecf8427e");
     expect(file.size_bytes).toBe("1024000"); // PostgreSQL bigint returns as string
     expect(file.version_id).toBe(TEST_VERSION_IDS.DEFAULT);
-    expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.PENDING);
+    expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.REQUESTED);
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
-    expect(file.integrity_status).toBe(INTEGRITY_STATUS.PENDING);
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.VALIDATING);
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
     expect(file.integrity_error).toBeNull();
@@ -857,9 +857,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");
-    expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.PENDING);
+    expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.REQUESTED);
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
-    expect(file.integrity_status).toBe(INTEGRITY_STATUS.PENDING);
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.VALIDATING);
   });
 
   it("ingest manifest does not create metadata objects", async () => {
@@ -967,6 +967,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     {
       description: "retina atlas from eye network S3 path",
       etag: "d4e5f6789012345678901234567890ab",
+      expectedToValidate: true,
       key: "eye/retina-v1/integrated-objects/retina-data.h5ad",
       size: 8192000,
       versionId: "retina-version-789",
@@ -974,6 +975,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     {
       description: "gut v1.1 atlas with version parsing",
       etag: "e5f6789012345678901234567890abcd",
+      expectedToValidate: true,
       key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
       size: 4096000,
       versionId: "gut-v11-version-012",
@@ -981,13 +983,14 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     {
       description: "gut v1 atlas with integer version (no decimal)",
       etag: "f6789012345678901234567890abcdef",
+      expectedToValidate: false,
       key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
       size: 1024,
       versionId: "gut-v1-no-decimal-version",
     },
   ])(
     "correctly identifies $description",
-    async ({ etag, key, size, versionId }) => {
+    async ({ etag, expectedToValidate, key, size, versionId }) => {
       const s3Event = createS3Event({
         etag,
         key,
@@ -1034,9 +1037,17 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       expect(file.etag).toBe(etag);
       expect(file.size_bytes).toBe(size.toString());
       expect(file.version_id).toBe(versionId);
-      expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.PENDING);
+      expect(file.validation_status).toBe(
+        expectedToValidate
+          ? FILE_VALIDATION_STATUS.REQUESTED
+          : FILE_VALIDATION_STATUS.PENDING
+      );
       expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
-      expect(file.integrity_status).toBe(INTEGRITY_STATUS.PENDING);
+      expect(file.integrity_status).toBe(
+        expectedToValidate
+          ? INTEGRITY_STATUS.VALIDATING
+          : INTEGRITY_STATUS.PENDING
+      );
     }
   );
 
