@@ -694,8 +694,8 @@ export enum INTEGRITY_STATUS {
   ERROR = "error",
   INVALID = "invalid",
   PENDING = "pending",
+  REQUESTED = "requested",
   VALID = "valid",
-  VALIDATING = "validating",
 }
 
 export enum REPROCESSED_STATUS {

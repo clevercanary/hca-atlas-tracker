@@ -170,7 +170,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.sha256_client).toBeNull(); // Should be NULL since no SHA256 provided
-    expect(file.integrity_status).toBe(INTEGRITY_STATUS.VALIDATING);
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
   });
 
   it("clears sd_info on source_dataset update while preserving is_latest", async () => {
@@ -338,7 +338,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.version_id).toBe(TEST_VERSION_IDS.DEFAULT);
     expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.REQUESTED);
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
-    expect(file.integrity_status).toBe(INTEGRITY_STATUS.VALIDATING);
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
     expect(file.integrity_error).toBeNull();
@@ -859,7 +859,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.version_id).toBe("integrated-version-123");
     expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.REQUESTED);
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
-    expect(file.integrity_status).toBe(INTEGRITY_STATUS.VALIDATING);
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
   });
 
   it("ingest manifest does not create metadata objects", async () => {
@@ -1045,7 +1045,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
       expect(file.integrity_status).toBe(
         expectedToValidate
-          ? INTEGRITY_STATUS.VALIDATING
+          ? INTEGRITY_STATUS.REQUESTED
           : INTEGRITY_STATUS.PENDING
       );
     }

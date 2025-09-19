@@ -520,7 +520,7 @@ async function startFileValidation(
         FILE_VALIDATION_STATUS.REQUESTED,
         client
       );
-      await setFileIntegrityStatus(fileId, INTEGRITY_STATUS.VALIDATING, client);
+      await setFileIntegrityStatus(fileId, INTEGRITY_STATUS.REQUESTED, client);
     });
     console.log(
       `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`
