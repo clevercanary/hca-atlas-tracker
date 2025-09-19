@@ -2,7 +2,6 @@ import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Br
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
-import { AccessDeniedPrompt } from "../../components/common/Form/components/FormManager/components/AccessDeniedPrompt/accessDeniedPrompt";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
@@ -59,9 +58,8 @@ export const AtlasMetadataCorrectnessView = ({
  */
 function renderAccessFallback(formManager: FormManager): JSX.Element | null {
   const {
-    access: { canEdit, canView },
+    access: { canView },
   } = formManager;
   if (!canView) return <AccessPrompt text="to view the metadata correctness" />;
-  if (!canEdit) return <AccessDeniedPrompt />;
   return null;
 }
