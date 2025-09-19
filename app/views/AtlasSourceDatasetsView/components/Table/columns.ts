@@ -1,7 +1,6 @@
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { ColumnDef } from "@tanstack/react-table";
-import { INTEGRITY_STATUS } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { ROUTE } from "../../../../routes/constants";
@@ -110,8 +109,8 @@ const COLUMN_TITLE = {
 
 const COLUMN_VALIDATION_STATUS = {
   accessorKey: "validationStatus",
-  cell: (ctx) =>
-    C.ChipCell(buildValidationStatus(ctx.getValue() as INTEGRITY_STATUS)),
+  cell: ({ row }) =>
+    C.ChipCell(buildValidationStatus(row.original.validationStatus)),
   header: "Validation Status",
   meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;

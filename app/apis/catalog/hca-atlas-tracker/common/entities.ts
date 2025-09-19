@@ -63,7 +63,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   suspensionType: string[];
   tissue: string[];
   title: string;
-  validationStatus: INTEGRITY_STATUS;
+  validationStatus: FILE_VALIDATION_STATUS;
 }
 
 export interface HCAAtlasTrackerNetworkCoordinator {
@@ -129,7 +129,7 @@ export interface HCAAtlasTrackerSourceDataset {
   tissue: string[];
   title: string;
   updatedAt: string;
-  validationStatus: INTEGRITY_STATUS;
+  validationStatus: FILE_VALIDATION_STATUS;
 }
 
 export interface HCAAtlasTrackerValidationResult {
@@ -405,7 +405,10 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
   HCAAtlasTrackerDBSourceDataset,
   null
 > &
-  Pick<HCAAtlasTrackerDBFile, "key" | "size_bytes" | "dataset_info">;
+  Pick<
+    HCAAtlasTrackerDBFile,
+    "key" | "size_bytes" | "dataset_info" | "validation_status"
+  >;
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;

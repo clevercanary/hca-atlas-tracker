@@ -24,7 +24,6 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
-  INTEGRITY_STATUS,
   TIER_ONE_METADATA_STATUS,
   WithSourceStudyInfo,
 } from "./entities";
@@ -90,7 +89,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     suspensionType: dbComponentAtlasFile.dataset_info?.suspensionType ?? [],
     tissue: dbComponentAtlasFile.dataset_info?.tissue ?? [],
     title: dbComponentAtlasFile.dataset_info?.title ?? "",
-    validationStatus: INTEGRITY_STATUS.PENDING,
+    validationStatus: dbComponentAtlasFile.validation_status,
   };
 }
 
@@ -176,7 +175,7 @@ export function dbSourceDatasetToApiSourceDataset(
     tissue: dbSourceDataset.dataset_info?.tissue ?? [],
     title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
-    validationStatus: INTEGRITY_STATUS.PENDING,
+    validationStatus: dbSourceDataset.validation_status,
   };
 }
 
