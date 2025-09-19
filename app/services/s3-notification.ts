@@ -24,6 +24,7 @@ import {
   getExistingMetadataObjectId,
   getLatestEventInfo,
   markPreviousVersionsAsNotLatest,
+  setFileValidationStatus,
   upsertFileRecord,
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
@@ -500,14 +501,25 @@ async function startFileValidation(
   fileId: string,
   s3Key: string
 ): Promise<void> {
-  const { jobId } = await submitDatasetValidationJob({
-    fileId,
-    s3Key,
-  });
-
-  console.log(
-    `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`
-  );
+  try {
+    const { jobId } = await submitDatasetValidationJob({
+      fileId,
+      s3Key,
+    });
+    await setFileValidationStatus(fileId, FILE_VALIDATION_STATUS.REQUESTED);
+    console.log(
+      `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`
+    );
+  } catch (e) {
+    console.error(
+      `An error occurred while starting validation for ${s3Key} (file ${fileId}):`,
+      e
+    );
+    await setFileValidationStatus(
+      fileId,
+      FILE_VALIDATION_STATUS.REQUEST_FAILED
+    );
+  }
 }
 
 export async function saveAndProcessFileRecord(

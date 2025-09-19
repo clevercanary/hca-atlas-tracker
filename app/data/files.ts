@@ -309,6 +309,16 @@ export async function upsertFileRecord(
   return result.rows[0];
 }
 
+export async function setFileValidationStatus(
+  fileId: string,
+  validationStatus: FILE_VALIDATION_STATUS
+): Promise<void> {
+  await query("UPDATE hat.files SET validation_status = $1 WHERE id = $2", [
+    validationStatus,
+    fileId,
+  ]);
+}
+
 /**
  * Get the currently-stored date at which the given file was last validated.
  * @param fileId - ID of file to get validation timestamp of.
