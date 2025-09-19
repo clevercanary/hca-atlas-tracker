@@ -3,8 +3,8 @@ import httpMocks from "node-mocks-http";
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
-  FILE_STATUS,
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
@@ -264,7 +264,7 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sha256Client = null,
     sha256Server = null,
     sourceStudyId = null,
-    status = FILE_STATUS.UPLOADED,
+    validationStatus = FILE_VALIDATION_STATUS.PENDING,
     ...restFields
   } = file;
   const resolvedAtlas = typeof atlas === "function" ? atlas() : atlas;
@@ -290,8 +290,8 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sha256Client,
     sha256Server,
     sourceStudyId,
-    status,
     validationInfo,
+    validationStatus,
     ...restFields,
   };
 }
@@ -572,6 +572,7 @@ export function expectApiSourceDatasetToMatchTest(
   );
   expect(apiSourceDataset.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title ?? "");
+  expect(apiSourceDataset.validationStatus).toEqual(testFile.validationStatus);
 }
 
 export function expectDbSourceDatasetToMatchTest(
@@ -629,6 +630,7 @@ export function expectApiComponentAtlasToMatchTest(
     testFile.datasetInfo?.suspensionType ?? []
   );
   expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
+  expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
 
   // TODO: check for test component atlas fields once they're included
 }

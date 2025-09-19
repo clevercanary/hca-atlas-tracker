@@ -2,6 +2,7 @@ import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -201,7 +202,7 @@ export async function confirmFileExistsOnAtlas(
  * @param fileData.sizeBytes - File size in bytes
  * @param fileData.sourceDatasetId - Source dataset ID (if applicable)
  * @param fileData.snsMessageId - SNS MessageId for deduplication
- * @param fileData.status - File processing status
+ * @param fileData.validationStatus - File validation status
  * @param fileData.versionId - S3 object version ID
  * @param transaction - Database transaction to use
  * @throws {ETagMismatchError} When an existing record has a different ETag for the same bucket/key/version
@@ -221,7 +222,7 @@ export async function upsertFileRecord(
     sizeBytes: number;
     snsMessageId: string;
     sourceDatasetId: string | null;
-    status: string;
+    validationStatus: FILE_VALIDATION_STATUS;
     versionId: string | null;
   },
   transaction: pg.PoolClient
@@ -248,7 +249,7 @@ export async function upsertFileRecord(
 
   const isLatest = fileData.isLatest ?? true;
   const result = await transaction.query<FileUpsertResult>(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
@@ -272,7 +273,7 @@ export async function upsertFileRecord(
       fileData.eventInfo,
       fileData.sha256Client,
       fileData.integrityStatus,
-      fileData.status,
+      fileData.validationStatus,
       isLatest,
       fileData.fileType,
       fileData.sourceDatasetId,
@@ -308,6 +309,30 @@ export async function upsertFileRecord(
   return result.rows[0];
 }
 
+export async function setFileValidationStatus(
+  fileId: string,
+  validationStatus: FILE_VALIDATION_STATUS,
+  client?: pg.PoolClient
+): Promise<void> {
+  await query(
+    "UPDATE hat.files SET validation_status = $1 WHERE id = $2",
+    [validationStatus, fileId],
+    client
+  );
+}
+
+export async function setFileIntegrityStatus(
+  fileId: string,
+  integrityStatus: INTEGRITY_STATUS,
+  client?: pg.PoolClient
+): Promise<void> {
+  await query(
+    "UPDATE hat.files SET integrity_status = $1 WHERE id = $2",
+    [integrityStatus, fileId],
+    client
+  );
+}
+
 /**
  * Get the currently-stored date at which the given file was last validated.
  * @param fileId - ID of file to get validation timestamp of.
@@ -335,6 +360,7 @@ export async function getLastValidationTimestamp(
  * @param params.integrityStatus - Integrity status to set on the file.
  * @param params.validatedAt - Time at which the validation started.
  * @param params.validationInfo - Metadata of the validation.
+ * @param params.validationStatus - Status of validation.
  */
 export async function addValidationResultsToFile(params: {
   client: pg.PoolClient;
@@ -343,6 +369,7 @@ export async function addValidationResultsToFile(params: {
   integrityStatus: INTEGRITY_STATUS;
   validatedAt: Date;
   validationInfo: HCAAtlasTrackerDBFileValidationInfo;
+  validationStatus: FILE_VALIDATION_STATUS;
 }): Promise<void> {
   const {
     client,
@@ -351,6 +378,7 @@ export async function addValidationResultsToFile(params: {
     integrityStatus,
     validatedAt,
     validationInfo,
+    validationStatus,
   } = params;
   await client.query(
     `
@@ -359,14 +387,16 @@ export async function addValidationResultsToFile(params: {
         integrity_status = $1,
         dataset_info = $2,
         validation_info = $3,
-        integrity_checked_at = $4
-      WHERE id = $5
+        integrity_checked_at = $4,
+        validation_status = $5
+      WHERE id = $6
     `,
     [
       integrityStatus,
       JSON.stringify(datasetInfo),
       JSON.stringify(validationInfo),
       validatedAt,
+      validationStatus,
       fileId,
     ]
   );

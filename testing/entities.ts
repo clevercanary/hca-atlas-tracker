@@ -2,8 +2,8 @@ import {
   ATLAS_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
-  FILE_STATUS,
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   GoogleSheetInfo,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -117,8 +117,8 @@ export interface TestFile {
   sha256Server?: string | null;
   sizeBytes: string;
   sourceStudyId?: string | null;
-  status?: FILE_STATUS;
   validationInfo?: HCAAtlasTrackerDBFileValidationInfo | null;
+  validationStatus?: FILE_VALIDATION_STATUS;
   versionId: string | null;
 }
 

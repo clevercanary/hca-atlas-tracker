@@ -26,6 +26,7 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
+  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
@@ -33,7 +34,6 @@ import {
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   IngestionTaskCounts,
-  INTEGRITY_STATUS,
   Network,
   NetworkKey,
   SYSTEM,
@@ -310,13 +310,15 @@ export const buildIngestionCountsHca = (
  * @returns Props to be used for the ChipCell component.
  */
 export const buildValidationStatus = (
-  validationStatus: INTEGRITY_STATUS
+  validationStatus: FILE_VALIDATION_STATUS
 ): ComponentProps<typeof C.ChipCell> => {
   return {
     getValue: (() => {
       return {
         color: CHIP_PROPS.COLOR.WARNING,
-        label: validationStatus.replace(/^./, (match) => match.toUpperCase()),
+        label: validationStatus
+          .replaceAll("_", " ")
+          .replace(/^./, (match) => match.toUpperCase()),
         variant: CHIP_PROPS.VARIANT.STATUS,
       };
     }) as Getter<ChipProps>,

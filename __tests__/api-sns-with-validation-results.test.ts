@@ -18,6 +18,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
+  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerDBFileDatasetInfo,
   INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -29,6 +30,7 @@ import {
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_BAZ,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_FOOFOO,
 } from "../testing/constants";
 import { getFileFromDatabase, resetDatabase } from "../testing/db-utils";
 import {
@@ -64,6 +66,9 @@ import snsHandler from "../pages/api/sns";
 const FILE_SOURCE_DATASET_FOO = fillTestFileDefaults(SOURCE_DATASET_FOO.file);
 const FILE_SOURCE_DATASET_BAR = fillTestFileDefaults(SOURCE_DATASET_BAR.file);
 const FILE_SOURCE_DATASET_BAZ = fillTestFileDefaults(SOURCE_DATASET_BAZ.file);
+const FILE_SOURCE_DATASET_FOOFOO = fillTestFileDefaults(
+  SOURCE_DATASET_FOOFOO.file
+);
 
 const FILE_COMPONENT_ATLAS_DRAFT_FOO = COMPONENT_ATLAS_DRAFT_FOO.file;
 
@@ -385,6 +390,69 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       }
     );
   });
+
+  it.each([
+    {
+      expectedValidationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+      messageIntegrityStatus: INTEGRITY_STATUS.VALID,
+      messageStatus: "success" as const,
+      time: "2025-09-19T07:49:49.053Z",
+    },
+    {
+      expectedValidationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+      messageIntegrityStatus: INTEGRITY_STATUS.INVALID,
+      messageStatus: "failure" as const,
+      time: "2025-09-19T07:50:03.633Z",
+    },
+    {
+      expectedValidationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
+      messageIntegrityStatus: INTEGRITY_STATUS.ERROR,
+      messageStatus: "failure" as const,
+      time: "2025-09-19T07:52:32.720Z",
+    },
+    {
+      expectedValidationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
+      messageIntegrityStatus: null,
+      messageStatus: "failure" as const,
+      time: "2025-09-19T07:52:43.908Z",
+    },
+  ])(
+    "saves correct validation status for status $messageStatus and integrity status $messageIntegrityStatus",
+    async ({
+      expectedValidationStatus,
+      messageIntegrityStatus,
+      messageStatus,
+      time,
+    }) => {
+      const snsMessageId = "sns-message-validation-statuses";
+      const batchJobId = "batch-job-validation-statuses";
+      const validationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOFOO.id,
+        integrityStatus: messageIntegrityStatus,
+        key: getTestFileKey(
+          FILE_SOURCE_DATASET_FOOFOO,
+          FILE_SOURCE_DATASET_FOOFOO.resolvedAtlas
+        ),
+        metadata: null,
+        status: messageStatus,
+        timestamp: time,
+      });
+      const snsMessage = createSNSMessage({
+        message: validationResults,
+        messageId: snsMessageId,
+        timestamp: time,
+        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+      });
+
+      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+      expect(
+        (await getFileFromDatabase(FILE_SOURCE_DATASET_FOOFOO.id))
+          ?.validation_status
+      ).toEqual(expectedValidationStatus);
+    }
+  );
 });
 
 async function doSnsRequest(

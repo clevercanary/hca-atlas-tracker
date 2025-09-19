@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.18 (Homebrew)
--- Dumped by pg_dump version 14.18 (Homebrew)
+-- Dumped from database version 14.14 (Homebrew)
+-- Dumped by pg_dump version 14.14 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -83,7 +83,7 @@ CREATE TABLE hat.component_atlases (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    title text NOT NULL
+    title text DEFAULT ''::text NOT NULL
 );
 
 
@@ -123,14 +123,17 @@ CREATE TABLE hat.files (
     sha256_server character varying(64),
     size_bytes bigint NOT NULL,
     source_study_id uuid,
-    status character varying(50) DEFAULT '''uploaded'''::character varying NOT NULL,
+    validation_status character varying(50) DEFAULT '''pending'''::character varying NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id character varying(255),
     component_atlas_id uuid,
     source_dataset_id uuid,
     sns_message_id character varying(255) NOT NULL,
+    dataset_info jsonb,
+    validation_info jsonb,
     CONSTRAINT ck_files_exclusive_parent_relationship CHECK (((((file_type)::text = 'source_dataset'::text) AND (source_dataset_id IS NOT NULL) AND (component_atlas_id IS NULL)) OR (((file_type)::text = 'integrated_object'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NOT NULL)) OR (((file_type)::text = 'ingest_manifest'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NULL)))),
-    CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'validating'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[])))
+    CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'requested'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[]))),
+    CONSTRAINT ck_files_validation_status CHECK (((validation_status)::text = ANY ((ARRAY['completed'::character varying, 'job_failed'::character varying, 'pending'::character varying, 'request_failed'::character varying, 'requested'::character varying, 'stale'::character varying])::text[])))
 );
 
 
@@ -166,7 +169,7 @@ COMMENT ON COLUMN hat.files.integrity_error IS 'Error message if integrity valid
 -- Name: COLUMN files.integrity_status; Type: COMMENT; Schema: hat; Owner: -
 --
 
-COMMENT ON COLUMN hat.files.integrity_status IS 'Status: pending, validating, valid, invalid, error';
+COMMENT ON COLUMN hat.files.integrity_status IS 'Status: pending, requested, valid, invalid, error';
 
 
 --
@@ -219,6 +222,20 @@ COMMENT ON COLUMN hat.files.sns_message_id IS 'SNS MessageId for deduplication o
 
 
 --
+-- Name: COLUMN files.dataset_info; Type: COMMENT; Schema: hat; Owner: -
+--
+
+COMMENT ON COLUMN hat.files.dataset_info IS 'Metadata from the file';
+
+
+--
+-- Name: COLUMN files.validation_info; Type: COMMENT; Schema: hat; Owner: -
+--
+
+COMMENT ON COLUMN hat.files.validation_info IS 'Metadata of the batch job and SNS message used in validating the file';
+
+
+--
 -- Name: pgmigrations; Type: TABLE; Schema: hat; Owner: -
 --
 
@@ -258,7 +275,8 @@ CREATE TABLE hat.source_datasets (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     sd_info jsonb NOT NULL,
     source_study_id uuid,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    reprocessed_status text DEFAULT 'Unspecified'::text NOT NULL
 );
 
 
@@ -439,14 +457,6 @@ ALTER TABLE ONLY hat.source_studies
 
 
 --
--- Name: component_atlases unique_component_atlases_title_atlas_id; Type: CONSTRAINT; Schema: hat; Owner: -
---
-
-ALTER TABLE ONLY hat.component_atlases
-    ADD CONSTRAINT unique_component_atlases_title_atlas_id UNIQUE (title, atlas_id);
-
-
---
 -- Name: files uq_files_bucket_key_version; Type: CONSTRAINT; Schema: hat; Owner: -
 --
 
@@ -524,7 +534,7 @@ CREATE INDEX files_source_dataset_id_index ON hat.files USING btree (source_data
 -- Name: files_status_index; Type: INDEX; Schema: hat; Owner: -
 --
 
-CREATE INDEX files_status_index ON hat.files USING btree (status);
+CREATE INDEX files_status_index ON hat.files USING btree (validation_status);
 
 
 --

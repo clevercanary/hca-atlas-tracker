@@ -63,7 +63,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   suspensionType: string[];
   tissue: string[];
   title: string;
-  validationStatus: INTEGRITY_STATUS;
+  validationStatus: FILE_VALIDATION_STATUS;
 }
 
 export interface HCAAtlasTrackerNetworkCoordinator {
@@ -129,7 +129,7 @@ export interface HCAAtlasTrackerSourceDataset {
   tissue: string[];
   title: string;
   updatedAt: string;
-  validationStatus: INTEGRITY_STATUS;
+  validationStatus: FILE_VALIDATION_STATUS;
 }
 
 export interface HCAAtlasTrackerValidationResult {
@@ -293,7 +293,12 @@ export interface HCAAtlasTrackerDBComponentAtlasInfo {
 
 export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
   HCAAtlasTrackerDBFile,
-  "dataset_info" | "id" | "integrity_status" | "key" | "size_bytes" | "status"
+  | "dataset_info"
+  | "id"
+  | "integrity_status"
+  | "key"
+  | "size_bytes"
+  | "validation_status"
 > &
   Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">;
 
@@ -400,7 +405,10 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
   HCAAtlasTrackerDBSourceDataset,
   null
 > &
-  Pick<HCAAtlasTrackerDBFile, "key" | "size_bytes" | "dataset_info">;
+  Pick<
+    HCAAtlasTrackerDBFile,
+    "key" | "size_bytes" | "dataset_info" | "validation_status"
+  >;
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;
@@ -422,9 +430,9 @@ export interface HCAAtlasTrackerDBFile {
   sns_message_id: string;
   source_dataset_id: string | null;
   source_study_id: string | null;
-  status: FILE_STATUS;
   updated_at: Date;
   validation_info: HCAAtlasTrackerDBFileValidationInfo | null;
+  validation_status: FILE_VALIDATION_STATUS;
   version_id: string | null;
 }
 
@@ -667,22 +675,27 @@ export enum ENTITY_TYPE {
   SOURCE_STUDY = "SOURCE_STUDY",
 }
 
-export enum FILE_STATUS {
-  UPLOADED = "uploaded",
-}
-
 export enum FILE_TYPE {
   INGEST_MANIFEST = "ingest_manifest",
   INTEGRATED_OBJECT = "integrated_object",
   SOURCE_DATASET = "source_dataset",
 }
 
+export enum FILE_VALIDATION_STATUS {
+  COMPLETED = "completed",
+  JOB_FAILED = "job_failed",
+  PENDING = "pending",
+  REQUEST_FAILED = "request_failed",
+  REQUESTED = "requested",
+  STALE = "stale",
+}
+
 export enum INTEGRITY_STATUS {
   ERROR = "error",
   INVALID = "invalid",
   PENDING = "pending",
+  REQUESTED = "requested",
   VALID = "valid",
-  VALIDATING = "validating",
 }
 
 export enum REPROCESSED_STATUS {

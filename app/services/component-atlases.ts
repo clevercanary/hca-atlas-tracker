@@ -29,7 +29,7 @@ export async function getAtlasComponentAtlases(
           f.integrity_status,
           f.key,
           f.size_bytes,
-          f.status
+          f.validation_status
         FROM hat.files f
         JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
         WHERE f.is_latest AND f.file_type='integrated_object' AND ca.atlas_id=$1
@@ -59,7 +59,7 @@ export async function getComponentAtlas(
         f.integrity_status,
         f.key,
         f.size_bytes,
-        f.status
+        f.validation_status
       FROM hat.files f
       JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
       WHERE f.id=$1 AND ca.atlas_id=$2
