@@ -311,12 +311,26 @@ export async function upsertFileRecord(
 
 export async function setFileValidationStatus(
   fileId: string,
-  validationStatus: FILE_VALIDATION_STATUS
+  validationStatus: FILE_VALIDATION_STATUS,
+  client?: pg.PoolClient
 ): Promise<void> {
-  await query("UPDATE hat.files SET validation_status = $1 WHERE id = $2", [
-    validationStatus,
-    fileId,
-  ]);
+  await query(
+    "UPDATE hat.files SET validation_status = $1 WHERE id = $2",
+    [validationStatus, fileId],
+    client
+  );
+}
+
+export async function setFileIntegrityStatus(
+  fileId: string,
+  integrityStatus: INTEGRITY_STATUS,
+  client?: pg.PoolClient
+): Promise<void> {
+  await query(
+    "UPDATE hat.files SET integrity_status = $1 WHERE id = $2",
+    [integrityStatus, fileId],
+    client
+  );
 }
 
 /**

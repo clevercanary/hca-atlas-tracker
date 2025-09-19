@@ -24,6 +24,7 @@ import {
   getExistingMetadataObjectId,
   getLatestEventInfo,
   markPreviousVersionsAsNotLatest,
+  setFileIntegrityStatus,
   setFileValidationStatus,
   upsertFileRecord,
 } from "../data/files";
@@ -502,11 +503,20 @@ async function startFileValidation(
   s3Key: string
 ): Promise<void> {
   try {
+    // Start job
     const { jobId } = await submitDatasetValidationJob({
       fileId,
       s3Key,
     });
-    await setFileValidationStatus(fileId, FILE_VALIDATION_STATUS.REQUESTED);
+    // Update validation status and integrity status to reflect the in-progress validation
+    await doTransaction(async (client) => {
+      await setFileValidationStatus(
+        fileId,
+        FILE_VALIDATION_STATUS.REQUESTED,
+        client
+      );
+      await setFileIntegrityStatus(fileId, INTEGRITY_STATUS.VALIDATING, client);
+    });
     console.log(
       `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`
     );
@@ -515,6 +525,7 @@ async function startFileValidation(
       `An error occurred while starting validation for ${s3Key} (file ${fileId}):`,
       e
     );
+    // Update validation status to note that the validation request failed
     await setFileValidationStatus(
       fileId,
       FILE_VALIDATION_STATUS.REQUEST_FAILED
