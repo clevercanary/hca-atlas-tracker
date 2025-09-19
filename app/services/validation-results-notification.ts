@@ -4,6 +4,7 @@ import {
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
+  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
@@ -44,6 +45,12 @@ export async function processValidationResultsMessage(
   const newValidationTime = new Date(validationResults.timestamp);
   const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
   const validationInfo = getValidationInfo(validationResults, snsMessage);
+  const validationStatus =
+    validationResults.status === "success"
+      ? FILE_VALIDATION_STATUS.COMPLETED
+      : validationResults.integrity_status === INTEGRITY_STATUS.INVALID // Currently, the dataset validator sets the status as "failure" when the integrity check doesn't pass
+      ? FILE_VALIDATION_STATUS.COMPLETED
+      : FILE_VALIDATION_STATUS.JOB_FAILED;
 
   await doTransaction(async (client) => {
     const lastValidationTime = await getLastValidationTimestamp(fileId, client);
@@ -62,6 +69,7 @@ export async function processValidationResultsMessage(
         validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
       validatedAt: newValidationTime,
       validationInfo,
+      validationStatus,
     });
   });
 }

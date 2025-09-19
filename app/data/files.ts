@@ -346,6 +346,7 @@ export async function getLastValidationTimestamp(
  * @param params.integrityStatus - Integrity status to set on the file.
  * @param params.validatedAt - Time at which the validation started.
  * @param params.validationInfo - Metadata of the validation.
+ * @param params.validationStatus - Status of validation.
  */
 export async function addValidationResultsToFile(params: {
   client: pg.PoolClient;
@@ -354,6 +355,7 @@ export async function addValidationResultsToFile(params: {
   integrityStatus: INTEGRITY_STATUS;
   validatedAt: Date;
   validationInfo: HCAAtlasTrackerDBFileValidationInfo;
+  validationStatus: FILE_VALIDATION_STATUS;
 }): Promise<void> {
   const {
     client,
@@ -362,6 +364,7 @@ export async function addValidationResultsToFile(params: {
     integrityStatus,
     validatedAt,
     validationInfo,
+    validationStatus,
   } = params;
   await client.query(
     `
@@ -370,14 +373,16 @@ export async function addValidationResultsToFile(params: {
         integrity_status = $1,
         dataset_info = $2,
         validation_info = $3,
-        integrity_checked_at = $4
-      WHERE id = $5
+        integrity_checked_at = $4,
+        validation_status = $5
+      WHERE id = $6
     `,
     [
       integrityStatus,
       JSON.stringify(datasetInfo),
       JSON.stringify(validationInfo),
       validatedAt,
+      validationStatus,
       fileId,
     ]
   );
