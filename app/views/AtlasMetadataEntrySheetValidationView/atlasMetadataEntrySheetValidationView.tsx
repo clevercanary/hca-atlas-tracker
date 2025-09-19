@@ -2,7 +2,6 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import { PathParameter } from "../../common/entities";
-import { AccessDeniedPrompt } from "../../components/common/Form/components/FormManager/components/AccessDeniedPrompt/accessDeniedPrompt";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
@@ -77,7 +76,7 @@ export const AtlasMetadataEntrySheetValidationView = ({
  */
 function renderAccessFallback(formManager: FormManager): JSX.Element | null {
   const {
-    access: { canEdit, canView },
+    access: { canView },
   } = formManager;
   if (!canView)
     return (
@@ -86,6 +85,5 @@ function renderAccessFallback(formManager: FormManager): JSX.Element | null {
         text="to view metadata entry sheet validation"
       />
     );
-  if (!canEdit) return <AccessDeniedPrompt divider={<Divider />} />;
   return null;
 }
