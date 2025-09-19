@@ -2,6 +2,7 @@ import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -201,7 +202,7 @@ export async function confirmFileExistsOnAtlas(
  * @param fileData.sizeBytes - File size in bytes
  * @param fileData.sourceDatasetId - Source dataset ID (if applicable)
  * @param fileData.snsMessageId - SNS MessageId for deduplication
- * @param fileData.status - File processing status
+ * @param fileData.validationStatus - File validation status
  * @param fileData.versionId - S3 object version ID
  * @param transaction - Database transaction to use
  * @throws {ETagMismatchError} When an existing record has a different ETag for the same bucket/key/version
@@ -221,7 +222,7 @@ export async function upsertFileRecord(
     sizeBytes: number;
     snsMessageId: string;
     sourceDatasetId: string | null;
-    status: string;
+    validationStatus: FILE_VALIDATION_STATUS;
     versionId: string | null;
   },
   transaction: pg.PoolClient
@@ -248,7 +249,7 @@ export async function upsertFileRecord(
 
   const isLatest = fileData.isLatest ?? true;
   const result = await transaction.query<FileUpsertResult>(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
@@ -272,7 +273,7 @@ export async function upsertFileRecord(
       fileData.eventInfo,
       fileData.sha256Client,
       fileData.integrityStatus,
-      fileData.status,
+      fileData.validationStatus,
       isLatest,
       fileData.fileType,
       fileData.sourceDatasetId,

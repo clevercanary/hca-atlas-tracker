@@ -5,8 +5,8 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
-  FILE_STATUS,
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   FileEventInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
@@ -225,7 +225,7 @@ async function generateAndAddFile(
       JSON.stringify(eventInfo),
       null,
       INTEGRITY_STATUS.PENDING,
-      FILE_STATUS.UPLOADED,
+      FILE_VALIDATION_STATUS.PENDING,
       fileType,
       sourceDatasetId,
       componentAtlasId,

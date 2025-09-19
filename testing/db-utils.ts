@@ -4,6 +4,7 @@ import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";
 import {
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   FileEventInfo,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComment,
@@ -16,6 +17,7 @@ import {
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
+  INTEGRITY_STATUS,
   REPROCESSED_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
@@ -227,8 +229,8 @@ async function initTestFile(
     sha256Client,
     sha256Server,
     sizeBytes,
-    status,
     validationInfo,
+    validationStatus,
     versionId,
   } = fillTestFileDefaults(file);
   const key = getTestFileKey(file, atlas);
@@ -238,7 +240,7 @@ async function initTestFile(
   };
   await client.query(
     `
-      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id, dataset_info, validation_info)
+      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, validation_status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id, dataset_info, validation_info)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
     `,
     [
@@ -254,7 +256,7 @@ async function initTestFile(
       integrityCheckedAt,
       integrityError,
       integrityStatus,
-      status,
+      validationStatus,
       isLatest,
       fileType,
       sourceDatasetId,
@@ -345,7 +347,7 @@ export async function createTestFile(
   };
   await query(
     `INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, 
-     sha256_client, integrity_status, status, is_latest, file_type, component_atlas_id, source_dataset_id, sns_message_id, created_at, updated_at)
+     sha256_client, integrity_status, validation_status, is_latest, file_type, component_atlas_id, source_dataset_id, sns_message_id, created_at, updated_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
     [
       fileId,
@@ -356,8 +358,8 @@ export async function createTestFile(
       config.sizeBytes,
       JSON.stringify(eventInfo),
       null, // sha256Client
-      "pending", // integrityStatus - matches INTEGRITY_STATUS.PENDING
-      "uploaded", // status - matches FILE_STATUS.UPLOADED
+      INTEGRITY_STATUS.PENDING,
+      FILE_VALIDATION_STATUS.PENDING,
       true, // isLatest
       config.fileType,
       config.componentAtlasId ?? null,

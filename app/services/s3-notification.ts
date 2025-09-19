@@ -8,8 +8,8 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  FILE_STATUS,
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   FileEventInfo,
   INTEGRITY_STATUS,
   NetworkKey,
@@ -469,7 +469,7 @@ export async function saveFileRecord(
         snsMessageId,
         sourceDatasetId:
           fileType === FILE_TYPE.SOURCE_DATASET ? metadataObjectId : null,
-        status: FILE_STATUS.UPLOADED,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: object.versionId || null,
       },
       transaction

@@ -28,6 +28,10 @@ setUpAwsConfig();
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import {
+  FILE_VALIDATION_STATUS,
+  INTEGRITY_STATUS,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
@@ -1184,7 +1188,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     await expect(
       query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, component_atlas_id)
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_study_id, component_atlas_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)`,
         [
           "test-bucket",
@@ -1197,8 +1201,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
             eventTime: TEST_TIMESTAMP_ALT,
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          "pending",
-          "uploaded",
+          INTEGRITY_STATUS.PENDING,
+          FILE_VALIDATION_STATUS.PENDING,
           "source_dataset", // source_dataset with component_atlas_id should be rejected
           TEST_GUT_ATLAS_ID, // This should cause constraint violation
         ]
@@ -1212,7 +1216,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     await expect(
       query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, status, is_latest, file_type, source_study_id, component_atlas_id)
+        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_study_id, component_atlas_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, NULL)`,
         [
           "test-bucket",
@@ -1225,8 +1229,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
             eventTime: TEST_TIMESTAMP_ALT,
           }),
           "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          "pending",
-          "uploaded",
+          INTEGRITY_STATUS.PENDING,
+          FILE_VALIDATION_STATUS.PENDING,
           "integrated_object", // integrated_object without component_atlas_id should be rejected
           // component_atlas_id is NULL, which should cause constraint violation
         ]

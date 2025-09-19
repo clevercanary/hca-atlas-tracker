@@ -1,7 +1,7 @@
 import { ETagMismatchError } from "../app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
-  FILE_STATUS,
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   INTEGRITY_STATUS,
   NetworkKey,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -199,7 +199,7 @@ describe("upsertFileRecord", () => {
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: TEST_SNS_MESSAGE_ID,
         sourceDatasetId: null,
-        status: FILE_STATUS.UPLOADED,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: TEST_VERSION_ID,
       };
 
@@ -238,7 +238,7 @@ describe("upsertFileRecord", () => {
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: TEST_SNS_MESSAGE_ID,
         sourceDatasetId: null, // Must be null for integrated_object
-        status: FILE_STATUS.UPLOADED,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: TEST_VERSION_ID,
       };
 
@@ -278,7 +278,7 @@ describe("upsertFileRecord", () => {
         sizeBytes: 2048,
         snsMessageId: "test-sns-message-789",
         sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id, // Valid UUID for source_dataset
-        status: FILE_STATUS.UPLOADED,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: null, // This should be allowed
       };
 
@@ -315,7 +315,7 @@ describe("upsertFileRecord", () => {
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: "original-sns-message",
         sourceDatasetId: null,
-        status: FILE_STATUS.UPLOADED,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: "test-version-123",
       };
 
@@ -395,7 +395,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sizeBytes: 1024,
           snsMessageId: "sns-message-v1",
           sourceDatasetId: null,
-          status: FILE_STATUS.UPLOADED,
+          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
         transaction
@@ -415,7 +415,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sizeBytes: 2048,
           snsMessageId: "sns-message-v2",
           sourceDatasetId: null,
-          status: FILE_STATUS.UPLOADED,
+          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
         transaction
@@ -457,7 +457,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sizeBytes: 1024,
           snsMessageId: "sns-message-1",
           sourceDatasetId: null,
-          status: FILE_STATUS.UPLOADED,
+          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
         transaction
@@ -476,7 +476,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sizeBytes: 1024,
           snsMessageId: "sns-message-2",
           sourceDatasetId: null,
-          status: FILE_STATUS.UPLOADED,
+          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
         transaction
@@ -527,7 +527,7 @@ describe("getExistingMetadataObjectId", () => {
             sizeBytes: 2048,
             snsMessageId: "test-sns-integrated",
             sourceDatasetId: null,
-            status: FILE_STATUS.UPLOADED,
+            validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-integrated",
           },
           transaction
@@ -577,7 +577,7 @@ describe("getExistingMetadataObjectId", () => {
             sizeBytes: 1024,
             snsMessageId: "test-sns-1",
             sourceDatasetId: null,
-            status: FILE_STATUS.UPLOADED,
+            validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-v1",
           },
           transaction
@@ -597,7 +597,7 @@ describe("getExistingMetadataObjectId", () => {
             sizeBytes: 2048,
             snsMessageId: "test-sns-2",
             sourceDatasetId: null,
-            status: FILE_STATUS.UPLOADED,
+            validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-2",
           },
           transaction
@@ -644,7 +644,7 @@ describe("getExistingMetadataObjectId", () => {
             sizeBytes: 1024,
             snsMessageId: "test-sns-source",
             sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
-            status: FILE_STATUS.UPLOADED,
+            validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-source",
           },
           transaction
@@ -697,7 +697,7 @@ describe("getExistingMetadataObjectId", () => {
             sizeBytes: 1024,
             snsMessageId: "test-sns-integrated",
             sourceDatasetId: null,
-            status: FILE_STATUS.UPLOADED,
+            validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-integrated",
           },
           transaction
@@ -717,7 +717,7 @@ describe("getExistingMetadataObjectId", () => {
             sizeBytes: 2048,
             snsMessageId: "test-sns-source",
             sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
-            status: FILE_STATUS.UPLOADED,
+            validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-source",
           },
           transaction
@@ -764,7 +764,7 @@ describe("getExistingMetadataObjectId", () => {
             sizeBytes: 512,
             snsMessageId: "test-sns-manifest",
             sourceDatasetId: null,
-            status: FILE_STATUS.UPLOADED,
+            validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-manifest",
           },
           transaction

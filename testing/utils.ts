@@ -3,8 +3,8 @@ import httpMocks from "node-mocks-http";
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
-  FILE_STATUS,
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
@@ -264,7 +264,7 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sha256Client = null,
     sha256Server = null,
     sourceStudyId = null,
-    status = FILE_STATUS.UPLOADED,
+    validationStatus = FILE_VALIDATION_STATUS.PENDING,
     ...restFields
   } = file;
   const resolvedAtlas = typeof atlas === "function" ? atlas() : atlas;
@@ -290,8 +290,8 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sha256Client,
     sha256Server,
     sourceStudyId,
-    status,
     validationInfo,
+    validationStatus,
     ...restFields,
   };
 }
