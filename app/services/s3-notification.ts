@@ -498,6 +498,11 @@ async function saveFileRecord(
   });
 }
 
+/**
+ * Start a validation batch job for a given file, updating its validation status and integrity status as appropriate.
+ * @param fileId - ID of the file to validate.
+ * @param s3Key - S3 key of the file to validate.
+ */
 async function startFileValidation(
   fileId: string,
   s3Key: string
