@@ -347,6 +347,7 @@ function logFileOperation(
  * Saves or updates a file record in the database with idempotency handling
  * @param record - The S3 event record containing bucket, object, and event metadata
  * @param snsMessageId - SNS MessageId for proper message-level idempotency
+ * @returns info to be used for further processing (namely starting validation)
  * @throws ETagMismatchError if ETags don't match (indicates potential corruption)
  * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
  * @throws UnknownFolderTypeError if folder type is not recognized
@@ -354,10 +355,14 @@ function logFileOperation(
  * @note Uses PostgreSQL ON CONFLICT for atomic idempotency handling
  * @note Implements database transaction to ensure is_latest flag consistency
  */
-export async function saveFileRecord(
+async function saveFileRecord(
   record: S3EventRecord,
   snsMessageId: string
-): Promise<void> {
+): Promise<{
+  fileId: string;
+  s3Key: string;
+  shouldValidate: boolean;
+}> {
   const { bucket, object } = record.s3;
 
   const eventInfo: FileEventInfo = {
@@ -390,7 +395,7 @@ export async function saveFileRecord(
   // - Pre-read + conditional insert: Race conditions, multiple queries, performance impact
   // - Application-level locking: Complex, doesn't scale, potential deadlocks
   // - Ignore duplicates: Loses important ETag mismatch detection
-  await doTransaction(async (transaction) => {
+  return await doTransaction(async (transaction) => {
     // STEP 1: Get existing metadata object ID based on file type
     // This is needed before creating new metadata objects or updating existing ones
     let metadataObjectId: string | null = null;
@@ -478,22 +483,46 @@ export async function saveFileRecord(
     // CASE 2 & 3: Success - log the operation type for monitoring
     logFileOperation(result.operation, bucket, object, isNewFile);
 
-    // Start validation job if a new latest record of the appropriate type was created
-    if (
-      result.operation === "inserted" &&
-      isLatestForInsert &&
-      VALID_FILE_TYPES_FOR_VALIDATION.includes(fileType)
-    ) {
-      const { jobId } = await submitDatasetValidationJob({
-        fileId: result.id,
-        s3Key: object.key,
-      });
-
-      console.log(
-        `Started Batch job ${jobId} to validate ${object.key} (file ${result.id})`
-      );
-    }
+    // Return info for additional processing
+    return {
+      fileId: result.id,
+      s3Key: object.key,
+      // Validation should be done if a new latest record of the appropriate type was created
+      shouldValidate:
+        result.operation === "inserted" &&
+        isLatestForInsert &&
+        VALID_FILE_TYPES_FOR_VALIDATION.includes(fileType),
+    };
   });
+}
+
+async function startFileValidation(
+  fileId: string,
+  s3Key: string
+): Promise<void> {
+  const { jobId } = await submitDatasetValidationJob({
+    fileId,
+    s3Key,
+  });
+
+  console.log(
+    `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`
+  );
+}
+
+export async function saveAndProcessFileRecord(
+  record: S3EventRecord,
+  snsMessageId: string
+): Promise<void> {
+  const { fileId, s3Key, shouldValidate } = await saveFileRecord(
+    record,
+    snsMessageId
+  );
+
+  // Start validation job if appropriate
+  if (shouldValidate) {
+    await startFileValidation(fileId, s3Key);
+  }
 }
 
 /**
@@ -523,7 +552,7 @@ export async function processS3Record(
   authorizeS3Buckets(s3Event);
 
   const record = s3Event.Records[0];
-  await saveFileRecord(record, snsMessage.MessageId);
+  await saveAndProcessFileRecord(record, snsMessage.MessageId);
 }
 
 /**

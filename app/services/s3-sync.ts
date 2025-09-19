@@ -6,7 +6,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { S3EventRecord } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
-import { saveFileRecord } from "./s3-notification";
+import { saveAndProcessFileRecord } from "./s3-notification";
 
 const HEAD_BATCH_SIZE = 20;
 
@@ -36,7 +36,10 @@ async function saveFilesFromEventRecords(
 ): Promise<void> {
   for (const record of records) {
     try {
-      await saveFileRecord(record, `SYNTHETIC-${crypto.randomUUID()}`);
+      await saveAndProcessFileRecord(
+        record,
+        `SYNTHETIC-${crypto.randomUUID()}`
+      );
     } catch (e) {
       console.error(
         `S3 sync: Encountered error while saving file for s3://${record.s3.bucket.name}/${record.s3.object.key}`
