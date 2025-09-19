@@ -412,7 +412,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     },
     {
       expectedValidationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
-      messageIntegrityStatus: INTEGRITY_STATUS.PENDING,
+      messageIntegrityStatus: null,
       messageStatus: "failure" as const,
       time: "2025-09-19T07:52:43.908Z",
     },
