@@ -1,7 +1,6 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment } from "react";
 import { PathParameter } from "../../common/entities";
-import { AccessDeniedPrompt } from "../../components/common/Form/components/FormManager/components/AccessDeniedPrompt/accessDeniedPrompt";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
@@ -62,12 +61,11 @@ export const AtlasSourceDatasetView = ({
  */
 function renderAccessFallback(formManager: FormManager): JSX.Element | null {
   const {
-    access: { canEdit, canView },
+    access: { canView },
   } = formManager;
   if (!canView)
     return (
       <AccessPrompt divider={<Divider />} text="to view the source dataset" />
     );
-  if (!canEdit) return <AccessDeniedPrompt divider={<Divider />} />;
   return null;
 }
