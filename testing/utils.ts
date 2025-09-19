@@ -572,6 +572,7 @@ export function expectApiSourceDatasetToMatchTest(
   );
   expect(apiSourceDataset.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title ?? "");
+  expect(apiSourceDataset.validationStatus).toEqual(testFile.validationStatus);
 }
 
 export function expectDbSourceDatasetToMatchTest(
@@ -629,6 +630,7 @@ export function expectApiComponentAtlasToMatchTest(
     testFile.datasetInfo?.suspensionType ?? []
   );
   expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
+  expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
 
   // TODO: check for test component atlas fields once they're included
 }
