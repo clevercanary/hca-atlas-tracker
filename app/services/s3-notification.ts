@@ -24,8 +24,6 @@ import {
   getExistingMetadataObjectId,
   getLatestEventInfo,
   markPreviousVersionsAsNotLatest,
-  setFileIntegrityStatus,
-  setFileValidationStatus,
   upsertFileRecord,
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
@@ -35,8 +33,8 @@ import {
   resetComponentAtlasInfo,
 } from "./component-atlases";
 import { doTransaction } from "./database";
+import { startFileValidation } from "./files";
 import { createSourceDataset, resetSourceDatasetInfo } from "./source-datasets";
-import { submitDatasetValidationJob } from "./validator-batch";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -496,46 +494,6 @@ async function saveFileRecord(
         VALID_FILE_TYPES_FOR_VALIDATION.includes(fileType),
     };
   });
-}
-
-/**
- * Start a validation batch job for a given file, updating its validation status and integrity status as appropriate.
- * @param fileId - ID of the file to validate.
- * @param s3Key - S3 key of the file to validate.
- */
-async function startFileValidation(
-  fileId: string,
-  s3Key: string
-): Promise<void> {
-  try {
-    // Start job
-    const { jobId } = await submitDatasetValidationJob({
-      fileId,
-      s3Key,
-    });
-    // Update validation status and integrity status to reflect the in-progress validation
-    await doTransaction(async (client) => {
-      await setFileValidationStatus(
-        fileId,
-        FILE_VALIDATION_STATUS.REQUESTED,
-        client
-      );
-      await setFileIntegrityStatus(fileId, INTEGRITY_STATUS.REQUESTED, client);
-    });
-    console.log(
-      `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`
-    );
-  } catch (e) {
-    console.error(
-      `An error occurred while starting validation for ${s3Key} (file ${fileId}):`,
-      e
-    );
-    // Update validation status to note that the validation request failed
-    await setFileValidationStatus(
-      fileId,
-      FILE_VALIDATION_STATUS.REQUEST_FAILED
-    );
-  }
 }
 
 export async function saveAndProcessFileRecord(
