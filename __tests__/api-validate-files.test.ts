@@ -12,7 +12,7 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { TestUser } from "../testing/entities";
+import { TestFile, TestUser } from "../testing/entities";
 import {
   getAllTestFiles,
   testApiRole,
@@ -53,6 +53,20 @@ afterAll(() => {
 });
 
 const TEST_ROUTE = "/api/validate-files";
+
+const expectedValidatedTestFiles: TestFile[] = [];
+const expectedUnvalidatedTestFiles: TestFile[] = [];
+
+for (const testFile of getAllTestFiles()) {
+  const isValidType =
+    testFile.fileType === FILE_TYPE.INTEGRATED_OBJECT ||
+    testFile.fileType === FILE_TYPE.SOURCE_DATASET;
+  if (isValidType && testFile.isLatest !== false) {
+    expectedValidatedTestFiles.push(testFile);
+  } else {
+    expectedUnvalidatedTestFiles.push(testFile);
+  }
+}
 
 describe(TEST_ROUTE, () => {
   it("returns error 405 for GET request", async () => {
@@ -100,6 +114,8 @@ describe(TEST_ROUTE, () => {
   }
 
   it("starts validation for all latest-version source dataset and integrated object files when requested by content admin", async () => {
+    mockSubmitJob.mockClear();
+
     expect(
       (
         await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
@@ -108,20 +124,41 @@ describe(TEST_ROUTE, () => {
 
     await resolveValidate();
 
-    for (const testFile of getAllTestFiles()) {
-      const isValidType =
-        testFile.fileType === FILE_TYPE.INTEGRATED_OBJECT ||
-        testFile.fileType === FILE_TYPE.SOURCE_DATASET;
-      if (isValidType && testFile.isLatest !== false) {
-        expect(mockSubmitJob).toHaveBeenCalledWith(
-          expect.objectContaining({ fileId: testFile.id })
-        );
-      } else {
-        expect(mockSubmitJob).not.toHaveBeenCalledWith(
-          expect.objectContaining({ fileId: testFile.id })
-        );
-      }
+    expect(mockSubmitJob).toHaveBeenCalledTimes(
+      expectedValidatedTestFiles.length
+    );
+
+    for (const testFile of expectedValidatedTestFiles) {
+      expect(mockSubmitJob).toHaveBeenCalledWith(
+        expect.objectContaining({ fileId: testFile.id })
+      );
     }
+
+    for (const testFile of expectedUnvalidatedTestFiles) {
+      expect(mockSubmitJob).not.toHaveBeenCalledWith(
+        expect.objectContaining({ fileId: testFile.id })
+      );
+    }
+  });
+
+  it("continues processing files when an error occurs while starting a batch job", async () => {
+    mockSubmitJob.mockClear();
+
+    mockSubmitJob.mockImplementationOnce(() => {
+      throw new Error("Error starting job");
+    });
+
+    expect(
+      (
+        await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
+      )._getStatusCode()
+    ).toEqual(202);
+
+    await resolveValidate();
+
+    expect(mockSubmitJob).toHaveReturnedTimes(
+      expectedValidatedTestFiles.length - 1
+    );
   });
 });
 
