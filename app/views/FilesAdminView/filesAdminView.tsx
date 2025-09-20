@@ -14,7 +14,7 @@ export const FilesAdminView = (): JSX.Element => {
     <ContentView
       content={
         <Content>
-          <h1>Sync Files From S3</h1>
+          <h1>Manage files</h1>
           {isAuthenticated ? (
             <FilesAdminForm />
           ) : (
