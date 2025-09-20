@@ -39,6 +39,9 @@ import { Handler } from "../app/utils/api-handler";
 import {
   ATLAS_DRAFT,
   DEFAULT_USERS_BY_ROLE,
+  INITIAL_STANDALONE_TEST_FILES,
+  INITIAL_TEST_COMPONENT_ATLASES,
+  INITIAL_TEST_SOURCE_DATASETS,
   INTEGRATION_LEADS_BY_ATLAS_ID,
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
@@ -339,6 +342,15 @@ export function getTestSourceStudyCitation(
       sourceStudy.unpublishedInfo.contactEmail
     );
   }
+}
+
+export function getAllTestFiles(): TestFile[] {
+  return INITIAL_TEST_SOURCE_DATASETS.map((d) => d.file ?? [])
+    .concat(
+      INITIAL_TEST_COMPONENT_ATLASES.map((c) => c.file ?? []),
+      INITIAL_STANDALONE_TEST_FILES
+    )
+    .flat();
 }
 
 export function withConsoleErrorHiding<T>(
