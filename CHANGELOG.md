@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.34.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.33.0...v1.34.0) (2025-09-19)
+
+
+### Features
+
+* update process of starting file validation and of handling of validation status ([#847](https://github.com/clevercanary/hca-atlas-tracker/issues/847)) ([#856](https://github.com/clevercanary/hca-atlas-tracker/issues/856)) ([5d046d9](https://github.com/clevercanary/hca-atlas-tracker/commit/5d046d956aa1f7a1aa08dcd2370edad5adcc1644))
+
+
+### Bug Fixes
+
+* fix fallback message for empty integration objects and other similar pages ([#774](https://github.com/clevercanary/hca-atlas-tracker/issues/774)) ([#854](https://github.com/clevercanary/hca-atlas-tracker/issues/854)) ([a91a871](https://github.com/clevercanary/hca-atlas-tracker/commit/a91a8715d9f810802da65c2d4f222d0bf12d0288))
+* make atlas source dataset and metadata pages visible to stakeholders ([#857](https://github.com/clevercanary/hca-atlas-tracker/issues/857)) ([#859](https://github.com/clevercanary/hca-atlas-tracker/issues/859)) ([234d497](https://github.com/clevercanary/hca-atlas-tracker/commit/234d4977f449035657e762762baf05e84b04d02a))
+
 ## [1.33.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.32.0...v1.33.0) (2025-09-18)
 
 
