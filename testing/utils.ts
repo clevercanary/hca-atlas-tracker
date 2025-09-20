@@ -345,12 +345,10 @@ export function getTestSourceStudyCitation(
 }
 
 export function getAllTestFiles(): TestFile[] {
-  return INITIAL_TEST_SOURCE_DATASETS.map((d) => d.file ?? [])
-    .concat(
-      INITIAL_TEST_COMPONENT_ATLASES.map((c) => c.file ?? []),
-      INITIAL_STANDALONE_TEST_FILES
-    )
-    .flat();
+  return INITIAL_STANDALONE_TEST_FILES.concat(
+    INITIAL_TEST_SOURCE_DATASETS.flatMap((d) => d.file ?? []),
+    INITIAL_TEST_COMPONENT_ATLASES.flatMap((c) => c.file ?? [])
+  );
 }
 
 export function withConsoleErrorHiding<T>(
