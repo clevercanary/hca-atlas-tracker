@@ -26,7 +26,7 @@ export async function validateAllFiles(): Promise<void> {
  * Start a validation batch job for a given file, updating its validation status and integrity status as appropriate.
  * @param fileId - ID of the file to validate.
  * @param s3Key - S3 key of the file to validate.
- * @note Any errors thrown while starting the validation will be caught and logged rather than being propagated.
+ * @note Any errors thrown while starting the validation (but not necessarily errors outside of that) will be caught and logged rather than being propagated.
  */
 export async function startFileValidation(
   fileId: string,
