@@ -310,7 +310,7 @@ export async function upsertFileRecord(
 }
 
 /**
- * For every file, get the information necessary to validate that file.
+ * For every latest-version file, get the information necessary to validate that file.
  * @returns array of files with minimal fields for starting validation.
  */
 export async function getAllFilesValidationParams(): Promise<
@@ -318,7 +318,7 @@ export async function getAllFilesValidationParams(): Promise<
 > {
   return (
     await query<Pick<HCAAtlasTrackerDBFile, "file_type" | "id" | "key">>(
-      "SELECT file_type, id, key FROM hat.files"
+      "SELECT file_type, id, key FROM hat.files WHERE is_latest"
     )
   ).rows;
 }
