@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.34.0...v1.35.0) (2025-09-21)
+
+
+### Features
+
+* add api and interface for starting validation of all files ([#858](https://github.com/clevercanary/hca-atlas-tracker/issues/858)) ([#860](https://github.com/clevercanary/hca-atlas-tracker/issues/860)) ([514a3b0](https://github.com/clevercanary/hca-atlas-tracker/commit/514a3b06feea5d7e89519fde0fdaefc841e0c6bd))
+
 ## [1.34.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.33.0...v1.34.0) (2025-09-19)
 
 
