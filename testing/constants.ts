@@ -2855,6 +2855,50 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
 ];
 
+// STANDALONE FILES
+
+export const FILE_MANIFEST_FOO = {
+  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
+  bucket: "bucket-foo",
+  etag: "22826de20e224ffb82c58bfc1fd34710",
+  eventTime: "2025-09-20T19:39:50.262Z",
+  fileName: "manifest-foo.json",
+  fileType: FILE_TYPE.INGEST_MANIFEST,
+  id: "d56f249a-b60f-4b61-935e-345036e3e0ed",
+  sizeBytes: "345",
+  versionId: null,
+} satisfies TestFile;
+
+export const FILE_MANIFEST_BAR = {
+  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
+  bucket: "bucket-bar",
+  etag: "cc2a6d68bbd0421fb227441bf7e55da0",
+  eventTime: "2025-09-20T19:43:54.367Z",
+  fileName: "manifest-bar.json",
+  fileType: FILE_TYPE.INGEST_MANIFEST,
+  id: "1015617e-7309-472f-9a6d-5cda7d0b7529",
+  sizeBytes: "235",
+  versionId: null,
+} satisfies TestFile;
+
+export const FILE_MANIFEST_BAZ = {
+  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
+  bucket: "bucket-baz",
+  etag: "2ffdea9597dc4b40aa386c50a2506f40",
+  eventTime: "2025-09-20T19:44:41.072Z",
+  fileName: "manifest-baz.json",
+  fileType: FILE_TYPE.INGEST_MANIFEST,
+  id: "268a4a2a-a5ea-405c-b22f-28f7d4ea9731",
+  sizeBytes: "342",
+  versionId: null,
+} satisfies TestFile;
+
+export const INITIAL_STANDALONE_TEST_FILES: TestFile[] = [
+  FILE_MANIFEST_FOO,
+  FILE_MANIFEST_BAR,
+  FILE_MANIFEST_BAZ,
+];
+
 // ENTRY SHEET VALIDATIONS
 
 export const ENTRY_SHEET_VALIDATION_DRAFT_OK_FOO: TestEntrySheetValidation = {

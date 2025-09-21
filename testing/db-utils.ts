@@ -23,6 +23,7 @@ import {
 import { updateTaskCounts } from "../app/services/atlases";
 import { endPgPool, getPoolClient, query } from "../app/services/database";
 import {
+  INITIAL_STANDALONE_TEST_FILES,
   INITIAL_TEST_ATLASES,
   INITIAL_TEST_COMMENTS,
   INITIAL_TEST_COMPONENT_ATLASES,
@@ -204,6 +205,9 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
     for (const file of getTestEntityFilesArray(sourceDataset)) {
       await initTestFile(client, file, null, sourceDataset.id);
     }
+  }
+  for (const file of INITIAL_STANDALONE_TEST_FILES) {
+    await initTestFile(client, file, null, null);
   }
 }
 

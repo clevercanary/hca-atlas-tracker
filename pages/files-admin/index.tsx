@@ -1,19 +1,19 @@
 import { Main } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/components/Main/main";
 import { GetStaticProps } from "next";
-import { SyncFilesView } from "../../app/views/SyncFilesView/syncFilesView";
+import { FilesAdminView } from "../../app/views/FilesAdminView/filesAdminView";
 
 export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
-      pageTitle: "Sync Files From S3",
+      pageTitle: "Manage files",
     },
   };
 };
 
-const SyncFilesPage = (): JSX.Element => {
-  return <SyncFilesView />;
+const FilesAdminPage = (): JSX.Element => {
+  return <FilesAdminView />;
 };
 
-SyncFilesPage.Main = Main;
+FilesAdminPage.Main = Main;
 
-export default SyncFilesPage;
+export default FilesAdminPage;
