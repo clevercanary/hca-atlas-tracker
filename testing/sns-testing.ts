@@ -1,10 +1,15 @@
 import {
   DatasetValidatorResults,
+  DatasetValidatorToolReport,
+  DatasetValidatorToolReports,
   S3Event,
   S3Object,
   SNSMessage,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
+  FileValidationReport,
+  FileValidationReports,
+  FileValidationSummary,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
@@ -117,13 +122,20 @@ export function createS3Event(options: S3EventOptions): S3Event {
   };
 }
 
-const SUCCESSFUL_TOOL_REPORTS = {
+export const SUCCESSFUL_TOOL_REPORTS: DatasetValidatorToolReports = {
   cap: {
     errors: [],
     finished_at: TEST_TIMESTAMP,
     started_at: TEST_TIMESTAMP,
     valid: true,
     warnings: [],
+  },
+};
+
+export const SUCCESSFUL_VALIDATION_SUMMARY: FileValidationSummary = {
+  overallValid: true,
+  validators: {
+    cap: true,
   },
 };
 
@@ -147,7 +159,7 @@ export interface ValidationResultsOptions {
   sourceSha256?: string | null;
   status?: DatasetValidatorResults["status"];
   timestamp?: string;
-  toolReports?: DatasetValidatorResults["tool_reports"];
+  toolReports?: DatasetValidatorToolReports;
 }
 
 export function createValidationResults(
@@ -283,7 +295,9 @@ export async function expectDbFileValidationFieldsToMatch(
   validationTime: string,
   integrityStatus: INTEGRITY_STATUS,
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo,
-  validationInfo: HCAAtlasTrackerDBFileValidationInfo
+  validationInfo: HCAAtlasTrackerDBFileValidationInfo,
+  validationReports: DatasetValidatorToolReports | null,
+  validationSummary: FileValidationSummary | null
 ): Promise<void> {
   const file = await getFileFromDatabase(fileId);
   if (!expectIsDefined(file)) return;
@@ -292,4 +306,43 @@ export async function expectDbFileValidationFieldsToMatch(
   expect(file.integrity_checked_at?.toISOString()).toEqual(validationTime);
   expect(file.integrity_status).toEqual(integrityStatus);
   expect(file.validation_info).toEqual(validationInfo);
+
+  if (validationReports === null) {
+    expect(file.validation_reports).toBeNull();
+  } else {
+    expect(file.validation_reports).not.toBeNull();
+    if (file.validation_reports !== null) {
+      expectFileValidationReportsToMatchInput(
+        file.validation_reports,
+        validationReports
+      );
+    }
+  }
+
+  expect(file.validation_summary).toEqual(validationSummary);
+}
+
+function expectFileValidationReportsToMatchInput(
+  validationReports: FileValidationReports,
+  inputValidationReports: DatasetValidatorToolReports
+): void {
+  if (expectIsDefined(validationReports.cap)) {
+    expectFileValidationReportToMatchInput(
+      validationReports.cap,
+      inputValidationReports.cap
+    );
+  }
+}
+
+function expectFileValidationReportToMatchInput(
+  validationReport: FileValidationReport,
+  inputValidationReport: DatasetValidatorToolReport
+): void {
+  expect(validationReport.errors).toEqual(inputValidationReport.errors);
+  expect(validationReport.finishedAt).toEqual(
+    inputValidationReport.finished_at
+  );
+  expect(validationReport.startedAt).toEqual(inputValidationReport.started_at);
+  expect(validationReport.valid).toEqual(inputValidationReport.valid);
+  expect(validationReport.warnings).toEqual(inputValidationReport.warnings);
 }
