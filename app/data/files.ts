@@ -421,8 +421,8 @@ export async function addValidationResultsToFile(params: {
       JSON.stringify(validationInfo),
       validatedAt,
       validationStatus,
-      validationReports,
-      validationSummary,
+      JSON.stringify(validationReports),
+      JSON.stringify(validationSummary),
       fileId,
     ]
   );
