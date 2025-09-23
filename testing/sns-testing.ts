@@ -117,6 +117,16 @@ export function createS3Event(options: S3EventOptions): S3Event {
   };
 }
 
+const SUCCESSFUL_TOOL_REPORTS = {
+  cap: {
+    errors: [],
+    finished_at: TEST_TIMESTAMP,
+    started_at: TEST_TIMESTAMP,
+    valid: true,
+    warnings: [],
+  },
+};
+
 export interface ValidationResultsOptions {
   batchJobId?: string;
   batchJobName?: string | null;
@@ -137,6 +147,7 @@ export interface ValidationResultsOptions {
   sourceSha256?: string | null;
   status?: DatasetValidatorResults["status"];
   timestamp?: string;
+  toolReports?: DatasetValidatorResults["tool_reports"];
 }
 
 export function createValidationResults(
@@ -170,6 +181,7 @@ export function createValidationResults(
     source_sha256: sourceSha256,
     status: options.status ?? "success",
     timestamp: options.timestamp ?? TEST_TIMESTAMP,
+    tool_reports: options.toolReports ?? SUCCESSFUL_TOOL_REPORTS,
   };
 }
 

@@ -1,4 +1,4 @@
-import { array, InferType, number, object, string } from "yup";
+import { array, boolean, InferType, number, object, string } from "yup";
 import { INTEGRITY_STATUS } from "../common/entities";
 
 // AWS S3 and SNS Event Validation Schemas
@@ -80,6 +80,17 @@ export const datasetValidatorResultsSchema = object({
     .required()
     .oneOf(["failure", "success"] as const),
   timestamp: string().required(),
+  tool_reports: object({
+    cap: object({
+      errors: array(string().required()).required(),
+      finished_at: string().required(),
+      started_at: string().required(),
+      valid: boolean().required(),
+      warnings: array(string().required()).required(),
+    }),
+  })
+    .defined()
+    .nullable(),
 })
   .strict()
   .required();
