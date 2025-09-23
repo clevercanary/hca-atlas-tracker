@@ -5,6 +5,8 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_VALIDATION_STATUS,
+  FileValidationReports,
+  FileValidationSummary,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
@@ -51,6 +53,8 @@ export async function processValidationResultsMessage(
       : validationResults.integrity_status === INTEGRITY_STATUS.INVALID // Currently, the dataset validator sets the status as "failure" when the integrity check doesn't pass
       ? FILE_VALIDATION_STATUS.COMPLETED
       : FILE_VALIDATION_STATUS.JOB_FAILED;
+  const [validationReports, validationSummary] =
+    getValidationReportsAndSummary(validationResults);
 
   await doTransaction(async (client) => {
     const lastValidationTime = await getLastValidationTimestamp(fileId, client);
@@ -69,7 +73,9 @@ export async function processValidationResultsMessage(
         validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
       validatedAt: newValidationTime,
       validationInfo,
+      validationReports,
       validationStatus,
+      validationSummary,
     });
   });
 }
@@ -109,4 +115,33 @@ function getValidationInfo(
     snsMessageId: snsMessage.MessageId,
     snsMessageTime: snsMessage.Timestamp,
   };
+}
+
+/**
+ * Get validation reports and summary based on given validation results.
+ * @param validationResults - Dataset validator results.
+ * @returns validation reports and summary.
+ */
+function getValidationReportsAndSummary(
+  validationResults: DatasetValidatorResults
+): [FileValidationReports | null, FileValidationSummary | null] {
+  if (validationResults.tool_reports === null) return [null, null];
+  const capResults = validationResults.tool_reports.cap;
+  const capReport = {
+    errors: capResults.errors,
+    finishedAt: capResults.finished_at,
+    startedAt: capResults.started_at,
+    valid: capResults.valid,
+    warnings: capResults.warnings,
+  };
+  const validationReports: FileValidationReports = {
+    cap: capReport,
+  };
+  const validationSummary: FileValidationSummary = {
+    overallValid: capReport.valid,
+    validators: {
+      cap: capReport.valid,
+    },
+  };
+  return [validationReports, validationSummary];
 }
