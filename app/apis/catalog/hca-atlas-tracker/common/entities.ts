@@ -432,7 +432,9 @@ export interface HCAAtlasTrackerDBFile {
   source_study_id: string | null;
   updated_at: Date;
   validation_info: HCAAtlasTrackerDBFileValidationInfo | null;
+  validation_reports: FileValidationReports | null;
   validation_status: FILE_VALIDATION_STATUS;
+  validation_summary: FileValidationSummary | null;
   version_id: string | null;
 }
 
@@ -660,6 +662,25 @@ export interface FileEventInfo {
   eventName: string;
   eventTime: string;
 }
+
+export type FileValidationReports = Partial<
+  Record<FileValidatorName, FileValidationReport>
+>;
+
+export interface FileValidationReport {
+  errors: string[];
+  finishedAt: string;
+  startedAt: string;
+  valid: boolean;
+  warnings: string[];
+}
+
+export interface FileValidationSummary {
+  overallValid: boolean;
+  validators: Partial<Record<FileValidatorName, boolean>>;
+}
+
+export type FileValidatorName = "cap";
 
 export type UserId = number;
 
