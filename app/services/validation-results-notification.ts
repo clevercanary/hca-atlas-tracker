@@ -1,3 +1,4 @@
+import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DatasetValidatorResults,
   datasetValidatorResultsSchema,
@@ -126,22 +127,24 @@ function getValidationReportsAndSummary(
   validationResults: DatasetValidatorResults
 ): [FileValidationReports | null, FileValidationSummary | null] {
   if (validationResults.tool_reports === null) return [null, null];
-  const capResults = validationResults.tool_reports.cap;
-  const capReport = {
-    errors: capResults.errors,
-    finishedAt: capResults.finished_at,
-    startedAt: capResults.started_at,
-    valid: capResults.valid,
-    warnings: capResults.warnings,
-  };
-  const validationReports: FileValidationReports = {
-    cap: capReport,
-  };
+  const validationReports: FileValidationReports = {};
   const validationSummary: FileValidationSummary = {
-    overallValid: capReport.valid,
-    validators: {
-      cap: capReport.valid,
-    },
+    overallValid: true,
+    validators: {},
   };
+  for (const validatorName of FILE_VALIDATOR_NAMES) {
+    const validatorResults = validationResults.tool_reports[validatorName];
+    const validatorReport = {
+      errors: validatorResults.errors,
+      finishedAt: validatorResults.finished_at,
+      startedAt: validatorResults.started_at,
+      valid: validatorResults.valid,
+      warnings: validatorResults.warnings,
+    };
+    validationReports[validatorName] = validatorReport;
+    validationSummary.validators[validatorName] = validatorReport.valid;
+    validationSummary.overallValid =
+      validationSummary.overallValid && validatorReport.valid;
+  }
   return [validationReports, validationSummary];
 }
