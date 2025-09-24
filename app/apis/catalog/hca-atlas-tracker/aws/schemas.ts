@@ -1,4 +1,4 @@
-import { array, InferType, number, object, string } from "yup";
+import { array, boolean, InferType, number, object, string } from "yup";
 import { INTEGRITY_STATUS } from "../common/entities";
 
 // AWS S3 and SNS Event Validation Schemas
@@ -50,8 +50,20 @@ export const snsMessageSchema = object({
   UnsubscribeURL: string().url().optional(),
 }).required();
 
-// Dataset validator results schema
+// Dataset validator results schemas
 // Validates the structure of validation results received via SNS notification
+
+const datasetValidatorToolReportSchema = object({
+  errors: array(string().required()).required(),
+  finished_at: string().required(),
+  started_at: string().required(),
+  valid: boolean().required(),
+  warnings: array(string().required()).required(),
+});
+
+const datasetValidatorToolReportsSchema = object({
+  cap: datasetValidatorToolReportSchema.required(),
+});
 
 export const datasetValidatorResultsSchema = object({
   batch_job_id: string().required(),
@@ -80,6 +92,7 @@ export const datasetValidatorResultsSchema = object({
     .required()
     .oneOf(["failure", "success"] as const),
   timestamp: string().required(),
+  tool_reports: datasetValidatorToolReportsSchema.defined().nullable(),
 })
   .strict()
   .required();
@@ -91,6 +104,12 @@ export type S3EventRecord = InferType<typeof s3RecordSchema>;
 export type S3Event = InferType<typeof s3EventSchema>;
 export type SNSMessage = InferType<typeof snsMessageSchema>;
 
+export type DatasetValidatorToolReport = InferType<
+  typeof datasetValidatorToolReportSchema
+>;
+export type DatasetValidatorToolReports = InferType<
+  typeof datasetValidatorToolReportsSchema
+>;
 export type DatasetValidatorResults = InferType<
   typeof datasetValidatorResultsSchema
 >;

@@ -4,6 +4,8 @@ import {
   expectDbFileValidationFieldsToMatch,
   setUpAwsConfig,
   SNS_MESSAGE_DEFAULTS,
+  SUCCESSFUL_TOOL_REPORTS,
+  SUCCESSFUL_VALIDATION_SUMMARY,
   TEST_SIGNATURE_VALID,
   TEST_SNS_TOPIC_VALIDATION_RESULTS,
   TEST_TIMESTAMP,
@@ -16,9 +18,13 @@ setUpAwsConfig();
 // Imports
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import {
+  DatasetValidatorToolReports,
+  SNSMessage,
+} from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_VALIDATION_STATUS,
+  FileValidationSummary,
   HCAAtlasTrackerDBFileDatasetInfo,
   INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -141,6 +147,49 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     expect(fileAfter).toEqual(fileBefore);
   });
 
+  it.each([{ tool: "cap" as const }])(
+    "returns error 400 when $tool is missing from tool reports",
+    async ({ tool }) => {
+      const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+      const snsMessageId = "sns-message-missing-tool-report";
+      const snsMessageTime = "2025-09-23T21:51:48.354Z";
+      const batchJobId = "batch-job-missing-tool-report";
+      const validationTime = "2025-09-23T21:51:35.241Z";
+      const validationResults: Record<string, unknown> =
+        createValidationResults({
+          batchJobId,
+          fileId: FILE_SOURCE_DATASET_FOO.id,
+          integrityStatus: INTEGRITY_STATUS.VALID,
+          key: getTestFileKey(
+            FILE_SOURCE_DATASET_FOO,
+            FILE_SOURCE_DATASET_FOO.resolvedAtlas
+          ),
+          metadata: null,
+          timestamp: validationTime,
+        });
+      // Set tool_reports to have a missing value
+      validationResults.tool_reports = {
+        ...SUCCESSFUL_TOOL_REPORTS,
+        [tool]: undefined,
+      };
+      const snsMessage = createSNSMessage({
+        message: validationResults,
+        messageId: snsMessageId,
+        timestamp: snsMessageTime,
+        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+      });
+
+      const res = await doSnsRequest(snsMessage, true);
+      expect(res.statusCode).toEqual(400);
+      expect(res._getJSONData().errors?.[`tool_reports.${tool}`]).toBeDefined();
+
+      const fileAfter = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+      expect(fileAfter).toEqual(fileBefore);
+    }
+  );
+
   it("returns error 409 when validation results are sent with out-of-order timestamps", async () => {
     // First request with later timestamp (2025-09-14)
     const firstSnsMessageId = "sns-message-ooo-first";
@@ -155,6 +204,21 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       tissue: ["tissue-ooo-first"],
       title: "Out-of-Order First",
     };
+    const firstToolReports: DatasetValidatorToolReports = {
+      cap: {
+        errors: [],
+        finished_at: "2025-09-14T10:00:02.342",
+        started_at: "2025-09-14T10:00:01.645",
+        valid: true,
+        warnings: [],
+      },
+    };
+    const firstExpectedValidationSummary: FileValidationSummary = {
+      overallValid: true,
+      validators: {
+        cap: true,
+      },
+    };
     const firstValidationResults = createValidationResults({
       batchJobId: firstBatchJobId,
       fileId: FILE_SOURCE_DATASET_BAR.id,
@@ -165,6 +229,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ),
       metadata: firstMetadata,
       timestamp: firstValidationTime,
+      toolReports: firstToolReports,
     });
     const firstSnsMessage = createSNSMessage({
       message: firstValidationResults,
@@ -224,7 +289,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         batchJobId: firstBatchJobId,
         snsMessageId: firstSnsMessageId,
         snsMessageTime: firstSnsMessageTime,
-      }
+      },
+      firstToolReports,
+      firstExpectedValidationSummary
     );
   });
 
@@ -241,6 +308,21 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       tissue: ["tissue-dataset-successful"],
       title: "Dataset Successful",
     };
+    const toolReports: DatasetValidatorToolReports = {
+      cap: {
+        errors: ["Error dataset successful"],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: false,
+        warnings: [],
+      },
+    };
+    const expectedValidationSummary: FileValidationSummary = {
+      overallValid: false,
+      validators: {
+        cap: false,
+      },
+    };
     const validationResults = createValidationResults({
       batchJobId,
       fileId: FILE_SOURCE_DATASET_FOO.id,
@@ -251,6 +333,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ),
       metadata,
       timestamp: validationTime,
+      toolReports,
     });
     const snsMessage = createSNSMessage({
       message: validationResults,
@@ -270,7 +353,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         batchJobId,
         snsMessageId,
         snsMessageTime,
-      }
+      },
+      toolReports,
+      expectedValidationSummary
     );
   });
 
@@ -291,6 +376,21 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ],
       title: "Integrated Object Successful",
     };
+    const toolReports: DatasetValidatorToolReports = {
+      cap: {
+        errors: ["Error IO successful"],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: false,
+        warnings: [],
+      },
+    };
+    const expectedValidationSummary: FileValidationSummary = {
+      overallValid: false,
+      validators: {
+        cap: false,
+      },
+    };
     const validationResults = createValidationResults({
       batchJobId,
       fileId: FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -301,6 +401,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ),
       metadata,
       timestamp: validationTime,
+      toolReports,
     });
     const snsMessage = createSNSMessage({
       message: validationResults,
@@ -320,7 +421,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         batchJobId,
         snsMessageId,
         snsMessageTime,
-      }
+      },
+      toolReports,
+      expectedValidationSummary
     );
   });
 
@@ -371,7 +474,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         batchJobId,
         snsMessageId,
         snsMessageTime,
-      }
+      },
+      SUCCESSFUL_TOOL_REPORTS,
+      SUCCESSFUL_VALIDATION_SUMMARY
     );
 
     // Expect second, duplicate request to be successful
@@ -387,7 +492,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         batchJobId,
         snsMessageId,
         snsMessageTime,
-      }
+      },
+      SUCCESSFUL_TOOL_REPORTS,
+      SUCCESSFUL_VALIDATION_SUMMARY
     );
   });
 

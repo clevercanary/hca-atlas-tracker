@@ -3,6 +3,8 @@ import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors"
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  FileValidationReports,
+  FileValidationSummary,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -374,7 +376,9 @@ export async function getLastValidationTimestamp(
  * @param params.integrityStatus - Integrity status to set on the file.
  * @param params.validatedAt - Time at which the validation started.
  * @param params.validationInfo - Metadata of the validation.
+ * @param params.validationReports - Validation reports for individual tools.
  * @param params.validationStatus - Status of validation.
+ * @param params.validationSummary - Summary of validation reports.
  */
 export async function addValidationResultsToFile(params: {
   client: pg.PoolClient;
@@ -383,7 +387,9 @@ export async function addValidationResultsToFile(params: {
   integrityStatus: INTEGRITY_STATUS;
   validatedAt: Date;
   validationInfo: HCAAtlasTrackerDBFileValidationInfo;
+  validationReports: FileValidationReports | null;
   validationStatus: FILE_VALIDATION_STATUS;
+  validationSummary: FileValidationSummary | null;
 }): Promise<void> {
   const {
     client,
@@ -392,7 +398,9 @@ export async function addValidationResultsToFile(params: {
     integrityStatus,
     validatedAt,
     validationInfo,
+    validationReports,
     validationStatus,
+    validationSummary,
   } = params;
   await client.query(
     `
@@ -402,8 +410,10 @@ export async function addValidationResultsToFile(params: {
         dataset_info = $2,
         validation_info = $3,
         integrity_checked_at = $4,
-        validation_status = $5
-      WHERE id = $6
+        validation_status = $5,
+        validation_reports = $6,
+        validation_summary = $7
+      WHERE id = $8
     `,
     [
       integrityStatus,
@@ -411,6 +421,8 @@ export async function addValidationResultsToFile(params: {
       JSON.stringify(validationInfo),
       validatedAt,
       validationStatus,
+      JSON.stringify(validationReports),
+      JSON.stringify(validationSummary),
       fileId,
     ]
   );

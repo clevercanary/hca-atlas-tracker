@@ -1,3 +1,4 @@
+import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DatasetValidatorResults,
   datasetValidatorResultsSchema,
@@ -5,6 +6,8 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_VALIDATION_STATUS,
+  FileValidationReports,
+  FileValidationSummary,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
@@ -51,6 +54,8 @@ export async function processValidationResultsMessage(
       : validationResults.integrity_status === INTEGRITY_STATUS.INVALID // Currently, the dataset validator sets the status as "failure" when the integrity check doesn't pass
       ? FILE_VALIDATION_STATUS.COMPLETED
       : FILE_VALIDATION_STATUS.JOB_FAILED;
+  const [validationReports, validationSummary] =
+    getValidationReportsAndSummary(validationResults);
 
   await doTransaction(async (client) => {
     const lastValidationTime = await getLastValidationTimestamp(fileId, client);
@@ -69,7 +74,9 @@ export async function processValidationResultsMessage(
         validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
       validatedAt: newValidationTime,
       validationInfo,
+      validationReports,
       validationStatus,
+      validationSummary,
     });
   });
 }
@@ -109,4 +116,35 @@ function getValidationInfo(
     snsMessageId: snsMessage.MessageId,
     snsMessageTime: snsMessage.Timestamp,
   };
+}
+
+/**
+ * Get validation reports and summary based on given validation results.
+ * @param validationResults - Dataset validator results.
+ * @returns validation reports and summary.
+ */
+function getValidationReportsAndSummary(
+  validationResults: DatasetValidatorResults
+): [FileValidationReports | null, FileValidationSummary | null] {
+  if (validationResults.tool_reports === null) return [null, null];
+  const validationReports: FileValidationReports = {};
+  const validationSummary: FileValidationSummary = {
+    overallValid: true,
+    validators: {},
+  };
+  for (const validatorName of FILE_VALIDATOR_NAMES) {
+    const validatorResults = validationResults.tool_reports[validatorName];
+    const validatorReport = {
+      errors: validatorResults.errors,
+      finishedAt: validatorResults.finished_at,
+      startedAt: validatorResults.started_at,
+      valid: validatorResults.valid,
+      warnings: validatorResults.warnings,
+    };
+    validationReports[validatorName] = validatorReport;
+    validationSummary.validators[validatorName] = validatorReport.valid;
+    validationSummary.overallValid =
+      validationSummary.overallValid && validatorReport.valid;
+  }
+  return [validationReports, validationSummary];
 }

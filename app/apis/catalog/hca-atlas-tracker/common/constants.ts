@@ -191,6 +191,8 @@ export const CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES = new Set([
   VALIDATION_VARIABLE.NETWORKS,
 ]);
 
+export const FILE_VALIDATOR_NAMES = ["cap"] as const;
+
 export const UNPUBLISHED = "Unpublished";
 
 export const VALID_FILE_TYPES_FOR_VALIDATION = [

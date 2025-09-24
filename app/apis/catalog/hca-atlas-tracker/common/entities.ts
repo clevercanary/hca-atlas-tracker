@@ -4,7 +4,7 @@ import {
   GoogleLastUpdateInfo,
 } from "../../../../utils/hca-validation-tools/hca-validation-tools";
 import { API } from "./api";
-import { NETWORK_KEYS, WAVES } from "./constants";
+import { FILE_VALIDATOR_NAMES, NETWORK_KEYS, WAVES } from "./constants";
 
 export type APIKey = keyof typeof API;
 export type APIValue = (typeof API)[APIKey];
@@ -432,7 +432,9 @@ export interface HCAAtlasTrackerDBFile {
   source_study_id: string | null;
   updated_at: Date;
   validation_info: HCAAtlasTrackerDBFileValidationInfo | null;
+  validation_reports: FileValidationReports | null;
   validation_status: FILE_VALIDATION_STATUS;
+  validation_summary: FileValidationSummary | null;
   version_id: string | null;
 }
 
@@ -660,6 +662,25 @@ export interface FileEventInfo {
   eventName: string;
   eventTime: string;
 }
+
+export type FileValidationReports = Partial<
+  Record<FileValidatorName, FileValidationReport>
+>;
+
+export interface FileValidationReport {
+  errors: string[];
+  finishedAt: string;
+  startedAt: string;
+  valid: boolean;
+  warnings: string[];
+}
+
+export interface FileValidationSummary {
+  overallValid: boolean;
+  validators: Partial<Record<FileValidatorName, boolean>>;
+}
+
+export type FileValidatorName = (typeof FILE_VALIDATOR_NAMES)[number];
 
 export type UserId = number;
 
