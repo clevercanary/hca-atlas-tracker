@@ -40,6 +40,7 @@ import {
 } from "../testing/constants";
 import { getFileFromDatabase, resetDatabase } from "../testing/db-utils";
 import {
+  ConsoleMessageOutputArrays,
   fillTestFileDefaults,
   getTestFileKey,
   withConsoleMessageHiding,
@@ -89,8 +90,9 @@ afterAll(() => {
 describe(`${TEST_ROUTE} (validation results)`, () => {
   it("rejects SNS messages with unparseable JSON in Message field", async () => {
     // Create SNS message with malformed JSON that will fail parsing in service layer
+    const messageJson = '{"test": "foo'; // Truncated/invalid JSON
     const malformedSNSMessage: SNSMessage = {
-      Message: "{", // Truncated/invalid JSON
+      Message: messageJson,
       MessageId: "malformed-json-test",
       Signature: TEST_SIGNATURE_VALID,
       SignatureVersion: "1",
@@ -102,13 +104,23 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       Type: "Notification",
     };
 
-    const res = await doSnsRequest(malformedSNSMessage, true);
+    const errorMessages: unknown[][] = [];
+
+    const res = await doSnsRequest(malformedSNSMessage, true, {
+      error: errorMessages,
+    });
 
     // Should reject with 400 Bad Request due to JSON parsing error
     expect(res.statusCode).toBe(400);
     expect(res._getJSONData()).toEqual({
-      message: "Failed to parse validation results from SNS message",
+      message: expect.stringContaining(
+        "Failed to parse validation results from SNS message"
+      ),
     });
+
+    expect(String(errorMessages[0]?.[0])).toEqual(
+      expect.stringContaining(messageJson)
+    );
   });
 
   it("returns error 400 when message content has invalid shape", async () => {
@@ -564,7 +576,8 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
 async function doSnsRequest(
   body: Record<string, unknown>,
-  hideConsoleMessages = false
+  hideConsoleMessages = false,
+  consoleMessageOutputArrays?: ConsoleMessageOutputArrays
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
@@ -572,7 +585,8 @@ async function doSnsRequest(
   });
   await withConsoleMessageHiding(
     () => snsHandler(req, res),
-    hideConsoleMessages
+    hideConsoleMessages,
+    consoleMessageOutputArrays
   );
   return res;
 }

@@ -364,9 +364,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {
     // Create SNS message with malformed JSON that will fail parsing in service layer
+    const messageJson =
+      '{ "Records": [ { "eventName": "s3:ObjectCreated:Put", "invalid": }'; // Truncated/invalid JSON
     const malformedSNSMessage: SNSMessage = {
-      Message:
-        '{ "Records": [ { "eventName": "s3:ObjectCreated:Put", "invalid": }', // Truncated/invalid JSON
+      Message: messageJson,
       MessageId: "malformed-json-test",
       Signature: TEST_SIGNATURE_VALID,
       SignatureVersion: "1",
@@ -397,15 +398,27 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     const { default: snsHandler } = await import("../pages/api/sns");
 
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(req, res);
-    });
+    const errorMessages: unknown[][] = [];
+
+    await withConsoleMessageHiding(
+      async () => {
+        await snsHandler(req, res);
+      },
+      true,
+      { error: errorMessages }
+    );
 
     // Should reject with 400 Bad Request due to JSON parsing error
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
-      message: "Failed to parse S3 event from SNS message",
+      message: expect.stringContaining(
+        "Failed to parse S3 event from SNS message"
+      ),
     });
+
+    expect(String(errorMessages[0]?.[0])).toEqual(
+      expect.stringContaining(messageJson)
+    );
   });
 
   // Idempotency and Data Integrity Tests
