@@ -272,6 +272,7 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sha256Server = null,
     sourceStudyId = null,
     validationStatus = FILE_VALIDATION_STATUS.PENDING,
+    validationSummary = null,
     ...restFields
   } = file;
   const resolvedAtlas = typeof atlas === "function" ? atlas() : atlas;
@@ -299,6 +300,7 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sourceStudyId,
     validationInfo,
     validationStatus,
+    validationSummary,
     ...restFields,
   };
 }
@@ -587,6 +589,9 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiSourceDataset.validationStatus).toEqual(testFile.validationStatus);
+  expect(apiSourceDataset.validationSummary).toEqual(
+    testFile.validationSummary
+  );
 }
 
 export function expectDbSourceDatasetToMatchTest(
@@ -645,6 +650,9 @@ export function expectApiComponentAtlasToMatchTest(
   );
   expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
+  expect(apiComponentAtlas.validationSummary).toEqual(
+    testFile.validationSummary
+  );
 
   // TODO: check for test component atlas fields once they're included
 }

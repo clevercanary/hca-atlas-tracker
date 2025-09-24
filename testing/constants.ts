@@ -1500,6 +1500,12 @@ export const SOURCE_DATASET_FOO = {
     integrityCheckedAt: "2025-09-07T11:22:25.647Z",
     integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1234567",
+    validationSummary: {
+      overallValid: true,
+      validators: {
+        cap: true,
+      },
+    },
     versionId: null,
   },
   id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
@@ -1918,6 +1924,12 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
     integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1801234",
     validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+    validationSummary: {
+      overallValid: true,
+      validators: {
+        cap: true,
+      },
+    },
     versionId: null,
   },
   id: "4d08641d-be55-440b-8a19-b67c965cc2bf",
@@ -2654,6 +2666,12 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
     integrityCheckedAt: "2025-09-15T01:09:19.036Z",
     integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1987456",
+    validationSummary: {
+      overallValid: true,
+      validators: {
+        cap: true,
+      },
+    },
     versionId: null,
   },
   id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
