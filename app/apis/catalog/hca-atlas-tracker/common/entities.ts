@@ -64,6 +64,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   tissue: string[];
   title: string;
   validationStatus: FILE_VALIDATION_STATUS;
+  validationSummary: FileValidationSummary | null;
 }
 
 export interface HCAAtlasTrackerNetworkCoordinator {
@@ -130,6 +131,7 @@ export interface HCAAtlasTrackerSourceDataset {
   title: string;
   updatedAt: string;
   validationStatus: FILE_VALIDATION_STATUS;
+  validationSummary: FileValidationSummary | null;
 }
 
 export interface HCAAtlasTrackerValidationResult {
@@ -299,6 +301,7 @@ export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
   | "key"
   | "size_bytes"
   | "validation_status"
+  | "validation_summary"
 > &
   Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">;
 
@@ -407,7 +410,11 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
 > &
   Pick<
     HCAAtlasTrackerDBFile,
-    "key" | "size_bytes" | "dataset_info" | "validation_status"
+    | "key"
+    | "size_bytes"
+    | "dataset_info"
+    | "validation_status"
+    | "validation_summary"
   >;
 
 export interface HCAAtlasTrackerDBFile {
