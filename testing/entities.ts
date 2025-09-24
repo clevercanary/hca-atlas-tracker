@@ -4,6 +4,7 @@ import {
   DoiPublicationInfo,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  FileValidationSummary,
   GoogleSheetInfo,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -119,6 +120,7 @@ export interface TestFile {
   sourceStudyId?: string | null;
   validationInfo?: HCAAtlasTrackerDBFileValidationInfo | null;
   validationStatus?: FILE_VALIDATION_STATUS;
+  validationSummary?: FileValidationSummary | null;
   versionId: string | null;
 }
 

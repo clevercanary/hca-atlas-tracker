@@ -90,6 +90,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     tissue: dbComponentAtlasFile.dataset_info?.tissue ?? [],
     title: dbComponentAtlasFile.dataset_info?.title ?? "",
     validationStatus: dbComponentAtlasFile.validation_status,
+    validationSummary: dbComponentAtlasFile.validation_summary,
   };
 }
 
@@ -176,6 +177,7 @@ export function dbSourceDatasetToApiSourceDataset(
     title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
     validationStatus: dbSourceDataset.validation_status,
+    validationSummary: dbSourceDataset.validation_summary,
   };
 }
 
