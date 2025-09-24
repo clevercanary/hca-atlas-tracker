@@ -69,6 +69,10 @@ const CONSOLE_MESSAGE_FUNCTION_NAMES = [
   "warn",
 ] as const;
 
+export type ConsoleMessageOutputArrays = Partial<
+  Record<ConsoleMessageFunctionName, unknown[][]>
+>;
+
 export function makeTestUser(
   nameId: string,
   role = ROLE.UNREGISTERED,
@@ -367,7 +371,7 @@ export function withConsoleErrorHiding<T>(
 export async function withConsoleMessageHiding<T>(
   fn: () => Promise<T>,
   enableHiding = true,
-  outputArrays?: Partial<Record<ConsoleMessageFunctionName, unknown[][]>>,
+  outputArrays?: ConsoleMessageOutputArrays,
   messageTypes: readonly ConsoleMessageFunctionName[] = CONSOLE_MESSAGE_FUNCTION_NAMES
 ): Promise<T> {
   const spies = enableHiding

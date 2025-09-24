@@ -52,7 +52,7 @@ export async function processS3NotificationMessage(
     s3Event = JSON.parse(snsMessage.Message);
   } catch (parseError) {
     throw new InvalidOperationError(
-      "Failed to parse S3 event from SNS message"
+      `Failed to parse S3 event from SNS message; invalid JSON: ${snsMessage.Message}`
     );
   }
 
