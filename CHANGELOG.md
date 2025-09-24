@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.36.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.35.0...v1.36.0) (2025-09-24)
+
+
+### Features
+
+* log invalid json from sns messages ([#876](https://github.com/clevercanary/hca-atlas-tracker/issues/876)) ([#878](https://github.com/clevercanary/hca-atlas-tracker/issues/878)) ([446fc1e](https://github.com/clevercanary/hca-atlas-tracker/commit/446fc1e728ccf7da2000bba5379cc2006ffc9cd3))
+* save cap validation report and validation summary to files table ([#862](https://github.com/clevercanary/hca-atlas-tracker/issues/862)) ([#877](https://github.com/clevercanary/hca-atlas-tracker/issues/877)) ([33365c3](https://github.com/clevercanary/hca-atlas-tracker/commit/33365c3a402da9ecab6435b0c6739ac9d4358de9))
+
 ## [1.35.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.34.0...v1.35.0) (2025-09-21)
 
 
