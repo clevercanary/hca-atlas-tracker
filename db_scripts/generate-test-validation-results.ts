@@ -1,5 +1,8 @@
 import pg from "pg";
+import { FILE_VALIDATOR_NAMES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
+  FileValidationReports,
+  FileValidationSummary,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileValidationInfo,
@@ -19,6 +22,7 @@ import { doTransaction, endPgPool } from "../app/services/database";
  */
 
 const FAILED_VALIDATION_PROBABILITY = 0.5;
+const OVERALL_VALID_PROBABILITY = 0.5;
 
 // (Below use uninclusive max)
 
@@ -60,16 +64,23 @@ async function addValidationResultsToFiles(
     const validationDate = new Date().toISOString();
     let successRelatedFields: Pick<
       HCAAtlasTrackerDBFile,
-      "dataset_info" | "integrity_error" | "integrity_status"
+      | "dataset_info"
+      | "integrity_error"
+      | "integrity_status"
+      | "validation_reports"
+      | "validation_summary"
     >;
     if (Math.random() < FAILED_VALIDATION_PROBABILITY) {
       successRelatedFields = {
         dataset_info: null,
         integrity_error: `Test error ${fileId}`,
         integrity_status: INTEGRITY_STATUS.INVALID,
+        validation_reports: null,
+        validation_summary: null,
       };
     } else {
       const key = fileKeysById.get(fileId);
+      const [validationReports, validationSummary] = makeValidationReports();
       successRelatedFields = {
         dataset_info: {
           assay: generateArray("assay"),
@@ -83,6 +94,8 @@ async function addValidationResultsToFiles(
         },
         integrity_error: null,
         integrity_status: INTEGRITY_STATUS.VALID,
+        validation_reports: validationReports,
+        validation_summary: validationSummary,
       };
     }
     const validationInfo: HCAAtlasTrackerDBFileValidationInfo = {
@@ -98,8 +111,10 @@ async function addValidationResultsToFiles(
           integrity_error = $2,
           integrity_status = $3,
           validation_info = $4,
-          integrity_checked_at = $5
-        WHERE id=$6
+          integrity_checked_at = $5,
+          validation_reports = $6,
+          validation_summary = $7
+        WHERE id=$8
       `,
       [
         successRelatedFields.dataset_info &&
@@ -108,13 +123,45 @@ async function addValidationResultsToFiles(
         successRelatedFields.integrity_status,
         JSON.stringify(validationInfo),
         validationDate,
+        JSON.stringify(successRelatedFields.validation_reports),
+        JSON.stringify(successRelatedFields.validation_summary),
         fileId,
       ]
     );
   }
 }
 
+function makeValidationReports(): [
+  FileValidationReports,
+  FileValidationSummary
+] {
+  const validationReports: FileValidationReports = {};
+  const validationSummary: FileValidationSummary = {
+    overallValid: true,
+    validators: {},
+  };
+  const validatorValidProbability =
+    OVERALL_VALID_PROBABILITY ** (1 / FILE_VALIDATOR_NAMES.length);
+  for (const validator of FILE_VALIDATOR_NAMES) {
+    const valid = Math.random() < validatorValidProbability;
+    validationReports[validator] = {
+      errors: valid ? [] : generateArrayVia((l) => `Error ${l.toUpperCase()}`),
+      finishedAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      valid,
+      warnings: [],
+    };
+    validationSummary.validators[validator] = valid;
+    validationSummary.overallValid = validationSummary.overallValid && valid;
+  }
+  return [validationReports, validationSummary];
+}
+
 function generateArray(itemBase: string): string[] {
+  return generateArrayVia((l) => `${itemBase}-${l}`);
+}
+
+function generateArrayVia(makeItem: (letter: string) => string): string[] {
   const lettersLeft = Array.from(LETTERS);
   const amount =
     Math.floor(Math.random() * (MAX_ARRAY_LENGTH - MIN_ARRAY_LENGTH)) +
@@ -122,7 +169,7 @@ function generateArray(itemBase: string): string[] {
   const result: string[] = [];
   for (let i = 0; i < amount; i++) {
     const j = Math.floor(Math.random() * lettersLeft.length);
-    result.push(`${itemBase}-${lettersLeft[j]}`);
+    result.push(makeItem(lettersLeft[j]));
     lettersLeft.splice(j, 1);
   }
   return result;
