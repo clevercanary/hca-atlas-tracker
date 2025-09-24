@@ -17,6 +17,7 @@ import {
   getAllTestFiles,
   testApiRole,
   withConsoleErrorHiding,
+  withConsoleMessageHiding,
 } from "../testing/utils";
 
 jest.mock(
@@ -116,13 +117,15 @@ describe(TEST_ROUTE, () => {
   it("starts validation for all latest-version source dataset and integrated object files when requested by content admin", async () => {
     mockSubmitJob.mockClear();
 
-    expect(
-      (
-        await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
-      )._getStatusCode()
-    ).toEqual(202);
+    await withConsoleMessageHiding(async () => {
+      expect(
+        (
+          await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
+        )._getStatusCode()
+      ).toEqual(202);
 
-    await resolveValidate();
+      await resolveValidate();
+    }, true);
 
     expect(mockSubmitJob).toHaveBeenCalledTimes(
       expectedValidatedTestFiles.length
@@ -148,13 +151,15 @@ describe(TEST_ROUTE, () => {
       throw new Error("Error starting job");
     });
 
-    expect(
-      (
-        await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
-      )._getStatusCode()
-    ).toEqual(202);
+    await withConsoleMessageHiding(async () => {
+      expect(
+        (
+          await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
+        )._getStatusCode()
+      ).toEqual(202);
 
-    await resolveValidate();
+      await resolveValidate();
+    }, true);
 
     expect(mockSubmitJob).toHaveReturnedTimes(
       expectedValidatedTestFiles.length - 1
