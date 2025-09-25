@@ -1,9 +1,9 @@
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
-// import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Stack } from "@mui/material";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FileValidatorName } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { INNER_STACK_PROPS, STACK_PROPS, SVG_ICON_PROPS } from "./constants";
+import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";
 import { StyledErrorIcon } from "./validationSummaryCell.styles";
 
@@ -21,9 +21,12 @@ export const ValidationSummaryCell = ({
       {validators.map(([key, value]) => (
         <Stack key={key} {...INNER_STACK_PROPS}>
           {value ? (
-            <SuccessIcon {...SVG_ICON_PROPS} color={SVG_ICON_PROPS.color} />
+            <SuccessIcon
+              color={SVG_ICON_PROPS.COLOR.SUCCESS}
+              fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
+            />
           ) : (
-            <StyledErrorIcon {...SVG_ICON_PROPS} />
+            <StyledErrorIcon fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL} />
           )}
           {FILE_VALIDATOR_NAME_LABEL[key as FileValidatorName]}
         </Stack>
