@@ -23,6 +23,7 @@ export const AtlasSourceDatasetValidationView = ({
         }
         mainColumn={<div>Validation View {pathParameter.validation}</div>}
         tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
+        subTitle={sourceDataset?.publicationString}
         title={sourceDataset?.title || "Source Dataset Validations"}
       />
     </ConditionalComponent>
