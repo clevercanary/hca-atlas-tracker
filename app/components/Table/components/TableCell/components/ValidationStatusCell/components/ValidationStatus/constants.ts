@@ -1,0 +1,15 @@
+import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
+import { ChipProps } from "@mui/material";
+import { FILE_VALIDATION_STATUS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+
+export const VALIDATION_STATUS_COLOR: Record<
+  FILE_VALIDATION_STATUS,
+  ChipProps["color"]
+> = {
+  [FILE_VALIDATION_STATUS.COMPLETED]: CHIP_PROPS.COLOR.SUCCESS,
+  [FILE_VALIDATION_STATUS.JOB_FAILED]: CHIP_PROPS.COLOR.ERROR,
+  [FILE_VALIDATION_STATUS.PENDING]: CHIP_PROPS.COLOR.INFO,
+  [FILE_VALIDATION_STATUS.REQUESTED]: CHIP_PROPS.COLOR.WARNING,
+  [FILE_VALIDATION_STATUS.REQUEST_FAILED]: CHIP_PROPS.COLOR.ERROR,
+  [FILE_VALIDATION_STATUS.STALE]: CHIP_PROPS.COLOR.INFO,
+};

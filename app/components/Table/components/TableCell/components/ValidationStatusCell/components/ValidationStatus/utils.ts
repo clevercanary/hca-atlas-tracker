@@ -4,6 +4,7 @@ import { ChipProps } from "@mui/material";
 import { Getter } from "@tanstack/react-table";
 import { ComponentProps } from "react";
 import { FILE_VALIDATION_STATUS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { VALIDATION_STATUS_COLOR } from "./constants";
 
 /**
  * Build props for the validation status ChipCell component.
@@ -16,7 +17,7 @@ export function buildValidationStatus(
   return {
     getValue: (() => {
       return {
-        color: CHIP_PROPS.COLOR.WARNING,
+        color: VALIDATION_STATUS_COLOR[validationStatus],
         label: validationStatus
           .replaceAll("_", " ")
           .replace(/^./, (match) => match.toUpperCase()),
