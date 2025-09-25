@@ -1,5 +1,6 @@
 import {
   FILE_TYPE,
+  FileValidatorName,
   Network,
   NetworkKey,
   ROLE,
@@ -192,6 +193,10 @@ export const CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES = new Set([
 ]);
 
 export const FILE_VALIDATOR_NAMES = ["cap"] as const;
+
+export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
+  cap: "CAP",
+};
 
 export const UNPUBLISHED = "Unpublished";
 

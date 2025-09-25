@@ -9,10 +9,12 @@ import {
   buildDisease,
   buildSuspensionType,
   buildTissue,
-  buildValidationStatus,
 } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { AtlasSourceDataset } from "../../entities";
-import { renderSourceDatasetCellCount } from "./viewBuilders";
+import {
+  renderSourceDatasetCellCount,
+  renderValidationStatus,
+} from "./viewBuilders";
 
 const COLUMN_ASSAY = {
   accessorKey: "assay",
@@ -109,9 +111,8 @@ const COLUMN_TITLE = {
 
 const COLUMN_VALIDATION_STATUS = {
   accessorKey: "validationStatus",
-  cell: ({ row }) =>
-    C.ChipCell(buildValidationStatus(row.original.validationStatus)),
-  header: "Validation Status",
+  cell: renderValidationStatus,
+  header: "Validation Summary",
   meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
