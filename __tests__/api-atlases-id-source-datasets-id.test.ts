@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasSourceDatasetEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
@@ -35,8 +36,8 @@ import {
 } from "../testing/db-utils";
 import { TestAtlas, TestUser } from "../testing/entities";
 import {
-  expectApiSourceDatasetToMatchTest,
   expectAtlasDatasetsToHaveDifference,
+  expectDetailApiSourceDatasetToMatchTest,
   expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
@@ -158,8 +159,8 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       (res) => {
         expect(res._getStatusCode()).toEqual(200);
         const sourceDataset =
-          res._getJSONData() as HCAAtlasTrackerSourceDataset;
-        expectApiSourceDatasetToMatchTest(
+          res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+        expectDetailApiSourceDatasetToMatchTest(
           sourceDataset,
           SOURCE_DATASET_ATLAS_LINKED_A_FOO
         );
@@ -175,8 +176,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       METHOD.GET
     );
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expectApiSourceDatasetToMatchTest(
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+    expectDetailApiSourceDatasetToMatchTest(
       sourceDataset,
       SOURCE_DATASET_ATLAS_LINKED_A_FOO
     );
@@ -196,8 +198,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       METHOD.GET
     );
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expectApiSourceDatasetToMatchTest(
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+    expectDetailApiSourceDatasetToMatchTest(
       sourceDataset,
       SOURCE_DATASET_ATLAS_LINKED_A_BAR
     );
@@ -217,8 +220,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       METHOD.GET
     );
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expectApiSourceDatasetToMatchTest(
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+    expectDetailApiSourceDatasetToMatchTest(
       sourceDataset,
       SOURCE_DATASET_WITH_MULTIPLE_FILES
     );
