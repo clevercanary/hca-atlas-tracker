@@ -40,3 +40,4 @@ export { IconStatusBadge } from "./Table/components/TableCell/components/IconSta
 export { PinnedNTagCell } from "./Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 export { RowSelectionCell } from "./Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
+export { ValidationStatusCell } from "./Table/components/TableCell/components/ValidationStatusCell/validationStatusCell";

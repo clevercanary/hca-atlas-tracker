@@ -6,13 +6,10 @@ import {
   ColumnConfig,
   ViewContext,
 } from "@databiosphere/findable-ui/lib/config/entities";
-import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { ChipProps } from "@mui/material";
 import {
   CellContext,
   ColumnDef,
-  Getter,
   Row,
   RowData,
   Table,
@@ -26,7 +23,6 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
-  FILE_VALIDATION_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
@@ -302,27 +298,6 @@ export const buildIngestionCountsHca = (
   atlas: HCAAtlasTrackerListAtlas
 ): ComponentProps<typeof C.TaskCountsCell> => {
   return buildIngestionCountsForSystem(atlas, SYSTEM.HCA_DATA_REPOSITORY);
-};
-
-/**
- * Build props for the validation status ChipCell component.
- * @param validationStatus - Validation status.
- * @returns Props to be used for the ChipCell component.
- */
-export const buildValidationStatus = (
-  validationStatus: FILE_VALIDATION_STATUS
-): ComponentProps<typeof C.ChipCell> => {
-  return {
-    getValue: (() => {
-      return {
-        color: CHIP_PROPS.COLOR.WARNING,
-        label: validationStatus
-          .replaceAll("_", " ")
-          .replace(/^./, (match) => match.toUpperCase()),
-        variant: CHIP_PROPS.VARIANT.STATUS,
-      };
-    }) as Getter<ChipProps>,
-  } as ComponentProps<typeof C.ChipCell>;
 };
 
 /**
@@ -1285,8 +1260,8 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
 > {
   return {
     accessorKey: "validationStatus",
-    cell: (ctx) => C.ChipCell(buildValidationStatus(ctx.getValue())),
-    header: "Validation Status",
+    cell: C.ValidationStatusCell,
+    header: "Validation Summary",
   };
 }
 
