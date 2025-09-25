@@ -4,6 +4,10 @@ export const ROUTE = {
   ATLASES: "/atlases",
   ATLAS_SOURCE_DATASET: "/atlases/[atlasId]/source-datasets/[sourceDatasetId]",
   ATLAS_SOURCE_DATASETS: "/atlases/[atlasId]/source-datasets",
+  ATLAS_SOURCE_DATASET_VALIDATION:
+    "/atlases/[atlasId]/source-datasets/[sourceDatasetId]/validations/[validation]",
+  ATLAS_SOURCE_DATASET_VALIDATIONS:
+    "/atlases/[atlasId]/source-datasets/[sourceDatasetId]/validations",
   COMPONENT_ATLAS: "/atlases/[atlasId]/integrated-objects/[componentAtlasId]",
   COMPONENT_ATLASES: "/atlases/[atlasId]/integrated-objects",
   CREATE_ATLAS: "/atlases/create",

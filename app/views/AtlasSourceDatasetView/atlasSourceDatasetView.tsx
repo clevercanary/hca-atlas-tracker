@@ -4,13 +4,13 @@ import { PathParameter } from "../../common/entities";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
-import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
+import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS } from "./common/sections";
-import { getBreadcrumbs } from "./common/utils";
+import { getBreadcrumbs, getTabs } from "./common/utils";
 import { ViewAtlasSourceDataset } from "./components/ViewAtlasSourceDataset/viewAtlasSourceDataset";
 import { useEditAtlasSourceDatasetForm } from "./hooks/useEditAtlasSourceDatasetForm";
 
@@ -47,6 +47,7 @@ export const AtlasSourceDatasetView = ({
             sectionConfigs={VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS}
           />
         }
+        tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
         subTitle={sourceDataset?.publicationString}
         title={sourceDataset?.title || "Source Dataset"}
       />
@@ -63,9 +64,6 @@ function renderAccessFallback(formManager: FormManager): JSX.Element | null {
   const {
     access: { canView },
   } = formManager;
-  if (!canView)
-    return (
-      <AccessPrompt divider={<Divider />} text="to view the source dataset" />
-    );
+  if (!canView) return <AccessPrompt text="to view the source dataset" />;
   return null;
 }

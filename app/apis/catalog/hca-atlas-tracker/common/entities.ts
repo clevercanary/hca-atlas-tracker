@@ -709,7 +709,7 @@ export type FileValidatorName = (typeof FILE_VALIDATOR_NAMES)[number];
 
 export type UserId = number;
 
-export type ValidationId = "cap" | "CELLxGENE" | "tier1";
+export type ValidationType = "cap" | "CELLxGENE" | "tier1";
 
 export interface ValidationDifference {
   actual: string | string[] | null;

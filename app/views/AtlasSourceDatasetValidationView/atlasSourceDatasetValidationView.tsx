@@ -10,7 +10,7 @@ export const AtlasSourceDatasetValidationView = ({
 }: AtlasSourceDatasetValidationViewProps): JSX.Element => {
   return (
     <ConditionalComponent isIn={true}>
-      Validation View {pathParameter.validationId}
+      Validation View {pathParameter.validation}
     </ConditionalComponent>
   );
 };

@@ -11,6 +11,6 @@ export const VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS: SectionConfig<
   {
     controllerConfigs: GENERAL_INFO_SOURCE_DATASET_CONTROLLERS,
     sectionTitle: SECTION_TITLES.GENERAL_INFORMATION,
-    showDivider: true,
+    showDivider: false,
   },
 ];

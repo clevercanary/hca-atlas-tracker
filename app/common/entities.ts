@@ -5,7 +5,7 @@ import {
   SourceDatasetId,
   SourceStudyId,
   UserId,
-  ValidationId,
+  ValidationType,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 
 export enum FETCH_STATUS {
@@ -31,5 +31,5 @@ export interface PathParameter {
   sourceDatasetId?: SourceDatasetId;
   sourceStudyId?: SourceStudyId;
   userId?: UserId;
-  validationId?: ValidationId;
+  validation?: ValidationType;
 }
