@@ -17,6 +17,8 @@ import {
   HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBValidation,
+  HCAAtlasTrackerDetailComponentAtlas,
+  HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
@@ -271,6 +273,7 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sha256Client = null,
     sha256Server = null,
     sourceStudyId = null,
+    validationReports = null,
     validationStatus = FILE_VALIDATION_STATUS.PENDING,
     validationSummary = null,
     ...restFields
@@ -299,6 +302,7 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     sha256Server,
     sourceStudyId,
     validationInfo,
+    validationReports,
     validationStatus,
     validationSummary,
     ...restFields,
@@ -559,9 +563,27 @@ export function expectApiSourceDatasetsToMatchTest(
   }
 }
 
+export function expectDetailApiSourceDatasetToMatchTest(
+  apiSourceDataset: HCAAtlasTrackerDetailSourceDataset,
+  testSourceDataset: TestSourceDataset
+): void {
+  expectApiSourceDatasetToMatchTest(
+    apiSourceDataset,
+    testSourceDataset,
+    true,
+    (testFile) => {
+      expect(apiSourceDataset.validationReports).toEqual(
+        testFile.validationReports
+      );
+    }
+  );
+}
+
 export function expectApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
-  testSourceDataset: TestSourceDataset
+  testSourceDataset: TestSourceDataset,
+  expectDetail = false,
+  doAdditionalChecks?: (file: NormalizedTestFile) => void
 ): void {
   if (!expectIsDefined(testSourceDataset.file)) return;
   const testFile = getNormalizedFileForTestEntity(testSourceDataset);
@@ -592,6 +614,13 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.validationSummary).toEqual(
     testFile.validationSummary
   );
+  if (expectDetail) {
+    expect(apiSourceDataset).toHaveProperty("validationReports");
+  } else {
+    expect(apiSourceDataset).not.toHaveProperty("validationReports");
+  }
+
+  doAdditionalChecks?.(testFile);
 }
 
 export function expectDbSourceDatasetToMatchTest(
@@ -626,9 +655,27 @@ export function expectDbSourceDatasetToMatchTest(
   expect(dbSourceDataset.sd_info.title).toEqual(testSourceDataset.title);
 }
 
+export function expectDetailApiComponentAtlasToMatchTest(
+  apiComponentAtlas: HCAAtlasTrackerDetailComponentAtlas,
+  testComponentAtlas: TestComponentAtlas
+): void {
+  expectApiComponentAtlasToMatchTest(
+    apiComponentAtlas,
+    testComponentAtlas,
+    true,
+    (testFile) => {
+      expect(apiComponentAtlas.validationReports).toEqual(
+        testFile.validationReports
+      );
+    }
+  );
+}
+
 export function expectApiComponentAtlasToMatchTest(
   apiComponentAtlas: HCAAtlasTrackerComponentAtlas,
-  testComponentAtlas: TestComponentAtlas
+  testComponentAtlas: TestComponentAtlas,
+  expectDetail = false,
+  doAdditionalChecks?: (file: NormalizedTestFile) => void
 ): void {
   if (!expectIsDefined(testComponentAtlas.file)) return;
   const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
@@ -653,6 +700,13 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.validationSummary).toEqual(
     testFile.validationSummary
   );
+  if (expectDetail) {
+    expect(apiComponentAtlas).toHaveProperty("validationReports");
+  } else {
+    expect(apiComponentAtlas).not.toHaveProperty("validationReports");
+  }
+
+  doAdditionalChecks?.(testFile);
 
   // TODO: check for test component atlas fields once they're included
 }

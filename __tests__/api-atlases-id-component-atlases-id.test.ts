@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerDetailComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
@@ -17,7 +17,7 @@ import {
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
-  expectApiComponentAtlasToMatchTest,
+  expectDetailApiComponentAtlasToMatchTest,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -152,8 +152,8 @@ describe(TEST_ROUTE, () => {
       (res) => {
         expect(res._getStatusCode()).toEqual(200);
         const componentAtlas =
-          res._getJSONData() as HCAAtlasTrackerComponentAtlas;
-        expectApiComponentAtlasToMatchTest(
+          res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+        expectDetailApiComponentAtlasToMatchTest(
           componentAtlas,
           COMPONENT_ATLAS_DRAFT_FOO
         );
@@ -168,8 +168,9 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
-    const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
-    expectApiComponentAtlasToMatchTest(
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
       COMPONENT_ATLAS_DRAFT_FOO
     );
@@ -188,8 +189,9 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
-    const componentAtlas = res._getJSONData() as HCAAtlasTrackerComponentAtlas;
-    expectApiComponentAtlasToMatchTest(
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
       COMPONENT_ATLAS_DRAFT_BAR
     );

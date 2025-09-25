@@ -8,15 +8,19 @@ import {
   HCAAtlasTrackerDBAtlasWithComponentAtlases,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlasFile,
+  HCAAtlasTrackerDBComponentAtlasFileForDetailAPI,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
+  HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBUserWithAssociatedResources,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDBValidationWithAtlasProperties,
+  HCAAtlasTrackerDetailComponentAtlas,
+  HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerEntrySheetValidation,
   HCAAtlasTrackerListEntrySheetValidation,
   HCAAtlasTrackerSourceDataset,
@@ -67,6 +71,15 @@ export function dbAtlasToApiAtlas(
     title: "",
     version: dbAtlas.overview.version,
     wave: dbAtlas.overview.wave,
+  };
+}
+
+export function dbComponentAtlasFileToDetailApiComponentAtlas(
+  dbComponentAtlasFile: HCAAtlasTrackerDBComponentAtlasFileForDetailAPI
+): HCAAtlasTrackerDetailComponentAtlas {
+  return {
+    ...dbComponentAtlasFileToApiComponentAtlas(dbComponentAtlasFile),
+    validationReports: dbComponentAtlasFile.validation_reports,
   };
 }
 
@@ -139,6 +152,15 @@ export function dbSourceStudyToApiSourceStudy(
       title: publication?.title ?? null,
     };
   }
+}
+
+export function dbSourceDatasetToDetailApiSourceDataset(
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForDetailAPI
+): HCAAtlasTrackerDetailSourceDataset {
+  return {
+    ...dbSourceDatasetToApiSourceDataset(dbSourceDataset),
+    validationReports: dbSourceDataset.validation_reports,
+  };
 }
 
 export function dbSourceDatasetToApiSourceDataset(

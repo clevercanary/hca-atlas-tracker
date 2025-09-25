@@ -67,6 +67,11 @@ export interface HCAAtlasTrackerComponentAtlas {
   validationSummary: FileValidationSummary | null;
 }
 
+export interface HCAAtlasTrackerDetailComponentAtlas
+  extends HCAAtlasTrackerComponentAtlas {
+  validationReports: FileValidationReports | null;
+}
+
 export interface HCAAtlasTrackerNetworkCoordinator {
   coordinatorNames: string[];
   email: string;
@@ -132,6 +137,11 @@ export interface HCAAtlasTrackerSourceDataset {
   updatedAt: string;
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
+}
+
+export interface HCAAtlasTrackerDetailSourceDataset
+  extends HCAAtlasTrackerSourceDataset {
+  validationReports: FileValidationReports | null;
 }
 
 export interface HCAAtlasTrackerValidationResult {
@@ -305,6 +315,10 @@ export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
 > &
   Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">;
 
+export type HCAAtlasTrackerDBComponentAtlasFileForDetailAPI =
+  HCAAtlasTrackerDBComponentAtlasFile &
+    Pick<HCAAtlasTrackerDBFile, "validation_reports">;
+
 export interface HCAAtlasTrackerDBPublishedSourceStudy {
   created_at: Date;
   doi: string;
@@ -416,6 +430,10 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
     | "validation_status"
     | "validation_summary"
   >;
+
+export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
+  HCAAtlasTrackerDBSourceDatasetForAPI &
+    Pick<HCAAtlasTrackerDBFile, "validation_reports">;
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;

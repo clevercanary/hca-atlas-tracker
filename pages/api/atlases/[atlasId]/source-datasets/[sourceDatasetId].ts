@@ -2,7 +2,10 @@ import {
   addSourceDatasetToAtlas,
   removeSourceDatasetFromAtlas,
 } from "app/services/atlases";
-import { dbSourceDatasetToApiSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import {
+  dbSourceDatasetToApiSourceDataset,
+  dbSourceDatasetToDetailApiSourceDataset,
+} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { atlasSourceDatasetEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
@@ -22,7 +25,7 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   const atlasId = req.query.atlasId as string;
   const sourceDatasetId = req.query.sourceDatasetId as string;
   res.json(
-    dbSourceDatasetToApiSourceDataset(
+    dbSourceDatasetToDetailApiSourceDataset(
       await getAtlasSourceDataset(atlasId, sourceDatasetId)
     )
   );

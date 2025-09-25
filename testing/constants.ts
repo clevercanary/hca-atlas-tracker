@@ -1500,6 +1500,15 @@ export const SOURCE_DATASET_FOO = {
     integrityCheckedAt: "2025-09-07T11:22:25.647Z",
     integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1234567",
+    validationReports: {
+      cap: {
+        errors: [],
+        finishedAt: "2025-09-07T11:22:27.000Z",
+        startedAt: "2025-09-07T11:22:26.000Z",
+        valid: true,
+        warnings: [],
+      },
+    },
     validationSummary: {
       overallValid: true,
       validators: {
@@ -1923,6 +1932,15 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
     integrityCheckedAt: "2025-09-13T07:38:02.243Z",
     integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1801234",
+    validationReports: {
+      cap: {
+        errors: [],
+        finishedAt: "2025-09-13T07:38:04.000Z",
+        startedAt: "2025-09-13T07:38:03.000Z",
+        valid: true,
+        warnings: [],
+      },
+    },
     validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
     validationSummary: {
       overallValid: true,
@@ -2666,6 +2684,15 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
     integrityCheckedAt: "2025-09-15T01:09:19.036Z",
     integrityStatus: INTEGRITY_STATUS.VALID,
     sizeBytes: "1987456",
+    validationReports: {
+      cap: {
+        errors: [],
+        finishedAt: "2025-09-15T01:09:21.000Z",
+        startedAt: "2025-09-15T01:09:20.000Z",
+        valid: true,
+        warnings: [],
+      },
+    },
     validationSummary: {
       overallValid: true,
       validators: {

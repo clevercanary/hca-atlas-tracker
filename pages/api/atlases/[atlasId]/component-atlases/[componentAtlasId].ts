@@ -1,4 +1,4 @@
-import { dbComponentAtlasFileToApiComponentAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { dbComponentAtlasFileToDetailApiComponentAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { METHOD } from "../../../../../app/common/entities";
 import { getComponentAtlas } from "../../../../../app/services/component-atlases";
@@ -13,7 +13,7 @@ export default handler(
     res
       .status(200)
       .json(
-        dbComponentAtlasFileToApiComponentAtlas(
+        dbComponentAtlasFileToDetailApiComponentAtlas(
           await getComponentAtlas(atlasId, componentAtlasId)
         )
       );
