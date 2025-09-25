@@ -2,6 +2,7 @@ import pg from "pg";
 import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasFile,
+  HCAAtlasTrackerDBComponentAtlasFileForDetailAPI,
   HCAAtlasTrackerDBComponentAtlasInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { confirmFileExistsOnAtlas } from "../data/files";
@@ -49,9 +50,9 @@ export async function getAtlasComponentAtlases(
 export async function getComponentAtlas(
   atlasId: string,
   fileId: string
-): Promise<HCAAtlasTrackerDBComponentAtlasFile> {
+): Promise<HCAAtlasTrackerDBComponentAtlasFileForDetailAPI> {
   const queryResult = await query<
-    Omit<HCAAtlasTrackerDBComponentAtlasFile, "atlas_id">
+    Omit<HCAAtlasTrackerDBComponentAtlasFileForDetailAPI, "atlas_id">
   >(
     `
       SELECT
@@ -61,7 +62,8 @@ export async function getComponentAtlas(
         f.key,
         f.size_bytes,
         f.validation_status,
-        f.validation_summary
+        f.validation_summary,
+        f.validation_reports
       FROM hat.files f
       JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
       WHERE f.id=$1 AND ca.atlas_id=$2

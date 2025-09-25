@@ -4,6 +4,7 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
+  HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -188,9 +189,9 @@ export async function getAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
   client?: pg.PoolClient
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForDetailAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
-  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+  const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForDetailAPI>(
     `
       SELECT
         d.*,
@@ -199,6 +200,7 @@ export async function getAtlasSourceDataset(
         f.dataset_info,
         f.validation_status,
         f.validation_summary,
+        f.validation_reports,
         s.doi,
         s.study_info
       FROM hat.source_datasets d
