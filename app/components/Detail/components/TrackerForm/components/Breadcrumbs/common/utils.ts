@@ -12,6 +12,7 @@ import { Breadcrumb } from "../breadcrumbs";
 import {
   BREADCRUMB_ATLAS,
   BREADCRUMB_ATLAS_SOURCE_DATASET,
+  BREADCRUMB_ATLAS_SOURCE_DATASET_VALIDATIONS,
   BREADCRUMB_ATLAS_SOURCE_DATASETS,
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
@@ -60,14 +61,28 @@ export function getAtlasSourceDatasetsBreadcrumb(
 }
 
 /**
- * Returns the breadcrumb for the atlas source datasets view.
+ * Returns the breadcrumb for the atlas source dataset view.
  * @param pathParameter - Path parameter.
- * @returns atkas source datasets view breadcrumb.
+ * @returns atlas source dataset view breadcrumb.
  */
 export function getAtlasSourceDatasetBreadcrumb(
   pathParameter?: PathParameter
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_ATLAS_SOURCE_DATASET, pathParameter);
+}
+
+/**
+ * Returns the breadcrumb for the atlas source dataset validations view.
+ * @param pathParameter - Path parameter.
+ * @returns atlas source dataset validations view breadcrumb.
+ */
+export function getAtlasSourceDatasetValidationsBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(
+    BREADCRUMB_ATLAS_SOURCE_DATASET_VALIDATIONS,
+    pathParameter
+  );
 }
 
 /**

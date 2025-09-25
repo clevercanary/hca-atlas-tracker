@@ -1,33 +1,25 @@
-import { ReactNode } from "react";
 import { DetailViewHero } from "./components/DetailViewHero/detailViewHero";
 import {
   DetailViewContent,
   DetailView as DetailViewLayout,
 } from "./detailView.styles";
-
-export interface DetailViewProps {
-  actions?: ReactNode;
-  breadcrumbs?: ReactNode;
-  mainColumn: ReactNode;
-  status?: ReactNode;
-  subTitle?: ReactNode;
-  tabs?: ReactNode;
-  title?: ReactNode;
-}
+import { Props } from "./entities";
 
 export const DetailView = ({
   actions,
+  backPath,
   breadcrumbs,
   mainColumn,
   status,
   subTitle,
   tabs,
   title,
-}: DetailViewProps): JSX.Element => {
+}: Props): JSX.Element => {
   return (
     <DetailViewLayout>
       <DetailViewHero
         actions={actions}
+        backPath={backPath}
         breadcrumbs={breadcrumbs}
         status={status}
         subTitle={subTitle}

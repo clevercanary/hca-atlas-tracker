@@ -1,16 +1,30 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { PathParameter } from "../../common/entities";
-
-interface AtlasSourceDatasetValidationViewProps {
-  pathParameter: PathParameter;
-}
+import { getRouteURL } from "../../common/utils";
+import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
+import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { useFetchAtlas } from "../../hooks/useFetchAtlas";
+import { ROUTE } from "../../routes/constants";
+import { useFetchAtlasSourceDataset } from "../AtlasSourceDatasetView/hooks/useFetchAtlasSourceDataset";
+import { getBreadcrumbs, getTabs } from "./common/utils";
+import { Props } from "./entities";
 
 export const AtlasSourceDatasetValidationView = ({
   pathParameter,
-}: AtlasSourceDatasetValidationViewProps): JSX.Element => {
+}: Props): JSX.Element => {
+  const { atlas } = useFetchAtlas(pathParameter);
+  const { sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
   return (
     <ConditionalComponent isIn={true}>
-      Validation View {pathParameter.validation}
+      <DetailView
+        backPath={getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, pathParameter)}
+        breadcrumbs={
+          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+        }
+        mainColumn={<div>Validation View {pathParameter.validation}</div>}
+        tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
+        title={sourceDataset?.title || "Source Dataset Validations"}
+      />
     </ConditionalComponent>
   );
 };

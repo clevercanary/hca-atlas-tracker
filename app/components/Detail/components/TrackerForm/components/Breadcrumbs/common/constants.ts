@@ -25,6 +25,12 @@ export const BREADCRUMB_ATLAS_SOURCE_DATASET: Breadcrumb = {
   text: "Source Dataset",
 };
 
+export const BREADCRUMB_ATLAS_SOURCE_DATASET_VALIDATIONS: Breadcrumb = {
+  path: ROUTE.ATLAS_SOURCE_DATASET_VALIDATIONS,
+  route: ROUTE.ATLAS_SOURCE_DATASET_VALIDATIONS,
+  text: "Source Dataset Validations",
+};
+
 export const BREADCRUMB_COMPONENT_ATLASES: Breadcrumb = {
   path: ROUTE.COMPONENT_ATLASES,
   route: ROUTE.COMPONENT_ATLASES,
