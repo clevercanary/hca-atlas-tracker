@@ -18,7 +18,7 @@ export const getServerSideProps: GetServerSideProps = async (
       destination: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET_VALIDATION, {
         atlasId,
         sourceDatasetId,
-        validation: "cap",
+        validatorName: "cap",
       }),
       permanent: true,
     },

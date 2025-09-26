@@ -1,5 +1,4 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
+import styled from "@emotion/styled";
 
-export const Summary = (): JSX.Element => {
-  return <FluidPaper>Validation Summary</FluidPaper>;
-};
+export const StyledFluidPaper = styled(FluidPaper)``;

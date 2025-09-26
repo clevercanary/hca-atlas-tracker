@@ -1,13 +1,13 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { ValidationType } from "../../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ValidatorName } from "../../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../../app/common/entities";
 import { AtlasSourceDatasetValidationView } from "../../../../../../../app/views/AtlasSourceDatasetValidationView/atlasSourceDatasetValidationView";
 
 interface SourceDatasetValidationPageUrlParams extends ParsedUrlQuery {
   atlasId: string;
   sourceDatasetId: string;
-  validation: ValidationType;
+  validatorName: ValidatorName;
 }
 
 interface SourceDatasetValidationPageProps {
@@ -17,12 +17,12 @@ interface SourceDatasetValidationPageProps {
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const { atlasId, sourceDatasetId, validation } =
+  const { atlasId, sourceDatasetId, validatorName } =
     context.params as SourceDatasetValidationPageUrlParams;
   return {
     props: {
       pageTitle: "Source Dataset Validation",
-      pathParameter: { atlasId, sourceDatasetId, validation },
+      pathParameter: { atlasId, sourceDatasetId, validatorName },
     },
   };
 };

@@ -1,5 +1,5 @@
-import { PathParameter } from "../../common/entities";
+import { HCAAtlasTrackerDetailSourceDataset } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 
-export interface Props {
-  pathParameter: PathParameter;
-}
+export type EntityData = {
+  sourceDataset: HCAAtlasTrackerDetailSourceDataset | undefined;
+};

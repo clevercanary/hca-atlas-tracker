@@ -1,9 +1,8 @@
 import { SectionConfig } from "../../../components/Entity/components/EntityView/components/Section/entities";
-import { Summary } from "../components/Summary/summary";
+import { Report } from "../components/Report/report";
 
-export const SOURCE_DATASET_VALIDATION_SUMMARY: SectionConfig<typeof Summary> =
-  {
-    Component: Summary,
-    componentProps: {},
-    slotProps: { section: { fullWidth: true } },
-  };
+export const SOURCE_DATASET_VALIDATION_REPORT: SectionConfig<typeof Report> = {
+  Component: Report,
+  componentProps: {},
+  slotProps: { section: { fullWidth: true } },
+};

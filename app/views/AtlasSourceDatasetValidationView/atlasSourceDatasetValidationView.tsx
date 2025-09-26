@@ -1,5 +1,6 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment } from "react";
+import { PathParameter } from "../../common/entities";
 import { getRouteURL } from "../../common/utils";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
@@ -15,7 +16,10 @@ import { ROUTE } from "../../routes/constants";
 import { useFetchAtlasSourceDataset } from "../AtlasSourceDatasetView/hooks/useFetchAtlasSourceDataset";
 import { VIEW_SOURCE_DATASET_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
-import { Props } from "./entities";
+
+interface Props {
+  pathParameter: PathParameter;
+}
 
 export const AtlasSourceDatasetValidationView = ({
   pathParameter,
