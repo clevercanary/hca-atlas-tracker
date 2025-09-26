@@ -14,7 +14,7 @@ export const FileDownloadCell = ({ ...props }: Props): JSX.Element => {
       <IconButton {...ICON_BUTTON_PROPS} onClick={onOpen} {...props}>
         <DownloadIcon />
       </IconButton>
-      <FetchDataStateProvider>
+      <FetchDataStateProvider initialState={{ shouldFetch: false }}>
         <Dialog onClose={onClose} open={open} />
       </FetchDataStateProvider>
     </Fragment>
