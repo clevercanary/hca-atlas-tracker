@@ -6,8 +6,10 @@ import { Props } from "./entities";
 export const ValidationReport = ({
   pathParameter,
   validationReports,
+  validationStatus,
   validatorName,
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
+  if (!validationStatus) return null; // `validationStatus` is a required field; an undefined value implies the data is not yet available.
   return (
     <FluidPaper>
       <Tabs
@@ -17,6 +19,7 @@ export const ValidationReport = ({
       />
       <ReportContent
         validationReports={validationReports}
+        validationStatus={validationStatus}
         validatorName={validatorName}
       />
     </FluidPaper>

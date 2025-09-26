@@ -2,21 +2,23 @@ import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/m
 import { Typography } from "@mui/material";
 import { Props } from "./entities";
 import { StyledContainer } from "./reportContent.styles";
+import { getReportValues } from "./utils";
 
 export const ReportContent = ({
   validationReports,
+  validationStatus,
   validatorName,
-}: Props): JSX.Element | null => {
-  const { errors = [], warnings = [] } = validationReports[validatorName] || {};
-  const messages = [...errors, ...warnings].filter(Boolean);
+}: Props): JSX.Element => {
   return (
     <StyledContainer maxWidth={false}>
       <Typography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_400}>
-        {messages.length === 0 ? (
-          <div>No errors or warnings found.</div>
-        ) : (
-          messages.map((message) => <div key={message}>{message}</div>)
-        )}
+        {getReportValues(
+          validationStatus,
+          validationReports,
+          validatorName
+        ).map((value, i) => (
+          <div key={i}>{value}</div>
+        ))}
       </Typography>
     </StyledContainer>
   );

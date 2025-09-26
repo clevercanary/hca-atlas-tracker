@@ -1,5 +1,6 @@
 import {
   FILE_TYPE,
+  FILE_VALIDATION_STATUS,
   FileValidatorName,
   Network,
   NetworkKey,
@@ -191,6 +192,18 @@ export const VALIDATION_STATUS_BY_TASK_STATUS: Record<
 export const CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES = new Set([
   VALIDATION_VARIABLE.NETWORKS,
 ]);
+
+export const FILE_VALIDATION_STATUS_NAME_LABEL: Record<
+  FILE_VALIDATION_STATUS,
+  string
+> = {
+  [FILE_VALIDATION_STATUS.COMPLETED]: "Completed",
+  [FILE_VALIDATION_STATUS.JOB_FAILED]: "Job failed",
+  [FILE_VALIDATION_STATUS.PENDING]: "Pending",
+  [FILE_VALIDATION_STATUS.REQUEST_FAILED]: "Request failed",
+  [FILE_VALIDATION_STATUS.REQUESTED]: "Requested",
+  [FILE_VALIDATION_STATUS.STALE]: "Stale",
+};
 
 export const FILE_VALIDATOR_NAMES = ["cap"] as const;
 

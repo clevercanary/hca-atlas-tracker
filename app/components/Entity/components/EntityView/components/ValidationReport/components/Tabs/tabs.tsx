@@ -16,9 +16,9 @@ export const Tabs = ({
   pathParameter,
   validationReports,
   validatorName,
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
   const validatorNames = useMemo(
-    () => Object.keys(validationReports),
+    () => Object.keys(validationReports || {}),
     [validationReports]
   ) as FileValidatorName[];
 
@@ -34,8 +34,10 @@ export const Tabs = ({
     [pathParameter]
   );
 
+  if (!validatorName || !validationReports) return null;
+
   return (
-    <StyledTabs value={validatorName} onChange={onChange} variant="fullWidth">
+    <StyledTabs value={validatorName} onChange={onChange}>
       {validatorNames.map((validatorName) => (
         <Tab
           key={validatorName}

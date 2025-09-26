@@ -6,14 +6,15 @@ export const Report = (): JSX.Element | null => {
   const { data, pathParameter } = useEntity();
   const { sourceDataset } = data as EntityData;
   const { validatorName } = pathParameter || {};
-  const { validationReports } = sourceDataset || {};
+  const { validationReports, validationStatus } = sourceDataset || {};
 
-  if (!validatorName || !validationReports) return null;
+  if (!pathParameter) return null;
 
   return (
     <ValidationReport
-      pathParameter={pathParameter!} // `validatorName` is defined and so we can be sure `pathParameter` is not null.
+      pathParameter={pathParameter}
       validationReports={validationReports}
+      validationStatus={validationStatus}
       validatorName={validatorName}
     />
   );
