@@ -6,6 +6,7 @@ import { Props } from "./entities";
 export const ValidationReport = ({
   pathParameter,
   validationReports,
+  validationRoute,
   validationStatus,
   validatorName,
 }: Props): JSX.Element | null => {
@@ -15,6 +16,7 @@ export const ValidationReport = ({
       <Tabs
         pathParameter={pathParameter}
         validationReports={validationReports}
+        validationRoute={validationRoute}
         validatorName={validatorName}
       />
       <ReportContent

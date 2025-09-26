@@ -8,13 +8,13 @@ import { SyntheticEvent, useCallback, useMemo } from "react";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../../../../../common/utils";
-import { ROUTE } from "../../../../../../../../routes/constants";
 import { Props } from "./entities";
 import { StyledTabs } from "./tabs.styles";
 
 export const Tabs = ({
   pathParameter,
   validationReports,
+  validationRoute,
   validatorName,
 }: Props): JSX.Element | null => {
   const validatorNames = useMemo(
@@ -25,13 +25,13 @@ export const Tabs = ({
   const onChange = useCallback(
     (_: SyntheticEvent, validatorName: FileValidatorName) => {
       Router.push(
-        getRouteURL(ROUTE.ATLAS_SOURCE_DATASET_VALIDATION, {
+        getRouteURL(validationRoute, {
           ...pathParameter,
           validatorName,
         })
       );
     },
-    [pathParameter]
+    [pathParameter, validationRoute]
   );
 
   if (!validatorName || !validationReports) return null;

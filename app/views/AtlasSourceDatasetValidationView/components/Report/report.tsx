@@ -1,5 +1,6 @@
 import { ValidationReport } from "../../../../components/Entity/components/EntityView/components/ValidationReport/validationReport";
 import { useEntity } from "../../../../providers/entity/hook";
+import { ROUTE } from "../../../../routes/constants";
 import { EntityData } from "../../entities";
 
 export const Report = (): JSX.Element | null => {
@@ -14,6 +15,7 @@ export const Report = (): JSX.Element | null => {
     <ValidationReport
       pathParameter={pathParameter}
       validationReports={validationReports}
+      validationRoute={ROUTE.ATLAS_SOURCE_DATASET_VALIDATION}
       validationStatus={validationStatus}
       validatorName={validatorName}
     />
