@@ -4,6 +4,7 @@ import {
   HCAAtlasTrackerSourceDataset,
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../common/entities";
+import { FormManager } from "../../hooks/useFormManager/common/entities";
 
 export interface AtlasSourceDataset extends HCAAtlasTrackerSourceDataset {
   atlasId: AtlasId;
@@ -11,6 +12,7 @@ export interface AtlasSourceDataset extends HCAAtlasTrackerSourceDataset {
 
 export interface Entity {
   data: EntityData;
+  formManager: FormManager;
   pathParameter: PathParameter;
 }
 
