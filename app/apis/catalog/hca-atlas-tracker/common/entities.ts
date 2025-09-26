@@ -709,6 +709,8 @@ export type FileValidatorName = (typeof FILE_VALIDATOR_NAMES)[number];
 
 export type UserId = number;
 
+export type ValidatorName = FileValidatorName;
+
 export interface ValidationDifference {
   actual: string | string[] | null;
   expected: string | string[];

@@ -12,10 +12,12 @@ import { Breadcrumb } from "../breadcrumbs";
 import {
   BREADCRUMB_ATLAS,
   BREADCRUMB_ATLAS_SOURCE_DATASET,
+  BREADCRUMB_ATLAS_SOURCE_DATASET_VALIDATIONS,
   BREADCRUMB_ATLAS_SOURCE_DATASETS,
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_COMPONENT_ATLASES,
+  BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS,
   BREADCRUMB_METADATA_CORRECTNESS,
   BREADCRUMB_METADATA_ENTRY_SHEETS,
   BREADCRUMB_SOURCE_DATASETS,
@@ -60,14 +62,28 @@ export function getAtlasSourceDatasetsBreadcrumb(
 }
 
 /**
- * Returns the breadcrumb for the atlas source datasets view.
+ * Returns the breadcrumb for the atlas source dataset view.
  * @param pathParameter - Path parameter.
- * @returns atkas source datasets view breadcrumb.
+ * @returns atlas source dataset view breadcrumb.
  */
 export function getAtlasSourceDatasetBreadcrumb(
   pathParameter?: PathParameter
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_ATLAS_SOURCE_DATASET, pathParameter);
+}
+
+/**
+ * Returns the breadcrumb for the atlas source dataset validations view.
+ * @param pathParameter - Path parameter.
+ * @returns atlas source dataset validations view breadcrumb.
+ */
+export function getAtlasSourceDatasetValidationsBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(
+    BREADCRUMB_ATLAS_SOURCE_DATASET_VALIDATIONS,
+    pathParameter
+  );
 }
 
 /**
@@ -97,6 +113,20 @@ export function getComponentAtlasBreadcrumb(
   );
   if (!componentAtlas) return breadcrumb;
   return { ...breadcrumb, text: componentAtlas.title };
+}
+
+/**
+ * Returns the breadcrumb for the integrated object validations view.
+ * @param pathParameter - Path parameter.
+ * @returns integrated object validations view breadcrumb.
+ */
+export function getIntegratedObjectValidationsBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(
+    BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS,
+    pathParameter
+  );
 }
 
 /**

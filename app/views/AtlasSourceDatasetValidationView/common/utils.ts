@@ -7,11 +7,12 @@ import {
   getAtlasesBreadcrumb,
   getAtlasSourceDatasetBreadcrumb,
   getAtlasSourceDatasetsBreadcrumb,
+  getAtlasSourceDatasetValidationsBreadcrumb,
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 import { ROUTE } from "../../../routes/constants";
 
 /**
- * Returns the breadcrumbs for the source dataset view.
+ * Returns the breadcrumbs for the source dataset validations view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
@@ -24,17 +25,18 @@ export function getBreadcrumbs(
     getAtlasesBreadcrumb(),
     getAtlasBreadcrumb(pathParameter, atlas),
     getAtlasSourceDatasetsBreadcrumb(pathParameter),
-    getAtlasSourceDatasetBreadcrumb(),
+    getAtlasSourceDatasetBreadcrumb(pathParameter),
+    getAtlasSourceDatasetValidationsBreadcrumb(),
   ];
 }
 
 /**
- * Returns the tabs for the source dataset view.
+ * Returns the tabs for the source dataset validations view.
  * @returns tabs.
  */
 export function getTabs(): Tab[] {
   return [
     { label: "Overview", value: ROUTE.ATLAS_SOURCE_DATASET },
-    { label: "Validations", value: ROUTE.ATLAS_SOURCE_DATASET_VALIDATIONS },
+    { label: "Validations", value: ROUTE.ATLAS_SOURCE_DATASET_VALIDATION },
   ];
 }

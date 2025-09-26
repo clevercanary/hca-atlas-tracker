@@ -5,13 +5,14 @@ import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/co
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
-  getAtlasSourceDatasetBreadcrumb,
-  getAtlasSourceDatasetsBreadcrumb,
+  getComponentAtlasBreadcrumb,
+  getComponentAtlasesBreadcrumb,
+  getIntegratedObjectValidationsBreadcrumb,
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 import { ROUTE } from "../../../routes/constants";
 
 /**
- * Returns the breadcrumbs for the source dataset view.
+ * Returns the breadcrumbs for the integrated object validations view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
@@ -23,18 +24,19 @@ export function getBreadcrumbs(
   return [
     getAtlasesBreadcrumb(),
     getAtlasBreadcrumb(pathParameter, atlas),
-    getAtlasSourceDatasetsBreadcrumb(pathParameter),
-    getAtlasSourceDatasetBreadcrumb(),
+    getComponentAtlasesBreadcrumb(pathParameter),
+    getComponentAtlasBreadcrumb(pathParameter),
+    getIntegratedObjectValidationsBreadcrumb(),
   ];
 }
 
 /**
- * Returns the tabs for the source dataset view.
+ * Returns the tabs for the integrated object validations view.
  * @returns tabs.
  */
 export function getTabs(): Tab[] {
   return [
-    { label: "Overview", value: ROUTE.ATLAS_SOURCE_DATASET },
-    { label: "Validations", value: ROUTE.ATLAS_SOURCE_DATASET_VALIDATIONS },
+    { label: "Overview", value: ROUTE.COMPONENT_ATLAS },
+    { label: "Validations", value: ROUTE.INTEGRATED_OBJECT_VALIDATION },
   ];
 }
