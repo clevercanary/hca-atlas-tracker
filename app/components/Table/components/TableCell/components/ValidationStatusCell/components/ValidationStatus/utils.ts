@@ -3,6 +3,7 @@ import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chi
 import { ChipProps } from "@mui/material";
 import { Getter } from "@tanstack/react-table";
 import { ComponentProps } from "react";
+import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FILE_VALIDATION_STATUS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { VALIDATION_STATUS_COLOR } from "./constants";
 
@@ -18,9 +19,7 @@ export function buildValidationStatus(
     getValue: (() => {
       return {
         color: VALIDATION_STATUS_COLOR[validationStatus],
-        label: validationStatus
-          .replaceAll("_", " ")
-          .replace(/^./, (match) => match.toUpperCase()),
+        label: FILE_VALIDATION_STATUS_NAME_LABEL[validationStatus],
         variant: CHIP_PROPS.VARIANT.STATUS,
       };
     }) as Getter<ChipProps>,
