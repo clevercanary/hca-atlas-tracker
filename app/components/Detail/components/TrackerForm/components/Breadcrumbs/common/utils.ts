@@ -17,6 +17,7 @@ import {
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_COMPONENT_ATLASES,
+  BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS,
   BREADCRUMB_METADATA_CORRECTNESS,
   BREADCRUMB_METADATA_ENTRY_SHEETS,
   BREADCRUMB_SOURCE_DATASETS,
@@ -112,6 +113,20 @@ export function getComponentAtlasBreadcrumb(
   );
   if (!componentAtlas) return breadcrumb;
   return { ...breadcrumb, text: componentAtlas.title };
+}
+
+/**
+ * Returns the breadcrumb for the integrated object validations view.
+ * @param pathParameter - Path parameter.
+ * @returns integrated object validations view breadcrumb.
+ */
+export function getIntegratedObjectValidationsBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(
+    BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS,
+    pathParameter
+  );
 }
 
 /**

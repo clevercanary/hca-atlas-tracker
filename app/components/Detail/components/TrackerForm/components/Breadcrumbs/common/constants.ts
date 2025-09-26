@@ -43,6 +43,12 @@ export const BREADCRUMB_COMPONENT_ATLAS: Breadcrumb = {
   text: "Integrated Object",
 };
 
+export const BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS: Breadcrumb = {
+  path: ROUTE.INTEGRATED_OBJECT_VALIDATIONS,
+  route: ROUTE.INTEGRATED_OBJECT_VALIDATIONS,
+  text: "Integrated Object Validations",
+};
+
 export const BREADCRUMB_METADATA_CORRECTNESS: Breadcrumb = {
   path: ROUTE.METADATA_CORRECTNESS,
   route: ROUTE.METADATA_CORRECTNESS,

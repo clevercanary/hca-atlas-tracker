@@ -13,6 +13,10 @@ export const ROUTE = {
   CREATE_ATLAS: "/atlases/create",
   CREATE_SOURCE_STUDY: "/atlases/[atlasId]/source-studies/create",
   CREATE_USER: "/team/create",
+  INTEGRATED_OBJECT_VALIDATION:
+    "/atlases/[atlasId]/integrated-objects/[componentAtlasId]/validations/[validatorName]",
+  INTEGRATED_OBJECT_VALIDATIONS:
+    "/atlases/[atlasId]/integrated-objects/[componentAtlasId]/validations",
   LOGIN: "/login",
   METADATA_CORRECTNESS: "/atlases/[atlasId]/metadata-correctness",
   METADATA_ENTRY_SHEET:

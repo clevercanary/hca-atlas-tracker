@@ -11,6 +11,5 @@ export const VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS: SectionConfig<
   {
     controllerConfigs: GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS,
     sectionTitle: SECTION_TITLES.GENERAL_INFORMATION,
-    showDivider: true,
   },
 ];

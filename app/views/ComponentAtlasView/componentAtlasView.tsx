@@ -4,10 +4,11 @@ import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ViewComponentAtlas } from "../../components/Detail/components/ViewComponentAtlas/viewComponentAtlas";
+import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS } from "./common/sections";
-import { getBreadcrumbs } from "./common/utils";
+import { getBreadcrumbs, getTabs } from "./common/utils";
 import { useFetchComponentAtlasData } from "./hooks/useFetchComponentAtlasData";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
 
@@ -55,6 +56,7 @@ export const ComponentAtlasView = ({
             sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
           />
         }
+        tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
         title={componentAtlas?.title || "Integrated Object"}
       />
     </ConditionalComponent>

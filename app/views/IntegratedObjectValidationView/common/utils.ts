@@ -7,11 +7,12 @@ import {
   getAtlasesBreadcrumb,
   getComponentAtlasBreadcrumb,
   getComponentAtlasesBreadcrumb,
+  getIntegratedObjectValidationsBreadcrumb,
 } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 import { ROUTE } from "../../../routes/constants";
 
 /**
- * Returns the breadcrumbs for the component atlas view.
+ * Returns the breadcrumbs for the integrated object validations view.
  * @param pathParameter - Path parameter.
  * @param atlas - Atlas.
  * @returns breadcrumbs.
@@ -24,17 +25,18 @@ export function getBreadcrumbs(
     getAtlasesBreadcrumb(),
     getAtlasBreadcrumb(pathParameter, atlas),
     getComponentAtlasesBreadcrumb(pathParameter),
-    getComponentAtlasBreadcrumb(),
+    getComponentAtlasBreadcrumb(pathParameter),
+    getIntegratedObjectValidationsBreadcrumb(),
   ];
 }
 
 /**
- * Returns the tabs for the integrated object view.
+ * Returns the tabs for the integrated object validations view.
  * @returns tabs.
  */
 export function getTabs(): Tab[] {
   return [
     { label: "Overview", value: ROUTE.COMPONENT_ATLAS },
-    { label: "Validations", value: ROUTE.INTEGRATED_OBJECT_VALIDATIONS },
+    { label: "Validations", value: ROUTE.INTEGRATED_OBJECT_VALIDATION },
   ];
 }

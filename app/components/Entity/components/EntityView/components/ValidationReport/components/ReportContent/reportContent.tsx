@@ -12,9 +12,11 @@ export const ReportContent = ({
   return (
     <StyledContainer maxWidth={false}>
       <Typography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_400}>
-        {messages.map((message) => (
-          <div key={message}>{message}</div>
-        ))}
+        {messages.length === 0 ? (
+          <div>No errors or warnings found.</div>
+        ) : (
+          messages.map((message) => <div key={message}>{message}</div>)
+        )}
       </Typography>
     </StyledContainer>
   );
