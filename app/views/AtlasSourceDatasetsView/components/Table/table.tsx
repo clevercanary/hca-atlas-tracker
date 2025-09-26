@@ -7,15 +7,18 @@ import { TablePlaceholder } from "../../../../components/Table/components/TableP
 import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
 import { SORTING_OPTIONS } from "../../../../components/Table/options/sorting/constants";
 import { useEntity } from "../../../../providers/entity/hook";
-import { EntityData } from "../../entities";
+import { Entity, EntityData } from "../../entities";
 import { RowSelection } from "./components/RowSelection/rowSelection";
 import { Props } from "./entities";
 import { StyledToolbar } from "./table.styles";
 
 export const Table = (props: Props): JSX.Element => {
-  const { data } = useEntity();
+  const { data, formManager } = useEntity() as Entity;
   const { atlasSourceDatasets = [] } = data as EntityData;
   const { tableOptions } = props;
+  const {
+    access: { canEdit },
+  } = formManager;
 
   // Create table instance.
   const table = useReactTable({
@@ -23,6 +26,7 @@ export const Table = (props: Props): JSX.Element => {
     ...CORE_OPTIONS,
     ...SORTING_OPTIONS,
     ...tableOptions,
+    meta: { canEdit },
   });
 
   return (

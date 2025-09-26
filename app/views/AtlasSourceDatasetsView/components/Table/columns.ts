@@ -11,7 +11,10 @@ import {
   buildTissue,
 } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { AtlasSourceDataset } from "../../entities";
-import { renderSourceDatasetCellCount } from "./viewBuilders";
+import {
+  renderSourceDatasetCellCount,
+  renderSourceDatasetFileDownloadCell,
+} from "./viewBuilders";
 
 const COLUMN_ASSAY = {
   accessorKey: "assay",
@@ -36,7 +39,7 @@ const COLUMN_DISEASE = {
 
 const COLUMN_DOWNLOAD = {
   accessorKey: "download",
-  cell: (): JSX.Element => C.FileDownloadCell({ disabled: false }),
+  cell: renderSourceDatasetFileDownloadCell,
   enableSorting: false,
   header: "Download",
   meta: { width: "max-content" },
