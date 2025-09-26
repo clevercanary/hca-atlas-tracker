@@ -36,7 +36,7 @@ const COLUMN_DISEASE = {
 
 const COLUMN_DOWNLOAD = {
   accessorKey: "download",
-  cell: (): JSX.Element => C.FileDownload({ disabled: true, fileName: "" }),
+  cell: (): JSX.Element => C.FileDownloadCell({ disabled: false }),
   enableSorting: false,
   header: "Download",
   meta: { width: "max-content" },
