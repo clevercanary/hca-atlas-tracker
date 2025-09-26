@@ -21,14 +21,16 @@ export const FetchDataStateContext = createContext<FetchDataStateContextProps>({
 
 export interface FetchDataStateProps {
   children: ReactNode | ReactNode[];
+  initialState?: Partial<FetchDataState>;
 }
 
 export function FetchDataStateProvider({
   children,
+  initialState,
 }: FetchDataStateProps): JSX.Element {
   const [fetchDataState, fetchDataDispatch] = useReducer(
     (s: FetchDataState, a: FetchDataAction) => fetchDataStateReducer(s, a),
-    DEFAULT_FETCH_DATA_STATE
+    { ...DEFAULT_FETCH_DATA_STATE, ...initialState }
   );
   return (
     <FetchDataStateContext.Provider
