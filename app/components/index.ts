@@ -24,7 +24,7 @@ export { AlertTitle } from "@mui/material";
 export { AddAtlas } from "../views/EntitiesView/components/AddAtlas/addAtlas";
 export { AddUser } from "../views/EntitiesView/components/AddUser/addUser";
 export { IconButton } from "./common/IconButton/iconButton";
-export { FileDownload } from "./Index/components/FileDownload/fileDownload";
+export { FileDownloadCell } from "./Entity/components/common/Table/components/TableCell/components/FileDownloadCell/fileDownloadCell";
 export { LinksCell } from "./Index/components/LinksCell/linksCell";
 export { EditTasks } from "./Index/components/ViewTasks/components/EditTasks/editTasks";
 export { PreviewTask } from "./Index/components/ViewTasks/components/PreviewTask/previewTask";
