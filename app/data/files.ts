@@ -13,7 +13,9 @@ import {
   NetworkKey,
   type FileEventInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { confirmComponentAtlasExistsOnAtlas } from "../services/component-atlases";
 import { query } from "../services/database";
+import { confirmSourceDatasetIsLinkedToAtlas } from "../services/source-datasets";
 import { NotFoundError } from "../utils/api-handler";
 import { getVersionVariants } from "../utils/atlases";
 
@@ -166,26 +168,26 @@ export async function confirmFileExistsOnAtlas(
   fileId: string,
   atlasId: string
 ): Promise<void> {
-  const result = await query(
-    `SELECT 1 FROM hat.files f
-       WHERE f.id = $1
-       AND (
-         -- Integrated object files via component atlas
-         EXISTS (
-           SELECT 1 FROM hat.component_atlases ca 
-           WHERE f.component_atlas_id = ca.id AND ca.atlas_id = $2
-         )
-         OR
-         -- Source dataset files (with or without source study)
-         f.source_dataset_id IS NOT NULL
-       )`,
-    [fileId, atlasId]
-  );
+  const linkedEntitiesResult = await query<
+    Pick<HCAAtlasTrackerDBFile, "component_atlas_id" | "source_dataset_id">
+  >("SELECT component_atlas_id, source_dataset_id FROM hat.files WHERE id=$1", [
+    fileId,
+  ]);
 
-  if (result.rows.length === 0) {
-    throw new NotFoundError(
-      `File with id ${fileId} doesn't exist on the specified atlas.`
-    );
+  if (linkedEntitiesResult.rows.length === 0)
+    throw getFileNotFoundError(fileId);
+
+  const {
+    component_atlas_id: componentAtlasId,
+    source_dataset_id: sourceDatasetId,
+  } = linkedEntitiesResult.rows[0];
+
+  if (componentAtlasId !== null) {
+    await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
+  } else if (sourceDatasetId !== null) {
+    await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
+  } else {
+    throw getFileNotFoundError(fileId, atlasId);
   }
 }
 
@@ -349,6 +351,15 @@ export async function setFileIntegrityStatus(
   );
 }
 
+export async function getFileKey(fileId: string): Promise<string> {
+  const result = await query<Pick<HCAAtlasTrackerDBFile, "key">>(
+    "SELECT key FROM hat.files WHERE id=$1",
+    [fileId]
+  );
+  if (result.rows.length === 0) throw getFileNotFoundError(fileId);
+  return result.rows[0].key;
+}
+
 /**
  * Get the currently-stored date at which the given file was last validated.
  * @param fileId - ID of file to get validation timestamp of.
@@ -362,8 +373,7 @@ export async function getLastValidationTimestamp(
   const result = await client.query<
     Pick<HCAAtlasTrackerDBFile, "integrity_checked_at">
   >("SELECT integrity_checked_at FROM hat.files WHERE id=$1", [fileId]);
-  if (result.rows.length === 0)
-    throw new NotFoundError(`File with id ${fileId} doesn't exist`);
+  if (result.rows.length === 0) throw getFileNotFoundError(fileId);
   return result.rows[0].integrity_checked_at;
 }
 
@@ -425,5 +435,16 @@ export async function addValidationResultsToFile(params: {
       JSON.stringify(validationSummary),
       fileId,
     ]
+  );
+}
+
+function getFileNotFoundError(
+  fileId: string,
+  atlasId: string | null = null
+): NotFoundError {
+  return new NotFoundError(
+    `File with ID ${fileId} doesn't exist${
+      atlasId === null ? "" : ` on atlas with ID ${atlasId}`
+    }`
   );
 }

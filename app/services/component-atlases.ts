@@ -362,6 +362,18 @@ function getInitialComponentAtlasInfo(): HCAAtlasTrackerDBComponentAtlasInfo {
   };
 }
 
+export async function confirmComponentAtlasExistsOnAtlas(
+  componentAtlasId: string,
+  atlasId: string
+): Promise<void> {
+  const result = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">>(
+    "SELECT atlas_id FROM hat.component_atlases WHERE id=$1",
+    [componentAtlasId]
+  );
+  if (result.rows[0]?.atlas_id !== atlasId)
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+}
+
 /**
  * Get the ID of the component atlas associated with the given file, or null if there is none.
  * @param fileId - ID of the file to get the associated component atlas of.

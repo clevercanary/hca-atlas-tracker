@@ -19,7 +19,9 @@ import {
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
+  SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
+  SOURCE_DATASET_FOO,
 } from "../testing/constants";
 import { createTestFile, resetDatabase } from "../testing/db-utils";
 
@@ -73,34 +75,53 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, wrongAtlasId)
       ).rejects.toThrow(
-        `File with id ${fileId} doesn't exist on the specified atlas.`
+        `Component atlas with ID ${COMPONENT_ATLAS_DRAFT_FOO.id} doesn't exist on atlas with ID ${wrongAtlasId}`
       );
     });
   });
 
   describe("source dataset files", () => {
-    it("should pass when source dataset file exists (source datasets are atlas-agnostic)", async () => {
-      // Create a source dataset file using createTestFile
-      const testFileId = "550e8400-e29b-41d4-a716-446655440010";
-      const sourceDatasetId = SOURCE_DATASET_DRAFT_OK_FOO.id;
+    it("should pass when source dataset file exists on the specified atlas via source dataset", async () => {
+      // Use existing test file that's linked to source dataset
+      const fileId = SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id;
+      const atlasId = ATLAS_WITH_MISC_SOURCE_STUDIES.id;
 
-      await createTestFile(testFileId, {
-        bucket: "test-bucket-source-dataset",
-        etag: "550e8400-e29b-41d4-a716-test-etag",
-        fileType: FILE_TYPE.SOURCE_DATASET,
-        key: "test/atlas-v1/source-datasets/test.h5ad",
-        sizeBytes: 1024000,
-        sourceDatasetId,
-      });
-
-      // Should not throw an error for any atlas (source datasets are atlas-agnostic)
+      // Should not throw an error
       await expect(
-        confirmFileExistsOnAtlas(testFileId, ATLAS_DRAFT.id)
+        confirmFileExistsOnAtlas(fileId, atlasId)
       ).resolves.toBeUndefined();
+    });
+
+    it("should throw NotFoundError when source dataset exists but on different atlas", async () => {
+      // Use existing test file linked to one atlas, but check against different atlas
+      const fileId = SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id;
+      const wrongAtlasId = ATLAS_DRAFT.id;
+
+      // Should throw NotFoundError when checking for different atlas
+      await expect(
+        confirmFileExistsOnAtlas(fileId, wrongAtlasId)
+      ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(testFileId, ATLAS_WITH_MISC_SOURCE_STUDIES.id)
-      ).resolves.toBeUndefined();
+        confirmFileExistsOnAtlas(fileId, wrongAtlasId)
+      ).rejects.toThrow(
+        `Source dataset with ID ${SOURCE_DATASET_ATLAS_LINKED_A_FOO.id} is not linked to atlas with ID ${wrongAtlasId}`
+      );
+    });
+
+    it("should throw NotFoundError when source dataset exists on a source study of the atlas but is not linked to the atlas", async () => {
+      const fileId = SOURCE_DATASET_FOO.file.id;
+      const nonLinkedAtlasId = ATLAS_WITH_MISC_SOURCE_STUDIES.id;
+
+      await expect(
+        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId)
+      ).rejects.toThrow(NotFoundError);
+
+      await expect(
+        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId)
+      ).rejects.toThrow(
+        `Source dataset with ID ${SOURCE_DATASET_FOO.id} is not linked to atlas with ID ${nonLinkedAtlasId}`
+      );
     });
   });
 
@@ -114,9 +135,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       await expect(
         confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
-      ).rejects.toThrow(
-        `File with id ${nonExistentFileId} doesn't exist on the specified atlas.`
-      );
+      ).rejects.toThrow(`File with ID ${nonExistentFileId} doesn't exist`);
     });
 
     it("should throw NotFoundError when file exists but doesn't match criteria", async () => {
@@ -141,9 +160,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       await expect(
         confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
-      ).rejects.toThrow(
-        `File with id ${nonExistentFileId} doesn't exist on the specified atlas.`
-      );
+      ).rejects.toThrow(`File with ID ${nonExistentFileId} doesn't exist`);
     });
   });
 

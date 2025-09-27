@@ -583,7 +583,7 @@ export async function confirmSourceDatasetStudyIsOnAtlas(
  * @param sourceDatasetId - Source dataset ID.
  * @param atlasId - Atlas ID.
  */
-async function confirmSourceDatasetIsLinkedToAtlas(
+export async function confirmSourceDatasetIsLinkedToAtlas(
   sourceDatasetId: string,
   atlasId: string
 ): Promise<void> {
