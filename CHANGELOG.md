@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.37.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.36.0...v1.37.0) (2025-09-26)
+
+
+### Features
+
+* add validation summary to source dataset and integrated object tables ([#874](https://github.com/clevercanary/hca-atlas-tracker/issues/874)) ([#886](https://github.com/clevercanary/hca-atlas-tracker/issues/886)) ([cb2da6e](https://github.com/clevercanary/hca-atlas-tracker/commit/cb2da6e988615dc91481af006a73dbb3fff50dc2))
+* include validation reports when generating validation results for local development ([#884](https://github.com/clevercanary/hca-atlas-tracker/issues/884)) ([#885](https://github.com/clevercanary/hca-atlas-tracker/issues/885)) ([e3750fb](https://github.com/clevercanary/hca-atlas-tracker/commit/e3750fb6a566d2ed798388f97bee16acbdd64112))
+* return validation reports from atlas source dataset and component atlas detail apis ([#864](https://github.com/clevercanary/hca-atlas-tracker/issues/864)) ([#887](https://github.com/clevercanary/hca-atlas-tracker/issues/887)) ([0a3ab8b](https://github.com/clevercanary/hca-atlas-tracker/commit/0a3ab8b99b8396669259ac112f69a1ebae8a2778))
+* return validation summary from source dataset and integrated object apis ([#863](https://github.com/clevercanary/hca-atlas-tracker/issues/863)) ([#880](https://github.com/clevercanary/hca-atlas-tracker/issues/880)) ([07ead26](https://github.com/clevercanary/hca-atlas-tracker/commit/07ead264ba6355e6b0e7795271d2733356694ef1))
+* show validation details on source dataset and integrated object detail pages ([#875](https://github.com/clevercanary/hca-atlas-tracker/issues/875)) ([#888](https://github.com/clevercanary/hca-atlas-tracker/issues/888)) ([9c02b20](https://github.com/clevercanary/hca-atlas-tracker/commit/9c02b201c6f0c809bdc8845940029454ba325e24))
+
+
+### Tests
+
+* hide console messages in validate all files api test ([#882](https://github.com/clevercanary/hca-atlas-tracker/issues/882)) ([#883](https://github.com/clevercanary/hca-atlas-tracker/issues/883)) ([7527365](https://github.com/clevercanary/hca-atlas-tracker/commit/75273652811e8666730928cd0dbe58cbf62c2c29))
+
 ## [1.36.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.35.0...v1.36.0) (2025-09-24)
 
 
