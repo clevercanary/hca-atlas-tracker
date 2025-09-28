@@ -588,6 +588,7 @@ export function expectApiSourceDatasetToMatchTest(
   if (!expectIsDefined(testSourceDataset.file)) return;
   const testFile = getNormalizedFileForTestEntity(testSourceDataset);
 
+  expect(apiSourceDataset.fileId).toEqual(testFile.id);
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiSourceDataset.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0
@@ -680,6 +681,7 @@ export function expectApiComponentAtlasToMatchTest(
   if (!expectIsDefined(testComponentAtlas.file)) return;
   const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
 
+  expect(apiComponentAtlas.fileId).toEqual(testFile.id);
   expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
   expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
   expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);

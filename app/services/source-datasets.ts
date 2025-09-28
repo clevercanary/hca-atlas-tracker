@@ -46,6 +46,7 @@ export async function getSourceStudyDatasets(
     `
       SELECT
         d.*,
+        f.id as file_id,
         f.key,
         f.size_bytes,
         f.dataset_info,
@@ -75,6 +76,7 @@ export async function getAtlasDatasets(
     `
       SELECT
         d.*,
+        f.id as file_id,
         f.key,
         f.size_bytes,
         f.dataset_info,
@@ -117,6 +119,7 @@ export async function getComponentAtlasDatasets(
     `
       SELECT
         d.*,
+        f.id as file_id,
         f.key,
         f.size_bytes,
         f.dataset_info,
@@ -158,6 +161,7 @@ export async function getSourceDataset(
     `
       SELECT
         d.*,
+        f.id as file_id,
         f.key,
         f.size_bytes,
         f.dataset_info,
@@ -195,6 +199,7 @@ export async function getAtlasSourceDataset(
     `
       SELECT
         d.*,
+        f.id as file_id,
         f.key,
         f.size_bytes,
         f.dataset_info,
@@ -245,6 +250,7 @@ export async function getComponentAtlasSourceDataset(
     `
       SELECT
         d.*,
+        f.id as file_id,
         f.key,
         f.size_bytes,
         f.dataset_info,

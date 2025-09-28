@@ -25,6 +25,7 @@ export async function getAtlasComponentAtlases(
   >(
     `
         SELECT
+          f.id as file_id,
           f.dataset_info,
           f.id,
           f.integrity_status,
@@ -56,6 +57,7 @@ export async function getComponentAtlas(
   >(
     `
       SELECT
+        f.id as file_id,
         f.dataset_info,
         f.id,
         f.integrity_status,
