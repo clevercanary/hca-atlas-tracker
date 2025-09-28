@@ -7,17 +7,12 @@ import {
 } from "@aws-sdk/client-s3";
 import { S3EventRecord } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { saveAndProcessFileRecord } from "./s3-notification";
+import { getDataBucketName } from "./s3-operations";
 
 const HEAD_BATCH_SIZE = 20;
 
-function getBucket(): string {
-  const bucket = process.env.AWS_DATA_BUCKET;
-  if (!bucket) throw new Error("S3 bucket not specified in environment");
-  return bucket;
-}
-
 export async function syncFilesFromS3(): Promise<void> {
-  const bucket = getBucket();
+  const bucket = getDataBucketName();
 
   const s3 = new S3Client();
 

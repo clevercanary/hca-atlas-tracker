@@ -5,17 +5,14 @@ const PRESIGNED_DOWNLOAD_URL_EXPIRATION_TIME = 172800; // 48 hours
 
 const s3 = new S3Client();
 
-function getDownloadBucket(): string {
-  const bucket = process.env.DOWNLOAD_BUCKET;
-  if (!bucket)
-    throw new Error(
-      "S3 bucket for downloading from is not specified in environment"
-    );
+export function getDataBucketName(): string {
+  const bucket = process.env.AWS_DATA_BUCKET;
+  if (!bucket) throw new Error("S3 bucket not specified in environment");
   return bucket;
 }
 
 export async function getDownloadUrl(key: string): Promise<string> {
-  const bucket = getDownloadBucket();
+  const bucket = getDataBucketName();
 
   const command = new GetObjectCommand({
     Bucket: bucket,
