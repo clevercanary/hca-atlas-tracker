@@ -176,7 +176,7 @@ describe(`${TEST_ROUTE}`, () => {
         METHOD.POST,
         false
       );
-      expect(res._getStatusCode()).toEqual(201);
+      expect(res._getStatusCode()).toEqual(200);
       expectUrlForFile(res._getData(), testFile);
     });
 
@@ -188,7 +188,7 @@ describe(`${TEST_ROUTE}`, () => {
         METHOD.POST,
         false
       );
-      expect(res._getStatusCode()).toEqual(201);
+      expect(res._getStatusCode()).toEqual(200);
       expectUrlForFile(res._getData(), testFile);
     });
   }
