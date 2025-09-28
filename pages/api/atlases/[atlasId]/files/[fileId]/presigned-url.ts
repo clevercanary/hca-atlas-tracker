@@ -18,6 +18,6 @@ export default handler(
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const fileId = req.query.fileId as string;
-    res.status(200).send(await getAtlasFileDownloadUrl(atlasId, fileId));
+    res.status(201).send(await getAtlasFileDownloadUrl(atlasId, fileId));
   }
 );
