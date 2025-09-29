@@ -1,24 +1,23 @@
-import { CellContext } from "@tanstack/react-table";
-import {
-  FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerComponentAtlas,
-} from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasSourceDataset } from "../../../../../../views/AtlasSourceDatasetsView/entities";
+import { FILE_VALIDATION_STATUS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { ValidationStatus } from "./components/ValidationStatus/validationStatus";
 import { ValidationSummary } from "./components/ValidationSummary/validationSummary";
+import { Props } from "./entities";
 
-export const ValidationStatusCell = <
-  T extends HCAAtlasTrackerComponentAtlas | AtlasSourceDataset,
-  TValue
->({
+export const ValidationStatusCell = ({
   row,
-}: CellContext<T, TValue>): JSX.Element | null => {
+  validationRoute,
+}: Props): JSX.Element | null => {
   const { original } = row;
   const { validationStatus, validationSummary } = original;
 
   // Render validation summary if validation status is completed.
   if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED)
-    return <ValidationSummary validationSummary={validationSummary} />;
+    return (
+      <ValidationSummary
+        validationRoute={validationRoute}
+        validationSummary={validationSummary}
+      />
+    );
 
   // Render validation status otherwise.
   return <ValidationStatus validationStatus={validationStatus} />;
