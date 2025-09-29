@@ -46,6 +46,14 @@ export const Dialog = ({
         )}
       </DialogContent>
       <DialogActions>
+        <Button
+          {...BUTTON_PROPS.PRIMARY_CONTAINED}
+          disabled={!url}
+          download
+          href={url ?? ""}
+        >
+          Download
+        </Button>
         <Button {...BUTTON_PROPS.SECONDARY_CONTAINED} onClick={onClose}>
           Cancel
         </Button>
