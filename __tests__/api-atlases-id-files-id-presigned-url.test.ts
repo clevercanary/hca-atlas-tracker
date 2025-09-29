@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { PresignedUrlInfo } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import presignedUrlHandler from "../pages/api/atlases/[atlasId]/files/[fileId]/presigned-url";
@@ -177,7 +178,8 @@ describe(`${TEST_ROUTE}`, () => {
         false
       );
       expect(res._getStatusCode()).toEqual(200);
-      expectUrlForFile(res._getData(), testFile);
+      const urlInfo = res._getJSONData() as PresignedUrlInfo;
+      expectUrlForFile(urlInfo.url, testFile);
     });
 
     it(`returns file URL when ${entityType} file is POST requested by user with CONTENT_ADMIN role`, async () => {
@@ -189,7 +191,8 @@ describe(`${TEST_ROUTE}`, () => {
         false
       );
       expect(res._getStatusCode()).toEqual(200);
-      expectUrlForFile(res._getData(), testFile);
+      const urlInfo = res._getJSONData() as PresignedUrlInfo;
+      expectUrlForFile(urlInfo.url, testFile);
     });
   }
 
@@ -248,7 +251,7 @@ function getQueryValues(
   return { atlasId, fileId };
 }
 
-function expectUrlForFile(url: unknown, testFile: TestFile): void {
+function expectUrlForFile(url: string, testFile: TestFile): void {
   expect(url).toMatch(/^https:\/\//);
   expect(url).toEqual(expect.stringContaining(testFile.fileName));
 }

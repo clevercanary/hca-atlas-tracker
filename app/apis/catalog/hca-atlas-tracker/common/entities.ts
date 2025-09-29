@@ -708,6 +708,10 @@ export interface FileValidationSummary {
 
 export type FileValidatorName = (typeof FILE_VALIDATOR_NAMES)[number];
 
+export interface PresignedUrlInfo {
+  url: string;
+}
+
 export type UserId = number;
 
 export interface ValidationDifference {

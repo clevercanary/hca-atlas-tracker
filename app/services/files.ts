@@ -2,6 +2,7 @@ import { VALID_FILE_TYPES_FOR_VALIDATION } from "app/apis/catalog/hca-atlas-trac
 import {
   FILE_VALIDATION_STATUS,
   INTEGRITY_STATUS,
+  PresignedUrlInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmFileExistsOnAtlas,
@@ -23,9 +24,9 @@ import { submitDatasetValidationJob } from "./validator-batch";
 export async function getAtlasFileDownloadUrl(
   atlasId: string,
   fileId: string
-): Promise<string> {
+): Promise<PresignedUrlInfo> {
   await confirmFileExistsOnAtlas(fileId, atlasId);
-  return await getDownloadUrl(await getFileKey(fileId));
+  return { url: await getDownloadUrl(await getFileKey(fileId)) };
 }
 
 /**
