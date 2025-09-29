@@ -1,6 +1,11 @@
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
+import {
+  ANCHOR_TARGET,
+  REL_ATTRIBUTE,
+} from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { Stack } from "@mui/material";
+import { Link as MLink, Stack } from "@mui/material";
+import Link from "next/link";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
@@ -8,6 +13,7 @@ import { Props } from "./entities";
 import { StyledErrorIcon } from "./validationSummary.styles";
 
 export const ValidationSummary = ({
+  validationRoute,
   validationSummary,
 }: Props): JSX.Element | null => {
   if (!validationSummary) return null;
@@ -28,7 +34,14 @@ export const ValidationSummary = ({
           ) : (
             <StyledErrorIcon fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL} />
           )}
-          {FILE_VALIDATOR_NAME_LABEL[key as FileValidatorName]}
+          <MLink
+            component={Link}
+            href={validationRoute}
+            rel={REL_ATTRIBUTE.NO_OPENER}
+            target={ANCHOR_TARGET.SELF}
+          >
+            {FILE_VALIDATOR_NAME_LABEL[key as FileValidatorName]}
+          </MLink>
         </Stack>
       ))}
     </Stack>

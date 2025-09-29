@@ -14,6 +14,7 @@ import { AtlasSourceDataset } from "../../entities";
 import {
   renderSourceDatasetCellCount,
   renderSourceDatasetFileDownloadCell,
+  renderSourceDatasetValidationStatus,
 } from "./viewBuilders";
 
 const COLUMN_ASSAY = {
@@ -111,7 +112,7 @@ const COLUMN_TITLE = {
 
 const COLUMN_VALIDATION_STATUS = {
   accessorKey: "validationStatus",
-  cell: C.ValidationStatusCell,
+  cell: renderSourceDatasetValidationStatus,
   header: "Validation Summary",
   meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
