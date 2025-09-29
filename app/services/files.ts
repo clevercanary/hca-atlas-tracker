@@ -2,14 +2,32 @@ import { VALID_FILE_TYPES_FOR_VALIDATION } from "app/apis/catalog/hca-atlas-trac
 import {
   FILE_VALIDATION_STATUS,
   INTEGRITY_STATUS,
+  PresignedUrlInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
+  confirmFileExistsOnAtlas,
   getAllFilesValidationParams,
+  getFileKey,
   setFileIntegrityStatus,
   setFileValidationStatus,
 } from "../data/files";
 import { doTransaction } from "./database";
+import { getDownloadUrl } from "./s3-operations";
 import { submitDatasetValidationJob } from "./validator-batch";
+
+/**
+ * Get a presigned S3 URL for downloading the given file.
+ * @param atlasId - ID of the atlas that the file is accessed via.
+ * @param fileId - ID of file to get download URL for.
+ * @returns file download URL.
+ */
+export async function getAtlasFileDownloadUrl(
+  atlasId: string,
+  fileId: string
+): Promise<PresignedUrlInfo> {
+  await confirmFileExistsOnAtlas(fileId, atlasId);
+  return { url: await getDownloadUrl(await getFileKey(fileId)) };
+}
 
 /**
  * Start validation for all files in the database.

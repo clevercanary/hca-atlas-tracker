@@ -19,8 +19,9 @@
     "dump-schema": "pg_dump --schema-only --schema=hat --no-owner --no-privileges atlas-tracker > schema.sql"
   },
   "dependencies": {
-    "@aws-sdk/client-batch": "^3.888.0",
-    "@aws-sdk/client-s3": "^3.883.0",
+    "@aws-sdk/client-batch": "^3.896.0",
+    "@aws-sdk/client-s3": "^3.896.0",
+    "@aws-sdk/s3-request-presigner": "^3.896.0",
     "@databiosphere/findable-ui": "^41.2.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -62,7 +63,6 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
-    "@aws-sdk/rds-signer": "^3.540.0",
     "@babel/core": "^7.17.10",
     "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
@@ -70,7 +70,6 @@
     "@mui/types": "^7.4.0",
     "@next/eslint-plugin-next": "^14.2.30",
     "@playwright/test": "^1.37.1",
-    "@smithy/types": "^4.4.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^16.0.1",
     "@types/mdx": "^2.0.11",

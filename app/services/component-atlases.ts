@@ -25,6 +25,7 @@ export async function getAtlasComponentAtlases(
   >(
     `
         SELECT
+          f.id as file_id,
           f.dataset_info,
           f.id,
           f.integrity_status,
@@ -56,6 +57,7 @@ export async function getComponentAtlas(
   >(
     `
       SELECT
+        f.id as file_id,
         f.dataset_info,
         f.id,
         f.integrity_status,
@@ -360,6 +362,18 @@ function getInitialComponentAtlasInfo(): HCAAtlasTrackerDBComponentAtlasInfo {
     suspensionType: [],
     tissue: [],
   };
+}
+
+export async function confirmComponentAtlasExistsOnAtlas(
+  componentAtlasId: string,
+  atlasId: string
+): Promise<void> {
+  const result = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">>(
+    "SELECT atlas_id FROM hat.component_atlases WHERE id=$1",
+    [componentAtlasId]
+  );
+  if (result.rows[0]?.atlas_id !== atlasId)
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
 }
 
 /**
