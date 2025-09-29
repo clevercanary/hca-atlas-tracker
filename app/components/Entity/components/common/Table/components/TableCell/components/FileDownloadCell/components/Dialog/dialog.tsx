@@ -1,7 +1,8 @@
+import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { Button, DialogActions, DialogContent } from "@mui/material";
+import { Button, DialogActions, DialogContent, Stack } from "@mui/material";
 import { useFetchDataState } from "../../../../../../../../../../../hooks/useFetchDataState";
 import { FetchDataActionKind } from "../../../../../../../../../../../providers/fetchDataState/fetchDataState";
 import { useRequestPreSignedURL } from "../../hooks/UseRequestPreSignedURL/hook";
@@ -13,6 +14,7 @@ import { Props } from "./entities";
 
 export const Dialog = ({
   fileId,
+  fileName = LABEL.UNSPECIFIED,
   onClose,
   open,
   sizeBytes = 0,
@@ -34,8 +36,11 @@ export const Dialog = ({
       <DialogTitle onClose={onClose} title="Download from HCA Atlas Tracker" />
       <DialogContent dividers>
         <Section title="Data Format">.h5ad</Section>
-        <Section title="Download details">
-          FileSize: {formatFileSize(sizeBytes)}
+        <Section title="Download Details">
+          <Stack spacing={1} useFlexGap>
+            <span>FileName: {fileName}</span>
+            <span>FileSize: {formatFileSize(sizeBytes)}</span>
+          </Stack>
         </Section>
         <CodeSection url={url} />
       </DialogContent>

@@ -35,11 +35,15 @@ export function renderSourceDatasetFileDownloadCell(
   const { meta } = options;
   const { canEdit = false } = meta as { canEdit: boolean };
 
-  // Grab the fileId and sizeBytes from the row.
-  const fileId = row.original.fileId;
-  const sizeBytes = row.original.sizeBytes;
+  // Grab the fileId, fileName and sizeBytes from the row.
+  const { fileId, fileName, sizeBytes } = row.original;
 
-  return C.FileDownloadCell({ disabled: !canEdit, fileId, sizeBytes });
+  return C.FileDownloadCell({
+    disabled: !canEdit,
+    fileId,
+    fileName,
+    sizeBytes,
+  });
 }
 
 /**

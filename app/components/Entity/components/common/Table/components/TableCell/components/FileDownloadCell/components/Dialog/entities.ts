@@ -6,5 +6,6 @@ export interface Props
   extends Omit<DialogProps, "onClose">,
     Omit<DialogTitleProps, "title"> {
   fileId?: FileId;
+  fileName?: string;
   sizeBytes?: number;
 }
