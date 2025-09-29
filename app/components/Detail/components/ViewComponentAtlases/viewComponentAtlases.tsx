@@ -18,7 +18,7 @@ export const ViewComponentAtlases = ({
   formManager,
 }: ViewComponentAtlasesProps): JSX.Element => {
   const {
-    access: { canView },
+    access: { canEdit, canView },
   } = formManager;
   if (!canView) return <RequestAccess />;
   return (
@@ -27,9 +27,12 @@ export const ViewComponentAtlases = ({
         {componentAtlases.length > 0 && (
           <Table
             columns={getAtlasComponentAtlasesTableColumns()}
-            gridTemplateColumns="max-content repeat(9, minmax(136px, 1fr)) minmax(120px, 0.75fr)"
+            gridTemplateColumns="max-content max-content repeat(9, minmax(136px, 1fr)) minmax(120px, 0.75fr)"
             items={componentAtlases}
-            tableOptions={TABLE_OPTIONS}
+            tableOptions={{
+              ...TABLE_OPTIONS,
+              meta: { canEdit },
+            }}
           />
         )}
         <TablePlaceholder

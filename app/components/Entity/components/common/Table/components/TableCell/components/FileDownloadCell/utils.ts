@@ -1,5 +1,6 @@
 /**
  * Download the given file.
+ * TODO: confirm use of this function.
  * @param fileName - File name.
  * @param fileUrl - File URL.
  */

@@ -914,6 +914,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
   unknown
 >[] {
   return [
+    getIntegratedObjectFileDownloadColumnDef(),
     getIntegratedObjectFileNameColumnDef(),
     getComponentAtlasTitleColumnDef(),
     getIntegratedObjectFileSizeColumnDef(),
@@ -1220,6 +1221,31 @@ function getEntityFromRowData<T extends RowData>(
 }
 
 /**
+ * Returns the integrated object file download column def.
+ * @returns ColumnDef.
+ */
+function getIntegratedObjectFileDownloadColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "download",
+    cell: ({ row, table }): JSX.Element => {
+      const {
+        options: { meta },
+      } = table;
+      const { canEdit = false } = meta as { canEdit: boolean };
+      return C.FileDownloadCell({
+        disabled: !canEdit,
+        fileId: row.original.fileId,
+        sizeBytes: row.original.sizeBytes,
+      });
+    },
+    enableSorting: false,
+    header: "Download",
+  };
+}
+
+/**
  * Returns the integrated object file name column def.
  * @returns ColumnDef.
  */
@@ -1284,7 +1310,7 @@ function getProgressValue(numerator: number, denominator: number): number {
 function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "download",
-    cell: (): JSX.Element => C.FileDownload({ disabled: true, fileName: "" }),
+    cell: (): JSX.Element => C.FileDownloadCell({ disabled: true }),
     enableSorting: false,
     header: "Download",
   };

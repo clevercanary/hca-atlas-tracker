@@ -9,6 +9,7 @@ import { AtlasStatus } from "../../components/Layout/components/Detail/component
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
+import { EntityProvider } from "../../providers/entity/provider";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchComponentAtlases } from "./hooks/useFetchComponentAtlases";
 
@@ -26,23 +27,25 @@ export const ComponentAtlasesView = ({
     access: { canView },
   } = formManager;
   return (
-    <ConditionalComponent
-      isIn={shouldRenderView(canView, Boolean(atlas && componentAtlases))}
-    >
-      <DetailView
-        breadcrumbs={
-          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
-        }
-        mainColumn={
-          <ViewComponentAtlases
-            formManager={formManager}
-            componentAtlases={componentAtlases}
-          />
-        }
-        status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
-        tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
-        title={atlas ? getAtlasName(atlas) : "View Integrated Objects"}
-      />
-    </ConditionalComponent>
+    <EntityProvider pathParameter={pathParameter}>
+      <ConditionalComponent
+        isIn={shouldRenderView(canView, Boolean(atlas && componentAtlases))}
+      >
+        <DetailView
+          breadcrumbs={
+            <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+          }
+          mainColumn={
+            <ViewComponentAtlases
+              formManager={formManager}
+              componentAtlases={componentAtlases}
+            />
+          }
+          status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
+          tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
+          title={atlas ? getAtlasName(atlas) : "View Integrated Objects"}
+        />
+      </ConditionalComponent>
+    </EntityProvider>
   );
 };
