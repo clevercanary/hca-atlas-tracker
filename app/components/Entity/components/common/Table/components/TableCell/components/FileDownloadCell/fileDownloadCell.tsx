@@ -7,15 +7,30 @@ import { Dialog } from "./components/Dialog/dialog";
 import { ICON_BUTTON_PROPS } from "./constants";
 import { Props } from "./entities";
 
-export const FileDownloadCell = ({ ...props }: Props): JSX.Element => {
+export const FileDownloadCell = ({
+  disabled,
+  fileId,
+  sizeBytes,
+  ...props
+}: Props): JSX.Element => {
   const { onClose, onOpen, open } = useDialog();
   return (
     <Fragment>
-      <IconButton {...ICON_BUTTON_PROPS} onClick={onOpen} {...props}>
+      <IconButton
+        {...ICON_BUTTON_PROPS}
+        disabled={disabled || !fileId}
+        onClick={onOpen}
+        {...props}
+      >
         <DownloadIcon />
       </IconButton>
       <FetchDataStateProvider initialState={{ shouldFetch: false }}>
-        <Dialog onClose={onClose} open={open} />
+        <Dialog
+          fileId={fileId}
+          onClose={onClose}
+          open={open}
+          sizeBytes={sizeBytes}
+        />
       </FetchDataStateProvider>
     </Fragment>
   );

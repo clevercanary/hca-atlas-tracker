@@ -914,6 +914,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
   unknown
 >[] {
   return [
+    getIntegratedObjectFileDownloadColumnDef(),
     getIntegratedObjectFileNameColumnDef(),
     getComponentAtlasTitleColumnDef(),
     getIntegratedObjectFileSizeColumnDef(),
@@ -1217,6 +1218,31 @@ function getEntityFromRowData<T extends RowData>(
   if (isEntity?.(row.original)) {
     return row.original;
   }
+}
+
+/**
+ * Returns the integrated object file download column def.
+ * @returns ColumnDef.
+ */
+function getIntegratedObjectFileDownloadColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "download",
+    cell: ({ row, table }): JSX.Element => {
+      const {
+        options: { meta },
+      } = table;
+      const { canEdit = false } = meta as { canEdit: boolean };
+      return C.FileDownloadCell({
+        disabled: !canEdit,
+        fileId: row.original.fileId,
+        sizeBytes: row.original.sizeBytes,
+      });
+    },
+    enableSorting: false,
+    header: "Download",
+  };
 }
 
 /**

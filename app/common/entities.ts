@@ -2,6 +2,7 @@ import {
   AtlasId,
   ComponentAtlasId,
   EntrySheetValidationId,
+  FileId,
   SourceDatasetId,
   SourceStudyId,
   UserId,
@@ -28,6 +29,7 @@ export interface PathParameter {
   atlasId?: AtlasId;
   componentAtlasId?: ComponentAtlasId;
   entrySheetValidationId?: EntrySheetValidationId;
+  fileId?: FileId;
   sourceDatasetId?: SourceDatasetId;
   sourceStudyId?: SourceStudyId;
   userId?: UserId;

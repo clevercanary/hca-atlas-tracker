@@ -604,6 +604,10 @@ export type ComponentAtlasId = string;
 
 export type EntrySheetValidationId = HCAAtlasTrackerEntrySheetValidation["id"];
 
+export type FileId =
+  | HCAAtlasTrackerComponentAtlas["fileId"]
+  | HCAAtlasTrackerSourceDataset["fileId"];
+
 export enum DOI_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",
   NA = "NA",

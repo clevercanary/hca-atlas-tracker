@@ -27,9 +27,15 @@ export function renderSourceDatasetFileDownloadCell(
   ctx: CellContext<AtlasSourceDataset, number>
 ): JSX.Element {
   const {
+    row,
     table: { options },
   } = ctx;
   const { meta } = options;
   const { canEdit = false } = meta as { canEdit: boolean };
-  return C.FileDownloadCell({ disabled: !canEdit });
+
+  // Grab the fileId and sizeBytes from the row.
+  const fileId = row.original.fileId;
+  const sizeBytes = row.original.sizeBytes;
+
+  return C.FileDownloadCell({ disabled: !canEdit, fileId, sizeBytes });
 }

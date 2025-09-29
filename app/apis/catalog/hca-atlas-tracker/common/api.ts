@@ -8,6 +8,7 @@ export enum API {
   ATLAS_ENTRY_SHEET_SYNC = "/api/atlases/[atlasId]/entry-sheet-validations/[entrySheetValidationId]/sync",
   ATLAS_ENTRY_SHEETS = "/api/atlases/[atlasId]/entry-sheet-validations",
   ATLAS_ENTRY_SHEETS_SYNC = "/api/atlases/[atlasId]/entry-sheet-validations/sync",
+  ATLAS_FILE_PRESIGNED_URL = "/api/atlases/[atlasId]/files/[fileId]/presigned-url",
   ATLAS_METADATA_CORRECTNESS = "/api/atlases/[atlasId]/heatmap",
   ATLAS_SOURCE_DATASET = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]",
   ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-datasets",
