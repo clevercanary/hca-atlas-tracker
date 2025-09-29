@@ -1,12 +1,11 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
-import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { Button, DialogActions, DialogContent } from "@mui/material";
 import { useFetchDataState } from "../../../../../../../../../../../hooks/useFetchDataState";
 import { FetchDataActionKind } from "../../../../../../../../../../../providers/fetchDataState/fetchDataState";
 import { useRequestPreSignedURL } from "../../hooks/UseRequestPreSignedURL/hook";
-import { Code } from "./components/DialogContent/components/Section/components/Code/code";
+import { CodeSection } from "./components/DialogContent/components/Section/components/CodeSection/codeSection";
 import { Section } from "./components/DialogContent/components/Section/section";
 import { DIALOG_PROPS } from "./constants";
 import { StyledDialog } from "./dialog.styles";
@@ -38,14 +37,17 @@ export const Dialog = ({
         <Section title="Download details">
           FileSize: {formatFileSize(sizeBytes)}
         </Section>
-        <Code url={url} />
-        {url && (
-          <Section color={TYPOGRAPHY_PROPS.COLOR.INK_LIGHT}>
-            This presigned URL is valid for 48 hours.
-          </Section>
-        )}
+        <CodeSection url={url} />
       </DialogContent>
       <DialogActions>
+        <Button
+          {...BUTTON_PROPS.PRIMARY_CONTAINED}
+          disabled={!url}
+          download
+          href={url ?? ""}
+        >
+          Download
+        </Button>
         <Button {...BUTTON_PROPS.SECONDARY_CONTAINED} onClick={onClose}>
           Cancel
         </Button>
