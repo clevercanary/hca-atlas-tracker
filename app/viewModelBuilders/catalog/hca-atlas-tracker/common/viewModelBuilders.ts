@@ -1234,10 +1234,12 @@ function getIntegratedObjectFileDownloadColumnDef<
         options: { meta },
       } = table;
       const { canEdit = false } = meta as { canEdit: boolean };
+      const { fileId, fileName, sizeBytes } = row.original;
       return C.FileDownloadCell({
         disabled: !canEdit,
-        fileId: row.original.fileId,
-        sizeBytes: row.original.sizeBytes,
+        fileId,
+        fileName,
+        sizeBytes,
       });
     },
     enableSorting: false,

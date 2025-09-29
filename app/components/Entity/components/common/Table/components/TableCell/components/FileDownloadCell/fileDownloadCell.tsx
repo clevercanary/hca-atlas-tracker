@@ -10,6 +10,7 @@ import { Props } from "./entities";
 export const FileDownloadCell = ({
   disabled,
   fileId,
+  fileName,
   sizeBytes,
   ...props
 }: Props): JSX.Element => {
@@ -27,6 +28,7 @@ export const FileDownloadCell = ({
       <FetchDataStateProvider initialState={{ shouldFetch: false }}>
         <Dialog
           fileId={fileId}
+          fileName={fileName}
           onClose={onClose}
           open={open}
           sizeBytes={sizeBytes}

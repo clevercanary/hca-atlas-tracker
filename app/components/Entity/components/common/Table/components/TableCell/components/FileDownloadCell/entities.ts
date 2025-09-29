@@ -3,5 +3,6 @@ import { FileId } from "../../../../../../../../../apis/catalog/hca-atlas-tracke
 
 export interface Props extends IconButtonProps {
   fileId?: FileId;
+  fileName?: string;
   sizeBytes?: number;
 }
