@@ -47,7 +47,14 @@ const COLUMN_DOWNLOAD = {
 
 const COLUMN_FILE_NAME = {
   accessorKey: "fileName",
-  cell: (ctx) => C.BasicCell({ value: ctx.getValue() as string }),
+  cell: ({ row }) =>
+    C.Link({
+      label: row.original.fileName,
+      url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
+        atlasId: row.original.atlasId,
+        sourceDatasetId: row.original.id,
+      }),
+    }),
   header: "File Name",
   meta: { columnPinned: true, width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
@@ -97,15 +104,8 @@ const COLUMN_TISSUE = {
 
 const COLUMN_TITLE = {
   accessorKey: "title",
-  cell: ({ row }) =>
-    C.Link({
-      label: row.original.title,
-      url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
-        atlasId: row.original.atlasId,
-        sourceDatasetId: row.original.id,
-      }),
-    }),
-  header: "Source Dataset",
+  cell: ({ row }) => C.BasicCell({ value: row.original.title }),
+  header: "Title",
   meta: { width: { max: "1fr", min: "180px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
@@ -119,10 +119,10 @@ const COLUMN_VALIDATION_STATUS = {
 export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_DEF.ROW_SELECTION as ColumnDef<AtlasSourceDataset>,
   COLUMN_DOWNLOAD,
-  COLUMN_TITLE,
-  COLUMN_SOURCE_STUDY,
   COLUMN_FILE_NAME,
+  COLUMN_TITLE,
   COLUMN_SIZE_BYTES,
+  COLUMN_SOURCE_STUDY,
   COLUMN_REPROCESSED_STATUS,
   COLUMN_VALIDATION_STATUS,
   COLUMN_ASSAY,
