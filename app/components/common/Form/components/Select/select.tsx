@@ -3,6 +3,7 @@ import { forwardRef, ReactNode } from "react";
 import { FormControl } from "../FormControl/formControl.styles";
 import { FormHelperText } from "../FormHelperText/formHelperText";
 import { FormLabel } from "../FormLabel/formLabel";
+import { SELECT_PROPS } from "./constants";
 
 export type SelectProps = MSelectProps & {
   className?: string;
@@ -36,13 +37,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
       isFullWidth={isFullWidth}
     >
       {label && <FormLabel>{label}</FormLabel>}
-      <MSelect
-        fullWidth
-        inputProps={{ onBlur }}
-        ref={ref}
-        size="small"
-        {...props}
-      >
+      <MSelect {...SELECT_PROPS} inputProps={{ onBlur }} ref={ref} {...props}>
         {children}
       </MSelect>
       {helperText && (
