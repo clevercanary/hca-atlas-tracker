@@ -1,4 +1,5 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { useCallback, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource, isFetchStatusOk } from "../../../../common/utils";
@@ -40,7 +41,11 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
   return (
     <>
       <div>
-        <ButtonPrimary disabled={isDisabled} onClick={onSave} size="small">
+        <ButtonPrimary
+          disabled={isDisabled}
+          onClick={onSave}
+          size={BUTTON_PROPS.SIZE.SMALL}
+        >
           Update
         </ButtonPrimary>
       </div>
