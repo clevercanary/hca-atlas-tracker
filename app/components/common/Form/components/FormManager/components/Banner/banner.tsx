@@ -1,7 +1,6 @@
 import { ButtonOutline } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonOutline/buttonOutline";
-import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Fade, Toolbar } from "@mui/material";
+import { Button, Fade, Toolbar } from "@mui/material";
 import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
 import { FormActions, FormStatus } from "../../formManager.styles";
 import { AppBar } from "./banner.styles";
@@ -26,13 +25,15 @@ export const Banner = ({
             <ButtonOutline onClick={onDiscard} size={BUTTON_PROPS.SIZE.SMALL}>
               Discard
             </ButtonOutline>
-            <ButtonPrimary
+            <Button
+              color={BUTTON_PROPS.COLOR.PRIMARY}
               disabled={isDisabled}
               onClick={onSave}
               size={BUTTON_PROPS.SIZE.SMALL}
+              variant={BUTTON_PROPS.VARIANT.CONTAINED}
             >
               Save
-            </ButtonPrimary>
+            </Button>
           </FormActions>
         </Toolbar>
       </AppBar>
