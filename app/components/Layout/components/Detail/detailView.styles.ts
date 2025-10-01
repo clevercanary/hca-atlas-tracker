@@ -5,7 +5,7 @@ import {
 import {
   bpUpLg,
   bpUpMd,
-  mediaTabletUp,
+  bpUpSm,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 
@@ -13,7 +13,7 @@ export const DetailView = styled(DXBackPageView)`
   gap: 24px 16px;
   grid-template-columns: 1fr;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     grid-template-columns: repeat(12, 1fr);
   }
 
@@ -26,7 +26,7 @@ export const DetailView = styled(DXBackPageView)`
 export const DetailViewContent = styled(DXBackPageContent)`
   gap: inherit;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     gap: inherit;
     grid-template-columns: subgrid;
   }

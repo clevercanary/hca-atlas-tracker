@@ -1,4 +1,4 @@
-import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpUpSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 import { Tabs as MTabs } from "@mui/material";
 
@@ -8,7 +8,7 @@ export const Tabs = styled(MTabs)`
       margin-top: 2px;
       padding: 0 16px;
 
-      ${mediaTabletUp} {
+      ${bpUpSm} {
         padding: 0 20px;
       }
 
