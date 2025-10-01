@@ -1,5 +1,5 @@
-import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
 import { METHOD } from "../../../../common/entities";
 import { useAdminAction } from "../../../../hooks/useAdminAction";
 import { AdminFormResults } from "../../../common/AdminForm/components/AdminFormResults/adminFormResults";
@@ -23,13 +23,15 @@ export const FilesAdminForm = (): JSX.Element => {
     <>
       <h2>Sync files from S3</h2>
       <div>
-        <ButtonPrimary
+        <Button
+          color={BUTTON_PROPS.COLOR.PRIMARY}
           disabled={syncIsRequesting}
           onClick={onSync}
           size={BUTTON_PROPS.SIZE.SMALL}
+          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Sync
-        </ButtonPrimary>
+        </Button>
       </div>
       <AdminFormResults
         errors={syncErrors}
@@ -38,13 +40,15 @@ export const FilesAdminForm = (): JSX.Element => {
 
       <h2>Validate all files</h2>
       <div>
-        <ButtonPrimary
+        <Button
+          color={BUTTON_PROPS.COLOR.PRIMARY}
           disabled={validateIsRequesting}
           onClick={onValidate}
           size={BUTTON_PROPS.SIZE.SMALL}
+          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Validate
-        </ButtonPrimary>
+        </Button>
       </div>
       <AdminFormResults
         errors={validateErrors}
