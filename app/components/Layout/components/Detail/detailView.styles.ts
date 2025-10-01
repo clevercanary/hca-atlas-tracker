@@ -3,8 +3,8 @@ import {
   BackPageView as DXBackPageView,
 } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/backPageView.styles";
 import {
+  bpUpLg,
   bpUpMd,
-  mediaDesktopUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
@@ -31,7 +31,7 @@ export const DetailViewContent = styled(DXBackPageContent)`
     grid-template-columns: subgrid;
   }
 
-  ${mediaDesktopUp} {
+  ${bpUpLg} {
     gap: 24px 0;
     grid-template-columns: 1fr minmax(712px, 840px) 1fr;
   }

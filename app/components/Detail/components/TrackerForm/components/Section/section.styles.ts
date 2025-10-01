@@ -4,8 +4,8 @@ import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/
 import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import {
+  bpUpLg,
   bpUpMd,
-  mediaDesktopUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { css } from "@emotion/react";
@@ -37,7 +37,7 @@ export const SectionHero = styled("div")<SectionProps>`
     padding: 0;
   }
 
-  ${mediaDesktopUp} {
+  ${bpUpLg} {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "1")};
   }
 `;
@@ -78,7 +78,7 @@ export const SectionCard = styled(FluidPaper, {
     grid-template-columns: 1fr 1fr;
   }
 
-  ${mediaDesktopUp} {
+  ${bpUpLg} {
     grid-column: 1 / -1;
 
     ${({ fullWidth }) =>
