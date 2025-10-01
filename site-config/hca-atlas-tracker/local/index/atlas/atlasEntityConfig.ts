@@ -209,10 +209,7 @@ export const atlasEntityConfig: EntityConfig = {
     ],
     tableOptions: TABLE_OPTIONS,
   } as ListConfig<HCAAtlasTrackerListAtlas>,
-  listView: {
-    disablePagination: true,
-    enableDownload: true,
-  },
+  listView: { disablePagination: true },
   route: "atlases",
   ui: {
     actionButton: C.AddAtlas(),
