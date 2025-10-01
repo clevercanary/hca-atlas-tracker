@@ -37,7 +37,7 @@ export const HeroTitle = styled.div`
     flex-direction: row;
   }
 
-  .MuiTypography-text-heading-large {
+  .MuiTypography-heading-large {
     max-width: 726px;
   }
 `;
