@@ -1,5 +1,5 @@
 import { IconButton as DXIconButton } from "@databiosphere/findable-ui/lib/components/common/IconButton/iconButton";
-import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
 
 export const StyledIconButton = styled(DXIconButton)`
@@ -9,7 +9,7 @@ export const StyledIconButton = styled(DXIconButton)`
     }
 
     .MuiSvgIcon-root {
-      color: ${inkLight};
+      color: ${PALETTE.INK_LIGHT};
     }
   }
 `;
