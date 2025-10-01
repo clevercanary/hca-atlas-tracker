@@ -1,6 +1,6 @@
 import { Dialog as DXDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/dialog";
-import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
-import { textBodyLarge500 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
 
 export const StyledDialog = styled(DXDialog)`
@@ -15,13 +15,13 @@ export const StyledDialog = styled(DXDialog)`
   }
 
   & .MuiDialogTitle-root {
-    ${textBodyLarge500};
     gap: 8px;
     grid-template-columns: 1fr auto;
+    font: ${FONT.BODY_LARGE_500};
     line-height: 26px;
 
     .MuiButtonBase-root {
-      color: ${inkLight};
+      color: ${PALETTE.INK_LIGHT};
       padding: 3px 4px;
 
       .MuiSvgIcon-root {

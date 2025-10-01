@@ -1,4 +1,4 @@
-import { TEXT_BODY_400 } from "@databiosphere/findable-ui/lib/theme/common/typography";
+import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { TypographyProps as MTypographyProps, Typography } from "@mui/material";
 import { ReactNode } from "react";
 
@@ -9,7 +9,7 @@ export interface TypographyNoWrapProps extends MTypographyProps {
 export const TypographyTextBody400 = ({
   children,
   component = "span",
-  variant = TEXT_BODY_400,
+  variant = TYPOGRAPHY_PROPS.VARIANT.BODY_400,
   ...props /* Spread props to allow for Typography specific props e.g. "color". */
 }: TypographyNoWrapProps): JSX.Element => {
   return (

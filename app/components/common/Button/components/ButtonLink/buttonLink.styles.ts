@@ -1,4 +1,3 @@
-import { ThemeProps } from "@databiosphere/findable-ui/lib/theme/theme";
 import { css, SerializedStyles } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";
@@ -37,9 +36,9 @@ export const StartIcon = styled.span`
  * @param props - Button props.
  * @returns serialized styles.
  */
-function getButtonStyles(props: Props & ThemeProps): SerializedStyles {
+function getButtonStyles(props: Props): SerializedStyles {
   if (props.color === BUTTON_COLOR.SECONDARY) {
-    return buttonSecondary(props);
+    return buttonSecondary;
   }
-  return buttonPrimary(props);
+  return buttonPrimary;
 }

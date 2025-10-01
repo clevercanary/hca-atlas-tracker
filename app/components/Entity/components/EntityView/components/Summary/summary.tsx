@@ -19,16 +19,14 @@ export const Summary = ({
           <RoundedPaper elevation={0} key={key}>
             <Typography
               color={TYPOGRAPHY_PROPS.COLOR.INK_LIGHT}
-              // TODO(cc) update heading variant with typography props
-              variant={"text-body-small-500"}
+              variant={TYPOGRAPHY_PROPS.VARIANT.BODY_SMALL_500}
             >
               {value}
             </Typography>
             <StyledTypography
               summaryCount={count}
               summaryKey={key}
-              // TODO(cc) update heading variant with typography props
-              variant={"text-heading"}
+              variant={TYPOGRAPHY_PROPS.VARIANT.HEADING}
             >
               {count}
               {count > 0 ? (

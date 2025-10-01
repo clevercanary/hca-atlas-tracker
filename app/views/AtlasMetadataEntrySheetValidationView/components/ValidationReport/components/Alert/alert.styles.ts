@@ -1,6 +1,6 @@
 import { Dot } from "@databiosphere/findable-ui/lib/components/common/Dot/dot";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
-import { textBody400 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import styled from "@emotion/styled";
 import { Alert } from "@mui/material";
 
@@ -11,9 +11,9 @@ export const StyledAlert = styled(Alert)`
   padding: 4px 16px;
 
   .MuiAlert-message {
-    ${textBody400};
     align-items: center;
     flex: 1;
+    font: ${FONT.BODY_400}
     gap: 4px;
     grid-auto-flow: column;
     justify-content: flex-start;

@@ -1,16 +1,13 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
 import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import {
   mediaDesktopSmallUp,
   mediaDesktopUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
-import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
-import {
-  textBody400,
-  textBodyLarge500,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
@@ -46,14 +43,14 @@ export const SectionHero = styled("div")<SectionProps>`
 `;
 
 export const SectionTitle = styled.h3`
-  ${textBodyLarge500};
+  font: ${FONT.BODY_LARGE_500};
   font-weight: 600;
   margin: 0;
 `;
 
 export const SectionText = styled.div`
-  ${textBody400};
-  color: ${inkLight};
+  color: ${PALETTE.INK_LIGHT};
+  font: ${FONT.BODY_400};
   font-size: 13px;
 
   ${mediaDesktopSmallUp} {

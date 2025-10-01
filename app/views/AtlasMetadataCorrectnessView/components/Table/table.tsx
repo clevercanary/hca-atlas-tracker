@@ -16,7 +16,7 @@ export const Table = (props: Props): JSX.Element => {
   return (
     <StyledFluidPaper elevation={0}>
       <StyledToolbar>
-        <StyledTypography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_HEADING_SMALL}>
+        <StyledTypography variant={TYPOGRAPHY_PROPS.VARIANT.HEADING_SMALL}>
           {cls.title}
         </StyledTypography>
         <ToggleButtonGroup table={table} />

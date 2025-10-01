@@ -1,19 +1,16 @@
 import { DialogTitle as DXDialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
-import { inkMain } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
-import {
-  textBody400,
-  textBodyLarge500,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import styled from "@emotion/styled";
 import {
   Dialog as MDialog,
   DialogActions as MDialogActions,
   DialogContent as MDialogContent,
 } from "@mui/material";
+import { COLOR_MIXES } from "../../../../../../../styles/common/constants/colorMixes";
 
 export const Dialog = styled(MDialog)`
   .MuiBackdrop-root {
-    background-color: ${inkMain}e6;
+    background-color: ${COLOR_MIXES.INK_MAIN_90};
   }
 
   .MuiDialog-paper {
@@ -24,7 +21,7 @@ export const Dialog = styled(MDialog)`
 
 export const DialogTitle = styled(DXDialogTitle)`
   &.MuiDialogTitle-root {
-    ${textBodyLarge500};
+    font: ${FONT.BODY_LARGE_500};
     justify-content: space-between;
     padding: 16px;
 
@@ -35,7 +32,7 @@ export const DialogTitle = styled(DXDialogTitle)`
 `;
 
 export const DialogContent = styled(MDialogContent)`
-  ${textBody400};
+  font: ${FONT.BODY_400};
   padding: 16px;
 `;
 

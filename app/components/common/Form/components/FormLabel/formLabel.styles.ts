@@ -1,20 +1,20 @@
-import { inkMain } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
-import { textBody400 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
 import { FormLabel as MFormLabel } from "@mui/material";
 
 export const FormLabel = styled(MFormLabel)`
-  ${textBody400};
   align-items: center;
-  color: ${inkMain};
+  color: ${PALETTE.INK_MAIN};
   display: flex;
+  font: ${FONT.BODY_400};
   gap: 16px;
   justify-content: space-between;
 
   &.Mui-error,
   &.Mui-disabled,
   &.Mui-focused {
-    color: ${inkMain};
+    color: ${PALETTE.INK_MAIN};
   }
 
   .MuiLink-root {

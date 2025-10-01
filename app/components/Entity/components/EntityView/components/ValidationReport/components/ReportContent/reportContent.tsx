@@ -11,7 +11,7 @@ export const ReportContent = ({
 }: Props): JSX.Element => {
   return (
     <StyledContainer maxWidth={false}>
-      <Typography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_400}>
+      <Typography variant={TYPOGRAPHY_PROPS.VARIANT.BODY_400}>
         {getReportValues(
           validationStatus,
           validationReports,

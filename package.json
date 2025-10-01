@@ -22,7 +22,7 @@
     "@aws-sdk/client-batch": "^3.896.0",
     "@aws-sdk/client-s3": "^3.896.0",
     "@aws-sdk/s3-request-presigner": "^3.896.0",
-    "@databiosphere/findable-ui": "^41.2.0",
+    "@databiosphere/findable-ui": "^45.1.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.3.4",

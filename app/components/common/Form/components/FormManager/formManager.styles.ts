@@ -1,8 +1,8 @@
-import { textBodyLarge500 } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import styled from "@emotion/styled";
 
 export const FormStatus = styled.div`
-  ${textBodyLarge500};
+  font: ${FONT.BODY_LARGE_500};
   opacity: 0.7;
 `;
 
