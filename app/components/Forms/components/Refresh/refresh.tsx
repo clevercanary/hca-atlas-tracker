@@ -1,5 +1,5 @@
-import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource } from "../../../../common/utils";
@@ -50,21 +50,25 @@ export const RefreshForm = (): JSX.Element => {
         ? buildStatuses(statuses)
         : ""}
       <div style={{ marginBottom: "1em", marginTop: "1em" }}>
-        <ButtonPrimary
+        <Button
+          color={BUTTON_PROPS.COLOR.PRIMARY}
           disabled={statusIsDisabled}
           onClick={onReloadStatus}
           size={BUTTON_PROPS.SIZE.SMALL}
+          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Reload Status
-        </ButtonPrimary>
-        <ButtonPrimary
+        </Button>
+        <Button
           style={{ marginLeft: "1em" }}
+          color={BUTTON_PROPS.COLOR.PRIMARY}
           disabled={refreshIsDisabled}
           onClick={onRefresh}
           size={BUTTON_PROPS.SIZE.SMALL}
+          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Start Refresh
-        </ButtonPrimary>
+        </Button>
       </div>
       {refreshResponseErrors ? (
         buildResponseErrors(refreshResponseErrors)
