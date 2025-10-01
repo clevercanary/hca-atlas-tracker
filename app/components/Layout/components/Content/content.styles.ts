@@ -1,9 +1,4 @@
-import {
-  textBodyLarge4002Lines,
-  textHeading,
-  textHeadingLarge,
-  textHeadingSmall,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import styled from "@emotion/styled";
 
 interface Props {
@@ -34,17 +29,17 @@ export const Content = styled.div<Props>`
   }
 
   h1 {
-    ${textHeadingLarge};
+    font: ${FONT.HEADING_LARGE};
     margin: 0 0 16px;
     scroll-margin-top: ${({ headerHeight }) => headerHeight + 24}px;
   }
 
   h2 {
-    ${textHeading};
+    font: ${FONT.HEADING};
   }
 
   h3 {
-    ${textHeadingSmall};
+    font: ${FONT.HEADING_SMALL};
   }
 
   h2,
@@ -63,7 +58,7 @@ export const Content = styled.div<Props>`
 
   p,
   ul {
-    ${textBodyLarge4002Lines};
+    font: ${FONT.BODY_LARGE_400_2_LINES};
   }
 
   p {
