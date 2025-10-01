@@ -30,7 +30,7 @@ export const EntitiesView = ({
       <StyledGridEntityLayout container>
         <Title />
       </StyledGridEntityLayout>
-      <StyledTypography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_400}>
+      <StyledTypography variant={TYPOGRAPHY_PROPS.VARIANT.BODY_400}>
         <Link label="Sign in" url={ROUTE.LOGIN} /> to Atlas Tracker.
       </StyledTypography>
     </StyledGrid>

@@ -1,5 +1,5 @@
-import { mediaTabletDown } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
-import { textBody4002Lines } from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
+import { bpDownSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 import { Alert } from "@mui/material";
 
@@ -14,7 +14,7 @@ export const StyledAlert = styled(Alert)`
   }
 
   .MuiAlert-message {
-    ${textBody4002Lines};
+    font: ${FONT.BODY_400_2_LINES};
 
     .MuiAlertTitle-root {
       font-size: 16px;
@@ -33,7 +33,7 @@ export const StyledAlert = styled(Alert)`
     }
   }
 
-  ${mediaTabletDown} {
+  ${bpDownSm} {
     margin: 0 16px;
   }
 `;

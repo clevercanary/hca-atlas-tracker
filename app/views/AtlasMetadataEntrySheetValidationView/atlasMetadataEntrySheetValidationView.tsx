@@ -50,15 +50,14 @@ export const AtlasMetadataEntrySheetValidationView = ({
           subTitle={
             <Typography
               color={TYPOGRAPHY_PROPS.COLOR.INK_LIGHT}
-              variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_400}
+              variant={TYPOGRAPHY_PROPS.VARIANT.BODY_400}
             >
               {renderSubTitle(entrySheetValidation)}
             </Typography>
           }
           title={
             <>
-              {/* TODO(cc) update heading variant with typography props */}
-              <Typography component="h1" variant="text-heading">
+              <Typography variant={TYPOGRAPHY_PROPS.VARIANT.HEADING}>
                 {renderTitle(entrySheetValidation)}
               </Typography>
             </>
