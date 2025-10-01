@@ -13,7 +13,7 @@ export const StyledAlert = styled(Alert)`
   .MuiAlert-message {
     align-items: center;
     flex: 1;
-    font: ${FONT.BODY_400}
+    font: ${FONT.BODY_400};
     gap: 4px;
     grid-auto-flow: column;
     justify-content: flex-start;
