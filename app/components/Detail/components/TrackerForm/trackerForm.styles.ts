@@ -1,4 +1,4 @@
-import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpUpSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 
 export const Form = styled.form`
@@ -15,7 +15,7 @@ export const FormActions = styled.div`
   justify-content: flex-end;
   padding: 0 16px;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     padding: 0;
   }
 `;

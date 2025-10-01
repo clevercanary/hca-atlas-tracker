@@ -1,4 +1,4 @@
-import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpUpSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 interface Props {
@@ -12,7 +12,7 @@ export const StyledSection = styled.div<Props>`
   grid-column: 1 / -1;
   grid-template-columns: inherit;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     gap: inherit;
   }
 

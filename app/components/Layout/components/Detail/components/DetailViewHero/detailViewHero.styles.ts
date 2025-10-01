@@ -1,6 +1,6 @@
 import {
   bpUpMd,
-  mediaTabletUp,
+  bpUpSm,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 
@@ -32,7 +32,7 @@ export const HeroTitle = styled.div`
   flex-direction: column;
   gap: 8px;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     align-items: center;
     flex-direction: row;
   }
