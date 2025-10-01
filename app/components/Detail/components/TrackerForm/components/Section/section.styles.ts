@@ -4,7 +4,7 @@ import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/
 import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import {
-  mediaDesktopSmallUp,
+  bpUpMd,
   mediaDesktopUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
@@ -53,7 +53,7 @@ export const SectionText = styled.div`
   font: ${FONT.BODY_400};
   font-size: 13px;
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     max-width: 400px;
   }
 `;
@@ -74,7 +74,7 @@ export const SectionCard = styled(FluidPaper, {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "6 / span 7")};
   }
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     grid-template-columns: 1fr 1fr;
   }
 

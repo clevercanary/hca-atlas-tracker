@@ -3,7 +3,7 @@ import {
   BackPageView as DXBackPageView,
 } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/backPageView.styles";
 import {
-  mediaDesktopSmallUp,
+  bpUpMd,
   mediaDesktopUp,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
@@ -17,7 +17,7 @@ export const DetailView = styled(DXBackPageView)`
     grid-template-columns: repeat(12, 1fr);
   }
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     margin: 0 24px;
     max-width: unset;
   }
