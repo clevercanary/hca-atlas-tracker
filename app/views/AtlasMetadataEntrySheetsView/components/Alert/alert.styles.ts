@@ -1,5 +1,5 @@
 import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
-import { mediaTabletDown } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpDownSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 import { Alert } from "@mui/material";
 
@@ -33,7 +33,7 @@ export const StyledAlert = styled(Alert)`
     }
   }
 
-  ${mediaTabletDown} {
+  ${bpDownSm} {
     margin: 0 16px;
   }
 `;

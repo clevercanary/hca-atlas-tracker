@@ -1,7 +1,7 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
-import { mediaTabletDown } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpDownSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 import { Toolbar, Typography } from "@mui/material";
 import { Table } from "../../../../components/Entity/components/common/Table/table";
@@ -65,7 +65,7 @@ export const StyledTable = styled(Table)`
     }
   }
 
-  ${mediaTabletDown} {
+  ${bpDownSm} {
     .MuiTableBody-root {
       .MuiTableRow-root {
         .MuiTableCell-root {
