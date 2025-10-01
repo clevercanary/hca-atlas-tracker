@@ -7,6 +7,7 @@ import { HCA_ATLAS_TRACKER_CATEGORY_KEY } from "../../../category";
 
 export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListValidationRecord>["tableOptions"] =
   {
+    downloadFilename: "atlas-tracker-reports",
     enableExpanding: true,
     enableGrouping: true,
     enableMultiRowSelection: true,
