@@ -11,7 +11,7 @@ export interface LabelIconMenuItemProps {
 
 export const LabelIconMenuItem = ({
   Icon = OpenInNewIcon,
-  iconFontSize = "xsmall",
+  iconFontSize = SVG_ICON_PROPS.FONT_SIZE.XSMALL,
   label,
 }: LabelIconMenuItemProps): JSX.Element => {
   return (
