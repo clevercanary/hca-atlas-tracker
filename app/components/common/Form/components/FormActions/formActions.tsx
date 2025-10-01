@@ -1,7 +1,5 @@
-import { Button } from "@databiosphere/findable-ui/lib/components/common/Button/button";
-import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { ButtonSecondary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonSecondary/buttonSecondary";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
 import { FormManager } from "../../../../../hooks/useFormManager/common/entities";
 import { Actions } from "./formActions.styles";
 
@@ -30,16 +28,23 @@ export const FormActions = ({
           Delete
         </Button>
       )}
-      <ButtonSecondary onClick={onDiscard} size={BUTTON_PROPS.SIZE.SMALL}>
+      <Button
+        color={BUTTON_PROPS.COLOR.SECONDARY}
+        onClick={onDiscard}
+        size={BUTTON_PROPS.SIZE.SMALL}
+        variant={BUTTON_PROPS.VARIANT.CONTAINED}
+      >
         Discard
-      </ButtonSecondary>
-      <ButtonPrimary
+      </Button>
+      <Button
+        color={BUTTON_PROPS.COLOR.PRIMARY}
         disabled={isDisabled}
         onClick={onSave}
         size={BUTTON_PROPS.SIZE.SMALL}
+        variant={BUTTON_PROPS.VARIANT.CONTAINED}
       >
         Save
-      </ButtonPrimary>
+      </Button>
     </Actions>
   );
 };
