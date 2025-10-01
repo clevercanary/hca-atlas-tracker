@@ -1,7 +1,7 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
-import { mediaTabletDown } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpDownSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 import { Grid, Typography } from "@mui/material";
 
@@ -11,7 +11,7 @@ export const StyledFluidPaper = styled(FluidPaper)`
   gap: 1px;
   grid-column: 1 / -1;
 
-  ${mediaTabletDown} {
+  ${bpDownSm} {
     grid-column: 1 / -1;
   }
 
