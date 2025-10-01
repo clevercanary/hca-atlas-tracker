@@ -1,4 +1,5 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { METHOD } from "../../../../common/entities";
 import { useAdminAction } from "../../../../hooks/useAdminAction";
 import { AdminFormResults } from "../../../common/AdminForm/components/AdminFormResults/adminFormResults";
@@ -25,7 +26,7 @@ export const FilesAdminForm = (): JSX.Element => {
         <ButtonPrimary
           disabled={syncIsRequesting}
           onClick={onSync}
-          size="small"
+          size={BUTTON_PROPS.SIZE.SMALL}
         >
           Sync
         </ButtonPrimary>
@@ -40,7 +41,7 @@ export const FilesAdminForm = (): JSX.Element => {
         <ButtonPrimary
           disabled={validateIsRequesting}
           onClick={onValidate}
-          size="small"
+          size={BUTTON_PROPS.SIZE.SMALL}
         >
           Validate
         </ButtonPrimary>
