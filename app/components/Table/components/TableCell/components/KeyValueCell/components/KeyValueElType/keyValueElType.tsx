@@ -1,4 +1,4 @@
-import { KeyValueElTypeProps } from "@databiosphere/findable-ui/src/components/common/KeyValuePairs/components/KeyValueElType/keyValueElType";
+import { KeyValueElTypeProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/components/KeyValueElType/keyValueElType";
 import { Grid, GridProps } from "@mui/material";
 
 export const KeyValueElType = ({

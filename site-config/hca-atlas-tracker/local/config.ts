@@ -1,4 +1,5 @@
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import * as C from "../../../app/components/index";
 import { ROUTE } from "../../../app/routes/constants";
@@ -83,7 +84,9 @@ export function makeConfig(
                   url: `${portalUrl}/privacy`,
                 },
                 {
-                  icon: C.GitHubIcon({ fontSize: "small" }),
+                  icon: C.GitHubIcon({
+                    fontSize: SVG_ICON_PROPS.FONT_SIZE.SMALL,
+                  }),
                   label: "GitHub",
                   target: ANCHOR_TARGET.BLANK,
                   url: "https://github.com/clevercanary/hca-atlas-tracker",

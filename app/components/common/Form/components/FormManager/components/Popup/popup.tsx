@@ -1,5 +1,6 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { ButtonSecondary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonSecondary/buttonSecondary";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { ReactNode } from "react";
 import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
 import { PopupContent } from "./components/PopupContent/popupContent";
@@ -36,10 +37,10 @@ export const Popup = ({
         {content ?? <PopupContent nextRoute={getNextRoute?.()} />}
       </DialogContent>
       <DialogActions>
-        <ButtonSecondary onClick={onDiscard} size="small">
+        <ButtonSecondary onClick={onDiscard} size={BUTTON_PROPS.SIZE.SMALL}>
           Discard changes
         </ButtonSecondary>
-        <ButtonPrimary onClick={onSave} size="small">
+        <ButtonPrimary onClick={onSave} size={BUTTON_PROPS.SIZE.SMALL}>
           Save changes
         </ButtonPrimary>
       </DialogActions>

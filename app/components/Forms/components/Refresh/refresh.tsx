@@ -1,4 +1,5 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { useCallback, useEffect, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource } from "../../../../common/utils";
@@ -52,7 +53,7 @@ export const RefreshForm = (): JSX.Element => {
         <ButtonPrimary
           disabled={statusIsDisabled}
           onClick={onReloadStatus}
-          size="small"
+          size={BUTTON_PROPS.SIZE.SMALL}
         >
           Reload Status
         </ButtonPrimary>
@@ -60,7 +61,7 @@ export const RefreshForm = (): JSX.Element => {
           style={{ marginLeft: "1em" }}
           disabled={refreshIsDisabled}
           onClick={onRefresh}
-          size="small"
+          size={BUTTON_PROPS.SIZE.SMALL}
         >
           Start Refresh
         </ButtonPrimary>

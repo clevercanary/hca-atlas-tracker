@@ -1,4 +1,5 @@
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { TextField } from "@mui/material";
 import { useCallback, useRef, useState } from "react";
 import {
@@ -61,7 +62,11 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
         />
       </div>
       <div>
-        <ButtonPrimary disabled={isDisabled} onClick={onSave} size="small">
+        <ButtonPrimary
+          disabled={isDisabled}
+          onClick={onSave}
+          size={BUTTON_PROPS.SIZE.SMALL}
+        >
           Update
         </ButtonPrimary>
       </div>
