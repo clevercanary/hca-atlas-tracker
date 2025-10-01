@@ -1,4 +1,4 @@
-import { mediaDesktopSmallUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpUpMd } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 import { Button } from "@mui/material";
 
@@ -12,7 +12,7 @@ export const ControllerAction = styled.div<ControllerActionProps>`
 
   padding-top: 24px;
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     grid-column: 3;
     grid-row: auto;
   }

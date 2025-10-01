@@ -1,5 +1,5 @@
 import {
-  mediaDesktopSmallUp,
+  bpUpMd,
   mediaTabletUp,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
@@ -15,7 +15,7 @@ export const DetailViewHeroHeadline = styled.div`
   flex-direction: column;
   gap: 16px;
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     flex-direction: row;
   }
 `;
@@ -58,7 +58,7 @@ export const HeroActions = styled.div`
   display: flex;
   gap: 8px;
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     align-self: center;
   }
 `;

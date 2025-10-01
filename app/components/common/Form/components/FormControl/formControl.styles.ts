@@ -1,5 +1,5 @@
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
-import { mediaDesktopSmallUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpUpMd } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { FormControl as MFormControl } from "@mui/material";
@@ -81,7 +81,7 @@ export const FormControl = styled(MFormControl, {
       `};
   }
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     grid-column: ${({ isFullWidth }) => (isFullWidth ? "1 / -1" : "unset")};
   }
 `;
