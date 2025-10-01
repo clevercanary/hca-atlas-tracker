@@ -1,6 +1,7 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Fragment, useCallback } from "react";
 import { Controller } from "react-hook-form";
 import {
@@ -190,11 +191,21 @@ function renderDoiEndAdornment(
 ): JSX.Element | undefined {
   switch (sourceStudy?.doiStatus) {
     case DOI_STATUS.DOI_NOT_ON_CROSSREF:
-      return <ErrorIcon color="error" fontSize="small" />;
+      return (
+        <ErrorIcon
+          color={SVG_ICON_PROPS.COLOR.ERROR}
+          fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
+        />
+      );
     case DOI_STATUS.NA:
       return;
     case DOI_STATUS.OK:
-      return <SuccessIcon color="success" fontSize="small" />;
+      return (
+        <SuccessIcon
+          color={SVG_ICON_PROPS.COLOR.SUCCESS}
+          fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
+        />
+      );
     default:
       return;
   }

@@ -2,6 +2,7 @@ import {
   DropdownMenuIconButtonProps,
   DropdownMenuItemProps,
 } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/common/entities";
+import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { IconButton } from "../../../../../common/IconButton/iconButton";
 import { DropdownMenu as MoreDropdownMenu } from "./dropdownMenu.styles";
@@ -25,10 +26,10 @@ export const DropdownMenu = ({
         props: Pick<DropdownMenuIconButtonProps, "onClick" | "open">
       ) => (
         <IconButton
-          color="secondary"
+          color={ICON_BUTTON_PROPS.COLOR.SECONDARY}
           disabled={disabled}
           Icon={MoreVertIcon}
-          size="medium"
+          size={ICON_BUTTON_PROPS.SIZE.MEDIUM}
           {...props}
         />
       )}
