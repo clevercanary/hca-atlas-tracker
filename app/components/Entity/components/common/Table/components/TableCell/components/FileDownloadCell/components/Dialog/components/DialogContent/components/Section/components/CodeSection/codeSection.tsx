@@ -18,7 +18,7 @@ export const CodeSection = ({ url }: Props): JSX.Element => {
   return (
     <>
       <Stack gap={2} useFlexGap>
-        <Typography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_LARGE_500}>
+        <Typography variant={TYPOGRAPHY_PROPS.VARIANT.BODY_LARGE_500}>
           Presigned URL
         </Typography>
         <StyledCode code={url} />
