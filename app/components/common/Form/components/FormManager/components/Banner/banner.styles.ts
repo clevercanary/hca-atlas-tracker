@@ -1,13 +1,10 @@
 import { AppBar as DXAppBar } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header.styles";
-import {
-  inkMain,
-  white,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
 
 export const AppBar = styled(DXAppBar)`
-  background-color: ${inkMain};
-  color: ${white};
+  background-color: ${PALETTE.INK_MAIN};
+  color: ${PALETTE.COMMON_WHITE};
 
   &.MuiPaper-elevation0 {
     border-bottom: none;
