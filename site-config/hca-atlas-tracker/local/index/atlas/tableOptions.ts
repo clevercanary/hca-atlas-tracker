@@ -9,6 +9,7 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"]
   {
     enableGrouping: true,
     enableRowPosition: true,
+    enableTableDownload: true,
     initialState: {
       columnVisibility: {
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.METADATA_SPECIFICATION_URL]: false,
