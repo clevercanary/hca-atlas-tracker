@@ -1,5 +1,5 @@
 import { Section } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/Section/section";
-import { TEXT_BODY_400_2_LINES } from "@databiosphere/findable-ui/lib/theme/common/typography";
+import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
@@ -15,7 +15,7 @@ interface DescriptionProps {
 export const Description = ({ task }: DescriptionProps): JSX.Element | null => {
   return (
     <Section title="Description">
-      <Typography variant={TEXT_BODY_400_2_LINES}>
+      <Typography variant={TYPOGRAPHY_PROPS.VARIANT.BODY_400_2_LINES}>
         <p>{getTaskDescription(task)}</p>
         {getTaskDifferences(task)}
       </Typography>
