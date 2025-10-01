@@ -1,6 +1,5 @@
-import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
-import { ButtonSecondary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonSecondary/buttonSecondary";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
 import { FormActionsProps as CommonFormActionProps } from "../../../../../../../../../common/Form/components/FormActions/formActions";
 import { Actions } from "../../../../../../../../../common/Form/components/FormActions/formActions.styles";
 
@@ -18,16 +17,23 @@ export const FormActions = ({
   } = formManager;
   return (
     <Actions>
-      <ButtonSecondary onClick={onDiscard} size={BUTTON_PROPS.SIZE.SMALL}>
+      <Button
+        color={BUTTON_PROPS.COLOR.SECONDARY}
+        onClick={onDiscard}
+        size={BUTTON_PROPS.SIZE.SMALL}
+        variant={BUTTON_PROPS.VARIANT.CONTAINED}
+      >
         Discard
-      </ButtonSecondary>
-      <ButtonPrimary
+      </Button>
+      <Button
+        color={BUTTON_PROPS.COLOR.PRIMARY}
         disabled={isDisabled}
         onClick={onSave}
         size={BUTTON_PROPS.SIZE.SMALL}
+        variant={BUTTON_PROPS.VARIANT.CONTAINED}
       >
         Link {count > 0 ? `(${count})` : null}
-      </ButtonPrimary>
+      </Button>
     </Actions>
   );
 };
