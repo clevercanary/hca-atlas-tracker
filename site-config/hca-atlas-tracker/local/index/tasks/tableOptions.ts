@@ -13,6 +13,7 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListValidationRecord>["tab
     enableRowPosition: true,
     enableRowPreview: true,
     enableRowSelection: (row) => !row.getIsGrouped(),
+    enableTableDownload: true,
     initialState: {
       columnVisibility: {
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.RELATED_ENTITY_URL]: false,
