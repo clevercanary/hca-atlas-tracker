@@ -6,7 +6,7 @@ import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/
 import {
   bpUpLg,
   bpUpMd,
-  mediaTabletUp,
+  bpUpSm,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
@@ -22,7 +22,7 @@ export const Section = styled.div<SectionProps>`
   grid-column: 1 / -1;
   grid-template-columns: ${({ fullWidth }) => (fullWidth ? "1fr" : "inherit")};
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     gap: inherit;
   }
 `;
@@ -32,7 +32,7 @@ export const SectionHero = styled("div")<SectionProps>`
   gap: 8px;
   padding: 0 16px;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "span 4")};
     padding: 0;
   }
@@ -70,7 +70,7 @@ export const SectionCard = styled(FluidPaper, {
   gap: 20px;
   grid-template-columns: 1fr;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "6 / span 7")};
   }
 
