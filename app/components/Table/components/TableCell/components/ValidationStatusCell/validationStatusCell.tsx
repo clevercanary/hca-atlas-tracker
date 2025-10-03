@@ -4,16 +4,21 @@ import { ValidationSummary } from "./components/ValidationSummary/validationSumm
 import { Props } from "./entities";
 
 export const ValidationStatusCell = ({
+  componentAtlasId,
   row,
+  sourceDatasetId,
   validationRoute,
 }: Props): JSX.Element | null => {
   const { original } = row;
-  const { validationStatus, validationSummary } = original;
+  const { atlasId, validationStatus, validationSummary } = original;
 
   // Render validation summary if validation status is completed.
   if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED)
     return (
       <ValidationSummary
+        atlasId={atlasId}
+        componentAtlasId={componentAtlasId}
+        sourceDatasetId={sourceDatasetId}
         validationRoute={validationRoute}
         validationSummary={validationSummary}
       />

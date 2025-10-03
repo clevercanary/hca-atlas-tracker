@@ -1,6 +1,5 @@
 import { CellContext } from "@tanstack/react-table";
 import { INTEGRITY_STATUS } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { ROUTE } from "../../../../routes/constants";
 import { AtlasSourceDataset } from "../../entities";
@@ -54,11 +53,11 @@ export function renderSourceDatasetFileDownloadCell(
 export function renderSourceDatasetValidationStatus(
   ctx: CellContext<AtlasSourceDataset, AtlasSourceDataset["validationStatus"]>
 ): JSX.Element | null {
-  const { atlasId, id: sourceDatasetId } = ctx.row.original;
-  const validationRoute = getRouteURL(ROUTE.ATLAS_SOURCE_DATASET_VALIDATION, {
-    atlasId,
+  const { row } = ctx;
+  const { id: sourceDatasetId } = row.original;
+  return C.ValidationStatusCell({
+    ...ctx,
     sourceDatasetId,
-    validatorName: "cap",
+    validationRoute: ROUTE.ATLAS_SOURCE_DATASET_VALIDATION,
   });
-  return C.ValidationStatusCell({ ...ctx, validationRoute });
 }
