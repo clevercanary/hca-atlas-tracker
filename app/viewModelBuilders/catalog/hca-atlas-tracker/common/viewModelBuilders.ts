@@ -1289,13 +1289,11 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
   return {
     accessorKey: "validationStatus",
     cell: (ctx): JSX.Element | null => {
-      const { atlasId, id: componentAtlasId } = ctx.row.original;
-      const validationRoute = getRouteURL(ROUTE.INTEGRATED_OBJECT_VALIDATION, {
-        atlasId,
-        componentAtlasId,
-        validatorName: "cap",
+      return C.ValidationStatusCell({
+        ...ctx,
+        componentAtlasId: ctx.row.original.id,
+        validationRoute: ROUTE.INTEGRATED_OBJECT_VALIDATION,
       });
-      return C.ValidationStatusCell({ ...ctx, validationRoute });
     },
     header: "Validation Summary",
   };

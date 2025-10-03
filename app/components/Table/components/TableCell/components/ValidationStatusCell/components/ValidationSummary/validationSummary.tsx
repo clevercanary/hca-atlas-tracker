@@ -8,11 +8,15 @@ import { Link as MLink, Stack } from "@mui/material";
 import Link from "next/link";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getRouteURL } from "../../../../../../../../common/utils";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";
 import { StyledErrorIcon } from "./validationSummary.styles";
 
 export const ValidationSummary = ({
+  atlasId,
+  componentAtlasId,
+  sourceDatasetId,
   validationRoute,
   validationSummary,
 }: Props): JSX.Element | null => {
@@ -36,7 +40,12 @@ export const ValidationSummary = ({
           )}
           <MLink
             component={Link}
-            href={validationRoute}
+            href={getRouteURL(validationRoute, {
+              atlasId,
+              componentAtlasId,
+              sourceDatasetId,
+              validatorName: key as FileValidatorName,
+            })}
             rel={REL_ATTRIBUTE.NO_OPENER}
             target={ANCHOR_TARGET.SELF}
           >
