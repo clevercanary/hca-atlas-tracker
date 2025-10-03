@@ -63,6 +63,7 @@ const datasetValidatorToolReportSchema = object({
 
 const datasetValidatorToolReportsSchema = object({
   cap: datasetValidatorToolReportSchema.required(),
+  cellxgene: datasetValidatorToolReportSchema.required(),
 });
 
 export const datasetValidatorResultsSchema = object({

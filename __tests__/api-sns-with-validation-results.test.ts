@@ -159,7 +159,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     expect(fileAfter).toEqual(fileBefore);
   });
 
-  it.each([{ tool: "cap" as const }])(
+  it.each([{ tool: "cap" as const }, { tool: "cellxgene" as const }])(
     "returns error 400 when $tool is missing from tool reports",
     async ({ tool }) => {
       const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
@@ -224,11 +224,19 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         valid: true,
         warnings: [],
       },
+      cellxgene: {
+        errors: ["Error OOO first CxG"],
+        finished_at: "2025-09-14T10:00:04.342",
+        started_at: "2025-09-14T10:00:03.645",
+        valid: false,
+        warnings: [],
+      },
     };
     const firstExpectedValidationSummary: FileValidationSummary = {
-      overallValid: true,
+      overallValid: false,
       validators: {
         cap: true,
+        cellxgene: false,
       },
     };
     const firstValidationResults = createValidationResults({
@@ -322,17 +330,25 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     };
     const toolReports: DatasetValidatorToolReports = {
       cap: {
-        errors: ["Error dataset successful"],
+        errors: ["Error dataset successful CAP"],
         finished_at: validationTime,
         started_at: validationTime,
         valid: false,
         warnings: [],
+      },
+      cellxgene: {
+        errors: ["Error dataset successful CxG"],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: false,
+        warnings: ["Warning dataset successful CxG"],
       },
     };
     const expectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
         cap: false,
+        cellxgene: false,
       },
     };
     const validationResults = createValidationResults({
@@ -390,17 +406,25 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     };
     const toolReports: DatasetValidatorToolReports = {
       cap: {
-        errors: ["Error IO successful"],
+        errors: ["Error IO successful CAP"],
         finished_at: validationTime,
         started_at: validationTime,
         valid: false,
         warnings: [],
+      },
+      cellxgene: {
+        errors: ["Error IO successful CxG"],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: false,
+        warnings: ["Warning IO successful CxG"],
       },
     };
     const expectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
         cap: false,
+        cellxgene: false,
       },
     };
     const validationResults = createValidationResults({

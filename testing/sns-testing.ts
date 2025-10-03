@@ -130,12 +130,20 @@ export const SUCCESSFUL_TOOL_REPORTS: DatasetValidatorToolReports = {
     valid: true,
     warnings: [],
   },
+  cellxgene: {
+    errors: [],
+    finished_at: TEST_TIMESTAMP,
+    started_at: TEST_TIMESTAMP,
+    valid: true,
+    warnings: [],
+  },
 };
 
 export const SUCCESSFUL_VALIDATION_SUMMARY: FileValidationSummary = {
   overallValid: true,
   validators: {
     cap: true,
+    cellxgene: true,
   },
 };
 
