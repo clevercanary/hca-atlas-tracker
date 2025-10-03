@@ -205,10 +205,11 @@ export const FILE_VALIDATION_STATUS_NAME_LABEL: Record<
   [FILE_VALIDATION_STATUS.STALE]: "Stale",
 };
 
-export const FILE_VALIDATOR_NAMES = ["cap"] as const;
+export const FILE_VALIDATOR_NAMES = ["cap", "cellxgene"] as const;
 
 export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
   cap: "CAP",
+  cellxgene: "CELLxGENE",
 };
 
 export const UNPUBLISHED = "Unpublished";
