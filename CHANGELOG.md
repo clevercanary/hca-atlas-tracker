@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.39.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.38.0...v1.39.0) (2025-10-03)
+
+
+### Features
+
+* add file name to file download dialog ([#901](https://github.com/clevercanary/hca-atlas-tracker/issues/901)) ([#902](https://github.com/clevercanary/hca-atlas-tracker/issues/902)) ([20f32cb](https://github.com/clevercanary/hca-atlas-tracker/commit/20f32cb51134452124f5e0e65166e6d2e934e247))
+* save cellxgene results in validation results and summary ([#906](https://github.com/clevercanary/hca-atlas-tracker/issues/906)) ([#914](https://github.com/clevercanary/hca-atlas-tracker/issues/914)) ([ecfcd49](https://github.com/clevercanary/hca-atlas-tracker/commit/ecfcd496715a90815771578bd44a0facabe81f9b))
+* show cellxgene validation status in the source dataset and integrated object lists ([#911](https://github.com/clevercanary/hca-atlas-tracker/issues/911)) ([#915](https://github.com/clevercanary/hca-atlas-tracker/issues/915)) ([5662916](https://github.com/clevercanary/hca-atlas-tracker/commit/566291684fb67c83f2846071be65d4ca68f642f5))
+
 ## [1.38.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.37.0...v1.38.0) (2025-09-29)
 
 
