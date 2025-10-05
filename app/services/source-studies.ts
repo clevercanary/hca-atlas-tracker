@@ -703,6 +703,26 @@ async function confirmSourceStudyCanBeDeletedFromAtlas(
 }
 
 /**
+ * Throw an error if the given source study doesn't exist.
+ * @param sourceStudyId - Source study ID.
+ * @param client - Postgres client to use.
+ */
+export async function confirmSourceStudyExists(
+  sourceStudyId: string,
+  client?: pg.PoolClient
+): Promise<void> {
+  const queryResult = await query(
+    "SELECT 1 FROM hat.source_studies WHERE id=$1",
+    [sourceStudyId],
+    client
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Source study with ID ${sourceStudyId} doesn't exist`
+    );
+}
+
+/**
  * Throw an error if the given source study doesn't exist on the given atlas.
  * @param sourceStudyId - Source study ID.
  * @param atlasId - Atlas ID.
