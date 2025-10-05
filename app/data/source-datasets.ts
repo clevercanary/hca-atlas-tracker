@@ -96,8 +96,8 @@ export async function getSourceDatasetsForApi(
       client
     );
 
-  const presentIds = sourceDatasets.map((d) => d.id);
-  const missingIds = sourceDatasetIds.filter((id) => !presentIds.includes(id));
+  const presentIds = new Set(sourceDatasets.map((d) => d.id));
+  const missingIds = sourceDatasetIds.filter((id) => !presentIds.has(id));
 
   if (missingIds.length)
     throw new NotFoundError(
