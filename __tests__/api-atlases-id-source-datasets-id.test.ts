@@ -151,7 +151,8 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
           SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
           USER_CONTENT_ADMIN,
-          METHOD.GET
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);

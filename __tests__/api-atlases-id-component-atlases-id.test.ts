@@ -147,7 +147,10 @@ describe(TEST_ROUTE, () => {
         await doComponentAtlasRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
           FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
-          USER_CONTENT_ADMIN
+          USER_CONTENT_ADMIN,
+          undefined,
+          undefined,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
