@@ -448,6 +448,7 @@ export interface HCAAtlasTrackerDBFile {
   integrity_checked_at: Date | null;
   integrity_error: string | null;
   integrity_status: INTEGRITY_STATUS;
+  is_archived: boolean;
   is_latest: boolean;
   key: string;
   sha256_client: string | null;
