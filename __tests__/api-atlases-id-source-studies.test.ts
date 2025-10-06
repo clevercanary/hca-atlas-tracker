@@ -7,10 +7,12 @@ import studiesHandler from "../pages/api/atlases/[atlasId]/source-studies";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
   SOURCE_STUDY_SHARED,
+  SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -183,6 +185,19 @@ describe(TEST_ROUTE, () => {
     for (const study of studies) {
       await expectApiSourceStudyToHaveMatchingDbValidations(study);
     }
+  });
+
+  it("returns source studies including study with archived source dataset", async () => {
+    const res = await doStudiesRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    const study = studies.find(
+      (d) => d.id === SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id
+    );
+    expect(study?.sourceDatasetCount).toEqual(3);
   });
 });
 

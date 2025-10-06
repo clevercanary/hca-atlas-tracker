@@ -73,7 +73,18 @@ export async function getAtlasSourceStudies(
         ? []
         : (
             await query<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>(
-              "SELECT s.*, COUNT(d.*)::int AS source_dataset_count FROM hat.source_studies s LEFT JOIN hat.source_datasets d ON d.source_study_id=s.id WHERE s.id=ANY($1) GROUP BY s.id",
+              `
+                SELECT s.*, COUNT(d.*)::int AS source_dataset_count
+                FROM hat.source_studies s
+                LEFT JOIN (
+                  SELECT fd.id, fd.source_study_id
+                  FROM hat.source_datasets fd
+                  JOIN hat.files f ON f.source_dataset_id = fd.id
+                  WHERE f.is_latest AND NOT f.is_archived
+                ) as d ON d.source_study_id=s.id
+                WHERE s.id=ANY($1)
+                GROUP BY s.id
+              `,
               [atlas.source_studies]
             )
           ).rows;
@@ -125,7 +136,18 @@ export async function getSourceStudy(
 
     const queryResult =
       await query<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>(
-        "SELECT s.*, COUNT(d.*)::int AS source_dataset_count FROM hat.source_studies s LEFT JOIN hat.source_datasets d ON d.source_study_id=s.id WHERE s.id=$1 GROUP BY s.id",
+        `
+          SELECT s.*, COUNT(d.*)::int AS source_dataset_count
+          FROM hat.source_studies s
+          LEFT JOIN (
+            SELECT fd.id, fd.source_study_id
+            FROM hat.source_datasets fd
+            JOIN hat.files f ON f.source_dataset_id = fd.id
+            WHERE f.is_latest AND NOT f.is_archived
+          ) as d ON d.source_study_id=s.id
+          WHERE s.id=$1
+          GROUP BY s.id
+        `,
         [sourceStudyId],
         client
       );
