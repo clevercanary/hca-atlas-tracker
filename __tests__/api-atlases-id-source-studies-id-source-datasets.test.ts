@@ -160,7 +160,7 @@ describe(TEST_ROUTE, () => {
     ]);
   });
 
-  it("returns source datasets for latest file versions only", async () => {
+  it("returns source datasets only for latest file versions and only if they're non-archived", async () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,

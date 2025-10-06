@@ -13,6 +13,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   confirmSourceDatasetIsLinkedToStudy,
+  confirmSourceDatasetsAreAvailable,
   getAtlasSourceDatasetIds,
   getComponentAtlasSourceDatasetIds,
   getSourceDatasetForDetailApi,
@@ -23,6 +24,7 @@ import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
   confirmComponentAtlasExistsOnAtlas,
+  confirmComponentAtlasIsAvailable,
   getComponentAtlasIdForFile,
   getPresentComponentAtlasIdForFile,
   removeSourceDatasetsFromAllComponentAtlases,
@@ -49,7 +51,8 @@ export async function getSourceStudyDatasets(
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   return await getSourceDatasetsForApi(
-    await getSourceStudySourceDatasetIds(sourceStudyId)
+    await getSourceStudySourceDatasetIds(sourceStudyId),
+    true
   );
 }
 
@@ -61,7 +64,10 @@ export async function getSourceStudyDatasets(
 export async function getAtlasDatasets(
   atlasId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
-  return await getSourceDatasetsForApi(await getAtlasSourceDatasetIds(atlasId));
+  return await getSourceDatasetsForApi(
+    await getAtlasSourceDatasetIds(atlasId),
+    true
+  );
 }
 
 /**
@@ -78,7 +84,8 @@ export async function getComponentAtlasDatasets(
   if (componentAtlasId === null) return [];
   await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
   return await getSourceDatasetsForApi(
-    await getComponentAtlasSourceDatasetIds(componentAtlasId)
+    await getComponentAtlasSourceDatasetIds(componentAtlasId),
+    true
   );
 }
 
@@ -109,6 +116,7 @@ export async function getSourceDataset(
   );
   const [sourceDataset] = await getSourceDatasetsForApi(
     [sourceDatasetId],
+    false,
     client
   );
   return sourceDataset;
@@ -143,6 +151,7 @@ export async function getComponentAtlasSourceDataset(
   sourceDatasetId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+  await confirmComponentAtlasIsAvailable(componentAtlasId);
   const { exists } = (
     await query<{ exists: boolean }>(
       "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND id=$2 AND atlas_id=$3)",
@@ -291,6 +300,7 @@ export async function updateAtlasSourceDataset(
   inputData: AtlasSourceDatasetEditData
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
+  await confirmSourceDatasetsAreAvailable([sourceDatasetId]);
   const updatedInfoFields: Pick<
     HCAAtlasTrackerDBSourceDatasetInfo,
     "metadataSpreadsheetTitle" | "metadataSpreadsheetUrl"
@@ -331,6 +341,8 @@ export async function setAtlasSourceDatasetsReprocessedStatus(
         ", "
       )}`
     );
+
+  await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
 
   await query(
     "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE id = ANY($2)",

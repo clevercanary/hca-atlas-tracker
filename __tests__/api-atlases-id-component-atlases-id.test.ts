@@ -7,8 +7,10 @@ import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atla
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -130,6 +132,21 @@ describe(TEST_ROUTE, () => {
         await doComponentAtlasRequest(
           ATLAS_PUBLIC.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          undefined,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
+  it("returns error 404 when component atlas with archived file is GET requested", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
           USER_CONTENT_ADMIN,
           undefined,
           undefined,

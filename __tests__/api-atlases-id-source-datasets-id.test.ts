@@ -19,6 +19,7 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
   SOURCE_DATASET_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -141,6 +142,20 @@ describe(`${TEST_ROUTE} (GET)`, () => {
         )
       )._getStatusCode()
     ).toEqual(403);
+  });
+
+  it("returns error 404 when source dataset with archived file is GET requested", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
+          USER_CONTENT_ADMIN,
+          METHOD.GET,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -348,6 +363,22 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       )._getStatusCode()
     ).toEqual(404);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_BAZ);
+  });
+
+  it("returns error 404 when PATCH requested with source dataset with archived file", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          A_FOO_EDIT_DATA
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_WITH_ARCHIVED_LATEST);
   });
 
   it("returns error 400 when PATCH requested with non-google-sheets metadata url", async () => {

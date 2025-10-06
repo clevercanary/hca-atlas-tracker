@@ -19,6 +19,7 @@ import {
   ATLAS_PUBLIC,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   CELLXGENE_ID_NORMAL,
   DOI_DRAFT_OK,
@@ -337,6 +338,17 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
+  });
+
+  it("returns study with archived source dataset when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doStudyRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+    expect(study.sourceDatasetCount).toEqual(3);
   });
 });
 

@@ -35,7 +35,7 @@ export async function getAtlasComponentAtlases(
           f.validation_summary
         FROM hat.files f
         JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-        WHERE f.is_latest AND f.file_type='integrated_object' AND ca.atlas_id=$1
+        WHERE f.is_latest AND NOT f.is_archived AND f.file_type='integrated_object' AND ca.atlas_id=$1
       `,
     [atlasId]
   );
@@ -68,7 +68,7 @@ export async function getComponentAtlas(
         f.validation_reports
       FROM hat.files f
       JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-      WHERE f.id=$1 AND ca.atlas_id=$2
+      WHERE f.id=$1 AND NOT f.is_archived AND ca.atlas_id=$2
     `,
     [fileId, atlasId]
   );
@@ -94,6 +94,8 @@ export async function addSourceDatasetsToComponentAtlas(
   await confirmFileExistsOnAtlas(fileId, atlasId);
 
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+
+  await confirmComponentAtlasIsAvailable(componentAtlasId);
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
@@ -141,6 +143,8 @@ export async function deleteSourceDatasetsFromComponentAtlas(
   await confirmFileExistsOnAtlas(fileId, atlasId);
 
   const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+
+  await confirmComponentAtlasIsAvailable(componentAtlasId);
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
@@ -374,6 +378,28 @@ export async function confirmComponentAtlasExistsOnAtlas(
   );
   if (result.rows[0]?.atlas_id !== atlasId)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+}
+
+/**
+ * Throw an error if the specified component atlas is not available to users (e.g., is archived).
+ * @param componentAtlasId - The ID of the component atlas to check.
+ */
+export async function confirmComponentAtlasIsAvailable(
+  componentAtlasId: string
+): Promise<void> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
+    `
+        SELECT 1
+        FROM hat.component_atlases c
+        JOIN hat.files f ON f.component_atlas_id = c.id
+        WHERE c.id = $1 AND f.is_latest AND NOT f.is_archived
+      `,
+    [componentAtlasId]
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Component atlas with ID ${componentAtlasId} doesn't exist`
+    );
 }
 
 /**

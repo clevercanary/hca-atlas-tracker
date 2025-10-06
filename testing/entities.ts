@@ -114,6 +114,7 @@ export interface TestFile {
   integrityCheckedAt?: string | null;
   integrityError?: string | null;
   integrityStatus?: INTEGRITY_STATUS;
+  isArchived?: boolean;
   isLatest?: boolean;
   sha256Client?: string | null;
   sha256Server?: string | null;
