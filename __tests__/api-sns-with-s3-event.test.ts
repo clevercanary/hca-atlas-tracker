@@ -711,7 +711,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(secondVersion.is_latest).toBe(true);
   });
 
-  it("sets is_latest and is_archived as normal when existing latest file is archived", async () => {
+  it("sets is_latest and is_archived as normal when existing latest file has archived = true", async () => {
     // First version of the file
     const s3EventV1 = createS3Event({
       etag: "version1-etag-12345678901234567890123456789012",
