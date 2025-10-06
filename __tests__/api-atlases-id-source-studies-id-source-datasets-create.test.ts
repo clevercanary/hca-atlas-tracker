@@ -202,8 +202,10 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(404);
     const message = res._getJSONData().message;
-    expect(message).toEqual(expect.stringContaining("Source dataset with ID"));
-    const id = /Source dataset with ID (\S+)/.exec(message)?.[1];
+    expect(message).toEqual(
+      expect.stringContaining("No source datasets exist with ID(s):")
+    );
+    const id = /ID\(s\): (\S+)/.exec(message)?.[1];
     if (expectIsDefined(id)) {
       expect(await getSourceDatasetFromDatabase(id)).toBeUndefined();
     }
@@ -219,8 +221,10 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(404);
     const message = res._getJSONData().message;
-    expect(message).toEqual(expect.stringContaining("Source dataset with ID"));
-    const id = /Source dataset with ID (\S+)/.exec(message)?.[1];
+    expect(message).toEqual(
+      expect.stringContaining("No source datasets exist with ID(s):")
+    );
+    const id = /ID\(s\): (\S+)/.exec(message)?.[1];
     if (expectIsDefined(id)) {
       expect(await getSourceDatasetFromDatabase(id)).toBeUndefined();
     }
