@@ -7,6 +7,7 @@ import atlasesHandler from "../pages/api/atlases";
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   INITIAL_TEST_ATLASES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -44,6 +45,11 @@ const RELATED_ENTITY_INFO_TO_CHECK = [
     atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
     componentAtlasCount: 2,
     entrySheetValidationCount: 3,
+  },
+  {
+    atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+    componentAtlasCount: 1,
+    entrySheetValidationCount: 0,
   },
 ];
 

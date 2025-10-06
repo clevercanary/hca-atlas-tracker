@@ -41,7 +41,12 @@ export async function getAllAtlases(
         COUNT(DISTINCT c.id)::int AS component_atlas_count,
         COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
       FROM hat.atlases a
-      LEFT JOIN hat.component_atlases c ON c.atlas_id = a.id
+      LEFT JOIN (
+        SELECT fc.id, fc.atlas_id
+        FROM hat.component_atlases fc
+        JOIN hat.files f ON f.component_atlas_id = fc.id
+        WHERE f.is_latest AND NOT f.is_archived
+      ) as c ON c.atlas_id = a.id
       LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
       GROUP BY a.id
     `,
@@ -61,7 +66,12 @@ export async function getAtlas(
         COUNT(DISTINCT c.id)::int AS component_atlas_count,
         COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
       FROM hat.atlases a
-      LEFT JOIN hat.component_atlases c ON c.atlas_id = a.id
+      LEFT JOIN (
+        SELECT fc.id, fc.atlas_id
+        FROM hat.component_atlases fc
+        JOIN hat.files f ON f.component_atlas_id = fc.id
+        WHERE f.is_latest AND NOT f.is_archived
+      ) as c ON c.atlas_id = a.id
       LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
       WHERE a.id=$1 GROUP BY a.id
     `,

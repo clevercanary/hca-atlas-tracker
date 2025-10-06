@@ -21,6 +21,7 @@ import {
   ATLAS_WITH_IL,
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
   DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
   PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
@@ -312,6 +313,18 @@ describe(TEST_ROUTE, () => {
     expectApiAtlasToMatchTest(atlas, ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A);
     expect(atlas.componentAtlasCount).toEqual(2);
     expect(atlas.entrySheetValidationCount).toEqual(3);
+  });
+
+  it("returns atlas with archived component atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_WITH_MISC_SOURCE_STUDIES_B);
+    expect(atlas.componentAtlasCount).toEqual(1);
+    expect(atlas.entrySheetValidationCount).toEqual(0);
   });
 
   it("returns error 401 when public atlas is PUT requested by logged out user", async () => {

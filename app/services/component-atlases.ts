@@ -384,7 +384,7 @@ export async function confirmComponentAtlasExistsOnAtlas(
  * Throw an error if the specified component atlas is not available to users (e.g., is archived).
  * @param componentAtlasId - The ID of the component atlas to check.
  */
-async function confirmComponentAtlasIsAvailable(
+export async function confirmComponentAtlasIsAvailable(
   componentAtlasId: string
 ): Promise<void> {
   const queryResult = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
