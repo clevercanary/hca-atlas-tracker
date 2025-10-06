@@ -67,11 +67,13 @@ export async function getComponentAtlasSourceDatasetIds(
 /**
  * Get specified source datasets joined with data used for API responses.
  * @param sourceDatasetIds - IDs of source datasets to get.
+ * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
  * @param client - Postgres client to use.
  * @returns source datasets with fields for APIs.
  */
 export async function getSourceDatasetsForApi(
   sourceDatasetIds: string[],
+  acceptSubset = false,
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   const { rows: sourceDatasets } =
@@ -90,19 +92,14 @@ export async function getSourceDatasetsForApi(
         FROM hat.source_datasets d
         JOIN hat.files f ON f.source_dataset_id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-        WHERE d.id = ANY($1) AND f.is_latest
+        WHERE d.id = ANY($1) AND f.is_latest AND NOT f.is_archived
       `,
       [sourceDatasetIds],
       client
     );
 
-  const presentIds = new Set(sourceDatasets.map((d) => d.id));
-  const missingIds = sourceDatasetIds.filter((id) => !presentIds.has(id));
-
-  if (missingIds.length)
-    throw new NotFoundError(
-      `No source datasets exist with ID(s): ${missingIds.join(", ")}`
-    );
+  if (!acceptSubset)
+    confirmSourceDatasetIdsArePresent(sourceDatasets, sourceDatasetIds);
 
   return sourceDatasets;
 }
@@ -133,7 +130,7 @@ export async function getSourceDatasetForDetailApi(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE d.id = $1 AND f.is_latest
+      WHERE d.id = $1 AND f.is_latest AND NOT f.is_archived
     `,
     [sourceDatasetId],
     client
@@ -164,5 +161,42 @@ export async function confirmSourceDatasetIsLinkedToStudy(
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
       `Source dataset with ID ${sourceDatasetId} is not linked to source study with ID ${sourceStudyId}`
+    );
+}
+
+/**
+ * Throw an error if any of the specified source datasets are not available to users (e.g., are archived).
+ * @param sourceDatasetIds - IDs of source datasets to check.
+ */
+export async function confirmSourceDatasetsAreAvailable(
+  sourceDatasetIds: string[]
+): Promise<void> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
+    `
+      SELECT d.id
+      FROM hat.source_datasets d
+      JOIN hat.files f ON f.source_dataset_id = d.id
+      WHERE d.id = ANY($1) AND f.is_latest AND NOT f.is_archived
+    `,
+    [sourceDatasetIds]
+  );
+  confirmSourceDatasetIdsArePresent(queryResult.rows, sourceDatasetIds);
+}
+
+/**
+ * Throw an error if the given source datasets do not include all expected source dataset IDs.
+ * @param sourceDatasets - Array of (partial) source datasets that were found.
+ * @param expectedIds - Source dataset IDs that are expected to be present.
+ */
+function confirmSourceDatasetIdsArePresent(
+  sourceDatasets: Pick<HCAAtlasTrackerDBSourceDataset, "id">[],
+  expectedIds: string[]
+): void {
+  const presentIds = new Set(sourceDatasets.map((d) => d.id));
+  const missingIds = expectedIds.filter((id) => !presentIds.has(id));
+
+  if (missingIds.length)
+    throw new NotFoundError(
+      `No source datasets exist with ID(s): ${missingIds.join(", ")}`
     );
 }

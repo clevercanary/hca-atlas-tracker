@@ -322,7 +322,7 @@ export async function getAllFilesValidationParams(): Promise<
 > {
   return (
     await query<Pick<HCAAtlasTrackerDBFile, "file_type" | "id" | "key">>(
-      "SELECT file_type, id, key FROM hat.files WHERE is_latest"
+      "SELECT file_type, id, key FROM hat.files WHERE is_latest AND NOT is_archived"
     )
   ).rows;
 }

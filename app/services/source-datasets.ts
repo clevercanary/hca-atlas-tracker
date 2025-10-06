@@ -13,6 +13,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   confirmSourceDatasetIsLinkedToStudy,
+  confirmSourceDatasetsAreAvailable,
   getAtlasSourceDatasetIds,
   getComponentAtlasSourceDatasetIds,
   getSourceDatasetForDetailApi,
@@ -49,7 +50,8 @@ export async function getSourceStudyDatasets(
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   return await getSourceDatasetsForApi(
-    await getSourceStudySourceDatasetIds(sourceStudyId)
+    await getSourceStudySourceDatasetIds(sourceStudyId),
+    true
   );
 }
 
@@ -61,7 +63,10 @@ export async function getSourceStudyDatasets(
 export async function getAtlasDatasets(
   atlasId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
-  return await getSourceDatasetsForApi(await getAtlasSourceDatasetIds(atlasId));
+  return await getSourceDatasetsForApi(
+    await getAtlasSourceDatasetIds(atlasId),
+    true
+  );
 }
 
 /**
@@ -78,7 +83,8 @@ export async function getComponentAtlasDatasets(
   if (componentAtlasId === null) return [];
   await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
   return await getSourceDatasetsForApi(
-    await getComponentAtlasSourceDatasetIds(componentAtlasId)
+    await getComponentAtlasSourceDatasetIds(componentAtlasId),
+    true
   );
 }
 
@@ -109,6 +115,7 @@ export async function getSourceDataset(
   );
   const [sourceDataset] = await getSourceDatasetsForApi(
     [sourceDatasetId],
+    false,
     client
   );
   return sourceDataset;
@@ -291,6 +298,7 @@ export async function updateAtlasSourceDataset(
   inputData: AtlasSourceDatasetEditData
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
+  await confirmSourceDatasetsAreAvailable([sourceDatasetId]);
   const updatedInfoFields: Pick<
     HCAAtlasTrackerDBSourceDatasetInfo,
     "metadataSpreadsheetTitle" | "metadataSpreadsheetUrl"
@@ -331,6 +339,8 @@ export async function setAtlasSourceDatasetsReprocessedStatus(
         ", "
       )}`
     );
+
+  await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
 
   await query(
     "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE id = ANY($2)",
