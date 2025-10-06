@@ -40,16 +40,19 @@ const RELATED_ENTITY_INFO_TO_CHECK = [
     atlasId: ATLAS_DRAFT.id,
     componentAtlasCount: 2,
     entrySheetValidationCount: 2,
+    sourceDatasetCount: 0,
   },
   {
     atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
     componentAtlasCount: 2,
     entrySheetValidationCount: 3,
+    sourceDatasetCount: 0,
   },
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
     componentAtlasCount: 1,
     entrySheetValidationCount: 0,
+    sourceDatasetCount: 1,
   },
 ];
 
@@ -133,10 +136,12 @@ function expectApiAtlasesToHaveRelatedEntities(
     atlasId,
     componentAtlasCount,
     entrySheetValidationCount,
+    sourceDatasetCount,
   } of RELATED_ENTITY_INFO_TO_CHECK) {
     const apiAtlas = apiAtlases.find((a) => a.id === atlasId);
     if (!expectIsDefined(apiAtlas)) continue;
     expect(apiAtlas.componentAtlasCount).toEqual(componentAtlasCount);
+    expect(apiAtlas.sourceDatasetCount).toEqual(sourceDatasetCount);
     expect(apiAtlas.entrySheetValidationCount).toEqual(
       entrySheetValidationCount
     );

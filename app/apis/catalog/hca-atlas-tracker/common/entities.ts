@@ -258,10 +258,10 @@ export interface HCAAtlasTrackerDBAtlas {
   updated_at: Date;
 }
 
-export interface HCAAtlasTrackerDBAtlasWithComponentAtlases
-  extends HCAAtlasTrackerDBAtlas {
+export interface HCAAtlasTrackerDBAtlasForAPI extends HCAAtlasTrackerDBAtlas {
   component_atlas_count: number;
   entry_sheet_validation_count: number;
+  source_dataset_count: number;
 }
 
 export interface HCAAtlasTrackerDBAtlasOverview {

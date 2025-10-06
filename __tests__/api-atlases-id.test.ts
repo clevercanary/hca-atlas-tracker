@@ -315,7 +315,7 @@ describe(TEST_ROUTE, () => {
     expect(atlas.entrySheetValidationCount).toEqual(3);
   });
 
-  it("returns atlas with archived component atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+  it("returns atlas with archived component atlas and source dataset when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       USER_CONTENT_ADMIN
@@ -324,6 +324,7 @@ describe(TEST_ROUTE, () => {
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expectApiAtlasToMatchTest(atlas, ATLAS_WITH_MISC_SOURCE_STUDIES_B);
     expect(atlas.componentAtlasCount).toEqual(1);
+    expect(atlas.sourceDatasetCount).toEqual(1);
     expect(atlas.entrySheetValidationCount).toEqual(0);
   });
 

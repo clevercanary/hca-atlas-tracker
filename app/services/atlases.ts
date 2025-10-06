@@ -9,8 +9,8 @@ import {
   ATLAS_STATUS,
   DoiPublicationInfo,
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBAtlasForAPI,
   HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBAtlasWithComponentAtlases,
   SYSTEM,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -33,22 +33,29 @@ interface AtlasInputDbData {
 
 export async function getAllAtlases(
   client?: pg.PoolClient
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases[]> {
-  const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
+): Promise<HCAAtlasTrackerDBAtlasForAPI[]> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
       SELECT
         a.*,
-        COUNT(DISTINCT c.id)::int AS component_atlas_count,
-        COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
+        (
+          SELECT COUNT(c.id)::int
+          FROM hat.component_atlases c
+          JOIN hat.files f ON f.component_atlas_id = c.id
+          WHERE c.atlas_id = a.id AND f.is_latest AND NOT f.is_archived
+        ) AS component_atlas_count,
+        (
+          SELECT COUNT(d.id)::int
+          FROM hat.source_datasets d
+          JOIN hat.files f ON f.source_dataset_id = d.id
+          WHERE d.id = ANY(a.source_datasets) AND f.is_latest AND NOT f.is_archived
+        ) AS source_dataset_count,
+        (
+          SELECT COUNT(DISTINCT e.id)::int
+          FROM hat.entry_sheet_validations e
+          WHERE a.source_studies ? e.source_study_id::text
+        ) AS entry_sheet_validation_count
       FROM hat.atlases a
-      LEFT JOIN (
-        SELECT fc.id, fc.atlas_id
-        FROM hat.component_atlases fc
-        JOIN hat.files f ON f.component_atlas_id = fc.id
-        WHERE f.is_latest AND NOT f.is_archived
-      ) as c ON c.atlas_id = a.id
-      LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
-      GROUP BY a.id
     `,
     undefined,
     client
@@ -58,22 +65,30 @@ export async function getAllAtlases(
 
 export async function getAtlas(
   id: string
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
-  const queryResult = await query<HCAAtlasTrackerDBAtlasWithComponentAtlases>(
+): Promise<HCAAtlasTrackerDBAtlasForAPI> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
       SELECT
         a.*,
-        COUNT(DISTINCT c.id)::int AS component_atlas_count,
-        COUNT(DISTINCT e.id)::int AS entry_sheet_validation_count
+        (
+          SELECT COUNT(c.id)::int
+          FROM hat.component_atlases c
+          JOIN hat.files f ON f.component_atlas_id = c.id
+          WHERE c.atlas_id = a.id AND f.is_latest AND NOT f.is_archived
+        ) AS component_atlas_count,
+        (
+          SELECT COUNT(d.id)::int
+          FROM hat.source_datasets d
+          JOIN hat.files f ON f.source_dataset_id = d.id
+          WHERE d.id = ANY(a.source_datasets) AND f.is_latest AND NOT f.is_archived
+        ) AS source_dataset_count,
+        (
+          SELECT COUNT(DISTINCT e.id)::int
+          FROM hat.entry_sheet_validations e
+          WHERE a.source_studies ? e.source_study_id::text
+        ) AS entry_sheet_validation_count
       FROM hat.atlases a
-      LEFT JOIN (
-        SELECT fc.id, fc.atlas_id
-        FROM hat.component_atlases fc
-        JOIN hat.files f ON f.component_atlas_id = fc.id
-        WHERE f.is_latest AND NOT f.is_archived
-      ) as c ON c.atlas_id = a.id
-      LEFT JOIN hat.entry_sheet_validations e ON a.source_studies ? e.source_study_id::text
-      WHERE a.id=$1 GROUP BY a.id
+      WHERE a.id=$1
     `,
     [id]
   );
@@ -98,7 +113,7 @@ export async function getBaseModelAtlas(
 
 export async function createAtlas(
   inputData: NewAtlasData
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
+): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const { overviewData, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
   const overview: HCAAtlasTrackerDBAtlasOverview = {
@@ -122,7 +137,7 @@ export async function createAtlas(
 export async function updateAtlas(
   id: string,
   inputData: AtlasEditData
-): Promise<HCAAtlasTrackerDBAtlasWithComponentAtlases> {
+): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const { overviewData, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
