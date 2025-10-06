@@ -139,7 +139,7 @@ describe(TEST_ROUTE, () => {
     ]);
   });
 
-  it("returns component atlas for latest file version only", async () => {
+  it("returns component atlases only for latest file versions and only if they're non-archived", async () => {
     const res = await doComponentAtlasesRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       USER_CONTENT_ADMIN

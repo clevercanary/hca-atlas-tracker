@@ -2111,6 +2111,49 @@ export const SOURCE_DATASET_WITH_MULTIPLE_FILES = {
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
+const BASE_FILE_SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
+  atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  bucket: "bucket-source-dataset-with-archived-latest",
+  datasetInfo: {
+    assay: ["assay with archived latest"],
+    cellCount: 34536,
+    disease: ["disease with archived latest"],
+    suspensionType: ["suspension type with archived latest"],
+    tissue: ["tissue with archived latest"],
+    title: "Source Dataset With Archived Latest",
+  },
+  fileName: "source-dataset-with-archived-latest.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  versionId: null,
+} satisfies Partial<TestFile>;
+export const FILE_A_SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
+  ...BASE_FILE_SOURCE_DATASET_WITH_ARCHIVED_LATEST,
+  etag: "ddebba323f2d42fda2164b4aa3b80022",
+  eventTime: "2025-10-06T04:59:05.969Z",
+  id: "ce6807b8-e167-46ba-8d94-bb226d1cef2c",
+  isArchived: false,
+  isLatest: false,
+  sizeBytes: "23523",
+} satisfies TestFile;
+export const FILE_B_SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
+  ...BASE_FILE_SOURCE_DATASET_WITH_ARCHIVED_LATEST,
+  etag: "42df8de8ee5141f28c6e85719f2b0c1c",
+  eventTime: "2025-10-06T05:00:21.048Z",
+  id: "68c397ac-a0e4-4177-a0d9-dd7e2d4c7c19",
+  isArchived: true,
+  isLatest: true,
+  sizeBytes: "345345",
+} satisfies TestFile;
+export const SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
+  file: [
+    FILE_A_SOURCE_DATASET_WITH_ARCHIVED_LATEST,
+    FILE_B_SOURCE_DATASET_WITH_ARCHIVED_LATEST,
+  ],
+  id: "63b33e2a-1b1f-4138-bc54-dbe42e12ab65",
+  sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2136,6 +2179,7 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
   SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
 ];
 
 // ATLAS IDS
@@ -2398,7 +2442,10 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   network: "eye",
   publications: [],
   shortName: "test-with-misc-source-studies-b",
-  sourceDatasets: [SOURCE_DATASET_WITH_MULTIPLE_FILES.id],
+  sourceDatasets: [
+    SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
+    SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
+  ],
   sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
   status: ATLAS_STATUS.IN_PROGRESS,
   version: "5.3",
@@ -2889,6 +2936,51 @@ export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
   title: "",
 } satisfies TestComponentAtlas;
 
+const BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
+  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  bucket: "bucket-with-archived-latest",
+  datasetInfo: {
+    assay: ["assay with archived latest"],
+    cellCount: 64545,
+    disease: ["disease with archived latest"],
+    suspensionType: ["suspension type with archived latest"],
+    tissue: ["tissue with archived latest"],
+    title: "Component Atlas With Archived Latest",
+  },
+  fileName: "component-atlas-with-archived-latest.h5ad",
+  fileType: FILE_TYPE.INTEGRATED_OBJECT,
+  versionId: null,
+} satisfies Partial<TestFile>;
+export const FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  etag: "915fbb243d774fc899765ac8d5aa0fac",
+  eventTime: "2025-10-06T05:06:01.513Z",
+  id: "d4912db6-52b5-4e27-9c7f-03f95cda5fcc",
+  isArchived: false,
+  isLatest: false,
+  sizeBytes: "23423",
+} satisfies TestFile;
+export const FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  etag: "1b32e22825854fed9b2f49cdaa88c7d5",
+  eventTime: "2025-10-06T05:07:02.753Z",
+  id: "68fbe660-dad6-4521-bbab-3fbf5191abab",
+  isArchived: true,
+  isLatest: true,
+  sizeBytes: "64564",
+} satisfies TestFile;
+export const COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
+  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+  description: "",
+  file: [
+    FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+    FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  ],
+  id: "0b3a43c0-6871-4000-9351-d759f0cd78c8",
+  sourceDatasets: [],
+  title: "",
+} satisfies TestComponentAtlas;
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
@@ -2898,6 +2990,7 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
 ];
 
 // STANDALONE FILES

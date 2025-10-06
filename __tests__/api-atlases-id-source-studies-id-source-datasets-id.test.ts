@@ -21,6 +21,7 @@ import {
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
   SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
@@ -154,6 +155,22 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
           SOURCE_DATASET_FOO.id,
+          USER_CONTENT_ADMIN,
+          undefined,
+          undefined,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
+  it("returns error 404 when source dataset with archived file is GET requested", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+          SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
           USER_CONTENT_ADMIN,
           undefined,
           undefined,

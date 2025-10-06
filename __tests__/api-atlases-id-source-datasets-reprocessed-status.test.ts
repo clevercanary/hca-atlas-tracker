@@ -6,10 +6,13 @@ import { endPgPool, query } from "../app/services/database";
 import reprocessedStatusHandler from "../pages/api/atlases/[atlasId]/source-datasets/reprocessed-status";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -73,6 +76,14 @@ const INPUT_DATA_NON_LINKED_DATASET = {
     SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
     SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
     SOURCE_DATASET_FOO.id,
+  ],
+};
+
+const INPUT_DATA_ARCHIVED_DATASET = {
+  reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
+  sourceDatasetIds: [
+    SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
+    SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
   ],
 };
 
@@ -231,6 +242,22 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     ).toEqual(404);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+  });
+
+  it("returns error 404 when PATCH requested with source dataset with archived file", async () => {
+    expect(
+      (
+        await doReprocessedStatusRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          INPUT_DATA_ARCHIVED_DATASET,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_WITH_MULTIPLE_FILES);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_WITH_ARCHIVED_LATEST);
   });
 
   it("updates reprocessed statuses when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {

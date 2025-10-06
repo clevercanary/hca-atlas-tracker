@@ -7,6 +7,9 @@ import { endPgPool } from "../app/services/database";
 import { validateAllFiles } from "../app/services/files";
 import validateFilesHandler from "../pages/api/validate-files";
 import {
+  FILE_A_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -55,14 +58,30 @@ afterAll(() => {
 
 const TEST_ROUTE = "/api/validate-files";
 
-const expectedValidatedTestFiles: TestFile[] = [];
-const expectedUnvalidatedTestFiles: TestFile[] = [];
+// Initialize with some hand-selected expected cases
+const expectedValidatedTestFiles: TestFile[] = [
+  FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+];
+const expectedUnvalidatedTestFiles: TestFile[] = [
+  FILE_A_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+];
 
 for (const testFile of getAllTestFiles()) {
+  if (
+    expectedValidatedTestFiles.includes(testFile) ||
+    expectedUnvalidatedTestFiles.includes(testFile)
+  ) {
+    continue;
+  }
   const isValidType =
     testFile.fileType === FILE_TYPE.INTEGRATED_OBJECT ||
     testFile.fileType === FILE_TYPE.SOURCE_DATASET;
-  if (isValidType && testFile.isLatest !== false) {
+  if (
+    isValidType &&
+    testFile.isLatest !== false &&
+    testFile.isArchived !== true
+  ) {
     expectedValidatedTestFiles.push(testFile);
   } else {
     expectedUnvalidatedTestFiles.push(testFile);

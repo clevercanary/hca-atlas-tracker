@@ -711,6 +711,100 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(secondVersion.is_latest).toBe(true);
   });
 
+  it("sets is_latest and is_archived as normal when existing latest file is archived", async () => {
+    // First version of the file
+    const s3EventV1 = createS3Event({
+      etag: "version1-etag-12345678901234567890123456789012",
+      eventTime: "2024-01-01T12:00:00.000Z",
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 1024000,
+      versionId: "version-1",
+    });
+
+    const snsMessageV1 = createSNSMessage({
+      messageId: "test-message-id-v1",
+      s3Event: s3EventV1,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req: req1, res: res1 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV1,
+      method: "POST",
+    });
+
+    // Process first version
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req1, res1);
+    });
+    expect(res1.statusCode).toBe(200);
+
+    const {
+      rows: [firstVersionBefore],
+    } = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+    );
+
+    // Set is_archived to true
+    await query("UPDATE hat.files SET is_archived=TRUE WHERE id=$1", [
+      firstVersionBefore.id,
+    ]);
+
+    // Second version of the same file (different version_id and etag)
+    const s3EventV2 = createS3Event({
+      etag: "version2-etag-98765432109876543210987654321098",
+      eventTime: TEST_TIMESTAMP_PLUS_1H,
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT, // Same key
+      size: 2048000,
+      versionId: "version-2", // Different version
+    });
+
+    const snsMessageV2 = createSNSMessage({
+      messageId: "test-message-id-v2",
+      s3Event: s3EventV2,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    const { req: req2, res: res2 } = httpMocks.createMocks<
+      NextApiRequest,
+      NextApiResponse
+    >({
+      body: snsMessageV2,
+      method: "POST",
+    });
+
+    // Process second version
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req2, res2);
+    });
+    expect(res2.statusCode).toBe(200);
+
+    // Check database state - should have 2 records for the same file
+    const allVersions = await query(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+    );
+
+    expect(allVersions.rows).toHaveLength(2);
+
+    // First version should NOT be latest and should BE archived
+    const firstVersion = allVersions.rows[0];
+    expect(firstVersion.version_id).toBe("version-1");
+    expect(firstVersion.is_latest).toBe(false);
+    expect(firstVersion.is_archived).toBe(true);
+
+    // Second version should BE latest and should NOT be archived
+    const secondVersion = allVersions.rows[1];
+    expect(secondVersion.version_id).toBe("version-2");
+    expect(secondVersion.is_latest).toBe(true);
+    expect(secondVersion.is_archived).toBe(false);
+  });
+
   it("does not flip is_latest when older version arrives after newer version", async () => {
     // Process newer version first
     const s3EventV2 = createS3Event({
