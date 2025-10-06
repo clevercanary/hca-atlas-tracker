@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.40.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.39.0...v1.40.0) (2025-10-06)
+
+
+### Features
+
+* add archived/non-archived status to files ([#919](https://github.com/clevercanary/hca-atlas-tracker/issues/919)) ([#920](https://github.com/clevercanary/hca-atlas-tracker/issues/920)) ([b64de9c](https://github.com/clevercanary/hca-atlas-tracker/commit/b64de9c83711edd592d6530a379a03edb46fe439))
+
+
+### Code Refactoring
+
+* separate source dataset retrieval queries into data layer with less duplication ([#916](https://github.com/clevercanary/hca-atlas-tracker/issues/916)) ([#917](https://github.com/clevercanary/hca-atlas-tracker/issues/917)) ([3cfa846](https://github.com/clevercanary/hca-atlas-tracker/commit/3cfa846cb6931035f78f6b4ac2a9da4c11adfda6))
+
 ## [1.39.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.38.0...v1.39.0) (2025-10-03)
 
 
