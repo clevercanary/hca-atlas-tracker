@@ -391,7 +391,7 @@ async function confirmComponentAtlasIsAvailable(
     `
         SELECT 1
         FROM hat.component_atlases c
-        JOIN hat.files f ON f.component_atlas_id = d.id
+        JOIN hat.files f ON f.component_atlas_id = c.id
         WHERE c.id = $1 AND f.is_latest AND NOT f.is_archived
       `,
     [componentAtlasId]
