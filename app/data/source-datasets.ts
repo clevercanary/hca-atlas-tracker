@@ -68,12 +68,14 @@ export async function getComponentAtlasSourceDatasetIds(
  * Get specified source datasets joined with data used for API responses.
  * @param sourceDatasetIds - IDs of source datasets to get.
  * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
+ * @param isArchivedValue - Value of `is_archived` to filter source datasets by. (Default false)
  * @param client - Postgres client to use.
  * @returns source datasets with fields for APIs.
  */
 export async function getSourceDatasetsForApi(
   sourceDatasetIds: string[],
   acceptSubset = false,
+  isArchivedValue = false,
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   const { rows: sourceDatasets } =
@@ -92,9 +94,9 @@ export async function getSourceDatasetsForApi(
         FROM hat.source_datasets d
         JOIN hat.files f ON f.source_dataset_id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-        WHERE d.id = ANY($1) AND f.is_latest AND NOT f.is_archived
+        WHERE d.id = ANY($1) AND f.is_latest AND f.is_archived = $2
       `,
-      [sourceDatasetIds],
+      [sourceDatasetIds, isArchivedValue],
       client
     );
 
@@ -107,11 +109,13 @@ export async function getSourceDatasetsForApi(
 /**
  * Get specified source dataset joined with data used for detail API responses.
  * @param sourceDatasetId - ID of source dataset to get.
+ * @param isArchivedValue - Value of `is_archived` to filter source datasets by. (Default false)
  * @param client - Postgres client to use.
  * @returns source dataset with fields for detail API.
  */
 export async function getSourceDatasetForDetailApi(
   sourceDatasetId: string,
+  isArchivedValue = false,
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDatasetForDetailAPI> {
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForDetailAPI>(
@@ -130,9 +134,9 @@ export async function getSourceDatasetForDetailApi(
       FROM hat.source_datasets d
       JOIN hat.files f ON f.source_dataset_id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-      WHERE d.id = $1 AND f.is_latest AND NOT f.is_archived
+      WHERE d.id = $1 AND f.is_latest AND f.is_archived = $2
     `,
-    [sourceDatasetId],
+    [sourceDatasetId, isArchivedValue],
     client
   );
   if (queryResult.rows.length === 0)

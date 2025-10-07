@@ -186,18 +186,43 @@ export function handleRequiredParam(
   paramName: string,
   paramRegExp?: RegExp
 ): null | string {
-  const param = req.query[paramName];
-  if (typeof param !== "string") {
+  const { param, responseSent } = handleOptionalParam(
+    req,
+    res,
+    paramName,
+    paramRegExp
+  );
+  if (responseSent) return null;
+  if (param === undefined) {
     res.status(400).json({ message: `Missing ${paramName} parameter` });
     return null;
   }
-  if (paramRegExp && !paramRegExp.test(param)) {
-    res
-      .status(400)
-      .json({ message: `${paramName} parameter must match ${paramRegExp}` });
-    return null;
-  }
   return param;
+}
+
+/**
+ * Retrieves an optional string-valued query parameter from a request, sending an error response if the parameter is present but doesn't match a given regular expression.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @param paramName - Parameter name to get.
+ * @param paramRegExp - Regular expression to match parameter against.
+ * @returns object containing parameter value and boolean for whether an error response was sent.
+ */
+export function handleOptionalParam(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  paramName: string,
+  paramRegExp?: RegExp
+): { param: string | undefined; responseSent: boolean } {
+  const param = req.query[paramName];
+  if (param === undefined) return { param, responseSent: false };
+  if (typeof param !== "string" || (paramRegExp && !paramRegExp.test(param))) {
+    res.status(400).json({
+      message: `${paramName} parameter must be a string matching ${paramRegExp}`,
+    });
+    return { param: undefined, responseSent: true };
+  }
+  return { param, responseSent: false };
 }
 
 export async function getActiveUserRole(

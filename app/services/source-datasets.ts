@@ -59,14 +59,17 @@ export async function getSourceStudyDatasets(
 /**
  * Get all source datasets linked to the given atlas.
  * @param atlasId - Atlas ID.
+ * @param isArchivedValue - Value of `is_archived` to limit source datasets to. (Default false)
  * @returns database-model source datasets.
  */
 export async function getAtlasDatasets(
-  atlasId: string
+  atlasId: string,
+  isArchivedValue = false
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   return await getSourceDatasetsForApi(
     await getAtlasSourceDatasetIds(atlasId),
-    true
+    true,
+    isArchivedValue
   );
 }
 
@@ -117,6 +120,7 @@ export async function getSourceDataset(
   const [sourceDataset] = await getSourceDatasetsForApi(
     [sourceDatasetId],
     false,
+    false,
     client
   );
   return sourceDataset;
@@ -126,16 +130,22 @@ export async function getSourceDataset(
  * Get a source dataset linked to an atlas.
  * @param atlasId - Atlas ID.
  * @param sourceDatasetId - Source dataset ID.
+ * @param isArchivedValue - Value of `is_archived` to limit source datasets to. (Default false)
  * @param client - Postgres client to use.
  * @returns database-model source dataset.
  */
 export async function getAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
+  isArchivedValue = false,
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDatasetForDetailAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId, client);
-  return await getSourceDatasetForDetailApi(sourceDatasetId, client);
+  return await getSourceDatasetForDetailApi(
+    sourceDatasetId,
+    isArchivedValue,
+    client
+  );
 }
 
 /**
@@ -317,7 +327,7 @@ export async function updateAtlasSourceDataset(
       [JSON.stringify(updatedInfoFields), sourceDatasetId],
       client
     );
-    return await getAtlasSourceDataset(atlasId, sourceDatasetId, client);
+    return await getAtlasSourceDataset(atlasId, sourceDatasetId, false, client);
   });
 }
 
