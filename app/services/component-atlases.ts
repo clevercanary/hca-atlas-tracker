@@ -85,6 +85,21 @@ export async function getComponentAtlas(
 }
 
 /**
+ * Get the IDs of the component atlases of the given atlas.
+ * @param atlasId - ID of the atlas to get component atleses of.
+ * @returns component atlas IDs.
+ */
+export async function getAtlasComponentAtlasIds(
+  atlasId: string
+): Promise<string[]> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
+    "SELECT id FROM hat.component_atlases WHERE atlas_id=$1",
+    [atlasId]
+  );
+  return queryResult.rows.map(({ id }) => id);
+}
+
+/**
  * Add the given source datasets to the specified comonent atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
  * @param fileId - Component atlas file ID.

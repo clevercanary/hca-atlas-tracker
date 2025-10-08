@@ -9,6 +9,7 @@ import {
 import { query } from "../services/database";
 import { confirmSourceStudyExists } from "../services/source-studies";
 import { NotFoundError } from "../utils/api-handler";
+import { confirmQueryRowsContainIds } from "../utils/database";
 
 /**
  * Get the IDs of source datasets linked to the given atlas.
@@ -101,7 +102,11 @@ export async function getSourceDatasetsForApi(
     );
 
   if (!acceptSubset)
-    confirmSourceDatasetIdsArePresent(sourceDatasets, sourceDatasetIds);
+    confirmQueryRowsContainIds(
+      sourceDatasets,
+      sourceDatasetIds,
+      "source datasets"
+    );
 
   return sourceDatasets;
 }
@@ -184,23 +189,9 @@ export async function confirmSourceDatasetsAreAvailable(
     `,
     [sourceDatasetIds]
   );
-  confirmSourceDatasetIdsArePresent(queryResult.rows, sourceDatasetIds);
-}
-
-/**
- * Throw an error if the given source datasets do not include all expected source dataset IDs.
- * @param sourceDatasets - Array of (partial) source datasets that were found.
- * @param expectedIds - Source dataset IDs that are expected to be present.
- */
-function confirmSourceDatasetIdsArePresent(
-  sourceDatasets: Pick<HCAAtlasTrackerDBSourceDataset, "id">[],
-  expectedIds: string[]
-): void {
-  const presentIds = new Set(sourceDatasets.map((d) => d.id));
-  const missingIds = expectedIds.filter((id) => !presentIds.has(id));
-
-  if (missingIds.length)
-    throw new NotFoundError(
-      `No source datasets exist with ID(s): ${missingIds.join(", ")}`
-    );
+  confirmQueryRowsContainIds(
+    queryResult.rows,
+    sourceDatasetIds,
+    "source datasets"
+  );
 }
