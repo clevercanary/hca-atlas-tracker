@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.41.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.40.0...v1.41.0) (2025-10-08)
+
+
+### Features
+
+* increase the session inactivity timeout to 1 hour ([#472](https://github.com/clevercanary/hca-atlas-tracker/issues/472)) ([#925](https://github.com/clevercanary/hca-atlas-tracker/issues/925)) ([5bab748](https://github.com/clevercanary/hca-atlas-tracker/commit/5bab748fb7b8bb7aa64bf8f6d49f29ccefda360a))
+
+
+### Bug Fixes
+
+* reduce page size used for hca api to 75 ([#927](https://github.com/clevercanary/hca-atlas-tracker/issues/927)) ([#928](https://github.com/clevercanary/hca-atlas-tracker/issues/928)) ([89f3e3a](https://github.com/clevercanary/hca-atlas-tracker/commit/89f3e3aaa4a4d61320b40c6feafb753c06cd765c))
+
 ## [1.40.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.39.0...v1.40.0) (2025-10-06)
 
 
