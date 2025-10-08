@@ -7,8 +7,11 @@ import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
 
 const API_URL_CATALOGS =
   "https://service.azul.data.humancellatlas.org/index/catalogs";
+
 const API_URL_PROJECTS =
   "https://service.azul.data.humancellatlas.org/index/projects";
+
+const PROJECTS_PAGE_SIZE = 75;
 
 /**
  * Fetch current default HCA catalog name.
@@ -37,7 +40,7 @@ export async function getAllProjects(
     | string
     | undefined = `${API_URL_PROJECTS}?catalog=${encodeURIComponent(
     catalog
-  )}&size=100`;
+  )}&size=${PROJECTS_PAGE_SIZE}`;
   const hits: ProjectsResponse[] = [];
   while (url) {
     const responseData: AzulEntitiesResponse<ProjectsResponse> = await ky(
