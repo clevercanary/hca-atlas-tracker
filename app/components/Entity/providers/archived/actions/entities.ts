@@ -1,7 +1,7 @@
-import { UpdateArchiveAction } from "./updateArchive/entities";
+import { UpdateArchivedAction } from "./updateArchived/entities";
 
-export type ArchivedAction = UpdateArchiveAction;
+export type ArchivedAction = UpdateArchivedAction;
 
 export enum ArchivedActionKind {
-  UpdateArchive = "UPDATE_ARCHIVE",
+  UpdateArchived = "UPDATE_ARCHIVED",
 }

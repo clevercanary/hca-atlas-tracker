@@ -1,6 +1,7 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useReactTable } from "@tanstack/react-table";
+import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
@@ -33,6 +34,7 @@ export const Table = (props: Props): JSX.Element => {
       <GridPaper>
         <StyledToolbar>
           <RowSelection table={table} />
+          <ArchivedStatusToggle />
         </StyledToolbar>
         {table.getRowCount() > 0 && <CommonTable table={table} />}
         <TablePlaceholder

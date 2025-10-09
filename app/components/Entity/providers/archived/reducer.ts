@@ -1,5 +1,5 @@
 import { ArchivedAction, ArchivedActionKind } from "./actions/entities";
-import { updateArchiveAction } from "./actions/updateArchive/action";
+import { updateArchiveAction } from "./actions/updateArchived/action";
 import { ArchivedState } from "./entities";
 
 /**
@@ -15,7 +15,7 @@ export function archivedReducer(
   const { payload, type } = action;
   // eslint-disable-next-line sonarjs/no-small-switch -- allow small switch.
   switch (type) {
-    case ArchivedActionKind.UpdateArchive: {
+    case ArchivedActionKind.UpdateArchived: {
       return updateArchiveAction(state, payload);
     }
     default:
