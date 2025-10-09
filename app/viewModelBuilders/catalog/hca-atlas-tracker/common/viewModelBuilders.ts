@@ -2,6 +2,7 @@ import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities"
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import {
   ColumnConfig,
   ViewContext,
@@ -915,6 +916,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
   unknown
 >[] {
   return [
+    COLUMN_DEF.ROW_SELECTION,
     getIntegratedObjectFileDownloadColumnDef(),
     getIntegratedObjectFileNameColumnDef(),
     getComponentAtlasTitleColumnDef(),
