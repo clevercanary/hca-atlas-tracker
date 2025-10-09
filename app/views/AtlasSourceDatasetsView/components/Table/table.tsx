@@ -1,7 +1,6 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useReactTable } from "@tanstack/react-table";
-import { Fragment } from "react";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
@@ -32,14 +31,10 @@ export const Table = (props: Props): JSX.Element => {
   return (
     <FluidPaper elevation={0}>
       <GridPaper>
-        {table.getRowCount() > 0 && (
-          <Fragment>
-            <StyledToolbar>
-              <RowSelection table={table} />
-            </StyledToolbar>
-            <CommonTable table={table} />
-          </Fragment>
-        )}
+        <StyledToolbar>
+          <RowSelection table={table} />
+        </StyledToolbar>
+        {table.getRowCount() > 0 && <CommonTable table={table} />}
         <TablePlaceholder
           message="No source datasets"
           rowCount={table.getRowCount()}
