@@ -3,6 +3,7 @@ import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
+import { useArchivedState } from "../../../components/Entity/providers/archived/hook";
 import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
@@ -18,6 +19,8 @@ export const useFetchAtlasSourceDatasets = (
   const {
     fetchDataState: { shouldFetch },
   } = useFetchDataState();
+  const { archivedState } = useArchivedState();
+  const { archived } = archivedState;
 
   // Validate atlasId - required for API request.
   if (!pathParameter.atlasId) throw new Error("Atlas ID is required");
@@ -25,7 +28,10 @@ export const useFetchAtlasSourceDatasets = (
   const { data, progress } = useFetchData<
     HCAAtlasTrackerSourceDataset[] | undefined
   >(
-    getRequestURL(API.ATLAS_SOURCE_DATASETS, pathParameter),
+    `${getRequestURL(
+      API.ATLAS_SOURCE_DATASETS,
+      pathParameter
+    )}?archived=${archived}`,
     METHOD.GET,
     shouldFetch
   );
