@@ -2790,6 +2790,64 @@ export const COMPONENT_ATLAS_MISC_FOO = {
   title: "",
 } satisfies TestComponentAtlas;
 
+export const COMPONENT_ATLAS_MISC_BAR = {
+  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+  description: "bar bar foo baz foo foo",
+  file: {
+    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-misc-bar",
+    datasetInfo: {
+      assay: ["assay misc bar"],
+      cellCount: 645645,
+      disease: ["disease misc bar"],
+      suspensionType: ["suspension type misc bar"],
+      tissue: ["tissue misc bar"],
+      title: "Component Atlas Misc Bar",
+    },
+    etag: "9e1b33a2ae8a7fd51b76da891d5bcdcf",
+    eventTime: "2025-08-22T06:47:36.892Z",
+    fileName: "component-atlas-misc-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
+    integrityCheckedAt: "2025-09-15T02:12:05.590Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "4567890",
+    versionId: null,
+  },
+  id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
+  sourceDatasets: [],
+  title: "",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_MISC_BAZ = {
+  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+  description: "baz baz bar foo bar bar",
+  file: {
+    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-misc-baz",
+    datasetInfo: {
+      assay: ["assay misc baz"],
+      cellCount: 756756,
+      disease: ["disease misc baz"],
+      suspensionType: ["suspension type misc baz"],
+      tissue: ["tissue misc baz"],
+      title: "Component Atlas Misc Baz",
+    },
+    etag: "af2c44b3bf9b8ge62c87eb9a2e6cdde0",
+    eventTime: "2025-08-22T07:48:37.893Z",
+    fileName: "component-atlas-misc-baz.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "a28ef7cb-16f9-490e-b92c-fbe507cbf135",
+    integrityCheckedAt: "2025-09-15T03:13:06.691Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "5678901",
+    versionId: null,
+  },
+  id: "23f603d3-57cd-44b9-a3c0-14e671fb2835",
+  sourceDatasets: [],
+  title: "",
+} satisfies TestComponentAtlas;
+
 export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
   atlasId: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
   description: "barfoo foo baz barbar",
@@ -2986,6 +3044,8 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_MISC_BAR,
+  COMPONENT_ATLAS_MISC_BAZ,
   COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
   COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
