@@ -65,7 +65,7 @@ const ARCHIVE_DATA_COMPONENT_ATLAS_MISC_FOO: FilesSetIsArchivedData = {
   fileIds: [COMPONENT_ATLAS_MISC_FOO.file.id],
 };
 
-const TEST_ROUTE = "/api/atlases/[atlasId]/files/[fileId]/presigned-url";
+const TEST_ROUTE = "/api/atlases/[atlasId]/files/archive";
 
 describe(`${TEST_ROUTE}`, () => {
   it("returns error 405 when GET requested", async () => {
