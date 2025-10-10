@@ -14,11 +14,12 @@ import { useFetchDataState } from "./useFetchDataState";
 
 export const useResetFetchStatus = (
   fetchProgress: FETCH_PROGRESS,
-  fetchKey?: string
+  fetchKeys?: string[]
 ): void => {
   const { fetchDataDispatch } = useFetchDataState();
   useEffect(() => {
     if (fetchProgress === FETCH_PROGRESS.COMPLETED)
-      fetchDataDispatch(resetFetchStatus(fetchKey));
-  }, [fetchKey, fetchDataDispatch, fetchProgress]);
+      fetchDataDispatch(resetFetchStatus(fetchKeys));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchProgress is the trigger; omit fetchKeys to avoid identity churn
+  }, [fetchDataDispatch, fetchProgress]);
 };

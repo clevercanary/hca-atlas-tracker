@@ -3,6 +3,8 @@ import { EditFileArchivedStatus } from "../../../../components/Entity/components
 import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
+import { ATLAS } from "../../../../hooks/useFetchAtlas";
+import { INTEGRATED_OBJECTS } from "../../../../views/ComponentAtlasesView/hooks/useFetchComponentAtlases";
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -20,8 +22,16 @@ export const ViewComponentAtlases = (): JSX.Element => {
       <GridPaper>
         {canEdit && (
           <StyledToolbar>
-            <RowSelection component={EditFileArchivedStatus} table={table} />
-            <ArchivedStatusToggle />
+            <RowSelection
+              component={(props) =>
+                EditFileArchivedStatus({
+                  ...props,
+                  fetchKeys: [ATLAS, INTEGRATED_OBJECTS],
+                })
+              }
+              table={table}
+            />
+            <ArchivedStatusToggle fetchKeys={[INTEGRATED_OBJECTS]} />
           </StyledToolbar>
         )}
         {table.getRowCount() > 0 && <CommonTable table={table} />}

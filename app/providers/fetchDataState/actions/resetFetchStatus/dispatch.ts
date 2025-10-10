@@ -5,7 +5,7 @@ import { FetchDataAction, FetchDataActionKind } from "../../fetchDataState";
  * @param payload - Payload.
  * @returns Action with payload and action type.
  */
-export function resetFetchStatus(payload?: string): FetchDataAction {
+export function resetFetchStatus(payload?: string[]): FetchDataAction {
   return {
     payload,
     type: FetchDataActionKind.ResetFetchStatus,

@@ -7,6 +7,7 @@ import { useArchivedState } from "../../../../../../../../providers/archived/hoo
 import { Props } from "./entities";
 
 export const EditFileArchivedStatus = <T extends RowData>({
+  fetchKeys,
   rows,
   table,
 }: Props<T>): JSX.Element | null => {
@@ -20,7 +21,7 @@ export const EditFileArchivedStatus = <T extends RowData>({
       options={{
         onSuccess: () => {
           table.resetRowSelection();
-          fetchDataDispatch(fetchData());
+          fetchDataDispatch(fetchData(fetchKeys));
         },
       }}
     />

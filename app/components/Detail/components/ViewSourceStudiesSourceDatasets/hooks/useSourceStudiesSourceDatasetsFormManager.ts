@@ -39,7 +39,7 @@ export const useSourceStudiesSourceDatasetsFormManager = (
         filterDefaultValues(payload, defaultValues),
         {
           onSuccess: () => {
-            fetchDataDispatch(fetchData(INTEGRATED_OBJECT_SOURCE_DATASETS));
+            fetchDataDispatch(fetchData([INTEGRATED_OBJECT_SOURCE_DATASETS]));
             onClose();
           },
         }

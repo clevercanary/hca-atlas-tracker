@@ -29,7 +29,7 @@ export const useFetchComponentAtlasSourceDatasets = (
     shouldFetch
   );
 
-  useResetFetchStatus(progress, INTEGRATED_OBJECT_SOURCE_DATASETS);
+  useResetFetchStatus(progress, [INTEGRATED_OBJECT_SOURCE_DATASETS]);
 
   return { componentAtlasSourceDatasets };
 };

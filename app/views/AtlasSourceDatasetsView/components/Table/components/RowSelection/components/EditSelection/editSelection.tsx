@@ -2,6 +2,8 @@ import { DropdownMenu } from "@databiosphere/findable-ui/lib/components/Table/co
 import { Stack } from "@mui/material";
 import { EditFileArchivedStatus } from "../../../../../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import { useArchivedState } from "../../../../../../../../components/Entity/providers/archived/hook";
+import { ATLAS } from "../../../../../../../../hooks/useFetchAtlas";
+import { SOURCE_DATASETS } from "../../../../../../hooks/useFetchAtlasSourceDatasets";
 import { EditReprocessedStatus } from "./components/EditReprocessedStatus/editReprocessedStatus";
 import { Props } from "./entities";
 
@@ -22,7 +24,11 @@ export const EditSelection = ({ rows, table }: Props): JSX.Element => {
           ]}
         </DropdownMenu>
       )}
-      <EditFileArchivedStatus rows={rows} table={table} />
+      <EditFileArchivedStatus
+        fetchKeys={[ATLAS, SOURCE_DATASETS]}
+        rows={rows}
+        table={table}
+      />
     </Stack>
   );
 };

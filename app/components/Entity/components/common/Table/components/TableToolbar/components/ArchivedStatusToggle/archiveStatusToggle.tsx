@@ -1,14 +1,16 @@
-import { ToggleButton, ToggleButtonGroupProps } from "@mui/material";
+import { ToggleButton } from "@mui/material";
 import { useFetchDataState } from "../../../../../../../../../hooks/useFetchDataState";
 import { fetchData } from "../../../../../../../../../providers/fetchDataState/actions/fetchData/dispatch";
 import { updateArchived } from "../../../../../../../providers/archived/actions/updateArchived/dispatch";
 import { useArchivedState } from "../../../../../../../providers/archived/hook";
 import { StyledToggleButtonGroup } from "./archiveStatusToggle.styles";
 import { OPTIONS } from "./constants";
+import { Props } from "./entities";
 
-export const ArchivedStatusToggle = (
-  props: ToggleButtonGroupProps
-): JSX.Element | null => {
+export const ArchivedStatusToggle = ({
+  fetchKeys,
+  ...props
+}: Props): JSX.Element | null => {
   const { fetchDataDispatch } = useFetchDataState();
   const { archivedDispatch, archivedState } = useArchivedState();
   const { archived } = archivedState;
@@ -18,7 +20,7 @@ export const ArchivedStatusToggle = (
       onChange={(_, v) => {
         if (v === null) return; // No change to archived state.
         archivedDispatch?.(updateArchived(JSON.parse(v)));
-        fetchDataDispatch(fetchData());
+        fetchDataDispatch(fetchData(fetchKeys));
       }}
       value={String(archived)}
       {...props}
