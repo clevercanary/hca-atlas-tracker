@@ -46,6 +46,12 @@ const COLUMN_DOWNLOAD = {
   meta: { width: "max-content" },
 } as ColumnDef<AtlasSourceDataset>;
 
+const COLUMN_FILE_ID = {
+  accessorKey: "fileId",
+  enableHiding: false,
+  header: "File ID",
+} as ColumnDef<AtlasSourceDataset>;
+
 const COLUMN_FILE_NAME = {
   accessorKey: "fileName",
   cell: ({ row }) =>
@@ -131,4 +137,6 @@ export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_TISSUE,
   COLUMN_DISEASE,
   COLUMN_CELL_COUNT,
+  /* Hidden columns */
+  COLUMN_FILE_ID,
 ];
