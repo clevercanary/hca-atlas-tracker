@@ -6,6 +6,9 @@ import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
 
+export const INTEGRATED_OBJECT_SOURCE_DATASETS =
+  "integratedObjectSourceDatasets";
+
 interface UseFetchComponentAtlasSourceDatasets {
   componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
@@ -14,8 +17,10 @@ export const useFetchComponentAtlasSourceDatasets = (
   pathParameter: PathParameter
 ): UseFetchComponentAtlasSourceDatasets => {
   const {
-    fetchDataState: { shouldFetch },
+    fetchDataState: { shouldFetchByKey },
   } = useFetchDataState();
+  const shouldFetch = shouldFetchByKey[INTEGRATED_OBJECT_SOURCE_DATASETS];
+
   const { data: componentAtlasSourceDatasets, progress } = useFetchData<
     HCAAtlasTrackerSourceDataset[] | undefined
   >(
@@ -23,8 +28,8 @@ export const useFetchComponentAtlasSourceDatasets = (
     METHOD.GET,
     shouldFetch
   );
-  useResetFetchStatus(progress);
-  return {
-    componentAtlasSourceDatasets,
-  };
+
+  useResetFetchStatus(progress, INTEGRATED_OBJECT_SOURCE_DATASETS);
+
+  return { componentAtlasSourceDatasets };
 };

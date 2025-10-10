@@ -1,11 +1,24 @@
 import { createContext, Dispatch, ReactNode, useReducer } from "react";
+import { fetchDataAction } from "./actions/fetchData/action";
+import { resetFetchStatusAction } from "./actions/resetFetchStatus/action";
+
+/**
+ * Keyed fetch flags:
+ * - `shouldFetchByKey` is empty by default unless provided via `initialState`.
+ * - When a hook reads `shouldFetchByKey[key]` and it is `undefined`, passing it to useFetchData(..., shouldFetch) will use the default `shouldFetch = true`, triggering an initial fetch.
+ * - On fetch completion, useResetFetchStatus(progress, key) dispatches a keyed reset which persists `shouldFetchByKey[key] = false`.
+ * - Future refetches should dispatch fetchData(key) to set `shouldFetchByKey[key] = true` for that key only.
+ * - If you want to skip the initial fetch, seed `initialState.shouldFetchByKey[key] = false` in the provider.
+ */
 
 export const DEFAULT_FETCH_DATA_STATE = {
   shouldFetch: true,
+  shouldFetchByKey: {},
 };
 
 export type FetchDataState = {
   shouldFetch: boolean;
+  shouldFetchByKey: Record<string, boolean>;
 };
 
 export type FetchDataStateContextProps = {
@@ -55,7 +68,7 @@ export type FetchDataAction = FetchData | ResetFetchStatus;
  * Requests data to be fetched.
  */
 type FetchData = {
-  payload: undefined;
+  payload?: string;
   type: FetchDataActionKind.FetchData;
 };
 
@@ -63,7 +76,7 @@ type FetchData = {
  * Resets fetch status.
  */
 type ResetFetchStatus = {
-  payload: undefined;
+  payload?: string;
   type: FetchDataActionKind.ResetFetchStatus;
 };
 
@@ -77,20 +90,14 @@ function fetchDataStateReducer(
   state: FetchDataState,
   action: FetchDataAction
 ): FetchDataState {
-  const { type } = action;
+  const { payload, type } = action;
   // eslint-disable-next-line sonarjs/no-small-switch -- allow small switch.
   switch (type) {
     case FetchDataActionKind.FetchData: {
-      return {
-        ...state,
-        shouldFetch: true,
-      };
+      return fetchDataAction(state, payload);
     }
     case FetchDataActionKind.ResetFetchStatus: {
-      return {
-        ...state,
-        shouldFetch: false,
-      };
+      return resetFetchStatusAction(state, payload);
     }
     default:
       return state;
