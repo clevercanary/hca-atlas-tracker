@@ -14,8 +14,13 @@ import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-at
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  COMPONENT_ATLAS_ARCHIVED_BAR,
+  COMPONENT_ATLAS_ARCHIVED_BAZ,
+  COMPONENT_ATLAS_ARCHIVED_FOO,
+  COMPONENT_ATLAS_ARCHIVED_FOOFOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   EMPTY_COMPONENT_INFO,
   FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
@@ -103,6 +108,20 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 400 when `archived` parameter is set to an invalid value", async () => {
+    expect(
+      (
+        await doComponentAtlasesRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          USER_CONTENT_ADMIN,
+          undefined,
+          undefined,
+          "invalid-valid"
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns component atlases",
@@ -155,6 +174,42 @@ describe(TEST_ROUTE, () => {
     expect(componentAtlas.sizeBytes).toEqual(
       Number(FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES.sizeBytes)
     );
+  });
+
+  it("returns only non-archived component atlases when `archived` parameter is explicitly set to `false`", async () => {
+    const res = await doComponentAtlasesRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN,
+      undefined,
+      undefined,
+      "false"
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(componentAtlases, [
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+    ]);
+  });
+
+  it("returns only archived component atlases when `archived` parameter is set to `true`", async () => {
+    const res = await doComponentAtlasesRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN,
+      undefined,
+      undefined,
+      "true"
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(componentAtlases, [
+      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+      COMPONENT_ATLAS_ARCHIVED_FOO,
+      COMPONENT_ATLAS_ARCHIVED_BAR,
+      COMPONENT_ATLAS_ARCHIVED_BAZ,
+      COMPONENT_ATLAS_ARCHIVED_FOOFOO,
+    ]);
   });
 });
 
@@ -232,12 +287,13 @@ async function doComponentAtlasesRequest(
   atlasId: string,
   user?: TestUser,
   method = METHOD.GET,
-  hideConsoleError = false
+  hideConsoleError = false,
+  archived?: string
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: getQueryValues(atlasId),
+    query: getQueryValues(atlasId, archived),
   });
   await withConsoleErrorHiding(
     () => componentAtlasesHandler(req, res),
@@ -246,8 +302,11 @@ async function doComponentAtlasesRequest(
   return res;
 }
 
-function getQueryValues(atlasId: string): Record<string, string> {
-  return { atlasId };
+function getQueryValues(
+  atlasId: string,
+  archived?: string
+): Record<string, string> {
+  return { atlasId, ...(typeof archived === "string" ? { archived } : {}) };
 }
 
 function expectComponentAtlasesToMatch(

@@ -8,11 +8,17 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_ARCHIVED_BAR,
+  SOURCE_DATASET_ARCHIVED_BAZ,
+  SOURCE_DATASET_ARCHIVED_FOO,
+  SOURCE_DATASET_ARCHIVED_FOOBAR,
+  SOURCE_DATASET_ARCHIVED_FOOFOO,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
   SOURCE_DATASET_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -97,6 +103,20 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 400 when `archived` parameter is set to an invalid value", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          USER_CONTENT_ADMIN,
+          undefined,
+          undefined,
+          "invalid-value"
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns source datasets",
@@ -154,18 +174,54 @@ describe(TEST_ROUTE, () => {
       Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
     );
   });
+
+  it("returns only non-archived source datasets when `archived` parameter is explicitly set to `false`", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN,
+      undefined,
+      undefined,
+      "false"
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_WITH_MULTIPLE_FILES,
+    ]);
+  });
+
+  it("returns only archived source datasets when `archived` parameter is set to `true`", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN,
+      undefined,
+      undefined,
+      "true"
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST,
+      SOURCE_DATASET_ARCHIVED_FOO,
+      SOURCE_DATASET_ARCHIVED_BAR,
+      SOURCE_DATASET_ARCHIVED_BAZ,
+      SOURCE_DATASET_ARCHIVED_FOOFOO,
+      SOURCE_DATASET_ARCHIVED_FOOBAR,
+    ]);
+  });
 });
 
 async function doSourceDatasetsRequest(
   atlasId: string,
   user?: TestUser,
   method = METHOD.GET,
-  hideConsoleError = false
+  hideConsoleError = false,
+  archived?: string
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
-    query: getQueryValues(atlasId),
+    query: getQueryValues(atlasId, archived),
   });
   await withConsoleErrorHiding(
     () => sourceDatasetsHandler(req, res),
@@ -174,6 +230,9 @@ async function doSourceDatasetsRequest(
   return res;
 }
 
-function getQueryValues(atlasId: string): Record<string, string> {
-  return { atlasId };
+function getQueryValues(
+  atlasId: string,
+  archived?: string
+): Record<string, string> {
+  return { atlasId, ...(typeof archived === "string" ? { archived } : {}) };
 }
