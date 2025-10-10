@@ -20,7 +20,10 @@ export const VIEW_SOURCE_DATASETS_TABLE: SectionConfig<typeof Table> = {
       enableRowSelection: true,
       getRowId: (row) => row.id,
       initialState: {
-        columnVisibility: { [COLUMN_IDENTIFIER.ROW_POSITION]: true },
+        columnVisibility: {
+          [COLUMN_IDENTIFIER.ROW_POSITION]: true,
+          fileId: false,
+        },
         sorting: [
           { desc: SORT_DIRECTION.ASCENDING, id: "title" },
           { desc: SORT_DIRECTION.ASCENDING, id: "fileName" },
