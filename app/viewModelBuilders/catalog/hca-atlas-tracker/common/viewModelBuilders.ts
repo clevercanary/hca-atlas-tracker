@@ -915,6 +915,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
   HCAAtlasTrackerComponentAtlas,
   unknown
 >[] {
+  const META = { width: { max: "1fr", min: "136px" } };
   return [
     COLUMN_DEF.ROW_SELECTION,
     getIntegratedObjectFileDownloadColumnDef(),
@@ -923,13 +924,29 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     getIntegratedObjectFileSizeColumnDef(),
     getIntegratedObjectValidationStatusColumnDef(),
     getComponentAtlasSourceDatasetCountColumnDef(),
-    getAssayColumnDef(),
-    getSuspensionTypeColumnDef(),
-    getTissueColumnDef(),
-    getDiseaseColumnDef(),
-    getCellCountColumnDef(),
+    {
+      ...getAssayColumnDef(),
+      meta: META,
+    },
+    {
+      ...getSuspensionTypeColumnDef(),
+      meta: META,
+    },
+    {
+      ...getTissueColumnDef(),
+      meta: META,
+    },
+    {
+      ...getDiseaseColumnDef(),
+      meta: META,
+    },
+    {
+      ...getCellCountColumnDef(),
+      meta: META,
+    },
     /* Hidden columns */
     { accessorKey: "atlasId" },
+    { accessorKey: "fileId" },
     { accessorKey: "id" },
   ] as ColumnDef<HCAAtlasTrackerComponentAtlas, unknown>[];
 }
@@ -1081,6 +1098,7 @@ function getCellCountColumnDef<
     accessorKey: "cellCount",
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
+    meta: { width: { max: "0.75fr", min: "120px" } },
   };
 }
 
@@ -1159,6 +1177,7 @@ function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<HCAAtlasTrack
     accessorKey: "sourceDatasetCount",
     cell: ({ row }) => C.BasicCell(buildSourceDatasetCount(row.original)),
     header: "Source Datasets",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1170,6 +1189,7 @@ function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAt
   return {
     accessorKey: "title",
     header: "Title",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1247,6 +1267,7 @@ function getIntegratedObjectFileDownloadColumnDef<
     },
     enableSorting: false,
     header: "Download",
+    meta: { width: "max-content" },
   };
 }
 
@@ -1262,7 +1283,7 @@ function getIntegratedObjectFileNameColumnDef(): ColumnDef<
     accessorKey: "fileName",
     cell: (ctx) => C.LinkCell(buildComponentAtlasFileName(ctx)),
     header: "File Name",
-    meta: { columnPinned: true },
+    meta: { columnPinned: true, width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1278,6 +1299,7 @@ function getIntegratedObjectFileSizeColumnDef(): ColumnDef<
     accessorKey: "sizeBytes",
     cell: (ctx) => formatFileSize(ctx.getValue()),
     header: "File Size",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1299,6 +1321,7 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
       });
     },
     header: "Validation Summary",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 

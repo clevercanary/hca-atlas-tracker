@@ -49,7 +49,6 @@ const COLUMN_DOWNLOAD = {
 const COLUMN_FILE_ID = {
   accessorKey: "fileId",
   enableHiding: false,
-  header: "File ID",
 } as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_FILE_NAME = {
