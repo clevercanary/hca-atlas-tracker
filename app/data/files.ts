@@ -202,10 +202,12 @@ export async function confirmFilesExistOnAtlas(
   confirmQueryRowsContainIds(filesInfo, fileIds, "files");
 
   if (requireLatest) {
-    const nonLatestFiles = filesInfo.filter((f) => !f.is_latest);
-    if (nonLatestFiles.length)
+    const nonLatestFileIds = filesInfo
+      .filter((f) => !f.is_latest)
+      .map((f) => f.id);
+    if (nonLatestFileIds.length)
       throw new InvalidOperationError(
-        `Specified file ID(s) are not latest version: ${nonLatestFiles.join(
+        `Specified file ID(s) are not latest version: ${nonLatestFileIds.join(
           ", "
         )}`
       );
