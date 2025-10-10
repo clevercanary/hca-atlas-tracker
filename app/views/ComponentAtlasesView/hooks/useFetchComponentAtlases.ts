@@ -7,6 +7,7 @@ import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
 
+export const INTEGRATED_OBJECTS = "integratedObjects";
 interface UseFetchComponentAtlases {
   componentAtlases?: HCAAtlasTrackerComponentAtlas[];
 }
@@ -15,10 +16,11 @@ export const useFetchComponentAtlases = (
   pathParameter: PathParameter
 ): UseFetchComponentAtlases => {
   const {
-    fetchDataState: { shouldFetch },
+    fetchDataState: { shouldFetchByKey },
   } = useFetchDataState();
   const { archivedState } = useArchivedState();
   const { archived } = archivedState;
+  const shouldFetch = shouldFetchByKey[INTEGRATED_OBJECTS];
 
   const { data: componentAtlases, progress } = useFetchData<
     HCAAtlasTrackerComponentAtlas[] | undefined
@@ -31,7 +33,7 @@ export const useFetchComponentAtlases = (
     shouldFetch
   );
 
-  useResetFetchStatus(progress);
+  useResetFetchStatus(progress, [INTEGRATED_OBJECTS]);
 
   return { componentAtlases };
 };

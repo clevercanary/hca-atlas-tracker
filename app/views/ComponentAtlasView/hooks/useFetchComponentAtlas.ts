@@ -27,7 +27,7 @@ export const useFetchComponentAtlas = (
     shouldFetch
   );
 
-  useResetFetchStatus(progress, INTEGRATED_OBJECT);
+  useResetFetchStatus(progress, [INTEGRATED_OBJECT]);
 
   return { componentAtlas };
 };

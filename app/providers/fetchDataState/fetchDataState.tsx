@@ -68,7 +68,7 @@ export type FetchDataAction = FetchData | ResetFetchStatus;
  * Requests data to be fetched.
  */
 type FetchData = {
-  payload?: string;
+  payload?: string[];
   type: FetchDataActionKind.FetchData;
 };
 
@@ -76,7 +76,7 @@ type FetchData = {
  * Resets fetch status.
  */
 type ResetFetchStatus = {
-  payload?: string;
+  payload?: string[];
   type: FetchDataActionKind.ResetFetchStatus;
 };
 

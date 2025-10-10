@@ -69,7 +69,7 @@ export const ComponentAtlasView = ({
                 payload={mapPayload(componentAtlas)}
                 options={{
                   onSuccess: () =>
-                    fetchDataDispatch(fetchData(INTEGRATED_OBJECT)),
+                    fetchDataDispatch(fetchData([INTEGRATED_OBJECT])),
                 }}
               />
             )

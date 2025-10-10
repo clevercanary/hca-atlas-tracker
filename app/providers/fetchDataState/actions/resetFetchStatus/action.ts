@@ -10,15 +10,23 @@ import { FetchDataState } from "../../fetchDataState";
  */
 export function resetFetchStatusAction(
   state: FetchDataState,
-  payload?: string
+  payload?: string[]
 ): FetchDataState {
   if (!payload) return { ...state, shouldFetch: false };
+
+  // Create a new object to store the next state.
+  const nextShouldFetchByKey: Record<string, boolean> = {};
+
+  // Set the keys to false.
+  payload.forEach((key) => {
+    nextShouldFetchByKey[key] = false;
+  });
 
   return {
     ...state,
     shouldFetchByKey: {
       ...state.shouldFetchByKey,
-      [payload]: false,
+      ...nextShouldFetchByKey,
     },
   };
 }

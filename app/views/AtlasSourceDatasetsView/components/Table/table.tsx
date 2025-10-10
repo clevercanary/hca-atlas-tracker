@@ -4,6 +4,7 @@ import { RowSelection } from "../../../../components/Entity/components/common/Ta
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
+import { SOURCE_DATASETS } from "../../hooks/useFetchAtlasSourceDatasets";
 import { EditSelection } from "./components/RowSelection/components/EditSelection/editSelection";
 import { useSourceDatasetsTable } from "./hooks/UseSourceDatasetsTable/hook";
 import { StyledToolbar } from "./table.styles";
@@ -18,7 +19,7 @@ export const Table = (): JSX.Element => {
         {canEdit && (
           <StyledToolbar>
             <RowSelection component={EditSelection} table={table} />
-            <ArchivedStatusToggle />
+            <ArchivedStatusToggle fetchKeys={[SOURCE_DATASETS]} />
           </StyledToolbar>
         )}
         {table.getRowCount() > 0 && <CommonTable table={table} />}
