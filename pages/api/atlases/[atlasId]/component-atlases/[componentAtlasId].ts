@@ -2,12 +2,7 @@ import { dbComponentAtlasFileToDetailApiComponentAtlas } from "../../../../../ap
 import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { METHOD } from "../../../../../app/common/entities";
 import { getComponentAtlas } from "../../../../../app/services/component-atlases";
-import {
-  handleOptionalParam,
-  handler,
-  method,
-  role,
-} from "../../../../../app/utils/api-handler";
+import { handler, method, role } from "../../../../../app/utils/api-handler";
 
 export default handler(
   method(METHOD.GET),
@@ -15,19 +10,11 @@ export default handler(
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const componentAtlasId = req.query.componentAtlasId as string;
-    const { param: archived, responseSent } = handleOptionalParam(
-      req,
-      res,
-      "archived",
-      /^(?:true|false)$/
-    );
-    if (responseSent) return;
-    const isArchivedValue = archived === "true";
     res
       .status(200)
       .json(
         dbComponentAtlasFileToDetailApiComponentAtlas(
-          await getComponentAtlas(atlasId, componentAtlasId, isArchivedValue)
+          await getComponentAtlas(atlasId, componentAtlasId)
         )
       );
   }

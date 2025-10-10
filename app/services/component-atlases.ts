@@ -31,6 +31,7 @@ export async function getAtlasComponentAtlases(
           f.dataset_info,
           f.id,
           f.integrity_status,
+          f.is_archived,
           f.key,
           f.size_bytes,
           f.validation_status,
@@ -48,13 +49,11 @@ export async function getAtlasComponentAtlases(
  * Get a component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
  * @param fileId - ID of the component atlas's associated file.
- * @param isArchivedValue - Value of `is_archived` to filter component atlases by. (Default false)
  * @returns database model of the component atlas file.
  */
 export async function getComponentAtlas(
   atlasId: string,
-  fileId: string,
-  isArchivedValue = false
+  fileId: string
 ): Promise<HCAAtlasTrackerDBComponentAtlasFileForDetailAPI> {
   const queryResult = await query<
     Omit<HCAAtlasTrackerDBComponentAtlasFileForDetailAPI, "atlas_id">
@@ -65,6 +64,7 @@ export async function getComponentAtlas(
         f.dataset_info,
         f.id,
         f.integrity_status,
+        f.is_archived,
         f.key,
         f.size_bytes,
         f.validation_status,
@@ -72,9 +72,9 @@ export async function getComponentAtlas(
         f.validation_reports
       FROM hat.files f
       JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-      WHERE f.id=$1 AND f.is_archived=$3 AND ca.atlas_id=$2
+      WHERE f.id=$1 AND ca.atlas_id=$2
     `,
-    [fileId, atlasId, isArchivedValue]
+    [fileId, atlasId]
   );
   if (queryResult.rows.length === 0)
     throw getComponentAtlasFileNotFoundError(atlasId, fileId);

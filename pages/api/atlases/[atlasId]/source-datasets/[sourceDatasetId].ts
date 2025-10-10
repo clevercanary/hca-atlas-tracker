@@ -16,7 +16,6 @@ import {
 } from "../../../../../app/services/source-datasets";
 import {
   handleByMethod,
-  handleOptionalParam,
   handler,
   integrationLeadAssociatedAtlasOnly,
   role,
@@ -25,17 +24,9 @@ import {
 const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   const atlasId = req.query.atlasId as string;
   const sourceDatasetId = req.query.sourceDatasetId as string;
-  const { param: archived, responseSent } = handleOptionalParam(
-    req,
-    res,
-    "archived",
-    /^(?:true|false)$/
-  );
-  if (responseSent) return;
-  const isArchivedValue = archived === "true";
   res.json(
     dbSourceDatasetToDetailApiSourceDataset(
-      await getAtlasSourceDataset(atlasId, sourceDatasetId, isArchivedValue)
+      await getAtlasSourceDataset(atlasId, sourceDatasetId)
     )
   );
 });

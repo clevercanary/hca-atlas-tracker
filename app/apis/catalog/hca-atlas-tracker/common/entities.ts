@@ -59,6 +59,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   fileName: string;
   id: string;
   integrityStatus: INTEGRITY_STATUS;
+  isArchived: boolean;
   sizeBytes: number;
   sourceDatasetCount: number;
   suspensionType: string[];
@@ -125,6 +126,7 @@ export interface HCAAtlasTrackerSourceDataset {
   fileId: string;
   fileName: string;
   id: string;
+  isArchived: boolean;
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationString: string;
@@ -310,6 +312,7 @@ export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
   | "dataset_info"
   | "id"
   | "integrity_status"
+  | "is_archived"
   | "key"
   | "size_bytes"
   | "validation_status"
@@ -428,6 +431,7 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
     | "key"
     | "size_bytes"
     | "dataset_info"
+    | "is_archived"
     | "validation_status"
     | "validation_summary"
   > & { file_id: string };
