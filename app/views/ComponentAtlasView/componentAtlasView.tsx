@@ -15,6 +15,7 @@ import { fetchData } from "../../providers/fetchDataState/actions/fetchData/disp
 import { VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 import { StyledFileArchivedStatus } from "./componentAtlasView.styles";
+import { INTEGRATED_OBJECT } from "./hooks/useFetchComponentAtlas";
 import { useFetchComponentAtlasData } from "./hooks/useFetchComponentAtlasData";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
 
@@ -67,7 +68,8 @@ export const ComponentAtlasView = ({
                 isArchived={componentAtlas.isArchived}
                 payload={mapPayload(componentAtlas)}
                 options={{
-                  onSuccess: () => fetchDataDispatch(fetchData()),
+                  onSuccess: () =>
+                    fetchDataDispatch(fetchData(INTEGRATED_OBJECT)),
                 }}
               />
             )

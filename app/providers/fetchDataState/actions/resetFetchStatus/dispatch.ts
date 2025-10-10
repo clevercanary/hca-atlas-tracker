@@ -1,13 +1,13 @@
 import { FetchDataAction, FetchDataActionKind } from "../../fetchDataState";
 
 /**
- * Action creator for fetching data.
+ * Action creator for resetting fetch status.
  * @param payload - Payload.
  * @returns Action with payload and action type.
  */
-export function fetchData(payload?: string): FetchDataAction {
+export function resetFetchStatus(payload?: string): FetchDataAction {
   return {
     payload,
-    type: FetchDataActionKind.FetchData,
+    type: FetchDataActionKind.ResetFetchStatus,
   };
 }

@@ -3,7 +3,10 @@ import { HCAAtlasTrackerDetailComponentAtlas } from "../../../apis/catalog/hca-a
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
 import { useFetchData } from "../../../hooks/useFetchData";
-// import { useFetchDataState } from "../../../hooks/useFetchDataState";
+import { useFetchDataState } from "../../../hooks/useFetchDataState";
+import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
+
+export const INTEGRATED_OBJECT = "integratedObject";
 
 interface UseFetchComponentAtlas {
   componentAtlas?: HCAAtlasTrackerDetailComponentAtlas;
@@ -12,18 +15,19 @@ interface UseFetchComponentAtlas {
 export const useFetchComponentAtlas = (
   pathParameter: PathParameter
 ): UseFetchComponentAtlas => {
-  // const { fetchDataState } = useFetchDataState();
-  // const { shouldFetch } = fetchDataState;
+  const { fetchDataState } = useFetchDataState();
+  const { shouldFetchByKey } = fetchDataState;
+  const shouldFetch = shouldFetchByKey[INTEGRATED_OBJECT];
 
-  const { data: componentAtlas } = useFetchData<
+  const { data: componentAtlas, progress } = useFetchData<
     HCAAtlasTrackerDetailComponentAtlas | undefined
   >(
     getRequestURL(API.ATLAS_COMPONENT_ATLAS, pathParameter),
-    METHOD.GET
-    // shouldFetch
+    METHOD.GET,
+    shouldFetch
   );
 
-  // useResetFetchStatus(progress);
+  useResetFetchStatus(progress, INTEGRATED_OBJECT);
 
   return { componentAtlas };
 };
