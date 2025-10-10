@@ -50,7 +50,7 @@ export const AtlasSourceDatasetView = ({
               <StyledFileArchivedStatus
                 isArchived={sourceDataset.isArchived}
                 payload={mapPayload(sourceDataset)}
-                submitOptions={{
+                options={{
                   onSuccess: () => fetchDataDispatch(fetchData()),
                 }}
               />

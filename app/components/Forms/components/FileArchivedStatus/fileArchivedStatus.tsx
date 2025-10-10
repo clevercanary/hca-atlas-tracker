@@ -10,8 +10,8 @@ import { Props } from "./entities";
 export const FileArchivedStatus = ({
   className,
   isArchived,
+  options,
   payload,
-  submitOptions,
 }: Props): JSX.Element | null => {
   const { onSubmit } = useEditFileArchived();
   const { pathParameter } = useEntity();
@@ -23,7 +23,7 @@ export const FileArchivedStatus = ({
         onSubmit(
           getRequestURL(getEndpoint(isArchived), pathParameter),
           payload,
-          submitOptions
+          options
         )
       }
     >
