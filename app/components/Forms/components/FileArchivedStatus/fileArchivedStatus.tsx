@@ -8,6 +8,7 @@ import { useEntity } from "../../../../providers/entity/hook";
 import { Props } from "./entities";
 
 export const FileArchivedStatus = ({
+  className,
   isArchived,
   payload,
   submitOptions,
@@ -17,6 +18,7 @@ export const FileArchivedStatus = ({
   return (
     <Button
       {...BUTTON_PROPS.SECONDARY_CONTAINED}
+      className={className}
       onClick={() =>
         onSubmit(
           getRequestURL(getEndpoint(isArchived), pathParameter),
