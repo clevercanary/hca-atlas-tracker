@@ -110,7 +110,6 @@ export const tasksEntityConfig: EntityConfig = {
   } as ListConfig<HCAAtlasTrackerListValidationRecord>,
   listView: {
     disablePagination: true,
-    enableDownload: true,
     rowPreviewView: [
       {
         children: [

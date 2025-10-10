@@ -1,3 +1,4 @@
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { SvgIcon, SvgIconProps } from "@mui/material";
 
 /**
@@ -5,7 +6,7 @@ import { SvgIcon, SvgIconProps } from "@mui/material";
  */
 
 export const RequiredIcon = ({
-  fontSize = "small",
+  fontSize = SVG_ICON_PROPS.FONT_SIZE.SMALL,
   viewBox = "0 0 20 20",
   ...props /* Spread props to allow for Mui SvgIconProps specific prop overrides e.g. "htmlColor". */
 }: SvgIconProps): JSX.Element => {

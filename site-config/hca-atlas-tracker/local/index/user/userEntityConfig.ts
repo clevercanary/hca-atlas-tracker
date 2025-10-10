@@ -124,10 +124,7 @@ export const userEntityConfig: EntityConfig = {
     ],
     tableOptions: TABLE_OPTIONS,
   } as ListConfig<HCAAtlasTrackerUser>,
-  listView: {
-    disablePagination: true,
-    enableDownload: true,
-  },
+  listView: { disablePagination: true },
   route: "team",
   ui: { actionButton: C.AddUser(), title: "Team" },
 };

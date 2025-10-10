@@ -1,10 +1,10 @@
-import { mediaTabletUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
+import { bpUpSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 import { StyledDialog as CommonDialog } from "../../../common/Dialog/dialog.styles";
 
 export const Dialog = styled(CommonDialog)`
   .MuiPaper-root {
-    ${mediaTabletUp} {
+    ${bpUpSm} {
       max-width: 1224px;
     }
   }

@@ -1,12 +1,6 @@
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
-import { tabletUp } from "@databiosphere/findable-ui/lib/theme/common/breakpoints";
-import {
-  TEXT_BODY_LARGE_500,
-  TEXT_HEADING,
-  TEXT_HEADING_LARGE,
-  TEXT_HEADING_SMALL,
-  TEXT_HEADING_XLARGE,
-} from "@databiosphere/findable-ui/lib/theme/common/typography";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
+import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import * as C from "../../../app/components/index";
 import { ROUTE } from "../../../app/routes/constants";
 import { SiteConfig } from "../../common/entities";
@@ -27,6 +21,7 @@ export const GIT_HUB_REPO_URL =
 const HOME_PAGE_PATH = ROUTE.ATLASES;
 const ORG_URL = "https://www.humancellatlas.org";
 export const PORTAL_URL = "https://data.humancellatlas.dev.clevercanary.com";
+const MEDIA_TABLET_UP = "media (min-width: 768px)";
 
 export function makeConfig(
   browserUrl: string,
@@ -89,7 +84,9 @@ export function makeConfig(
                   url: `${portalUrl}/privacy`,
                 },
                 {
-                  icon: C.GitHubIcon({ fontSize: "small" }),
+                  icon: C.GitHubIcon({
+                    fontSize: SVG_ICON_PROPS.FONT_SIZE.SMALL,
+                  }),
                   label: "GitHub",
                   target: ANCHOR_TARGET.BLANK,
                   url: "https://github.com/clevercanary/hca-atlas-tracker",
@@ -115,48 +112,52 @@ export function makeConfig(
         },
       },
       typography: {
-        [TEXT_BODY_LARGE_500]: {
+        [TYPOGRAPHY_PROPS.VARIANT.BODY_LARGE_500]: {
           fontFamily: FONT_FAMILY_DIN,
           fontSize: 18,
           fontWeight: 400,
         },
-        [TEXT_HEADING]: {
+        [TYPOGRAPHY_PROPS.VARIANT.HEADING]: {
           fontFamily: FONT_FAMILY_DIN,
           fontSize: 22,
           fontWeight: 400,
           letterSpacing: "normal",
-          [tabletUp]: {
+          // eslint-disable-next-line sort-keys -- disabling key order for readability
+          [MEDIA_TABLET_UP]: {
             fontSize: 26,
             letterSpacing: "normal",
           },
         },
-        [TEXT_HEADING_LARGE]: {
+        [TYPOGRAPHY_PROPS.VARIANT.HEADING_LARGE]: {
           fontFamily: FONT_FAMILY_DIN,
           fontSize: 26,
           fontWeight: 400,
           letterSpacing: "normal",
           lineHeight: "34px",
-          [tabletUp]: {
+          // eslint-disable-next-line sort-keys -- disabling key order for readability
+          [MEDIA_TABLET_UP]: {
             fontSize: 32,
             letterSpacing: "normal",
           },
         },
-        [TEXT_HEADING_SMALL]: {
+        [TYPOGRAPHY_PROPS.VARIANT.HEADING_SMALL]: {
           fontFamily: FONT_FAMILY_DIN,
           fontSize: 20,
           fontWeight: 400,
           letterSpacing: "normal",
-          [tabletUp]: {
+          // eslint-disable-next-line sort-keys -- disabling key order for readability
+          [MEDIA_TABLET_UP]: {
             fontSize: 22,
             letterSpacing: "normal",
           },
         },
-        [TEXT_HEADING_XLARGE]: {
+        [TYPOGRAPHY_PROPS.VARIANT.HEADING_XLARGE]: {
           fontFamily: FONT_FAMILY_DIN,
           fontSize: 32,
           fontWeight: 400,
           letterSpacing: "normal",
-          [tabletUp]: {
+          // eslint-disable-next-line sort-keys -- disabling key order for readability
+          [MEDIA_TABLET_UP]: {
             fontSize: 42,
             letterSpacing: "-0.4px",
           },
