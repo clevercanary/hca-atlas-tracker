@@ -1,43 +1,43 @@
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
-import { HCAAtlasTrackerComponentAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FormManager } from "../../../../hooks/useFormManager/common/entities";
-import { getAtlasComponentAtlasesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { EditFileArchivedStatus } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
+import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
+import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
+import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
+import { ATLAS } from "../../../../hooks/useFetchAtlas";
+import { INTEGRATED_OBJECTS } from "../../../../views/ComponentAtlasesView/hooks/useFetchComponentAtlases";
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { TABLE_OPTIONS } from "./constants";
+import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
+import { StyledToolbar } from "./viewComponentAtlases.styles";
 
-interface ViewComponentAtlasesProps {
-  componentAtlases?: HCAAtlasTrackerComponentAtlas[];
-  formManager: FormManager;
-}
+export const ViewComponentAtlases = (): JSX.Element => {
+  const { access, table } = useIntegratedObjectsTable();
+  const { canEdit = false, canView = false } = access || {};
 
-export const ViewComponentAtlases = ({
-  componentAtlases = [],
-  formManager,
-}: ViewComponentAtlasesProps): JSX.Element => {
-  const {
-    access: { canEdit, canView },
-  } = formManager;
   if (!canView) return <RequestAccess />;
+
   return (
     <StyledFluidPaper elevation={0}>
       <GridPaper>
-        {componentAtlases.length > 0 && (
-          <Table
-            columns={getAtlasComponentAtlasesTableColumns()}
-            gridTemplateColumns="max-content max-content repeat(9, minmax(136px, 1fr)) minmax(120px, 0.75fr)"
-            items={componentAtlases}
-            tableOptions={{
-              ...TABLE_OPTIONS,
-              meta: { canEdit },
-            }}
-          />
+        {canEdit && (
+          <StyledToolbar>
+            <RowSelection
+              component={(props) =>
+                EditFileArchivedStatus({
+                  ...props,
+                  fetchKeys: [ATLAS, INTEGRATED_OBJECTS],
+                })
+              }
+              table={table}
+            />
+            <ArchivedStatusToggle fetchKeys={[INTEGRATED_OBJECTS]} />
+          </StyledToolbar>
         )}
+        {table.getRowCount() > 0 && <CommonTable table={table} />}
         <TablePlaceholder
           message="No integrated objects"
-          rowCount={componentAtlases.length}
+          rowCount={table.getRowCount()}
         />
       </GridPaper>
     </StyledFluidPaper>

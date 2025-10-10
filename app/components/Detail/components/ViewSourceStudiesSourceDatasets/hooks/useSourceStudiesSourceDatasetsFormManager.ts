@@ -8,7 +8,8 @@ import { useFetchDataState } from "../../../../../hooks/useFetchDataState";
 import { FormMethod } from "../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../../../../hooks/useFormManager/useFormManager";
-import { FetchDataActionKind } from "../../../../../providers/fetchDataState/fetchDataState";
+import { fetchData } from "../../../../../providers/fetchDataState/actions/fetchData/dispatch";
+import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../../../../../views/ComponentAtlasView/hooks/useFetchComponentAtlasSourceDatasets";
 import { FIELD_NAME } from "../common/constants";
 import { SourceStudiesSourceDatasetsEditData } from "../common/entities";
 
@@ -38,10 +39,7 @@ export const useSourceStudiesSourceDatasetsFormManager = (
         filterDefaultValues(payload, defaultValues),
         {
           onSuccess: () => {
-            fetchDataDispatch({
-              payload: undefined,
-              type: FetchDataActionKind.FetchData,
-            });
+            fetchDataDispatch(fetchData([INTEGRATED_OBJECT_SOURCE_DATASETS]));
             onClose();
           },
         }

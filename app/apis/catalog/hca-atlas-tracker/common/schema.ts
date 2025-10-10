@@ -347,6 +347,15 @@ export type SourceDatasetsSetReprocessedStatusData = InferType<
 >;
 
 /**
+ * Schema for data used to set the archive status of source datasets.
+ */
+export const filesSetIsArchivedSchema = object({
+  fileIds: array(string().required()).min(1).required(),
+}).strict();
+
+export type FilesSetIsArchivedData = InferType<typeof filesSetIsArchivedSchema>;
+
+/**
  * Schema for data used to create a comment.
  */
 export const newCommentSchema = object({

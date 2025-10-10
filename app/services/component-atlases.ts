@@ -14,10 +14,12 @@ import { confirmSourceDatasetsExist } from "./source-datasets";
 /**
  * Get all component atlases of the given atlas.
  * @param atlasId - ID of the atlas to get component atlases for.
+ * @param isArchivedValue - Value of `is_archived` to filter component atlases by. (Default false)
  * @returns component atlas files.
  */
 export async function getAtlasComponentAtlases(
-  atlasId: string
+  atlasId: string,
+  isArchivedValue = false
 ): Promise<HCAAtlasTrackerDBComponentAtlasFile[]> {
   await confirmAtlasExists(atlasId);
   const { rows } = await query<
@@ -29,15 +31,16 @@ export async function getAtlasComponentAtlases(
           f.dataset_info,
           f.id,
           f.integrity_status,
+          f.is_archived,
           f.key,
           f.size_bytes,
           f.validation_status,
           f.validation_summary
         FROM hat.files f
         JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-        WHERE f.is_latest AND NOT f.is_archived AND f.file_type='integrated_object' AND ca.atlas_id=$1
+        WHERE f.is_latest AND f.is_archived = $2 AND f.file_type='integrated_object' AND ca.atlas_id=$1
       `,
-    [atlasId]
+    [atlasId, isArchivedValue]
   );
   return rows.map((row) => ({ atlas_id: atlasId, ...row }));
 }
@@ -61,6 +64,7 @@ export async function getComponentAtlas(
         f.dataset_info,
         f.id,
         f.integrity_status,
+        f.is_archived,
         f.key,
         f.size_bytes,
         f.validation_status,
@@ -68,7 +72,7 @@ export async function getComponentAtlas(
         f.validation_reports
       FROM hat.files f
       JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-      WHERE f.id=$1 AND NOT f.is_archived AND ca.atlas_id=$2
+      WHERE f.id=$1 AND ca.atlas_id=$2
     `,
     [fileId, atlasId]
   );
@@ -78,6 +82,21 @@ export async function getComponentAtlas(
     atlas_id: atlasId,
     ...queryResult.rows[0],
   };
+}
+
+/**
+ * Get the IDs of the component atlases of the given atlas.
+ * @param atlasId - ID of the atlas to get component atleses of.
+ * @returns component atlas IDs.
+ */
+export async function getAtlasComponentAtlasIds(
+  atlasId: string
+): Promise<string[]> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
+    "SELECT id FROM hat.component_atlases WHERE atlas_id=$1",
+    [atlasId]
+  );
+  return queryResult.rows.map(({ id }) => id);
 }
 
 /**

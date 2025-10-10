@@ -2,10 +2,12 @@ import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities"
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import {
   ColumnConfig,
   ViewContext,
 } from "@databiosphere/findable-ui/lib/config/entities";
+import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import {
   CellContext,
@@ -913,20 +915,39 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
   HCAAtlasTrackerComponentAtlas,
   unknown
 >[] {
+  const META = { width: { max: "1fr", min: "136px" } };
   return [
+    COLUMN_DEF.ROW_POSITION,
+    COLUMN_DEF.ROW_SELECTION,
     getIntegratedObjectFileDownloadColumnDef(),
     getIntegratedObjectFileNameColumnDef(),
     getComponentAtlasTitleColumnDef(),
     getIntegratedObjectFileSizeColumnDef(),
     getIntegratedObjectValidationStatusColumnDef(),
     getComponentAtlasSourceDatasetCountColumnDef(),
-    getAssayColumnDef(),
-    getSuspensionTypeColumnDef(),
-    getTissueColumnDef(),
-    getDiseaseColumnDef(),
-    getCellCountColumnDef(),
+    {
+      ...getAssayColumnDef(),
+      meta: META,
+    },
+    {
+      ...getSuspensionTypeColumnDef(),
+      meta: META,
+    },
+    {
+      ...getTissueColumnDef(),
+      meta: META,
+    },
+    {
+      ...getDiseaseColumnDef(),
+      meta: META,
+    },
+    {
+      ...getCellCountColumnDef(),
+      meta: META,
+    },
     /* Hidden columns */
     { accessorKey: "atlasId" },
+    { accessorKey: "fileId" },
     { accessorKey: "id" },
   ] as ColumnDef<HCAAtlasTrackerComponentAtlas, unknown>[];
 }
@@ -1078,6 +1099,7 @@ function getCellCountColumnDef<
     accessorKey: "cellCount",
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
+    meta: { width: { max: "0.75fr", min: "120px" } },
   };
 }
 
@@ -1135,12 +1157,12 @@ function getComponentAtlasSourceDatasetUnlinkColumnDef(
     cell: ({ row }) =>
       C.IconButton({
         Icon: C.UnLinkIcon,
-        color: "secondary",
+        color: ICON_BUTTON_PROPS.COLOR.SECONDARY,
         onClick: () =>
           onUnlink({
             sourceDatasetIds: [row.original.id],
           }),
-        size: "medium",
+        size: ICON_BUTTON_PROPS.SIZE.MEDIUM,
       }),
     enableSorting: false,
     header: "",
@@ -1156,6 +1178,7 @@ function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<HCAAtlasTrack
     accessorKey: "sourceDatasetCount",
     cell: ({ row }) => C.BasicCell(buildSourceDatasetCount(row.original)),
     header: "Source Datasets",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1167,6 +1190,7 @@ function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAt
   return {
     accessorKey: "title",
     header: "Title",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1244,6 +1268,7 @@ function getIntegratedObjectFileDownloadColumnDef<
     },
     enableSorting: false,
     header: "Download",
+    meta: { width: "max-content" },
   };
 }
 
@@ -1259,7 +1284,7 @@ function getIntegratedObjectFileNameColumnDef(): ColumnDef<
     accessorKey: "fileName",
     cell: (ctx) => C.LinkCell(buildComponentAtlasFileName(ctx)),
     header: "File Name",
-    meta: { columnPinned: true },
+    meta: { columnPinned: true, width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1275,6 +1300,7 @@ function getIntegratedObjectFileSizeColumnDef(): ColumnDef<
     accessorKey: "sizeBytes",
     cell: (ctx) => formatFileSize(ctx.getValue()),
     header: "File Size",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 
@@ -1296,6 +1322,7 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
       });
     },
     header: "Validation Summary",
+    meta: { width: { max: "1fr", min: "136px" } },
   };
 }
 

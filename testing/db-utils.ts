@@ -667,6 +667,20 @@ export async function expectApiSourceStudyToHaveMatchingDbValidations(
   expectApiValidationsToMatchDb(sourceStudy.tasks, validations);
 }
 
+export async function expectFilesToHaveArchiveStatus(
+  fileIds: string[],
+  isArchivedValue: boolean
+): Promise<void> {
+  const queryResult = await query<
+    Pick<HCAAtlasTrackerDBFile, "id" | "is_archived">
+  >("SELECT id, is_archived FROM hat.files WHERE id=ANY($1)", [fileIds]);
+  expect(queryResult.rows).toEqual(
+    new Array(fileIds.length).fill(
+      expect.objectContaining({ is_archived: isArchivedValue })
+    )
+  );
+}
+
 // Simple count helpers for tests
 export async function countSourceDatasets(
   client?: pg.PoolClient

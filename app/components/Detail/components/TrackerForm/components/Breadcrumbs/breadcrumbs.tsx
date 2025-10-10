@@ -1,3 +1,4 @@
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import {
   Breadcrumbs as MBreadcrumbs,
@@ -25,7 +26,11 @@ export const Breadcrumbs = ({
   onNavigate = navigateToRoute,
 }: BreadcrumbsProps): JSX.Element => {
   return (
-    <MBreadcrumbs separator={<ChevronRightRoundedIcon fontSize="xxsmall" />}>
+    <MBreadcrumbs
+      separator={
+        <ChevronRightRoundedIcon fontSize={SVG_ICON_PROPS.FONT_SIZE.XXSMALL} />
+      }
+    >
       {breadcrumbs.map(({ path, route, text }, b) =>
         path ? (
           <MLink

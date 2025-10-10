@@ -1,4 +1,5 @@
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "app/apis/catalog/hca-atlas-tracker/common/constants";
+import { InvalidOperationError } from "app/utils/api-handler";
 import {
   FILE_VALIDATION_STATUS,
   INTEGRITY_STATUS,
@@ -6,9 +7,12 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmFileExistsOnAtlas,
+  confirmFilesExistOnAtlas,
   getAllFilesValidationParams,
   getFileKey,
+  getFilesArchiveStatus,
   setFileIntegrityStatus,
+  setFilesArchiveStatus,
   setFileValidationStatus,
 } from "../data/files";
 import { doTransaction } from "./database";
@@ -27,6 +31,33 @@ export async function getAtlasFileDownloadUrl(
 ): Promise<PresignedUrlInfo> {
   await confirmFileExistsOnAtlas(fileId, atlasId);
   return { url: await getDownloadUrl(await getFileKey(fileId)) };
+}
+
+/**
+ * Set archive status of the given files.
+ * @param atlasId - ID of the atlas that the files are accessed via.
+ * @param fileIds - IDs of the files to set archive status of.
+ * @param isArchived - New value for whether the files are archived.
+ */
+export async function updateAtlasFilesArchiveStatus(
+  atlasId: string,
+  fileIds: string[],
+  isArchived: boolean
+): Promise<void> {
+  await confirmFilesExistOnAtlas(fileIds, atlasId);
+
+  const alreadySetFileIds = (await getFilesArchiveStatus(fileIds))
+    .filter((f) => f.is_archived === isArchived)
+    .map(({ id }) => id);
+
+  if (alreadySetFileIds.length)
+    throw new InvalidOperationError(
+      `Archived is already set to ${isArchived} for files with ID(s): ${alreadySetFileIds.join(
+        ", "
+      )}`
+    );
+
+  await setFilesArchiveStatus(fileIds, isArchived);
 }
 
 /**

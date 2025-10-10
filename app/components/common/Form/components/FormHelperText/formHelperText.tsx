@@ -1,4 +1,5 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import {
   FormHelperTextProps as MFormHelperTextProps,
   Typography,
@@ -17,7 +18,12 @@ export const FormHelperText = ({
   const { error } = props;
   return (
     <HelperText component="div" {...props}>
-      {error && <ErrorIcon color="inherit" fontSize="xxsmall" />}
+      {error && (
+        <ErrorIcon
+          color={SVG_ICON_PROPS.COLOR.INHERIT}
+          fontSize={SVG_ICON_PROPS.FONT_SIZE.XXSMALL}
+        />
+      )}
       <Typography component="span" noWrap={noWrap}>
         {children}
       </Typography>

@@ -1,6 +1,7 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { PathParameter } from "../../../../app/common/entities";
+import { ArchivedProvider } from "../../../../app/components/Entity/providers/archived/provider";
 import { FetchDataStateProvider } from "../../../../app/providers/fetchDataState/fetchDataState";
 import { AtlasSourceDatasetsView } from "../../../../app/views/AtlasSourceDatasetsView/atlasSourceDatasetsView";
 
@@ -28,9 +29,11 @@ const ViewSourceDatasetsPage = ({
   pathParameter,
 }: SourceDatasetsPageProps): JSX.Element => {
   return (
-    <FetchDataStateProvider>
-      <AtlasSourceDatasetsView pathParameter={pathParameter} />
-    </FetchDataStateProvider>
+    <ArchivedProvider>
+      <FetchDataStateProvider>
+        <AtlasSourceDatasetsView pathParameter={pathParameter} />
+      </FetchDataStateProvider>
+    </ArchivedProvider>
   );
 };
 

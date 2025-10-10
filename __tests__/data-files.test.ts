@@ -75,7 +75,7 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, wrongAtlasId)
       ).rejects.toThrow(
-        `Component atlas with ID ${COMPONENT_ATLAS_DRAFT_FOO.id} doesn't exist on atlas with ID ${wrongAtlasId}`
+        `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${COMPONENT_ATLAS_DRAFT_FOO.file.id}`
       );
     });
   });
@@ -105,7 +105,7 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, wrongAtlasId)
       ).rejects.toThrow(
-        `Source dataset with ID ${SOURCE_DATASET_ATLAS_LINKED_A_FOO.id} is not linked to atlas with ID ${wrongAtlasId}`
+        `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id}`
       );
     });
 
@@ -120,7 +120,7 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId)
       ).rejects.toThrow(
-        `Source dataset with ID ${SOURCE_DATASET_FOO.id} is not linked to atlas with ID ${nonLinkedAtlasId}`
+        `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${SOURCE_DATASET_FOO.file.id}`
       );
     });
   });
@@ -135,7 +135,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       await expect(
         confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
-      ).rejects.toThrow(`File with ID ${nonExistentFileId} doesn't exist`);
+      ).rejects.toThrow(`No files exist with ID(s): ${nonExistentFileId}`);
     });
 
     it("should throw NotFoundError when file exists but doesn't match criteria", async () => {
@@ -160,7 +160,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       await expect(
         confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
-      ).rejects.toThrow(`File with ID ${nonExistentFileId} doesn't exist`);
+      ).rejects.toThrow(`No files exist with ID(s): ${nonExistentFileId}`);
     });
   });
 
