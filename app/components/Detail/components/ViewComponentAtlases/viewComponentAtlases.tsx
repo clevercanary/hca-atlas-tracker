@@ -1,6 +1,8 @@
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useReactTable } from "@tanstack/react-table";
 import { HCAAtlasTrackerComponentAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { EditFileArchivedStatus } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
+import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
@@ -39,6 +41,7 @@ export const ViewComponentAtlases = ({
     <StyledFluidPaper elevation={0}>
       <GridPaper>
         <StyledToolbar>
+          <RowSelection component={EditFileArchivedStatus} table={table} />
           <ArchivedStatusToggle />
         </StyledToolbar>
         {table.getRowCount() > 0 && <CommonTable table={table} />}
