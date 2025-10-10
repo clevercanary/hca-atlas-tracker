@@ -276,7 +276,7 @@ describe(`${TEST_ROUTE}`, () => {
     ).toEqual(400);
   });
 
-  it("archives source dataset file when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("unarchives source dataset file when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const INPUT_DATA = UNARCHIVE_DATA_SOURCE_DATASET_ARCHIVED_FOO;
     const res = await doUnarchiveRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
@@ -293,7 +293,7 @@ describe(`${TEST_ROUTE}`, () => {
     );
   });
 
-  it("archives source dataset file when PATCH requested by user with CONTENT_ADMIN role", async () => {
+  it("unarchives source dataset file when PATCH requested by user with CONTENT_ADMIN role", async () => {
     const INPUT_DATA: FilesSetIsArchivedData = {
       fileIds: [SOURCE_DATASET_ARCHIVED_FOOBAR.file.id],
     };
@@ -312,7 +312,7 @@ describe(`${TEST_ROUTE}`, () => {
     );
   });
 
-  it("archives component atlas file when PATCH requested by user with CONTENT_ADMIN role", async () => {
+  it("unarchives component atlas file when PATCH requested by user with CONTENT_ADMIN role", async () => {
     const INPUT_DATA = UNARCHIVE_DATA_COMPONENT_ATLAS_ARCHIVED_FOO;
     const res = await doUnarchiveRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
@@ -329,7 +329,7 @@ describe(`${TEST_ROUTE}`, () => {
     );
   });
 
-  it("archives multiple source dataset and component atlas files when PATCH requested by user with CONTENT_ADMIN role", async () => {
+  it("unarchives multiple source dataset and component atlas files when PATCH requested by user with CONTENT_ADMIN role", async () => {
     const INPUT_DATA: FilesSetIsArchivedData = {
       fileIds: [
         SOURCE_DATASET_ARCHIVED_BAR.file.id,
