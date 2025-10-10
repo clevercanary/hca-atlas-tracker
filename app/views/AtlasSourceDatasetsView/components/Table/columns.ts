@@ -123,6 +123,7 @@ const COLUMN_VALIDATION_STATUS = {
 } as ColumnDef<AtlasSourceDataset>;
 
 export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
+  COLUMN_DEF.ROW_POSITION as ColumnDef<AtlasSourceDataset>,
   COLUMN_DEF.ROW_SELECTION as ColumnDef<AtlasSourceDataset>,
   COLUMN_DOWNLOAD,
   COLUMN_FILE_NAME,

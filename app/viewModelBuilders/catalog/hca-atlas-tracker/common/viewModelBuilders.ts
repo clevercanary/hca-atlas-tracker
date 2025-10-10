@@ -917,6 +917,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
 >[] {
   const META = { width: { max: "1fr", min: "136px" } };
   return [
+    COLUMN_DEF.ROW_POSITION,
     COLUMN_DEF.ROW_SELECTION,
     getIntegratedObjectFileDownloadColumnDef(),
     getIntegratedObjectFileNameColumnDef(),

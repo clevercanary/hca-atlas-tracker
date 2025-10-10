@@ -1,53 +1,33 @@
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { useReactTable } from "@tanstack/react-table";
-import { HCAAtlasTrackerComponentAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { EditFileArchivedStatus } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
-import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
-import { FormManager } from "../../../../hooks/useFormManager/common/entities";
-import { getAtlasComponentAtlasesTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
-import { TABLE_OPTIONS } from "./constants";
+import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
 import { StyledToolbar } from "./viewComponentAtlases.styles";
-interface ViewComponentAtlasesProps {
-  componentAtlases?: HCAAtlasTrackerComponentAtlas[];
-  formManager: FormManager;
-}
 
-export const ViewComponentAtlases = ({
-  componentAtlases = [],
-  formManager,
-}: ViewComponentAtlasesProps): JSX.Element => {
-  const {
-    access: { canEdit, canView },
-  } = formManager;
-
-  // Create table instance.
-  const table = useReactTable({
-    columns: getAtlasComponentAtlasesTableColumns(),
-    data: componentAtlases,
-    ...CORE_OPTIONS,
-    ...TABLE_OPTIONS,
-    meta: { canEdit },
-  });
+export const ViewComponentAtlases = (): JSX.Element => {
+  const { access, table } = useIntegratedObjectsTable();
+  const { canEdit = false, canView = false } = access || {};
 
   if (!canView) return <RequestAccess />;
 
   return (
     <StyledFluidPaper elevation={0}>
       <GridPaper>
-        <StyledToolbar>
-          <RowSelection component={EditFileArchivedStatus} table={table} />
-          <ArchivedStatusToggle />
-        </StyledToolbar>
+        {canEdit && (
+          <StyledToolbar>
+            <RowSelection component={EditFileArchivedStatus} table={table} />
+            <ArchivedStatusToggle />
+          </StyledToolbar>
+        )}
         {table.getRowCount() > 0 && <CommonTable table={table} />}
         <TablePlaceholder
           message="No integrated objects"
-          rowCount={componentAtlases.length}
+          rowCount={table.getRowCount()}
         />
       </GridPaper>
     </StyledFluidPaper>
