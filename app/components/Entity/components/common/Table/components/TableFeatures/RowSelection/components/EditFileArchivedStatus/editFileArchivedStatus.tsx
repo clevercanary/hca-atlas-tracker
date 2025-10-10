@@ -17,7 +17,7 @@ export const EditFileArchivedStatus = <T extends RowData>({
     <FileArchivedStatus
       isArchived={archived}
       payload={mapPayload(rows)}
-      submitOptions={{
+      options={{
         onSuccess: () => {
           table.resetRowSelection();
           fetchDataDispatch(fetchData());

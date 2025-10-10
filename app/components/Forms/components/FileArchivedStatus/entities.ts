@@ -6,6 +6,6 @@ import {
 
 export interface Props extends BaseComponentProps {
   isArchived: boolean;
+  options?: OnSubmitOptions;
   payload: Payload;
-  submitOptions?: OnSubmitOptions;
 }
