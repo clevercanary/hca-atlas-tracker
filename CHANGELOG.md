@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.41.0...v1.42.0) (2025-10-11)
+
+
+### Features
+
+* update and add apis to support interactions with file archiving ([#921](https://github.com/clevercanary/hca-atlas-tracker/issues/921)) ([#924](https://github.com/clevercanary/hca-atlas-tracker/issues/924)) ([84c1c90](https://github.com/clevercanary/hca-atlas-tracker/commit/84c1c907cf5d356c2f9815e5aad2a888e1d365ae))
+
 ## [1.41.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.40.0...v1.41.0) (2025-10-08)
 
 
