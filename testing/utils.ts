@@ -617,6 +617,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.validationSummary).toEqual(
     testFile.validationSummary
   );
+  expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
   if (expectDetail) {
     expect(apiSourceDataset).toHaveProperty("validationReports");
   } else {
@@ -687,6 +688,7 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
   expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
   expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
+  expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiComponentAtlas.cellCount).toEqual(

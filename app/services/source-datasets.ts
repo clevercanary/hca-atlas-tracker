@@ -59,14 +59,17 @@ export async function getSourceStudyDatasets(
 /**
  * Get all source datasets linked to the given atlas.
  * @param atlasId - Atlas ID.
+ * @param isArchivedValue - Value of `is_archived` to limit source datasets to. (Default false)
  * @returns database-model source datasets.
  */
 export async function getAtlasDatasets(
-  atlasId: string
+  atlasId: string,
+  isArchivedValue = false
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   return await getSourceDatasetsForApi(
     await getAtlasSourceDatasetIds(atlasId),
-    true
+    true,
+    isArchivedValue
   );
 }
 
@@ -116,6 +119,7 @@ export async function getSourceDataset(
   );
   const [sourceDataset] = await getSourceDatasetsForApi(
     [sourceDatasetId],
+    false,
     false,
     client
   );

@@ -144,20 +144,6 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     ).toEqual(403);
   });
 
-  it("returns error 404 when source dataset with archived file is GET requested", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
-          USER_CONTENT_ADMIN,
-          METHOD.GET,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(404);
-  });
-
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns source dataset",
@@ -243,6 +229,22 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     );
     expect(sourceDataset.sizeBytes).toEqual(
       Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
+    );
+  });
+
+  it("returns archived source dataset", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+    expectDetailApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST
     );
   });
 });

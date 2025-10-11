@@ -639,7 +639,7 @@ describe(TEST_ROUTE, () => {
     const updatedAtlas = await testSuccessfulEdit(
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT,
-      1,
+      3,
       []
     );
     expect(updatedAtlas.overview.description).toEqual("");

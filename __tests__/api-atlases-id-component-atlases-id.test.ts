@@ -10,6 +10,7 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -141,21 +142,6 @@ describe(TEST_ROUTE, () => {
     ).toEqual(404);
   });
 
-  it("returns error 404 when component atlas with archived file is GET requested", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
-          USER_CONTENT_ADMIN,
-          undefined,
-          undefined,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(404);
-  });
-
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns component atlas",
@@ -211,6 +197,27 @@ describe(TEST_ROUTE, () => {
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
       COMPONENT_ATLAS_DRAFT_BAR
+    );
+    expect(componentAtlas.title).not.toEqual("");
+    expect(componentAtlas.cellCount).not.toEqual(0);
+    expect(componentAtlas.assay).not.toEqual([]);
+    expect(componentAtlas.disease).not.toEqual([]);
+    expect(componentAtlas.suspensionType).not.toEqual([]);
+    expect(componentAtlas.tissue).not.toEqual([]);
+  });
+
+  it("returns archived component atlas with metadata when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expectDetailApiComponentAtlasToMatchTest(
+      componentAtlas,
+      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST
     );
     expect(componentAtlas.title).not.toEqual("");
     expect(componentAtlas.cellCount).not.toEqual(0);
