@@ -1,6 +1,6 @@
 import {
-  mediaDesktopSmallUp,
-  mediaTabletUp,
+  bpUpMd,
+  bpUpSm,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
 
@@ -15,7 +15,7 @@ export const DetailViewHeroHeadline = styled.div`
   flex-direction: column;
   gap: 16px;
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     flex-direction: row;
   }
 `;
@@ -32,12 +32,12 @@ export const HeroTitle = styled.div`
   flex-direction: column;
   gap: 8px;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     align-items: center;
     flex-direction: row;
   }
 
-  .MuiTypography-text-heading-large {
+  .MuiTypography-heading-large {
     max-width: 726px;
   }
 `;
@@ -58,7 +58,7 @@ export const HeroActions = styled.div`
   display: flex;
   gap: 8px;
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     align-self: center;
   }
 `;

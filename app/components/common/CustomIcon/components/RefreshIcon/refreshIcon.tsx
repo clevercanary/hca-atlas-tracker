@@ -1,4 +1,5 @@
 import { CustomSVGIconProps } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/common/entities";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { SvgIcon } from "@mui/material";
 
 /**
@@ -6,7 +7,7 @@ import { SvgIcon } from "@mui/material";
  */
 
 export const RefreshIcon = ({
-  fontSize = "xsmall",
+  fontSize = SVG_ICON_PROPS.FONT_SIZE.XSMALL,
   viewBox = "0 0 18 18",
   ...props /* Spread props to allow for Mui SvgIconProps specific prop overrides e.g. "htmlColor". */
 }: CustomSVGIconProps): JSX.Element => {

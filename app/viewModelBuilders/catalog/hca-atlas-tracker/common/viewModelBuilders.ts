@@ -6,6 +6,7 @@ import {
   ColumnConfig,
   ViewContext,
 } from "@databiosphere/findable-ui/lib/config/entities";
+import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import {
   CellContext,
@@ -1135,12 +1136,12 @@ function getComponentAtlasSourceDatasetUnlinkColumnDef(
     cell: ({ row }) =>
       C.IconButton({
         Icon: C.UnLinkIcon,
-        color: "secondary",
+        color: ICON_BUTTON_PROPS.COLOR.SECONDARY,
         onClick: () =>
           onUnlink({
             sourceDatasetIds: [row.original.id],
           }),
-        size: "medium",
+        size: ICON_BUTTON_PROPS.SIZE.MEDIUM,
       }),
     enableSorting: false,
     header: "",

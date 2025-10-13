@@ -1,16 +1,13 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
 import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
+import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import {
-  mediaDesktopSmallUp,
-  mediaDesktopUp,
-  mediaTabletUp,
+  bpUpLg,
+  bpUpMd,
+  bpUpSm,
 } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
-import { inkLight } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
-import {
-  textBody400,
-  textBodyLarge500,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/fonts";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
@@ -25,7 +22,7 @@ export const Section = styled.div<SectionProps>`
   grid-column: 1 / -1;
   grid-template-columns: ${({ fullWidth }) => (fullWidth ? "1fr" : "inherit")};
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     gap: inherit;
   }
 `;
@@ -35,28 +32,28 @@ export const SectionHero = styled("div")<SectionProps>`
   gap: 8px;
   padding: 0 16px;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "span 4")};
     padding: 0;
   }
 
-  ${mediaDesktopUp} {
+  ${bpUpLg} {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "1")};
   }
 `;
 
 export const SectionTitle = styled.h3`
-  ${textBodyLarge500};
+  font: ${FONT.BODY_LARGE_500};
   font-weight: 600;
   margin: 0;
 `;
 
 export const SectionText = styled.div`
-  ${textBody400};
-  color: ${inkLight};
+  color: ${PALETTE.INK_LIGHT};
+  font: ${FONT.BODY_400};
   font-size: 13px;
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     max-width: 400px;
   }
 `;
@@ -73,15 +70,15 @@ export const SectionCard = styled(FluidPaper, {
   gap: 20px;
   grid-template-columns: 1fr;
 
-  ${mediaTabletUp} {
+  ${bpUpSm} {
     grid-column: ${({ fullWidth }) => (fullWidth ? "1 / -1" : "6 / span 7")};
   }
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     grid-template-columns: 1fr 1fr;
   }
 
-  ${mediaDesktopUp} {
+  ${bpUpLg} {
     grid-column: 1 / -1;
 
     ${({ fullWidth }) =>

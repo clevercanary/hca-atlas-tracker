@@ -1,14 +1,11 @@
-import {
-  inkLight,
-  white,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
 import { FormControl } from "../FormControl/formControl.styles";
 
 export const InputFormControl = styled(FormControl)`
   .MuiOutlinedInput-root {
     .MuiOutlinedInput-input {
-      -webkit-box-shadow: inset 0 40px ${white}; /* autoComplete - email field */
+      -webkit-box-shadow: inset 0 40px ${PALETTE.COMMON_WHITE}; /* autoComplete - email field */
       padding: 10px 12px 10px 0;
     }
 
@@ -23,7 +20,7 @@ export const InputFormControl = styled(FormControl)`
 
     input::placeholder,
     textarea::placeholder {
-      color: ${inkLight};
+      color: ${PALETTE.INK_LIGHT};
       opacity: 0.8;
     }
 

@@ -23,7 +23,7 @@ export const GraphValueCell = (
       >
         <Typography
           color={TYPOGRAPHY_PROPS.COLOR.INHERIT}
-          variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_500}
+          variant={TYPOGRAPHY_PROPS.VARIANT.BODY_500}
         >
           {formatValue(value)}
         </Typography>

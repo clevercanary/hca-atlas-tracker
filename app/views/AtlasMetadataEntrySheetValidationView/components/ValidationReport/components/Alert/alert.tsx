@@ -36,7 +36,7 @@ export const Alert = ({
   return (
     <StyledAlert {...ALERT_PROPS} {...props}>
       {primary_key && (
-        <Typography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_500}>
+        <Typography variant={TYPOGRAPHY_PROPS.VARIANT.BODY_500}>
           {primary_key?.replace(/^.*?:\s*/, "")}
         </Typography>
       )}

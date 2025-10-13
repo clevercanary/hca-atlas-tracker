@@ -1,4 +1,4 @@
-import { warningMain } from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
 import { FormHelperText as MFormHelperText } from "@mui/material";
 
@@ -9,7 +9,7 @@ export const FormHelperText = styled(MFormHelperText)`
   margin: 0;
 
   &.Mui-error {
-    color: ${warningMain};
+    color: ${PALETTE.WARNING_MAIN};
 
     .MuiSvgIcon-root {
       color: inherit;

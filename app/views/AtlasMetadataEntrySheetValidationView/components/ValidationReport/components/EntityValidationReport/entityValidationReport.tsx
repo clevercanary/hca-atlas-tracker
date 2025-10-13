@@ -40,7 +40,7 @@ export const EntityValidationReport = ({
     <StyledFluidPaper elevation={0}>
       <StyledTypography
         component="h3"
-        variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_500}
+        variant={TYPOGRAPHY_PROPS.VARIANT.BODY_500}
       >
         {ENTITY_NAME[entityType]} ({entityCount})
       </StyledTypography>
@@ -58,7 +58,7 @@ export const EntityValidationReport = ({
                 <Typography
                   component="div"
                   gutterBottom
-                  variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_500}
+                  variant={TYPOGRAPHY_PROPS.VARIANT.BODY_500}
                 >
                   {column === COLUMN_KEY.OTHER ? "Other errors" : column} (
                   {reportCount})

@@ -6,14 +6,14 @@ export const Section = ({ children, title, ...props }: Props): JSX.Element => {
   return (
     <Stack spacing={1} useFlexGap>
       {title && (
-        <Typography variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_LARGE_500}>
+        <Typography variant={TYPOGRAPHY_PROPS.VARIANT.BODY_LARGE_500}>
           {title}
         </Typography>
       )}
       <Typography
         component="div"
         gutterBottom={false}
-        variant={TYPOGRAPHY_PROPS.VARIANT.TEXT_BODY_400_2_LINES}
+        variant={TYPOGRAPHY_PROPS.VARIANT.BODY_400_2_LINES}
         {...props}
       >
         {children}

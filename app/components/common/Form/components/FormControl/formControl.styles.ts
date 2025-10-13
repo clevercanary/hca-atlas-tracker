@@ -1,12 +1,5 @@
-import { mediaDesktopSmallUp } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
-import {
-  inkLight,
-  inkMain,
-  smokeLight,
-  successMain,
-  warningLightest,
-  warningMain,
-} from "@databiosphere/findable-ui/lib/styles/common/mixins/colors";
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
+import { bpUpMd } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { FormControl as MFormControl } from "@mui/material";
@@ -43,25 +36,25 @@ export const FormControl = styled(MFormControl, {
 
     &.Mui-error {
       &.MuiInputBase-colorWarning {
-        background-color: ${warningLightest};
+        background-color: ${PALETTE.WARNING_LIGHTEST};
 
         .MuiOutlinedInput-input {
-          -webkit-box-shadow: inset 0 40px ${warningLightest};
+          -webkit-box-shadow: inset 0 40px ${PALETTE.WARNING_LIGHTEST};
         }
 
         .MuiOutlinedInput-notchedOutline {
-          border-color: ${warningMain};
+          border-color: ${PALETTE.WARNING_MAIN};
         }
       }
     }
 
     &.Mui-disabled,
     &.Mui-readOnly {
-      background-color: ${smokeLight};
-      color: ${inkLight};
+      background-color: ${PALETTE.SMOKE_LIGHT};
+      color: ${PALETTE.INK_LIGHT};
 
       .MuiOutlinedInput-input {
-        -webkit-text-fill-color: ${inkLight};
+        -webkit-text-fill-color: ${PALETTE.INK_LIGHT};
         -webkit-box-shadow: none;
       }
 
@@ -70,25 +63,25 @@ export const FormControl = styled(MFormControl, {
       }
     }
 
-    ${({ isFilled, ...props }) =>
+    ${({ isFilled }) =>
       isFilled &&
       css`
         & .MuiOutlinedInput-input,
         .MuiSvgIcon-root {
-          color: ${inkMain(props)};
+          color: ${PALETTE.INK_MAIN};
 
           &.MuiSvgIcon-colorError {
-            color: ${warningMain(props)};
+            color: ${PALETTE.WARNING_MAIN};
           }
 
           &.MuiSvgIcon-colorSuccess {
-            color: ${successMain(props)};
+            color: ${PALETTE.SUCCESS_MAIN};
           }
         }
       `};
   }
 
-  ${mediaDesktopSmallUp} {
+  ${bpUpMd} {
     grid-column: ${({ isFullWidth }) => (isFullWidth ? "1 / -1" : "unset")};
   }
 `;

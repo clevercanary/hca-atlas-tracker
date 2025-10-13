@@ -7,8 +7,10 @@ import { HCA_ATLAS_TRACKER_CATEGORY_KEY } from "../../../category";
 
 export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"] =
   {
+    downloadFilename: "atlas-tracker-atlases",
     enableGrouping: true,
     enableRowPosition: true,
+    enableTableDownload: true,
     initialState: {
       columnVisibility: {
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.METADATA_SPECIFICATION_URL]: false,
