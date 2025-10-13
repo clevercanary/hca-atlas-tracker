@@ -28,6 +28,7 @@ export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {
         [COLUMN_IDENTIFIER.ROW_POSITION]: !canEdit,
         [COLUMN_IDENTIFIER.ROW_SELECTION]: canEdit,
         atlasId: false,
+        download: !archived,
         fileId: false,
         id: false,
         validationStatus: !archived,
