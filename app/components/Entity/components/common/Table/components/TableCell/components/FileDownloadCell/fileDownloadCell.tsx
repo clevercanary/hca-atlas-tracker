@@ -4,7 +4,7 @@ import { IconButton } from "@mui/material";
 import { Fragment } from "react";
 import { FetchDataStateProvider } from "../../../../../../../../../providers/fetchDataState/fetchDataState";
 import { Dialog } from "./components/Dialog/dialog";
-import { ICON_BUTTON_PROPS } from "./constants";
+import { ICON_BUTTON_PROPS, SVG_ICON_PROPS } from "./constants";
 import { Props } from "./entities";
 
 export const FileDownloadCell = ({
@@ -23,7 +23,7 @@ export const FileDownloadCell = ({
         onClick={onOpen}
         {...props}
       >
-        <DownloadIcon />
+        <DownloadIcon {...SVG_ICON_PROPS} />
       </IconButton>
       <FetchDataStateProvider initialState={{ shouldFetch: false }}>
         <Dialog

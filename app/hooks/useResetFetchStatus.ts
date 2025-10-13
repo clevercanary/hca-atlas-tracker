@@ -1,15 +1,25 @@
 import { useEffect } from "react";
-import { FetchDataActionKind } from "../providers/fetchDataState/fetchDataState";
+import { resetFetchStatus } from "../providers/fetchDataState/actions/resetFetchStatus/dispatch";
 import { FETCH_PROGRESS } from "./useFetchData";
 import { useFetchDataState } from "./useFetchDataState";
 
-export const useResetFetchStatus = (fetchProgress: FETCH_PROGRESS): void => {
+/**
+ * Resets fetch status when `fetchProgress` becomes COMPLETED.
+ * - If `fetchKey` is provided, dispatches a keyed reset, persisting `shouldFetchByKey[fetchKey] = false`.
+ * - Pairs with hooks that initially see `shouldFetchByKey[key] === undefined`; passing that value to [useFetchData(..., shouldFetch)] uses the hook’s default `shouldFetch = true`, triggering the initial fetch.
+ * - After completion, the key is added to state with `false`.
+ * - Trigger subsequent refetches with [fetchData(fetchKey)] to set `shouldFetchByKey[fetchKey] = true`.
+ * - To skip the initial fetch, seed `initialState.shouldFetchByKey[fetchKey] = false` in the provider.
+ */
+
+export const useResetFetchStatus = (
+  fetchProgress: FETCH_PROGRESS,
+  fetchKeys?: string[]
+): void => {
   const { fetchDataDispatch } = useFetchDataState();
   useEffect(() => {
     if (fetchProgress === FETCH_PROGRESS.COMPLETED)
-      fetchDataDispatch({
-        payload: undefined,
-        type: FetchDataActionKind.ResetFetchStatus,
-      });
+      fetchDataDispatch(resetFetchStatus(fetchKeys));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchProgress is the trigger; omit fetchKeys to avoid identity churn
   }, [fetchDataDispatch, fetchProgress]);
 };

@@ -1,8 +1,11 @@
-import { EditSelection } from "./components/EditSelection/editSelection";
+import { RowData } from "@tanstack/react-table";
 import { Props } from "./entities";
 import { StyledRowSelection } from "./rowSelection.styles";
 
-export const RowSelection = ({ table }: Props): JSX.Element | null => {
+export const RowSelection = <T extends RowData>({
+  component,
+  table,
+}: Props<T>): JSX.Element | null => {
   const { getSelectedRowModel } = table;
   const selectedRowModel = getSelectedRowModel();
   const { rows } = selectedRowModel;
@@ -12,7 +15,7 @@ export const RowSelection = ({ table }: Props): JSX.Element | null => {
   return (
     <StyledRowSelection
       rows={rows}
-      rowSelectionView={[{ component: EditSelection, props: { rows, table } }]}
+      rowSelectionView={[{ component, props: { rows, table } }]}
     />
   );
 };

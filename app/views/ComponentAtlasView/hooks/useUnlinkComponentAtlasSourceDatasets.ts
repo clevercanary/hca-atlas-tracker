@@ -3,8 +3,9 @@ import { PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
 import { useDeleteData } from "../../../hooks/useDeleteData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
-import { FetchDataActionKind } from "../../../providers/fetchDataState/fetchDataState";
+import { fetchData } from "../../../providers/fetchDataState/actions/fetchData/dispatch";
 import { ComponentAtlasDeleteSourceDatasetsData } from "../common/entities";
+import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "./useFetchComponentAtlasSourceDatasets";
 
 export interface UseUnlinkComponentAtlasSourceDatasets {
   onUnlink: (payload?: ComponentAtlasDeleteSourceDatasetsData) => Promise<void>;
@@ -19,10 +20,7 @@ export const useUnlinkComponentAtlasSourceDatasets = (
     undefined,
     {
       onSuccess: () => {
-        fetchDataDispatch({
-          payload: undefined,
-          type: FetchDataActionKind.FetchData,
-        });
+        fetchDataDispatch(fetchData([INTEGRATED_OBJECT_SOURCE_DATASETS]));
       },
     }
   );

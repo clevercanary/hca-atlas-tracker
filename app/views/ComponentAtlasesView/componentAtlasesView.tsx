@@ -27,7 +27,11 @@ export const ComponentAtlasesView = ({
     access: { canView },
   } = formManager;
   return (
-    <EntityProvider pathParameter={pathParameter}>
+    <EntityProvider
+      data={{ atlas, integratedObjects: componentAtlases }}
+      formManager={formManager}
+      pathParameter={pathParameter}
+    >
       <ConditionalComponent
         isIn={shouldRenderView(canView, Boolean(atlas && componentAtlases))}
       >
@@ -35,12 +39,7 @@ export const ComponentAtlasesView = ({
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }
-          mainColumn={
-            <ViewComponentAtlases
-              formManager={formManager}
-              componentAtlases={componentAtlases}
-            />
-          }
+          mainColumn={<ViewComponentAtlases />}
           status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
           tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
           title={atlas ? getAtlasName(atlas) : "View Integrated Objects"}

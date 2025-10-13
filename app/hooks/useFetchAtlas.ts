@@ -3,15 +3,26 @@ import { HCAAtlasTrackerAtlas } from "../apis/catalog/hca-atlas-tracker/common/e
 import { METHOD, PathParameter } from "../common/entities";
 import { getRequestURL } from "../common/utils";
 import { useFetchData } from "./useFetchData";
+import { useFetchDataState } from "./useFetchDataState";
+import { useResetFetchStatus } from "./useResetFetchStatus";
+
+export const ATLAS = "atlas";
 
 interface UseFetchAtlas {
   atlas?: HCAAtlasTrackerAtlas;
 }
 
 export const useFetchAtlas = (pathParameter: PathParameter): UseFetchAtlas => {
-  const { data: atlas } = useFetchData<HCAAtlasTrackerAtlas | undefined>(
-    getRequestURL(API.ATLAS, pathParameter),
-    METHOD.GET
-  );
+  const {
+    fetchDataState: { shouldFetchByKey },
+  } = useFetchDataState();
+  const shouldFetch = shouldFetchByKey[ATLAS];
+
+  const { data: atlas, progress } = useFetchData<
+    HCAAtlasTrackerAtlas | undefined
+  >(getRequestURL(API.ATLAS, pathParameter), METHOD.GET, shouldFetch);
+
+  useResetFetchStatus(progress, [ATLAS]);
+
   return { atlas };
 };
