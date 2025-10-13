@@ -40,15 +40,16 @@ import {
 export function dbAtlasToApiAtlas(
   dbAtlas: HCAAtlasTrackerDBAtlasForAPI
 ): HCAAtlasTrackerAtlas {
+  const cxgTitle =
+    dbAtlas.overview.cellxgeneAtlasCollection &&
+    getCellxGeneCollectionInfoById(
+      dbAtlas.overview.cellxgeneAtlasCollection
+    ).unwrapRefresh(undefined)?.title;
   return {
     bioNetwork: dbAtlas.overview.network,
     capId: dbAtlas.overview.capId,
     cellxgeneAtlasCollection: dbAtlas.overview.cellxgeneAtlasCollection,
-    cellxgeneAtlasCollectionTitle:
-      dbAtlas.overview.cellxgeneAtlasCollection &&
-      (getCellxGeneCollectionInfoById(dbAtlas.overview.cellxgeneAtlasCollection)
-        ?.title ??
-        null),
+    cellxgeneAtlasCollectionTitle: cxgTitle ?? null,
     codeLinks: dbAtlas.overview.codeLinks,
     completedTaskCount: dbAtlas.overview.completedTaskCount,
     componentAtlasCount: dbAtlas.component_atlas_count,

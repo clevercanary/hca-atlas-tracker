@@ -1,7 +1,11 @@
 import { Options as KyOptions } from "ky";
 import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
 import { getProjectsInfo, ProjectInfo } from "../utils/hca-projects";
-import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
+import {
+  makeRefreshService,
+  RefreshDataOption,
+  RefreshInfo,
+} from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
 
 interface ProjectsData {
@@ -89,8 +93,10 @@ export const areProjectsRefreshing = refreshService.isRefreshing;
  * @param dois -- Normalized DOIs to check to find a project.
  * @returns HCA project ID, or null if none is found.
  */
-export function getProjectIdByDoi(dois: string[]): string | null {
-  return getProjectInfoByDoi(dois)?.id ?? null;
+export function getProjectIdByDoi(
+  dois: string[]
+): RefreshDataOption<string | null> {
+  return getProjectInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
 
 /**
@@ -98,13 +104,16 @@ export function getProjectIdByDoi(dois: string[]): string | null {
  * @param dois -- Normalized DOIs to check to find a project.
  * @returns HCA project info, or null if none is found.
  */
-export function getProjectInfoByDoi(dois: string[]): ProjectInfo | null {
-  const { byDoi } = refreshService.getData();
-  for (const doi of dois) {
-    const projectInfo = byDoi.get(doi);
-    if (projectInfo !== undefined) return projectInfo;
-  }
-  return null;
+export function getProjectInfoByDoi(
+  dois: string[]
+): RefreshDataOption<ProjectInfo | null> {
+  return refreshService.getData().mapRefresh(({ byDoi }) => {
+    for (const doi of dois) {
+      const projectInfo = byDoi.get(doi);
+      if (projectInfo !== undefined) return projectInfo;
+    }
+    return null;
+  });
 }
 
 /**
@@ -112,9 +121,12 @@ export function getProjectInfoByDoi(dois: string[]): ProjectInfo | null {
  * @param id -- HCA project ID.
  * @returns HCA project info, or null if none is found.
  */
-export function getProjectInfoById(id: string): ProjectInfo | null {
-  const { byId } = refreshService.getData();
-  return byId.get(id) ?? null;
+export function getProjectInfoById(
+  id: string
+): RefreshDataOption<ProjectInfo | null> {
+  return refreshService
+    .getData()
+    .mapRefresh(({ byId }) => byId.get(id) ?? null);
 }
 
 /**

@@ -8,7 +8,6 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
-import { RefreshDataNotReadyError } from "../services/common/refresh-service";
 import { query } from "../services/database";
 
 interface UserProfile {
@@ -279,11 +278,6 @@ function respondError(res: NextApiResponse, error: unknown): void {
   else if (error instanceof NotFoundError)
     res.status(404).json({ message: error.message });
   else if (error instanceof ValidationError) respondValidationError(res, error);
-  else if (error instanceof RefreshDataNotReadyError)
-    res
-      .status(503)
-      .appendHeader("Retry-After", "30")
-      .json({ message: error.message });
   else if (error instanceof Error && typeof error.stack === "string")
     res.status(500).json({ message: error.stack });
   else res.status(500).json({ message: String(error) });

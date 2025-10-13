@@ -37,13 +37,46 @@ export interface RefreshServiceParams<TData, TRefreshParams> {
 
 export interface RefreshService<TData> {
   forceRefresh: () => void;
-  getData: () => TData;
+  getData: () => RefreshDataOption<TData>;
   getStatus: () => RefreshStatus;
   isRefreshing: () => boolean;
 }
 
-export class RefreshDataNotReadyError extends Error {
-  name = "RefreshDataNotReadyError";
+export class RefreshDataOption<T> {
+  #container: { value: T } | null;
+
+  constructor(...args: [true, T] | [false]) {
+    this.#container = args[0] ? { value: args[1] } : null;
+  }
+
+  static some<U>(value: U): RefreshDataOption<U> {
+    return new RefreshDataOption(true, value);
+  }
+
+  static none<U>(): RefreshDataOption<U> {
+    return new RefreshDataOption(false);
+  }
+
+  mapRefreshOrElse<TMapped, TDefault>(
+    fSome: (v: T) => TMapped,
+    fNone: () => TDefault
+  ): TMapped | TDefault {
+    return this.#container === null ? fNone() : fSome(this.#container.value);
+  }
+
+  mapRefresh<TOut>(f: (v: T) => TOut): RefreshDataOption<TOut> {
+    return this.mapRefreshOrElse(
+      (v) => RefreshDataOption.some(f(v)),
+      () => RefreshDataOption.none()
+    );
+  }
+
+  unwrapRefresh<TDefault>(defaultValue: TDefault): T | TDefault {
+    return this.mapRefreshOrElse(
+      (v) => v,
+      () => defaultValue
+    );
+  }
 }
 
 /**
@@ -77,11 +110,13 @@ export function makeRefreshService<TData, TRefreshParams>(
     forceRefresh(): void {
       startRefreshIfNeeded(params, info, true);
     },
-    getData(): TData {
+    getData(): RefreshDataOption<TData> {
       startRefreshIfNeeded(params, info);
-      if (info.data === undefined)
-        throw new RefreshDataNotReadyError(notReadyMessage);
-      return info.data;
+      if (info.data === undefined) {
+        console.warn(notReadyMessage);
+        return RefreshDataOption.none();
+      }
+      return RefreshDataOption.some(info.data);
     },
     getStatus(): RefreshStatus {
       return {
