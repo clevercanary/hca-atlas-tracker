@@ -268,7 +268,9 @@ function validateSourceStudyHcaProjectInfo(
   if (!sourceStudy.study_info.hcaProjectId) {
     return null;
   }
-  const projectInfo = getProjectInfoById(sourceStudy.study_info.hcaProjectId);
+  const projectInfo = getProjectInfoById(
+    sourceStudy.study_info.hcaProjectId
+  ).unwrapRefresh(null);
   const infoProperties = {
     relatedEntityUrl: getHcaRelatedEntityUrl(sourceStudy),
   };

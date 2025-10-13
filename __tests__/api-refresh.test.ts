@@ -18,6 +18,7 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
+import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
   delay,
@@ -34,6 +35,7 @@ jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/source-studies", () => ({
   updateSourceStudyExternalIds: jest.fn(),
+  updateSourceStudyValidationsByEntityId: jest.fn(),
 }));
 jest.mock("../app/services/source-datasets", () => ({
   updateCellxGeneSourceDatasets: jest.fn(),
@@ -72,6 +74,7 @@ let consoleLogSpy: jest.SpyInstance;
 let refreshHandler: Handler;
 
 beforeAll(async () => {
+  await resetDatabase();
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
   refreshHandler = (await import("../pages/api/refresh")).default;
   await delay();

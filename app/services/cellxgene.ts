@@ -1,7 +1,11 @@
 import { Options as KyOptions } from "ky";
 import { getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
-import { makeRefreshService, RefreshInfo } from "./common/refresh-service";
+import {
+  makeRefreshService,
+  RefreshDataOption,
+  RefreshInfo,
+} from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
 
 export interface CollectionInfo {
@@ -65,8 +69,10 @@ export const isCellxGeneRefreshing = refreshService.isRefreshing;
  * @param dois -- Normalized DOIs to check to find a collection.
  * @returns CELLxGENE collection ID, or null if none is found.
  */
-export function getCellxGeneIdByDoi(dois: string[]): string | null {
-  return getCellxGeneInfoByDoi(dois)?.id ?? null;
+export function getCellxGeneIdByDoi(
+  dois: string[]
+): RefreshDataOption<string | null> {
+  return getCellxGeneInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
 
 /**
@@ -74,19 +80,24 @@ export function getCellxGeneIdByDoi(dois: string[]): string | null {
  * @param dois -- Normalized DOIs to check to find a collection.
  * @returns CELLxGENE collection info, or null if none is found.
  */
-export function getCellxGeneInfoByDoi(dois: string[]): CollectionInfo | null {
-  const { collectionInfoByDoi } = refreshService.getData();
-  for (const doi of dois) {
-    const collectionInfo = collectionInfoByDoi.get(doi);
-    if (collectionInfo !== undefined) return collectionInfo;
-  }
-  return null;
+export function getCellxGeneInfoByDoi(
+  dois: string[]
+): RefreshDataOption<CollectionInfo | null> {
+  return refreshService.getData().mapRefresh(({ collectionInfoByDoi }) => {
+    for (const doi of dois) {
+      const collectionInfo = collectionInfoByDoi.get(doi);
+      if (collectionInfo !== undefined) return collectionInfo;
+    }
+    return null;
+  });
 }
 
 export function getCellxGeneCollectionInfoById(
   collectionId: string
-): CollectionInfo | undefined {
-  return refreshService.getData().collectionInfoById.get(collectionId);
+): RefreshDataOption<CollectionInfo | undefined> {
+  return refreshService
+    .getData()
+    .mapRefresh((d) => d.collectionInfoById.get(collectionId));
 }
 
 /**

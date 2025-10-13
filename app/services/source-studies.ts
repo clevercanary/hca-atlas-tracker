@@ -427,9 +427,9 @@ async function makePublishedSourceStudyDbData(
 
   const dois = getPublicationDois(doi, publication);
 
-  const hcaProjectId = getProjectIdByDoi(dois);
+  const hcaProjectId = getProjectIdByDoi(dois).unwrapRefresh(null);
 
-  const cellxgeneCollectionId = getCellxGeneIdByDoi(dois);
+  const cellxgeneCollectionId = getCellxGeneIdByDoi(dois).unwrapRefresh(null);
 
   return {
     doi,
@@ -573,8 +573,9 @@ export async function updateSourceStudyExternalIds(): Promise<void> {
       sourceStudy.doi,
       sourceStudy.study_info.publication
     );
-    const newHcaProjectId = getProjectIdByDoi(dois);
-    const newCellxGeneCollectionId = getCellxGeneIdByDoi(dois);
+    const newHcaProjectId = getProjectIdByDoi(dois).unwrapRefresh(null);
+    const newCellxGeneCollectionId =
+      getCellxGeneIdByDoi(dois).unwrapRefresh(null);
 
     const updatedFields: Partial<HCAAtlasTrackerDBPublishedSourceStudyInfo> =
       {};
