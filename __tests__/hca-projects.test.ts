@@ -62,18 +62,18 @@ afterAll(() => {
 });
 
 describe("getProjectIdByDoi", () => {
-  it("Returns no refresh data when called before HCA projects are initially fetched", async () => {
+  it("Returns error result when called before HCA projects are initially fetched", async () => {
     const result = await withConsoleMessageHiding(
       async () => getProjectIdByDoi([DOI_NORMAL]),
       true,
       undefined,
       ["warn"]
     );
-    const isNone = result.mapRefreshOrElse(
+    const isError = result.mapRefreshOrElse(
       () => false,
       () => true
     );
-    expect(isNone).toBe(true);
+    expect(isError).toBe(true);
   });
 
   it("Returns ID for project in initial catalog", async () => {

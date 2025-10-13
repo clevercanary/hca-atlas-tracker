@@ -3,7 +3,7 @@ import { getCellxGeneCollections } from "../utils/cellxgene-api";
 import { normalizeDoi } from "../utils/doi";
 import {
   makeRefreshService,
-  RefreshDataOption,
+  RefreshDataResult,
   RefreshInfo,
 } from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
@@ -71,7 +71,7 @@ export const isCellxGeneRefreshing = refreshService.isRefreshing;
  */
 export function getCellxGeneIdByDoi(
   dois: string[]
-): RefreshDataOption<string | null> {
+): RefreshDataResult<string | null> {
   return getCellxGeneInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
 
@@ -82,7 +82,7 @@ export function getCellxGeneIdByDoi(
  */
 export function getCellxGeneInfoByDoi(
   dois: string[]
-): RefreshDataOption<CollectionInfo | null> {
+): RefreshDataResult<CollectionInfo | null> {
   return refreshService.getData().mapRefresh(({ collectionInfoByDoi }) => {
     for (const doi of dois) {
       const collectionInfo = collectionInfoByDoi.get(doi);
@@ -94,7 +94,7 @@ export function getCellxGeneInfoByDoi(
 
 export function getCellxGeneCollectionInfoById(
   collectionId: string
-): RefreshDataOption<CollectionInfo | undefined> {
+): RefreshDataResult<CollectionInfo | undefined> {
   return refreshService
     .getData()
     .mapRefresh((d) => d.collectionInfoById.get(collectionId));

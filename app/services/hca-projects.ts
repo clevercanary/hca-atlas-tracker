@@ -3,7 +3,7 @@ import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
 import { getProjectsInfo, ProjectInfo } from "../utils/hca-projects";
 import {
   makeRefreshService,
-  RefreshDataOption,
+  RefreshDataResult,
   RefreshInfo,
 } from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
@@ -95,7 +95,7 @@ export const areProjectsRefreshing = refreshService.isRefreshing;
  */
 export function getProjectIdByDoi(
   dois: string[]
-): RefreshDataOption<string | null> {
+): RefreshDataResult<string | null> {
   return getProjectInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
 
@@ -106,7 +106,7 @@ export function getProjectIdByDoi(
  */
 export function getProjectInfoByDoi(
   dois: string[]
-): RefreshDataOption<ProjectInfo | null> {
+): RefreshDataResult<ProjectInfo | null> {
   return refreshService.getData().mapRefresh(({ byDoi }) => {
     for (const doi of dois) {
       const projectInfo = byDoi.get(doi);
@@ -123,7 +123,7 @@ export function getProjectInfoByDoi(
  */
 export function getProjectInfoById(
   id: string
-): RefreshDataOption<ProjectInfo | null> {
+): RefreshDataResult<ProjectInfo | null> {
   return refreshService
     .getData()
     .mapRefresh(({ byId }) => byId.get(id) ?? null);

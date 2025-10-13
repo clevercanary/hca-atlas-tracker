@@ -37,61 +37,63 @@ export interface RefreshServiceParams<TData, TRefreshParams> {
 
 export interface RefreshService<TData> {
   forceRefresh: () => void;
-  getData: () => RefreshDataOption<TData>;
+  getData: () => RefreshDataResult<TData>;
   getStatus: () => RefreshStatus;
   isRefreshing: () => boolean;
 }
 
 /**
  * Class representing data derived from a refresh service that may or may not have loaded successfully.
- * Instances should be created via `RefreshDataOption.some(VALUE)` and `RefreshDataOption.none()`.
+ * Instances should be created via `RefreshDataResult.ok(VALUE)` and `RefreshDataResult.error(MESSAGE)`.
  */
-export class RefreshDataOption<T> {
-  // The value or lack thereof is represented by an object containing a value, or `null` on its own, respectively
-  #container: { value: T } | null;
+export class RefreshDataResult<T> {
+  // The value or error is stored internally in the same format used for the constructor arguments
+  #container: [true, T] | [false, string];
 
-  // The constructor takes a boolean indicating whether a value is present, which, if `true`, is followed by the value in question
-  constructor(...args: [true, T] | [false]) {
-    this.#container = args[0] ? { value: args[1] } : null;
+  // The constructor takes a boolean indicating whether a successful value exists, followed by that value (if true) or an error message (if false)
+  constructor(...args: [true, T] | [false, string]) {
+    this.#container = args;
   }
 
-  static some<U>(value: U): RefreshDataOption<U> {
-    return new RefreshDataOption(true, value);
+  static ok<U>(value: U): RefreshDataResult<U> {
+    return new RefreshDataResult(true, value);
   }
 
-  static none<U>(): RefreshDataOption<U> {
-    return new RefreshDataOption(false);
+  static error<U>(message: string): RefreshDataResult<U> {
+    return new RefreshDataResult<U>(false, message);
   }
 
   /**
-   * Apply one of two functions depending on whether a value is available.
-   * @param fSome - Function to apply if a value is available; receives the value as an argument.
-   * @param fNone - Function to apply if no value is available.
+   * Apply one of two functions depending on whether a successful value exists.
+   * @param fOk - Function to apply if a successful value is available; receives the value as an argument.
+   * @param fError - Function to apply if no successful value is available; receives the error message as an argument.
    * @returns result of applying the selected function.
    */
-  mapRefreshOrElse<TMapped, TDefault>(
-    fSome: (v: T) => TMapped,
-    fNone: () => TDefault
-  ): TMapped | TDefault {
-    return this.#container === null ? fNone() : fSome(this.#container.value);
+  mapRefreshOrElse<TOkOut, TErrorOut>(
+    fOk: (v: T) => TOkOut,
+    fError: (v: string) => TErrorOut
+  ): TOkOut | TErrorOut {
+    return this.#container[0]
+      ? fOk(this.#container[1])
+      : fError(this.#container[1]);
   }
 
   /**
-   * If a value is available, apply the given function to it and return a new `RefreshDataOption` containing the result.
+   * If a successful value exists, apply the given function to it and return a new `RefreshDataResult` containing the result.
    * @param f - Function to apply.
-   * @returns `RefreshDataOption` containing mapped value, or empty `RefreshDataOption` if no value is available.
+   * @returns Successful `RefreshDataResult` containing mapped value, or error `RefreshDataResult` with unchanged message if no successful value exists.
    */
-  mapRefresh<TOut>(f: (v: T) => TOut): RefreshDataOption<TOut> {
+  mapRefresh<TOut>(f: (v: T) => TOut): RefreshDataResult<TOut> {
     return this.mapRefreshOrElse(
-      (v) => RefreshDataOption.some(f(v)),
-      () => RefreshDataOption.none()
+      (v) => RefreshDataResult.ok(f(v)),
+      (e) => RefreshDataResult.error(e)
     );
   }
 
   /**
-   * Return the value contained in the `RefreshDataOption` if available, or a default value otherwise.
-   * @param defaultValue - Default value to return if no value is available.
-   * @returns contained value or default value.
+   * Return the successful value contained in the `RefreshDataResult` if available, or a default value otherwise.
+   * @param defaultValue - Default value to return if no successful value is available.
+   * @returns contained successful value or default value.
    */
   unwrapRefresh<TDefault>(defaultValue: TDefault): T | TDefault {
     return this.mapRefreshOrElse(
@@ -132,13 +134,13 @@ export function makeRefreshService<TData, TRefreshParams>(
     forceRefresh(): void {
       startRefreshIfNeeded(params, info, true);
     },
-    getData(): RefreshDataOption<TData> {
+    getData(): RefreshDataResult<TData> {
       startRefreshIfNeeded(params, info);
       if (info.data === undefined) {
         console.warn(notReadyMessage);
-        return RefreshDataOption.none();
+        return RefreshDataResult.error(notReadyMessage);
       }
-      return RefreshDataOption.some(info.data);
+      return RefreshDataResult.ok(info.data);
     },
     getStatus(): RefreshStatus {
       return {
