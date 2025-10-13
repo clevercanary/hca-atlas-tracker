@@ -42,9 +42,15 @@ export interface RefreshService<TData> {
   isRefreshing: () => boolean;
 }
 
+/**
+ * Class representing data derived from a refresh service that may or may not have loaded successfully.
+ * Instances should be created via `RefreshDataOption.some(VALUE)` and `RefreshDataOption.none()`.
+ */
 export class RefreshDataOption<T> {
+  // The value or lack thereof is represented by an object containing a value, or `null` on its own, respectively
   #container: { value: T } | null;
 
+  // The constructor takes a boolean indicating whether a value is present, which, if `true`, is followed by the value in question
   constructor(...args: [true, T] | [false]) {
     this.#container = args[0] ? { value: args[1] } : null;
   }
@@ -57,6 +63,12 @@ export class RefreshDataOption<T> {
     return new RefreshDataOption(false);
   }
 
+  /**
+   * Apply one of two functions depending on whether a value is available.
+   * @param fSome - Function to apply if a value is available; receives the value as an argument.
+   * @param fNone - Function to apply if no value is available.
+   * @returns result of applying the selected function.
+   */
   mapRefreshOrElse<TMapped, TDefault>(
     fSome: (v: T) => TMapped,
     fNone: () => TDefault
@@ -64,6 +76,11 @@ export class RefreshDataOption<T> {
     return this.#container === null ? fNone() : fSome(this.#container.value);
   }
 
+  /**
+   * If a value is available, apply the given function to it and return a new `RefreshDataOption` containing the result.
+   * @param f - Function to apply.
+   * @returns `RefreshDataOption` containing mapped value, or empty `RefreshDataOption` if no value is available.
+   */
   mapRefresh<TOut>(f: (v: T) => TOut): RefreshDataOption<TOut> {
     return this.mapRefreshOrElse(
       (v) => RefreshDataOption.some(f(v)),
@@ -71,6 +88,11 @@ export class RefreshDataOption<T> {
     );
   }
 
+  /**
+   * Return the value contained in the `RefreshDataOption` if available, or a default value otherwise.
+   * @param defaultValue - Default value to return if no value is available.
+   * @returns contained value or default value.
+   */
   unwrapRefresh<TDefault>(defaultValue: TDefault): T | TDefault {
     return this.mapRefreshOrElse(
       (v) => v,
