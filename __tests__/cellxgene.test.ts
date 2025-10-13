@@ -53,18 +53,18 @@ afterAll(() => {
 });
 
 describe("getCellxGeneIdByDoi", () => {
-  it("Throws RefreshDataNotReadyError when called before CELLxGENE data is initially fetched", async () => {
+  it("Returns error result when called before CELLxGENE data is initially fetched", async () => {
     const result = await withConsoleMessageHiding(
       async () => getCellxGeneIdByDoi([DOI_NORMAL]),
       true,
       undefined,
       ["warn"]
     );
-    const isNone = result.mapRefreshOrElse(
+    const isError = result.mapRefreshOrElse(
       () => false,
       () => true
     );
-    expect(isNone).toBe(true);
+    expect(isError).toBe(true);
   });
 
   it("Returns ID for project in initial catalog", async () => {
