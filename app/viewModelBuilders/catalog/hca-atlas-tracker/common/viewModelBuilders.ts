@@ -16,6 +16,7 @@ import {
   RowData,
   Table,
 } from "@tanstack/react-table";
+import { CAPIngestStatusCell } from "app/components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { BaseSyntheticEvent, ComponentProps } from "react";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
@@ -924,6 +925,13 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     getComponentAtlasTitleColumnDef(),
     getIntegratedObjectFileSizeColumnDef(),
     getIntegratedObjectValidationStatusColumnDef(),
+    {
+      accessorKey: "capIngestStatus",
+      cell: CAPIngestStatusCell,
+      enableSorting: false,
+      header: "CAP Ingest Status",
+      meta: { width: { max: "1fr", min: "160px" } },
+    },
     getComponentAtlasSourceDatasetCountColumnDef(),
     {
       ...getAssayColumnDef(),
