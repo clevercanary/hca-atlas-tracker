@@ -9,7 +9,10 @@ import {
 import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
 import type { PoolClient } from "pg";
 import { endPgPool, getPoolClient } from "../app/services/database";
-import { getSourceStudyValidationResults } from "../app/services/validations";
+import {
+  getSourceStudyValidationResults,
+  VALIDATION_META_STATUS,
+} from "../app/services/validations";
 import {
   ATLAS_WITH_IL,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
@@ -436,6 +439,14 @@ async function testValidations(
   expect(validationResults).toHaveLength(expectedValidationProperties.length);
   const atlasIds = testAtlases.map((atlas) => atlas.id);
   for (const [i, validationResult] of validationResults.entries()) {
+    expect(validationResult.validationStatus).not.toEqual(
+      VALIDATION_META_STATUS.SKIP_UPDATE
+    );
+    if (
+      validationResult.validationStatus === VALIDATION_META_STATUS.SKIP_UPDATE
+    ) {
+      continue;
+    }
     if (validationResult.differences.length)
       expect(validationResult.differences).toEqual(
         expectedValidationProperties[i].differences
