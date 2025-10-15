@@ -8,7 +8,8 @@ import { FormMethod } from "../../../../../../../../../../../hooks/useForm/commo
 import { FormManager } from "../../../../../../../../../../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../../../../../../../../../../hooks/useFormManager/useFormManager";
 import { useEntity } from "../../../../../../../../../../../providers/entity/hook";
-import { FetchDataActionKind } from "../../../../../../../../../../../providers/fetchDataState/fetchDataState";
+import { fetchData } from "../../../../../../../../../../../providers/fetchDataState/actions/fetchData/dispatch";
+import { SOURCE_DATASETS } from "../../../../../../../../../../../views/AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
 import {
   AtlasSourceDataset,
   Entity,
@@ -29,10 +30,7 @@ export const useEditReprocessedStatusFormManager = (
   }, [onClose]);
 
   const onSuccess = useCallback(() => {
-    fetchDataDispatch({
-      payload: undefined,
-      type: FetchDataActionKind.FetchData,
-    });
+    fetchDataDispatch(fetchData([SOURCE_DATASETS]));
     table.resetRowSelection();
     onClose();
   }, [fetchDataDispatch, onClose, table]);

@@ -3,6 +3,7 @@ import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileS
 import { ColumnDef } from "@tanstack/react-table";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
+import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 import {
   buildAssay,
@@ -22,6 +23,14 @@ const COLUMN_ASSAY = {
   cell: ({ row }) => C.NTagCell(buildAssay(row.original)),
   header: "Assay",
   meta: { width: { max: "0.5fr", min: "120px" } },
+} as ColumnDef<AtlasSourceDataset>;
+
+const COLUMN_CAP_INGEST_STATUS = {
+  cell: CAPIngestStatusCell,
+  enableSorting: false,
+  header: "CAP Ingest Status",
+  id: "capIngestStatus",
+  meta: { width: { max: "0.5fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_CELL_COUNT = {
@@ -132,6 +141,7 @@ export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_SOURCE_STUDY,
   COLUMN_REPROCESSED_STATUS,
   COLUMN_VALIDATION_STATUS,
+  COLUMN_CAP_INGEST_STATUS,
   COLUMN_ASSAY,
   COLUMN_SUSPENSION_TYPE,
   COLUMN_TISSUE,

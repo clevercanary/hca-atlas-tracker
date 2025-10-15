@@ -36,6 +36,7 @@ export const useSourceDatasetsTable = (): UseSourceDatasetsTable => {
       columnVisibility: {
         [COLUMN_IDENTIFIER.ROW_POSITION]: !canEdit,
         [COLUMN_IDENTIFIER.ROW_SELECTION]: canEdit,
+        capIngestStatus: !archived,
         download: !archived,
         fileId: false,
         reprocessedStatus: !archived,
