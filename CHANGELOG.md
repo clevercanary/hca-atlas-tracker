@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.43.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.42.0...v1.43.0) (2025-10-15)
+
+
+### Features
+
+* cap ingest status column on source datasets and integrated objects ([#909](https://github.com/clevercanary/hca-atlas-tracker/issues/909)) ([#933](https://github.com/clevercanary/hca-atlas-tracker/issues/933)) ([7a59513](https://github.com/clevercanary/hca-atlas-tracker/commit/7a595139d3648320c496cf032e30b31a24385dc8))
+
 ## [1.42.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.41.0...v1.42.0) (2025-10-13)
 
 
