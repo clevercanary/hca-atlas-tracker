@@ -281,16 +281,24 @@ function validateSourceStudyHcaProjectInfo(
   if (!sourceStudy.study_info.hcaProjectId) {
     return null;
   }
-  const projectInfo = getProjectInfoById(
+  return getProjectInfoById(
     sourceStudy.study_info.hcaProjectId
-  ).unwrapRefresh(null);
-  const infoProperties = {
-    relatedEntityUrl: getHcaRelatedEntityUrl(sourceStudy),
-  };
-  return validate(
-    projectInfo,
-    infoProperties,
-    sourceStudy.study_info.publication
+  ).mapRefreshOrElse(
+    (projectInfo) => {
+      const infoProperties = {
+        relatedEntityUrl: getHcaRelatedEntityUrl(sourceStudy),
+      };
+      return validate(
+        projectInfo,
+        infoProperties,
+        sourceStudy.study_info.publication
+      );
+    },
+    () => {
+      return {
+        status: VALIDATION_META_STATUS.SKIP_UPDATE,
+      };
+    }
   );
 }
 
