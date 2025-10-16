@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.44.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.43.0...v1.44.0) (2025-10-16)
+
+
+### Features
+
+* log additional information when saving results from dataset validator ([#936](https://github.com/clevercanary/hca-atlas-tracker/issues/936)) ([#937](https://github.com/clevercanary/hca-atlas-tracker/issues/937)) ([f63a4ae](https://github.com/clevercanary/hca-atlas-tracker/commit/f63a4aeac3c9809ca0190d4d9177a109149868ac))
+
 ## [1.43.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.42.0...v1.43.0) (2025-10-15)
 
 
