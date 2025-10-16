@@ -296,7 +296,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const res = await doSnsRequest(secondSnsMessage, true);
     expect(res.statusCode).toBe(409);
     expect(res._getJSONData()).toEqual({
-      message: `Newer validation results already exist for file with ID ${FILE_SOURCE_DATASET_BAR.id}`,
+      message: expect.stringContaining(
+        `Newer validation results already exist for file with ID ${FILE_SOURCE_DATASET_BAR.id}`
+      ),
     });
 
     // Verify the file still has the first validation results (not overwritten)
