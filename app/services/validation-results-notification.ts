@@ -34,15 +34,26 @@ export async function processValidationResultsMessage(
     parsedMessage = JSON.parse(snsMessage.Message);
   } catch (parseError) {
     throw new InvalidOperationError(
-      `Failed to parse validation results from SNS message; invalid JSON: ${snsMessage.Message}`
+      `Failed to parse validation results from SNS message ${snsMessage.MessageId}; invalid JSON: ${snsMessage.Message}`
     );
   }
 
-  const validationResults = await datasetValidatorResultsSchema.validate(
-    parsedMessage
-  );
+  let validationResults: DatasetValidatorResults;
+
+  try {
+    validationResults = await datasetValidatorResultsSchema.validate(
+      parsedMessage
+    );
+  } catch (e) {
+    console.error(
+      `Validation results message ${snsMessage.MessageId} contained invalid data: ${snsMessage.Message}`
+    );
+    throw e;
+  }
 
   // Save validation results
+
+  const s3Uri = `s3://${validationResults.bucket}/${validationResults.key}`;
 
   const fileId = validationResults.file_id;
   const newValidationTime = new Date(validationResults.timestamp);
@@ -62,7 +73,7 @@ export async function processValidationResultsMessage(
 
     if (lastValidationTime && newValidationTime < lastValidationTime) {
       throw new ConflictError(
-        `Newer validation results already exist for file with ID ${fileId}`
+        `Newer validation results already exist for file with ID ${fileId} (${s3Uri}); received time was ${newValidationTime}`
       );
     }
 
@@ -79,6 +90,10 @@ export async function processValidationResultsMessage(
       validationSummary,
     });
   });
+
+  console.log(
+    `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`
+  );
 }
 
 /**
