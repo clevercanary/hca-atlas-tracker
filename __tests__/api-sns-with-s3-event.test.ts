@@ -630,6 +630,54 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows[0].etag).toBe("original-etag-12345");
   });
 
+  it.each([
+    { folder: "source-datasets" },
+    { folder: "integrated-objects" },
+    { folder: "manifests" },
+  ])("does not save file under $folder named .keep", async ({ folder }) => {
+    mockSubmitJob.mockClear();
+
+    const key = `gut/gut-v1/${folder}/.keep`;
+
+    const s3Event = createS3Event({
+      etag: `${folder}-keep-etag-12345678901234567890123456789012`,
+      key,
+      size: 2342356,
+      versionId: "keep-version-1",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: `${folder}-keep-test-message`,
+      s3Event,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Check that the dataset validator was not called
+    expect(mockSubmitJob).not.toHaveBeenCalled();
+
+    // Check that no file was saved to the database
+    const fileRows = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, key]
+    );
+
+    expect(fileRows.rows).toHaveLength(0);
+  });
+
   // File Versioning Tests
   it("maintains is_latest flag correctly for file versions", async () => {
     // First version of the file
