@@ -538,6 +538,10 @@ export async function processS3Record(
   authorizeS3Buckets(s3Event);
 
   const record = s3Event.Records[0];
+
+  // Check whether the file specified in the record is one that should be saved
+  if (!shouldSaveFileRecord(record)) return;
+
   await saveAndProcessFileRecord(record, snsMessage.MessageId);
 }
 
@@ -558,4 +562,13 @@ function authorizeS3Buckets(s3Event: S3Event): void {
   // Validate the S3 bucket is authorized
   const record = s3Event.Records[0];
   validateS3BucketAuthorization(record.s3.bucket.name);
+}
+
+/**
+ * Determine, based on an S3 event record, whether its associated file metadata should be saved in the database (namely, to exclude .keep files)
+ * @param record - S3 event record to check
+ * @returns boolean indicating whether the file should be saved
+ */
+function shouldSaveFileRecord(record: S3EventRecord): boolean {
+  return parseS3KeyPath(record.s3.object.key).filename !== ".keep";
 }
