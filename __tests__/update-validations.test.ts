@@ -16,6 +16,7 @@ import {
   THREAD_ID_BY_STAKEHOLDER2,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
+import { delay } from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -383,6 +384,7 @@ async function resetTestValidations(): Promise<void> {
       [threadId, validationId]
     );
   }
+  await delay(20); // Wait briefly to ensure that any further updates will produce distinct updated_at timestamps
 }
 
 async function testUpdateValidations(
