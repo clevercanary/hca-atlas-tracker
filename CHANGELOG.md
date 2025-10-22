@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.44.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.44.0...v1.44.1) (2025-10-22)
+
+
+### Bug Fixes
+
+* don't save .keep files ([#935](https://github.com/clevercanary/hca-atlas-tracker/issues/935)) ([#941](https://github.com/clevercanary/hca-atlas-tracker/issues/941)) ([ac5e79b](https://github.com/clevercanary/hca-atlas-tracker/commit/ac5e79bc70eebbbee69c2da8bec7f8999db1d8af))
+
+
+### Tests
+
+* add a delay to attempt to resolve inconsistent validations update test ([#478](https://github.com/clevercanary/hca-atlas-tracker/issues/478)) ([#942](https://github.com/clevercanary/hca-atlas-tracker/issues/942)) ([1c69f2c](https://github.com/clevercanary/hca-atlas-tracker/commit/1c69f2c68c4da711d0021227a0b486d8c6ceeaf5))
+
 ## [1.44.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.43.0...v1.44.0) (2025-10-16)
 
 
