@@ -68,7 +68,7 @@ interface ValidationDefinition<T> {
   validationType: VALIDATION_TYPE;
 }
 
-interface ValidationMetaResult {
+export interface ValidationMetaResult {
   validationId: VALIDATION_ID;
   validationStatus: VALIDATION_META_STATUS;
 }

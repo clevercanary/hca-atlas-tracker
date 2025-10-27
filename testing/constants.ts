@@ -39,6 +39,9 @@ export const STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD =
 const ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A =
   "test-with-source-study-validations-a";
 
+const ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_C =
+  "test-with-source-study-validations-c";
+
 // DOIS
 
 export const DOI_NORMAL = "10.123/test";
@@ -74,6 +77,9 @@ export const DOI_PUBLIC_WITH_JOURNAL_JOURNAL =
 export const DOI_DRAFT_OK = "10.123/draft-ok";
 
 export const DOI_PUBLISHED_WITH_HCA = "10.123/published-with-hca";
+
+export const DOI_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO =
+  "10.123/published-with-hca-bar";
 
 export const DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
   "10.123/published-with-hca-title-mismatch";
@@ -322,6 +328,9 @@ export const HCA_ID_PREPRINT_COUNTERPART = "hca-id-preprint-counterpart";
 
 export const HCA_ID_PUBLISHED_WITH_HCA = "hca-id-published-with-hca";
 
+export const HCA_ID_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO =
+  "hca-id-published-with-hca-bar";
+
 export const HCA_ID_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
   "hca-id-published-with-hca-title-mismatch";
 
@@ -387,6 +396,21 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
         version: "v5.4",
       },
       { shortName: "test-with-il", version: "v2.0" },
+    ],
+    ["Organoid"]
+  );
+
+export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO =
+  makeTestProjectsResponse(
+    HCA_ID_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
+    DOI_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
+    "Published With HCA Unavailable Foo",
+    undefined,
+    [
+      {
+        shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_C,
+        version: "v6.5",
+      },
     ],
     ["Organoid"]
   );
@@ -461,6 +485,7 @@ export const TEST_HCA_PROJECTS = [
   HCA_PROJECTS_RESPONSE_JOURNAL_COUNTERPART,
   HCA_PROJECTS_RESPONSE_PREPRINT_COUNTERPART,
   HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA,
+  HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
   HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
   HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
   HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
@@ -468,6 +493,10 @@ export const TEST_HCA_PROJECTS = [
   HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NEW_HCA_ID,
   HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UPDATED_HCA_ID,
   HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_CHANGING_IDS,
+];
+
+export const TEST_HCA_PROJECTS_WITH_UNAVAILABLE_SERVICE = [
+  HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
 ];
 
 export const TEST_HCA_PROJECTS_BY_DOI = new Map(
@@ -945,6 +974,26 @@ export const SOURCE_STUDY_PUBLISHED_WITH_HCA: TestPublishedSourceStudy = {
     title: "Published With HCA",
   },
 };
+
+export const SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO: TestPublishedSourceStudy =
+  {
+    doi: DOI_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
+    doiStatus: DOI_STATUS.OK,
+    id: "3f411b2a-659f-41ce-8636-dd40306ae2f9",
+    publication: {
+      authors: [
+        {
+          name: "Foobazfoo",
+          personalName: "Barbar",
+        },
+      ],
+      hasPreprintDoi: null,
+      journal: "Foo Barbar Bazfoo",
+      preprintOfDoi: null,
+      publicationDate: "2025-10-21",
+      title: "Published With HCA Unavailable Foo",
+    },
+  };
 
 export const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE: TestUnpublishedSourceStudy =
   {
@@ -1435,6 +1484,7 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_PUBLIC_WITH_JOURNAL,
   SOURCE_STUDY_SHARED,
   SOURCE_STUDY_PUBLISHED_WITH_HCA,
+  SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
   SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
@@ -2655,6 +2705,22 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   wave: "1",
 };
 
+export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "bar baz baz bar foo fo foo bar",
+  highlights: "",
+  id: "0e65d1fb-d352-4af4-8109-368935fd0c48",
+  integrationLead: [],
+  network: "organoid",
+  publications: [],
+  shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_C,
+  sourceStudies: [SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "6.5",
+  wave: "2",
+};
+
 export const ATLAS_PUBLIC_BAR: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
@@ -2809,6 +2875,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+  ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C,
   ATLAS_PUBLIC_BAR,
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_PUBLIC_BAZ,

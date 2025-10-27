@@ -1,7 +1,9 @@
 import {
   TEST_HCA_PROJECTS_BY_DOI,
   TEST_HCA_PROJECTS_BY_ID,
+  TEST_HCA_PROJECTS_WITH_UNAVAILABLE_SERVICE,
 } from "../../../testing/constants";
+import { ProjectsResponse } from "../../apis/azul/hca-dcp/common/responses";
 import { getProjectsInfo, ProjectInfo } from "../../utils/hca-projects";
 import { RefreshDataResult } from "../common/refresh-service";
 
@@ -21,7 +23,7 @@ export function getProjectInfoByDoi(
   for (const doi of dois) {
     const projectsResponse = TEST_HCA_PROJECTS_BY_DOI.get(doi);
     if (projectsResponse) {
-      return RefreshDataResult.ok(getProjectsInfo(projectsResponse)[0]);
+      return testProjectsResponseToResult(projectsResponse);
     }
   }
   return RefreshDataResult.ok(null);
@@ -31,7 +33,18 @@ export function getProjectInfoById(
   id: string
 ): RefreshDataResult<ProjectInfo | null> {
   const projectsResponse = TEST_HCA_PROJECTS_BY_ID.get(id);
-  return RefreshDataResult.ok(
-    projectsResponse ? getProjectsInfo(projectsResponse)[0] : null
-  );
+  if (!projectsResponse) return RefreshDataResult.ok(null);
+  return testProjectsResponseToResult(projectsResponse);
+}
+
+function testProjectsResponseToResult(
+  projectsResponse: ProjectsResponse
+): RefreshDataResult<ProjectInfo> {
+  if (TEST_HCA_PROJECTS_WITH_UNAVAILABLE_SERVICE.includes(projectsResponse)) {
+    return RefreshDataResult.error(
+      "DOI to HCA project ID mapping not initialized"
+    );
+  } else {
+    return RefreshDataResult.ok(getProjectsInfo(projectsResponse)[0]);
+  }
 }
