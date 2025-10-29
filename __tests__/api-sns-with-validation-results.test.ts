@@ -231,12 +231,20 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         valid: false,
         warnings: [],
       },
+      hcaSchema: {
+        errors: [],
+        finished_at: "2025-09-14T10:00:02.342",
+        started_at: "2025-09-14T10:00:01.645",
+        valid: true,
+        warnings: [],
+      },
     };
     const firstExpectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
         cap: true,
         cellxgene: false,
+        hcaSchema: true,
       },
     };
     const firstValidationResults = createValidationResults({
@@ -345,12 +353,20 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         valid: false,
         warnings: ["Warning dataset successful CxG"],
       },
+      hcaSchema: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
     };
     const expectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
         cap: false,
         cellxgene: false,
+        hcaSchema: true,
       },
     };
     const validationResults = createValidationResults({
@@ -421,12 +437,20 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         valid: false,
         warnings: ["Warning IO successful CxG"],
       },
+      hcaSchema: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
     };
     const expectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
         cap: false,
         cellxgene: false,
+        hcaSchema: true,
       },
     };
     const validationResults = createValidationResults({

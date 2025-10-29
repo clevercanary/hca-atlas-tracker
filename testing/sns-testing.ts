@@ -137,6 +137,13 @@ export const SUCCESSFUL_TOOL_REPORTS: DatasetValidatorToolReports = {
     valid: true,
     warnings: [],
   },
+  hcaSchema: {
+    errors: [],
+    finished_at: TEST_TIMESTAMP,
+    started_at: TEST_TIMESTAMP,
+    valid: true,
+    warnings: [],
+  },
 };
 
 export const SUCCESSFUL_VALIDATION_SUMMARY: FileValidationSummary = {
@@ -144,6 +151,7 @@ export const SUCCESSFUL_VALIDATION_SUMMARY: FileValidationSummary = {
   validators: {
     cap: true,
     cellxgene: true,
+    hcaSchema: true,
   },
 };
 
