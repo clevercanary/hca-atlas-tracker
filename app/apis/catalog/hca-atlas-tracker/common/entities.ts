@@ -55,6 +55,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   cellxgeneDatasetVersion: string | null;
   description: string;
   disease: string[];
+  fileEventTime: string;
   fileId: string;
   fileName: string;
   id: string;
@@ -123,6 +124,7 @@ export interface HCAAtlasTrackerSourceDataset {
   createdAt: string;
   disease: string[];
   doi: string | null;
+  fileEventTime: string;
   fileId: string;
   fileName: string;
   id: string;
@@ -310,6 +312,7 @@ export interface HCAAtlasTrackerDBComponentAtlasInfo {
 export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
   HCAAtlasTrackerDBFile,
   | "dataset_info"
+  | "event_info"
   | "id"
   | "integrity_status"
   | "is_archived"
@@ -431,6 +434,7 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
     | "key"
     | "size_bytes"
     | "dataset_info"
+    | "event_info"
     | "is_archived"
     | "validation_status"
     | "validation_summary"

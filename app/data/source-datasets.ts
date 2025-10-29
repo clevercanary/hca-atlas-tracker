@@ -84,6 +84,7 @@ export async function getSourceDatasetsForApi(
       `
         SELECT
           d.*,
+          f.event_info,
           f.id as file_id,
           f.is_archived,
           f.key,
@@ -126,6 +127,7 @@ export async function getSourceDatasetForDetailApi(
     `
       SELECT
         d.*,
+        f.event_info,
         f.id as file_id,
         f.is_archived,
         f.key,
