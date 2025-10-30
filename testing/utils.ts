@@ -623,6 +623,7 @@ export function expectApiSourceDatasetToMatchTest(
   } else {
     expect(apiSourceDataset).not.toHaveProperty("validationReports");
   }
+  expect(apiSourceDataset.fileEventTime).toEqual(testFile.eventTime);
 
   doAdditionalChecks?.(testFile);
 }
@@ -711,6 +712,7 @@ export function expectApiComponentAtlasToMatchTest(
   } else {
     expect(apiComponentAtlas).not.toHaveProperty("validationReports");
   }
+  expect(apiComponentAtlas.fileEventTime).toEqual(testFile.eventTime);
 
   doAdditionalChecks?.(testFile);
 

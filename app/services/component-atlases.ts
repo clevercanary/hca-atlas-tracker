@@ -27,6 +27,7 @@ export async function getAtlasComponentAtlases(
   >(
     `
         SELECT
+          f.event_info,
           f.id as file_id,
           f.dataset_info,
           f.id,
@@ -60,6 +61,7 @@ export async function getComponentAtlas(
   >(
     `
       SELECT
+        f.event_info,
         f.id as file_id,
         f.dataset_info,
         f.id,

@@ -924,6 +924,12 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     getIntegratedObjectFileNameColumnDef(),
     getComponentAtlasTitleColumnDef(),
     getIntegratedObjectFileSizeColumnDef(),
+    {
+      accessorKey: "fileEventTime",
+      cell: ({ row }) => row.original.fileEventTime,
+      header: "Uploaded At",
+      meta: { width: { max: "1fr", min: "160px" } },
+    },
     getIntegratedObjectValidationStatusColumnDef(),
     {
       accessorKey: "capIngestStatus",
