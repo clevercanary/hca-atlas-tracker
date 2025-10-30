@@ -87,6 +87,13 @@ const COLUMN_SIZE_BYTES = {
   meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
+const COLUMN_FILE_EVENT_TIME = {
+  accessorKey: "fileEventTime",
+  cell: ({ row }) => row.original.fileEventTime,
+  header: "Uploaded At",
+  meta: { width: { max: "1fr", min: "160px" } },
+} as ColumnDef<AtlasSourceDataset>;
+
 const COLUMN_SOURCE_STUDY = {
   accessorKey: "sourceStudyTitle",
   cell: ({ row }) =>
@@ -138,6 +145,7 @@ export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_FILE_NAME,
   COLUMN_TITLE,
   COLUMN_SIZE_BYTES,
+  COLUMN_FILE_EVENT_TIME,
   COLUMN_SOURCE_STUDY,
   COLUMN_REPROCESSED_STATUS,
   COLUMN_VALIDATION_STATUS,
