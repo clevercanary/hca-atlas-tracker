@@ -131,21 +131,21 @@ export const atlasEntityConfig: EntityConfig = {
       {
         componentConfig: {
           component: C.Link,
-          viewBuilder: V.buildAtlasSourceDatasetCount,
-        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
-        enableGrouping: false,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SOURCE_DATASET_COUNT,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_DATASET_COUNT,
-        width: { max: "0.5fr", min: "112px" },
-      },
-      {
-        componentConfig: {
-          component: C.Link,
           viewBuilder: V.buildSourceStudyCount,
         } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
         enableGrouping: false,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SOURCE_STUDY_COUNT,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_STUDY_COUNT,
+        width: { max: "0.5fr", min: "112px" },
+      },
+      {
+        componentConfig: {
+          component: C.Link,
+          viewBuilder: V.buildAtlasSourceDatasetCount,
+        } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListAtlas>,
+        enableGrouping: false,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SOURCE_DATASET_COUNT,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_DATASET_COUNT,
         width: { max: "0.5fr", min: "112px" },
       },
       {
@@ -184,6 +184,7 @@ export const atlasEntityConfig: EntityConfig = {
         } as ComponentConfig<typeof C.TaskCountsCell, HCAAtlasTrackerListAtlas>,
         enableGrouping: false,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INGESTION_COUNTS_CAP,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.INGESTION_COUNTS_CAP,
         width: { max: "128px", min: "128px" },
       },
       {
