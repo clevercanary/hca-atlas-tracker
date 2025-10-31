@@ -13,12 +13,11 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"]
     enableTableDownload: true,
     initialState: {
       columnVisibility: {
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.INGESTION_COUNTS_CAP]: false,
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.METADATA_SPECIFICATION_URL]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE]: false,
-        [HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_DATASET_COUNT]: false,
-        [HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_STUDY_COUNT]: false,
-        [HCA_ATLAS_TRACKER_CATEGORY_KEY.COMPONENT_ATLAS_COUNT]: false,
       },
       expanded: true,
       grouping: [HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE],
