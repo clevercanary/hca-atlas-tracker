@@ -83,6 +83,7 @@ export const datasetValidatorResultsSchema = object({
     assay: array(string().required()).required(),
     cell_count: number().required(),
     disease: array(string().required()).required(),
+    gene_count: number().required(),
     suspension_type: array(string().required()).required(),
     tissue: array(string().required()).required(),
     title: string().defined(),

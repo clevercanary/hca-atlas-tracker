@@ -208,10 +208,11 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const firstSnsMessageTime = "2025-09-14T12:00:00.000Z";
     const firstBatchJobId = "batch-job-ooo-first";
     const firstValidationTime = "2025-09-14T10:00:00.000Z";
-    const firstMetadata: HCAAtlasTrackerDBFileDatasetInfo = {
+    const firstMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
       assay: ["assay-ooo-first"],
       cellCount: 1000,
       disease: ["disease-ooo-first"],
+      geneCount: 800,
       suspensionType: ["suspension-type-ooo-first"],
       tissue: ["tissue-ooo-first"],
       title: "Out-of-Order First",
@@ -274,10 +275,11 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const secondSnsMessageTime = "2025-09-13T12:00:00.000Z";
     const secondBatchJobId = "batch-job-ooo-second";
     const secondValidationTime = "2025-09-13T10:00:00.000Z"; // Earlier than first
-    const secondMetadata: HCAAtlasTrackerDBFileDatasetInfo = {
+    const secondMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
       assay: ["assay-ooo-second"],
       cellCount: 2000,
       disease: ["disease-ooo-second"],
+      geneCount: 1500,
       suspensionType: ["suspension-type-ooo-second"],
       tissue: ["tissue-ooo-second"],
       title: "Out-of-Order Second",
@@ -330,10 +332,11 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const snsMessageTime = "2025-09-14T00:00:36.672Z";
     const batchJobId = "batch-job-dataset-successful";
     const validationTime = "2025-09-13T22:53:03.314Z";
-    const metadata: HCAAtlasTrackerDBFileDatasetInfo = {
+    const metadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
       assay: ["assay-dataset-successful-a", "assay-dataset-successful-b"],
       cellCount: 2232,
       disease: ["disease-dataset-successful"],
+      geneCount: 1789,
       suspensionType: ["suspension-type-dataset-successful"],
       tissue: ["tissue-dataset-successful"],
       title: "Dataset Successful",
@@ -410,10 +413,11 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const snsMessageTime = "2025-09-14T01:05:55.532Z";
     const batchJobId = "batch-job-io-successful";
     const validationTime = "2025-09-14T01:05:37.734Z";
-    const metadata: HCAAtlasTrackerDBFileDatasetInfo = {
+    const metadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
       assay: ["assay-io-successful", "assay-io-successful"],
       cellCount: 53453,
       disease: ["disease-io-successful-a", "disease-io-successful-b"],
+      geneCount: 43212,
       suspensionType: ["suspension-type-io-successful"],
       tissue: [
         "tissue-io-successful-a",
@@ -494,10 +498,11 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const snsMessageTime = "2025-09-14T01:10:45.293Z";
     const batchJobId = "batch-job-duplicate";
     const validationTime = "2025-09-14T01:10:31.843Z";
-    const metadata: HCAAtlasTrackerDBFileDatasetInfo = {
+    const metadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
       assay: ["assay-duplicate-a", "assay-duplicate-b", "assay-duplicate-b"],
       cellCount: 12314,
       disease: ["disease-duplicate"],
+      geneCount: 8435,
       suspensionType: [
         "suspension-type-duplicate-a",
         "suspension-type-duplicate-b",

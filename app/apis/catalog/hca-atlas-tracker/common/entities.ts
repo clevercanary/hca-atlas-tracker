@@ -477,6 +477,7 @@ export interface HCAAtlasTrackerDBFileDatasetInfo {
   assay: string[];
   cellCount: number;
   disease: string[];
+  geneCount?: number;
   suspensionType: string[];
   tissue: string[];
   title: string;
