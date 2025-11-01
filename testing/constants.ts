@@ -2708,7 +2708,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
-  description: "bar baz baz bar foo fo foo bar",
+  description: "bar baz baz bar foo foo foo bar",
   highlights: "",
   id: "0e65d1fb-d352-4af4-8109-368935fd0c48",
   integrationLead: [],
