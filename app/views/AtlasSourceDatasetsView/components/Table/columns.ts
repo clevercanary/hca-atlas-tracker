@@ -8,6 +8,7 @@ import { ROUTE } from "../../../../routes/constants";
 import {
   buildAssay,
   buildDisease,
+  buildGeneCount,
   buildSuspensionType,
   buildTissue,
 } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -72,6 +73,13 @@ const COLUMN_FILE_NAME = {
     }),
   header: "File Name",
   meta: { columnPinned: true, width: { max: "0.5fr", min: "120px" } },
+} as ColumnDef<AtlasSourceDataset>;
+
+const COLUMN_GENE_COUNT = {
+  accessorKey: "geneCount",
+  cell: ({ row }) => C.BasicCell(buildGeneCount(row.original)),
+  header: "Gene Count",
+  meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_REPROCESSED_STATUS = {
@@ -155,6 +163,7 @@ export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_TISSUE,
   COLUMN_DISEASE,
   COLUMN_CELL_COUNT,
+  COLUMN_GENE_COUNT,
   /* Hidden columns */
   COLUMN_FILE_ID,
 ];
