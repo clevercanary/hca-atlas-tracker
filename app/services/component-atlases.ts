@@ -298,22 +298,6 @@ export async function getComponentAtlasIdsHavingSourceDatasets(
 }
 
 /**
- * Get the ID of the component atlas associated with the given file, throwing an error if there is none.
- * @param fileId - ID of the file to get the associated component atlas of.
- * @returns component atlas ID.
- */
-export async function getPresentComponentAtlasIdForFile(
-  fileId: string
-): Promise<string> {
-  const componentAtlasId = await getComponentAtlasIdForFile(fileId);
-  if (componentAtlasId === null)
-    throw new InvalidOperationError(
-      `File with ID ${fileId} has no associated component atlas`
-    );
-  return componentAtlasId;
-}
-
-/**
  * Create a new component atlas.
  * @param atlasId - ID of the parent atlas.
  * @param title - Title of the component atlas.
@@ -409,32 +393,11 @@ export async function confirmComponentAtlasIsAvailable(
     );
 }
 
-/**
- * Get the ID of the component atlas associated with the given file, or null if there is none.
- * @param fileId - ID of the file to get the associated component atlas of.
- * @returns component atlas ID or null.
- */
-export async function getComponentAtlasIdForFile(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder until we actually link files to component atlases
-  fileId: string
-): Promise<string | null> {
-  return null;
-}
-
 export function getComponentAtlasNotFoundError(
   atlasId: string,
   componentAtlasId: string
 ): NotFoundError {
   return new NotFoundError(
     `Component atlas with ID ${componentAtlasId} doesn't exist on atlas with ID ${atlasId}`
-  );
-}
-
-export function getComponentAtlasFileNotFoundError(
-  atlasId: string,
-  fileId: string
-): NotFoundError {
-  return new NotFoundError(
-    `Component atlas file with ID ${fileId} doesn't exist on atlas with ID ${atlasId}`
   );
 }
