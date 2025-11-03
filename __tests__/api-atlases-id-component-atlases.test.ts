@@ -38,7 +38,6 @@ import { TestComponentAtlas, TestUser } from "../testing/entities";
 import {
   expectApiComponentAtlasToMatchTest,
   expectIsDefined,
-  getLatestFileForTestEntity,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -315,8 +314,9 @@ function expectComponentAtlasesToMatch(
 ): void {
   expect(componentAtlases).toHaveLength(expectedTestComponentAtlases.length);
   for (const testComponentAtlas of expectedTestComponentAtlases) {
-    const fileId = getLatestFileForTestEntity(testComponentAtlas).id;
-    const componentAtlas = componentAtlases.find((c) => c.id === fileId);
+    const componentAtlas = componentAtlases.find(
+      (c) => c.id === testComponentAtlas.id
+    );
     expect(componentAtlas).toBeDefined();
     if (!componentAtlas) continue;
     expectApiComponentAtlasToMatchTest(componentAtlas, testComponentAtlas);
