@@ -1,11 +1,10 @@
 import pg from "pg";
 import {
   HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBComponentAtlasFile,
-  HCAAtlasTrackerDBComponentAtlasFileForDetailAPI,
+  HCAAtlasTrackerDBComponentAtlasForAPI,
+  HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBComponentAtlasInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { confirmFileExistsOnAtlas } from "../data/files";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
@@ -20,51 +19,47 @@ import { confirmSourceDatasetsExist } from "./source-datasets";
 export async function getAtlasComponentAtlases(
   atlasId: string,
   isArchivedValue = false
-): Promise<HCAAtlasTrackerDBComponentAtlasFile[]> {
+): Promise<HCAAtlasTrackerDBComponentAtlasForAPI[]> {
   await confirmAtlasExists(atlasId);
-  const { rows } = await query<
-    Omit<HCAAtlasTrackerDBComponentAtlasFile, "atlas_id">
-  >(
+  const { rows } = await query<HCAAtlasTrackerDBComponentAtlasForAPI>(
     `
         SELECT
+          ca.*,
           f.event_info,
           f.id as file_id,
           f.dataset_info,
-          f.id,
           f.integrity_status,
           f.is_archived,
           f.key,
           f.size_bytes,
           f.validation_status,
           f.validation_summary
-        FROM hat.files f
-        JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-        WHERE f.is_latest AND f.is_archived = $2 AND f.file_type='integrated_object' AND ca.atlas_id=$1
+        FROM hat.component_atlases ca
+        JOIN hat.files f ON f.component_atlas_id = ca.id
+        WHERE f.is_latest AND f.is_archived = $2 AND ca.atlas_id=$1
       `,
     [atlasId, isArchivedValue]
   );
-  return rows.map((row) => ({ atlas_id: atlasId, ...row }));
+  return rows;
 }
 
 /**
  * Get a component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
- * @param fileId - ID of the component atlas's associated file.
+ * @param componentAtlasId - ID of the component atlas.
  * @returns database model of the component atlas file.
  */
 export async function getComponentAtlas(
   atlasId: string,
-  fileId: string
-): Promise<HCAAtlasTrackerDBComponentAtlasFileForDetailAPI> {
-  const queryResult = await query<
-    Omit<HCAAtlasTrackerDBComponentAtlasFileForDetailAPI, "atlas_id">
-  >(
+  componentAtlasId: string
+): Promise<HCAAtlasTrackerDBComponentAtlasForDetailAPI> {
+  const queryResult = await query<HCAAtlasTrackerDBComponentAtlasForDetailAPI>(
     `
       SELECT
+        ca.*,
         f.event_info,
         f.id as file_id,
         f.dataset_info,
-        f.id,
         f.integrity_status,
         f.is_archived,
         f.key,
@@ -72,18 +67,15 @@ export async function getComponentAtlas(
         f.validation_status,
         f.validation_summary,
         f.validation_reports
-      FROM hat.files f
-      JOIN hat.component_atlases ca ON f.component_atlas_id = ca.id
-      WHERE f.id=$1 AND ca.atlas_id=$2
+      FROM hat.component_atlases ca
+      JOIN hat.files f ON f.component_atlas_id = ca.id
+      WHERE f.is_latest AND ca.id=$1 AND ca.atlas_id=$2
     `,
-    [fileId, atlasId]
+    [componentAtlasId, atlasId]
   );
   if (queryResult.rows.length === 0)
-    throw getComponentAtlasFileNotFoundError(atlasId, fileId);
-  return {
-    atlas_id: atlasId,
-    ...queryResult.rows[0],
-  };
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+  return queryResult.rows[0];
 }
 
 /**
@@ -104,18 +96,14 @@ export async function getAtlasComponentAtlasIds(
 /**
  * Add the given source datasets to the specified comonent atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
- * @param fileId - Component atlas file ID.
+ * @param componentAtlasId - Component atlas ID.
  * @param sourceDatasetIds - IDs of source datasets to add.
  */
 export async function addSourceDatasetsToComponentAtlas(
   atlasId: string,
-  fileId: string,
+  componentAtlasId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
-  await confirmFileExistsOnAtlas(fileId, atlasId);
-
-  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
-
   await confirmComponentAtlasIsAvailable(componentAtlasId);
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
@@ -153,17 +141,15 @@ export async function addSourceDatasetsToComponentAtlas(
 /**
  * Remove the given source datasets from the specified comonent atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
- * @param fileId - Component atlas file ID.
+ * @param componentAtlasId - Component atlas ID.
  * @param sourceDatasetIds - IDs of source datasets to remove.
  */
 export async function deleteSourceDatasetsFromComponentAtlas(
   atlasId: string,
-  fileId: string,
+  componentAtlasId: string,
   sourceDatasetIds: string[]
 ): Promise<void> {
-  await confirmFileExistsOnAtlas(fileId, atlasId);
-
-  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
+  await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
 
   await confirmComponentAtlasIsAvailable(componentAtlasId);
 

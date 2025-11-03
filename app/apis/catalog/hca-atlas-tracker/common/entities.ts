@@ -311,21 +311,23 @@ export interface HCAAtlasTrackerDBComponentAtlasInfo {
   tissue: string[];
 }
 
-export type HCAAtlasTrackerDBComponentAtlasFile = Pick<
-  HCAAtlasTrackerDBFile,
-  | "dataset_info"
-  | "event_info"
-  | "id"
-  | "integrity_status"
-  | "is_archived"
-  | "key"
-  | "size_bytes"
-  | "validation_status"
-  | "validation_summary"
-> & { file_id: string } & Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">;
+export type HCAAtlasTrackerDBComponentAtlasForAPI =
+  HCAAtlasTrackerDBComponentAtlas &
+    Pick<
+      HCAAtlasTrackerDBFile,
+      | "dataset_info"
+      | "event_info"
+      | "id"
+      | "integrity_status"
+      | "is_archived"
+      | "key"
+      | "size_bytes"
+      | "validation_status"
+      | "validation_summary"
+    > & { file_id: string };
 
-export type HCAAtlasTrackerDBComponentAtlasFileForDetailAPI =
-  HCAAtlasTrackerDBComponentAtlasFile &
+export type HCAAtlasTrackerDBComponentAtlasForDetailAPI =
+  HCAAtlasTrackerDBComponentAtlasForAPI &
     Pick<HCAAtlasTrackerDBFile, "validation_reports">;
 
 export interface HCAAtlasTrackerDBPublishedSourceStudy {
