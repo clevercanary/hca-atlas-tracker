@@ -46,11 +46,19 @@ import {
   getSourceStudiesWithAtlasProperties,
 } from "./source-studies";
 
-interface ValidationStatusInfo {
-  differences?: ValidationDifference[];
-  relatedEntityUrl?: string;
-  status: VALIDATION_STATUS;
+export enum VALIDATION_META_STATUS {
+  SKIP_UPDATE = "SKIP_UPDATE",
 }
+
+type ValidationStatusInfo =
+  | {
+      differences?: ValidationDifference[];
+      relatedEntityUrl?: string;
+      status: VALIDATION_STATUS;
+    }
+  | {
+      status: VALIDATION_META_STATUS;
+    };
 
 interface ValidationDefinition<T> {
   description: string;
@@ -58,6 +66,11 @@ interface ValidationDefinition<T> {
   validate: (entity: T) => ValidationStatusInfo | null; // null indicates that the validation doesn't apply to the passed entity
   validationId: VALIDATION_ID;
   validationType: VALIDATION_TYPE;
+}
+
+export interface ValidationMetaResult {
+  validationId: VALIDATION_ID;
+  validationStatus: VALIDATION_META_STATUS;
 }
 
 type TypeSpecificValidationProperties = Pick<
@@ -268,14 +281,24 @@ function validateSourceStudyHcaProjectInfo(
   if (!sourceStudy.study_info.hcaProjectId) {
     return null;
   }
-  const projectInfo = getProjectInfoById(sourceStudy.study_info.hcaProjectId);
-  const infoProperties = {
-    relatedEntityUrl: getHcaRelatedEntityUrl(sourceStudy),
-  };
-  return validate(
-    projectInfo,
-    infoProperties,
-    sourceStudy.study_info.publication
+  return getProjectInfoById(
+    sourceStudy.study_info.hcaProjectId
+  ).mapRefreshOrElse(
+    (projectInfo) => {
+      const infoProperties = {
+        relatedEntityUrl: getHcaRelatedEntityUrl(sourceStudy),
+      };
+      return validate(
+        projectInfo,
+        infoProperties,
+        sourceStudy.study_info.publication
+      );
+    },
+    () => {
+      return {
+        status: VALIDATION_META_STATUS.SKIP_UPDATE,
+      };
+    }
   );
 }
 
@@ -400,10 +423,15 @@ function getValidationResult<T extends ENTITY_TYPE>(
   validation: ValidationDefinition<ValidationDBEntityOfType<T>>,
   entity: ValidationDBEntityOfType<T>,
   typeSpecificProperties: TypeSpecificValidationProperties
-): HCAAtlasTrackerValidationResult | null {
+): HCAAtlasTrackerValidationResult | ValidationMetaResult | null {
   const validationStatusInfo = validation.validate(entity);
   if (validationStatusInfo === null) return null;
-  const validationStatus = validationStatusInfo.status;
+  if (validationStatusInfo.status === VALIDATION_META_STATUS.SKIP_UPDATE) {
+    return {
+      validationId: validation.validationId,
+      validationStatus: validationStatusInfo.status,
+    };
+  }
   return {
     description: validation.description,
     differences: validationStatusInfo.differences ?? [],
@@ -412,7 +440,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
     relatedEntityUrl: validationStatusInfo.relatedEntityUrl ?? null,
     system: validation.system,
     validationId: validation.validationId,
-    validationStatus,
+    validationStatus: validationStatusInfo.status,
     validationType: validation.validationType,
     ...typeSpecificProperties,
   };
@@ -470,7 +498,7 @@ export async function updateSourceStudyValidations(
  */
 export async function updateValidations(
   entityId: string,
-  validationResults: HCAAtlasTrackerValidationResult[],
+  validationResults: (HCAAtlasTrackerValidationResult | ValidationMetaResult)[],
   client: pg.PoolClient
 ): Promise<void> {
   const { rows: existingValidations } =
@@ -494,6 +522,10 @@ export async function updateValidations(
   for (const result of validationResults) {
     // Remove ID from list of validation records to delete
     validationIdsToDelete.delete(result.validationId);
+
+    // If the validation is marked as being skipped, it shouldn't be updated either
+    if (result.validationStatus === VALIDATION_META_STATUS.SKIP_UPDATE)
+      continue;
 
     const existingValidation = existingValidationsById.get(result.validationId);
     await updateValidation(result, existingValidation, client);
@@ -607,8 +639,11 @@ function shouldUpdateValidation(
 export async function getSourceStudyValidationResults(
   sourceStudy: HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
   client: pg.PoolClient
-): Promise<HCAAtlasTrackerValidationResult[]> {
-  const validationResults: HCAAtlasTrackerValidationResult[] = [];
+): Promise<(HCAAtlasTrackerValidationResult | ValidationMetaResult)[]> {
+  const validationResults: (
+    | HCAAtlasTrackerValidationResult
+    | ValidationMetaResult
+  )[] = [];
   const title = getSourceStudyTitle(sourceStudy);
   const atlasIds = await getSourceStudyAtlasIds(sourceStudy, client);
   for (const validation of SOURCE_STUDY_VALIDATIONS) {

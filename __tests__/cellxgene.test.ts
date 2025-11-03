@@ -1,4 +1,3 @@
-import { RefreshDataNotReadyError } from "../app/services/common/refresh-service";
 import { CellxGeneCollection } from "../app/utils/cellxgene-api";
 import {
   CELLXGENE_ID_NORMAL,
@@ -8,7 +7,11 @@ import {
   TEST_CELLXGENE_COLLECTIONS_A,
   TEST_CELLXGENE_COLLECTIONS_B,
 } from "../testing/constants";
-import { delay, promiseWithResolvers } from "../testing/utils";
+import {
+  delay,
+  promiseWithResolvers,
+  withConsoleMessageHiding,
+} from "../testing/utils";
 
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -50,36 +53,48 @@ afterAll(() => {
 });
 
 describe("getCellxGeneIdByDoi", () => {
-  it("Throws RefreshDataNotReadyError when called before CELLxGENE data is initially fetched", () => {
-    expect(() => getCellxGeneIdByDoi([DOI_NORMAL])).toThrow(
-      RefreshDataNotReadyError
+  it("Returns error result when called before CELLxGENE data is initially fetched", async () => {
+    const result = await withConsoleMessageHiding(
+      async () => getCellxGeneIdByDoi([DOI_NORMAL]),
+      true,
+      undefined,
+      ["warn"]
     );
+    const isError = result.mapRefreshOrElse(
+      () => false,
+      () => true
+    );
+    expect(isError).toBe(true);
   });
 
   it("Returns ID for project in initial catalog", async () => {
     resolveGetCollections();
     await delay();
-    expect(getCellxGeneIdByDoi([DOI_NORMAL])).toEqual(CELLXGENE_ID_NORMAL);
+    const value = getCellxGeneIdByDoi([DOI_NORMAL]).unwrapRefresh(undefined);
+    expect(value).toEqual(CELLXGENE_ID_NORMAL);
   });
 
   it("Returns null for project not in initial catalog and does not refresh when 2 hours have passed", async () => {
     cellxgeneCollections = TEST_CELLXGENE_COLLECTIONS_B;
     jest.setSystemTime(jest.now() + 7200000);
     [getCollectionsBlock, resolveGetCollections] = promiseWithResolvers<void>();
-    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(null);
+    const value = getCellxGeneIdByDoi([DOI_NORMAL2]).unwrapRefresh(undefined);
+    expect(value).toEqual(null);
     await delay();
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(1);
   });
 
   it("Returns null for project not in initial catalog and starts refresh when catalog is more than 4 hours out of date", async () => {
     jest.setSystemTime(jest.now() + 7200001);
-    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(null);
+    const value = getCellxGeneIdByDoi([DOI_NORMAL2]).unwrapRefresh(undefined);
+    expect(value).toEqual(null);
     await delay();
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
   });
 
   it("Returns null for project not in initial catalog and does not start new refresh while catalog is refreshing", async () => {
-    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(null);
+    const value = getCellxGeneIdByDoi([DOI_NORMAL2]).unwrapRefresh(undefined);
+    expect(value).toEqual(null);
     await delay();
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(2);
   });
@@ -87,6 +102,7 @@ describe("getCellxGeneIdByDoi", () => {
   it("Returns ID for project not in initial catalog when refresh finishes", async () => {
     resolveGetCollections();
     await delay();
-    expect(getCellxGeneIdByDoi([DOI_NORMAL2])).toEqual(CELLXGENE_ID_NORMAL2);
+    const value = getCellxGeneIdByDoi([DOI_NORMAL2]).unwrapRefresh(undefined);
+    expect(value).toEqual(CELLXGENE_ID_NORMAL2);
   });
 });

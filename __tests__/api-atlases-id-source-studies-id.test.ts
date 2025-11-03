@@ -3,7 +3,9 @@ import httpMocks from "node-mocks-http";
 import {
   DOI_STATUS,
   HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
+  VALIDATION_ID,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   SourceStudyEditData,
@@ -21,9 +23,11 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+  ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C,
   CELLXGENE_ID_NORMAL,
   DOI_DRAFT_OK,
   DOI_PREPRINT_NO_JOURNAL,
+  DOI_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
   DOI_WITH_NEW_SOURCE_DATASETS,
   ENTRY_SHEET_ID_DRAFT_OK_BAR,
   ENTRY_SHEET_ID_DRAFT_OK_FOO,
@@ -34,6 +38,7 @@ import {
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
+  SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
   SOURCE_STUDY_SHARED,
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
@@ -109,6 +114,12 @@ jest.mock("../app/services/entry-sheets", () => {
 });
 
 const TEST_ROUTE = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
+
+const HCA_DEPENDENT_VALIDATIONS = new Set([
+  VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
+  VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
+  VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
+]);
 
 const SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT: SourceStudyEditData = {
   capId: null,
@@ -820,6 +831,53 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     await restoreDbStudy(SOURCE_STUDY_DRAFT_OK);
   });
+
+  it("does not update validations that depend on HCA refresh service when service is unavailable", async () => {
+    const EDIT_CAP_ID = "https://celltype.info/project/3252342";
+    const EDIT_DATA: SourceStudyEditData = {
+      capId: EDIT_CAP_ID,
+      doi: DOI_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
+      metadataSpreadsheets: [],
+    };
+
+    const studyBefore = await getSourceStudyFromDatabase(
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
+    );
+
+    const { hca: hcaValidationsBefore, other: otherValidationsBefore } =
+      splitHcaDependentValidations(
+        await getValidationsByEntityId(
+          SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
+        )
+      );
+
+    expect(studyBefore?.study_info.capId).toBeNull();
+
+    const res = await doStudyRequest(
+      ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C.id,
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+
+    const studyAfter = await getSourceStudyFromDatabase(
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
+    );
+
+    const { hca: hcaValidationsAfter, other: otherValidationsAfter } =
+      splitHcaDependentValidations(
+        await getValidationsByEntityId(
+          SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
+        )
+      );
+
+    expect(studyAfter?.study_info.capId).toEqual(EDIT_CAP_ID);
+
+    expect(hcaValidationsAfter).toEqual(hcaValidationsBefore);
+    expect(otherValidationsAfter).not.toEqual(otherValidationsBefore);
+  });
 });
 
 describe(`${TEST_ROUTE} (DELETE)`, () => {
@@ -1200,4 +1258,20 @@ async function expectSourceDatasetToExist(
   sourceDataset: TestSourceDataset
 ): Promise<void> {
   expect(await getSourceDatasetFromDatabase(sourceDataset.id)).toBeDefined();
+}
+
+function splitHcaDependentValidations(
+  validations: HCAAtlasTrackerDBValidation[]
+): {
+  hca: HCAAtlasTrackerDBValidation[];
+  other: HCAAtlasTrackerDBValidation[];
+} {
+  const hca: HCAAtlasTrackerDBValidation[] = [];
+  const other: HCAAtlasTrackerDBValidation[] = [];
+  for (const v of validations.sort((a, b) =>
+    a.validation_id.localeCompare(b.validation_id)
+  )) {
+    (HCA_DEPENDENT_VALIDATIONS.has(v.validation_id) ? hca : other).push(v);
+  }
+  return { hca, other };
 }

@@ -326,7 +326,10 @@ export async function updateSourceStudy(
     existingSourceStudy.study_info.metadataSpreadsheets.map(({ id }) => id)
   );
 
-  const newInfo = await sourceStudyInputDataToDbData(inputData);
+  const newInfo = await sourceStudyInputDataToDbData(
+    inputData,
+    existingSourceStudy
+  );
 
   const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] = [];
   const removedEntrySheetIds = new Set(existingEntrySheetIds);
@@ -391,23 +394,27 @@ export async function updateSourceStudy(
 /**
  * Derive source study information from input values.
  * @param inputData - Values to derive source study from.
+ * @param existingSourceStudy - Existing source study, if it exists.
  * @returns database model of values needed to define a source study.
  */
 async function sourceStudyInputDataToDbData(
-  inputData: NewSourceStudyData | SourceStudyEditData
+  inputData: NewSourceStudyData | SourceStudyEditData,
+  existingSourceStudy?: HCAAtlasTrackerDBSourceStudy
 ): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   return "doi" in inputData
-    ? await makePublishedSourceStudyDbData(inputData)
+    ? await makePublishedSourceStudyDbData(inputData, existingSourceStudy)
     : await makeUnpublishedSourceStudyDbData(inputData);
 }
 
 /**
  * Derive published source study information from input values.
  * @param inputData - Values to derive source study from.
+ * @param existingSourceStudy - Existing source study, if it exists.
  * @returns database model of values needed to define a source study.
  */
 async function makePublishedSourceStudyDbData(
-  inputData: NewPublishedSourceStudyData | PublishedSourceStudyEditData
+  inputData: NewPublishedSourceStudyData | PublishedSourceStudyEditData,
+  existingSourceStudy?: HCAAtlasTrackerDBSourceStudy
 ): Promise<HCAAtlasTrackerDBSourceStudyMinimumColumns> {
   const doi = normalizeDoi(inputData.doi);
 
@@ -427,9 +434,13 @@ async function makePublishedSourceStudyDbData(
 
   const dois = getPublicationDois(doi, publication);
 
-  const hcaProjectId = getProjectIdByDoi(dois);
+  const hcaProjectId = getProjectIdByDoi(dois).unwrapRefresh(
+    existingSourceStudy?.study_info.hcaProjectId ?? null
+  );
 
-  const cellxgeneCollectionId = getCellxGeneIdByDoi(dois);
+  const cellxgeneCollectionId = getCellxGeneIdByDoi(dois).unwrapRefresh(
+    existingSourceStudy?.study_info.cellxgeneCollectionId ?? null
+  );
 
   return {
     doi,
@@ -573,8 +584,12 @@ export async function updateSourceStudyExternalIds(): Promise<void> {
       sourceStudy.doi,
       sourceStudy.study_info.publication
     );
-    const newHcaProjectId = getProjectIdByDoi(dois);
-    const newCellxGeneCollectionId = getCellxGeneIdByDoi(dois);
+    const newHcaProjectId = getProjectIdByDoi(dois).unwrapRefresh(
+      sourceStudy.study_info.hcaProjectId
+    );
+    const newCellxGeneCollectionId = getCellxGeneIdByDoi(dois).unwrapRefresh(
+      sourceStudy.study_info.cellxgeneCollectionId
+    );
 
     const updatedFields: Partial<HCAAtlasTrackerDBPublishedSourceStudyInfo> =
       {};

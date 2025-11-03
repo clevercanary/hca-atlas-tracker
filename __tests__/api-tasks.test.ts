@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import { HCAAtlasTrackerValidationRecord } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
@@ -10,6 +11,8 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_HCA_PROJECTS_BY_DOI,
+  TEST_HCA_PROJECTS_BY_ID,
+  TEST_HCA_PROJECTS_WITH_UNAVAILABLE_SERVICE,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_STAKEHOLDER,
@@ -110,7 +113,7 @@ function expectInitialValidationsToExist(
       (v) => v.entityId === testStudy.id
     );
     let expectedValidationCount = 3;
-    if (hasHcaId(testStudy)) {
+    if (hasAvailableHcaId(testStudy)) {
       expectedValidationCount += 2;
       if ("doi" in testStudy && testStudy.doi !== null)
         expectedValidationCount++;
@@ -128,10 +131,30 @@ function expectInitialValidationsToExist(
   }
 }
 
-function hasHcaId(testStudy: TestSourceStudy): boolean {
-  return "doi" in testStudy && testStudy.hcaProjectId === undefined
-    ? testStudy.doi !== null && TEST_HCA_PROJECTS_BY_DOI.has(testStudy.doi)
-    : testStudy.hcaProjectId !== null;
+function hasAvailableHcaId(testStudy: TestSourceStudy): boolean {
+  let testProject: ProjectsResponse | null;
+  let hasId: boolean;
+  if ("doi" in testStudy && testStudy.hcaProjectId === undefined) {
+    testProject =
+      testStudy.doi === null
+        ? null
+        : TEST_HCA_PROJECTS_BY_DOI.get(testStudy.doi) ?? null;
+    hasId = testProject !== null;
+  } else {
+    const id = testStudy.hcaProjectId;
+    if (id === null) {
+      testProject = null;
+      hasId = false;
+    } else {
+      testProject = id ? TEST_HCA_PROJECTS_BY_ID.get(id) ?? null : null;
+      hasId = true;
+    }
+  }
+  return (
+    hasId &&
+    (testProject === null ||
+      !TEST_HCA_PROJECTS_WITH_UNAVAILABLE_SERVICE.includes(testProject))
+  );
 }
 
 function hasCellxGeneId(testStudy: TestSourceStudy): boolean {

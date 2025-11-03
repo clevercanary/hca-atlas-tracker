@@ -9,16 +9,22 @@ import {
 import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
 import type { PoolClient } from "pg";
 import { endPgPool, getPoolClient } from "../app/services/database";
-import { getSourceStudyValidationResults } from "../app/services/validations";
+import {
+  getSourceStudyValidationResults,
+  VALIDATION_META_STATUS,
+  ValidationMetaResult,
+} from "../app/services/validations";
 import {
   ATLAS_WITH_IL,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+  ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_HCA,
   SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
   SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
+  SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
   SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
@@ -28,7 +34,11 @@ import { TestAtlas, TestSourceStudy } from "../testing/entities";
 
 let client: PoolClient;
 
-type ExpectedValidationProperties = Pick<
+type ExpectedValidationProperties =
+  | ExpectedNewValidationProperties
+  | ValidationMetaResult;
+
+type ExpectedNewValidationProperties = Pick<
   HCAAtlasTrackerValidationResult,
   "system" | "validationId" | "validationStatus" | "validationType"
 > &
@@ -115,6 +125,42 @@ const VALIDATIONS_PUBLISHED_WITH_HCA: ExpectedValidationProperties[] = [
     validationType: VALIDATION_TYPE.INGEST,
   },
 ];
+
+const VALIDATIONS_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO: ExpectedValidationProperties[] =
+  [
+    {
+      system: SYSTEM.CAP,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_CAP,
+      validationStatus: VALIDATION_STATUS.BLOCKED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.CELLXGENE,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
+      validationStatus: VALIDATION_STATUS.FAILED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      system: SYSTEM.HCA_DATA_REPOSITORY,
+      validationId: VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
+      validationStatus: VALIDATION_STATUS.PASSED,
+      validationType: VALIDATION_TYPE.INGEST,
+    },
+    {
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_TITLE_MATCHES_HCA_DATA_REPOSITORY,
+      validationStatus: VALIDATION_META_STATUS.SKIP_UPDATE,
+    },
+    {
+      validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
+      validationStatus: VALIDATION_META_STATUS.SKIP_UPDATE,
+    },
+    {
+      validationId:
+        VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_LINKED_BIONETWORKS_AND_ATLASES,
+      validationStatus: VALIDATION_META_STATUS.SKIP_UPDATE,
+    },
+  ];
 
 const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationProperties[] =
   [
@@ -371,6 +417,14 @@ describe("getSourceStudyValidationResults", () => {
     );
   });
 
+  it("returns validations for source study with HCA project when HCA service is unavailable", async () => {
+    await testValidations(
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
+      [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C],
+      VALIDATIONS_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO
+    );
+  });
+
   it("returns validations for source study with HCA project with mismatched title", async () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
@@ -435,18 +489,41 @@ async function testValidations(
   );
   expect(validationResults).toHaveLength(expectedValidationProperties.length);
   const atlasIds = testAtlases.map((atlas) => atlas.id);
+  // Check individual results
   for (const [i, validationResult] of validationResults.entries()) {
-    if (validationResult.differences.length)
-      expect(validationResult.differences).toEqual(
-        expectedValidationProperties[i].differences
-      );
-    expect(validationResult).toMatchObject(expectedValidationProperties[i]);
-    expect(validationResult.atlasIds).toEqual(atlasIds);
-    expect(validationResult.entityId).toEqual(testStudy.id);
-    expect(validationResult.entityTitle).toEqual(
-      "unpublishedInfo" in testStudy
-        ? testStudy.unpublishedInfo.title
-        : testStudy.publication?.title ?? testStudy.id
+    const validationExpectedProperties = expectedValidationProperties[i];
+    // Check properties shared between full results and meta-results
+    expect(validationResult.validationId).toEqual(
+      validationExpectedProperties.validationId
     );
+    expect(validationResult.validationStatus).toEqual(
+      validationExpectedProperties.validationStatus
+    );
+    // Check additional properties if not expecting a meta-result
+    if (
+      validationExpectedProperties.validationStatus !==
+      VALIDATION_META_STATUS.SKIP_UPDATE
+    ) {
+      expect(validationResult.validationStatus).not.toEqual(
+        VALIDATION_META_STATUS.SKIP_UPDATE
+      );
+      if (
+        validationResult.validationStatus === VALIDATION_META_STATUS.SKIP_UPDATE
+      ) {
+        continue;
+      }
+      if (validationResult.differences.length)
+        expect(validationResult.differences).toEqual(
+          validationExpectedProperties.differences
+        );
+      expect(validationResult).toMatchObject(validationExpectedProperties);
+      expect(validationResult.atlasIds).toEqual(atlasIds);
+      expect(validationResult.entityId).toEqual(testStudy.id);
+      expect(validationResult.entityTitle).toEqual(
+        "unpublishedInfo" in testStudy
+          ? testStudy.unpublishedInfo.title
+          : testStudy.publication?.title ?? testStudy.id
+      );
+    }
   }
 }
