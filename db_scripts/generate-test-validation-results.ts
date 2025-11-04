@@ -32,6 +32,9 @@ const OVERALL_VALID_PROBABILITY = 0.5;
 const MIN_CELL_COUNT = 100;
 const MAX_CELL_COUNT = 10000;
 
+const MIN_GENE_COUNT = 100;
+const MAX_GENE_COUNT = 10000;
+
 const MIN_ARRAY_LENGTH = 1;
 const MAX_ARRAY_LENGTH = 6;
 
@@ -148,6 +151,9 @@ function getSuccessfulValidationFields(
         Math.floor(Math.random() * (MAX_CELL_COUNT - MIN_CELL_COUNT)) +
         MIN_CELL_COUNT,
       disease: generateArray("disease"),
+      geneCount:
+        Math.floor(Math.random() * (MAX_GENE_COUNT - MIN_GENE_COUNT)) +
+        MIN_GENE_COUNT,
       suspensionType: generateArray("suspension-type"),
       tissue: generateArray("tissue"),
       title: `Test ${(key && key.split("/").pop()) || fileId}`,

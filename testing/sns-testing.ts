@@ -167,6 +167,7 @@ export interface ValidationResultsOptions {
     assay: string[];
     cellCount: number;
     disease: string[];
+    geneCount: number;
     suspensionType: string[];
     tissue: string[];
     title: string;
@@ -201,6 +202,7 @@ export function createValidationResults(
           assay: options.metadata.assay,
           cell_count: options.metadata.cellCount,
           disease: options.metadata.disease,
+          gene_count: options.metadata.geneCount,
           suspension_type: options.metadata.suspensionType,
           tissue: options.metadata.tissue,
           title: options.metadata.title,

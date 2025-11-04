@@ -110,6 +110,7 @@ function getDatasetInfoFromValidationResults(
     assay: metadataSummary.assay,
     cellCount: metadataSummary.cell_count,
     disease: metadataSummary.disease,
+    geneCount: metadataSummary.gene_count,
     suspensionType: metadataSummary.suspension_type,
     tissue: metadataSummary.tissue,
     title: metadataSummary.title,

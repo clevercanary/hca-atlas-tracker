@@ -260,6 +260,19 @@ export const buildEntityType = (
 };
 
 /**
+ * Build props for the gene count cell component.
+ * @param entity - Component atlas or source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildGeneCount = (
+  entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: entity.geneCount?.toLocaleString() ?? "",
+  };
+};
+
+/**
  * Build props for the CAP ingestion counts TaskCountsCell component.
  * @param atlas - Atlas entity.
  * @returns Props to be used for the TaskCountsCell.
@@ -959,6 +972,10 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
       ...getCellCountColumnDef(),
       meta: META,
     },
+    {
+      ...getGeneCountColumnDef(),
+      meta: META,
+    },
     /* Hidden columns */
     { accessorKey: "atlasId" },
     { accessorKey: "fileId" },
@@ -1256,6 +1273,21 @@ function getEntityFromRowData<T extends RowData>(
   if (isEntity?.(row.original)) {
     return row.original;
   }
+}
+
+/**
+ * Returns source dataset or component atlas gene count column def.
+ * @returns Column def.
+ */
+function getGeneCountColumnDef<
+  T extends HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+>(): ColumnDef<T> {
+  return {
+    accessorKey: "geneCount",
+    cell: ({ row }) => C.BasicCell(buildGeneCount(row.original)),
+    header: "Gene Count",
+    meta: { width: { max: "0.75fr", min: "120px" } },
+  };
 }
 
 /**
