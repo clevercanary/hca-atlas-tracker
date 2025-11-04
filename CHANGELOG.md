@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.46.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.45.0...v1.46.0) (2025-11-04)
+
+
+### Features
+
+* add "uploaded at" column to atlas source dataset and integrated object lists ([#923](https://github.com/clevercanary/hca-atlas-tracker/issues/923)) ([#950](https://github.com/clevercanary/hca-atlas-tracker/issues/950)) ([bc882fb](https://github.com/clevercanary/hca-atlas-tracker/commit/bc882fb7c34d59660f6085746177959317be61a7))
+* allow operations to complete even when refresh services are unavailable ([#889](https://github.com/clevercanary/hca-atlas-tracker/issues/889)) ([#957](https://github.com/clevercanary/hca-atlas-tracker/issues/957)) ([6e843f2](https://github.com/clevercanary/hca-atlas-tracker/commit/6e843f2df453b577637b7fcef00cc7645e3a3aca))
+* save gene count and show in entity lists ([#953](https://github.com/clevercanary/hca-atlas-tracker/issues/953)) ([#958](https://github.com/clevercanary/hca-atlas-tracker/issues/958)) ([4ecf557](https://github.com/clevercanary/hca-atlas-tracker/commit/4ecf557a9b9afff889aa350692a9811dbb9bfa35))
+* update 'atlases' columns ([#952](https://github.com/clevercanary/hca-atlas-tracker/issues/952)) ([#956](https://github.com/clevercanary/hca-atlas-tracker/issues/956)) ([b1e5642](https://github.com/clevercanary/hca-atlas-tracker/commit/b1e5642a2df1841d11d89bed2a7ac2b15705cbc4))
+
+
+### Bug Fixes
+
+* use correct column name for validation status in test file generator ([#963](https://github.com/clevercanary/hca-atlas-tracker/issues/963)) ([#964](https://github.com/clevercanary/hca-atlas-tracker/issues/964)) ([6c4d861](https://github.com/clevercanary/hca-atlas-tracker/commit/6c4d861ece743f0cb53e9d9eca8d3ba51be95b07))
+
 ## [1.45.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.44.0...v1.45.0) (2025-10-29)
 
 
