@@ -317,7 +317,6 @@ export type HCAAtlasTrackerDBComponentAtlasForAPI =
       HCAAtlasTrackerDBFile,
       | "dataset_info"
       | "event_info"
-      | "id"
       | "integrity_status"
       | "is_archived"
       | "key"
