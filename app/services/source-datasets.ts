@@ -24,7 +24,6 @@ import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
   confirmComponentAtlasExistsOnAtlas,
-  confirmComponentAtlasIsAvailable,
   removeSourceDatasetsFromAllComponentAtlases,
   updateFieldsForComponentAtlasesHavingSourceDatasets,
 } from "./component-atlases";
@@ -150,7 +149,6 @@ export async function getComponentAtlasSourceDataset(
   componentAtlasId: string,
   sourceDatasetId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  await confirmComponentAtlasIsAvailable(componentAtlasId);
   const { exists } = (
     await query<{ exists: boolean }>(
       "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND id=$2 AND atlas_id=$3)",
