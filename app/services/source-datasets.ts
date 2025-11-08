@@ -24,9 +24,6 @@ import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
   confirmComponentAtlasExistsOnAtlas,
-  confirmComponentAtlasIsAvailable,
-  getComponentAtlasIdForFile,
-  getPresentComponentAtlasIdForFile,
   removeSourceDatasetsFromAllComponentAtlases,
   updateFieldsForComponentAtlasesHavingSourceDatasets,
 } from "./component-atlases";
@@ -69,22 +66,20 @@ export async function getAtlasDatasets(
   return await getSourceDatasetsForApi(
     await getAtlasSourceDatasetIds(atlasId),
     true,
-    isArchivedValue
+    [isArchivedValue]
   );
 }
 
 /**
  * Get all source datasets of the given component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
- * @param fileId - Component atlas file ID.
+ * @param componentAtlasId - Component atlas ID.
  * @returns database-model source datasets.
  */
 export async function getComponentAtlasDatasets(
   atlasId: string,
-  fileId: string
+  componentAtlasId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
-  const componentAtlasId = await getComponentAtlasIdForFile(fileId);
-  if (componentAtlasId === null) return [];
   await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
   return await getSourceDatasetsForApi(
     await getComponentAtlasSourceDatasetIds(componentAtlasId),
@@ -120,7 +115,7 @@ export async function getSourceDataset(
   const [sourceDataset] = await getSourceDatasetsForApi(
     [sourceDatasetId],
     false,
-    false,
+    [false],
     client
   );
   return sourceDataset;
@@ -145,17 +140,15 @@ export async function getAtlasSourceDataset(
 /**
  * Get a source dataset of a component atlas.
  * @param atlasId - ID of the atlas that the source dataset is accessed through.
- * @param fileId - ID of the file of the component atlas that the source dataset is accessed through.
+ * @param componentAtlasId - ID of the component atlas that the source dataset is accessed through.
  * @param sourceDatasetId - Source dataset ID.
  * @returns database model of the source dataset.
  */
 export async function getComponentAtlasSourceDataset(
   atlasId: string,
-  fileId: string,
+  componentAtlasId: string,
   sourceDatasetId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  const componentAtlasId = await getPresentComponentAtlasIdForFile(fileId);
-  await confirmComponentAtlasIsAvailable(componentAtlasId);
   const { exists } = (
     await query<{ exists: boolean }>(
       "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND id=$2 AND atlas_id=$3)",
@@ -166,7 +159,11 @@ export async function getComponentAtlasSourceDataset(
     throw new NotFoundError(
       `Source dataset with ID ${sourceDatasetId} doesn't exist on integrated object with ID ${componentAtlasId} on atlas with ID ${atlasId}`
     );
-  const [sourceDataset] = await getSourceDatasetsForApi([sourceDatasetId]);
+  const [sourceDataset] = await getSourceDatasetsForApi(
+    [sourceDatasetId],
+    false,
+    [true, false]
+  );
   return sourceDataset;
 }
 

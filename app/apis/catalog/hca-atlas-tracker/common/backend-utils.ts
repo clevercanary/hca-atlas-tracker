@@ -7,8 +7,8 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlasForAPI,
   HCAAtlasTrackerDBComment,
-  HCAAtlasTrackerDBComponentAtlasFile,
-  HCAAtlasTrackerDBComponentAtlasFileForDetailAPI,
+  HCAAtlasTrackerDBComponentAtlasForAPI,
+  HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
@@ -76,39 +76,39 @@ export function dbAtlasToApiAtlas(
 }
 
 export function dbComponentAtlasFileToDetailApiComponentAtlas(
-  dbComponentAtlasFile: HCAAtlasTrackerDBComponentAtlasFileForDetailAPI
+  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForDetailAPI
 ): HCAAtlasTrackerDetailComponentAtlas {
   return {
-    ...dbComponentAtlasFileToApiComponentAtlas(dbComponentAtlasFile),
-    validationReports: dbComponentAtlasFile.validation_reports,
+    ...dbComponentAtlasFileToApiComponentAtlas(dbComponentAtlas),
+    validationReports: dbComponentAtlas.validation_reports,
   };
 }
 
 export function dbComponentAtlasFileToApiComponentAtlas(
-  dbComponentAtlasFile: HCAAtlasTrackerDBComponentAtlasFile
+  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForAPI
 ): HCAAtlasTrackerComponentAtlas {
   return {
-    assay: dbComponentAtlasFile.dataset_info?.assay ?? [],
-    atlasId: dbComponentAtlasFile.atlas_id,
-    cellCount: dbComponentAtlasFile.dataset_info?.cellCount ?? 0,
+    assay: dbComponentAtlas.dataset_info?.assay ?? [],
+    atlasId: dbComponentAtlas.atlas_id,
+    cellCount: dbComponentAtlas.dataset_info?.cellCount ?? 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,
     description: "",
-    disease: dbComponentAtlasFile.dataset_info?.disease ?? [],
-    fileEventTime: dbComponentAtlasFile.event_info.eventTime,
-    fileId: dbComponentAtlasFile.file_id,
-    fileName: parseS3KeyPath(dbComponentAtlasFile.key).filename,
-    geneCount: dbComponentAtlasFile.dataset_info?.geneCount,
-    id: dbComponentAtlasFile.id,
-    integrityStatus: dbComponentAtlasFile.integrity_status,
-    isArchived: dbComponentAtlasFile.is_archived,
-    sizeBytes: Number(dbComponentAtlasFile.size_bytes),
+    disease: dbComponentAtlas.dataset_info?.disease ?? [],
+    fileEventTime: dbComponentAtlas.event_info.eventTime,
+    fileId: dbComponentAtlas.file_id,
+    fileName: parseS3KeyPath(dbComponentAtlas.key).filename,
+    geneCount: dbComponentAtlas.dataset_info?.geneCount,
+    id: dbComponentAtlas.id,
+    integrityStatus: dbComponentAtlas.integrity_status,
+    isArchived: dbComponentAtlas.is_archived,
+    sizeBytes: Number(dbComponentAtlas.size_bytes),
     sourceDatasetCount: 0,
-    suspensionType: dbComponentAtlasFile.dataset_info?.suspensionType ?? [],
-    tissue: dbComponentAtlasFile.dataset_info?.tissue ?? [],
-    title: dbComponentAtlasFile.dataset_info?.title ?? "",
-    validationStatus: dbComponentAtlasFile.validation_status,
-    validationSummary: dbComponentAtlasFile.validation_summary,
+    suspensionType: dbComponentAtlas.dataset_info?.suspensionType ?? [],
+    tissue: dbComponentAtlas.dataset_info?.tissue ?? [],
+    title: dbComponentAtlas.dataset_info?.title ?? "",
+    validationStatus: dbComponentAtlas.validation_status,
+    validationSummary: dbComponentAtlas.validation_summary,
   };
 }
 

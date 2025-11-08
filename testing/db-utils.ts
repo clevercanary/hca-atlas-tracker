@@ -34,6 +34,7 @@ import {
 } from "./constants";
 import {
   TestAtlas,
+  TestComponentAtlas,
   TestEntrySheetValidation,
   TestFile,
   TestSourceDataset,
@@ -464,6 +465,27 @@ export async function getComponentAtlasFromDatabase(
   ).rows[0];
 }
 
+export async function setComponentAtlasDatasets(
+  componentAtlas: TestComponentAtlas,
+  sourceDatasetIds: string[]
+): Promise<void> {
+  await query(
+    "UPDATE hat.component_atlases SET source_datasets=$1 WHERE id=$2",
+    [sourceDatasetIds, componentAtlas.id]
+  );
+}
+
+export async function getComponentAtlasSourceDatasets(
+  id: string
+): Promise<string[]> {
+  return (
+    await query<HCAAtlasTrackerDBComponentAtlas>(
+      "SELECT * FROM hat.component_atlases WHERE id=$1",
+      [id]
+    )
+  ).rows[0].source_datasets;
+}
+
 export async function getExistingSourceStudyFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
@@ -650,6 +672,19 @@ export async function expectAtlasToBeUnchanged(
   expect(atlasFromDb.source_studies).toEqual(atlas.sourceStudies);
   expect(atlasFromDb.status).toEqual(atlas.status);
   expect(atlasFromDb.target_completion).toEqual(atlas.targetCompletion ?? null);
+}
+
+export async function expectComponentAtlasToHaveSourceDatasets(
+  componentAtlas: TestComponentAtlas,
+  expectedSourceDatasets: TestSourceDataset[]
+): Promise<void> {
+  const sourceDatasets = await getComponentAtlasSourceDatasets(
+    componentAtlas.id
+  );
+  expect(sourceDatasets).toHaveLength(expectedSourceDatasets.length);
+  for (const expectedDataset of expectedSourceDatasets) {
+    expect(sourceDatasets).toContain(expectedDataset.id);
+  }
 }
 
 export async function expectSourceDatasetToBeUnchanged(

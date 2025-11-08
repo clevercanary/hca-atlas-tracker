@@ -11,7 +11,6 @@ import {
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -149,7 +148,7 @@ describe(TEST_ROUTE, () => {
       componentAtlasHandler,
       METHOD.GET,
       role,
-      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.file.id),
+      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.id),
       undefined,
       false,
       (res) => {
@@ -167,7 +166,7 @@ describe(TEST_ROUTE, () => {
   it("returns component atlas without metadata when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_FOO.file.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
@@ -188,7 +187,7 @@ describe(TEST_ROUTE, () => {
   it("returns component atlas with metadata when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
-      COMPONENT_ATLAS_DRAFT_BAR.file.id,
+      COMPONENT_ATLAS_DRAFT_BAR.id,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
@@ -209,7 +208,7 @@ describe(TEST_ROUTE, () => {
   it("returns archived component atlas with metadata when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
+      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);

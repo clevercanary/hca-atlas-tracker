@@ -69,14 +69,14 @@ export async function getComponentAtlasSourceDatasetIds(
  * Get specified source datasets joined with data used for API responses.
  * @param sourceDatasetIds - IDs of source datasets to get.
  * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
- * @param isArchivedValue - Value of `is_archived` to filter source datasets by. (Default false)
+ * @param isArchivedValues - Values of `is_archived` to filter source datasets by. (Default `[false]`)
  * @param client - Postgres client to use.
  * @returns source datasets with fields for APIs.
  */
 export async function getSourceDatasetsForApi(
   sourceDatasetIds: string[],
   acceptSubset = false,
-  isArchivedValue = false,
+  isArchivedValues = [false],
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   const { rows: sourceDatasets } =
@@ -97,9 +97,9 @@ export async function getSourceDatasetsForApi(
         FROM hat.source_datasets d
         JOIN hat.files f ON f.source_dataset_id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-        WHERE d.id = ANY($1) AND f.is_latest AND f.is_archived = $2
+        WHERE d.id = ANY($1) AND f.is_latest AND f.is_archived = ANY($2)
       `,
-      [sourceDatasetIds, isArchivedValue],
+      [sourceDatasetIds, isArchivedValues],
       client
     );
 
