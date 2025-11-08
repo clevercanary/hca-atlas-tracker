@@ -66,7 +66,7 @@ export async function getAtlasDatasets(
   return await getSourceDatasetsForApi(
     await getAtlasSourceDatasetIds(atlasId),
     true,
-    isArchivedValue
+    [isArchivedValue]
   );
 }
 
@@ -115,7 +115,7 @@ export async function getSourceDataset(
   const [sourceDataset] = await getSourceDatasetsForApi(
     [sourceDatasetId],
     false,
-    false,
+    [false],
     client
   );
   return sourceDataset;
@@ -159,7 +159,11 @@ export async function getComponentAtlasSourceDataset(
     throw new NotFoundError(
       `Source dataset with ID ${sourceDatasetId} doesn't exist on integrated object with ID ${componentAtlasId} on atlas with ID ${atlasId}`
     );
-  const [sourceDataset] = await getSourceDatasetsForApi([sourceDatasetId]);
+  const [sourceDataset] = await getSourceDatasetsForApi(
+    [sourceDatasetId],
+    false,
+    [true, false]
+  );
   return sourceDataset;
 }
 
