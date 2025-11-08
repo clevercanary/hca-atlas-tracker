@@ -386,7 +386,7 @@ describe(TEST_ROUTE, () => {
       NEW_DATASETS_DATA
     );
     expect(res._getStatusCode()).toEqual(201);
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
+    await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
       SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
       SOURCE_DATASET_FOO,
@@ -413,7 +413,7 @@ describe(TEST_ROUTE, () => {
       NEW_DATASETS_DATA
     );
     expect(res._getStatusCode()).toEqual(201);
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
+    await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
       SOURCE_DATASET_FOOFOO,
       SOURCE_DATASET_FOOBAR,
       SOURCE_DATASET_FOOBAZ,
@@ -441,7 +441,7 @@ describe(TEST_ROUTE, () => {
       NEW_DATASETS_DATA_WITH_ARCHIVED
     );
     expect(res._getStatusCode()).toEqual(201);
-    expectComponentAtlasToHaveSourceDatasets(
+    await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
       [
         SOURCE_DATASET_ARCHIVED_FOO,
@@ -616,7 +616,7 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode()
     ).toEqual(200);
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
+    await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     ]);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
@@ -643,7 +643,7 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode()
     ).toEqual(200);
-    expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
+    await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
       SOURCE_DATASET_FOOBAZ,
     ]);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
@@ -670,7 +670,7 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode()
     ).toEqual(200);
-    expectComponentAtlasToHaveSourceDatasets(
+    await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
       [SOURCE_DATASET_WITH_MULTIPLE_FILES]
     );
