@@ -3217,7 +3217,10 @@ export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
     FILE_B_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   ],
   id: "235920d2-b08b-408a-aa1a-9a1af9a98297",
-  sourceDatasets: [],
+  sourceDatasets: [
+    SOURCE_DATASET_ARCHIVED_FOO,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  ],
   title: "",
 } satisfies TestComponentAtlas;
 
@@ -3292,7 +3295,10 @@ export const COMPONENT_ATLAS_ARCHIVED_FOO = {
     versionId: null,
   },
   id: "45bf73f2-2f89-4fc4-b181-7b427414ff1e",
-  sourceDatasets: [],
+  sourceDatasets: [
+    SOURCE_DATASET_ARCHIVED_FOO,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  ],
   title: "",
 } satisfies TestComponentAtlas;
 

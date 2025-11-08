@@ -7,12 +7,17 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/component-atlas
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  COMPONENT_ATLAS_ARCHIVED_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_ARCHIVED_FOO,
   SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -154,6 +159,36 @@ describe(TEST_ROUTE, () => {
     expectApiSourceDatasetsToMatchTest(
       [sourceDataset],
       [SOURCE_DATASET_FOOBAZ]
+    );
+  });
+
+  it("returns archived source dataset", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id,
+      SOURCE_DATASET_ARCHIVED_FOO.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectApiSourceDatasetsToMatchTest(
+      [sourceDataset],
+      [SOURCE_DATASET_ARCHIVED_FOO]
+    );
+  });
+
+  it("returns source dataset when requested from archived component atlas", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      COMPONENT_ATLAS_ARCHIVED_FOO.id,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectApiSourceDatasetsToMatchTest(
+      [sourceDataset],
+      [SOURCE_DATASET_WITH_MULTIPLE_FILES]
     );
   });
 
