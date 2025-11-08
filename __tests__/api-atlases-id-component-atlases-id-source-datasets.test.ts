@@ -600,7 +600,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_ARCHIVED_FOO);
   });
 
-  it("deletes source datasets when requested by user with INTERGRATION_LEAD role for the atlas", async () => {
+  it("deletes source datasets when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
       COMPONENT_ATLAS_DRAFT_BAR.id
     );

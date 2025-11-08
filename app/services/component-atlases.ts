@@ -95,7 +95,7 @@ export async function getAtlasComponentAtlasIds(
 }
 
 /**
- * Add the given source datasets to the specified comonent atlas.
+ * Add the given source datasets to the specified component atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
  * @param componentAtlasId - Component atlas ID.
  * @param sourceDatasetIds - IDs of source datasets to add.
@@ -140,7 +140,7 @@ export async function addSourceDatasetsToComponentAtlas(
 }
 
 /**
- * Remove the given source datasets from the specified comonent atlas.
+ * Remove the given source datasets from the specified component atlas.
  * @param atlasId - Atlas that the component atlas is accessed through.
  * @param componentAtlasId - Component atlas ID.
  * @param sourceDatasetIds - IDs of source datasets to remove.
