@@ -4,6 +4,7 @@ import {
   HCAAtlasTrackerDBComponentAtlasForAPI,
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBComponentAtlasInfo,
+  HCAAtlasTrackerDBFile,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
@@ -378,18 +379,22 @@ export async function confirmComponentAtlasExistsOnAtlas(
 export async function confirmComponentAtlasIsAvailable(
   componentAtlasId: string
 ): Promise<void> {
-  const queryResult = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
+  const queryResult = await query<Pick<HCAAtlasTrackerDBFile, "is_archived">>(
     `
-        SELECT 1
+        SELECT f.is_archived
         FROM hat.component_atlases c
         JOIN hat.files f ON f.component_atlas_id = c.id
-        WHERE c.id = $1 AND f.is_latest AND NOT f.is_archived
+        WHERE c.id = $1 AND f.is_latest
       `,
     [componentAtlasId]
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
       `Component atlas with ID ${componentAtlasId} doesn't exist`
+    );
+  if (queryResult.rows[0].is_archived)
+    throw new InvalidOperationError(
+      `Component atlas with ID ${componentAtlasId} is archived`
     );
 }
 
