@@ -128,7 +128,9 @@ describe(TEST_ROUTE, () => {
           "7021d0a6-6bc7-4429-8193-8d50ddcb65ea",
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOBAZ.id,
-          USER_CONTENT_ADMIN
+          USER_CONTENT_ADMIN,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
@@ -141,7 +143,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           "b885d10e-02b8-467c-9ef4-67fa59a1320e",
           SOURCE_DATASET_FOOBAZ.id,
-          USER_CONTENT_ADMIN
+          USER_CONTENT_ADMIN,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);
@@ -154,7 +158,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           "a08b7ea9-7ba4-413b-a0f5-73ad26f6d630",
-          USER_CONTENT_ADMIN
+          USER_CONTENT_ADMIN,
+          METHOD.GET,
+          true
         )
       )._getStatusCode()
     ).toEqual(404);

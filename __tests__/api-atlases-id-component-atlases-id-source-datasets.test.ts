@@ -366,7 +366,8 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_ARCHIVED_FOO.id,
       USER_CONTENT_ADMIN,
       METHOD.POST,
-      NEW_DATASETS_DATA_WITH_ARCHIVED
+      NEW_DATASETS_DATA_WITH_ARCHIVED,
+      true
     );
     expect(res._getStatusCode()).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
@@ -591,7 +592,8 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_ARCHIVED_FOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
-          DELETE_DATASETS_DATA_WITH_ARCHIVED
+          DELETE_DATASETS_DATA_WITH_ARCHIVED,
+          true
         )
       )._getStatusCode()
     ).toEqual(400);
