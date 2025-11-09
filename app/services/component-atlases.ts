@@ -26,6 +26,12 @@ export async function getAtlasComponentAtlases(
     `
         SELECT
           ca.*,
+          (
+            SELECT COUNT(d.id)::int
+            FROM hat.source_datasets d
+            JOIN hat.files f ON f.source_dataset_id = d.id
+            WHERE d.id = ANY(ca.source_datasets) AND f.is_latest AND NOT f.is_archived
+          ) AS source_dataset_count,
           f.event_info,
           f.id as file_id,
           f.dataset_info,
@@ -58,6 +64,12 @@ export async function getComponentAtlas(
     `
       SELECT
         ca.*,
+        (
+          SELECT COUNT(d.id)::int
+          FROM hat.source_datasets d
+          JOIN hat.files f ON f.source_dataset_id = d.id
+          WHERE d.id = ANY(ca.source_datasets) AND f.is_latest AND NOT f.is_archived
+        ) AS source_dataset_count,
         f.event_info,
         f.id as file_id,
         f.dataset_info,

@@ -103,7 +103,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     integrityStatus: dbComponentAtlas.integrity_status,
     isArchived: dbComponentAtlas.is_archived,
     sizeBytes: Number(dbComponentAtlas.size_bytes),
-    sourceDatasetCount: 0,
+    sourceDatasetCount: dbComponentAtlas.source_dataset_count,
     suspensionType: dbComponentAtlas.dataset_info?.suspensionType ?? [],
     tissue: dbComponentAtlas.dataset_info?.tissue ?? [],
     title: dbComponentAtlas.dataset_info?.title ?? "",
