@@ -135,10 +135,11 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const componentAtlases =
           res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-        expectComponentAtlasesToMatch(componentAtlases, [
-          COMPONENT_ATLAS_DRAFT_FOO,
-          COMPONENT_ATLAS_DRAFT_BAR,
-        ]);
+        expectComponentAtlasesToMatch(
+          componentAtlases,
+          [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR],
+          [3, 2]
+        );
       }
     );
   }
@@ -151,10 +152,11 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-    expectComponentAtlasesToMatch(componentAtlases, [
-      COMPONENT_ATLAS_DRAFT_FOO,
-      COMPONENT_ATLAS_DRAFT_BAR,
-    ]);
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR],
+      [3, 2]
+    );
   });
 
   it("returns component atlases only for latest file versions and only if they're non-archived", async () => {
@@ -165,9 +167,11 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-    expectComponentAtlasesToMatch(componentAtlases, [
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-    ]);
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES],
+      [1]
+    );
     const componentAtlas = componentAtlases[0];
     if (!expectIsDefined(componentAtlas)) return;
     expect(componentAtlas.sizeBytes).toEqual(
@@ -186,9 +190,11 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-    expectComponentAtlasesToMatch(componentAtlases, [
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-    ]);
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES],
+      [1]
+    );
   });
 
   it("returns only archived component atlases when `archived` parameter is set to `true`", async () => {
@@ -202,13 +208,17 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
-    expectComponentAtlasesToMatch(componentAtlases, [
-      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-      COMPONENT_ATLAS_ARCHIVED_FOO,
-      COMPONENT_ATLAS_ARCHIVED_BAR,
-      COMPONENT_ATLAS_ARCHIVED_BAZ,
-      COMPONENT_ATLAS_ARCHIVED_FOOFOO,
-    ]);
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [
+        COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+        COMPONENT_ATLAS_ARCHIVED_FOO,
+        COMPONENT_ATLAS_ARCHIVED_BAR,
+        COMPONENT_ATLAS_ARCHIVED_BAZ,
+        COMPONENT_ATLAS_ARCHIVED_FOOFOO,
+      ],
+      [0, 1, 0, 0, 0]
+    );
   });
 });
 
@@ -310,15 +320,22 @@ function getQueryValues(
 
 function expectComponentAtlasesToMatch(
   componentAtlases: HCAAtlasTrackerComponentAtlas[],
-  expectedTestComponentAtlases: TestComponentAtlas[]
+  expectedTestComponentAtlases: TestComponentAtlas[],
+  expectedSourceDatasetCounts: number[]
 ): void {
   expect(componentAtlases).toHaveLength(expectedTestComponentAtlases.length);
-  for (const testComponentAtlas of expectedTestComponentAtlases) {
+  for (const [
+    i,
+    testComponentAtlas,
+  ] of expectedTestComponentAtlases.entries()) {
     const componentAtlas = componentAtlases.find(
       (c) => c.id === testComponentAtlas.id
     );
     expect(componentAtlas).toBeDefined();
     if (!componentAtlas) continue;
     expectApiComponentAtlasToMatchTest(componentAtlas, testComponentAtlas);
+    expect(componentAtlas.sourceDatasetCount).toEqual(
+      expectedSourceDatasetCounts[i]
+    );
   }
 }
