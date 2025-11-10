@@ -987,14 +987,17 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
  * Returns the table column definition model for the atlas component source datasets table.
  * @param onUnlink - Unlink source datasets function.
  * @param canEdit - Edit state for user.
+ * @param atlasId - ID of the associated atlas.
  * @returns Table column definition.
  */
 export function getAtlasComponentSourceDatasetsTableColumns(
   onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"],
-  canEdit: boolean
+  canEdit: boolean,
+  atlasId: string
 ): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   const columnDefs: ColumnDef<HCAAtlasTrackerSourceDataset>[] = [
     getComponentAtlasSourceDatasetPublicationColumnDef(),
+    getComponentAtlasSourceDatasetFileNameColumnDef(atlasId),
     getComponentAtlasSourceDatasetTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
@@ -1147,6 +1150,29 @@ function getCellCountColumnDef<
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
     meta: { width: { max: "0.75fr", min: "120px" } },
+  };
+}
+
+/**
+ * Returns component atlas source dataset file name column def.
+ * @param atlasId - ID of the associated atlas.
+ * @returns ColumnDef.
+ */
+function getComponentAtlasSourceDatasetFileNameColumnDef(
+  atlasId: string
+): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "fileName",
+    cell: ({ row }) =>
+      C.Link({
+        label: row.original.fileName,
+        url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
+          atlasId: atlasId,
+          sourceDatasetId: row.original.id,
+        }),
+      }),
+    header: "File Name",
+    meta: { columnPinned: true },
   };
 }
 
