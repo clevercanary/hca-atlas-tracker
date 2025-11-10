@@ -35,16 +35,16 @@ export const ComponentAtlasView = ({
     isLoading,
   } = formManager;
   const { data: componentAtlas } = formMethod;
-  const { atlas, componentAtlasSourceDatasets, sourceStudiesSourceDatasets } =
+  const { atlas, atlasSourceDatasets, componentAtlasSourceDatasets } =
     componentAtlasData;
   if (isLoading) return <Fragment />;
   return (
     <EntityProvider
       data={{
         atlas,
+        atlasSourceDatasets,
         componentAtlas,
         componentAtlasSourceDatasets,
-        sourceStudiesSourceDatasets,
       }}
       formManager={formManager}
       pathParameter={pathParameter}
@@ -56,7 +56,7 @@ export const ComponentAtlasView = ({
             atlas &&
               componentAtlas &&
               componentAtlasSourceDatasets &&
-              sourceStudiesSourceDatasets
+              atlasSourceDatasets
           )
         )}
       >
@@ -84,7 +84,7 @@ export const ComponentAtlasView = ({
               formMethod={formMethod}
               pathParameter={pathParameter}
               sectionConfigs={VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS}
-              atlasSourceDatasets={sourceStudiesSourceDatasets}
+              atlasSourceDatasets={atlasSourceDatasets}
             />
           }
           tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
