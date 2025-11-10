@@ -1046,6 +1046,23 @@ function getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(): C
 }
 
 /**
+ * Returns the file name column definition model for the component atlas source datasets selection table.
+ * @returns Column def.
+ */
+function getComponentAtlasSourceDatasetsSelectionFileNameColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  return {
+    accessorKey: "fileName",
+    cell: ({ row }) =>
+      C.RowSelectionCell({
+        label: row.original.fileName,
+        row,
+      }),
+    header: "File Name",
+    meta: { columnPinned: true },
+  };
+}
+
+/**
  * Returns the title column definition model for the component atlas source datasets selection table.
  * @returns Column definition.
  */
@@ -1053,9 +1070,8 @@ function getComponentAtlasSourceDatasetsSelectionTitleColumnDef(): ColumnDef<HCA
   return {
     accessorKey: "title",
     cell: ({ row }: CellContext<HCAAtlasTrackerSourceDataset, unknown>) =>
-      C.RowSelectionCell({
-        label: row.original.title,
-        row,
+      C.BasicCell({
+        value: row.original.title,
       }),
     header: "Title",
   };
@@ -1068,8 +1084,8 @@ function getComponentAtlasSourceDatasetsSelectionTitleColumnDef(): ColumnDef<HCA
 export function getComponentAtlasSourceDatasetsSelectionTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
     getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(),
+    getComponentAtlasSourceDatasetsSelectionFileNameColumnDef(),
     getComponentAtlasSourceDatasetsSelectionTitleColumnDef(),
-    getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
