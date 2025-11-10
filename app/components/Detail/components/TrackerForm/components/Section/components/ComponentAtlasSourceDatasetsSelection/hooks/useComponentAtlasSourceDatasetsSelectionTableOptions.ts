@@ -6,13 +6,13 @@ import {
   PartialTableOptions,
   useTableOptions,
 } from "../../../../../../../../../hooks/useTableOptions";
-import { FIELD_NAME } from "../../../../../../ViewSourceStudiesSourceDatasets/common/constants";
-import { SourceStudiesSourceDatasetsEditData } from "../../../../../../ViewSourceStudiesSourceDatasets/common/entities";
+import { FIELD_NAME } from "../../../../../../ViewComponentAtlasSourceDatasetsSelection/common/constants";
+import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../ViewComponentAtlasSourceDatasetsSelection/common/entities";
 import { TABLE_OPTIONS } from "../components/FormContent/components/Table/common/constants";
 
-export const useSourceStudiesSourceDatasetsTableOptions = (
+export const useComponentAtlasSourceDatasetsSelectionTableOptions = (
   formMethod: FormMethod<
-    SourceStudiesSourceDatasetsEditData,
+    ComponentAtlasSourceDatasetsEditData,
     HCAAtlasTrackerSourceDataset[]
   >
 ): PartialTableOptions<HCAAtlasTrackerSourceDataset> => {
@@ -29,7 +29,7 @@ export const useSourceStudiesSourceDatasetsTableOptions = (
  */
 function enableRowSelection(
   row: Row<HCAAtlasTrackerSourceDataset>,
-  defaultValues: FormState<SourceStudiesSourceDatasetsEditData>["defaultValues"]
+  defaultValues: FormState<ComponentAtlasSourceDatasetsEditData>["defaultValues"]
 ): boolean {
   const { sourceDatasetIds } = defaultValues || {};
   if (!sourceDatasetIds) return true;
@@ -47,7 +47,7 @@ function enableRowSelection(
  */
 function enableSubRowSelection(
   row: Row<HCAAtlasTrackerSourceDataset>,
-  defaultValues: FormState<SourceStudiesSourceDatasetsEditData>["defaultValues"]
+  defaultValues: FormState<ComponentAtlasSourceDatasetsEditData>["defaultValues"]
 ): boolean {
   const { sourceDatasetIds } = defaultValues || {};
   if (!sourceDatasetIds) return true;
@@ -60,7 +60,7 @@ function enableSubRowSelection(
  * @returns row selection.
  */
 function getInitialRowSelection(
-  defaultValues: FormState<SourceStudiesSourceDatasetsEditData>["defaultValues"]
+  defaultValues: FormState<ComponentAtlasSourceDatasetsEditData>["defaultValues"]
 ): RowSelectionState {
   const sourceDatasetsIds = defaultValues?.[FIELD_NAME.SOURCE_DATASET_IDS];
   if (!sourceDatasetsIds) return {};
@@ -80,7 +80,7 @@ function getInitialRowSelection(
  */
 function getInitialTableOptions(
   formMethod: FormMethod<
-    SourceStudiesSourceDatasetsEditData,
+    ComponentAtlasSourceDatasetsEditData,
     HCAAtlasTrackerSourceDataset[]
   >
 ): PartialTableOptions<HCAAtlasTrackerSourceDataset> {

@@ -3,14 +3,14 @@ import { useEffect, useMemo } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../hooks/useForm/common/entities";
 import { PartialTableOptions } from "../../../../../../../../../hooks/useTableOptions";
-import { FIELD_NAME } from "../../../../../../ViewSourceStudiesSourceDatasets/common/constants";
-import { SourceStudiesSourceDatasetsEditData } from "../../../../../../ViewSourceStudiesSourceDatasets/common/entities";
+import { FIELD_NAME } from "../../../../../../ViewComponentAtlasSourceDatasetsSelection/common/constants";
+import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../ViewComponentAtlasSourceDatasetsSelection/common/entities";
 
 const SET_VALUE_OPTIONS = { shouldDirty: true, shouldValidate: true };
 
-export const useUpdateSourceStudiesSourceDatasetsFormState = (
+export const useComponentAtlasSourceDatasetsSelectionFormState = (
   formMethod: FormMethod<
-    SourceStudiesSourceDatasetsEditData,
+    ComponentAtlasSourceDatasetsEditData,
     HCAAtlasTrackerSourceDataset[]
   >,
   tableOptions: PartialTableOptions<HCAAtlasTrackerSourceDataset>

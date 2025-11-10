@@ -2,15 +2,15 @@ import { HCAAtlasTrackerSourceDataset } from "../../../../../apis/catalog/hca-at
 import { FormMethod } from "../../../../../hooks/useForm/common/entities";
 import { useForm } from "../../../../../hooks/useForm/useForm";
 import { FIELD_NAME } from "../common/constants";
-import { SourceStudiesSourceDatasetsEditData } from "../common/entities";
-import { sourceStudiesSourceDatasetsEditSchema } from "../common/schema";
+import { ComponentAtlasSourceDatasetsEditData } from "../common/entities";
+import { componentAtlasSourceDatasetsEditSchema } from "../common/schema";
 
-const SCHEMA = sourceStudiesSourceDatasetsEditSchema;
+const SCHEMA = componentAtlasSourceDatasetsEditSchema;
 
-export const useSourceStudiesSourceDatasetsForm = (
+export const useComponentAtlasSourceDatasetsSelectionForm = (
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[]
 ): FormMethod<
-  SourceStudiesSourceDatasetsEditData,
+  ComponentAtlasSourceDatasetsEditData,
   HCAAtlasTrackerSourceDataset[]
 > => {
   return useForm(
@@ -40,7 +40,7 @@ function getSourceDatasetIds(
  */
 function mapSchemaValues(
   componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[]
-): SourceStudiesSourceDatasetsEditData {
+): ComponentAtlasSourceDatasetsEditData {
   return {
     [FIELD_NAME.SOURCE_DATASET_IDS]: getSourceDatasetIds(
       componentAtlasSourceDatasets

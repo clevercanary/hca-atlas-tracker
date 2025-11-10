@@ -5,31 +5,30 @@ import { Button } from "@mui/material";
 import { Fragment, useState } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
-import { SourceStudiesSourceDatasets } from "../TrackerForm/components/Section/components/SourceStudiesSourceDatasets/sourceStudiesSourceDatasets";
-import { Dialog } from "./viewSourceStudiesSourceDatasets.styles";
+import { ComponentAtlasSourceDatasetsSelection } from "../TrackerForm/components/Section/components/ComponentAtlasSourceDatasetsSelection/componentAtlasSourceDatasetsSelection";
+import { Dialog } from "./viewComponentAtlasSourceDatasetsSelection.styles";
 
-export interface ViewSourceStudiesSourceDatasetsProps {
+export interface ViewComponentAtlasSourceDatasetsSelectionProps {
+  atlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
+  componentAtlasIsArchived: boolean;
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   pathParameter: PathParameter;
-  sourceStudiesSourceDatasets: HCAAtlasTrackerSourceDataset[];
 }
 
-export const ViewSourceStudiesSourceDatasets = ({
+export const ViewComponentAtlasSourceDatasetsSelection = ({
+  atlasSourceDatasets,
+  componentAtlasIsArchived,
   componentAtlasSourceDatasets,
   pathParameter,
-  sourceStudiesSourceDatasets,
-}: ViewSourceStudiesSourceDatasetsProps): JSX.Element => {
+}: ViewComponentAtlasSourceDatasetsSelectionProps): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const onClose = (): void => setOpen(false);
   const onOpen = (): void => setOpen(true);
-  const hasComponentAtlasesEntry = false; // TODO: base this on something once it's possible for it to be true
   return (
     <Fragment>
       <Button
         {...BUTTON_PROPS.SECONDARY_CONTAINED}
-        disabled={
-          !hasComponentAtlasesEntry || sourceStudiesSourceDatasets.length === 0
-        }
+        disabled={componentAtlasIsArchived || atlasSourceDatasets.length === 0}
         onClick={onOpen}
         startIcon={
           <AddLinkIcon
@@ -41,11 +40,11 @@ export const ViewSourceStudiesSourceDatasets = ({
         Link source dataset
       </Button>
       <Dialog fullWidth onClose={onClose} open={open}>
-        <SourceStudiesSourceDatasets
+        <ComponentAtlasSourceDatasetsSelection
           componentAtlasSourceDatasets={componentAtlasSourceDatasets}
           onClose={onClose}
           pathParameter={pathParameter}
-          sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
+          atlasSourceDatasets={atlasSourceDatasets}
         />
       </Dialog>
     </Fragment>

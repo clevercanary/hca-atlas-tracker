@@ -4,13 +4,13 @@ import {
 } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
 import { useFetchAtlas } from "../../../hooks/useFetchAtlas";
-import { useFetchSourceStudiesSourceDatasets } from "../../../hooks/useFetchSourceStudiesSourceDatasets";
+import { useFetchAssociatedAtlasSourceDatasets } from "./useFetchAssociatedAtlasSourceDatasets";
 import { useFetchComponentAtlasSourceDatasets } from "./useFetchComponentAtlasSourceDatasets";
 
 interface UseFetchComponentAtlasData {
   atlas?: HCAAtlasTrackerAtlas;
+  atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
-  sourceStudiesSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const useFetchComponentAtlasData = (
@@ -19,11 +19,11 @@ export const useFetchComponentAtlasData = (
   const { atlas } = useFetchAtlas(pathParameter);
   const { componentAtlasSourceDatasets } =
     useFetchComponentAtlasSourceDatasets(pathParameter);
-  const sourceStudiesSourceDatasets =
-    useFetchSourceStudiesSourceDatasets(pathParameter);
+  const { atlasSourceDatasets } =
+    useFetchAssociatedAtlasSourceDatasets(pathParameter);
   return {
     atlas,
+    atlasSourceDatasets,
     componentAtlasSourceDatasets,
-    sourceStudiesSourceDatasets,
   };
 };

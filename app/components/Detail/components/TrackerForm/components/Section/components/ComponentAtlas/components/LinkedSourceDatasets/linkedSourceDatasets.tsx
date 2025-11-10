@@ -5,22 +5,24 @@ import { FormManager } from "../../../../../../../../../../hooks/useFormManager/
 import { StyledFluidPaper } from "../../../../../../../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../../../../../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { StyledToolbar } from "../../../../../../../../../Table/components/TableToolbar/tableToolbar.styles";
-import { ViewSourceStudiesSourceDatasets } from "../../../../../../../ViewSourceStudiesSourceDatasets/viewSourceStudiesSourceDatasets";
+import { ViewComponentAtlasSourceDatasetsSelection } from "../../../../../../../ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
 import { Section, SectionHero, SectionTitle } from "../../../../section.styles";
 import { Table } from "./components/Table/table";
 
 export interface LinkedSourceDatasetsProps {
+  atlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
+  componentAtlasIsArchived: boolean;
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   formManager: FormManager;
   pathParameter: PathParameter;
-  sourceStudiesSourceDatasets: HCAAtlasTrackerSourceDataset[];
 }
 
 export const LinkedSourceDatasets = ({
+  atlasSourceDatasets,
+  componentAtlasIsArchived,
   componentAtlasSourceDatasets,
   formManager,
   pathParameter,
-  sourceStudiesSourceDatasets,
 }: LinkedSourceDatasetsProps): JSX.Element => {
   const {
     access: { canEdit },
@@ -34,10 +36,11 @@ export const LinkedSourceDatasets = ({
         <GridPaper>
           {canEdit && (
             <StyledToolbar>
-              <ViewSourceStudiesSourceDatasets
+              <ViewComponentAtlasSourceDatasetsSelection
+                componentAtlasIsArchived={componentAtlasIsArchived}
                 componentAtlasSourceDatasets={componentAtlasSourceDatasets}
                 pathParameter={pathParameter}
-                sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
+                atlasSourceDatasets={atlasSourceDatasets}
               />
             </StyledToolbar>
           )}

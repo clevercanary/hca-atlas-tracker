@@ -17,10 +17,16 @@ export const Table = ({
   componentAtlasSourceDatasets = [],
   pathParameter,
 }: TableProps): JSX.Element => {
+  if (pathParameter.atlasId === undefined)
+    throw new Error("Missing atlas ID path parameter");
   const { onUnlink } = useUnlinkComponentAtlasSourceDatasets(pathParameter);
   return (
     <SectionTable
-      columns={getAtlasComponentSourceDatasetsTableColumns(onUnlink, canEdit)}
+      columns={getAtlasComponentSourceDatasetsTableColumns(
+        onUnlink,
+        canEdit,
+        pathParameter.atlasId
+      )}
       gridTemplateColumns={getGridTemplateColumns(canEdit)}
       items={componentAtlasSourceDatasets}
       tableOptions={{ ...TABLE_OPTIONS, getRowId: (row) => row.id }}
