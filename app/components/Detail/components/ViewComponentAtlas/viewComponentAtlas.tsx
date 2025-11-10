@@ -14,6 +14,7 @@ import { LinkedSourceDatasets } from "../TrackerForm/components/Section/componen
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface ViewComponentAtlasProps {
+  atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
   formMethod: FormMethod<
@@ -25,16 +26,15 @@ interface ViewComponentAtlasProps {
     ViewIntegratedObjectData,
     HCAAtlasTrackerComponentAtlas
   >[];
-  sourceStudiesSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewComponentAtlas = ({
+  atlasSourceDatasets = [],
   componentAtlasSourceDatasets = [],
   formManager,
   formMethod,
   pathParameter,
   sectionConfigs,
-  sourceStudiesSourceDatasets = [],
 }: ViewComponentAtlasProps): JSX.Element => {
   const {
     access: { canView },
@@ -57,7 +57,7 @@ export const ViewComponentAtlas = ({
         componentAtlasSourceDatasets={componentAtlasSourceDatasets}
         formManager={formManager}
         pathParameter={pathParameter}
-        sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
+        atlasSourceDatasets={atlasSourceDatasets}
       />
     </Fragment>
   );

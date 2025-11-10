@@ -1026,10 +1026,10 @@ export function getAtlasSourceStudySourceDatasetsTableColumns(): ColumnDef<HCAAt
 }
 
 /**
- * Returns the source studies source datasets publication string column definition model.
+ * Returns the publication string column definition model for the component atlas source datasets selection table.
  * @returns Column definition.
  */
-function getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "publicationString",
     cell: ({
@@ -1046,10 +1046,10 @@ function getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(): Column
 }
 
 /**
- * Returns the source studies source datasets title column definition model.
+ * Returns the title column definition model for the component atlas source datasets selection table.
  * @returns Column definition.
  */
-function getAtlasSourceStudiesSourceDatasetsTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+function getComponentAtlasSourceDatasetsSelectionTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "title",
     cell: ({ row }: CellContext<HCAAtlasTrackerSourceDataset, unknown>) =>
@@ -1062,13 +1062,13 @@ function getAtlasSourceStudiesSourceDatasetsTitleColumnDef(): ColumnDef<HCAAtlas
 }
 
 /**
- * Returns the table column definition model for the atlas source studies source datasets table.
+ * Returns the table column definition model for the component atlas source datasets selection table.
  * @returns Table column definition.
  */
-export function getAtlasSourceStudiesSourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
+export function getComponentAtlasSourceDatasetsSelectionTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
   return [
-    getAtlasSourceStudiesSourceDatasetsPublicationStringColumnDef(),
-    getAtlasSourceStudiesSourceDatasetsTitleColumnDef(),
+    getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(),
+    getComponentAtlasSourceDatasetsSelectionTitleColumnDef(),
     getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),

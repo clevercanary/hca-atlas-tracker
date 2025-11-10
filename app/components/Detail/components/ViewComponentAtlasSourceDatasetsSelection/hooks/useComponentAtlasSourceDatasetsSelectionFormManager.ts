@@ -11,12 +11,12 @@ import { useFormManager } from "../../../../../hooks/useFormManager/useFormManag
 import { fetchData } from "../../../../../providers/fetchDataState/actions/fetchData/dispatch";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../../../../../views/ComponentAtlasView/hooks/useFetchComponentAtlasSourceDatasets";
 import { FIELD_NAME } from "../common/constants";
-import { SourceStudiesSourceDatasetsEditData } from "../common/entities";
+import { ComponentAtlasSourceDatasetsEditData } from "../common/entities";
 
-export const useSourceStudiesSourceDatasetsFormManager = (
+export const useComponentAtlasSourceDatasetsSelectionFormManager = (
   pathParameter: PathParameter,
   formMethod: FormMethod<
-    SourceStudiesSourceDatasetsEditData,
+    ComponentAtlasSourceDatasetsEditData,
     HCAAtlasTrackerSourceDataset[]
   >,
   onClose: () => void
@@ -32,7 +32,7 @@ export const useSourceStudiesSourceDatasetsFormManager = (
   }, [onClose]);
 
   const onSave = useCallback(
-    (payload: SourceStudiesSourceDatasetsEditData) => {
+    (payload: ComponentAtlasSourceDatasetsEditData) => {
       onSubmit(
         getRequestURL(API.ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS, pathParameter),
         METHOD.POST,
@@ -58,9 +58,9 @@ export const useSourceStudiesSourceDatasetsFormManager = (
  * @returns payload with the default values filtered out.
  */
 function filterDefaultValues(
-  payload: SourceStudiesSourceDatasetsEditData,
-  defaultValues: FormState<SourceStudiesSourceDatasetsEditData>["defaultValues"]
-): SourceStudiesSourceDatasetsEditData {
+  payload: ComponentAtlasSourceDatasetsEditData,
+  defaultValues: FormState<ComponentAtlasSourceDatasetsEditData>["defaultValues"]
+): ComponentAtlasSourceDatasetsEditData {
   const sourceDatasetIds = payload[FIELD_NAME.SOURCE_DATASET_IDS];
   const defaultSourceDatasetIds =
     defaultValues?.[FIELD_NAME.SOURCE_DATASET_IDS];

@@ -84,7 +84,7 @@ export const ComponentAtlasView = ({
               formMethod={formMethod}
               pathParameter={pathParameter}
               sectionConfigs={VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS}
-              sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
+              atlasSourceDatasets={sourceStudiesSourceDatasets}
             />
           }
           tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
