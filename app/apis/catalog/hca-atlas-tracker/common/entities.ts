@@ -323,7 +323,7 @@ export type HCAAtlasTrackerDBComponentAtlasForAPI =
       | "size_bytes"
       | "validation_status"
       | "validation_summary"
-    > & { file_id: string };
+    > & { file_id: string; source_dataset_count: number };
 
 export type HCAAtlasTrackerDBComponentAtlasForDetailAPI =
   HCAAtlasTrackerDBComponentAtlasForAPI &

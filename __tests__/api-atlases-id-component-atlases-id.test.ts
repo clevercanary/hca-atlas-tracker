@@ -11,6 +11,7 @@ import {
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -159,6 +160,7 @@ describe(TEST_ROUTE, () => {
           componentAtlas,
           COMPONENT_ATLAS_DRAFT_FOO
         );
+        expect(componentAtlas.sourceDatasetCount).toEqual(3);
       }
     );
   }
@@ -176,6 +178,7 @@ describe(TEST_ROUTE, () => {
       componentAtlas,
       COMPONENT_ATLAS_DRAFT_FOO
     );
+    expect(componentAtlas.sourceDatasetCount).toEqual(3);
     expect(componentAtlas.title).toEqual("");
     expect(componentAtlas.cellCount).toEqual(0);
     expect(componentAtlas.assay).toEqual([]);
@@ -197,6 +200,7 @@ describe(TEST_ROUTE, () => {
       componentAtlas,
       COMPONENT_ATLAS_DRAFT_BAR
     );
+    expect(componentAtlas.sourceDatasetCount).toEqual(2);
     expect(componentAtlas.title).not.toEqual("");
     expect(componentAtlas.cellCount).not.toEqual(0);
     expect(componentAtlas.assay).not.toEqual([]);
@@ -218,6 +222,29 @@ describe(TEST_ROUTE, () => {
       componentAtlas,
       COMPONENT_ATLAS_WITH_ARCHIVED_LATEST
     );
+    expect(componentAtlas.sourceDatasetCount).toEqual(0);
+    expect(componentAtlas.title).not.toEqual("");
+    expect(componentAtlas.cellCount).not.toEqual(0);
+    expect(componentAtlas.assay).not.toEqual([]);
+    expect(componentAtlas.disease).not.toEqual([]);
+    expect(componentAtlas.suspensionType).not.toEqual([]);
+    expect(componentAtlas.tissue).not.toEqual([]);
+  });
+
+  it("returns component atlas with archived source dataset when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expectDetailApiComponentAtlasToMatchTest(
+      componentAtlas,
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES
+    );
+    expect(componentAtlas.sourceDatasetCount).toEqual(1);
     expect(componentAtlas.title).not.toEqual("");
     expect(componentAtlas.cellCount).not.toEqual(0);
     expect(componentAtlas.assay).not.toEqual([]);
