@@ -15,6 +15,7 @@ import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface ViewComponentAtlasProps {
   atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
+  componentAtlasIsArchived?: boolean;
   componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   formManager: FormManagerProps;
   formMethod: FormMethod<
@@ -30,6 +31,7 @@ interface ViewComponentAtlasProps {
 
 export const ViewComponentAtlas = ({
   atlasSourceDatasets = [],
+  componentAtlasIsArchived = false,
   componentAtlasSourceDatasets = [],
   formManager,
   formMethod,
@@ -54,6 +56,7 @@ export const ViewComponentAtlas = ({
       ))}
       <Divider />
       <LinkedSourceDatasets
+        componentAtlasIsArchived={componentAtlasIsArchived}
         componentAtlasSourceDatasets={componentAtlasSourceDatasets}
         formManager={formManager}
         pathParameter={pathParameter}

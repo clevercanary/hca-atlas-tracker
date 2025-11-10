@@ -10,12 +10,14 @@ import { Dialog } from "./viewComponentAtlasSourceDatasetsSelection.styles";
 
 export interface ViewComponentAtlasSourceDatasetsSelectionProps {
   atlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
+  componentAtlasIsArchived: boolean;
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   pathParameter: PathParameter;
 }
 
 export const ViewComponentAtlasSourceDatasetsSelection = ({
   atlasSourceDatasets,
+  componentAtlasIsArchived,
   componentAtlasSourceDatasets,
   pathParameter,
 }: ViewComponentAtlasSourceDatasetsSelectionProps): JSX.Element => {
@@ -26,7 +28,7 @@ export const ViewComponentAtlasSourceDatasetsSelection = ({
     <Fragment>
       <Button
         {...BUTTON_PROPS.SECONDARY_CONTAINED}
-        disabled={atlasSourceDatasets.length === 0}
+        disabled={componentAtlasIsArchived || atlasSourceDatasets.length === 0}
         onClick={onOpen}
         startIcon={
           <AddLinkIcon

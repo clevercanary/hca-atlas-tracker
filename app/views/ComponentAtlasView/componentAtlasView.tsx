@@ -79,6 +79,7 @@ export const ComponentAtlasView = ({
           }
           mainColumn={
             <ViewComponentAtlas
+              componentAtlasIsArchived={componentAtlas?.isArchived}
               componentAtlasSourceDatasets={componentAtlasSourceDatasets}
               formManager={formManager}
               formMethod={formMethod}

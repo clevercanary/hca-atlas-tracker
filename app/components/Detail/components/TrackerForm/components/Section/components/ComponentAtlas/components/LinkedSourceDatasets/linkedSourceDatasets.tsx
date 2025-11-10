@@ -11,6 +11,7 @@ import { Table } from "./components/Table/table";
 
 export interface LinkedSourceDatasetsProps {
   atlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
+  componentAtlasIsArchived: boolean;
   componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[];
   formManager: FormManager;
   pathParameter: PathParameter;
@@ -18,6 +19,7 @@ export interface LinkedSourceDatasetsProps {
 
 export const LinkedSourceDatasets = ({
   atlasSourceDatasets,
+  componentAtlasIsArchived,
   componentAtlasSourceDatasets,
   formManager,
   pathParameter,
@@ -35,6 +37,7 @@ export const LinkedSourceDatasets = ({
           {canEdit && (
             <StyledToolbar>
               <ViewComponentAtlasSourceDatasetsSelection
+                componentAtlasIsArchived={componentAtlasIsArchived}
                 componentAtlasSourceDatasets={componentAtlasSourceDatasets}
                 pathParameter={pathParameter}
                 atlasSourceDatasets={atlasSourceDatasets}
