@@ -5,18 +5,19 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import sourceStudyHandler from "../pages/api/atlases/[atlasId]/source-datasets/source-study";
 import {
-  ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_WITH_SOURCE_STUDY_BAR,
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR,
   SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO,
-  SOURCE_STUDY_MISC_B_BAR,
+  SOURCE_STUDY_DRAFT_OK,
+  SOURCE_STUDY_MISC_C_BAR,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_PUBLIC,
-  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
@@ -57,6 +58,11 @@ const INPUT_DATA_NO_DATASETS = {
   sourceStudyId: null,
 };
 
+const INPUT_DATA_NON_ASSOCIATED_STUDY = {
+  sourceDatasetIds: INPUT_DATA_NULL_SUCCESSFUL.sourceDatasetIds,
+  sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+};
+
 const INPUT_DATA_NON_LINKED_DATASET = {
   sourceDatasetIds: [
     ...INPUT_DATA_NULL_SUCCESSFUL.sourceDatasetIds,
@@ -86,7 +92,7 @@ describe(`${TEST_ROUTE} (misc)`, () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NULL_SUCCESSFUL,
           undefined,
           METHOD.PUT
@@ -101,7 +107,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NULL_SUCCESSFUL,
           undefined,
           METHOD.PATCH,
@@ -118,7 +124,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NULL_SUCCESSFUL,
           USER_UNREGISTERED,
           METHOD.PATCH,
@@ -135,7 +141,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NULL_SUCCESSFUL,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.PATCH,
@@ -155,7 +161,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       sourceStudyHandler,
       METHOD.PATCH,
       role,
-      getQueryValues(ATLAS_WITH_MISC_SOURCE_STUDIES_B.id),
+      getQueryValues(ATLAS_WITH_MISC_SOURCE_STUDIES_C.id),
       INPUT_DATA_NULL_SUCCESSFUL,
       false,
       async (res) => {
@@ -171,7 +177,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NULL_SUCCESSFUL,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.PATCH,
@@ -188,7 +194,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NONEXISTENT_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
@@ -202,7 +208,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NO_DATASETS,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
@@ -212,11 +218,25 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     ).toEqual(400);
   });
 
+  it("returns error 404 when PATCH requested with source study that doesn't exist on the atlas", async () => {
+    expect(
+      (
+        await doSourceStudyRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+          INPUT_DATA_NON_ASSOCIATED_STUDY,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
   it("returns error 404 when PATCH requested with source dataset the atlas doesn't have", async () => {
     expect(
       (
         await doSourceStudyRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NON_LINKED_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
@@ -232,21 +252,21 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
 
   it("links source study when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     await doSuccessfulSourceStudyTest(
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B,
-      SOURCE_STUDY_MISC_B_BAR.id
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
+      SOURCE_STUDY_MISC_C_BAR.id
     );
   });
 
   it("links source study when PATCH requested by user with CONTENT_ADMIN role", async () => {
     await doSuccessfulSourceStudyTest(
       USER_CONTENT_ADMIN,
-      SOURCE_STUDY_MISC_B_BAR.id
+      SOURCE_STUDY_MISC_C_BAR.id
     );
   });
 
   it("unlinks source studies when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     await doSuccessfulSourceStudyTest(
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
       null
     );
   });
@@ -263,7 +283,7 @@ async function doSuccessfulSourceStudyTest(
   const atlasDatasetsByIdBefore = new Map(
     (
       await getAtlasSourceDatasetsFromDatabase(
-        ATLAS_WITH_MISC_SOURCE_STUDIES_B.id
+        ATLAS_WITH_MISC_SOURCE_STUDIES_C.id
       )
     ).map((d) => [d.id, d])
   );
@@ -277,7 +297,7 @@ async function doSuccessfulSourceStudyTest(
   expect(
     (
       await doSourceStudyRequest(
-        ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+        ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
         makeSuccessfulInputData(sourceStudyId),
         user
       )
@@ -287,7 +307,7 @@ async function doSuccessfulSourceStudyTest(
   const atlasDatasetsByIdAfter = new Map(
     (
       await getAtlasSourceDatasetsFromDatabase(
-        ATLAS_WITH_MISC_SOURCE_STUDIES_B.id
+        ATLAS_WITH_MISC_SOURCE_STUDIES_C.id
       )
     ).map((d) => [d.id, d])
   );
