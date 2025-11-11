@@ -347,6 +347,18 @@ export type SourceDatasetsSetReprocessedStatusData = InferType<
 >;
 
 /**
+ * Schema for data used to set the source study of source datasets.
+ */
+export const sourceDatasetsSetSourceStudySchema = object({
+  sourceDatasetIds: array(string().required()).min(1).required(),
+  sourceStudyId: string().defined().nullable(),
+}).strict();
+
+export type SourceDatasetsSetSourceStudyData = InferType<
+  typeof sourceDatasetsSetSourceStudySchema
+>;
+
+/**
  * Schema for data used to set the archive status of source datasets.
  */
 export const filesSetIsArchivedSchema = object({

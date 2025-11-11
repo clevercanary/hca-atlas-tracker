@@ -10,15 +10,18 @@ import {
   NewSourceDatasetData,
   SourceDatasetEditData,
   SourceDatasetsSetReprocessedStatusData,
+  SourceDatasetsSetSourceStudyData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   confirmSourceDatasetIsLinkedToStudy,
   confirmSourceDatasetsAreAvailable,
+  confirmSourceDatasetsExistOnAtlas,
   getAtlasSourceDatasetIds,
   getComponentAtlasSourceDatasetIds,
   getSourceDatasetForDetailApi,
   getSourceDatasetsForApi,
   getSourceStudySourceDatasetIds,
+  setSourceDatasetsSourceStudy,
 } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
@@ -331,23 +334,24 @@ export async function setAtlasSourceDatasetsReprocessedStatus(
   atlasId: string,
   inputData: SourceDatasetsSetReprocessedStatusData
 ): Promise<void> {
-  const atlasSourceDatasetIds = await getAtlasSourceDatasetIds(atlasId);
-
-  const missingSourceDatasetIds = inputData.sourceDatasetIds.filter(
-    (id) => !atlasSourceDatasetIds.includes(id)
-  );
-  if (missingSourceDatasetIds.length > 0)
-    throw new NotFoundError(
-      `Atlas with ID ${atlasId} does not have source dataset(s): ${missingSourceDatasetIds.join(
-        ", "
-      )}`
-    );
+  await confirmSourceDatasetsExistOnAtlas(inputData.sourceDatasetIds, atlasId);
 
   await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
 
   await query(
     "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE id = ANY($2)",
     [inputData.reprocessedStatus, inputData.sourceDatasetIds]
+  );
+}
+
+export async function setAtlasSourceDatasetsSourceStudy(
+  atlasId: string,
+  inputData: SourceDatasetsSetSourceStudyData
+): Promise<void> {
+  await confirmSourceDatasetsExistOnAtlas(inputData.sourceDatasetIds, atlasId);
+  await setSourceDatasetsSourceStudy(
+    inputData.sourceDatasetIds,
+    inputData.sourceStudyId
   );
 }
 
