@@ -1475,6 +1475,28 @@ export const SOURCE_STUDY_HEATMAP_TEST_BAR: TestUnpublishedSourceStudy = {
   },
 };
 
+export const SOURCE_STUDY_MISC_B_FOO: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "5ac60a08-351d-4d57-972a-24bd74c96d63",
+  unpublishedInfo: {
+    contactEmail: "misc-b-foo@example.com",
+    referenceAuthor: "Test Author Misc B Foo",
+    title: "Source Study Misc B Foo",
+  },
+};
+
+export const SOURCE_STUDY_MISC_B_BAR: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "056a4ade-1702-4338-9386-b9b6406461ef",
+  unpublishedInfo: {
+    contactEmail: "misc-b-foo@example.com",
+    referenceAuthor: "Test Author Misc B Foo",
+    title: "Source Study Misc B Foo",
+  },
+};
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1512,6 +1534,8 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   SOURCE_STUDY_HEATMAP_TEST_FOO,
   SOURCE_STUDY_HEATMAP_TEST_BAR,
+  SOURCE_STUDY_MISC_B_FOO,
+  SOURCE_STUDY_MISC_B_BAR,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -2341,6 +2365,77 @@ export const SOURCE_DATASET_ARCHIVED_FOOBAR = {
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-source-dataset-without-source-study-foo",
+    etag: "c36ebc5dd93c458bab490b9d35426e90",
+    eventTime: "2025-11-11T20:38:19.510Z",
+    fileName: "source-dataset-without-source-study-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "941bdbdf-d9c9-4ce2-85f8-8bd724dcde62",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "5243",
+    versionId: null,
+  },
+  id: "f9d93c6a-e7c0-4f26-8198-2474e7569bdb",
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-source-dataset-without-source-study-bar",
+    etag: "6ffd5857856f4172856f51286814a940",
+    eventTime: "2025-11-11T20:38:27.070Z",
+    fileName: "source-dataset-without-source-study-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "5fa72281-4b69-4135-8f0d-e1a2c0f90cd1",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    isArchived: true,
+    sizeBytes: "3534",
+    versionId: null,
+  },
+  id: "aceff568-5782-44f6-b7f8-73c233c5f290",
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-source-dataset-with-source-study-foo",
+    etag: "806990f304e445659a2ca3d8931b33e5",
+    eventTime: "2025-11-11T20:38:27.070Z",
+    fileName: "source-dataset-with-source-study-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "61c61281-3aff-41c9-bc2c-15d935ebb645",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "2362",
+    versionId: null,
+  },
+  id: "f91078f9-7e28-4797-8ad4-9410319feba5",
+  sourceStudyId: SOURCE_STUDY_MISC_B_FOO.id,
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-source-dataset-with-source-study-bar",
+    etag: "4ed5a8a488974ca3948c43a96cf8bb8f",
+    eventTime: "2025-11-11T20:38:29.522Z",
+    fileName: "source-dataset-with-source-study-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "a3b855b0-13a3-42c7-8924-8016f52ca423",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "23425",
+    versionId: null,
+  },
+  id: "890538d1-3ce4-4c18-a6bb-08988130d917",
+  sourceStudyId: SOURCE_STUDY_MISC_B_FOO.id,
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2372,6 +2467,10 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_ARCHIVED_BAZ,
   SOURCE_DATASET_ARCHIVED_FOOFOO,
   SOURCE_DATASET_ARCHIVED_FOOBAR,
+  SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO,
+  SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR,
+  SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
+  SOURCE_DATASET_WITH_SOURCE_STUDY_BAR,
 ];
 
 // ATLAS IDS
@@ -2653,6 +2752,10 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
     SOURCE_DATASET_ARCHIVED_BAZ.id,
     SOURCE_DATASET_ARCHIVED_FOOFOO.id,
     SOURCE_DATASET_ARCHIVED_FOOBAR.id,
+    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO.id,
+    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR.id,
+    SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.id,
+    SOURCE_DATASET_WITH_SOURCE_STUDY_BAR.id,
   ],
   sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
   status: ATLAS_STATUS.IN_PROGRESS,
