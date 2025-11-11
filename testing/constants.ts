@@ -1480,9 +1480,9 @@ export const SOURCE_STUDY_MISC_C_FOO: TestUnpublishedSourceStudy = {
   hcaProjectId: null,
   id: "5ac60a08-351d-4d57-972a-24bd74c96d63",
   unpublishedInfo: {
-    contactEmail: "misc-b-foo@example.com",
-    referenceAuthor: "Test Author Misc B Foo",
-    title: "Source Study Misc B Foo",
+    contactEmail: "misc-c-foo@example.com",
+    referenceAuthor: "Test Author Misc C Foo",
+    title: "Source Study Misc C Foo",
   },
 };
 
@@ -1491,9 +1491,9 @@ export const SOURCE_STUDY_MISC_C_BAR: TestUnpublishedSourceStudy = {
   hcaProjectId: null,
   id: "056a4ade-1702-4338-9386-b9b6406461ef",
   unpublishedInfo: {
-    contactEmail: "misc-b-foo@example.com",
-    referenceAuthor: "Test Author Misc B Foo",
-    title: "Source Study Misc B Foo",
+    contactEmail: "misc-c-foo@example.com",
+    referenceAuthor: "Test Author Misc C Foo",
+    title: "Source Study Misc C Foo",
   },
 };
 
