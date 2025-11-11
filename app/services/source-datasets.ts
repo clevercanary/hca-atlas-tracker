@@ -344,6 +344,11 @@ export async function setAtlasSourceDatasetsReprocessedStatus(
   );
 }
 
+/**
+ * Set the linked source source study ID for given source datasets of an atlas.
+ * @param atlasId - Atlas that the source datasets are accessed through.
+ * @param inputData - Input data specifying source datasets, and source study ID or null.
+ */
 export async function setAtlasSourceDatasetsSourceStudy(
   atlasId: string,
   inputData: SourceDatasetsSetSourceStudyData

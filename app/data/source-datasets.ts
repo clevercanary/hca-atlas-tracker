@@ -153,6 +153,11 @@ export async function getSourceDatasetForDetailApi(
   return queryResult.rows[0];
 }
 
+/**
+ * Set the linked source study ID of each of the given source datasets.
+ * @param sourceDatasetIds - IDs of source datasets to set source study of.
+ * @param sourceStudyId - ID or null to set source study ID to.
+ */
 export async function setSourceDatasetsSourceStudy(
   sourceDatasetIds: string[],
   sourceStudyId: string | null
