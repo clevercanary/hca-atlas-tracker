@@ -348,6 +348,8 @@ export async function setAtlasSourceDatasetsSourceStudy(
   atlasId: string,
   inputData: SourceDatasetsSetSourceStudyData
 ): Promise<void> {
+  if (inputData.sourceStudyId !== null)
+    await confirmSourceStudyExistsOnAtlas(inputData.sourceStudyId, atlasId);
   await confirmSourceDatasetsExistOnAtlas(inputData.sourceDatasetIds, atlasId);
   await setSourceDatasetsSourceStudy(
     inputData.sourceDatasetIds,
