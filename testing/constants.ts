@@ -1475,6 +1475,28 @@ export const SOURCE_STUDY_HEATMAP_TEST_BAR: TestUnpublishedSourceStudy = {
   },
 };
 
+export const SOURCE_STUDY_MISC_C_FOO: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "5ac60a08-351d-4d57-972a-24bd74c96d63",
+  unpublishedInfo: {
+    contactEmail: "misc-c-foo@example.com",
+    referenceAuthor: "Test Author Misc C Foo",
+    title: "Source Study Misc C Foo",
+  },
+};
+
+export const SOURCE_STUDY_MISC_C_BAR: TestUnpublishedSourceStudy = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "056a4ade-1702-4338-9386-b9b6406461ef",
+  unpublishedInfo: {
+    contactEmail: "misc-c-foo@example.com",
+    referenceAuthor: "Test Author Misc C Foo",
+    title: "Source Study Misc C Foo",
+  },
+};
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1512,6 +1534,8 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   SOURCE_STUDY_HEATMAP_TEST_FOO,
   SOURCE_STUDY_HEATMAP_TEST_BAR,
+  SOURCE_STUDY_MISC_C_FOO,
+  SOURCE_STUDY_MISC_C_BAR,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -2341,6 +2365,77 @@ export const SOURCE_DATASET_ARCHIVED_FOOBAR = {
   ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-without-source-study-foo",
+    etag: "c36ebc5dd93c458bab490b9d35426e90",
+    eventTime: "2025-11-11T20:38:19.510Z",
+    fileName: "source-dataset-without-source-study-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "941bdbdf-d9c9-4ce2-85f8-8bd724dcde62",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "5243",
+    versionId: null,
+  },
+  id: "f9d93c6a-e7c0-4f26-8198-2474e7569bdb",
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-without-source-study-bar",
+    etag: "6ffd5857856f4172856f51286814a940",
+    eventTime: "2025-11-11T20:38:27.070Z",
+    fileName: "source-dataset-without-source-study-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "5fa72281-4b69-4135-8f0d-e1a2c0f90cd1",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    isArchived: true,
+    sizeBytes: "3534",
+    versionId: null,
+  },
+  id: "aceff568-5782-44f6-b7f8-73c233c5f290",
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-with-source-study-foo",
+    etag: "806990f304e445659a2ca3d8931b33e5",
+    eventTime: "2025-11-11T20:38:27.070Z",
+    fileName: "source-dataset-with-source-study-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "61c61281-3aff-41c9-bc2c-15d935ebb645",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "2362",
+    versionId: null,
+  },
+  id: "f91078f9-7e28-4797-8ad4-9410319feba5",
+  sourceStudyId: SOURCE_STUDY_MISC_C_FOO.id,
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-with-source-study-bar",
+    etag: "4ed5a8a488974ca3948c43a96cf8bb8f",
+    eventTime: "2025-11-11T20:38:29.522Z",
+    fileName: "source-dataset-with-source-study-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "a3b855b0-13a3-42c7-8924-8016f52ca423",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "23425",
+    versionId: null,
+  },
+  id: "890538d1-3ce4-4c18-a6bb-08988130d917",
+  sourceStudyId: SOURCE_STUDY_MISC_C_FOO.id,
+  ...EMPTY_LEGACY_DATASET_METADATA,
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2372,6 +2467,10 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_ARCHIVED_BAZ,
   SOURCE_DATASET_ARCHIVED_FOOFOO,
   SOURCE_DATASET_ARCHIVED_FOOBAR,
+  SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO,
+  SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR,
+  SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
+  SOURCE_DATASET_WITH_SOURCE_STUDY_BAR,
 ];
 
 // ATLAS IDS
@@ -2382,6 +2481,8 @@ const ATLAS_ID_WITH_MISC_SOURCE_STUDIES =
   "8259a9b1-c149-4310-83a5-d126b675c0f1";
 const ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B =
   "1d58c9eb-ff76-4a23-a579-380a96a9125a";
+const ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C =
+  "88ee30bb-dfe5-4c23-9f4c-e03c7353d515";
 const ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
   "c41f8dd8-93ee-49f6-885a-8c5107d30229";
 const ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A =
@@ -2434,6 +2535,12 @@ export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B = makeTestUser(
   false,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B]
 );
+export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C = makeTestUser(
+  "test-integration-lead-with-misc-source-studies-c",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C]
+);
 export const USER_INTEGRATION_LEAD_WITH_NEW_ATLAS = makeTestUser(
   "test-integration-lead-with-new-atlas",
   ROLE.INTEGRATION_LEAD,
@@ -2474,6 +2581,7 @@ export const INITIAL_TEST_USERS = [
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
   USER_INTEGRATION_LEAD_WITH_NEW_ATLAS,
   USER_CELLXGENE_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -2505,6 +2613,8 @@ export const INTEGRATION_LEADS_BY_ATLAS_ID: Record<string, TestUser> = {
     USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B]:
     USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B,
+  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C]:
+    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
   [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS]:
     USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 };
@@ -2658,6 +2768,28 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   status: ATLAS_STATUS.IN_PROGRESS,
   version: "5.3",
   wave: "2",
+};
+
+export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  description: "baz bar foo foo bar baz baz foo",
+  highlights: "",
+  id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C,
+  integrationLead: [],
+  network: "lung",
+  publications: [],
+  shortName: "test-with-misc-source-studies-c",
+  sourceDatasets: [
+    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO.id,
+    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR.id,
+    SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.id,
+    SOURCE_DATASET_WITH_SOURCE_STUDY_BAR.id,
+  ],
+  sourceStudies: [SOURCE_STUDY_MISC_C_FOO.id, SOURCE_STUDY_MISC_C_BAR.id],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  version: "6.2",
+  wave: "1",
 };
 
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
@@ -2875,6 +3007,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C,

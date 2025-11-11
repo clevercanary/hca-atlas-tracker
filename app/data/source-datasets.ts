@@ -6,7 +6,7 @@ import {
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { query } from "../services/database";
+import { doTransaction, query } from "../services/database";
 import { confirmSourceStudyExists } from "../services/source-studies";
 import { NotFoundError } from "../utils/api-handler";
 import { confirmQueryRowsContainIds } from "../utils/database";
@@ -154,6 +154,33 @@ export async function getSourceDatasetForDetailApi(
 }
 
 /**
+ * Set the linked source study ID of each of the given source datasets.
+ * @param sourceDatasetIds - IDs of source datasets to set source study of.
+ * @param sourceStudyId - ID or null to set source study ID to.
+ */
+export async function setSourceDatasetsSourceStudy(
+  sourceDatasetIds: string[],
+  sourceStudyId: string | null
+): Promise<void> {
+  await doTransaction(async (client) => {
+    const queryResult = await client.query<
+      Pick<HCAAtlasTrackerDBSourceDataset, "id">
+    >(
+      "UPDATE hat.source_datasets SET source_study_id = $1 WHERE id = ANY($2) RETURNING id",
+      [sourceStudyId, sourceDatasetIds]
+    );
+
+    const presentIds = new Set(queryResult.rows.map(({ id }) => id));
+    const missingIds = sourceDatasetIds.filter((id) => !presentIds.has(id));
+
+    if (missingIds.length !== 0)
+      throw new NotFoundError(
+        `No source datasets exist with ID(s): ${missingIds.join(", ")}`
+      );
+  });
+}
+
+/**
  * Throw an error if the given source dataset is not linked to the given source study.
  * @param sourceDatasetId - Source dataset ID.
  * @param sourceStudyId - Source study ID.
@@ -196,4 +223,22 @@ export async function confirmSourceDatasetsAreAvailable(
     sourceDatasetIds,
     "source datasets"
   );
+}
+
+export async function confirmSourceDatasetsExistOnAtlas(
+  sourceDatasetIds: string[],
+  atlasId: string
+): Promise<void> {
+  const atlasSourceDatasetIds = await getAtlasSourceDatasetIds(atlasId);
+
+  const missingSourceDatasetIds = sourceDatasetIds.filter(
+    (id) => !atlasSourceDatasetIds.includes(id)
+  );
+
+  if (missingSourceDatasetIds.length > 0)
+    throw new NotFoundError(
+      `Atlas with ID ${atlasId} does not have source dataset(s): ${missingSourceDatasetIds.join(
+        ", "
+      )}`
+    );
 }
