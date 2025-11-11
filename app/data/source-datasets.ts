@@ -157,8 +157,6 @@ export async function setSourceDatasetsSourceStudy(
   sourceDatasetIds: string[],
   sourceStudyId: string | null
 ): Promise<void> {
-  if (sourceStudyId !== null) await confirmSourceStudyExists(sourceStudyId);
-
   await doTransaction(async (client) => {
     const queryResult = await client.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "id">
