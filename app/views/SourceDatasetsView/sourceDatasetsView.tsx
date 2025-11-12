@@ -9,6 +9,7 @@ import { Tabs } from "../../components/Detail/components/ViewSourceStudy/compone
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
+import { EntityProvider } from "../../providers/entity/provider";
 import { useFetchSourceStudy } from "../SourceStudyView/hooks/useFetchSourceStudy";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
@@ -28,27 +29,31 @@ export const SourceDatasetsView = ({
     access: { canEdit, canView },
   } = formManager;
   return (
-    <ConditionalComponent
-      isIn={shouldRenderView(
-        canView,
-        Boolean(atlas && sourceStudy && sourceDatasets)
-      )}
-    >
-      <DetailView
-        actions={canEdit && <Actions pathParameter={pathParameter} />}
-        breadcrumbs={
-          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
-        }
-        mainColumn={
-          <ViewSourceDatasets
-            formManager={formManager}
-            sourceDatasets={sourceDatasets}
-          />
-        }
-        subTitle={getSourceStudyCitation(sourceStudy)}
-        tabs={<Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />}
-        title={sourceStudy?.title || "Source Study"}
-      />
-    </ConditionalComponent>
+    <EntityProvider pathParameter={pathParameter}>
+      <ConditionalComponent
+        isIn={shouldRenderView(
+          canView,
+          Boolean(atlas && sourceStudy && sourceDatasets)
+        )}
+      >
+        <DetailView
+          actions={canEdit && <Actions pathParameter={pathParameter} />}
+          breadcrumbs={
+            <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+          }
+          mainColumn={
+            <ViewSourceDatasets
+              formManager={formManager}
+              sourceDatasets={sourceDatasets}
+            />
+          }
+          subTitle={getSourceStudyCitation(sourceStudy)}
+          tabs={
+            <Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />
+          }
+          title={sourceStudy?.title || "Source Study"}
+        />
+      </ConditionalComponent>
+    </EntityProvider>
   );
 };
