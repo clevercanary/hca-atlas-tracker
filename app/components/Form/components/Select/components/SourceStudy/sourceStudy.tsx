@@ -26,7 +26,7 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
     );
 
     useEffect(() => {
-      if (sourceStudies?.length) return;
+      if (sourceStudies) return;
       fetchDataDispatch(fetchData([SOURCE_STUDIES]));
     }, [fetchDataDispatch, sourceStudies]);
 
