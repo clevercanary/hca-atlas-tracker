@@ -52,7 +52,7 @@ export const useEditSourceStudyFormManager = (
 };
 
 /**
- * Sanitizes the payload by converting the source study ID to null if it is the unspecifed label.
+ * Sanitizes the payload by converting the source study ID to null if it is the unspecified label.
  * @param payload - Payload.
  * @returns The sanitized payload.
  */
