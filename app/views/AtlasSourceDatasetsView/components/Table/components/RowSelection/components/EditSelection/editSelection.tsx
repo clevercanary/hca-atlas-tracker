@@ -5,6 +5,7 @@ import { useArchivedState } from "../../../../../../../../components/Entity/prov
 import { ATLAS } from "../../../../../../../../hooks/useFetchAtlas";
 import { SOURCE_DATASETS } from "../../../../../../hooks/useFetchAtlasSourceDatasets";
 import { EditReprocessedStatus } from "./components/EditReprocessedStatus/editReprocessedStatus";
+import { SetSourceStudy } from "./components/SetSourceStudy/setSourceStudy";
 import { Props } from "./entities";
 
 export const EditSelection = ({ rows, table }: Props): JSX.Element => {
@@ -17,6 +18,12 @@ export const EditSelection = ({ rows, table }: Props): JSX.Element => {
           {({ closeMenu }): JSX.Element[] => [
             <EditReprocessedStatus
               key="reprocessed-status"
+              closeMenu={closeMenu}
+              rows={rows}
+              table={table}
+            />,
+            <SetSourceStudy
+              key="set-source-study"
               closeMenu={closeMenu}
               rows={rows}
               table={table}

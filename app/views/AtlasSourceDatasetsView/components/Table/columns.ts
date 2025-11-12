@@ -1,3 +1,4 @@
+import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { ColumnDef } from "@tanstack/react-table";
@@ -106,7 +107,7 @@ const COLUMN_SOURCE_STUDY = {
   accessorKey: "sourceStudyTitle",
   cell: ({ row }) =>
     C.Link({
-      label: row.original.publicationString,
+      label: row.original.publicationString || LABEL.UNSPECIFIED,
       url: row.original.sourceStudyId
         ? getRouteURL(ROUTE.SOURCE_STUDY, {
             atlasId: row.original.atlasId,
