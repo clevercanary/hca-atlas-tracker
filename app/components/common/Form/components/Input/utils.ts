@@ -5,6 +5,7 @@ import { Input } from "./input";
 
 /**
  * Get props for the input component.
+ * Mui InputBaseComponentProps accommodates arbitrary additional props coming from the `inputProps` prop
  * @param props - Props for the input component.
  * @param viewBuilder - View builder for the input component.
  * @returns Props for the input component.
@@ -14,7 +15,7 @@ export function getInputProps(
   viewBuilder?: ControllerViewBuilder
 ): InputBaseComponentProps {
   if (viewBuilder) {
-    return { value: viewBuilder(props.value) };
+    return { viewProps: viewBuilder(props.value) };
   }
   return { spellCheck: false };
 }

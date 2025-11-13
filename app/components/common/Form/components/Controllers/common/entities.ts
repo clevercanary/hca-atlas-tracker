@@ -21,7 +21,7 @@ export type ControllerSelectConfig<T extends FieldValues> = Pick<
 
 export type ControllerViewBuilder = (
   value: unknown
-) => InputBaseComponentProps["value"];
+) => InputBaseComponentProps["viewProps"]; // Returns component-specific props forwarded to the inputComponent via MUI inputProps under the `viewProps` key; may be a complex object (e.g., Chip props like { color, label, variant }).
 
 type PickedInputProps =
   | "label"
