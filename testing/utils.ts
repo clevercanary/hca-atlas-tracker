@@ -602,7 +602,9 @@ export function expectApiSourceDatasetToMatchTest(
     testSourceDataset.cellxgeneDatasetVersion ?? null
   );
   expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
-  expect(apiSourceDataset.geneCount).toEqual(testFile.datasetInfo?.geneCount);
+  expect(apiSourceDataset.geneCount).toEqual(
+    testFile.datasetInfo?.geneCount ?? null
+  );
   expect(apiSourceDataset.reprocessedStatus).toEqual(
     testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
   );
@@ -700,7 +702,9 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.disease).toEqual(
     testFile.datasetInfo?.disease ?? []
   );
-  expect(apiComponentAtlas.geneCount).toEqual(testFile.datasetInfo?.geneCount);
+  expect(apiComponentAtlas.geneCount).toEqual(
+    testFile.datasetInfo?.geneCount ?? null
+  );
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? []
   );
