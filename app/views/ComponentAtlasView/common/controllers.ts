@@ -1,7 +1,9 @@
 import { HCAAtlasTrackerComponentAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { ControllerConfig } from "../../../components/common/Form/components/Controllers/common/entities";
+import { Chip } from "../../../components/Form/components/Input/inputComponent/Chip/chip";
 import { FIELD_NAME } from "./constants";
 import { ViewIntegratedObjectData } from "./entities";
+import { buildCAPIngestStatus } from "./viewBuilders";
 
 type CommonControllerConfig = ControllerConfig<
   ViewIntegratedObjectData,
@@ -10,11 +12,13 @@ type CommonControllerConfig = ControllerConfig<
 
 const CAP_INGEST_STATUS: CommonControllerConfig = {
   inputProps: {
+    inputComponent: Chip,
     isFullWidth: false,
     label: "CAP Ingest Status",
     readOnly: true,
   },
   name: FIELD_NAME.CAP_INGEST_STATUS,
+  viewBuilder: buildCAPIngestStatus,
 };
 
 const CELL_COUNT: CommonControllerConfig = {

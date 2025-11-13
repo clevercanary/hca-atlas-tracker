@@ -20,7 +20,17 @@ export const Controllers = <T extends FieldValues, R = undefined>({
   return (
     <Fragment>
       {controllerConfigs.map(
-        ({ inputProps, labelLink, name, renderHelperText, selectProps }, i) => {
+        (
+          {
+            inputProps,
+            labelLink,
+            name,
+            renderHelperText,
+            selectProps,
+            viewBuilder,
+          },
+          i
+        ) => {
           const { SelectComponent } = selectProps || {};
           return SelectComponent ? (
             <SelectController
@@ -40,6 +50,7 @@ export const Controllers = <T extends FieldValues, R = undefined>({
               formMethod={formMethod}
               labelLink={labelLink}
               renderHelperText={renderHelperText}
+              viewBuilder={viewBuilder}
             />
           );
         }

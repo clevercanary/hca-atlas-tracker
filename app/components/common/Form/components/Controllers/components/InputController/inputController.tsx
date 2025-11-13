@@ -8,6 +8,7 @@ import {
 } from "../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
 import { Input, InputProps } from "../../../Input/input";
+import { ControllerViewBuilder } from "../../common/entities";
 
 export interface LabelLinkConfig {
   getUrl?: (v: string | null) => string | null;
@@ -22,6 +23,7 @@ export interface InputControllerProps<T extends FieldValues, R = undefined>
   inputProps?: Partial<Omit<InputProps, "ref">>;
   labelLink?: LabelLinkConfig | true;
   renderHelperText?: (data?: R) => ReactNode;
+  viewBuilder?: ControllerViewBuilder;
 }
 
 export const InputController = <T extends FieldValues, R = undefined>({
@@ -32,6 +34,7 @@ export const InputController = <T extends FieldValues, R = undefined>({
   labelLink,
   name,
   renderHelperText,
+  viewBuilder,
   ...props
 }: InputControllerProps<T, R>): JSX.Element => {
   const {
@@ -59,6 +62,7 @@ export const InputController = <T extends FieldValues, R = undefined>({
               : label
           }
           readOnly={isReadOnly}
+          viewBuilder={viewBuilder}
           {...inputProps}
           {...props}
         />

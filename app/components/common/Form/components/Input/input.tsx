@@ -3,12 +3,14 @@ import {
   OutlinedInputProps as MOutlinedInputProps,
 } from "@mui/material";
 import { forwardRef, ReactNode } from "react";
+import { ControllerViewBuilder } from "../Controllers/common/entities";
 import {
   FormHelperText,
   FormHelperTextProps,
 } from "../FormHelperText/formHelperText";
 import { FormLabel } from "../FormLabel/formLabel";
 import { InputFormControl as FormControl } from "./input.styles";
+import { getInputProps } from "./utils";
 
 export interface InputProps extends MOutlinedInputProps {
   className?: string;
@@ -17,6 +19,7 @@ export interface InputProps extends MOutlinedInputProps {
   isFilled?: boolean;
   isFullWidth?: boolean;
   isRowStart?: boolean;
+  viewBuilder?: ControllerViewBuilder;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -30,6 +33,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     isFullWidth = false,
     isRowStart = false,
     label,
+    viewBuilder,
     ...props /* Spread props to allow for Mui OutlinedInputProps specific prop overrides e.g. "disabled". */
   }: InputProps,
   ref
@@ -49,7 +53,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         autoComplete="off"
         disabled={disabled}
         error={error}
-        inputProps={{ spellCheck: false }}
+        inputProps={getInputProps(props, viewBuilder)}
         ref={ref}
         size="small"
         {...props}
