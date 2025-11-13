@@ -3,7 +3,7 @@ import { ControllerConfig } from "../../../components/common/Form/components/Con
 import { Chip } from "../../../components/Form/components/Input/inputComponent/Chip/chip";
 import { FIELD_NAME } from "./constants";
 import { ViewIntegratedObjectData } from "./entities";
-import { buildCAPIngestStatus } from "./viewBuilders";
+import { buildCAPIngestStatus, buildValidationStatus } from "./viewBuilders";
 
 type CommonControllerConfig = ControllerConfig<
   ViewIntegratedObjectData,
@@ -68,12 +68,14 @@ const TITLE: CommonControllerConfig = {
 
 const VALIDATION_STATUS: CommonControllerConfig = {
   inputProps: {
+    inputComponent: Chip,
     isFullWidth: false,
     isRowStart: true,
     label: "Validation Status",
     readOnly: true,
   },
   name: FIELD_NAME.VALIDATION_STATUS,
+  viewBuilder: buildValidationStatus,
 };
 
 export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: ControllerConfig<

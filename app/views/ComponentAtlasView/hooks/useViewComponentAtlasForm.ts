@@ -1,5 +1,4 @@
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { HCAAtlasTrackerComponentAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
 import { getCapIngestStatus } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
@@ -39,7 +38,6 @@ function mapSchemaValues(
     [FIELD_NAME.FILE_NAME]: integratedObject.fileName,
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),
     [FIELD_NAME.TITLE]: integratedObject.title,
-    [FIELD_NAME.VALIDATION_STATUS]:
-      FILE_VALIDATION_STATUS_NAME_LABEL[integratedObject.validationStatus],
+    [FIELD_NAME.VALIDATION_STATUS]: integratedObject.validationStatus,
   };
 }
