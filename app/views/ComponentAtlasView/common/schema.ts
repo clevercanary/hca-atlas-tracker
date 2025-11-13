@@ -12,7 +12,7 @@ export const viewIntegratedObjectSchema = object({
   [FIELD_NAME.CAP_INGEST_STATUS]: string().oneOf(
     Object.values(CAP_INGEST_STATUS)
   ),
-  [FIELD_NAME.CELL_COUNT]: number().strict(false),
+  [FIELD_NAME.CELL_COUNT]: number(),
   [FIELD_NAME.FILE_EVENT_TIME]: string(),
   [FIELD_NAME.FILE_NAME]: string(),
   [FIELD_NAME.SIZE_BY_BYTES]: string(),
