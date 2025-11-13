@@ -6,12 +6,17 @@ import { SelectProps } from "../../Select/select";
 import { LabelLinkConfig } from "../components/InputController/inputController";
 import { SelectControllerProps } from "../components/SelectController/selectController";
 
-export type ControllerInputConfig = Pick<InputProps, PickedInputProps>;
+export type ControllerInputConfig = Pick<InputProps, PickedInputProps> & {
+  isRowStart?: boolean;
+};
 
 export type ControllerSelectConfig<T extends FieldValues> = Pick<
   SelectProps,
   PickedSelectProps
-> & { SelectComponent: SelectControllerProps<T>["SelectComponent"] };
+> & {
+  isRowStart?: boolean;
+  SelectComponent: SelectControllerProps<T>["SelectComponent"];
+};
 
 type PickedInputProps =
   | "label"

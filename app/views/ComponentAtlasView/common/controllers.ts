@@ -56,6 +56,7 @@ const TITLE: CommonControllerConfig = {
 const VALIDATION_STATUS: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
+    isRowStart: true,
     label: "Validation Status",
     readOnly: true,
   },

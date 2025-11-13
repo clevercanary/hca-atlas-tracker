@@ -16,6 +16,7 @@ export interface InputProps extends MOutlinedInputProps {
   helperTextProps?: Partial<FormHelperTextProps>;
   isFilled?: boolean;
   isFullWidth?: boolean;
+  isRowStart?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -27,6 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     helperTextProps,
     isFilled = false,
     isFullWidth = false,
+    isRowStart = false,
     label,
     ...props /* Spread props to allow for Mui OutlinedInputProps specific prop overrides e.g. "disabled". */
   }: InputProps,
@@ -40,6 +42,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       error={error}
       isFilled={isFilled}
       isFullWidth={isFullWidth}
+      isRowStart={isRowStart}
     >
       {label && <FormLabel>{label}</FormLabel>}
       <MOutlinedInput

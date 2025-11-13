@@ -10,6 +10,7 @@ export type SelectProps = MSelectProps & {
   helperText?: ReactNode;
   isFilled?: boolean;
   isFullWidth?: boolean;
+  isRowStart?: boolean;
 };
 
 export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
@@ -21,6 +22,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
     helperText,
     isFilled = false,
     isFullWidth = false,
+    isRowStart = false,
     label,
     onBlur,
     ...props /* Spread props to allow for Mui SelectProps specific prop overrides e.g. "disabled". */
@@ -35,6 +37,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
       error={error}
       isFilled={isFilled}
       isFullWidth={isFullWidth}
+      isRowStart={isRowStart}
     >
       {label && <FormLabel>{label}</FormLabel>}
       <MSelect {...SELECT_PROPS} inputProps={{ onBlur }} ref={ref} {...props}>
