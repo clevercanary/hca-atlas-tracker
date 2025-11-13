@@ -3,6 +3,10 @@ import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-trac
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
 import { useFetchData } from "../../../hooks/useFetchData";
+import { useFetchDataState } from "../../../hooks/useFetchDataState";
+import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
+
+export const SOURCE_STUDIES = "sourceStudies";
 
 interface UseFetchSourceStudies {
   sourceStudies?: HCAAtlasTrackerSourceStudy[];
@@ -11,9 +15,20 @@ interface UseFetchSourceStudies {
 export const useFetchSourceStudies = (
   pathParameter: PathParameter
 ): UseFetchSourceStudies => {
-  const { data: sourceStudies } = useFetchData<
+  const {
+    fetchDataState: { shouldFetchByKey },
+  } = useFetchDataState();
+  const shouldFetch = shouldFetchByKey[SOURCE_STUDIES];
+
+  const { data: sourceStudies, progress } = useFetchData<
     HCAAtlasTrackerSourceStudy[] | undefined
-  >(getRequestURL(API.ATLAS_SOURCE_STUDIES, pathParameter), METHOD.GET);
+  >(
+    getRequestURL(API.ATLAS_SOURCE_STUDIES, pathParameter),
+    METHOD.GET,
+    shouldFetch
+  );
+
+  useResetFetchStatus(progress, [SOURCE_STUDIES]);
 
   return { sourceStudies };
 };

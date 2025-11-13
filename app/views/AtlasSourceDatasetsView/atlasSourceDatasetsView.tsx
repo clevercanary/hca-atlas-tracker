@@ -13,6 +13,7 @@ import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
+import { useFetchSourceStudies } from "../SourceStudiesView/hooks/useFetchSourceStudies";
 import { VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchAtlasSourceDatasets } from "./hooks/useFetchAtlasSourceDatasets";
@@ -31,12 +32,13 @@ export const AtlasSourceDatasetsView = ({
   } = formManager;
   const { atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
+  const { sourceStudies } = useFetchSourceStudies(pathParameter);
 
   if (isLoading) return <Fragment />;
 
   return (
     <EntityProvider
-      data={{ atlas, atlasSourceDatasets }}
+      data={{ atlas, atlasSourceDatasets, sourceStudies }}
       formManager={formManager}
       pathParameter={pathParameter}
     >

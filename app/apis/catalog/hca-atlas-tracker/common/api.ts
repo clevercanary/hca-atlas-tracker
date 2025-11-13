@@ -15,6 +15,7 @@ export enum API {
   ATLAS_SOURCE_DATASET = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]",
   ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-datasets",
   ATLAS_SOURCE_DATASETS_REPROCESSED_STATUS = "/api/atlases/[atlasId]/source-datasets/reprocessed-status",
+  ATLAS_SOURCE_DATASETS_SOURCE_STUDY = "/api/atlases/[atlasId]/source-datasets/source-study",
   ATLAS_SOURCE_STUDIES = "/api/atlases/[atlasId]/source-studies",
   ATLAS_SOURCE_STUDY = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]",
   ATLAS_SOURCE_STUDY_SOURCE_DATASET = "/api/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets/[sourceDatasetId]",

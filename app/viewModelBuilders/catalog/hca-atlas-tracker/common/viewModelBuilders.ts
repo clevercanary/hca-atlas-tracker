@@ -1433,7 +1433,12 @@ function getProgressValue(numerator: number, denominator: number): number {
 function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
     accessorKey: "download",
-    cell: (): JSX.Element => C.FileDownloadCell({ disabled: true }),
+    cell: (ctx): JSX.Element =>
+      C.FileDownloadCell({
+        fileId: ctx.row.original.fileId,
+        fileName: ctx.row.original.fileName,
+        sizeBytes: ctx.row.original.sizeBytes,
+      }),
     enableSorting: false,
     header: "Download",
   };
