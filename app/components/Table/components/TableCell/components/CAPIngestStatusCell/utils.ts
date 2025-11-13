@@ -20,7 +20,7 @@ export function buildCAPIngestStatus({
   row,
 }: Pick<Props, "row">): ComponentProps<typeof ChipCell> {
   // Determine CAP ingest status.
-  const status = getCapIngestStatus({ row });
+  const status = getCapIngestStatus(row.original);
   return {
     getValue: (() => {
       return {
@@ -34,12 +34,12 @@ export function buildCAPIngestStatus({
 
 /**
  * Determine CAP ingest status.
- * @param cellContext - CellContext.
- * @param cellContext.row - Row.
+ * @param original - Original row.
  * @returns CAP ingest status.
  */
-function getCapIngestStatus({ row }: Pick<Props, "row">): CAP_INGEST_STATUS {
-  const { original } = row;
+export function getCapIngestStatus(
+  original: Props["row"]["original"]
+): CAP_INGEST_STATUS {
   const { validationStatus, validationSummary } = original;
 
   // Determine CAP ingest status for source datasets with reprocessed status of "REPROCESSED" or "UNSPECIFIED".

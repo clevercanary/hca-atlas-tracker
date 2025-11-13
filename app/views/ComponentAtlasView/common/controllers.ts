@@ -8,6 +8,15 @@ type CommonControllerConfig = ControllerConfig<
   HCAAtlasTrackerComponentAtlas
 >;
 
+const CAP_INGEST_STATUS: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: false,
+    label: "CAP Ingest Status",
+    readOnly: true,
+  },
+  name: FIELD_NAME.CAP_INGEST_STATUS,
+};
+
 const CELL_COUNT: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
@@ -72,5 +81,6 @@ export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: ControllerConfig<
   TITLE,
   CELL_COUNT,
   VALIDATION_STATUS,
+  CAP_INGEST_STATUS,
   FILE_EVENT_TIME,
 ];
