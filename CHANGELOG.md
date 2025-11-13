@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.47.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.46.0...v1.47.0) (2025-11-13)
+
+
+### Features
+
+* add api to set the source study of specified source datasets ([#970](https://github.com/clevercanary/hca-atlas-tracker/issues/970)) ([#977](https://github.com/clevercanary/hca-atlas-tracker/issues/977)) ([e773ca9](https://github.com/clevercanary/hca-atlas-tracker/commit/e773ca9d9a695c44edabcccb1e63954c52319644))
+* link source dataset to source study ui ([#971](https://github.com/clevercanary/hca-atlas-tracker/issues/971)) ([#978](https://github.com/clevercanary/hca-atlas-tracker/issues/978)) ([0cbf0ba](https://github.com/clevercanary/hca-atlas-tracker/commit/0cbf0ba5bf711e0f0fbada817800069d29f003c3))
+* return actual source dataset count from component atlas apis ([#965](https://github.com/clevercanary/hca-atlas-tracker/issues/965)) ([#968](https://github.com/clevercanary/hca-atlas-tracker/issues/968)) ([b3126ab](https://github.com/clevercanary/hca-atlas-tracker/commit/b3126ab4ea7057f30e050e7cc85ba434138b98d8))
+* update and enable ui for linking source datasets to integrated objects ([#955](https://github.com/clevercanary/hca-atlas-tracker/issues/955)) ([#969](https://github.com/clevercanary/hca-atlas-tracker/issues/969)) ([761895e](https://github.com/clevercanary/hca-atlas-tracker/commit/761895ef7f8197b4bd39402ce375994b53b37e4c))
+* use `hat.component_atlases` ids in integrated object apis ([#959](https://github.com/clevercanary/hca-atlas-tracker/issues/959)) ([#966](https://github.com/clevercanary/hca-atlas-tracker/issues/966)) ([d248127](https://github.com/clevercanary/hca-atlas-tracker/commit/d24812789a1e60c1821afa7cb74daec81e5a9ab6))
+
 ## [1.46.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.45.0...v1.46.0) (2025-11-04)
 
 
