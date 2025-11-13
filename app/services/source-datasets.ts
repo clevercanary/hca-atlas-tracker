@@ -285,6 +285,7 @@ function sourceDatasetInputDataToDbData(
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
     assay: [],
+    capUrl: null,
     cellCount: 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,

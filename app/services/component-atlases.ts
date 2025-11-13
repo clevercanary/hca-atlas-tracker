@@ -362,6 +362,7 @@ export async function resetComponentAtlasInfo(
 function getInitialComponentAtlasInfo(): HCAAtlasTrackerDBComponentAtlasInfo {
   return {
     assay: [],
+    capUrl: null,
     cellCount: 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,

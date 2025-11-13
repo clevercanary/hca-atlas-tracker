@@ -162,6 +162,7 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.sourceDatasets,
         "assay"
       ),
+      capUrl: componentAtlas.capUrl ?? null,
       cellCount:
         componentAtlas.sourceDatasets?.reduce(
           (sum, d) => sum + (d.cellCount ?? 0),

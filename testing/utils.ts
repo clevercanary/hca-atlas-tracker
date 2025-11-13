@@ -163,6 +163,7 @@ export function makeTestSourceDatasetInfo(
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
     assay: sourceDataset.assay ?? [],
+    capUrl: sourceDataset.capUrl ?? null,
     cellCount: sourceDataset.cellCount ?? 0,
     cellxgeneDatasetId: sourceDataset.cellxgeneDatasetId ?? null,
     cellxgeneDatasetVersion: sourceDataset.cellxgeneDatasetVersion ?? null,
