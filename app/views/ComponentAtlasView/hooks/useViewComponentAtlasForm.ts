@@ -32,6 +32,8 @@ function mapSchemaValues(
 ): ViewIntegratedObjectData | undefined {
   if (!integratedObject) return;
   return {
+    [FIELD_NAME.CELL_COUNT]: integratedObject.cellCount,
+    [FIELD_NAME.FILE_EVENT_TIME]: integratedObject.fileEventTime,
     [FIELD_NAME.FILE_NAME]: integratedObject.fileName,
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),
     [FIELD_NAME.TITLE]: integratedObject.title,

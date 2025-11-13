@@ -8,9 +8,27 @@ type CommonControllerConfig = ControllerConfig<
   HCAAtlasTrackerComponentAtlas
 >;
 
+const CELL_COUNT: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: false,
+    label: "Cell Count",
+    readOnly: true,
+  },
+  name: FIELD_NAME.CELL_COUNT,
+};
+
+const FILE_EVENT_TIME: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: false,
+    label: "Date Uploaded",
+    readOnly: true,
+  },
+  name: FIELD_NAME.FILE_EVENT_TIME,
+};
+
 const FILE_NAME: CommonControllerConfig = {
   inputProps: {
-    isFullWidth: true,
+    isFullWidth: false,
     label: "File Name",
     readOnly: true,
   },
@@ -19,7 +37,7 @@ const FILE_NAME: CommonControllerConfig = {
 
 const SIZE_BY_BYTES: CommonControllerConfig = {
   inputProps: {
-    isFullWidth: true,
+    isFullWidth: false,
     label: "File Size",
     readOnly: true,
   },
@@ -37,7 +55,7 @@ const TITLE: CommonControllerConfig = {
 
 const VALIDATION_STATUS: CommonControllerConfig = {
   inputProps: {
-    isFullWidth: true,
+    isFullWidth: false,
     label: "Validation Status",
     readOnly: true,
   },
@@ -47,4 +65,11 @@ const VALIDATION_STATUS: CommonControllerConfig = {
 export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: ControllerConfig<
   ViewIntegratedObjectData,
   HCAAtlasTrackerComponentAtlas
->[] = [FILE_NAME, TITLE, SIZE_BY_BYTES, VALIDATION_STATUS];
+>[] = [
+  FILE_NAME,
+  SIZE_BY_BYTES,
+  TITLE,
+  CELL_COUNT,
+  VALIDATION_STATUS,
+  FILE_EVENT_TIME,
+];
