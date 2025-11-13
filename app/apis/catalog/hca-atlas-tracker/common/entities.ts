@@ -58,7 +58,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   fileEventTime: string;
   fileId: string;
   fileName: string;
-  geneCount?: number;
+  geneCount: number | null;
   id: string;
   integrityStatus: INTEGRITY_STATUS;
   isArchived: boolean;
@@ -128,7 +128,7 @@ export interface HCAAtlasTrackerSourceDataset {
   fileEventTime: string;
   fileId: string;
   fileName: string;
-  geneCount?: number;
+  geneCount: number | null;
   id: string;
   isArchived: boolean;
   metadataSpreadsheetTitle: string | null;
