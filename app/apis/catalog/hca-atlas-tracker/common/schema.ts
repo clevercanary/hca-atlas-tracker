@@ -323,6 +323,7 @@ export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
  * Schema for data used to update an atlas-linked source dataset.
  */
 export const atlasSourceDatasetEditSchema = object({
+  capUrl: string().url().defined().nullable(),
   metadataSpreadsheetUrl: string()
     .matches(GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX)
     .nullable(),

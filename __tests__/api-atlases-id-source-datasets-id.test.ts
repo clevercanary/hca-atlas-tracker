@@ -72,10 +72,12 @@ const TEST_ROUTE = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
 const SOURCE_DATASET_ID_NONEXISTENT = "52281fde-232c-4481-8b45-cc986570e7b9";
 
 const A_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
+  capUrl: null,
   metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/d/sheet-bar",
 };
 
 const B_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
+  capUrl: null,
   metadataSpreadsheetUrl: "",
 };
 
