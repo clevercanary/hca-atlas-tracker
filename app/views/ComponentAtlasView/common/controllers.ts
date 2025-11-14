@@ -54,6 +54,15 @@ const FILE_NAME: CommonControllerConfig = {
   name: FIELD_NAME.FILE_NAME,
 };
 
+const GENE_COUNT: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: false,
+    label: "Gene Count",
+    readOnly: true,
+  },
+  name: FIELD_NAME.GENE_COUNT,
+};
+
 const SIZE_BY_BYTES: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
@@ -76,7 +85,6 @@ const VALIDATION_STATUS: ChipInputControllerConfig = {
   inputProps: {
     inputComponent: Chip,
     isFullWidth: false,
-    isRowStart: true,
     label: "Validation Status",
     readOnly: true,
   },
@@ -92,6 +100,7 @@ export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: (
   SIZE_BY_BYTES,
   TITLE,
   CELL_COUNT,
+  GENE_COUNT,
   VALIDATION_STATUS,
   CAP_INGEST_STATUS,
   FILE_EVENT_TIME,

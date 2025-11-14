@@ -36,6 +36,7 @@ function mapSchemaValues(
     [FIELD_NAME.CELL_COUNT]: integratedObject.cellCount,
     [FIELD_NAME.FILE_EVENT_TIME]: integratedObject.fileEventTime,
     [FIELD_NAME.FILE_NAME]: integratedObject.fileName,
+    [FIELD_NAME.GENE_COUNT]: integratedObject.geneCount ?? undefined,
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),
     [FIELD_NAME.TITLE]: integratedObject.title,
     [FIELD_NAME.VALIDATION_STATUS]: integratedObject.validationStatus,
