@@ -305,6 +305,15 @@ export type SourceStudyEditData =
   | UnpublishedSourceStudyEditData;
 
 /**
+ * Schema for data used to edit a component atlas.
+ */
+export const componentAtlasEditSchema = object({
+  capUrl: string().url().defined().nullable(),
+}).strict();
+
+export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
+
+/**
  * Schema for data used to create a new source dataset.
  */
 export const newSourceDatasetSchema = object({

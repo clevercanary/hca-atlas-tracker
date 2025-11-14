@@ -6,10 +6,16 @@ import {
   HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBFile,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
+
+type ComponentAtlasInfoUpdateFields = Pick<
+  HCAAtlasTrackerDBComponentAtlasInfo,
+  "capUrl"
+>;
 
 /**
  * Get all component atlases of the given atlas.
@@ -54,11 +60,13 @@ export async function getAtlasComponentAtlases(
  * Get a component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
  * @param componentAtlasId - ID of the component atlas.
+ * @param client - Postgres client to use.
  * @returns database model of the component atlas file.
  */
 export async function getComponentAtlas(
   atlasId: string,
-  componentAtlasId: string
+  componentAtlasId: string,
+  client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBComponentAtlasForDetailAPI> {
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlasForDetailAPI>(
     `
@@ -84,7 +92,8 @@ export async function getComponentAtlas(
       JOIN hat.files f ON f.component_atlas_id = ca.id
       WHERE f.is_latest AND ca.id=$1 AND ca.atlas_id=$2
     `,
-    [componentAtlasId, atlasId]
+    [componentAtlasId, atlasId],
+    client
   );
   if (queryResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
@@ -104,6 +113,26 @@ export async function getAtlasComponentAtlasIds(
     [atlasId]
   );
   return queryResult.rows.map(({ id }) => id);
+}
+
+export async function updateComponentAtlas(
+  atlasId: string,
+  componentAtlasId: string,
+  inputData: ComponentAtlasEditData
+): Promise<HCAAtlasTrackerDBComponentAtlasForDetailAPI> {
+  await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
+  await confirmComponentAtlasIsAvailable(componentAtlasId);
+  const updatedInfoFields: ComponentAtlasInfoUpdateFields = {
+    capUrl: inputData.capUrl,
+  };
+  return await doTransaction(async (client) => {
+    await query(
+      "UPDATE hat.component_atlases SET component_info = component_info || $1 WHERE id = $2",
+      [JSON.stringify(updatedInfoFields), componentAtlasId],
+      client
+    );
+    return await getComponentAtlas(atlasId, componentAtlasId, client);
+  });
 }
 
 /**
