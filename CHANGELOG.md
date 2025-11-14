@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.48.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.47.0...v1.48.0) (2025-11-14)
+
+
+### Features
+
+* map `undefined` gene count to `null` in apis ([#982](https://github.com/clevercanary/hca-atlas-tracker/issues/982)) ([#983](https://github.com/clevercanary/hca-atlas-tracker/issues/983)) ([6aa4cdd](https://github.com/clevercanary/hca-atlas-tracker/commit/6aa4cdd841ad3f419d1ae409f0f7fc101caafcc2))
+* updates to integrated object detail general information section ([#973](https://github.com/clevercanary/hca-atlas-tracker/issues/973)) ([#980](https://github.com/clevercanary/hca-atlas-tracker/issues/980)) ([fb92781](https://github.com/clevercanary/hca-atlas-tracker/commit/fb927817bf5431fbd00efebcac7e1961e4b29133))
+
 ## [1.47.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.46.0...v1.47.0) (2025-11-13)
 
 
