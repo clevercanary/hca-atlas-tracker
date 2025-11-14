@@ -23,7 +23,7 @@ export interface InputControllerProps<
   className?: string;
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
-  inputProps?: Partial<Omit<InputProps<C>, "ref">>;
+  inputProps?: Partial<Omit<InputProps<C>, "ref" | "viewBuilder">>;
   labelLink?: LabelLinkConfig | true;
   renderHelperText?: (data?: R) => ReactNode;
   viewBuilder?: ControllerViewBuilder<C>;

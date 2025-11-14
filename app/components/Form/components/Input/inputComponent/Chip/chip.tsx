@@ -1,16 +1,9 @@
-import {
-  InputBaseComponentProps,
-  Chip as MChip,
-  ChipProps as MChipProps,
-} from "@mui/material";
+import { Chip as MChip } from "@mui/material";
 import { forwardRef } from "react";
+import { Props } from "./types";
 
-type ChipProps = InputBaseComponentProps & {
-  viewProps?: MChipProps;
-};
-
-export const Chip = forwardRef<HTMLDivElement, ChipProps>(function Chip(
-  { viewProps }: ChipProps,
+export const Chip = forwardRef<HTMLDivElement, Props>(function Chip(
+  { viewProps }: Props,
   ref
 ): JSX.Element {
   return <MChip {...viewProps} ref={ref} />;

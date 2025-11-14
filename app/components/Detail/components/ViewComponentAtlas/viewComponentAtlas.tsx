@@ -4,12 +4,11 @@ import {
   HCAAtlasTrackerSourceDataset,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
-import { Chip } from "../../../../components/Form/components/Input/inputComponent/Chip/chip";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { ViewIntegratedObjectData } from "../../../../views/ComponentAtlasView/common/entities";
+import { IntegratedObjectSectionConfig } from "../../../../views/ComponentAtlasView/common/sections";
 import { TrackerFormSection as Section } from "../../../Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
-import { SectionConfig } from "../../../Forms/common/entities";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { LinkedSourceDatasets } from "../TrackerForm/components/Section/components/ComponentAtlas/components/LinkedSourceDatasets/linkedSourceDatasets";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
@@ -24,11 +23,7 @@ interface ViewComponentAtlasProps {
     HCAAtlasTrackerComponentAtlas
   >;
   pathParameter: PathParameter;
-  sectionConfigs: SectionConfig<
-    ViewIntegratedObjectData,
-    HCAAtlasTrackerComponentAtlas,
-    "input" | typeof Chip
-  >[];
+  sectionConfigs: IntegratedObjectSectionConfig[];
 }
 
 export const ViewComponentAtlas = ({

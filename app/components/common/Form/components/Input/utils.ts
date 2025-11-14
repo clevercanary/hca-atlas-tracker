@@ -1,6 +1,9 @@
 import { InputBaseComponentProps } from "@mui/material";
-import { ComponentProps, ElementType } from "react";
-import { ControllerViewBuilder } from "../Controllers/common/entities";
+import { ElementType } from "react";
+import {
+  ControllerViewBuilder,
+  ViewPropsOf,
+} from "../Controllers/common/entities";
 
 /**
  * Get props for the input component.
@@ -12,9 +15,7 @@ import { ControllerViewBuilder } from "../Controllers/common/entities";
 export function getInputProps<C extends ElementType = "input">(
   value: unknown,
   viewBuilder?: ControllerViewBuilder<C>
-): InputBaseComponentProps & {
-  viewProps?: ComponentProps<C>;
-} {
+): InputBaseComponentProps & { viewProps?: ViewPropsOf<C> } {
   if (viewBuilder) return { viewProps: viewBuilder(value) };
   return { spellCheck: false };
 }

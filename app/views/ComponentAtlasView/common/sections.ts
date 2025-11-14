@@ -5,13 +5,25 @@ import { SectionConfig } from "../../../components/Forms/common/entities";
 import { GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS } from "./controllers";
 import { ViewIntegratedObjectData } from "./entities";
 
-export const VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS: SectionConfig<
+type ChipInputSectionConfig = SectionConfig<
   ViewIntegratedObjectData,
   HCAAtlasTrackerComponentAtlas,
-  "input" | typeof Chip
->[] = [
-  {
-    controllerConfigs: GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS,
-    sectionTitle: SECTION_TITLES.GENERAL_INFORMATION,
-  },
-];
+  typeof Chip
+>;
+
+type CommonSectionConfig = SectionConfig<
+  ViewIntegratedObjectData,
+  HCAAtlasTrackerComponentAtlas
+>;
+
+export type IntegratedObjectSectionConfig =
+  | ChipInputSectionConfig
+  | CommonSectionConfig;
+
+export const VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS: IntegratedObjectSectionConfig[] =
+  [
+    {
+      controllerConfigs: GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS,
+      sectionTitle: SECTION_TITLES.GENERAL_INFORMATION,
+    },
+  ];

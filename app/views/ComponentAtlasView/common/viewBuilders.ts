@@ -1,8 +1,7 @@
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { Chip } from "@mui/material";
-import { ComponentProps } from "react";
 import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FILE_VALIDATION_STATUS } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { Props } from "../../../components/Form/components/Input/inputComponent/Chip/types";
 import {
   CAP_INGEST_STATUS_COLOR,
   CAP_INGEST_STATUS_LABEL,
@@ -15,9 +14,7 @@ import { VALIDATION_STATUS_COLOR } from "../../../components/Table/components/Ta
  * @param value - CAP ingest status.
  * @returns Props to be used for the Chip component.
  */
-export function buildCAPIngestStatus(
-  value: unknown
-): ComponentProps<typeof Chip> {
+export function buildCAPIngestStatus(value: unknown): Props["viewProps"] {
   const status = value as CAP_INGEST_STATUS;
   return {
     color: CAP_INGEST_STATUS_COLOR[status],
@@ -31,9 +28,7 @@ export function buildCAPIngestStatus(
  * @param value - Validation status.
  * @returns Props to be used for the Chip component.
  */
-export function buildValidationStatus(
-  value: unknown
-): ComponentProps<typeof Chip> {
+export function buildValidationStatus(value: unknown): Props["viewProps"] {
   const validationStatus = value as FILE_VALIDATION_STATUS;
   return {
     color: VALIDATION_STATUS_COLOR[validationStatus],

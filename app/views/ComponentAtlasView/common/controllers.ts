@@ -5,13 +5,18 @@ import { FIELD_NAME } from "./constants";
 import { ViewIntegratedObjectData } from "./entities";
 import { buildCAPIngestStatus, buildValidationStatus } from "./viewBuilders";
 
-type CommonControllerConfig = ControllerConfig<
+type ChipInputControllerConfig = ControllerConfig<
   ViewIntegratedObjectData,
   HCAAtlasTrackerComponentAtlas,
-  "input" | typeof Chip
+  typeof Chip
 >;
 
-const CAP_INGEST_STATUS: CommonControllerConfig = {
+type CommonControllerConfig = ControllerConfig<
+  ViewIntegratedObjectData,
+  HCAAtlasTrackerComponentAtlas
+>;
+
+const CAP_INGEST_STATUS: ChipInputControllerConfig = {
   inputProps: {
     inputComponent: Chip,
     isFullWidth: false,
@@ -67,7 +72,7 @@ const TITLE: CommonControllerConfig = {
   name: FIELD_NAME.TITLE,
 };
 
-const VALIDATION_STATUS: CommonControllerConfig = {
+const VALIDATION_STATUS: ChipInputControllerConfig = {
   inputProps: {
     inputComponent: Chip,
     isFullWidth: false,
@@ -79,13 +84,15 @@ const VALIDATION_STATUS: CommonControllerConfig = {
   viewBuilder: buildValidationStatus,
 };
 
-export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: CommonControllerConfig[] =
-  [
-    FILE_NAME,
-    SIZE_BY_BYTES,
-    TITLE,
-    CELL_COUNT,
-    VALIDATION_STATUS,
-    CAP_INGEST_STATUS,
-    FILE_EVENT_TIME,
-  ];
+export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: (
+  | ChipInputControllerConfig
+  | CommonControllerConfig
+)[] = [
+  FILE_NAME,
+  SIZE_BY_BYTES,
+  TITLE,
+  CELL_COUNT,
+  VALIDATION_STATUS,
+  CAP_INGEST_STATUS,
+  FILE_EVENT_TIME,
+];

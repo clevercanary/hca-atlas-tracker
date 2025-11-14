@@ -1,4 +1,4 @@
-import { ComponentProps, ElementType, ReactNode } from "react";
+import { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 import { FieldValues, Path } from "react-hook-form";
 import { YupValidatedFormValues } from "../../../../../../hooks/useForm/common/entities";
 import { InputProps } from "../../Input/input";
@@ -15,9 +15,17 @@ export type ControllerSelectConfig<T extends FieldValues> = Pick<
   SelectComponent: SelectControllerProps<T>["SelectComponent"];
 };
 
+// Extract the inner viewProps type only if the component actually has it.
+export type ViewPropsOf<C extends ElementType> =
+  ComponentPropsWithoutRef<C> extends {
+    viewProps?: infer P;
+  }
+    ? P
+    : never;
+
 export type ControllerViewBuilder<C extends ElementType = "input"> = (
   value: unknown
-) => ComponentProps<C>; // Returns component-specific props forwarded to the inputComponent via MUI inputProps under the `viewProps` key; may be a complex object (e.g., Chip props like { color, label, variant }).
+) => ViewPropsOf<C>;
 
 type PickedInputProps =
   | "label"
