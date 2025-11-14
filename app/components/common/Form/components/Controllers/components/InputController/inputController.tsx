@@ -1,7 +1,7 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { TypographyNoWrap } from "app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
-import { Fragment, ReactNode } from "react";
+import { ElementType, Fragment, ReactNode } from "react";
 import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
+import { TypographyNoWrap } from "../../../../../../../components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import {
   FormMethod,
   YupValidatedFormValues,
@@ -15,18 +15,25 @@ export interface LabelLinkConfig {
   label?: string;
 }
 
-export interface InputControllerProps<T extends FieldValues, R = undefined>
-  extends UseControllerProps<YupValidatedFormValues<T>> {
+export interface InputControllerProps<
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+> extends UseControllerProps<YupValidatedFormValues<T>> {
   className?: string;
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
-  inputProps?: Partial<Omit<InputProps, "ref">>;
+  inputProps?: Partial<Omit<InputProps<C>, "ref">>;
   labelLink?: LabelLinkConfig | true;
   renderHelperText?: (data?: R) => ReactNode;
-  viewBuilder?: ControllerViewBuilder;
+  viewBuilder?: ControllerViewBuilder<C>;
 }
 
-export const InputController = <T extends FieldValues, R = undefined>({
+export const InputController = <
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+>({
   className,
   formManager,
   formMethod,
@@ -36,7 +43,7 @@ export const InputController = <T extends FieldValues, R = undefined>({
   renderHelperText,
   viewBuilder,
   ...props
-}: InputControllerProps<T, R>): JSX.Element => {
+}: InputControllerProps<T, R, C>): JSX.Element => {
   const {
     formStatus: { isReadOnly },
   } = formManager;

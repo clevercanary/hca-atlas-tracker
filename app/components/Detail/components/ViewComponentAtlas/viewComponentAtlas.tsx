@@ -4,6 +4,7 @@ import {
   HCAAtlasTrackerSourceDataset,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
+import { Chip } from "../../../../components/Form/components/Input/inputComponent/Chip/chip";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { ViewIntegratedObjectData } from "../../../../views/ComponentAtlasView/common/entities";
@@ -25,7 +26,8 @@ interface ViewComponentAtlasProps {
   pathParameter: PathParameter;
   sectionConfigs: SectionConfig<
     ViewIntegratedObjectData,
-    HCAAtlasTrackerComponentAtlas
+    HCAAtlasTrackerComponentAtlas,
+    "input" | typeof Chip
   >[];
 }
 
@@ -47,7 +49,7 @@ export const ViewComponentAtlas = ({
       {sectionConfigs.map(({ showDivider, ...sectionConfig }, i) => (
         <Fragment key={i}>
           {(i !== 0 || showDivider) && <Divider />}
-          <Section<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas>
+          <Section
             formManager={formManager}
             formMethod={formMethod}
             {...sectionConfig}

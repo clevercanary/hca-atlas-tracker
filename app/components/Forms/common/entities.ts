@@ -1,12 +1,15 @@
 import { PaperProps } from "@mui/material";
-import React, { ReactNode } from "react";
+import React, { ElementType, ReactNode } from "react";
 import { FieldValues } from "react-hook-form";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../hooks/useFormManager/common/entities";
 import { TrackerFormSectionProps } from "../../Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
 
-export interface SectionConfig<T extends FieldValues, R = undefined>
-  extends Omit<TrackerFormSectionProps<T, R>, "formManager" | "formMethod"> {
+export interface SectionConfig<
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+> extends Omit<TrackerFormSectionProps<T, R, C>, "formManager" | "formMethod"> {
   showDivider?: boolean;
 }
 

@@ -2,7 +2,7 @@ import {
   OutlinedInput as MOutlinedInput,
   OutlinedInputProps as MOutlinedInputProps,
 } from "@mui/material";
-import { forwardRef, ReactNode } from "react";
+import { ElementType, forwardRef, ReactNode, Ref, RefAttributes } from "react";
 import { ControllerViewBuilder } from "../Controllers/common/entities";
 import {
   FormHelperText,
@@ -12,17 +12,18 @@ import { FormLabel } from "../FormLabel/formLabel";
 import { InputFormControl as FormControl } from "./input.styles";
 import { getInputProps } from "./utils";
 
-export interface InputProps extends MOutlinedInputProps {
+export interface InputProps<C extends ElementType = "input">
+  extends MOutlinedInputProps {
   className?: string;
   helperText?: ReactNode;
   helperTextProps?: Partial<FormHelperTextProps>;
   isFilled?: boolean;
   isFullWidth?: boolean;
   isRowStart?: boolean;
-  viewBuilder?: ControllerViewBuilder;
+  viewBuilder?: ControllerViewBuilder<C>;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+function InputBase<C extends ElementType = "input">(
   {
     className,
     disabled,
@@ -35,8 +36,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     label,
     viewBuilder,
     ...props /* Spread props to allow for Mui OutlinedInputProps specific prop overrides e.g. "disabled". */
-  }: InputProps,
-  ref
+  }: InputProps<C>,
+  ref: Ref<HTMLInputElement>
 ): JSX.Element {
   return (
     <FormControl
@@ -53,7 +54,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         autoComplete="off"
         disabled={disabled}
         error={error}
-        inputProps={getInputProps(props, viewBuilder)}
+        inputProps={getInputProps(props.value, viewBuilder)}
         ref={ref}
         size="small"
         {...props}
@@ -70,4 +71,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       )}
     </FormControl>
   );
-});
+}
+
+export const Input = forwardRef(InputBase) as <C extends ElementType = "input">(
+  props: InputProps<C> & RefAttributes<HTMLInputElement>
+) => JSX.Element;

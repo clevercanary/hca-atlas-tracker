@@ -1,5 +1,4 @@
-import { InputBaseComponentProps } from "@mui/material";
-import { ReactNode } from "react";
+import { ComponentProps, ElementType, ReactNode } from "react";
 import { FieldValues, Path } from "react-hook-form";
 import { YupValidatedFormValues } from "../../../../../../hooks/useForm/common/entities";
 import { InputProps } from "../../Input/input";
@@ -16,9 +15,9 @@ export type ControllerSelectConfig<T extends FieldValues> = Pick<
   SelectComponent: SelectControllerProps<T>["SelectComponent"];
 };
 
-export type ControllerViewBuilder = (
+export type ControllerViewBuilder<C extends ElementType = "input"> = (
   value: unknown
-) => InputBaseComponentProps["viewProps"]; // Returns component-specific props forwarded to the inputComponent via MUI inputProps under the `viewProps` key; may be a complex object (e.g., Chip props like { color, label, variant }).
+) => ComponentProps<C>; // Returns component-specific props forwarded to the inputComponent via MUI inputProps under the `viewProps` key; may be a complex object (e.g., Chip props like { color, label, variant }).
 
 type PickedInputProps =
   | "label"
@@ -31,11 +30,15 @@ type PickedInputProps =
 
 type PickedSelectProps = "displayEmpty" | "label" | "isRowStart";
 
-export interface ControllerConfig<T extends FieldValues, R = undefined> {
+export interface ControllerConfig<
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+> {
   inputProps?: ControllerInputConfig;
   labelLink?: LabelLinkConfig | true;
   name: Path<YupValidatedFormValues<T>>;
   renderHelperText?: (data?: R) => ReactNode;
   selectProps?: ControllerSelectConfig<T>;
-  viewBuilder?: ControllerViewBuilder;
+  viewBuilder?: ControllerViewBuilder<C>;
 }

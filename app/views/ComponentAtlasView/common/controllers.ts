@@ -7,7 +7,8 @@ import { buildCAPIngestStatus, buildValidationStatus } from "./viewBuilders";
 
 type CommonControllerConfig = ControllerConfig<
   ViewIntegratedObjectData,
-  HCAAtlasTrackerComponentAtlas
+  HCAAtlasTrackerComponentAtlas,
+  "input" | typeof Chip
 >;
 
 const CAP_INGEST_STATUS: CommonControllerConfig = {
@@ -78,15 +79,13 @@ const VALIDATION_STATUS: CommonControllerConfig = {
   viewBuilder: buildValidationStatus,
 };
 
-export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: ControllerConfig<
-  ViewIntegratedObjectData,
-  HCAAtlasTrackerComponentAtlas
->[] = [
-  FILE_NAME,
-  SIZE_BY_BYTES,
-  TITLE,
-  CELL_COUNT,
-  VALIDATION_STATUS,
-  CAP_INGEST_STATUS,
-  FILE_EVENT_TIME,
-];
+export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: CommonControllerConfig[] =
+  [
+    FILE_NAME,
+    SIZE_BY_BYTES,
+    TITLE,
+    CELL_COUNT,
+    VALIDATION_STATUS,
+    CAP_INGEST_STATUS,
+    FILE_EVENT_TIME,
+  ];
