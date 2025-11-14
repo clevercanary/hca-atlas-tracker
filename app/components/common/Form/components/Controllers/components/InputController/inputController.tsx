@@ -1,30 +1,39 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { TypographyNoWrap } from "app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
-import { Fragment, ReactNode } from "react";
+import { ElementType, Fragment, ReactNode } from "react";
 import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
+import { TypographyNoWrap } from "../../../../../../../components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import {
   FormMethod,
   YupValidatedFormValues,
 } from "../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
 import { Input, InputProps } from "../../../Input/input";
+import { ControllerViewBuilder } from "../../common/entities";
 
 export interface LabelLinkConfig {
   getUrl?: (v: string | null) => string | null;
   label?: string;
 }
 
-export interface InputControllerProps<T extends FieldValues, R = undefined>
-  extends UseControllerProps<YupValidatedFormValues<T>> {
+export interface InputControllerProps<
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+> extends UseControllerProps<YupValidatedFormValues<T>> {
   className?: string;
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
-  inputProps?: Partial<Omit<InputProps, "ref">>;
+  inputProps?: Partial<Omit<InputProps<C>, "ref" | "viewBuilder">>;
   labelLink?: LabelLinkConfig | true;
   renderHelperText?: (data?: R) => ReactNode;
+  viewBuilder?: ControllerViewBuilder<C>;
 }
 
-export const InputController = <T extends FieldValues, R = undefined>({
+export const InputController = <
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+>({
   className,
   formManager,
   formMethod,
@@ -32,8 +41,9 @@ export const InputController = <T extends FieldValues, R = undefined>({
   labelLink,
   name,
   renderHelperText,
+  viewBuilder,
   ...props
-}: InputControllerProps<T, R>): JSX.Element => {
+}: InputControllerProps<T, R, C>): JSX.Element => {
   const {
     formStatus: { isReadOnly },
   } = formManager;
@@ -59,6 +69,7 @@ export const InputController = <T extends FieldValues, R = undefined>({
               : label
           }
           readOnly={isReadOnly}
+          viewBuilder={viewBuilder}
           {...inputProps}
           {...props}
         />

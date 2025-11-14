@@ -1,7 +1,7 @@
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { FILE_VALIDATION_STATUS_NAME_LABEL } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { HCAAtlasTrackerComponentAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
+import { getCapIngestStatus } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { FIELD_NAME } from "../common/constants";
@@ -32,10 +32,13 @@ function mapSchemaValues(
 ): ViewIntegratedObjectData | undefined {
   if (!integratedObject) return;
   return {
+    [FIELD_NAME.CAP_INGEST_STATUS]: getCapIngestStatus(integratedObject),
+    [FIELD_NAME.CELL_COUNT]: integratedObject.cellCount,
+    [FIELD_NAME.FILE_EVENT_TIME]: integratedObject.fileEventTime,
     [FIELD_NAME.FILE_NAME]: integratedObject.fileName,
+    [FIELD_NAME.GENE_COUNT]: integratedObject.geneCount ?? undefined,
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),
     [FIELD_NAME.TITLE]: integratedObject.title,
-    [FIELD_NAME.VALIDATION_STATUS]:
-      FILE_VALIDATION_STATUS_NAME_LABEL[integratedObject.validationStatus],
+    [FIELD_NAME.VALIDATION_STATUS]: integratedObject.validationStatus,
   };
 }

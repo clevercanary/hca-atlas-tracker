@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ElementType, ReactNode } from "react";
 import { FieldValues } from "react-hook-form";
 import { FormMethod } from "../../../../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../../../../hooks/useFormManager/common/entities";
@@ -14,8 +14,12 @@ import {
 } from "../../section.styles";
 import { SlotProps } from "./common/utils";
 
-export interface TrackerFormSectionProps<T extends FieldValues, R = undefined> {
-  controllerConfigs?: ControllerConfig<T, R>[];
+export interface TrackerFormSectionProps<
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+> {
+  controllerConfigs?: ControllerConfig<T, R, C>[];
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
   SectionCard?: SectionContent<T, R>;
@@ -24,7 +28,11 @@ export interface TrackerFormSectionProps<T extends FieldValues, R = undefined> {
   slotProps?: SlotProps;
 }
 
-export const TrackerFormSection = <T extends FieldValues, R = undefined>({
+export const TrackerFormSection = <
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+>({
   controllerConfigs = [],
   formManager,
   formMethod,
@@ -32,7 +40,7 @@ export const TrackerFormSection = <T extends FieldValues, R = undefined>({
   sectionText,
   sectionTitle,
   slotProps,
-}: TrackerFormSectionProps<T, R>): JSX.Element => {
+}: TrackerFormSectionProps<T, R, C>): JSX.Element => {
   const { section: { fullWidth = false } = {} } = slotProps || {};
   return (
     <Section fullWidth={fullWidth}>

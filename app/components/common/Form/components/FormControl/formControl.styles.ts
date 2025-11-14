@@ -7,15 +7,17 @@ import { FormControl as MFormControl } from "@mui/material";
 interface Props {
   isFilled: boolean;
   isFullWidth: boolean;
+  isRowStart?: boolean;
 }
 
 export const FormControl = styled(MFormControl, {
-  shouldForwardProp: (prop) => prop !== "isFilled" && prop !== "isFullWidth",
+  shouldForwardProp: (prop) =>
+    prop !== "isFilled" && prop !== "isFullWidth" && prop !== "isRowStart",
 })<Props>`
   display: flex;
   flex-direction: column;
   gap: 4px;
-  grid-column: 1 / -1;
+  grid-column: unset;
 
   .MuiOutlinedInput-root {
     &.MuiInputBase-adornedStart {
@@ -81,7 +83,17 @@ export const FormControl = styled(MFormControl, {
       `};
   }
 
-  ${bpUpMd} {
-    grid-column: ${({ isFullWidth }) => (isFullWidth ? "1 / -1" : "unset")};
-  }
+  ${({ isRowStart }) =>
+    isRowStart &&
+    css`
+      grid-column: 1;
+    `};
+
+  ${({ isFullWidth, theme }) =>
+    isFullWidth &&
+    css`
+      ${bpUpMd({ theme })} {
+        grid-column: 1 / -1;
+      }
+    `};
 `;
