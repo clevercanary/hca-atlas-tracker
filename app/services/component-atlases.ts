@@ -123,7 +123,7 @@ export async function updateComponentAtlas(
   await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
   await confirmComponentAtlasIsAvailable(componentAtlasId);
   const updatedInfoFields: ComponentAtlasInfoUpdateFields = {
-    capUrl: inputData.capUrl,
+    capUrl: inputData.capUrl || null,
   };
   return await doTransaction(async (client) => {
     await query(

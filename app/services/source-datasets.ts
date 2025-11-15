@@ -312,7 +312,7 @@ export async function updateAtlasSourceDataset(
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   await confirmSourceDatasetsAreAvailable([sourceDatasetId]);
   const updatedInfoFields: SourceDatasetInfoUpdateFields = {
-    capUrl: inputData.capUrl,
+    capUrl: inputData.capUrl || null,
     metadataSpreadsheetTitle: await getSheetTitleForApi(
       inputData.metadataSpreadsheetUrl,
       "metadataSpreadsheetUrl"
