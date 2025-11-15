@@ -4,6 +4,7 @@ import {
   DOI_STATUS,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  HCAAtlasTrackerDBComponentAtlasInfo,
   INTEGRITY_STATUS,
   PublicationInfo,
   REPROCESSED_STATUS,
@@ -2401,6 +2402,7 @@ export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
+  capUrl: "https://celltype.info/project/345323",
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
     bucket: "bucket-source-dataset-with-source-study-foo",
@@ -3035,6 +3037,7 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
 
 export const EMPTY_COMPONENT_INFO = {
   assay: [],
+  capUrl: null,
   cellCount: 0,
   cellxgeneDatasetId: null,
   cellxgeneDatasetVersion: null,
@@ -3042,7 +3045,7 @@ export const EMPTY_COMPONENT_INFO = {
   disease: [],
   suspensionType: [],
   tissue: [],
-};
+} satisfies HCAAtlasTrackerDBComponentAtlasInfo;
 
 export const COMPONENT_ATLAS_DRAFT_FOO = {
   atlasId: ATLAS_DRAFT.id,

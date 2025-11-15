@@ -242,6 +242,7 @@ async function createComponentAtlas(
   const title = `Test ${componentAtlasId}`;
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {
     assay: [],
+    capUrl: null,
     cellCount: 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,
@@ -270,6 +271,7 @@ async function createSourceDataset(
 
   const sd_info: HCAAtlasTrackerDBSourceDatasetInfo = {
     assay: [],
+    capUrl: null,
     cellCount: 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,

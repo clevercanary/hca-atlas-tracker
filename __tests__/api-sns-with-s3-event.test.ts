@@ -258,6 +258,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(sdAfter.rows).toHaveLength(1);
     expect(sdAfter.rows[0].sd_info).toEqual({
       assay: [],
+      capUrl: null,
       cellCount: 0,
       cellxgeneDatasetId: null,
       cellxgeneDatasetVersion: null,

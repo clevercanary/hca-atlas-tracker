@@ -250,6 +250,7 @@ describe("createComponentAtlas", () => {
 describe("resetComponentAtlasInfo", () => {
   const TEST_COMPONENT_INFO: HCAAtlasTrackerDBComponentAtlasInfo = {
     assay: ["RNA sequencing"],
+    capUrl: null,
     cellCount: 1000,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,
