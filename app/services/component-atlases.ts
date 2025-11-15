@@ -115,6 +115,13 @@ export async function getAtlasComponentAtlasIds(
   return queryResult.rows.map(({ id }) => id);
 }
 
+/**
+ * Update a component atlas of an atlas.
+ * @param atlasId - ID of the atlas that the component atlas is accessed through.
+ * @param componentAtlasId - ID of the component atlas to update.
+ * @param inputData - Data with which to update the component atlas.
+ * @returns updated component atlas.
+ */
 export async function updateComponentAtlas(
   atlasId: string,
   componentAtlasId: string,
