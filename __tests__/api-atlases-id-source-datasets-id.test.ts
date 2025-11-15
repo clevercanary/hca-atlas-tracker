@@ -13,6 +13,7 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
@@ -21,6 +22,7 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST,
   SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -79,6 +81,14 @@ const A_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
 const B_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: null,
   metadataSpreadsheetUrl: "",
+};
+
+const A_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
+  capUrl: "https://celltype.info/project/534534",
+};
+
+const WSS_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
+  capUrl: "",
 };
 
 beforeAll(async () => {
@@ -424,6 +434,25 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
 
+  it("returns error 400 when PATCH requested with a non-CAP URL in CAP URL field", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_BAR_EDIT_DATA,
+            capUrl: "https://example.com/not-a-cap-url",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
   it("updates and returns source dataset when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
@@ -435,6 +464,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.capUrl).toBeNull();
     expect(sourceDataset.metadataSpreadsheetUrl).toEqual(null);
     expect(sourceDataset.title).toEqual(
       SOURCE_DATASET_ATLAS_LINKED_B_BAR.file.datasetInfo.title
@@ -454,6 +484,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.capUrl).toBeNull();
     expect(sourceDataset.metadataSpreadsheetTitle).toEqual("Sheet Bar");
     expect(sourceDataset.metadataSpreadsheetUrl).toEqual(
       A_FOO_EDIT_DATA.metadataSpreadsheetUrl
@@ -462,6 +493,40 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.datasetInfo.title
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+  });
+
+  it("sets CAP URL and clears metadata spreadsheet fields when PATCH requested with only CAP URL specified", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      A_BAR_EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.capUrl).toEqual(A_BAR_EDIT_DATA.capUrl);
+    expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
+    expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+  });
+
+  it("sets CAP URL to null and clears metadata spreadsheet fields when PATCH requested with only empty string CAP URL", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      WSS_FOO_EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.capUrl).toBeNull();
+    expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
+    expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 });

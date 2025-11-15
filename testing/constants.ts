@@ -2402,6 +2402,7 @@ export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
+  capUrl: "https://celltype.info/project/345323",
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
     bucket: "bucket-source-dataset-with-source-study-foo",
