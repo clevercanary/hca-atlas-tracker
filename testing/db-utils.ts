@@ -702,7 +702,7 @@ export async function expectSourceDatasetsToHaveSourceStudy(
 ): Promise<void> {
   const { rows: sourceDatasets } = await query<
     Pick<HCAAtlasTrackerDBSourceDataset, "source_study_id">
-  >("SELECT source_study FROM hat.source_datasets WHERE id=ANY($1)", [
+  >("SELECT source_study_id FROM hat.source_datasets WHERE id=ANY($1)", [
     sourceDatasetIds,
   ]);
   expect(sourceDatasets).toHaveLength(sourceDatasetIds.length);
