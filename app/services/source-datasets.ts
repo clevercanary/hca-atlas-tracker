@@ -33,6 +33,11 @@ import {
 import { doOrContinueTransaction, doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
+type SourceDatasetInfoUpdateFields = Pick<
+  HCAAtlasTrackerDBSourceDatasetInfo,
+  "capUrl" | "metadataSpreadsheetTitle" | "metadataSpreadsheetUrl"
+>;
+
 export interface UpdatedSourceDatasetsInfo {
   created: string[];
   deleted: string[];
@@ -285,6 +290,7 @@ function sourceDatasetInputDataToDbData(
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
     assay: [],
+    capUrl: null,
     cellCount: 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,
@@ -305,10 +311,8 @@ export async function updateAtlasSourceDataset(
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
   await confirmSourceDatasetsAreAvailable([sourceDatasetId]);
-  const updatedInfoFields: Pick<
-    HCAAtlasTrackerDBSourceDatasetInfo,
-    "metadataSpreadsheetTitle" | "metadataSpreadsheetUrl"
-  > = {
+  const updatedInfoFields: SourceDatasetInfoUpdateFields = {
+    capUrl: inputData.capUrl || null,
     metadataSpreadsheetTitle: await getSheetTitleForApi(
       inputData.metadataSpreadsheetUrl,
       "metadataSpreadsheetUrl"

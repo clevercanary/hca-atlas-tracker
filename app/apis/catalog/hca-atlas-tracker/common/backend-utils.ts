@@ -90,6 +90,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
   return {
     assay: dbComponentAtlas.dataset_info?.assay ?? [],
     atlasId: dbComponentAtlas.atlas_id,
+    capUrl: dbComponentAtlas.component_info.capUrl,
     cellCount: dbComponentAtlas.dataset_info?.cellCount ?? 0,
     cellxgeneDatasetId: null,
     cellxgeneDatasetVersion: null,
@@ -178,6 +179,7 @@ export function dbSourceDatasetToApiSourceDataset(
       : getDbEntityCitation(dbSourceDataset);
   return {
     assay: dbSourceDataset.dataset_info?.assay ?? [],
+    capUrl: dbSourceDataset.sd_info.capUrl,
     cellCount: dbSourceDataset.dataset_info?.cellCount ?? 0,
     cellxgeneDatasetId: dbSourceDataset.sd_info.cellxgeneDatasetId,
     cellxgeneDatasetVersion: dbSourceDataset.sd_info.cellxgeneDatasetVersion,

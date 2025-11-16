@@ -21,11 +21,11 @@ export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
   /^$|^https:\/\/docs\.google\.com\/spreadsheets\/d\/./;
 
 /**
- * Shared schema for CAP ID fields.
+ * Shared schema for CAP URL fields.
  */
 const capProjectUrlSchema = string()
-  .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
-  .defined("CAP ID is required")
+  .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP URL")
+  .defined("CAP URL is required")
   .nullable();
 
 /**
@@ -305,6 +305,15 @@ export type SourceStudyEditData =
   | UnpublishedSourceStudyEditData;
 
 /**
+ * Schema for data used to edit a component atlas.
+ */
+export const componentAtlasEditSchema = object({
+  capUrl: capProjectUrlSchema,
+}).strict();
+
+export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
+
+/**
  * Schema for data used to create a new source dataset.
  */
 export const newSourceDatasetSchema = object({
@@ -323,6 +332,7 @@ export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
  * Schema for data used to update an atlas-linked source dataset.
  */
 export const atlasSourceDatasetEditSchema = object({
+  capUrl: capProjectUrlSchema,
   metadataSpreadsheetUrl: string()
     .matches(GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX)
     .nullable(),

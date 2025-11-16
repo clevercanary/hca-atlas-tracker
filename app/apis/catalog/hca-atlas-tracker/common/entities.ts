@@ -50,6 +50,7 @@ export interface HCAAtlasTrackerAtlas {
 export interface HCAAtlasTrackerComponentAtlas {
   assay: string[];
   atlasId: string;
+  capUrl: string | null;
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
@@ -118,6 +119,7 @@ export interface HCAAtlasTrackerUnpublishedSourceStudy
 
 export interface HCAAtlasTrackerSourceDataset {
   assay: string[];
+  capUrl: string | null;
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
@@ -302,6 +304,7 @@ export interface HCAAtlasTrackerDBComponentAtlas {
 
 export interface HCAAtlasTrackerDBComponentAtlasInfo {
   assay: string[];
+  capUrl: string | null;
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;
@@ -409,6 +412,7 @@ export interface HCAAtlasTrackerDBSourceDataset {
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
   assay: string[];
+  capUrl: string | null;
   cellCount: number;
   cellxgeneDatasetId: string | null;
   cellxgeneDatasetVersion: string | null;

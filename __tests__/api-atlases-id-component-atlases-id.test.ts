@@ -1,20 +1,28 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerDetailComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ComponentAtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_MISC_BAR,
+  COMPONENT_ATLAS_MISC_BAZ,
+  COMPONENT_ATLAS_MISC_FOO,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
+  STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_PUBLIC,
+  USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
@@ -33,6 +41,18 @@ jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
+
+const MISC_FOO_EDIT_DATA = {
+  capUrl: "https://celltype.info/project/982834",
+} satisfies ComponentAtlasEditData;
+
+const MISC_BAR_EDIT_DATA = {
+  capUrl: "https://celltype.info/project/234782",
+} satisfies ComponentAtlasEditData;
+
+const MISC_BAZ_EDIT_DATA = {
+  capUrl: "",
+} satisfies ComponentAtlasEditData;
 
 const TEST_ROUTE =
   "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
@@ -54,19 +74,6 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           undefined,
           METHOD.PUT
-        )
-      )._getStatusCode()
-    ).toEqual(405);
-  });
-
-  it("returns error 405 for PATCH request", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          undefined,
-          METHOD.PATCH
         )
       )._getStatusCode()
     ).toEqual(405);
@@ -251,6 +258,172 @@ describe(TEST_ROUTE, () => {
     expect(componentAtlas.disease).not.toEqual([]);
     expect(componentAtlas.suspensionType).not.toEqual([]);
     expect(componentAtlas.tissue).not.toEqual([]);
+  });
+
+  it("returns error 401 when PATCH requested by logged out user", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_FOO.id,
+          undefined,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(401);
+  });
+
+  it("returns error 403 when PATCH requested by unregistered user", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_FOO.id,
+          USER_UNREGISTERED,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 403 when PATCH requested by disabled user", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          false
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      componentAtlasHandler,
+      METHOD.PATCH,
+      role,
+      getQueryValues(
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+        COMPONENT_ATLAS_MISC_FOO.id
+      ),
+      MISC_FOO_EDIT_DATA,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+      }
+    );
+  }
+
+  it("returns error 403 when PATCH requested by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_FOO.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          false
+        )
+      )._getStatusCode()
+    ).toEqual(403);
+  });
+
+  it("returns error 404 when PATCH requested with nonexistent component atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          "e6372f4d-ac12-48f3-9158-4c1d8bbc95c6",
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
+  it("returns error 404 when PATCH requested with component atlas the atlas doesn't have", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
+  it("returns error 400 when PATCH requested with component atlas with archived file", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("updates component atlas when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_FOO.id,
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      METHOD.PATCH,
+      MISC_FOO_EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expect(componentAtlas.capUrl).toEqual(MISC_FOO_EDIT_DATA.capUrl);
+  });
+
+  it("updates component atlas when PATCH requested by user with CONTENT_ADMIN role", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      MISC_BAR_EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expect(componentAtlas.capUrl).toEqual(MISC_BAR_EDIT_DATA.capUrl);
+  });
+
+  it("sets CAP URL to null when PATCH requested with empty string CAP URL", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_BAZ.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      MISC_BAZ_EDIT_DATA
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expect(componentAtlas.capUrl).toBeNull();
   });
 });
 
