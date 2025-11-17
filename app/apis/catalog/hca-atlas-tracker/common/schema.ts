@@ -17,14 +17,26 @@ export const CAP_PROJECT_URL_REGEXP = new RegExp(
   `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+)?$`
 );
 
+export const CAP_DATASET_URL_REGEXP = new RegExp(
+  `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+/dataset/\\d+)?$`
+);
+
 export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
   /^$|^https:\/\/docs\.google\.com\/spreadsheets\/d\/./;
 
 /**
- * Shared schema for CAP URL fields.
+ * Shared schema for CAP project URL fields.
  */
 const capProjectUrlSchema = string()
-  .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP URL")
+  .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP URL (must be a project URL)")
+  .defined("CAP URL is required")
+  .nullable();
+
+/**
+ * Shared schema for CAP dataset URL fields.
+ */
+const capDatasetUrlSchema = string()
+  .matches(CAP_DATASET_URL_REGEXP, "Invalid CAP URL (must be a dataset URL)")
   .defined("CAP URL is required")
   .nullable();
 
@@ -308,7 +320,7 @@ export type SourceStudyEditData =
  * Schema for data used to edit a component atlas.
  */
 export const componentAtlasEditSchema = object({
-  capUrl: capProjectUrlSchema,
+  capUrl: capDatasetUrlSchema,
 }).strict();
 
 export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
@@ -332,7 +344,7 @@ export type SourceDatasetEditData = InferType<typeof sourceDatasetEditSchema>;
  * Schema for data used to update an atlas-linked source dataset.
  */
 export const atlasSourceDatasetEditSchema = object({
-  capUrl: capProjectUrlSchema,
+  capUrl: capDatasetUrlSchema,
   metadataSpreadsheetUrl: string()
     .matches(GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX)
     .nullable(),
