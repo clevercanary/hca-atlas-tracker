@@ -1,5 +1,6 @@
 export const FIELD_NAME = {
   CAP_INGEST_STATUS: "capIngestStatus",
+  CAP_URL: "capUrl",
   CELL_COUNT: "cellCount",
   FILE_EVENT_TIME: "fileEventTime",
   FILE_NAME: "fileName",

@@ -44,12 +44,9 @@ const VALIDATION_STATUS: CommonControllerConfig = {
   name: FIELD_NAME.VALIDATION_STATUS,
 };
 
-export const GENERAL_INFO_SOURCE_DATASET_CONTROLLERS: ControllerConfig<
-  ViewAtlasSourceDatasetData,
-  HCAAtlasTrackerSourceDataset
->[] = [FILE_NAME, SIZE_BYTES, VALIDATION_STATUS];
+export const GENERAL_INFO_SOURCE_DATASET_CONTROLLERS: CommonControllerConfig[] =
+  [FILE_NAME, SIZE_BYTES, VALIDATION_STATUS];
 
-export const CAP_SOURCE_DATASET_CONTROLLERS: ControllerConfig<
-  ViewAtlasSourceDatasetData,
-  HCAAtlasTrackerSourceDataset
->[] = [CAP_URL];
+export const CAP_SOURCE_DATASET_CONTROLLERS: CommonControllerConfig[] = [
+  CAP_URL,
+];

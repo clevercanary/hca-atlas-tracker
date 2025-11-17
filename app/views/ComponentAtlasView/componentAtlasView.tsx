@@ -9,12 +9,12 @@ import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { Payload } from "../../hooks/UseEditFileArchived/entities";
 import { useFetchDataState } from "../../hooks/useFetchDataState";
-import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 import { StyledFileArchivedStatus } from "./componentAtlasView.styles";
+import { useEditIntegratedObjectFormManager } from "./hooks/useEditIntegratedObjectFormManager";
 import { INTEGRATED_OBJECT } from "./hooks/useFetchComponentAtlas";
 import { useFetchComponentAtlasData } from "./hooks/useFetchComponentAtlasData";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
@@ -29,9 +29,13 @@ export const ComponentAtlasView = ({
   const componentAtlasData = useFetchComponentAtlasData(pathParameter);
   const { fetchDataDispatch } = useFetchDataState();
   const formMethod = useViewComponentAtlasForm(pathParameter);
-  const formManager = useFormManager();
+  const formManager = useEditIntegratedObjectFormManager(
+    pathParameter,
+    formMethod
+  );
   const {
     access: { canEdit, canView },
+    formAction,
     isLoading,
   } = formManager;
   const { data: componentAtlas } = formMethod;
@@ -75,7 +79,10 @@ export const ComponentAtlasView = ({
             )
           }
           breadcrumbs={
-            <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+            <Breadcrumbs
+              breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
+              onNavigate={formAction?.onNavigate}
+            />
           }
           mainColumn={
             <ViewComponentAtlas
@@ -88,7 +95,13 @@ export const ComponentAtlasView = ({
               atlasSourceDatasets={atlasSourceDatasets}
             />
           }
-          tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
+          tabs={
+            <Tabs
+              onNavigate={formAction?.onNavigate}
+              pathParameter={pathParameter}
+              tabs={getTabs()}
+            />
+          }
           title={componentAtlas?.title || "Integrated Object"}
         />
       </ConditionalComponent>
