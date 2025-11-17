@@ -43,11 +43,11 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("next-auth");
 
 const MISC_FOO_EDIT_DATA = {
-  capUrl: "https://celltype.info/project/982834",
+  capUrl: "https://celltype.info/project/982834/dataset/325453",
 } satisfies ComponentAtlasEditData;
 
 const MISC_BAR_EDIT_DATA = {
-  capUrl: "https://celltype.info/project/234782",
+  capUrl: "https://celltype.info/project/234782/dataset/645632",
 } satisfies ComponentAtlasEditData;
 
 const MISC_BAZ_EDIT_DATA = {
@@ -378,6 +378,42 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when PATCH requested with a non-CAP URL in CAP URL field", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          {
+            ...MISC_BAR_EDIT_DATA,
+            capUrl: "https://example.com/not-a-cap-url",
+          },
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when PATCH requested with a non-dataset CAP URL", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          {
+            ...MISC_BAR_EDIT_DATA,
+            capUrl: "https://celltype.info/project/534534",
+          },
           true
         )
       )._getStatusCode()

@@ -84,7 +84,7 @@ const B_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
 };
 
 const A_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
-  capUrl: "https://celltype.info/project/534534",
+  capUrl: "https://celltype.info/project/534534/dataset/234727",
 };
 
 const WSS_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
@@ -446,6 +446,25 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           {
             ...A_BAR_EDIT_DATA,
             capUrl: "https://example.com/not-a-cap-url",
+          }
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
+  it("returns error 400 when PATCH requested with a non-dataset CAP URL", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_BAR_EDIT_DATA,
+            capUrl: "https://celltype.info/project/534534",
           }
         )
       )._getStatusCode()
