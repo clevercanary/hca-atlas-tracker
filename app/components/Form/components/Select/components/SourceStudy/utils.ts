@@ -18,9 +18,9 @@ export function buildPublicationStringMap(
 }
 
 /**
- * Returns a list of [id, publicationString] tuples sorted by publication string.
+ * Returns a list of [id, publicationString] tuples sorted by publication string, with UNSPECIFIED option included.
  * @param publicationStringById - Map of source study ID to publication string.
- * @returns List of [id, publicationString] tuples sorted by publication string.
+ * @returns List of [id, publicationString] tuples sorted by publication string, with UNSPECIFIED option included.
  */
 export function getPublicationStringOptions(
   publicationStringById: Map<string, string>
