@@ -1,4 +1,5 @@
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
+import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyCitation } from "../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 
@@ -7,19 +8,37 @@ import { getSourceStudyCitation } from "../../../../../../apis/catalog/hca-atlas
  * @param sourceStudies - Source studies.
  * @returns Map of source study ID to publication string.
  */
-export function getPublicationStringById(
+export function buildPublicationStringMap(
   sourceStudies?: HCAAtlasTrackerSourceStudy[]
 ): Map<string, string> {
-  const publicationStringById = (sourceStudies || []).reduce(
-    (acc, sourceStudy) => {
-      acc.set(sourceStudy.id, getSourceStudyCitation(sourceStudy));
-      return acc;
-    },
-    new Map<string, string>()
-  );
+  return (sourceStudies || []).reduce((acc, sourceStudy) => {
+    acc.set(sourceStudy.id, getSourceStudyCitation(sourceStudy));
+    return acc;
+  }, new Map<string, string>());
+}
 
-  // Append the UNSPECIFIED option.
-  publicationStringById.set(LABEL.UNSPECIFIED, LABEL.UNSPECIFIED);
+/**
+ * Returns a list of [id, publicationString] tuples sorted by publication string.
+ * @param publicationStringById - Map of source study ID to publication string.
+ * @returns List of [id, publicationString] tuples sorted by publication string.
+ */
+export function getPublicationStringOptions(
+  publicationStringById: Map<string, string>
+): [string, string][] {
+  // Append the UNSPECIFIED option to the map.
+  const publicationStringWithUnspecified = new Map(publicationStringById);
 
-  return publicationStringById;
+  publicationStringWithUnspecified.set(LABEL.UNSPECIFIED, LABEL.UNSPECIFIED);
+
+  return [...publicationStringWithUnspecified].sort(sortPublication);
+}
+
+/**
+ * Sorts publication strings.
+ * @param a - First publication string.
+ * @param b - Second publication string.
+ * @returns -1 if a < b, 1 if a > b, 0 if a === b.
+ */
+function sortPublication(a: [string, string], b: [string, string]): number {
+  return COLLATOR_CASE_INSENSITIVE.compare(a[1], b[1]);
 }
