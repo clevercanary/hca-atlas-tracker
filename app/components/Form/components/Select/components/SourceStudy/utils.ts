@@ -34,9 +34,9 @@ export function getPublicationStringOptions(
 }
 
 /**
- * Sorts publication strings.
- * @param a - First publication string.
- * @param b - Second publication string.
+ * Sorts [id, publicationString] tuples by publication string.
+ * @param a - First [id, publicationString] tuple.
+ * @param b - Second [id, publicationString] tuple.
  * @returns -1 if a < b, 1 if a > b, 0 if a === b.
  */
 function sortPublication(a: [string, string], b: [string, string]): number {
