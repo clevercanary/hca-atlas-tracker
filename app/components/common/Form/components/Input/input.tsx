@@ -34,6 +34,7 @@ function InputBase<C extends ElementType = "input">(
     isFullWidth = false,
     isRowStart = false,
     label,
+    value,
     viewBuilder,
     ...props /* Spread props to allow for Mui OutlinedInputProps specific prop overrides e.g. "disabled". */
   }: InputProps<C>,
@@ -54,9 +55,11 @@ function InputBase<C extends ElementType = "input">(
         autoComplete="off"
         disabled={disabled}
         error={error}
-        inputProps={getInputProps(props.value, viewBuilder)}
+        inputProps={getInputProps(value, viewBuilder)}
         ref={ref}
         size="small"
+        // Handle null values.
+        value={value ?? ""}
         {...props}
       />
       {helperText && (

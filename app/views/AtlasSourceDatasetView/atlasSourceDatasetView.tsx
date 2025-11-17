@@ -11,7 +11,6 @@ import { Payload } from "../../hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFetchDataState } from "../../hooks/useFetchDataState";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
-import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { StyledFileArchivedStatus } from "./atlasSourceDatasetView.styles";
@@ -19,6 +18,7 @@ import { VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 import { ViewAtlasSourceDataset } from "./components/ViewAtlasSourceDataset/viewAtlasSourceDataset";
 import { useEditAtlasSourceDatasetForm } from "./hooks/useEditAtlasSourceDatasetForm";
+import { useEditAtlasSourceDatasetFormManager } from "./hooks/useEditAtlasSourceDatasetFormManager";
 
 interface AtlasSourceDatasetViewProps {
   pathParameter: PathParameter;
@@ -30,9 +30,13 @@ export const AtlasSourceDatasetView = ({
   const { atlas } = useFetchAtlas(pathParameter);
   const { fetchDataDispatch } = useFetchDataState();
   const formMethod = useEditAtlasSourceDatasetForm(pathParameter);
-  const formManager = useFormManager();
+  const formManager = useEditAtlasSourceDatasetFormManager(
+    pathParameter,
+    formMethod
+  );
   const {
     access: { canEdit, canView },
+    formAction,
     isLoading,
   } = formManager;
   const { data: sourceDataset } = formMethod;
@@ -57,7 +61,10 @@ export const AtlasSourceDatasetView = ({
             )
           }
           breadcrumbs={
-            <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+            <Breadcrumbs
+              breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
+              onNavigate={formAction?.onNavigate}
+            />
           }
           mainColumn={
             <ViewAtlasSourceDataset
@@ -67,7 +74,13 @@ export const AtlasSourceDatasetView = ({
               sectionConfigs={VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS}
             />
           }
-          tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
+          tabs={
+            <Tabs
+              onNavigate={formAction?.onNavigate}
+              pathParameter={pathParameter}
+              tabs={getTabs()}
+            />
+          }
           subTitle={sourceDataset?.publicationString}
           title={sourceDataset?.title || "Source Dataset"}
         />

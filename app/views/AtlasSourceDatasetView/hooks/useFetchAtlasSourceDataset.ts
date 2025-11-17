@@ -6,6 +6,8 @@ import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
 
+export const SOURCE_DATASET = "sourceDataset";
+
 interface UseFetchAtlasSourceDataset {
   sourceDataset?: HCAAtlasTrackerDetailSourceDataset;
 }
@@ -14,7 +16,8 @@ export const useFetchAtlasSourceDataset = (
   pathParameter: PathParameter
 ): UseFetchAtlasSourceDataset => {
   const { fetchDataState } = useFetchDataState();
-  const { shouldFetch } = fetchDataState;
+  const { shouldFetchByKey } = fetchDataState;
+  const shouldFetch = shouldFetchByKey[SOURCE_DATASET];
 
   const { data: sourceDataset, progress } = useFetchData<
     HCAAtlasTrackerDetailSourceDataset | undefined

@@ -27,6 +27,16 @@ const CAP_INGEST_STATUS: ChipInputControllerConfig = {
   viewBuilder: buildCAPIngestStatus,
 };
 
+const CAP_URL: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: true,
+    label: "CAP URL",
+    readOnly: false,
+  },
+  labelLink: true,
+  name: FIELD_NAME.CAP_URL,
+};
+
 const CELL_COUNT: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
@@ -104,4 +114,8 @@ export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: (
   VALIDATION_STATUS,
   CAP_INGEST_STATUS,
   FILE_EVENT_TIME,
+];
+
+export const CAP_INTEGRATED_OBJECT_CONTROLLERS: CommonControllerConfig[] = [
+  CAP_URL,
 ];

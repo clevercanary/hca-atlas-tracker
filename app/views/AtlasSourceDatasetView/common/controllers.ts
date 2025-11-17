@@ -8,6 +8,16 @@ type CommonControllerConfig = ControllerConfig<
   HCAAtlasTrackerSourceDataset
 >;
 
+const CAP_URL: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: true,
+    label: "CAP URL",
+    readOnly: false,
+  },
+  labelLink: true,
+  name: FIELD_NAME.CAP_URL,
+};
+
 const FILE_NAME: CommonControllerConfig = {
   inputProps: {
     isFullWidth: true,
@@ -35,7 +45,9 @@ const VALIDATION_STATUS: CommonControllerConfig = {
   name: FIELD_NAME.VALIDATION_STATUS,
 };
 
-export const GENERAL_INFO_SOURCE_DATASET_CONTROLLERS: ControllerConfig<
-  ViewAtlasSourceDatasetData,
-  HCAAtlasTrackerSourceDataset
->[] = [FILE_NAME, SIZE_BYTES, VALIDATION_STATUS];
+export const GENERAL_INFO_SOURCE_DATASET_CONTROLLERS: CommonControllerConfig[] =
+  [FILE_NAME, SIZE_BYTES, VALIDATION_STATUS];
+
+export const CAP_SOURCE_DATASET_CONTROLLERS: CommonControllerConfig[] = [
+  CAP_URL,
+];
