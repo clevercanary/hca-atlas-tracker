@@ -33,6 +33,7 @@ const CAP_URL: CommonControllerConfig = {
     label: "CAP URL",
     readOnly: false,
   },
+  labelLink: true,
   name: FIELD_NAME.CAP_URL,
 };
 
