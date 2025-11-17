@@ -4,33 +4,36 @@ import { HCAAtlasTrackerSourceStudy } from "../../../../../../apis/catalog/hca-a
 import { getSourceStudyCitation } from "../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 
 /**
- * Returns a map of source study ID to publication string.
+ * Returns a map of source study ID to publication string, with UNSPECIFIED option included.
  * @param sourceStudies - Source studies.
- * @returns Map of source study ID to publication string.
+ * @returns Map of source study ID to publication string, with UNSPECIFIED option included.
  */
 export function buildPublicationStringMap(
   sourceStudies?: HCAAtlasTrackerSourceStudy[]
 ): Map<string, string> {
-  return (sourceStudies || []).reduce((acc, sourceStudy) => {
-    acc.set(sourceStudy.id, getSourceStudyCitation(sourceStudy));
-    return acc;
-  }, new Map<string, string>());
+  const publicationStringById = (sourceStudies || []).reduce(
+    (acc, sourceStudy) => {
+      acc.set(sourceStudy.id, getSourceStudyCitation(sourceStudy));
+      return acc;
+    },
+    new Map<string, string>()
+  );
+
+  // Append the UNSPECIFIED option to the map.
+  publicationStringById.set(LABEL.UNSPECIFIED, LABEL.UNSPECIFIED);
+
+  return publicationStringById;
 }
 
 /**
- * Returns a list of [id, publicationString] tuples sorted by publication string, with UNSPECIFIED option included.
+ * Returns a list of [id, publicationString] tuples sorted by publication string.
  * @param publicationStringById - Map of source study ID to publication string.
- * @returns List of [id, publicationString] tuples sorted by publication string, with UNSPECIFIED option included.
+ * @returns List of [id, publicationString] tuples sorted by publication string.
  */
 export function getPublicationStringOptions(
   publicationStringById: Map<string, string>
 ): [string, string][] {
-  // Append the UNSPECIFIED option to the map.
-  const publicationStringWithUnspecified = new Map(publicationStringById);
-
-  publicationStringWithUnspecified.set(LABEL.UNSPECIFIED, LABEL.UNSPECIFIED);
-
-  return [...publicationStringWithUnspecified].sort(sortPublication);
+  return [...publicationStringById].sort(sortPublication);
 }
 
 /**
