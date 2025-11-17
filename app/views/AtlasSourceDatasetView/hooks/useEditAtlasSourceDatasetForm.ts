@@ -32,6 +32,7 @@ function mapSchemaValues(
 ): ViewAtlasSourceDatasetData | undefined {
   if (!sourceDataset) return;
   return {
+    [FIELD_NAME.CAP_URL]: sourceDataset.capUrl ?? "",
     [FIELD_NAME.FILE_NAME]: sourceDataset.fileName,
     [FIELD_NAME.SIZE_BYTES]: formatFileSize(sourceDataset.sizeBytes),
     [FIELD_NAME.VALIDATION_STATUS]:

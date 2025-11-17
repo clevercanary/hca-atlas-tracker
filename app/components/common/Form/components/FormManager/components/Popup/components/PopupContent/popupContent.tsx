@@ -36,6 +36,14 @@ export function renderText(route?: RouteValue): string {
       return `"Add New Atlas" page`;
     case ROUTE.CREATE_SOURCE_STUDY:
       return `"Add Source Study" page`;
+    case ROUTE.ATLAS_SOURCE_DATASET:
+      return `"Source Dataset" page`;
+    case ROUTE.ATLAS_SOURCE_DATASETS:
+      return `"Source Datasets" tab`;
+    case ROUTE.ATLAS_SOURCE_DATASET_VALIDATION:
+      return `"Source Dataset Validation" page`;
+    case ROUTE.ATLAS_SOURCE_DATASET_VALIDATIONS:
+      return `"Source Dataset Validations" tab`;
     case ROUTE.SOURCE_STUDY:
       return `"Source Study" page`;
     case ROUTE.SOURCE_STUDIES:
