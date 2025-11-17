@@ -5,7 +5,7 @@ export const SELECT_PROPS: SelectProps = {
     slotProps: {
       paper: {
         elevation: 1,
-        sx: { maxWidth: "min-content", my: 1 },
+        sx: { maxHeight: "356px", maxWidth: "min-content", my: 1 },
         variant: "menu",
       },
     },
