@@ -181,6 +181,21 @@ export async function setSourceDatasetsSourceStudy(
 }
 
 /**
+ * Unlink all source datasets from the given source study.
+ * @param sourceStudyId - ID of the source study to unlink source datasets from.
+ * @param client - Postgres client to use.
+ */
+export async function unlinkAllSourceDatasetsFromSourceStudy(
+  sourceStudyId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await client.query(
+    "UPDATE hat.source_datasets SET source_study_id = NULL WHERE source_study_id = $1",
+    [sourceStudyId]
+  );
+}
+
+/**
  * Throw an error if the given source dataset is not linked to the given source study.
  * @param sourceDatasetId - Source dataset ID.
  * @param sourceStudyId - Source study ID.
