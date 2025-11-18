@@ -18,6 +18,7 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
   INTEGRITY_STATUS,
+  PUBLICATION_STATUS,
   REPROCESSED_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
@@ -126,11 +127,12 @@ export async function initSourceDatasets(
   for (const sourceDataset of testSourceDatasets) {
     const info = makeTestSourceDatasetInfo(sourceDataset);
     await query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status) VALUES ($1, $2, $3, $4)",
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, publication_status, reprocessed_status) VALUES ($1, $2, $3, $4, $5)",
       [
         sourceDataset.sourceStudyId ?? null,
         info,
         sourceDataset.id,
+        sourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
         sourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
       ],
       client

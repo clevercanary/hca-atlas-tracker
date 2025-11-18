@@ -24,6 +24,7 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   INTEGRITY_STATUS,
+  PUBLICATION_STATUS,
   REPROCESSED_STATUS,
   ROLE,
   SYSTEM,
@@ -606,6 +607,9 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.geneCount).toEqual(
     testFile.datasetInfo?.geneCount ?? null
   );
+  expect(apiSourceDataset.publicationStatus).toEqual(
+    testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
+  );
   expect(apiSourceDataset.reprocessedStatus).toEqual(
     testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
   );
@@ -648,6 +652,9 @@ export function expectDbSourceDatasetToMatchTest(
   );
   expect(dbSourceDataset.sd_info.disease).toEqual(
     testSourceDataset.disease ?? []
+  );
+  expect(dbSourceDataset.publication_status).toEqual(
+    testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
   );
   expect(dbSourceDataset.reprocessed_status).toEqual(
     testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED

@@ -195,6 +195,7 @@ export function dbSourceDatasetToApiSourceDataset(
     isArchived: dbSourceDataset.is_archived,
     metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
+    publicationStatus: dbSourceDataset.publication_status,
     publicationString,
     reprocessedStatus: dbSourceDataset.reprocessed_status,
     sizeBytes: Number(dbSourceDataset.size_bytes),

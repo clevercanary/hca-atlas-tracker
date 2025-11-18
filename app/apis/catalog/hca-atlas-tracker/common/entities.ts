@@ -135,6 +135,7 @@ export interface HCAAtlasTrackerSourceDataset {
   isArchived: boolean;
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
+  publicationStatus: PUBLICATION_STATUS;
   publicationString: string;
   reprocessedStatus: REPROCESSED_STATUS;
   sizeBytes: number;
@@ -404,6 +405,7 @@ export type WithSourceStudyInfo<T = unknown, TAltValue = never> = T &
 export interface HCAAtlasTrackerDBSourceDataset {
   created_at: Date;
   id: string;
+  publication_status: PUBLICATION_STATUS;
   reprocessed_status: REPROCESSED_STATUS;
   sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
   source_study_id: string | null;
@@ -776,6 +778,12 @@ export enum REPROCESSED_STATUS {
   ORIGINAL = "Original",
   REPROCESSED = "Reprocessed",
   UNSPECIFIED = "Unspecified",
+}
+
+export enum PUBLICATION_STATUS {
+  PUBLISHED = "published",
+  UNPUBLISHED = "unpublished",
+  UNSPECIFIED = "unspecified",
 }
 
 export enum SYSTEM {

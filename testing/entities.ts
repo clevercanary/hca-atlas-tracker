@@ -15,6 +15,7 @@ import {
   INTEGRITY_STATUS,
   LinkInfo,
   NetworkKey,
+  PUBLICATION_STATUS,
   PublicationInfo,
   REPROCESSED_STATUS,
   ROLE,
@@ -96,6 +97,7 @@ export interface TestSourceDataset {
   id: string;
   metadataSpreadsheetTitle?: string;
   metadataSpreadsheetUrl?: string;
+  publicationStatus?: PUBLICATION_STATUS;
   reprocessedStatus?: REPROCESSED_STATUS;
   sourceStudyId?: string;
   suspensionType?: string[];
