@@ -12,7 +12,9 @@ import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { getTabs } from "../ComponentAtlasView/common/utils";
+import { useFetchAssociatedAtlasSourceDatasets } from "../ComponentAtlasView/hooks/useFetchAssociatedAtlasSourceDatasets";
 import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
+import { useFetchComponentAtlasSourceDatasets } from "../ComponentAtlasView/hooks/useFetchComponentAtlasSourceDatasets";
 import { getBreadcrumbs } from "./common/utils";
 
 interface Props {
@@ -24,6 +26,10 @@ export const IntegratedObjectSourceDatasetsView = ({
 }: Props): JSX.Element => {
   const { atlas } = useFetchAtlas(pathParameter);
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
+  const { componentAtlasSourceDatasets } =
+    useFetchComponentAtlasSourceDatasets(pathParameter);
+  const { atlasSourceDatasets } =
+    useFetchAssociatedAtlasSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const {
     access: { canView },
@@ -44,9 +50,11 @@ export const IntegratedObjectSourceDatasetsView = ({
               renderAccessFallback(formManager)
             ) : (
               <LinkedSourceDatasets
-                atlasSourceDatasets={[]}
-                componentAtlasIsArchived={false}
-                componentAtlasSourceDatasets={[]}
+                atlasSourceDatasets={atlasSourceDatasets || []}
+                componentAtlasIsArchived={componentAtlas?.isArchived ?? false}
+                componentAtlasSourceDatasets={
+                  componentAtlasSourceDatasets || []
+                }
                 formManager={formManager}
                 pathParameter={pathParameter}
               />
