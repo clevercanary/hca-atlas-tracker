@@ -696,6 +696,21 @@ export async function expectSourceDatasetToBeUnchanged(
   expectDbSourceDatasetToMatchTest(datasetFromDb, sourceDataset);
 }
 
+export async function expectSourceDatasetsToHaveSourceStudy(
+  sourceDatasetIds: string[],
+  sourceStudyValue: string | null
+): Promise<void> {
+  const { rows: sourceDatasets } = await query<
+    Pick<HCAAtlasTrackerDBSourceDataset, "source_study_id">
+  >("SELECT source_study_id FROM hat.source_datasets WHERE id=ANY($1)", [
+    sourceDatasetIds,
+  ]);
+  expect(sourceDatasets).toHaveLength(sourceDatasetIds.length);
+  for (const dataset of sourceDatasets) {
+    expect(dataset.source_study_id).toEqual(sourceStudyValue);
+  }
+}
+
 export async function expectApiSourceStudyToHaveMatchingDbValidations(
   sourceStudy: HCAAtlasTrackerSourceStudy
 ): Promise<void> {

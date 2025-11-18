@@ -5,6 +5,20 @@ import { ROUTE } from "../../../../routes/constants";
 import { AtlasSourceDataset } from "../../entities";
 
 /**
+ * Returns the CAP URL cell.
+ * @param ctx - Cell context.
+ * @returns CAP URL cell.
+ */
+export function renderCAPUrl(
+  ctx: CellContext<AtlasSourceDataset, string>
+): JSX.Element {
+  const { row } = ctx;
+  const { original } = row;
+  const { capIngestStatus, capUrl } = original;
+  return C.CAPCell({ capIngestStatus, capUrl });
+}
+
+/**
  * Returns the source dataset cell count.
  * If the validation status is PENDING, returns an empty string.
  * Otherwise, returns the cell count, formatted as a number.

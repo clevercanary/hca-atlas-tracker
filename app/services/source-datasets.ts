@@ -399,27 +399,6 @@ export async function deleteSourceDataset(
 }
 
 /**
- * Delete all source datasets of the specified source study, as result of the source study being deleted.
- * @param sourceStudyId - Source study ID.
- * @param client - Postgres client to use.
- */
-export async function deleteSourceDatasetsOfDeletedSourceStudy(
-  sourceStudyId: string,
-  client: pg.PoolClient
-): Promise<void> {
-  const queryResult = await client.query<
-    Pick<HCAAtlasTrackerDBSourceDataset, "id">
-  >("DELETE FROM hat.source_datasets WHERE source_study_id=$1 RETURNING id", [
-    sourceStudyId,
-  ]);
-  const deletedSourceDatasetIds = queryResult.rows.map(({ id }) => id);
-  await removeSourceDatasetsFromAllComponentAtlases(
-    deletedSourceDatasetIds,
-    client
-  );
-}
-
-/**
  * Throw an error if the given source dataset cannot be deleted as an explicit user action.
  * @param sourceDatasetId - Source dataset ID.
  * @param client - Postgres client to use.

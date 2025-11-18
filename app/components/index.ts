@@ -34,6 +34,7 @@ export { LabelIconMenuItem } from "./Layout/components/Header/components/Content
 export { AnalysisPortalCell } from "./Table/components/TableCell/components/AnalysisPortalCell/analysisPortalCell";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
 export { ButtonTextPrimaryCell } from "./Table/components/TableCell/components/ButtonTextPrimaryCell/buttonTextPrimaryCell.styles";
+export { CAPCell } from "./Table/components/TableCell/components/CAPCell/capCell";
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
 export { GroupedRowSelectionCell } from "./Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
 export { IconStatusBadge } from "./Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
