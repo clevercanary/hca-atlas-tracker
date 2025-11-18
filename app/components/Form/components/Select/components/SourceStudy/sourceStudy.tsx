@@ -9,7 +9,10 @@ import {
   Select,
   SelectProps,
 } from "../../../../../common/Form/components/Select/select";
-import { getPublicationStringById } from "./utils";
+import {
+  buildPublicationStringMap,
+  getPublicationStringOptions,
+} from "./utils";
 
 export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
   function SourceStudy(
@@ -21,8 +24,12 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
     } = useEntity() as Entity;
     const { fetchDataDispatch } = useFetchDataState();
     const publicationStringById = useMemo(
-      () => getPublicationStringById(sourceStudies),
+      () => buildPublicationStringMap(sourceStudies),
       [sourceStudies]
+    );
+    const publicationStringIds = useMemo(
+      () => getPublicationStringOptions(publicationStringById),
+      [publicationStringById]
     );
 
     useEffect(() => {
@@ -39,7 +46,7 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
         renderValue={renderValue(publicationStringById)}
         value={props.value ?? ""}
       >
-        {[...publicationStringById].map(([id, publicationString]) => {
+        {publicationStringIds.map(([id, publicationString]) => {
           return (
             <MMenuItem key={id} value={id} sx={{ whiteSpace: "normal" }}>
               {publicationString}
