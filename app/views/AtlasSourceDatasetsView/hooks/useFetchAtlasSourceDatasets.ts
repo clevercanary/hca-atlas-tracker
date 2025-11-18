@@ -4,6 +4,7 @@ import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tr
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
 import { useArchivedState } from "../../../components/Entity/providers/archived/hook";
+import { getCapIngestStatus } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
@@ -44,13 +45,27 @@ export const useFetchAtlasSourceDatasets = (
   // Extract atlasId from pathParameter.
   const { atlasId } = pathParameter;
 
-  // Augment each atlas source dataset with the current atlasId.
-  // This enables in-app routing and ensures atlasId is always present in table cell data.
   const atlasSourceDatasets = useMemo(
-    () =>
-      data?.map((atlasSourceDataset) => ({ atlasId, ...atlasSourceDataset })),
+    () => mapData(atlasId, data),
     [atlasId, data]
   );
 
   return { atlasSourceDatasets };
 };
+
+/**
+ * Map HCAAtlasTrackerSourceDataset[] to AtlasSourceDataset[].
+ * @param atlasId - Atlas ID.
+ * @param data - Atlas source datasets.
+ * @returns AtlasSourceDataset[].
+ */
+function mapData(
+  atlasId: string,
+  data: HCAAtlasTrackerSourceDataset[] = []
+): AtlasSourceDataset[] {
+  return data.map((atlasSourceDataset) => ({
+    atlasId,
+    ...atlasSourceDataset,
+    capIngestStatus: getCapIngestStatus(atlasSourceDataset),
+  }));
+}

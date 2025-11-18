@@ -5,6 +5,8 @@ import { Getter } from "@tanstack/react-table";
 import { ComponentProps } from "react";
 import {
   FILE_VALIDATION_STATUS,
+  HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerSourceDataset,
   REPROCESSED_STATUS,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { CAP_INGEST_STATUS_COLOR, CAP_INGEST_STATUS_LABEL } from "./constants";
@@ -19,8 +21,7 @@ import { CAP_INGEST_STATUS, Props } from "./entities";
 export function buildCAPIngestStatus({
   row,
 }: Pick<Props, "row">): ComponentProps<typeof ChipCell> {
-  // Determine CAP ingest status.
-  const status = getCapIngestStatus(row.original);
+  const status = row.original.capIngestStatus;
   return {
     getValue: (() => {
       return {
@@ -38,7 +39,7 @@ export function buildCAPIngestStatus({
  * @returns CAP ingest status.
  */
 export function getCapIngestStatus(
-  original: Props["row"]["original"]
+  original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
 ): CAP_INGEST_STATUS {
   const { validationStatus, validationSummary } = original;
 
