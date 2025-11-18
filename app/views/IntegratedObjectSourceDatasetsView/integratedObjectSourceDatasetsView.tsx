@@ -4,6 +4,7 @@ import { PathParameter } from "../../common/entities";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { LinkedSourceDatasets } from "../../components/Detail/components/TrackerForm/components/Section/components/ComponentAtlas/components/LinkedSourceDatasets/linkedSourceDatasets";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -42,7 +43,13 @@ export const IntegratedObjectSourceDatasetsView = ({
             renderAccessFallback(formManager) ? (
               renderAccessFallback(formManager)
             ) : (
-              <div>Integrated Object Source Datasets</div>
+              <LinkedSourceDatasets
+                atlasSourceDatasets={[]}
+                componentAtlasIsArchived={false}
+                componentAtlasSourceDatasets={[]}
+                formManager={formManager}
+                pathParameter={pathParameter}
+              />
             )
           }
           tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
