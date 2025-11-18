@@ -2,6 +2,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { PathParameter } from "../../../../../../app/common/entities";
 import { FetchDataStateProvider } from "../../../../../../app/providers/fetchDataState/fetchDataState";
+import { IntegratedObjectSourceDatasetsView } from "../../../../../../app/views/IntegratedObjectSourceDatasetsView/integratedObjectSourceDatasetsView";
 
 interface IntegratedObjectSourceDatasetsPageUrlParams extends ParsedUrlQuery {
   atlasId: string;
@@ -30,7 +31,7 @@ const ViewIntegratedObjectSourceDatasetsPage = ({
 }: IntegratedObjectSourceDatasetsPageProps): JSX.Element => {
   return (
     <FetchDataStateProvider>
-      <div>IO Source Datasets Page {pathParameter.componentAtlasId}</div>
+      <IntegratedObjectSourceDatasetsView pathParameter={pathParameter} />
     </FetchDataStateProvider>
   );
 };
