@@ -954,7 +954,11 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     },
     {
       accessorKey: "capUrl",
-      cell: ({ row }) => C.CAPCell({ capUrl: row.original.capUrl }),
+      cell: ({ row }) =>
+        C.CAPCell({
+          // `capIngestStatus` is not used for the display of CAP for integrated objects.
+          capUrl: row.original.capUrl,
+        }),
       enableSorting: false,
       header: "CAP",
       meta: { width: { max: "1fr", min: "160px" } },
