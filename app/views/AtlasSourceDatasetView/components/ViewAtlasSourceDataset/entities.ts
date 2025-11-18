@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { SectionConfig } from "../../../../components/Forms/common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { ViewAtlasSourceDatasetData } from "../../common/entities";
+import { SourceDatasetSectionConfig } from "../../common/sections";
 
 export interface ViewAtlasSourceDatasetProps {
   accessFallback: ReactNode;
@@ -12,8 +12,5 @@ export interface ViewAtlasSourceDatasetProps {
     ViewAtlasSourceDatasetData,
     HCAAtlasTrackerSourceDataset
   >;
-  sectionConfigs: SectionConfig<
-    ViewAtlasSourceDatasetData,
-    HCAAtlasTrackerSourceDataset
-  >[];
+  sectionConfigs: SourceDatasetSectionConfig[];
 }
