@@ -38,5 +38,9 @@ export function getTabs(): Tab[] {
   return [
     { label: "Overview", value: ROUTE.COMPONENT_ATLAS },
     { label: "Validations", value: ROUTE.INTEGRATED_OBJECT_VALIDATION },
+    {
+      label: "Source Datasets",
+      value: ROUTE.INTEGRATED_OBJECT_SOURCE_DATASETS,
+    },
   ];
 }

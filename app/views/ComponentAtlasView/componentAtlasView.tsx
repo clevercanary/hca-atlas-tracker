@@ -8,6 +8,7 @@ import { ViewComponentAtlas } from "../../components/Detail/components/ViewCompo
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { Payload } from "../../hooks/UseEditFileArchived/entities";
+import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFetchDataState } from "../../hooks/useFetchDataState";
 import { EntityProvider } from "../../providers/entity/provider";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
@@ -16,7 +17,6 @@ import { getBreadcrumbs, getTabs } from "./common/utils";
 import { StyledFileArchivedStatus } from "./componentAtlasView.styles";
 import { useEditIntegratedObjectFormManager } from "./hooks/useEditIntegratedObjectFormManager";
 import { INTEGRATED_OBJECT } from "./hooks/useFetchComponentAtlas";
-import { useFetchComponentAtlasData } from "./hooks/useFetchComponentAtlasData";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
 
 interface ComponentAtlasViewProps {
@@ -26,7 +26,7 @@ interface ComponentAtlasViewProps {
 export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
-  const componentAtlasData = useFetchComponentAtlasData(pathParameter);
+  const { atlas } = useFetchAtlas(pathParameter);
   const { fetchDataDispatch } = useFetchDataState();
   const formMethod = useViewComponentAtlasForm(pathParameter);
   const formManager = useEditIntegratedObjectFormManager(
@@ -39,30 +39,15 @@ export const ComponentAtlasView = ({
     isLoading,
   } = formManager;
   const { data: componentAtlas } = formMethod;
-  const { atlas, atlasSourceDatasets, componentAtlasSourceDatasets } =
-    componentAtlasData;
   if (isLoading) return <Fragment />;
   return (
     <EntityProvider
-      data={{
-        atlas,
-        atlasSourceDatasets,
-        componentAtlas,
-        componentAtlasSourceDatasets,
-      }}
+      data={{ atlas, componentAtlas }}
       formManager={formManager}
       pathParameter={pathParameter}
     >
       <ConditionalComponent
-        isIn={shouldRenderView(
-          canView,
-          Boolean(
-            atlas &&
-              componentAtlas &&
-              componentAtlasSourceDatasets &&
-              atlasSourceDatasets
-          )
-        )}
+        isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
       >
         <DetailView
           actions={
@@ -86,13 +71,9 @@ export const ComponentAtlasView = ({
           }
           mainColumn={
             <ViewComponentAtlas
-              componentAtlasIsArchived={componentAtlas?.isArchived}
-              componentAtlasSourceDatasets={componentAtlasSourceDatasets}
               formManager={formManager}
               formMethod={formMethod}
-              pathParameter={pathParameter}
               sectionConfigs={VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS}
-              atlasSourceDatasets={atlasSourceDatasets}
             />
           }
           tabs={

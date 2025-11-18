@@ -48,6 +48,8 @@ export function renderText(route?: RouteValue): string {
       return `"Integrated Object" page`;
     case ROUTE.COMPONENT_ATLASES:
       return `"Integrated Objects" tab`;
+    case ROUTE.INTEGRATED_OBJECT_SOURCE_DATASETS:
+      return `"Integrated Object Source Datasets" tab`;
     case ROUTE.INTEGRATED_OBJECT_VALIDATION:
       return `"Integrated Object Validation" page`;
     case ROUTE.INTEGRATED_OBJECT_VALIDATIONS:

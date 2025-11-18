@@ -43,6 +43,12 @@ export const BREADCRUMB_COMPONENT_ATLAS: Breadcrumb = {
   text: "Integrated Object",
 };
 
+export const BREADCRUMB_INTEGRATED_OBJECT_SOURCE_DATASETS: Breadcrumb = {
+  path: ROUTE.INTEGRATED_OBJECT_SOURCE_DATASETS,
+  route: ROUTE.INTEGRATED_OBJECT_SOURCE_DATASETS,
+  text: "Integrated Object Source Datasets",
+};
+
 export const BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS: Breadcrumb = {
   path: ROUTE.INTEGRATED_OBJECT_VALIDATIONS,
   route: ROUTE.INTEGRATED_OBJECT_VALIDATIONS,

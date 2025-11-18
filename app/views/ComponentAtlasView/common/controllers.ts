@@ -31,7 +31,6 @@ const CAP_URL: CommonControllerConfig = {
   inputProps: {
     isFullWidth: true,
     label: "CAP URL",
-    readOnly: false,
   },
   labelLink: true,
   name: FIELD_NAME.CAP_URL,

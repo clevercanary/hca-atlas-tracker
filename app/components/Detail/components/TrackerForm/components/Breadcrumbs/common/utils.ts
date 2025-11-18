@@ -17,6 +17,7 @@ import {
   BREADCRUMB_ATLASES,
   BREADCRUMB_COMPONENT_ATLAS,
   BREADCRUMB_COMPONENT_ATLASES,
+  BREADCRUMB_INTEGRATED_OBJECT_SOURCE_DATASETS,
   BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS,
   BREADCRUMB_METADATA_CORRECTNESS,
   BREADCRUMB_METADATA_ENTRY_SHEETS,
@@ -113,6 +114,20 @@ export function getComponentAtlasBreadcrumb(
   );
   if (!componentAtlas) return breadcrumb;
   return { ...breadcrumb, text: componentAtlas.title };
+}
+
+/**
+ * Returns the breadcrumb for the integrated object source datasets view.
+ * @param pathParameter - Path parameter.
+ * @returns integrated object source datasets view breadcrumb.
+ */
+export function getIntegratedObjectSourceDatasetsBreadcrumb(
+  pathParameter?: PathParameter
+): Breadcrumb {
+  return resolveBreadcrumbPath(
+    BREADCRUMB_INTEGRATED_OBJECT_SOURCE_DATASETS,
+    pathParameter
+  );
 }
 
 /**
