@@ -1,6 +1,6 @@
 import { CellContext } from "@tanstack/react-table";
-import { HCAAtlasTrackerComponentAtlas } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasSourceDataset } from "../../../../../../views/AtlasSourceDatasetsView/entities";
+import { AtlasIntegratedObject } from "../../../../../../views/ComponentAtlasesView/entities";
 
 export enum CAP_INGEST_STATUS {
   CAP_READY = "CAP_READY",
@@ -10,5 +10,5 @@ export enum CAP_INGEST_STATUS {
 }
 
 export type Props =
-  | CellContext<HCAAtlasTrackerComponentAtlas, unknown>
+  | CellContext<AtlasIntegratedObject, unknown>
   | CellContext<AtlasSourceDataset, unknown>;

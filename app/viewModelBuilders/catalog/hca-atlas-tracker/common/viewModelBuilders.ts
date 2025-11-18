@@ -16,7 +16,6 @@ import {
   RowData,
   Table,
 } from "@tanstack/react-table";
-import { CAPIngestStatusCell } from "app/components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { BaseSyntheticEvent, ComponentProps } from "react";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
@@ -48,6 +47,7 @@ import {
 import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
+import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import {
   ICON_STATUS,
   IconStatusBadgeProps,
@@ -55,6 +55,7 @@ import {
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
+import { AtlasIntegratedObject } from "../../../../views/ComponentAtlasesView/entities";
 import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 import { EXTRA_PROPS } from "./constants";
 import {
@@ -178,8 +179,8 @@ export const buildComponentAtlasFileName = ({
   getValue,
   row,
 }: CellContext<
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerComponentAtlas["fileName"]
+  AtlasIntegratedObject,
+  AtlasIntegratedObject["fileName"]
 >): ComponentProps<typeof C.LinkCell> => {
   const fileName = getValue();
   const atlasId = row.getValue("atlasId") as string;
@@ -388,7 +389,7 @@ export const buildResolvedAt = (
  * @returns Props to be used for the cell.
  */
 export const buildSourceDatasetCount = (
-  componentAtlas: HCAAtlasTrackerComponentAtlas
+  componentAtlas: AtlasIntegratedObject
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: componentAtlas.sourceDatasetCount.toLocaleString(),
@@ -926,7 +927,7 @@ function getAssayColumnDef<
  * @returns Table column definition.
  */
 export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
-  HCAAtlasTrackerComponentAtlas,
+  AtlasIntegratedObject,
   unknown
 >[] {
   const META = { width: { max: "1fr", min: "136px" } };
@@ -949,6 +950,17 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
       cell: CAPIngestStatusCell,
       enableSorting: false,
       header: "CAP Ingest Status",
+      meta: { width: { max: "1fr", min: "160px" } },
+    },
+    {
+      accessorKey: "capUrl",
+      cell: ({ row }) =>
+        C.CAPCell({
+          // `capIngestStatus` is not used for the display of CAP for integrated objects.
+          capUrl: row.original.capUrl,
+        }),
+      enableSorting: false,
+      header: "CAP",
       meta: { width: { max: "1fr", min: "160px" } },
     },
     getComponentAtlasSourceDatasetCountColumnDef(),
@@ -980,7 +992,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     { accessorKey: "atlasId" },
     { accessorKey: "fileId" },
     { accessorKey: "id" },
-  ] as ColumnDef<HCAAtlasTrackerComponentAtlas, unknown>[];
+  ] as ColumnDef<AtlasIntegratedObject, unknown>[];
 }
 
 /**
@@ -1246,7 +1258,7 @@ function getComponentAtlasSourceDatasetUnlinkColumnDef(
  * Returns component atlas source dataset count column def.
  * @returns ColumnDef.
  */
-function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<AtlasIntegratedObject> {
   return {
     accessorKey: "sourceDatasetCount",
     cell: ({ row }) => C.BasicCell(buildSourceDatasetCount(row.original)),
@@ -1259,7 +1271,7 @@ function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<HCAAtlasTrack
  * Returns component atlas title column def.
  * @returns ColumnDef.
  */
-function getComponentAtlasTitleColumnDef(): ColumnDef<HCAAtlasTrackerComponentAtlas> {
+function getComponentAtlasTitleColumnDef(): ColumnDef<AtlasIntegratedObject> {
   return {
     accessorKey: "title",
     header: "Title",
@@ -1337,7 +1349,7 @@ function getGeneCountColumnDef<
  * @returns ColumnDef.
  */
 function getIntegratedObjectFileDownloadColumnDef<
-  T extends HCAAtlasTrackerComponentAtlas
+  T extends AtlasIntegratedObject
 >(): ColumnDef<T> {
   return {
     accessorKey: "download",
@@ -1365,8 +1377,8 @@ function getIntegratedObjectFileDownloadColumnDef<
  * @returns ColumnDef.
  */
 function getIntegratedObjectFileNameColumnDef(): ColumnDef<
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerComponentAtlas["fileName"]
+  AtlasIntegratedObject,
+  AtlasIntegratedObject["fileName"]
 > {
   return {
     accessorKey: "fileName",
@@ -1381,8 +1393,8 @@ function getIntegratedObjectFileNameColumnDef(): ColumnDef<
  * @returns ColumnDef.
  */
 function getIntegratedObjectFileSizeColumnDef(): ColumnDef<
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerComponentAtlas["sizeBytes"]
+  AtlasIntegratedObject,
+  AtlasIntegratedObject["sizeBytes"]
 > {
   return {
     accessorKey: "sizeBytes",
@@ -1397,8 +1409,8 @@ function getIntegratedObjectFileSizeColumnDef(): ColumnDef<
  * @returns ColumnDef.
  */
 function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerComponentAtlas["validationStatus"]
+  AtlasIntegratedObject,
+  AtlasIntegratedObject["validationStatus"]
 > {
   return {
     accessorKey: "validationStatus",

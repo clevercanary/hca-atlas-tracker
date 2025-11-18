@@ -1,15 +1,19 @@
+import { useMemo } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerComponentAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
 import { useArchivedState } from "../../../components/Entity/providers/archived/hook";
+import { getCapIngestStatus } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
+import { AtlasIntegratedObject } from "../entities";
 
 export const INTEGRATED_OBJECTS = "integratedObjects";
+
 interface UseFetchComponentAtlases {
-  componentAtlases?: HCAAtlasTrackerComponentAtlas[];
+  componentAtlases?: AtlasIntegratedObject[];
 }
 
 export const useFetchComponentAtlases = (
@@ -22,7 +26,7 @@ export const useFetchComponentAtlases = (
   const { archived } = archivedState;
   const shouldFetch = shouldFetchByKey[INTEGRATED_OBJECTS];
 
-  const { data: componentAtlases, progress } = useFetchData<
+  const { data, progress } = useFetchData<
     HCAAtlasTrackerComponentAtlas[] | undefined
   >(
     `${getRequestURL(
@@ -35,5 +39,21 @@ export const useFetchComponentAtlases = (
 
   useResetFetchStatus(progress, [INTEGRATED_OBJECTS]);
 
+  const componentAtlases = useMemo(() => mapData(data), [data]);
+
   return { componentAtlases };
 };
+
+/**
+ * Map HCAAtlasTrackerComponentAtlas[] to AtlasIntegratedObject[].
+ * @param data - HCAAtlasTrackerComponentAtlas[].
+ * @returns AtlasIntegratedObject[].
+ */
+function mapData(
+  data: HCAAtlasTrackerComponentAtlas[] = []
+): AtlasIntegratedObject[] {
+  return data.map((integratedObject) => ({
+    ...integratedObject,
+    capIngestStatus: getCapIngestStatus(integratedObject),
+  }));
+}

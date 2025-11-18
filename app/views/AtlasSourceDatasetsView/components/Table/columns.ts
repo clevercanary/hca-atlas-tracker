@@ -15,10 +15,20 @@ import {
 } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { AtlasSourceDataset } from "../../entities";
 import {
+  renderCAPUrl,
   renderSourceDatasetCellCount,
   renderSourceDatasetFileDownloadCell,
   renderSourceDatasetValidationStatus,
 } from "./viewBuilders";
+
+const COLUMN_CAP_URL = {
+  accessorKey: "capUrl",
+  cell: renderCAPUrl,
+  enableSorting: false,
+  header: "CAP",
+  id: "capUrl",
+  meta: { width: { max: "0.5fr", min: "160px" } },
+} as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_ASSAY = {
   accessorKey: "assay",
@@ -159,6 +169,7 @@ export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_REPROCESSED_STATUS,
   COLUMN_VALIDATION_STATUS,
   COLUMN_CAP_INGEST_STATUS,
+  COLUMN_CAP_URL,
   COLUMN_ASSAY,
   COLUMN_SUSPENSION_TYPE,
   COLUMN_TISSUE,
