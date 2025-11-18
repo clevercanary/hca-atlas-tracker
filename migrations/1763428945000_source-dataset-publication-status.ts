@@ -5,7 +5,7 @@ export function up(pgm: MigrationBuilder): void {
     { name: "source_datasets", schema: "hat" },
     {
       publication_status: {
-        default: "unspecified",
+        default: "Unspecified",
         notNull: true,
         type: "string",
       },

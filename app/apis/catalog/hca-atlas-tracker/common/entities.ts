@@ -781,9 +781,9 @@ export enum REPROCESSED_STATUS {
 }
 
 export enum PUBLICATION_STATUS {
-  PUBLISHED = "published",
-  UNPUBLISHED = "unpublished",
-  UNSPECIFIED = "unspecified",
+  PUBLISHED = "Published",
+  UNPUBLISHED = "Unpublished",
+  UNSPECIFIED = "Unspecified",
 }
 
 export enum SYSTEM {
