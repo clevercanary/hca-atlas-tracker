@@ -19,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async (
     context.params as IntegratedObjectSourceDatasetsPageUrlParams;
   return {
     props: {
-      pageTitle: "Integrated Objects Source Datasets",
+      pageTitle: "Integrated Object Source Datasets",
       pathParameter: { atlasId, componentAtlasId },
     },
   };
