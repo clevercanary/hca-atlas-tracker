@@ -1,8 +1,5 @@
 import { object, string } from "yup";
-import {
-  CAP_PROJECT_URL_REGEXP,
-  metadataSpreadsheetUrlsSchema,
-} from "../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { metadataSpreadsheetUrlsSchema } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   CELLXGENE_COLLECTION_ID_REGEX,
   HCA_PROJECT_ID_REGEX,
@@ -12,10 +9,7 @@ import { FIELD_NAME } from "./constants";
 
 export const sourceStudyEditSchema = newSourceStudySchema.concat(
   object({
-    [FIELD_NAME.CAP_ID]: string()
-      .matches(CAP_PROJECT_URL_REGEXP, "Invalid CAP ID")
-      .default("")
-      .notRequired(),
+    capId: string().nullable().default(null), // TODO remove when capId is removed from BE.
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: string()
       .default("")
       .notRequired()

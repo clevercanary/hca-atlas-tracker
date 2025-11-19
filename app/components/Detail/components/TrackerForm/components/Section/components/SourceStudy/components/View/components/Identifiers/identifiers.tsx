@@ -9,7 +9,6 @@ import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceStud
 import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
 import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
 import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
-import { CapId } from "../../../../../../../../../../../Form/components/Input/components/CapId/capId";
 import {
   Section,
   SectionCard,
@@ -86,20 +85,6 @@ export const Identifiers = ({
                 </Fragment>
               }
               readOnly={isReadOnly || isPublishedPreprint}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name={FIELD_NAME.CAP_ID}
-          render={({ field, fieldState: { error, invalid } }): JSX.Element => (
-            <CapId
-              {...field}
-              {...DEFAULT_INPUT_PROPS.CAP_ID}
-              error={invalid}
-              helperText={error?.message}
-              isFilled={Boolean(field.value)}
-              readOnly={isReadOnly}
             />
           )}
         />

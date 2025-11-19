@@ -70,7 +70,7 @@ function mapSchemaValues(
   sourceStudy?: HCAAtlasTrackerSourceStudy
 ): SourceStudyEditData {
   return {
-    [FIELD_NAME.CAP_ID]: sourceStudy?.capId ?? "",
+    capId: null, // TODO remove when capId is removed from BE.
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: mapCELLxGENECollectionId(
       sourceStudy?.cellxgeneCollectionId ?? null
     ),
