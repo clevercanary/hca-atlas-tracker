@@ -157,6 +157,11 @@ export async function getSourceDatasetForDetailApi(
   return queryResult.rows[0];
 }
 
+/**
+ * Set the publication status of each of the given source datasets.
+ * @param sourceDatasetIds - IDs of source datasets to set publication status of.
+ * @param publicationStatus - Publication status to set.
+ */
 export async function setSourceDatasetsPublicationStatus(
   sourceDatasetIds: string[],
   publicationStatus: PUBLICATION_STATUS
