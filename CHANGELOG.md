@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.48.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.47.0...v1.48.0) (2025-11-19)
+
+
+### Features
+
+* add api-editable cap url field to integrated objects and source datasets ([#975](https://github.com/clevercanary/hca-atlas-tracker/issues/975)) ([#985](https://github.com/clevercanary/hca-atlas-tracker/issues/985)) ([d349e68](https://github.com/clevercanary/hca-atlas-tracker/commit/d349e681bab773b1c571d621ff81943f5d5d9042))
+* allow source studies with linked source datasets to be deleted ([#962](https://github.com/clevercanary/hca-atlas-tracker/issues/962)) ([#991](https://github.com/clevercanary/hca-atlas-tracker/issues/991)) ([8aa813c](https://github.com/clevercanary/hca-atlas-tracker/commit/8aa813c0e108655b7b0721cea66da00b309603cd))
+* alpha sort source study list picker ([#979](https://github.com/clevercanary/hca-atlas-tracker/issues/979)) ([#993](https://github.com/clevercanary/hca-atlas-tracker/issues/993)) ([a1ff9e9](https://github.com/clevercanary/hca-atlas-tracker/commit/a1ff9e967be5a5137e1847cd1ba02a260d56a1de))
+* edit cap url on source datasets and integrated objects ([#976](https://github.com/clevercanary/hca-atlas-tracker/issues/976)) ([#992](https://github.com/clevercanary/hca-atlas-tracker/issues/992)) ([4fea959](https://github.com/clevercanary/hca-atlas-tracker/commit/4fea95973b2189cf91bf0ad7166b0ac70e0312a3))
+* map `undefined` gene count to `null` in apis ([#982](https://github.com/clevercanary/hca-atlas-tracker/issues/982)) ([#983](https://github.com/clevercanary/hca-atlas-tracker/issues/983)) ([6aa4cdd](https://github.com/clevercanary/hca-atlas-tracker/commit/6aa4cdd841ad3f419d1ae409f0f7fc101caafcc2))
+* move integrated object source datasets list to its own tab ([#972](https://github.com/clevercanary/hca-atlas-tracker/issues/972)) ([a79e02b](https://github.com/clevercanary/hca-atlas-tracker/commit/a79e02b8f05cc13556532b539e6710cc3ae11dac))
+* remove cap from the 'source studies' tab ([#1007](https://github.com/clevercanary/hca-atlas-tracker/issues/1007)) ([#1009](https://github.com/clevercanary/hca-atlas-tracker/issues/1009)) ([138d824](https://github.com/clevercanary/hca-atlas-tracker/commit/138d82407c4befce17e3b545be7068fdf583d9bc))
+* show link to cap dataset on integrated object and source dataset lists ([#994](https://github.com/clevercanary/hca-atlas-tracker/issues/994)) ([#998](https://github.com/clevercanary/hca-atlas-tracker/issues/998)) ([5b5e8d4](https://github.com/clevercanary/hca-atlas-tracker/commit/5b5e8d40c9fc8af45e297b2f8ee2b21e3e1f14db))
+* updates to integrated object detail general information section ([#973](https://github.com/clevercanary/hca-atlas-tracker/issues/973)) ([#980](https://github.com/clevercanary/hca-atlas-tracker/issues/980)) ([fb92781](https://github.com/clevercanary/hca-atlas-tracker/commit/fb927817bf5431fbd00efebcac7e1961e4b29133))
+* updates to source dataset 'overview' general info section ([#974](https://github.com/clevercanary/hca-atlas-tracker/issues/974)) ([76266ce](https://github.com/clevercanary/hca-atlas-tracker/commit/76266ceaa261661e5ed1a26fa049aa7ded50c83b))
+* updates to source dataset 'overview' general information section ([#974](https://github.com/clevercanary/hca-atlas-tracker/issues/974)) ([#1006](https://github.com/clevercanary/hca-atlas-tracker/issues/1006)) ([76266ce](https://github.com/clevercanary/hca-atlas-tracker/commit/76266ceaa261661e5ed1a26fa049aa7ded50c83b))
+
+
+### Bug Fixes
+
+* require dataset urls for source dataset and integrated object cap urls ([#989](https://github.com/clevercanary/hca-atlas-tracker/issues/989)) ([#990](https://github.com/clevercanary/hca-atlas-tracker/issues/990)) ([62e3c83](https://github.com/clevercanary/hca-atlas-tracker/commit/62e3c83fccad36729d852a3bcb8459644d46940c))
+
 ## [1.47.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.46.0...v1.47.0) (2025-11-13)
 
 
