@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { PUBLICATION_STATUS } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { SourceDatasetsSetPublicationStatusData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
 import publicationStatusHandler from "../pages/api/atlases/[atlasId]/source-datasets/publication-status";
@@ -43,15 +44,6 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("googleapis");
 jest.mock("next-auth");
 
-jest.mock("../app/utils/google-sheets-api", () => {
-  const googleSheetsApi: typeof import("../app/utils/google-sheets-api") =
-    jest.requireActual("../app/utils/google-sheets-api");
-
-  return {
-    getSheetTitleForApi: jest.fn(googleSheetsApi.getSheetTitleForApi),
-  };
-});
-
 const TEST_ROUTE = "/api/atlases/[atlasId]/source-datasets/publication-status";
 
 const SUCCESSFUL_UPDATED_DATASETS: TestSourceDataset[] = [
@@ -59,10 +51,10 @@ const SUCCESSFUL_UPDATED_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
 ];
-const INPUT_DATA_SUCCESSFUL = {
-  publicationStatus: PUBLICATION_STATUS.PUBLISHED,
-  sourceDatasetIds: SUCCESSFUL_UPDATED_DATASETS.map((d) => d.id),
-};
+
+const INPUT_DATA_SUCCESSFUL = makeSuccessfulUpdateData(
+  PUBLICATION_STATUS.PUBLISHED
+);
 
 const INPUT_DATA_NO_DATASETS = {
   publicationStatus: PUBLICATION_STATUS.PUBLISHED,
@@ -95,6 +87,11 @@ const INPUT_DATA_NONEXISTENT_DATASET = {
     SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
     "5321dcb8-7e60-4f79-9587-dd69f9653a93",
   ],
+};
+
+const INPUT_DATA_INVALID_STATUS = {
+  publicationStatus: "Not a publication status",
+  sourceDatasetIds: SUCCESSFUL_UPDATED_DATASETS.map((d) => d.id),
 };
 
 beforeAll(async () => {
@@ -260,19 +257,53 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_WITH_ARCHIVED_LATEST);
   });
 
-  it("updates publication statuses when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("returns error 400 when PATCH requested with invalid publication status", async () => {
+    expect(
+      (
+        await doPublicationStatusRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          INPUT_DATA_INVALID_STATUS,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
+  });
+
+  it('updates publication statuses to "Published" when PATCH requested by user with INTEGRATION_LEAD role for the atlas', async () => {
     await doSuccessfulPublicationStatusTest(
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES
+      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      PUBLICATION_STATUS.PUBLISHED
     );
   });
 
-  it("updates publication statuses when PATCH requested by user with CONTENT_ADMIN role", async () => {
-    await doSuccessfulPublicationStatusTest(USER_CONTENT_ADMIN);
+  it('updates publication statuses to "Published" when PATCH requested by user with CONTENT_ADMIN role', async () => {
+    await doSuccessfulPublicationStatusTest(
+      USER_CONTENT_ADMIN,
+      PUBLICATION_STATUS.PUBLISHED
+    );
+  });
+
+  it('updates publication statuses to "Unpublished" when PATCH requested by user with CONTENT_ADMIN role', async () => {
+    await doSuccessfulPublicationStatusTest(
+      USER_CONTENT_ADMIN,
+      PUBLICATION_STATUS.UNPUBLISHED
+    );
+  });
+
+  it('updates publication statuses to "Unspecified" when PATCH requested by user with CONTENT_ADMIN role', async () => {
+    await doSuccessfulPublicationStatusTest(
+      USER_CONTENT_ADMIN,
+      PUBLICATION_STATUS.UNSPECIFIED
+    );
   });
 });
 
 async function doSuccessfulPublicationStatusTest(
-  user: TestUser
+  user: TestUser,
+  publicationStatus: PUBLICATION_STATUS
 ): Promise<void> {
   const atlasDatasetsByIdBefore = new Map(
     (
@@ -292,7 +323,7 @@ async function doSuccessfulPublicationStatusTest(
     (
       await doPublicationStatusRequest(
         ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-        INPUT_DATA_SUCCESSFUL,
+        makeSuccessfulUpdateData(publicationStatus),
         user
       )
     )._getStatusCode()
@@ -312,9 +343,7 @@ async function doSuccessfulPublicationStatusTest(
     nonUpdatedIds.delete(testDataset.id);
     const dbDataset = atlasDatasetsByIdAfter.get(testDataset.id);
     if (!expectIsDefined(dbDataset)) return;
-    expect(dbDataset.sd_info.publicationStatus).toEqual(
-      PUBLICATION_STATUS.PUBLISHED
-    );
+    expect(dbDataset.sd_info.publicationStatus).toEqual(publicationStatus);
   }
 
   for (const datasetId of nonUpdatedIds) {
@@ -332,6 +361,15 @@ async function doSuccessfulPublicationStatusTest(
       ]
     );
   }
+}
+
+function makeSuccessfulUpdateData(
+  publicationStatus: PUBLICATION_STATUS
+): SourceDatasetsSetPublicationStatusData {
+  return {
+    publicationStatus: publicationStatus,
+    sourceDatasetIds: SUCCESSFUL_UPDATED_DATASETS.map((d) => d.id),
+  };
 }
 
 async function doPublicationStatusRequest(
