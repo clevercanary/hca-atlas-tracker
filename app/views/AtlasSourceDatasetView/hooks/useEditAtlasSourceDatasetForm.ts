@@ -1,7 +1,7 @@
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
+import { getCapIngestStatus } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
 import { useForm } from "../../../hooks/useForm/useForm";
 import { FIELD_NAME } from "../common/constants";
@@ -32,10 +32,14 @@ function mapSchemaValues(
 ): ViewAtlasSourceDatasetData | undefined {
   if (!sourceDataset) return;
   return {
+    [FIELD_NAME.CAP_INGEST_STATUS]: getCapIngestStatus(sourceDataset),
     [FIELD_NAME.CAP_URL]: sourceDataset.capUrl,
+    [FIELD_NAME.CELL_COUNT]: sourceDataset.cellCount,
+    [FIELD_NAME.FILE_EVENT_TIME]: sourceDataset.fileEventTime,
     [FIELD_NAME.FILE_NAME]: sourceDataset.fileName,
+    [FIELD_NAME.GENE_COUNT]: sourceDataset.geneCount,
     [FIELD_NAME.SIZE_BYTES]: formatFileSize(sourceDataset.sizeBytes),
-    [FIELD_NAME.VALIDATION_STATUS]:
-      FILE_VALIDATION_STATUS_NAME_LABEL[sourceDataset.validationStatus],
+    [FIELD_NAME.TITLE]: sourceDataset.title,
+    [FIELD_NAME.VALIDATION_STATUS]: sourceDataset.validationStatus,
   };
 }
