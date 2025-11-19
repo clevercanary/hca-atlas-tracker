@@ -5,11 +5,15 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
+  HCAAtlasTrackerDBSourceDatasetInfo,
+  PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { doTransaction, query } from "../services/database";
 import { confirmSourceStudyExists } from "../services/source-studies";
 import { NotFoundError } from "../utils/api-handler";
 import { confirmQueryRowsContainIds } from "../utils/database";
+
+const PLURAL_ENTITY_NAME = "source datasets";
 
 /**
  * Get the IDs of source datasets linked to the given atlas.
@@ -107,7 +111,7 @@ export async function getSourceDatasetsForApi(
     confirmQueryRowsContainIds(
       sourceDatasets,
       sourceDatasetIds,
-      "source datasets"
+      PLURAL_ENTITY_NAME
     );
 
   return sourceDatasets;
@@ -151,6 +155,26 @@ export async function getSourceDatasetForDetailApi(
       `Source dataset with ID ${sourceDatasetId} does not exist`
     );
   return queryResult.rows[0];
+}
+
+export async function setSourceDatasetsPublicationStatus(
+  sourceDatasetIds: string[],
+  publicationStatus: PUBLICATION_STATUS
+): Promise<void> {
+  const sdInfoUpdate: Pick<
+    HCAAtlasTrackerDBSourceDatasetInfo,
+    "publicationStatus"
+  > = {
+    publicationStatus,
+  };
+
+  await doTransaction(async () => {
+    const { rows } = await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
+      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = ANY($2) RETURNING id",
+      [JSON.stringify(sdInfoUpdate), sourceDatasetIds]
+    );
+    confirmQueryRowsContainIds(rows, sourceDatasetIds, PLURAL_ENTITY_NAME);
+  });
 }
 
 /**
@@ -236,7 +260,7 @@ export async function confirmSourceDatasetsAreAvailable(
   confirmQueryRowsContainIds(
     queryResult.rows,
     sourceDatasetIds,
-    "source datasets"
+    PLURAL_ENTITY_NAME
   );
 }
 

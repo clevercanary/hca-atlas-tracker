@@ -23,6 +23,7 @@ import {
   getSourceDatasetForDetailApi,
   getSourceDatasetsForApi,
   getSourceStudySourceDatasetIds,
+  setSourceDatasetsPublicationStatus,
   setSourceDatasetsSourceStudy,
 } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
@@ -364,16 +365,9 @@ export async function setAtlasSourceDatasetsPublicationStatus(
 
   await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
 
-  const sdInfoUpdate: Pick<
-    HCAAtlasTrackerDBSourceDatasetInfo,
-    "publicationStatus"
-  > = {
-    publicationStatus: inputData.publicationStatus,
-  };
-
-  await query(
-    "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = ANY($2)",
-    [JSON.stringify(sdInfoUpdate), inputData.sourceDatasetIds]
+  await setSourceDatasetsPublicationStatus(
+    inputData.sourceDatasetIds,
+    inputData.publicationStatus
   );
 }
 
