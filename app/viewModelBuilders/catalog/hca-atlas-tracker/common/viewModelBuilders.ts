@@ -48,10 +48,7 @@ import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
-import {
-  ICON_STATUS,
-  IconStatusBadgeProps,
-} from "../../../../components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
+import { ICON_STATUS } from "../../../../components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
 import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
@@ -394,20 +391,6 @@ export const buildSourceDatasetCount = (
   return {
     value: componentAtlas.sourceDatasetCount.toLocaleString(),
   };
-};
-
-/**
- * Build props for the CAP IconStatusBadge component.
- * @param sourceStudy - Source study entity.
- * @returns Props to be used for the IconStatusBadge component.
- */
-export const buildSourceStudyCapStatus = (
-  sourceStudy: HCAAtlasTrackerSourceStudy
-): ComponentProps<typeof C.IconStatusBadge> => {
-  return getSourceStudyStatusFromValidation(
-    sourceStudy,
-    VALIDATION_ID.SOURCE_STUDY_IN_CAP
-  );
 };
 
 /**
@@ -1127,7 +1110,6 @@ export function getAtlasSourceStudiesTableColumns(
       pathParameter,
       atlasLinkedDatasetsByStudyId
     ),
-    getSourceStudyCapStatusColumnDef(),
     getSourceStudyHCADataRepositoryStatusColumnDef(),
   ];
 }
@@ -1501,18 +1483,6 @@ function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
 }
 
 /**
- * Returns source study is in Cap column def.
- * @returns Column def.
- */
-function getSourceStudyCapStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
-  return {
-    cell: ({ row }) =>
-      C.IconStatusBadge(buildSourceStudyCapStatus(row.original)),
-    header: "CAP",
-  };
-}
-
-/**
  * Returns source study in HCA data repository column def.
  * @returns Column def.
  */
@@ -1534,33 +1504,6 @@ function getSourceStudyMetadataSpreadsheetColumnDef(): ColumnDef<HCAAtlasTracker
     cell: ({ row }) => C.LinksCell(buildMetadataSpreadsheets(row.original)),
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.METADATA_SPREADSHEETS,
   };
-}
-
-/**
- * Get source study status reflecting the status of a given task for the specified source study.
- * @param sourceStudy - Source study.
- * @param validationId - Validation ID to get task status for.
- * @returns source study status.
- */
-function getSourceStudyStatusFromValidation(
-  sourceStudy: HCAAtlasTrackerSourceStudy,
-  validationId: VALIDATION_ID
-): IconStatusBadgeProps {
-  const taskStatus = getSourceStudyTaskStatus(sourceStudy, validationId);
-  return taskStatus === TASK_STATUS.DONE
-    ? {
-        label: STATUS_LABEL.COMPLETE,
-        status: ICON_STATUS.DONE,
-      }
-    : taskStatus === TASK_STATUS.IN_PROGRESS
-    ? {
-        label: STATUS_LABEL.IN_PROGRESS,
-        status: ICON_STATUS.IN_PROGRESS,
-      }
-    : {
-        label: STATUS_LABEL.TODO,
-        status: ICON_STATUS.REQUIRED,
-      };
 }
 
 /**
