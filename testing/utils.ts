@@ -735,20 +735,6 @@ export function expectApiComponentAtlasToMatchTest(
   // TODO: check for test component atlas fields once they're included
 }
 
-export function expectAtlasDatasetsToHaveDifference(
-  atlasWithout: HCAAtlasTrackerDBAtlas,
-  atlasWith: HCAAtlasTrackerDBAtlas,
-  sourceDatasets: TestSourceDataset[]
-): void {
-  expectArrayToContainItems(
-    atlasWith.source_datasets,
-    atlasWithout.source_datasets
-  );
-  for (const { id } of sourceDatasets) {
-    expect(atlasWithout.source_datasets).not.toContain(id);
-  }
-}
-
 export function expectApiValidationsToMatchDb(
   apiValidations: HCAAtlasTrackerValidationRecordWithoutAtlases[],
   dbValidations: HCAAtlasTrackerDBValidation[]
@@ -830,12 +816,6 @@ export async function expectDbUserToMatchInputData(
   expect(dbUser.role_associated_resource_ids).toEqual(
     inputData.roleAssociatedResourceIds
   );
-}
-
-function expectArrayToContainItems(array: unknown[], items: unknown[]): void {
-  for (const item of items) {
-    expect(array).toContain(item);
-  }
 }
 
 export function expectIsDefined<T>(value: T | undefined): value is T {

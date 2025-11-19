@@ -1,13 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
-  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasSourceDatasetEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
-import { endPgPool, query } from "../app/services/database";
+import { endPgPool } from "../app/services/database";
 import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
 import {
@@ -32,16 +31,12 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
-  expectAtlasToBeUnchanged,
   expectSourceDatasetToBeUnchanged,
-  getAtlasFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
-import { TestAtlas, TestUser } from "../testing/entities";
+import { TestUser } from "../testing/entities";
 import {
-  expectAtlasDatasetsToHaveDifference,
   expectDetailApiSourceDatasetToMatchTest,
-  expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -108,6 +103,32 @@ describe(`${TEST_ROUTE} (misc)`, () => {
           SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
           undefined,
           METHOD.PUT
+        )
+      )._getStatusCode()
+    ).toEqual(405);
+  });
+
+  it("returns error 405 for POST request", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
+          undefined,
+          METHOD.POST
+        )
+      )._getStatusCode()
+    ).toEqual(405);
+  });
+
+  it("returns error 405 for DELETE request", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
+          undefined,
+          METHOD.DELETE
         )
       )._getStatusCode()
     ).toEqual(405);
@@ -550,387 +571,6 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
   });
 });
 
-describe(`${TEST_ROUTE} (POST)`, () => {
-  it("returns error 401 when POST requested from draft atlas by logged out user", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
-          undefined,
-          METHOD.POST,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(401);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 403 when POST requested from draft atlas by unregistered user", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
-          USER_UNREGISTERED,
-          METHOD.POST,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 403 when POST requested from draft atlas by disabled user", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
-          USER_DISABLED_CONTENT_ADMIN,
-          METHOD.POST
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
-    testApiRole(
-      RETURNS_ERROR_403,
-      TEST_ROUTE,
-      sourceDatasetHandler,
-      METHOD.POST,
-      role,
-      getQueryValues(
-        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-        SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id
-      ),
-      undefined,
-      false,
-      async (res) => {
-        expect(res._getStatusCode()).toEqual(403);
-        await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-      }
-    );
-  }
-
-  it("returns error 403 when POST requested from draft atlas by user with INTEGRATION_LEAD role for another atlas", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
-          USER_INTEGRATION_LEAD_PUBLIC,
-          METHOD.POST
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 400 when POST requested with source dataset the atlas already has", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
-          USER_CONTENT_ADMIN,
-          METHOD.POST,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(400);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 400 when POST requested with nonexistent source dataset", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ID_NONEXISTENT,
-          USER_CONTENT_ADMIN,
-          METHOD.POST,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(400);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 400 when POST requested with source dataset not on a source study of the atlas", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
-          USER_CONTENT_ADMIN,
-          METHOD.POST,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(400);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES_B);
-  });
-
-  it("adds source dataset when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    const atlasBefore = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    const sourceDatasetsBefore = await getAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    const res = await doSourceDatasetRequest(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-      METHOD.POST
-    );
-    expect(res._getStatusCode()).toEqual(201);
-
-    const atlasAfter = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    if (expectIsDefined(atlasBefore) && expectIsDefined(atlasAfter)) {
-      expectAtlasDatasetsToHaveDifference(atlasBefore, atlasAfter, [
-        SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
-      ]);
-    }
-
-    expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES_B);
-
-    await setAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES,
-      sourceDatasetsBefore
-    );
-  });
-
-  it("adds source dataset when POST requested by user with CONTENT_ADMIN role", async () => {
-    const atlasBefore = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    const sourceDatasetsBefore = await getAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    const res = await doSourceDatasetRequest(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
-      USER_CONTENT_ADMIN,
-      METHOD.POST
-    );
-    expect(res._getStatusCode()).toEqual(201);
-
-    const atlasAfter = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    if (expectIsDefined(atlasBefore) && expectIsDefined(atlasAfter)) {
-      expectAtlasDatasetsToHaveDifference(atlasBefore, atlasAfter, [
-        SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
-      ]);
-    }
-
-    expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES_B);
-
-    await setAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES,
-      sourceDatasetsBefore
-    );
-  });
-});
-
-describe(`${TEST_ROUTE} (DELETE)`, () => {
-  it("returns error 401 when DELETE requested from draft atlas by logged out user", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-          undefined,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(401);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 403 when DELETE requested from draft atlas by unregistered user", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-          USER_UNREGISTERED,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 403 when DELETE requested from draft atlas by disabled user", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-          USER_DISABLED_CONTENT_ADMIN,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
-    testApiRole(
-      RETURNS_ERROR_403,
-      TEST_ROUTE,
-      sourceDatasetHandler,
-      METHOD.DELETE,
-      role,
-      getQueryValues(
-        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-        SOURCE_DATASET_ATLAS_LINKED_A_FOO.id
-      ),
-      undefined,
-      false,
-      async (res) => {
-        expect(res._getStatusCode()).toEqual(403);
-        await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-      }
-    );
-  }
-
-  it("returns error 403 when DELETE requested from draft atlas by user with INTEGRATION_LEAD role for another atlas", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-          USER_INTEGRATION_LEAD_PUBLIC,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(403);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 400 when DELETE requested with nonexistent source dataset", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ID_NONEXISTENT,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(400);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("returns error 400 when DELETE requested with source dataset the atlas doesn't have", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(400);
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES);
-  });
-
-  it("deletes source dataset when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    const atlasBefore = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    const sourceDatasetsBefore = await getAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-
-    const atlasAfter = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    if (expectIsDefined(atlasBefore) && expectIsDefined(atlasAfter)) {
-      expectAtlasDatasetsToHaveDifference(atlasAfter, atlasBefore, [
-        SOURCE_DATASET_ATLAS_LINKED_A_FOO,
-      ]);
-    }
-
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES_B);
-
-    await setAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES,
-      sourceDatasetsBefore
-    );
-  });
-
-  it("deletes source dataset when requested by user with CONTENT_ADMIN role", async () => {
-    const atlasBefore = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    const sourceDatasetsBefore = await getAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE
-        )
-      )._getStatusCode()
-    ).toEqual(200);
-
-    const atlasAfter = await getAtlasFromDatabase(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id
-    );
-
-    if (expectIsDefined(atlasBefore) && expectIsDefined(atlasAfter)) {
-      expectAtlasDatasetsToHaveDifference(atlasAfter, atlasBefore, [
-        SOURCE_DATASET_ATLAS_LINKED_A_FOO,
-      ]);
-    }
-
-    await expectAtlasToBeUnchanged(ATLAS_WITH_MISC_SOURCE_STUDIES_B);
-
-    await setAtlasSourceDatasets(
-      ATLAS_WITH_MISC_SOURCE_STUDIES,
-      sourceDatasetsBefore
-    );
-  });
-});
-
 async function doSourceDatasetRequest(
   atlasId: string,
   sourceDatasetId: string,
@@ -957,23 +597,4 @@ function getQueryValues(
   sourceDatasetId: string
 ): Record<string, string> {
   return { atlasId, sourceDatasetId };
-}
-
-async function setAtlasSourceDatasets(
-  atlas: TestAtlas,
-  sourceDatasets: string[]
-): Promise<void> {
-  await query("UPDATE hat.atlases SET source_datasets=$1 WHERE id=$2", [
-    sourceDatasets,
-    atlas.id,
-  ]);
-}
-
-async function getAtlasSourceDatasets(id: string): Promise<string[]> {
-  return (
-    await query<HCAAtlasTrackerDBAtlas>(
-      "SELECT * FROM hat.atlases WHERE id=$1",
-      [id]
-    )
-  ).rows[0].source_datasets;
 }
