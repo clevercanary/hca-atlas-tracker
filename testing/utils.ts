@@ -174,6 +174,8 @@ export function makeTestSourceDatasetInfo(
     disease: sourceDataset.disease ?? [],
     metadataSpreadsheetTitle: sourceDataset.metadataSpreadsheetTitle ?? null,
     metadataSpreadsheetUrl: sourceDataset.metadataSpreadsheetUrl ?? null,
+    publicationStatus:
+      sourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
     suspensionType: sourceDataset.suspensionType ?? [],
     tissue: sourceDataset.tissue ?? [],
     title: sourceDataset.title,
@@ -653,7 +655,7 @@ export function expectDbSourceDatasetToMatchTest(
   expect(dbSourceDataset.sd_info.disease).toEqual(
     testSourceDataset.disease ?? []
   );
-  expect(dbSourceDataset.publication_status).toEqual(
+  expect(dbSourceDataset.sd_info.publicationStatus).toEqual(
     testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
   );
   expect(dbSourceDataset.reprocessed_status).toEqual(

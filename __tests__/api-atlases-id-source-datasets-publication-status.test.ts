@@ -312,7 +312,9 @@ async function doSuccessfulPublicationStatusTest(
     nonUpdatedIds.delete(testDataset.id);
     const dbDataset = atlasDatasetsByIdAfter.get(testDataset.id);
     if (!expectIsDefined(dbDataset)) return;
-    expect(dbDataset.publication_status).toEqual(PUBLICATION_STATUS.PUBLISHED);
+    expect(dbDataset.sd_info.publicationStatus).toEqual(
+      PUBLICATION_STATUS.PUBLISHED
+    );
   }
 
   for (const datasetId of nonUpdatedIds) {
@@ -323,7 +325,7 @@ async function doSuccessfulPublicationStatusTest(
 
   for (const testDataset of SUCCESSFUL_UPDATED_DATASETS) {
     await query(
-      "UPDATE hat.source_datasets SET publication_status=$1 WHERE id=$2",
+      "UPDATE hat.source_datasets SET sd_info=jsonb_set(sd_info, '{publicationStatus}', to_jsonb($1::text)) WHERE id=$2",
       [
         testDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
         testDataset.id,

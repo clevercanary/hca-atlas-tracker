@@ -4,6 +4,7 @@ import {
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
+  PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasSourceDatasetEditData,
@@ -299,6 +300,7 @@ function sourceDatasetInputDataToDbData(
     disease: [],
     metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
+    publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
     suspensionType: [],
     tissue: [],
     title: inputData.title,
@@ -362,9 +364,16 @@ export async function setAtlasSourceDatasetsPublicationStatus(
 
   await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
 
+  const sdInfoUpdate: Pick<
+    HCAAtlasTrackerDBSourceDatasetInfo,
+    "publicationStatus"
+  > = {
+    publicationStatus: inputData.publicationStatus,
+  };
+
   await query(
-    "UPDATE hat.source_datasets SET publication_status = $1 WHERE id = ANY($2)",
-    [inputData.publicationStatus, inputData.sourceDatasetIds]
+    "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = ANY($2)",
+    [JSON.stringify(sdInfoUpdate), inputData.sourceDatasetIds]
   );
 }
 
