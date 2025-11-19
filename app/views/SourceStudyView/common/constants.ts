@@ -7,7 +7,6 @@ import { SourceStudyEditDataKeys } from "./entities";
 
 export const FIELD_NAME = {
   ...NEW_SOURCE_STUDY_FIELD_NAME,
-  CAP_ID: "capId",
   CELLXGENE_COLLECTION_ID: "cellxgeneCollectionId",
   HCA_PROJECT_ID: "hcaProjectId",
   METADATA_SPREADSHEETS: "metadataSpreadsheets",
@@ -15,7 +14,6 @@ export const FIELD_NAME = {
 
 export const NO_DOI_FIELDS: SourceStudyEditDataKeys[] = [
   ...NEW_SOURCE_STUDY_NO_DOI_FIELDS,
-  FIELD_NAME.CAP_ID,
   FIELD_NAME.CELLXGENE_COLLECTION_ID,
   FIELD_NAME.HCA_PROJECT_ID,
   FIELD_NAME.METADATA_SPREADSHEETS,
@@ -23,6 +21,5 @@ export const NO_DOI_FIELDS: SourceStudyEditDataKeys[] = [
 
 export const PUBLISHED_PREPRINT_FIELDS: SourceStudyEditDataKeys[] = [
   ...NEW_SOURCE_STUDY_PUBLISHED_PREPRINT_FIELDS,
-  FIELD_NAME.CAP_ID,
   FIELD_NAME.METADATA_SPREADSHEETS,
 ];
