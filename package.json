@@ -40,7 +40,7 @@
     "googleapis": "^146.0.0",
     "isomorphic-dompurify": "^2.22.0",
     "ky": "^1.7.2",
-    "next": "^14.2.30",
+    "next": "^14.2.33",
     "next-auth": "^4.24.11",
     "next-compose-plugins": "^2.2.1",
     "raw-body": "^3.0.0",
