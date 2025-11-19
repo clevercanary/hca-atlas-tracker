@@ -367,7 +367,7 @@ function makeSuccessfulUpdateData(
   publicationStatus: PUBLICATION_STATUS
 ): SourceDatasetsSetPublicationStatusData {
   return {
-    publicationStatus: publicationStatus,
+    publicationStatus,
     sourceDatasetIds: SUCCESSFUL_UPDATED_DATASETS.map((d) => d.id),
   };
 }
