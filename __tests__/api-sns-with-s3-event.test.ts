@@ -33,6 +33,7 @@ import {
   FILE_VALIDATION_STATUS,
   HCAAtlasTrackerDBFile,
   INTEGRITY_STATUS,
+  PUBLICATION_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
@@ -266,6 +267,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       disease: [],
       metadataSpreadsheetTitle: null,
       metadataSpreadsheetUrl: null,
+      publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
       suspensionType: [],
       tissue: [],
       title: "versioned-file",

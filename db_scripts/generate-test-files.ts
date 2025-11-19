@@ -15,6 +15,7 @@ import {
   IntegrationLead,
   INTEGRITY_STATUS,
   NetworkKey,
+  PUBLICATION_STATUS,
   SYSTEM,
   Wave,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -279,6 +280,7 @@ async function createSourceDataset(
     disease: [],
     metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
+    publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
     suspensionType: [],
     tissue: [],
     title: `Test ${sourceDatasetId}`,

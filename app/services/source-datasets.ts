@@ -4,11 +4,13 @@ import {
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
+  PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasSourceDatasetEditData,
   NewSourceDatasetData,
   SourceDatasetEditData,
+  SourceDatasetsSetPublicationStatusData,
   SourceDatasetsSetReprocessedStatusData,
   SourceDatasetsSetSourceStudyData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
@@ -21,6 +23,7 @@ import {
   getSourceDatasetForDetailApi,
   getSourceDatasetsForApi,
   getSourceStudySourceDatasetIds,
+  setSourceDatasetsPublicationStatus,
   setSourceDatasetsSourceStudy,
 } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
@@ -298,6 +301,7 @@ function sourceDatasetInputDataToDbData(
     disease: [],
     metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
+    publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
     suspensionType: [],
     tissue: [],
     title: inputData.title,
@@ -345,6 +349,25 @@ export async function setAtlasSourceDatasetsReprocessedStatus(
   await query(
     "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE id = ANY($2)",
     [inputData.reprocessedStatus, inputData.sourceDatasetIds]
+  );
+}
+
+/**
+ * Set the publication status of each of a list of source datasets to a specified value.
+ * @param atlasId - ID of the atlas that the source datasets are accessed through.
+ * @param inputData - Input data containing the publication status to set and the IDs of the source datasets to set it on.
+ */
+export async function setAtlasSourceDatasetsPublicationStatus(
+  atlasId: string,
+  inputData: SourceDatasetsSetPublicationStatusData
+): Promise<void> {
+  await confirmSourceDatasetsExistOnAtlas(inputData.sourceDatasetIds, atlasId);
+
+  await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
+
+  await setSourceDatasetsPublicationStatus(
+    inputData.sourceDatasetIds,
+    inputData.publicationStatus
   );
 }
 

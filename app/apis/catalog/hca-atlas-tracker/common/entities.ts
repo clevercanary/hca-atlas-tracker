@@ -135,6 +135,7 @@ export interface HCAAtlasTrackerSourceDataset {
   isArchived: boolean;
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
+  publicationStatus: PUBLICATION_STATUS;
   publicationString: string;
   reprocessedStatus: REPROCESSED_STATUS;
   sizeBytes: number;
@@ -420,6 +421,7 @@ export interface HCAAtlasTrackerDBSourceDatasetInfo {
   disease: string[];
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
+  publicationStatus: PUBLICATION_STATUS;
   suspensionType: string[];
   tissue: string[];
   title: string;
@@ -775,6 +777,12 @@ export enum INTEGRITY_STATUS {
 export enum REPROCESSED_STATUS {
   ORIGINAL = "Original",
   REPROCESSED = "Reprocessed",
+  UNSPECIFIED = "Unspecified",
+}
+
+export enum PUBLICATION_STATUS {
+  PUBLISHED = "Published",
+  UNPUBLISHED = "Unpublished",
   UNSPECIFIED = "Unspecified",
 }
 

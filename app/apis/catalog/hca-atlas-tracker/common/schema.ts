@@ -11,7 +11,12 @@ import {
 } from "yup";
 import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import { NETWORK_KEYS, WAVES } from "./constants";
-import { ATLAS_STATUS, REPROCESSED_STATUS, ROLE } from "./entities";
+import {
+  ATLAS_STATUS,
+  PUBLICATION_STATUS,
+  REPROCESSED_STATUS,
+  ROLE,
+} from "./entities";
 
 export const CAP_PROJECT_URL_REGEXP = new RegExp(
   `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+)?$`
@@ -366,6 +371,20 @@ export const sourceDatasetsSetReprocessedStatusSchema = object({
 
 export type SourceDatasetsSetReprocessedStatusData = InferType<
   typeof sourceDatasetsSetReprocessedStatusSchema
+>;
+
+/**
+ * Schema for data used to set the publication status of source datasets.
+ */
+export const sourceDatasetsSetPublicationStatusSchema = object({
+  publicationStatus: string()
+    .required()
+    .oneOf(Object.values(PUBLICATION_STATUS)),
+  sourceDatasetIds: array(string().required()).min(1).required(),
+}).strict();
+
+export type SourceDatasetsSetPublicationStatusData = InferType<
+  typeof sourceDatasetsSetPublicationStatusSchema
 >;
 
 /**
