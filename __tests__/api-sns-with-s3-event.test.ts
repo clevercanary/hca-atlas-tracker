@@ -322,7 +322,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(ioBefore.rows).toHaveLength(1);
     const componentAtlasId: string = ioBefore.rows[0].id;
 
-    // Update sd_info and get its value before updating the file
+    // Update component_info and get its value before updating the file
     const componentInfoUpdateFields: Partial<HCAAtlasTrackerDBComponentAtlasInfo> =
       {
         capUrl: "https://celltype.info/project/234256/dataset/756432",
