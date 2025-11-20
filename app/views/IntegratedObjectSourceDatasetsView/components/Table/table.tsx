@@ -7,14 +7,14 @@ export const Table = (): JSX.Element => {
   const {
     atlasSourceDatasets = [],
     componentAtlas,
-    componentAtlasSourceDatasets = [],
+    integratedObjectSourceDatasets = [],
   } = data;
 
   return (
     <LinkedSourceDatasets
       atlasSourceDatasets={atlasSourceDatasets}
       componentAtlasIsArchived={componentAtlas?.isArchived ?? false}
-      componentAtlasSourceDatasets={componentAtlasSourceDatasets}
+      componentAtlasSourceDatasets={integratedObjectSourceDatasets}
       formManager={formManager}
       pathParameter={pathParameter}
     />

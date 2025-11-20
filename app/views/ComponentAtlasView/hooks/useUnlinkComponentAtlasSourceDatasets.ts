@@ -4,8 +4,8 @@ import { getRequestURL } from "../../../common/utils";
 import { useDeleteData } from "../../../hooks/useDeleteData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { fetchData } from "../../../providers/fetchDataState/actions/fetchData/dispatch";
+import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../../IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
 import { ComponentAtlasDeleteSourceDatasetsData } from "../common/entities";
-import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "./useFetchComponentAtlasSourceDatasets";
 
 export interface UseUnlinkComponentAtlasSourceDatasets {
   onUnlink: (payload?: ComponentAtlasDeleteSourceDatasetsData) => Promise<void>;

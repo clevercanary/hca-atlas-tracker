@@ -9,19 +9,19 @@ import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
 export const INTEGRATED_OBJECT_SOURCE_DATASETS =
   "integratedObjectSourceDatasets";
 
-interface UseFetchComponentAtlasSourceDatasets {
-  componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
+interface UseFetchIntegratedObjectSourceDatasets {
+  integratedObjectSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
-export const useFetchComponentAtlasSourceDatasets = (
+export const useFetchIntegratedObjectSourceDatasets = (
   pathParameter: PathParameter
-): UseFetchComponentAtlasSourceDatasets => {
+): UseFetchIntegratedObjectSourceDatasets => {
   const {
     fetchDataState: { shouldFetchByKey },
   } = useFetchDataState();
   const shouldFetch = shouldFetchByKey[INTEGRATED_OBJECT_SOURCE_DATASETS];
 
-  const { data: componentAtlasSourceDatasets, progress } = useFetchData<
+  const { data: integratedObjectSourceDatasets, progress } = useFetchData<
     HCAAtlasTrackerSourceDataset[] | undefined
   >(
     getRequestURL(API.ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS, pathParameter),
@@ -31,5 +31,5 @@ export const useFetchComponentAtlasSourceDatasets = (
 
   useResetFetchStatus(progress, [INTEGRATED_OBJECT_SOURCE_DATASETS]);
 
-  return { componentAtlasSourceDatasets };
+  return { integratedObjectSourceDatasets };
 };
