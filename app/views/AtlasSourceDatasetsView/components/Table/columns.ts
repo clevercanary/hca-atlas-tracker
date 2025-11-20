@@ -25,7 +25,7 @@ const COLUMN_CAP_URL = {
   accessorKey: "capUrl",
   cell: renderCAPUrl,
   enableSorting: false,
-  header: "CAP",
+  header: "CAP URL",
   id: "capUrl",
   meta: { width: { max: "0.5fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;
