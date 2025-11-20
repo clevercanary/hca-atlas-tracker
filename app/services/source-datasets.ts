@@ -8,7 +8,6 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasSourceDatasetEditData,
-  NewSourceDatasetData,
   SourceDatasetEditData,
   SourceDatasetsSetPublicationStatusData,
   SourceDatasetsSetReprocessedStatusData,
@@ -179,53 +178,22 @@ export async function getComponentAtlasSourceDataset(
 }
 
 /**
- * Create a source dataset for the given source study.
- * @param atlasId - ID of the atlas that the source study is accessed through.
- * @param sourceStudyId - Source study ID.
- * @param inputData - Values for the new source dataset.
- * @returns database model of the new source dataset.
- */
-export async function createSourceDatasetForAtlasSourceStudy(
-  atlasId: string,
-  sourceStudyId: string,
-  inputData: NewSourceDatasetData
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  return await doTransaction(async (client) => {
-    const sourceDatasetId = await createSourceDataset(
-      sourceStudyId,
-      inputData,
-      client
-    );
-    return await getSourceDataset(
-      atlasId,
-      sourceStudyId,
-      sourceDatasetId,
-      client
-    );
-  });
-}
-
-/**
  * Create a source dataset.
- * @param sourceStudyId - ID of the source study to associate the source dataset with, if any.
- * @param inputData - Values for the new source dataset.
+ * @param title - Title to give to the source dataset.
  * @param client - Optional Postgres client to reuse an existing transaction.
  * @returns ID of the created source dataset.
  */
 export async function createSourceDataset(
-  sourceStudyId: string | null,
-  inputData: NewSourceDatasetData,
+  title: string,
   client?: pg.PoolClient
 ): Promise<string> {
-  const info = sourceDatasetInputDataToDbData(inputData);
+  const info = sourceDatasetInputDataToDbData({ title });
   return await doOrContinueTransaction(client, async (tx) => {
     const insertResult = await tx.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "id">
-    >(
-      "INSERT INTO hat.source_datasets (sd_info, source_study_id) VALUES ($1, $2) RETURNING id",
-      [JSON.stringify(info), sourceStudyId]
-    );
+    >("INSERT INTO hat.source_datasets (sd_info) VALUES ($1) RETURNING id", [
+      JSON.stringify(info),
+    ]);
     return insertResult.rows[0].id;
   });
 }
@@ -270,7 +238,7 @@ export async function updateSourceDataset(
 }
 
 function sourceDatasetInputDataToDbData(
-  inputData: NewSourceDatasetData | SourceDatasetEditData
+  inputData: SourceDatasetEditData
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
     assay: [],
