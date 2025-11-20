@@ -943,7 +943,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
           capUrl: row.original.capUrl,
         }),
       enableSorting: false,
-      header: "CAP",
+      header: "CAP URL",
       meta: { width: { max: "1fr", min: "160px" } },
     },
     getComponentAtlasSourceDatasetCountColumnDef(),
