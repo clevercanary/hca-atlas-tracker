@@ -1,14 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import {
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerDBComponentAtlasInfo,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
-import {
-  createComponentAtlas,
-  resetComponentAtlasInfo,
-} from "../app/services/component-atlases";
+import { createComponentAtlas } from "../app/services/component-atlases";
 import { endPgPool } from "../app/services/database";
 import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
 import {
@@ -29,11 +23,7 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import {
-  createTestComponentAtlas,
-  getExistingComponentAtlasFromDatabase,
-  resetDatabase,
-} from "../testing/db-utils";
+import { resetDatabase } from "../testing/db-utils";
 import { TestComponentAtlas, TestUser } from "../testing/entities";
 import {
   expectApiComponentAtlasToMatchTest,
@@ -244,52 +234,6 @@ describe("createComponentAtlas", () => {
     expect(result.id).toBeDefined();
     expect(result.created_at).toBeDefined();
     expect(result.updated_at).toBeDefined();
-  });
-});
-
-describe("resetComponentAtlasInfo", () => {
-  const TEST_COMPONENT_INFO: HCAAtlasTrackerDBComponentAtlasInfo = {
-    assay: ["RNA sequencing"],
-    capUrl: null,
-    cellCount: 1000,
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
-    description: "",
-    disease: ["normal"],
-    suspensionType: ["cell"],
-    tissue: ["brain"],
-  };
-
-  it("updates component atlas metadata successfully", async () => {
-    // First create a component atlas
-    const initialComponentInfo = TEST_COMPONENT_INFO;
-
-    const createdAtlas = await createTestComponentAtlas(
-      ATLAS_DRAFT.id,
-      "Test Update Atlas",
-      initialComponentInfo
-    );
-
-    // Then update it to reset metadata (empty values for S3 notification workflow)
-
-    // Add a small delay to ensure timestamp difference
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    await resetComponentAtlasInfo(createdAtlas.id);
-    const updatedAtlas = await getExistingComponentAtlasFromDatabase(
-      createdAtlas.id
-    );
-
-    expect(updatedAtlas).toBeDefined();
-    expect(updatedAtlas.id).toBe(createdAtlas.id);
-    expect(updatedAtlas.component_info).toEqual(EMPTY_COMPONENT_INFO);
-    expect(new Date(updatedAtlas.updated_at).getTime()).toBeGreaterThan(
-      new Date(createdAtlas.updated_at).getTime()
-    );
-  });
-
-  it("throws error when updating non-existent component atlas", async () => {
-    const nonexistentId = "f24386f9-bc72-48ce-8f91-2992b17df164";
-    await expect(resetComponentAtlasInfo(nonexistentId)).rejects.toThrow();
   });
 });
 

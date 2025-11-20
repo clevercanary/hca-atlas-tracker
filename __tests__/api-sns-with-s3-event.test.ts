@@ -31,7 +31,11 @@ import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBFile,
+  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerDBSourceDatasetInfo,
   INTEGRITY_STATUS,
   PUBLICATION_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -44,10 +48,6 @@ import {
   resetDatabase,
 } from "../testing/db-utils";
 import { withConsoleMessageHiding } from "../testing/utils";
-
-// Additional imports for direct service testing
-import { updateSourceDataset } from "../app/services/s3-notification";
-import { InvalidOperationError } from "../app/utils/api-handler";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -174,7 +174,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
   });
 
-  it("clears sd_info on source_dataset update while preserving is_latest", async () => {
+  it("does not clear sd_info on source_dataset update, and preserves is_latest", async () => {
     // First upload (creates source dataset and file record)
     const firstEvent = createS3Event({
       etag: "sd-v1-etag-11111111111111111111111111111111",
@@ -212,6 +212,20 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     expect(sdBefore.rows).toHaveLength(1);
     const sourceDatasetId: string = sdBefore.rows[0].id;
+
+    // Update sd_info and get its value before updating the file
+    const sdInfoUpdateFields: Partial<HCAAtlasTrackerDBSourceDatasetInfo> = {
+      capUrl: "https://celltype.info/project/234234/dataset/534636",
+      publicationStatus: PUBLICATION_STATUS.PUBLISHED,
+    };
+    const sdInfoResult = await query<
+      Pick<HCAAtlasTrackerDBSourceDataset, "sd_info">
+    >(
+      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = $2 RETURNING sd_info",
+      [JSON.stringify(sdInfoUpdateFields), sourceDatasetId]
+    );
+    const sdInfoBefore = sdInfoResult.rows[0].sd_info;
+    expect(sdInfoBefore).toMatchObject(sdInfoUpdateFields);
 
     // Ensure first file is marked latest
     const firstFile = await query(
@@ -251,27 +265,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       expect(res.statusCode).toBe(200);
     }
 
-    // Verify sd_info is cleared on the linked source dataset
+    // Verify sd_info remains the same on the linked source dataset
     const sdAfter = await query(
       "SELECT sd_info FROM hat.source_datasets WHERE id = $1",
       [sourceDatasetId]
     );
     expect(sdAfter.rows).toHaveLength(1);
-    expect(sdAfter.rows[0].sd_info).toEqual({
-      assay: [],
-      capUrl: null,
-      cellCount: 0,
-      cellxgeneDatasetId: null,
-      cellxgeneDatasetVersion: null,
-      cellxgeneExplorerUrl: null,
-      disease: [],
-      metadataSpreadsheetTitle: null,
-      metadataSpreadsheetUrl: null,
-      publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
-      suspensionType: [],
-      tissue: [],
-      title: "versioned-file",
-    });
+    expect(sdAfter.rows[0].sd_info).toEqual(sdInfoBefore);
 
     // Verify file versioning flags: latest remains true on newest, previous false
     const versions = await query(
@@ -283,20 +283,113 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(versions.rows[1].is_latest).toBe(true); // newer
   });
 
-  it("updateSourceDataset throws when metadataObjectId is missing", async () => {
-    await expect(
-      updateSourceDataset(
-        TEST_GUT_ATLAS_ID,
-        {
-          eTag: "abc",
-          key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
-          size: 123,
-          versionId: "xyz",
-        },
-        null,
-        {} as unknown as import("pg").PoolClient
-      )
-    ).rejects.toThrow(InvalidOperationError);
+  it("does not clear component_info on integrated_object update, and preserves is_latest", async () => {
+    // First upload (creates source dataset and file record)
+    const firstEvent = createS3Event({
+      etag: "io-v1-etag-11111111111111111111111111111111",
+      eventTime: TEST_TIMESTAMP, // older
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 12345,
+      versionId: "io-version-1",
+    });
+
+    const firstMessage = createSNSMessage({
+      messageId: "io-update-test-v1",
+      s3Event: firstEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Capture the created component atlas id before update
+    const ioBefore = await query(
+      "SELECT component_atlas_id AS id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+    );
+    expect(ioBefore.rows).toHaveLength(1);
+    const componentAtlasId: string = ioBefore.rows[0].id;
+
+    // Update component_info and get its value before updating the file
+    const componentInfoUpdateFields: Partial<HCAAtlasTrackerDBComponentAtlasInfo> =
+      {
+        capUrl: "https://celltype.info/project/234256/dataset/756432",
+      };
+    const componentInfoResult = await query<
+      Pick<HCAAtlasTrackerDBComponentAtlas, "component_info">
+    >(
+      "UPDATE hat.component_atlases SET component_info = component_info || $1 WHERE id = $2 RETURNING component_info",
+      [JSON.stringify(componentInfoUpdateFields), componentAtlasId]
+    );
+    const componentInfoBefore = componentInfoResult.rows[0].component_info;
+    expect(componentInfoBefore).toMatchObject(componentInfoUpdateFields);
+
+    // Ensure first file is marked latest
+    const firstFile = await query(
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+    );
+    expect(firstFile.rows).toHaveLength(1);
+    expect(firstFile.rows[0].is_latest).toBe(true);
+
+    // Second upload (update) with newer eventTime
+    const secondEvent = createS3Event({
+      etag: "io-v2-etag-22222222222222222222222222222222",
+      eventTime: TEST_TIMESTAMP_PLUS_1H, // newer
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 23456,
+      versionId: "io-version-2",
+    });
+
+    const secondMessage = createSNSMessage({
+      messageId: "io-update-test-v2",
+      s3Event: secondEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Verify component_info remains the same on the linked component atlas
+    const ioAfter = await query(
+      "SELECT component_info FROM hat.component_atlases WHERE id = $1",
+      [componentAtlasId]
+    );
+    expect(ioAfter.rows).toHaveLength(1);
+    expect(ioAfter.rows[0].component_info).toEqual(componentInfoBefore);
+
+    // Verify file versioning flags: latest remains true on newest, previous false
+    const versions = await query(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+    );
+    expect(versions.rows).toHaveLength(2);
+    expect(versions.rows[0].is_latest).toBe(false); // older
+    expect(versions.rows[1].is_latest).toBe(true); // newer
   });
 
   // Happy Path Processing Tests

@@ -9,7 +9,7 @@ import {
 import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmAtlasExists } from "./atlases";
-import { doOrContinueTransaction, doTransaction, query } from "./database";
+import { doTransaction, query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
 
 type ComponentAtlasInfoUpdateFields = Pick<
@@ -371,28 +371,6 @@ export async function createComponentAtlas(
   );
 
   return result.rows[0];
-}
-
-/**
- * Reset component atlas metadata (component_info).
- * @param componentAtlasId - ID of the component atlas to reset info for.
- * @param client - Optional database client to reuse an existing transaction.
- */
-export async function resetComponentAtlasInfo(
-  componentAtlasId: string,
-  client?: pg.PoolClient
-): Promise<void> {
-  const info = getInitialComponentAtlasInfo();
-  await doOrContinueTransaction(client, async (tx) => {
-    const result = await tx.query(
-      "UPDATE hat.component_atlases SET component_info = $2 WHERE id = $1",
-      [componentAtlasId, JSON.stringify(info)]
-    );
-    if (!result.rowCount)
-      throw new NotFoundError(
-        `Component atlas with ID ${componentAtlasId} doesn't exist`
-      );
-  });
 }
 
 function getInitialComponentAtlasInfo(): HCAAtlasTrackerDBComponentAtlasInfo {

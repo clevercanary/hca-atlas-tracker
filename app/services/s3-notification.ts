@@ -28,13 +28,10 @@ import {
 } from "../data/files";
 import { InvalidOperationError } from "../utils/api-handler";
 import { normalizeAtlasVersion } from "../utils/atlases";
-import {
-  createComponentAtlas,
-  resetComponentAtlasInfo,
-} from "./component-atlases";
+import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
-import { createSourceDataset, resetSourceDatasetInfo } from "./source-datasets";
+import { createSourceDataset } from "./source-datasets";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -249,41 +246,6 @@ async function createSourceDatasetFromS3(
   return sourceDatasetId;
 }
 
-async function updateIntegratedObject(
-  _: string,
-  __: S3Object,
-  metadataObjectId: string | null,
-  transaction: PoolClient
-): Promise<string | null> {
-  if (metadataObjectId) {
-    // Reset component_info to empty values on edit. This will be repopulated with actual integrated object metadata when it is validated.
-    await resetComponentAtlasInfo(metadataObjectId, transaction);
-  }
-  return metadataObjectId;
-}
-
-export async function updateSourceDataset(
-  _: string,
-  object: S3Object,
-  metadataObjectId: string | null,
-  transaction: PoolClient
-): Promise<string | null> {
-  // On update, a corresponding source dataset metadata object must exist.
-  if (!metadataObjectId) {
-    throw new InvalidOperationError(
-      `Missing source dataset metadata object for update of file ${object.key}`
-    );
-  }
-
-  // Derive title from S3 key filename (without extension)
-  const title = getTitleFromS3Key(object.key);
-
-  // Reset sd_info on the linked source dataset when a source_dataset file is updated.
-  await resetSourceDatasetInfo(metadataObjectId, { title }, transaction);
-
-  return metadataObjectId;
-}
-
 // No-op handler: used for file types that should not create or modify metadata objects
 async function noopFileHandler(
   _: string,
@@ -294,24 +256,13 @@ async function noopFileHandler(
 }
 
 // Dispatch map
-type Operation = "create" | "update";
-const FILE_OPERATION_HANDLERS: Partial<
-  Record<FILE_TYPE, Record<Operation, FileOperationHandler>>
-> = {
-  [FILE_TYPE.INTEGRATED_OBJECT]: {
-    create: createIntegratedObject,
-    update: updateIntegratedObject,
-  },
-  [FILE_TYPE.SOURCE_DATASET]: {
-    create: createSourceDatasetFromS3,
-    update: updateSourceDataset,
-  },
-  [FILE_TYPE.INGEST_MANIFEST]: {
-    create: noopFileHandler,
-    update: noopFileHandler,
-  },
-  // INGEST_MANIFEST files don't need special handling - they just get file records
-};
+const FILE_CREATION_HANDLERS: Partial<Record<FILE_TYPE, FileOperationHandler>> =
+  {
+    [FILE_TYPE.INTEGRATED_OBJECT]: createIntegratedObject,
+    [FILE_TYPE.SOURCE_DATASET]: createSourceDatasetFromS3,
+    [FILE_TYPE.INGEST_MANIFEST]: noopFileHandler,
+    // INGEST_MANIFEST files don't need special handling - they just get file records
+  };
 
 /**
  * Log file operation results for monitoring.
@@ -443,18 +394,18 @@ async function saveFileRecord(
     );
 
     // STEP 4 & 5: Dispatch file operations based on state and type
-    const operation: Operation = isNewFile ? "create" : "update";
-    const fileHandlers = FILE_OPERATION_HANDLERS[fileType];
+    if (isNewFile) {
+      const handler = FILE_CREATION_HANDLERS[fileType];
 
-    if (fileHandlers) {
-      const handler = fileHandlers[operation];
-      const result = await handler(
-        atlasId,
-        object,
-        metadataObjectId,
-        transaction
-      );
-      metadataObjectId = result;
+      if (handler) {
+        const result = await handler(
+          atlasId,
+          object,
+          metadataObjectId,
+          transaction
+        );
+        metadataObjectId = result;
+      }
     }
 
     // STEP 6: Insert new file version with ON CONFLICT handling
