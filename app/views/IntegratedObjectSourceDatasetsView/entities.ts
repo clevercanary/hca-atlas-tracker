@@ -16,5 +16,5 @@ export interface EntityData {
   atlas?: HCAAtlasTrackerAtlas;
   atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
   componentAtlas?: HCAAtlasTrackerDetailComponentAtlas;
-  componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
+  integratedObjectSourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }

@@ -14,9 +14,9 @@ import { EntityProvider } from "../../providers/entity/provider";
 import { getTabs } from "../ComponentAtlasView/common/utils";
 import { useFetchAssociatedAtlasSourceDatasets } from "../ComponentAtlasView/hooks/useFetchAssociatedAtlasSourceDatasets";
 import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
-import { useFetchComponentAtlasSourceDatasets } from "../ComponentAtlasView/hooks/useFetchComponentAtlasSourceDatasets";
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
+import { useFetchIntegratedObjectSourceDatasets } from "./hooks/useFetchIntegratedObjectSourceDatasets";
 
 interface Props {
   pathParameter: PathParameter;
@@ -29,8 +29,8 @@ export const IntegratedObjectSourceDatasetsView = ({
   const { atlasSourceDatasets } =
     useFetchAssociatedAtlasSourceDatasets(pathParameter);
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
-  const { componentAtlasSourceDatasets } =
-    useFetchComponentAtlasSourceDatasets(pathParameter);
+  const { integratedObjectSourceDatasets } =
+    useFetchIntegratedObjectSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const {
     access: { canView },
@@ -43,7 +43,7 @@ export const IntegratedObjectSourceDatasetsView = ({
         atlas,
         atlasSourceDatasets,
         componentAtlas,
-        componentAtlasSourceDatasets,
+        integratedObjectSourceDatasets,
       }}
       formManager={formManager}
       pathParameter={pathParameter}
