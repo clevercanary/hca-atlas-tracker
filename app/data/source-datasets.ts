@@ -225,28 +225,6 @@ export async function unlinkAllSourceDatasetsFromSourceStudy(
 }
 
 /**
- * Throw an error if the given source dataset is not linked to the given source study.
- * @param sourceDatasetId - Source dataset ID.
- * @param sourceStudyId - Source study ID.
- * @param client - Postgres client to use.
- */
-export async function confirmSourceDatasetIsLinkedToStudy(
-  sourceDatasetId: string,
-  sourceStudyId: string,
-  client?: pg.PoolClient
-): Promise<void> {
-  const queryResult = await query(
-    "SELECT 1 FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
-    [sourceDatasetId, sourceStudyId],
-    client
-  );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} is not linked to source study with ID ${sourceStudyId}`
-    );
-}
-
-/**
  * Throw an error if any of the specified source datasets are not available to users (e.g., are archived).
  * @param sourceDatasetIds - IDs of source datasets to check.
  */

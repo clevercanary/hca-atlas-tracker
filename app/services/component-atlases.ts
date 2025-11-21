@@ -239,53 +239,6 @@ export async function deleteSourceDatasetsFromComponentAtlas(
 }
 
 /**
- * Remove the given source datasets from all component atlases that have any of them, and, unless otherwise specified, update the aggregated properties of those component atlases.
- * @param sourceDatasetIds - IDs of source datasets to remove.
- * @param client - Postgres client to use.
- * @param updateAggregateProperties - Whether to update the component atlas properties aggregated from source datasets (default true).
- */
-export async function removeSourceDatasetsFromAllComponentAtlases(
-  sourceDatasetIds: string[],
-  client: pg.PoolClient,
-  updateAggregateProperties = true
-): Promise<void> {
-  if (sourceDatasetIds.length === 0) return;
-  const queryResult = await client.query<
-    Pick<HCAAtlasTrackerDBComponentAtlas, "id">
-  >(
-    `
-      UPDATE hat.component_atlases
-      SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
-      WHERE source_datasets && $1
-      RETURNING id
-    `,
-    [sourceDatasetIds]
-  );
-  if (updateAggregateProperties) {
-    const updatedComponentAtlasIds = queryResult.rows.map(({ id }) => id);
-    await updateComponentAtlasFieldsFromDatasets(
-      updatedComponentAtlasIds,
-      client
-    );
-  }
-}
-
-/**
- * Update fields aggregated from source datasets on component atlases that have any of the specified source datasets.
- * @param sourceDatasetIds - IDs of source datasets to update the component atlases of.
- * @param client - Postgres client to use.
- */
-export async function updateFieldsForComponentAtlasesHavingSourceDatasets(
-  sourceDatasetIds: string[],
-  client?: pg.PoolClient
-): Promise<void> {
-  await updateComponentAtlasFieldsFromDatasets(
-    await getComponentAtlasIdsHavingSourceDatasets(sourceDatasetIds, client),
-    client
-  );
-}
-
-/**
  * Update fields aggregated from source datasets on the specified component atlases.
  * @param componentAtlasIds - IDs of the component atlases to update fields on.
  * @param client - Postgres client to use.

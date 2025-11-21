@@ -8,13 +8,11 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasSourceDatasetEditData,
-  SourceDatasetEditData,
   SourceDatasetsSetPublicationStatusData,
   SourceDatasetsSetReprocessedStatusData,
   SourceDatasetsSetSourceStudyData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import {
-  confirmSourceDatasetIsLinkedToStudy,
   confirmSourceDatasetsAreAvailable,
   confirmSourceDatasetsExistOnAtlas,
   getAtlasSourceDatasetIds,
@@ -27,11 +25,7 @@ import {
 } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import {
-  confirmComponentAtlasExistsOnAtlas,
-  removeSourceDatasetsFromAllComponentAtlases,
-  updateFieldsForComponentAtlasesHavingSourceDatasets,
-} from "./component-atlases";
+import { confirmComponentAtlasExistsOnAtlas } from "./component-atlases";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -98,40 +92,6 @@ export async function getComponentAtlasDatasets(
 }
 
 /**
- * Get a source dataset.
- * @param atlasId - ID of the atlas that the source dataset is accessed through.
- * @param sourceStudyId - ID of the source study that the source dataset is accessed through.
- * @param sourceDatasetId - Source dataset ID.
- * @param client - Postgres client to use.
- * @returns database model of the source dataset.
- */
-export async function getSourceDataset(
-  atlasId: string,
-  sourceStudyId: string,
-  sourceDatasetId: string,
-  client?: pg.PoolClient
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  await confirmSourceStudyExistsOnAtlas(
-    sourceStudyId,
-    atlasId,
-    undefined,
-    client
-  );
-  await confirmSourceDatasetIsLinkedToStudy(
-    sourceDatasetId,
-    sourceStudyId,
-    client
-  );
-  const [sourceDataset] = await getSourceDatasetsForApi(
-    [sourceDatasetId],
-    false,
-    [false],
-    client
-  );
-  return sourceDataset;
-}
-
-/**
  * Get a source dataset linked to an atlas.
  * @param atlasId - Atlas ID.
  * @param sourceDatasetId - Source dataset ID.
@@ -187,7 +147,7 @@ export async function createSourceDataset(
   title: string,
   client?: pg.PoolClient
 ): Promise<string> {
-  const info = sourceDatasetInputDataToDbData({ title });
+  const info = createSourceDatasetInfo(title);
   return await doOrContinueTransaction(client, async (tx) => {
     const insertResult = await tx.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "id">
@@ -198,47 +158,8 @@ export async function createSourceDataset(
   });
 }
 
-/**
- * Update a source dataset.
- * @param atlasId - ID of the atlas that the source dataset is accessed through.
- * @param sourceStudyId - ID of the source study that the source dataset is accessed through.
- * @param sourceDatasetId - Source dataset ID.
- * @param inputData - Values to update the source dataset with.
- * @returns database model of the updated source dataset.
- */
-export async function updateSourceDataset(
-  atlasId: string,
-  sourceStudyId: string,
-  sourceDatasetId: string,
-  inputData: SourceDatasetEditData
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "edit");
-  const info = sourceDatasetInputDataToDbData(inputData);
-  return await doTransaction(async (client) => {
-    const updateResult = await client.query<
-      Pick<HCAAtlasTrackerDBSourceDataset, "id">
-    >(
-      "UPDATE hat.source_datasets SET sd_info=$1 WHERE id=$2 AND source_study_id=$3 RETURNING id",
-      [JSON.stringify(info), sourceDatasetId, sourceStudyId]
-    );
-    if (updateResult.rows.length === 0)
-      throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
-    await updateFieldsForComponentAtlasesHavingSourceDatasets(
-      [sourceDatasetId],
-      client
-    );
-    return await getSourceDataset(
-      atlasId,
-      sourceStudyId,
-      updateResult.rows[0].id,
-      client
-    );
-  });
-}
-
-function sourceDatasetInputDataToDbData(
-  inputData: SourceDatasetEditData
+function createSourceDatasetInfo(
+  title: string
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
     assay: [],
@@ -253,7 +174,7 @@ function sourceDatasetInputDataToDbData(
     publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
     suspensionType: [],
     tissue: [],
-    title: inputData.title,
+    title: title,
   };
 }
 
@@ -339,84 +260,6 @@ export async function setAtlasSourceDatasetsSourceStudy(
 }
 
 /**
- * Delete a source dataset.
- * @param atlasId - ID of the atlas that the source dataset is accessed through.
- * @param sourceStudyId - ID of the source study that the source dataset is accessed through.
- * @param sourceDatasetId - Source dataset ID.
- */
-export async function deleteSourceDataset(
-  atlasId: string,
-  sourceStudyId: string,
-  sourceDatasetId: string
-): Promise<void> {
-  await doTransaction(async (client) => {
-    await confirmSourceStudyExistsOnAtlas(
-      sourceStudyId,
-      atlasId,
-      undefined,
-      client
-    );
-    await confirmSourceDatasetCanBeExplicitlyDeleted(sourceDatasetId, client);
-    const queryResult = await client.query(
-      "DELETE FROM hat.source_datasets WHERE id=$1 AND source_study_id=$2",
-      [sourceDatasetId, sourceStudyId]
-    );
-    if (queryResult.rowCount === 0)
-      throw getSourceDatasetNotFoundError(sourceStudyId, sourceDatasetId);
-    await removeSourceDatasetsFromAllComponentAtlases(
-      [sourceDatasetId],
-      client
-    );
-  });
-}
-
-/**
- * Throw an error if the given source dataset cannot be deleted as an explicit user action.
- * @param sourceDatasetId - Source dataset ID.
- * @param client - Postgres client to use.
- */
-async function confirmSourceDatasetCanBeExplicitlyDeleted(
-  sourceDatasetId: string,
-  client: pg.PoolClient
-): Promise<void> {
-  await confirmSourceDatasetIsNonCellxGene(sourceDatasetId, "delete", client);
-
-  const linkedAtlasesQueryResult = await query(
-    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE $1 = ANY(a.source_datasets))",
-    [sourceDatasetId],
-    client
-  );
-  if (linkedAtlasesQueryResult.rows[0].exists)
-    throw new InvalidOperationError(
-      `Source dataset with ID ${sourceDatasetId} is linked to atlas(es)`
-    );
-}
-
-/**
- * Throw an error if the given source dataset is a CELLxGENE dataset.
- * @param sourceDatasetId - ID of the source dataset to check.
- * @param attemptedOperationVerb - Word to use in the error message describing the operation attempted on the source dataset.
- * @param client - Postgres client to use.
- */
-async function confirmSourceDatasetIsNonCellxGene(
-  sourceDatasetId: string,
-  attemptedOperationVerb: string,
-  client?: pg.PoolClient
-): Promise<void> {
-  const { is_cellxgene } = (
-    await query<{ is_cellxgene: boolean }>(
-      "SELECT NOT sd_info->'cellxgeneDatasetId' = 'null' as is_cellxgene FROM hat.source_datasets WHERE id=$1",
-      [sourceDatasetId],
-      client
-    )
-  ).rows[0];
-  if (is_cellxgene)
-    throw new InvalidOperationError(
-      `Can't ${attemptedOperationVerb} CELLxGENE source dataset`
-    );
-}
-
-/**
  * Throw an error if the given source dataset is not linked to the given atlas.
  * @param sourceDatasetId - Source dataset ID.
  * @param atlasId - Atlas ID.
@@ -452,13 +295,4 @@ export async function confirmSourceDatasetsExist(
       `No source datasets exist with IDs: ${missingIds.join(", ")}`
     );
   }
-}
-
-function getSourceDatasetNotFoundError(
-  sourceStudyId: string,
-  sourceDatasetId: string
-): NotFoundError {
-  return new NotFoundError(
-    `Source dataset with ID ${sourceDatasetId} doesn't exist on source study with ID ${sourceStudyId}`
-  );
 }
