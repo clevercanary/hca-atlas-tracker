@@ -38,6 +38,7 @@ function mapSchemaValues(
     [FIELD_NAME.FILE_EVENT_TIME]: sourceDataset.fileEventTime,
     [FIELD_NAME.FILE_NAME]: sourceDataset.fileName,
     [FIELD_NAME.GENE_COUNT]: sourceDataset.geneCount,
+    [FIELD_NAME.PUBLICATION_STATUS]: sourceDataset.publicationStatus,
     [FIELD_NAME.SIZE_BYTES]: formatFileSize(sourceDataset.sizeBytes),
     [FIELD_NAME.TITLE]: sourceDataset.title,
     [FIELD_NAME.VALIDATION_STATUS]: sourceDataset.validationStatus,
