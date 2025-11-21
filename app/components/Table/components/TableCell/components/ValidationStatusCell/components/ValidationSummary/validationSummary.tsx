@@ -11,6 +11,7 @@ import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atla
 import { getRouteURL } from "../../../../../../../../common/utils";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";
+import { getValidators } from "./utils";
 import { StyledErrorIcon } from "./validationSummary.styles";
 
 export const ValidationSummary = ({
@@ -22,7 +23,7 @@ export const ValidationSummary = ({
 }: Props): JSX.Element | null => {
   if (!validationSummary) return null;
 
-  const validators = Object.entries(validationSummary.validators);
+  const validators = getValidators(validationSummary);
 
   if (validators.length === 0) return null;
 
