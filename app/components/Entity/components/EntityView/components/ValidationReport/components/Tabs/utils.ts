@@ -13,7 +13,7 @@ export function getValidatorNames(
 ): FileValidatorName[] {
   return (Object.keys(validationReports ?? {}) as FileValidatorName[]).filter(
     filterValidatorName
-  ) as FileValidatorName[];
+  );
 }
 
 /**
