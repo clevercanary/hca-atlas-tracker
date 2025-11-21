@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: hca-atlas-tracker-dev-deploy
+  cancel-in-progress: false
+
 env:
   AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
   IMAGE_TAG: ${{ github.sha }}
