@@ -244,39 +244,12 @@ export async function deleteSourceDatasetsFromComponentAtlas(
  * @param client - Postgres client to use.
  */
 async function updateComponentAtlasFieldsFromDatasets(
+  /* eslint-disable @typescript-eslint/no-unused-vars -- TODO */
   componentAtlasIds: string[],
   client?: pg.PoolClient
+  /* eslint-enable @typescript-eslint/no-unused-vars -- TODO */
 ): Promise<void> {
-  if (componentAtlasIds.length === 0) return;
-  await query(
-    `
-      UPDATE hat.component_atlases c
-      SET component_info = c.component_info || jsonb_build_object(
-        'assay', cd.assay,
-        'disease', cd.disease,
-        'cellCount', cd.cell_count,
-        'suspensionType', cd.suspension_type,
-        'tissue', cd.tissue
-      )
-      FROM (
-        SELECT
-          csub.id AS id,
-          coalesce(sum((d.sd_info->>'cellCount')::int), 0) AS cell_count,
-          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'assay')) v(x), jsonb_array_elements(x) e) AS assay,
-          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'disease')) v(x), jsonb_array_elements(x) e) AS disease,
-          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'suspensionType')) v(x), jsonb_array_elements(x) e) AS suspension_type,
-          (SELECT coalesce(jsonb_agg(DISTINCT e), '[]'::jsonb) FROM unnest(array_agg(d.sd_info->'tissue')) v(x), jsonb_array_elements(x) e) AS tissue
-        FROM
-          hat.component_atlases csub
-          LEFT JOIN hat.source_datasets d
-        ON d.id=ANY(csub.source_datasets)
-        GROUP BY csub.id
-      ) AS cd
-      WHERE c.id=cd.id AND c.id=ANY($1)
-    `,
-    [componentAtlasIds],
-    client
-  );
+  // TODO: remove
 }
 
 /**
@@ -288,36 +261,24 @@ async function updateComponentAtlasFieldsFromDatasets(
  */
 export async function createComponentAtlas(
   atlasId: string,
-  title: string,
+  title: string, // TODO: remove
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  const info = getInitialComponentAtlasInfo();
+  const info: HCAAtlasTrackerDBComponentAtlasInfo = {
+    capUrl: null,
+  };
 
   const result = await query<HCAAtlasTrackerDBComponentAtlas>(
     `
-      INSERT INTO hat.component_atlases (atlas_id, title, component_info)
-      VALUES ($1, $2, $3)
+      INSERT INTO hat.component_atlases (atlas_id, component_info)
+      VALUES ($1, $2)
       RETURNING *
     `,
-    [atlasId, title, JSON.stringify(info)],
+    [atlasId, JSON.stringify(info)],
     client
   );
 
   return result.rows[0];
-}
-
-function getInitialComponentAtlasInfo(): HCAAtlasTrackerDBComponentAtlasInfo {
-  return {
-    assay: [],
-    capUrl: null,
-    cellCount: 0,
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
-    description: "",
-    disease: [],
-    suspensionType: [],
-    tissue: [],
-  };
 }
 
 export async function confirmComponentAtlasExistsOnAtlas(

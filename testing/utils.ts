@@ -334,14 +334,6 @@ export function getTestFileKey(file: TestFile, atlas: TestAtlas): string {
   )}/${folderName}/${file.fileName}`;
 }
 
-export function aggregateSourceDatasetArrayField(
-  sourceDatasets: TestSourceDataset[] | undefined,
-  field: "assay" | "disease" | "suspensionType" | "tissue"
-): string[] {
-  if (!sourceDatasets) return [];
-  return Array.from(new Set(sourceDatasets.map((d) => d[field] ?? []).flat()));
-}
-
 export function getTestSourceStudyCitation(
   sourceStudy: TestSourceStudy
 ): string {

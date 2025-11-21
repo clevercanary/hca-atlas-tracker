@@ -229,7 +229,6 @@ describe("createComponentAtlas", () => {
 
     expect(result).toBeDefined();
     expect(result.atlas_id).toBe(ATLAS_DRAFT.id);
-    expect(result.title).toBe("Empty Component Atlas");
     expect(result.component_info).toEqual(EMPTY_COMPONENT_INFO);
     expect(result.id).toBeDefined();
     expect(result.created_at).toBeDefined();

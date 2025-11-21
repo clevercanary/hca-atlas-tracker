@@ -299,20 +299,11 @@ export interface HCAAtlasTrackerDBComponentAtlas {
   created_at: Date;
   id: string;
   source_datasets: string[];
-  title: string;
   updated_at: Date;
 }
 
 export interface HCAAtlasTrackerDBComponentAtlasInfo {
-  assay: string[];
   capUrl: string | null;
-  cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  description: string;
-  disease: string[];
-  suspensionType: string[];
-  tissue: string[];
 }
 
 export type HCAAtlasTrackerDBComponentAtlasForAPI =

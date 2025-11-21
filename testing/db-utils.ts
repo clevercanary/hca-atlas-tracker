@@ -39,7 +39,6 @@ import {
   TestSourceDataset,
 } from "./entities";
 import {
-  aggregateSourceDatasetArrayField,
   expectApiValidationsToMatchDb,
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
@@ -157,40 +156,15 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
 async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
-      assay: aggregateSourceDatasetArrayField(
-        componentAtlas.sourceDatasets,
-        "assay"
-      ),
       capUrl: componentAtlas.capUrl ?? null,
-      cellCount:
-        componentAtlas.sourceDatasets?.reduce(
-          (sum, d) => sum + (d.cellCount ?? 0),
-          0
-        ) ?? 0,
-      cellxgeneDatasetId: null,
-      cellxgeneDatasetVersion: null,
-      description: componentAtlas.description,
-      disease: aggregateSourceDatasetArrayField(
-        componentAtlas.sourceDatasets,
-        "disease"
-      ),
-      suspensionType: aggregateSourceDatasetArrayField(
-        componentAtlas.sourceDatasets,
-        "suspensionType"
-      ),
-      tissue: aggregateSourceDatasetArrayField(
-        componentAtlas.sourceDatasets,
-        "tissue"
-      ),
     };
     await client.query(
-      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets, title) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets) VALUES ($1, $2, $3, $4)",
       [
         componentAtlas.atlasId,
         info,
         componentAtlas.id,
         componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
-        componentAtlas.title,
       ]
     );
   }
@@ -398,17 +372,17 @@ async function runMigrations(
 
 export async function createTestComponentAtlas(
   atlasId: string,
-  title: string,
+  title: string, // TODO: remove
   info: HCAAtlasTrackerDBComponentAtlasInfo
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   return (
     await query<HCAAtlasTrackerDBComponentAtlas>(
       `
-      INSERT INTO hat.component_atlases (atlas_id, title, component_info)
-      VALUES ($1, $2, $3)
+      INSERT INTO hat.component_atlases (atlas_id, component_info)
+      VALUES ($1, $2)
       RETURNING *
     `,
-      [atlasId, title, JSON.stringify(info)]
+      [atlasId, JSON.stringify(info)]
     )
   ).rows[0];
 }
