@@ -243,7 +243,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
  * @param componentAtlasIds - IDs of the component atlases to update fields on.
  * @param client - Postgres client to use.
  */
-export async function updateComponentAtlasFieldsFromDatasets(
+async function updateComponentAtlasFieldsFromDatasets(
   componentAtlasIds: string[],
   client?: pg.PoolClient
 ): Promise<void> {
@@ -277,26 +277,6 @@ export async function updateComponentAtlasFieldsFromDatasets(
     [componentAtlasIds],
     client
   );
-}
-
-/**
- * Get IDs of component atlases that have any of the specified source datasets.
- * @param sourceDatasetIds - IDs of source datasets to get component atlas IDs for.
- * @param client - Postgres client to use.
- * @returns component atlas IDs.
- */
-export async function getComponentAtlasIdsHavingSourceDatasets(
-  sourceDatasetIds: string[],
-  client?: pg.PoolClient
-): Promise<string[]> {
-  if (sourceDatasetIds.length === 0) return [];
-  return (
-    await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
-      "SELECT id FROM hat.component_atlases WHERE source_datasets && $1",
-      [sourceDatasetIds],
-      client
-    )
-  ).rows.map(({ id }) => id);
 }
 
 /**
