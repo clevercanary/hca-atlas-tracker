@@ -10,6 +10,7 @@ import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atla
 import { getRouteURL } from "../../../../../../../../common/utils";
 import { Props } from "./entities";
 import { StyledTabs } from "./tabs.styles";
+import { getValidatorNames } from "./utils";
 
 export const Tabs = ({
   pathParameter,
@@ -18,9 +19,9 @@ export const Tabs = ({
   validatorName,
 }: Props): JSX.Element | null => {
   const validatorNames = useMemo(
-    () => Object.keys(validationReports || {}),
+    () => getValidatorNames(validationReports),
     [validationReports]
-  ) as FileValidatorName[];
+  );
 
   const onChange = useCallback(
     (_: SyntheticEvent, validatorName: FileValidatorName) => {
