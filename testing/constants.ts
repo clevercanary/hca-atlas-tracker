@@ -3041,7 +3041,6 @@ export const EMPTY_COMPONENT_INFO = {
 
 export const COMPONENT_ATLAS_DRAFT_FOO = {
   atlasId: ATLAS_DRAFT.id,
-  description: "bar baz baz foo baz foo bar",
   file: {
     atlas: ATLAS_DRAFT,
     bucket: "bucket-draft-foo",
@@ -3059,12 +3058,10 @@ export const COMPONENT_ATLAS_DRAFT_FOO = {
     SOURCE_DATASET_FOOBAR,
     SOURCE_DATASET_FOOBAZ,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_DRAFT_BAR = {
   atlasId: ATLAS_DRAFT.id,
-  description: "baz baz bar foo baz",
   file: {
     atlas: ATLAS_DRAFT,
     bucket: "bucket-draft-bar",
@@ -3107,12 +3104,10 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
     SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_FOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  description: "foo foo bar baz bar bar",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-misc-foo",
@@ -3141,12 +3136,10 @@ export const COMPONENT_ATLAS_MISC_FOO = {
     SOURCE_DATASET_OTHER_FOO,
     SOURCE_DATASET_OTHER_BAR,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_BAR = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  description: "bar bar foo baz foo foo",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-misc-bar",
@@ -3170,12 +3163,10 @@ export const COMPONENT_ATLAS_MISC_BAR = {
   },
   id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_BAZ = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  description: "baz baz bar foo bar bar",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-misc-baz",
@@ -3199,12 +3190,10 @@ export const COMPONENT_ATLAS_MISC_BAZ = {
   },
   id: "23f603d3-57cd-44b9-a3c0-14e671fb2835",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
   atlasId: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
-  description: "barfoo foo baz barbar",
   file: {
     atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
     bucket: "bucket-cellxgene-datasets",
@@ -3232,12 +3221,10 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
     SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
   atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-  description: "foo barbaz bazbar foofoobar",
   file: {
     atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
     bucket: "bucket-entry-sheet-validations-foo",
@@ -3261,12 +3248,10 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
   },
   id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-  description: "foobazbaz barfoo barfoo baz",
   file: {
     atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
     bucket: "bucket-entry-sheet-validations-bar",
@@ -3290,7 +3275,6 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   },
   id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 const BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
@@ -3338,7 +3322,6 @@ export const FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
 } satisfies TestFile;
 export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: [
     FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
     FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
@@ -3349,7 +3332,6 @@ export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
     SOURCE_DATASET_ARCHIVED_FOO,
     SOURCE_DATASET_WITH_MULTIPLE_FILES,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 const BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
@@ -3387,19 +3369,16 @@ export const FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
 } satisfies TestFile;
 export const COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: [
     FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
     FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   ],
   id: "0b3a43c0-6871-4000-9351-d759f0cd78c8",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_FOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-foo",
@@ -3427,12 +3406,10 @@ export const COMPONENT_ATLAS_ARCHIVED_FOO = {
     SOURCE_DATASET_ARCHIVED_FOO,
     SOURCE_DATASET_WITH_MULTIPLE_FILES,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_BAR = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-bar",
@@ -3457,12 +3434,10 @@ export const COMPONENT_ATLAS_ARCHIVED_BAR = {
   },
   id: "49571b1f-5059-4840-9e8c-37c5ea0e9e5b",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-baz",
@@ -3487,12 +3462,10 @@ export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
   },
   id: "46421b3a-3e5a-48a7-bb44-1f7c9295ec2e",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-foofoo",
@@ -3517,7 +3490,6 @@ export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
   },
   id: "dd42e5b7-e829-45cb-8ea9-9286487d9ae0",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 // Component atlases to initialize in the database before tests

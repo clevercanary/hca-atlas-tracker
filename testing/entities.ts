@@ -56,11 +56,9 @@ export interface TestAtlas {
 export interface TestComponentAtlas {
   atlasId: string;
   capUrl?: string | null;
-  description: string;
   file?: TestFile | TestFile[];
   id: string;
   sourceDatasets?: TestSourceDataset[];
-  title: string;
 }
 
 export type TestSourceStudy =
