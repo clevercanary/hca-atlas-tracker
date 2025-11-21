@@ -22,12 +22,8 @@ export function getValidators(
 /**
  * Returns true if the validator is not cellxgene.
  * @param validator - Validator.
- * @param validator.0 - Validator name.
  * @returns True if the validator is not cellxgene.
  */
-function filterValidator([validatorName]: [
-  FileValidatorName,
-  boolean
-]): boolean {
-  return validatorName !== "cellxgene";
+function filterValidator(validator: [FileValidatorName, boolean]): boolean {
+  return validator[0] !== "cellxgene";
 }
