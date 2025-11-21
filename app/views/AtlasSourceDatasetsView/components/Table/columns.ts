@@ -113,8 +113,14 @@ const COLUMN_FILE_EVENT_TIME = {
   meta: { width: { max: "1fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
+const COLUMN_PUBLICATION_STATUS = {
+  accessorKey: "publicationStatus",
+  header: "Publication Status",
+  meta: { width: { max: "0.5fr", min: "120px" } },
+} as ColumnDef<AtlasSourceDataset>;
+
 const COLUMN_SOURCE_STUDY = {
-  accessorKey: "sourceStudyTitle",
+  accessorKey: "publicationString",
   cell: ({ row }) =>
     C.Link({
       label: row.original.publicationString || LABEL.UNSPECIFIED,
@@ -166,6 +172,7 @@ export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_SIZE_BYTES,
   COLUMN_FILE_EVENT_TIME,
   COLUMN_SOURCE_STUDY,
+  COLUMN_PUBLICATION_STATUS,
   COLUMN_REPROCESSED_STATUS,
   COLUMN_VALIDATION_STATUS,
   COLUMN_CAP_INGEST_STATUS,

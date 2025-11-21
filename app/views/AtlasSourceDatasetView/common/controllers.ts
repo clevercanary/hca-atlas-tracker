@@ -75,6 +75,15 @@ const GENE_COUNT: CommonControllerConfig = {
   name: FIELD_NAME.GENE_COUNT,
 };
 
+const PUBLICATION_STATUS: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: false,
+    label: "Publication Status",
+    readOnly: true,
+  },
+  name: FIELD_NAME.PUBLICATION_STATUS,
+};
+
 const SIZE_BYTES: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
@@ -115,6 +124,7 @@ export const GENERAL_INFO_SOURCE_DATASET_CONTROLLERS: (
   GENE_COUNT,
   VALIDATION_STATUS,
   CAP_INGEST_STATUS,
+  PUBLICATION_STATUS,
   FILE_EVENT_TIME,
 ];
 

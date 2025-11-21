@@ -5,6 +5,7 @@ export const FIELD_NAME = {
   FILE_EVENT_TIME: "fileEventTime",
   FILE_NAME: "fileName",
   GENE_COUNT: "geneCount",
+  PUBLICATION_STATUS: "publicationStatus",
   SIZE_BYTES: "sizeBytes",
   TITLE: "title",
   VALIDATION_STATUS: "validationStatus",

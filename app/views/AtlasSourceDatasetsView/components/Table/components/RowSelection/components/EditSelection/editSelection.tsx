@@ -4,6 +4,7 @@ import { EditFileArchivedStatus } from "../../../../../../../../components/Entit
 import { useArchivedState } from "../../../../../../../../components/Entity/providers/archived/hook";
 import { ATLAS } from "../../../../../../../../hooks/useFetchAtlas";
 import { SOURCE_DATASETS } from "../../../../../../hooks/useFetchAtlasSourceDatasets";
+import { EditPublicationStatus } from "./components/EditPublicationStatus/editPublicationStatus";
 import { EditReprocessedStatus } from "./components/EditReprocessedStatus/editReprocessedStatus";
 import { SetSourceStudy } from "./components/SetSourceStudy/setSourceStudy";
 import { Props } from "./entities";
@@ -18,6 +19,12 @@ export const EditSelection = ({ rows, table }: Props): JSX.Element => {
           {({ closeMenu }): JSX.Element[] => [
             <EditReprocessedStatus
               key="reprocessed-status"
+              closeMenu={closeMenu}
+              rows={rows}
+              table={table}
+            />,
+            <EditPublicationStatus
+              key="publication-status"
               closeMenu={closeMenu}
               rows={rows}
               table={table}
