@@ -7,7 +7,7 @@ import {
 } from "../../../../../common/Form/components/Select/select";
 
 export const PublicationStatus = forwardRef<HTMLInputElement, SelectProps>(
-  function SourceStudy(
+  function PublicationStatus(
     { className, ...props }: SelectProps,
     ref
   ): JSX.Element | null {
