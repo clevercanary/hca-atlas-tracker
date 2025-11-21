@@ -7,7 +7,7 @@ export const publicationStatusEditSchema = object({
     .default("")
     .required()
     .oneOf(Object.values(PUBLICATION_STATUS)),
-  [FIELD_NAME.SOURCE_DATASET_IDS]: array(string().required())
+  [FIELD_NAME.SOURCE_DATASET_IDS]: array(string().uuid().required())
     .default([])
     .min(1)
     .required(),
