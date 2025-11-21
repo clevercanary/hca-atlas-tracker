@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.49.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.48.0...v1.49.0) (2025-11-21)
+
+
+### Features
+
+* add publication status field and corresponding bulk-edit api for source datasets ([#987](https://github.com/clevercanary/hca-atlas-tracker/issues/987)) ([#1008](https://github.com/clevercanary/hca-atlas-tracker/issues/1008)) ([3c4ff18](https://github.com/clevercanary/hca-atlas-tracker/commit/3c4ff1823b89d76e4b73013dc3151d46d5dfc779))
+* add ui for bulk updating source dataset publication status (admin only) ([#988](https://github.com/clevercanary/hca-atlas-tracker/issues/988)) ([#1018](https://github.com/clevercanary/hca-atlas-tracker/issues/1018)) ([d4144b3](https://github.com/clevercanary/hca-atlas-tracker/commit/d4144b34f6705838834f7cfe663981e39d3af762))
+* on source datasets tab only show the cap and hca validation summary info ([#1013](https://github.com/clevercanary/hca-atlas-tracker/issues/1013)) ([#1019](https://github.com/clevercanary/hca-atlas-tracker/issues/1019)) ([bdd1c0c](https://github.com/clevercanary/hca-atlas-tracker/commit/bdd1c0ca06b1e63d015e15828b21050f252cf181))
+* remove obsolete apis ([#961](https://github.com/clevercanary/hca-atlas-tracker/issues/961)) ([#1017](https://github.com/clevercanary/hca-atlas-tracker/issues/1017)) ([8d6f68f](https://github.com/clevercanary/hca-atlas-tracker/commit/8d6f68f81d35beffe73afefb91f55068fa8d6b84))
+* rename cap column on integrated objects and source datasets to cap url ([#1010](https://github.com/clevercanary/hca-atlas-tracker/issues/1010)) ([#1016](https://github.com/clevercanary/hca-atlas-tracker/issues/1016)) ([76ebe51](https://github.com/clevercanary/hca-atlas-tracker/commit/76ebe5152aadf0a35053b84b72b39286f7e0ff35))
+
+
+### Bug Fixes
+
+* don't reset metadata object contents when a file is updated ([#1012](https://github.com/clevercanary/hca-atlas-tracker/issues/1012)) ([#1014](https://github.com/clevercanary/hca-atlas-tracker/issues/1014)) ([8f69154](https://github.com/clevercanary/hca-atlas-tracker/commit/8f69154f75d0f7457156f2f7cb31accc62a666be))
+
+
+### Chores
+
+* update findable-ui to latest version v46.1.2 ([#1020](https://github.com/clevercanary/hca-atlas-tracker/issues/1020)) ([#1021](https://github.com/clevercanary/hca-atlas-tracker/issues/1021)) ([2630843](https://github.com/clevercanary/hca-atlas-tracker/commit/2630843382780bec6b6c879f2951c5916dca7dca))
+
+
+### Code Refactoring
+
+* move usefetchcomponentatlassourcedatasets to integrated object source datasets ([#1000](https://github.com/clevercanary/hca-atlas-tracker/issues/1000)) ([#1015](https://github.com/clevercanary/hca-atlas-tracker/issues/1015)) ([8726c5d](https://github.com/clevercanary/hca-atlas-tracker/commit/8726c5ddc566b93815d95aa92c3a93e46f75f4d7))
+
 ## [1.48.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.47.0...v1.48.0) (2025-11-19)
 
 
