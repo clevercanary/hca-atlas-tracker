@@ -223,7 +223,7 @@ async function createSourceDatasetFromS3(
   const title = getTitleFromS3Key(object.key);
 
   // Create source dataset using canonical service within the existing transaction
-  const createdId = await createSourceDataset(null, { title }, transaction);
+  const createdId = await createSourceDataset(title, transaction);
   const sourceDatasetId = createdId;
 
   // Link source dataset to atlas's source_datasets array if not already linked
