@@ -52,9 +52,6 @@ export interface HCAAtlasTrackerComponentAtlas {
   atlasId: string;
   capUrl: string | null;
   cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  description: string;
   disease: string[];
   fileEventTime: string;
   fileId: string;
