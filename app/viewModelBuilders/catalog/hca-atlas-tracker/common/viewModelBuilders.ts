@@ -1443,22 +1443,12 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
  * @returns Column def.
  */
 function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
+  // TODO remove this column (or refine requirements?)
   return {
     accessorKey: "explore",
-    cell: ({ row }): JSX.Element => {
-      const { cellxgeneExplorerUrl } = row.original;
-      const analysisPortals = cellxgeneExplorerUrl
-        ? [
-            {
-              icon: "/icons/cxg.png",
-              label: "CZ CELLxGENE",
-              name: "cellxgene",
-              url: cellxgeneExplorerUrl,
-            },
-          ]
-        : [];
+    cell: (): JSX.Element => {
       return C.AnalysisPortalCell({
-        analysisPortals,
+        analysisPortals: [],
       });
     },
     enableSorting: false,

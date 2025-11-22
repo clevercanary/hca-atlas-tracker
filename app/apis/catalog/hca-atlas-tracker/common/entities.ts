@@ -118,9 +118,6 @@ export interface HCAAtlasTrackerSourceDataset {
   assay: string[];
   capUrl: string | null;
   cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  cellxgeneExplorerUrl: string | null;
   createdAt: string;
   disease: string[];
   doi: string | null;
