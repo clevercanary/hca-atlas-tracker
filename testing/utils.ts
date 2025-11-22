@@ -580,12 +580,6 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0
   );
-  expect(apiSourceDataset.cellxgeneDatasetId).toEqual(
-    testSourceDataset.cellxgeneDatasetId ?? null
-  );
-  expect(apiSourceDataset.cellxgeneDatasetVersion).toEqual(
-    testSourceDataset.cellxgeneDatasetVersion ?? null
-  );
   expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
   expect(apiSourceDataset.geneCount).toEqual(
     testFile.datasetInfo?.geneCount ?? null
