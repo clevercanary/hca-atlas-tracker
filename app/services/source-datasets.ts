@@ -144,10 +144,10 @@ export async function getComponentAtlasSourceDataset(
  * @returns ID of the created source dataset.
  */
 export async function createSourceDataset(
-  title: string,
+  title: string, // TODO remove
   client?: pg.PoolClient
 ): Promise<string> {
-  const info = createSourceDatasetInfo(title);
+  const info = createSourceDatasetInfo();
   return await doOrContinueTransaction(client, async (tx) => {
     const insertResult = await tx.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "id">
@@ -158,23 +158,12 @@ export async function createSourceDataset(
   });
 }
 
-function createSourceDatasetInfo(
-  title: string
-): HCAAtlasTrackerDBSourceDatasetInfo {
+function createSourceDatasetInfo(): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
-    assay: [],
     capUrl: null,
-    cellCount: 0,
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
-    cellxgeneExplorerUrl: null,
-    disease: [],
     metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
     publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
-    suspensionType: [],
-    tissue: [],
-    title: title,
   };
 }
 

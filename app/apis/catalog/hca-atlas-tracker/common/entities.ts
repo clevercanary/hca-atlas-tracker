@@ -400,19 +400,10 @@ export interface HCAAtlasTrackerDBSourceDataset {
 }
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
-  assay: string[];
   capUrl: string | null;
-  cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  cellxgeneExplorerUrl: string | null;
-  disease: string[];
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationStatus: PUBLICATION_STATUS;
-  suspensionType: string[];
-  tissue: string[];
-  title: string;
 }
 
 export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =

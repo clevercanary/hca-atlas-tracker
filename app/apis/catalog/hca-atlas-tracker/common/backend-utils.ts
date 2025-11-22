@@ -178,9 +178,9 @@ export function dbSourceDatasetToApiSourceDataset(
     assay: dbSourceDataset.dataset_info?.assay ?? [],
     capUrl: dbSourceDataset.sd_info.capUrl,
     cellCount: dbSourceDataset.dataset_info?.cellCount ?? 0,
-    cellxgeneDatasetId: dbSourceDataset.sd_info.cellxgeneDatasetId,
-    cellxgeneDatasetVersion: dbSourceDataset.sd_info.cellxgeneDatasetVersion,
-    cellxgeneExplorerUrl: dbSourceDataset.sd_info.cellxgeneExplorerUrl,
+    cellxgeneDatasetId: null,
+    cellxgeneDatasetVersion: null,
+    cellxgeneExplorerUrl: null,
     createdAt: dbSourceDataset.created_at.toISOString(),
     disease: dbSourceDataset.dataset_info?.disease ?? [],
     doi: dbSourceDataset.doi,
@@ -373,10 +373,8 @@ export function getDbSourceStudyTierOneMetadataStatus(
  * @returns Tier 1 metadata status.
  */
 export function getDbSourceDatasetTierOneMetadataStatus(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: determine needs of source dataset tier one metadata status
   sourceDataset: HCAAtlasTrackerDBSourceDataset
 ): TIER_ONE_METADATA_STATUS {
-  const datasetId = sourceDataset.sd_info.cellxgeneDatasetId;
-  return datasetId
-    ? getCellxGeneDatasetTierOneMetadataStatus(datasetId)
-    : TIER_ONE_METADATA_STATUS.NA;
+  return TIER_ONE_METADATA_STATUS.NA;
 }

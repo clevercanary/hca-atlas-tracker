@@ -262,19 +262,10 @@ async function createSourceDataset(
   const sourceDatasetId = crypto.randomUUID();
 
   const sd_info: HCAAtlasTrackerDBSourceDatasetInfo = {
-    assay: [],
     capUrl: null,
-    cellCount: 0,
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
-    cellxgeneExplorerUrl: null,
-    disease: [],
     metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
     publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
-    suspensionType: [],
-    tissue: [],
-    title: `Test ${sourceDatasetId}`,
   };
 
   await client.query(

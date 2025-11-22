@@ -163,22 +163,11 @@ export function makeTestSourceDatasetInfo(
   sourceDataset: TestSourceDataset
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
-    assay: sourceDataset.assay ?? [],
     capUrl: sourceDataset.capUrl ?? null,
-    cellCount: sourceDataset.cellCount ?? 0,
-    cellxgeneDatasetId: sourceDataset.cellxgeneDatasetId ?? null,
-    cellxgeneDatasetVersion: sourceDataset.cellxgeneDatasetVersion ?? null,
-    cellxgeneExplorerUrl: sourceDataset.cellxgeneDatasetId
-      ? `explorer-url-${sourceDataset.cellxgeneDatasetId}`
-      : null,
-    disease: sourceDataset.disease ?? [],
     metadataSpreadsheetTitle: sourceDataset.metadataSpreadsheetTitle ?? null,
     metadataSpreadsheetUrl: sourceDataset.metadataSpreadsheetUrl ?? null,
     publicationStatus:
       sourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
-    suspensionType: sourceDataset.suspensionType ?? [],
-    tissue: sourceDataset.tissue ?? [],
-    title: sourceDataset.title,
   };
 }
 
@@ -634,19 +623,6 @@ export function expectDbSourceDatasetToMatchTest(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset,
   testSourceDataset: TestSourceDataset
 ): void {
-  expect(dbSourceDataset.sd_info.assay).toEqual(testSourceDataset.assay ?? []);
-  expect(dbSourceDataset.sd_info.cellCount).toEqual(
-    testSourceDataset.cellCount ?? 0
-  );
-  expect(dbSourceDataset.sd_info.cellxgeneDatasetId).toEqual(
-    testSourceDataset.cellxgeneDatasetId ?? null
-  );
-  expect(dbSourceDataset.sd_info.cellxgeneDatasetVersion).toEqual(
-    testSourceDataset.cellxgeneDatasetVersion ?? null
-  );
-  expect(dbSourceDataset.sd_info.disease).toEqual(
-    testSourceDataset.disease ?? []
-  );
   expect(dbSourceDataset.sd_info.publicationStatus).toEqual(
     testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
   );
@@ -656,13 +632,6 @@ export function expectDbSourceDatasetToMatchTest(
   expect(dbSourceDataset.source_study_id).toEqual(
     testSourceDataset.sourceStudyId ?? null
   );
-  expect(dbSourceDataset.sd_info.suspensionType).toEqual(
-    testSourceDataset.suspensionType ?? []
-  );
-  expect(dbSourceDataset.sd_info.tissue).toEqual(
-    testSourceDataset.tissue ?? []
-  );
-  expect(dbSourceDataset.sd_info.title).toEqual(testSourceDataset.title);
 }
 
 export function expectDetailApiComponentAtlasToMatchTest(
