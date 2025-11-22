@@ -6,7 +6,6 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
-  HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
@@ -90,19 +89,6 @@ export function getCompositeTierOneMetadataStatus(
     prevStatus = status;
   }
   return prevStatus ?? TIER_ONE_METADATA_STATUS.NA;
-}
-
-/**
- * Get combined Tier 1 metadata status of the given source datasets.
- * @param sourceDatasets - Source datasets.
- * @returns Tier 1 metadata status.
- */
-export function getSourceDatasetsTierOneMetadataStatus(
-  sourceDatasets: HCAAtlasTrackerSourceDataset[]
-): TIER_ONE_METADATA_STATUS {
-  return getCompositeTierOneMetadataStatus(
-    sourceDatasets.map((sourceDataset) => sourceDataset.tierOneMetadataStatus)
-  );
 }
 
 /**

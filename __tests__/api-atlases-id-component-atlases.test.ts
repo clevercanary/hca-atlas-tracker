@@ -213,19 +213,14 @@ describe(TEST_ROUTE, () => {
 });
 
 describe("createComponentAtlas", () => {
-  const TEST_COMPONENT_ATLAS_TITLE = "Test Component Atlas";
-
   it("throws error when creating component atlas for non-existent atlas", async () => {
     await expect(
-      createComponentAtlas("non-existent-atlas-id", TEST_COMPONENT_ATLAS_TITLE)
+      createComponentAtlas("non-existent-atlas-id")
     ).rejects.toThrow();
   });
 
   it("creates component atlas with empty values in component info", async () => {
-    const result = await createComponentAtlas(
-      ATLAS_DRAFT.id,
-      "Empty Component Atlas"
-    );
+    const result = await createComponentAtlas(ATLAS_DRAFT.id);
 
     expect(result).toBeDefined();
     expect(result.atlas_id).toBe(ATLAS_DRAFT.id);

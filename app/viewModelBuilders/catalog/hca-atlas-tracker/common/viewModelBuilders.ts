@@ -994,7 +994,6 @@ export function getAtlasComponentSourceDatasetsTableColumns(
     getComponentAtlasSourceDatasetPublicationColumnDef(),
     getComponentAtlasSourceDatasetFileNameColumnDef(atlasId),
     getComponentAtlasSourceDatasetTitleColumnDef(),
-    getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
@@ -1435,24 +1434,6 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
       }),
     enableSorting: false,
     header: "Download",
-  };
-}
-
-/**
- * Returns source dataset explore column def.
- * @returns Column def.
- */
-function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  // TODO remove this column (or refine requirements?)
-  return {
-    accessorKey: "explore",
-    cell: (): JSX.Element => {
-      return C.AnalysisPortalCell({
-        analysisPortals: [],
-      });
-    },
-    enableSorting: false,
-    header: "Explore",
   };
 }
 

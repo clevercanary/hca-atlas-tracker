@@ -136,7 +136,6 @@ export interface HCAAtlasTrackerSourceDataset {
   sourceStudyId: string | null;
   sourceStudyTitle: string | null;
   suspensionType: string[];
-  tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
   tissue: string[];
   title: string;
   updatedAt: string;

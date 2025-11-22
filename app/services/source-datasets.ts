@@ -139,12 +139,10 @@ export async function getComponentAtlasSourceDataset(
 
 /**
  * Create a source dataset.
- * @param title - Title to give to the source dataset.
  * @param client - Optional Postgres client to reuse an existing transaction.
  * @returns ID of the created source dataset.
  */
 export async function createSourceDataset(
-  title: string, // TODO remove
   client?: pg.PoolClient
 ): Promise<string> {
   const info = createSourceDatasetInfo();

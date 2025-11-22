@@ -183,7 +183,6 @@ export async function addSourceDatasetsToComponentAtlas(
       "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE id=$2",
       [sourceDatasetIds, componentAtlasId]
     );
-    await updateComponentAtlasFieldsFromDatasets([componentAtlasId], client);
   });
 }
 
@@ -234,34 +233,17 @@ export async function deleteSourceDatasetsFromComponentAtlas(
       `,
       [sourceDatasetIds, componentAtlasId]
     );
-    await updateComponentAtlasFieldsFromDatasets([componentAtlasId], client);
   });
-}
-
-/**
- * Update fields aggregated from source datasets on the specified component atlases.
- * @param componentAtlasIds - IDs of the component atlases to update fields on.
- * @param client - Postgres client to use.
- */
-async function updateComponentAtlasFieldsFromDatasets(
-  /* eslint-disable @typescript-eslint/no-unused-vars -- TODO */
-  componentAtlasIds: string[],
-  client?: pg.PoolClient
-  /* eslint-enable @typescript-eslint/no-unused-vars -- TODO */
-): Promise<void> {
-  // TODO: remove
 }
 
 /**
  * Create a new component atlas.
  * @param atlasId - ID of the parent atlas.
- * @param title - Title of the component atlas.
  * @param client - Optional database client for transactions.
  * @returns the created component atlas.
  */
 export async function createComponentAtlas(
   atlasId: string,
-  title: string, // TODO: remove
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {

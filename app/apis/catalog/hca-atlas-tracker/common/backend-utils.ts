@@ -11,7 +11,6 @@ import {
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
-  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceStudy,
@@ -199,8 +198,6 @@ export function dbSourceDatasetToApiSourceDataset(
       studyInfo?.unpublishedInfo?.title ??
       null,
     suspensionType: dbSourceDataset.dataset_info?.suspensionType ?? [],
-    tierOneMetadataStatus:
-      getDbSourceDatasetTierOneMetadataStatus(dbSourceDataset),
     tissue: dbSourceDataset.dataset_info?.tissue ?? [],
     title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
@@ -362,16 +359,4 @@ export function getDbSourceStudyTierOneMetadataStatus(
         )
       : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
     : TIER_ONE_METADATA_STATUS.NA;
-}
-
-/**
- * Get the Tier 1 metadata status of the given source dataset's CELLxGENE dataset.
- * @param sourceDataset - Source dataset.
- * @returns Tier 1 metadata status.
- */
-export function getDbSourceDatasetTierOneMetadataStatus(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: determine needs of source dataset tier one metadata status
-  sourceDataset: HCAAtlasTrackerDBSourceDataset
-): TIER_ONE_METADATA_STATUS {
-  return TIER_ONE_METADATA_STATUS.NA;
 }

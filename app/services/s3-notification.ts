@@ -3,7 +3,6 @@ import {
   S3Event,
   S3EventRecord,
   s3EventSchema,
-  S3Object,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
@@ -165,17 +164,6 @@ function convertS3VersionToDbVersion(s3Version: string): string {
   }
 }
 
-/**
- * Derive a human-friendly title from an S3 key by taking the filename and removing the final extension.
- * @param key - The S3 object key.
- * @returns filename without extension, or "Unknown" if not determinable.
- */
-function getTitleFromS3Key(key: string): string {
-  const fileName = key.split("/").pop() || "Unknown";
-  // Remove only the last extension (handles multi-dot filenames)
-  return fileName.replace(/\.[^/.]+$/, "");
-}
-
 // Helper: Determine whether incoming record should be latest based on event times
 function computeIsLatestForInsert(
   isNewFile: boolean,
@@ -191,39 +179,23 @@ function computeIsLatestForInsert(
 // File operation handler functions
 type FileOperationHandler = (
   atlasId: string,
-  s3Object: S3Object,
-  metadataObjectId: string | null,
   transaction: PoolClient
 ) => Promise<string | null>;
 
 async function createIntegratedObject(
   atlasId: string,
-  s3Object: S3Object,
-  _: string | null,
   transaction: PoolClient
 ): Promise<string> {
-  const title = getTitleFromS3Key(s3Object.key);
-
-  const componentAtlas = await createComponentAtlas(
-    atlasId,
-    title,
-    transaction
-  );
-
+  const componentAtlas = await createComponentAtlas(atlasId, transaction);
   return componentAtlas.id;
 }
 
 async function createSourceDatasetFromS3(
   atlasId: string,
-  object: S3Object,
-  metadataObjectId: string | null,
   transaction: PoolClient
 ): Promise<string> {
-  // Derive title from S3 key filename (without extension)
-  const title = getTitleFromS3Key(object.key);
-
   // Create source dataset using canonical service within the existing transaction
-  const createdId = await createSourceDataset(title, transaction);
+  const createdId = await createSourceDataset(transaction);
   const sourceDatasetId = createdId;
 
   // Link source dataset to atlas's source_datasets array if not already linked
@@ -246,21 +218,11 @@ async function createSourceDatasetFromS3(
   return sourceDatasetId;
 }
 
-// No-op handler: used for file types that should not create or modify metadata objects
-async function noopFileHandler(
-  _: string,
-  __: S3Object,
-  metadataObjectId: string | null
-): Promise<string | null> {
-  return metadataObjectId;
-}
-
 // Dispatch map
 const FILE_CREATION_HANDLERS: Partial<Record<FILE_TYPE, FileOperationHandler>> =
   {
     [FILE_TYPE.INTEGRATED_OBJECT]: createIntegratedObject,
     [FILE_TYPE.SOURCE_DATASET]: createSourceDatasetFromS3,
-    [FILE_TYPE.INGEST_MANIFEST]: noopFileHandler,
     // INGEST_MANIFEST files don't need special handling - they just get file records
   };
 
@@ -398,13 +360,7 @@ async function saveFileRecord(
       const handler = FILE_CREATION_HANDLERS[fileType];
 
       if (handler) {
-        const result = await handler(
-          atlasId,
-          object,
-          metadataObjectId,
-          transaction
-        );
-        metadataObjectId = result;
+        metadataObjectId = await handler(atlasId, transaction);
       }
     }
 

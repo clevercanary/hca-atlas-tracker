@@ -372,7 +372,6 @@ async function runMigrations(
 
 export async function createTestComponentAtlas(
   atlasId: string,
-  title: string, // TODO: remove
   info: HCAAtlasTrackerDBComponentAtlasInfo
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   return (
