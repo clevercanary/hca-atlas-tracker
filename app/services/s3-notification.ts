@@ -180,7 +180,7 @@ function computeIsLatestForInsert(
 type FileOperationHandler = (
   atlasId: string,
   transaction: PoolClient
-) => Promise<string | null>;
+) => Promise<string>;
 
 async function createIntegratedObject(
   atlasId: string,
