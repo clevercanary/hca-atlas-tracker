@@ -402,13 +402,6 @@ export interface HCAAtlasTrackerDBSourceDatasetInfo {
   publicationStatus: PUBLICATION_STATUS;
 }
 
-export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
-  HCAAtlasTrackerDBSourceDataset & {
-    sd_info: HCAAtlasTrackerDBSourceDatasetInfo & {
-      cellxgeneDatasetId: string;
-    };
-  };
-
 export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
   HCAAtlasTrackerDBSourceDataset,
   null
