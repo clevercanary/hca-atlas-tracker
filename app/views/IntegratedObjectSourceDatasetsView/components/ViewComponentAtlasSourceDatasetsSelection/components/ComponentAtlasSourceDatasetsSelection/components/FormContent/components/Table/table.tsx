@@ -1,8 +1,8 @@
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
-import { getComponentAtlasSourceDatasetsSelectionTableColumns } from "../../../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../../../../ViewComponentAtlasSourceDatasetsSelection/common/entities";
-import { SectionTable } from "../../../../../../section.styles";
+import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { SectionTable } from "../../../../../../../../../../components/Detail/components/TrackerForm/components/Section/section.styles";
+import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
+import { getComponentAtlasSourceDatasetsSelectionTableColumns } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../common/entities";
 import { useComponentAtlasSourceDatasetsSelectionFormState } from "../../../../hooks/useComponentAtlasSourceDatasetsSelectionFormState";
 import { useComponentAtlasSourceDatasetsSelectionTableOptions } from "../../../../hooks/useComponentAtlasSourceDatasetsSelectionTableOptions";
 

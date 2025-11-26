@@ -1,9 +1,9 @@
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../../../../../../common/entities";
-import { DialogBody } from "../../../../../../../common/Form/components/Dialog/components/DialogBody/dialogBody";
-import { FIELD_NAME } from "../../../../../ViewComponentAtlasSourceDatasetsSelection/common/constants";
-import { useComponentAtlasSourceDatasetsSelectionForm } from "../../../../../ViewComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionForm";
-import { useComponentAtlasSourceDatasetsSelectionFormManager } from "../../../../../ViewComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionFormManager";
+import { HCAAtlasTrackerSourceDataset } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../../../../../common/entities";
+import { DialogBody } from "../../../../../../components/common/Form/components/Dialog/components/DialogBody/dialogBody";
+import { FIELD_NAME } from "../../common/constants";
+import { useComponentAtlasSourceDatasetsSelectionForm } from "../../hooks/useComponentAtlasSourceDatasetsSelectionForm";
+import { useComponentAtlasSourceDatasetsSelectionFormManager } from "../../hooks/useComponentAtlasSourceDatasetsSelectionFormManager";
 import { FormActions } from "./components/FormActions/formActions";
 import { Table } from "./components/FormContent/components/Table/table";
 

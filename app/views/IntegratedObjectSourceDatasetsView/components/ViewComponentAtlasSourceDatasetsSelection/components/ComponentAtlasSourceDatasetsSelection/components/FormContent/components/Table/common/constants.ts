@@ -7,7 +7,7 @@ import {
   SortingState,
   TableOptions,
 } from "@tanstack/react-table";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
 const PUBLICATION_STRING = "publicationString";
 const TITLE = "title";
