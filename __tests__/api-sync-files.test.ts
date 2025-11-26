@@ -350,7 +350,7 @@ describe(TEST_ROUTE, () => {
     const FILE_ID_EXISTING_CHANGED = "7306f44c-ef9b-4adc-9280-ebdf1e902f3e";
 
     const componentAtlasIdExistingUnchanged = (
-      await createTestComponentAtlas(ATLAS_DRAFT.id, "", EMPTY_COMPONENT_INFO)
+      await createTestComponentAtlas(ATLAS_DRAFT.id, EMPTY_COMPONENT_INFO)
     ).id;
     await createTestFile(FILE_ID_EXISTING_UNCHANGED, {
       bucket: TEST_S3_BUCKET,
@@ -364,7 +364,7 @@ describe(TEST_ROUTE, () => {
     });
 
     const componentAtlasIdExistingChanged = (
-      await createTestComponentAtlas(ATLAS_DRAFT.id, "", EMPTY_COMPONENT_INFO)
+      await createTestComponentAtlas(ATLAS_DRAFT.id, EMPTY_COMPONENT_INFO)
     ).id;
     await createTestFile(FILE_ID_EXISTING_CHANGED, {
       bucket: TEST_S3_BUCKET,

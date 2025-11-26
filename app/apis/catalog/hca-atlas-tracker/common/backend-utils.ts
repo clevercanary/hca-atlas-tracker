@@ -11,7 +11,6 @@ import {
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
-  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceStudy,
@@ -92,9 +91,6 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     atlasId: dbComponentAtlas.atlas_id,
     capUrl: dbComponentAtlas.component_info.capUrl,
     cellCount: dbComponentAtlas.dataset_info?.cellCount ?? 0,
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
-    description: "",
     disease: dbComponentAtlas.dataset_info?.disease ?? [],
     fileEventTime: dbComponentAtlas.event_info.eventTime,
     fileId: dbComponentAtlas.file_id,
@@ -181,9 +177,6 @@ export function dbSourceDatasetToApiSourceDataset(
     assay: dbSourceDataset.dataset_info?.assay ?? [],
     capUrl: dbSourceDataset.sd_info.capUrl,
     cellCount: dbSourceDataset.dataset_info?.cellCount ?? 0,
-    cellxgeneDatasetId: dbSourceDataset.sd_info.cellxgeneDatasetId,
-    cellxgeneDatasetVersion: dbSourceDataset.sd_info.cellxgeneDatasetVersion,
-    cellxgeneExplorerUrl: dbSourceDataset.sd_info.cellxgeneExplorerUrl,
     createdAt: dbSourceDataset.created_at.toISOString(),
     disease: dbSourceDataset.dataset_info?.disease ?? [],
     doi: dbSourceDataset.doi,
@@ -205,8 +198,6 @@ export function dbSourceDatasetToApiSourceDataset(
       studyInfo?.unpublishedInfo?.title ??
       null,
     suspensionType: dbSourceDataset.dataset_info?.suspensionType ?? [],
-    tierOneMetadataStatus:
-      getDbSourceDatasetTierOneMetadataStatus(dbSourceDataset),
     tissue: dbSourceDataset.dataset_info?.tissue ?? [],
     title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
@@ -367,19 +358,5 @@ export function getDbSourceStudyTierOneMetadataStatus(
           )
         )
       : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
-    : TIER_ONE_METADATA_STATUS.NA;
-}
-
-/**
- * Get the Tier 1 metadata status of the given source dataset's CELLxGENE dataset.
- * @param sourceDataset - Source dataset.
- * @returns Tier 1 metadata status.
- */
-export function getDbSourceDatasetTierOneMetadataStatus(
-  sourceDataset: HCAAtlasTrackerDBSourceDataset
-): TIER_ONE_METADATA_STATUS {
-  const datasetId = sourceDataset.sd_info.cellxgeneDatasetId;
-  return datasetId
-    ? getCellxGeneDatasetTierOneMetadataStatus(datasetId)
     : TIER_ONE_METADATA_STATUS.NA;
 }

@@ -56,11 +56,9 @@ export interface TestAtlas {
 export interface TestComponentAtlas {
   atlasId: string;
   capUrl?: string | null;
-  description: string;
   file?: TestFile | TestFile[];
   id: string;
   sourceDatasets?: TestSourceDataset[];
-  title: string;
 }
 
 export type TestSourceStudy =
@@ -87,12 +85,7 @@ export interface TestUnpublishedSourceStudy {
 }
 
 export interface TestSourceDataset {
-  assay?: string[];
   capUrl?: string | null;
-  cellCount?: number;
-  cellxgeneDatasetId?: string;
-  cellxgeneDatasetVersion?: string;
-  disease?: string[];
   file?: TestFile | TestFile[];
   id: string;
   metadataSpreadsheetTitle?: string;
@@ -100,9 +93,6 @@ export interface TestSourceDataset {
   publicationStatus?: PUBLICATION_STATUS;
   reprocessedStatus?: REPROCESSED_STATUS;
   sourceStudyId?: string;
-  suspensionType?: string[];
-  tissue?: string[];
-  title: string;
 }
 
 export interface TestFile {

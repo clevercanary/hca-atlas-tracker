@@ -52,9 +52,6 @@ export interface HCAAtlasTrackerComponentAtlas {
   atlasId: string;
   capUrl: string | null;
   cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  description: string;
   disease: string[];
   fileEventTime: string;
   fileId: string;
@@ -121,9 +118,6 @@ export interface HCAAtlasTrackerSourceDataset {
   assay: string[];
   capUrl: string | null;
   cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  cellxgeneExplorerUrl: string | null;
   createdAt: string;
   disease: string[];
   doi: string | null;
@@ -142,7 +136,6 @@ export interface HCAAtlasTrackerSourceDataset {
   sourceStudyId: string | null;
   sourceStudyTitle: string | null;
   suspensionType: string[];
-  tierOneMetadataStatus: TIER_ONE_METADATA_STATUS;
   tissue: string[];
   title: string;
   updatedAt: string;
@@ -299,20 +292,11 @@ export interface HCAAtlasTrackerDBComponentAtlas {
   created_at: Date;
   id: string;
   source_datasets: string[];
-  title: string;
   updated_at: Date;
 }
 
 export interface HCAAtlasTrackerDBComponentAtlasInfo {
-  assay: string[];
   capUrl: string | null;
-  cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  description: string;
-  disease: string[];
-  suspensionType: string[];
-  tissue: string[];
 }
 
 export type HCAAtlasTrackerDBComponentAtlasForAPI =
@@ -412,27 +396,11 @@ export interface HCAAtlasTrackerDBSourceDataset {
 }
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {
-  assay: string[];
   capUrl: string | null;
-  cellCount: number;
-  cellxgeneDatasetId: string | null;
-  cellxgeneDatasetVersion: string | null;
-  cellxgeneExplorerUrl: string | null;
-  disease: string[];
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
   publicationStatus: PUBLICATION_STATUS;
-  suspensionType: string[];
-  tissue: string[];
-  title: string;
 }
-
-export type HCAAtlasTrackerDBSourceDatasetWithCellxGeneId =
-  HCAAtlasTrackerDBSourceDataset & {
-    sd_info: HCAAtlasTrackerDBSourceDatasetInfo & {
-      cellxgeneDatasetId: string;
-    };
-  };
 
 export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
   HCAAtlasTrackerDBSourceDataset,

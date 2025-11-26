@@ -1543,18 +1543,6 @@ export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
 
 // SOURCE DATASETS
 
-const EMPTY_LEGACY_DATASET_METADATA: Pick<
-  TestSourceDataset,
-  "assay" | "cellCount" | "disease" | "suspensionType" | "tissue" | "title"
-> = {
-  assay: [],
-  cellCount: 0,
-  disease: [],
-  suspensionType: [],
-  tissue: [],
-  title: "",
-};
-
 export const SOURCE_DATASET_FOO = {
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -1596,7 +1584,6 @@ export const SOURCE_DATASET_FOO = {
   id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
   reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_BAR = {
@@ -1614,7 +1601,6 @@ export const SOURCE_DATASET_BAR = {
   },
   id: "cd053619-8b50-4e2d-ba62-96fbbcad6011",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_BAZ = {
@@ -1631,7 +1617,6 @@ export const SOURCE_DATASET_BAZ = {
   },
   id: "3682751a-7a97-48e1-a43e-d355c1707e26",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_FOOFOO = {
@@ -1659,7 +1644,6 @@ export const SOURCE_DATASET_FOOFOO = {
   },
   id: "5c42bc65-93ad-4191-95bc-a40d56f2bb6b",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_FOOBAR = {
@@ -1676,7 +1660,6 @@ export const SOURCE_DATASET_FOOBAR = {
   },
   id: "4de3dadd-a35c-4386-be62-4536934e9179",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_FOOBAZ = {
@@ -1693,12 +1676,9 @@ export const SOURCE_DATASET_FOOBAZ = {
   },
   id: "7ac2afd8-493d-46e5-b9d8-cadc512bb2cc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE = {
-  cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITHOUT_UPDATE,
-  cellxgeneDatasetVersion: CELLXGENE_VERSION_DATASET_WITHOUT_UPDATE,
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-cellxgene-without-update",
@@ -1722,12 +1702,9 @@ export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE = {
   },
   id: "afcb9181-5a6b-45a8-89c0-1790def2d7dc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE = {
-  cellxgeneDatasetId: CELLXGENE_ID_DATASET_WITH_UPDATE,
-  cellxgeneDatasetVersion: "cellxgene-version-dataset-with-update-a",
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-cellxgene-with-update",
@@ -1754,7 +1731,6 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE = {
   metadataSpreadsheetUrl:
     "https://docs.google.com/spreadsheets/d/source-dataset-cellxgene-with-update",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_DRAFT_OK_FOO = {
@@ -1771,7 +1747,6 @@ export const SOURCE_DATASET_DRAFT_OK_FOO = {
   },
   id: "edf62340-8180-4206-87f2-d95e388a3a4c",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_DRAFT_OK_BAR = {
@@ -1788,7 +1763,6 @@ export const SOURCE_DATASET_DRAFT_OK_BAR = {
   },
   id: "3b41d607-05ff-48a7-92bd-9d257a230b3d",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_OTHER_FOO = {
@@ -1815,7 +1789,6 @@ export const SOURCE_DATASET_OTHER_FOO = {
   },
   id: "d85cf1fd-3b70-4f6a-812c-583941362117",
   sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_OTHER_BAR = {
@@ -1842,13 +1815,9 @@ export const SOURCE_DATASET_OTHER_BAR = {
   },
   id: "e3878dde-ffe5-4193-9b7f-5a395541ba25",
   sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO = {
-  cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
-  cellxgeneDatasetVersion:
-    CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO,
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
     bucket: "bucket-source-dataset-unpublished-with-cellxgene-foo",
@@ -1872,13 +1841,9 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO = {
   },
   id: "1d872ee4-cfb3-4893-a275-fe0f105697c4",
   sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR = {
-  cellxgeneDatasetId: CELLXGENE_ID_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
-  cellxgeneDatasetVersion:
-    CELLXGENE_VERSION_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
     bucket: "bucket-source-dataset-unpublished-with-cellxgene-bar",
@@ -1902,7 +1867,6 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR = {
   },
   id: "30bd81d7-1db7-4f28-b6d3-6afa73066f99",
   sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ = {
@@ -1929,13 +1893,9 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ = {
   },
   id: "4b7acc76-89f2-4839-a15c-fc79183c1ed7",
   sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO = {
-  cellxgeneDatasetId: CELLXGENE_ID_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-  cellxgeneDatasetVersion:
-    CELLXGENE_VERSION_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   file: {
     atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-source-dataset-published-without-cellxgene-id-foo",
@@ -1959,7 +1919,6 @@ export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO = {
   },
   id: "68dbf3ec-45a5-43a4-b806-97923de1df2c",
   sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR = {
@@ -1986,7 +1945,6 @@ export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR = {
   },
   id: "2d4f2d93-7c2c-4c1f-94af-566f3d3ed8ec",
   sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
@@ -2030,7 +1988,6 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
   id: "4d08641d-be55-440b-8a19-b67c965cc2bf",
   reprocessedStatus: REPROCESSED_STATUS.REPROCESSED,
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_A_BAR = {
@@ -2048,7 +2005,6 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_BAR = {
   id: "41e20a89-48c4-4fd6-85b1-6f6a02f03b35",
   reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_B_FOO = {
@@ -2075,7 +2031,6 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_FOO = {
   },
   id: "9d361a63-78bb-487c-8af5-160de4782eb2",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_B_BAR = {
@@ -2103,7 +2058,6 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAR = {
   id: "a710a258-c48c-4185-9d28-9e9429c989fd",
   metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/baz",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ = {
@@ -2130,7 +2084,6 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ = {
   },
   id: "79446f6f-0f3a-4915-a019-090189947223",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 const BASE_FILE_SOURCE_DATASET_WITH_MULTIPLE_FILES = {
@@ -2185,7 +2138,6 @@ export const SOURCE_DATASET_WITH_MULTIPLE_FILES = {
   ],
   id: "3a4658fa-049f-4465-9a10-9f411dbcfb7c",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 const BASE_FILE_SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
@@ -2228,7 +2180,6 @@ export const SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
   ],
   id: "63b33e2a-1b1f-4138-bc54-dbe42e12ab65",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_FOO = {
@@ -2255,7 +2206,6 @@ export const SOURCE_DATASET_ARCHIVED_FOO = {
     versionId: null,
   },
   id: "bbf9aa61-4d0b-4c2d-bb05-42b3e3e2c9cc",
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_BAR = {
@@ -2282,7 +2232,6 @@ export const SOURCE_DATASET_ARCHIVED_BAR = {
     versionId: null,
   },
   id: "54189845-0934-4c3c-97b8-c8113295f227",
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_BAZ = {
@@ -2309,7 +2258,6 @@ export const SOURCE_DATASET_ARCHIVED_BAZ = {
     versionId: null,
   },
   id: "986da052-8827-4b30-80ba-d529f7410458",
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_FOOFOO = {
@@ -2336,7 +2284,6 @@ export const SOURCE_DATASET_ARCHIVED_FOOFOO = {
     versionId: null,
   },
   id: "529f8d07-7a22-4831-b61f-983525429e00",
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_FOOBAR = {
@@ -2363,7 +2310,6 @@ export const SOURCE_DATASET_ARCHIVED_FOOBAR = {
     versionId: null,
   },
   id: "eb332ace-438e-45c6-8cf6-58cba44d6d3c",
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO = {
@@ -2380,7 +2326,6 @@ export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO = {
     versionId: null,
   },
   id: "f9d93c6a-e7c0-4f26-8198-2474e7569bdb",
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
@@ -2398,7 +2343,6 @@ export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
     versionId: null,
   },
   id: "aceff568-5782-44f6-b7f8-73c233c5f290",
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
@@ -2417,7 +2361,6 @@ export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
   },
   id: "f91078f9-7e28-4797-8ad4-9410319feba5",
   sourceStudyId: SOURCE_STUDY_MISC_C_FOO.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
@@ -2435,7 +2378,6 @@ export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
   },
   id: "890538d1-3ce4-4c18-a6bb-08988130d917",
   sourceStudyId: SOURCE_STUDY_MISC_C_FOO.id,
-  ...EMPTY_LEGACY_DATASET_METADATA,
 } satisfies TestSourceDataset;
 
 // Source datasets intitialized in the database before tests
@@ -3036,20 +2978,11 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
 // COMPONENT ATLASES
 
 export const EMPTY_COMPONENT_INFO = {
-  assay: [],
   capUrl: null,
-  cellCount: 0,
-  cellxgeneDatasetId: null,
-  cellxgeneDatasetVersion: null,
-  description: "",
-  disease: [],
-  suspensionType: [],
-  tissue: [],
 } satisfies HCAAtlasTrackerDBComponentAtlasInfo;
 
 export const COMPONENT_ATLAS_DRAFT_FOO = {
   atlasId: ATLAS_DRAFT.id,
-  description: "bar baz baz foo baz foo bar",
   file: {
     atlas: ATLAS_DRAFT,
     bucket: "bucket-draft-foo",
@@ -3067,12 +3000,10 @@ export const COMPONENT_ATLAS_DRAFT_FOO = {
     SOURCE_DATASET_FOOBAR,
     SOURCE_DATASET_FOOBAZ,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_DRAFT_BAR = {
   atlasId: ATLAS_DRAFT.id,
-  description: "baz baz bar foo baz",
   file: {
     atlas: ATLAS_DRAFT,
     bucket: "bucket-draft-bar",
@@ -3115,12 +3046,10 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
     SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_FOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  description: "foo foo bar baz bar bar",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-misc-foo",
@@ -3149,12 +3078,10 @@ export const COMPONENT_ATLAS_MISC_FOO = {
     SOURCE_DATASET_OTHER_FOO,
     SOURCE_DATASET_OTHER_BAR,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_BAR = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  description: "bar bar foo baz foo foo",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-misc-bar",
@@ -3178,12 +3105,10 @@ export const COMPONENT_ATLAS_MISC_BAR = {
   },
   id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_BAZ = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  description: "baz baz bar foo bar bar",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
     bucket: "bucket-misc-baz",
@@ -3207,12 +3132,10 @@ export const COMPONENT_ATLAS_MISC_BAZ = {
   },
   id: "23f603d3-57cd-44b9-a3c0-14e671fb2835",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
   atlasId: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
-  description: "barfoo foo baz barbar",
   file: {
     atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
     bucket: "bucket-cellxgene-datasets",
@@ -3240,12 +3163,10 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
     SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
   atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-  description: "foo barbaz bazbar foofoobar",
   file: {
     atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
     bucket: "bucket-entry-sheet-validations-foo",
@@ -3269,12 +3190,10 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
   },
   id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-  description: "foobazbaz barfoo barfoo baz",
   file: {
     atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
     bucket: "bucket-entry-sheet-validations-bar",
@@ -3298,7 +3217,6 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   },
   id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 const BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
@@ -3346,7 +3264,6 @@ export const FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
 } satisfies TestFile;
 export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: [
     FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
     FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
@@ -3357,7 +3274,6 @@ export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
     SOURCE_DATASET_ARCHIVED_FOO,
     SOURCE_DATASET_WITH_MULTIPLE_FILES,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 const BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
@@ -3395,19 +3311,16 @@ export const FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
 } satisfies TestFile;
 export const COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: [
     FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
     FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   ],
   id: "0b3a43c0-6871-4000-9351-d759f0cd78c8",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_FOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-foo",
@@ -3435,12 +3348,10 @@ export const COMPONENT_ATLAS_ARCHIVED_FOO = {
     SOURCE_DATASET_ARCHIVED_FOO,
     SOURCE_DATASET_WITH_MULTIPLE_FILES,
   ],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_BAR = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-bar",
@@ -3465,12 +3376,10 @@ export const COMPONENT_ATLAS_ARCHIVED_BAR = {
   },
   id: "49571b1f-5059-4840-9e8c-37c5ea0e9e5b",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-baz",
@@ -3495,12 +3404,10 @@ export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
   },
   id: "46421b3a-3e5a-48a7-bb44-1f7c9295ec2e",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
   atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  description: "",
   file: {
     atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
     bucket: "bucket-archived-foofoo",
@@ -3525,7 +3432,6 @@ export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
   },
   id: "dd42e5b7-e829-45cb-8ea9-9286487d9ae0",
   sourceDatasets: [],
-  title: "",
 } satisfies TestComponentAtlas;
 
 // Component atlases to initialize in the database before tests

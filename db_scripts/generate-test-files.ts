@@ -240,25 +240,16 @@ async function createComponentAtlas(
   atlas: HCAAtlasTrackerDBAtlas
 ): Promise<string> {
   const componentAtlasId = crypto.randomUUID();
-  const title = `Test ${componentAtlasId}`;
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {
-    assay: [],
     capUrl: null,
-    cellCount: 0,
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
-    description: "",
-    disease: [],
-    suspensionType: [],
-    tissue: [],
   };
 
   await client.query(
     `
-      INSERT INTO hat.component_atlases (id, title, component_info, atlas_id)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO hat.component_atlases (id, component_info, atlas_id)
+      VALUES ($1, $2, $3)
     `,
-    [componentAtlasId, title, JSON.stringify(info), atlas.id]
+    [componentAtlasId, JSON.stringify(info), atlas.id]
   );
 
   return componentAtlasId;
@@ -271,19 +262,10 @@ async function createSourceDataset(
   const sourceDatasetId = crypto.randomUUID();
 
   const sd_info: HCAAtlasTrackerDBSourceDatasetInfo = {
-    assay: [],
     capUrl: null,
-    cellCount: 0,
-    cellxgeneDatasetId: null,
-    cellxgeneDatasetVersion: null,
-    cellxgeneExplorerUrl: null,
-    disease: [],
     metadataSpreadsheetTitle: null,
     metadataSpreadsheetUrl: null,
     publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
-    suspensionType: [],
-    tissue: [],
-    title: `Test ${sourceDatasetId}`,
   };
 
   await client.query(

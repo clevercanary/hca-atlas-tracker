@@ -994,7 +994,6 @@ export function getAtlasComponentSourceDatasetsTableColumns(
     getComponentAtlasSourceDatasetPublicationColumnDef(),
     getComponentAtlasSourceDatasetFileNameColumnDef(atlasId),
     getComponentAtlasSourceDatasetTitleColumnDef(),
-    getSourceDatasetExploreColumnDef(),
     getAssayColumnDef(),
     getSuspensionTypeColumnDef(),
     getTissueColumnDef(),
@@ -1435,34 +1434,6 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
       }),
     enableSorting: false,
     header: "Download",
-  };
-}
-
-/**
- * Returns source dataset explore column def.
- * @returns Column def.
- */
-function getSourceDatasetExploreColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "explore",
-    cell: ({ row }): JSX.Element => {
-      const { cellxgeneExplorerUrl } = row.original;
-      const analysisPortals = cellxgeneExplorerUrl
-        ? [
-            {
-              icon: "/icons/cxg.png",
-              label: "CZ CELLxGENE",
-              name: "cellxgene",
-              url: cellxgeneExplorerUrl,
-            },
-          ]
-        : [];
-      return C.AnalysisPortalCell({
-        analysisPortals,
-      });
-    },
-    enableSorting: false,
-    header: "Explore",
   };
 }
 
