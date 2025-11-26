@@ -6,6 +6,7 @@ import { AccessPrompt } from "../../components/common/Form/components/FormManage
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
+import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { Payload } from "../../hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -16,7 +17,6 @@ import { fetchData } from "../../providers/fetchDataState/actions/fetchData/disp
 import { StyledFileArchivedStatus } from "./atlasSourceDatasetView.styles";
 import { VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs, getTabs } from "./common/utils";
-import { ViewAtlasSourceDataset } from "./components/ViewAtlasSourceDataset/viewAtlasSourceDataset";
 import { useEditAtlasSourceDatasetForm } from "./hooks/useEditAtlasSourceDatasetForm";
 import { useEditAtlasSourceDatasetFormManager } from "./hooks/useEditAtlasSourceDatasetFormManager";
 
@@ -67,7 +67,7 @@ export const AtlasSourceDatasetView = ({
             />
           }
           mainColumn={
-            <ViewAtlasSourceDataset
+            <EntityForm
               accessFallback={accessFallback}
               formManager={formManager}
               formMethod={formMethod}
