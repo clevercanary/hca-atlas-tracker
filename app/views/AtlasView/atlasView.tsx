@@ -6,7 +6,7 @@ import { AccessPrompt } from "../../components/common/Form/components/FormManage
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
-import { AtlasForm } from "../../components/Forms/components/Atlas/atlas";
+import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
 import { VIEW_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
@@ -39,7 +39,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
           />
         }
         mainColumn={
-          <AtlasForm
+          <EntityForm
             accessFallback={renderAccessFallback(formManager)}
             formManager={formManager}
             formMethod={formMethod}
