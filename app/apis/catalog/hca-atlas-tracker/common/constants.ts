@@ -28,6 +28,7 @@ export const NETWORK_KEYS = [
   "musculoskeletal",
   "nervous-system",
   "oral",
+  "oral-and-craniofacial",
   "organoid",
   "pancreas",
   "reproduction",
@@ -92,6 +93,10 @@ export const NETWORKS: Network[] = [
     name: "Oral and Craniofacial Networks",
   },
   {
+    key: "oral-and-craniofacial",
+    name: "Oral and Craniofacial Network",
+  },
+  {
     key: "organoid",
     name: "Organoid Network",
   },
@@ -124,6 +129,7 @@ export const NETWORK_ICONS: { [key in NetworkKey]: string } = {
   musculoskeletal: "/hca-bio-networks/icons/musculoskeletal.png",
   "nervous-system": "/hca-bio-networks/icons/nervous-system.png",
   oral: "/hca-bio-networks/icons/oral-and-craniofacial.png",
+  "oral-and-craniofacial": "/hca-bio-networks/icons/oral-and-craniofacial.png",
   organoid: "/hca-bio-networks/icons/organoid.png",
   pancreas: "/hca-bio-networks/icons/pancreas.png",
   reproduction: "/hca-bio-networks/icons/reproduction.png",
