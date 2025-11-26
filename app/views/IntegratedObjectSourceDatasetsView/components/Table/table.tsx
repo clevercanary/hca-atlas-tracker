@@ -1,6 +1,6 @@
-import { LinkedSourceDatasets } from "../../../../components/Detail/components/TrackerForm/components/Section/components/ComponentAtlas/components/LinkedSourceDatasets/linkedSourceDatasets";
 import { useEntity } from "../../../../providers/entity/hook";
 import { Entity } from "../../entities";
+import { LinkedSourceDatasets } from "../LinkedSourceDatasets/linkedSourceDatasets";
 
 export const Table = (): JSX.Element => {
   const { data, formManager, pathParameter } = useEntity() as Entity;

@@ -1,11 +1,11 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../../../../../../../../common/entities";
-import { FormManager } from "../../../../../../../../../../hooks/useFormManager/common/entities";
-import { TablePlaceholder } from "../../../../../../../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { StyledToolbar } from "../../../../../../../../../Table/components/TableToolbar/tableToolbar.styles";
-import { ViewComponentAtlasSourceDatasetsSelection } from "../../../../../../../ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
+import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "../../../../common/entities";
+import { ViewComponentAtlasSourceDatasetsSelection } from "../../../../components/Detail/components/ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
+import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
+import { StyledToolbar } from "../../../../components/Table/components/TableToolbar/tableToolbar.styles";
+import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { Table } from "./components/Table/table";
 
 export interface LinkedSourceDatasetsProps {
