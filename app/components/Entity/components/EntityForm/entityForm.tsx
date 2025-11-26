@@ -1,27 +1,34 @@
-import { Fragment, ReactNode } from "react";
+import { ElementType, Fragment, ReactNode } from "react";
 import { FieldValues } from "react-hook-form";
-import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 import { Divider } from "../../../Detail/components/TrackerForm/components/Divider/divider.styles";
 import { TrackerFormSection as Section } from "../../../Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
 import { TrackerForm } from "../../../Detail/components/TrackerForm/trackerForm";
-import { SectionConfig } from "../../common/entities";
+import { SectionConfig } from "../../../Forms/common/entities";
+import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 
-interface AtlasFormProps<T extends FieldValues> {
+interface EntityFormProps<
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+> {
   accessFallback: ReactNode;
   formManager: FormManagerProps;
-  formMethod: FormMethod<T, HCAAtlasTrackerAtlas>;
-  sectionConfigs: SectionConfig<T, HCAAtlasTrackerAtlas>[];
+  formMethod: FormMethod<T, R>;
+  sectionConfigs: SectionConfig<T, R, C>[];
 }
 
-export const AtlasForm = <T extends FieldValues>({
+export const EntityForm = <
+  T extends FieldValues,
+  R = undefined,
+  C extends ElementType = "input"
+>({
   accessFallback,
   formManager,
   formMethod,
   sectionConfigs,
-}: AtlasFormProps<T>): JSX.Element => {
+}: EntityFormProps<T, R, C>): JSX.Element => {
   if (accessFallback) return <Fragment>{accessFallback}</Fragment>;
   return (
     <TrackerForm>
@@ -29,7 +36,7 @@ export const AtlasForm = <T extends FieldValues>({
       {sectionConfigs.map(({ showDivider, ...sectionConfig }, i) => (
         <Fragment key={i}>
           {(i !== 0 || showDivider) && <Divider />}
-          <Section<T, HCAAtlasTrackerAtlas>
+          <Section<T, R, C>
             formManager={formManager}
             formMethod={formMethod}
             {...sectionConfig}

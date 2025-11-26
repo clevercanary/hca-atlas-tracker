@@ -12,10 +12,10 @@ import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { getTabs } from "../ComponentAtlasView/common/utils";
-import { useFetchAssociatedAtlasSourceDatasets } from "../ComponentAtlasView/hooks/useFetchAssociatedAtlasSourceDatasets";
 import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
+import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/useFetchAssociatedAtlasSourceDatasets";
 import { useFetchIntegratedObjectSourceDatasets } from "./hooks/useFetchIntegratedObjectSourceDatasets";
 
 interface Props {
