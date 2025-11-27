@@ -2,10 +2,10 @@ import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Pap
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
-import { ViewComponentAtlasSourceDatasetsSelection } from "../../../../components/Detail/components/ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
 import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { StyledToolbar } from "../../../../components/Table/components/TableToolbar/tableToolbar.styles";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
+import { ViewComponentAtlasSourceDatasetsSelection } from "../ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
 import { Table } from "./components/Table/table";
 
 export interface LinkedSourceDatasetsProps {

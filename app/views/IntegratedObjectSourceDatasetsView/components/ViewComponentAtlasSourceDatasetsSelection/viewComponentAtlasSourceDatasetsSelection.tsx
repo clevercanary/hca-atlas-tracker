@@ -5,7 +5,7 @@ import { Button } from "@mui/material";
 import { Fragment, useState } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
-import { ComponentAtlasSourceDatasetsSelection } from "../TrackerForm/components/Section/components/ComponentAtlasSourceDatasetsSelection/componentAtlasSourceDatasetsSelection";
+import { ComponentAtlasSourceDatasetsSelection } from "./components/ComponentAtlasSourceDatasetsSelection/componentAtlasSourceDatasetsSelection";
 import { Dialog } from "./viewComponentAtlasSourceDatasetsSelection.styles";
 
 export interface ViewComponentAtlasSourceDatasetsSelectionProps {
