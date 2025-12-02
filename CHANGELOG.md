@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.50.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.49.0...v1.50.0) (2025-11-27)
+
+
+### Features
+
+* make a generic form component for viewcomponentatlas, atlasform and others ([#999](https://github.com/clevercanary/hca-atlas-tracker/issues/999)) ([#1029](https://github.com/clevercanary/hca-atlas-tracker/issues/1029)) ([4827475](https://github.com/clevercanary/hca-atlas-tracker/commit/4827475cb540f594edf896e9aa5fcac21aee2102))
+* remove unused source dataset and component atlas fields ([#960](https://github.com/clevercanary/hca-atlas-tracker/issues/960)) ([#1024](https://github.com/clevercanary/hca-atlas-tracker/issues/1024)) ([31270e9](https://github.com/clevercanary/hca-atlas-tracker/commit/31270e9b08f9d5d49935c94e3589d822de1a5238))
+* updates for oral and craniofacial network (add new network) ([#1026](https://github.com/clevercanary/hca-atlas-tracker/issues/1026)) ([#1027](https://github.com/clevercanary/hca-atlas-tracker/issues/1027)) ([114cc32](https://github.com/clevercanary/hca-atlas-tracker/commit/114cc322e7894cbff0d663a0fc5cd6f67ec720d1))
+
+
+### Code Refactoring
+
+* move linkedsourcedatasets to integrated object source datasets ([#1002](https://github.com/clevercanary/hca-atlas-tracker/issues/1002)) ([#1031](https://github.com/clevercanary/hca-atlas-tracker/issues/1031)) ([a4a0c1b](https://github.com/clevercanary/hca-atlas-tracker/commit/a4a0c1b34486340d9a62f4b856a5a653157b8eb7))
+* move usefetchassociatedatlassourcedatasets to integrated object source datasets ([#1001](https://github.com/clevercanary/hca-atlas-tracker/issues/1001)) ([#1030](https://github.com/clevercanary/hca-atlas-tracker/issues/1030)) ([6567873](https://github.com/clevercanary/hca-atlas-tracker/commit/656787336eac9f9c026a8ef8d5fd988f12d8e707))
+* move viewcomponentatlassourcedatasetsselection to integrated object sd ([#1004](https://github.com/clevercanary/hca-atlas-tracker/issues/1004)) ([b52af25](https://github.com/clevercanary/hca-atlas-tracker/commit/b52af251fee72348dad2b17685a7e13689d8e386))
+* move viewcomponentatlassourcedatasetsselection to integrated object source datasets ([#1004](https://github.com/clevercanary/hca-atlas-tracker/issues/1004)) ([#1032](https://github.com/clevercanary/hca-atlas-tracker/issues/1032)) ([b52af25](https://github.com/clevercanary/hca-atlas-tracker/commit/b52af251fee72348dad2b17685a7e13689d8e386))
+
 ## [1.49.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.48.0...v1.49.0) (2025-11-21)
 
 
