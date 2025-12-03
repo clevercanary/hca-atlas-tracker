@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.51.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.50.0...v1.51.0) (2025-12-03)
+
+
+### Features
+
+* remove the 'oral' bionetwork ([#1036](https://github.com/clevercanary/hca-atlas-tracker/issues/1036)) ([#1038](https://github.com/clevercanary/hca-atlas-tracker/issues/1038)) ([09cd1da](https://github.com/clevercanary/hca-atlas-tracker/commit/09cd1da823165cacd36a2ecdb44599e0e6aaf3da))
+
+
+### Chores
+
+* update findable-ui to latest version v46.1.3 ([#1037](https://github.com/clevercanary/hca-atlas-tracker/issues/1037)) ([#1039](https://github.com/clevercanary/hca-atlas-tracker/issues/1039)) ([1fadbc8](https://github.com/clevercanary/hca-atlas-tracker/commit/1fadbc899ac80ed36ca0067be84e256590c47bc7))
+
 ## [1.50.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.49.0...v1.50.0) (2025-11-27)
 
 
