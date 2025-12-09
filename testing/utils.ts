@@ -605,7 +605,7 @@ export function expectApiSourceDatasetToMatchTest(
   const testFile = getNormalizedFileForTestEntity(testSourceDataset);
 
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
-  expect(apiSourceDataset.capUrl).toEqual(testSourceDataset.capUrl ?? null);
+  expect(apiSourceDataset.capUrl).toEqual(testSourceDataset.capUrl);
   expect(apiSourceDataset.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0
   );
