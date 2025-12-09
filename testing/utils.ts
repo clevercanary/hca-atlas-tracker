@@ -692,41 +692,42 @@ export function expectApiComponentAtlasToMatchTest(
   if (!expectIsDefined(testComponentAtlas.file)) return;
   const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
 
-  expect(apiComponentAtlas.fileId).toEqual(testFile.id);
+  expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
+  expect(apiComponentAtlas.capUrl).toEqual(testComponentAtlas.capUrl ?? null);
+  expect(apiComponentAtlas.cellCount).toEqual(
+    testFile.datasetInfo?.cellCount ?? 0
+  );
+  expect(apiComponentAtlas.disease).toEqual(
+    testFile.datasetInfo?.disease ?? []
+  );
+  expect(apiComponentAtlas.fileEventTime).toEqual(testFile.eventTime);
+  expect(apiComponentAtlas.fileId).toEqual(testFile.id);
   expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
+  expect(apiComponentAtlas.geneCount).toEqual(
+    testFile.datasetInfo?.geneCount ?? null
+  );
   expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
   expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
-  expect(apiComponentAtlas.cellCount).toEqual(
-    testFile.datasetInfo?.cellCount ?? 0
-  );
-  expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
-  expect(apiComponentAtlas.disease).toEqual(
-    testFile.datasetInfo?.disease ?? []
-  );
-  expect(apiComponentAtlas.geneCount).toEqual(
-    testFile.datasetInfo?.geneCount ?? null
-  );
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? []
   );
   expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
+  expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
   expect(apiComponentAtlas.validationSummary).toEqual(
     testFile.validationSummary
   );
+
   if (expectDetail) {
     expect(apiComponentAtlas).toHaveProperty("validationReports");
   } else {
     expect(apiComponentAtlas).not.toHaveProperty("validationReports");
   }
-  expect(apiComponentAtlas.fileEventTime).toEqual(testFile.eventTime);
 
   doAdditionalChecks?.(testFile);
-
-  // TODO: check for test component atlas fields once they're included
 }
 
 export function expectApiValidationsToMatchDb(
