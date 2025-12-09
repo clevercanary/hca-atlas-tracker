@@ -53,6 +53,7 @@ import {
 } from "./constants";
 import {
   NormalizedTestFile,
+  NormalizedTestSourceDataset,
   TestAtlas,
   TestComponentAtlas,
   TestFile,
@@ -160,14 +161,13 @@ export function makeTestSourceStudyOverview(
 }
 
 export function makeTestSourceDatasetInfo(
-  sourceDataset: TestSourceDataset
+  sourceDataset: NormalizedTestSourceDataset
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
-    capUrl: sourceDataset.capUrl ?? null,
-    metadataSpreadsheetTitle: sourceDataset.metadataSpreadsheetTitle ?? null,
-    metadataSpreadsheetUrl: sourceDataset.metadataSpreadsheetUrl ?? null,
-    publicationStatus:
-      sourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
+    capUrl: sourceDataset.capUrl,
+    metadataSpreadsheetTitle: sourceDataset.metadataSpreadsheetTitle,
+    metadataSpreadsheetUrl: sourceDataset.metadataSpreadsheetUrl,
+    publicationStatus: sourceDataset.publicationStatus,
   };
 }
 
@@ -224,6 +224,31 @@ export function makeTestProjectsResponse(
     protocols: [],
     samples: [],
     specimens: [],
+  };
+}
+
+export function fillTestSourceDatasetDefaults(
+  sourceDataset: TestSourceDataset
+): NormalizedTestSourceDataset {
+  const {
+    capUrl = null,
+    file = [],
+    metadataSpreadsheetTitle = null,
+    metadataSpreadsheetUrl = null,
+    publicationStatus = PUBLICATION_STATUS.UNSPECIFIED,
+    reprocessedStatus = REPROCESSED_STATUS.UNSPECIFIED,
+    sourceStudyId = null,
+    ...restFields
+  } = sourceDataset;
+  return {
+    capUrl,
+    file: Array.isArray(file) ? file : [file],
+    metadataSpreadsheetTitle,
+    metadataSpreadsheetUrl,
+    publicationStatus,
+    reprocessedStatus,
+    sourceStudyId,
+    ...restFields,
   };
 }
 
@@ -568,10 +593,14 @@ export function expectDetailApiSourceDatasetToMatchTest(
 
 export function expectApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
-  testSourceDataset: TestSourceDataset,
+  baseTestSourceDataset: TestSourceDataset,
   expectDetail = false,
   doAdditionalChecks?: (file: NormalizedTestFile) => void
 ): void {
+  const testSourceDataset = fillTestSourceDatasetDefaults(
+    baseTestSourceDataset
+  );
+
   if (!expectIsDefined(testSourceDataset.file)) return;
   const testFile = getNormalizedFileForTestEntity(testSourceDataset);
 
@@ -589,20 +618,20 @@ export function expectApiSourceDatasetToMatchTest(
   );
   expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
   expect(apiSourceDataset.metadataSpreadsheetTitle).toEqual(
-    testSourceDataset.metadataSpreadsheetTitle ?? null
+    testSourceDataset.metadataSpreadsheetTitle
   );
   expect(apiSourceDataset.metadataSpreadsheetUrl).toEqual(
-    testSourceDataset.metadataSpreadsheetUrl ?? null
+    testSourceDataset.metadataSpreadsheetUrl
   );
   expect(apiSourceDataset.publicationStatus).toEqual(
-    testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
+    testSourceDataset.publicationStatus
   );
   expect(apiSourceDataset.reprocessedStatus).toEqual(
-    testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
+    testSourceDataset.reprocessedStatus
   );
   expect(apiSourceDataset.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiSourceDataset.sourceStudyId).toEqual(
-    testSourceDataset.sourceStudyId ?? null
+    testSourceDataset.sourceStudyId
   );
   expect(apiSourceDataset.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? []
