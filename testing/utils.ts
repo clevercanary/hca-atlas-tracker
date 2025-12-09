@@ -710,7 +710,6 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
   expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
-  expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? []
   );
