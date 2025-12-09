@@ -575,14 +575,24 @@ export function expectApiSourceDatasetToMatchTest(
   if (!expectIsDefined(testSourceDataset.file)) return;
   const testFile = getNormalizedFileForTestEntity(testSourceDataset);
 
-  expect(apiSourceDataset.fileId).toEqual(testFile.id);
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
+  expect(apiSourceDataset.capUrl).toEqual(testSourceDataset.capUrl ?? null);
   expect(apiSourceDataset.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0
   );
   expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
+  expect(apiSourceDataset.fileEventTime).toEqual(testFile.eventTime);
+  expect(apiSourceDataset.fileId).toEqual(testFile.id);
+  expect(apiSourceDataset.fileName).toEqual(testFile.fileName);
   expect(apiSourceDataset.geneCount).toEqual(
     testFile.datasetInfo?.geneCount ?? null
+  );
+  expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
+  expect(apiSourceDataset.metadataSpreadsheetTitle).toEqual(
+    testSourceDataset.metadataSpreadsheetTitle ?? null
+  );
+  expect(apiSourceDataset.metadataSpreadsheetUrl).toEqual(
+    testSourceDataset.metadataSpreadsheetUrl ?? null
   );
   expect(apiSourceDataset.publicationStatus).toEqual(
     testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
@@ -590,6 +600,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.reprocessedStatus).toEqual(
     testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
   );
+  expect(apiSourceDataset.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiSourceDataset.sourceStudyId).toEqual(
     testSourceDataset.sourceStudyId ?? null
   );
@@ -602,13 +613,12 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.validationSummary).toEqual(
     testFile.validationSummary
   );
-  expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
+
   if (expectDetail) {
     expect(apiSourceDataset).toHaveProperty("validationReports");
   } else {
     expect(apiSourceDataset).not.toHaveProperty("validationReports");
   }
-  expect(apiSourceDataset.fileEventTime).toEqual(testFile.eventTime);
 
   doAdditionalChecks?.(testFile);
 }
