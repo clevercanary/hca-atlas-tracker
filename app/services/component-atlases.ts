@@ -268,12 +268,12 @@ export async function createComponentAtlas(
     const componentAtlas = result.rows[0];
 
     const atlasResult = await query(
-      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2 RETURNING 1",
+      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
       [componentAtlas.id, atlasId],
       client
     );
 
-    if (atlasResult.rows.length === 0)
+    if (atlasResult.rowCount === 0)
       throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
 
     return componentAtlas;
