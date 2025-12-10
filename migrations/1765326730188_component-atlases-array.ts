@@ -34,7 +34,7 @@ export function down(pgm: MigrationBuilder): void {
     { name: "component_atlases", schema: "hat" },
     {
       atlas_id: {
-        notNull: false, // Different from the original column, in order to support component atlas rows that may not be referenced by any atlas
+        notNull: false, // Different from the original column, in order to support component atlas rows that may not be referenced by any atlas; this could theoretically lead to orphaned component atlases in the case of a down migration
         type: "uuid",
       },
     }
