@@ -507,12 +507,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Verify component was created and linked to atlas
-    const compoenentAtlasRows = await query(
+    const componentAtlasRows = await query(
       "SELECT DISTINCT component_atlas_id AS id FROM hat.files WHERE bucket = $1 AND key = $2",
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
-    expect(compoenentAtlasRows.rows).toHaveLength(1);
-    const componentAtlasId = compoenentAtlasRows.rows[0].id;
+    expect(componentAtlasRows.rows).toHaveLength(1);
+    const componentAtlasId = componentAtlasRows.rows[0].id;
 
     // Verify atlas has the component atlas in its component_atlases array
     const atlasRows = await query(
