@@ -719,7 +719,6 @@ async function expectComponentAtlasToBeUnchanged(
   );
   expect(componentAtlasFromDb).toBeDefined();
   if (!componentAtlasFromDb) return;
-  expect(componentAtlasFromDb.atlas_id).toEqual(componentAtlas.atlasId);
   expect(componentAtlasFromDb.component_info.capUrl).toEqual(
     componentAtlas.capUrl ?? null
   );

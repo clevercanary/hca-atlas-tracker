@@ -246,10 +246,15 @@ async function createComponentAtlas(
 
   await client.query(
     `
-      INSERT INTO hat.component_atlases (id, component_info, atlas_id)
-      VALUES ($1, $2, $3)
+      INSERT INTO hat.component_atlases (id, component_info)
+      VALUES ($1, $2)
     `,
-    [componentAtlasId, JSON.stringify(info), atlas.id]
+    [componentAtlasId, JSON.stringify(info)]
+  );
+
+  await client.query(
+    "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
+    [componentAtlasId, atlas.id]
   );
 
   return componentAtlasId;
