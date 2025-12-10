@@ -18,7 +18,6 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
   INTEGRITY_STATUS,
-  REPROCESSED_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
 import { endPgPool, getPoolClient, query } from "../app/services/database";
@@ -43,6 +42,7 @@ import {
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
   fillTestFileDefaults,
+  fillTestSourceDatasetDefaults,
   getTestEntityFilesArray,
   getTestFileKey,
   makeTestAtlasOverview,
@@ -122,14 +122,15 @@ export async function initSourceDatasets(
   testSourceDatasets = INITIAL_TEST_SOURCE_DATASETS
 ): Promise<void> {
   for (const sourceDataset of testSourceDatasets) {
-    const info = makeTestSourceDatasetInfo(sourceDataset);
+    const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
+    const info = makeTestSourceDatasetInfo(normDataset);
     await query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status) VALUES ($1, $2, $3, $4)",
       [
-        sourceDataset.sourceStudyId ?? null,
+        normDataset.sourceStudyId,
         info,
-        sourceDataset.id,
-        sourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
+        normDataset.id,
+        normDataset.reprocessedStatus,
       ],
       client
     );

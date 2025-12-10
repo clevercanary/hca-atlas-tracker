@@ -53,6 +53,7 @@ import {
 } from "./constants";
 import {
   NormalizedTestFile,
+  NormalizedTestSourceDataset,
   TestAtlas,
   TestComponentAtlas,
   TestFile,
@@ -160,14 +161,13 @@ export function makeTestSourceStudyOverview(
 }
 
 export function makeTestSourceDatasetInfo(
-  sourceDataset: TestSourceDataset
+  sourceDataset: NormalizedTestSourceDataset
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
-    capUrl: sourceDataset.capUrl ?? null,
-    metadataSpreadsheetTitle: sourceDataset.metadataSpreadsheetTitle ?? null,
-    metadataSpreadsheetUrl: sourceDataset.metadataSpreadsheetUrl ?? null,
-    publicationStatus:
-      sourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
+    capUrl: sourceDataset.capUrl,
+    metadataSpreadsheetTitle: sourceDataset.metadataSpreadsheetTitle,
+    metadataSpreadsheetUrl: sourceDataset.metadataSpreadsheetUrl,
+    publicationStatus: sourceDataset.publicationStatus,
   };
 }
 
@@ -224,6 +224,31 @@ export function makeTestProjectsResponse(
     protocols: [],
     samples: [],
     specimens: [],
+  };
+}
+
+export function fillTestSourceDatasetDefaults(
+  sourceDataset: TestSourceDataset
+): NormalizedTestSourceDataset {
+  const {
+    capUrl = null,
+    file = [],
+    metadataSpreadsheetTitle = null,
+    metadataSpreadsheetUrl = null,
+    publicationStatus = PUBLICATION_STATUS.UNSPECIFIED,
+    reprocessedStatus = REPROCESSED_STATUS.UNSPECIFIED,
+    sourceStudyId = null,
+    ...restFields
+  } = sourceDataset;
+  return {
+    capUrl,
+    file: Array.isArray(file) ? file : [file],
+    metadataSpreadsheetTitle,
+    metadataSpreadsheetUrl,
+    publicationStatus,
+    reprocessedStatus,
+    sourceStudyId,
+    ...restFields,
   };
 }
 
@@ -568,30 +593,45 @@ export function expectDetailApiSourceDatasetToMatchTest(
 
 export function expectApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
-  testSourceDataset: TestSourceDataset,
+  baseTestSourceDataset: TestSourceDataset,
   expectDetail = false,
   doAdditionalChecks?: (file: NormalizedTestFile) => void
 ): void {
+  const testSourceDataset = fillTestSourceDatasetDefaults(
+    baseTestSourceDataset
+  );
+
   if (!expectIsDefined(testSourceDataset.file)) return;
   const testFile = getNormalizedFileForTestEntity(testSourceDataset);
 
-  expect(apiSourceDataset.fileId).toEqual(testFile.id);
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
+  expect(apiSourceDataset.capUrl).toEqual(testSourceDataset.capUrl);
   expect(apiSourceDataset.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0
   );
   expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
+  expect(apiSourceDataset.fileEventTime).toEqual(testFile.eventTime);
+  expect(apiSourceDataset.fileId).toEqual(testFile.id);
+  expect(apiSourceDataset.fileName).toEqual(testFile.fileName);
   expect(apiSourceDataset.geneCount).toEqual(
     testFile.datasetInfo?.geneCount ?? null
   );
+  expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
+  expect(apiSourceDataset.metadataSpreadsheetTitle).toEqual(
+    testSourceDataset.metadataSpreadsheetTitle
+  );
+  expect(apiSourceDataset.metadataSpreadsheetUrl).toEqual(
+    testSourceDataset.metadataSpreadsheetUrl
+  );
   expect(apiSourceDataset.publicationStatus).toEqual(
-    testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
+    testSourceDataset.publicationStatus
   );
   expect(apiSourceDataset.reprocessedStatus).toEqual(
-    testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
+    testSourceDataset.reprocessedStatus
   );
+  expect(apiSourceDataset.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiSourceDataset.sourceStudyId).toEqual(
-    testSourceDataset.sourceStudyId ?? null
+    testSourceDataset.sourceStudyId
   );
   expect(apiSourceDataset.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? []
@@ -602,13 +642,12 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.validationSummary).toEqual(
     testFile.validationSummary
   );
-  expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
+
   if (expectDetail) {
     expect(apiSourceDataset).toHaveProperty("validationReports");
   } else {
     expect(apiSourceDataset).not.toHaveProperty("validationReports");
   }
-  expect(apiSourceDataset.fileEventTime).toEqual(testFile.eventTime);
 
   doAdditionalChecks?.(testFile);
 }
@@ -653,41 +692,41 @@ export function expectApiComponentAtlasToMatchTest(
   if (!expectIsDefined(testComponentAtlas.file)) return;
   const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
 
-  expect(apiComponentAtlas.fileId).toEqual(testFile.id);
+  expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
-  expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
-  expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
-  expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
-  expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
-  expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
+  expect(apiComponentAtlas.capUrl).toEqual(testComponentAtlas.capUrl ?? null);
   expect(apiComponentAtlas.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0
   );
-  expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiComponentAtlas.disease).toEqual(
     testFile.datasetInfo?.disease ?? []
   );
+  expect(apiComponentAtlas.fileEventTime).toEqual(testFile.eventTime);
+  expect(apiComponentAtlas.fileId).toEqual(testFile.id);
+  expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
   expect(apiComponentAtlas.geneCount).toEqual(
     testFile.datasetInfo?.geneCount ?? null
   );
+  expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
+  expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
+  expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? []
   );
   expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
+  expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
   expect(apiComponentAtlas.validationSummary).toEqual(
     testFile.validationSummary
   );
+
   if (expectDetail) {
     expect(apiComponentAtlas).toHaveProperty("validationReports");
   } else {
     expect(apiComponentAtlas).not.toHaveProperty("validationReports");
   }
-  expect(apiComponentAtlas.fileEventTime).toEqual(testFile.eventTime);
 
   doAdditionalChecks?.(testFile);
-
-  // TODO: check for test component atlas fields once they're included
 }
 
 export function expectApiValidationsToMatchDb(

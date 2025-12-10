@@ -88,12 +88,16 @@ export interface TestSourceDataset {
   capUrl?: string | null;
   file?: TestFile | TestFile[];
   id: string;
-  metadataSpreadsheetTitle?: string;
-  metadataSpreadsheetUrl?: string;
+  metadataSpreadsheetTitle?: string | null;
+  metadataSpreadsheetUrl?: string | null;
   publicationStatus?: PUBLICATION_STATUS;
   reprocessedStatus?: REPROCESSED_STATUS;
-  sourceStudyId?: string;
+  sourceStudyId?: string | null;
 }
+
+export type NormalizedTestSourceDataset = Required<TestSourceDataset> & {
+  file: TestFile[];
+};
 
 export interface TestFile {
   atlas: TestAtlas | (() => TestAtlas);
