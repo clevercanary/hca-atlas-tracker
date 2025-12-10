@@ -22,7 +22,7 @@ afterAll(async () => {
 describe("createComponentAtlas", () => {
   it("throws error when creating component atlas for non-existent atlas", async () => {
     await expect(
-      createComponentAtlas("non-existent-atlas-id")
+      createComponentAtlas("ea885ef9-54ae-42c7-8a7a-75c32e4703a6")
     ).rejects.toThrow();
   });
 

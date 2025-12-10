@@ -267,11 +267,14 @@ export async function createComponentAtlas(
 
     const componentAtlas = result.rows[0];
 
-    await query(
-      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
+    const atlasResult = await query(
+      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2 RETURNING 1",
       [componentAtlas.id, atlasId],
       client
     );
+
+    if (atlasResult.rows.length === 0)
+      throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
 
     return componentAtlas;
   });
