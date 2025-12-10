@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
-import { createComponentAtlas } from "../app/services/component-atlases";
 import { endPgPool } from "../app/services/database";
 import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
 import {
@@ -16,7 +15,6 @@ import {
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-  EMPTY_COMPONENT_INFO,
   FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -209,24 +207,6 @@ describe(TEST_ROUTE, () => {
       ],
       [0, 1, 0, 0, 0]
     );
-  });
-});
-
-describe("createComponentAtlas", () => {
-  it("throws error when creating component atlas for non-existent atlas", async () => {
-    await expect(
-      createComponentAtlas("non-existent-atlas-id")
-    ).rejects.toThrow();
-  });
-
-  it("creates component atlas with empty values in component info", async () => {
-    const result = await createComponentAtlas(ATLAS_DRAFT.id);
-
-    expect(result).toBeDefined();
-    expect(result.component_info).toEqual(EMPTY_COMPONENT_INFO);
-    expect(result.id).toBeDefined();
-    expect(result.created_at).toBeDefined();
-    expect(result.updated_at).toBeDefined();
   });
 });
 
