@@ -26,6 +26,9 @@ export const useFetchComponentAtlases = (
   const { archived } = archivedState;
   const shouldFetch = shouldFetchByKey[INTEGRATED_OBJECTS];
 
+  // Validate atlasId - required for API request.
+  if (!pathParameter.atlasId) throw new Error("Atlas ID is required");
+
   const { data, progress } = useFetchData<
     HCAAtlasTrackerComponentAtlas[] | undefined
   >(
@@ -39,21 +42,30 @@ export const useFetchComponentAtlases = (
 
   useResetFetchStatus(progress, [INTEGRATED_OBJECTS]);
 
-  const componentAtlases = useMemo(() => mapData(data), [data]);
+  // Extract atlasId from pathParameter.
+  const { atlasId } = pathParameter;
+
+  const componentAtlases = useMemo(
+    () => mapData(atlasId, data),
+    [atlasId, data]
+  );
 
   return { componentAtlases };
 };
 
 /**
  * Map HCAAtlasTrackerComponentAtlas[] to AtlasIntegratedObject[].
+ * @param atlasId - Atlas ID.
  * @param data - HCAAtlasTrackerComponentAtlas[].
  * @returns AtlasIntegratedObject[].
  */
 function mapData(
+  atlasId: string,
   data: HCAAtlasTrackerComponentAtlas[] = []
 ): AtlasIntegratedObject[] {
   return data.map((integratedObject) => ({
     ...integratedObject,
+    atlasId,
     capIngestStatus: getCapIngestStatus(integratedObject),
   }));
 }

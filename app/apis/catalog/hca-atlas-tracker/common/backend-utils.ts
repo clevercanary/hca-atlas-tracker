@@ -88,7 +88,6 @@ export function dbComponentAtlasFileToApiComponentAtlas(
 ): HCAAtlasTrackerComponentAtlas {
   return {
     assay: dbComponentAtlas.dataset_info?.assay ?? [],
-    atlasId: dbComponentAtlas.atlas_id,
     capUrl: dbComponentAtlas.component_info.capUrl,
     cellCount: dbComponentAtlas.dataset_info?.cellCount ?? 0,
     disease: dbComponentAtlas.dataset_info?.disease ?? [],

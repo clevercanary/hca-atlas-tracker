@@ -393,7 +393,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
   });
 
   // Happy Path Processing Tests
-  it("successfully processes valid SNS notification with S3 ObjectCreated event", async () => {
+  it("successfully processes valid SNS notification for source dataset with S3 ObjectCreated event", async () => {
     const s3Event = createS3Event({
       etag: "d41d8cd98f00b204e9800998ecf8427e",
       key: TEST_FILE_PATHS.SOURCE_DATASET_TEST,
@@ -456,6 +456,71 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     expect(atlasRows.rows).toHaveLength(1);
     expect(atlasRows.rows[0].source_datasets).toContain(sourceDatasetId);
+  });
+
+  it("successfully processes valid SNS notification for integrated object with S3 ObjectCreated event", async () => {
+    const s3Event = createS3Event({
+      etag: "15abed36c8f34eec8f787b9be86ca9a3",
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 1024000,
+      versionId: TEST_VERSION_IDS.DEFAULT,
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "e61c1590-f3fd-4297-93e2-d1e03f09dd4b",
+      s3Event,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      }
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Check that file was saved to database
+    const fileRows = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+    );
+
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.bucket).toBe(TEST_S3_BUCKET);
+    expect(file.key).toBe(TEST_FILE_PATHS.INTEGRATED_OBJECT);
+    expect(file.etag).toBe("15abed36c8f34eec8f787b9be86ca9a3");
+    expect(file.size_bytes).toBe("1024000"); // PostgreSQL bigint returns as string
+    expect(file.version_id).toBe(TEST_VERSION_IDS.DEFAULT);
+    expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.REQUESTED);
+    expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
+    expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
+    expect(file.sha256_server).toBeNull();
+    expect(file.integrity_checked_at).toBeNull();
+    expect(file.integrity_error).toBeNull();
+    expect(file.file_type).toBe(FILE_TYPE.INTEGRATED_OBJECT); // New field - should be derived from S3 path
+    expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
+
+    // Verify component was created and linked to atlas
+    const componentAtlasRows = await query(
+      "SELECT DISTINCT component_atlas_id AS id FROM hat.files WHERE bucket = $1 AND key = $2",
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+    );
+    expect(componentAtlasRows.rows).toHaveLength(1);
+    const componentAtlasId = componentAtlasRows.rows[0].id;
+
+    // Verify atlas has the component atlas in its component_atlases array
+    const atlasRows = await query(
+      "SELECT component_atlases FROM hat.atlases WHERE id = $1",
+      [TEST_GUT_ATLAS_ID]
+    );
+    expect(atlasRows.rows).toHaveLength(1);
+    expect(atlasRows.rows[0].component_atlases).toContain(componentAtlasId);
   });
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {

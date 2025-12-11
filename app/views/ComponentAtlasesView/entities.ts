@@ -7,6 +7,7 @@ import { CAP_INGEST_STATUS } from "../../components/Table/components/TableCell/c
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 
 export interface AtlasIntegratedObject extends HCAAtlasTrackerComponentAtlas {
+  atlasId: string;
   capIngestStatus: CAP_INGEST_STATUS;
 }
 
