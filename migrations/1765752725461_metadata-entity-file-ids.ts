@@ -48,9 +48,28 @@ export function up(pgm: MigrationBuilder): void {
   pgm.alterColumn({ name: "source_datasets", schema: "hat" }, "file_id", {
     notNull: true,
   });
+
+  // Allow a file's metadata entity ID to be null, so that files can be inserted before corresponding metadata entities are
+  // In the future, the metadata entity references will be dropped
+  pgm.dropConstraint(
+    { name: "files", schema: "hat" },
+    "ck_files_exclusive_parent_relationship"
+  );
 }
 
 export function down(pgm: MigrationBuilder): void {
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "ck_files_exclusive_parent_relationship",
+    {
+      check: `(
+        (file_type = 'source_dataset' AND source_dataset_id IS NOT NULL AND component_atlas_id IS NULL) OR
+        (file_type = 'integrated_object' AND source_dataset_id IS NULL AND component_atlas_id IS NOT NULL) OR
+        (file_type = 'ingest_manifest' AND source_dataset_id IS NULL AND component_atlas_id IS NULL)
+      )`,
+    }
+  );
+
   pgm.dropColumn({ name: "component_atlases", schema: "hat" }, "file_id");
   pgm.dropColumn({ name: "source_datasets", schema: "hat" }, "file_id");
 }
