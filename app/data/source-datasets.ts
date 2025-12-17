@@ -211,6 +211,12 @@ export async function setSourceDatasetsSourceStudy(
   });
 }
 
+/**
+ * Set the associated file ID referenced by a source dataset.
+ * @param sourceDatasetId - Source dataset to update.
+ * @param fileId - ID to set in the source dataset, referencing its file.
+ * @param client - Postgres client to use.
+ */
 export async function setSourceDatasetFileId(
   sourceDatasetId: string,
   fileId: string,

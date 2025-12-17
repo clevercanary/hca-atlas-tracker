@@ -245,6 +245,12 @@ export async function confirmFilesExistOnAtlas(
     );
 }
 
+/**
+ * Throw an error if the given file is not of the given type.
+ * @param fileId - ID of the file to check.
+ * @param expectedType - Expected type for the file.
+ * @param client - Postgres client to use.
+ */
 export async function confirmFileIsOfType(
   fileId: string,
   expectedType: FILE_TYPE,
@@ -470,6 +476,13 @@ export async function setFileIntegrityStatus(
   );
 }
 
+/**
+ * Set the metadata object referenced by a file.
+ * @param fileId - ID of the file to update.
+ * @param fileType - File type.
+ * @param metadataObjectId - ID of a metadata object of the appropriate type, to set in the correspond field of the file.
+ * @param client - Postgres client to use.
+ */
 export async function setFileMetadataObjectId(
   fileId: string,
   fileType: FILE_TYPE,

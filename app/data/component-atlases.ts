@@ -3,6 +3,12 @@ import { FILE_TYPE } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "../utils/api-handler";
 import { confirmFileIsOfType } from "./files";
 
+/**
+ * Set the associated file ID referenced by a component atlas.
+ * @param componentAtlasId - Component atlas to update.
+ * @param fileId - ID to set in the component atlas, referencing its file.
+ * @param client - Postgres client to use.
+ */
 export async function setComponentAtlasFileId(
   componentAtlasId: string,
   fileId: string,
