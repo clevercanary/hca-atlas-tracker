@@ -268,7 +268,7 @@ const FILE_CREATION_HANDLERS: Partial<Record<FILE_TYPE, FileCreationHandler>> =
 const FILE_UPDATE_HANDLERS: Partial<Record<FILE_TYPE, FileUpdateHandler>> = {
   [FILE_TYPE.INTEGRATED_OBJECT]: updateIntegratedObjectFromS3,
   [FILE_TYPE.SOURCE_DATASET]: updateSourceDatasetFromS3,
-  // Nothing needing for ingest manifests
+  // Nothing needed for ingest manifests
 };
 
 /**
