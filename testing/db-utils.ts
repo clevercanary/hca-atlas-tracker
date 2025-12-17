@@ -20,7 +20,12 @@ import {
   INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "../app/services/atlases";
-import { endPgPool, getPoolClient, query } from "../app/services/database";
+import {
+  doTransaction,
+  endPgPool,
+  getPoolClient,
+  query,
+} from "../app/services/database";
 import {
   INITIAL_STANDALONE_TEST_FILES,
   INITIAL_TEST_ATLASES,
@@ -160,13 +165,16 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
       capUrl: componentAtlas.capUrl ?? null,
     };
     await client.query(
-      "INSERT INTO hat.component_atlases (atlas_id, component_info, id, source_datasets) VALUES ($1, $2, $3, $4)",
+      "INSERT INTO hat.component_atlases (component_info, id, source_datasets) VALUES ($1, $2, $3)",
       [
-        componentAtlas.atlasId,
         info,
         componentAtlas.id,
         componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
       ]
+    );
+    await client.query(
+      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
+      [componentAtlas.id, componentAtlas.atlasId]
     );
   }
 }
@@ -375,16 +383,23 @@ export async function createTestComponentAtlas(
   atlasId: string,
   info: HCAAtlasTrackerDBComponentAtlasInfo
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
-  return (
-    await query<HCAAtlasTrackerDBComponentAtlas>(
-      `
-      INSERT INTO hat.component_atlases (atlas_id, component_info)
-      VALUES ($1, $2)
-      RETURNING *
-    `,
-      [atlasId, JSON.stringify(info)]
-    )
-  ).rows[0];
+  return doTransaction(async (client) => {
+    const componentAtlas = (
+      await client.query<HCAAtlasTrackerDBComponentAtlas>(
+        `
+        INSERT INTO hat.component_atlases (component_info)
+        VALUES ($1)
+        RETURNING *
+      `,
+        [JSON.stringify(info)]
+      )
+    ).rows[0];
+    await client.query(
+      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
+      [componentAtlas.id, atlasId]
+    );
+    return componentAtlas;
+  });
 }
 
 export async function getDbUsersByEmail(

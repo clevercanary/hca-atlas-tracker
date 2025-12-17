@@ -294,9 +294,10 @@ async function getFileIdsByEntityKeywords(
     sourceDatasetIds.push(...sourceDatasetsResult.rows.map((r) => r.id));
     const componentAtlasesResult = await client.query<
       Pick<HCAAtlasTrackerDBComponentAtlas, "id">
-    >("SELECT c.id FROM hat.component_atlases c WHERE c.atlas_id=ANY($1)", [
-      atlasIds,
-    ]);
+    >(
+      "SELECT c.id FROM hat.component_atlases c JOIN hat.atlases a ON c.id=ANY(a.component_atlases) WHERE a.id=ANY($1)",
+      [atlasIds]
+    );
     componentAtlasIds.push(...componentAtlasesResult.rows.map((r) => r.id));
   }
 

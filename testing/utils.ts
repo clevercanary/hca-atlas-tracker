@@ -693,7 +693,6 @@ export function expectApiComponentAtlasToMatchTest(
   const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
 
   expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
-  expect(apiComponentAtlas.atlasId).toEqual(testFile.resolvedAtlas.id);
   expect(apiComponentAtlas.capUrl).toEqual(testComponentAtlas.capUrl ?? null);
   expect(apiComponentAtlas.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0

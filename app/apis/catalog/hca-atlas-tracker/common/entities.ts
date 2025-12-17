@@ -49,7 +49,6 @@ export interface HCAAtlasTrackerAtlas {
 
 export interface HCAAtlasTrackerComponentAtlas {
   assay: string[];
-  atlasId: string;
   capUrl: string | null;
   cellCount: number;
   disease: string[];
@@ -250,6 +249,7 @@ export type ValidationDBEntityOfType<T extends ENTITY_TYPE> =
     : never;
 
 export interface HCAAtlasTrackerDBAtlas {
+  component_atlases: string[];
   created_at: Date;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
@@ -287,7 +287,6 @@ export interface HCAAtlasTrackerDBAtlasOverview {
 }
 
 export interface HCAAtlasTrackerDBComponentAtlas {
-  atlas_id: string;
   component_info: HCAAtlasTrackerDBComponentAtlasInfo;
   created_at: Date;
   id: string;

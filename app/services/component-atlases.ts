@@ -1,5 +1,6 @@
 import pg from "pg";
 import {
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasForAPI,
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
@@ -8,8 +9,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
-import { confirmAtlasExists } from "./atlases";
-import { doTransaction, query } from "./database";
+import { doOrContinueTransaction, doTransaction, query } from "./database";
 import { confirmSourceDatasetsExist } from "./source-datasets";
 
 type ComponentAtlasInfoUpdateFields = Pick<
@@ -27,7 +27,7 @@ export async function getAtlasComponentAtlases(
   atlasId: string,
   isArchivedValue = false
 ): Promise<HCAAtlasTrackerDBComponentAtlasForAPI[]> {
-  await confirmAtlasExists(atlasId);
+  const componentAtlasIds = await getAtlasComponentAtlasIds(atlasId);
   const { rows } = await query<HCAAtlasTrackerDBComponentAtlasForAPI>(
     `
         SELECT
@@ -49,9 +49,9 @@ export async function getAtlasComponentAtlases(
           f.validation_summary
         FROM hat.component_atlases ca
         JOIN hat.files f ON f.component_atlas_id = ca.id
-        WHERE f.is_latest AND f.is_archived = $2 AND ca.atlas_id=$1
+        WHERE f.is_latest AND f.is_archived = $2 AND ca.id=ANY($1)
       `,
-    [atlasId, isArchivedValue]
+    [componentAtlasIds, isArchivedValue]
   );
   return rows;
 }
@@ -68,6 +68,7 @@ export async function getComponentAtlas(
   componentAtlasId: string,
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBComponentAtlasForDetailAPI> {
+  await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlasForDetailAPI>(
     `
       SELECT
@@ -90,9 +91,9 @@ export async function getComponentAtlas(
         f.validation_reports
       FROM hat.component_atlases ca
       JOIN hat.files f ON f.component_atlas_id = ca.id
-      WHERE f.is_latest AND ca.id=$1 AND ca.atlas_id=$2
+      WHERE f.is_latest AND ca.id=$1
     `,
-    [componentAtlasId, atlasId],
+    [componentAtlasId],
     client
   );
   if (queryResult.rows.length === 0)
@@ -108,11 +109,12 @@ export async function getComponentAtlas(
 export async function getAtlasComponentAtlasIds(
   atlasId: string
 ): Promise<string[]> {
-  const queryResult = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "id">>(
-    "SELECT id FROM hat.component_atlases WHERE atlas_id=$1",
-    [atlasId]
-  );
-  return queryResult.rows.map(({ id }) => id);
+  const queryResult = await query<
+    Pick<HCAAtlasTrackerDBAtlas, "component_atlases">
+  >("SELECT component_atlases FROM hat.atlases WHERE id=$1", [atlasId]);
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  return queryResult.rows[0].component_atlases;
 }
 
 /**
@@ -157,13 +159,15 @@ export async function addSourceDatasetsToComponentAtlas(
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
+  await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
+
   const existingDatasetsResult = await query<{ array: string[] }>(
     `
       SELECT ARRAY(
         SELECT sd_id FROM unnest(source_datasets) AS sd_id WHERE sd_id=ANY($1)
-      ) FROM hat.component_atlases WHERE id=$2 AND atlas_id=$3
+      ) FROM hat.component_atlases WHERE id=$2
     `,
-    [sourceDatasetIds, componentAtlasId, atlasId]
+    [sourceDatasetIds, componentAtlasId]
   );
 
   if (existingDatasetsResult.rows.length === 0)
@@ -207,9 +211,9 @@ export async function deleteSourceDatasetsFromComponentAtlas(
     `
       SELECT ARRAY(
         SELECT sd_id FROM unnest($1::uuid[]) AS sd_id WHERE NOT sd_id=ANY(source_datasets)
-      ) FROM hat.component_atlases WHERE id=$2 AND atlas_id=$3
+      ) FROM hat.component_atlases WHERE id=$2
     `,
-    [sourceDatasetIds, componentAtlasId, atlasId]
+    [sourceDatasetIds, componentAtlasId]
   );
 
   if (missingDatasetsResult.rows.length === 0)
@@ -250,28 +254,41 @@ export async function createComponentAtlas(
     capUrl: null,
   };
 
-  const result = await query<HCAAtlasTrackerDBComponentAtlas>(
-    `
-      INSERT INTO hat.component_atlases (atlas_id, component_info)
-      VALUES ($1, $2)
-      RETURNING *
-    `,
-    [atlasId, JSON.stringify(info)],
-    client
-  );
+  return doOrContinueTransaction(client, async (client) => {
+    const result = await query<HCAAtlasTrackerDBComponentAtlas>(
+      `
+        INSERT INTO hat.component_atlases (component_info)
+        VALUES ($1)
+        RETURNING *
+      `,
+      [JSON.stringify(info)],
+      client
+    );
 
-  return result.rows[0];
+    const componentAtlas = result.rows[0];
+
+    const atlasResult = await query(
+      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
+      [componentAtlas.id, atlasId],
+      client
+    );
+
+    if (atlasResult.rowCount === 0)
+      throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+
+    return componentAtlas;
+  });
 }
 
 export async function confirmComponentAtlasExistsOnAtlas(
   componentAtlasId: string,
   atlasId: string
 ): Promise<void> {
-  const result = await query<Pick<HCAAtlasTrackerDBComponentAtlas, "atlas_id">>(
-    "SELECT atlas_id FROM hat.component_atlases WHERE id=$1",
-    [componentAtlasId]
+  const result = await query(
+    "SELECT 1 FROM hat.atlases WHERE id=$1 AND $2=ANY(component_atlases)",
+    [atlasId, componentAtlasId]
   );
-  if (result.rows[0]?.atlas_id !== atlasId)
+  if (result.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
 }
 

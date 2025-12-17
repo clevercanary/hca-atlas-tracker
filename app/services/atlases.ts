@@ -38,7 +38,7 @@ export async function getAllAtlases(
           SELECT COUNT(c.id)::int
           FROM hat.component_atlases c
           JOIN hat.files f ON f.component_atlas_id = c.id
-          WHERE c.atlas_id = a.id AND f.is_latest AND NOT f.is_archived
+          WHERE c.id = ANY(a.component_atlases) AND f.is_latest AND NOT f.is_archived
         ) AS component_atlas_count,
         (
           SELECT COUNT(d.id)::int
@@ -70,7 +70,7 @@ export async function getAtlas(
           SELECT COUNT(c.id)::int
           FROM hat.component_atlases c
           JOIN hat.files f ON f.component_atlas_id = c.id
-          WHERE c.atlas_id = a.id AND f.is_latest AND NOT f.is_archived
+          WHERE c.id = ANY(a.component_atlases) AND f.is_latest AND NOT f.is_archived
         ) AS component_atlas_count,
         (
           SELECT COUNT(d.id)::int
