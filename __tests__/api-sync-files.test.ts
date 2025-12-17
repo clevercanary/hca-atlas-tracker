@@ -10,6 +10,8 @@ import httpMocks from "node-mocks-http";
 import {
   createTestComponentAtlas,
   createTestFile,
+  expectOldFileNotToBeReferencedByMetadataEntity,
+  expectReferenceBetweenFileAndMetadataEntity,
   getAllFileIdsFromDatabase,
   getComponentAtlasFromDatabase,
   getFileFromDatabase,
@@ -347,196 +349,218 @@ describe(TEST_ROUTE, () => {
   }
 
   it("processes s3 data, logs warnings, and creates and validates files as appropriate when requested by content admin", async () => {
-    const FILE_ID_EXISTING_UNCHANGED = "3c324e37-ff0a-4b2b-8c23-b80eb277a222";
-    const FILE_ID_EXISTING_CHANGED = "7306f44c-ef9b-4adc-9280-ebdf1e902f3e";
-
-    await createTestFile(FILE_ID_EXISTING_UNCHANGED, {
-      bucket: TEST_S3_BUCKET,
-      etag: HEAD_RESPONSE_EXISTING_UNCHANGED.ETag,
-      eventTime: HEAD_RESPONSE_EXISTING_UNCHANGED.LastModified.toISOString(),
-      fileType: FILE_TYPE.INTEGRATED_OBJECT,
-      key: KEY_EXISTING_UNCHANGED,
-      sizeBytes: HEAD_RESPONSE_EXISTING_UNCHANGED.ContentLength,
-      versionId: HEAD_RESPONSE_EXISTING_UNCHANGED.VersionId,
-    });
-    const componentAtlasExistingUnchangedBefore =
-      await createTestComponentAtlas(
-        ATLAS_DRAFT.id,
-        EMPTY_COMPONENT_INFO,
-        FILE_ID_EXISTING_UNCHANGED
-      );
-
-    await createTestFile(FILE_ID_EXISTING_CHANGED, {
-      bucket: TEST_S3_BUCKET,
-      etag: HEAD_RESPONSE_EXISTING_CHANGED.ETag,
-      eventTime: "2025-09-07T23:20:33.500Z",
-      fileType: FILE_TYPE.INTEGRATED_OBJECT,
-      key: KEY_EXISTING_CHANGED,
-      sizeBytes: HEAD_RESPONSE_EXISTING_CHANGED.ContentLength,
-      versionId: "434532",
-    });
-    await createTestComponentAtlas(
-      ATLAS_DRAFT.id,
-      EMPTY_COMPONENT_INFO,
-      FILE_ID_EXISTING_CHANGED
-    );
-
-    const fileIdsBefore = await getAllFileIdsFromDatabase();
-
-    const fileExistingUnchangedBefore = await getFileFromDatabase(
-      FILE_ID_EXISTING_UNCHANGED
-    );
-    const fileExistingChangedBefore = await getFileFromDatabase(
-      FILE_ID_EXISTING_CHANGED
-    );
-    expect(fileExistingChangedBefore).toBeDefined();
-    expect(fileExistingUnchangedBefore).toBeDefined();
-
-    s3Mock.on(ListObjectsV2Command).resolves(LIST_OBJECTS_RESPONSE);
-    for (const [key, response] of HEAD_RESPONSES_BY_KEY.entries()) {
-      s3Mock.on(HeadObjectCommand, { Key: key }).resolves(response);
-    }
-
-    // Add a minimal delay to guarantee that the new files will be created after the pre-initialized files
-    await delay(10);
-
-    const startTime = new Date();
-
-    const consoleMessages = {
-      error: [] as unknown[][],
-      warn: [] as unknown[][],
-    };
-
-    const res = await withConsoleMessageHiding(
-      async () => {
-        const res = await doSyncFilesRequest(USER_CONTENT_ADMIN, METHOD.POST);
-        await resolveSync();
-        return res;
-      },
-      true,
-      consoleMessages
-    );
-
-    expect(res._getStatusCode()).toBe(202);
-
-    const warningMessages = consoleMessages.warn.flat();
-    const errorMessageStrings = consoleMessages.error.flatMap((value) =>
-      String(value)
-    );
-
-    // Check that the expected number of errors were reported
-    expect(errorMessageStrings).toHaveLength(2);
-
-    // Check that the expected number of objects without keys were skipped
-    expect(warningMessages).toContain(
-      "S3 sync: Skipped 3 objects without keys"
-    );
-
-    // Check that the dataset validator was called for the expected keys
-    expect(mockSubmitJob.mock.calls).toEqual(
-      EXPECTED_VALIDATED_KEYS.map((key) => [
-        expect.objectContaining({ s3Key: key }),
-      ])
-    );
-
-    // Check that all file IDs passed to the dataset validator are new ones
-    for (const [{ fileId }] of mockSubmitJob.mock.calls) {
-      expect(fileId).toBeTruthy();
-      expect(fileIdsBefore).not.toContain(fileId);
-    }
-
-    const files = await getDbFilesModifiedAfter(startTime);
-
-    // Check that the expected number of modified files are present
-    expect(files).toHaveLength(8);
-
-    // Get latest versions of updated files
-    const filesByKey = new Map(
-      files.filter((f) => f.is_latest).map((f) => [f.key, f])
-    );
-
-    // Check that the expected number of files are distinguished in the mapping
-    // The old version of the existing changed file should be set to non-latest and so isn't included
-    expect(filesByKey.size).toEqual(7);
-
-    // Check files from responses with all fields filled
-    expect(filesByKey.get(KEY_COMPLETE_FOO)).toMatchObject(
-      EXPECTED_FILE_COMPLETE_FOO
-    );
-    expect(filesByKey.get(KEY_COMPLETE_BAR)).toMatchObject(
-      EXPECTED_FILE_COMPLETE_BAR
-    );
-
-    // Check file from response without content length
-    // Expected data has length set to 0
-    expect(filesByKey.get(KEY_NO_LENGTH)).toMatchObject(
-      EXPECTED_FILE_NO_LENGTH
-    );
-
-    // Check that response without etag was skipped
-    expect(warningMessages).toContain(
-      `S3 sync: No ETag received for s3://${TEST_S3_BUCKET}/${KEY_NO_ETAG} -- skipping`
-    );
-    expect(filesByKey.get(KEY_NO_ETAG)).toBeUndefined();
-
-    // Check file from response without last modified time
-    const fileNoModified = filesByKey.get(KEY_NO_MODIFIED);
-    expect(fileNoModified).toMatchObject(EXPECTED_FILE_NO_MODIFIED);
-    if (expectIsDefined(fileNoModified)) {
-      const fileTime = new Date(fileNoModified.event_info.eventTime).getTime();
-      expect(fileTime).toBeGreaterThan(startTime.getTime());
-    }
-
-    // Check file from response without version ID
-    // Expected data has version ID set to null
-    expect(filesByKey.get(KEY_NO_VERSION)).toMatchObject(
-      EXPECTED_FILE_NO_VERSION
-    );
-
-    // Check file with quoted etag
-    // Expected data has etag without quotes
-    expect(filesByKey.get(KEY_QUOTED_ETAG)).toMatchObject(
-      EXPECTED_FILE_QUOTED_ETAG
-    );
-
-    // Check that existing file and its component atlas are not changed, and no new file is created, when version ID is the same
-    expect(errorMessageStrings).toContain(
-      'error: duplicate key value violates unique constraint "uq_files_bucket_key_version"'
-    );
-    expect(filesByKey.get(KEY_EXISTING_UNCHANGED)).toBeUndefined();
-    const fileExistingUnchangedAfter = await getFileFromDatabase(
-      FILE_ID_EXISTING_UNCHANGED
-    );
-    expect(fileExistingUnchangedAfter).toEqual(fileExistingUnchangedBefore);
-    const componentAtlasExistingUnchangedAfter =
-      await getComponentAtlasFromDatabase(
-        componentAtlasExistingUnchangedBefore.id
-      );
-    expect(componentAtlasExistingUnchangedAfter).toEqual(
-      componentAtlasExistingUnchangedBefore
-    );
-
-    // Check that existing file is set to non-latest and a new file is created when version ID is different
-    expect(filesByKey.get(KEY_EXISTING_CHANGED)).toBeDefined();
-    expect(filesByKey.get(KEY_EXISTING_CHANGED)).not.toEqual(
-      fileExistingChangedBefore
-    );
-    const fileExistingChangedAfter = await getFileFromDatabase(
-      FILE_ID_EXISTING_CHANGED
-    );
-    expect(fileExistingChangedBefore?.is_latest).toEqual(true);
-    expect(fileExistingChangedAfter?.is_latest).toEqual(false);
-    expect({
-      ...fileExistingChangedAfter,
-      is_latest: undefined,
-      updated_at: undefined,
-    }).toEqual({
-      ...fileExistingChangedBefore,
-      is_latest: undefined,
-      updated_at: undefined,
-    });
+    await doMainTest();
   });
 });
+
+async function doMainTest(): Promise<void> {
+  const FILE_ID_EXISTING_UNCHANGED = "3c324e37-ff0a-4b2b-8c23-b80eb277a222";
+  const FILE_ID_EXISTING_CHANGED = "7306f44c-ef9b-4adc-9280-ebdf1e902f3e";
+
+  await createTestFile(FILE_ID_EXISTING_UNCHANGED, {
+    bucket: TEST_S3_BUCKET,
+    etag: HEAD_RESPONSE_EXISTING_UNCHANGED.ETag,
+    eventTime: HEAD_RESPONSE_EXISTING_UNCHANGED.LastModified.toISOString(),
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    key: KEY_EXISTING_UNCHANGED,
+    sizeBytes: HEAD_RESPONSE_EXISTING_UNCHANGED.ContentLength,
+    versionId: HEAD_RESPONSE_EXISTING_UNCHANGED.VersionId,
+  });
+  const componentAtlasExistingUnchangedBefore = await createTestComponentAtlas(
+    ATLAS_DRAFT.id,
+    EMPTY_COMPONENT_INFO,
+    FILE_ID_EXISTING_UNCHANGED
+  );
+
+  await createTestFile(FILE_ID_EXISTING_CHANGED, {
+    bucket: TEST_S3_BUCKET,
+    etag: HEAD_RESPONSE_EXISTING_CHANGED.ETag,
+    eventTime: "2025-09-07T23:20:33.500Z",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    key: KEY_EXISTING_CHANGED,
+    sizeBytes: HEAD_RESPONSE_EXISTING_CHANGED.ContentLength,
+    versionId: "434532",
+  });
+  const componentAtlasExistingChangedBefore = await createTestComponentAtlas(
+    ATLAS_DRAFT.id,
+    EMPTY_COMPONENT_INFO,
+    FILE_ID_EXISTING_CHANGED
+  );
+
+  const fileIdsBefore = await getAllFileIdsFromDatabase();
+
+  const fileExistingUnchangedBefore = await getFileFromDatabase(
+    FILE_ID_EXISTING_UNCHANGED
+  );
+  const fileExistingChangedBefore = await getFileFromDatabase(
+    FILE_ID_EXISTING_CHANGED
+  );
+  expect(fileExistingChangedBefore).toBeDefined();
+  expect(fileExistingUnchangedBefore).toBeDefined();
+
+  s3Mock.on(ListObjectsV2Command).resolves(LIST_OBJECTS_RESPONSE);
+  for (const [key, response] of HEAD_RESPONSES_BY_KEY.entries()) {
+    s3Mock.on(HeadObjectCommand, { Key: key }).resolves(response);
+  }
+
+  // Add a minimal delay to guarantee that the new files will be created after the pre-initialized files
+  await delay(10);
+
+  const startTime = new Date();
+
+  const consoleMessages = {
+    error: [] as unknown[][],
+    warn: [] as unknown[][],
+  };
+
+  const res = await withConsoleMessageHiding(
+    async () => {
+      const res = await doSyncFilesRequest(USER_CONTENT_ADMIN, METHOD.POST);
+      await resolveSync();
+      return res;
+    },
+    true,
+    consoleMessages
+  );
+
+  expect(res._getStatusCode()).toBe(202);
+
+  const warningMessages = consoleMessages.warn.flat();
+  const errorMessageStrings = consoleMessages.error.flatMap((value) =>
+    String(value)
+  );
+
+  // Check that the expected number of errors were reported
+  expect(errorMessageStrings).toHaveLength(2);
+
+  // Check that the expected number of objects without keys were skipped
+  expect(warningMessages).toContain("S3 sync: Skipped 3 objects without keys");
+
+  // Check that the dataset validator was called for the expected keys
+  expect(mockSubmitJob.mock.calls).toEqual(
+    EXPECTED_VALIDATED_KEYS.map((key) => [
+      expect.objectContaining({ s3Key: key }),
+    ])
+  );
+
+  // Check that all file IDs passed to the dataset validator are new ones
+  for (const [{ fileId }] of mockSubmitJob.mock.calls) {
+    expect(fileId).toBeTruthy();
+    expect(fileIdsBefore).not.toContain(fileId);
+  }
+
+  const files = await getDbFilesModifiedAfter(startTime);
+
+  // Check that the expected number of modified files are present
+  expect(files).toHaveLength(8);
+
+  // Get latest versions of updated files
+  const filesByKey = new Map(
+    files.filter((f) => f.is_latest).map((f) => [f.key, f])
+  );
+
+  // Check that the expected number of files are distinguished in the mapping
+  // The old version of the existing changed file should be set to non-latest and so isn't included
+  expect(filesByKey.size).toEqual(7);
+
+  // Check files from responses with all fields filled
+  expect(filesByKey.get(KEY_COMPLETE_FOO)).toMatchObject(
+    EXPECTED_FILE_COMPLETE_FOO
+  );
+  expect(filesByKey.get(KEY_COMPLETE_BAR)).toMatchObject(
+    EXPECTED_FILE_COMPLETE_BAR
+  );
+
+  // Check file from response without content length
+  // Expected data has length set to 0
+  expect(filesByKey.get(KEY_NO_LENGTH)).toMatchObject(EXPECTED_FILE_NO_LENGTH);
+
+  // Check that response without etag was skipped
+  expect(warningMessages).toContain(
+    `S3 sync: No ETag received for s3://${TEST_S3_BUCKET}/${KEY_NO_ETAG} -- skipping`
+  );
+  expect(filesByKey.get(KEY_NO_ETAG)).toBeUndefined();
+
+  // Check file from response without last modified time
+  const fileNoModified = filesByKey.get(KEY_NO_MODIFIED);
+  expect(fileNoModified).toMatchObject(EXPECTED_FILE_NO_MODIFIED);
+  if (expectIsDefined(fileNoModified)) {
+    const fileTime = new Date(fileNoModified.event_info.eventTime).getTime();
+    expect(fileTime).toBeGreaterThan(startTime.getTime());
+  }
+
+  // Check file from response without version ID
+  // Expected data has version ID set to null
+  expect(filesByKey.get(KEY_NO_VERSION)).toMatchObject(
+    EXPECTED_FILE_NO_VERSION
+  );
+
+  // Check file with quoted etag
+  // Expected data has etag without quotes
+  expect(filesByKey.get(KEY_QUOTED_ETAG)).toMatchObject(
+    EXPECTED_FILE_QUOTED_ETAG
+  );
+
+  // Check that existing file and its component atlas are not changed, and no new file is created, when version ID is the same
+  expect(errorMessageStrings).toContain(
+    'error: duplicate key value violates unique constraint "uq_files_bucket_key_version"'
+  );
+  expect(filesByKey.get(KEY_EXISTING_UNCHANGED)).toBeUndefined();
+  const fileExistingUnchangedAfter = await getFileFromDatabase(
+    FILE_ID_EXISTING_UNCHANGED
+  );
+  expect(fileExistingUnchangedAfter).toEqual(fileExistingUnchangedBefore);
+  const componentAtlasExistingUnchangedAfter =
+    await getComponentAtlasFromDatabase(
+      componentAtlasExistingUnchangedBefore.id
+    );
+  expect(componentAtlasExistingUnchangedAfter).toEqual(
+    componentAtlasExistingUnchangedBefore
+  );
+
+  // Check that existing file is set to non-latest and a new file is created when version ID is different
+  expect(filesByKey.get(KEY_EXISTING_CHANGED)).toBeDefined();
+  expect(filesByKey.get(KEY_EXISTING_CHANGED)).not.toEqual(
+    fileExistingChangedBefore
+  );
+  const fileExistingChangedAfter = await getFileFromDatabase(
+    FILE_ID_EXISTING_CHANGED
+  );
+  expect(fileExistingChangedBefore?.is_latest).toEqual(true);
+  expect(fileExistingChangedAfter?.is_latest).toEqual(false);
+  expect({
+    ...fileExistingChangedAfter,
+    is_latest: undefined,
+    updated_at: undefined,
+  }).toEqual({
+    ...fileExistingChangedBefore,
+    is_latest: undefined,
+    updated_at: undefined,
+  });
+
+  // Check that latest files are linked to metadata entities
+  for (const file of filesByKey.values()) {
+    if (file.file_type !== FILE_TYPE.INGEST_MANIFEST)
+      await expectReferenceBetweenFileAndMetadataEntity(file.id);
+  }
+
+  // Check that existing unchanged file is still linked to metadata entity
+  if (
+    expectIsDefined(fileExistingUnchangedAfter) &&
+    expectIsDefined(componentAtlasExistingUnchangedAfter)
+  )
+    await expectReferenceBetweenFileAndMetadataEntity(
+      fileExistingUnchangedAfter.id,
+      componentAtlasExistingUnchangedAfter.id
+    );
+
+  // Check that existing version of changed file is no longer referenced by metadata entity
+  if (expectIsDefined(fileExistingChangedBefore))
+    await expectOldFileNotToBeReferencedByMetadataEntity(
+      fileExistingChangedBefore.id,
+      componentAtlasExistingChangedBefore.id
+    );
+}
 
 async function doSyncFilesRequest(
   user: TestUser | undefined,

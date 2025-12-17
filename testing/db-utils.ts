@@ -709,6 +709,84 @@ export async function expectFilesToHaveArchiveStatus(
   );
 }
 
+export async function expectOldFileNotToBeReferencedByMetadataEntity(
+  fileId: string,
+  metadataEntityId?: string
+): Promise<void> {
+  const file = await getFileFromDatabase(fileId);
+  if (file === undefined) throw new Error(`File ${fileId} not found`);
+
+  expect(file.is_latest).toEqual(false);
+
+  const metadataEntity = await expectGetFileMetadataEntity(
+    file,
+    metadataEntityId
+  );
+
+  expect(metadataEntity.file_id).not.toEqual(fileId);
+}
+
+export async function expectReferenceBetweenFileAndMetadataEntity(
+  fileId: string,
+  knownMetadataEntityId?: string
+): Promise<void> {
+  const file = await getFileFromDatabase(fileId);
+  if (file === undefined) throw new Error(`File ${fileId} not found`);
+
+  expect(file.is_latest).toEqual(true);
+
+  const metadataEntity = await expectGetFileMetadataEntity(
+    file,
+    knownMetadataEntityId
+  );
+
+  expect(metadataEntity.file_id).toEqual(file.id);
+}
+
+async function expectGetFileMetadataEntity(
+  file: HCAAtlasTrackerDBFile,
+  knownMetadataEntityId?: string
+): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
+  const metadataEntity = await getFileMetadataEntity(file);
+  if (knownMetadataEntityId !== undefined)
+    expect(metadataEntity.id).toEqual(knownMetadataEntityId);
+  return metadataEntity;
+}
+
+async function getFileMetadataEntity(
+  file: HCAAtlasTrackerDBFile
+): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
+  let metadataEntityFunc: (
+    id: string
+  ) => Promise<
+    HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
+  >;
+  let metadataEntityId: string | null;
+  let metadataEntityTypeName: string;
+  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+    metadataEntityFunc = getComponentAtlasFromDatabase;
+    metadataEntityId = file.component_atlas_id;
+    metadataEntityTypeName = "component atlas";
+  } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
+    metadataEntityFunc = getSourceDatasetFromDatabase;
+    metadataEntityId = file.source_dataset_id;
+    metadataEntityTypeName = "source dataset";
+  } else {
+    throw new Error(`${file.file_type} file can't have a metadata entity`);
+  }
+
+  if (metadataEntityId === null)
+    throw new Error(`File ${file.id} is missing ${metadataEntityTypeName} ID`);
+
+  const metadataEntity = await metadataEntityFunc(metadataEntityId);
+  if (metadataEntity === undefined)
+    throw new Error(
+      `No entry found for ${metadataEntityTypeName} ${metadataEntityId}`
+    );
+
+  return metadataEntity;
+}
+
 // Simple count helpers for tests
 export async function countSourceDatasets(
   client?: pg.PoolClient
