@@ -56,7 +56,7 @@ export interface TestAtlas {
 export interface TestComponentAtlas {
   atlasId: string;
   capUrl?: string | null;
-  file?: TestFile | TestFile[];
+  file: TestFile | TestFile[];
   id: string;
   sourceDatasets?: TestSourceDataset[];
 }
@@ -86,7 +86,7 @@ export interface TestUnpublishedSourceStudy {
 
 export interface TestSourceDataset {
   capUrl?: string | null;
-  file?: TestFile | TestFile[];
+  file: TestFile | TestFile[];
   id: string;
   metadataSpreadsheetTitle?: string | null;
   metadataSpreadsheetUrl?: string | null;
