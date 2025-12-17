@@ -55,9 +55,86 @@ export function up(pgm: MigrationBuilder): void {
     { name: "files", schema: "hat" },
     "ck_files_exclusive_parent_relationship"
   );
+
+  // Recreate foreign key constraints without onDelete setting the reference to null
+  // (Note that the foreign key values could not in practice be set to null in that way, because the `ck_files_exclusive_parent_relationship` constraint would have prevented it)
+
+  pgm.dropConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_component_atlas_id"
+  );
+
+  pgm.dropConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_source_dataset_id"
+  );
+
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_component_atlas_id",
+    {
+      foreignKeys: {
+        columns: "component_atlas_id",
+        onUpdate: "CASCADE",
+        references: { name: "component_atlases", schema: "hat" },
+      },
+    }
+  );
+
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_source_dataset_id",
+    {
+      foreignKeys: {
+        columns: "source_dataset_id",
+        onUpdate: "CASCADE",
+        references: { name: "source_datasets", schema: "hat" },
+      },
+    }
+  );
 }
 
 export function down(pgm: MigrationBuilder): void {
+  // Update foreign key constraints
+
+  pgm.dropConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_component_atlas_id"
+  );
+
+  pgm.dropConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_source_dataset_id"
+  );
+
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_component_atlas_id",
+    {
+      foreignKeys: {
+        columns: "component_atlas_id",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
+        references: { name: "component_atlases", schema: "hat" },
+      },
+    }
+  );
+
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_source_dataset_id",
+    {
+      foreignKeys: {
+        columns: "source_dataset_id",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
+        references: { name: "source_datasets", schema: "hat" },
+      },
+    }
+  );
+
+  // Add constraint on null foreign keys
+
   pgm.addConstraint(
     { name: "files", schema: "hat" },
     "ck_files_exclusive_parent_relationship",
@@ -69,6 +146,8 @@ export function down(pgm: MigrationBuilder): void {
       )`,
     }
   );
+
+  // Remove file ID columns
 
   pgm.dropColumn({ name: "component_atlases", schema: "hat" }, "file_id");
   pgm.dropColumn({ name: "source_datasets", schema: "hat" }, "file_id");
