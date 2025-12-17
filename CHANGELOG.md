@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.51.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.50.0...v1.51.0) (2025-12-17)
+
+
+### Features
+
+* remove the 'oral' bionetwork ([#1036](https://github.com/clevercanary/hca-atlas-tracker/issues/1036)) ([#1038](https://github.com/clevercanary/hca-atlas-tracker/issues/1038)) ([09cd1da](https://github.com/clevercanary/hca-atlas-tracker/commit/09cd1da823165cacd36a2ecdb44599e0e6aaf3da))
+* use array in atlases table to represent linked component atlases ([#1046](https://github.com/clevercanary/hca-atlas-tracker/issues/1046)) ([#1047](https://github.com/clevercanary/hca-atlas-tracker/issues/1047)) ([f7a635a](https://github.com/clevercanary/hca-atlas-tracker/commit/f7a635a652e35ed74d9a6002e8e3d6d0c46be044))
+
+
+### Chores
+
+* update findable-ui to latest version v46.1.3 ([#1037](https://github.com/clevercanary/hca-atlas-tracker/issues/1037)) ([#1039](https://github.com/clevercanary/hca-atlas-tracker/issues/1039)) ([1fadbc8](https://github.com/clevercanary/hca-atlas-tracker/commit/1fadbc899ac80ed36ca0067be84e256590c47bc7))
+
+
+### Tests
+
+* add missing fields to api/test source dataset and component atlas comparisons ([#1025](https://github.com/clevercanary/hca-atlas-tracker/issues/1025)) ([#1045](https://github.com/clevercanary/hca-atlas-tracker/issues/1045)) ([e99bf57](https://github.com/clevercanary/hca-atlas-tracker/commit/e99bf5747da69988623a64c91000de362b73d3a8))
+
 ## [1.50.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.49.0...v1.50.0) (2025-11-27)
 
 
