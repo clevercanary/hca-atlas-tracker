@@ -44,9 +44,10 @@ COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/app/utils/pg-app-connect-config.ts  ./app/utils/pg-app-connect-config.ts
 COPY --from=builder /app/app/utils/pg-migrate-connect-config.ts  ./app/utils/pg-migrate-connect-config.ts
+# Remove migration-down script to prevent destructive database rollbacks in production/dev
+RUN rm -f ./scripts/migration-down.ts
 
 RUN pwd
-RUN rm -f ./scripts/migration-down.ts
 RUN chmod +x ./scripts/entrypoint.sh
 
 EXPOSE 3000
