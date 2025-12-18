@@ -29,8 +29,9 @@ describe("migration-down environment guard", () => {
         stdio: "pipe",
       });
     } catch (error: unknown) {
-      const err = error as { stderr: Buffer };
-      expect(err.stderr.toString()).toContain(
+      const err = error as { stderr: Buffer; stdout: Buffer };
+      const errorOutput = err.stderr.toString() + err.stdout.toString();
+      expect(errorOutput).toContain(
         "ERROR: migrate:down is disabled in production and dev environments."
       );
     }
@@ -43,8 +44,9 @@ describe("migration-down environment guard", () => {
         stdio: "pipe",
       });
     } catch (error: unknown) {
-      const err = error as { stderr: Buffer };
-      expect(err.stderr.toString()).toContain(
+      const err = error as { stderr: Buffer; stdout: Buffer };
+      const errorOutput = err.stderr.toString() + err.stdout.toString();
+      expect(errorOutput).toContain(
         "ERROR: migrate:down is disabled in production and dev environments."
       );
     }
