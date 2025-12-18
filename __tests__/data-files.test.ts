@@ -1,3 +1,4 @@
+import pg from "pg";
 import { ETagMismatchError } from "../app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
@@ -7,12 +8,18 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmFileExistsOnAtlas,
+  FileUpsertData,
   getAtlasByNetworkVersionAndShortName,
   getExistingMetadataObjectId,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../app/data/files";
-import { doTransaction, endPgPool, query } from "../app/services/database";
+import {
+  doOrContinueTransaction,
+  doTransaction,
+  endPgPool,
+  query,
+} from "../app/services/database";
 import { NotFoundError } from "../app/utils/api-handler";
 import {
   ATLAS_DRAFT,
@@ -399,7 +406,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
     // Create multiple versions of the same file
     await doTransaction(async (transaction) => {
       // Insert first version
-      await upsertFileRecord(
+      await upsertTestFile(
         {
           bucket,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -419,7 +426,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
       );
 
       // Insert second version
-      await upsertFileRecord(
+      await upsertTestFile(
         {
           bucket,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -461,7 +468,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
     // Create files in different buckets and with different keys
     await doTransaction(async (transaction) => {
-      await upsertFileRecord(
+      await upsertTestFile(
         {
           bucket: bucket1,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -480,7 +487,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
         transaction
       );
 
-      await upsertFileRecord(
+      await upsertTestFile(
         {
           bucket: bucket2,
           componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -530,25 +537,20 @@ describe("getExistingMetadataObjectId", () => {
   describe("integrated object files", () => {
     it("should return component atlas ID for existing integrated object file", async () => {
       // First create a file record with component atlas ID
-      await doTransaction(async (transaction) => {
-        await upsertFileRecord(
-          {
-            bucket: TEST_BUCKET,
-            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
-            etag: "test-etag-integrated",
-            eventInfo: TEST_EVENT_INFO,
-            fileType: FILE_TYPE.INTEGRATED_OBJECT,
-            integrityStatus: INTEGRITY_STATUS.PENDING,
-            key: TEST_KEY_INTEGRATED,
-            sha256Client: null,
-            sizeBytes: 2048,
-            snsMessageId: "test-sns-integrated",
-            sourceDatasetId: null,
-            validationStatus: FILE_VALIDATION_STATUS.PENDING,
-            versionId: "test-version-integrated",
-          },
-          transaction
-        );
+      await upsertTestFile({
+        bucket: TEST_BUCKET,
+        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+        etag: "test-etag-integrated",
+        eventInfo: TEST_EVENT_INFO,
+        fileType: FILE_TYPE.INTEGRATED_OBJECT,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: TEST_KEY_INTEGRATED,
+        sha256Client: null,
+        sizeBytes: 2048,
+        snsMessageId: "test-sns-integrated",
+        sourceDatasetId: null,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
+        versionId: "test-version-integrated",
       });
 
       // Now test getExistingMetadataObjectId
@@ -581,7 +583,7 @@ describe("getExistingMetadataObjectId", () => {
       // Create two versions of the same file
       await doTransaction(async (transaction) => {
         // First version
-        await upsertFileRecord(
+        await upsertTestFile(
           {
             bucket: TEST_BUCKET,
             componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -601,7 +603,7 @@ describe("getExistingMetadataObjectId", () => {
         );
 
         // Second version (this will mark the first as not latest)
-        await upsertFileRecord(
+        await upsertTestFile(
           {
             bucket: TEST_BUCKET,
             componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -647,25 +649,20 @@ describe("getExistingMetadataObjectId", () => {
   describe("source dataset files", () => {
     it("should return source dataset ID for existing source dataset file", async () => {
       // First create a file record with source dataset ID
-      await doTransaction(async (transaction) => {
-        await upsertFileRecord(
-          {
-            bucket: TEST_BUCKET,
-            componentAtlasId: null,
-            etag: "test-etag-source",
-            eventInfo: TEST_EVENT_INFO,
-            fileType: FILE_TYPE.SOURCE_DATASET,
-            integrityStatus: INTEGRITY_STATUS.PENDING,
-            key: TEST_KEY_SOURCE_DATASET,
-            sha256Client: null,
-            sizeBytes: 1024,
-            snsMessageId: "test-sns-source",
-            sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
-            validationStatus: FILE_VALIDATION_STATUS.PENDING,
-            versionId: "test-version-source",
-          },
-          transaction
-        );
+      await upsertTestFile({
+        bucket: TEST_BUCKET,
+        componentAtlasId: null,
+        etag: "test-etag-source",
+        eventInfo: TEST_EVENT_INFO,
+        fileType: FILE_TYPE.SOURCE_DATASET,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: TEST_KEY_SOURCE_DATASET,
+        sha256Client: null,
+        sizeBytes: 1024,
+        snsMessageId: "test-sns-source",
+        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
+        versionId: "test-version-source",
       });
 
       // Now test getExistingMetadataObjectId
@@ -701,7 +698,7 @@ describe("getExistingMetadataObjectId", () => {
       const baseKey = "test/path/file";
       await doTransaction(async (transaction) => {
         // Integrated object file
-        await upsertFileRecord(
+        await upsertTestFile(
           {
             bucket: TEST_BUCKET,
             componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -721,7 +718,7 @@ describe("getExistingMetadataObjectId", () => {
         );
 
         // Source dataset file
-        await upsertFileRecord(
+        await upsertTestFile(
           {
             bucket: TEST_BUCKET,
             componentAtlasId: null,
@@ -767,25 +764,20 @@ describe("getExistingMetadataObjectId", () => {
 
     it("should return null for unsupported file types", async () => {
       // Create a file with an unsupported file type
-      await doTransaction(async (transaction) => {
-        await upsertFileRecord(
-          {
-            bucket: TEST_BUCKET,
-            componentAtlasId: null,
-            etag: "test-etag-manifest",
-            eventInfo: TEST_EVENT_INFO,
-            fileType: FILE_TYPE.INGEST_MANIFEST,
-            integrityStatus: INTEGRITY_STATUS.PENDING,
-            key: "test/path/manifest.json",
-            sha256Client: null,
-            sizeBytes: 512,
-            snsMessageId: "test-sns-manifest",
-            sourceDatasetId: null,
-            validationStatus: FILE_VALIDATION_STATUS.PENDING,
-            versionId: "test-version-manifest",
-          },
-          transaction
-        );
+      await upsertTestFile({
+        bucket: TEST_BUCKET,
+        componentAtlasId: null,
+        etag: "test-etag-manifest",
+        eventInfo: TEST_EVENT_INFO,
+        fileType: FILE_TYPE.INGEST_MANIFEST,
+        integrityStatus: INTEGRITY_STATUS.PENDING,
+        key: "test/path/manifest.json",
+        sha256Client: null,
+        sizeBytes: 512,
+        snsMessageId: "test-sns-manifest",
+        sourceDatasetId: null,
+        validationStatus: FILE_VALIDATION_STATUS.PENDING,
+        versionId: "test-version-manifest",
       });
 
       // Should return null for unsupported file type
@@ -908,3 +900,23 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
     });
   });
 });
+
+async function upsertTestFile(
+  fileData: FileUpsertData,
+  client?: pg.PoolClient
+): Promise<void> {
+  await doOrContinueTransaction(client, async (client) => {
+    const fileResult = await upsertFileRecord(fileData, client);
+    if (typeof fileData.componentAtlasId === "string") {
+      await client.query(
+        "UPDATE hat.component_atlases SET file_id = $1 WHERE id = $2",
+        [fileResult.id, fileData.componentAtlasId]
+      );
+    } else if (typeof fileData.sourceDatasetId === "string") {
+      await client.query(
+        "UPDATE hat.source_datasets SET file_id = $1 WHERE id = $2",
+        [fileResult.id, fileData.sourceDatasetId]
+      );
+    }
+  });
+}

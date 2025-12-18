@@ -18,13 +18,16 @@ import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
+import { setComponentAtlasFileId } from "../data/component-atlases";
 import {
   getAtlasByNetworkVersionAndShortName,
   getExistingMetadataObjectId,
   getLatestEventInfo,
   markPreviousVersionsAsNotLatest,
+  setFileMetadataObjectId,
   upsertFileRecord,
 } from "../data/files";
+import { setSourceDatasetFileId } from "../data/source-datasets";
 import { InvalidOperationError } from "../utils/api-handler";
 import { normalizeAtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
@@ -176,26 +179,33 @@ function computeIsLatestForInsert(
   return incomingEventInfo.eventTime > currentLatestTime;
 }
 
-// File operation handler functions
-type FileOperationHandler = (
+// File creation handler functions
+type FileCreationHandler = (
   atlasId: string,
+  fileId: string,
   transaction: PoolClient
 ) => Promise<string>;
 
 async function createIntegratedObject(
   atlasId: string,
+  fileId: string,
   transaction: PoolClient
 ): Promise<string> {
-  const componentAtlas = await createComponentAtlas(atlasId, transaction);
+  const componentAtlas = await createComponentAtlas(
+    atlasId,
+    fileId,
+    transaction
+  );
   return componentAtlas.id;
 }
 
 async function createSourceDatasetFromS3(
   atlasId: string,
+  fileId: string,
   transaction: PoolClient
 ): Promise<string> {
   // Create source dataset using canonical service within the existing transaction
-  const createdId = await createSourceDataset(transaction);
+  const createdId = await createSourceDataset(fileId, transaction);
   const sourceDatasetId = createdId;
 
   // Link source dataset to atlas's source_datasets array if not already linked
@@ -218,13 +228,48 @@ async function createSourceDatasetFromS3(
   return sourceDatasetId;
 }
 
-// Dispatch map
-const FILE_CREATION_HANDLERS: Partial<Record<FILE_TYPE, FileOperationHandler>> =
+// File update handler functions
+type FileUpdateHandler = (
+  fileId: string,
+  metadataEntityId: string,
+  isLatestFile: boolean,
+  transaction: PoolClient
+) => Promise<string>;
+
+async function updateIntegratedObjectFromS3(
+  fileId: string,
+  componentAtlasId: string,
+  isLatestFile: boolean,
+  transaction: PoolClient
+): Promise<string> {
+  if (isLatestFile)
+    await setComponentAtlasFileId(componentAtlasId, fileId, transaction);
+  return componentAtlasId;
+}
+
+async function updateSourceDatasetFromS3(
+  fileId: string,
+  sourceDatasetId: string,
+  isLatestFile: boolean,
+  transaction: PoolClient
+): Promise<string> {
+  if (isLatestFile)
+    await setSourceDatasetFileId(sourceDatasetId, fileId, transaction);
+  return sourceDatasetId;
+}
+
+// Dispatch maps
+const FILE_CREATION_HANDLERS: Partial<Record<FILE_TYPE, FileCreationHandler>> =
   {
     [FILE_TYPE.INTEGRATED_OBJECT]: createIntegratedObject,
     [FILE_TYPE.SOURCE_DATASET]: createSourceDatasetFromS3,
     // INGEST_MANIFEST files don't need special handling - they just get file records
   };
+const FILE_UPDATE_HANDLERS: Partial<Record<FILE_TYPE, FileUpdateHandler>> = {
+  [FILE_TYPE.INTEGRATED_OBJECT]: updateIntegratedObjectFromS3,
+  [FILE_TYPE.SOURCE_DATASET]: updateSourceDatasetFromS3,
+  // Nothing needed for ingest manifests
+};
 
 /**
  * Log file operation results for monitoring.
@@ -309,7 +354,7 @@ async function saveFileRecord(
   // - Application-level locking: Complex, doesn't scale, potential deadlocks
   // - Ignore duplicates: Loses important ETag mismatch detection
   return await doTransaction(async (transaction) => {
-    // STEP 1: Get existing metadata object ID based on file type
+    // Get existing metadata object ID based on file type
     // This is needed before creating new metadata objects or updating existing ones
     let metadataObjectId: string | null = null;
 
@@ -320,7 +365,7 @@ async function saveFileRecord(
       transaction
     );
 
-    // STEP 2: Determine recency and whether incoming record should be latest
+    // Determine recency and whether incoming record should be latest
     const latestEventInfo = await getLatestEventInfo(
       bucket.name,
       object.key,
@@ -344,7 +389,7 @@ async function saveFileRecord(
       );
     }
 
-    // STEP 3: Determine atlas ID from S3 path
+    // Determine atlas ID from S3 path
     const { atlasName, network } = parseS3KeyPath(object.key);
     const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
     const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
@@ -355,21 +400,10 @@ async function saveFileRecord(
       atlasBaseName
     );
 
-    // STEP 4 & 5: Dispatch file operations based on state and type
-    if (isNewFile) {
-      const handler = FILE_CREATION_HANDLERS[fileType];
-
-      if (handler) {
-        metadataObjectId = await handler(atlasId, transaction);
-      }
-    }
-
-    // STEP 6: Insert new file version with ON CONFLICT handling
+    // Insert new file version with ON CONFLICT handling
     const result = await upsertFileRecord(
       {
         bucket: bucket.name,
-        componentAtlasId:
-          fileType === FILE_TYPE.INTEGRATED_OBJECT ? metadataObjectId : null,
         etag: object.eTag,
         eventInfo: JSON.stringify(eventInfo),
         fileType,
@@ -379,15 +413,47 @@ async function saveFileRecord(
         sha256Client: sha256,
         sizeBytes: object.size,
         snsMessageId,
-        sourceDatasetId:
-          fileType === FILE_TYPE.SOURCE_DATASET ? metadataObjectId : null,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: object.versionId || null,
       },
       transaction
     );
 
-    // CASE 2 & 3: Success - log the operation type for monitoring
+    // Dispatch file operations based on state and type
+    if (isNewFile) {
+      const handler = FILE_CREATION_HANDLERS[fileType];
+
+      if (handler) {
+        metadataObjectId = await handler(atlasId, result.id, transaction);
+      }
+    } else {
+      const handler = FILE_UPDATE_HANDLERS[fileType];
+
+      if (handler) {
+        if (metadataObjectId === null)
+          throw new Error(
+            `No existing metadata object found for existing ${fileType} file with key ${object.key}`
+          );
+        metadataObjectId = await handler(
+          result.id,
+          metadataObjectId,
+          isLatestForInsert,
+          transaction
+        );
+      }
+    }
+
+    // Set metadata object ID in file record if necessary
+    if (metadataObjectId !== null) {
+      await setFileMetadataObjectId(
+        result.id,
+        fileType,
+        metadataObjectId,
+        transaction
+      );
+    }
+
+    // Success - log the operation type for monitoring
     logFileOperation(result.operation, bucket, object, isNewFile);
 
     // Return info for additional processing

@@ -289,6 +289,7 @@ export interface HCAAtlasTrackerDBAtlasOverview {
 export interface HCAAtlasTrackerDBComponentAtlas {
   component_info: HCAAtlasTrackerDBComponentAtlasInfo;
   created_at: Date;
+  file_id: string;
   id: string;
   source_datasets: string[];
   updated_at: Date;
@@ -387,6 +388,7 @@ export type WithSourceStudyInfo<T = unknown, TAltValue = never> = T &
 
 export interface HCAAtlasTrackerDBSourceDataset {
   created_at: Date;
+  file_id: string;
   id: string;
   reprocessed_status: REPROCESSED_STATUS;
   sd_info: HCAAtlasTrackerDBSourceDatasetInfo;

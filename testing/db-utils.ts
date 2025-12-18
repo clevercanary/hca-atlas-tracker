@@ -48,6 +48,8 @@ import {
   expectIsDefined,
   fillTestFileDefaults,
   fillTestSourceDatasetDefaults,
+  getLatestFileForTestEntity,
+  getTestEntityFileIds,
   getTestEntityFilesArray,
   getTestFileKey,
   makeTestAtlasOverview,
@@ -88,13 +90,13 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
 
   await initSourceStudies(client);
 
+  await initFiles(client);
+
   await initSourceDatasets(client);
 
   await initAtlases(client);
 
   await initComponentAtlases(client);
-
-  await initFiles(client);
 
   await initEntrySheetValidations(client);
 
@@ -123,21 +125,27 @@ async function initSourceStudies(client: pg.PoolClient): Promise<void> {
 }
 
 export async function initSourceDatasets(
-  client?: pg.PoolClient,
+  client: pg.PoolClient,
   testSourceDatasets = INITIAL_TEST_SOURCE_DATASETS
 ): Promise<void> {
   for (const sourceDataset of testSourceDatasets) {
     const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
     const info = makeTestSourceDatasetInfo(normDataset);
-    await query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status) VALUES ($1, $2, $3, $4)",
+    const latestFile = getLatestFileForTestEntity(sourceDataset);
+    await client.query(
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id) VALUES ($1, $2, $3, $4, $5)",
       [
         normDataset.sourceStudyId,
         info,
         normDataset.id,
         normDataset.reprocessedStatus,
-      ],
-      client
+        latestFile.id,
+      ]
+    );
+    const fileIds = getTestEntityFileIds(sourceDataset);
+    await client.query(
+      "UPDATE hat.files SET source_dataset_id = $1 WHERE id = ANY($2)",
+      [sourceDataset.id, fileIds]
     );
   }
 }
@@ -164,13 +172,20 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
       capUrl: componentAtlas.capUrl ?? null,
     };
+    const latestFile = getLatestFileForTestEntity(componentAtlas);
     await client.query(
-      "INSERT INTO hat.component_atlases (component_info, id, source_datasets) VALUES ($1, $2, $3)",
+      "INSERT INTO hat.component_atlases (component_info, id, source_datasets, file_id) VALUES ($1, $2, $3, $4)",
       [
         info,
         componentAtlas.id,
         componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
+        latestFile.id,
       ]
+    );
+    const fileIds = getTestEntityFileIds(componentAtlas);
+    await client.query(
+      "UPDATE hat.files SET component_atlas_id = $1 WHERE id = ANY($2)",
+      [componentAtlas.id, fileIds]
     );
     await client.query(
       "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
@@ -182,24 +197,22 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 async function initFiles(client: pg.PoolClient): Promise<void> {
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
     for (const file of getTestEntityFilesArray(componentAtlas)) {
-      await initTestFile(client, file, componentAtlas.id, null);
+      await initTestFile(client, file);
     }
   }
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
     for (const file of getTestEntityFilesArray(sourceDataset)) {
-      await initTestFile(client, file, null, sourceDataset.id);
+      await initTestFile(client, file);
     }
   }
   for (const file of INITIAL_STANDALONE_TEST_FILES) {
-    await initTestFile(client, file, null, null);
+    await initTestFile(client, file);
   }
 }
 
 async function initTestFile(
   client: pg.PoolClient,
-  file: TestFile,
-  componentAtlasId: string | null,
-  sourceDatasetId: string | null
+  file: TestFile
 ): Promise<void> {
   const {
     bucket,
@@ -231,8 +244,8 @@ async function initTestFile(
   };
   await client.query(
     `
-      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, validation_status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id, dataset_info, validation_info, validation_summary, validation_reports, is_archived)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, validation_status, is_latest, file_type, sns_message_id, dataset_info, validation_info, validation_summary, validation_reports, is_archived)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
     `,
     [
       id,
@@ -250,8 +263,6 @@ async function initTestFile(
       validationStatus,
       isLatest,
       fileType,
-      sourceDatasetId,
-      componentAtlasId,
       `test-sns-message-${id}`, // Generate unique SNS message ID for test data
       JSON.stringify(datasetInfo),
       JSON.stringify(validationInfo),
@@ -323,13 +334,11 @@ export async function createTestFile(
   fileId: string,
   config: {
     bucket: string;
-    componentAtlasId?: string;
     etag: string;
     eventTime?: string;
     fileType: FILE_TYPE;
     key: string;
     sizeBytes: number;
-    sourceDatasetId?: string;
     versionId?: string;
   },
   client?: pg.PoolClient
@@ -341,8 +350,8 @@ export async function createTestFile(
   };
   await query(
     `INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, 
-     sha256_client, integrity_status, validation_status, is_latest, file_type, component_atlas_id, source_dataset_id, sns_message_id, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
+     sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())`,
     [
       fileId,
       config.bucket,
@@ -356,8 +365,6 @@ export async function createTestFile(
       FILE_VALIDATION_STATUS.PENDING,
       true, // isLatest
       config.fileType,
-      config.componentAtlasId ?? null,
-      config.sourceDatasetId ?? null,
       `test-sns-message-${fileId}`, // Generate unique SNS message ID for test data
     ],
     client
@@ -381,19 +388,24 @@ async function runMigrations(
 
 export async function createTestComponentAtlas(
   atlasId: string,
-  info: HCAAtlasTrackerDBComponentAtlasInfo
+  info: HCAAtlasTrackerDBComponentAtlasInfo,
+  fileId: string
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   return doTransaction(async (client) => {
     const componentAtlas = (
       await client.query<HCAAtlasTrackerDBComponentAtlas>(
         `
-        INSERT INTO hat.component_atlases (component_info)
-        VALUES ($1)
+        INSERT INTO hat.component_atlases (component_info, file_id)
+        VALUES ($1, $2)
         RETURNING *
       `,
-        [JSON.stringify(info)]
+        [JSON.stringify(info), fileId]
       )
     ).rows[0];
+    await client.query(
+      "UPDATE hat.files SET component_atlas_id = $1 WHERE id = $2",
+      [componentAtlas.id, fileId]
+    );
     await client.query(
       "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
       [componentAtlas.id, atlasId]
@@ -695,6 +707,84 @@ export async function expectFilesToHaveArchiveStatus(
       expect.objectContaining({ is_archived: isArchivedValue })
     )
   );
+}
+
+export async function expectOldFileNotToBeReferencedByMetadataEntity(
+  fileId: string,
+  metadataEntityId?: string
+): Promise<void> {
+  const file = await getFileFromDatabase(fileId);
+  if (file === undefined) throw new Error(`File ${fileId} not found`);
+
+  expect(file.is_latest).toEqual(false);
+
+  const metadataEntity = await expectGetFileMetadataEntity(
+    file,
+    metadataEntityId
+  );
+
+  expect(metadataEntity.file_id).not.toEqual(fileId);
+}
+
+export async function expectReferenceBetweenFileAndMetadataEntity(
+  fileId: string,
+  knownMetadataEntityId?: string
+): Promise<void> {
+  const file = await getFileFromDatabase(fileId);
+  if (file === undefined) throw new Error(`File ${fileId} not found`);
+
+  expect(file.is_latest).toEqual(true);
+
+  const metadataEntity = await expectGetFileMetadataEntity(
+    file,
+    knownMetadataEntityId
+  );
+
+  expect(metadataEntity.file_id).toEqual(file.id);
+}
+
+async function expectGetFileMetadataEntity(
+  file: HCAAtlasTrackerDBFile,
+  knownMetadataEntityId?: string
+): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
+  const metadataEntity = await getFileMetadataEntity(file);
+  if (knownMetadataEntityId !== undefined)
+    expect(metadataEntity.id).toEqual(knownMetadataEntityId);
+  return metadataEntity;
+}
+
+async function getFileMetadataEntity(
+  file: HCAAtlasTrackerDBFile
+): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
+  let metadataEntityFunc: (
+    id: string
+  ) => Promise<
+    HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
+  >;
+  let metadataEntityId: string | null;
+  let metadataEntityTypeName: string;
+  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+    metadataEntityFunc = getComponentAtlasFromDatabase;
+    metadataEntityId = file.component_atlas_id;
+    metadataEntityTypeName = "component atlas";
+  } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
+    metadataEntityFunc = getSourceDatasetFromDatabase;
+    metadataEntityId = file.source_dataset_id;
+    metadataEntityTypeName = "source dataset";
+  } else {
+    throw new Error(`${file.file_type} file can't have a metadata entity`);
+  }
+
+  if (metadataEntityId === null)
+    throw new Error(`File ${file.id} is missing ${metadataEntityTypeName} ID`);
+
+  const metadataEntity = await metadataEntityFunc(metadataEntityId);
+  if (metadataEntity === undefined)
+    throw new Error(
+      `No entry found for ${metadataEntityTypeName} ${metadataEntityId}`
+    );
+
+  return metadataEntity;
 }
 
 // Simple count helpers for tests

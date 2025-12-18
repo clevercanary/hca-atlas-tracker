@@ -45,9 +45,11 @@ import { endPgPool, query } from "../app/services/database";
 import {
   countComponentAtlases,
   countSourceDatasets,
+  expectOldFileNotToBeReferencedByMetadataEntity,
+  expectReferenceBetweenFileAndMetadataEntity,
   resetDatabase,
 } from "../testing/db-utils";
-import { withConsoleMessageHiding } from "../testing/utils";
+import { expectIsDefined, withConsoleMessageHiding } from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
@@ -172,6 +174,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const file = fileRows.rows[0];
     expect(file.sha256_client).toBeNull(); // Should be NULL since no SHA256 provided
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
+
+    await expectReferenceBetweenFileAndMetadataEntity(file.id);
   });
 
   it("does not clear sd_info on source_dataset update, and preserves is_latest", async () => {
@@ -205,13 +209,25 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       expect(res.statusCode).toBe(200);
     }
 
-    // Capture the created source dataset id before update
-    const sdBefore = await query(
-      "SELECT source_dataset_id AS id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+    // Ensure first file is marked latest
+    const firstFileResult = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
     );
-    expect(sdBefore.rows).toHaveLength(1);
-    const sourceDatasetId: string = sdBefore.rows[0].id;
+    expect(firstFileResult.rows).toHaveLength(1);
+    const firstFile = firstFileResult.rows[0];
+    expect(firstFile.is_latest).toBe(true);
+
+    // Capture the created source dataset id before update
+    const sourceDatasetId = firstFile.source_dataset_id;
+    if (sourceDatasetId === null)
+      throw new Error(`Source dataset ID missing for new file ${firstFile.id}`);
+
+    // Check file reference
+    await expectReferenceBetweenFileAndMetadataEntity(
+      firstFile.id,
+      sourceDatasetId
+    );
 
     // Update sd_info and get its value before updating the file
     const sdInfoUpdateFields: Partial<HCAAtlasTrackerDBSourceDatasetInfo> = {
@@ -226,14 +242,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     const sdInfoBefore = sdInfoResult.rows[0].sd_info;
     expect(sdInfoBefore).toMatchObject(sdInfoUpdateFields);
-
-    // Ensure first file is marked latest
-    const firstFile = await query(
-      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
-    );
-    expect(firstFile.rows).toHaveLength(1);
-    expect(firstFile.rows[0].is_latest).toBe(true);
 
     // Second upload (update) with newer eventTime
     const secondEvent = createS3Event({
@@ -274,13 +282,23 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(sdAfter.rows[0].sd_info).toEqual(sdInfoBefore);
 
     // Verify file versioning flags: latest remains true on newest, previous false
-    const versions = await query(
+    const versions = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
     );
     expect(versions.rows).toHaveLength(2);
     expect(versions.rows[0].is_latest).toBe(false); // older
     expect(versions.rows[1].is_latest).toBe(true); // newer
+
+    // Check file references after update
+    await expectOldFileNotToBeReferencedByMetadataEntity(
+      versions.rows[0].id,
+      sourceDatasetId
+    );
+    await expectReferenceBetweenFileAndMetadataEntity(
+      versions.rows[1].id,
+      sourceDatasetId
+    );
   });
 
   it("does not clear component_info on integrated_object update, and preserves is_latest", async () => {
@@ -314,13 +332,27 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       expect(res.statusCode).toBe(200);
     }
 
-    // Capture the created component atlas id before update
-    const ioBefore = await query(
-      "SELECT component_atlas_id AS id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true",
+    // Ensure first file is marked latest
+    const firstFileResult = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
-    expect(ioBefore.rows).toHaveLength(1);
-    const componentAtlasId: string = ioBefore.rows[0].id;
+    expect(firstFileResult.rows).toHaveLength(1);
+    const firstFile = firstFileResult.rows[0];
+    expect(firstFile.is_latest).toBe(true);
+
+    // Capture the created component atlas id before update
+    const componentAtlasId = firstFile.component_atlas_id;
+    if (componentAtlasId === null)
+      throw new Error(
+        `Component atlas ID missing for new file ${firstFile.id}`
+      );
+
+    // Check file reference
+    await expectReferenceBetweenFileAndMetadataEntity(
+      firstFile.id,
+      componentAtlasId
+    );
 
     // Update component_info and get its value before updating the file
     const componentInfoUpdateFields: Partial<HCAAtlasTrackerDBComponentAtlasInfo> =
@@ -335,14 +367,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     const componentInfoBefore = componentInfoResult.rows[0].component_info;
     expect(componentInfoBefore).toMatchObject(componentInfoUpdateFields);
-
-    // Ensure first file is marked latest
-    const firstFile = await query(
-      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
-    );
-    expect(firstFile.rows).toHaveLength(1);
-    expect(firstFile.rows[0].is_latest).toBe(true);
 
     // Second upload (update) with newer eventTime
     const secondEvent = createS3Event({
@@ -390,6 +414,16 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(versions.rows).toHaveLength(2);
     expect(versions.rows[0].is_latest).toBe(false); // older
     expect(versions.rows[1].is_latest).toBe(true); // newer
+
+    // Check file references after update
+    await expectOldFileNotToBeReferencedByMetadataEntity(
+      versions.rows[0].id,
+      componentAtlasId
+    );
+    await expectReferenceBetweenFileAndMetadataEntity(
+      versions.rows[1].id,
+      componentAtlasId
+    );
   });
 
   // Happy Path Processing Tests
@@ -456,6 +490,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     expect(atlasRows.rows).toHaveLength(1);
     expect(atlasRows.rows[0].source_datasets).toContain(sourceDatasetId);
+
+    // Check file reference
+    await expectReferenceBetweenFileAndMetadataEntity(file.id, sourceDatasetId);
   });
 
   it("successfully processes valid SNS notification for integrated object with S3 ObjectCreated event", async () => {
@@ -521,6 +558,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     expect(atlasRows.rows).toHaveLength(1);
     expect(atlasRows.rows[0].component_atlases).toContain(componentAtlasId);
+
+    // Check file reference
+    await expectReferenceBetweenFileAndMetadataEntity(
+      file.id,
+      componentAtlasId
+    );
   });
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {
@@ -634,6 +677,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
+
+    // Check file reference
+    await expectReferenceBetweenFileAndMetadataEntity(file.id);
   });
 
   it("rejects replay with same SNS MessageId but altered ETag", async () => {
@@ -714,6 +760,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows[0].etag).toBe(
       "original-replay-etag-11111111111111111111111111111111"
     );
+
+    // Check file reference
+    await expectReferenceBetweenFileAndMetadataEntity(fileRows.rows[0].id);
   });
 
   it("rejects notifications with ETag mismatches for existing files", async () => {
@@ -789,6 +838,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     expect(fileRows.rows).toHaveLength(1);
     expect(fileRows.rows[0].etag).toBe("original-etag-12345");
+
+    // Check file reference
+    await expectReferenceBetweenFileAndMetadataEntity(fileRows.rows[0].id);
   });
 
   it.each([
@@ -902,7 +954,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(res2.statusCode).toBe(200);
 
     // Check database state - should have 2 records for the same file
-    const allVersions = await query(
+    const allVersions = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
@@ -918,6 +970,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const secondVersion = allVersions.rows[1];
     expect(secondVersion.version_id).toBe("version-2");
     expect(secondVersion.is_latest).toBe(true);
+
+    // Check file references
+    await expectOldFileNotToBeReferencedByMetadataEntity(firstVersion.id);
+    await expectReferenceBetweenFileAndMetadataEntity(secondVersion.id);
   });
 
   it("sets is_latest and is_archived as normal when existing latest file has archived = true", async () => {
@@ -994,7 +1050,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(res2.statusCode).toBe(200);
 
     // Check database state - should have 2 records for the same file
-    const allVersions = await query(
+    const allVersions = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
@@ -1012,6 +1068,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(secondVersion.version_id).toBe("version-2");
     expect(secondVersion.is_latest).toBe(true);
     expect(secondVersion.is_archived).toBe(false);
+
+    // Check file references
+    await expectOldFileNotToBeReferencedByMetadataEntity(firstVersion.id);
+    await expectReferenceBetweenFileAndMetadataEntity(secondVersion.id);
   });
 
   it("does not flip is_latest when older version arrives after newer version", async () => {
@@ -1086,10 +1146,17 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
     expect(latestOnly.rows).toHaveLength(1);
-    expect(latestOnly.rows[0].version_id).toBe("ooo-version-2");
-    expect(latestOnly.rows[0].etag).toBe(
+    const latestFile = latestOnly.rows[0];
+    expect(latestFile.version_id).toBe("ooo-version-2");
+    expect(latestFile.etag).toBe(
       "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     );
+
+    // Check file references
+    const nonLatestFile = allRows.rows.find((f) => f.id !== latestFile.id);
+    if (!expectIsDefined(nonLatestFile)) return;
+    await expectOldFileNotToBeReferencedByMetadataEntity(nonLatestFile.id);
+    await expectReferenceBetweenFileAndMetadataEntity(latestFile.id);
   });
 
   it("rejects notifications from unauthorized S3 buckets", async () => {
@@ -1508,63 +1575,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       const responseBody = JSON.parse(res._getData());
       expect(responseBody.message).toContain("Invalid atlas version");
     });
-  });
-
-  // Database Constraint Validation Tests
-  it("database constraint prevents source_dataset files from having component_atlas_id", async () => {
-    // This test verifies the database constraint by attempting a direct INSERT that violates it
-    // The constraint should prevent source_dataset files from having component_atlas_id set
-
-    await expect(
-      query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_study_id, component_atlas_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, $11)`,
-        [
-          "test-bucket",
-          "bio_network/test/source-datasets/invalid.h5ad",
-          "version123",
-          "abc123def456",
-          1024,
-          JSON.stringify({
-            eventName: TEST_S3_EVENT_NAME_OBJECT_CREATED,
-            eventTime: TEST_TIMESTAMP_ALT,
-          }),
-          "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          INTEGRITY_STATUS.PENDING,
-          FILE_VALIDATION_STATUS.PENDING,
-          "source_dataset", // source_dataset with component_atlas_id should be rejected
-          TEST_GUT_ATLAS_ID, // This should cause constraint violation
-        ]
-      )
-    ).rejects.toThrow(/constraint/);
-  });
-
-  it("database constraint prevents integrated_object files from missing component_atlas_id", async () => {
-    // This test verifies the database constraint by attempting a direct INSERT that violates it
-    // The constraint should require integrated_object files to have component_atlas_id set
-
-    await expect(
-      query(
-        `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_study_id, component_atlas_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, NULL, NULL)`,
-        [
-          "test-bucket",
-          "bio_network/test/integrated-objects/invalid.h5ad",
-          "version123",
-          "abc123def456",
-          1024,
-          JSON.stringify({
-            eventName: TEST_S3_EVENT_NAME_OBJECT_CREATED,
-            eventTime: TEST_TIMESTAMP_ALT,
-          }),
-          "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          INTEGRITY_STATUS.PENDING,
-          FILE_VALIDATION_STATUS.PENDING,
-          "integrated_object", // integrated_object without component_atlas_id should be rejected
-          // component_atlas_id is NULL, which should cause constraint violation
-        ]
-      )
-    ).rejects.toThrow(/constraint/);
   });
 
   it("rejects S3 events with multiple records", async () => {

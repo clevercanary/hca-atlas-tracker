@@ -1,5 +1,6 @@
 import pg from "pg";
 import {
+  FILE_TYPE,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
@@ -12,6 +13,7 @@ import { doTransaction, query } from "../services/database";
 import { confirmSourceStudyExists } from "../services/source-studies";
 import { NotFoundError } from "../utils/api-handler";
 import { confirmQueryRowsContainIds } from "../utils/database";
+import { confirmFileIsOfType } from "./files";
 
 const PLURAL_ENTITY_NAME = "source datasets";
 
@@ -207,6 +209,28 @@ export async function setSourceDatasetsSourceStudy(
         `No source datasets exist with ID(s): ${missingIds.join(", ")}`
       );
   });
+}
+
+/**
+ * Set the associated file ID referenced by a source dataset.
+ * @param sourceDatasetId - Source dataset to update.
+ * @param fileId - ID to set in the source dataset, referencing its file.
+ * @param client - Postgres client to use.
+ */
+export async function setSourceDatasetFileId(
+  sourceDatasetId: string,
+  fileId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await confirmFileIsOfType(fileId, FILE_TYPE.SOURCE_DATASET, client);
+  const result = await client.query(
+    "UPDATE hat.source_datasets SET file_id = $1 WHERE id = $2",
+    [fileId, sourceDatasetId]
+  );
+  if (result.rowCount === 0)
+    throw new NotFoundError(
+      `Source dataset with ID ${sourceDatasetId} doesn't exist`
+    );
 }
 
 /**

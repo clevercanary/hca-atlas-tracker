@@ -26,7 +26,7 @@ import {
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { confirmComponentAtlasExistsOnAtlas } from "./component-atlases";
-import { doOrContinueTransaction, doTransaction, query } from "./database";
+import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
 type SourceDatasetInfoUpdateFields = Pick<
@@ -140,21 +140,22 @@ export async function getComponentAtlasSourceDataset(
 
 /**
  * Create a source dataset.
- * @param client - Optional Postgres client to reuse an existing transaction.
+ * @param fileId - Associated file ID for the new source dataset to reference.
+ * @param client - Postgres client to reuse an existing transaction.
  * @returns ID of the created source dataset.
  */
 export async function createSourceDataset(
-  client?: pg.PoolClient
+  fileId: string,
+  client: pg.PoolClient
 ): Promise<string> {
   const info = createSourceDatasetInfo();
-  return await doOrContinueTransaction(client, async (tx) => {
-    const insertResult = await tx.query<
-      Pick<HCAAtlasTrackerDBSourceDataset, "id">
-    >("INSERT INTO hat.source_datasets (sd_info) VALUES ($1) RETURNING id", [
-      JSON.stringify(info),
-    ]);
-    return insertResult.rows[0].id;
-  });
+  const insertResult = await client.query<
+    Pick<HCAAtlasTrackerDBSourceDataset, "id">
+  >(
+    "INSERT INTO hat.source_datasets (sd_info, file_id) VALUES ($1, $2) RETURNING id",
+    [JSON.stringify(info), fileId]
+  );
+  return insertResult.rows[0].id;
 }
 
 function createSourceDatasetInfo(): HCAAtlasTrackerDBSourceDatasetInfo {

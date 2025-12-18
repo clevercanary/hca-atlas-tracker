@@ -246,6 +246,30 @@ export async function confirmFilesExistOnAtlas(
 }
 
 /**
+ * Throw an error if the given file is not of the given type.
+ * @param fileId - ID of the file to check.
+ * @param expectedType - Expected type for the file.
+ * @param client - Postgres client to use.
+ */
+export async function confirmFileIsOfType(
+  fileId: string,
+  expectedType: FILE_TYPE,
+  client: pg.PoolClient
+): Promise<void> {
+  const result = await client.query<Pick<HCAAtlasTrackerDBFile, "file_type">>(
+    "SELECT file_type FROM hat.files WHERE id = $1",
+    [fileId]
+  );
+  if (result.rows.length === 0)
+    throw new NotFoundError(`File with ID ${fileId} doesn't exist`);
+  const file = result.rows[0];
+  if (file.file_type !== expectedType)
+    throw new InvalidOperationError(
+      `File ${fileId} is not of type ${expectedType}`
+    );
+}
+
+/**
  * Get IDs of files from a given list that have associated entities of a particular type which are not associated with the given atlas.
  * @param filesInfo - Array of files, represented by ID and linked entity IDs.
  * @param atlasId - ID of the atlas to check for the entities on.
@@ -272,6 +296,23 @@ async function getTypeFilesMissingFromAtlas(
   }
 }
 
+export interface FileUpsertData {
+  bucket: string;
+  componentAtlasId?: string | null;
+  etag: string;
+  eventInfo: string;
+  fileType: string;
+  integrityStatus: string;
+  isLatest?: boolean;
+  key: string;
+  sha256Client: string | null;
+  sizeBytes: number;
+  snsMessageId: string;
+  sourceDatasetId?: string | null;
+  validationStatus: FILE_VALIDATION_STATUS;
+  versionId: string | null;
+}
+
 /**
  * Insert or update a file record with conflict handling for duplicate S3 notifications.
  * @param fileData - File data to insert/update
@@ -294,22 +335,7 @@ async function getTypeFilesMissingFromAtlas(
  * @returns Operation result with etag and operation type
  */
 export async function upsertFileRecord(
-  fileData: {
-    bucket: string;
-    componentAtlasId: string | null;
-    etag: string;
-    eventInfo: string;
-    fileType: string;
-    integrityStatus: string;
-    isLatest?: boolean;
-    key: string;
-    sha256Client: string | null;
-    sizeBytes: number;
-    snsMessageId: string;
-    sourceDatasetId: string | null;
-    validationStatus: FILE_VALIDATION_STATUS;
-    versionId: string | null;
-  },
+  fileData: FileUpsertData,
   transaction: pg.PoolClient
 ): Promise<FileUpsertResult> {
   // First check if a file with same bucket/key/version already exists
@@ -361,8 +387,8 @@ export async function upsertFileRecord(
       fileData.validationStatus,
       isLatest,
       fileData.fileType,
-      fileData.sourceDatasetId,
-      fileData.componentAtlasId,
+      fileData.sourceDatasetId ?? null,
+      fileData.componentAtlasId ?? null,
       fileData.snsMessageId,
     ]
   );
@@ -448,6 +474,37 @@ export async function setFileIntegrityStatus(
     [integrityStatus, fileId],
     client
   );
+}
+
+/**
+ * Set the metadata object referenced by a file.
+ * @param fileId - ID of the file to update.
+ * @param fileType - File type.
+ * @param metadataObjectId - ID of a metadata object of the appropriate type, to set in the correspond field of the file.
+ * @param client - Postgres client to use.
+ */
+export async function setFileMetadataObjectId(
+  fileId: string,
+  fileType: FILE_TYPE,
+  metadataObjectId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await confirmFileIsOfType(fileId, fileType, client);
+  if (fileType === FILE_TYPE.INTEGRATED_OBJECT) {
+    await client.query(
+      "UPDATE hat.files SET component_atlas_id = $1 WHERE id = $2",
+      [metadataObjectId, fileId]
+    );
+  } else if (fileType === FILE_TYPE.SOURCE_DATASET) {
+    await client.query(
+      "UPDATE hat.files SET source_dataset_id = $1 WHERE id = $2",
+      [metadataObjectId, fileId]
+    );
+  } else {
+    throw new InvalidOperationError(
+      `Can't set metadata object ID for ${fileType} file ${fileId}`
+    );
+  }
 }
 
 /**
