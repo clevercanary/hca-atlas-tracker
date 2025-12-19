@@ -64,8 +64,10 @@ describe("migration-down environment guard", () => {
         stdio: "pipe",
       });
     } catch (error: unknown) {
-      const err = error as { stderr: Buffer; stdout: Buffer };
-      const errorOutput = err.stderr.toString() + err.stdout.toString();
+      // execSync throws an error with stderr and stdout as Buffers
+      const err = error as Error & { stderr?: Buffer; stdout?: Buffer };
+      const errorOutput =
+        (err.stderr?.toString() ?? "") + (err.stdout?.toString() ?? "");
       expect(errorOutput).toContain(
         "ERROR: migrate:down is only allowed in test environment"
       );
@@ -82,8 +84,10 @@ describe("migration-down environment guard", () => {
         stdio: "pipe",
       });
     } catch (error: unknown) {
-      const err = error as { stderr: Buffer; stdout: Buffer };
-      const errorOutput = err.stderr.toString() + err.stdout.toString();
+      // execSync throws an error with stderr and stdout as Buffers
+      const err = error as Error & { stderr?: Buffer; stdout?: Buffer };
+      const errorOutput =
+        (err.stderr?.toString() ?? "") + (err.stdout?.toString() ?? "");
       expect(errorOutput).toContain(
         "ERROR: migrate:down is only allowed in test environment"
       );
