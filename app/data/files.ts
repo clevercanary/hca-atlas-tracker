@@ -76,18 +76,16 @@ export async function getExistingMetadataObjectId(
   const { file_type: fileType, id: fileId } = fileResult.rows[0];
 
   if (fileType === FILE_TYPE.INTEGRATED_OBJECT) {
-    const result = await query<Pick<HCAAtlasTrackerComponentAtlas, "id">>(
-      "SELECT id FROM hat.component_atlases WHERE file_id = $1",
-      [fileId]
-    );
+    const result = await transaction.query<
+      Pick<HCAAtlasTrackerComponentAtlas, "id">
+    >("SELECT id FROM hat.component_atlases WHERE file_id = $1", [fileId]);
     if (result.rows.length === 0)
       throw new Error(`No component atlas found for file with ID ${fileId}`);
     return result.rows[0].id;
   } else if (fileType === FILE_TYPE.SOURCE_DATASET) {
-    const result = await query<Pick<HCAAtlasTrackerSourceDataset, "id">>(
-      "SELECT id FROM hat.source_datasets WHERE file_id = $1",
-      [fileId]
-    );
+    const result = await transaction.query<
+      Pick<HCAAtlasTrackerSourceDataset, "id">
+    >("SELECT id FROM hat.source_datasets WHERE file_id = $1", [fileId]);
     if (result.rows.length === 0)
       throw new Error(`No source dataset found for file with ID ${fileId}`);
     return result.rows[0].id;
