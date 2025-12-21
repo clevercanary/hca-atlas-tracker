@@ -558,7 +558,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           TEST_KEY_INTEGRATED,
-          FILE_TYPE.INTEGRATED_OBJECT,
           transaction
         );
       });
@@ -571,7 +570,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           "non/existent/file.h5ad",
-          FILE_TYPE.INTEGRATED_OBJECT,
           transaction
         );
       });
@@ -637,7 +635,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           TEST_KEY_INTEGRATED,
-          FILE_TYPE.INTEGRATED_OBJECT,
           transaction
         );
       });
@@ -670,7 +667,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           TEST_KEY_SOURCE_DATASET,
-          FILE_TYPE.SOURCE_DATASET,
           transaction
         );
       });
@@ -683,7 +679,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           "non/existent/dataset.h5ad",
-          FILE_TYPE.SOURCE_DATASET,
           transaction
         );
       });
@@ -743,7 +738,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           `${baseKey}.h5ad`,
-          FILE_TYPE.INTEGRATED_OBJECT,
           transaction
         );
       });
@@ -753,7 +747,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           `${baseKey}-dataset.h5ad`,
-          FILE_TYPE.SOURCE_DATASET,
           transaction
         );
       });
@@ -785,7 +778,6 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           "test/path/manifest.json",
-          FILE_TYPE.INGEST_MANIFEST,
           transaction
         );
       });

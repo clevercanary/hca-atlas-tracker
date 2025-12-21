@@ -37,13 +37,13 @@ export async function getAllAtlases(
         (
           SELECT COUNT(c.id)::int
           FROM hat.component_atlases c
-          JOIN hat.files f ON f.component_atlas_id = c.id
+          JOIN hat.files f ON f.id = c.file_id
           WHERE c.id = ANY(a.component_atlases) AND f.is_latest AND NOT f.is_archived
         ) AS component_atlas_count,
         (
           SELECT COUNT(d.id)::int
           FROM hat.source_datasets d
-          JOIN hat.files f ON f.source_dataset_id = d.id
+          JOIN hat.files f ON f.id = d.file_id
           WHERE d.id = ANY(a.source_datasets) AND f.is_latest AND NOT f.is_archived
         ) AS source_dataset_count,
         (
@@ -69,13 +69,13 @@ export async function getAtlas(
         (
           SELECT COUNT(c.id)::int
           FROM hat.component_atlases c
-          JOIN hat.files f ON f.component_atlas_id = c.id
+          JOIN hat.files f ON f.id = c.file_id
           WHERE c.id = ANY(a.component_atlases) AND f.is_latest AND NOT f.is_archived
         ) AS component_atlas_count,
         (
           SELECT COUNT(d.id)::int
           FROM hat.source_datasets d
-          JOIN hat.files f ON f.source_dataset_id = d.id
+          JOIN hat.files f ON f.id = d.file_id
           WHERE d.id = ANY(a.source_datasets) AND f.is_latest AND NOT f.is_archived
         ) AS source_dataset_count,
         (

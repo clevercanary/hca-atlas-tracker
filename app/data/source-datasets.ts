@@ -101,7 +101,7 @@ export async function getSourceDatasetsForApi(
           s.doi,
           s.study_info
         FROM hat.source_datasets d
-        JOIN hat.files f ON f.source_dataset_id = d.id
+        JOIN hat.files f ON f.id = d.file_id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
         WHERE d.id = ANY($1) AND f.is_latest AND f.is_archived = ANY($2)
       `,
@@ -145,7 +145,7 @@ export async function getSourceDatasetForDetailApi(
         s.doi,
         s.study_info
       FROM hat.source_datasets d
-      JOIN hat.files f ON f.source_dataset_id = d.id
+      JOIN hat.files f ON f.id = d.file_id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
       WHERE d.id = $1 AND f.is_latest
     `,
@@ -259,7 +259,7 @@ export async function confirmSourceDatasetsAreAvailable(
     `
       SELECT d.id
       FROM hat.source_datasets d
-      JOIN hat.files f ON f.source_dataset_id = d.id
+      JOIN hat.files f ON f.id = d.file_id
       WHERE d.id = ANY($1) AND f.is_latest AND NOT f.is_archived
     `,
     [sourceDatasetIds]
