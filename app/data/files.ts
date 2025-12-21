@@ -6,10 +6,14 @@ import {
   FILE_VALIDATION_STATUS,
   FileValidationReports,
   FileValidationSummary,
+  HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
+  HCAAtlasTrackerDBSourceDataset,
+  HCAAtlasTrackerSourceDataset,
   INTEGRITY_STATUS,
   NetworkKey,
   type FileEventInfo,
@@ -20,13 +24,9 @@ import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getVersionVariants } from "../utils/atlases";
 import { getAtlasSourceDatasetIds } from "./source-datasets";
 
-type MetadataObjectIdField = "component_atlas_id" | "source_dataset_id";
-
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {
   operation: "inserted" | "updated";
 };
-
-type FileEntityIdKeys = "id" | "component_atlas_id" | "source_dataset_id";
 
 export type FileArchiveStatusInfo = Pick<
   HCAAtlasTrackerDBFile,
@@ -56,34 +56,44 @@ export async function markPreviousVersionsAsNotLatest(
  * Get existing metadata object ID for a file based on file type.
  * @param bucket - S3 bucket name
  * @param key - S3 object key
- * @param fileType - Type of file (source_dataset, integrated_object, etc.)
  * @param transaction - Database transaction client
  * @returns Metadata object ID if found, null otherwise
  */
 export async function getExistingMetadataObjectId(
   bucket: string,
   key: string,
-  fileType: FILE_TYPE,
   transaction: pg.PoolClient
 ): Promise<string | null> {
-  let column: MetadataObjectIdField;
-
-  if (fileType === "integrated_object") {
-    column = "component_atlas_id";
-  } else if (fileType === "source_dataset") {
-    column = "source_dataset_id";
-  } else {
-    return null; // ingest_manifest files don't have metadata objects
-  }
-
-  const result = await transaction.query<
-    Pick<HCAAtlasTrackerDBFile, MetadataObjectIdField>
+  const fileResult = await transaction.query<
+    Pick<HCAAtlasTrackerDBFile, "file_type" | "id">
   >(
-    `SELECT component_atlas_id, source_dataset_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
+    `SELECT file_type, id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
     [bucket, key]
   );
 
-  return result.rows.length > 0 ? result.rows[0][column] : null;
+  if (fileResult.rows.length === 0) return null;
+
+  const { file_type: fileType, id: fileId } = fileResult.rows[0];
+
+  if (fileType === FILE_TYPE.INTEGRATED_OBJECT) {
+    const result = await query<Pick<HCAAtlasTrackerComponentAtlas, "id">>(
+      "SELECT id FROM hat.component_atlases WHERE file_id = $1",
+      [fileId]
+    );
+    if (result.rows.length === 0)
+      throw new Error(`No component atlas found for file with ID ${fileId}`);
+    return result.rows[0].id;
+  } else if (fileType === FILE_TYPE.SOURCE_DATASET) {
+    const result = await query<Pick<HCAAtlasTrackerSourceDataset, "id">>(
+      "SELECT id FROM hat.source_datasets WHERE file_id = $1",
+      [fileId]
+    );
+    if (result.rows.length === 0)
+      throw new Error(`No source dataset found for file with ID ${fileId}`);
+    return result.rows[0].id;
+  }
+
+  return null;
 }
 
 /**
@@ -168,72 +178,60 @@ export async function getAtlasByNetworkVersionAndShortName(
 }
 
 /**
- * Check that the specified file exists and has the specified atlas ID, throwing an error otherwise.
+ * Check that the specified file exists, is the latest version, and has the specified atlas ID, throwing an error otherwise.
  * @param fileId - ID of the file to check.
  * @param atlasId - ID of the atlas to check for.
- * @param requireLatest - Whether to require that the files are the latest versions. (Default true)
  */
 export async function confirmFileExistsOnAtlas(
   fileId: string,
-  atlasId: string,
-  requireLatest = true
+  atlasId: string
 ): Promise<void> {
-  await confirmFilesExistOnAtlas([fileId], atlasId, requireLatest);
+  await confirmFilesExistOnAtlas([fileId], atlasId);
 }
 
 /**
- * Check that the specified files exist and are associated via linked entities with the specified atlas, throwing an error otherwise.
+ * Check that the specified files exist, are the latest version, and are associated via linked entities with the specified atlas, and throw an error if any aren't.
  * @param fileIds - IDs of the files to check.
  * @param atlasId - ID of the atlas to check for.
- * @param requireLatest - Whether to require that the files are the latest versions. (Default true)
  */
 export async function confirmFilesExistOnAtlas(
   fileIds: string[],
-  atlasId: string,
-  requireLatest = true
+  atlasId: string
 ): Promise<void> {
   const { rows: filesInfo } = await query<
-    Pick<HCAAtlasTrackerDBFile, FileEntityIdKeys | "is_latest">
-  >(
-    "SELECT id, component_atlas_id, source_dataset_id, is_latest FROM hat.files WHERE id=ANY($1)",
-    [fileIds]
-  );
+    Pick<HCAAtlasTrackerDBFile, "file_type" | "id" | "is_latest">
+  >("SELECT file_type, id, is_latest FROM hat.files WHERE id=ANY($1)", [
+    fileIds,
+  ]);
 
   confirmQueryRowsContainIds(filesInfo, fileIds, "files");
 
-  if (requireLatest) {
-    const nonLatestFileIds = filesInfo
-      .filter((f) => !f.is_latest)
-      .map((f) => f.id);
-    if (nonLatestFileIds.length)
-      throw new InvalidOperationError(
-        `Specified file ID(s) are not latest version: ${nonLatestFileIds.join(
-          ", "
-        )}`
-      );
-  }
+  const nonLatestFileIds = filesInfo
+    .filter((f) => !f.is_latest)
+    .map((f) => f.id);
+  if (nonLatestFileIds.length)
+    throw new InvalidOperationError(
+      `Specified file ID(s) are not latest version: ${nonLatestFileIds.join(
+        ", "
+      )}`
+    );
 
+  // Get file IDs that are not associated with the atlas for each file type
   const missingFileIds = [
-    // Files without entities that would associate them with an atlas
-    ...filesInfo
-      .filter(
-        (file) =>
-          file.component_atlas_id === null && file.source_dataset_id === null
-      )
-      .map((file) => file.id),
-    // Integrated object files not on the atlas
     ...(await getTypeFilesMissingFromAtlas(
+      FILE_TYPE.INGEST_MANIFEST,
       filesInfo,
-      atlasId,
-      "component_atlas_id",
-      getAtlasComponentAtlasIds
+      atlasId
     )),
-    // Source dataset files not on the atlas
     ...(await getTypeFilesMissingFromAtlas(
+      FILE_TYPE.INTEGRATED_OBJECT,
       filesInfo,
-      atlasId,
-      "source_dataset_id",
-      getAtlasSourceDatasetIds
+      atlasId
+    )),
+    ...(await getTypeFilesMissingFromAtlas(
+      FILE_TYPE.SOURCE_DATASET,
+      filesInfo,
+      atlasId
     )),
   ];
 
@@ -271,29 +269,71 @@ export async function confirmFileIsOfType(
 
 /**
  * Get IDs of files from a given list that have associated entities of a particular type which are not associated with the given atlas.
- * @param filesInfo - Array of files, represented by ID and linked entity IDs.
+ * @param fileType - Type of file limit check to.
+ * @param filesInfo - Array of files, represented by ID and file type.
  * @param atlasId - ID of the atlas to check for the entities on.
- * @param idKey - Key of the entity type's ID in the file objects.
- * @param getAtlasEntityIds - Function to get list of IDs of entities of the desired type for an atlas.
  * @returns file IDs.
  */
 async function getTypeFilesMissingFromAtlas(
-  filesInfo: Pick<HCAAtlasTrackerDBFile, FileEntityIdKeys>[],
-  atlasId: string,
-  idKey: "component_atlas_id" | "source_dataset_id",
-  getAtlasEntityIds: (atlasId: string) => Promise<string[]>
+  fileType: FILE_TYPE,
+  filesInfo: Pick<HCAAtlasTrackerDBFile, "file_type" | "id">[],
+  atlasId: string
 ): Promise<string[]> {
-  if (filesInfo.some((f) => f[idKey] !== null)) {
-    const atlasEntityIds = new Set(await getAtlasEntityIds(atlasId));
-    const missingFileIds: string[] = [];
-    for (const file of filesInfo) {
-      if (file[idKey] !== null && !atlasEntityIds.has(file[idKey]))
-        missingFileIds.push(file.id);
+  const fileIds = filesInfo
+    .filter((f) => f.file_type === fileType)
+    .map((f) => f.id);
+
+  if (fileIds.length === 0) return [];
+
+  // Ingest manifests are not associated with atlases at a database level
+  if (fileType === FILE_TYPE.INGEST_MANIFEST) return fileIds;
+
+  let metadataEntities: Array<{ file_id: string; id: string }>;
+  let getAtlasEntityIds: (atlasId: string) => Promise<string[]>;
+
+  switch (fileType) {
+    case FILE_TYPE.INTEGRATED_OBJECT: {
+      metadataEntities = (
+        await query<Pick<HCAAtlasTrackerDBComponentAtlas, "file_id" | "id">>(
+          "SELECT file_id, id FROM hat.component_atlases WHERE file_id = ANY($1)",
+          [fileIds]
+        )
+      ).rows;
+      getAtlasEntityIds = getAtlasComponentAtlasIds;
+      break;
     }
-    return missingFileIds;
-  } else {
-    return [];
+    case FILE_TYPE.SOURCE_DATASET: {
+      metadataEntities = (
+        await query<Pick<HCAAtlasTrackerDBSourceDataset, "file_id" | "id">>(
+          "SELECT file_id, id FROM hat.source_datasets WHERE file_id = ANY($1)",
+          [fileIds]
+        )
+      ).rows;
+      getAtlasEntityIds = getAtlasSourceDatasetIds;
+      break;
+    }
   }
+
+  const idsWithMetadataEntities = new Set(
+    metadataEntities.map((m) => m.file_id)
+  );
+  const idsWithoutMetadataEntities = fileIds.filter(
+    (id) => !idsWithMetadataEntities.has(id)
+  );
+  if (idsWithoutMetadataEntities.length)
+    throw new Error(
+      `No metadata entities found for files of type ${fileType} with ID(s): ${idsWithoutMetadataEntities.join(
+        ", "
+      )}`
+    );
+
+  const atlasEntityIds = new Set(await getAtlasEntityIds(atlasId));
+  const missingFileIds: string[] = [];
+  for (const entity of metadataEntities) {
+    if (!atlasEntityIds.has(entity.id)) missingFileIds.push(entity.file_id);
+  }
+
+  return missingFileIds;
 }
 
 export interface FileUpsertData {

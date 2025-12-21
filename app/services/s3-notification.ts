@@ -361,7 +361,6 @@ async function saveFileRecord(
     metadataObjectId = await getExistingMetadataObjectId(
       bucket.name,
       object.key,
-      fileType,
       transaction
     );
 
