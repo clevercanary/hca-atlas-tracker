@@ -161,7 +161,7 @@ async function generateAndAddFileVersionsForEntities(
 
   if (componentAtlasIds.length) {
     const queryResult = await client.query<HCAAtlasTrackerDBFile>(
-      "SELECT * FROM hat.files WHERE is_latest AND component_atlas_id=ANY($1)",
+      "SELECT f.* FROM hat.files f JOIN hat.component_atlases c ON f.id=c.file_id WHERE f.is_latest AND c.id=ANY($1)",
       [componentAtlasIds]
     );
     files.push(...queryResult.rows);
@@ -169,7 +169,7 @@ async function generateAndAddFileVersionsForEntities(
 
   if (sourceDatasetIds.length) {
     const queryResult = await client.query<HCAAtlasTrackerDBFile>(
-      "SELECT * FROM hat.files WHERE is_latest AND source_dataset_id=ANY($1)",
+      "SELECT f.* FROM hat.files f JOIN hat.source_datasets d ON f.id=d.file_id WHERE f.is_latest AND d.id=ANY($1)",
       [sourceDatasetIds]
     );
     files.push(...queryResult.rows);

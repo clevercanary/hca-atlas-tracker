@@ -75,7 +75,7 @@ export async function getAtlasSourceStudies(
                 LEFT JOIN (
                   SELECT fd.id, fd.source_study_id
                   FROM hat.source_datasets fd
-                  JOIN hat.files f ON f.source_dataset_id = fd.id
+                  JOIN hat.files f ON f.id = fd.file_id
                   WHERE f.is_latest AND NOT f.is_archived
                 ) as d ON d.source_study_id=s.id
                 WHERE s.id=ANY($1)
@@ -138,7 +138,7 @@ export async function getSourceStudy(
           LEFT JOIN (
             SELECT fd.id, fd.source_study_id
             FROM hat.source_datasets fd
-            JOIN hat.files f ON f.source_dataset_id = fd.id
+            JOIN hat.files f ON f.id = fd.file_id
             WHERE f.is_latest AND NOT f.is_archived
           ) as d ON d.source_study_id=s.id
           WHERE s.id=$1

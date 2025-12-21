@@ -301,12 +301,22 @@ async function getFileIdsByEntityKeywords(
     componentAtlasIds.push(...componentAtlasesResult.rows.map((r) => r.id));
   }
 
-  if (sourceDatasetIds.length || componentAtlasIds.length) {
-    const result = await client.query<Pick<HCAAtlasTrackerDBFile, "id">>(
-      "SELECT f.id FROM hat.files f WHERE f.source_dataset_id=ANY($1) OR f.component_atlas_id=ANY($2)",
-      [sourceDatasetIds, componentAtlasIds]
-    );
-    fileIds.push(...result.rows.map((r) => r.id));
+  if (sourceDatasetIds.length) {
+    const result = await client.query<
+      Pick<HCAAtlasTrackerDBSourceDataset, "file_id">
+    >("SELECT file_id FROM hat.source_datasets WHERE id=ANY($1)", [
+      sourceDatasetIds,
+    ]);
+    fileIds.push(...result.rows.map((r) => r.file_id));
+  }
+
+  if (componentAtlasIds.length) {
+    const result = await client.query<
+      Pick<HCAAtlasTrackerDBComponentAtlas, "file_id">
+    >("SELECT file_id FROM hat.component_atlases WHERE id=ANY($1)", [
+      componentAtlasIds,
+    ]);
+    fileIds.push(...result.rows.map((r) => r.file_id));
   }
 
   if (!fileIds.length) throw new Error("No files found matching keywords");

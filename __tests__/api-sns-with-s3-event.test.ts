@@ -45,8 +45,10 @@ import { endPgPool, query } from "../app/services/database";
 import {
   countComponentAtlases,
   countSourceDatasets,
+  expectFileNotToBeReferencedByAnyMetadataEntity,
   expectOldFileNotToBeReferencedByMetadataEntity,
   expectReferenceBetweenFileAndMetadataEntity,
+  getFileMetadataEntity,
   resetDatabase,
 } from "../testing/db-utils";
 import { expectIsDefined, withConsoleMessageHiding } from "../testing/utils";
@@ -219,9 +221,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstFile.is_latest).toBe(true);
 
     // Capture the created source dataset id before update
-    const sourceDatasetId = firstFile.source_dataset_id;
-    if (sourceDatasetId === null)
-      throw new Error(`Source dataset ID missing for new file ${firstFile.id}`);
+    const sourceDatasetId = (await getFileMetadataEntity(firstFile)).id;
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(
@@ -342,11 +342,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstFile.is_latest).toBe(true);
 
     // Capture the created component atlas id before update
-    const componentAtlasId = firstFile.component_atlas_id;
-    if (componentAtlasId === null)
-      throw new Error(
-        `Component atlas ID missing for new file ${firstFile.id}`
-      );
+    const componentAtlasId = (await getFileMetadataEntity(firstFile)).id;
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(
@@ -476,12 +472,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Verify source dataset was created and linked to atlas
-    const sourceDatasetRows = await query(
-      "SELECT DISTINCT source_dataset_id AS id FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
-    );
-    expect(sourceDatasetRows.rows).toHaveLength(1);
-    const sourceDatasetId = sourceDatasetRows.rows[0].id;
+    const sourceDatasetId = (await getFileMetadataEntity(file)).id;
 
     // Verify atlas has the source dataset in its source_datasets array
     const atlasRows = await query(
@@ -544,12 +535,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Verify component was created and linked to atlas
-    const componentAtlasRows = await query(
-      "SELECT DISTINCT component_atlas_id AS id FROM hat.files WHERE bucket = $1 AND key = $2",
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
-    );
-    expect(componentAtlasRows.rows).toHaveLength(1);
-    const componentAtlasId = componentAtlasRows.rows[0].id;
+    const componentAtlasId = (await getFileMetadataEntity(file)).id;
 
     // Verify atlas has the component atlas in its component_atlases array
     const atlasRows = await query(
@@ -1243,6 +1229,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.REQUESTED);
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
+
+    await expectReferenceBetweenFileAndMetadataEntity(file.id);
   });
 
   it("ingest manifest does not create metadata objects", async () => {
@@ -1288,6 +1276,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.file_type).toBe("ingest_manifest");
     expect(file.component_atlas_id).toBeNull();
     expect(file.source_dataset_id).toBeNull();
+    await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
 
     // Verify no new metadata objects were created
     const afterSdCount = await countSourceDatasets();
@@ -1431,6 +1420,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
           ? INTEGRITY_STATUS.REQUESTED
           : INTEGRITY_STATUS.PENDING
       );
+
+      if (file.file_type !== FILE_TYPE.INGEST_MANIFEST)
+        await expectReferenceBetweenFileAndMetadataEntity(file.id);
     }
   );
 

@@ -35,7 +35,7 @@ export async function getAtlasComponentAtlases(
           (
             SELECT COUNT(d.id)::int
             FROM hat.source_datasets d
-            JOIN hat.files f ON f.source_dataset_id = d.id
+            JOIN hat.files f ON f.id = d.file_id
             WHERE d.id = ANY(ca.source_datasets) AND f.is_latest AND NOT f.is_archived
           ) AS source_dataset_count,
           f.event_info,
@@ -48,7 +48,7 @@ export async function getAtlasComponentAtlases(
           f.validation_status,
           f.validation_summary
         FROM hat.component_atlases ca
-        JOIN hat.files f ON f.component_atlas_id = ca.id
+        JOIN hat.files f ON f.id = ca.file_id
         WHERE f.is_latest AND f.is_archived = $2 AND ca.id=ANY($1)
       `,
     [componentAtlasIds, isArchivedValue]
@@ -76,7 +76,7 @@ export async function getComponentAtlas(
         (
           SELECT COUNT(d.id)::int
           FROM hat.source_datasets d
-          JOIN hat.files f ON f.source_dataset_id = d.id
+          JOIN hat.files f ON f.id = d.file_id
           WHERE d.id = ANY(ca.source_datasets) AND f.is_latest AND NOT f.is_archived
         ) AS source_dataset_count,
         f.event_info,
@@ -90,7 +90,7 @@ export async function getComponentAtlas(
         f.validation_summary,
         f.validation_reports
       FROM hat.component_atlases ca
-      JOIN hat.files f ON f.component_atlas_id = ca.id
+      JOIN hat.files f ON f.id = ca.file_id
       WHERE f.is_latest AND ca.id=$1
     `,
     [componentAtlasId],
@@ -305,7 +305,7 @@ export async function confirmComponentAtlasIsAvailable(
     `
         SELECT f.is_archived
         FROM hat.component_atlases c
-        JOIN hat.files f ON f.component_atlas_id = c.id
+        JOIN hat.files f ON f.id = c.file_id
         WHERE c.id = $1 AND f.is_latest
       `,
     [componentAtlasId]
