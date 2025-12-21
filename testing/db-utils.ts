@@ -716,19 +716,28 @@ export async function expectOldFileNotToBeReferencedByMetadataEntity(
   const file = await getFileFromDatabase(fileId);
   if (file === undefined) throw new Error(`File ${fileId} not found`);
 
+  expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
+  if (file.file_type === FILE_TYPE.INGEST_MANIFEST) return;
+
   expect(file.is_latest).toEqual(false);
 
   if (metadataEntityId === undefined) {
-    expect(
-      file.file_type === FILE_TYPE.INTEGRATED_OBJECT
-        ? file.component_atlas_id
-        : file.source_dataset_id
-    ).toBeTruthy();
+    switch (file.file_type) {
+      case FILE_TYPE.INTEGRATED_OBJECT: {
+        expect(file.component_atlas_id).toBeTruthy();
+        break;
+      }
+      case FILE_TYPE.SOURCE_DATASET: {
+        expect(file.source_dataset_id).toBeTruthy();
+        break;
+      }
+    }
     await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
   } else {
-    const metadataEntity = await (file.file_type === FILE_TYPE.INTEGRATED_OBJECT
-      ? getComponentAtlasFromDatabase
-      : getSourceDatasetFromDatabase)(metadataEntityId);
+    const metadataEntity = await getMetadataEntityOfType(
+      metadataEntityId,
+      file.file_type
+    );
     if (expectIsDefined(metadataEntity)) {
       expectFileToReferenceMetadataEntity(file, metadataEntity.id);
       expect(metadataEntity.file_id).not.toEqual(fileId);
@@ -811,6 +820,22 @@ export async function getFileMetadataEntity(
     return metadataEntityResult.rows[0];
   } else {
     throw new Error(`${file.file_type} file can't have a metadata entity`);
+  }
+}
+
+async function getMetadataEntityOfType(
+  metadataEntityId: string,
+  fileType: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET
+): Promise<
+  HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
+> {
+  switch (fileType) {
+    case FILE_TYPE.INTEGRATED_OBJECT: {
+      return await getComponentAtlasFromDatabase(metadataEntityId);
+    }
+    case FILE_TYPE.SOURCE_DATASET: {
+      return await getSourceDatasetFromDatabase(metadataEntityId);
+    }
   }
 }
 
