@@ -2,7 +2,7 @@
 # docker run -p 3000:3000 tracker-node
 
 # Base stage
-FROM --platform=linux/amd64 node:20 AS base
+FROM --platform=linux/amd64 node:20.10.0 AS base
 
 # Deps stage
 FROM base AS deps
@@ -10,9 +10,6 @@ WORKDIR /app
 ARG ENVIRONMENT
 ENV ENVIRONMENT ${ENVIRONMENT}
 COPY ./package*.json ./
-RUN node --version
-RUN npm install -g n
-RUN n 20.10.0
 RUN node --version
 RUN npm ci
 
