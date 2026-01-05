@@ -4,7 +4,7 @@
 
 ### Setup
 
-Use Node.js version `20.10.0`.
+Use Node.js version `22.12.0`.
 
 Run `npm install`.
 
