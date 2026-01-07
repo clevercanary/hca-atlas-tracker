@@ -114,51 +114,51 @@ export function makeConfig(
       typography: {
         [TYPOGRAPHY_PROPS.VARIANT.BODY_LARGE_500]: {
           fontFamily: FONT_FAMILY_DIN,
-          fontSize: 18,
+          fontSize: "18px",
           fontWeight: 400,
         },
         [TYPOGRAPHY_PROPS.VARIANT.HEADING]: {
           fontFamily: FONT_FAMILY_DIN,
-          fontSize: 22,
+          fontSize: "22px",
           fontWeight: 400,
           letterSpacing: "normal",
           // eslint-disable-next-line sort-keys -- disabling key order for readability
           [MEDIA_TABLET_UP]: {
-            fontSize: 26,
+            fontSize: "26px",
             letterSpacing: "normal",
           },
         },
         [TYPOGRAPHY_PROPS.VARIANT.HEADING_LARGE]: {
           fontFamily: FONT_FAMILY_DIN,
-          fontSize: 26,
+          fontSize: "26px",
           fontWeight: 400,
           letterSpacing: "normal",
           lineHeight: "34px",
           // eslint-disable-next-line sort-keys -- disabling key order for readability
           [MEDIA_TABLET_UP]: {
-            fontSize: 32,
+            fontSize: "32px",
             letterSpacing: "normal",
           },
         },
         [TYPOGRAPHY_PROPS.VARIANT.HEADING_SMALL]: {
           fontFamily: FONT_FAMILY_DIN,
-          fontSize: 20,
+          fontSize: "20px",
           fontWeight: 400,
           letterSpacing: "normal",
           // eslint-disable-next-line sort-keys -- disabling key order for readability
           [MEDIA_TABLET_UP]: {
-            fontSize: 22,
+            fontSize: "22px",
             letterSpacing: "normal",
           },
         },
         [TYPOGRAPHY_PROPS.VARIANT.HEADING_XLARGE]: {
           fontFamily: FONT_FAMILY_DIN,
-          fontSize: 32,
+          fontSize: "32px",
           fontWeight: 400,
           letterSpacing: "normal",
           // eslint-disable-next-line sort-keys -- disabling key order for readability
           [MEDIA_TABLET_UP]: {
-            fontSize: 42,
+            fontSize: "42px",
             letterSpacing: "-0.4px",
           },
         },
