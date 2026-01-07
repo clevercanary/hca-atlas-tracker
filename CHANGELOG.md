@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.52.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.51.0...v1.52.0) (2026-01-07)
+
+
+### Features
+
+* add `file_id` columns to component atlas and source dataset tables ([#1049](https://github.com/clevercanary/hca-atlas-tracker/issues/1049)) ([#1050](https://github.com/clevercanary/hca-atlas-tracker/issues/1050)) ([b6ff24f](https://github.com/clevercanary/hca-atlas-tracker/commit/b6ff24f4907879e5bf2aefefaabdd99a1f900534))
+
+
+### Chores
+
+* upgrade @databiosphere/findable-ui to the latest version ([#1051](https://github.com/clevercanary/hca-atlas-tracker/issues/1051)) ([#1061](https://github.com/clevercanary/hca-atlas-tracker/issues/1061)) ([ebb1f2d](https://github.com/clevercanary/hca-atlas-tracker/commit/ebb1f2d6303dee77921a2c454f35b51899fbf5b8))
+
+
+### Code Refactoring
+
+* use `file_id` to relate metadata entities to files ([#1056](https://github.com/clevercanary/hca-atlas-tracker/issues/1056)) ([#1059](https://github.com/clevercanary/hca-atlas-tracker/issues/1059)) ([9e600b8](https://github.com/clevercanary/hca-atlas-tracker/commit/9e600b827eb1986878ad84403ec1a68362926a1e))
+
 ## [1.51.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.50.0...v1.51.0) (2025-12-17)
 
 
