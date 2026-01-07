@@ -716,14 +716,33 @@ export async function expectOldFileNotToBeReferencedByMetadataEntity(
   const file = await getFileFromDatabase(fileId);
   if (file === undefined) throw new Error(`File ${fileId} not found`);
 
+  expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
+  if (file.file_type === FILE_TYPE.INGEST_MANIFEST) return;
+
   expect(file.is_latest).toEqual(false);
 
-  const metadataEntity = await expectGetFileMetadataEntity(
-    file,
-    metadataEntityId
-  );
-
-  expect(metadataEntity.file_id).not.toEqual(fileId);
+  if (metadataEntityId === undefined) {
+    switch (file.file_type) {
+      case FILE_TYPE.INTEGRATED_OBJECT: {
+        expect(file.component_atlas_id).toBeTruthy();
+        break;
+      }
+      case FILE_TYPE.SOURCE_DATASET: {
+        expect(file.source_dataset_id).toBeTruthy();
+        break;
+      }
+    }
+    await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
+  } else {
+    const metadataEntity = await getMetadataEntityOfType(
+      metadataEntityId,
+      file.file_type
+    );
+    if (expectIsDefined(metadataEntity)) {
+      expectFileToReferenceMetadataEntity(file, metadataEntity.id);
+      expect(metadataEntity.file_id).not.toEqual(fileId);
+    }
+  }
 }
 
 export async function expectReferenceBetweenFileAndMetadataEntity(
@@ -740,7 +759,34 @@ export async function expectReferenceBetweenFileAndMetadataEntity(
     knownMetadataEntityId
   );
 
+  expectFileToReferenceMetadataEntity(file, metadataEntity.id);
   expect(metadataEntity.file_id).toEqual(file.id);
+}
+
+function expectFileToReferenceMetadataEntity(
+  file: HCAAtlasTrackerDBFile,
+  metadataEntityId: string
+): void {
+  expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
+  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+    expect(file.component_atlas_id).toEqual(metadataEntityId);
+    expect(file.source_dataset_id).toBeNull();
+  } else {
+    expect(file.source_dataset_id).toEqual(metadataEntityId);
+    expect(file.component_atlas_id).toBeNull();
+  }
+}
+
+export async function expectFileNotToBeReferencedByAnyMetadataEntity(
+  fileId: string
+): Promise<void> {
+  const {
+    rows: [{ referenced }],
+  } = await query<{ referenced: boolean }>(
+    "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE file_id = $1) OR EXISTS(SELECT 1 FROM hat.source_datasets WHERE file_id = $1) AS referenced",
+    [fileId]
+  );
+  expect(referenced).toEqual(false);
 }
 
 async function expectGetFileMetadataEntity(
@@ -753,38 +799,44 @@ async function expectGetFileMetadataEntity(
   return metadataEntity;
 }
 
-async function getFileMetadataEntity(
+export async function getFileMetadataEntity(
   file: HCAAtlasTrackerDBFile
 ): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
-  let metadataEntityFunc: (
-    id: string
-  ) => Promise<
-    HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
-  >;
-  let metadataEntityId: string | null;
-  let metadataEntityTypeName: string;
   if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
-    metadataEntityFunc = getComponentAtlasFromDatabase;
-    metadataEntityId = file.component_atlas_id;
-    metadataEntityTypeName = "component atlas";
+    const metadataEntityResult = await query<HCAAtlasTrackerDBComponentAtlas>(
+      "SELECT * FROM hat.component_atlases WHERE file_id = $1",
+      [file.id]
+    );
+    if (metadataEntityResult.rows.length === 0)
+      throw new Error(`No component atlas found for file ${file.id}`);
+    return metadataEntityResult.rows[0];
   } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
-    metadataEntityFunc = getSourceDatasetFromDatabase;
-    metadataEntityId = file.source_dataset_id;
-    metadataEntityTypeName = "source dataset";
+    const metadataEntityResult = await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE file_id = $1",
+      [file.id]
+    );
+    if (metadataEntityResult.rows.length === 0)
+      throw new Error(`No source dataset found for file ${file.id}`);
+    return metadataEntityResult.rows[0];
   } else {
     throw new Error(`${file.file_type} file can't have a metadata entity`);
   }
+}
 
-  if (metadataEntityId === null)
-    throw new Error(`File ${file.id} is missing ${metadataEntityTypeName} ID`);
-
-  const metadataEntity = await metadataEntityFunc(metadataEntityId);
-  if (metadataEntity === undefined)
-    throw new Error(
-      `No entry found for ${metadataEntityTypeName} ${metadataEntityId}`
-    );
-
-  return metadataEntity;
+async function getMetadataEntityOfType(
+  metadataEntityId: string,
+  fileType: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET
+): Promise<
+  HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
+> {
+  switch (fileType) {
+    case FILE_TYPE.INTEGRATED_OBJECT: {
+      return await getComponentAtlasFromDatabase(metadataEntityId);
+    }
+    case FILE_TYPE.SOURCE_DATASET: {
+      return await getSourceDatasetFromDatabase(metadataEntityId);
+    }
+  }
 }
 
 // Simple count helpers for tests
