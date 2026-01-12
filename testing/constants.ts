@@ -3000,6 +3000,7 @@ export const COMPONENT_ATLAS_DRAFT_FOO = {
     SOURCE_DATASET_FOOBAR,
     SOURCE_DATASET_FOOBAZ,
   ],
+  versionId: "0b90d764-dc6a-4f4a-8a13-596e4812cb7d",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_DRAFT_BAR = {
@@ -3046,6 +3047,7 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
     SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
   ],
+  versionId: "e57cdeb3-5694-479a-b7b1-3b68ec01cf17",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_FOO = {
@@ -3078,6 +3080,7 @@ export const COMPONENT_ATLAS_MISC_FOO = {
     SOURCE_DATASET_OTHER_FOO,
     SOURCE_DATASET_OTHER_BAR,
   ],
+  versionId: "60a0db23-8918-4145-8893-d7efd3e7c44c",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_BAR = {
@@ -3105,6 +3108,7 @@ export const COMPONENT_ATLAS_MISC_BAR = {
   },
   id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
   sourceDatasets: [],
+  versionId: "3f2bfe87-e5a8-492a-a926-47af2171e1e2",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_MISC_BAZ = {
@@ -3132,6 +3136,7 @@ export const COMPONENT_ATLAS_MISC_BAZ = {
   },
   id: "23f603d3-57cd-44b9-a3c0-14e671fb2835",
   sourceDatasets: [],
+  versionId: "89b3236e-64ed-45cf-997a-9816d01bc1ff",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
@@ -3163,6 +3168,7 @@ export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
     SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   ],
+  versionId: "712e5187-20d2-4633-b206-f9f5a79085b0",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
@@ -3190,6 +3196,7 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
   },
   id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
   sourceDatasets: [],
+  versionId: "a7019e17-c7aa-4aaa-8740-d82f7c71e6ca",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
@@ -3217,6 +3224,7 @@ export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
   },
   id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
   sourceDatasets: [],
+  versionId: "6de65567-692f-4a04-b792-e2ba6b500abb",
 } satisfies TestComponentAtlas;
 
 const BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
@@ -3274,6 +3282,7 @@ export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
     SOURCE_DATASET_ARCHIVED_FOO,
     SOURCE_DATASET_WITH_MULTIPLE_FILES,
   ],
+  versionId: "6b3cbe31-093c-4053-8003-040bd86f9074",
 } satisfies TestComponentAtlas;
 
 const BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
@@ -3317,6 +3326,7 @@ export const COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
   ],
   id: "0b3a43c0-6871-4000-9351-d759f0cd78c8",
   sourceDatasets: [],
+  versionId: "6a8f3af9-34c7-43c9-9042-ff0b106935b7",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_FOO = {
@@ -3348,6 +3358,7 @@ export const COMPONENT_ATLAS_ARCHIVED_FOO = {
     SOURCE_DATASET_ARCHIVED_FOO,
     SOURCE_DATASET_WITH_MULTIPLE_FILES,
   ],
+  versionId: "c0733faa-2227-43fc-94bd-d2f125d93b8a",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_BAR = {
@@ -3376,6 +3387,7 @@ export const COMPONENT_ATLAS_ARCHIVED_BAR = {
   },
   id: "49571b1f-5059-4840-9e8c-37c5ea0e9e5b",
   sourceDatasets: [],
+  versionId: "ed3af29f-ff6b-416c-ac95-977cf83436d4",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
@@ -3404,6 +3416,7 @@ export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
   },
   id: "46421b3a-3e5a-48a7-bb44-1f7c9295ec2e",
   sourceDatasets: [],
+  versionId: "dc114d50-032b-4bfb-89f5-3d576b3abb0e",
 } satisfies TestComponentAtlas;
 
 export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
@@ -3432,6 +3445,7 @@ export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
   },
   id: "dd42e5b7-e829-45cb-8ea9-9286487d9ae0",
   sourceDatasets: [],
+  versionId: "bb4a9576-b865-4beb-85a8-be77074c6353",
 } satisfies TestComponentAtlas;
 
 // Component atlases to initialize in the database before tests

@@ -161,7 +161,7 @@ async function generateAndAddFileVersionsForEntities(
 
   if (componentAtlasIds.length) {
     const queryResult = await client.query<HCAAtlasTrackerDBFile>(
-      "SELECT f.* FROM hat.files f JOIN hat.component_atlases c ON f.id=c.file_id WHERE f.is_latest AND c.id=ANY($1)",
+      "SELECT f.* FROM hat.files f JOIN hat.component_atlases c ON f.id=c.file_id WHERE c.is_latest AND c.id=ANY($1)",
       [componentAtlasIds]
     );
     files.push(...queryResult.rows);
@@ -200,7 +200,9 @@ async function categorizeEntityIds(
 
   const componentAtlasesResult = await client.query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "id">
-  >("SELECT id FROM hat.component_atlases WHERE id=ANY($1)", [entityIds]);
+  >("SELECT id FROM hat.component_atlases WHERE id=ANY($1) AND is_latest", [
+    entityIds,
+  ]);
   const componentAtlasIds = componentAtlasesResult.rows.map(({ id }) => id);
 
   const sourceDatasetsResult = await client.query<
@@ -295,39 +297,69 @@ async function generateAndAddVersionsForFile(
     GENERATED_FILE_VERSION_AMOUNT_MAX
   );
 
+  const newIds: string[] = [];
   let latestId = file.id;
 
   for (let i = 0; i < numVersions; i++) {
     await client.query("UPDATE hat.files SET is_latest=FALSE WHERE id=$1", [
       latestId,
     ]);
-    latestId = (
+    const newId = (
       await generateAndAddFileVersion(
         client,
         file.bucket,
         file.version_id !== null,
         file.file_type,
         file.source_dataset_id,
-        file.component_atlas_id,
         file.key
       )
     ).id;
+    newIds.push(newId);
+    latestId = newId;
   }
 
-  let metadataEntityResult: pg.QueryResult | null = null;
   if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
-    metadataEntityResult = await client.query(
-      "UPDATE hat.component_atlases SET file_id = $1 WHERE file_id = $2",
-      [latestId, file.id]
+    const componentAtlasResult =
+      await client.query<HCAAtlasTrackerDBComponentAtlas>(
+        "UPDATE hat.component_atlases SET is_latest = FALSE WHERE file_id = $1 RETURNING *",
+        [file.id]
+      );
+    if (componentAtlasResult.rowCount === 0)
+      throw new Error(`Failed to find metadata entity for file ${file.id}`);
+    const existingComponentAtlas = componentAtlasResult.rows[0];
+    let newComponentAtlasVersion = existingComponentAtlas.version_id;
+    for (const [i, newId] of newIds.entries()) {
+      const newComponentAtlasResult = await client.query<
+        Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
+      >(
+        `
+          INSERT INTO hat.component_atlases (component_info, file_id, id, is_latest, source_datasets, wip_number)
+          VALUES ($1, $2 $3, $4, $5, $6)
+          RETURNING version_id
+        `,
+        [
+          JSON.stringify(existingComponentAtlas.component_info),
+          newId,
+          existingComponentAtlas.id,
+          i === newIds.length - 1,
+          existingComponentAtlas.source_datasets,
+          existingComponentAtlas.wip_number + 1 + i,
+        ]
+      );
+      newComponentAtlasVersion = newComponentAtlasResult.rows[0].version_id;
+    }
+    await client.query(
+      "UPDATE hat.atlases SET component_atlases = ARRAY_REPLACE(component_atlases, $1, $2)",
+      [existingComponentAtlas.version_id, newComponentAtlasVersion]
     );
   } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
-    metadataEntityResult = await client.query(
+    const sourceDatasetResult = await client.query(
       "UPDATE hat.source_datasets SET file_id = $1 WHERE file_id = $2",
       [latestId, file.id]
     );
+    if (sourceDatasetResult.rowCount === 0)
+      throw new Error(`Failed to find metadata entity for file ${file.id}`);
   }
-  if (metadataEntityResult?.rowCount === 0)
-    throw new Error(`Failed to find metadata entity for file ${file.id}`);
 
   return numVersions;
 }
@@ -351,7 +383,6 @@ async function generateAndAddFile(
     versioned,
     fileType,
     null,
-    null,
     key
   );
 }
@@ -362,7 +393,6 @@ async function generateAndAddFileVersion(
   versioned: boolean,
   fileType: FILE_TYPE,
   sourceDatasetId: string | null,
-  componentAtlasId: string | null,
   key: string
 ): Promise<HCAAtlasTrackerDBFile> {
   const versionId = versioned
@@ -377,8 +407,8 @@ async function generateAndAddFileVersion(
 
   const insertResult = await client.query<HCAAtlasTrackerDBFile>(
     `
-      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12, $13)
+      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, sns_message_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12)
       RETURNING *
     `,
     [
@@ -393,7 +423,6 @@ async function generateAndAddFileVersion(
       FILE_VALIDATION_STATUS.PENDING,
       fileType,
       sourceDatasetId,
-      componentAtlasId,
       snsMessageId,
     ]
   );
@@ -406,30 +435,25 @@ async function createComponentAtlas(
   atlas: HCAAtlasTrackerDBAtlas,
   fileId: string
 ): Promise<string> {
-  const componentAtlasId = crypto.randomUUID();
+  const componentAtlasVersion = crypto.randomUUID();
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {
     capUrl: null,
   };
 
   await client.query(
     `
-      INSERT INTO hat.component_atlases (id, component_info, file_id)
+      INSERT INTO hat.component_atlases (version_id, component_info, file_id)
       VALUES ($1, $2, $3)
     `,
-    [componentAtlasId, JSON.stringify(info), fileId]
-  );
-
-  await client.query(
-    "UPDATE hat.files SET component_atlas_id = $1 WHERE id = $2",
-    [componentAtlasId, fileId]
+    [componentAtlasVersion, JSON.stringify(info), fileId]
   );
 
   await client.query(
     "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
-    [componentAtlasId, atlas.id]
+    [componentAtlasVersion, atlas.id]
   );
 
-  return componentAtlasId;
+  return componentAtlasVersion;
 }
 
 async function createSourceDataset(

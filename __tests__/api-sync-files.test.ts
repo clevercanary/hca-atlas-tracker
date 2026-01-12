@@ -512,7 +512,7 @@ async function doMainTest(): Promise<void> {
   expect(fileExistingUnchangedAfter).toEqual(fileExistingUnchangedBefore);
   const componentAtlasExistingUnchangedAfter =
     await getComponentAtlasFromDatabase(
-      componentAtlasExistingUnchangedBefore.id
+      componentAtlasExistingUnchangedBefore.version_id
     );
   expect(componentAtlasExistingUnchangedAfter).toEqual(
     componentAtlasExistingUnchangedBefore

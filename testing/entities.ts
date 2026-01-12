@@ -59,6 +59,7 @@ export interface TestComponentAtlas {
   file: TestFile | TestFile[];
   id: string;
   sourceDatasets?: TestSourceDataset[];
+  versionId: string;
 }
 
 export type TestSourceStudy =

@@ -342,12 +342,15 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstFile.is_latest).toBe(true);
 
     // Capture the created component atlas id before update
-    const componentAtlasId = (await getFileMetadataEntity(firstFile)).id;
+    const componentAtlas = await getFileMetadataEntity(firstFile);
+    if (!("version_id" in componentAtlas))
+      throw new Error("Returned metadata entity does not have a version ID");
+    const componentAtlasVersion = componentAtlas.version_id;
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(
       firstFile.id,
-      componentAtlasId
+      componentAtlasVersion
     );
 
     // Update component_info and get its value before updating the file
@@ -358,8 +361,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const componentInfoResult = await query<
       Pick<HCAAtlasTrackerDBComponentAtlas, "component_info">
     >(
-      "UPDATE hat.component_atlases SET component_info = component_info || $1 WHERE id = $2 RETURNING component_info",
-      [JSON.stringify(componentInfoUpdateFields), componentAtlasId]
+      "UPDATE hat.component_atlases SET component_info = component_info || $1 WHERE version_id = $2 RETURNING component_info",
+      [JSON.stringify(componentInfoUpdateFields), componentAtlasVersion]
     );
     const componentInfoBefore = componentInfoResult.rows[0].component_info;
     expect(componentInfoBefore).toMatchObject(componentInfoUpdateFields);
@@ -396,8 +399,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Verify component_info remains the same on the linked component atlas
     const ioAfter = await query(
-      "SELECT component_info FROM hat.component_atlases WHERE id = $1",
-      [componentAtlasId]
+      "SELECT component_info FROM hat.component_atlases WHERE version_id = $1",
+      [componentAtlasVersion]
     );
     expect(ioAfter.rows).toHaveLength(1);
     expect(ioAfter.rows[0].component_info).toEqual(componentInfoBefore);
@@ -411,14 +414,11 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(versions.rows[0].is_latest).toBe(false); // older
     expect(versions.rows[1].is_latest).toBe(true); // newer
 
-    // Check file references after update
-    await expectOldFileNotToBeReferencedByMetadataEntity(
-      versions.rows[0].id,
-      componentAtlasId
-    );
+    // TODO: account for new component atlas versions being created
+    // Check file reference after update
     await expectReferenceBetweenFileAndMetadataEntity(
       versions.rows[1].id,
-      componentAtlasId
+      componentAtlasVersion
     );
   });
 
@@ -535,7 +535,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Verify component was created and linked to atlas
-    const componentAtlasId = (await getFileMetadataEntity(file)).id;
+    const componentAtlas = await getFileMetadataEntity(file);
+    if (!("version_id" in componentAtlas))
+      throw new Error("Returned metadata entity does not have a version ID");
+    const componentAtlasVersion = componentAtlas.version_id;
 
     // Verify atlas has the component atlas in its component_atlases array
     const atlasRows = await query(
@@ -543,12 +546,14 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [TEST_GUT_ATLAS_ID]
     );
     expect(atlasRows.rows).toHaveLength(1);
-    expect(atlasRows.rows[0].component_atlases).toContain(componentAtlasId);
+    expect(atlasRows.rows[0].component_atlases).toContain(
+      componentAtlasVersion
+    );
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(
       file.id,
-      componentAtlasId
+      componentAtlasVersion
     );
   });
 
@@ -1222,7 +1227,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.key).toBe(TEST_FILE_PATHS.INTEGRATED_OBJECT);
     expect(file.file_type).toBe(FILE_TYPE.INTEGRATED_OBJECT); // Should be derived from integrated-objects folder
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
-    expect(file.component_atlas_id).not.toBeNull(); // Should be set to component atlas ID
     expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");
@@ -1274,7 +1278,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("ingest_manifest");
-    expect(file.component_atlas_id).toBeNull();
     expect(file.source_dataset_id).toBeNull();
     await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
 
@@ -1402,10 +1405,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       const file = fileRows.rows[0];
       expect(file.bucket).toBe(TEST_S3_BUCKET);
       expect(file.key).toBe(key);
-      if (key.includes("integrated-objects")) {
-        // Integrated objects should link to a component atlas
-        expect(file.component_atlas_id).not.toBeNull();
-      }
       expect(file.etag).toBe(etag);
       expect(file.size_bytes).toBe(size.toString());
       expect(file.version_id).toBe(versionId);

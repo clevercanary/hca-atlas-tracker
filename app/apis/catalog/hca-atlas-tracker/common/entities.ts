@@ -291,8 +291,11 @@ export interface HCAAtlasTrackerDBComponentAtlas {
   created_at: Date;
   file_id: string;
   id: string;
+  is_latest: boolean;
   source_datasets: string[];
   updated_at: Date;
+  version_id: string;
+  wip_number: number;
 }
 
 export interface HCAAtlasTrackerDBComponentAtlasInfo {
@@ -424,7 +427,6 @@ export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;
-  component_atlas_id: string | null;
   created_at: Date;
   dataset_info: HCAAtlasTrackerDBFileDatasetInfo | null;
   etag: string;

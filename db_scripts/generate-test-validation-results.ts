@@ -247,7 +247,8 @@ async function getFileIdsByEntityKeywords(
           id::text = $1
           OR LOWER(overview->>'shortName') = LOWER($1)
           OR LOWER((overview->>'shortName') || ' v' || (overview->>'version')) = LOWER($1)
-      `
+      `,
+      "id"
     );
     foundEntity = await findEntityOfTypeForKeyword(
       "source datasets",
@@ -255,7 +256,8 @@ async function getFileIdsByEntityKeywords(
       sourceDatasetIds,
       foundEntity,
       client,
-      "SELECT id FROM hat.source_datasets WHERE id::text = $1"
+      "SELECT id FROM hat.source_datasets WHERE id::text = $1",
+      "id"
     );
     foundEntity = await findEntityOfTypeForKeyword(
       "integrated objects",
@@ -263,7 +265,8 @@ async function getFileIdsByEntityKeywords(
       componentAtlasIds,
       foundEntity,
       client,
-      "SELECT id FROM hat.component_atlases WHERE id::text = $1"
+      "SELECT version_id FROM hat.component_atlases WHERE id::text = $1 AND is_latest",
+      "version_id"
     );
     foundEntity = await findEntityOfTypeForKeyword(
       "files",
@@ -278,7 +281,8 @@ async function getFileIdsByEntityKeywords(
           OR LOWER(key) = LOWER($1)
           OR LOWER(split_part(key, '/', 4)) = LOWER($1)
         ) AND (file_type = 'integrated_object' OR file_type = 'source_dataset')
-      `
+      `,
+      "id"
     );
     if (!foundEntity)
       throw new Error(`No entity found for keyword ${JSON.stringify(keyword)}`);
@@ -293,12 +297,14 @@ async function getFileIdsByEntityKeywords(
     );
     sourceDatasetIds.push(...sourceDatasetsResult.rows.map((r) => r.id));
     const componentAtlasesResult = await client.query<
-      Pick<HCAAtlasTrackerDBComponentAtlas, "id">
+      Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
     >(
-      "SELECT c.id FROM hat.component_atlases c JOIN hat.atlases a ON c.id=ANY(a.component_atlases) WHERE a.id=ANY($1)",
+      "SELECT c.version_id FROM hat.component_atlases c JOIN hat.atlases a ON c.version_id=ANY(a.component_atlases) WHERE a.id=ANY($1)",
       [atlasIds]
     );
-    componentAtlasIds.push(...componentAtlasesResult.rows.map((r) => r.id));
+    componentAtlasIds.push(
+      ...componentAtlasesResult.rows.map((r) => r.version_id)
+    );
   }
 
   if (sourceDatasetIds.length) {
@@ -313,7 +319,7 @@ async function getFileIdsByEntityKeywords(
   if (componentAtlasIds.length) {
     const result = await client.query<
       Pick<HCAAtlasTrackerDBComponentAtlas, "file_id">
-    >("SELECT file_id FROM hat.component_atlases WHERE id=ANY($1)", [
+    >("SELECT file_id FROM hat.component_atlases WHERE version_id=ANY($1)", [
       componentAtlasIds,
     ]);
     fileIds.push(...result.rows.map((r) => r.file_id));
@@ -324,15 +330,16 @@ async function getFileIdsByEntityKeywords(
   return Array.from(new Set(fileIds));
 }
 
-async function findEntityOfTypeForKeyword(
+async function findEntityOfTypeForKeyword<TIdKey extends string>(
   entityTypePlural: string,
   keyword: string,
   ids: string[],
   foundEntity: boolean,
   client: pg.PoolClient,
-  query: string
+  query: string,
+  idKey: TIdKey
 ): Promise<boolean> {
-  const result = await client.query<{ id: string }>(query, [keyword]);
+  const result = await client.query<Record<TIdKey, string>>(query, [keyword]);
   if (result.rows.length > 0) {
     if (foundEntity)
       throw new Error(
@@ -345,7 +352,7 @@ async function findEntityOfTypeForKeyword(
         )}`
       );
     if (result.rows.length === 1) {
-      ids.push(result.rows[0].id);
+      ids.push(result.rows[0][idKey]);
       return true;
     }
   }

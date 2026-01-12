@@ -375,7 +375,7 @@ describe(TEST_ROUTE, () => {
 
   it("adds source datasets when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_BAR.id
+      COMPONENT_ATLAS_DRAFT_BAR
     );
 
     const res = await doSourceDatasetsRequest(
@@ -402,7 +402,7 @@ describe(TEST_ROUTE, () => {
 
   it("adds source datasets when POST requested by user with CONTENT_ADMIN role", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_FOO.id
+      COMPONENT_ATLAS_DRAFT_FOO
     );
 
     const res = await doSourceDatasetsRequest(
@@ -430,7 +430,7 @@ describe(TEST_ROUTE, () => {
 
   it("adds source datasets when POST requested with archived source dataset for non-archived component atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES
     );
 
     const res = await doSourceDatasetsRequest(
@@ -602,7 +602,7 @@ describe(TEST_ROUTE, () => {
 
   it("deletes source datasets when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_BAR.id
+      COMPONENT_ATLAS_DRAFT_BAR
     );
 
     expect(
@@ -629,7 +629,7 @@ describe(TEST_ROUTE, () => {
 
   it("deletes source datasets when requested by user with CONTENT_ADMIN role", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_FOO.id
+      COMPONENT_ATLAS_DRAFT_FOO
     );
 
     expect(
@@ -656,7 +656,7 @@ describe(TEST_ROUTE, () => {
 
   it("deletes source datasets when requested with archived source dataset for non-archived component atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES
     );
 
     expect(
