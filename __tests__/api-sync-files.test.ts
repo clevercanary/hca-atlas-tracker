@@ -10,10 +10,10 @@ import httpMocks from "node-mocks-http";
 import {
   createTestComponentAtlas,
   createTestFile,
-  expectOldFileNotToBeReferencedByMetadataEntity,
   expectReferenceBetweenFileAndMetadataEntity,
   getAllFileIdsFromDatabase,
   getComponentAtlasFromDatabase,
+  getFileComponentAtlas,
   getFileFromDatabase,
   resetDatabase,
 } from "testing/db-utils";
@@ -519,7 +519,8 @@ async function doMainTest(): Promise<void> {
   );
 
   // Check that existing file is set to non-latest and a new file is created when version ID is different
-  expect(filesByKey.get(KEY_EXISTING_CHANGED)).toBeDefined();
+  const fileExistingChangedNew = filesByKey.get(KEY_EXISTING_CHANGED);
+  expect(fileExistingChangedNew).toBeDefined();
   expect(filesByKey.get(KEY_EXISTING_CHANGED)).not.toEqual(
     fileExistingChangedBefore
   );
@@ -544,22 +545,40 @@ async function doMainTest(): Promise<void> {
       await expectReferenceBetweenFileAndMetadataEntity(file.id);
   }
 
-  // Check that existing unchanged file is still linked to metadata entity
+  // Check that existing unchanged file is still linked to the same component atlas
   if (
     expectIsDefined(fileExistingUnchangedAfter) &&
     expectIsDefined(componentAtlasExistingUnchangedAfter)
   )
-    await expectReferenceBetweenFileAndMetadataEntity(
-      fileExistingUnchangedAfter.id,
-      componentAtlasExistingUnchangedAfter.id
+    expect(await getFileComponentAtlas(fileExistingUnchangedAfter.id)).toEqual(
+      componentAtlasExistingUnchangedAfter
     );
 
-  // Check that existing version of changed file is no longer referenced by metadata entity
-  if (expectIsDefined(fileExistingChangedBefore))
-    await expectOldFileNotToBeReferencedByMetadataEntity(
-      fileExistingChangedBefore.id,
-      componentAtlasExistingChangedBefore.id
+  // Check and compare component atlases of changed file
+  if (
+    expectIsDefined(fileExistingChangedAfter) &&
+    expectIsDefined(fileExistingChangedNew)
+  ) {
+    const componentAtlasExistingChangedAfter = await getFileComponentAtlas(
+      fileExistingChangedAfter.id
     );
+    const componentAtlasExistingChangedNew = await getFileComponentAtlas(
+      fileExistingChangedNew.id
+    );
+    expect(componentAtlasExistingChangedBefore.version_id).toEqual(
+      componentAtlasExistingChangedAfter.version_id
+    );
+    expect(componentAtlasExistingChangedAfter).not.toEqual(
+      componentAtlasExistingChangedNew
+    );
+    expect(componentAtlasExistingChangedAfter.id).toEqual(
+      componentAtlasExistingChangedNew.id
+    );
+    expect(componentAtlasExistingChangedAfter.is_latest).toEqual(false);
+    expect(componentAtlasExistingChangedNew.is_latest).toEqual(true);
+    expect(componentAtlasExistingChangedAfter.wip_number).toEqual(1);
+    expect(componentAtlasExistingChangedNew.wip_number).toEqual(2);
+  }
 }
 
 async function doSyncFilesRequest(

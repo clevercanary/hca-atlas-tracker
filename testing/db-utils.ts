@@ -828,6 +828,18 @@ async function getMetadataEntityOfType(
   }
 }
 
+export async function getFileComponentAtlas(
+  fileId: string
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
+    "SELECT * FROM hat.component_atlases WHERE file_id = $1",
+    [fileId]
+  );
+  if (!queryResult.rows.length)
+    throw new Error(`No component atlas found for file ${fileId}`);
+  return queryResult.rows[0];
+}
+
 // Simple count helpers for tests
 export async function countSourceDatasets(
   client?: pg.PoolClient
