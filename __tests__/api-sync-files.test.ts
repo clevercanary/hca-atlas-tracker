@@ -502,8 +502,8 @@ async function doMainTest(): Promise<void> {
   );
 
   // Check that existing file and its component atlas are not changed, and no new file is created, when version ID is the same
-  expect(errorMessageStrings).toContain(
-    'error: duplicate key value violates unique constraint "uq_files_bucket_key_version"'
+  expect(errorMessageStrings).toContainEqual(
+    expect.stringMatching("out-of-order")
   );
   expect(filesByKey.get(KEY_EXISTING_UNCHANGED)).toBeUndefined();
   const fileExistingUnchangedAfter = await getFileFromDatabase(
@@ -541,8 +541,11 @@ async function doMainTest(): Promise<void> {
 
   // Check that latest files are linked to metadata entities
   for (const file of filesByKey.values()) {
-    if (file.file_type !== FILE_TYPE.INGEST_MANIFEST)
+    if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
       await expectReferenceBetweenFileAndMetadataEntity(file.id);
+    } else if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+      expect(await getFileComponentAtlas(file.id)).toBeTruthy();
+    }
   }
 
   // Check that existing unchanged file is still linked to the same component atlas

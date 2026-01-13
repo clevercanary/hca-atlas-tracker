@@ -32,6 +32,10 @@ import {
 } from "../testing/constants";
 import { createTestFile, resetDatabase } from "../testing/db-utils";
 
+interface TestFileUpsertData extends FileUpsertData {
+  componentAtlasId: string | null;
+}
+
 // Shared test constants
 const TEST_EVENT_INFO = JSON.stringify({
   eventName: "s3:ObjectCreated:Put",
@@ -894,7 +898,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
 });
 
 async function upsertTestFile(
-  fileData: FileUpsertData,
+  fileData: TestFileUpsertData,
   client?: pg.PoolClient
 ): Promise<void> {
   await doOrContinueTransaction(client, async (client) => {

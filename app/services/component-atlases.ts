@@ -27,7 +27,9 @@ export async function getAtlasComponentAtlases(
   atlasId: string,
   isArchivedValue = false
 ): Promise<HCAAtlasTrackerDBComponentAtlasForAPI[]> {
-  const componentAtlasIds = await getAtlasComponentAtlasIds(atlasId);
+  const componentAtlasVersions = await getAtlasComponentAtlasVersionIds(
+    atlasId
+  );
   const { rows } = await query<HCAAtlasTrackerDBComponentAtlasForAPI>(
     `
         SELECT
@@ -49,9 +51,9 @@ export async function getAtlasComponentAtlases(
           f.validation_summary
         FROM hat.component_atlases ca
         JOIN hat.files f ON f.id = ca.file_id
-        WHERE f.is_latest AND f.is_archived = $2 AND ca.id=ANY($1)
+        WHERE f.is_archived = $2 AND ca.version_id=ANY($1)
       `,
-    [componentAtlasIds, isArchivedValue]
+    [componentAtlasVersions, isArchivedValue]
   );
   return rows;
 }
@@ -102,11 +104,11 @@ export async function getComponentAtlas(
 }
 
 /**
- * Get the IDs of the component atlases of the given atlas.
- * @param atlasId - ID of the atlas to get component atleses of.
+ * Get the version IDs of the component atlases of the given atlas.
+ * @param atlasId - ID of the atlas to get component atlases of.
  * @returns component atlas IDs.
  */
-export async function getAtlasComponentAtlasIds(
+export async function getAtlasComponentAtlasVersionIds(
   atlasId: string
 ): Promise<string[]> {
   const queryResult = await query<
@@ -271,7 +273,7 @@ export async function createComponentAtlas(
 
     const atlasResult = await query(
       "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
-      [componentAtlas.id, atlasId],
+      [componentAtlas.version_id, atlasId],
       client
     );
 

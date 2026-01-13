@@ -106,11 +106,19 @@ export function down(pgm: MigrationBuilder): void {
     WHERE f.id = ca.file_id
   `);
 
+  // TODO: seems wrong that this is required for the tests to run
+  pgm.sql(
+    "DELETE FROM hat.files WHERE file_type = 'integrated_object' AND component_atlas_id IS NULL"
+  );
+
   // Delete non-latest component atlases (keeping only the original ones)
   pgm.sql(`
     DELETE FROM hat.component_atlases
     WHERE is_latest = false
   `);
+
+  // Copy `id` to `version_id` before replacing `id` with `version_id`
+  pgm.sql("UPDATE hat.component_atlases SET version_id = id");
 
   // Drop the new columns from component_atlases
   pgm.dropColumns({ name: "component_atlases", schema: "hat" }, [

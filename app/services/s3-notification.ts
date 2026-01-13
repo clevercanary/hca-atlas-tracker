@@ -3,6 +3,7 @@ import {
   S3Event,
   S3EventRecord,
   s3EventSchema,
+  S3Object,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
@@ -10,6 +11,7 @@ import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
   FileEventInfo,
+  HCAAtlasTrackerDBFile,
   INTEGRITY_STATUS,
   NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -18,11 +20,15 @@ import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
-import { setComponentAtlasFileId } from "../data/component-atlases";
 import {
+  createNewComponentAtlasVersion,
+  markComponentAtlasAsNotLatest,
+} from "../data/component-atlases";
+import {
+  FileUpsertResult,
   getAtlasByNetworkVersionAndShortName,
   getExistingMetadataObjectId,
-  getLatestEventInfo,
+  getLatestNotificationInfo,
   markPreviousVersionsAsNotLatest,
   setFileMetadataObjectId,
   upsertFileRecord,
@@ -167,13 +173,45 @@ function convertS3VersionToDbVersion(s3Version: string): string {
   }
 }
 
+/**
+ * Check whether a notification should be rejected due to being out of order, and throw an error if so.
+ * @param snsMessageId - Incoming SNS message ID.
+ * @param eventInfo - Incoming S3 event.
+ * @param object - Associated S3 object.
+ * @param latestNotificationInfo - Event info and message ID for the latest existing version of the file, if present.
+ * @returns boolean indicating whether the incoming file is a new version superseding the existing latest version.
+ */
+function checkLatestNotificationInfo(
+  snsMessageId: string,
+  eventInfo: FileEventInfo,
+  object: S3Object,
+  latestNotificationInfo: Pick<
+    HCAAtlasTrackerDBFile,
+    "event_info" | "sns_message_id"
+  > | null
+): boolean {
+  if (latestNotificationInfo !== null) {
+    const { event_info: latestEventInfo, sns_message_id: latestSnsMessageId } =
+      latestNotificationInfo;
+
+    // If the SNS message is a duplicate, allow it and handle idempotently at insertion time
+    if (snsMessageId === latestSnsMessageId) return false;
+
+    // Reject out-of-order notifications
+    if (!isLatestEventForFile(latestEventInfo, eventInfo)) {
+      throw new InvalidOperationError(
+        `Received S3 notification ${snsMessageId} for file ${object.key} out-of-order (event time ${eventInfo.eventTime})`
+      );
+    }
+  }
+  return true;
+}
+
 // Helper: Determine whether incoming record should be latest based on event times
-function computeIsLatestForInsert(
-  isNewFile: boolean,
+function isLatestEventForFile(
   currentLatestInfo: FileEventInfo | null,
   incomingEventInfo: FileEventInfo
 ): boolean {
-  if (isNewFile) return true;
   const currentLatestTime = currentLatestInfo?.eventTime ?? "";
   // ISO 8601 timestamps compare lexicographically for ordering
   return incomingEventInfo.eventTime > currentLatestTime;
@@ -232,30 +270,27 @@ async function createSourceDatasetFromS3(
 type FileUpdateHandler = (
   fileId: string,
   metadataEntityId: string,
-  isLatestFile: boolean,
   transaction: PoolClient
-) => Promise<string>;
+) => Promise<void>;
 
 async function updateIntegratedObjectFromS3(
   fileId: string,
   componentAtlasId: string,
-  isLatestFile: boolean,
   transaction: PoolClient
-): Promise<string> {
-  if (isLatestFile)
-    await setComponentAtlasFileId(componentAtlasId, fileId, transaction);
-  return componentAtlasId;
+): Promise<void> {
+  const prevLatestVersion = await markComponentAtlasAsNotLatest(
+    componentAtlasId,
+    transaction
+  );
+  await createNewComponentAtlasVersion(prevLatestVersion, fileId, transaction);
 }
 
 async function updateSourceDatasetFromS3(
   fileId: string,
   sourceDatasetId: string,
-  isLatestFile: boolean,
   transaction: PoolClient
-): Promise<string> {
-  if (isLatestFile)
-    await setSourceDatasetFileId(sourceDatasetId, fileId, transaction);
-  return sourceDatasetId;
+): Promise<void> {
+  await setSourceDatasetFileId(sourceDatasetId, fileId, transaction);
 }
 
 // Dispatch maps
@@ -297,6 +332,55 @@ function logFileOperation(
     // Duplicate notification handled idempotently
     console.log(
       `Duplicate notification for ${bucket.name}/${object.key} - ignoring`
+    );
+  }
+}
+
+/**
+ * Handle updates associated with the insertion of a new file record.
+ * @param result - File insertion result.
+ * @param object - Associated S3 object.
+ * @param isNewFile - Whether the inserted record represents a new file.
+ * @param fileType - File type.
+ * @param metadataObjectId - Existing latest metadata object ID for the file.
+ * @param atlasId - ID of the file's atlas.
+ * @param transaction - Postgres client to use.
+ */
+async function handleInsertedFile(
+  result: FileUpsertResult,
+  object: S3Object,
+  isNewFile: boolean,
+  fileType: FILE_TYPE,
+  metadataObjectId: string | null,
+  atlasId: string,
+  transaction: PoolClient
+): Promise<void> {
+  // Dispatch file operations based on state and type
+  if (isNewFile) {
+    const handler = FILE_CREATION_HANDLERS[fileType];
+
+    if (handler) {
+      metadataObjectId = await handler(atlasId, result.id, transaction);
+    }
+  } else {
+    const handler = FILE_UPDATE_HANDLERS[fileType];
+
+    if (handler) {
+      if (metadataObjectId === null)
+        throw new Error(
+          `No existing metadata object found for existing ${fileType} file with key ${object.key}`
+        );
+      await handler(result.id, metadataObjectId, transaction);
+    }
+  }
+
+  // Set metadata object ID in file record if necessary
+  if (metadataObjectId !== null && fileType === FILE_TYPE.SOURCE_DATASET) {
+    await setFileMetadataObjectId(
+      result.id,
+      fileType,
+      metadataObjectId,
+      transaction
     );
   }
 }
@@ -365,28 +449,28 @@ async function saveFileRecord(
     );
 
     // Determine recency and whether incoming record should be latest
-    const latestEventInfo = await getLatestEventInfo(
+    const latestNotificationInfo = await getLatestNotificationInfo(
       bucket.name,
       object.key,
       transaction
     );
 
-    const isNewFile = latestEventInfo === null;
+    const isNewFile = latestNotificationInfo === null;
 
-    const isLatestForInsert = computeIsLatestForInsert(
-      isNewFile,
-      latestEventInfo,
-      eventInfo
+    // Confirm that the notification isn't out of order and determine whether to mark existing versions as non-latest
+    const isNewLatestVersion = checkLatestNotificationInfo(
+      snsMessageId,
+      eventInfo,
+      object,
+      latestNotificationInfo
     );
 
-    // Only clear previous versions if this incoming record is newer
-    if (isLatestForInsert) {
+    if (isNewLatestVersion)
       await markPreviousVersionsAsNotLatest(
         bucket.name,
         object.key,
         transaction
       );
-    }
 
     // Determine atlas ID from S3 path
     const { atlasName, network } = parseS3KeyPath(object.key);
@@ -407,7 +491,6 @@ async function saveFileRecord(
         eventInfo: JSON.stringify(eventInfo),
         fileType,
         integrityStatus: INTEGRITY_STATUS.PENDING,
-        isLatest: isLatestForInsert,
         key: object.key,
         sha256Client: sha256,
         sizeBytes: object.size,
@@ -418,36 +501,14 @@ async function saveFileRecord(
       transaction
     );
 
-    // Dispatch file operations based on state and type
-    if (isNewFile) {
-      const handler = FILE_CREATION_HANDLERS[fileType];
-
-      if (handler) {
-        metadataObjectId = await handler(atlasId, result.id, transaction);
-      }
-    } else {
-      const handler = FILE_UPDATE_HANDLERS[fileType];
-
-      if (handler) {
-        if (metadataObjectId === null)
-          throw new Error(
-            `No existing metadata object found for existing ${fileType} file with key ${object.key}`
-          );
-        metadataObjectId = await handler(
-          result.id,
-          metadataObjectId,
-          isLatestForInsert,
-          transaction
-        );
-      }
-    }
-
-    // Set metadata object ID in file record if necessary
-    if (metadataObjectId !== null) {
-      await setFileMetadataObjectId(
-        result.id,
+    if (result.operation === "inserted") {
+      await handleInsertedFile(
+        result,
+        object,
+        isNewFile,
         fileType,
         metadataObjectId,
+        atlasId,
         transaction
       );
     }
@@ -462,7 +523,6 @@ async function saveFileRecord(
       // Validation should be done if a new latest record of the appropriate type was created
       shouldValidate:
         result.operation === "inserted" &&
-        isLatestForInsert &&
         VALID_FILE_TYPES_FOR_VALIDATION.includes(fileType),
     };
   });

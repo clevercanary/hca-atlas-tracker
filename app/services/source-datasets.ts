@@ -75,7 +75,7 @@ export async function getAtlasDatasets(
 }
 
 /**
- * Get all source datasets of the given component atlas.
+ * Get all source datasets of the latest version of the given component atlas.
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
  * @param componentAtlasId - Component atlas ID.
  * @returns database-model source datasets.

@@ -52,7 +52,7 @@ export async function getSourceStudySourceDatasetIds(
 }
 
 /**
- * Get the IDs of source datasets linked to the given component atlas.
+ * Get the IDs of source datasets linked to the latest version of the given component atlas.
  * @param componentAtlasId - Component atlas ID.
  * @returns source dataset IDs.
  */
@@ -61,9 +61,10 @@ export async function getComponentAtlasSourceDatasetIds(
 ): Promise<string[]> {
   const componentAtlasResult = await query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
-  >("SELECT source_datasets FROM hat.component_atlases WHERE id=$1", [
-    componentAtlasId,
-  ]);
+  >(
+    "SELECT source_datasets FROM hat.component_atlases WHERE id=$1 AND is_latest",
+    [componentAtlasId]
+  );
   if (componentAtlasResult.rows.length === 0)
     throw new NotFoundError(
       `Component atlas with ID ${componentAtlasId} doesn't exist`

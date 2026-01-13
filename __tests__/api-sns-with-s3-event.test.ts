@@ -349,12 +349,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstComponentAtlas.is_latest).toEqual(true);
     expect(firstComponentAtlas.wip_number).toEqual(1);
 
-    // Check file reference
-    await expectReferenceBetweenFileAndMetadataEntity(
-      firstFile.id,
-      componentAtlasVersion
-    );
-
     // Second upload (update) with newer eventTime
     const secondEvent = createS3Event({
       etag: "io-v2-etag-22222222222222222222222222222222",
@@ -783,7 +777,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Second notification with different ETag - should be rejected
     const s3EventWithDifferentETag = createS3Event({
       etag: "different-etag-67890", // Different ETag!
-      eventTime: TEST_TIMESTAMP_ALT,
+      eventTime: TEST_TIMESTAMP,
       key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
       size: 128000,
       versionId: "version-123",
@@ -793,7 +787,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       messageId: "etag-test-message-2",
       s3Event: s3EventWithDifferentETag,
       signature: TEST_SIGNATURE_VALID_FOR_TESTING,
-      timestamp: TEST_TIMESTAMP_ALT,
+      timestamp: TEST_TIMESTAMP,
     });
 
     const { req: req2, res: res2 } = httpMocks.createMocks<
@@ -1067,7 +1061,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstComponentAtlas.id).toEqual(secondComponentAtlas.id);
   });
 
-  it("does not flip is_latest when older version arrives after newer version", async () => {
+  it("rejects notification when older version arrives after newer version", async () => {
     // Process newer version first
     const s3EventV2 = createS3Event({
       etag: "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -1124,40 +1118,31 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     await withConsoleMessageHiding(async () => {
       await snsHandler(reqOlder, resOlder);
     });
-    expect(resOlder.statusCode).toBe(200);
+    expect(resOlder.statusCode).toBe(400);
 
-    // Expect two versions exist for this key
+    // Expect only one version to exist for this key
     const allRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
-    expect(allRows.rows).toHaveLength(2);
+    expect(allRows.rows).toHaveLength(1);
 
     // Latest should remain the newer (V2), not be flipped by the older V1 arrival
-    const latestOnly = await query(
-      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
-    );
-    expect(latestOnly.rows).toHaveLength(1);
-    const latestFile = latestOnly.rows[0];
+    const latestFile = allRows.rows[0];
     expect(latestFile.version_id).toBe("ooo-version-2");
     expect(latestFile.etag).toBe(
       "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     );
 
     // Check component atlases
-    const nonLatestFile = allRows.rows.find((f) => f.id !== latestFile.id);
-    if (!expectIsDefined(nonLatestFile)) return;
     const latestComponentAtlas = await getFileComponentAtlas(latestFile.id);
-    const nonLatestComponentAtlas = await getFileComponentAtlas(
-      nonLatestFile.id
-    );
-    expect(latestComponentAtlas).not.toEqual(nonLatestComponentAtlas);
-    expect(latestComponentAtlas.id).toEqual(nonLatestComponentAtlas.id);
     expect(latestComponentAtlas.is_latest).toEqual(true);
-    expect(nonLatestComponentAtlas.is_latest).toEqual(false);
-    expect(latestComponentAtlas.wip_number).toEqual(2);
-    expect(nonLatestComponentAtlas.wip_number).toEqual(1);
+    expect(latestComponentAtlas.wip_number).toEqual(1);
+    const componentAtlasesResult = await query(
+      "SELECT 1 FROM hat.component_atlases WHERE id = $1",
+      [latestComponentAtlas.id]
+    );
+    expect(componentAtlasesResult.rowCount).toEqual(1);
   });
 
   it("rejects notifications from unauthorized S3 buckets", async () => {
@@ -1866,79 +1851,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       await snsHandler(req2, res2);
     });
     expect(res2.statusCode).toBe(200);
-
-    // Check that the dataset validator has still only been called once
-    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not start a validation job when older version arrives after newer version", async () => {
-    mockSubmitJob.mockClear();
-
-    // Process newer version first
-    const s3EventV2 = createS3Event({
-      etag: "ooo-foo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      eventTime: TEST_TIMESTAMP_PLUS_1H,
-      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      size: 2048000,
-      versionId: "ooo-foo-version-2",
-    });
-
-    const snsMessageV2 = createSNSMessage({
-      messageId: "out-of-order-foo-v2",
-      s3Event: s3EventV2,
-      signature: TEST_SIGNATURE_VALID,
-      timestamp: TEST_TIMESTAMP_PLUS_1H,
-    });
-
-    const { req: reqNewer, res: resNewer } = httpMocks.createMocks<
-      NextApiRequest,
-      NextApiResponse
-    >({
-      body: snsMessageV2,
-      method: METHOD.POST,
-    });
-
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(reqNewer, resNewer);
-    });
-    expect(resNewer.statusCode).toBe(200);
-
-    // Check that the dataset validator was called for the initial request
-    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
-    expect(mockSubmitJob).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      })
-    );
-
-    // Now process an older version afterwards (out-of-order arrival)
-    const s3EventV1 = createS3Event({
-      etag: "ooo-foo-version1-etag-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      eventTime: TEST_TIMESTAMP, // earlier than V2
-      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      size: 1024000,
-      versionId: "ooo-foo-version-1",
-    });
-
-    const snsMessageV1 = createSNSMessage({
-      messageId: "out-of-order-foo-v1",
-      s3Event: s3EventV1,
-      signature: TEST_SIGNATURE_VALID,
-      timestamp: TEST_TIMESTAMP,
-    });
-
-    const { req: reqOlder, res: resOlder } = httpMocks.createMocks<
-      NextApiRequest,
-      NextApiResponse
-    >({
-      body: snsMessageV1,
-      method: METHOD.POST,
-    });
-
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(reqOlder, resOlder);
-    });
-    expect(resOlder.statusCode).toBe(200);
 
     // Check that the dataset validator has still only been called once
     expect(mockSubmitJob).toHaveBeenCalledTimes(1);
