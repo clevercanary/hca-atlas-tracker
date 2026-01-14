@@ -13,8 +13,8 @@ import {
   COMPONENT_ATLAS_ARCHIVED_FOOFOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
-  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -157,7 +157,7 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
     expectComponentAtlasesToMatch(
       componentAtlases,
-      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES],
+      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3],
       [1]
     );
     const componentAtlas = componentAtlases[0];
@@ -180,7 +180,7 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
     expectComponentAtlasesToMatch(
       componentAtlases,
-      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES],
+      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3],
       [1]
     );
   });
@@ -199,7 +199,7 @@ describe(TEST_ROUTE, () => {
     expectComponentAtlasesToMatch(
       componentAtlases,
       [
-        COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+        COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
         COMPONENT_ATLAS_ARCHIVED_FOO,
         COMPONENT_ATLAS_ARCHIVED_BAR,
         COMPONENT_ATLAS_ARCHIVED_BAZ,

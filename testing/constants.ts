@@ -2563,6 +2563,517 @@ export const INTEGRATION_LEADS_BY_ATLAS_ID: Record<string, TestUser> = {
     USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
 };
 
+// COMPONENT ATLASES
+
+export const EMPTY_COMPONENT_INFO = {
+  capUrl: null,
+} satisfies HCAAtlasTrackerDBComponentAtlasInfo;
+
+export const COMPONENT_ATLAS_DRAFT_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_DRAFT,
+    bucket: "bucket-draft-foo",
+    etag: "6b8f00707b574ca28e43a7568a2eaca1",
+    eventTime: "2025-08-22T05:45:49.432Z",
+    fileName: "component-atlas-draft-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "2dfcd615-391f-452c-b981-d0124583c97f",
+    sizeBytes: "2342325",
+    versionId: null,
+  },
+  id: "b1820416-5886-4585-b0fe-7f70487331d8",
+  sourceDatasets: [
+    SOURCE_DATASET_FOOFOO,
+    SOURCE_DATASET_FOOBAR,
+    SOURCE_DATASET_FOOBAZ,
+  ],
+  versionId: "0b90d764-dc6a-4f4a-8a13-596e4812cb7d",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_DRAFT_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_DRAFT,
+    bucket: "bucket-draft-bar",
+    datasetInfo: {
+      assay: ["assay draft bar"],
+      cellCount: 453453,
+      disease: ["disease draft bar"],
+      geneCount: 123234,
+      suspensionType: ["suspension type draft bar"],
+      tissue: ["tissue draft bar"],
+      title: "Component Atlas Draft Bar",
+    },
+    etag: "7c9f11808c685db39f54b8679b3fbcb2",
+    eventTime: "2025-08-22T05:46:12.567Z",
+    fileName: "component-atlas-draft-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "3efde726-402f-563d-c092-e1235694d08f",
+    integrityCheckedAt: "2025-09-15T01:09:19.036Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "1987456",
+    validationReports: {
+      cap: {
+        errors: [],
+        finishedAt: "2025-09-15T01:09:21.000Z",
+        startedAt: "2025-09-15T01:09:20.000Z",
+        valid: true,
+        warnings: [],
+      },
+    },
+    validationSummary: {
+      overallValid: true,
+      validators: {
+        cap: true,
+      },
+    },
+    versionId: null,
+  },
+  id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
+  sourceDatasets: [
+    SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+    SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+  ],
+  versionId: "e57cdeb3-5694-479a-b7b1-3b68ec01cf17",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_MISC_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-misc-foo",
+    datasetInfo: {
+      assay: ["assay misc foo"],
+      cellCount: 534534,
+      disease: ["disease misc foo"],
+      suspensionType: ["suspension type misc foo"],
+      tissue: ["tissue misc foo"],
+      title: "Component Atlas Misc Foo",
+    },
+    etag: "8d0a22919d796ec40a65c9780c4acdbe",
+    eventTime: "2025-08-22T05:46:35.891Z",
+    fileName: "component-atlas-misc-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "4faef837-513a-674e-d103-f2346705e19b",
+    integrityCheckedAt: "2025-09-15T01:11:04.489Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "3456789",
+    versionId: null,
+  },
+  id: "b95614cc-5356-4f47-b3a2-da05d23e86ce",
+  sourceDatasets: [
+    SOURCE_DATASET_FOO,
+    SOURCE_DATASET_FOOFOO,
+    SOURCE_DATASET_OTHER_FOO,
+    SOURCE_DATASET_OTHER_BAR,
+  ],
+  versionId: "60a0db23-8918-4145-8893-d7efd3e7c44c",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_MISC_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-misc-bar",
+    datasetInfo: {
+      assay: ["assay misc bar"],
+      cellCount: 645645,
+      disease: ["disease misc bar"],
+      suspensionType: ["suspension type misc bar"],
+      tissue: ["tissue misc bar"],
+      title: "Component Atlas Misc Bar",
+    },
+    etag: "9e1b33a2ae8a7fd51b76da891d5bcdcf",
+    eventTime: "2025-08-22T06:47:36.892Z",
+    fileName: "component-atlas-misc-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
+    integrityCheckedAt: "2025-09-15T02:12:05.590Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "4567890",
+    versionId: null,
+  },
+  id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
+  sourceDatasets: [],
+  versionId: "3f2bfe87-e5a8-492a-a926-47af2171e1e2",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_MISC_BAZ = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES,
+    bucket: "bucket-misc-baz",
+    datasetInfo: {
+      assay: ["assay misc baz"],
+      cellCount: 756756,
+      disease: ["disease misc baz"],
+      suspensionType: ["suspension type misc baz"],
+      tissue: ["tissue misc baz"],
+      title: "Component Atlas Misc Baz",
+    },
+    etag: "af2c44b3bf9b8ge62c87eb9a2e6cdde0",
+    eventTime: "2025-08-22T07:48:37.893Z",
+    fileName: "component-atlas-misc-baz.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "a28ef7cb-16f9-490e-b92c-fbe507cbf135",
+    integrityCheckedAt: "2025-09-15T03:13:06.691Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "5678901",
+    versionId: null,
+  },
+  id: "23f603d3-57cd-44b9-a3c0-14e671fb2835",
+  sourceDatasets: [],
+  versionId: "89b3236e-64ed-45cf-997a-9816d01bc1ff",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
+    bucket: "bucket-cellxgene-datasets",
+    datasetInfo: {
+      assay: ["assay with cellxgene datasets"],
+      cellCount: 90898,
+      disease: ["disease with cellxgene datasets"],
+      suspensionType: ["suspension type with cellxgene datasets"],
+      tissue: ["tissue with cellxgene datasets"],
+      title: "Component Atlas With CELLxGENE Datasets",
+    },
+    etag: "9e1b33020e807fd51b76d0891d5bdef4",
+    eventTime: "2025-08-22T05:46:58.234Z",
+    fileName: "component-atlas-with-cellxgene-datasets.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "5abfa948-624b-785f-e214-a3457816f20c",
+    integrityCheckedAt: "2025-09-15T01:46:37.534Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "2789123",
+    versionId: null,
+  },
+  id: "6feee158-5e54-4f46-8695-360c89ef9916",
+  sourceDatasets: [
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
+    SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+  ],
+  versionId: "712e5187-20d2-4633-b206-f9f5a79085b0",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+    bucket: "bucket-entry-sheet-validations-foo",
+    datasetInfo: {
+      assay: ["assay with entry sheet validations foo"],
+      cellCount: 45345,
+      disease: ["disease with entry sheet validations foo"],
+      suspensionType: ["suspension type with entry sheet validations foo"],
+      tissue: ["tissue with entry sheet validations foo"],
+      title: "Component Atlas With Entry Sheet Validations Foo",
+    },
+    etag: "0f2c44131f918ae62c87e1902e6cafe5",
+    eventTime: "2025-08-22T05:47:21.456Z",
+    fileName: "component-atlas-with-entry-sheet-validations-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "6bcac059-735c-896a-f325-b4568927a31d",
+    integrityCheckedAt: "2025-09-15T01:49:12.588Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "1654321",
+    versionId: null,
+  },
+  id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
+  sourceDatasets: [],
+  versionId: "a7019e17-c7aa-4aaa-8740-d82f7c71e6ca",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
+    bucket: "bucket-entry-sheet-validations-bar",
+    datasetInfo: {
+      assay: ["assay with entry sheet validations bar"],
+      cellCount: 29348,
+      disease: ["disease with entry sheet validations bar"],
+      suspensionType: ["suspension type with entry sheet validations bar"],
+      tissue: ["tissue with entry sheet validations bar"],
+      title: "Component Atlas With Entry Sheet Validations Bar",
+    },
+    etag: "1a3d55242a029bf73d98f2013f7dbab6",
+    eventTime: "2025-08-22T05:47:44.789Z",
+    fileName: "component-atlas-with-entry-sheet-validations-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "7cdbd160-846d-907b-a436-c5679038b42e",
+    integrityCheckedAt: "2025-09-15T02:40:50.214Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    sizeBytes: "2123456",
+    versionId: null,
+  },
+  id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
+  sourceDatasets: [],
+  versionId: "6de65567-692f-4a04-b792-e2ba6b500abb",
+} satisfies TestComponentAtlas;
+
+const BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  bucket: "bucket-with-multiple-files",
+  datasetInfo: {
+    assay: ["assay with multiple files"],
+    cellCount: 43453,
+    disease: ["disease with multiple files"],
+    suspensionType: ["suspension type with multiple files"],
+    tissue: ["tissue with multiple files"],
+    title: "Component Atlas With Multiple Files",
+  },
+  fileName: "component-atlas-with-multiple-files.h5ad",
+  fileType: FILE_TYPE.INTEGRATED_OBJECT,
+  sizeBytes: "59456",
+  versionId: null,
+} satisfies Partial<TestFile>;
+export const FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  etag: "ba58c1a1fbea4a1086f7a0a767364cca",
+  eventTime: "2025-09-16T02:59:48.485Z",
+  id: "7e4b60ae-2d78-47ac-8e5c-83196047a7f3",
+  integrityCheckedAt: "2025-09-16T03:00:11.886Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+  isLatest: false,
+} satisfies TestFile;
+export const FILE_B_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  etag: "55bcb2de7f144a829bfcf3aa5712d47d",
+  eventTime: "2025-09-16T03:00:35.982Z",
+  id: "f1a1496f-4a00-43cc-881b-2b5e3360cc5d",
+  integrityCheckedAt: "2025-09-16T03:00:55.834Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+  isArchived: true,
+  isLatest: false,
+} satisfies TestFile;
+export const FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  etag: "0e1b0a46450b475b82d095265034bfeb",
+  eventTime: "2025-09-16T03:01:23.949Z",
+  id: "69586fc2-95d3-415e-b505-9d5768feb1bb",
+  integrityCheckedAt: "2025-09-16T03:02:19.235Z",
+  integrityStatus: INTEGRITY_STATUS.VALID,
+} satisfies TestFile;
+export const COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES =
+  "235920d2-b08b-408a-aa1a-9a1af9a98297";
+export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W1 = {
+  file: FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  id: COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+  isLatest: false,
+  sourceDatasets: [
+    SOURCE_DATASET_ARCHIVED_FOO,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  ],
+  versionId: "6b3cbe31-093c-4053-8003-040bd86f9074",
+  wipNumber: 1,
+} satisfies TestComponentAtlas;
+export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W2 = {
+  file: FILE_B_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  id: COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+  isLatest: false,
+  sourceDatasets: [
+    SOURCE_DATASET_ARCHIVED_FOO,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  ],
+  versionId: "aeefc839-402d-462c-b1a8-c30e3cb8011c",
+  wipNumber: 2,
+} satisfies TestComponentAtlas;
+export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3 = {
+  file: FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  id: COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+  isLatest: true,
+  sourceDatasets: [
+    SOURCE_DATASET_ARCHIVED_FOO,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  ],
+  versionId: "b228f71b-2d2e-43a2-b126-f7b4e6b1db88",
+  wipNumber: 3,
+} satisfies TestComponentAtlas;
+
+const BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
+  atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  bucket: "bucket-with-archived-latest",
+  datasetInfo: {
+    assay: ["assay with archived latest"],
+    cellCount: 64545,
+    disease: ["disease with archived latest"],
+    suspensionType: ["suspension type with archived latest"],
+    tissue: ["tissue with archived latest"],
+    title: "Component Atlas With Archived Latest",
+  },
+  fileName: "component-atlas-with-archived-latest.h5ad",
+  fileType: FILE_TYPE.INTEGRATED_OBJECT,
+  versionId: null,
+} satisfies Partial<TestFile>;
+export const FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  etag: "915fbb243d774fc899765ac8d5aa0fac",
+  eventTime: "2025-10-06T05:06:01.513Z",
+  id: "d4912db6-52b5-4e27-9c7f-03f95cda5fcc",
+  isArchived: false,
+  isLatest: false,
+  sizeBytes: "23423",
+} satisfies TestFile;
+export const FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
+  ...BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  etag: "1b32e22825854fed9b2f49cdaa88c7d5",
+  eventTime: "2025-10-06T05:07:02.753Z",
+  id: "68fbe660-dad6-4521-bbab-3fbf5191abab",
+  isArchived: true,
+  isLatest: true,
+  sizeBytes: "64564",
+} satisfies TestFile;
+export const COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST =
+  "0b3a43c0-6871-4000-9351-d759f0cd78c8";
+export const COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W1 = {
+  file: FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  id: COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST,
+  isLatest: false,
+  sourceDatasets: [],
+  versionId: "6a8f3af9-34c7-43c9-9042-ff0b106935b7",
+  wipNumber: 1,
+} satisfies TestComponentAtlas;
+export const COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2 = {
+  file: FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+  id: COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST,
+  isLatest: true,
+  sourceDatasets: [],
+  versionId: "ba6efd4b-7cab-464a-9700-32ce665c2dd6",
+  wipNumber: 2,
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_ARCHIVED_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-archived-foo",
+    datasetInfo: {
+      assay: ["assay archived foo"],
+      cellCount: 44328,
+      disease: ["disease archived foo"],
+      suspensionType: ["suspension type archived foo"],
+      tissue: ["tissue archived foo"],
+      title: "Component Atlas Archived Foo",
+    },
+    etag: "b1ba6db3229e4069b51f3415b4e7bbf6",
+    eventTime: "2025-10-10T06:44:09.963Z",
+    fileName: "component-atlas-archived-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "e02c9a67-c1e7-42de-be6f-720fede81ca7",
+    integrityCheckedAt: "2025-10-10T06:44:09.963Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    isArchived: true,
+    sizeBytes: "8453",
+    versionId: null,
+  },
+  id: "45bf73f2-2f89-4fc4-b181-7b427414ff1e",
+  sourceDatasets: [
+    SOURCE_DATASET_ARCHIVED_FOO,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  ],
+  versionId: "c0733faa-2227-43fc-94bd-d2f125d93b8a",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_ARCHIVED_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-archived-bar",
+    datasetInfo: {
+      assay: ["assay archived bar"],
+      cellCount: 59807,
+      disease: ["disease archived bar"],
+      suspensionType: ["suspension type archived bar"],
+      tissue: ["tissue archived bar"],
+      title: "Component Atlas Archived Bar",
+    },
+    etag: "15030919f9364b7190a3720e238f0dfc",
+    eventTime: "2025-10-10T06:44:53.413Z",
+    fileName: "component-atlas-archived-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "525f9f84-3f80-41f6-accc-56df7b99f544",
+    integrityCheckedAt: "2025-10-10T06:44:53.413Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    isArchived: true,
+    sizeBytes: "48990",
+    versionId: null,
+  },
+  id: "49571b1f-5059-4840-9e8c-37c5ea0e9e5b",
+  sourceDatasets: [],
+  versionId: "ed3af29f-ff6b-416c-ac95-977cf83436d4",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-archived-baz",
+    datasetInfo: {
+      assay: ["assay archived baz"],
+      cellCount: 40171,
+      disease: ["disease archived baz"],
+      suspensionType: ["suspension type archived baz"],
+      tissue: ["tissue archived baz"],
+      title: "Component Atlas Archived Baz",
+    },
+    etag: "4ca2dd77c5b14f0290a0f96c59104eb6",
+    eventTime: "2025-10-10T06:45:16.510Z",
+    fileName: "component-atlas-archived-baz.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "e21b5b76-1d13-410f-8b2c-82ad460e4a06",
+    integrityCheckedAt: "2025-10-10T06:45:16.510Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    isArchived: true,
+    sizeBytes: "32940",
+    versionId: null,
+  },
+  id: "46421b3a-3e5a-48a7-bb44-1f7c9295ec2e",
+  sourceDatasets: [],
+  versionId: "dc114d50-032b-4bfb-89f5-3d576b3abb0e",
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+    bucket: "bucket-archived-foofoo",
+    datasetInfo: {
+      assay: ["assay archived foofoo"],
+      cellCount: 60786,
+      disease: ["disease archived foofoo"],
+      suspensionType: ["suspension type archived foofoo"],
+      tissue: ["tissue archived foofoo"],
+      title: "Component Atlas Archived Foofoo",
+    },
+    etag: "7c7b48151ab7419da7f0a75513d60585",
+    eventTime: "2025-10-10T07:15:18.716Z",
+    fileName: "component-atlas-archived-foofoo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "a992b714-690b-426a-9208-0a94daebba48",
+    integrityCheckedAt: "2025-10-10T07:15:18.716Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    isArchived: true,
+    sizeBytes: "29958",
+    versionId: null,
+  },
+  id: "dd42e5b7-e829-45cb-8ea9-9286487d9ae0",
+  sourceDatasets: [],
+  versionId: "bb4a9576-b865-4beb-85a8-be77074c6353",
+} satisfies TestComponentAtlas;
+
+// Component atlases to initialize in the database before tests
+export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
+  COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_DRAFT_BAR,
+  COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_MISC_BAR,
+  COMPONENT_ATLAS_MISC_BAZ,
+  COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
+  COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
+  COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W1,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W2,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W1,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
+  COMPONENT_ATLAS_ARCHIVED_FOO,
+  COMPONENT_ATLAS_ARCHIVED_BAR,
+  COMPONENT_ATLAS_ARCHIVED_BAZ,
+  COMPONENT_ATLAS_ARCHIVED_FOOFOO,
+];
+
 // ATLASES
 
 export const INTEGRATION_LEAD_BAZ = {
@@ -2578,6 +3089,10 @@ export const INTEGRATION_LEAD_BAZ_BAZ = {
 export const ATLAS_DRAFT: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [
+    COMPONENT_ATLAS_DRAFT_FOO.versionId,
+    COMPONENT_ATLAS_DRAFT_BAR.versionId,
+  ],
   description: "bar baz baz foo baz",
   highlights: "",
   id: ATLAS_ID_DRAFT,
@@ -2607,6 +3122,7 @@ export const ATLAS_DRAFT: TestAtlas = {
 export const ATLAS_PUBLIC: TestAtlas = {
   cellxgeneAtlasCollection: "354564bb-52cb-4dea-8e2e-d3d707ca3b87",
   codeLinks: [{ label: "foo", url: "https://example.com/atlas-public-foo" }],
+  componentAtlases: [],
   description: "foo foo bar bar foo",
   highlights: "bar foo baz foo foo bar baz",
   id: ATLAS_ID_PUBLIC,
@@ -2634,6 +3150,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
 export const ATLAS_WITH_IL: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "foo baz bar baz foo baz",
   highlights: "",
   id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
@@ -2651,6 +3168,11 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   cellxgeneAtlasCollection: "5aa910ee-23d7-419e-b2a4-8362dc058426",
   codeLinks: [
     { url: "https://example.com/atlas-with-misc-source-studies-foo" },
+  ],
+  componentAtlases: [
+    COMPONENT_ATLAS_MISC_FOO.versionId,
+    COMPONENT_ATLAS_MISC_BAR.versionId,
+    COMPONENT_ATLAS_MISC_BAZ.versionId,
   ],
   description: "bar foo bar bar foo baz",
   highlights: "foo foo foo foo bar foo bar",
@@ -2692,6 +3214,14 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
 export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [
+    COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3.versionId,
+    COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2.versionId,
+    COMPONENT_ATLAS_ARCHIVED_FOO.versionId,
+    COMPONENT_ATLAS_ARCHIVED_BAR.versionId,
+    COMPONENT_ATLAS_ARCHIVED_BAZ.versionId,
+    COMPONENT_ATLAS_ARCHIVED_FOOFOO.versionId,
+  ],
   description: "baz baz baz foo bar bar",
   highlights: "",
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B,
@@ -2717,6 +3247,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
 export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "baz bar foo foo bar baz baz foo",
   highlights: "",
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C,
@@ -2739,6 +3270,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "foo baz baz bar foo bar",
   highlights: "",
   id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
@@ -2761,6 +3293,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.versionId],
   description: "baz foo baz foo bar bar foo",
   highlights: "",
   id: "9766683a-3c8d-4ec8-b8b5-3fceb8fe0d31",
@@ -2786,6 +3319,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
 export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "bar baz baz bar foo foo foo bar",
   highlights: "",
   id: "0e65d1fb-d352-4af4-8109-368935fd0c48",
@@ -2802,6 +3336,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C: TestAtlas = {
 export const ATLAS_PUBLIC_BAR: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "bar bar foo baz foo foo baz",
   highlights: "",
   id: "40cd10f3-021b-4472-9820-b49978fa6b58",
@@ -2818,6 +3353,7 @@ export const ATLAS_PUBLIC_BAR: TestAtlas = {
 export const ATLAS_WITH_METADATA_CORRECTNESS: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "foo barbaz bazbar foo foo foobaz",
   highlights: "",
   id: "22d1ece3-9e62-42f5-a737-a9c84042a1a0",
@@ -2836,6 +3372,7 @@ export const ATLAS_WITH_METADATA_CORRECTNESS: TestAtlas = {
 export const ATLAS_PUBLIC_BAZ: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "bar baz foo foo bar bar bar bar bar foo bar",
   highlights: "",
   id: "ca000a2b-8246-4694-8f21-f47bcbfe1852",
@@ -2853,6 +3390,7 @@ export const ATLAS_WITH_CAP_ID: TestAtlas = {
   capId: "https://celltype.info/project/41866",
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "bar foo baz baz foo foo bar bar bar",
   highlights: "",
   id: "381ae4f6-7795-4084-9ce4-e2f5b0794c74",
@@ -2869,6 +3407,10 @@ export const ATLAS_WITH_CAP_ID: TestAtlas = {
 export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [
+    COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO.versionId,
+    COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR.versionId,
+  ],
   description: "foo baz baz foo bar baz baz bar foo bar",
   highlights: "",
   id: ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A,
@@ -2888,6 +3430,7 @@ export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A: TestAtlas = {
 export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "foo foo foo bar bar foo baz baz foo foo bar foo",
   highlights: "",
   id: "7cedbe48-2e45-4246-ba09-3a90c1f29275",
@@ -2907,6 +3450,7 @@ export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B: TestAtlas = {
 export const ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "baz bar baz bar foo bar baz foo foo bar baz",
   highlights: "",
   id: ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
@@ -2924,6 +3468,7 @@ export const ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestAtlas = {
 export const ATLAS_HEATMAP_TEST: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
+  componentAtlases: [],
   description: "Test atlas for comprehensive heatmap testing",
   highlights: "",
   id: "16a9a162-cdf5-42cd-a84b-f5f49e9bea22",
@@ -2974,497 +3519,6 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
   },
   {} as Record<string, TestAtlas[]>
 );
-
-// COMPONENT ATLASES
-
-export const EMPTY_COMPONENT_INFO = {
-  capUrl: null,
-} satisfies HCAAtlasTrackerDBComponentAtlasInfo;
-
-export const COMPONENT_ATLAS_DRAFT_FOO = {
-  atlasId: ATLAS_DRAFT.id,
-  file: {
-    atlas: ATLAS_DRAFT,
-    bucket: "bucket-draft-foo",
-    etag: "6b8f00707b574ca28e43a7568a2eaca1",
-    eventTime: "2025-08-22T05:45:49.432Z",
-    fileName: "component-atlas-draft-foo.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "2dfcd615-391f-452c-b981-d0124583c97f",
-    sizeBytes: "2342325",
-    versionId: null,
-  },
-  id: "b1820416-5886-4585-b0fe-7f70487331d8",
-  sourceDatasets: [
-    SOURCE_DATASET_FOOFOO,
-    SOURCE_DATASET_FOOBAR,
-    SOURCE_DATASET_FOOBAZ,
-  ],
-  versionId: "0b90d764-dc6a-4f4a-8a13-596e4812cb7d",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_DRAFT_BAR = {
-  atlasId: ATLAS_DRAFT.id,
-  file: {
-    atlas: ATLAS_DRAFT,
-    bucket: "bucket-draft-bar",
-    datasetInfo: {
-      assay: ["assay draft bar"],
-      cellCount: 453453,
-      disease: ["disease draft bar"],
-      geneCount: 123234,
-      suspensionType: ["suspension type draft bar"],
-      tissue: ["tissue draft bar"],
-      title: "Component Atlas Draft Bar",
-    },
-    etag: "7c9f11808c685db39f54b8679b3fbcb2",
-    eventTime: "2025-08-22T05:46:12.567Z",
-    fileName: "component-atlas-draft-bar.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "3efde726-402f-563d-c092-e1235694d08f",
-    integrityCheckedAt: "2025-09-15T01:09:19.036Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    sizeBytes: "1987456",
-    validationReports: {
-      cap: {
-        errors: [],
-        finishedAt: "2025-09-15T01:09:21.000Z",
-        startedAt: "2025-09-15T01:09:20.000Z",
-        valid: true,
-        warnings: [],
-      },
-    },
-    validationSummary: {
-      overallValid: true,
-      validators: {
-        cap: true,
-      },
-    },
-    versionId: null,
-  },
-  id: "484bc93b-836d-4efe-880a-de90eb1c4dfb",
-  sourceDatasets: [
-    SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
-    SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
-  ],
-  versionId: "e57cdeb3-5694-479a-b7b1-3b68ec01cf17",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_MISC_FOO = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  file: {
-    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
-    bucket: "bucket-misc-foo",
-    datasetInfo: {
-      assay: ["assay misc foo"],
-      cellCount: 534534,
-      disease: ["disease misc foo"],
-      suspensionType: ["suspension type misc foo"],
-      tissue: ["tissue misc foo"],
-      title: "Component Atlas Misc Foo",
-    },
-    etag: "8d0a22919d796ec40a65c9780c4acdbe",
-    eventTime: "2025-08-22T05:46:35.891Z",
-    fileName: "component-atlas-misc-foo.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "4faef837-513a-674e-d103-f2346705e19b",
-    integrityCheckedAt: "2025-09-15T01:11:04.489Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    sizeBytes: "3456789",
-    versionId: null,
-  },
-  id: "b95614cc-5356-4f47-b3a2-da05d23e86ce",
-  sourceDatasets: [
-    SOURCE_DATASET_FOO,
-    SOURCE_DATASET_FOOFOO,
-    SOURCE_DATASET_OTHER_FOO,
-    SOURCE_DATASET_OTHER_BAR,
-  ],
-  versionId: "60a0db23-8918-4145-8893-d7efd3e7c44c",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_MISC_BAR = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  file: {
-    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
-    bucket: "bucket-misc-bar",
-    datasetInfo: {
-      assay: ["assay misc bar"],
-      cellCount: 645645,
-      disease: ["disease misc bar"],
-      suspensionType: ["suspension type misc bar"],
-      tissue: ["tissue misc bar"],
-      title: "Component Atlas Misc Bar",
-    },
-    etag: "9e1b33a2ae8a7fd51b76da891d5bcdcf",
-    eventTime: "2025-08-22T06:47:36.892Z",
-    fileName: "component-atlas-misc-bar.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
-    integrityCheckedAt: "2025-09-15T02:12:05.590Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    sizeBytes: "4567890",
-    versionId: null,
-  },
-  id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
-  sourceDatasets: [],
-  versionId: "3f2bfe87-e5a8-492a-a926-47af2171e1e2",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_MISC_BAZ = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-  file: {
-    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES,
-    bucket: "bucket-misc-baz",
-    datasetInfo: {
-      assay: ["assay misc baz"],
-      cellCount: 756756,
-      disease: ["disease misc baz"],
-      suspensionType: ["suspension type misc baz"],
-      tissue: ["tissue misc baz"],
-      title: "Component Atlas Misc Baz",
-    },
-    etag: "af2c44b3bf9b8ge62c87eb9a2e6cdde0",
-    eventTime: "2025-08-22T07:48:37.893Z",
-    fileName: "component-atlas-misc-baz.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "a28ef7cb-16f9-490e-b92c-fbe507cbf135",
-    integrityCheckedAt: "2025-09-15T03:13:06.691Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    sizeBytes: "5678901",
-    versionId: null,
-  },
-  id: "23f603d3-57cd-44b9-a3c0-14e671fb2835",
-  sourceDatasets: [],
-  versionId: "89b3236e-64ed-45cf-997a-9816d01bc1ff",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS = {
-  atlasId: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B.id,
-  file: {
-    atlas: ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
-    bucket: "bucket-cellxgene-datasets",
-    datasetInfo: {
-      assay: ["assay with cellxgene datasets"],
-      cellCount: 90898,
-      disease: ["disease with cellxgene datasets"],
-      suspensionType: ["suspension type with cellxgene datasets"],
-      tissue: ["tissue with cellxgene datasets"],
-      title: "Component Atlas With CELLxGENE Datasets",
-    },
-    etag: "9e1b33020e807fd51b76d0891d5bdef4",
-    eventTime: "2025-08-22T05:46:58.234Z",
-    fileName: "component-atlas-with-cellxgene-datasets.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "5abfa948-624b-785f-e214-a3457816f20c",
-    integrityCheckedAt: "2025-09-15T01:46:37.534Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    sizeBytes: "2789123",
-    versionId: null,
-  },
-  id: "6feee158-5e54-4f46-8695-360c89ef9916",
-  sourceDatasets: [
-    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR,
-    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ,
-    SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-  ],
-  versionId: "712e5187-20d2-4633-b206-f9f5a79085b0",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO = {
-  atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-  file: {
-    atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
-    bucket: "bucket-entry-sheet-validations-foo",
-    datasetInfo: {
-      assay: ["assay with entry sheet validations foo"],
-      cellCount: 45345,
-      disease: ["disease with entry sheet validations foo"],
-      suspensionType: ["suspension type with entry sheet validations foo"],
-      tissue: ["tissue with entry sheet validations foo"],
-      title: "Component Atlas With Entry Sheet Validations Foo",
-    },
-    etag: "0f2c44131f918ae62c87e1902e6cafe5",
-    eventTime: "2025-08-22T05:47:21.456Z",
-    fileName: "component-atlas-with-entry-sheet-validations-foo.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "6bcac059-735c-896a-f325-b4568927a31d",
-    integrityCheckedAt: "2025-09-15T01:49:12.588Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    sizeBytes: "1654321",
-    versionId: null,
-  },
-  id: "ea9f4b7a-a2a9-4fe8-a20a-5de4f11e60b8",
-  sourceDatasets: [],
-  versionId: "a7019e17-c7aa-4aaa-8740-d82f7c71e6ca",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR = {
-  atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-  file: {
-    atlas: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
-    bucket: "bucket-entry-sheet-validations-bar",
-    datasetInfo: {
-      assay: ["assay with entry sheet validations bar"],
-      cellCount: 29348,
-      disease: ["disease with entry sheet validations bar"],
-      suspensionType: ["suspension type with entry sheet validations bar"],
-      tissue: ["tissue with entry sheet validations bar"],
-      title: "Component Atlas With Entry Sheet Validations Bar",
-    },
-    etag: "1a3d55242a029bf73d98f2013f7dbab6",
-    eventTime: "2025-08-22T05:47:44.789Z",
-    fileName: "component-atlas-with-entry-sheet-validations-bar.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "7cdbd160-846d-907b-a436-c5679038b42e",
-    integrityCheckedAt: "2025-09-15T02:40:50.214Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    sizeBytes: "2123456",
-    versionId: null,
-  },
-  id: "f3551bcf-31ae-4640-9bd5-68d8cdcb586b",
-  sourceDatasets: [],
-  versionId: "6de65567-692f-4a04-b792-e2ba6b500abb",
-} satisfies TestComponentAtlas;
-
-const BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
-  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
-  bucket: "bucket-with-multiple-files",
-  datasetInfo: {
-    assay: ["assay with multiple files"],
-    cellCount: 43453,
-    disease: ["disease with multiple files"],
-    suspensionType: ["suspension type with multiple files"],
-    tissue: ["tissue with multiple files"],
-    title: "Component Atlas With Multiple Files",
-  },
-  fileName: "component-atlas-with-multiple-files.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  sizeBytes: "59456",
-  versionId: null,
-} satisfies Partial<TestFile>;
-export const FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
-  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-  etag: "ba58c1a1fbea4a1086f7a0a767364cca",
-  eventTime: "2025-09-16T02:59:48.485Z",
-  id: "7e4b60ae-2d78-47ac-8e5c-83196047a7f3",
-  integrityCheckedAt: "2025-09-16T03:00:11.886Z",
-  integrityStatus: INTEGRITY_STATUS.VALID,
-  isLatest: false,
-} satisfies TestFile;
-export const FILE_B_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
-  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-  etag: "55bcb2de7f144a829bfcf3aa5712d47d",
-  eventTime: "2025-09-16T03:00:35.982Z",
-  id: "f1a1496f-4a00-43cc-881b-2b5e3360cc5d",
-  integrityCheckedAt: "2025-09-16T03:00:55.834Z",
-  integrityStatus: INTEGRITY_STATUS.VALID,
-  isArchived: true,
-  isLatest: false,
-} satisfies TestFile;
-export const FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
-  ...BASE_FILE_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-  etag: "0e1b0a46450b475b82d095265034bfeb",
-  eventTime: "2025-09-16T03:01:23.949Z",
-  id: "69586fc2-95d3-415e-b505-9d5768feb1bb",
-  integrityCheckedAt: "2025-09-16T03:02:19.235Z",
-  integrityStatus: INTEGRITY_STATUS.VALID,
-} satisfies TestFile;
-export const COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  file: [
-    FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-    FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-    FILE_B_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-  ],
-  id: "235920d2-b08b-408a-aa1a-9a1af9a98297",
-  sourceDatasets: [
-    SOURCE_DATASET_ARCHIVED_FOO,
-    SOURCE_DATASET_WITH_MULTIPLE_FILES,
-  ],
-  versionId: "6b3cbe31-093c-4053-8003-040bd86f9074",
-} satisfies TestComponentAtlas;
-
-const BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
-  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
-  bucket: "bucket-with-archived-latest",
-  datasetInfo: {
-    assay: ["assay with archived latest"],
-    cellCount: 64545,
-    disease: ["disease with archived latest"],
-    suspensionType: ["suspension type with archived latest"],
-    tissue: ["tissue with archived latest"],
-    title: "Component Atlas With Archived Latest",
-  },
-  fileName: "component-atlas-with-archived-latest.h5ad",
-  fileType: FILE_TYPE.INTEGRATED_OBJECT,
-  versionId: null,
-} satisfies Partial<TestFile>;
-export const FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
-  ...BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  etag: "915fbb243d774fc899765ac8d5aa0fac",
-  eventTime: "2025-10-06T05:06:01.513Z",
-  id: "d4912db6-52b5-4e27-9c7f-03f95cda5fcc",
-  isArchived: false,
-  isLatest: false,
-  sizeBytes: "23423",
-} satisfies TestFile;
-export const FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
-  ...BASE_FILE_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  etag: "1b32e22825854fed9b2f49cdaa88c7d5",
-  eventTime: "2025-10-06T05:07:02.753Z",
-  id: "68fbe660-dad6-4521-bbab-3fbf5191abab",
-  isArchived: true,
-  isLatest: true,
-  sizeBytes: "64564",
-} satisfies TestFile;
-export const COMPONENT_ATLAS_WITH_ARCHIVED_LATEST = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  file: [
-    FILE_A_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-    FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  ],
-  id: "0b3a43c0-6871-4000-9351-d759f0cd78c8",
-  sourceDatasets: [],
-  versionId: "6a8f3af9-34c7-43c9-9042-ff0b106935b7",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_ARCHIVED_FOO = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  file: {
-    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
-    bucket: "bucket-archived-foo",
-    datasetInfo: {
-      assay: ["assay archived foo"],
-      cellCount: 44328,
-      disease: ["disease archived foo"],
-      suspensionType: ["suspension type archived foo"],
-      tissue: ["tissue archived foo"],
-      title: "Component Atlas Archived Foo",
-    },
-    etag: "b1ba6db3229e4069b51f3415b4e7bbf6",
-    eventTime: "2025-10-10T06:44:09.963Z",
-    fileName: "component-atlas-archived-foo.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "e02c9a67-c1e7-42de-be6f-720fede81ca7",
-    integrityCheckedAt: "2025-10-10T06:44:09.963Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    isArchived: true,
-    sizeBytes: "8453",
-    versionId: null,
-  },
-  id: "45bf73f2-2f89-4fc4-b181-7b427414ff1e",
-  sourceDatasets: [
-    SOURCE_DATASET_ARCHIVED_FOO,
-    SOURCE_DATASET_WITH_MULTIPLE_FILES,
-  ],
-  versionId: "c0733faa-2227-43fc-94bd-d2f125d93b8a",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_ARCHIVED_BAR = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  file: {
-    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
-    bucket: "bucket-archived-bar",
-    datasetInfo: {
-      assay: ["assay archived bar"],
-      cellCount: 59807,
-      disease: ["disease archived bar"],
-      suspensionType: ["suspension type archived bar"],
-      tissue: ["tissue archived bar"],
-      title: "Component Atlas Archived Bar",
-    },
-    etag: "15030919f9364b7190a3720e238f0dfc",
-    eventTime: "2025-10-10T06:44:53.413Z",
-    fileName: "component-atlas-archived-bar.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "525f9f84-3f80-41f6-accc-56df7b99f544",
-    integrityCheckedAt: "2025-10-10T06:44:53.413Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    isArchived: true,
-    sizeBytes: "48990",
-    versionId: null,
-  },
-  id: "49571b1f-5059-4840-9e8c-37c5ea0e9e5b",
-  sourceDatasets: [],
-  versionId: "ed3af29f-ff6b-416c-ac95-977cf83436d4",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_ARCHIVED_BAZ = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  file: {
-    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
-    bucket: "bucket-archived-baz",
-    datasetInfo: {
-      assay: ["assay archived baz"],
-      cellCount: 40171,
-      disease: ["disease archived baz"],
-      suspensionType: ["suspension type archived baz"],
-      tissue: ["tissue archived baz"],
-      title: "Component Atlas Archived Baz",
-    },
-    etag: "4ca2dd77c5b14f0290a0f96c59104eb6",
-    eventTime: "2025-10-10T06:45:16.510Z",
-    fileName: "component-atlas-archived-baz.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "e21b5b76-1d13-410f-8b2c-82ad460e4a06",
-    integrityCheckedAt: "2025-10-10T06:45:16.510Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    isArchived: true,
-    sizeBytes: "32940",
-    versionId: null,
-  },
-  id: "46421b3a-3e5a-48a7-bb44-1f7c9295ec2e",
-  sourceDatasets: [],
-  versionId: "dc114d50-032b-4bfb-89f5-3d576b3abb0e",
-} satisfies TestComponentAtlas;
-
-export const COMPONENT_ATLAS_ARCHIVED_FOOFOO = {
-  atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-  file: {
-    atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_B,
-    bucket: "bucket-archived-foofoo",
-    datasetInfo: {
-      assay: ["assay archived foofoo"],
-      cellCount: 60786,
-      disease: ["disease archived foofoo"],
-      suspensionType: ["suspension type archived foofoo"],
-      tissue: ["tissue archived foofoo"],
-      title: "Component Atlas Archived Foofoo",
-    },
-    etag: "7c7b48151ab7419da7f0a75513d60585",
-    eventTime: "2025-10-10T07:15:18.716Z",
-    fileName: "component-atlas-archived-foofoo.h5ad",
-    fileType: FILE_TYPE.INTEGRATED_OBJECT,
-    id: "a992b714-690b-426a-9208-0a94daebba48",
-    integrityCheckedAt: "2025-10-10T07:15:18.716Z",
-    integrityStatus: INTEGRITY_STATUS.VALID,
-    isArchived: true,
-    sizeBytes: "29958",
-    versionId: null,
-  },
-  id: "dd42e5b7-e829-45cb-8ea9-9286487d9ae0",
-  sourceDatasets: [],
-  versionId: "bb4a9576-b865-4beb-85a8-be77074c6353",
-} satisfies TestComponentAtlas;
-
-// Component atlases to initialize in the database before tests
-export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
-  COMPONENT_ATLAS_DRAFT_FOO,
-  COMPONENT_ATLAS_DRAFT_BAR,
-  COMPONENT_ATLAS_MISC_FOO,
-  COMPONENT_ATLAS_MISC_BAR,
-  COMPONENT_ATLAS_MISC_BAZ,
-  COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
-  COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
-  COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
-  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
-  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  COMPONENT_ATLAS_ARCHIVED_FOO,
-  COMPONENT_ATLAS_ARCHIVED_BAR,
-  COMPONENT_ATLAS_ARCHIVED_BAZ,
-  COMPONENT_ATLAS_ARCHIVED_FOOFOO,
-];
 
 // STANDALONE FILES
 

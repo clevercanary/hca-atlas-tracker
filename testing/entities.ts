@@ -36,6 +36,7 @@ export interface TestAtlas {
   capId?: string | null;
   cellxgeneAtlasCollection: string | null;
   codeLinks: LinkInfo[];
+  componentAtlases: string[];
   description: string;
   highlights: string;
   id: string;
@@ -54,12 +55,13 @@ export interface TestAtlas {
 }
 
 export interface TestComponentAtlas {
-  atlasId: string;
   capUrl?: string | null;
-  file: TestFile | TestFile[];
+  file: TestFile;
   id: string;
+  isLatest?: boolean;
   sourceDatasets?: TestSourceDataset[];
   versionId: string;
+  wipNumber?: number;
 }
 
 export type TestSourceStudy =

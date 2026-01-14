@@ -18,8 +18,9 @@ import {
   COMPONENT_ATLAS_ARCHIVED_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
   COMPONENT_ATLAS_MISC_FOO,
-  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   SOURCE_DATASET_ARCHIVED_BAR,
   SOURCE_DATASET_ARCHIVED_FOO,
   SOURCE_DATASET_BAR,
@@ -210,7 +211,7 @@ describe(TEST_ROUTE, () => {
   it("returns only non-archived source datasets when requested from non-archived component atlas", async () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id,
+      COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
@@ -430,19 +431,19 @@ describe(TEST_ROUTE, () => {
 
   it("adds source datasets when POST requested with archived source dataset for non-archived component atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3
     );
 
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id,
+      COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
       USER_CONTENT_ADMIN,
       METHOD.POST,
       NEW_DATASETS_DATA_WITH_ARCHIVED
     );
     expect(res._getStatusCode()).toEqual(201);
     await expectComponentAtlasToHaveSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
       [
         SOURCE_DATASET_ARCHIVED_FOO,
         SOURCE_DATASET_WITH_MULTIPLE_FILES,
@@ -452,7 +453,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
 
     await setComponentAtlasDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
       sourceDatasetsBefore
     );
   });
@@ -656,14 +657,14 @@ describe(TEST_ROUTE, () => {
 
   it("deletes source datasets when requested with archived source dataset for non-archived component atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3
     );
 
     expect(
       (
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id,
+          COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           DELETE_DATASETS_DATA_WITH_ARCHIVED
@@ -671,13 +672,13 @@ describe(TEST_ROUTE, () => {
       )._getStatusCode()
     ).toEqual(200);
     await expectComponentAtlasToHaveSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
       [SOURCE_DATASET_WITH_MULTIPLE_FILES]
     );
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
 
     await setComponentAtlasDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
       sourceDatasetsBefore
     );
   });

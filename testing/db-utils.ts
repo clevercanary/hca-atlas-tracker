@@ -154,10 +154,11 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
-      "INSERT INTO hat.atlases (id, overview, source_datasets, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5, $6)",
+      "INSERT INTO hat.atlases (id, overview, component_atlases, source_datasets, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5, $6, $7)",
       [
         atlas.id,
         JSON.stringify(overview),
+        atlas.componentAtlases,
         atlas.sourceDatasets || [],
         JSON.stringify(atlas.sourceStudies || []),
         atlas.status,
@@ -172,44 +173,48 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
       capUrl: componentAtlas.capUrl ?? null,
     };
-    const latestFile = getLatestFileForTestEntity(componentAtlas);
     await client.query(
-      "INSERT INTO hat.component_atlases (component_info, id, version_id, source_datasets, file_id) VALUES ($1, $2, $3, $4, $5)",
+      `
+        INSERT INTO hat.component_atlases (component_info, id, version_id, source_datasets, file_id, wip_number, is_latest)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `,
       [
         info,
         componentAtlas.id,
         componentAtlas.versionId,
         componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
-        latestFile.id,
+        componentAtlas.file.id,
+        componentAtlas.wipNumber ?? 1,
+        componentAtlas.isLatest ?? true,
       ]
-    );
-    await client.query(
-      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
-      [componentAtlas.versionId, componentAtlas.atlasId]
     );
   }
 }
 
 async function initFiles(client: pg.PoolClient): Promise<void> {
+  const createdFiles = new Set<TestFile>();
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
-    for (const file of getTestEntityFilesArray(componentAtlas)) {
-      await initTestFile(client, file);
-    }
+    await initTestFile(client, componentAtlas.file, createdFiles);
   }
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
     for (const file of getTestEntityFilesArray(sourceDataset)) {
-      await initTestFile(client, file);
+      await initTestFile(client, file, createdFiles);
     }
   }
   for (const file of INITIAL_STANDALONE_TEST_FILES) {
-    await initTestFile(client, file);
+    await initTestFile(client, file, createdFiles);
   }
 }
 
 async function initTestFile(
   client: pg.PoolClient,
-  file: TestFile
+  file: TestFile,
+  createdFiles: Set<TestFile>
 ): Promise<void> {
+  // Avoid creating the file if it's already been created, which may happen if it's referenced in multiple test entity definitions
+  if (createdFiles.has(file)) return;
+  createdFiles.add(file);
+
   const {
     bucket,
     datasetInfo,

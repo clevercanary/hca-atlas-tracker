@@ -12,11 +12,13 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST,
+  COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
   COMPONENT_ATLAS_MISC_BAR,
   COMPONENT_ATLAS_MISC_BAZ,
   COMPONENT_ATLAS_MISC_FOO,
-  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -219,7 +221,7 @@ describe(TEST_ROUTE, () => {
   it("returns archived component atlas with metadata when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
+      COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
@@ -227,7 +229,7 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
-      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST
+      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(0);
     expect(componentAtlas.title).not.toEqual("");
@@ -241,7 +243,7 @@ describe(TEST_ROUTE, () => {
   it("returns component atlas with archived source dataset when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id,
+      COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
       USER_CONTENT_ADMIN
     );
     expect(res._getStatusCode()).toEqual(200);
@@ -249,7 +251,7 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(1);
     expect(componentAtlas.title).not.toEqual("");
@@ -374,7 +376,7 @@ describe(TEST_ROUTE, () => {
       (
         await doComponentAtlasRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id,
+          COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
