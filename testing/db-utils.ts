@@ -48,7 +48,7 @@ import {
   expectIsDefined,
   fillTestFileDefaults,
   fillTestSourceDatasetDefaults,
-  getLatestFileForTestEntity,
+  getPrimaryFileForTestEntity,
   getTestEntityFileIds,
   getTestEntityFilesArray,
   getTestFileKey,
@@ -131,7 +131,7 @@ export async function initSourceDatasets(
   for (const sourceDataset of testSourceDatasets) {
     const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
     const info = makeTestSourceDatasetInfo(normDataset);
-    const latestFile = getLatestFileForTestEntity(sourceDataset);
+    const latestFile = getPrimaryFileForTestEntity(sourceDataset);
     await client.query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id) VALUES ($1, $2, $3, $4, $5)",
       [

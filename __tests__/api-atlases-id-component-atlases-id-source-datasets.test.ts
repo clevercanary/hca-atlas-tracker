@@ -15,11 +15,14 @@ import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   COMPONENT_ATLAS_ARCHIVED_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
   COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   SOURCE_DATASET_ARCHIVED_BAR,
   SOURCE_DATASET_ARCHIVED_FOO,
@@ -30,6 +33,8 @@ import {
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO,
   SOURCE_DATASET_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -234,6 +239,19 @@ describe(TEST_ROUTE, () => {
     ]);
   });
 
+  it("returns source datasets when requested from non-latest component atlas linked to the atlas", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO,
+    ]);
+  });
+
   it("returns error 401 when POST requested from draft atlas by logged out user", async () => {
     expect(
       (
@@ -372,6 +390,24 @@ describe(TEST_ROUTE, () => {
     );
     expect(res._getStatusCode()).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
+  });
+
+  it("returns error 400 when POST requested from component atlas with non-latest version linked to the atlas", async () => {
+    const newDatasetsData = {
+      sourceDatasetIds: [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR.id],
+    } satisfies ComponentAtlasAddSourceDatasetsData;
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+      USER_CONTENT_ADMIN,
+      METHOD.POST,
+      newDatasetsData,
+      true
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    await expectComponentAtlasToBeUnchanged(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
+    );
   });
 
   it("adds source datasets when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
@@ -599,6 +635,24 @@ describe(TEST_ROUTE, () => {
       )._getStatusCode()
     ).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_ARCHIVED_FOO);
+  });
+
+  it("returns error 400 when DELETE requested from component atlas with non-latest version linked to the atlas", async () => {
+    const deleteDatasetsData = {
+      sourceDatasetIds: [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO.id],
+    } satisfies ComponentAtlasDeleteSourceDatasetsData;
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+      USER_CONTENT_ADMIN,
+      METHOD.DELETE,
+      deleteDatasetsData,
+      true
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    await expectComponentAtlasToBeUnchanged(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
+    );
   });
 
   it("deletes source datasets when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
