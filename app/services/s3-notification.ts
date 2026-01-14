@@ -20,6 +20,7 @@ import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
+import { updateComponentAtlasVersionInAtlases } from "../data/atlases";
 import {
   createNewComponentAtlasVersion,
   markComponentAtlasAsNotLatest,
@@ -282,7 +283,12 @@ async function updateIntegratedObjectFromS3(
     componentAtlasId,
     transaction
   );
-  await createNewComponentAtlasVersion(prevLatestVersion, fileId, transaction);
+  const newVersion = await createNewComponentAtlasVersion(
+    prevLatestVersion,
+    fileId,
+    transaction
+  );
+  await updateComponentAtlasVersionInAtlases(prevLatestVersion, newVersion);
 }
 
 async function updateSourceDatasetFromS3(

@@ -6,21 +6,26 @@ import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-track
  * @param prevVersionId - ID of the previous version of the component atlas.
  * @param fileId - ID of the new version's file.
  * @param client - Postgres client to use.
+ * @returns new component atlas version ID.
  */
 export async function createNewComponentAtlasVersion(
   prevVersionId: string,
   fileId: string,
   client: pg.PoolClient
-): Promise<void> {
-  await client.query(
+): Promise<string> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
+  >(
     `
       INSERT INTO hat.component_atlases (component_info, source_datasets, id, wip_number, file_id)
       SELECT component_info, source_datasets, id, wip_number + 1, $2
       FROM hat.component_atlases
       WHERE version_id = $1
+      RETURNING version_id
     `,
     [prevVersionId, fileId]
   );
+  return queryResult.rows[0].version_id;
 }
 
 /**
