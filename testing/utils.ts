@@ -726,6 +726,9 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.validationSummary).toEqual(
     testFile.validationSummary
   );
+  expect(apiComponentAtlas.wipNumber).toEqual(
+    testComponentAtlas.wipNumber ?? 1
+  );
 
   if (expectDetail) {
     expect(apiComponentAtlas).toHaveProperty("validationReports");

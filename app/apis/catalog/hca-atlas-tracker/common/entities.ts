@@ -66,6 +66,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   title: string;
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
+  wipNumber: number;
 }
 
 export interface HCAAtlasTrackerDetailComponentAtlas
