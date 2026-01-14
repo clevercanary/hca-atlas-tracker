@@ -139,7 +139,7 @@ export async function updateComponentAtlas(
     componentAtlasId,
     atlasId
   );
-  await confirmComponentAtlasIsAvailable(componentAtlasVersion);
+  await confirmComponentAtlasIsEditable(componentAtlasVersion);
   const updatedInfoFields: ComponentAtlasInfoUpdateFields = {
     capUrl: inputData.capUrl || null,
   };
@@ -169,7 +169,7 @@ export async function addSourceDatasetsToComponentAtlas(
     atlasId
   );
 
-  await confirmComponentAtlasIsAvailable(componentAtlasVersion);
+  await confirmComponentAtlasIsEditable(componentAtlasVersion);
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
@@ -216,7 +216,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
     atlasId
   );
 
-  await confirmComponentAtlasIsAvailable(componentAtlasVersion);
+  await confirmComponentAtlasIsEditable(componentAtlasVersion);
 
   await confirmSourceDatasetsExist(sourceDatasetIds);
 
@@ -331,15 +331,18 @@ export async function getComponentAtlasVersionForAtlas(
 }
 
 /**
- * Throw an error if the specified component atlas is not available to users (e.g., is archived).
+ * Throw an error if the specified component atlas is not editable by users (e.g., is archived or non-latest).
  * @param componentAtlasVersion - The version ID of the component atlas to check.
  */
-async function confirmComponentAtlasIsAvailable(
+async function confirmComponentAtlasIsEditable(
   componentAtlasVersion: string
 ): Promise<void> {
-  const queryResult = await query<Pick<HCAAtlasTrackerDBFile, "is_archived">>(
+  const queryResult = await query<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "is_latest"> &
+      Pick<HCAAtlasTrackerDBFile, "is_archived">
+  >(
     `
-        SELECT f.is_archived
+        SELECT c.is_latest, f.is_archived
         FROM hat.component_atlases c
         JOIN hat.files f ON f.id = c.file_id
         WHERE c.version_id = $1
@@ -350,10 +353,16 @@ async function confirmComponentAtlasIsAvailable(
     throw new NotFoundError(
       `Component atlas with version ID ${componentAtlasVersion} doesn't exist`
     );
-  if (queryResult.rows[0].is_archived)
+  const { is_archived, is_latest } = queryResult.rows[0];
+  if (is_archived)
     throw new InvalidOperationError(
-      `Component atlas with version ID ${componentAtlasVersion} is archived`
+      `Component atlas with version ID ${componentAtlasVersion} is archived and can't be edited`
     );
+  if (!is_latest) {
+    throw new InvalidOperationError(
+      `Component atlas with version ID ${componentAtlasVersion} is not the latest version of the component atlas and can't be edited`
+    );
+  }
 }
 
 export function getComponentAtlasNotFoundError(

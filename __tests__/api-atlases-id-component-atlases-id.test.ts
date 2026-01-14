@@ -407,18 +407,16 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 400 when PATCH requested with component atlas that the atlas does not have the latest version of", async () => {
     const editData = { capUrl: null } satisfies ComponentAtlasEditData;
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
-          COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
-          USER_CONTENT_ADMIN,
-          METHOD.PATCH,
-          editData,
-          true
-        )
-      )._getStatusCode()
-    ).toEqual(400);
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      editData,
+      true
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toContain("latest version");
   });
 
   it("returns error 400 when PATCH requested with a non-CAP URL in CAP URL field", async () => {

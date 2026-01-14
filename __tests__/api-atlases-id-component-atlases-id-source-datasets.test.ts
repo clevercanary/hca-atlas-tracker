@@ -405,6 +405,7 @@ describe(TEST_ROUTE, () => {
       true
     );
     expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toContain("latest version");
     await expectComponentAtlasToBeUnchanged(
       COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
     );
@@ -650,6 +651,7 @@ describe(TEST_ROUTE, () => {
       true
     );
     expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toContain("latest version");
     await expectComponentAtlasToBeUnchanged(
       COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
     );
