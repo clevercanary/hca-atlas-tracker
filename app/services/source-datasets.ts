@@ -25,7 +25,7 @@ import {
 } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { confirmComponentAtlasExistsOnAtlas } from "./component-atlases";
+import { getComponentAtlasVersionForAtlas } from "./component-atlases";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -84,9 +84,12 @@ export async function getComponentAtlasDatasets(
   atlasId: string,
   componentAtlasId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
-  await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
+  const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
+    componentAtlasId,
+    atlasId
+  );
   return await getSourceDatasetsForApi(
-    await getComponentAtlasSourceDatasetIds(componentAtlasId),
+    await getComponentAtlasSourceDatasetIds(componentAtlasVersion),
     true
   );
 }
@@ -119,11 +122,14 @@ export async function getComponentAtlasSourceDataset(
   componentAtlasId: string,
   sourceDatasetId: string
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  await confirmComponentAtlasExistsOnAtlas(componentAtlasId, atlasId);
+  const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
+    componentAtlasId,
+    atlasId
+  );
   const { exists } = (
     await query<{ exists: boolean }>(
-      "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND id=$2)",
-      [sourceDatasetId, componentAtlasId]
+      "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND version_id=$2)",
+      [sourceDatasetId, componentAtlasVersion]
     )
   ).rows[0];
   if (!exists)
