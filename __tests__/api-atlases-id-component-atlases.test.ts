@@ -228,7 +228,7 @@ describe(TEST_ROUTE, () => {
         COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
         COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
       ],
-      [0, 0, 0]
+      [1, 0, 0]
     );
   });
 });
