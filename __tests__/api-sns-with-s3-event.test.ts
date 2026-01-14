@@ -46,6 +46,8 @@ import {
   expectFileNotToBeReferencedByAnyMetadataEntity,
   expectOldFileNotToBeReferencedByMetadataEntity,
   expectReferenceBetweenFileAndMetadataEntity,
+  getAtlasFromDatabase,
+  getComponentAtlasAtlas,
   getComponentAtlasFromDatabase,
   getFileComponentAtlas,
   getFileMetadataEntity,
@@ -349,6 +351,11 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstComponentAtlas.is_latest).toEqual(true);
     expect(firstComponentAtlas.wip_number).toEqual(1);
 
+    // Get the first component atlas's atlas for later checks
+    const atlasBefore = await getComponentAtlasAtlas(
+      firstComponentAtlas.version_id
+    );
+
     // Second upload (update) with newer eventTime
     const secondEvent = createS3Event({
       etag: "io-v2-etag-22222222222222222222222222222222",
@@ -410,8 +417,25 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     expect(secondComponentAtlas).not.toEqual(firstComponentAtlasAfter);
     expect(secondComponentAtlas.id).toEqual(firstComponentAtlas.id);
+    expect(secondComponentAtlas.component_info).toEqual(
+      firstComponentAtlas.component_info
+    );
+    expect(secondComponentAtlas.source_datasets).toEqual(
+      firstComponentAtlas.source_datasets
+    );
     expect(secondComponentAtlas.is_latest).toEqual(true);
     expect(secondComponentAtlas.wip_number).toEqual(2);
+
+    // Check that the atlas's component atlas list is updated
+    const atlasAfter = await getAtlasFromDatabase(atlasBefore.id);
+    if (expectIsDefined(atlasAfter)) {
+      expect(atlasAfter.component_atlases).not.toContain(
+        firstComponentAtlas.version_id
+      );
+      expect(atlasAfter.component_atlases).toContain(
+        secondComponentAtlas.version_id
+      );
+    }
   });
 
   // Happy Path Processing Tests

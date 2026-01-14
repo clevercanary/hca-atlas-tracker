@@ -476,6 +476,20 @@ export async function getComponentAtlasSourceDatasets(
   ).rows[0].source_datasets;
 }
 
+export async function getComponentAtlasAtlas(
+  componentAtlasVersion: string
+): Promise<HCAAtlasTrackerDBAtlas> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
+    "SELECT * FROM hat.atlases WHERE $1 = ANY(component_atlases)",
+    [componentAtlasVersion]
+  );
+  if (queryResult.rows.length === 0)
+    throw new Error(
+      `Atlas not found for test component atlas version ${componentAtlasVersion}`
+    );
+  return queryResult.rows[0];
+}
+
 export async function getExistingSourceStudyFromDatabase(
   id: string
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
