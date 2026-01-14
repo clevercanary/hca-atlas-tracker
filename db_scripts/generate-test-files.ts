@@ -334,7 +334,7 @@ async function generateAndAddVersionsForFile(
       >(
         `
           INSERT INTO hat.component_atlases (component_info, file_id, id, is_latest, source_datasets, wip_number)
-          VALUES ($1, $2 $3, $4, $5, $6)
+          VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING version_id
         `,
         [
