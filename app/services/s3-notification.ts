@@ -175,47 +175,42 @@ function convertS3VersionToDbVersion(s3Version: string): string {
 }
 
 /**
- * Check whether a notification should be rejected due to being out of order, and throw an error if so.
+ * Check whether a notification is newer than or identical to the existing file record.
  * @param snsMessageId - Incoming SNS message ID.
  * @param eventInfo - Incoming S3 event.
- * @param object - Associated S3 object.
  * @param latestNotificationInfo - Event info and message ID for the latest existing version of the file, if present.
- * @returns boolean indicating whether the incoming file is a new version superseding the existing latest version.
+ * @returns object with properties indicating whether the notification represents a new distinct file and whether it represents the latest version of the file.
  */
-function checkLatestNotificationInfo(
+function compareLatestNotificationInfo(
   snsMessageId: string,
   eventInfo: FileEventInfo,
-  object: S3Object,
   latestNotificationInfo: Pick<
     HCAAtlasTrackerDBFile,
     "event_info" | "sns_message_id"
   > | null
-): boolean {
+): { isLatestVersion: boolean; isNewVersion: boolean } {
   if (latestNotificationInfo !== null) {
     const { event_info: latestEventInfo, sns_message_id: latestSnsMessageId } =
       latestNotificationInfo;
 
-    // If the SNS message is a duplicate, allow it and handle idempotently at insertion time
-    if (snsMessageId === latestSnsMessageId) return false;
+    const isNewVersion = isNewerEventForFile(latestEventInfo, eventInfo);
 
-    // Reject out-of-order notifications
-    if (!isLatestEventForFile(latestEventInfo, eventInfo)) {
-      throw new InvalidOperationError(
-        `Received S3 notification ${snsMessageId} for file ${object.key} out-of-order (event time ${eventInfo.eventTime})`
-      );
-    }
+    return {
+      // Same event time isn't counted as latest, unless the notification is a duplicate, in which case it should pass through to idempotency handling at insertion time
+      isLatestVersion: isNewVersion || snsMessageId === latestSnsMessageId,
+      isNewVersion,
+    };
   }
-  return true;
+  return { isLatestVersion: true, isNewVersion: true };
 }
 
-// Helper: Determine whether incoming record should be latest based on event times
-function isLatestEventForFile(
-  currentLatestInfo: FileEventInfo | null,
+// Helper: Determine whether incoming record is newer than the current latest based on event times
+function isNewerEventForFile(
+  currentLatestInfo: FileEventInfo,
   incomingEventInfo: FileEventInfo
 ): boolean {
-  const currentLatestTime = currentLatestInfo?.eventTime ?? "";
   // ISO 8601 timestamps compare lexicographically for ordering
-  return incomingEventInfo.eventTime > currentLatestTime;
+  return incomingEventInfo.eventTime > currentLatestInfo.eventTime;
 }
 
 // File creation handler functions
@@ -399,7 +394,7 @@ async function handleInsertedFile(
  * Saves or updates a file record in the database with idempotency handling
  * @param record - The S3 event record containing bucket, object, and event metadata
  * @param snsMessageId - SNS MessageId for proper message-level idempotency
- * @returns info to be used for further processing (namely starting validation)
+ * @returns info to be used for further processing (namely starting validation), or null if no file record could be linked with the notification
  * @throws ETagMismatchError if ETags don't match (indicates potential corruption)
  * @throws InvalidS3KeyFormatError if S3 key doesn't have required path segments
  * @throws UnknownFolderTypeError if folder type is not recognized
@@ -414,7 +409,7 @@ async function saveFileRecord(
   fileId: string;
   s3Key: string;
   shouldValidate: boolean;
-}> {
+} | null> {
   const { bucket, object } = record.s3;
 
   const eventInfo: FileEventInfo = {
@@ -467,15 +462,23 @@ async function saveFileRecord(
 
     const isNewFile = latestNotificationInfo === null;
 
-    // Confirm that the notification isn't out of order and determine whether to mark existing versions as non-latest
-    const isNewLatestVersion = checkLatestNotificationInfo(
+    const { isLatestVersion, isNewVersion } = compareLatestNotificationInfo(
       snsMessageId,
       eventInfo,
-      object,
       latestNotificationInfo
     );
 
-    if (isNewLatestVersion)
+    // If this is not the latest version, the notification has arrived out-of-order and is discarded
+    if (!isLatestVersion) {
+      console.error(
+        `Received S3 notification ${snsMessageId} for file ${object.key} out-of-order (event time ${eventInfo.eventTime})`
+      );
+      return null;
+    }
+
+    // If this is the latest version but not a new version, the existing version is the same as this version and shouldn't be marked non-latest
+    // In that case, the notification is a duplicate and is handled idempotently at file insertion time
+    if (isNewVersion)
       await markPreviousVersionsAsNotLatest(
         bucket.name,
         object.key,
@@ -542,14 +545,11 @@ export async function saveAndProcessFileRecord(
   record: S3EventRecord,
   snsMessageId: string
 ): Promise<void> {
-  const { fileId, s3Key, shouldValidate } = await saveFileRecord(
-    record,
-    snsMessageId
-  );
+  const result = await saveFileRecord(record, snsMessageId);
 
   // Start validation job if appropriate
-  if (shouldValidate) {
-    await startFileValidation(fileId, s3Key);
+  if (result?.shouldValidate) {
+    await startFileValidation(result.fileId, result.s3Key);
   }
 }
 

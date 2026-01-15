@@ -680,6 +680,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
+    expect(file.is_latest).toEqual(true);
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(file.id);
@@ -1085,7 +1086,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstComponentAtlas.id).toEqual(secondComponentAtlas.id);
   });
 
-  it("rejects notification when older version arrives after newer version", async () => {
+  it("discards notification but returns successfully when older version arrives after newer version", async () => {
     // Process newer version first
     const s3EventV2 = createS3Event({
       etag: "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -1139,10 +1140,18 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       method: METHOD.POST,
     });
 
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(reqOlder, resOlder);
-    });
-    expect(resOlder.statusCode).toBe(400);
+    const errorMessages: string[][] = [];
+    await withConsoleMessageHiding(
+      async () => {
+        await snsHandler(reqOlder, resOlder);
+      },
+      true,
+      { error: errorMessages }
+    );
+    expect(resOlder.statusCode).toBe(200);
+    expect(errorMessages).toContainEqual(
+      expect.arrayContaining([expect.stringContaining("out-of-order")])
+    );
 
     // Expect only one version to exist for this key
     const allRows = await query<HCAAtlasTrackerDBFile>(
