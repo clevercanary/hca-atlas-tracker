@@ -288,7 +288,11 @@ async function updateIntegratedObjectFromS3(
     fileId,
     transaction
   );
-  await updateComponentAtlasVersionInAtlases(prevLatestVersion, newVersion);
+  await updateComponentAtlasVersionInAtlases(
+    prevLatestVersion,
+    newVersion,
+    transaction
+  );
 }
 
 async function updateSourceDatasetFromS3(

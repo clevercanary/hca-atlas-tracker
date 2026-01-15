@@ -1,10 +1,11 @@
-import { query } from "../services/database";
+import pg from "pg";
 
 export async function updateComponentAtlasVersionInAtlases(
   existingVersionId: string,
-  newVersionId: string
+  newVersionId: string,
+  client: pg.PoolClient
 ): Promise<void> {
-  await query(
+  await client.query(
     "UPDATE hat.atlases SET component_atlases = ARRAY_REPLACE(component_atlases, $1, $2)",
     [existingVersionId, newVersionId]
   );
