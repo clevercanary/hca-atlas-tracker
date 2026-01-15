@@ -52,7 +52,7 @@ export function up(pgm: MigrationBuilder): void {
       f.id AS file_id,
       ROW_NUMBER() OVER (PARTITION BY f.component_atlas_id ORDER BY f.created_at) AS wip_number,
       f.created_at,
-      f.created_at AS updated_at
+      ca.updated_at
     FROM hat.files f
     JOIN hat.component_atlases ca ON ca.version_id = f.component_atlas_id
     WHERE f.component_atlas_id IS NOT NULL
