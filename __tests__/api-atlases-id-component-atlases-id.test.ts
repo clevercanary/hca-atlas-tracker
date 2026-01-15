@@ -279,6 +279,7 @@ describe(TEST_ROUTE, () => {
       componentAtlas,
       COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
     );
+    expect(componentAtlas.sourceDatasetCount).toEqual(1);
   });
 
   it("returns error 401 when PATCH requested by logged out user", async () => {

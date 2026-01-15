@@ -22,6 +22,7 @@ import {
   ATLAS_WITH_METADATA_CORRECTNESS,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   DOI_JOURNAL_WITH_PREPRINT_COUNTERPART,
   DOI_PREPRINT_WITH_JOURNAL_COUNTERPART,
   PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
@@ -326,6 +327,18 @@ describe(TEST_ROUTE, () => {
     expect(atlas.componentAtlasCount).toEqual(1);
     expect(atlas.sourceDatasetCount).toEqual(1);
     expect(atlas.entrySheetValidationCount).toEqual(0);
+  });
+
+  it("returns metadata entity counts based only on linked versions when GET requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doAtlasRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_WITH_NON_LATEST_METADATA_ENTITIES);
+    expect(atlas.componentAtlasCount).toEqual(3);
+    expect(atlas.sourceDatasetCount).toEqual(2);
   });
 
   it("returns error 401 when public atlas is PUT requested by logged out user", async () => {
