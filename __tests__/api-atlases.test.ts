@@ -8,6 +8,7 @@ import {
   ATLAS_DRAFT,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   INITIAL_TEST_ATLASES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -53,6 +54,12 @@ const RELATED_ENTITY_INFO_TO_CHECK = [
     componentAtlasCount: 1,
     entrySheetValidationCount: 0,
     sourceDatasetCount: 1,
+  },
+  {
+    atlasId: ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+    componentAtlasCount: 3,
+    entrySheetValidationCount: 0,
+    sourceDatasetCount: 2,
   },
 ];
 

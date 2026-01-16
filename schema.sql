@@ -53,7 +53,8 @@ CREATE TABLE hat.atlases (
     status character varying(50) NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     target_completion timestamp without time zone,
-    source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL
+    source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL,
+    component_atlases uuid[] DEFAULT '{}'::uuid[] NOT NULL
 );
 
 
@@ -77,12 +78,15 @@ CREATE TABLE hat.comments (
 --
 
 CREATE TABLE hat.component_atlases (
-    atlas_id uuid NOT NULL,
     component_info jsonb NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    version_id uuid DEFAULT gen_random_uuid() NOT NULL,
     source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    file_id uuid NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    is_latest boolean DEFAULT true NOT NULL,
+    wip_number integer DEFAULT 1 NOT NULL
 );
 
 
@@ -125,7 +129,6 @@ CREATE TABLE hat.files (
     validation_status character varying(50) DEFAULT '''pending'''::character varying NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id character varying(255),
-    component_atlas_id uuid,
     source_dataset_id uuid,
     sns_message_id character varying(255) NOT NULL,
     dataset_info jsonb,
@@ -133,7 +136,6 @@ CREATE TABLE hat.files (
     validation_reports jsonb,
     validation_summary jsonb,
     is_archived boolean DEFAULT false NOT NULL,
-    CONSTRAINT ck_files_exclusive_parent_relationship CHECK (((((file_type)::text = 'source_dataset'::text) AND (source_dataset_id IS NOT NULL) AND (component_atlas_id IS NULL)) OR (((file_type)::text = 'integrated_object'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NOT NULL)) OR (((file_type)::text = 'ingest_manifest'::text) AND (source_dataset_id IS NULL) AND (component_atlas_id IS NULL)))),
     CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'requested'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[]))),
     CONSTRAINT ck_files_validation_status CHECK (((validation_status)::text = ANY ((ARRAY['completed'::character varying, 'job_failed'::character varying, 'pending'::character varying, 'request_failed'::character varying, 'requested'::character varying, 'stale'::character varying])::text[])))
 );
@@ -175,13 +177,6 @@ COMMENT ON COLUMN hat.files.integrity_status IS 'Status: pending, requested, val
 
 
 --
--- Name: COLUMN files.is_latest; Type: COMMENT; Schema: hat; Owner: -
---
-
-COMMENT ON COLUMN hat.files.is_latest IS 'Whether this is the latest version of the file';
-
-
---
 -- Name: COLUMN files.sha256_client; Type: COMMENT; Schema: hat; Owner: -
 --
 
@@ -200,13 +195,6 @@ COMMENT ON COLUMN hat.files.sha256_server IS 'SHA256 checksum calculated by serv
 --
 
 COMMENT ON COLUMN hat.files.source_study_id IS 'FK to source_studies.id - NULL for staged validation, set later';
-
-
---
--- Name: COLUMN files.component_atlas_id; Type: COMMENT; Schema: hat; Owner: -
---
-
-COMMENT ON COLUMN hat.files.component_atlas_id IS 'FK to component_atlases.id - set for integrated_object files';
 
 
 --
@@ -278,7 +266,8 @@ CREATE TABLE hat.source_datasets (
     sd_info jsonb NOT NULL,
     source_study_id uuid,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    reprocessed_status text DEFAULT 'Unspecified'::text NOT NULL
+    reprocessed_status text DEFAULT 'Unspecified'::text NOT NULL,
+    file_id uuid NOT NULL
 );
 
 
@@ -407,7 +396,7 @@ ALTER TABLE ONLY hat.comments
 --
 
 ALTER TABLE ONLY hat.component_atlases
-    ADD CONSTRAINT pk_component_atlases_id PRIMARY KEY (id);
+    ADD CONSTRAINT pk_component_atlases_id PRIMARY KEY (version_id);
 
 
 --
@@ -498,13 +487,6 @@ CREATE INDEX files_bucket_key_index ON hat.files USING btree (bucket, key);
 
 
 --
--- Name: files_component_atlas_id_index; Type: INDEX; Schema: hat; Owner: -
---
-
-CREATE INDEX files_component_atlas_id_index ON hat.files USING btree (component_atlas_id);
-
-
---
 -- Name: files_created_at_index; Type: INDEX; Schema: hat; Owner: -
 --
 
@@ -589,6 +571,14 @@ CREATE TRIGGER update_updated_at BEFORE UPDATE ON hat.validations FOR EACH ROW E
 
 
 --
+-- Name: component_atlases component_atlases_file_id_fkey; Type: FK CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.component_atlases
+    ADD CONSTRAINT component_atlases_file_id_fkey FOREIGN KEY (file_id) REFERENCES hat.files(id);
+
+
+--
 -- Name: entry_sheet_validations entry_sheet_validations_source_study_id_fkey; Type: FK CONSTRAINT; Schema: hat; Owner: -
 --
 
@@ -613,19 +603,11 @@ ALTER TABLE ONLY hat.comments
 
 
 --
--- Name: files fk_files_component_atlas_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
---
-
-ALTER TABLE ONLY hat.files
-    ADD CONSTRAINT fk_files_component_atlas_id FOREIGN KEY (component_atlas_id) REFERENCES hat.component_atlases(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
 -- Name: files fk_files_source_dataset_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
 --
 
 ALTER TABLE ONLY hat.files
-    ADD CONSTRAINT fk_files_source_dataset_id FOREIGN KEY (source_dataset_id) REFERENCES hat.source_datasets(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT fk_files_source_dataset_id FOREIGN KEY (source_dataset_id) REFERENCES hat.source_datasets(id) ON UPDATE CASCADE;
 
 
 --
@@ -637,19 +619,19 @@ ALTER TABLE ONLY hat.source_datasets
 
 
 --
--- Name: component_atlases pk_component_atlases_atlas_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
---
-
-ALTER TABLE ONLY hat.component_atlases
-    ADD CONSTRAINT pk_component_atlases_atlas_id FOREIGN KEY (atlas_id) REFERENCES hat.atlases(id);
-
-
---
 -- Name: files pk_source_studies_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
 --
 
 ALTER TABLE ONLY hat.files
     ADD CONSTRAINT pk_source_studies_id FOREIGN KEY (source_study_id) REFERENCES hat.source_studies(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: source_datasets source_datasets_file_id_fkey; Type: FK CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.source_datasets
+    ADD CONSTRAINT source_datasets_file_id_fkey FOREIGN KEY (file_id) REFERENCES hat.files(id);
 
 
 --

@@ -463,7 +463,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
         FILE_COMPONENT_ATLAS_DRAFT_FOO,
-        FILE_COMPONENT_ATLAS_DRAFT_FOO.atlas
+        FILE_COMPONENT_ATLAS_DRAFT_FOO.atlas()
       ),
       metadata,
       timestamp: validationTime,

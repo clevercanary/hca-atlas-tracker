@@ -31,8 +31,6 @@ import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
@@ -48,6 +46,10 @@ import {
   expectFileNotToBeReferencedByAnyMetadataEntity,
   expectOldFileNotToBeReferencedByMetadataEntity,
   expectReferenceBetweenFileAndMetadataEntity,
+  getAtlasFromDatabase,
+  getComponentAtlasAtlas,
+  getComponentAtlasFromDatabase,
+  getFileComponentAtlas,
   getFileMetadataEntity,
   resetDatabase,
 } from "../testing/db-utils";
@@ -301,8 +303,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
   });
 
-  it("does not clear component_info on integrated_object update, and preserves is_latest", async () => {
-    // First upload (creates source dataset and file record)
+  it("does not modify existing component atlas on integrated_object update, and preserves is_latest", async () => {
+    // First upload (creates component atlas and file record)
     const firstEvent = createS3Event({
       etag: "io-v1-etag-11111111111111111111111111111111",
       eventTime: TEST_TIMESTAMP, // older
@@ -341,28 +343,18 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const firstFile = firstFileResult.rows[0];
     expect(firstFile.is_latest).toBe(true);
 
-    // Capture the created component atlas id before update
-    const componentAtlasId = (await getFileMetadataEntity(firstFile)).id;
+    // Capture the created component atlas before update
+    const firstComponentAtlas = await getFileComponentAtlas(firstFile.id);
+    const componentAtlasVersion = firstComponentAtlas.version_id;
 
-    // Check file reference
-    await expectReferenceBetweenFileAndMetadataEntity(
-      firstFile.id,
-      componentAtlasId
-    );
+    // Ensure first component atlas is marked latest and has WIP number 1
+    expect(firstComponentAtlas.is_latest).toEqual(true);
+    expect(firstComponentAtlas.wip_number).toEqual(1);
 
-    // Update component_info and get its value before updating the file
-    const componentInfoUpdateFields: Partial<HCAAtlasTrackerDBComponentAtlasInfo> =
-      {
-        capUrl: "https://celltype.info/project/234256/dataset/756432",
-      };
-    const componentInfoResult = await query<
-      Pick<HCAAtlasTrackerDBComponentAtlas, "component_info">
-    >(
-      "UPDATE hat.component_atlases SET component_info = component_info || $1 WHERE id = $2 RETURNING component_info",
-      [JSON.stringify(componentInfoUpdateFields), componentAtlasId]
+    // Get the first component atlas's atlas for later checks
+    const atlasBefore = await getComponentAtlasAtlas(
+      firstComponentAtlas.version_id
     );
-    const componentInfoBefore = componentInfoResult.rows[0].component_info;
-    expect(componentInfoBefore).toMatchObject(componentInfoUpdateFields);
 
     // Second upload (update) with newer eventTime
     const secondEvent = createS3Event({
@@ -394,13 +386,21 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       expect(res.statusCode).toBe(200);
     }
 
-    // Verify component_info remains the same on the linked component atlas
-    const ioAfter = await query(
-      "SELECT component_info FROM hat.component_atlases WHERE id = $1",
-      [componentAtlasId]
+    // Verify that the first component atlas remains the same, exluding updated_at and is_latest, the latter of which should be false
+    const firstComponentAtlasAfter = await getComponentAtlasFromDatabase(
+      componentAtlasVersion
     );
-    expect(ioAfter.rows).toHaveLength(1);
-    expect(ioAfter.rows[0].component_info).toEqual(componentInfoBefore);
+    if (!expectIsDefined(firstComponentAtlasAfter)) return;
+    expect({
+      ...firstComponentAtlasAfter,
+      is_latest: undefined,
+      updated_at: undefined,
+    }).toEqual({
+      ...firstComponentAtlas,
+      is_latest: undefined,
+      updated_at: undefined,
+    });
+    expect(firstComponentAtlasAfter.is_latest).toEqual(false);
 
     // Verify file versioning flags: latest remains true on newest, previous false
     const versions = await query(
@@ -411,15 +411,31 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(versions.rows[0].is_latest).toBe(false); // older
     expect(versions.rows[1].is_latest).toBe(true); // newer
 
-    // Check file references after update
-    await expectOldFileNotToBeReferencedByMetadataEntity(
-      versions.rows[0].id,
-      componentAtlasId
+    // Get new file's component atlas, compare it to the first component atlas, and check that it's marked as latest and has WIP number 2
+    const secondComponentAtlas = await getFileComponentAtlas(
+      versions.rows[1].id
     );
-    await expectReferenceBetweenFileAndMetadataEntity(
-      versions.rows[1].id,
-      componentAtlasId
+    expect(secondComponentAtlas).not.toEqual(firstComponentAtlasAfter);
+    expect(secondComponentAtlas.id).toEqual(firstComponentAtlas.id);
+    expect(secondComponentAtlas.component_info).toEqual(
+      firstComponentAtlas.component_info
     );
+    expect(secondComponentAtlas.source_datasets).toEqual(
+      firstComponentAtlas.source_datasets
+    );
+    expect(secondComponentAtlas.is_latest).toEqual(true);
+    expect(secondComponentAtlas.wip_number).toEqual(2);
+
+    // Check that the atlas's component atlas list is updated
+    const atlasAfter = await getAtlasFromDatabase(atlasBefore.id);
+    if (expectIsDefined(atlasAfter)) {
+      expect(atlasAfter.component_atlases).not.toContain(
+        firstComponentAtlas.version_id
+      );
+      expect(atlasAfter.component_atlases).toContain(
+        secondComponentAtlas.version_id
+      );
+    }
   });
 
   // Happy Path Processing Tests
@@ -535,7 +551,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Verify component was created and linked to atlas
-    const componentAtlasId = (await getFileMetadataEntity(file)).id;
+    const componentAtlas = await getFileComponentAtlas(file.id);
+    const componentAtlasVersion = componentAtlas.version_id;
 
     // Verify atlas has the component atlas in its component_atlases array
     const atlasRows = await query(
@@ -543,13 +560,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [TEST_GUT_ATLAS_ID]
     );
     expect(atlasRows.rows).toHaveLength(1);
-    expect(atlasRows.rows[0].component_atlases).toContain(componentAtlasId);
-
-    // Check file reference
-    await expectReferenceBetweenFileAndMetadataEntity(
-      file.id,
-      componentAtlasId
+    expect(atlasRows.rows[0].component_atlases).toContain(
+      componentAtlasVersion
     );
+
+    // Verify component atlas is latest and has WIP number 1
+    expect(componentAtlas.is_latest).toEqual(true);
+    expect(componentAtlas.wip_number).toEqual(1);
   });
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {
@@ -663,6 +680,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
+    expect(file.is_latest).toEqual(true);
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(file.id);
@@ -784,7 +802,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Second notification with different ETag - should be rejected
     const s3EventWithDifferentETag = createS3Event({
       etag: "different-etag-67890", // Different ETag!
-      eventTime: TEST_TIMESTAMP_ALT,
+      eventTime: TEST_TIMESTAMP,
       key: TEST_FILE_PATHS.SOURCE_DATASET_ETAG,
       size: 128000,
       versionId: "version-123",
@@ -794,7 +812,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       messageId: "etag-test-message-2",
       s3Event: s3EventWithDifferentETag,
       signature: TEST_SIGNATURE_VALID_FOR_TESTING,
-      timestamp: TEST_TIMESTAMP_ALT,
+      timestamp: TEST_TIMESTAMP,
     });
 
     const { req: req2, res: res2 } = httpMocks.createMocks<
@@ -957,9 +975,15 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(secondVersion.version_id).toBe("version-2");
     expect(secondVersion.is_latest).toBe(true);
 
-    // Check file references
-    await expectOldFileNotToBeReferencedByMetadataEntity(firstVersion.id);
-    await expectReferenceBetweenFileAndMetadataEntity(secondVersion.id);
+    // Check component atlases
+    const firstComponentAtlas = await getFileComponentAtlas(firstVersion.id);
+    const secondComponentAtlas = await getFileComponentAtlas(secondVersion.id);
+    expect(firstComponentAtlas).not.toEqual(secondComponentAtlas);
+    expect(firstComponentAtlas.id).toEqual(secondComponentAtlas.id);
+    expect(firstComponentAtlas.is_latest).toEqual(false);
+    expect(secondComponentAtlas.is_latest).toEqual(true);
+    expect(firstComponentAtlas.wip_number).toEqual(1);
+    expect(secondComponentAtlas.wip_number).toEqual(2);
   });
 
   it("sets is_latest and is_archived as normal when existing latest file has archived = true", async () => {
@@ -1055,12 +1079,14 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(secondVersion.is_latest).toBe(true);
     expect(secondVersion.is_archived).toBe(false);
 
-    // Check file references
-    await expectOldFileNotToBeReferencedByMetadataEntity(firstVersion.id);
-    await expectReferenceBetweenFileAndMetadataEntity(secondVersion.id);
+    // Check component atlases
+    const firstComponentAtlas = await getFileComponentAtlas(firstVersion.id);
+    const secondComponentAtlas = await getFileComponentAtlas(secondVersion.id);
+    expect(firstComponentAtlas).not.toEqual(secondComponentAtlas);
+    expect(firstComponentAtlas.id).toEqual(secondComponentAtlas.id);
   });
 
-  it("does not flip is_latest when older version arrives after newer version", async () => {
+  it("discards notification but returns successfully when older version arrives after newer version", async () => {
     // Process newer version first
     const s3EventV2 = createS3Event({
       etag: "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -1114,35 +1140,42 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       method: METHOD.POST,
     });
 
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(reqOlder, resOlder);
-    });
+    const errorMessages: string[][] = [];
+    await withConsoleMessageHiding(
+      async () => {
+        await snsHandler(reqOlder, resOlder);
+      },
+      true,
+      { error: errorMessages }
+    );
     expect(resOlder.statusCode).toBe(200);
+    expect(errorMessages).toContainEqual(
+      expect.arrayContaining([expect.stringContaining("out-of-order")])
+    );
 
-    // Expect two versions exist for this key
+    // Expect only one version to exist for this key
     const allRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
       [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
     );
-    expect(allRows.rows).toHaveLength(2);
+    expect(allRows.rows).toHaveLength(1);
 
     // Latest should remain the newer (V2), not be flipped by the older V1 arrival
-    const latestOnly = await query(
-      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
-    );
-    expect(latestOnly.rows).toHaveLength(1);
-    const latestFile = latestOnly.rows[0];
+    const latestFile = allRows.rows[0];
     expect(latestFile.version_id).toBe("ooo-version-2");
     expect(latestFile.etag).toBe(
       "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     );
 
-    // Check file references
-    const nonLatestFile = allRows.rows.find((f) => f.id !== latestFile.id);
-    if (!expectIsDefined(nonLatestFile)) return;
-    await expectOldFileNotToBeReferencedByMetadataEntity(nonLatestFile.id);
-    await expectReferenceBetweenFileAndMetadataEntity(latestFile.id);
+    // Check component atlases
+    const latestComponentAtlas = await getFileComponentAtlas(latestFile.id);
+    expect(latestComponentAtlas.is_latest).toEqual(true);
+    expect(latestComponentAtlas.wip_number).toEqual(1);
+    const componentAtlasesResult = await query(
+      "SELECT 1 FROM hat.component_atlases WHERE id = $1",
+      [latestComponentAtlas.id]
+    );
+    expect(componentAtlasesResult.rowCount).toEqual(1);
   });
 
   it("rejects notifications from unauthorized S3 buckets", async () => {
@@ -1222,7 +1255,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.key).toBe(TEST_FILE_PATHS.INTEGRATED_OBJECT);
     expect(file.file_type).toBe(FILE_TYPE.INTEGRATED_OBJECT); // Should be derived from integrated-objects folder
     expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
-    expect(file.component_atlas_id).not.toBeNull(); // Should be set to component atlas ID
     expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");
@@ -1230,7 +1262,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
 
-    await expectReferenceBetweenFileAndMetadataEntity(file.id);
+    expect(await getFileComponentAtlas(file.id)).toBeTruthy();
   });
 
   it("ingest manifest does not create metadata objects", async () => {
@@ -1274,7 +1306,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("ingest_manifest");
-    expect(file.component_atlas_id).toBeNull();
     expect(file.source_dataset_id).toBeNull();
     await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
 
@@ -1402,10 +1433,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       const file = fileRows.rows[0];
       expect(file.bucket).toBe(TEST_S3_BUCKET);
       expect(file.key).toBe(key);
-      if (key.includes("integrated-objects")) {
-        // Integrated objects should link to a component atlas
-        expect(file.component_atlas_id).not.toBeNull();
-      }
       expect(file.etag).toBe(etag);
       expect(file.size_bytes).toBe(size.toString());
       expect(file.version_id).toBe(versionId);
@@ -1421,8 +1448,11 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
           : INTEGRITY_STATUS.PENDING
       );
 
-      if (file.file_type !== FILE_TYPE.INGEST_MANIFEST)
+      if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
         await expectReferenceBetweenFileAndMetadataEntity(file.id);
+      } else if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+        expect(await getFileComponentAtlas(file.id)).toBeTruthy();
+      }
     }
   );
 
@@ -1854,79 +1884,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       await snsHandler(req2, res2);
     });
     expect(res2.statusCode).toBe(200);
-
-    // Check that the dataset validator has still only been called once
-    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not start a validation job when older version arrives after newer version", async () => {
-    mockSubmitJob.mockClear();
-
-    // Process newer version first
-    const s3EventV2 = createS3Event({
-      etag: "ooo-foo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      eventTime: TEST_TIMESTAMP_PLUS_1H,
-      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      size: 2048000,
-      versionId: "ooo-foo-version-2",
-    });
-
-    const snsMessageV2 = createSNSMessage({
-      messageId: "out-of-order-foo-v2",
-      s3Event: s3EventV2,
-      signature: TEST_SIGNATURE_VALID,
-      timestamp: TEST_TIMESTAMP_PLUS_1H,
-    });
-
-    const { req: reqNewer, res: resNewer } = httpMocks.createMocks<
-      NextApiRequest,
-      NextApiResponse
-    >({
-      body: snsMessageV2,
-      method: METHOD.POST,
-    });
-
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(reqNewer, resNewer);
-    });
-    expect(resNewer.statusCode).toBe(200);
-
-    // Check that the dataset validator was called for the initial request
-    expect(mockSubmitJob).toHaveBeenCalledTimes(1);
-    expect(mockSubmitJob).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      })
-    );
-
-    // Now process an older version afterwards (out-of-order arrival)
-    const s3EventV1 = createS3Event({
-      etag: "ooo-foo-version1-etag-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      eventTime: TEST_TIMESTAMP, // earlier than V2
-      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      size: 1024000,
-      versionId: "ooo-foo-version-1",
-    });
-
-    const snsMessageV1 = createSNSMessage({
-      messageId: "out-of-order-foo-v1",
-      s3Event: s3EventV1,
-      signature: TEST_SIGNATURE_VALID,
-      timestamp: TEST_TIMESTAMP,
-    });
-
-    const { req: reqOlder, res: resOlder } = httpMocks.createMocks<
-      NextApiRequest,
-      NextApiResponse
-    >({
-      body: snsMessageV1,
-      method: METHOD.POST,
-    });
-
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(reqOlder, resOlder);
-    });
-    expect(resOlder.statusCode).toBe(200);
 
     // Check that the dataset validator has still only been called once
     expect(mockSubmitJob).toHaveBeenCalledTimes(1);

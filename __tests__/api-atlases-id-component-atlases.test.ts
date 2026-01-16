@@ -7,14 +7,18 @@ import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-at
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   COMPONENT_ATLAS_ARCHIVED_BAR,
   COMPONENT_ATLAS_ARCHIVED_BAZ,
   COMPONENT_ATLAS_ARCHIVED_FOO,
   COMPONENT_ATLAS_ARCHIVED_FOOFOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
-  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
-  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -157,7 +161,7 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
     expectComponentAtlasesToMatch(
       componentAtlases,
-      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES],
+      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3],
       [1]
     );
     const componentAtlas = componentAtlases[0];
@@ -180,7 +184,7 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
     expectComponentAtlasesToMatch(
       componentAtlases,
-      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES],
+      [COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3],
       [1]
     );
   });
@@ -199,13 +203,32 @@ describe(TEST_ROUTE, () => {
     expectComponentAtlasesToMatch(
       componentAtlases,
       [
-        COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
+        COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
         COMPONENT_ATLAS_ARCHIVED_FOO,
         COMPONENT_ATLAS_ARCHIVED_BAR,
         COMPONENT_ATLAS_ARCHIVED_BAZ,
         COMPONENT_ATLAS_ARCHIVED_FOOFOO,
       ],
       [0, 1, 0, 0, 0]
+    );
+  });
+
+  it("returns non-latest component atlases linked to the atlas", async () => {
+    const res = await doComponentAtlasesRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+      ],
+      [1, 0, 0]
     );
   });
 });

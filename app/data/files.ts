@@ -16,9 +16,8 @@ import {
   HCAAtlasTrackerSourceDataset,
   INTEGRITY_STATUS,
   NetworkKey,
-  type FileEventInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasComponentAtlasIds } from "../services/component-atlases";
+import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getVersionVariants } from "../utils/atlases";
@@ -117,24 +116,27 @@ export async function getExistingETag(
 }
 
 /**
- * Get the latest event_info for a file by bucket/key.
+ * Get the latest event_info and sns_notification_id for a file by bucket/key.
  * @param bucket - S3 bucket name
  * @param key - S3 object key
  * @param transaction - Database transaction client
- * @returns Latest event_info JSON if present, otherwise null
+ * @returns Latest event_info and sns_message_id JSON if present, otherwise null
  */
-export async function getLatestEventInfo(
+export async function getLatestNotificationInfo(
   bucket: string,
   key: string,
   transaction: pg.PoolClient
-): Promise<FileEventInfo | null> {
+): Promise<Pick<
+  HCAAtlasTrackerDBFile,
+  "event_info" | "sns_message_id"
+> | null> {
   const result = await transaction.query<
-    Pick<HCAAtlasTrackerDBFile, "event_info">
+    Pick<HCAAtlasTrackerDBFile, "event_info" | "sns_message_id">
   >(
-    `SELECT event_info FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
+    `SELECT event_info, sns_message_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
     [bucket, key]
   );
-  return result.rows[0]?.event_info ?? null;
+  return result.rows[0] ?? null;
 }
 
 /**
@@ -292,12 +294,14 @@ async function getTypeFilesMissingFromAtlas(
   switch (fileType) {
     case FILE_TYPE.INTEGRATED_OBJECT: {
       metadataEntities = (
-        await query<Pick<HCAAtlasTrackerDBComponentAtlas, "file_id" | "id">>(
-          "SELECT file_id, id FROM hat.component_atlases WHERE file_id = ANY($1)",
+        await query<
+          Pick<HCAAtlasTrackerDBComponentAtlas, "file_id" | "version_id">
+        >(
+          "SELECT file_id, version_id FROM hat.component_atlases WHERE file_id = ANY($1)",
           [fileIds]
         )
-      ).rows;
-      getAtlasEntityIds = getAtlasComponentAtlasIds;
+      ).rows.map(({ file_id, version_id }) => ({ file_id, id: version_id }));
+      getAtlasEntityIds = getAtlasComponentAtlasVersionIds;
       break;
     }
     case FILE_TYPE.SOURCE_DATASET: {
@@ -336,12 +340,10 @@ async function getTypeFilesMissingFromAtlas(
 
 export interface FileUpsertData {
   bucket: string;
-  componentAtlasId?: string | null;
   etag: string;
   eventInfo: string;
   fileType: string;
   integrityStatus: string;
-  isLatest?: boolean;
   key: string;
   sha256Client: string | null;
   sizeBytes: number;
@@ -355,12 +357,10 @@ export interface FileUpsertData {
  * Insert or update a file record with conflict handling for duplicate S3 notifications.
  * @param fileData - File data to insert/update
  * @param fileData.bucket - S3 bucket name
- * @param fileData.componentAtlasId - Component atlas ID (if applicable)
  * @param fileData.etag - S3 object ETag
  * @param fileData.eventInfo - S3 event information as JSON string
  * @param fileData.fileType - Type of file (source_dataset, integrated_object, etc.)
  * @param fileData.integrityStatus - File integrity status
- * @param fileData.isLatest - Whether this insert should set is_latest for the record
  * @param fileData.key - S3 object key
  * @param fileData.sha256Client - SHA256 hash from client
  * @param fileData.sizeBytes - File size in bytes
@@ -396,10 +396,9 @@ export async function upsertFileRecord(
   }
   // For same ETag, this is likely a duplicate notification; handle via ON CONFLICT
 
-  const isLatest = fileData.isLatest ?? true;
   const result = await transaction.query<FileUpsertResult>(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, component_atlas_id, sns_message_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, sns_message_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
        ON CONFLICT (sns_message_id) 
@@ -423,10 +422,9 @@ export async function upsertFileRecord(
       fileData.sha256Client,
       fileData.integrityStatus,
       fileData.validationStatus,
-      isLatest,
+      true,
       fileData.fileType,
       fileData.sourceDatasetId ?? null,
-      fileData.componentAtlasId ?? null,
       fileData.snsMessageId,
     ]
   );
@@ -528,12 +526,7 @@ export async function setFileMetadataObjectId(
   client: pg.PoolClient
 ): Promise<void> {
   await confirmFileIsOfType(fileId, fileType, client);
-  if (fileType === FILE_TYPE.INTEGRATED_OBJECT) {
-    await client.query(
-      "UPDATE hat.files SET component_atlas_id = $1 WHERE id = $2",
-      [metadataObjectId, fileId]
-    );
-  } else if (fileType === FILE_TYPE.SOURCE_DATASET) {
+  if (fileType === FILE_TYPE.SOURCE_DATASET) {
     await client.query(
       "UPDATE hat.files SET source_dataset_id = $1 WHERE id = $2",
       [metadataObjectId, fileId]

@@ -255,17 +255,19 @@ export function fillTestSourceDatasetDefaults(
 export function getNormalizedFileForTestEntity(
   testEntity: TestSourceDataset | TestComponentAtlas
 ): NormalizedTestFile {
-  return fillTestFileDefaults(getLatestFileForTestEntity(testEntity));
+  return fillTestFileDefaults(getPrimaryFileForTestEntity(testEntity));
 }
 
-export function getLatestFileForTestEntity(
+export function getPrimaryFileForTestEntity(
   testEntity: TestSourceDataset | TestComponentAtlas
 ): TestFile {
-  const testFile = getTestEntityFilesArray(testEntity).find(
-    (f) => f.isLatest !== false
-  );
+  const testFile = Array.isArray(testEntity.file)
+    ? testEntity.file.find((f) => f.isLatest !== false)
+    : testEntity.file;
   if (!testFile)
-    throw new Error(`Test entity ${testEntity.id} has no latest file`);
+    throw new Error(
+      `Unable to identify primary file for test entity ${testEntity.id}`
+    );
   return testFile;
 }
 
@@ -723,6 +725,9 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
   expect(apiComponentAtlas.validationSummary).toEqual(
     testFile.validationSummary
+  );
+  expect(apiComponentAtlas.wipNumber).toEqual(
+    testComponentAtlas.wipNumber ?? 1
   );
 
   if (expectDetail) {

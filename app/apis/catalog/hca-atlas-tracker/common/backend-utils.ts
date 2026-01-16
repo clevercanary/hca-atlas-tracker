@@ -105,6 +105,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     title: dbComponentAtlas.dataset_info?.title ?? "",
     validationStatus: dbComponentAtlas.validation_status,
     validationSummary: dbComponentAtlas.validation_summary,
+    wipNumber: dbComponentAtlas.wip_number,
   };
 }
 

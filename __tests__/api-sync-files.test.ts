@@ -10,10 +10,10 @@ import httpMocks from "node-mocks-http";
 import {
   createTestComponentAtlas,
   createTestFile,
-  expectOldFileNotToBeReferencedByMetadataEntity,
   expectReferenceBetweenFileAndMetadataEntity,
   getAllFileIdsFromDatabase,
   getComponentAtlasFromDatabase,
+  getFileComponentAtlas,
   getFileFromDatabase,
   resetDatabase,
 } from "testing/db-utils";
@@ -502,8 +502,8 @@ async function doMainTest(): Promise<void> {
   );
 
   // Check that existing file and its component atlas are not changed, and no new file is created, when version ID is the same
-  expect(errorMessageStrings).toContain(
-    'error: duplicate key value violates unique constraint "uq_files_bucket_key_version"'
+  expect(errorMessageStrings).toContainEqual(
+    expect.stringMatching("out-of-order")
   );
   expect(filesByKey.get(KEY_EXISTING_UNCHANGED)).toBeUndefined();
   const fileExistingUnchangedAfter = await getFileFromDatabase(
@@ -512,14 +512,15 @@ async function doMainTest(): Promise<void> {
   expect(fileExistingUnchangedAfter).toEqual(fileExistingUnchangedBefore);
   const componentAtlasExistingUnchangedAfter =
     await getComponentAtlasFromDatabase(
-      componentAtlasExistingUnchangedBefore.id
+      componentAtlasExistingUnchangedBefore.version_id
     );
   expect(componentAtlasExistingUnchangedAfter).toEqual(
     componentAtlasExistingUnchangedBefore
   );
 
   // Check that existing file is set to non-latest and a new file is created when version ID is different
-  expect(filesByKey.get(KEY_EXISTING_CHANGED)).toBeDefined();
+  const fileExistingChangedNew = filesByKey.get(KEY_EXISTING_CHANGED);
+  expect(fileExistingChangedNew).toBeDefined();
   expect(filesByKey.get(KEY_EXISTING_CHANGED)).not.toEqual(
     fileExistingChangedBefore
   );
@@ -540,26 +541,47 @@ async function doMainTest(): Promise<void> {
 
   // Check that latest files are linked to metadata entities
   for (const file of filesByKey.values()) {
-    if (file.file_type !== FILE_TYPE.INGEST_MANIFEST)
+    if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
       await expectReferenceBetweenFileAndMetadataEntity(file.id);
+    } else if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+      expect(await getFileComponentAtlas(file.id)).toBeTruthy();
+    }
   }
 
-  // Check that existing unchanged file is still linked to metadata entity
+  // Check that existing unchanged file is still linked to the same component atlas
   if (
     expectIsDefined(fileExistingUnchangedAfter) &&
     expectIsDefined(componentAtlasExistingUnchangedAfter)
   )
-    await expectReferenceBetweenFileAndMetadataEntity(
-      fileExistingUnchangedAfter.id,
-      componentAtlasExistingUnchangedAfter.id
+    expect(await getFileComponentAtlas(fileExistingUnchangedAfter.id)).toEqual(
+      componentAtlasExistingUnchangedAfter
     );
 
-  // Check that existing version of changed file is no longer referenced by metadata entity
-  if (expectIsDefined(fileExistingChangedBefore))
-    await expectOldFileNotToBeReferencedByMetadataEntity(
-      fileExistingChangedBefore.id,
-      componentAtlasExistingChangedBefore.id
+  // Check and compare component atlases of changed file
+  if (
+    expectIsDefined(fileExistingChangedAfter) &&
+    expectIsDefined(fileExistingChangedNew)
+  ) {
+    const componentAtlasExistingChangedAfter = await getFileComponentAtlas(
+      fileExistingChangedAfter.id
     );
+    const componentAtlasExistingChangedNew = await getFileComponentAtlas(
+      fileExistingChangedNew.id
+    );
+    expect(componentAtlasExistingChangedBefore.version_id).toEqual(
+      componentAtlasExistingChangedAfter.version_id
+    );
+    expect(componentAtlasExistingChangedAfter).not.toEqual(
+      componentAtlasExistingChangedNew
+    );
+    expect(componentAtlasExistingChangedAfter.id).toEqual(
+      componentAtlasExistingChangedNew.id
+    );
+    expect(componentAtlasExistingChangedAfter.is_latest).toEqual(false);
+    expect(componentAtlasExistingChangedNew.is_latest).toEqual(true);
+    expect(componentAtlasExistingChangedAfter.wip_number).toEqual(1);
+    expect(componentAtlasExistingChangedNew.wip_number).toEqual(2);
+  }
 }
 
 async function doSyncFilesRequest(

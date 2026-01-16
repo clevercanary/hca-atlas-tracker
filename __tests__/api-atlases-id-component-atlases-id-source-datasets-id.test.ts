@@ -7,12 +7,16 @@ import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/component-atlas
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   COMPONENT_ATLAS_ARCHIVED_FOO,
   COMPONENT_ATLAS_DRAFT_FOO,
-  COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+  COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ARCHIVED_FOO,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAZ,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO,
   SOURCE_DATASET_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -178,6 +182,21 @@ describe(TEST_ROUTE, () => {
     ).toEqual(404);
   });
 
+  it("returns error 404 when source dataset is requested from component atlas that isn't linked to it in the version linked to the atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+          COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+          SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.GET,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(404);
+  });
+
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns source dataset",
@@ -222,7 +241,7 @@ describe(TEST_ROUTE, () => {
   it("returns archived source dataset", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES.id,
+      COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
       SOURCE_DATASET_ARCHIVED_FOO.id,
       USER_CONTENT_ADMIN
     );
@@ -246,6 +265,21 @@ describe(TEST_ROUTE, () => {
     expectApiSourceDatasetsToMatchTest(
       [sourceDataset],
       [SOURCE_DATASET_WITH_MULTIPLE_FILES]
+    );
+  });
+
+  it("returns source dataset when requested from non-latest component atlas linked to the atlas", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expectApiSourceDatasetsToMatchTest(
+      [sourceDataset],
+      [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO]
     );
   });
 });

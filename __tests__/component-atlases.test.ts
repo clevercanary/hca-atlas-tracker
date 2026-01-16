@@ -30,10 +30,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await query(
-    "UPDATE hat.files SET component_atlas_id = NULL WHERE id=ANY($1)",
-    [FILE_IDS]
-  );
   await query("DELETE FROM hat.component_atlases WHERE id=ANY($1)", [
     componentAtlasIds,
   ]);
@@ -86,6 +82,6 @@ describe("createComponentAtlas", () => {
 
     const atlas = await getAtlasFromDatabase(ATLAS_DRAFT.id);
     if (!expectIsDefined(atlas)) return;
-    expect(atlas.component_atlases).toContain(result.id);
+    expect(atlas.component_atlases).toContain(result.version_id);
   });
 });
