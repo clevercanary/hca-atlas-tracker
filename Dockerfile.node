@@ -26,11 +26,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Remove test files and directories to reduce image size
-RUN rm -rf __tests__ && \
-    rm -rf __mocks__ && \
-    rm -rf testing && \
+RUN rm -rf __tests__ __mocks__ testing && \
     find . \( -name "*.test.js" -o -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.js" -o -name "*.spec.ts" -o -name "*.spec.tsx" \) -type f -delete && \
-    find . -type d -name "__mocks__" -exec rm -rf {} + 2>/dev/null || true && \
     rm -f jest.config.js
 
 RUN npm run build:${ENVIRONMENT}
