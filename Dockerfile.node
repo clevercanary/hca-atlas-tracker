@@ -29,12 +29,7 @@ COPY . .
 RUN rm -rf __tests__ && \
     rm -rf __mocks__ && \
     rm -rf testing && \
-    find . -name "*.test.js" -type f -delete && \
-    find . -name "*.test.ts" -type f -delete && \
-    find . -name "*.test.tsx" -type f -delete && \
-    find . -name "*.spec.js" -type f -delete && \
-    find . -name "*.spec.ts" -type f -delete && \
-    find . -name "*.spec.tsx" -type f -delete && \
+    find . \( -name "*.test.js" -o -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.js" -o -name "*.spec.ts" -o -name "*.spec.tsx" \) -type f -delete && \
     find . -type d -name "__mocks__" -exec rm -rf {} + 2>/dev/null || true && \
     rm -f jest.config.js
 
