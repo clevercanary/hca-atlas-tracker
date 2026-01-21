@@ -354,10 +354,10 @@ async function doSuccessfulPublicationStatusTest(
 
   for (const testDataset of SUCCESSFUL_UPDATED_DATASETS) {
     await query(
-      "UPDATE hat.source_datasets SET sd_info=jsonb_set(sd_info, '{publicationStatus}', to_jsonb($1::text)) WHERE id=$2",
+      "UPDATE hat.source_datasets SET sd_info=jsonb_set(sd_info, '{publicationStatus}', to_jsonb($1::text)) WHERE version_id=$2",
       [
         testDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
-        testDataset.id,
+        testDataset.versionId,
       ]
     );
   }

@@ -223,7 +223,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstFile.is_latest).toBe(true);
 
     // Capture the created source dataset id before update
-    const sourceDatasetId = (await getFileMetadataEntity(firstFile)).id;
+    const { id: sourceDatasetId, version_id: sourceDatasetVersion } =
+      await getFileMetadataEntity(firstFile);
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(
@@ -239,8 +240,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const sdInfoResult = await query<
       Pick<HCAAtlasTrackerDBSourceDataset, "sd_info">
     >(
-      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = $2 RETURNING sd_info",
-      [JSON.stringify(sdInfoUpdateFields), sourceDatasetId]
+      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE version_id = $2 RETURNING sd_info",
+      [JSON.stringify(sdInfoUpdateFields), sourceDatasetVersion]
     );
     const sdInfoBefore = sdInfoResult.rows[0].sd_info;
     expect(sdInfoBefore).toMatchObject(sdInfoUpdateFields);
@@ -277,8 +278,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Verify sd_info remains the same on the linked source dataset
     const sdAfter = await query(
-      "SELECT sd_info FROM hat.source_datasets WHERE id = $1",
-      [sourceDatasetId]
+      "SELECT sd_info FROM hat.source_datasets WHERE version_id = $1",
+      [sourceDatasetVersion]
     );
     expect(sdAfter.rows).toHaveLength(1);
     expect(sdAfter.rows[0].sd_info).toEqual(sdInfoBefore);
@@ -295,7 +296,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check file references after update
     await expectOldFileNotToBeReferencedByMetadataEntity(
       versions.rows[0].id,
-      sourceDatasetId
+      sourceDatasetVersion
     );
     await expectReferenceBetweenFileAndMetadataEntity(
       versions.rows[1].id,
@@ -488,7 +489,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Verify source dataset was created and linked to atlas
-    const sourceDatasetId = (await getFileMetadataEntity(file)).id;
+    const { id: sourceDatasetId, version_id: sourceDatasetVersion } =
+      await getFileMetadataEntity(file);
 
     // Verify atlas has the source dataset in its source_datasets array
     const atlasRows = await query(
@@ -496,7 +498,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [TEST_GUT_ATLAS_ID]
     );
     expect(atlasRows.rows).toHaveLength(1);
-    expect(atlasRows.rows[0].source_datasets).toContain(sourceDatasetId);
+    expect(atlasRows.rows[0].source_datasets).toContain(sourceDatasetVersion);
 
     // Check file reference
     await expectReferenceBetweenFileAndMetadataEntity(file.id, sourceDatasetId);
