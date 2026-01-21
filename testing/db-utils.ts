@@ -148,7 +148,7 @@ export async function initSourceDatasets(
     const fileIds = getTestEntityFileIds(sourceDataset);
     await client.query(
       "UPDATE hat.files SET source_dataset_id = $1 WHERE id = ANY($2)",
-      [sourceDataset.versionId, fileIds]
+      [sourceDataset.id, fileIds]
     );
   }
 }
