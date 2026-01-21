@@ -1,6 +1,12 @@
 import { MigrationBuilder } from "node-pg-migrate";
 
 export function up(pgm: MigrationBuilder): void {
+  // Drop the constraint on file source dataset ID, so that it can refer to the new `id` column
+  pgm.dropConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_source_dataset_id"
+  );
+
   // Rename source dataset `id` to `version_id`, as we want `version_id` to be the primary key
   pgm.renameColumn(
     { name: "source_datasets", schema: "hat" },
@@ -64,5 +70,18 @@ export function down(pgm: MigrationBuilder): void {
     { name: "source_datasets", schema: "hat" },
     "version_id",
     "id"
+  );
+
+  // Re-add the foreign key constraint
+  pgm.addConstraint(
+    { name: "files", schema: "hat" },
+    "fk_files_source_dataset_id",
+    {
+      foreignKeys: {
+        columns: "source_dataset_id",
+        onUpdate: "CASCADE",
+        references: { name: "source_datasets", schema: "hat" },
+      },
+    }
   );
 }
