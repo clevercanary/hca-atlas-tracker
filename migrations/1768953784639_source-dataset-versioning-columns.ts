@@ -58,6 +58,9 @@ export function up(pgm: MigrationBuilder): void {
 }
 
 export function down(pgm: MigrationBuilder): void {
+  // Copy `id` to `version_id` before replacing `id` with `version_id`
+  pgm.sql("UPDATE hat.source_datasets SET version_id = id");
+
   // Drop the new columns from source_datasets
   pgm.dropColumns({ name: "source_datasets", schema: "hat" }, [
     "id",
