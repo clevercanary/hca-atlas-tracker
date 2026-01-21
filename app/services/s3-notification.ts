@@ -12,6 +12,7 @@ import {
   FILE_VALIDATION_STATUS,
   FileEventInfo,
   HCAAtlasTrackerDBFile,
+  HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
   NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -35,7 +36,7 @@ import {
   upsertFileRecord,
 } from "../data/files";
 import { updateSourceDatasetVersion } from "../data/source-datasets";
-import { InvalidOperationError } from "../utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { normalizeAtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
@@ -258,7 +259,17 @@ async function createSourceDatasetFromS3(
     [atlasId, sourceDatasetVersion]
   );
 
-  return sourceDatasetVersion;
+  const idResult = await transaction.query<
+    Pick<HCAAtlasTrackerDBSourceDataset, "id">
+  >("SELECT id FROM hat.source_datasets WHERE version_id = $1", [
+    sourceDatasetVersion,
+  ]);
+  if (idResult.rows.length === 0)
+    throw new NotFoundError(
+      `New source dataset version ${sourceDatasetVersion} is unexpectedly missing`
+    );
+
+  return idResult.rows[0].id;
 }
 
 // File update handler functions
