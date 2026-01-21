@@ -654,6 +654,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.validationSummary).toEqual(
     testFile.validationSummary
   );
+  expect(apiSourceDataset.wipNumber).toEqual(testSourceDataset.wipNumber);
 
   if (expectDetail) {
     expect(apiSourceDataset).toHaveProperty("validationReports");
