@@ -55,9 +55,9 @@ export async function getSourceStudySourceDatasetVersionIds(
       SELECT d.version_id
       FROM hat.source_datasets d
       JOIN hat.atlases a ON d.version_id=ANY(a.source_datasets)
-      WHERE d.source_study_id=$1 AND a.id=$1
+      WHERE d.source_study_id=$1 AND a.id=$2
     `,
-    [sourceStudyId]
+    [sourceStudyId, atlasId]
   );
   return queryResult.rows.map((r) => r.version_id);
 }
