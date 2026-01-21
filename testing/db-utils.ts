@@ -133,13 +133,16 @@ export async function initSourceDatasets(
     const info = makeTestSourceDatasetInfo(normDataset);
     const latestFile = getPrimaryFileForTestEntity(sourceDataset);
     await client.query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
       [
         normDataset.sourceStudyId,
         info,
         normDataset.id,
         normDataset.reprocessedStatus,
         latestFile.id,
+        normDataset.versionId,
+        normDataset.isLatest,
+        normDataset.wipNumber,
       ]
     );
     const fileIds = getTestEntityFileIds(sourceDataset);
