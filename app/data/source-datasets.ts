@@ -227,19 +227,19 @@ export async function setSourceDatasetsSourceStudy(
 }
 
 /**
- * Set the associated file ID referenced by a source dataset.
+ * Set the associated file ID referenced by a source dataset and increment its WIP number.
  * @param sourceDatasetId - Source dataset to update.
  * @param fileId - ID to set in the source dataset, referencing its file.
  * @param client - Postgres client to use.
  */
-export async function setSourceDatasetFileId(
+export async function updateSourceDatasetVersion(
   sourceDatasetId: string,
   fileId: string,
   client: pg.PoolClient
 ): Promise<void> {
   await confirmFileIsOfType(fileId, FILE_TYPE.SOURCE_DATASET, client);
   const result = await client.query(
-    "UPDATE hat.source_datasets SET file_id = $1 WHERE id = $2",
+    "UPDATE hat.source_datasets SET file_id = $1, wip_number = wip_number + 1 WHERE id = $2 AND is_latest",
     [fileId, sourceDatasetId]
   );
   if (result.rowCount === 0)

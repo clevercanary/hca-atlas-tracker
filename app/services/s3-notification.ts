@@ -34,7 +34,7 @@ import {
   setFileMetadataObjectId,
   upsertFileRecord,
 } from "../data/files";
-import { setSourceDatasetFileId } from "../data/source-datasets";
+import { updateSourceDatasetVersion } from "../data/source-datasets";
 import { InvalidOperationError } from "../utils/api-handler";
 import { normalizeAtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
@@ -239,27 +239,26 @@ async function createSourceDatasetFromS3(
   transaction: PoolClient
 ): Promise<string> {
   // Create source dataset using canonical service within the existing transaction
-  const createdId = await createSourceDataset(fileId, transaction);
-  const sourceDatasetId = createdId;
+  const sourceDatasetVersion = await createSourceDataset(fileId, transaction);
 
   // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(
     "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
-    [atlasId, sourceDatasetId]
+    [atlasId, sourceDatasetVersion]
   );
 
   if (alreadyLinkedResult.rows[0].exists) {
     throw new InvalidOperationError(
-      `Source dataset ${sourceDatasetId} is unexpectedly already linked to atlas ${atlasId} during create flow`
+      `Source dataset version ${sourceDatasetVersion} is unexpectedly already linked to atlas ${atlasId} during create flow`
     );
   }
 
   await transaction.query(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
-    [atlasId, sourceDatasetId]
+    [atlasId, sourceDatasetVersion]
   );
 
-  return sourceDatasetId;
+  return sourceDatasetVersion;
 }
 
 // File update handler functions
@@ -295,7 +294,7 @@ async function updateSourceDatasetFromS3(
   sourceDatasetId: string,
   transaction: PoolClient
 ): Promise<void> {
-  await setSourceDatasetFileId(sourceDatasetId, fileId, transaction);
+  await updateSourceDatasetVersion(sourceDatasetId, fileId, transaction);
 }
 
 // Dispatch maps
