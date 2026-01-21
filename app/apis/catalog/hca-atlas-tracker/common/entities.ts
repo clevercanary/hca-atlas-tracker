@@ -141,6 +141,7 @@ export interface HCAAtlasTrackerSourceDataset {
   updatedAt: string;
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
+  wipNumber: number;
 }
 
 export interface HCAAtlasTrackerDetailSourceDataset
@@ -394,10 +395,13 @@ export interface HCAAtlasTrackerDBSourceDataset {
   created_at: Date;
   file_id: string;
   id: string;
+  is_latest: boolean;
   reprocessed_status: REPROCESSED_STATUS;
   sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
   source_study_id: string | null;
   updated_at: Date;
+  version_id: string;
+  wip_number: number;
 }
 
 export interface HCAAtlasTrackerDBSourceDatasetInfo {

@@ -801,11 +801,7 @@ async function expectGetFileMetadataEntity(
 ): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
   const metadataEntity = await getFileMetadataEntity(file);
   if (knownMetadataEntityId !== undefined) {
-    expect(
-      "version_id" in metadataEntity
-        ? metadataEntity.version_id
-        : metadataEntity.id
-    ).toEqual(knownMetadataEntityId);
+    expect(metadataEntity.id).toEqual(knownMetadataEntityId);
   }
   return metadataEntity;
 }
