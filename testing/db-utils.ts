@@ -185,7 +185,7 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         info,
         componentAtlas.id,
         componentAtlas.versionId,
-        componentAtlas.sourceDatasets?.map((d) => d.versionId) ?? [],
+        componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
         componentAtlas.file.id,
         componentAtlas.wipNumber ?? 1,
         componentAtlas.isLatest ?? true,
