@@ -358,7 +358,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(study.sourceDatasetCount).toEqual(3);
+    expect(study.sourceDatasetCount).toEqual(1);
   });
 });
 
@@ -814,7 +814,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
 
-    expect(updatedStudy.sourceDatasetCount).toEqual(3);
+    expect(updatedStudy.sourceDatasetCount).toEqual(2); // One isn't linked to the atlas
 
     const studyDatasetsAfter = await getStudySourceDatasets(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id

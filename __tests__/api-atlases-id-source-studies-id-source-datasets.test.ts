@@ -8,8 +8,6 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
-  SOURCE_DATASET_ATLAS_LINKED_A_BAR,
-  SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_BAZ,
   SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
@@ -160,7 +158,7 @@ describe(TEST_ROUTE, () => {
     ]);
   });
 
-  it("returns source datasets only for latest file versions and only if they're non-archived", async () => {
+  it("returns source datasets only for latest file versions that are non-archived and linked to the requested atlas", async () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
@@ -169,8 +167,6 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_ATLAS_LINKED_A_FOO,
-      SOURCE_DATASET_ATLAS_LINKED_A_BAR,
       SOURCE_DATASET_WITH_MULTIPLE_FILES,
     ]);
     const datasetWithMultipleFiles = sourceDatasets.find(

@@ -26,14 +26,14 @@ import {
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
+  FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
-  SOURCE_DATASET_FOO,
 } from "../testing/constants";
 import { createTestFile, resetDatabase } from "../testing/db-utils";
 
 interface TestFileUpsertData extends FileUpsertData {
-  componentAtlasId: string | null;
+  componentAtlasVersion: string | null;
 }
 
 // Shared test constants
@@ -127,7 +127,7 @@ describe("confirmFileExistsOnAtlas", () => {
     });
 
     it("should throw NotFoundError when source dataset exists on a source study of the atlas but is not linked to the atlas", async () => {
-      const fileId = SOURCE_DATASET_FOO.file.id;
+      const fileId = FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id;
       const nonLinkedAtlasId = ATLAS_WITH_MISC_SOURCE_STUDIES.id;
 
       await expect(
@@ -137,7 +137,7 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId)
       ).rejects.toThrow(
-        `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${SOURCE_DATASET_FOO.file.id}`
+        `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id}`
       );
     });
   });
@@ -311,7 +311,7 @@ describe("upsertFileRecord", () => {
         sha256Client: null, // This should be allowed
         sizeBytes: 2048,
         snsMessageId: "test-sns-message-789",
-        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id, // Valid UUID for source_dataset
+        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.versionId, // Valid UUID for source_dataset
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: null, // This should be allowed
       };
@@ -419,7 +419,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
       await upsertTestFile(
         {
           bucket,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
           etag: "etag-v1",
           eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -428,7 +428,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sha256Client: null,
           sizeBytes: 1024,
           snsMessageId: "sns-message-v1",
-          sourceDatasetId: null,
+          sourceDatasetVersion: null,
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
@@ -439,7 +439,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
       await upsertTestFile(
         {
           bucket,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
           etag: "etag-v2",
           eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -448,7 +448,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sha256Client: null,
           sizeBytes: 2048,
           snsMessageId: "sns-message-v2",
-          sourceDatasetId: null,
+          sourceDatasetVersion: null,
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
@@ -481,7 +481,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
       await upsertTestFile(
         {
           bucket: bucket1,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
           etag: "etag-1",
           eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -490,7 +490,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sha256Client: null,
           sizeBytes: 1024,
           snsMessageId: "sns-message-1",
-          sourceDatasetId: null,
+          sourceDatasetVersion: null,
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
@@ -500,7 +500,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
       await upsertTestFile(
         {
           bucket: bucket2,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
           etag: "etag-2",
           eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -509,7 +509,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           sha256Client: null,
           sizeBytes: 1024,
           snsMessageId: "sns-message-2",
-          sourceDatasetId: null,
+          sourceDatasetVersion: null,
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
@@ -549,7 +549,7 @@ describe("getExistingMetadataObjectId", () => {
       // First create a file record with component atlas ID
       await upsertTestFile({
         bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+        componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
         etag: "test-etag-integrated",
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -558,7 +558,7 @@ describe("getExistingMetadataObjectId", () => {
         sha256Client: null,
         sizeBytes: 2048,
         snsMessageId: "test-sns-integrated",
-        sourceDatasetId: null,
+        sourceDatasetVersion: null,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: "test-version-integrated",
       });
@@ -594,7 +594,7 @@ describe("getExistingMetadataObjectId", () => {
         await upsertTestFile(
           {
             bucket: TEST_BUCKET,
-            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+            componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
             etag: "test-etag-v1",
             eventInfo: TEST_EVENT_INFO,
             fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -603,7 +603,7 @@ describe("getExistingMetadataObjectId", () => {
             sha256Client: null,
             sizeBytes: 1024,
             snsMessageId: "test-sns-1",
-            sourceDatasetId: null,
+            sourceDatasetVersion: null,
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-v1",
           },
@@ -614,7 +614,7 @@ describe("getExistingMetadataObjectId", () => {
         await upsertTestFile(
           {
             bucket: TEST_BUCKET,
-            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+            componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
             etag: "test-etag-v2",
             eventInfo: TEST_EVENT_INFO,
             fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -623,7 +623,7 @@ describe("getExistingMetadataObjectId", () => {
             sha256Client: null,
             sizeBytes: 2048,
             snsMessageId: "test-sns-2",
-            sourceDatasetId: null,
+            sourceDatasetVersion: null,
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-2",
           },
@@ -658,7 +658,7 @@ describe("getExistingMetadataObjectId", () => {
       // First create a file record with source dataset ID
       await upsertTestFile({
         bucket: TEST_BUCKET,
-        componentAtlasId: null,
+        componentAtlasVersion: null,
         etag: "test-etag-source",
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.SOURCE_DATASET,
@@ -667,7 +667,7 @@ describe("getExistingMetadataObjectId", () => {
         sha256Client: null,
         sizeBytes: 1024,
         snsMessageId: "test-sns-source",
-        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
+        sourceDatasetVersion: SOURCE_DATASET_DRAFT_OK_FOO.versionId,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: "test-version-source",
       });
@@ -706,7 +706,7 @@ describe("getExistingMetadataObjectId", () => {
         await upsertTestFile(
           {
             bucket: TEST_BUCKET,
-            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+            componentAtlasVersion: COMPONENT_ATLAS_DRAFT_FOO.versionId,
             etag: "test-etag-integrated",
             eventInfo: TEST_EVENT_INFO,
             fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -715,7 +715,7 @@ describe("getExistingMetadataObjectId", () => {
             sha256Client: null,
             sizeBytes: 1024,
             snsMessageId: "test-sns-integrated",
-            sourceDatasetId: null,
+            sourceDatasetVersion: null,
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-integrated",
           },
@@ -726,7 +726,7 @@ describe("getExistingMetadataObjectId", () => {
         await upsertTestFile(
           {
             bucket: TEST_BUCKET,
-            componentAtlasId: null,
+            componentAtlasVersion: null,
             etag: "test-etag-source",
             eventInfo: TEST_EVENT_INFO,
             fileType: FILE_TYPE.SOURCE_DATASET,
@@ -735,7 +735,7 @@ describe("getExistingMetadataObjectId", () => {
             sha256Client: null,
             sizeBytes: 2048,
             snsMessageId: "test-sns-source",
-            sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
+            sourceDatasetVersion: SOURCE_DATASET_DRAFT_OK_FOO.versionId,
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-source",
           },
@@ -769,7 +769,7 @@ describe("getExistingMetadataObjectId", () => {
       // Create a file with an unsupported file type
       await upsertTestFile({
         bucket: TEST_BUCKET,
-        componentAtlasId: null,
+        componentAtlasVersion: null,
         etag: "test-etag-manifest",
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INGEST_MANIFEST,
@@ -778,7 +778,7 @@ describe("getExistingMetadataObjectId", () => {
         sha256Client: null,
         sizeBytes: 512,
         snsMessageId: "test-sns-manifest",
-        sourceDatasetId: null,
+        sourceDatasetVersion: null,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: "test-version-manifest",
       });
@@ -909,15 +909,15 @@ async function upsertTestFile(
 ): Promise<void> {
   await doOrContinueTransaction(client, async (client) => {
     const fileResult = await upsertFileRecord(fileData, client);
-    if (typeof fileData.componentAtlasId === "string") {
+    if (typeof fileData.componentAtlasVersion === "string") {
       await client.query(
-        "UPDATE hat.component_atlases SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.componentAtlasId]
+        "UPDATE hat.component_atlases SET file_id = $1 WHERE version_id = $2",
+        [fileResult.id, fileData.componentAtlasVersion]
       );
-    } else if (typeof fileData.sourceDatasetId === "string") {
+    } else if (typeof fileData.sourceDatasetVersion === "string") {
       await client.query(
-        "UPDATE hat.source_datasets SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.sourceDatasetId]
+        "UPDATE hat.source_datasets SET file_id = $1 WHERE version_id = $2",
+        [fileResult.id, fileData.sourceDatasetVersion]
       );
     }
   });

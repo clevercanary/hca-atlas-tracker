@@ -363,7 +363,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 400 for POST requested where one of the source datasets doesn't exist", async () => {
+  it("returns error 404 for POST requested where one of the source datasets doesn't exist", async () => {
     expect(
       (
         await doSourceDatasetsRequest(
@@ -375,7 +375,7 @@ describe(TEST_ROUTE, () => {
           true
         )
       )._getStatusCode()
-    ).toEqual(400);
+    ).toEqual(404);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
@@ -606,7 +606,7 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 400 for DELETE request where one of the source datasets doesn't exist", async () => {
+  it("returns error 404 for DELETE request where one of the source datasets doesn't exist", async () => {
     expect(
       (
         await doSourceDatasetsRequest(
@@ -618,7 +618,7 @@ describe(TEST_ROUTE, () => {
           true
         )
       )._getStatusCode()
-    ).toEqual(400);
+    ).toEqual(404);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 

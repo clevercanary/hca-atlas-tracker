@@ -187,7 +187,7 @@ describe(TEST_ROUTE, () => {
     }
   });
 
-  it("returns source studies including study with archived source dataset", async () => {
+  it("returns source studies including study with archived source dataset, returning source dataset count only for the requested atlas", async () => {
     const res = await doStudiesRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       USER_CONTENT_ADMIN
@@ -197,7 +197,7 @@ describe(TEST_ROUTE, () => {
     const study = studies.find(
       (d) => d.id === SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id
     );
-    expect(study?.sourceDatasetCount).toEqual(3);
+    expect(study?.sourceDatasetCount).toEqual(1);
   });
 });
 

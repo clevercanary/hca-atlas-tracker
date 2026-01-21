@@ -665,7 +665,7 @@ export async function expectComponentAtlasToHaveSourceDatasets(
   const sourceDatasets = await getComponentAtlasSourceDatasets(componentAtlas);
   expect(sourceDatasets).toHaveLength(expectedSourceDatasets.length);
   for (const expectedDataset of expectedSourceDatasets) {
-    expect(sourceDatasets).toContain(expectedDataset.id);
+    expect(sourceDatasets).toContain(expectedDataset.versionId);
   }
 }
 
@@ -742,7 +742,7 @@ export async function expectOldFileNotToBeReferencedByMetadataEntity(
       file.file_type
     );
     if (expectIsDefined(metadataEntity)) {
-      expectFileToReferenceMetadataEntity(file, metadataEntity.id);
+      expectFileToReferenceMetadataEntity(file, metadataEntity.version_id);
       expect(metadataEntity.file_id).not.toEqual(fileId);
     }
   }
@@ -762,13 +762,13 @@ export async function expectReferenceBetweenFileAndMetadataEntity(
     knownMetadataEntityId
   );
 
-  expectFileToReferenceMetadataEntity(file, metadataEntity.id);
+  expectFileToReferenceMetadataEntity(file, metadataEntity.version_id);
   expect(metadataEntity.file_id).toEqual(file.id);
 }
 
 function expectFileToReferenceMetadataEntity(
   file: HCAAtlasTrackerDBFile,
-  metadataEntityId: string
+  metadataEntityVersion: string
 ): void {
   expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
   if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
@@ -776,7 +776,7 @@ function expectFileToReferenceMetadataEntity(
       "A component atlas file cannot reference a metadata entity"
     );
   } else {
-    expect(file.source_dataset_id).toEqual(metadataEntityId);
+    expect(file.source_dataset_id).toEqual(metadataEntityVersion);
   }
 }
 

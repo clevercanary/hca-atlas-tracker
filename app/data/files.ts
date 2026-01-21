@@ -351,7 +351,7 @@ export interface FileUpsertData {
   sha256Client: string | null;
   sizeBytes: number;
   snsMessageId: string;
-  sourceDatasetId?: string | null;
+  sourceDatasetVersion?: string | null;
   validationStatus: FILE_VALIDATION_STATUS;
   versionId: string | null;
 }
@@ -367,7 +367,7 @@ export interface FileUpsertData {
  * @param fileData.key - S3 object key
  * @param fileData.sha256Client - SHA256 hash from client
  * @param fileData.sizeBytes - File size in bytes
- * @param fileData.sourceDatasetId - Source dataset ID (if applicable)
+ * @param fileData.sourceDatasetVersion - Source dataset version ID (if applicable)
  * @param fileData.snsMessageId - SNS MessageId for deduplication
  * @param fileData.validationStatus - File validation status
  * @param fileData.versionId - S3 object version ID
@@ -427,7 +427,7 @@ export async function upsertFileRecord(
       fileData.validationStatus,
       true,
       fileData.fileType,
-      fileData.sourceDatasetId ?? null,
+      fileData.sourceDatasetVersion ?? null,
       fileData.snsMessageId,
     ]
   );
@@ -519,20 +519,20 @@ export async function setFileIntegrityStatus(
  * Set the metadata object referenced by a file.
  * @param fileId - ID of the file to update.
  * @param fileType - File type.
- * @param metadataObjectId - ID of a metadata object of the appropriate type, to set in the correspond field of the file.
+ * @param metadataObjectVersionId - Version ID of a metadata object of the appropriate type, to set in the correspond field of the file.
  * @param client - Postgres client to use.
  */
 export async function setFileMetadataObjectId(
   fileId: string,
   fileType: FILE_TYPE,
-  metadataObjectId: string,
+  metadataObjectVersionId: string,
   client: pg.PoolClient
 ): Promise<void> {
   await confirmFileIsOfType(fileId, fileType, client);
   if (fileType === FILE_TYPE.SOURCE_DATASET) {
     await client.query(
       "UPDATE hat.files SET source_dataset_id = $1 WHERE id = $2",
-      [metadataObjectId, fileId]
+      [metadataObjectVersionId, fileId]
     );
   } else {
     throw new InvalidOperationError(
