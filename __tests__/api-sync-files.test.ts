@@ -431,7 +431,8 @@ async function doMainTest(): Promise<void> {
   );
 
   // Check that the expected number of errors were reported
-  expect(errorMessageStrings).toHaveLength(2);
+  // Should be 1 message for the unchanged file (which is treated as an out-of-order notification)
+  expect(errorMessageStrings).toHaveLength(1);
 
   // Check that the expected number of objects without keys were skipped
   expect(warningMessages).toContain("S3 sync: Skipped 3 objects without keys");
