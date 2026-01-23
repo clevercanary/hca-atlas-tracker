@@ -15,7 +15,7 @@ interface SourceDatasetValidationPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, sourceDatasetId, validatorName } =
     context.params as SourceDatasetValidationPageUrlParams;

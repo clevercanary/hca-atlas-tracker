@@ -17,7 +17,7 @@ export default handler(method(METHOD.GET), registeredUser, async (req, res) => {
     .status(200)
     .json(
       dbEntrySheetValidationToApiModel(
-        await getEntrySheetValidation(atlasId, entrySheetValidationId)
-      )
+        await getEntrySheetValidation(atlasId, entrySheetValidationId),
+      ),
     );
 });

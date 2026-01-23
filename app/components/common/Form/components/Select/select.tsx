@@ -27,7 +27,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
     onBlur,
     ...props /* Spread props to allow for Mui SelectProps specific prop overrides e.g. "disabled". */
   }: SelectProps,
-  ref
+  ref,
 ): JSX.Element {
   return (
     <FormControl

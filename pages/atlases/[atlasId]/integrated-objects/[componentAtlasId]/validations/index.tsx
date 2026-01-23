@@ -9,7 +9,7 @@ interface IntegratedObjectPageUrlParams extends ParsedUrlQuery {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, componentAtlasId } =
     context.params as IntegratedObjectPageUrlParams;

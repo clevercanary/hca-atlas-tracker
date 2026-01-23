@@ -23,7 +23,7 @@ export const FileArchivedStatus = ({
         onSubmit(
           getRequestURL(getEndpoint(isArchived), pathParameter),
           payload,
-          options
+          options,
         )
       }
     >

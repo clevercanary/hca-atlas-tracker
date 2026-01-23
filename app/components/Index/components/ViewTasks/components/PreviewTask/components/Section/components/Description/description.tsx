@@ -41,7 +41,7 @@ function getTaskDescription(task: HCAAtlasTrackerListValidationRecord): string {
  * @returns task differences.
  */
 function getTaskDifferences(
-  task: HCAAtlasTrackerListValidationRecord
+  task: HCAAtlasTrackerListValidationRecord,
 ): JSX.Element {
   return (
     <>
@@ -52,7 +52,7 @@ function getTaskDifferences(
           const missing = getUnsharedValues(
             expected,
             actual,
-            caseSensitive
+            caseSensitive,
           ).join(", ");
           const extra =
             actual &&
@@ -94,11 +94,11 @@ function getTaskDifferences(
 function getUnsharedValues(
   fromArray: string[],
   byArray: string[] | null,
-  caseSensitive = true
+  caseSensitive = true,
 ): string[] {
   if (!byArray) return fromArray;
   if (!caseSensitive) byArray = byArray.map((value) => value.toLowerCase());
   return fromArray.filter(
-    (value) => !byArray?.includes(caseSensitive ? value : value.toLowerCase())
+    (value) => !byArray?.includes(caseSensitive ? value : value.toLowerCase()),
   );
 }

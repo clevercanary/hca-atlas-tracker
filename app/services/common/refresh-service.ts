@@ -19,18 +19,18 @@ export interface RefreshServiceParams<TData, TRefreshParams> {
   autoStart?: boolean;
   getRefreshedData: (
     refreshParams: TRefreshParams,
-    prevData?: TData
+    prevData?: TData,
   ) => TData | Promise<TData>;
   getRefreshParams: (
     data?: TData,
-    prevRefreshParams?: TRefreshParams
+    prevRefreshParams?: TRefreshParams,
   ) => TRefreshParams | Promise<TRefreshParams>;
   getStoredInfo: () => RefreshInfo<TData, TRefreshParams> | undefined;
   notReadyMessage: string;
   onRefreshSuccess?: () => void;
   refreshNeeded: (
     data: TData | undefined,
-    refreshParams: TRefreshParams
+    refreshParams: TRefreshParams,
   ) => boolean;
   setStoredInfo: (info: RefreshInfo<TData, TRefreshParams>) => void;
 }
@@ -71,7 +71,7 @@ export class RefreshDataResult<T> {
    */
   mapRefreshOrElse<TOkOut, TErrorOut>(
     fOk: (v: T) => TOkOut,
-    fError: (v: string) => TErrorOut
+    fError: (v: string) => TErrorOut,
   ): TOkOut | TErrorOut {
     return this.#container[0]
       ? fOk(this.#container[1])
@@ -86,7 +86,7 @@ export class RefreshDataResult<T> {
   mapRefresh<TOut>(f: (v: T) => TOut): RefreshDataResult<TOut> {
     return this.mapRefreshOrElse(
       (v) => RefreshDataResult.ok(f(v)),
-      (e) => RefreshDataResult.error(e)
+      (e) => RefreshDataResult.error(e),
     );
   }
 
@@ -98,7 +98,7 @@ export class RefreshDataResult<T> {
   unwrapRefresh<TDefault>(defaultValue: TDefault): T | TDefault {
     return this.mapRefreshOrElse(
       (v) => v,
-      () => defaultValue
+      () => defaultValue,
     );
   }
 }
@@ -116,7 +116,7 @@ export class RefreshDataResult<T> {
  * @returns object containing `getData` function that returns the current data value and starts a refresh if needed.
  */
 export function makeRefreshService<TData, TRefreshParams>(
-  params: RefreshServiceParams<TData, TRefreshParams>
+  params: RefreshServiceParams<TData, TRefreshParams>,
 ): RefreshService<TData> {
   const { autoStart, getStoredInfo, notReadyMessage, setStoredInfo } = params;
   const initStoredInfo = getStoredInfo();
@@ -147,8 +147,8 @@ export function makeRefreshService<TData, TRefreshParams>(
         currentActivity: info.refreshing
           ? REFRESH_ACTIVITY.REFRESHING
           : info.attemptingRefresh
-          ? REFRESH_ACTIVITY.ATTEMPTING_REFRESH
-          : REFRESH_ACTIVITY.NOT_REFRESHING,
+            ? REFRESH_ACTIVITY.ATTEMPTING_REFRESH
+            : REFRESH_ACTIVITY.NOT_REFRESHING,
         errorMessage: info.errorMessage ?? null,
         lastAttemptedAt: info.lastAttemptedAt?.toISOString() ?? null,
         lastResolvedAt: info.lastResolvedAt?.toISOString() ?? null,
@@ -164,7 +164,7 @@ export function makeRefreshService<TData, TRefreshParams>(
 async function startRefreshIfNeeded<TData, TRefreshParams>(
   params: RefreshServiceParams<TData, TRefreshParams>,
   info: RefreshInfo<TData, TRefreshParams>,
-  force = false
+  force = false,
 ): Promise<void> {
   const {
     getRefreshedData,
@@ -214,7 +214,7 @@ async function startRefreshIfNeeded<TData, TRefreshParams>(
 function getErrorMessage(error: unknown): string {
   try {
     return String(
-      error instanceof Error && "message" in error ? error.message : error
+      error instanceof Error && "message" in error ? error.message : error,
     );
   } catch (e) {
     return "Unknown error";

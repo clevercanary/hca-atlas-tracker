@@ -12,7 +12,7 @@ interface MetadataCorrectnessPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId } = context.params as MetadataCorrectnessPageUrlParams;
   return {

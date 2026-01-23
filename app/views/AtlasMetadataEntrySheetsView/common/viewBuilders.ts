@@ -15,7 +15,7 @@ import { MetadataEntrySheet } from "../entities";
  * @returns Model to be used as cellContext for the KeyValuePairs component.
  */
 export function buildDataSummary(
-  cellContext: CellContext<MetadataEntrySheet, unknown>
+  cellContext: CellContext<MetadataEntrySheet, unknown>,
 ): CellContext<MetadataEntrySheet, KeyValuePairsProps> {
   const { validationSummary } = cellContext.row.original;
   const { dataset_count, donor_count, sample_count } = validationSummary;
@@ -34,7 +34,7 @@ export function buildDataSummary(
  * @returns Model to be used as cellContext for the LinkCell component.
  */
 export function buildEntrySheetTitle(
-  cellContext: CellContext<MetadataEntrySheet, unknown>
+  cellContext: CellContext<MetadataEntrySheet, unknown>,
 ): CellContext<MetadataEntrySheet, LinkProps> {
   const { row } = cellContext;
   const { entrySheetId, entrySheetTitle } = row.original;
@@ -50,7 +50,7 @@ export function buildEntrySheetTitle(
  * @returns Model to be used as cellContext for the KeyValuePairs component.
  */
 export function buildLastUpdated(
-  cellContext: CellContext<MetadataEntrySheet, unknown>
+  cellContext: CellContext<MetadataEntrySheet, unknown>,
 ): CellContext<MetadataEntrySheet, KeyValuePairsProps> {
   const { row } = cellContext;
   const { lastSynced, lastUpdated } = row.original;
@@ -74,7 +74,7 @@ export function buildLastUpdated(
  * @returns Model to be used as cellContext for the LinkCell component.
  */
 export function buildPublicationString(
-  cellContext: CellContext<MetadataEntrySheet, unknown>
+  cellContext: CellContext<MetadataEntrySheet, unknown>,
 ): CellContext<MetadataEntrySheet, LinkProps> {
   const { row } = cellContext;
   const { atlasId, publicationString, sourceStudyId } = row.original;
@@ -90,7 +90,7 @@ export function buildPublicationString(
  * @returns Model to be used as cellContext for the ChipCell component.
  */
 export function buildValidationSummary(
-  cellContext: CellContext<MetadataEntrySheet, unknown>
+  cellContext: CellContext<MetadataEntrySheet, unknown>,
 ): CellContext<MetadataEntrySheet, ValidationSummaryCellProps> {
   const { row } = cellContext;
   const {

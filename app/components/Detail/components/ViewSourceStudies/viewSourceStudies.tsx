@@ -45,14 +45,14 @@ export const ViewSourceStudies = ({
   } = formManager;
   const sortedSourceStudies = useMemo(
     () => sourceStudies.sort(sortSourceStudies),
-    [sourceStudies]
+    [sourceStudies],
   );
   const atlasLinkedDatasetsByStudyId = useMemo(
     () =>
       sourceStudiesSourceDatasets.reduce((datasets, sourceDataset) => {
         if (sourceDataset.sourceStudyId === null) return datasets;
         const linkedDataset = atlasSourceDatasets.find(
-          (atlasSourceDataset) => atlasSourceDataset.id === sourceDataset.id
+          (atlasSourceDataset) => atlasSourceDataset.id === sourceDataset.id,
         );
         if (linkedDataset) {
           let studyDatasets = datasets.get(sourceDataset.sourceStudyId);
@@ -62,7 +62,7 @@ export const ViewSourceStudies = ({
         }
         return datasets;
       }, new Map<string, HCAAtlasTrackerSourceDataset[]>()),
-    [atlasSourceDatasets, sourceStudiesSourceDatasets]
+    [atlasSourceDatasets, sourceStudiesSourceDatasets],
   );
   if (!canView) return <RequestAccess />;
   return (
@@ -92,7 +92,7 @@ export const ViewSourceStudies = ({
             <Table
               columns={getAtlasSourceStudiesTableColumns(
                 pathParameter,
-                atlasLinkedDatasetsByStudyId
+                atlasLinkedDatasetsByStudyId,
               )}
               gridTemplateColumns="max-content minmax(280px, 1.2fr) minmax(120px, 0.4fr) minmax(200px, 1fr) repeat(2, minmax(180px, 0.75fr))"
               items={sortedSourceStudies}
@@ -118,11 +118,11 @@ export const ViewSourceStudies = ({
  */
 function sortSourceStudies(
   ss0: HCAAtlasTrackerSourceStudy,
-  ss1: HCAAtlasTrackerSourceStudy
+  ss1: HCAAtlasTrackerSourceStudy,
 ): number {
   const sortValue = COLLATOR_CASE_INSENSITIVE.compare(
     getSourceStudyCitation(ss0),
-    getSourceStudyCitation(ss1)
+    getSourceStudyCitation(ss1),
   );
   if (sortValue === 0) {
     return COLLATOR_CASE_INSENSITIVE.compare(ss0.title ?? "", ss1.title ?? "");

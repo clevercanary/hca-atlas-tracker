@@ -28,9 +28,9 @@ const postHandler = handler(registeredUser, async (req, res) => {
         await createComment(
           threadId,
           await newCommentSchema.validate(req.body),
-          await getRegisteredActiveUser(req, res)
-        )
-      )
+          await getRegisteredActiveUser(req, res),
+        ),
+      ),
     );
 });
 

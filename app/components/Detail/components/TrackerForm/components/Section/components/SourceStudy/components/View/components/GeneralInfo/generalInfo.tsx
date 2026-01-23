@@ -58,7 +58,7 @@ export const GeneralInfo = ({
       clearErrors();
       setValue(FIELD_NAME.PUBLICATION_STATUS, value, { shouldDirty: false });
     },
-    [clearErrors, setValue]
+    [clearErrors, setValue],
   );
 
   return (
@@ -87,7 +87,7 @@ export const GeneralInfo = ({
                     error={Boolean(errors[FIELD_NAME.DOI])}
                     helperText={renderDoiHelperText(
                       sourceStudy,
-                      errors[FIELD_NAME.DOI]?.message
+                      errors[FIELD_NAME.DOI]?.message,
                     )}
                     isFilled={Boolean(field.value)}
                     label={
@@ -187,7 +187,7 @@ export const GeneralInfo = ({
  * @returns end adornment.
  */
 function renderDoiEndAdornment(
-  sourceStudy: HCAAtlasTrackerSourceStudy | undefined
+  sourceStudy: HCAAtlasTrackerSourceStudy | undefined,
 ): JSX.Element | undefined {
   switch (sourceStudy?.doiStatus) {
     case DOI_STATUS.DOI_NOT_ON_CROSSREF:
@@ -219,7 +219,7 @@ function renderDoiEndAdornment(
  */
 function renderDoiHelperText(
   sourceStudy: HCAAtlasTrackerSourceStudy | undefined,
-  errorMessage: string | undefined
+  errorMessage: string | undefined,
 ): string | undefined {
   if (errorMessage) return errorMessage;
   return getSourceStudyCitation(sourceStudy);

@@ -20,7 +20,7 @@ export const Tabs = ({
 }: Props): JSX.Element | null => {
   const validatorNames = useMemo(
     () => getValidatorNames(validationReports),
-    [validationReports]
+    [validationReports],
   );
 
   const onChange = useCallback(
@@ -29,10 +29,10 @@ export const Tabs = ({
         getRouteURL(validationRoute, {
           ...pathParameter,
           validatorName,
-        })
+        }),
       );
     },
-    [pathParameter, validationRoute]
+    [pathParameter, validationRoute],
   );
 
   if (!validatorName || !validationReports) return null;

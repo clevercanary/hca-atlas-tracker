@@ -43,7 +43,7 @@ export function FetchDataStateProvider({
 }: FetchDataStateProps): JSX.Element {
   const [fetchDataState, fetchDataDispatch] = useReducer(
     (s: FetchDataState, a: FetchDataAction) => fetchDataStateReducer(s, a),
-    { ...DEFAULT_FETCH_DATA_STATE, ...initialState }
+    { ...DEFAULT_FETCH_DATA_STATE, ...initialState },
   );
   return (
     <FetchDataStateContext.Provider
@@ -88,7 +88,7 @@ type ResetFetchStatus = {
  */
 function fetchDataStateReducer(
   state: FetchDataState,
-  action: FetchDataAction
+  action: FetchDataAction,
 ): FetchDataState {
   const { payload, type } = action;
   // eslint-disable-next-line sonarjs/no-small-switch -- allow small switch.

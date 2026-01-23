@@ -26,7 +26,7 @@ export const Tabs = ({
     (tabValue: TabValue): void => {
       navigateToRoute(getRouteURL(tabValue, pathParameter));
     },
-    [pathParameter]
+    [pathParameter],
   );
 
   return (
@@ -37,7 +37,7 @@ export const Tabs = ({
         {
           label: getTabLabelWithCount(
             "Datasets",
-            sourceStudy?.sourceDatasetCount
+            sourceStudy?.sourceDatasetCount,
           ),
           value: ROUTE.SOURCE_DATASETS,
         },

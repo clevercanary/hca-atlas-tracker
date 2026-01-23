@@ -13,7 +13,7 @@ interface SourceStudyPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, sourceStudyId } = context.params as SourceStudyPageUrlParams;
   return {

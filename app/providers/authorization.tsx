@@ -13,7 +13,7 @@ export interface AuthorizationContextProps {
 }
 
 export const AuthorizationContext = createContext<AuthorizationContextProps>(
-  {}
+  {},
 );
 
 interface Props {
@@ -72,7 +72,7 @@ function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
  */
 function shouldRenderComponents(
   isAuthenticated: boolean,
-  isAuthorized: boolean
+  isAuthorized: boolean,
 ): boolean {
   return !isAuthenticated || isAuthorized;
 }

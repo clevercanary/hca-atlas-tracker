@@ -11,7 +11,7 @@ export const Summary = (): JSX.Element | null => {
   const entityData = data as EntityData;
 
   const summary = buildSummaryValues(
-    entityData.entrySheetValidation?.validationSummary
+    entityData.entrySheetValidation?.validationSummary,
   );
 
   if (!summary) return null;

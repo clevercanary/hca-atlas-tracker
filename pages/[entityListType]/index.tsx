@@ -27,7 +27,7 @@ interface ListPageProps extends AzulEntitiesStaticResponse {
  */
 const seedDatabase = async function seedDatabase( // TODO get rid of this duplicated code
   entityListType: string,
-  entityConfig: EntityConfig
+  entityConfig: EntityConfig,
 ): Promise<void> {
   const { label, staticLoadFile } = entityConfig;
 

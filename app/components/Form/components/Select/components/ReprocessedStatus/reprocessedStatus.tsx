@@ -9,7 +9,7 @@ import {
 export const ReprocessedStatus = forwardRef<HTMLInputElement, SelectProps>(
   function ReprocessedStatus(
     { className, ...props }: SelectProps,
-    ref
+    ref,
   ): JSX.Element {
     return (
       <Select
@@ -27,7 +27,7 @@ export const ReprocessedStatus = forwardRef<HTMLInputElement, SelectProps>(
         })}
       </Select>
     );
-  }
+  },
 );
 
 /**

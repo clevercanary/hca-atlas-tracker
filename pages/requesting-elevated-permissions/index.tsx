@@ -11,7 +11,7 @@ const slug = ["requesting-elevated-permissions"];
 export const getStaticProps: GetStaticProps = async () => {
   return getContentStaticProps(
     { params: { slug } },
-    "Requesting Elevated Permissions"
+    "Requesting Elevated Permissions",
   );
 };
 

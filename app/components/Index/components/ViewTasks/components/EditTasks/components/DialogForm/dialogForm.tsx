@@ -13,7 +13,8 @@ import { useEditTasksFormManager } from "../../hooks/useEditTasksFormManager";
 
 export interface DialogFormProps<
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 > {
   formValue?: DialogFormValue<T, R>;
   onClose: () => void;
@@ -22,7 +23,8 @@ export interface DialogFormProps<
 
 export const DialogForm = <
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 >({
   formValue,
   onClose,
@@ -38,7 +40,7 @@ export const DialogForm = <
     formMethod,
     onClose,
     requestURL,
-    requestMethod
+    requestMethod,
   );
   return (
     <TrackerForm>

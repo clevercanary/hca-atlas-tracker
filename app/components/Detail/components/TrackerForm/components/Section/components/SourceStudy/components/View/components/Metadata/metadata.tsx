@@ -76,7 +76,7 @@ export const Metadata = ({
 
 function getMetadataSpreadsheetHelperText(
   sourceStudy: HCAAtlasTrackerSourceStudy | undefined,
-  sheetUrl: string
+  sheetUrl: string,
 ): string | null {
   if (sourceStudy) {
     let sheetId: string;

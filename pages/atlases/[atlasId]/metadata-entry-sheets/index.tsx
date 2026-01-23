@@ -13,7 +13,7 @@ interface MetadataEntrySheetsPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId } = context.params as MetadataEntrySheetsPageUrlParams;
   return {

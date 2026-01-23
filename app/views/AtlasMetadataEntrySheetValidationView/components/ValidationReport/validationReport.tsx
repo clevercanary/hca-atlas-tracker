@@ -31,7 +31,7 @@ export const ValidationReport = (): JSX.Element | null => {
             entityType={entityType}
             entrySheetId={entrySheetId}
           />
-        )
+        ),
       )}
     </Fragment>
   );

@@ -33,13 +33,13 @@ export function confirmQueryRowsContainVersionIds(
 export function confirmQueryRowsContainIds(
   rows: { id: string }[],
   expectedIds: string[],
-  entityPluralName: string
+  entityPluralName: string,
 ): void {
   const presentIds = new Set(rows.map((d) => d.id));
   const missingIds = expectedIds.filter((id) => !presentIds.has(id));
 
   if (missingIds.length)
     throw new NotFoundError(
-      `No ${entityPluralName} exist with ID(s): ${missingIds.join(", ")}`
+      `No ${entityPluralName} exist with ID(s): ${missingIds.join(", ")}`,
     );
 }

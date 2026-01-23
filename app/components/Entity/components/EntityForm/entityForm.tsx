@@ -11,7 +11,7 @@ import { FormManager } from "../../../common/Form/components/FormManager/formMan
 interface EntityFormProps<
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 > {
   accessFallback: ReactNode;
   formManager: FormManagerProps;
@@ -22,7 +22,7 @@ interface EntityFormProps<
 export const EntityForm = <
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 >({
   accessFallback,
   formManager,

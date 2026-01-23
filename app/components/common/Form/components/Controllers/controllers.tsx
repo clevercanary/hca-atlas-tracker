@@ -9,7 +9,7 @@ import { SelectController } from "./components/SelectController/selectController
 export interface ControllersProps<
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 > {
   controllerConfigs: ControllerConfig<T, R, C>[];
   formManager: FormManager;
@@ -19,7 +19,7 @@ export interface ControllersProps<
 export const Controllers = <
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 >({
   controllerConfigs,
   formManager,
@@ -37,7 +37,7 @@ export const Controllers = <
             selectProps,
             viewBuilder,
           },
-          i
+          i,
         ) => {
           const { SelectComponent } = selectProps || {};
           return SelectComponent ? (
@@ -61,7 +61,7 @@ export const Controllers = <
               viewBuilder={viewBuilder}
             />
           );
-        }
+        },
       )}
     </Fragment>
   );

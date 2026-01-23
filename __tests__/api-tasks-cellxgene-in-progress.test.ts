@@ -34,7 +34,7 @@ import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -71,32 +71,32 @@ beforeAll(async () => {
 
   validationIdDoneA = await getValidationRecordId(
     SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE.id,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
   );
   validationIdDoneB = await getValidationRecordId(
     SOURCE_STUDY_PUBLISHED_WITH_UNCHANGING_IDS.id,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
   );
   validationIdTodoA = await getValidationRecordId(
     SOURCE_STUDY_DRAFT_OK.id,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
   );
   validationIdTodoB = await getValidationRecordId(
     SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
   );
   validationIdTodoC = await getValidationRecordId(
     SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
   );
   validationIdInProgress = await getValidationRecordId(
     SOURCE_STUDY_PUBLISHED_WITH_HCA.id,
-    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE
+    VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
   );
 
   await query(
     `UPDATE hat.validations SET validation_info=validation_info||'{"taskStatus": "IN_PROGRESS"}' WHERE id=$1`,
-    [validationIdInProgress]
+    [validationIdInProgress],
   );
 
   testValidationIds = [
@@ -123,9 +123,9 @@ describe(TEST_ROUTE, () => {
           DOIS,
           USER_CONTENT_ADMIN,
           false,
-          METHOD.GET
+          METHOD.GET,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -133,7 +133,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCellxGeneInProgressRequest(DOIS, undefined, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -141,7 +141,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCellxGeneInProgressRequest(DOIS, USER_UNREGISTERED, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -149,12 +149,12 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCellxGeneInProgressRequest(DOIS, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES.filter(
-    (r) => r !== ROLE.CELLXGENE_ADMIN
+    (r) => r !== ROLE.CELLXGENE_ADMIN,
   )) {
     testApiRole(
       TEST_ROUTE,
@@ -167,7 +167,7 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -175,7 +175,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCellxGeneInProgressRequest(undefined, USER_CONTENT_ADMIN, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -183,7 +183,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCellxGeneInProgressRequest({}, USER_CONTENT_ADMIN, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -191,7 +191,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCellxGeneInProgressRequest([], USER_CONTENT_ADMIN, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -201,9 +201,9 @@ describe(TEST_ROUTE, () => {
         await doCellxGeneInProgressRequest(
           [...DOIS, 123],
           USER_CONTENT_ADMIN,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -213,9 +213,9 @@ describe(TEST_ROUTE, () => {
         await doCellxGeneInProgressRequest(
           [...DOIS, "notadoi"],
           USER_CONTENT_ADMIN,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -244,7 +244,7 @@ async function doCellxGeneInProgressRequest(
   body: object | undefined,
   user?: TestUser,
   hideConsoleError = false,
-  method = METHOD.PATCH
+  method = METHOD.PATCH,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
@@ -253,7 +253,7 @@ async function doCellxGeneInProgressRequest(
   });
   await withConsoleErrorHiding(
     () => cellxgeneInProgressHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
@@ -281,7 +281,7 @@ async function expectValidationsToHaveUpdatedStatuses(): Promise<void> {
   expect(currentStatuses[validationIdTodoB]).toEqual(TASK_STATUS.IN_PROGRESS);
   expect(currentStatuses[validationIdTodoC]).toEqual(TASK_STATUS.TODO);
   expect(currentStatuses[validationIdInProgress]).toEqual(
-    TASK_STATUS.IN_PROGRESS
+    TASK_STATUS.IN_PROGRESS,
   );
 }
 
@@ -293,7 +293,7 @@ async function expectValidationsToHaveInitialStatuses(): Promise<void> {
   expect(currentStatuses[validationIdTodoB]).toEqual(TASK_STATUS.TODO);
   expect(currentStatuses[validationIdTodoC]).toEqual(TASK_STATUS.TODO);
   expect(currentStatuses[validationIdInProgress]).toEqual(
-    TASK_STATUS.IN_PROGRESS
+    TASK_STATUS.IN_PROGRESS,
   );
 }
 
@@ -301,7 +301,7 @@ async function resetTestStatuses(): Promise<void> {
   for (const id of testValidationIds) {
     await query(
       "UPDATE hat.validations SET validation_info=validation_info||jsonb_build_object('taskStatus', $1::text) WHERE id=$2",
-      [initialStatuses[id], id]
+      [initialStatuses[id], id],
     );
   }
 }
@@ -310,7 +310,7 @@ async function getStatusesById(): Promise<Record<string, TASK_STATUS>> {
   const validations = (
     await query<{ id: string; task_status: TASK_STATUS }>(
       "SELECT id, validation_info->>'taskStatus' AS task_status FROM hat.validations WHERE id=ANY($1)",
-      [testValidationIds]
+      [testValidationIds],
     )
   ).rows;
   return Object.fromEntries(validations.map((v) => [v.id, v.task_status]));
@@ -318,11 +318,11 @@ async function getStatusesById(): Promise<Record<string, TASK_STATUS>> {
 
 async function getValidationRecordId(
   entityId: string,
-  validationId: VALIDATION_ID
+  validationId: VALIDATION_ID,
 ): Promise<string> {
   const queryResult = await query<Pick<HCAAtlasTrackerDBValidation, "id">>(
     "SELECT id FROM hat.validations WHERE entity_id=$1 AND validation_id=$2",
-    [entityId, validationId]
+    [entityId, validationId],
   );
   if (queryResult.rows.length === 0)
     throw new Error(`Missing ${validationId} validation for ${entityId}`);

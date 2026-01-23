@@ -15,7 +15,7 @@ export const useAddAtlasForm = (): FormMethod<
     SCHEMA,
     undefined,
     mapSchemaValues,
-    mapApiValues
+    mapApiValues,
   );
 };
 

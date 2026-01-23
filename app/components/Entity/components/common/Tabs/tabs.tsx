@@ -19,7 +19,7 @@ export const Tabs = ({
     (tabValue: TabValue): void => {
       onNavigate(getRouteURL(tabValue, pathParameter), tabValue);
     },
-    [pathParameter, onNavigate]
+    [pathParameter, onNavigate],
   );
 
   return <DXTabs onTabChange={onChange} tabs={tabs} value={route} />;

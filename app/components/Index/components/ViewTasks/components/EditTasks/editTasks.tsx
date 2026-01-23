@@ -18,7 +18,8 @@ export interface EditTasksProps {
 
 export const EditTasks = <
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 >({
   rows,
 }: EditTasksProps): JSX.Element => {
@@ -28,7 +29,7 @@ export const EditTasks = <
 
   const onEdit = (
     closeMenu: () => void,
-    formValue: DialogFormValue<T, R>
+    formValue: DialogFormValue<T, R>,
   ): void => {
     closeMenu();
     setOpen(true);
@@ -46,7 +47,7 @@ export const EditTasks = <
           <EditTargetCompletion
             key="target-completion"
             onEdit={(
-              formValue: DialogFormValue<TaskCompletionDatesData>
+              formValue: DialogFormValue<TaskCompletionDatesData>,
             ): void =>
               onEdit(closeMenu, formValue as unknown as DialogFormValue<T, R>)
             }
@@ -66,7 +67,7 @@ export const EditTasks = <
  * @returns task IDs.
  */
 function getTaskIds(
-  rows: Row<HCAAtlasTrackerListValidationRecord>[]
+  rows: Row<HCAAtlasTrackerListValidationRecord>[],
 ): string[] {
   return rows.map((row) => row.id);
 }

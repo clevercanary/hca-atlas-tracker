@@ -10,7 +10,7 @@ export function ArchivedProvider({
 }): JSX.Element {
   const [archivedState, archivedDispatch] = useReducer(
     archivedReducer,
-    INITIAL_ARGS
+    INITIAL_ARGS,
   );
   return (
     <ArchivedContext.Provider value={{ archivedDispatch, archivedState }}>

@@ -22,7 +22,7 @@ export const useEditAtlasSourceDatasetFormManager = (
   formMethod: FormMethod<
     ViewAtlasSourceDatasetData,
     HCAAtlasTrackerSourceDataset
-  >
+  >,
 ): FormManager => {
   const { fetchDataDispatch } = useFetchDataState();
   const { onSubmit, reset } = formMethod;
@@ -30,10 +30,10 @@ export const useEditAtlasSourceDatasetFormManager = (
   const onDiscard = useCallback(
     (url?: string) => {
       Router.push(
-        url ?? getRouteURL(ROUTE.ATLAS_SOURCE_DATASETS, pathParameter)
+        url ?? getRouteURL(ROUTE.ATLAS_SOURCE_DATASETS, pathParameter),
       );
     },
-    [pathParameter]
+    [pathParameter],
   );
 
   const onSave = useCallback(
@@ -48,10 +48,10 @@ export const useEditAtlasSourceDatasetFormManager = (
             url
               ? Router.push(url)
               : fetchDataDispatch(fetchData([SOURCE_DATASET])),
-        }
+        },
       );
     },
-    [fetchDataDispatch, onSubmit, pathParameter, reset]
+    [fetchDataDispatch, onSubmit, pathParameter, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

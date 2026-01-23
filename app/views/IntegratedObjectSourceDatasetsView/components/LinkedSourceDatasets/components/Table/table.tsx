@@ -25,7 +25,7 @@ export const Table = ({
       columns={getAtlasComponentSourceDatasetsTableColumns(
         onUnlink,
         canEdit,
-        pathParameter.atlasId
+        pathParameter.atlasId,
       )}
       gridTemplateColumns={getGridTemplateColumns(canEdit)}
       items={componentAtlasSourceDatasets}

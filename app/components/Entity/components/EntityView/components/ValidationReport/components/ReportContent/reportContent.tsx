@@ -15,7 +15,7 @@ export const ReportContent = ({
         {getReportValues(
           validationStatus,
           validationReports,
-          validatorName
+          validatorName,
         ).map((value, i) => (
           <div key={i}>{value}</div>
         ))}

@@ -49,7 +49,7 @@ function optionalEnv(name: string): string | undefined {
  */
 export async function submitDatasetValidationJob(
   params: SubmitDatasetValidationJobParams,
-  opts: SubmitDatasetValidationJobOptions = {}
+  opts: SubmitDatasetValidationJobOptions = {},
 ): Promise<SubmitDatasetValidationJobResult> {
   const jobQueue = requiredEnv("AWS_BATCH_VALIDATOR_JOB_QUEUE");
   const jobDefinition = requiredEnv("AWS_BATCH_VALIDATOR_JOB_DEFINITION");
@@ -82,7 +82,7 @@ export async function submitDatasetValidationJob(
       jobDefinition,
       jobName,
       jobQueue,
-    })
+    }),
   );
 
   const jobId = resp.jobId;

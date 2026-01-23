@@ -29,7 +29,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -60,9 +60,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_CONTENT_ADMIN,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -74,9 +74,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           undefined,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -88,9 +88,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -102,9 +102,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -116,9 +116,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -130,9 +130,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_ID_NONEXISTENT,
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -145,7 +145,7 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-        ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+        ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
       ),
       undefined,
       false,
@@ -156,9 +156,9 @@ describe(TEST_ROUTE, () => {
         expectEntrySheetValidationToMatchTest(
           validation,
           ENTRY_SHEET_VALIDATION_WITH_UPDATE,
-          SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO
+          SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
         );
-      }
+      },
     );
   }
 
@@ -167,7 +167,7 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
       ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
       USER_CONTENT_ADMIN,
-      METHOD.GET
+      METHOD.GET,
     );
     expect(res._getStatusCode()).toEqual(200);
     const validation =
@@ -175,7 +175,7 @@ describe(TEST_ROUTE, () => {
     expectEntrySheetValidationToMatchTest(
       validation,
       ENTRY_SHEET_VALIDATION_WITH_UPDATE,
-      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
     );
   });
 
@@ -184,7 +184,7 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
       ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id,
       USER_CONTENT_ADMIN,
-      METHOD.GET
+      METHOD.GET,
     );
     expect(res._getStatusCode()).toEqual(200);
     const validation =
@@ -192,7 +192,7 @@ describe(TEST_ROUTE, () => {
     expectEntrySheetValidationToMatchTest(
       validation,
       ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE,
-      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR,
     );
   });
 });
@@ -200,26 +200,26 @@ describe(TEST_ROUTE, () => {
 function expectEntrySheetValidationToMatchTest(
   listValidation: HCAAtlasTrackerEntrySheetValidation,
   testValidation: TestEntrySheetValidation,
-  testSourceStudy: TestSourceStudy
+  testSourceStudy: TestSourceStudy,
 ): void {
   expect(listValidation.entrySheetId).toEqual(testValidation.entry_sheet_id);
   expect(listValidation.entrySheetTitle).toEqual(
-    testValidation.entry_sheet_title
+    testValidation.entry_sheet_title,
   );
   expect(listValidation.id).toEqual(testValidation.id);
   expect(listValidation.lastSynced).toEqual(
-    testValidation.last_synced.toISOString()
+    testValidation.last_synced.toISOString(),
   );
   expect(listValidation.lastUpdated).toEqual(testValidation.last_updated);
   expect(listValidation.sourceStudyId).toEqual(testValidation.source_study_id);
   expect(listValidation.validationReport).toEqual(
-    testValidation.validation_report
+    testValidation.validation_report,
   );
   expect(listValidation.validationSummary).toEqual(
-    testValidation.validation_summary
+    testValidation.validation_summary,
   );
   expect(listValidation.publicationString).toEqual(
-    getTestSourceStudyCitation(testSourceStudy)
+    getTestSourceStudyCitation(testSourceStudy),
   );
 }
 
@@ -228,7 +228,7 @@ async function doEntrySheetValidationRequest(
   entrySheetValidationId: string,
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -237,14 +237,14 @@ async function doEntrySheetValidationRequest(
   });
   await withConsoleErrorHiding(
     () => entrySheetValidationHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 function getQueryValues(
   atlasId: string,
-  entrySheetValidationId: string
+  entrySheetValidationId: string,
 ): Record<string, string> {
   return { atlasId, entrySheetValidationId };
 }

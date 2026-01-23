@@ -21,11 +21,11 @@ export const newSourceStudySchema = object({
         schema
           .required("DOI is required")
           .test("is-doi", "DOI must be a syntactically-valid DOI", (value) =>
-            isDoi(value)
+            isDoi(value),
           ),
     }),
   [FIELD_NAME.PUBLICATION_STATUS]: mixed<PUBLICATION_STATUS>().default(
-    PUBLICATION_STATUS.PUBLISHED_PREPRINT
+    PUBLICATION_STATUS.PUBLISHED_PREPRINT,
   ),
   [FIELD_NAME.REFERENCE_AUTHOR]: string()
     .default("")

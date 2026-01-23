@@ -185,7 +185,7 @@ export interface ValidationResultsOptions {
 }
 
 export function createValidationResults(
-  options: ValidationResultsOptions
+  options: ValidationResultsOptions,
 ): DatasetValidatorResults {
   const {
     batchJobName = "test-batch-job",
@@ -249,7 +249,7 @@ export function createSNSMessage(options: SNSMessageOptions): SNSMessage {
 
 export function validateTestSnsMessage(
   message: SNSMessage,
-  callback: (e: Error | null, m?: SNSMessage) => void
+  callback: (e: Error | null, m?: SNSMessage) => void,
 ): void {
   // Check if this is our test case for invalid signatures
   if (message.Signature === TEST_SIGNATURE_INVALID) {
@@ -308,7 +308,7 @@ export async function createTestAtlasData(): Promise<void> {
         JSON.stringify(atlas.overview),
         JSON.stringify([]), // Empty source studies array
         "draft", // Status field
-      ]
+      ],
     );
   }
 }
@@ -346,7 +346,7 @@ export async function expectDbFileValidationFieldsToMatch(
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo,
   validationInfo: HCAAtlasTrackerDBFileValidationInfo,
   validationReports: DatasetValidatorToolReports | null,
-  validationSummary: FileValidationSummary | null
+  validationSummary: FileValidationSummary | null,
 ): Promise<void> {
   const file = await getFileFromDatabase(fileId);
   if (!expectIsDefined(file)) return;
@@ -363,7 +363,7 @@ export async function expectDbFileValidationFieldsToMatch(
     if (file.validation_reports !== null) {
       expectFileValidationReportsToMatchInput(
         file.validation_reports,
-        validationReports
+        validationReports,
       );
     }
   }
@@ -373,23 +373,23 @@ export async function expectDbFileValidationFieldsToMatch(
 
 function expectFileValidationReportsToMatchInput(
   validationReports: FileValidationReports,
-  inputValidationReports: DatasetValidatorToolReports
+  inputValidationReports: DatasetValidatorToolReports,
 ): void {
   if (expectIsDefined(validationReports.cap)) {
     expectFileValidationReportToMatchInput(
       validationReports.cap,
-      inputValidationReports.cap
+      inputValidationReports.cap,
     );
   }
 }
 
 function expectFileValidationReportToMatchInput(
   validationReport: FileValidationReport,
-  inputValidationReport: DatasetValidatorToolReport
+  inputValidationReport: DatasetValidatorToolReport,
 ): void {
   expect(validationReport.errors).toEqual(inputValidationReport.errors);
   expect(validationReport.finishedAt).toEqual(
-    inputValidationReport.finished_at
+    inputValidationReport.finished_at,
   );
   expect(validationReport.startedAt).toEqual(inputValidationReport.started_at);
   expect(validationReport.valid).toEqual(inputValidationReport.valid);

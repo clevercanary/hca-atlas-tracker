@@ -21,7 +21,7 @@ import { TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -57,7 +57,7 @@ describe("/api/comments", () => {
     expect(
       (
         await doCommentsTest(undefined, NEW_COMMENT_FOO_DATA, false, METHOD.GET)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -65,7 +65,7 @@ describe("/api/comments", () => {
     expect(
       (
         await doCommentsTest(undefined, NEW_COMMENT_FOO_DATA, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -73,7 +73,7 @@ describe("/api/comments", () => {
     expect(
       (
         await doCommentsTest(USER_UNREGISTERED, NEW_COMMENT_FOO_DATA, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -83,9 +83,9 @@ describe("/api/comments", () => {
         await doCommentsTest(
           USER_DISABLED_CONTENT_ADMIN,
           NEW_COMMENT_FOO_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -98,9 +98,9 @@ describe("/api/comments", () => {
             ...NEW_COMMENT_FOO_DATA,
             text: 123,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -113,9 +113,9 @@ describe("/api/comments", () => {
             ...NEW_COMMENT_FOO_DATA,
             text: "",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -126,7 +126,7 @@ describe("/api/comments", () => {
   it("creates and returns comment for user with INTEGRATION_LEAD role", async () => {
     await testSuccessfulCreate(
       NEW_COMMENT_BAZ_DATA,
-      USER_INTEGRATION_LEAD_DRAFT
+      USER_INTEGRATION_LEAD_DRAFT,
     );
   });
 
@@ -141,7 +141,7 @@ describe("/api/comments", () => {
 
 async function testSuccessfulCreate(
   newData: NewCommentThreadData,
-  user: TestUser
+  user: TestUser,
 ): Promise<HCAAtlasTrackerDBComment> {
   const res = await doCommentsTest(user, newData);
   expect(res._getStatusCode()).toEqual(201);
@@ -150,7 +150,7 @@ async function testSuccessfulCreate(
   const threadCommentsFromDb = (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE thread_id=$1",
-      [newComment.threadId]
+      [newComment.threadId],
     )
   ).rows;
   expect(threadCommentsFromDb).toHaveLength(1);
@@ -162,7 +162,7 @@ async function testSuccessfulCreate(
 
 function expectDbCommentToMatch(
   dbComment: HCAAtlasTrackerDBComment,
-  apiComment: HCAAtlasTrackerComment
+  apiComment: HCAAtlasTrackerComment,
 ): void {
   expect(dbComment.created_at.toISOString()).toEqual(apiComment.createdAt);
   expect(dbComment.created_by).toEqual(apiComment.createdBy);
@@ -177,7 +177,7 @@ async function doCommentsTest(
   user: TestUser | undefined,
   newData: Record<string, unknown>,
   hideConsoleError = false,
-  method = METHOD.POST
+  method = METHOD.POST,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: newData,
@@ -186,7 +186,7 @@ async function doCommentsTest(
   });
   await withConsoleErrorHiding(
     () => commentsHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

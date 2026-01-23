@@ -4,7 +4,7 @@ import { Props } from "./types";
 
 export const Chip = forwardRef<HTMLDivElement, Props>(function Chip(
   { viewProps }: Props,
-  ref
+  ref,
 ): JSX.Element {
   return <MChip {...viewProps} ref={ref} />;
 });

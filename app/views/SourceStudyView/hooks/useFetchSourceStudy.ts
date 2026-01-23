@@ -9,7 +9,7 @@ interface UseFetchSourceStudy {
 }
 
 export const useFetchSourceStudy = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchSourceStudy => {
   const { data: sourceStudy } = useFetchData<
     HCAAtlasTrackerSourceStudy | undefined

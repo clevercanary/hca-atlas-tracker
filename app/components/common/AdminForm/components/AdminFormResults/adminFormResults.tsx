@@ -26,7 +26,7 @@ export const AdminFormResults = ({
 
 function applyResultWrapper(
   result: React.ReactNode,
-  wrapResult: ((result: React.ReactNode) => React.ReactNode) | null
+  wrapResult: ((result: React.ReactNode) => React.ReactNode) | null,
 ): React.ReactNode {
   return wrapResult === null ? result : wrapResult(result);
 }

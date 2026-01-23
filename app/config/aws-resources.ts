@@ -28,7 +28,7 @@ export function getAWSResourceConfig(): AWSResourceConfig {
       !Array.isArray(parsed.s3_buckets)
     ) {
       throw new Error(
-        "AWS_RESOURCE_CONFIG must contain 'sns_topics' and 's3_buckets' arrays"
+        "AWS_RESOURCE_CONFIG must contain 'sns_topics' and 's3_buckets' arrays",
       );
     }
 
@@ -36,7 +36,7 @@ export function getAWSResourceConfig(): AWSResourceConfig {
     return cachedConfig;
   } catch (error) {
     throw new Error(
-      `Invalid AWS_RESOURCE_CONFIG JSON format: ${String(error)}`
+      `Invalid AWS_RESOURCE_CONFIG JSON format: ${String(error)}`,
     );
   }
 }

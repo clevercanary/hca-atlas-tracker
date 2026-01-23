@@ -12,7 +12,7 @@ import {
 } from "./utils";
 
 export const GraphValueCell = (
-  cellContext: CellContext<HeatmapEntrySheet, number>
+  cellContext: CellContext<HeatmapEntrySheet, number>,
 ): JSX.Element | null => {
   const [value, numerator, denominator] = getGraphValues(cellContext);
   return (

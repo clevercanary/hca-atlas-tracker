@@ -29,7 +29,7 @@ import {
 
 jest.mock("../app/services/component-atlases");
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -61,7 +61,7 @@ jest.mock("../app/utils/cellxgene-api", () => ({
 
 const getAllProjects = jest.fn(
   async (catalog: string): Promise<ProjectsResponse[]> =>
-    TEST_HCA_CATALOGS[catalog]
+    TEST_HCA_CATALOGS[catalog],
 );
 jest.mock("../app/utils/hca-api", () => ({
   getAllProjects,
@@ -90,13 +90,13 @@ afterAll(() => {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for PATCH request", async () => {
     expect(
-      (await doRefreshTest(undefined, METHOD.PATCH))._getStatusCode()
+      (await doRefreshTest(undefined, METHOD.PATCH))._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 when GET requested by logged out user", async () => {
     expect(
-      (await doRefreshTest(undefined, METHOD.GET, true))._getStatusCode()
+      (await doRefreshTest(undefined, METHOD.GET, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -104,7 +104,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doRefreshTest(USER_UNREGISTERED, METHOD.GET, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -112,7 +112,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doRefreshTest(USER_DISABLED_CONTENT_ADMIN, METHOD.GET)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -126,7 +126,7 @@ describe(TEST_ROUTE, () => {
       undefined,
       undefined,
       false,
-      (res) => expect(res._getStatusCode()).toEqual(403)
+      (res) => expect(res._getStatusCode()).toEqual(403),
     );
   }
 
@@ -135,13 +135,13 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const refreshStatus = res._getJSONData() as RefreshServicesStatuses;
     expect(refreshStatus.cellxgene.currentActivity).toEqual(
-      REFRESH_ACTIVITY.NOT_REFRESHING
+      REFRESH_ACTIVITY.NOT_REFRESHING,
     );
     expect(refreshStatus.cellxgene.errorMessage).toBeNull();
     // With auto-start disabled in tests, there has been no prior refresh yet.
     expect(refreshStatus.cellxgene.previousOutcome).toEqual(REFRESH_OUTCOME.NA);
     expect(refreshStatus.hca.currentActivity).toEqual(
-      REFRESH_ACTIVITY.NOT_REFRESHING
+      REFRESH_ACTIVITY.NOT_REFRESHING,
     );
     expect(refreshStatus.hca.errorMessage).toBeNull();
     expect(refreshStatus.hca.previousOutcome).toEqual(REFRESH_OUTCOME.NA);
@@ -149,7 +149,7 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 401 when POST requested by logged out user", async () => {
     expect(
-      (await doRefreshTest(undefined, METHOD.POST, true))._getStatusCode()
+      (await doRefreshTest(undefined, METHOD.POST, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -157,7 +157,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doRefreshTest(USER_UNREGISTERED, METHOD.POST, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -165,7 +165,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doRefreshTest(USER_DISABLED_CONTENT_ADMIN, METHOD.POST)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -179,7 +179,7 @@ describe(TEST_ROUTE, () => {
       undefined,
       undefined,
       false,
-      (res) => expect(res._getStatusCode()).toEqual(403)
+      (res) => expect(res._getStatusCode()).toEqual(403),
     );
   }
 
@@ -190,7 +190,7 @@ describe(TEST_ROUTE, () => {
     expect(getAllProjects).toHaveBeenCalledTimes(0);
     expect(getCellxGeneCollections).toHaveBeenCalledTimes(0);
     expect(
-      (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode()
+      (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode(),
     ).toEqual(202);
     await delay();
     expect(getAllProjects).toHaveBeenCalledTimes(1);
@@ -199,7 +199,7 @@ describe(TEST_ROUTE, () => {
 
   it("does not start refresh that is already in progress", async () => {
     expect(
-      (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode()
+      (await doRefreshTest(USER_CONTENT_ADMIN, METHOD.POST))._getStatusCode(),
     ).toEqual(202);
     await delay();
     // Projects can refresh again; CELLxGENE remains in-progress (blocked)
@@ -220,7 +220,7 @@ describe(TEST_ROUTE, () => {
 async function doRefreshTest(
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -228,7 +228,7 @@ async function doRefreshTest(
   });
   await withConsoleErrorHiding(
     () => refreshHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

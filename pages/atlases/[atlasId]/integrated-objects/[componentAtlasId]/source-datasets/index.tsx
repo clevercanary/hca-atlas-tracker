@@ -14,7 +14,7 @@ interface IntegratedObjectSourceDatasetsPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, componentAtlasId } =
     context.params as IntegratedObjectSourceDatasetsPageUrlParams;

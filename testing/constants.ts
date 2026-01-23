@@ -362,27 +362,27 @@ export const HCA_ID_PUBLISHED_WITH_CHANGING_IDS =
 export const HCA_PROJECTS_RESPONSE_NORMAL = makeTestProjectsResponse(
   HCA_ID_NORMAL,
   DOI_NORMAL,
-  "A Test"
+  "A Test",
 );
 
 export const HCA_PROJECTS_RESPONSE_NORMAL2 = makeTestProjectsResponse(
   HCA_ID_NORMAL2,
   DOI_NORMAL2,
-  "Foo Bar Baz"
+  "Foo Bar Baz",
 );
 
 export const HCA_PROJECTS_RESPONSE_JOURNAL_COUNTERPART =
   makeTestProjectsResponse(
     HCA_ID_JOURNAL_COUNTERPART,
     DOI_JOURNAL_COUNTERPART,
-    "Journal Counterpart"
+    "Journal Counterpart",
   );
 
 export const HCA_PROJECTS_RESPONSE_PREPRINT_COUNTERPART =
   makeTestProjectsResponse(
     HCA_ID_PREPRINT_COUNTERPART,
     DOI_PREPRINT_COUNTERPART,
-    "Preprint Counterpart"
+    "Preprint Counterpart",
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
@@ -398,7 +398,7 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
       },
       { shortName: "test-with-il", version: "v2.0" },
     ],
-    ["Organoid"]
+    ["Organoid"],
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO =
@@ -413,14 +413,14 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO =
         version: "v6.5",
       },
     ],
-    ["Organoid"]
+    ["Organoid"],
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_MISMATCH =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
     DOI_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
-    "Published With HCA Title Mismatch MISMATCHED"
+    "Published With HCA Title Mismatch MISMATCHED",
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH =
@@ -435,7 +435,7 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH =
         version: "v5.4",
       },
     ],
-    ["Organoid", "Heart"]
+    ["Organoid", "Heart"],
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
@@ -450,35 +450,35 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA =
         version: "v5.4",
       },
     ],
-    ["Organoid"]
+    ["Organoid"],
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UNCHANGING_IDS =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_UNCHANGING_IDS,
     DOI_PUBLISHED_WITH_UNCHANGING_IDS,
-    PUBLICATION_PUBLISHED_WITH_UNCHANGING_IDS.title
+    PUBLICATION_PUBLISHED_WITH_UNCHANGING_IDS.title,
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_NEW_HCA_ID =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_NEW_HCA_ID,
     DOI_PUBLISHED_WITH_NEW_HCA_ID,
-    "Published With New HCA ID"
+    "Published With New HCA ID",
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_UPDATED_HCA_ID =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_UPDATED_HCA_ID_B,
     DOI_PUBLISHED_WITH_UPDATED_HCA_ID,
-    "Published With Updated HCA ID"
+    "Published With Updated HCA ID",
   );
 
 export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_CHANGING_IDS =
   makeTestProjectsResponse(
     HCA_ID_PUBLISHED_WITH_CHANGING_IDS,
     DOI_PUBLISHED_WITH_CHANGING_IDS,
-    "Published With "
+    "Published With ",
   );
 
 export const TEST_HCA_PROJECTS = [
@@ -504,14 +504,14 @@ export const TEST_HCA_PROJECTS_BY_DOI = new Map(
   TEST_HCA_PROJECTS.map((projectsResponse) => [
     projectsResponse.projects[0].publications[0].doi,
     projectsResponse,
-  ])
+  ]),
 );
 
 export const TEST_HCA_PROJECTS_BY_ID = new Map(
   TEST_HCA_PROJECTS.map((projectsResponse) => [
     projectsResponse.projects[0].projectId,
     projectsResponse,
-  ])
+  ]),
 );
 
 export const HCA_PROJECTS_RESPONSES_TEST1: ProjectsResponse[] = [
@@ -686,7 +686,7 @@ export const TEST_CELLXGENE_COLLECTIONS_BY_ID = new Map(
   Array.from(TEST_CELLXGENE_COLLECTIONS_BY_DOI.values(), (c) => [
     c.collection_id,
     { id: c.collection_id, title: c.name },
-  ])
+  ]),
 );
 
 export const TEST_CELLXGENE_COLLECTIONS_A = [TEST_CELLXGENE_COLLECTION_NORMAL];
@@ -2648,79 +2648,79 @@ export const USER_NEW = makeTestUser("test-new");
 export const USER_UNREGISTERED = makeTestUser("test-unregistered");
 export const USER_STAKEHOLDER = makeTestUser(
   "test-stakeholder",
-  ROLE.STAKEHOLDER
+  ROLE.STAKEHOLDER,
 );
 export const USER_STAKEHOLDER2 = makeTestUser(
   "test-stakeholder2",
-  ROLE.STAKEHOLDER
+  ROLE.STAKEHOLDER,
 );
 export const USER_DISABLED = makeTestUser(
   "test-disabled",
   ROLE.STAKEHOLDER,
-  true
+  true,
 );
 export const USER_CONTENT_ADMIN = makeTestUser(
   "test-content-admin",
-  ROLE.CONTENT_ADMIN
+  ROLE.CONTENT_ADMIN,
 );
 export const USER_INTEGRATION_LEAD_DRAFT = makeTestUser(
   "test-integration-lead-draft",
   ROLE.INTEGRATION_LEAD,
   false,
-  [ATLAS_ID_DRAFT]
+  [ATLAS_ID_DRAFT],
 );
 export const USER_INTEGRATION_LEAD_PUBLIC = makeTestUser(
   "test-integration-lead-public",
   ROLE.INTEGRATION_LEAD,
   false,
-  [ATLAS_ID_PUBLIC]
+  [ATLAS_ID_PUBLIC],
 );
 export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES = makeTestUser(
   "test-integration-lead-with-misc-source-studies",
   ROLE.INTEGRATION_LEAD,
   false,
-  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES]
+  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES],
 );
 export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B = makeTestUser(
   "test-integration-lead-with-misc-source-studies-b",
   ROLE.INTEGRATION_LEAD,
   false,
-  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B]
+  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B],
 );
 export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C = makeTestUser(
   "test-integration-lead-with-misc-source-studies-c",
   ROLE.INTEGRATION_LEAD,
   false,
-  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C]
+  [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C],
 );
 export const USER_INTEGRATION_LEAD_WITH_NEW_ATLAS = makeTestUser(
   "test-integration-lead-with-new-atlas",
   ROLE.INTEGRATION_LEAD,
   false,
-  [ATLAS_ID_DRAFT]
+  [ATLAS_ID_DRAFT],
 );
 export const USER_CELLXGENE_ADMIN = makeTestUser(
   "test-cellxgene-admin",
-  ROLE.CELLXGENE_ADMIN
+  ROLE.CELLXGENE_ADMIN,
 );
 export const USER_DISABLED_CONTENT_ADMIN = makeTestUser(
   "test-disabled-content-admin",
   ROLE.CONTENT_ADMIN,
-  true
+  true,
 );
 export const USER_INTEGRATION_LEAD_WITH_ENTRY_SHEET_VALIDATIONS_A =
   makeTestUser(
     "test-integration-lead-with-entry-sheet-validations-a",
     ROLE.INTEGRATION_LEAD,
     false,
-    [ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A]
+    [ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A],
   );
 export const USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
   makeTestUser(
     "test-integration-lead-with-non-shared-entry-sheet-validations",
     ROLE.INTEGRATION_LEAD,
     false,
-    [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS]
+    [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS],
   );
 
 // Users initialized in the database before tests
@@ -3955,7 +3955,7 @@ export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(
     }
     return atlasesByStudy;
   },
-  {} as Record<string, TestAtlas[]>
+  {} as Record<string, TestAtlas[]>,
 );
 
 // STANDALONE FILES
@@ -4584,11 +4584,11 @@ export const TEST_COMMENTS = [...INITIAL_TEST_COMMENTS];
 export const TEST_COMMENTS_BY_THREAD_ID = TEST_COMMENTS.reduce(
   (byThread, comment) => {
     (byThread[comment.threadId] || (byThread[comment.threadId] = [])).push(
-      comment
+      comment,
     );
     return byThread;
   },
-  {} as Record<string, TestComment[]>
+  {} as Record<string, TestComment[]>,
 );
 
 // Google sheets

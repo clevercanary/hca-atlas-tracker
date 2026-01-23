@@ -12,13 +12,13 @@ import { useFetchComponentAtlas } from "./useFetchComponentAtlas";
 const SCHEMA = viewIntegratedObjectSchema;
 
 export const useViewComponentAtlasForm = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): FormMethod<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas> => {
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
   return useForm<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas>(
     SCHEMA,
     componentAtlas,
-    mapSchemaValues
+    mapSchemaValues,
   );
 };
 
@@ -28,7 +28,7 @@ export const useViewComponentAtlasForm = (
  * @returns schema default values.
  */
 function mapSchemaValues(
-  integratedObject?: HCAAtlasTrackerComponentAtlas
+  integratedObject?: HCAAtlasTrackerComponentAtlas,
 ): ViewIntegratedObjectData | undefined {
   if (!integratedObject) return;
   return {

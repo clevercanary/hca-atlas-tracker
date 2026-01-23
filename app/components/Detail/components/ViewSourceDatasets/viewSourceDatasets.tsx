@@ -50,7 +50,7 @@ export const ViewSourceDatasets = ({
  */
 function sortSourceDataset(
   sd0: HCAAtlasTrackerSourceDataset,
-  sd1: HCAAtlasTrackerSourceDataset
+  sd1: HCAAtlasTrackerSourceDataset,
 ): number {
   return COLLATOR_CASE_INSENSITIVE.compare(sd0.title, sd1.title);
 }

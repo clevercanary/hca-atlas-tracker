@@ -33,7 +33,7 @@ export const ComponentAtlasView = ({
   const formMethod = useViewComponentAtlasForm(pathParameter);
   const formManager = useEditIntegratedObjectFormManager(
     pathParameter,
-    formMethod
+    formMethod,
   );
   const {
     access: { canEdit, canView },

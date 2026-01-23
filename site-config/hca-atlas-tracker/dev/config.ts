@@ -8,7 +8,7 @@ const BROWSER_URL =
 const config: SiteConfig = makeConfig(
   BROWSER_URL,
   PORTAL_URL,
-  GIT_HUB_REPO_URL
+  GIT_HUB_REPO_URL,
 );
 
 export default config;

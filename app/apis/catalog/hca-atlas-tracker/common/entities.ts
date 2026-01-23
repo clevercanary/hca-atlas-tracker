@@ -69,8 +69,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   wipNumber: number;
 }
 
-export interface HCAAtlasTrackerDetailComponentAtlas
-  extends HCAAtlasTrackerComponentAtlas {
+export interface HCAAtlasTrackerDetailComponentAtlas extends HCAAtlasTrackerComponentAtlas {
   validationReports: FileValidationReports | null;
 }
 
@@ -94,8 +93,7 @@ interface HCAAtlasTrackerSourceStudyCommon {
   tasks: HCAAtlasTrackerValidationRecordWithoutAtlases[];
 }
 
-export interface HCAAtlasTrackerPublishedSourceStudy
-  extends HCAAtlasTrackerSourceStudyCommon {
+export interface HCAAtlasTrackerPublishedSourceStudy extends HCAAtlasTrackerSourceStudyCommon {
   contactEmail: null;
   doi: string;
   journal: string | null;
@@ -104,8 +102,7 @@ export interface HCAAtlasTrackerPublishedSourceStudy
   title: string | null;
 }
 
-export interface HCAAtlasTrackerUnpublishedSourceStudy
-  extends HCAAtlasTrackerSourceStudyCommon {
+export interface HCAAtlasTrackerUnpublishedSourceStudy extends HCAAtlasTrackerSourceStudyCommon {
   contactEmail: string | null;
   doi: null;
   journal: null;
@@ -144,8 +141,7 @@ export interface HCAAtlasTrackerSourceDataset {
   wipNumber: number;
 }
 
-export interface HCAAtlasTrackerDetailSourceDataset
-  extends HCAAtlasTrackerSourceDataset {
+export interface HCAAtlasTrackerDetailSourceDataset extends HCAAtlasTrackerSourceDataset {
   validationReports: FileValidationReports | null;
 }
 
@@ -165,8 +161,7 @@ export interface HCAAtlasTrackerValidationResult {
   validationType: VALIDATION_TYPE;
 }
 
-export interface HCAAtlasTrackerValidationRecord
-  extends HCAAtlasTrackerValidationResult {
+export interface HCAAtlasTrackerValidationRecord extends HCAAtlasTrackerValidationResult {
   atlasNames: string[];
   atlasShortNames: string[];
   atlasVersions: string[];
@@ -247,8 +242,8 @@ export type ValidationDBEntityOfType<T extends ENTITY_TYPE> =
   T extends ENTITY_TYPE.ATLAS
     ? HCAAtlasTrackerDBAtlas
     : T extends ENTITY_TYPE.SOURCE_STUDY
-    ? HCAAtlasTrackerDBSourceStudyWithAtlasProperties
-    : never;
+      ? HCAAtlasTrackerDBSourceStudyWithAtlasProperties
+      : never;
 
 export interface HCAAtlasTrackerDBAtlas {
   component_atlases: string[];
@@ -473,8 +468,10 @@ export interface HCAAtlasTrackerDBFileValidationInfo {
   snsMessageTime: string;
 }
 
-export interface HCAAtlasTrackerListValidationRecord
-  extends Omit<HCAAtlasTrackerValidationRecord, "targetCompletion" | "doi"> {
+export interface HCAAtlasTrackerListValidationRecord extends Omit<
+  HCAAtlasTrackerValidationRecord,
+  "targetCompletion" | "doi"
+> {
   doi: string;
   targetCompletion: string;
 }
@@ -487,8 +484,7 @@ export interface HCAAtlasTrackerDBValidationUpdateColumns {
   validation_info: HCAAtlasTrackerDBValidationInfo;
 }
 
-export interface HCAAtlasTrackerDBValidation
-  extends HCAAtlasTrackerDBValidationUpdateColumns {
+export interface HCAAtlasTrackerDBValidation extends HCAAtlasTrackerDBValidationUpdateColumns {
   comment_thread_id: string | null;
   created_at: Date;
   id: string;
@@ -510,8 +506,7 @@ export interface HCAAtlasTrackerDBValidationInfo {
   validationType: VALIDATION_TYPE;
 }
 
-export interface HCAAtlasTrackerDBValidationWithAtlasProperties
-  extends HCAAtlasTrackerDBValidation {
+export interface HCAAtlasTrackerDBValidationWithAtlasProperties extends HCAAtlasTrackerDBValidation {
   atlas_names: string[];
   atlas_short_names: string[];
   atlas_versions: string[];

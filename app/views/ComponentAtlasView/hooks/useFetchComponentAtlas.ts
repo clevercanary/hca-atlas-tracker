@@ -13,7 +13,7 @@ interface UseFetchComponentAtlas {
 }
 
 export const useFetchComponentAtlas = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchComponentAtlas => {
   const { fetchDataState } = useFetchDataState();
   const { shouldFetchByKey } = fetchDataState;
@@ -24,7 +24,7 @@ export const useFetchComponentAtlas = (
   >(
     getRequestURL(API.ATLAS_COMPONENT_ATLAS, pathParameter),
     METHOD.GET,
-    shouldFetch
+    shouldFetch,
   );
 
   useResetFetchStatus(progress, [INTEGRATED_OBJECT]);

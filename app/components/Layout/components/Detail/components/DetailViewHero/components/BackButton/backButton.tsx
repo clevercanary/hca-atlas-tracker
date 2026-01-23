@@ -11,7 +11,7 @@ export const BackButton = ({ backPath }: Props): JSX.Element => {
 
   const onNavigate = useCallback(
     () => push(backPath ?? getBackPath(asPath)),
-    [asPath, backPath, push]
+    [asPath, backPath, push],
   );
 
   return (

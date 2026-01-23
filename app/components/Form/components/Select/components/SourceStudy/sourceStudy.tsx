@@ -17,7 +17,7 @@ import {
 export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
   function SourceStudy(
     { className, ...props }: SelectProps,
-    ref
+    ref,
   ): JSX.Element | null {
     const {
       data: { sourceStudies },
@@ -25,11 +25,11 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
     const { fetchDataDispatch } = useFetchDataState();
     const publicationStringById = useMemo(
       () => buildPublicationStringMap(sourceStudies),
-      [sourceStudies]
+      [sourceStudies],
     );
     const publicationStringIds = useMemo(
       () => getPublicationStringOptions(publicationStringById),
-      [publicationStringById]
+      [publicationStringById],
     );
 
     useEffect(() => {
@@ -55,7 +55,7 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
         })}
       </Select>
     );
-  }
+  },
 );
 
 /**
@@ -64,7 +64,7 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
  * @returns select value.
  */
 function renderValue(
-  publicationStringById: Map<string, string>
+  publicationStringById: Map<string, string>,
 ): (value: unknown) => ReactNode {
   return (value: unknown): ReactNode => {
     if (value && typeof value === "string")

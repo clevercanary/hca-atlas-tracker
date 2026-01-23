@@ -12,5 +12,5 @@ export default handler(
   role(ROLE_GROUP.READ),
   async (req, res) => {
     res.json((await getAllAtlases()).map(dbAtlasToApiAtlas));
-  }
+  },
 );

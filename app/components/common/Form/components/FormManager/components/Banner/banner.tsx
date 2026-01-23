@@ -50,7 +50,7 @@ export const Banner = ({
  * @returns true if the banner should be rendered.
  */
 function shouldRenderBanner(
-  formManager: Pick<FormManager, "access" | "formStatus">
+  formManager: Pick<FormManager, "access" | "formStatus">,
 ): boolean {
   const {
     access: { canEdit },

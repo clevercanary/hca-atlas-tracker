@@ -32,7 +32,7 @@ export const AtlasSourceDatasetView = ({
   const formMethod = useEditAtlasSourceDatasetForm(pathParameter);
   const formManager = useEditAtlasSourceDatasetFormManager(
     pathParameter,
-    formMethod
+    formMethod,
   );
   const {
     access: { canEdit, canView },

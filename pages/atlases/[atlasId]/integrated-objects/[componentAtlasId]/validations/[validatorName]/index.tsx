@@ -15,7 +15,7 @@ interface IntegratedObjectValidationPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, componentAtlasId, validatorName } =
     context.params as IntegratedObjectValidationPageUrlParams;

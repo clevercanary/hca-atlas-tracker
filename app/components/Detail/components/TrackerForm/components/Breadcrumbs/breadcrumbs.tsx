@@ -44,7 +44,7 @@ export const Breadcrumbs = ({
           <MTypography key={b} maxWidth={180} noWrap>
             {text}
           </MTypography>
-        )
+        ),
       )}
     </MBreadcrumbs>
   );

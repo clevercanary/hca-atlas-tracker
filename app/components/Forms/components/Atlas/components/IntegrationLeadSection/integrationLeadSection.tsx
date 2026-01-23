@@ -18,7 +18,7 @@ import { ListSection } from "../../../../../Detail/components/TrackerForm/compon
 interface IntegrationLeadSectionProps<
   T extends FieldValues,
   TFieldArrayName extends FieldArrayPath<YupValidatedFormValues<T>>,
-  R = undefined
+  R = undefined,
 > {
   formManager: FormManager;
   formMethod: FormMethod<T, R>;
@@ -32,7 +32,7 @@ interface IntegrationLeadSectionProps<
 export const IntegrationLeadSection = <
   T extends FieldValues,
   TFieldArrayName extends FieldArrayPath<YupValidatedFormValues<T>>,
-  R = undefined
+  R = undefined,
 >({
   formManager,
   formMethod,

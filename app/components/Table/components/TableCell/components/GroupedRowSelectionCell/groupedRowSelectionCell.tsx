@@ -29,11 +29,11 @@ export const GroupedRowSelectionCell = <T extends RowData>({
       setRowSelection?.((currentRowSelectionState) =>
         mergeAndParseRowSelectionState(
           currentRowSelectionState,
-          subRowSelectionState
-        )
+          subRowSelectionState,
+        ),
       );
     },
-    [setRowSelection]
+    [setRowSelection],
   );
 
   return (
@@ -62,7 +62,7 @@ export const GroupedRowSelectionCell = <T extends RowData>({
  */
 function getSubRowSelectionState<T extends RowData>(
   row: Row<T>,
-  checked: boolean
+  checked: boolean,
 ): RowSelectionState {
   return row.subRows.reduce((acc, { getCanSelect, id }) => {
     if (getCanSelect()) {
@@ -80,7 +80,7 @@ function getSubRowSelectionState<T extends RowData>(
  */
 function mergeAndParseRowSelectionState(
   currentRowSelection: RowSelectionState,
-  subRowSelection: RowSelectionState
+  subRowSelection: RowSelectionState,
 ): RowSelectionState {
   return Object.entries({ ...currentRowSelection, ...subRowSelection }).reduce(
     (acc, [key, value]) => {
@@ -89,6 +89,6 @@ function mergeAndParseRowSelectionState(
       }
       return { ...acc, [key]: value };
     },
-    {} as RowSelectionState
+    {} as RowSelectionState,
   );
 }

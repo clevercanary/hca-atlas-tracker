@@ -22,7 +22,7 @@ export type FormResponseErrors =
   | { errors: Record<string, string[]> };
 
 export type MapApiValuesFn<T extends FieldValues> = (
-  formData: YupValidatedFormValues<T>
+  formData: YupValidatedFormValues<T>,
 ) => unknown;
 
 export type MapSchemaValuesFn<T, R> = (apiData?: R) => Partial<T> | undefined;
@@ -30,7 +30,7 @@ export type MapSchemaValuesFn<T, R> = (apiData?: R) => Partial<T> | undefined;
 export type OnDeleteFn = (
   requestURL: string,
   requestMethod: METHOD,
-  options?: OnDeleteOptions
+  options?: OnDeleteOptions,
 ) => Promise<void>;
 
 export interface OnDeleteOptions {
@@ -41,7 +41,7 @@ export type OnSubmitFn<T extends FieldValues, R = undefined> = (
   requestURL: string,
   requestMethod: METHOD,
   payload: YupValidatedFormValues<T>,
-  options?: OnSubmitOptions<T, R>
+  options?: OnSubmitOptions<T, R>,
 ) => Promise<void>;
 
 export interface OnSubmitOptions<T extends FieldValues, R = undefined> {

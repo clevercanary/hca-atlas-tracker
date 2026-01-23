@@ -36,7 +36,7 @@ export const up = (pgm: MigrationBuilder): void => {
         notNull: true,
         type: "integer",
       },
-    }
+    },
   );
 
   pgm.addConstraint({ name: "comments", schema: "hat" }, "pk_comments_id", {
@@ -51,7 +51,7 @@ export const up = (pgm: MigrationBuilder): void => {
         columns: "created_by",
         references: { name: "users", schema: "hat" },
       },
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -62,7 +62,7 @@ export const up = (pgm: MigrationBuilder): void => {
         columns: "updated_by",
         references: { name: "users", schema: "hat" },
       },
-    }
+    },
   );
 
   pgm.createTrigger({ name: "comments", schema: "hat" }, "update_updated_at", {

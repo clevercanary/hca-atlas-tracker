@@ -12,7 +12,7 @@ import { UserEditData } from "../common/entities";
 
 export const useEditUserFormManager = (
   pathParameter: PathParameter,
-  formMethod: FormMethod<UserEditData, HCAAtlasTrackerUser>
+  formMethod: FormMethod<UserEditData, HCAAtlasTrackerUser>,
 ): FormManager => {
   const { onSubmit, reset } = formMethod;
 
@@ -27,7 +27,7 @@ export const useEditUserFormManager = (
         onSuccess: (data) => onSuccess(data.id, url),
       });
     },
-    [onSubmit, pathParameter, reset]
+    [onSubmit, pathParameter, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

@@ -26,7 +26,7 @@ export const RefreshForm = (): JSX.Element => {
     doApiRequest(METHOD.GET, setStatusIsDisabled, setStatusResponseErrors).then(
       async (res) => {
         if (res) setStatuses(await res.json());
-      }
+      },
     );
   }, []);
 
@@ -34,7 +34,7 @@ export const RefreshForm = (): JSX.Element => {
     doApiRequest(
       METHOD.POST,
       setRefreshIsDisabled,
-      setRefreshResponseErrors
+      setRefreshResponseErrors,
     ).then(async (res) => {
       if (res) setRefreshStarted(true);
     });
@@ -47,8 +47,8 @@ export const RefreshForm = (): JSX.Element => {
       {statusResponseErrors
         ? buildResponseErrors(statusResponseErrors)
         : statuses
-        ? buildStatuses(statuses)
-        : ""}
+          ? buildStatuses(statuses)
+          : ""}
       <div style={{ marginBottom: "1em", marginTop: "1em" }}>
         <Button
           color={BUTTON_PROPS.COLOR.PRIMARY}
@@ -141,7 +141,7 @@ function buildResponseErrors(responseErrors: FormResponseErrors): JSX.Element {
 async function doApiRequest(
   method: METHOD,
   setIsDisabled: (d: boolean) => void,
-  setResponseErrors: (e: FormResponseErrors | undefined) => void
+  setResponseErrors: (e: FormResponseErrors | undefined) => void,
 ): Promise<Response | null> {
   try {
     setIsDisabled(true);
@@ -153,7 +153,7 @@ async function doApiRequest(
       setResponseErrors(
         await res.json().catch(() => ({
           message: `Received ${res.status} ${res.statusText} response`,
-        }))
+        })),
       );
       return null;
     }

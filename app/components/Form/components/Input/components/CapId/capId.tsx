@@ -13,7 +13,7 @@ export const CapId = forwardRef<HTMLInputElement, InputProps>(function CapId(
     className,
     ...props /* Spread props to allow for Mui InputProps specific prop overrides and controller related props e.g. "field". */
   }: InputProps,
-  ref
+  ref,
 ): JSX.Element {
   const { label, value } = props;
   return (

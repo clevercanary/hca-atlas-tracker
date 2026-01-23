@@ -21,8 +21,8 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
     .status(200)
     .json(
       dbComponentAtlasFileToDetailApiComponentAtlas(
-        await getComponentAtlas(atlasId, componentAtlasId)
-      )
+        await getComponentAtlas(atlasId, componentAtlasId),
+      ),
     );
 });
 
@@ -37,10 +37,10 @@ const patchHandler = handler(
       .status(200)
       .json(
         dbComponentAtlasFileToDetailApiComponentAtlas(
-          await updateComponentAtlas(atlasId, componentAtlasId, inputData)
-        )
+          await updateComponentAtlas(atlasId, componentAtlasId, inputData),
+        ),
       );
-  }
+  },
 );
 
 export default handleByMethod({

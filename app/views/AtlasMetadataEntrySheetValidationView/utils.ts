@@ -7,7 +7,7 @@ import { HCAAtlasTrackerEntrySheetValidation } from "../../apis/catalog/hca-atla
  * @returns Subtitle.
  */
 export function renderSubTitle(
-  entrySheetValidation?: HCAAtlasTrackerEntrySheetValidation
+  entrySheetValidation?: HCAAtlasTrackerEntrySheetValidation,
 ): string | null {
   if (!entrySheetValidation || !entrySheetValidation.lastUpdated) return null;
   const { lastUpdated: { by, date } = {} } = entrySheetValidation;
@@ -22,7 +22,7 @@ export function renderSubTitle(
  * @returns Title.
  */
 export function renderTitle(
-  entrySheetValidation?: HCAAtlasTrackerEntrySheetValidation
+  entrySheetValidation?: HCAAtlasTrackerEntrySheetValidation,
 ): string {
   if (!entrySheetValidation) return "Metadata Entry Sheet Validation";
   return `Report: ${entrySheetValidation.entrySheetTitle}`;

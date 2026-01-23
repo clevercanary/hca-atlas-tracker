@@ -9,6 +9,6 @@ export function up(pgm: MigrationBuilder): void {
         notNull: true,
         type: "uuid[]",
       },
-    }
+    },
   );
 }

@@ -20,7 +20,7 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
     ComponentAtlasSourceDatasetsEditData,
     HCAAtlasTrackerSourceDataset[]
   >,
-  onClose: () => void
+  onClose: () => void,
 ): FormManager => {
   const { fetchDataDispatch } = useFetchDataState();
   const {
@@ -45,10 +45,10 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
             );
             onClose();
           },
-        }
+        },
       );
     },
-    [defaultValues, fetchDataDispatch, onClose, onSubmit, pathParameter]
+    [defaultValues, fetchDataDispatch, onClose, onSubmit, pathParameter],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });
@@ -62,7 +62,7 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
  */
 function filterDefaultValues(
   payload: ComponentAtlasSourceDatasetsEditData,
-  defaultValues: FormState<ComponentAtlasSourceDatasetsEditData>["defaultValues"]
+  defaultValues: FormState<ComponentAtlasSourceDatasetsEditData>["defaultValues"],
 ): ComponentAtlasSourceDatasetsEditData {
   const sourceDatasetIds = payload[FIELD_NAME.SOURCE_DATASET_IDS];
   const defaultSourceDatasetIds =
@@ -71,7 +71,7 @@ function filterDefaultValues(
   return {
     ...payload,
     sourceDatasetIds: sourceDatasetIds.filter(
-      (sourceDatasetId) => !defaultSourceDatasetIds.includes(sourceDatasetId)
+      (sourceDatasetId) => !defaultSourceDatasetIds.includes(sourceDatasetId),
     ),
   };
 }

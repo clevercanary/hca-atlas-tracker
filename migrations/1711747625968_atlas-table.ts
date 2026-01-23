@@ -22,7 +22,7 @@ export const up = (pgm: MigrationBuilder): void => {
         notNull: true,
         type: "timestamp",
       },
-    }
+    },
   );
 
   pgm.addConstraint({ name: "atlases", schema: "hat" }, "pk_atlases_id", {
@@ -41,7 +41,7 @@ export const up = (pgm: MigrationBuilder): void => {
         NEW.updated_at = CURRENT_TIMESTAMP;
         RETURN NEW;
       END;
-    `
+    `,
   );
 
   pgm.createTrigger({ name: "atlases", schema: "hat" }, "update_updated_at", {

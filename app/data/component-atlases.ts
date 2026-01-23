@@ -11,7 +11,7 @@ import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-track
 export async function createNewComponentAtlasVersion(
   prevVersionId: string,
   fileId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
@@ -23,7 +23,7 @@ export async function createNewComponentAtlasVersion(
       WHERE version_id = $1
       RETURNING version_id
     `,
-    [prevVersionId, fileId]
+    [prevVersionId, fileId],
   );
   return queryResult.rows[0].version_id;
 }
@@ -36,17 +36,17 @@ export async function createNewComponentAtlasVersion(
  */
 export async function markComponentAtlasAsNotLatest(
   componentAtlasId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
   >(
     "UPDATE hat.component_atlases SET is_latest = FALSE WHERE id = $1 AND is_latest RETURNING version_id",
-    [componentAtlasId]
+    [componentAtlasId],
   );
   if (queryResult.rows.length === 0)
     throw new Error(
-      `No latest version found for component atlas ${componentAtlasId}`
+      `No latest version found for component atlas ${componentAtlasId}`,
     );
   return queryResult.rows[0].version_id;
 }

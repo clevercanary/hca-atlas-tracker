@@ -30,7 +30,7 @@ export function getUserId(user: HCAAtlasTrackerUser): string {
 }
 
 export function atlasInputMapper(
-  apiAtlas: HCAAtlasTrackerAtlas
+  apiAtlas: HCAAtlasTrackerAtlas,
 ): HCAAtlasTrackerListAtlas {
   return {
     bioNetwork: apiAtlas.bioNetwork,
@@ -74,7 +74,7 @@ export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
  * @returns Tier 1 metadata status.
  */
 export function getCompositeTierOneMetadataStatus(
-  statuses: TIER_ONE_METADATA_STATUS[]
+  statuses: TIER_ONE_METADATA_STATUS[],
 ): TIER_ONE_METADATA_STATUS {
   let prevStatus: TIER_ONE_METADATA_STATUS | null = null;
   for (const status of statuses) {
@@ -97,7 +97,7 @@ export function getCompositeTierOneMetadataStatus(
  * @returns Source study citation.
  */
 export function getSourceStudyCitation(
-  sourceStudy?: HCAAtlasTrackerSourceStudy
+  sourceStudy?: HCAAtlasTrackerSourceStudy,
 ): string {
   if (!sourceStudy) return "";
   if (sourceStudy.doi === null) {
@@ -110,7 +110,7 @@ export function getSourceStudyCitation(
       doiStatus,
       referenceAuthor,
       publicationDate,
-      journal
+      journal,
     );
   }
 }
@@ -123,7 +123,7 @@ export function getSourceStudyCitation(
  */
 export function getSourceStudyTaskStatus(
   sourceStudy: HCAAtlasTrackerSourceStudy,
-  validationId: VALIDATION_ID
+  validationId: VALIDATION_ID,
 ): TASK_STATUS | undefined {
   return sourceStudy.tasks.find((v) => v.validationId === validationId)
     ?.taskStatus;
@@ -142,7 +142,7 @@ export function getPublicationCitation({
     publication ? DOI_STATUS.OK : DOI_STATUS.DOI_NOT_ON_CROSSREF,
     publication?.authors[0].name ?? null,
     publication?.publicationDate ?? null,
-    publication?.journal ?? null
+    publication?.journal ?? null,
   );
 }
 
@@ -150,7 +150,7 @@ export function getPublishedCitation(
   doiStatus: DOI_STATUS,
   author: string | null,
   date: string | null,
-  journal: string | null
+  journal: string | null,
 ): string {
   if (doiStatus !== DOI_STATUS.OK) return UNPUBLISHED;
   const citation = [];
@@ -169,7 +169,7 @@ export function getPublishedCitation(
 
 export function getUnpublishedCitation(
   author: string,
-  email: string | null
+  email: string | null,
 ): string {
   return email
     ? `${author}, ${email} - Unpublished`
@@ -184,7 +184,7 @@ export function getUnpublishedCitation(
  */
 export function getPublicationDois(
   primaryDoi: string,
-  publication: PublicationInfo | null
+  publication: PublicationInfo | null,
 ): string[] {
   return [
     ...(publication?.preprintOfDoi ? [publication.preprintOfDoi] : []),
@@ -210,7 +210,7 @@ export function isNetworkKey(key: unknown): key is NetworkKey {
  * @returns true if the value is a task.
  */
 export function isTask(
-  value: unknown
+  value: unknown,
 ): value is HCAAtlasTrackerListValidationRecord {
   return (
     !!value &&
@@ -238,7 +238,7 @@ export function isWaveValue(value: unknown): value is Wave {
  * @returns task.
  */
 export function taskInputMapper(
-  apiTask: HCAAtlasTrackerValidationRecord
+  apiTask: HCAAtlasTrackerValidationRecord,
 ): HCAAtlasTrackerListValidationRecord {
   return {
     ...apiTask,

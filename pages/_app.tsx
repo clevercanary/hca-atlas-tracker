@@ -74,7 +74,7 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
                         createTheme(
                           deepmerge(theme, {
                             breakpoints: createBreakpoints(BREAKPOINTS),
-                          })
+                          }),
                         )
                       }
                     >

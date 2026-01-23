@@ -21,12 +21,12 @@ export const ComponentAtlasSourceDatasetsSelection = ({
   pathParameter,
 }: ComponentAtlasSourceDatasetsSelectionProps): JSX.Element => {
   const formMethod = useComponentAtlasSourceDatasetsSelectionForm(
-    componentAtlasSourceDatasets
+    componentAtlasSourceDatasets,
   );
   const formManager = useComponentAtlasSourceDatasetsSelectionFormManager(
     pathParameter,
     formMethod,
-    onClose
+    onClose,
   );
   const { watch } = formMethod;
   const sourceDatasetIds = watch(FIELD_NAME.SOURCE_DATASET_IDS);

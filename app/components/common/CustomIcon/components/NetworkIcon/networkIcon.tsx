@@ -5,8 +5,10 @@ import {
 import { NETWORK_ICONS } from "../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { NetworkKey } from "../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
-export interface NetworkIconProps
-  extends Pick<StaticImageProps, "height" | "width"> {
+export interface NetworkIconProps extends Pick<
+  StaticImageProps,
+  "height" | "width"
+> {
   networkKey: NetworkKey;
 }
 

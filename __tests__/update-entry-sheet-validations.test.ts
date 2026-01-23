@@ -12,7 +12,7 @@ import {
 } from "../testing/db-utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -31,7 +31,7 @@ describe("startEntrySheetValidationsUpdate", () => {
   it("only creates validation records for entry sheets that are present on the corresponding source study", async () => {
     const validationSheetIdsBefore = (
       await getSourceStudyEntrySheetValidationsFromDatabase(
-        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
       )
     ).map((v) => v.entry_sheet_id);
 
@@ -54,7 +54,7 @@ describe("startEntrySheetValidationsUpdate", () => {
 
     const validationSheetIdsAfter = (
       await getSourceStudyEntrySheetValidationsFromDatabase(
-        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
       )
     ).map((v) => v.entry_sheet_id);
 

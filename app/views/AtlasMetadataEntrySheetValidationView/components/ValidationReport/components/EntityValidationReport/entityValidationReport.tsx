@@ -31,7 +31,7 @@ export const EntityValidationReport = ({
   });
   const entityCount = useMemo(
     () => getEntityReportCount(columnValidationReports),
-    [columnValidationReports]
+    [columnValidationReports],
   );
   const { config } = useConfig();
   const { portalURL } = config as SiteConfig;
@@ -76,10 +76,10 @@ export const EntityValidationReport = ({
                               entrySheetId,
                               report.worksheet_id,
                               report.cell,
-                              report.row
+                              report.row,
                             ),
                             ANCHOR_TARGET.BLANK,
-                            REL_ATTRIBUTE.NO_OPENER_NO_REFERRER
+                            REL_ATTRIBUTE.NO_OPENER_NO_REFERRER,
                           );
                         }}
                         variant={BUTTON_PROPS.VARIANT.TEXT}
@@ -105,7 +105,7 @@ export const EntityValidationReport = ({
                   )}
               </Fragment>
             );
-          }
+          },
         )}
       </StyledGrid>
     </StyledFluidPaper>

@@ -35,7 +35,7 @@ const refreshService = makeRefreshService({
   autoStart: process.env.NODE_ENV !== "test",
   async getRefreshParams(
     data?: ProjectsData,
-    prevRefreshParams?: ProjectsRefreshParams
+    prevRefreshParams?: ProjectsRefreshParams,
   ): Promise<ProjectsRefreshParams> {
     if (
       prevRefreshParams &&
@@ -94,7 +94,7 @@ export const areProjectsRefreshing = refreshService.isRefreshing;
  * @returns HCA project ID, or null if none is found.
  */
 export function getProjectIdByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<string | null> {
   return getProjectInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
@@ -105,7 +105,7 @@ export function getProjectIdByDoi(
  * @returns HCA project info, or null if none is found.
  */
 export function getProjectInfoByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<ProjectInfo | null> {
   return refreshService.getData().mapRefresh(({ byDoi }) => {
     for (const doi of dois) {
@@ -122,7 +122,7 @@ export function getProjectInfoByDoi(
  * @returns HCA project info, or null if none is found.
  */
 export function getProjectInfoById(
-  id: string
+  id: string,
 ): RefreshDataResult<ProjectInfo | null> {
   return refreshService
     .getData()
@@ -135,7 +135,7 @@ export function getProjectInfoById(
  * @returns project IDs by DOI for the given catalog.
  */
 async function getRefreshedProjectIdsByDoi(
-  catalog: string
+  catalog: string,
 ): Promise<Pick<ProjectsData, "byDoi" | "byId">> {
   const projectsInfoByDoi = new Map<string, ProjectInfo>();
   const projectsInfoById = new Map<string, ProjectInfo>();

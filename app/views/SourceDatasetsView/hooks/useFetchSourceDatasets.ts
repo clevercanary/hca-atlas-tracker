@@ -11,7 +11,7 @@ interface UseFetchSourceDatasets {
 }
 
 export const useFetchSourceDatasets = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchSourceDatasets => {
   const {
     fetchDataState: { shouldFetch },
@@ -21,7 +21,7 @@ export const useFetchSourceDatasets = (
   >(
     getRequestURL(API.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, pathParameter),
     METHOD.GET,
-    shouldFetch
+    shouldFetch,
   );
   useResetFetchStatus(progress);
   return { sourceDatasets };

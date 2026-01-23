@@ -9,14 +9,14 @@ import { getSourceStudyCitation } from "../../../../../../apis/catalog/hca-atlas
  * @returns Map of source study ID to publication string, with UNSPECIFIED option included.
  */
 export function buildPublicationStringMap(
-  sourceStudies?: HCAAtlasTrackerSourceStudy[]
+  sourceStudies?: HCAAtlasTrackerSourceStudy[],
 ): Map<string, string> {
   const publicationStringById = (sourceStudies || []).reduce(
     (acc, sourceStudy) => {
       acc.set(sourceStudy.id, getSourceStudyCitation(sourceStudy));
       return acc;
     },
-    new Map<string, string>()
+    new Map<string, string>(),
   );
 
   // Append the UNSPECIFIED option to the map.
@@ -31,7 +31,7 @@ export function buildPublicationStringMap(
  * @returns List of [id, publicationString] tuples sorted by publication string.
  */
 export function getPublicationStringOptions(
-  publicationStringById: Map<string, string>
+  publicationStringById: Map<string, string>,
 ): [string, string][] {
   return [...publicationStringById].sort(sortPublication);
 }

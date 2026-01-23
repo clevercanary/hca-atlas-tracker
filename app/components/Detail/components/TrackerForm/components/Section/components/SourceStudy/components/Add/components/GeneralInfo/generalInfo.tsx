@@ -49,7 +49,7 @@ export const GeneralInfo = ({
       setPublicationStatus(value);
       setValue(FIELD_NAME.PUBLICATION_STATUS, value, { shouldDirty: false });
     },
-    [clearErrors, setValue]
+    [clearErrors, setValue],
   );
 
   return (

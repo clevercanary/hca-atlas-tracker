@@ -14,7 +14,7 @@ interface UseAdminAction<T> {
 export function useAdminAction<T = never>(
   apiRoute: string,
   apiMethod: METHOD,
-  getBody?: () => unknown
+  getBody?: () => unknown,
 ): UseAdminAction<T> {
   const [requestCompleted, setRequestCompleted] = useState(false);
   const [data, setData] = useState<T | null>(null);
@@ -35,7 +35,7 @@ export function useAdminAction<T = never>(
           setErrors(
             await res.json().catch(() => ({
               message: `Received ${res.status} ${res.statusText} response`,
-            }))
+            })),
           );
         }
       } catch (e) {

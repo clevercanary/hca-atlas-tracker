@@ -33,7 +33,7 @@ export const SourceDatasetsView = ({
       <ConditionalComponent
         isIn={shouldRenderView(
           canView,
-          Boolean(atlas && sourceStudy && sourceDatasets)
+          Boolean(atlas && sourceStudy && sourceDatasets),
         )}
       >
         <DetailView

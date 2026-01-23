@@ -16,7 +16,7 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
         setIsDisabled(true);
         const res = await fetchResource(
           "/api/users/integration-leads-from-atlases",
-          METHOD.PATCH
+          METHOD.PATCH,
         );
         if (isFetchStatusOk(res.status)) {
           setResponseErrors(undefined);
@@ -25,7 +25,7 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
           setResponseErrors(
             await res.json().catch(() => ({
               message: `Received ${res.status} ${res.statusText} response`,
-            }))
+            })),
           );
         }
       } catch (e) {
@@ -56,8 +56,8 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
           {responseErrors
             ? buildResponseErrors(responseErrors)
             : didUpdate
-            ? "Updated"
-            : ""}
+              ? "Updated"
+              : ""}
         </div>
       ) : (
         ""

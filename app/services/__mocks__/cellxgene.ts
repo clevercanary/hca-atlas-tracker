@@ -10,13 +10,13 @@ export function isCellxGeneRefreshing(): boolean {
 }
 
 export function getCellxGeneIdByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<string | null> {
   return getCellxGeneInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
 
 export function getCellxGeneInfoByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<CollectionInfo | null> {
   for (const doi of dois) {
     const collection = TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(doi);
@@ -30,9 +30,9 @@ export function getCellxGeneInfoByDoi(
 }
 
 export function getCellxGeneCollectionInfoById(
-  collectionId: string
+  collectionId: string,
 ): RefreshDataResult<CollectionInfo | undefined> {
   return RefreshDataResult.ok(
-    TEST_CELLXGENE_COLLECTIONS_BY_ID.get(collectionId)
+    TEST_CELLXGENE_COLLECTIONS_BY_ID.get(collectionId),
   );
 }

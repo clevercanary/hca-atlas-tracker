@@ -30,7 +30,7 @@ export const SetSourceStudy = (props: Props): JSX.Element | null => {
           // Set the selected source dataset IDs.
           formMethod.setValue(
             FIELD_NAME.SOURCE_DATASET_IDS,
-            rows.map((row) => row.id)
+            rows.map((row) => row.id),
           );
         }}
       >

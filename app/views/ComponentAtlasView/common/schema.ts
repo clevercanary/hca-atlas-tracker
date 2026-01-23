@@ -11,7 +11,7 @@ export const componentAtlasDeleteSourceDatasetsSchema = object({
 
 export const viewIntegratedObjectSchema = object({
   [FIELD_NAME.CAP_INGEST_STATUS]: string().oneOf(
-    Object.values(CAP_INGEST_STATUS)
+    Object.values(CAP_INGEST_STATUS),
   ),
   [FIELD_NAME.CAP_URL]: string()
     .default(null)

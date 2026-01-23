@@ -14,14 +14,14 @@ import { userEditSchema } from "../common/schema";
 const SCHEMA = userEditSchema;
 
 export const useEditUserForm = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): FormMethod<UserEditData, HCAAtlasTrackerUser> => {
   const { user } = useFetchUser(pathParameter);
   return useForm<UserEditData, HCAAtlasTrackerUser>(
     SCHEMA,
     user,
     mapSchemaValues,
-    mapApiValues
+    mapApiValues,
   );
 };
 

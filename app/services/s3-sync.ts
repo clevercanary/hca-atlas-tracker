@@ -20,24 +20,24 @@ export async function syncFilesFromS3(): Promise<void> {
   const eventRecords = await getSyntheticEventRecordsForObjects(
     bucket,
     keys,
-    s3
+    s3,
   );
 
   await saveFilesFromEventRecords(eventRecords);
 }
 
 async function saveFilesFromEventRecords(
-  records: S3EventRecord[]
+  records: S3EventRecord[],
 ): Promise<void> {
   for (const record of records) {
     try {
       await saveAndProcessFileRecord(
         record,
-        `SYNTHETIC-${crypto.randomUUID()}`
+        `SYNTHETIC-${crypto.randomUUID()}`,
       );
     } catch (e) {
       console.error(
-        `S3 sync: Encountered error while saving file for s3://${record.s3.bucket.name}/${record.s3.object.key}`
+        `S3 sync: Encountered error while saving file for s3://${record.s3.bucket.name}/${record.s3.object.key}`,
       );
       console.error(e);
     }
@@ -47,23 +47,23 @@ async function saveFilesFromEventRecords(
 async function getSyntheticEventRecordsForObjects(
   bucket: string,
   keys: string[],
-  s3: S3Client
+  s3: S3Client,
 ): Promise<S3EventRecord[]> {
   const records: S3EventRecord[] = [];
   for (let i = 0; i < keys.length; i += HEAD_BATCH_SIZE) {
     console.log(
       `S3 sync: Getting batch ${
         Math.floor(i / HEAD_BATCH_SIZE) + 1
-      } of objects info`
+      } of objects info`,
     );
     const batchKeys = keys.slice(i, i + HEAD_BATCH_SIZE);
     const batchRecords = await Promise.all(
       batchKeys.map(async (key) => {
         const headResult = await s3.send(
-          new HeadObjectCommand({ Bucket: bucket, Key: key })
+          new HeadObjectCommand({ Bucket: bucket, Key: key }),
         );
         return makeSyntheticEventRecordFromHeadResult(headResult, key, bucket);
-      })
+      }),
     );
     for (const record of batchRecords) {
       if (record === null) continue;
@@ -77,11 +77,11 @@ async function getSyntheticEventRecordsForObjects(
 function makeSyntheticEventRecordFromHeadResult(
   result: HeadObjectCommandOutput,
   key: string,
-  bucket: string
+  bucket: string,
 ): S3EventRecord | null {
   if (!result.ETag) {
     console.warn(
-      `S3 sync: No ETag received for s3://${bucket}/${key} -- skipping`
+      `S3 sync: No ETag received for s3://${bucket}/${key} -- skipping`,
     );
     return null;
   }
@@ -103,7 +103,7 @@ function makeSyntheticEventRecordFromHeadResult(
 
 export async function getBucketFileKeys(
   bucket: string,
-  s3: S3Client
+  s3: S3Client,
 ): Promise<string[]> {
   const keys: string[] = [];
   let skippedCount = 0;
@@ -118,7 +118,7 @@ export async function getBucketFileKeys(
       new ListObjectsV2Command({
         Bucket: bucket,
         ContinuationToken: continuationToken,
-      })
+      }),
     );
 
     for (const item of listResult.Contents ?? []) {

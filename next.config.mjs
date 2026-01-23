@@ -39,5 +39,5 @@ export default withPlugins(
       ];
     },
     transpilePackages: [...ESM_PACKAGES],
-  }
+  },
 );

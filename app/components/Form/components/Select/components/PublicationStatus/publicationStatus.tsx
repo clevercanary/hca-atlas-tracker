@@ -9,7 +9,7 @@ import {
 export const PublicationStatus = forwardRef<HTMLInputElement, SelectProps>(
   function PublicationStatus(
     { className, ...props }: SelectProps,
-    ref
+    ref,
   ): JSX.Element | null {
     return (
       <Select
@@ -28,7 +28,7 @@ export const PublicationStatus = forwardRef<HTMLInputElement, SelectProps>(
         })}
       </Select>
     );
-  }
+  },
 );
 
 /**

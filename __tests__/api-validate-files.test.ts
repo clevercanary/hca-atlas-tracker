@@ -24,7 +24,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -91,7 +91,7 @@ for (const testFile of getAllTestFiles()) {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for GET request", async () => {
     expect(
-      (await doValidateFilesRequest(undefined, METHOD.GET))._getStatusCode()
+      (await doValidateFilesRequest(undefined, METHOD.GET))._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -99,7 +99,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doValidateFilesRequest(undefined, METHOD.POST, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -107,7 +107,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doValidateFilesRequest(USER_UNREGISTERED, METHOD.POST, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -115,7 +115,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doValidateFilesRequest(USER_DISABLED_CONTENT_ADMIN, METHOD.POST)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -129,7 +129,7 @@ describe(TEST_ROUTE, () => {
       undefined,
       undefined,
       false,
-      (res) => expect(res._getStatusCode()).toEqual(403)
+      (res) => expect(res._getStatusCode()).toEqual(403),
     );
   }
 
@@ -140,25 +140,25 @@ describe(TEST_ROUTE, () => {
       expect(
         (
           await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(202);
 
       await resolveValidate();
     }, true);
 
     expect(mockSubmitJob).toHaveBeenCalledTimes(
-      expectedValidatedTestFiles.length
+      expectedValidatedTestFiles.length,
     );
 
     for (const testFile of expectedValidatedTestFiles) {
       expect(mockSubmitJob).toHaveBeenCalledWith(
-        expect.objectContaining({ fileId: testFile.id })
+        expect.objectContaining({ fileId: testFile.id }),
       );
     }
 
     for (const testFile of expectedUnvalidatedTestFiles) {
       expect(mockSubmitJob).not.toHaveBeenCalledWith(
-        expect.objectContaining({ fileId: testFile.id })
+        expect.objectContaining({ fileId: testFile.id }),
       );
     }
   });
@@ -174,14 +174,14 @@ describe(TEST_ROUTE, () => {
       expect(
         (
           await doValidateFilesRequest(USER_CONTENT_ADMIN, METHOD.POST)
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(202);
 
       await resolveValidate();
     }, true);
 
     expect(mockSubmitJob).toHaveReturnedTimes(
-      expectedValidatedTestFiles.length - 1
+      expectedValidatedTestFiles.length - 1,
     );
   });
 });
@@ -189,7 +189,7 @@ describe(TEST_ROUTE, () => {
 async function doValidateFilesRequest(
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -197,7 +197,7 @@ async function doValidateFilesRequest(
   });
   await withConsoleErrorHiding(
     () => validateFilesHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

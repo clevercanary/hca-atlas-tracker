@@ -15,7 +15,7 @@ export const BioNetwork = forwardRef<HTMLInputElement, SelectProps>(
       className,
       ...props /* Spread props to allow for Mui SelectProps specific prop overrides and controller related props e.g. "field". */
     }: SelectProps,
-    ref
+    ref,
   ): JSX.Element {
     return (
       <Select
@@ -31,7 +31,7 @@ export const BioNetwork = forwardRef<HTMLInputElement, SelectProps>(
         ))}
       </Select>
     );
-  }
+  },
 );
 
 /**

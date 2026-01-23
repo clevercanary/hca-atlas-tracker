@@ -27,7 +27,7 @@ export const useUserHasEditAuthorization = (): UseUserHasEditAuthorization => {
   const { query, route } = useRouter();
   const canEdit = useMemo(
     () => isUserAuthorizedToEditForms(route, query, user),
-    [query, route, user]
+    [query, route, user],
   );
   return { canEdit };
 };
@@ -42,7 +42,7 @@ export const useUserHasEditAuthorization = (): UseUserHasEditAuthorization => {
 function isUserAuthorizedToEditForms(
   route: string,
   query: ParsedUrlQuery,
-  user?: HCAAtlasTrackerActiveUser
+  user?: HCAAtlasTrackerActiveUser,
 ): boolean {
   if (!user) return false;
   if (isUserContentAdmin(user)) return true;
@@ -60,7 +60,7 @@ function isUserAuthorizedToEditForms(
  */
 function isQueryAccepted(
   query: ParsedUrlQuery,
-  user: HCAAtlasTrackerActiveUser
+  user: HCAAtlasTrackerActiveUser,
 ): boolean {
   for (const queryValue of Object.values(query)) {
     if (!queryValue) continue;

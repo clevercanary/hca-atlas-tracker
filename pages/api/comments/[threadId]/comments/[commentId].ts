@@ -35,9 +35,9 @@ const patchHandler = handler(registeredUser, async (req, res) => {
           commentId,
           await commentEditSchema.validate(req.body),
           user,
-          user.role !== ROLE.CONTENT_ADMIN
-        )
-      )
+          user.role !== ROLE.CONTENT_ADMIN,
+        ),
+      ),
     );
 });
 
@@ -49,7 +49,7 @@ const deleteHandler = handler(registeredUser, async (req, res) => {
     threadId,
     commentId,
     user,
-    user.role !== ROLE.CONTENT_ADMIN
+    user.role !== ROLE.CONTENT_ADMIN,
   );
   res.status(200).end();
 });

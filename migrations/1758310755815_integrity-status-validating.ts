@@ -4,11 +4,11 @@ import { MigrationBuilder } from "node-pg-migrate";
 export function up(pgm: MigrationBuilder): void {
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "ck_files_integrity_status"
+    "ck_files_integrity_status",
   );
 
   pgm.sql(
-    "UPDATE hat.files SET integrity_status = CASE WHEN integrity_status = 'validating' THEN 'requested' ELSE integrity_status END"
+    "UPDATE hat.files SET integrity_status = CASE WHEN integrity_status = 'validating' THEN 'requested' ELSE integrity_status END",
   );
 
   pgm.addConstraint(
@@ -17,7 +17,7 @@ export function up(pgm: MigrationBuilder): void {
     {
       check:
         "integrity_status IN ('pending', 'requested', 'valid', 'invalid', 'error')",
-    }
+    },
   );
 
   pgm.alterColumn({ name: "files", schema: "hat" }, "integrity_status", {
@@ -32,11 +32,11 @@ export function down(pgm: MigrationBuilder): void {
 
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "ck_files_integrity_status"
+    "ck_files_integrity_status",
   );
 
   pgm.sql(
-    "UPDATE hat.files SET integrity_status = CASE WHEN integrity_status = 'requested' THEN 'validating' ELSE integrity_status END"
+    "UPDATE hat.files SET integrity_status = CASE WHEN integrity_status = 'requested' THEN 'validating' ELSE integrity_status END",
   );
 
   pgm.addConstraint(
@@ -45,6 +45,6 @@ export function down(pgm: MigrationBuilder): void {
     {
       check:
         "integrity_status IN ('pending', 'validating', 'valid', 'invalid', 'error')",
-    }
+    },
   );
 }

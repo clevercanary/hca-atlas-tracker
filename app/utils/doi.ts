@@ -13,7 +13,7 @@ export function normalizeDoi(doi: string): string {
   if (urlMatch) {
     const [, nonProtocolPart] = urlMatch;
     doi = decodeURIComponent(
-      new URL("https://" + nonProtocolPart).pathname.replace(/^\//, "")
+      new URL("https://" + nonProtocolPart).pathname.replace(/^\//, ""),
     ).trim();
   }
   return doi.toLowerCase();

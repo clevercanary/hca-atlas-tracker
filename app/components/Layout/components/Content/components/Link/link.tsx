@@ -21,7 +21,7 @@ export const Link = ({
       url={encodeURI(
         replaceParameters(decodeURI(href), {
           portalURL,
-        })
+        }),
       )}
       {...linkProps}
     />

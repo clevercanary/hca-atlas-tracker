@@ -15,7 +15,7 @@ import { TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -50,7 +50,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doDisableRequest(undefined, userStakeholderId, "GET")
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -58,7 +58,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doDisableRequest(undefined, userStakeholderId, "POST", true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -69,9 +69,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           userStakeholderId,
           "POST",
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -79,7 +79,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doDisableRequest(USER_DISABLED_CONTENT_ADMIN, userStakeholderId)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -95,13 +95,13 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
   it("returns error 400 when specified ID is non-numeric", async () => {
     expect(
-      (await doDisableRequest(USER_CONTENT_ADMIN, "test"))._getStatusCode()
+      (await doDisableRequest(USER_CONTENT_ADMIN, "test"))._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -109,7 +109,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doDisableRequest(USER_CONTENT_ADMIN, nonexistentId)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -128,7 +128,7 @@ async function doDisableRequest(
   user: TestUser | undefined,
   targetId: string,
   method: "GET" | "POST" = "POST",
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -137,7 +137,7 @@ async function doDisableRequest(
   });
   await withConsoleErrorHiding(
     () => disableHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

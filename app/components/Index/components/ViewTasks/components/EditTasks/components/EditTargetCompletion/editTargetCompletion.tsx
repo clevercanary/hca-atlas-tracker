@@ -45,7 +45,7 @@ export const EditTargetCompletion = ({
 };
 
 function mapApiValues(
-  data: TaskCompletionDatesData
+  data: TaskCompletionDatesData,
 ): APITaskCompletionDatesData {
   return {
     ...data,

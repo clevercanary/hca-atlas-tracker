@@ -9,10 +9,11 @@ import { useForm } from "../../../../../../../hooks/useForm/useForm";
 
 export const useEditTasksForm = <
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 >(
   schema: ObjectSchema<T>,
-  mapApiValues?: MapApiValuesFn<T>
+  mapApiValues?: MapApiValuesFn<T>,
 ): FormMethod<T, R> => {
   return useForm<T, R>(schema, undefined, undefined, mapApiValues);
 };

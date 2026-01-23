@@ -13,7 +13,7 @@ interface UseFetchAtlasSourceDataset {
 }
 
 export const useFetchAtlasSourceDataset = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchAtlasSourceDataset => {
   const { fetchDataState } = useFetchDataState();
   const { shouldFetchByKey } = fetchDataState;
@@ -24,7 +24,7 @@ export const useFetchAtlasSourceDataset = (
   >(
     getRequestURL(API.ATLAS_SOURCE_DATASET, pathParameter),
     METHOD.GET,
-    shouldFetch
+    shouldFetch,
   );
 
   useResetFetchStatus(progress);

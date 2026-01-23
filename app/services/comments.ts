@@ -20,11 +20,11 @@ import { query } from "./database";
  * @returns comments from the thread, ordered by ascending creation date.
  */
 export async function getThreadComments(
-  threadId: string
+  threadId: string,
 ): Promise<HCAAtlasTrackerDBComment[]> {
   const queryResult = await query<HCAAtlasTrackerDBComment>(
     "SELECT * FROM hat.comments WHERE thread_id=$1 ORDER BY created_at ASC",
-    [threadId]
+    [threadId],
   );
 
   if (queryResult.rows.length === 0)
@@ -41,11 +41,11 @@ export async function getThreadComments(
  */
 export async function getComment(
   threadId: string,
-  commentId: string
+  commentId: string,
 ): Promise<HCAAtlasTrackerDBComment> {
   const queryResult = await query<HCAAtlasTrackerDBComment>(
     "SELECT * FROM hat.comments WHERE id=$1 AND thread_id=$2",
-    [commentId, threadId]
+    [commentId, threadId],
   );
 
   if (queryResult.rows.length === 0)
@@ -64,7 +64,7 @@ export async function getComment(
 export async function createCommentThread(
   inputData: NewCommentThreadData,
   user: HCAAtlasTrackerDBUser,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBComment> {
   const newRowFields: Pick<
     HCAAtlasTrackerDBComment,
@@ -78,7 +78,7 @@ export async function createCommentThread(
   const queryResult = await query<HCAAtlasTrackerDBComment>(
     "INSERT INTO hat.comments (created_by, text, updated_by) VALUES ($1, $2, $3) RETURNING *",
     [newRowFields.created_by, newRowFields.text, newRowFields.updated_by],
-    client
+    client,
   );
 
   return queryResult.rows[0];
@@ -94,12 +94,12 @@ export async function createCommentThread(
 export async function createComment(
   threadId: string,
   inputData: NewCommentData,
-  user: HCAAtlasTrackerDBUser
+  user: HCAAtlasTrackerDBUser,
 ): Promise<HCAAtlasTrackerDBComment> {
   const { exists: threadExists } = (
     await query<{ exists: boolean }>(
       "SELECT EXISTS(SELECT 1 FROM hat.comments WHERE thread_id=$1)",
-      [threadId]
+      [threadId],
     )
   ).rows[0];
 
@@ -123,7 +123,7 @@ export async function createComment(
       newRowFields.text,
       newRowFields.thread_id,
       newRowFields.updated_by,
-    ]
+    ],
   );
 
   return queryResult.rows[0];
@@ -143,13 +143,13 @@ export async function updateComment(
   commentId: string,
   inputData: NewCommentData,
   user: HCAAtlasTrackerDBUser,
-  limitToOwnComments: boolean
+  limitToOwnComments: boolean,
 ): Promise<HCAAtlasTrackerDBComment> {
   if (limitToOwnComments) {
     const existingComment = (
       await query<HCAAtlasTrackerDBComment>(
         "SELECT * FROM hat.comments WHERE id=$2 AND thread_id=$1",
-        [threadId, commentId]
+        [threadId, commentId],
       )
     ).rows[0];
     if (existingComment && existingComment.created_by !== user.id)
@@ -166,7 +166,7 @@ export async function updateComment(
 
   const queryResult = await query<HCAAtlasTrackerDBComment>(
     "UPDATE hat.comments SET text=$1, updated_by=$2 WHERE id=$3 AND thread_id=$4 RETURNING *",
-    [updatedRowFields.text, updatedRowFields.updated_by, commentId, threadId]
+    [updatedRowFields.text, updatedRowFields.updated_by, commentId, threadId],
   );
 
   if (queryResult.rows.length === 0)
@@ -186,13 +186,13 @@ export async function deleteComment(
   threadId: string,
   commentId: string,
   user: HCAAtlasTrackerDBUser,
-  limitToOwnComments: boolean
+  limitToOwnComments: boolean,
 ): Promise<void> {
   const commentResult = await query<
     HCAAtlasTrackerDBComment & { is_root: boolean }
   >(
     "SELECT *, (created_at = (SELECT MIN(created_at) FROM hat.comments WHERE thread_id=$1)) AS is_root FROM hat.comments WHERE id=$2 AND thread_id=$1",
-    [threadId, commentId]
+    [threadId, commentId],
   );
 
   if (commentResult.rows.length === 0)
@@ -217,16 +217,16 @@ export async function deleteComment(
  */
 export async function deleteCommentThread(
   threadId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   await client.query("DELETE FROM hat.comments WHERE thread_id=$1", [threadId]);
 }
 
 function getCommentNotFoundError(
   threadId: string,
-  commentId: string
+  commentId: string,
 ): NotFoundError {
   return new NotFoundError(
-    `Comment with ID ${commentId} doesn't exist on thread with ID ${threadId}`
+    `Comment with ID ${commentId} doesn't exist on thread with ID ${threadId}`,
   );
 }

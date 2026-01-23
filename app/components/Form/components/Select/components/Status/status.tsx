@@ -11,7 +11,7 @@ export const Status = forwardRef<HTMLInputElement, SelectProps>(function Status(
     className,
     ...props /* Spread props to allow for Mui SelectProps specific prop overrides and controller related props e.g. "field". */
   }: SelectProps,
-  ref
+  ref,
 ): JSX.Element {
   return (
     <Select

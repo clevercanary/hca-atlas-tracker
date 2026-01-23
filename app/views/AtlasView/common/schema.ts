@@ -19,7 +19,7 @@ export const atlasEditSchema = newAtlasSchema.concat(
       .notRequired()
       .matches(
         GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
-        'Metadata specification must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
+        'Metadata specification must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."',
       ),
     [FIELD_NAME.STATUS]: string()
       .default("")
@@ -28,5 +28,5 @@ export const atlasEditSchema = newAtlasSchema.concat(
     [FIELD_NAME.TARGET_COMPLETION]: string()
       .matches(TARGET_COMPLETION_REGEXP)
       .default(TARGET_COMPLETION_NULL),
-  })
+  }),
 );

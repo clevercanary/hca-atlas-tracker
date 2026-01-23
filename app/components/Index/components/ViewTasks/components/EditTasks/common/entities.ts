@@ -12,7 +12,8 @@ import { FormActionsProps } from "../../../../../../common/Form/components/FormA
 
 export interface ContentProps<
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 > {
   formMethod: FormMethod<T, R>;
   taskIds: string[];
@@ -20,7 +21,8 @@ export interface ContentProps<
 
 export interface DialogFormValue<
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 > {
   dialog: {
     actions?: ({ className, formManager }: FormActionsProps) => ReactNode;
@@ -39,5 +41,6 @@ export interface DialogFormValue<
 
 export type OnEditFn<
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 > = (formValue: DialogFormValue<T, R>) => void;

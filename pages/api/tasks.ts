@@ -9,5 +9,5 @@ export default handler(
   role(ROLE_GROUP.READ),
   async (req, res) => {
     res.json((await getValidationRecords()).map(dbValidationToApiValidation));
-  }
+  },
 );

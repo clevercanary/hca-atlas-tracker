@@ -17,7 +17,7 @@ interface MetadataEntrySheetValidationPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, entrySheetValidationId } =
     context.params as MetadataEntrySheetValidationPageUrlParams;

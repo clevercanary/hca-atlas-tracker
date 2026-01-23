@@ -14,7 +14,7 @@ interface SourceDatasetPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, sourceDatasetId } =
     context.params as SourceDatasetPageUrlParams;

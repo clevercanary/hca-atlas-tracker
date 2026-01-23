@@ -99,7 +99,7 @@ export const UserForm = ({
                     <MMenuItem key={role} value={role}>
                       {role}
                     </MMenuItem>
-                  )
+                  ),
                 )}
               </Select>
             )}
@@ -129,7 +129,7 @@ export const UserForm = ({
                 <Select
                   {...field}
                   error={Boolean(
-                    errors[FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS]
+                    errors[FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS],
                   )}
                   helperText={
                     errors[FIELD_NAME.ROLE_ASSOCIATED_RESOURCE_IDS]?.message

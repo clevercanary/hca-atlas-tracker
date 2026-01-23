@@ -11,7 +11,7 @@ const slug = ["validating-atlas-source-study-list"];
 export const getStaticProps: GetStaticProps = async () => {
   return getContentStaticProps(
     { params: { slug } },
-    "Validating an Atlas's Source Study List"
+    "Validating an Atlas's Source Study List",
   );
 };
 

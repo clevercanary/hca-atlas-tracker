@@ -12,7 +12,7 @@ interface UserPageUrlParams extends ParsedUrlQuery {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { userId } = context.params as UserPageUrlParams;
   return {
