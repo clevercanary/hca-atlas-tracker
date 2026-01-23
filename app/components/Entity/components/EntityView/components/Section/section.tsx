@@ -1,4 +1,4 @@
-import { ElementType } from "react";
+import { JSX, ElementType } from "react";
 import { Props } from "./entities";
 import { StyledSection } from "./section.styles";
 

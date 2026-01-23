@@ -6,7 +6,7 @@ import {
   Checkbox as MCheckbox,
 } from "@mui/material";
 import { Row, RowData, RowSelectionState, Table } from "@tanstack/react-table";
-import { ChangeEvent, ReactNode, useCallback } from "react";
+import { JSX, ChangeEvent, ReactNode, useCallback } from "react";
 
 export interface GroupedRowSelectionCellProps<T extends RowData> {
   label?: ReactNode;

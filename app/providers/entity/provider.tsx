@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { EntityContext } from "./context";
 import { EntityData, EntityProviderProps } from "./entities";
 

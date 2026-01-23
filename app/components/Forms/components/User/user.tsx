@@ -1,5 +1,5 @@
 import { MenuItem as MMenuItem } from "@mui/material";
-import { Fragment, ReactNode } from "react";
+import { JSX, Fragment, ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { useFetchAtlases } from "../../../..//hooks/useFetchAtlases";
 import {

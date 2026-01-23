@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Row, RowData } from "@tanstack/react-table";
 import { Payload } from "../../../../../../../../../../hooks/UseEditFileArchived/entities";
 import { useFetchDataState } from "../../../../../../../../../../hooks/useFetchDataState";

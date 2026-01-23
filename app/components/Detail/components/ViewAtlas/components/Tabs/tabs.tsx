@@ -1,6 +1,6 @@
 import { TabValue } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
+import { JSX, useCallback } from "react";
 import { HCAAtlasTrackerAtlas } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { getRouteURL } from "../../../../../../common/utils";

@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { getSourceStudyCitation } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";

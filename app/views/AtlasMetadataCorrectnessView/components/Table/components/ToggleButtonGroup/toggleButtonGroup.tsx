@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { useToggleButtonGroup } from "@databiosphere/findable-ui/lib/components/common/ToggleButtonGroup/hooks/UseToggleButtonGroup/hook";
 import { ToggleButton } from "@mui/material";
 import { View } from "../../hooks/useTable/entities";

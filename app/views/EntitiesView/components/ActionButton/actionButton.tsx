@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { Button, ButtonProps } from "@mui/material";
 import { useFormManager } from "../../../../hooks/useFormManager/useFormManager";

@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
 import { API } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { TaskCompletionDatesData as APITaskCompletionDatesData } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";

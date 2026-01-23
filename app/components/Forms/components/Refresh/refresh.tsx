@@ -1,6 +1,6 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { JSX, useCallback, useEffect, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource } from "../../../../common/utils";
 import { FormResponseErrors } from "../../../../hooks/useForm/common/entities";

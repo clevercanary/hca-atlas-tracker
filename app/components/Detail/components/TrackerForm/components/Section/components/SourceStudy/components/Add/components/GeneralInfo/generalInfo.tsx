@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useState } from "react";
+import { JSX, Fragment, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";

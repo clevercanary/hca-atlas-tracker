@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";

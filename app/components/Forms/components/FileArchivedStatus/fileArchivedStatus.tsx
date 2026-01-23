@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { Button } from "@mui/material";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";

@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import {

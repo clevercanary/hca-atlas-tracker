@@ -1,5 +1,5 @@
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, ReactNode } from "react";
+import { JSX, forwardRef, ReactNode } from "react";
 import { PUBLICATION_STATUS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   Select,

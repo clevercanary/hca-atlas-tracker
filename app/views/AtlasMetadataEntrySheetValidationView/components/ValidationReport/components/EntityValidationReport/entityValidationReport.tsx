@@ -7,7 +7,7 @@ import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Button, Divider, Typography } from "@mui/material";
-import { Fragment, useMemo, useState } from "react";
+import { JSX, Fragment, useMemo, useState } from "react";
 import { SiteConfig } from "../../../../../../../site-config/common/entities";
 import { buildSheetsUrl } from "../../../../../../utils/google-sheets";
 import { COLUMN_KEY, MAX_REPORTS_TO_DISPLAY } from "../../constants";

@@ -1,6 +1,6 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
 import { PopupContent } from "./components/PopupContent/popupContent";
 import {

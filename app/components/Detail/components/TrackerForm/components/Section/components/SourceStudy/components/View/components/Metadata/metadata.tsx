@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import { useFieldArray } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";

@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { InProgressIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/InProgressIcon/inProgressIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";

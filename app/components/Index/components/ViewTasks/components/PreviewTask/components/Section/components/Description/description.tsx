@@ -1,7 +1,7 @@
 import { Section } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/Section/section";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import {
   CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES,
   SYSTEM_DISPLAY_NAMES,

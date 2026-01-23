@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";

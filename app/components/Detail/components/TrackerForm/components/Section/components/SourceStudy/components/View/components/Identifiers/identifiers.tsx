@@ -1,5 +1,5 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";

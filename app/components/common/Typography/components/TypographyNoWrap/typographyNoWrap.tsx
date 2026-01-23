@@ -1,5 +1,5 @@
 import { TypographyProps as MTypographyProps, Typography } from "@mui/material";
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 
 export interface TypographyNoWrapProps extends MTypographyProps {
   children: ReactNode;

@@ -4,7 +4,7 @@ import {
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Link, Tooltip, Typography } from "@mui/material";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import slugify from "slugify";
 import { isValueString } from "../../../../../../utils/typeGuards";
 import { StyledAlert, StyledDot } from "./alert.styles";

@@ -1,4 +1,4 @@
-import { ForwardRefExoticComponent, RefAttributes } from "react";
+import { JSX, ForwardRefExoticComponent, RefAttributes } from "react";
 import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 import {
   FormMethod,

@@ -6,7 +6,7 @@ import { Table } from "@databiosphere/findable-ui/lib/components/Detail/componen
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Button } from "@mui/material";
 import Link from "next/link";
-import { useMemo } from "react";
+import { JSX, useMemo } from "react";
 import {
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,

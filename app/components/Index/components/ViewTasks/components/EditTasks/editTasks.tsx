@@ -1,6 +1,6 @@
 import { DropdownMenu } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowSelection/components/DropdownMenu/dropdownMenu";
 import { Row } from "@tanstack/react-table";
-import { Fragment, useCallback, useMemo, useState } from "react";
+import { JSX, Fragment, useCallback, useMemo, useState } from "react";
 import { FieldValues } from "react-hook-form";
 import {
   HCAAtlasTrackerListValidationRecord,

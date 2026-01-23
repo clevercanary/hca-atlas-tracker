@@ -5,7 +5,7 @@ import {
   Checkbox as MCheckbox,
 } from "@mui/material";
 import { Row, RowData } from "@tanstack/react-table";
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 
 export interface RowSelectionCellProps<T extends RowData> {
   label?: ReactNode;

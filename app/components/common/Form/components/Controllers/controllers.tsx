@@ -1,4 +1,4 @@
-import { ElementType, Fragment } from "react";
+import { JSX, ElementType, Fragment } from "react";
 import { FieldValues } from "react-hook-form";
 import { FormMethod } from "../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../hooks/useFormManager/common/entities";

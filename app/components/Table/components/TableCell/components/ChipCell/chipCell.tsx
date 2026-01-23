@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { BaseComponentProps } from "@databiosphere/findable-ui/lib/components/types";
 import { ChipProps } from "@mui/material";
 import { CellContext, RowData } from "@tanstack/react-table";

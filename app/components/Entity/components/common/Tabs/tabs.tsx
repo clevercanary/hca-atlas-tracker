@@ -3,7 +3,7 @@ import {
   TabValue,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
+import { JSX, useCallback } from "react";
 import { getRouteURL } from "../../../../../common/utils";
 import { navigateToRoute } from "../../../../../hooks/useFormManager/common/utils";
 import { Props } from "./entities";

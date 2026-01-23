@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import {
   DialogActions as MDialogActions,

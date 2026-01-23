@@ -1,4 +1,4 @@
-import { ElementType, Fragment } from "react";
+import { JSX, ElementType, Fragment } from "react";
 import { Divider } from "../../../Detail/components/TrackerForm/components/Divider/divider.styles";
 import { Section } from "./components/Section/section";
 import { Props } from "./entities";

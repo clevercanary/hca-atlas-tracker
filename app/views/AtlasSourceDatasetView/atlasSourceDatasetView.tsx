@@ -1,5 +1,5 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../common/entities";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";

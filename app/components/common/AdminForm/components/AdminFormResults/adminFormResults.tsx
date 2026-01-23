@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import React from "react";
 import { FormResponseErrors } from "../../../../../hooks/useForm/common/entities";
 import { AdminFormErrors } from "../AdminFormErrors/adminFormErrors";

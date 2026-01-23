@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import {
   Tab as DXTab,
   TabsProps as DXTabsProps,

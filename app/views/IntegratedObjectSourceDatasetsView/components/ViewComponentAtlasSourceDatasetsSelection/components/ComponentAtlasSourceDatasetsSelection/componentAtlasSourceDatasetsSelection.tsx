@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { DialogBody } from "../../../../../../components/common/Form/components/Dialog/components/DialogBody/dialogBody";

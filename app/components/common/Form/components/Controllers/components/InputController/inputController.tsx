@@ -1,5 +1,5 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { ElementType, Fragment, ReactNode } from "react";
+import { JSX, ElementType, Fragment, ReactNode } from "react";
 import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 import { TypographyNoWrap } from "../../../../../../../components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import {

@@ -1,5 +1,5 @@
 import { StaticImageProps } from "@databiosphere/findable-ui/lib/components/common/StaticImage/staticImage";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import { IconLink } from "../../../../../common/IconLink/iconLink";
 
 export interface AnalysisPortal {

@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { DropdownMenu } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowSelection/components/DropdownMenu/dropdownMenu";
 import { Stack } from "@mui/material";
 import { EditFileArchivedStatus } from "../../../../../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";

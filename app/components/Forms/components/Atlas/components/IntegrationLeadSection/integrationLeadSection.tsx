@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import {
   FieldArrayPath,
   FieldPath,

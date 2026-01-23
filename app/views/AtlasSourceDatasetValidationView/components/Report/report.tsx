@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { ValidationReport } from "../../../../components/Entity/components/EntityView/components/ValidationReport/validationReport";
 import { useEntity } from "../../../../providers/entity/hook";
 import { ROUTE } from "../../../../routes/constants";

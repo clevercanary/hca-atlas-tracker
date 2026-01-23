@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import {
   ANCHOR_TARGET,

@@ -2,7 +2,7 @@ import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/Cust
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { Fragment, useCallback } from "react";
+import { JSX, Fragment, useCallback } from "react";
 import { Controller } from "react-hook-form";
 import {
   DOI_STATUS,
