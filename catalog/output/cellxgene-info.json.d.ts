@@ -1,6 +1,6 @@
 import { TIER_ONE_METADATA_STATUS } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for type declaration
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- keeping type
 interface CellXGeneInfo {
   collections: Record<string, CollectionInfo>;
   datasets: Record<string, DatasetInfo>;
