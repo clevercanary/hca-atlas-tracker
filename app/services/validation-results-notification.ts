@@ -32,7 +32,7 @@ export async function processValidationResultsMessage(
   let parsedMessage: unknown;
   try {
     parsedMessage = JSON.parse(snsMessage.Message);
-  } catch (parseError) {
+  } catch {
     throw new InvalidOperationError(
       `Failed to parse validation results from SNS message ${snsMessage.MessageId}; invalid JSON: ${snsMessage.Message}`,
     );

@@ -37,11 +37,11 @@ const crossrefWorkSchema = object({
             try {
               crossrefOrganizationAuthorSchema.validateSync(value);
               return true;
-            } catch (e) {
+            } catch {
               try {
                 crossrefPersonAuthorSchema.validateSync(value);
                 return true;
-              } catch (e) {
+              } catch {
                 return false;
               }
             }

@@ -104,7 +104,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
           setData(response);
           options?.onSuccess?.(response);
           options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
-        } catch (e) {
+        } catch {
           options?.onSuccess?.(undefined as R);
         }
       } else {

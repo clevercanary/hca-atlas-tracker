@@ -82,7 +82,7 @@ function getMetadataSpreadsheetHelperText(
     let sheetId: string;
     try {
       sheetId = getSpreadsheetIdFromUrl(sheetUrl);
-    } catch (_) {
+    } catch {
       return null;
     }
     for (const sheet of sourceStudy.metadataSpreadsheets) {

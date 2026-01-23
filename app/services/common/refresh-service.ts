@@ -216,7 +216,7 @@ function getErrorMessage(error: unknown): string {
     return String(
       error instanceof Error && "message" in error ? error.message : error,
     );
-  } catch (e) {
+  } catch {
     return "Unknown error";
   }
 }
