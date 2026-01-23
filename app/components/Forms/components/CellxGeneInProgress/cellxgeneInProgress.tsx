@@ -15,7 +15,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
   const [updateResult, setUpdateResult] =
     useState<TaskStatusesUpdatedByDOIResult>();
 
-  const textareaRef = useRef<HTMLTextAreaElement>();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const onSave = useCallback(() => {
     (async (): Promise<void> => {
