@@ -49,7 +49,6 @@ import {
   fillTestFileDefaults,
   fillTestSourceDatasetDefaults,
   getPrimaryFileForTestEntity,
-  getTestEntityFileIds,
   getTestEntityFilesArray,
   getTestFileKey,
   makeTestAtlasOverview,
@@ -144,11 +143,6 @@ export async function initSourceDatasets(
         normDataset.isLatest,
         normDataset.wipNumber,
       ]
-    );
-    const fileIds = getTestEntityFileIds(sourceDataset);
-    await client.query(
-      "UPDATE hat.files SET source_dataset_id = $1 WHERE id = ANY($2)",
-      [sourceDataset.id, fileIds]
     );
   }
 }

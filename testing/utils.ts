@@ -275,12 +275,6 @@ export function getPrimaryFileForTestEntity(
   return testFile;
 }
 
-export function getTestEntityFileIds(
-  testEntity: TestSourceDataset | TestComponentAtlas
-): string[] {
-  return getTestEntityFilesArray(testEntity).map((f) => f.id);
-}
-
 export function getTestEntityFilesArray(
   testEntity: TestSourceDataset | TestComponentAtlas
 ): TestFile[] {
