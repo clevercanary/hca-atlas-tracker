@@ -516,32 +516,6 @@ export async function setFileIntegrityStatus(
 }
 
 /**
- * Set the metadata object referenced by a file.
- * @param fileId - ID of the file to update.
- * @param fileType - File type.
- * @param metadataObjectId - ID of a metadata object of the appropriate type, to set in the correspond field of the file.
- * @param client - Postgres client to use.
- */
-export async function setFileMetadataObjectId(
-  fileId: string,
-  fileType: FILE_TYPE,
-  metadataObjectId: string,
-  client: pg.PoolClient
-): Promise<void> {
-  await confirmFileIsOfType(fileId, fileType, client);
-  if (fileType === FILE_TYPE.SOURCE_DATASET) {
-    await client.query(
-      "UPDATE hat.files SET source_dataset_id = $1 WHERE id = $2",
-      [metadataObjectId, fileId]
-    );
-  } else {
-    throw new InvalidOperationError(
-      `Can't set metadata object ID for ${fileType} file ${fileId}`
-    );
-  }
-}
-
-/**
  * Get an object containing ID and archive status for each of the given files.
  * @param fileIds - IDs of files to get archive status for.
  * @returns archive status per file.

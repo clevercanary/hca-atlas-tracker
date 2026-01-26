@@ -1,6 +1,5 @@
 import pg from "pg";
 import {
-  FILE_TYPE,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
@@ -14,7 +13,6 @@ import { doTransaction, query } from "../services/database";
 import { confirmSourceStudyExists } from "../services/source-studies";
 import { NotFoundError } from "../utils/api-handler";
 import { confirmQueryRowsContainVersionIds } from "../utils/database";
-import { confirmFileIsOfType } from "./files";
 
 const PLURAL_ENTITY_NAME = "source datasets";
 
@@ -227,25 +225,53 @@ export async function setSourceDatasetsSourceStudy(
 }
 
 /**
- * Set the associated file ID referenced by a source dataset and increment its WIP number.
- * @param sourceDatasetId - Source dataset to update.
- * @param fileId - ID to set in the source dataset, referencing its file.
+ * Create a new latest source dataset version based on the given existing version.
+ * @param prevVersionId - ID of the previous version of the source dataset.
+ * @param fileId - ID of the new version's file.
  * @param client - Postgres client to use.
+ * @returns new source dataset version ID.
  */
-export async function updateSourceDatasetVersion(
-  sourceDatasetId: string,
+export async function createNewSourceDatasetVersion(
+  prevVersionId: string,
   fileId: string,
   client: pg.PoolClient
-): Promise<void> {
-  await confirmFileIsOfType(fileId, FILE_TYPE.SOURCE_DATASET, client);
-  const result = await client.query(
-    "UPDATE hat.source_datasets SET file_id = $1, wip_number = wip_number + 1 WHERE id = $2 AND is_latest",
-    [fileId, sourceDatasetId]
+): Promise<string> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
+  >(
+    `
+      INSERT INTO hat.source_datasets (sd_info, reprocessed_status, source_study_id, id, wip_number, file_id)
+      SELECT sd_info, reprocessed_status, source_study_id, id, wip_number + 1, $2
+      FROM hat.source_datasets
+      WHERE version_id = $1
+      RETURNING version_id
+    `,
+    [prevVersionId, fileId]
   );
-  if (result.rowCount === 0)
-    throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} doesn't exist`
+  return queryResult.rows[0].version_id;
+}
+
+/**
+ * Mark the existing latest version of the given source dataset as not latest.
+ * @param sourceDatasetId - ID of the source dataset to update.
+ * @param client - Postgres client to use.
+ * @returns ID of the previously-latest source dataset version.
+ */
+export async function markSourceDatasetAsNotLatest(
+  sourceDatasetId: string,
+  client: pg.PoolClient
+): Promise<string> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
+  >(
+    "UPDATE hat.source_datasets SET is_latest = FALSE WHERE id = $1 AND is_latest RETURNING version_id",
+    [sourceDatasetId]
+  );
+  if (queryResult.rows.length === 0)
+    throw new Error(
+      `No latest version found for source dataset ${sourceDatasetId}`
     );
+  return queryResult.rows[0].version_id;
 }
 
 /**

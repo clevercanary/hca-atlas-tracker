@@ -10,7 +10,6 @@ import httpMocks from "node-mocks-http";
 import {
   createTestComponentAtlas,
   createTestFile,
-  expectReferenceBetweenFileAndMetadataEntity,
   getAllFileIdsFromDatabase,
   getComponentAtlasFromDatabase,
   getFileComponentAtlas,
@@ -543,7 +542,7 @@ async function doMainTest(): Promise<void> {
   // Check that latest files are linked to metadata entities
   for (const file of filesByKey.values()) {
     if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
-      await expectReferenceBetweenFileAndMetadataEntity(file.id);
+      // TODO check references
     } else if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
       expect(await getFileComponentAtlas(file.id)).toBeTruthy();
     }

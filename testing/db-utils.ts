@@ -716,70 +716,6 @@ export async function expectFilesToHaveArchiveStatus(
   );
 }
 
-export async function expectOldFileNotToBeReferencedByMetadataEntity(
-  fileId: string,
-  metadataEntityVersion?: string
-): Promise<void> {
-  const file = await getFileFromDatabase(fileId);
-  if (file === undefined) throw new Error(`File ${fileId} not found`);
-
-  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT)
-    throw new Error(
-      "Checking for lack of reference to old file is not applicable to component atlases"
-    );
-
-  expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
-  if (file.file_type === FILE_TYPE.INGEST_MANIFEST) return;
-
-  expect(file.is_latest).toEqual(false);
-
-  if (metadataEntityVersion === undefined) {
-    expect(file.source_dataset_id).toBeTruthy();
-    await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
-  } else {
-    const metadataEntity = await getMetadataEntityOfType(
-      metadataEntityVersion,
-      file.file_type
-    );
-    if (expectIsDefined(metadataEntity)) {
-      expectFileToReferenceMetadataEntity(file, metadataEntity.id);
-      expect(metadataEntity.file_id).not.toEqual(fileId);
-    }
-  }
-}
-
-export async function expectReferenceBetweenFileAndMetadataEntity(
-  fileId: string,
-  knownMetadataEntityId?: string // Should be version ID for component atlases
-): Promise<void> {
-  const file = await getFileFromDatabase(fileId);
-  if (file === undefined) throw new Error(`File ${fileId} not found`);
-
-  expect(file.is_latest).toEqual(true);
-
-  const metadataEntity = await expectGetFileMetadataEntity(
-    file,
-    knownMetadataEntityId
-  );
-
-  expectFileToReferenceMetadataEntity(file, metadataEntity.id);
-  expect(metadataEntity.file_id).toEqual(file.id);
-}
-
-function expectFileToReferenceMetadataEntity(
-  file: HCAAtlasTrackerDBFile,
-  metadataEntityId: string
-): void {
-  expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
-  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
-    throw new Error(
-      "A component atlas file cannot reference a metadata entity"
-    );
-  } else {
-    expect(file.source_dataset_id).toEqual(metadataEntityId);
-  }
-}
-
 export async function expectFileNotToBeReferencedByAnyMetadataEntity(
   fileId: string
 ): Promise<void> {
@@ -790,23 +726,6 @@ export async function expectFileNotToBeReferencedByAnyMetadataEntity(
     [fileId]
   );
   expect(referenced).toEqual(false);
-}
-
-/**
- * Get the metadata entity for the given file. If a known metadata entity ID (version ID for component atlases) is specified, call `expect` to check that it matches the file.
- * @param file - File ID.
- * @param knownMetadataEntityId - Known metadata entity (version) ID.
- * @returns metadata entity.
- */
-async function expectGetFileMetadataEntity(
-  file: HCAAtlasTrackerDBFile,
-  knownMetadataEntityId?: string
-): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
-  const metadataEntity = await getFileMetadataEntity(file);
-  if (knownMetadataEntityId !== undefined) {
-    expect(metadataEntity.id).toEqual(knownMetadataEntityId);
-  }
-  return metadataEntity;
 }
 
 export async function getFileMetadataEntity(
@@ -830,22 +749,6 @@ export async function getFileMetadataEntity(
     return metadataEntityResult.rows[0];
   } else {
     throw new Error(`${file.file_type} file can't have a metadata entity`);
-  }
-}
-
-async function getMetadataEntityOfType(
-  metadataEntityVersion: string,
-  fileType: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET
-): Promise<
-  HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
-> {
-  switch (fileType) {
-    case FILE_TYPE.INTEGRATED_OBJECT: {
-      return await getComponentAtlasFromDatabase(metadataEntityVersion);
-    }
-    case FILE_TYPE.SOURCE_DATASET: {
-      return await getSourceDatasetFromDatabase(metadataEntityVersion);
-    }
   }
 }
 

@@ -312,7 +312,6 @@ async function generateAndAddVersionsForFile(
         file.bucket,
         file.version_id !== null,
         file.file_type,
-        file.source_dataset_id,
         file.key
       )
     ).id;
@@ -384,7 +383,6 @@ async function generateAndAddFile(
     bucketName,
     versioned,
     fileType,
-    null,
     key
   );
 }
@@ -394,7 +392,6 @@ async function generateAndAddFileVersion(
   bucketName: string,
   versioned: boolean,
   fileType: FILE_TYPE,
-  sourceDatasetId: string | null,
   key: string
 ): Promise<HCAAtlasTrackerDBFile> {
   const versionId = versioned
@@ -409,8 +406,8 @@ async function generateAndAddFileVersion(
 
   const insertResult = await client.query<HCAAtlasTrackerDBFile>(
     `
-      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, sns_message_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12)
+      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11)
       RETURNING *
     `,
     [
@@ -424,7 +421,6 @@ async function generateAndAddFileVersion(
       INTEGRITY_STATUS.PENDING,
       FILE_VALIDATION_STATUS.PENDING,
       fileType,
-      sourceDatasetId,
       snsMessageId,
     ]
   );

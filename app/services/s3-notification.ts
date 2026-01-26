@@ -12,7 +12,6 @@ import {
   FILE_VALIDATION_STATUS,
   FileEventInfo,
   HCAAtlasTrackerDBFile,
-  HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
   NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -21,10 +20,14 @@ import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
-import { updateComponentAtlasVersionInAtlases } from "../data/atlases";
+import {
+  updateComponentAtlasVersionInAtlases,
+  updateSourceDatasetVersionInAtlases,
+} from "../data/atlases";
 import {
   createNewComponentAtlasVersion,
   markComponentAtlasAsNotLatest,
+  updateSourceDatasetVersionInComponentAtlases,
 } from "../data/component-atlases";
 import {
   FileUpsertResult,
@@ -32,11 +35,13 @@ import {
   getExistingMetadataObjectId,
   getLatestNotificationInfo,
   markPreviousVersionsAsNotLatest,
-  setFileMetadataObjectId,
   upsertFileRecord,
 } from "../data/files";
-import { updateSourceDatasetVersion } from "../data/source-datasets";
-import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import {
+  createNewSourceDatasetVersion,
+  markSourceDatasetAsNotLatest,
+} from "../data/source-datasets";
+import { InvalidOperationError } from "../utils/api-handler";
 import { normalizeAtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
@@ -219,26 +224,21 @@ type FileCreationHandler = (
   atlasId: string,
   fileId: string,
   transaction: PoolClient
-) => Promise<string>;
+) => Promise<void>;
 
 async function createIntegratedObject(
   atlasId: string,
   fileId: string,
   transaction: PoolClient
-): Promise<string> {
-  const componentAtlas = await createComponentAtlas(
-    atlasId,
-    fileId,
-    transaction
-  );
-  return componentAtlas.id;
+): Promise<void> {
+  await createComponentAtlas(atlasId, fileId, transaction);
 }
 
 async function createSourceDatasetFromS3(
   atlasId: string,
   fileId: string,
   transaction: PoolClient
-): Promise<string> {
+): Promise<void> {
   // Create source dataset using canonical service within the existing transaction
   const sourceDatasetVersion = await createSourceDataset(fileId, transaction);
 
@@ -258,18 +258,6 @@ async function createSourceDatasetFromS3(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
     [atlasId, sourceDatasetVersion]
   );
-
-  const idResult = await transaction.query<
-    Pick<HCAAtlasTrackerDBSourceDataset, "id">
-  >("SELECT id FROM hat.source_datasets WHERE version_id = $1", [
-    sourceDatasetVersion,
-  ]);
-  if (idResult.rows.length === 0)
-    throw new NotFoundError(
-      `New source dataset version ${sourceDatasetVersion} is unexpectedly missing`
-    );
-
-  return idResult.rows[0].id;
 }
 
 // File update handler functions
@@ -305,7 +293,25 @@ async function updateSourceDatasetFromS3(
   sourceDatasetId: string,
   transaction: PoolClient
 ): Promise<void> {
-  await updateSourceDatasetVersion(sourceDatasetId, fileId, transaction);
+  const prevLatestVersion = await markSourceDatasetAsNotLatest(
+    sourceDatasetId,
+    transaction
+  );
+  const newVersion = await createNewSourceDatasetVersion(
+    prevLatestVersion,
+    fileId,
+    transaction
+  );
+  await updateSourceDatasetVersionInAtlases(
+    prevLatestVersion,
+    newVersion,
+    transaction
+  );
+  await updateSourceDatasetVersionInComponentAtlases(
+    prevLatestVersion,
+    newVersion,
+    transaction
+  );
 }
 
 // Dispatch maps
@@ -375,7 +381,7 @@ async function handleInsertedFile(
     const handler = FILE_CREATION_HANDLERS[fileType];
 
     if (handler) {
-      metadataObjectId = await handler(atlasId, result.id, transaction);
+      await handler(atlasId, result.id, transaction);
     }
   } else {
     const handler = FILE_UPDATE_HANDLERS[fileType];
@@ -387,16 +393,6 @@ async function handleInsertedFile(
         );
       await handler(result.id, metadataObjectId, transaction);
     }
-  }
-
-  // Set metadata object ID in file record if necessary
-  if (metadataObjectId !== null && fileType === FILE_TYPE.SOURCE_DATASET) {
-    await setFileMetadataObjectId(
-      result.id,
-      fileType,
-      metadataObjectId,
-      transaction
-    );
   }
 }
 
