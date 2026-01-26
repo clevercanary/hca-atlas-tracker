@@ -44,11 +44,12 @@ import {
   countComponentAtlases,
   countSourceDatasets,
   expectFileNotToBeReferencedByAnyMetadataEntity,
+  expectSourceDatasetFileToBeConsistentWith,
   getAtlasFromDatabase,
   getComponentAtlasAtlas,
   getComponentAtlasFromDatabase,
   getFileComponentAtlas,
-  getFileMetadataEntity,
+  getFileSourceDataset,
   resetDatabase,
 } from "../testing/db-utils";
 import { expectIsDefined, withConsoleMessageHiding } from "../testing/utils";
@@ -85,7 +86,7 @@ const TEST_ROUTE = "/api/sns";
 import snsHandler from "../pages/api/sns";
 
 beforeEach(async () => {
-  await resetDatabase();
+  await resetDatabase(false);
   await createTestAtlasData();
 });
 
@@ -177,7 +178,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.sha256_client).toBeNull(); // Should be NULL since no SHA256 provided
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
 
-    // TODO check references
+    // Check fields and relationships
+    await expectSourceDatasetFileToBeConsistentWith(file.id, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      wipNumber: 1,
+    });
   });
 
   it("does not clear sd_info on source_dataset update, and preserves is_latest", async () => {
@@ -217,15 +223,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
     );
     expect(firstFileResult.rows).toHaveLength(1);
-    const firstFile = firstFileResult.rows[0];
-    expect(firstFile.is_latest).toBe(true);
-
-    // Capture the created source dataset id before update
-    const { version_id: sourceDatasetVersion } = await getFileMetadataEntity(
-      firstFile
-    );
-
-    // TODO check references
+    const firstFileId = firstFileResult.rows[0].id;
 
     // Update sd_info and get its value before updating the file
     const sdInfoUpdateFields: Partial<HCAAtlasTrackerDBSourceDatasetInfo> = {
@@ -235,11 +233,19 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const sdInfoResult = await query<
       Pick<HCAAtlasTrackerDBSourceDataset, "sd_info">
     >(
-      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE version_id = $2 RETURNING sd_info",
-      [JSON.stringify(sdInfoUpdateFields), sourceDatasetVersion]
+      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE file_id = $2 RETURNING sd_info",
+      [JSON.stringify(sdInfoUpdateFields), firstFileId]
     );
     const sdInfoBefore = sdInfoResult.rows[0].sd_info;
     expect(sdInfoBefore).toMatchObject(sdInfoUpdateFields);
+
+    // Check fields and relationships before update
+    const { sourceDataset: firstSourceDataset } =
+      await expectSourceDatasetFileToBeConsistentWith(firstFileId, {
+        atlas: TEST_GUT_ATLAS_ID,
+        isLatest: true,
+        wipNumber: 1,
+      });
 
     // Second upload (update) with newer eventTime
     const secondEvent = createS3Event({
@@ -274,7 +280,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify sd_info remains the same on the linked source dataset
     const sdAfter = await query(
       "SELECT sd_info FROM hat.source_datasets WHERE version_id = $1",
-      [sourceDatasetVersion]
+      [firstSourceDataset.version_id]
     );
     expect(sdAfter.rows).toHaveLength(1);
     expect(sdAfter.rows[0].sd_info).toEqual(sdInfoBefore);
@@ -288,7 +294,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(versions.rows[0].is_latest).toBe(false); // older
     expect(versions.rows[1].is_latest).toBe(true); // newer
 
-    // TODO check references
+    // Check fields and relationships for new entities
+    await expectSourceDatasetFileToBeConsistentWith(versions.rows[1].id, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      oldDataset: firstSourceDataset,
+      wipNumber: 2,
+    });
   });
 
   it("does not modify existing component atlas on integrated_object update, and preserves is_latest", async () => {
@@ -475,20 +487,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.file_type).toBe(FILE_TYPE.SOURCE_DATASET); // New field - should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
-    // Verify source dataset was created and linked to atlas
-    const { version_id: sourceDatasetVersion } = await getFileMetadataEntity(
-      file
-    );
-
-    // Verify atlas has the source dataset in its source_datasets array
-    const atlasRows = await query(
-      "SELECT source_datasets FROM hat.atlases WHERE id = $1",
-      [TEST_GUT_ATLAS_ID]
-    );
-    expect(atlasRows.rows).toHaveLength(1);
-    expect(atlasRows.rows[0].source_datasets).toContain(sourceDatasetVersion);
-
-    // TODO check references
+    // Check fields and relationships
+    await expectSourceDatasetFileToBeConsistentWith(file.id, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      wipNumber: 1,
+    });
   });
 
   it("successfully processes valid SNS notification for integrated object with S3 ObjectCreated event", async () => {
@@ -645,6 +649,21 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     });
     expect(res1.statusCode).toBe(200);
 
+    // Get file ID and check fields and relationships
+    const fileRowsBefore = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE]
+    );
+    expect(fileRowsBefore.rows).toHaveLength(1);
+    const fileId = fileRowsBefore.rows[0].id;
+    const {
+      sourceDataset: { version_id: sourceDatasetVersion },
+    } = await expectSourceDatasetFileToBeConsistentWith(fileId, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      wipNumber: 1,
+    });
+
     const { req: req2, res: res2 } = httpMocks.createMocks<
       NextApiRequest,
       NextApiResponse
@@ -670,8 +689,15 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
     expect(file.is_latest).toEqual(true);
+    expect(file.id).toEqual(fileId);
 
-    // TODO check references
+    // Check fields and relationships -- should be the same as before
+    await expectSourceDatasetFileToBeConsistentWith(fileId, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      sourceDataset: sourceDatasetVersion,
+      wipNumber: 1,
+    });
   });
 
   it("rejects replay with same SNS MessageId but altered ETag", async () => {
@@ -704,6 +730,21 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
+
+    // Get file ID and check fields and relationships
+    const fileRowsBefore = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG]
+    );
+    expect(fileRowsBefore.rows).toHaveLength(1);
+    const fileId = fileRowsBefore.rows[0].id;
+    const {
+      sourceDataset: { version_id: sourceDatasetVersion },
+    } = await expectSourceDatasetFileToBeConsistentWith(fileId, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      wipNumber: 1,
+    });
 
     // Replay with the SAME MessageId but tampered ETag should be rejected
     const s3Event2 = createS3Event({
@@ -752,8 +793,15 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows[0].etag).toBe(
       "original-replay-etag-11111111111111111111111111111111"
     );
+    expect(fileRows.rows[0].id).toEqual(fileId);
 
-    // TODO check references
+    // Check fields and relationships -- should be the same as before
+    await expectSourceDatasetFileToBeConsistentWith(fileId, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      sourceDataset: sourceDatasetVersion,
+      wipNumber: 1,
+    });
   });
 
   it("rejects notifications with ETag mismatches for existing files", async () => {
@@ -785,6 +833,21 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       await snsHandler(req1, res1);
     });
     expect(res1.statusCode).toBe(200);
+
+    // Get file ID and check fields and relationships
+    const fileRowsBefore = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG]
+    );
+    expect(fileRowsBefore.rows).toHaveLength(1);
+    const fileId = fileRowsBefore.rows[0].id;
+    const {
+      sourceDataset: { version_id: sourceDatasetVersion },
+    } = await expectSourceDatasetFileToBeConsistentWith(fileId, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      wipNumber: 1,
+    });
 
     // Second notification with different ETag - should be rejected
     const s3EventWithDifferentETag = createS3Event({
@@ -829,8 +892,15 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     expect(fileRows.rows).toHaveLength(1);
     expect(fileRows.rows[0].etag).toBe("original-etag-12345");
+    expect(fileRows.rows[0].id).toEqual(fileId);
 
-    // TODO check references
+    // Check fields and relationships -- should be the same as before
+    await expectSourceDatasetFileToBeConsistentWith(fileId, {
+      atlas: TEST_GUT_ATLAS_ID,
+      isLatest: true,
+      sourceDataset: sourceDatasetVersion,
+      wipNumber: 1,
+    });
   });
 
   it.each([
@@ -1434,7 +1504,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       );
 
       if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
-        // TODO check references
+        expect(await getFileSourceDataset(file.id)).toBeTruthy();
       } else if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
         expect(await getFileComponentAtlas(file.id)).toBeTruthy();
       }
