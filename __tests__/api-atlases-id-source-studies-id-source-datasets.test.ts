@@ -16,7 +16,8 @@ import {
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -167,10 +168,10 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_WITH_MULTIPLE_FILES,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
     ]);
     const datasetWithMultipleFiles = sourceDatasets.find(
-      (d) => d.id === SOURCE_DATASET_WITH_MULTIPLE_FILES.id
+      (d) => d.id === SOURCE_DATASET_ID_WITH_MULTIPLE_FILES
     );
     if (!expectIsDefined(datasetWithMultipleFiles)) return;
     expect(datasetWithMultipleFiles.sizeBytes).toEqual(

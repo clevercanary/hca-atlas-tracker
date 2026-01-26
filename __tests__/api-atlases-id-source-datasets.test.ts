@@ -26,8 +26,8 @@ import {
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
-  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -190,7 +190,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_WITH_MULTIPLE_FILES,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
     ]);
     const sourceDataset = sourceDatasets[0];
     if (!expectIsDefined(sourceDataset)) return;
@@ -210,7 +210,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_WITH_MULTIPLE_FILES,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
     ]);
   });
 
@@ -225,7 +225,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_WITH_ARCHIVED_LATEST,
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
       SOURCE_DATASET_ARCHIVED_FOO,
       SOURCE_DATASET_ARCHIVED_BAR,
       SOURCE_DATASET_ARCHIVED_BAZ,

@@ -19,8 +19,10 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
-  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_ID_WITH_ARCHIVED_LATEST,
+  SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -249,7 +251,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
   it("returns data from latest of multiple file versions", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
+      SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
       USER_CONTENT_ADMIN,
       METHOD.GET
     );
@@ -258,7 +260,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
     expectDetailApiSourceDatasetToMatchTest(
       sourceDataset,
-      SOURCE_DATASET_WITH_MULTIPLE_FILES
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3
     );
     expect(sourceDataset.sizeBytes).toEqual(
       Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
@@ -268,7 +270,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
   it("returns archived source dataset", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
+      SOURCE_DATASET_ID_WITH_ARCHIVED_LATEST,
       USER_CONTENT_ADMIN,
       METHOD.GET
     );
@@ -277,7 +279,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
     expectDetailApiSourceDatasetToMatchTest(
       sourceDataset,
-      SOURCE_DATASET_WITH_ARCHIVED_LATEST
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2
     );
   });
 });
@@ -405,7 +407,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       (
         await doSourceDatasetRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
+          SOURCE_DATASET_ID_WITH_ARCHIVED_LATEST,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
           true,
@@ -413,7 +415,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
         )
       )._getStatusCode()
     ).toEqual(404);
-    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_WITH_ARCHIVED_LATEST);
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2
+    );
   });
 
   it("returns error 400 when PATCH requested with non-google-sheets metadata url", async () => {

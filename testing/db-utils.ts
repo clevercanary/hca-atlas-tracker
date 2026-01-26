@@ -48,8 +48,6 @@ import {
   expectIsDefined,
   fillTestFileDefaults,
   fillTestSourceDatasetDefaults,
-  getPrimaryFileForTestEntity,
-  getTestEntityFilesArray,
   getTestFileKey,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
@@ -130,7 +128,6 @@ export async function initSourceDatasets(
   for (const sourceDataset of testSourceDatasets) {
     const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
     const info = makeTestSourceDatasetInfo(normDataset);
-    const latestFile = getPrimaryFileForTestEntity(sourceDataset);
     await client.query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
       [
@@ -138,7 +135,7 @@ export async function initSourceDatasets(
         info,
         normDataset.id,
         normDataset.reprocessedStatus,
-        latestFile.id,
+        sourceDataset.file.id,
         normDataset.versionId,
         normDataset.isLatest,
         normDataset.wipNumber,
@@ -194,9 +191,7 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
     await initTestFile(client, componentAtlas.file, createdFiles);
   }
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
-    for (const file of getTestEntityFilesArray(sourceDataset)) {
-      await initTestFile(client, file, createdFiles);
-    }
+    await initTestFile(client, sourceDataset.file, createdFiles);
   }
   for (const file of INITIAL_STANDALONE_TEST_FILES) {
     await initTestFile(client, file, createdFiles);

@@ -89,7 +89,7 @@ export interface TestUnpublishedSourceStudy {
 
 export interface TestSourceDataset {
   capUrl?: string | null;
-  file: TestFile | TestFile[];
+  file: TestFile;
   id: string;
   isLatest?: boolean;
   metadataSpreadsheetTitle?: string | null;
@@ -101,9 +101,7 @@ export interface TestSourceDataset {
   wipNumber?: number;
 }
 
-export type NormalizedTestSourceDataset = Required<TestSourceDataset> & {
-  file: TestFile[];
-};
+export type NormalizedTestSourceDataset = Required<TestSourceDataset>;
 
 export interface TestFile {
   atlas: TestAtlas | (() => TestAtlas);
