@@ -11,7 +11,7 @@ import {
 import { confirmAtlasExists } from "../services/atlases";
 import { doTransaction, query } from "../services/database";
 import { confirmSourceStudyExists } from "../services/source-studies";
-import { NotFoundError } from "../utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { confirmQueryRowsContainVersionIds } from "../utils/database";
 
 const PLURAL_ENTITY_NAME = "source datasets";
@@ -310,7 +310,8 @@ export async function confirmSourceDatasetsAreEditable(
   confirmQueryRowsContainVersionIds(
     queryResult.rows,
     sourceDatasetVersionIds,
-    PLURAL_ENTITY_NAME
+    PLURAL_ENTITY_NAME,
+    InvalidOperationError
   );
 }
 
