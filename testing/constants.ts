@@ -1498,6 +1498,18 @@ export const SOURCE_STUDY_MISC_C_BAR: TestUnpublishedSourceStudy = {
   },
 };
 
+export const SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES: TestUnpublishedSourceStudy =
+  {
+    cellxgeneCollectionId: null,
+    hcaProjectId: null,
+    id: "b40fd617-892a-4095-92ec-1162ad72bd3d",
+    unpublishedInfo: {
+      contactEmail: "barfoobazfoofoobazbar@example.com",
+      referenceAuthor: "Baz Baz Foo Baz Foo Baz",
+      title: "Source Study With Non Latest Metadata Entities",
+    },
+  };
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1537,6 +1549,7 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_HEATMAP_TEST_BAR,
   SOURCE_STUDY_MISC_C_FOO,
   SOURCE_STUDY_MISC_C_BAR,
+  SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -2282,6 +2295,7 @@ export const SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR =
   "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d";
 const BASE_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR = {
   id: SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+  sourceStudyId: SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES.id,
 } satisfies Partial<TestSourceDataset>;
 export const SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W1 = {
   file: FILE_A_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR,
@@ -3366,7 +3380,7 @@ export const COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2 = {
   file: FILE_B_COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR,
   id: COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
   isLatest: true,
-  sourceDatasets: [],
+  sourceDatasets: [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2],
   versionId: "9e0f1a2b-3c4d-5e6f-7a8b-9c0d1e2f3a4b",
   wipNumber: 2,
 } satisfies TestComponentAtlas;
@@ -3900,9 +3914,9 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   shortName: "test-with-non-latest-metadata-entities",
   sourceDatasets: [
     SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2.versionId,
-    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3.versionId,
+    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2.versionId,
   ],
-  sourceStudies: [],
+  sourceStudies: [SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES.id],
   status: ATLAS_STATUS.IN_PROGRESS,
   version: "4.1",
   wave: "2",

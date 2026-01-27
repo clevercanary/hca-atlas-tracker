@@ -13,14 +13,18 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
   SOURCE_DATASET_ID_WITH_ARCHIVED_LATEST,
   SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
@@ -282,6 +286,22 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2
     );
   });
+
+  it("returns non-latest source dataset linked to atlas", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+      USER_CONTENT_ADMIN,
+      METHOD.GET
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+    expectDetailApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2
+    );
+  });
 });
 
 describe(`${TEST_ROUTE} (PATCH)`, () => {
@@ -402,7 +422,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_BAZ);
   });
 
-  it("returns error 404 when PATCH requested with source dataset with archived file", async () => {
+  it("returns error 400 when PATCH requested with source dataset with archived file", async () => {
     expect(
       (
         await doSourceDatasetRequest(
@@ -414,9 +434,33 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           A_FOO_EDIT_DATA
         )
       )._getStatusCode()
-    ).toEqual(404);
+    ).toEqual(400);
     await expectSourceDatasetToBeUnchanged(
       SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2
+    );
+  });
+
+  it("returns error 400 when PATCH requested with source dataset with non-latest version linked to the atlas", async () => {
+    const editData = {
+      capUrl: "https://celltype.info/project/376345/dataset/745632",
+    } satisfies AtlasSourceDatasetEditData;
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+          SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          editData
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2
+    );
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3
     );
   });
 

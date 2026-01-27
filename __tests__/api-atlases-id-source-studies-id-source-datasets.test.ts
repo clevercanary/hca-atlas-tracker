@@ -7,6 +7,7 @@ import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-studies
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_BAZ,
@@ -17,8 +18,10 @@ import {
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
   SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
+  SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES,
   SOURCE_STUDY_WITH_SOURCE_DATASETS,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -177,6 +180,19 @@ describe(TEST_ROUTE, () => {
     expect(datasetWithMultipleFiles.sizeBytes).toEqual(
       Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
     );
+  });
+
+  it("returns source datasets including non-latest version linked to the atlas", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+    ]);
   });
 });
 
