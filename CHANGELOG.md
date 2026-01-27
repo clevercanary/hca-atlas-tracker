@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.53.0...v1.54.0) (2026-01-27)
+
+
+### Features
+
+* add and use source dataset versioning columns ([#1069](https://github.com/clevercanary/hca-atlas-tracker/issues/1069)) ([#1072](https://github.com/clevercanary/hca-atlas-tracker/issues/1072)) ([b45568a](https://github.com/clevercanary/hca-atlas-tracker/commit/b45568a5c44c8be5ddb90c945dd96fe036dd2e8a))
+
 ## [1.53.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.52.0...v1.53.0) (2026-01-16)
 
 
