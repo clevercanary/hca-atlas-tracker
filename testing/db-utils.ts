@@ -708,10 +708,10 @@ export async function expectFilesToHaveArchiveStatus(
 export async function expectSourceDatasetFileToBeConsistentWith(
   fileId: string,
   params: {
-    atlas: string;
+    atlas: string | null;
     componentAtlases?: string[];
     isLatest: boolean;
-    oldDataset?: HCAAtlasTrackerDBSourceDataset;
+    otherVersion?: HCAAtlasTrackerDBSourceDataset;
     sourceDataset?: string;
     wipNumber: number;
   }
@@ -730,10 +730,14 @@ export async function expectSourceDatasetFileToBeConsistentWith(
   if (params.sourceDataset)
     expect(sourceDataset.version_id).toEqual(params.sourceDataset);
 
-  const atlas = await getExistingAtlasFromDatabase(params.atlas);
-  expect(atlas.source_datasets).toContain(sourceDataset.version_id);
-  if (params.oldDataset)
-    expect(atlas.source_datasets).not.toContain(params.oldDataset.version_id);
+  if (params.atlas) {
+    const atlas = await getExistingAtlasFromDatabase(params.atlas);
+    expect(atlas.source_datasets).toContain(sourceDataset.version_id);
+    if (params.otherVersion)
+      expect(atlas.source_datasets).not.toContain(
+        params.otherVersion.version_id
+      );
+  }
 
   for (const componentAtlasVersion of params.componentAtlases ?? []) {
     const componentAtlas = await getComponentAtlasFromDatabase(
@@ -744,31 +748,45 @@ export async function expectSourceDatasetFileToBeConsistentWith(
         `Component atlas version ${componentAtlasVersion} doesn't exist`
       );
     expect(componentAtlas.source_datasets).toContain(sourceDataset.version_id);
-    if (params.oldDataset)
+    if (params.otherVersion)
       expect(componentAtlas.source_datasets).not.toContain(
-        params.oldDataset.version_id
+        params.otherVersion.version_id
       );
   }
 
-  if (params.oldDataset) {
-    const oldDatasetCurrent = await getSourceDatasetFromDatabase(
-      params.oldDataset.version_id
+  if (params.otherVersion) {
+    await expectSourceDatasetToBeConsistentWithOtherVersion(
+      sourceDataset,
+      params.otherVersion
     );
-    if (!oldDatasetCurrent)
-      throw new Error(
-        `Source dataset version ${params.oldDataset.version_id} doesn't exist`
-      );
-    expect(oldDatasetCurrent.version_id).not.toEqual(sourceDataset.version_id);
-    expect(oldDatasetCurrent.id).toEqual(sourceDataset.id);
-    expect(oldDatasetCurrent.id).toEqual(params.oldDataset.id);
-    expect(oldDatasetCurrent.wip_number).toEqual(params.oldDataset.wip_number);
-    expect(oldDatasetCurrent.sd_info).toEqual(params.oldDataset.sd_info);
-    expect(oldDatasetCurrent.is_latest).toEqual(false);
-    expect(oldDatasetCurrent.wip_number).not.toEqual(sourceDataset.wip_number);
-    expect(oldDatasetCurrent.sd_info).toEqual(sourceDataset.sd_info);
   }
 
   return { file, sourceDataset };
+}
+
+async function expectSourceDatasetToBeConsistentWithOtherVersion(
+  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  otherVersionPrevData: HCAAtlasTrackerDBSourceDataset
+): Promise<void> {
+  const otherVersion = await getSourceDatasetFromDatabase(
+    otherVersionPrevData.version_id
+  );
+  if (!otherVersion)
+    throw new Error(
+      `Source dataset version ${otherVersionPrevData.version_id} doesn't exist`
+    );
+  expect(otherVersion.version_id).not.toEqual(sourceDataset.version_id);
+  expect(otherVersion.id).toEqual(sourceDataset.id);
+  expect(otherVersion.id).toEqual(otherVersionPrevData.id);
+  expect(otherVersion.wip_number).toEqual(otherVersionPrevData.wip_number);
+  expect(otherVersion.sd_info).toEqual(otherVersionPrevData.sd_info);
+  if (sourceDataset.is_latest) {
+    expect(otherVersion.is_latest).toEqual(false);
+  } else if (otherVersion.is_latest) {
+    expect(sourceDataset.is_latest).toEqual(false);
+  }
+  expect(otherVersion.wip_number).not.toEqual(sourceDataset.wip_number);
+  expect(otherVersion.sd_info).toEqual(sourceDataset.sd_info);
 }
 
 export async function expectFileNotToBeReferencedByAnyMetadataEntity(

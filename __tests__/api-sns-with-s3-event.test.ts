@@ -2,8 +2,11 @@ import {
   createS3Event,
   createSNSMessage,
   createTestAtlasData,
+  doS3Event,
+  S3EventOptions,
   setUpAwsConfig,
   SNS_MESSAGE_DEFAULTS,
+  SNSMessageOptions,
   SQL_QUERIES,
   TEST_AWS_CONFIG,
   TEST_FILE_PATHS,
@@ -298,7 +301,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     await expectSourceDatasetFileToBeConsistentWith(versions.rows[1].id, {
       atlas: TEST_GUT_ATLAS_ID,
       isLatest: true,
-      oldDataset: firstSourceDataset,
+      otherVersion: firstSourceDataset,
       wipNumber: 2,
     });
   });
@@ -1140,6 +1143,170 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const secondComponentAtlas = await getFileComponentAtlas(secondVersion.id);
     expect(firstComponentAtlas).not.toEqual(secondComponentAtlas);
     expect(firstComponentAtlas.id).toEqual(secondComponentAtlas.id);
+  });
+
+  it("updates source dataset arrays for only latest-version component atlases when a new source dataset version is added", async () => {
+    // Create initial files -- two source datasets and one integrated object
+
+    const snsMessages: [S3EventOptions, Omit<SNSMessageOptions, "s3Event">][] =
+      [
+        [
+          {
+            etag: "e7d55daafc184c9b9cf3248d889e218a",
+            eventTime: "2026-01-27T05:11:20.120Z",
+            key: "gut/gut-v1/source-datasets/sd-a.h5ad",
+            size: 23423,
+            versionId: "sd-a-v1",
+          },
+          {
+            messageId: "18c3a894-15db-44d4-9337-f67144c1daec",
+          },
+        ],
+        [
+          {
+            etag: "bd9984c4179943adbb7ebb9696f47556",
+            key: "gut/gut-v1/source-datasets/sd-b.h5ad",
+            size: 32543,
+            versionId: "sd-b-v1",
+          },
+          {
+            messageId: "fdb55e4e-895e-4555-86fc-a6f6e6d09aa4",
+          },
+        ],
+        [
+          {
+            etag: "eb3ddef3d7cc4882ad0a71e5417f75ca",
+            eventTime: "2026-01-27T06:01:55.197Z",
+            key: "gut/gut-v1/integrated-objects/io-a.h5ad",
+            size: 46566,
+            versionId: "io-a-v1",
+          },
+          {
+            messageId: "1d195e8d-701e-4fac-87d1-06cc53b5e421",
+          },
+        ],
+      ];
+
+    const initialFiles = await withConsoleMessageHiding(async () =>
+      Promise.all(
+        snsMessages.map(async ([s3EventOptions, snsMessageOptions]) => {
+          const fileRows = await doS3Event(s3EventOptions, snsMessageOptions);
+          expect(fileRows).toHaveLength(1);
+          return fileRows[0];
+        })
+      )
+    );
+
+    const [sdFileA1, sdFileB1, ioFileA1] = initialFiles;
+
+    const sourceDatasetA1 = await getFileSourceDataset(sdFileA1.id);
+    const sourceDatasetB = await getFileSourceDataset(sdFileB1.id);
+
+    // Link source datasets to integrated object
+
+    await query(
+      "UPDATE hat.component_atlases SET source_datasets = $1 WHERE file_id = $2",
+      [[sourceDatasetA1.version_id, sourceDatasetB.version_id], ioFileA1.id]
+    );
+
+    // Add new integrated object version
+
+    const [, ioFileA2] = await withConsoleMessageHiding(async () =>
+      doS3Event(
+        {
+          etag: "2956d44f3f624bb7845db0d44d3570b3",
+          eventTime: "2026-01-27T06:02:14.768Z",
+          key: "gut/gut-v1/integrated-objects/io-a.h5ad",
+          size: 49234,
+          versionId: "io-a-v2",
+        },
+        {
+          messageId: "6ef1ec02-897e-4147-a526-73031f7b79e1",
+        }
+      )
+    );
+    expect(ioFileA2).toBeDefined();
+    expect(ioFileA2.is_latest).toEqual(true);
+
+    const componentAtlasA1 = await getFileComponentAtlas(ioFileA1.id);
+    const componentAtlasA2 = await getFileComponentAtlas(ioFileA2.id);
+    expect(componentAtlasA1.is_latest).toEqual(false);
+    expect(componentAtlasA2.is_latest).toEqual(true);
+
+    // Check source datasets before updating A
+
+    await expectSourceDatasetFileToBeConsistentWith(sdFileA1.id, {
+      atlas: TEST_GUT_ATLAS_ID,
+      componentAtlases: [
+        componentAtlasA1.version_id,
+        componentAtlasA2.version_id,
+      ],
+      isLatest: true,
+      sourceDataset: sourceDatasetA1.version_id,
+      wipNumber: 1,
+    });
+
+    await expectSourceDatasetFileToBeConsistentWith(sdFileB1.id, {
+      atlas: TEST_GUT_ATLAS_ID,
+      componentAtlases: [
+        componentAtlasA1.version_id,
+        componentAtlasA2.version_id,
+      ],
+      isLatest: true,
+      sourceDataset: sourceDatasetB.version_id,
+      wipNumber: 1,
+    });
+
+    // Add new version for source dataset A
+
+    const [, sdFileA2] = await withConsoleMessageHiding(async () =>
+      doS3Event(
+        {
+          etag: "99be25cd164e4339ba502f514a1618a5",
+          eventTime: "2026-01-27T05:11:42.905Z",
+          key: "gut/gut-v1/source-datasets/sd-a.h5ad",
+          size: 25464,
+          versionId: "sd-a-v2",
+        },
+        { messageId: "364e573e-1400-4627-b68c-93e9eaf328ff" }
+      )
+    );
+    expect(sdFileA2).toBeDefined();
+    expect(sdFileA2.is_latest).toEqual(true);
+
+    // Check source datasets
+
+    // Second version of A should be linked just to the second integrated object version
+    const { sourceDataset: sourceDatasetA2 } =
+      await expectSourceDatasetFileToBeConsistentWith(sdFileA2.id, {
+        atlas: TEST_GUT_ATLAS_ID,
+        componentAtlases: [componentAtlasA2.version_id],
+        isLatest: true,
+        otherVersion: sourceDatasetA1,
+        wipNumber: 2,
+      });
+
+    // First version of A should be linked just to the first integrated object version
+    await expectSourceDatasetFileToBeConsistentWith(sdFileA1.id, {
+      atlas: null,
+      componentAtlases: [componentAtlasA1.version_id],
+      isLatest: false,
+      otherVersion: sourceDatasetA2,
+      sourceDataset: sourceDatasetA1.version_id,
+      wipNumber: 1,
+    });
+
+    // B should be linked to both integrated object versions
+    await expectSourceDatasetFileToBeConsistentWith(sdFileB1.id, {
+      atlas: TEST_GUT_ATLAS_ID,
+      componentAtlases: [
+        componentAtlasA1.version_id,
+        componentAtlasA2.version_id,
+      ],
+      isLatest: true,
+      sourceDataset: sourceDatasetB.version_id,
+      wipNumber: 1,
+    });
   });
 
   it("discards notification but returns successfully when older version arrives after newer version", async () => {

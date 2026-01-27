@@ -1,3 +1,6 @@
+import { METHOD } from "app/common/entities";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 import {
   DatasetValidatorResults,
   DatasetValidatorToolReport,
@@ -10,11 +13,13 @@ import {
   FileValidationReport,
   FileValidationReports,
   FileValidationSummary,
+  HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../app/services/database";
+import snsHandler from "../pages/api/sns";
 import { getFileFromDatabase } from "./db-utils";
 import { expectIsDefined } from "./utils";
 
@@ -306,6 +311,32 @@ export async function createTestAtlasData(): Promise<void> {
       ]
     );
   }
+}
+
+export async function doS3Event(
+  s3EventOptions: S3EventOptions,
+  snsMessageOptions: Omit<SNSMessageOptions, "s3Event">
+): Promise<HCAAtlasTrackerDBFile[]> {
+  const snsMessage = createSNSMessage({
+    ...snsMessageOptions,
+    s3Event: createS3Event(s3EventOptions),
+  });
+
+  const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
+    body: snsMessage,
+    method: METHOD.POST,
+  });
+
+  await snsHandler(req, res);
+
+  expect(res.statusCode).toBe(200);
+
+  const fileRows = await query<HCAAtlasTrackerDBFile>(
+    SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+    [TEST_S3_BUCKET, s3EventOptions.key]
+  );
+
+  return fileRows.rows;
 }
 
 export async function expectDbFileValidationFieldsToMatch(
