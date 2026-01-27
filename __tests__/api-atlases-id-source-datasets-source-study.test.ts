@@ -6,7 +6,11 @@ import { endPgPool, query } from "../app/services/database";
 import sourceStudyHandler from "../pages/api/atlases/[atlasId]/source-datasets/source-study";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
   SOURCE_DATASET_WITH_SOURCE_STUDY_BAR,
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR,
@@ -49,7 +53,6 @@ const SUCCESSFUL_UPDATED_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   SOURCE_DATASET_WITH_SOURCE_STUDY_BAR,
   SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO,
-  SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR,
 ];
 const INPUT_DATA_NULL_SUCCESSFUL = makeSuccessfulInputData(null);
 
@@ -77,6 +80,14 @@ const INPUT_DATA_NONEXISTENT_DATASET = {
     "15a70a1c-4e24-40d9-8df2-c6c3d06a1af8",
   ],
   sourceStudyId: null,
+};
+
+const INPUT_DATA_ARCHIVED_DATASET = {
+  ...INPUT_DATA_NULL_SUCCESSFUL,
+  sourceDatasetIds: [
+    ...INPUT_DATA_NULL_SUCCESSFUL.sourceDatasetIds,
+    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR.id,
+  ],
 };
 
 beforeAll(async () => {
@@ -204,6 +215,20 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     ).toEqual(404);
   });
 
+  it("returns error 400 when PATCH requested with archived source dataset", async () => {
+    expect(
+      (
+        await doSourceStudyRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+          INPUT_DATA_ARCHIVED_DATASET,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+  });
+
   it("returns error 400 when PATCH requested with empty source datasets list", async () => {
     expect(
       (
@@ -248,6 +273,30 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       SOURCE_DATASET_WITH_SOURCE_STUDY_FOO
     );
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
+  });
+
+  it("returns error 400 when PATCH requested with source dataset with non-latest version linked to the atlas", async () => {
+    const inputData = {
+      sourceDatasetIds: [SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR],
+      sourceStudyId: null,
+    } satisfies SourceDatasetsSetSourceStudyData;
+    expect(
+      (
+        await doSourceStudyRequest(
+          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+          inputData,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2
+    );
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3
+    );
   });
 
   it("links source study when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {

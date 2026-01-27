@@ -351,7 +351,6 @@ export interface FileUpsertData {
   sha256Client: string | null;
   sizeBytes: number;
   snsMessageId: string;
-  sourceDatasetId?: string | null;
   validationStatus: FILE_VALIDATION_STATUS;
   versionId: string | null;
 }
@@ -367,7 +366,6 @@ export interface FileUpsertData {
  * @param fileData.key - S3 object key
  * @param fileData.sha256Client - SHA256 hash from client
  * @param fileData.sizeBytes - File size in bytes
- * @param fileData.sourceDatasetId - Source dataset ID (if applicable)
  * @param fileData.snsMessageId - SNS MessageId for deduplication
  * @param fileData.validationStatus - File validation status
  * @param fileData.versionId - S3 object version ID
@@ -400,8 +398,8 @@ export async function upsertFileRecord(
   // For same ETag, this is likely a duplicate notification; handle via ON CONFLICT
 
   const result = await transaction.query<FileUpsertResult>(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, sns_message_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
        ON CONFLICT (sns_message_id) 
@@ -427,7 +425,6 @@ export async function upsertFileRecord(
       fileData.validationStatus,
       true,
       fileData.fileType,
-      fileData.sourceDatasetId ?? null,
       fileData.snsMessageId,
     ]
   );
@@ -513,32 +510,6 @@ export async function setFileIntegrityStatus(
     [integrityStatus, fileId],
     client
   );
-}
-
-/**
- * Set the metadata object referenced by a file.
- * @param fileId - ID of the file to update.
- * @param fileType - File type.
- * @param metadataObjectId - ID of a metadata object of the appropriate type, to set in the correspond field of the file.
- * @param client - Postgres client to use.
- */
-export async function setFileMetadataObjectId(
-  fileId: string,
-  fileType: FILE_TYPE,
-  metadataObjectId: string,
-  client: pg.PoolClient
-): Promise<void> {
-  await confirmFileIsOfType(fileId, fileType, client);
-  if (fileType === FILE_TYPE.SOURCE_DATASET) {
-    await client.query(
-      "UPDATE hat.files SET source_dataset_id = $1 WHERE id = $2",
-      [metadataObjectId, fileId]
-    );
-  } else {
-    throw new InvalidOperationError(
-      `Can't set metadata object ID for ${fileType} file ${fileId}`
-    );
-  }
 }
 
 /**

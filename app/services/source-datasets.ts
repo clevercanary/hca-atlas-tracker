@@ -259,6 +259,7 @@ export async function setAtlasSourceDatasetsSourceStudy(
     inputData.sourceDatasetIds,
     atlasId
   );
+  await confirmSourceDatasetsAreEditable(sourceDatasetVersions);
   await setSourceDatasetsSourceStudy(
     sourceDatasetVersions,
     inputData.sourceStudyId

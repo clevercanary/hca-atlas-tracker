@@ -48,16 +48,13 @@ import {
   expectIsDefined,
   fillTestFileDefaults,
   fillTestSourceDatasetDefaults,
-  getPrimaryFileForTestEntity,
-  getTestEntityFileIds,
-  getTestEntityFilesArray,
   getTestFileKey,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
 } from "./utils";
 
-export async function resetDatabase(): Promise<void> {
+export async function resetDatabase(initEntities = true): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
   // Ensure any existing global pool is fully closed before starting fresh.
   await endPgPool();
@@ -65,7 +62,7 @@ export async function resetDatabase(): Promise<void> {
   try {
     await runMigrations("down", client);
     await runMigrations("up", client);
-    await initDatabaseEntries(client);
+    if (initEntities) await initDatabaseEntries(client);
   } finally {
     client.release();
     consoleInfoSpy.mockRestore();
@@ -131,7 +128,6 @@ export async function initSourceDatasets(
   for (const sourceDataset of testSourceDatasets) {
     const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
     const info = makeTestSourceDatasetInfo(normDataset);
-    const latestFile = getPrimaryFileForTestEntity(sourceDataset);
     await client.query(
       "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
       [
@@ -139,16 +135,11 @@ export async function initSourceDatasets(
         info,
         normDataset.id,
         normDataset.reprocessedStatus,
-        latestFile.id,
+        sourceDataset.file.id,
         normDataset.versionId,
         normDataset.isLatest,
         normDataset.wipNumber,
       ]
-    );
-    const fileIds = getTestEntityFileIds(sourceDataset);
-    await client.query(
-      "UPDATE hat.files SET source_dataset_id = $1 WHERE id = ANY($2)",
-      [sourceDataset.id, fileIds]
     );
   }
 }
@@ -200,9 +191,7 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
     await initTestFile(client, componentAtlas.file, createdFiles);
   }
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
-    for (const file of getTestEntityFilesArray(sourceDataset)) {
-      await initTestFile(client, file, createdFiles);
-    }
+    await initTestFile(client, sourceDataset.file, createdFiles);
   }
   for (const file of INITIAL_STANDALONE_TEST_FILES) {
     await initTestFile(client, file, createdFiles);
@@ -716,68 +705,88 @@ export async function expectFilesToHaveArchiveStatus(
   );
 }
 
-export async function expectOldFileNotToBeReferencedByMetadataEntity(
+export async function expectSourceDatasetFileToBeConsistentWith(
   fileId: string,
-  metadataEntityVersion?: string
-): Promise<void> {
-  const file = await getFileFromDatabase(fileId);
-  if (file === undefined) throw new Error(`File ${fileId} not found`);
-
-  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT)
-    throw new Error(
-      "Checking for lack of reference to old file is not applicable to component atlases"
-    );
-
-  expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
-  if (file.file_type === FILE_TYPE.INGEST_MANIFEST) return;
-
-  expect(file.is_latest).toEqual(false);
-
-  if (metadataEntityVersion === undefined) {
-    expect(file.source_dataset_id).toBeTruthy();
-    await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
-  } else {
-    const metadataEntity = await getMetadataEntityOfType(
-      metadataEntityVersion,
-      file.file_type
-    );
-    if (expectIsDefined(metadataEntity)) {
-      expectFileToReferenceMetadataEntity(file, metadataEntity.id);
-      expect(metadataEntity.file_id).not.toEqual(fileId);
-    }
+  params: {
+    atlas: string | null;
+    componentAtlases?: string[];
+    isLatest: boolean;
+    otherVersion?: HCAAtlasTrackerDBSourceDataset;
+    sourceDataset?: string;
+    wipNumber: number;
   }
+): Promise<{
+  file: HCAAtlasTrackerDBFile;
+  sourceDataset: HCAAtlasTrackerDBSourceDataset;
+}> {
+  const file = await getFileFromDatabase(fileId);
+  if (!file) throw new Error(`File ${fileId} doesn't exist`);
+  const sourceDataset = await getFileSourceDataset(fileId);
+
+  expect(file.is_latest).toEqual(params.isLatest);
+  expect(sourceDataset.is_latest).toEqual(params.isLatest);
+  expect(sourceDataset.wip_number).toEqual(params.wipNumber);
+
+  if (params.sourceDataset)
+    expect(sourceDataset.version_id).toEqual(params.sourceDataset);
+
+  if (params.atlas) {
+    const atlas = await getExistingAtlasFromDatabase(params.atlas);
+    expect(atlas.source_datasets).toContain(sourceDataset.version_id);
+    if (params.otherVersion)
+      expect(atlas.source_datasets).not.toContain(
+        params.otherVersion.version_id
+      );
+  }
+
+  for (const componentAtlasVersion of params.componentAtlases ?? []) {
+    const componentAtlas = await getComponentAtlasFromDatabase(
+      componentAtlasVersion
+    );
+    if (!componentAtlas)
+      throw new Error(
+        `Component atlas version ${componentAtlasVersion} doesn't exist`
+      );
+    expect(componentAtlas.source_datasets).toContain(sourceDataset.version_id);
+    if (params.otherVersion)
+      expect(componentAtlas.source_datasets).not.toContain(
+        params.otherVersion.version_id
+      );
+  }
+
+  if (params.otherVersion) {
+    await expectSourceDatasetToBeConsistentWithOtherVersion(
+      sourceDataset,
+      params.otherVersion
+    );
+  }
+
+  return { file, sourceDataset };
 }
 
-export async function expectReferenceBetweenFileAndMetadataEntity(
-  fileId: string,
-  knownMetadataEntityId?: string // Should be version ID for component atlases
+async function expectSourceDatasetToBeConsistentWithOtherVersion(
+  sourceDataset: HCAAtlasTrackerDBSourceDataset,
+  otherVersionPrevData: HCAAtlasTrackerDBSourceDataset
 ): Promise<void> {
-  const file = await getFileFromDatabase(fileId);
-  if (file === undefined) throw new Error(`File ${fileId} not found`);
-
-  expect(file.is_latest).toEqual(true);
-
-  const metadataEntity = await expectGetFileMetadataEntity(
-    file,
-    knownMetadataEntityId
+  const otherVersion = await getSourceDatasetFromDatabase(
+    otherVersionPrevData.version_id
   );
-
-  expectFileToReferenceMetadataEntity(file, metadataEntity.id);
-  expect(metadataEntity.file_id).toEqual(file.id);
-}
-
-function expectFileToReferenceMetadataEntity(
-  file: HCAAtlasTrackerDBFile,
-  metadataEntityId: string
-): void {
-  expect(file.file_type).not.toEqual(FILE_TYPE.INGEST_MANIFEST);
-  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+  if (!otherVersion)
     throw new Error(
-      "A component atlas file cannot reference a metadata entity"
+      `Source dataset version ${otherVersionPrevData.version_id} doesn't exist`
     );
-  } else {
-    expect(file.source_dataset_id).toEqual(metadataEntityId);
+  expect(otherVersion.version_id).not.toEqual(sourceDataset.version_id);
+  expect(otherVersion.id).toEqual(sourceDataset.id);
+  expect(otherVersion.id).toEqual(otherVersionPrevData.id);
+  expect(otherVersion.wip_number).toEqual(otherVersionPrevData.wip_number);
+  expect(otherVersion.sd_info).toEqual(otherVersionPrevData.sd_info);
+  if (sourceDataset.is_latest) {
+    expect(otherVersion.is_latest).toEqual(false);
+  } else if (otherVersion.is_latest) {
+    expect(sourceDataset.is_latest).toEqual(false);
   }
+  expect(otherVersion.wip_number).not.toEqual(sourceDataset.wip_number);
+  expect(otherVersion.sd_info).toEqual(sourceDataset.sd_info);
 }
 
 export async function expectFileNotToBeReferencedByAnyMetadataEntity(
@@ -792,63 +801,6 @@ export async function expectFileNotToBeReferencedByAnyMetadataEntity(
   expect(referenced).toEqual(false);
 }
 
-/**
- * Get the metadata entity for the given file. If a known metadata entity ID (version ID for component atlases) is specified, call `expect` to check that it matches the file.
- * @param file - File ID.
- * @param knownMetadataEntityId - Known metadata entity (version) ID.
- * @returns metadata entity.
- */
-async function expectGetFileMetadataEntity(
-  file: HCAAtlasTrackerDBFile,
-  knownMetadataEntityId?: string
-): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
-  const metadataEntity = await getFileMetadataEntity(file);
-  if (knownMetadataEntityId !== undefined) {
-    expect(metadataEntity.id).toEqual(knownMetadataEntityId);
-  }
-  return metadataEntity;
-}
-
-export async function getFileMetadataEntity(
-  file: HCAAtlasTrackerDBFile
-): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
-  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
-    const metadataEntityResult = await query<HCAAtlasTrackerDBComponentAtlas>(
-      "SELECT * FROM hat.component_atlases WHERE file_id = $1",
-      [file.id]
-    );
-    if (metadataEntityResult.rows.length === 0)
-      throw new Error(`No component atlas found for file ${file.id}`);
-    return metadataEntityResult.rows[0];
-  } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
-    const metadataEntityResult = await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE file_id = $1",
-      [file.id]
-    );
-    if (metadataEntityResult.rows.length === 0)
-      throw new Error(`No source dataset found for file ${file.id}`);
-    return metadataEntityResult.rows[0];
-  } else {
-    throw new Error(`${file.file_type} file can't have a metadata entity`);
-  }
-}
-
-async function getMetadataEntityOfType(
-  metadataEntityVersion: string,
-  fileType: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET
-): Promise<
-  HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
-> {
-  switch (fileType) {
-    case FILE_TYPE.INTEGRATED_OBJECT: {
-      return await getComponentAtlasFromDatabase(metadataEntityVersion);
-    }
-    case FILE_TYPE.SOURCE_DATASET: {
-      return await getSourceDatasetFromDatabase(metadataEntityVersion);
-    }
-  }
-}
-
 export async function getFileComponentAtlas(
   fileId: string
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
@@ -858,6 +810,18 @@ export async function getFileComponentAtlas(
   );
   if (!queryResult.rows.length)
     throw new Error(`No component atlas found for file ${fileId}`);
+  return queryResult.rows[0];
+}
+
+export async function getFileSourceDataset(
+  fileId: string
+): Promise<HCAAtlasTrackerDBSourceDataset> {
+  const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
+    "SELECT * FROM hat.source_datasets WHERE file_id = $1",
+    [fileId]
+  );
+  if (!queryResult.rows.length)
+    throw new Error(`No source dataset found for file ${fileId}`);
   return queryResult.rows[0];
 }
 

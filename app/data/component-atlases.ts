@@ -50,3 +50,20 @@ export async function markComponentAtlasAsNotLatest(
     );
   return queryResult.rows[0].version_id;
 }
+
+/**
+ * Update any latest-version component atlases that contain a given existing source dataset version to instead contain a different given version.
+ * @param existingVersionId - Existing source dataset version ID to replace.
+ * @param newVersionId - New source dataset version ID to insert.
+ * @param client - Postgres client to use.
+ */
+export async function updateSourceDatasetVersionInComponentAtlases(
+  existingVersionId: string,
+  newVersionId: string,
+  client: pg.PoolClient
+): Promise<void> {
+  await client.query(
+    "UPDATE hat.component_atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE is_latest",
+    [existingVersionId, newVersionId]
+  );
+}

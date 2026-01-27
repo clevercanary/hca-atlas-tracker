@@ -8,12 +8,18 @@ import publicationStatusHandler from "../pages/api/atlases/[atlasId]/source-data
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_FOO,
-  SOURCE_DATASET_WITH_ARCHIVED_LATEST,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+  SOURCE_DATASET_ID_WITH_ARCHIVED_LATEST,
+  SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
+  SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -67,15 +73,15 @@ const INPUT_DATA_NON_LINKED_DATASET = {
     SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
     SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
     SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
-    SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
+    SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
   ],
 };
 
 const INPUT_DATA_ARCHIVED_DATASET = {
   publicationStatus: PUBLICATION_STATUS.PUBLISHED,
   sourceDatasetIds: [
-    SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
-    SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
+    SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+    SOURCE_DATASET_ID_WITH_ARCHIVED_LATEST,
   ],
 };
 
@@ -241,7 +247,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
 
-  it("returns error 404 when PATCH requested with source dataset with archived file", async () => {
+  it("returns error 400 when PATCH requested with source dataset with archived file", async () => {
     expect(
       (
         await doPublicationStatusRequest(
@@ -252,9 +258,37 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           true
         )
       )._getStatusCode()
-    ).toEqual(404);
-    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_WITH_MULTIPLE_FILES);
-    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_WITH_ARCHIVED_LATEST);
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3
+    );
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2
+    );
+  });
+
+  it("returns error 400 when PATCH requested with source dataset with non-latest version linked to the atlas", async () => {
+    const inputData = {
+      publicationStatus: PUBLICATION_STATUS.PUBLISHED,
+      sourceDatasetIds: [SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR],
+    } satisfies SourceDatasetsSetPublicationStatusData;
+    expect(
+      (
+        await doPublicationStatusRequest(
+          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+          inputData,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true
+        )
+      )._getStatusCode()
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2
+    );
+    await expectSourceDatasetToBeUnchanged(
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3
+    );
   });
 
   it("returns error 400 when PATCH requested with invalid publication status", async () => {

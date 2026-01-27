@@ -312,7 +312,6 @@ async function generateAndAddVersionsForFile(
         file.bucket,
         file.version_id !== null,
         file.file_type,
-        file.source_dataset_id,
         file.key
       )
     ).id;
@@ -355,12 +354,44 @@ async function generateAndAddVersionsForFile(
       [existingComponentAtlas.version_id, newComponentAtlasVersion]
     );
   } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
-    const sourceDatasetResult = await client.query(
-      "UPDATE hat.source_datasets SET file_id = $1, wip_number = wip_number + $3 WHERE file_id = $2",
-      [latestId, file.id, newIds.length]
-    );
+    const sourceDatasetResult =
+      await client.query<HCAAtlasTrackerDBSourceDataset>(
+        "UPDATE hat.source_datasets SET is_latest = FALSE WHERE file_id = $1 RETURNING *",
+        [file.id]
+      );
     if (sourceDatasetResult.rowCount === 0)
       throw new Error(`Failed to find metadata entity for file ${file.id}`);
+    const existingSourceDataset = sourceDatasetResult.rows[0];
+    let newSourceDatasetVersion = existingSourceDataset.version_id;
+    for (const [i, newId] of newIds.entries()) {
+      const newSourceDatasetResult = await client.query<
+        Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
+      >(
+        `
+          INSERT INTO hat.source_datasets (sd_info, file_id, id, is_latest, source_study_id, wip_number, reprocessed_status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING version_id
+        `,
+        [
+          JSON.stringify(existingSourceDataset.sd_info),
+          newId,
+          existingSourceDataset.id,
+          i === newIds.length - 1,
+          existingSourceDataset.source_study_id,
+          existingSourceDataset.wip_number + 1 + i,
+          existingSourceDataset.reprocessed_status,
+        ]
+      );
+      newSourceDatasetVersion = newSourceDatasetResult.rows[0].version_id;
+    }
+    await client.query(
+      "UPDATE hat.atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2)",
+      [existingSourceDataset.version_id, newSourceDatasetVersion]
+    );
+    await client.query(
+      "UPDATE hat.component_atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE is_latest",
+      [existingSourceDataset.version_id, newSourceDatasetVersion]
+    );
   }
 
   return numVersions;
@@ -384,7 +415,6 @@ async function generateAndAddFile(
     bucketName,
     versioned,
     fileType,
-    null,
     key
   );
 }
@@ -394,7 +424,6 @@ async function generateAndAddFileVersion(
   bucketName: string,
   versioned: boolean,
   fileType: FILE_TYPE,
-  sourceDatasetId: string | null,
   key: string
 ): Promise<HCAAtlasTrackerDBFile> {
   const versionId = versioned
@@ -409,8 +438,8 @@ async function generateAndAddFileVersion(
 
   const insertResult = await client.query<HCAAtlasTrackerDBFile>(
     `
-      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, source_dataset_id, sns_message_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12)
+      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11)
       RETURNING *
     `,
     [
@@ -424,7 +453,6 @@ async function generateAndAddFileVersion(
       INTEGRITY_STATUS.PENDING,
       FILE_VALIDATION_STATUS.PENDING,
       fileType,
-      sourceDatasetId,
       snsMessageId,
     ]
   );

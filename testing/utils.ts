@@ -232,7 +232,7 @@ export function fillTestSourceDatasetDefaults(
 ): NormalizedTestSourceDataset {
   const {
     capUrl = null,
-    file = [],
+    file,
     isLatest = true,
     metadataSpreadsheetTitle = null,
     metadataSpreadsheetUrl = null,
@@ -244,7 +244,7 @@ export function fillTestSourceDatasetDefaults(
   } = sourceDataset;
   return {
     capUrl,
-    file: Array.isArray(file) ? file : [file],
+    file,
     isLatest,
     metadataSpreadsheetTitle,
     metadataSpreadsheetUrl,
@@ -259,36 +259,7 @@ export function fillTestSourceDatasetDefaults(
 export function getNormalizedFileForTestEntity(
   testEntity: TestSourceDataset | TestComponentAtlas
 ): NormalizedTestFile {
-  return fillTestFileDefaults(getPrimaryFileForTestEntity(testEntity));
-}
-
-export function getPrimaryFileForTestEntity(
-  testEntity: TestSourceDataset | TestComponentAtlas
-): TestFile {
-  const testFile = Array.isArray(testEntity.file)
-    ? testEntity.file.find((f) => f.isLatest !== false)
-    : testEntity.file;
-  if (!testFile)
-    throw new Error(
-      `Unable to identify primary file for test entity ${testEntity.id}`
-    );
-  return testFile;
-}
-
-export function getTestEntityFileIds(
-  testEntity: TestSourceDataset | TestComponentAtlas
-): string[] {
-  return getTestEntityFilesArray(testEntity).map((f) => f.id);
-}
-
-export function getTestEntityFilesArray(
-  testEntity: TestSourceDataset | TestComponentAtlas
-): TestFile[] {
-  return testEntity.file
-    ? Array.isArray(testEntity.file)
-      ? testEntity.file
-      : [testEntity.file]
-    : [];
+  return fillTestFileDefaults(testEntity.file);
 }
 
 export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {

@@ -19,6 +19,7 @@ import {
   COMPONENT_ATLAS_ARCHIVED_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
   COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
   COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
   COMPONENT_ATLAS_MISC_FOO,
@@ -33,9 +34,11 @@ import {
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
-  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR,
-  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+  SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -222,7 +225,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_WITH_MULTIPLE_FILES,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
     ]);
   });
 
@@ -235,7 +238,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_WITH_MULTIPLE_FILES,
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
     ]);
   });
 
@@ -248,7 +251,20 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
-      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO,
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+    ]);
+  });
+
+  it("returns source datasets including non-latest version linked to the component atlas", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+      USER_CONTENT_ADMIN
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
     ]);
   });
 
@@ -394,7 +410,7 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 400 when POST requested from component atlas with non-latest version linked to the atlas", async () => {
     const newDatasetsData = {
-      sourceDatasetIds: [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR.id],
+      sourceDatasetIds: [SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR],
     } satisfies ComponentAtlasAddSourceDatasetsData;
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
@@ -483,7 +499,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
       [
         SOURCE_DATASET_ARCHIVED_FOO,
-        SOURCE_DATASET_WITH_MULTIPLE_FILES,
+        SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
         SOURCE_DATASET_ARCHIVED_BAR,
       ]
     );
@@ -640,7 +656,7 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 400 when DELETE requested from component atlas with non-latest version linked to the atlas", async () => {
     const deleteDatasetsData = {
-      sourceDatasetIds: [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO.id],
+      sourceDatasetIds: [SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_FOO],
     } satisfies ComponentAtlasDeleteSourceDatasetsData;
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
@@ -729,7 +745,7 @@ describe(TEST_ROUTE, () => {
     ).toEqual(200);
     await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
-      [SOURCE_DATASET_WITH_MULTIPLE_FILES]
+      [SOURCE_DATASET_WITH_MULTIPLE_FILES_W3]
     );
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
 

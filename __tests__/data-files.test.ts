@@ -34,6 +34,7 @@ import { createTestFile, resetDatabase } from "../testing/db-utils";
 
 interface TestFileUpsertData extends FileUpsertData {
   componentAtlasId: string | null;
+  sourceDatasetId: string | null;
 }
 
 // Shared test constants
