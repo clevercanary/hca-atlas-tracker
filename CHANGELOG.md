@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.52.0...v1.53.0) (2026-01-16)
+
+
+### Features
+
+* introduce component atlas versioning with partially-ledgered table ([#1043](https://github.com/clevercanary/hca-atlas-tracker/issues/1043)) ([#1067](https://github.com/clevercanary/hca-atlas-tracker/issues/1067)) ([a4917d8](https://github.com/clevercanary/hca-atlas-tracker/commit/a4917d831f14f6c39b9aad6bf2c9a66068b58af0))
+
 ## [1.52.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.51.0...v1.52.0) (2026-01-07)
 
 
