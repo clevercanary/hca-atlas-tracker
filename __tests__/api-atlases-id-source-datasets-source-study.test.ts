@@ -329,8 +329,8 @@ async function doSuccessfulSourceStudyTest(
 
   for (const testDataset of SUCCESSFUL_UPDATED_DATASETS) {
     await query(
-      "UPDATE hat.source_datasets SET source_study_id=$1 WHERE id=$2",
-      [testDataset.sourceStudyId ?? null, testDataset.id]
+      "UPDATE hat.source_datasets SET source_study_id=$1 WHERE version_id=$2",
+      [testDataset.sourceStudyId ?? null, testDataset.versionId]
     );
   }
 }

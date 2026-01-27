@@ -203,6 +203,7 @@ export function dbSourceDatasetToApiSourceDataset(
     updatedAt: dbSourceDataset.updated_at.toISOString(),
     validationStatus: dbSourceDataset.validation_status,
     validationSummary: dbSourceDataset.validation_summary,
+    wipNumber: dbSourceDataset.wip_number,
   };
 }
 

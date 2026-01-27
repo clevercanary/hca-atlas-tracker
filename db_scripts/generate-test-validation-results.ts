@@ -256,8 +256,8 @@ async function getFileIdsByEntityKeywords(
       sourceDatasetIds,
       foundEntity,
       client,
-      "SELECT id FROM hat.source_datasets WHERE id::text = $1",
-      "id"
+      "SELECT version_id FROM hat.source_datasets WHERE id::text = $1 AND is_latest",
+      "version_id"
     );
     foundEntity = await findEntityOfTypeForKeyword(
       "integrated objects",
@@ -290,12 +290,14 @@ async function getFileIdsByEntityKeywords(
 
   if (atlasIds.length) {
     const sourceDatasetsResult = await client.query<
-      Pick<HCAAtlasTrackerDBSourceDataset, "id">
+      Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
     >(
-      "SELECT d.id FROM hat.atlases a JOIN hat.source_datasets d ON d.id=ANY(a.source_datasets) WHERE a.id=ANY($1)",
+      "SELECT d.version_id FROM hat.atlases a JOIN hat.source_datasets d ON d.version_id=ANY(a.source_datasets) WHERE a.id=ANY($1)",
       [atlasIds]
     );
-    sourceDatasetIds.push(...sourceDatasetsResult.rows.map((r) => r.id));
+    sourceDatasetIds.push(
+      ...sourceDatasetsResult.rows.map((r) => r.version_id)
+    );
     const componentAtlasesResult = await client.query<
       Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
     >(
@@ -310,7 +312,7 @@ async function getFileIdsByEntityKeywords(
   if (sourceDatasetIds.length) {
     const result = await client.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "file_id">
-    >("SELECT file_id FROM hat.source_datasets WHERE id=ANY($1)", [
+    >("SELECT file_id FROM hat.source_datasets WHERE version_id=ANY($1)", [
       sourceDatasetIds,
     ]);
     fileIds.push(...result.rows.map((r) => r.file_id));

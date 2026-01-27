@@ -12,6 +12,7 @@ import {
   FILE_VALIDATION_STATUS,
   FileEventInfo,
   HCAAtlasTrackerDBFile,
+  HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
   NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -34,8 +35,8 @@ import {
   setFileMetadataObjectId,
   upsertFileRecord,
 } from "../data/files";
-import { setSourceDatasetFileId } from "../data/source-datasets";
-import { InvalidOperationError } from "../utils/api-handler";
+import { updateSourceDatasetVersion } from "../data/source-datasets";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { normalizeAtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
@@ -239,27 +240,36 @@ async function createSourceDatasetFromS3(
   transaction: PoolClient
 ): Promise<string> {
   // Create source dataset using canonical service within the existing transaction
-  const createdId = await createSourceDataset(fileId, transaction);
-  const sourceDatasetId = createdId;
+  const sourceDatasetVersion = await createSourceDataset(fileId, transaction);
 
   // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(
     "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
-    [atlasId, sourceDatasetId]
+    [atlasId, sourceDatasetVersion]
   );
 
   if (alreadyLinkedResult.rows[0].exists) {
     throw new InvalidOperationError(
-      `Source dataset ${sourceDatasetId} is unexpectedly already linked to atlas ${atlasId} during create flow`
+      `Source dataset version ${sourceDatasetVersion} is unexpectedly already linked to atlas ${atlasId} during create flow`
     );
   }
 
   await transaction.query(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
-    [atlasId, sourceDatasetId]
+    [atlasId, sourceDatasetVersion]
   );
 
-  return sourceDatasetId;
+  const idResult = await transaction.query<
+    Pick<HCAAtlasTrackerDBSourceDataset, "id">
+  >("SELECT id FROM hat.source_datasets WHERE version_id = $1", [
+    sourceDatasetVersion,
+  ]);
+  if (idResult.rows.length === 0)
+    throw new NotFoundError(
+      `New source dataset version ${sourceDatasetVersion} is unexpectedly missing`
+    );
+
+  return idResult.rows[0].id;
 }
 
 // File update handler functions
@@ -295,7 +305,7 @@ async function updateSourceDatasetFromS3(
   sourceDatasetId: string,
   transaction: PoolClient
 ): Promise<void> {
-  await setSourceDatasetFileId(sourceDatasetId, fileId, transaction);
+  await updateSourceDatasetVersion(sourceDatasetId, fileId, transaction);
 }
 
 // Dispatch maps

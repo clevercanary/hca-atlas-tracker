@@ -358,7 +358,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     );
     expect(res._getStatusCode()).toEqual(200);
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
-    expect(study.sourceDatasetCount).toEqual(3);
+    expect(study.sourceDatasetCount).toEqual(1);
   });
 });
 
@@ -814,7 +814,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
 
-    expect(updatedStudy.sourceDatasetCount).toEqual(3);
+    expect(updatedStudy.sourceDatasetCount).toEqual(2); // One isn't linked to the atlas
 
     const studyDatasetsAfter = await getStudySourceDatasets(
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
@@ -1015,7 +1015,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(datasetsAfter[0].source_study_id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
 
     expect(
-      await getSourceDatasetFromDatabase(SOURCE_DATASET_FOO.id)
+      await getSourceDatasetFromDatabase(SOURCE_DATASET_FOO.versionId)
     ).toBeDefined();
 
     await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
@@ -1132,9 +1132,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(studyFromDb).toBeUndefined();
     await expectSourceDatasetsToHaveSourceStudy(
       [
-        SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
-        SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
-        SOURCE_DATASET_ATLAS_LINKED_B_BAZ.id,
+        SOURCE_DATASET_ATLAS_LINKED_B_FOO.versionId,
+        SOURCE_DATASET_ATLAS_LINKED_B_BAR.versionId,
+        SOURCE_DATASET_ATLAS_LINKED_B_BAZ.versionId,
       ],
       // The source study should be fully deleted, so the source datasets should no longer be linked to it
       null
@@ -1164,8 +1164,8 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     expect(studyFromDb).toBeDefined();
     await expectSourceDatasetsToHaveSourceStudy(
       [
-        SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-        SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+        SOURCE_DATASET_ATLAS_LINKED_A_FOO.versionId,
+        SOURCE_DATASET_ATLAS_LINKED_A_BAR.versionId,
       ],
       // The source study should still exist, so the datasets should remain linked to it
       SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id

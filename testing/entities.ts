@@ -91,11 +91,14 @@ export interface TestSourceDataset {
   capUrl?: string | null;
   file: TestFile | TestFile[];
   id: string;
+  isLatest?: boolean;
   metadataSpreadsheetTitle?: string | null;
   metadataSpreadsheetUrl?: string | null;
   publicationStatus?: PUBLICATION_STATUS;
   reprocessedStatus?: REPROCESSED_STATUS;
   sourceStudyId?: string | null;
+  versionId: string;
+  wipNumber?: number;
 }
 
 export type NormalizedTestSourceDataset = Required<TestSourceDataset> & {

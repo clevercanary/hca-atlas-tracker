@@ -133,13 +133,16 @@ export async function initSourceDatasets(
     const info = makeTestSourceDatasetInfo(normDataset);
     const latestFile = getPrimaryFileForTestEntity(sourceDataset);
     await client.query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
       [
         normDataset.sourceStudyId,
         info,
         normDataset.id,
         normDataset.reprocessedStatus,
         latestFile.id,
+        normDataset.versionId,
+        normDataset.isLatest,
+        normDataset.wipNumber,
       ]
     );
     const fileIds = getTestEntityFileIds(sourceDataset);
@@ -182,7 +185,7 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         info,
         componentAtlas.id,
         componentAtlas.versionId,
-        componentAtlas.sourceDatasets?.map((d) => d.id) ?? [],
+        componentAtlas.sourceDatasets?.map((d) => d.versionId) ?? [],
         componentAtlas.file.id,
         componentAtlas.wipNumber ?? 1,
         componentAtlas.isLatest ?? true,
@@ -457,11 +460,11 @@ export async function getComponentAtlasFromDatabase(
 
 export async function setComponentAtlasDatasets(
   componentAtlas: TestComponentAtlas,
-  sourceDatasetIds: string[]
+  sourceDatasetVersions: string[]
 ): Promise<void> {
   await query(
     "UPDATE hat.component_atlases SET source_datasets=$1 WHERE version_id=$2",
-    [sourceDatasetIds, componentAtlas.versionId]
+    [sourceDatasetVersions, componentAtlas.versionId]
   );
 }
 
@@ -514,19 +517,19 @@ export async function getAtlasSourceDatasetsFromDatabase(
 ): Promise<HCAAtlasTrackerDBSourceDataset[]> {
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT d.* FROM hat.source_datasets d JOIN hat.atlases a ON d.id=ANY(a.source_datasets) WHERE a.id=$1",
+      "SELECT d.* FROM hat.source_datasets d JOIN hat.atlases a ON d.version_id=ANY(a.source_datasets) WHERE a.id=$1",
       [atlasId]
     )
   ).rows;
 }
 
 export async function getSourceDatasetFromDatabase(
-  id: string
+  versionId: string
 ): Promise<HCAAtlasTrackerDBSourceDataset | undefined> {
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets WHERE id=$1",
-      [id]
+      "SELECT * FROM hat.source_datasets WHERE version_id=$1",
+      [versionId]
     )
   ).rows[0];
 }
@@ -539,7 +542,7 @@ export async function getAllSourceDatasetsFromDatabase(
       "SELECT * FROM hat.source_datasets"
     )
   ).rows;
-  if (sort) datasets.sort((a, b) => a.id.localeCompare(b.id));
+  if (sort) datasets.sort((a, b) => a.version_id.localeCompare(b.version_id));
   return datasets;
 }
 
@@ -662,28 +665,31 @@ export async function expectComponentAtlasToHaveSourceDatasets(
   const sourceDatasets = await getComponentAtlasSourceDatasets(componentAtlas);
   expect(sourceDatasets).toHaveLength(expectedSourceDatasets.length);
   for (const expectedDataset of expectedSourceDatasets) {
-    expect(sourceDatasets).toContain(expectedDataset.id);
+    expect(sourceDatasets).toContain(expectedDataset.versionId);
   }
 }
 
 export async function expectSourceDatasetToBeUnchanged(
   sourceDataset: TestSourceDataset
 ): Promise<void> {
-  const datasetFromDb = await getSourceDatasetFromDatabase(sourceDataset.id);
+  const datasetFromDb = await getSourceDatasetFromDatabase(
+    sourceDataset.versionId
+  );
   if (!expectIsDefined(datasetFromDb)) return;
   expectDbSourceDatasetToMatchTest(datasetFromDb, sourceDataset);
 }
 
 export async function expectSourceDatasetsToHaveSourceStudy(
-  sourceDatasetIds: string[],
+  sourceDatasetVersions: string[],
   sourceStudyValue: string | null
 ): Promise<void> {
   const { rows: sourceDatasets } = await query<
     Pick<HCAAtlasTrackerDBSourceDataset, "source_study_id">
-  >("SELECT source_study_id FROM hat.source_datasets WHERE id=ANY($1)", [
-    sourceDatasetIds,
-  ]);
-  expect(sourceDatasets).toHaveLength(sourceDatasetIds.length);
+  >(
+    "SELECT source_study_id FROM hat.source_datasets WHERE version_id=ANY($1)",
+    [sourceDatasetVersions]
+  );
+  expect(sourceDatasets).toHaveLength(sourceDatasetVersions.length);
   for (const dataset of sourceDatasets) {
     expect(dataset.source_study_id).toEqual(sourceStudyValue);
   }
@@ -712,7 +718,7 @@ export async function expectFilesToHaveArchiveStatus(
 
 export async function expectOldFileNotToBeReferencedByMetadataEntity(
   fileId: string,
-  metadataEntityId?: string
+  metadataEntityVersion?: string
 ): Promise<void> {
   const file = await getFileFromDatabase(fileId);
   if (file === undefined) throw new Error(`File ${fileId} not found`);
@@ -727,12 +733,12 @@ export async function expectOldFileNotToBeReferencedByMetadataEntity(
 
   expect(file.is_latest).toEqual(false);
 
-  if (metadataEntityId === undefined) {
+  if (metadataEntityVersion === undefined) {
     expect(file.source_dataset_id).toBeTruthy();
     await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
   } else {
     const metadataEntity = await getMetadataEntityOfType(
-      metadataEntityId,
+      metadataEntityVersion,
       file.file_type
     );
     if (expectIsDefined(metadataEntity)) {
@@ -798,11 +804,7 @@ async function expectGetFileMetadataEntity(
 ): Promise<HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset> {
   const metadataEntity = await getFileMetadataEntity(file);
   if (knownMetadataEntityId !== undefined) {
-    expect(
-      "version_id" in metadataEntity
-        ? metadataEntity.version_id
-        : metadataEntity.id
-    ).toEqual(knownMetadataEntityId);
+    expect(metadataEntity.id).toEqual(knownMetadataEntityId);
   }
   return metadataEntity;
 }
@@ -832,17 +834,17 @@ export async function getFileMetadataEntity(
 }
 
 async function getMetadataEntityOfType(
-  metadataEntityId: string, // Should be version ID for component atlases
+  metadataEntityVersion: string,
   fileType: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET
 ): Promise<
   HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset | undefined
 > {
   switch (fileType) {
     case FILE_TYPE.INTEGRATED_OBJECT: {
-      return await getComponentAtlasFromDatabase(metadataEntityId);
+      return await getComponentAtlasFromDatabase(metadataEntityVersion);
     }
     case FILE_TYPE.SOURCE_DATASET: {
-      return await getSourceDatasetFromDatabase(metadataEntityId);
+      return await getSourceDatasetFromDatabase(metadataEntityVersion);
     }
   }
 }

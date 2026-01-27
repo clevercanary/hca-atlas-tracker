@@ -26,9 +26,9 @@ import {
   ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
+  FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
-  SOURCE_DATASET_FOO,
 } from "../testing/constants";
 import { createTestFile, resetDatabase } from "../testing/db-utils";
 
@@ -127,7 +127,7 @@ describe("confirmFileExistsOnAtlas", () => {
     });
 
     it("should throw NotFoundError when source dataset exists on a source study of the atlas but is not linked to the atlas", async () => {
-      const fileId = SOURCE_DATASET_FOO.file.id;
+      const fileId = FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id;
       const nonLinkedAtlasId = ATLAS_WITH_MISC_SOURCE_STUDIES.id;
 
       await expect(
@@ -137,7 +137,7 @@ describe("confirmFileExistsOnAtlas", () => {
       await expect(
         confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId)
       ).rejects.toThrow(
-        `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${SOURCE_DATASET_FOO.file.id}`
+        `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id}`
       );
     });
   });

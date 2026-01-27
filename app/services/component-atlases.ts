@@ -8,9 +8,9 @@ import {
   HCAAtlasTrackerDBFile,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import { getSourceDatasetVersionsForAtlas } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
-import { confirmSourceDatasetsExist } from "./source-datasets";
 
 type ComponentAtlasInfoUpdateFields = Pick<
   HCAAtlasTrackerDBComponentAtlasInfo,
@@ -38,7 +38,7 @@ export async function getAtlasComponentAtlases(
             SELECT COUNT(d.id)::int
             FROM hat.source_datasets d
             JOIN hat.files f ON f.id = d.file_id
-            WHERE d.id = ANY(ca.source_datasets) AND f.is_latest AND NOT f.is_archived
+            WHERE d.version_id = ANY(ca.source_datasets) AND NOT f.is_archived
           ) AS source_dataset_count,
           f.event_info,
           f.id as file_id,
@@ -83,7 +83,7 @@ export async function getComponentAtlas(
           SELECT COUNT(d.id)::int
           FROM hat.source_datasets d
           JOIN hat.files f ON f.id = d.file_id
-          WHERE d.id = ANY(ca.source_datasets) AND f.is_latest AND NOT f.is_archived
+          WHERE d.version_id = ANY(ca.source_datasets) AND NOT f.is_archived
         ) AS source_dataset_count,
         f.event_info,
         f.id as file_id,
@@ -171,15 +171,18 @@ export async function addSourceDatasetsToComponentAtlas(
 
   await confirmComponentAtlasIsEditable(componentAtlasVersion);
 
-  await confirmSourceDatasetsExist(sourceDatasetIds);
+  const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
+    sourceDatasetIds,
+    atlasId
+  );
 
   const existingDatasetsResult = await query<{ array: string[] }>(
     `
       SELECT ARRAY(
-        SELECT sd_id FROM unnest(source_datasets) AS sd_id WHERE sd_id=ANY($1)
+        SELECT sd_version FROM unnest(source_datasets) AS sd_version WHERE sd_version=ANY($1)
       ) FROM hat.component_atlases WHERE version_id=$2
     `,
-    [sourceDatasetIds, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion]
   );
 
   if (existingDatasetsResult.rows.length === 0)
@@ -189,14 +192,14 @@ export async function addSourceDatasetsToComponentAtlas(
 
   if (existingSpecifiedDatasets.length !== 0)
     throw new InvalidOperationError(
-      `Component atlas with ID ${componentAtlasId} already has source datasets with IDs: ${existingSpecifiedDatasets.join(
+      `Component atlas with ID ${componentAtlasId} already has source datasets with version IDs: ${existingSpecifiedDatasets.join(
         ", "
       )}`
     );
 
   await query(
     "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE version_id=$2",
-    [sourceDatasetIds, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion]
   );
 }
 
@@ -218,15 +221,18 @@ export async function deleteSourceDatasetsFromComponentAtlas(
 
   await confirmComponentAtlasIsEditable(componentAtlasVersion);
 
-  await confirmSourceDatasetsExist(sourceDatasetIds);
+  const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
+    sourceDatasetIds,
+    atlasId
+  );
 
   const missingDatasetsResult = await query<{ array: string[] }>(
     `
       SELECT ARRAY(
-        SELECT sd_id FROM unnest($1::uuid[]) AS sd_id WHERE NOT sd_id=ANY(source_datasets)
+        SELECT sd_version FROM unnest($1::uuid[]) AS sd_version WHERE NOT sd_version=ANY(source_datasets)
       ) FROM hat.component_atlases WHERE version_id=$2
     `,
-    [sourceDatasetIds, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion]
   );
 
   if (missingDatasetsResult.rows.length === 0)
@@ -236,7 +242,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
 
   if (missingDatasets.length !== 0)
     throw new InvalidOperationError(
-      `Component atlas with ID ${componentAtlasId} doesn't have source datasets with IDs: ${missingDatasets.join(
+      `Component atlas with ID ${componentAtlasId} doesn't have source datasets with version IDs: ${missingDatasets.join(
         ", "
       )}`
     );
@@ -247,7 +253,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
       SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
       WHERE version_id=$2
     `,
-    [sourceDatasetIds, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion]
   );
 }
 

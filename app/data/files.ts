@@ -21,7 +21,7 @@ import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases"
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getVersionVariants } from "../utils/atlases";
-import { getAtlasSourceDatasetIds } from "./source-datasets";
+import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {
   operation: "inserted" | "updated";
@@ -288,7 +288,7 @@ async function getTypeFilesMissingFromAtlas(
   // Ingest manifests are not associated with atlases at a database level
   if (fileType === FILE_TYPE.INGEST_MANIFEST) return fileIds;
 
-  let metadataEntities: Array<{ file_id: string; id: string }>;
+  let metadataEntities: Array<{ file_id: string; version_id: string }>;
   let getAtlasEntityIds: (atlasId: string) => Promise<string[]>;
 
   switch (fileType) {
@@ -300,18 +300,20 @@ async function getTypeFilesMissingFromAtlas(
           "SELECT file_id, version_id FROM hat.component_atlases WHERE file_id = ANY($1)",
           [fileIds]
         )
-      ).rows.map(({ file_id, version_id }) => ({ file_id, id: version_id }));
+      ).rows;
       getAtlasEntityIds = getAtlasComponentAtlasVersionIds;
       break;
     }
     case FILE_TYPE.SOURCE_DATASET: {
       metadataEntities = (
-        await query<Pick<HCAAtlasTrackerDBSourceDataset, "file_id" | "id">>(
-          "SELECT file_id, id FROM hat.source_datasets WHERE file_id = ANY($1)",
+        await query<
+          Pick<HCAAtlasTrackerDBSourceDataset, "file_id" | "version_id">
+        >(
+          "SELECT file_id, version_id FROM hat.source_datasets WHERE file_id = ANY($1)",
           [fileIds]
         )
       ).rows;
-      getAtlasEntityIds = getAtlasSourceDatasetIds;
+      getAtlasEntityIds = getAtlasSourceDatasetVersionIds;
       break;
     }
   }
@@ -332,7 +334,8 @@ async function getTypeFilesMissingFromAtlas(
   const atlasEntityIds = new Set(await getAtlasEntityIds(atlasId));
   const missingFileIds: string[] = [];
   for (const entity of metadataEntities) {
-    if (!atlasEntityIds.has(entity.id)) missingFileIds.push(entity.file_id);
+    if (!atlasEntityIds.has(entity.version_id))
+      missingFileIds.push(entity.file_id);
   }
 
   return missingFileIds;

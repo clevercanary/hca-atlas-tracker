@@ -1,4 +1,3 @@
-import { unlinkAllSourceDatasetsFromSourceStudy } from "app/data/source-datasets";
 import pg from "pg";
 import { ValidationError } from "yup";
 import {
@@ -24,6 +23,10 @@ import {
   UnpublishedSourceStudyEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
+import {
+  getAtlasSourceDatasetVersionIds,
+  unlinkAllSourceDatasetsFromSourceStudy,
+} from "../data/source-datasets";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -55,10 +58,11 @@ export async function getAtlasSourceStudies(
   return await doTransaction(async (client) => {
     const {
       rows: [atlas],
-    } = await query<Pick<HCAAtlasTrackerDBAtlas, "source_studies">>(
-      "SELECT source_studies FROM hat.atlases WHERE id=$1",
-      [atlasId]
-    );
+    } = await query<
+      Pick<HCAAtlasTrackerDBAtlas, "source_studies" | "source_datasets">
+    >("SELECT source_studies, source_datasets FROM hat.atlases WHERE id=$1", [
+      atlasId,
+    ]);
 
     if (!atlas) {
       throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
@@ -76,12 +80,12 @@ export async function getAtlasSourceStudies(
                   SELECT fd.id, fd.source_study_id
                   FROM hat.source_datasets fd
                   JOIN hat.files f ON f.id = fd.file_id
-                  WHERE f.is_latest AND NOT f.is_archived
+                  WHERE fd.version_id = ANY($2) AND NOT f.is_archived
                 ) as d ON d.source_study_id=s.id
                 WHERE s.id=ANY($1)
                 GROUP BY s.id
               `,
-              [atlas.source_studies]
+              [atlas.source_studies, atlas.source_datasets]
             )
           ).rows;
 
@@ -130,6 +134,11 @@ export async function getSourceStudy(
       client
     );
 
+    const atlasSourceDatasetVersions = await getAtlasSourceDatasetVersionIds(
+      atlasId,
+      client
+    );
+
     const queryResult =
       await query<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>(
         `
@@ -139,12 +148,12 @@ export async function getSourceStudy(
             SELECT fd.id, fd.source_study_id
             FROM hat.source_datasets fd
             JOIN hat.files f ON f.id = fd.file_id
-            WHERE f.is_latest AND NOT f.is_archived
+            WHERE fd.version_id = ANY($2) AND NOT f.is_archived
           ) as d ON d.source_study_id=s.id
           WHERE s.id=$1
           GROUP BY s.id
         `,
-        [sourceStudyId],
+        [sourceStudyId, atlasSourceDatasetVersions],
         client
       );
 

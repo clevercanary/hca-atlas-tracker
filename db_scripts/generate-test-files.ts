@@ -169,7 +169,7 @@ async function generateAndAddFileVersionsForEntities(
 
   if (sourceDatasetIds.length) {
     const queryResult = await client.query<HCAAtlasTrackerDBFile>(
-      "SELECT f.* FROM hat.files f JOIN hat.source_datasets d ON f.id=d.file_id WHERE f.is_latest AND d.id=ANY($1)",
+      "SELECT f.* FROM hat.files f JOIN hat.source_datasets d ON f.id=d.file_id WHERE d.is_latest AND d.id=ANY($1)",
       [sourceDatasetIds]
     );
     files.push(...queryResult.rows);
@@ -207,7 +207,9 @@ async function categorizeEntityIds(
 
   const sourceDatasetsResult = await client.query<
     Pick<HCAAtlasTrackerDBSourceDataset, "id">
-  >("SELECT id FROM hat.source_datasets WHERE id=ANY($1)", [entityIds]);
+  >("SELECT id FROM hat.source_datasets WHERE id=ANY($1) AND is_latest", [
+    entityIds,
+  ]);
   const sourceDatasetIds = sourceDatasetsResult.rows.map(({ id }) => id);
 
   const missingIds = entityIds.filter(
@@ -354,8 +356,8 @@ async function generateAndAddVersionsForFile(
     );
   } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
     const sourceDatasetResult = await client.query(
-      "UPDATE hat.source_datasets SET file_id = $1 WHERE file_id = $2",
-      [latestId, file.id]
+      "UPDATE hat.source_datasets SET file_id = $1, wip_number = wip_number + $3 WHERE file_id = $2",
+      [latestId, file.id, newIds.length]
     );
     if (sourceDatasetResult.rowCount === 0)
       throw new Error(`Failed to find metadata entity for file ${file.id}`);
@@ -462,6 +464,7 @@ async function createSourceDataset(
   fileId: string
 ): Promise<string> {
   const sourceDatasetId = crypto.randomUUID();
+  const sourceDatasetVersion = crypto.randomUUID();
 
   const sd_info: HCAAtlasTrackerDBSourceDatasetInfo = {
     capUrl: null,
@@ -472,10 +475,10 @@ async function createSourceDataset(
 
   await client.query(
     `
-      INSERT INTO hat.source_datasets (id, sd_info, file_id)
-      VALUES ($1, $2, $3)
+      INSERT INTO hat.source_datasets (id, sd_info, file_id, version_id)
+      VALUES ($1, $2, $3, $4)
     `,
-    [sourceDatasetId, JSON.stringify(sd_info), fileId]
+    [sourceDatasetId, JSON.stringify(sd_info), fileId, sourceDatasetVersion]
   );
 
   await client.query(
@@ -485,7 +488,7 @@ async function createSourceDataset(
 
   await client.query(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $1::uuid WHERE id=$2",
-    [sourceDatasetId, atlas.id]
+    [sourceDatasetVersion, atlas.id]
   );
 
   return sourceDatasetId;

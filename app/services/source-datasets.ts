@@ -13,17 +13,18 @@ import {
   SourceDatasetsSetSourceStudyData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import {
-  confirmSourceDatasetsAreAvailable,
-  confirmSourceDatasetsExistOnAtlas,
-  getAtlasSourceDatasetIds,
-  getComponentAtlasSourceDatasetIds,
+  confirmSourceDatasetsAreEditable,
+  getAtlasSourceDatasetVersionIds,
+  getComponentAtlasSourceDatasetVersionIds,
   getSourceDatasetForDetailApi,
   getSourceDatasetsForApi,
-  getSourceStudySourceDatasetIds,
+  getSourceDatasetVersionForAtlas,
+  getSourceDatasetVersionForComponentAtlas,
+  getSourceDatasetVersionsForAtlas,
+  getSourceStudySourceDatasetVersionIds,
   setSourceDatasetsPublicationStatus,
   setSourceDatasetsSourceStudy,
 } from "../data/source-datasets";
-import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { getComponentAtlasVersionForAtlas } from "./component-atlases";
 import { doTransaction, query } from "./database";
@@ -52,7 +53,7 @@ export async function getSourceStudyDatasets(
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   return await getSourceDatasetsForApi(
-    await getSourceStudySourceDatasetIds(sourceStudyId),
+    await getSourceStudySourceDatasetVersionIds(sourceStudyId, atlasId),
     true
   );
 }
@@ -68,7 +69,7 @@ export async function getAtlasDatasets(
   isArchivedValue = false
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   return await getSourceDatasetsForApi(
-    await getAtlasSourceDatasetIds(atlasId),
+    await getAtlasSourceDatasetVersionIds(atlasId),
     true,
     [isArchivedValue]
   );
@@ -89,7 +90,7 @@ export async function getComponentAtlasDatasets(
     atlasId
   );
   return await getSourceDatasetsForApi(
-    await getComponentAtlasSourceDatasetIds(componentAtlasVersion),
+    await getComponentAtlasSourceDatasetVersionIds(componentAtlasVersion),
     true
   );
 }
@@ -106,8 +107,12 @@ export async function getAtlasSourceDataset(
   sourceDatasetId: string,
   client?: pg.PoolClient
 ): Promise<HCAAtlasTrackerDBSourceDatasetForDetailAPI> {
-  await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId, client);
-  return await getSourceDatasetForDetailApi(sourceDatasetId, client);
+  const sourceDatasetVersion = await getSourceDatasetVersionForAtlas(
+    sourceDatasetId,
+    atlasId,
+    client
+  );
+  return await getSourceDatasetForDetailApi(sourceDatasetVersion, client);
 }
 
 /**
@@ -126,18 +131,12 @@ export async function getComponentAtlasSourceDataset(
     componentAtlasId,
     atlasId
   );
-  const { exists } = (
-    await query<{ exists: boolean }>(
-      "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE $1=ANY(source_datasets) AND version_id=$2)",
-      [sourceDatasetId, componentAtlasVersion]
-    )
-  ).rows[0];
-  if (!exists)
-    throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} doesn't exist on integrated object with ID ${componentAtlasId} on atlas with ID ${atlasId}`
-    );
+  const sourceDatasetVersion = await getSourceDatasetVersionForComponentAtlas(
+    sourceDatasetId,
+    componentAtlasVersion
+  );
   const [sourceDataset] = await getSourceDatasetsForApi(
-    [sourceDatasetId],
+    [sourceDatasetVersion],
     false,
     [true, false]
   );
@@ -148,7 +147,7 @@ export async function getComponentAtlasSourceDataset(
  * Create a source dataset.
  * @param fileId - Associated file ID for the new source dataset to reference.
  * @param client - Postgres client to reuse an existing transaction.
- * @returns ID of the created source dataset.
+ * @returns version ID of the created source dataset.
  */
 export async function createSourceDataset(
   fileId: string,
@@ -156,12 +155,12 @@ export async function createSourceDataset(
 ): Promise<string> {
   const info = createSourceDatasetInfo();
   const insertResult = await client.query<
-    Pick<HCAAtlasTrackerDBSourceDataset, "id">
+    Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
-    "INSERT INTO hat.source_datasets (sd_info, file_id) VALUES ($1, $2) RETURNING id",
+    "INSERT INTO hat.source_datasets (sd_info, file_id) VALUES ($1, $2) RETURNING version_id",
     [JSON.stringify(info), fileId]
   );
-  return insertResult.rows[0].id;
+  return insertResult.rows[0].version_id;
 }
 
 function createSourceDatasetInfo(): HCAAtlasTrackerDBSourceDatasetInfo {
@@ -178,8 +177,11 @@ export async function updateAtlasSourceDataset(
   sourceDatasetId: string,
   inputData: AtlasSourceDatasetEditData
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  await confirmSourceDatasetIsLinkedToAtlas(sourceDatasetId, atlasId);
-  await confirmSourceDatasetsAreAvailable([sourceDatasetId]);
+  const sourceDatasetVersion = await getSourceDatasetVersionForAtlas(
+    sourceDatasetId,
+    atlasId
+  );
+  await confirmSourceDatasetsAreEditable([sourceDatasetVersion]);
   const updatedInfoFields: SourceDatasetInfoUpdateFields = {
     capUrl: inputData.capUrl || null,
     metadataSpreadsheetTitle: await getSheetTitleForApi(
@@ -190,8 +192,8 @@ export async function updateAtlasSourceDataset(
   };
   return await doTransaction(async (client) => {
     await query(
-      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE id = $2",
-      [JSON.stringify(updatedInfoFields), sourceDatasetId],
+      "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE version_id = $2",
+      [JSON.stringify(updatedInfoFields), sourceDatasetVersion],
       client
     );
     return await getAtlasSourceDataset(atlasId, sourceDatasetId, client);
@@ -207,13 +209,16 @@ export async function setAtlasSourceDatasetsReprocessedStatus(
   atlasId: string,
   inputData: SourceDatasetsSetReprocessedStatusData
 ): Promise<void> {
-  await confirmSourceDatasetsExistOnAtlas(inputData.sourceDatasetIds, atlasId);
+  const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
+    inputData.sourceDatasetIds,
+    atlasId
+  );
 
-  await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
+  await confirmSourceDatasetsAreEditable(sourceDatasetVersions);
 
   await query(
-    "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE id = ANY($2)",
-    [inputData.reprocessedStatus, inputData.sourceDatasetIds]
+    "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE version_id = ANY($2)",
+    [inputData.reprocessedStatus, sourceDatasetVersions]
   );
 }
 
@@ -226,12 +231,15 @@ export async function setAtlasSourceDatasetsPublicationStatus(
   atlasId: string,
   inputData: SourceDatasetsSetPublicationStatusData
 ): Promise<void> {
-  await confirmSourceDatasetsExistOnAtlas(inputData.sourceDatasetIds, atlasId);
+  const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
+    inputData.sourceDatasetIds,
+    atlasId
+  );
 
-  await confirmSourceDatasetsAreAvailable(inputData.sourceDatasetIds);
+  await confirmSourceDatasetsAreEditable(sourceDatasetVersions);
 
   await setSourceDatasetsPublicationStatus(
-    inputData.sourceDatasetIds,
+    sourceDatasetVersions,
     inputData.publicationStatus
   );
 }
@@ -247,47 +255,12 @@ export async function setAtlasSourceDatasetsSourceStudy(
 ): Promise<void> {
   if (inputData.sourceStudyId !== null)
     await confirmSourceStudyExistsOnAtlas(inputData.sourceStudyId, atlasId);
-  await confirmSourceDatasetsExistOnAtlas(inputData.sourceDatasetIds, atlasId);
-  await setSourceDatasetsSourceStudy(
+  const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
     inputData.sourceDatasetIds,
+    atlasId
+  );
+  await setSourceDatasetsSourceStudy(
+    sourceDatasetVersions,
     inputData.sourceStudyId
   );
-}
-
-/**
- * Throw an error if the given source dataset is not linked to the given atlas.
- * @param sourceDatasetId - Source dataset ID.
- * @param atlasId - Atlas ID.
- * @param client - Postgres client to use.
- */
-export async function confirmSourceDatasetIsLinkedToAtlas(
-  sourceDatasetId: string,
-  atlasId: string,
-  client?: pg.PoolClient
-): Promise<void> {
-  const atlasSourceDatasetIds = await getAtlasSourceDatasetIds(atlasId, client);
-  if (!atlasSourceDatasetIds.includes(sourceDatasetId))
-    throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} is not linked to atlas with ID ${atlasId}`
-    );
-}
-
-/**
- * Check whether a list of dataset IDs exist, and throw an error if any don't.
- * @param sourceDatasetIds - Source dataset IDs to check for.
- */
-export async function confirmSourceDatasetsExist(
-  sourceDatasetIds: string[]
-): Promise<void> {
-  const queryResult = await query<Pick<HCAAtlasTrackerDBSourceDataset, "id">>(
-    "SELECT id FROM hat.source_datasets WHERE id=ANY($1)",
-    [sourceDatasetIds]
-  );
-  if (queryResult.rows.length < sourceDatasetIds.length) {
-    const foundIds = queryResult.rows.map((r) => r.id);
-    const missingIds = sourceDatasetIds.filter((id) => !foundIds.includes(id));
-    throw new InvalidOperationError(
-      `No source datasets exist with IDs: ${missingIds.join(", ")}`
-    );
-  }
 }

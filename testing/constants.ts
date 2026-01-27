@@ -1584,6 +1584,7 @@ export const SOURCE_DATASET_FOO = {
   id: "6e1e281d-78cb-462a-ae29-94663c1e5713",
   reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "653ffca2-694a-434f-9768-7d8a62e60aef",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_BAR = {
@@ -1601,6 +1602,7 @@ export const SOURCE_DATASET_BAR = {
   },
   id: "cd053619-8b50-4e2d-ba62-96fbbcad6011",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "e03315c4-09bc-477c-9845-192dcdf5c9a5",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_BAZ = {
@@ -1617,6 +1619,7 @@ export const SOURCE_DATASET_BAZ = {
   },
   id: "3682751a-7a97-48e1-a43e-d355c1707e26",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "4bd16fcb-fdb8-47b9-ae7e-c7bd2f344af3",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_FOOFOO = {
@@ -1644,6 +1647,7 @@ export const SOURCE_DATASET_FOOFOO = {
   },
   id: "5c42bc65-93ad-4191-95bc-a40d56f2bb6b",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "c4e093b7-a7dc-45a5-b336-f79d46ad5511",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_FOOBAR = {
@@ -1660,6 +1664,7 @@ export const SOURCE_DATASET_FOOBAR = {
   },
   id: "4de3dadd-a35c-4386-be62-4536934e9179",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "79543b2d-96dd-43e9-8941-c5dd6c8ad878",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_FOOBAZ = {
@@ -1676,6 +1681,7 @@ export const SOURCE_DATASET_FOOBAZ = {
   },
   id: "7ac2afd8-493d-46e5-b9d8-cadc512bb2cc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "46c8eafb-5c1e-4a4e-aff1-44ca0933f67a",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE = {
@@ -1702,6 +1708,7 @@ export const SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE = {
   },
   id: "afcb9181-5a6b-45a8-89c0-1790def2d7dc",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "429a5305-a98c-4051-9224-345e5f174a76",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE = {
@@ -1731,6 +1738,7 @@ export const SOURCE_DATASET_CELLXGENE_WITH_UPDATE = {
   metadataSpreadsheetUrl:
     "https://docs.google.com/spreadsheets/d/source-dataset-cellxgene-with-update",
   sourceStudyId: SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
+  versionId: "79af2ef3-ea4f-41e0-b17f-de182b0931d1",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_DRAFT_OK_FOO = {
@@ -1747,6 +1755,7 @@ export const SOURCE_DATASET_DRAFT_OK_FOO = {
   },
   id: "edf62340-8180-4206-87f2-d95e388a3a4c",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+  versionId: "bfaf2bcf-ca8d-4b90-a745-b932de19414e",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_DRAFT_OK_BAR = {
@@ -1763,6 +1772,7 @@ export const SOURCE_DATASET_DRAFT_OK_BAR = {
   },
   id: "3b41d607-05ff-48a7-92bd-9d257a230b3d",
   sourceStudyId: SOURCE_STUDY_DRAFT_OK.id,
+  versionId: "146d7163-a4f9-4a9d-92bd-99365b7e2a93",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_OTHER_FOO = {
@@ -1789,6 +1799,7 @@ export const SOURCE_DATASET_OTHER_FOO = {
   },
   id: "d85cf1fd-3b70-4f6a-812c-583941362117",
   sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
+  versionId: "d7ac2d6d-0f4c-4fc9-aa95-74638a2048a9",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_OTHER_BAR = {
@@ -1815,6 +1826,7 @@ export const SOURCE_DATASET_OTHER_BAR = {
   },
   id: "e3878dde-ffe5-4193-9b7f-5a395541ba25",
   sourceStudyId: SOURCE_STUDY_WITH_OTHER_SOURCE_DATASETS.id,
+  versionId: "95ca4f9c-3541-4f38-bd36-fd14591a2361",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO = {
@@ -1841,6 +1853,7 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO = {
   },
   id: "1d872ee4-cfb3-4893-a275-fe0f105697c4",
   sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+  versionId: "df4cfa4b-287d-4b38-a3eb-9244b1d974d7",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR = {
@@ -1867,6 +1880,7 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAR = {
   },
   id: "30bd81d7-1db7-4f28-b6d3-6afa73066f99",
   sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+  versionId: "9ca67133-74a5-40fa-a794-54da022c2d69",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ = {
@@ -1893,6 +1907,7 @@ export const SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ = {
   },
   id: "4b7acc76-89f2-4839-a15c-fc79183c1ed7",
   sourceStudyId: SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
+  versionId: "45aabc8d-84cd-4ea7-acc1-cb6263ebfdd0",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO = {
@@ -1919,6 +1934,7 @@ export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO = {
   },
   id: "68dbf3ec-45a5-43a4-b806-97923de1df2c",
   sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
+  versionId: "f42e9133-2a47-470b-bb90-43abc536a8ed",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR = {
@@ -1945,6 +1961,7 @@ export const SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_BAR = {
   },
   id: "2d4f2d93-7c2c-4c1f-94af-566f3d3ed8ec",
   sourceStudyId: SOURCE_STUDY_PUBLISHED_WITHOUT_CELLXGENE_ID.id,
+  versionId: "28f4087f-6051-4268-a7d0-1578571f2eac",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
@@ -1988,6 +2005,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
   id: "4d08641d-be55-440b-8a19-b67c965cc2bf",
   reprocessedStatus: REPROCESSED_STATUS.REPROCESSED,
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  versionId: "d5788ef0-9538-4a15-ad08-0003d3b0110e",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_A_BAR = {
@@ -2005,6 +2023,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_BAR = {
   id: "41e20a89-48c4-4fd6-85b1-6f6a02f03b35",
   reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  versionId: "31f9cd17-79ad-4ea6-8b3d-7b9845b9dcbe",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_B_FOO = {
@@ -2031,6 +2050,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_FOO = {
   },
   id: "9d361a63-78bb-487c-8af5-160de4782eb2",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+  versionId: "82c5fc22-e3b3-4c5a-acdf-f79cfcb3b3ff",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_B_BAR = {
@@ -2058,6 +2078,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAR = {
   id: "a710a258-c48c-4185-9d28-9e9429c989fd",
   metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/baz",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+  versionId: "b838a396-1b58-4904-bd30-ef7820b98491",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ = {
@@ -2084,6 +2105,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_B_BAZ = {
   },
   id: "79446f6f-0f3a-4915-a019-090189947223",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
+  versionId: "9aa3f4ca-7987-4d2e-af5f-b67488040da4",
 } satisfies TestSourceDataset;
 
 const BASE_FILE_SOURCE_DATASET_WITH_MULTIPLE_FILES = {
@@ -2138,6 +2160,7 @@ export const SOURCE_DATASET_WITH_MULTIPLE_FILES = {
   ],
   id: "3a4658fa-049f-4465-9a10-9f411dbcfb7c",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  versionId: "b86ee24e-9b90-4094-afd6-abe94450fdcf",
 } satisfies TestSourceDataset;
 
 const BASE_FILE_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO = {
@@ -2180,6 +2203,7 @@ export const SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO = {
     FILE_B_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO,
   ],
   id: "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+  versionId: "64d5c608-9b5c-4b10-9319-4725f2cadebf",
 } satisfies TestSourceDataset;
 
 const BASE_FILE_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR = {
@@ -2233,6 +2257,7 @@ export const SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR = {
     FILE_C_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR,
   ],
   id: "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+  versionId: "aa52dc91-0c52-4532-abe1-98fa06aa2b05",
 } satisfies TestSourceDataset;
 
 const BASE_FILE_SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
@@ -2275,6 +2300,7 @@ export const SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
   ],
   id: "63b33e2a-1b1f-4138-bc54-dbe42e12ab65",
   sourceStudyId: SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+  versionId: "36069d02-ed63-4234-801e-0dfa686ef9fd",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_FOO = {
@@ -2301,6 +2327,7 @@ export const SOURCE_DATASET_ARCHIVED_FOO = {
     versionId: null,
   },
   id: "bbf9aa61-4d0b-4c2d-bb05-42b3e3e2c9cc",
+  versionId: "5e00a472-d119-4c50-b7ef-ceea83460ae6",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_BAR = {
@@ -2327,6 +2354,7 @@ export const SOURCE_DATASET_ARCHIVED_BAR = {
     versionId: null,
   },
   id: "54189845-0934-4c3c-97b8-c8113295f227",
+  versionId: "24dd8412-09dc-4de3-bdfd-8d763ad42293",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_BAZ = {
@@ -2353,6 +2381,7 @@ export const SOURCE_DATASET_ARCHIVED_BAZ = {
     versionId: null,
   },
   id: "986da052-8827-4b30-80ba-d529f7410458",
+  versionId: "92c3a46d-205a-496a-9b82-93c0589253bd",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_FOOFOO = {
@@ -2379,6 +2408,7 @@ export const SOURCE_DATASET_ARCHIVED_FOOFOO = {
     versionId: null,
   },
   id: "529f8d07-7a22-4831-b61f-983525429e00",
+  versionId: "1bcb98c3-a739-4fbd-8f5f-74830dd30afc",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_ARCHIVED_FOOBAR = {
@@ -2405,6 +2435,7 @@ export const SOURCE_DATASET_ARCHIVED_FOOBAR = {
     versionId: null,
   },
   id: "eb332ace-438e-45c6-8cf6-58cba44d6d3c",
+  versionId: "5adece8c-7fd9-4fcd-bb37-b30c9dc2c476",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO = {
@@ -2421,6 +2452,7 @@ export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO = {
     versionId: null,
   },
   id: "f9d93c6a-e7c0-4f26-8198-2474e7569bdb",
+  versionId: "2077de8f-b9c4-40e6-8764-367caae46bdb",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
@@ -2438,6 +2470,7 @@ export const SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR = {
     versionId: null,
   },
   id: "aceff568-5782-44f6-b7f8-73c233c5f290",
+  versionId: "d818c23c-cb73-49d0-aba7-661111b10723",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
@@ -2456,6 +2489,7 @@ export const SOURCE_DATASET_WITH_SOURCE_STUDY_FOO = {
   },
   id: "f91078f9-7e28-4797-8ad4-9410319feba5",
   sourceStudyId: SOURCE_STUDY_MISC_C_FOO.id,
+  versionId: "cdf4ed9b-90b5-4a67-a2f6-120ea84401bf",
 } satisfies TestSourceDataset;
 
 export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
@@ -2473,6 +2507,7 @@ export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
   },
   id: "890538d1-3ce4-4c18-a6bb-08988130d917",
   sourceStudyId: SOURCE_STUDY_MISC_C_FOO.id,
+  versionId: "34ff6cf5-c049-4f0f-af21-725921854e8d",
 } satisfies TestSourceDataset;
 
 // Source datasets intitialized in the database before tests
@@ -3389,6 +3424,15 @@ export const ATLAS_DRAFT: TestAtlas = {
   network: "eye",
   publications: [],
   shortName: "test-draft",
+  sourceDatasets: [
+    SOURCE_DATASET_DRAFT_OK_FOO.versionId,
+    SOURCE_DATASET_DRAFT_OK_BAR.versionId,
+    SOURCE_DATASET_FOO.versionId,
+    SOURCE_DATASET_BAR.versionId,
+    SOURCE_DATASET_FOOFOO.versionId,
+    SOURCE_DATASET_FOOBAR.versionId,
+    SOURCE_DATASET_CELLXGENE_WITH_UPDATE.versionId,
+  ],
   sourceStudies: [
     SOURCE_STUDY_DRAFT_OK.id,
     SOURCE_STUDY_SHARED.id,
@@ -3420,6 +3464,10 @@ export const ATLAS_PUBLIC: TestAtlas = {
   network: "lung",
   publications: [],
   shortName: "test-public",
+  sourceDatasets: [
+    SOURCE_DATASET_FOOFOO.versionId,
+    SOURCE_DATASET_FOOBAR.versionId,
+  ],
   sourceStudies: [SOURCE_STUDY_PUBLIC_NO_CROSSREF.id, SOURCE_STUDY_SHARED.id],
   status: ATLAS_STATUS.OC_ENDORSED,
   targetCompletion: new Date("2024-05-28T22:31:45.731Z"),
@@ -3462,11 +3510,19 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   publications: [{ doi: DOI_NORMAL, publication: PUBLICATION_NORMAL }],
   shortName: "test-with-misc-source-studies",
   sourceDatasets: [
-    SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
-    SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
-    SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
-    SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
-    SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.id,
+    SOURCE_DATASET_FOO.versionId,
+    SOURCE_DATASET_BAR.versionId,
+    SOURCE_DATASET_BAZ.versionId,
+    SOURCE_DATASET_FOOFOO.versionId,
+    SOURCE_DATASET_FOOBAR.versionId,
+    SOURCE_DATASET_FOOBAZ.versionId,
+    SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE.versionId,
+    SOURCE_DATASET_CELLXGENE_WITH_UPDATE.versionId,
+    SOURCE_DATASET_ATLAS_LINKED_A_FOO.versionId,
+    SOURCE_DATASET_ATLAS_LINKED_A_BAR.versionId,
+    SOURCE_DATASET_ATLAS_LINKED_B_FOO.versionId,
+    SOURCE_DATASET_ATLAS_LINKED_B_BAR.versionId,
+    SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO.versionId,
   ],
   sourceStudies: [
     SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id,
@@ -3510,13 +3566,13 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   publications: [],
   shortName: "test-with-misc-source-studies-b",
   sourceDatasets: [
-    SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
-    SOURCE_DATASET_WITH_ARCHIVED_LATEST.id,
-    SOURCE_DATASET_ARCHIVED_FOO.id,
-    SOURCE_DATASET_ARCHIVED_BAR.id,
-    SOURCE_DATASET_ARCHIVED_BAZ.id,
-    SOURCE_DATASET_ARCHIVED_FOOFOO.id,
-    SOURCE_DATASET_ARCHIVED_FOOBAR.id,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES.versionId,
+    SOURCE_DATASET_WITH_ARCHIVED_LATEST.versionId,
+    SOURCE_DATASET_ARCHIVED_FOO.versionId,
+    SOURCE_DATASET_ARCHIVED_BAR.versionId,
+    SOURCE_DATASET_ARCHIVED_BAZ.versionId,
+    SOURCE_DATASET_ARCHIVED_FOOFOO.versionId,
+    SOURCE_DATASET_ARCHIVED_FOOBAR.versionId,
   ],
   sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
   status: ATLAS_STATUS.IN_PROGRESS,
@@ -3536,10 +3592,10 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
   publications: [],
   shortName: "test-with-misc-source-studies-c",
   sourceDatasets: [
-    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO.id,
-    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR.id,
-    SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.id,
-    SOURCE_DATASET_WITH_SOURCE_STUDY_BAR.id,
+    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO.versionId,
+    SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR.versionId,
+    SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.versionId,
+    SOURCE_DATASET_WITH_SOURCE_STUDY_BAR.versionId,
   ],
   sourceStudies: [SOURCE_STUDY_MISC_C_FOO.id, SOURCE_STUDY_MISC_C_BAR.id],
   status: ATLAS_STATUS.IN_PROGRESS,
@@ -3582,8 +3638,8 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   publications: [],
   shortName: "test-with-source-study-validations-b",
   sourceDatasets: [
-    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ.id,
-    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.id,
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ.versionId,
+    SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.versionId,
   ],
   sourceStudies: [
     SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
@@ -3781,8 +3837,8 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   publications: [],
   shortName: "test-with-non-latest-metadata-entities",
   sourceDatasets: [
-    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO.id,
-    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR.id,
+    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO.versionId,
+    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR.versionId,
   ],
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,

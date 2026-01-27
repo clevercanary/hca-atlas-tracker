@@ -75,7 +75,7 @@ const INPUT_DATA_NON_LINKED_DATASET = {
     SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
     SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
     SOURCE_DATASET_ATLAS_LINKED_B_FOO.id,
-    SOURCE_DATASET_FOO.id,
+    SOURCE_DATASET_WITH_MULTIPLE_FILES.id,
   ],
 };
 
@@ -323,10 +323,10 @@ async function doSuccessfulReprocessedStatusTest(
 
   for (const testDataset of SUCCESSFUL_UPDATED_DATASETS) {
     await query(
-      "UPDATE hat.source_datasets SET reprocessed_status=$1 WHERE id=$2",
+      "UPDATE hat.source_datasets SET reprocessed_status=$1 WHERE version_id=$2",
       [
         testDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
-        testDataset.id,
+        testDataset.versionId,
       ]
     );
   }

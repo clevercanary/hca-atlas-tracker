@@ -233,21 +233,25 @@ export function fillTestSourceDatasetDefaults(
   const {
     capUrl = null,
     file = [],
+    isLatest = true,
     metadataSpreadsheetTitle = null,
     metadataSpreadsheetUrl = null,
     publicationStatus = PUBLICATION_STATUS.UNSPECIFIED,
     reprocessedStatus = REPROCESSED_STATUS.UNSPECIFIED,
     sourceStudyId = null,
+    wipNumber = 1,
     ...restFields
   } = sourceDataset;
   return {
     capUrl,
     file: Array.isArray(file) ? file : [file],
+    isLatest,
     metadataSpreadsheetTitle,
     metadataSpreadsheetUrl,
     publicationStatus,
     reprocessedStatus,
     sourceStudyId,
+    wipNumber,
     ...restFields,
   };
 }
@@ -650,6 +654,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.validationSummary).toEqual(
     testFile.validationSummary
   );
+  expect(apiSourceDataset.wipNumber).toEqual(testSourceDataset.wipNumber);
 
   if (expectDetail) {
     expect(apiSourceDataset).toHaveProperty("validationReports");
