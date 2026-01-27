@@ -354,12 +354,44 @@ async function generateAndAddVersionsForFile(
       [existingComponentAtlas.version_id, newComponentAtlasVersion]
     );
   } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
-    const sourceDatasetResult = await client.query(
-      "UPDATE hat.source_datasets SET file_id = $1, wip_number = wip_number + $3 WHERE file_id = $2",
-      [latestId, file.id, newIds.length]
-    );
+    const sourceDatasetResult =
+      await client.query<HCAAtlasTrackerDBSourceDataset>(
+        "UPDATE hat.source_datasets SET is_latest = FALSE WHERE file_id = $1 RETURNING *",
+        [file.id]
+      );
     if (sourceDatasetResult.rowCount === 0)
       throw new Error(`Failed to find metadata entity for file ${file.id}`);
+    const existingSourceDataset = sourceDatasetResult.rows[0];
+    let newSourceDatasetVersion = existingSourceDataset.version_id;
+    for (const [i, newId] of newIds.entries()) {
+      const newSourceDatasetResult = await client.query<
+        Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
+      >(
+        `
+          INSERT INTO hat.source_datasets (sd_info, file_id, id, is_latest, source_study_id, wip_number, reprocessed_status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING version_id
+        `,
+        [
+          JSON.stringify(existingSourceDataset.sd_info),
+          newId,
+          existingSourceDataset.id,
+          i === newIds.length - 1,
+          existingSourceDataset.source_study_id,
+          existingSourceDataset.wip_number + 1 + i,
+          existingSourceDataset.reprocessed_status,
+        ]
+      );
+      newSourceDatasetVersion = newSourceDatasetResult.rows[0].version_id;
+    }
+    await client.query(
+      "UPDATE hat.atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2)",
+      [existingSourceDataset.version_id, newSourceDatasetVersion]
+    );
+    await client.query(
+      "UPDATE hat.component_atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE is_latest",
+      [existingSourceDataset.version_id, newSourceDatasetVersion]
+    );
   }
 
   return numVersions;
