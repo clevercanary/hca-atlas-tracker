@@ -1,4 +1,5 @@
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
+import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
 import { useEntity } from "../../../../../../providers/entity/hook";
 import { getAtlasComponentAtlasesTableColumns } from "../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -24,6 +25,9 @@ export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {
     enableMultiRowSelection: canEdit,
     enableRowSelection: canEdit,
     getRowId: (row) => row.id,
+    initialState: {
+      sorting: [{ desc: SORT_DIRECTION.ASCENDING, id: "fileName" }],
+    },
     meta: { canEdit },
     state: {
       columnVisibility: {
@@ -36,7 +40,6 @@ export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {
         id: false,
         validationStatus: !archived,
       },
-      sorting: [{ desc: false, id: "fileName" }],
     },
   });
 
