@@ -43,7 +43,7 @@ export function getTabs(componentAtlas?: HCAAtlasTrackerComponentAtlas): Tab[] {
     { label: "Validations", value: ROUTE.INTEGRATED_OBJECT_VALIDATIONS },
     {
       label: `Source Datasets ${
-        sourceDatasetCount ? `(${sourceDatasetCount})` : null
+        sourceDatasetCount ? `(${sourceDatasetCount})` : ""
       }`,
       value: ROUTE.INTEGRATED_OBJECT_SOURCE_DATASETS,
     },
