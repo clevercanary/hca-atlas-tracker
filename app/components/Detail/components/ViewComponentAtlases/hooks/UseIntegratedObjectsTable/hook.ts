@@ -5,6 +5,7 @@ import { getAtlasComponentAtlasesTableColumns } from "../../../../../../viewMode
 import { EntityData } from "../../../../../../views/ComponentAtlasesView/entities";
 import { useArchivedState } from "../../../../../Entity/providers/archived/hook";
 import { CORE_OPTIONS } from "../../../../../Table/options/core/constants";
+import { SORTING_OPTIONS } from "../../../../../Table/options/sorting/constants";
 import { UseIntegratedObjectsTable } from "./entities";
 
 export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {
@@ -19,6 +20,7 @@ export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {
     columns: getAtlasComponentAtlasesTableColumns(),
     data: integratedObjects,
     ...CORE_OPTIONS,
+    ...SORTING_OPTIONS,
     enableMultiRowSelection: canEdit,
     enableRowSelection: canEdit,
     getRowId: (row) => row.id,
@@ -34,6 +36,7 @@ export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {
         id: false,
         validationStatus: !archived,
       },
+      sorting: [{ desc: false, id: "fileName" }],
     },
   });
 
