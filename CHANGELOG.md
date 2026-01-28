@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.55.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.54.0...v1.55.0) (2026-01-28)
+
+
+### Features
+
+* allow columns of integrated objects tabes to be sortable (just like source datasets) ([#1078](https://github.com/clevercanary/hca-atlas-tracker/issues/1078)) ([#1082](https://github.com/clevercanary/hca-atlas-tracker/issues/1082)) ([33acefe](https://github.com/clevercanary/hca-atlas-tracker/commit/33acefe21c23ccc0dcf8e0ecab2e9dd2e87a04d4))
+* create multiple source dataset versions ([#1070](https://github.com/clevercanary/hca-atlas-tracker/issues/1070)) ([#1080](https://github.com/clevercanary/hca-atlas-tracker/issues/1080)) ([d4242cb](https://github.com/clevercanary/hca-atlas-tracker/commit/d4242cb8fbf5b23b0ad1369e31c083f90da405ed))
+* show how count of linked source datasets on integrated object detail page  ([#1079](https://github.com/clevercanary/hca-atlas-tracker/issues/1079)) ([#1083](https://github.com/clevercanary/hca-atlas-tracker/issues/1083)) ([2a6f0ff](https://github.com/clevercanary/hca-atlas-tracker/commit/2a6f0ffddd1c4a43b2f590e6d75687f47ccdbb2b))
+
 ## [1.54.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.53.0...v1.54.0) (2026-01-27)
 
 
