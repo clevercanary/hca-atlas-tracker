@@ -942,7 +942,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
           // `capIngestStatus` is not used for the display of CAP for integrated objects.
           capUrl: row.original.capUrl,
         }),
-      enableSorting: false,
+      enableSorting: true,
       header: "CAP URL",
       meta: { width: { max: "1fr", min: "160px" } },
     },
