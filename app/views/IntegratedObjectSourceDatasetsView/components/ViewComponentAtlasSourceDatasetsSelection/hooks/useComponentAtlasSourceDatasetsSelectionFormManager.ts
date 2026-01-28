@@ -9,6 +9,7 @@ import { FormMethod } from "../../../../../hooks/useForm/common/entities";
 import { FormManager } from "../../../../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../../../../hooks/useFormManager/useFormManager";
 import { fetchData } from "../../../../../providers/fetchDataState/actions/fetchData/dispatch";
+import { INTEGRATED_OBJECT } from "../../../../../views/ComponentAtlasView/hooks/useFetchComponentAtlas";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../../../../../views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
 import { FIELD_NAME } from "../common/constants";
 import { ComponentAtlasSourceDatasetsEditData } from "../common/entities";
@@ -39,7 +40,9 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
         filterDefaultValues(payload, defaultValues),
         {
           onSuccess: () => {
-            fetchDataDispatch(fetchData([INTEGRATED_OBJECT_SOURCE_DATASETS]));
+            fetchDataDispatch(
+              fetchData([INTEGRATED_OBJECT, INTEGRATED_OBJECT_SOURCE_DATASETS])
+            );
             onClose();
           },
         }

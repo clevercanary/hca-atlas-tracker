@@ -63,7 +63,12 @@ export const IntegratedObjectSourceDatasetsView = ({
               }
             />
           }
-          tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
+          tabs={
+            <Tabs
+              pathParameter={pathParameter}
+              tabs={getTabs(componentAtlas)}
+            />
+          }
           title={componentAtlas?.title || "Integrated Object Source Datasets"}
         />
       </ConditionalComponent>

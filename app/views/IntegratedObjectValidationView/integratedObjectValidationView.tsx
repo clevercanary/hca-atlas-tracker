@@ -48,7 +48,12 @@ export const IntegratedObjectValidationView = ({
               sectionConfigs={VIEW_INTEGRATED_OBJECT_VALIDATION_SECTION_CONFIGS}
             />
           }
-          tabs={<Tabs pathParameter={pathParameter} tabs={getTabs()} />}
+          tabs={
+            <Tabs
+              pathParameter={pathParameter}
+              tabs={getTabs(componentAtlas)}
+            />
+          }
           title={componentAtlas?.title || "Integrated Object Validations"}
         />
       </ConditionalComponent>

@@ -6,6 +6,7 @@ import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { fetchData } from "../../../providers/fetchDataState/actions/fetchData/dispatch";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../../IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
 import { ComponentAtlasDeleteSourceDatasetsData } from "../common/entities";
+import { INTEGRATED_OBJECT } from "./useFetchComponentAtlas";
 
 export interface UseUnlinkComponentAtlasSourceDatasets {
   onUnlink: (payload?: ComponentAtlasDeleteSourceDatasetsData) => Promise<void>;
@@ -20,7 +21,9 @@ export const useUnlinkComponentAtlasSourceDatasets = (
     undefined,
     {
       onSuccess: () => {
-        fetchDataDispatch(fetchData([INTEGRATED_OBJECT_SOURCE_DATASETS]));
+        fetchDataDispatch(
+          fetchData([INTEGRATED_OBJECT, INTEGRATED_OBJECT_SOURCE_DATASETS])
+        );
       },
     }
   );
