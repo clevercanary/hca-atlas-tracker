@@ -83,7 +83,7 @@ export const ComponentAtlasView = ({
             <Tabs
               onNavigate={formAction?.onNavigate}
               pathParameter={pathParameter}
-              tabs={getTabs()}
+              tabs={getTabs(componentAtlas)}
             />
           }
           title={componentAtlas?.title || "Integrated Object"}

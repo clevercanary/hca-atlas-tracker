@@ -1,5 +1,8 @@
 import { Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
-import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerComponentAtlas,
+} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../common/entities";
 import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import {
@@ -30,14 +33,18 @@ export function getBreadcrumbs(
 
 /**
  * Returns the tabs for the integrated object view.
+ * @param componentAtlas - Component atlas.
  * @returns tabs.
  */
-export function getTabs(): Tab[] {
+export function getTabs(componentAtlas?: HCAAtlasTrackerComponentAtlas): Tab[] {
+  const { sourceDatasetCount = 0 } = componentAtlas || {};
   return [
     { label: "Overview", value: ROUTE.COMPONENT_ATLAS },
     { label: "Validations", value: ROUTE.INTEGRATED_OBJECT_VALIDATIONS },
     {
-      label: "Source Datasets",
+      label: `Source Datasets ${
+        sourceDatasetCount ? `(${sourceDatasetCount})` : null
+      }`,
       value: ROUTE.INTEGRATED_OBJECT_SOURCE_DATASETS,
     },
   ];
