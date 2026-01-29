@@ -2,6 +2,14 @@ import migrate from "node-pg-migrate";
 import pg from "pg";
 import { getPoolConfig } from "../app/utils/pg-migrate-connect-config";
 
+// Only allow migration-down to run in test environment
+if (process.env.ENVIRONMENT !== "test") {
+  console.error(
+    "ERROR: migrate:down is only allowed in test environment. Set ENVIRONMENT=test to run migrations down."
+  );
+  process.exit(1);
+}
+
 const { Pool } = pg;
 
 const green = (text: string): string => `\x1b[32m${text}\x1b[0m`;
