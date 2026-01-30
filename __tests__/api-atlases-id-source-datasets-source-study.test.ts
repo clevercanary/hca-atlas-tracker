@@ -38,7 +38,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -106,9 +106,9 @@ describe(`${TEST_ROUTE} (misc)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
           INPUT_DATA_NULL_SUCCESSFUL,
           undefined,
-          METHOD.PUT
+          METHOD.PUT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 });
@@ -122,12 +122,12 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NULL_SUCCESSFUL,
           undefined,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO
+      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
     );
   });
 
@@ -139,12 +139,12 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NULL_SUCCESSFUL,
           USER_UNREGISTERED,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO
+      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
     );
   });
 
@@ -156,12 +156,12 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NULL_SUCCESSFUL,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.PATCH,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO
+      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
     );
   });
 
@@ -178,9 +178,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
         await expectSourceDatasetToBeUnchanged(
-          SOURCE_DATASET_WITH_SOURCE_STUDY_FOO
+          SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
         );
-      }
+      },
     );
   }
 
@@ -192,12 +192,12 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NULL_SUCCESSFUL,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.PATCH,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO
+      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
     );
   });
 
@@ -209,9 +209,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NONEXISTENT_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -223,9 +223,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_ARCHIVED_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -237,9 +237,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NO_DATASETS,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -251,9 +251,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NON_ASSOCIATED_STUDY,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -265,12 +265,12 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NON_LINKED_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO
+      SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
     );
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
   });
@@ -287,36 +287,36 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           inputData,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
     );
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
     );
   });
 
   it("links source study when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     await doSuccessfulSourceStudyTest(
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
-      SOURCE_STUDY_MISC_C_BAR.id
+      SOURCE_STUDY_MISC_C_BAR.id,
     );
   });
 
   it("links source study when PATCH requested by user with CONTENT_ADMIN role", async () => {
     await doSuccessfulSourceStudyTest(
       USER_CONTENT_ADMIN,
-      SOURCE_STUDY_MISC_C_BAR.id
+      SOURCE_STUDY_MISC_C_BAR.id,
     );
   });
 
   it("unlinks source studies when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     await doSuccessfulSourceStudyTest(
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
-      null
+      null,
     );
   });
 
@@ -327,14 +327,14 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
 
 async function doSuccessfulSourceStudyTest(
   user: TestUser,
-  sourceStudyId: string | null
+  sourceStudyId: string | null,
 ): Promise<void> {
   const atlasDatasetsByIdBefore = new Map(
     (
       await getAtlasSourceDatasetsFromDatabase(
-        ATLAS_WITH_MISC_SOURCE_STUDIES_C.id
+        ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
       )
-    ).map((d) => [d.id, d])
+    ).map((d) => [d.id, d]),
   );
 
   for (const testDataset of SUCCESSFUL_UPDATED_DATASETS) {
@@ -348,17 +348,17 @@ async function doSuccessfulSourceStudyTest(
       await doSourceStudyRequest(
         ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
         makeSuccessfulInputData(sourceStudyId),
-        user
+        user,
       )
-    )._getStatusCode()
+    )._getStatusCode(),
   ).toEqual(200);
 
   const atlasDatasetsByIdAfter = new Map(
     (
       await getAtlasSourceDatasetsFromDatabase(
-        ATLAS_WITH_MISC_SOURCE_STUDIES_C.id
+        ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
       )
-    ).map((d) => [d.id, d])
+    ).map((d) => [d.id, d]),
   );
 
   const nonUpdatedIds = new Set(atlasDatasetsByIdBefore.keys());
@@ -372,20 +372,20 @@ async function doSuccessfulSourceStudyTest(
 
   for (const datasetId of nonUpdatedIds) {
     expect(atlasDatasetsByIdAfter.get(datasetId)).toEqual(
-      atlasDatasetsByIdBefore.get(datasetId)
+      atlasDatasetsByIdBefore.get(datasetId),
     );
   }
 
   for (const testDataset of SUCCESSFUL_UPDATED_DATASETS) {
     await query(
       "UPDATE hat.source_datasets SET source_study_id=$1 WHERE version_id=$2",
-      [testDataset.sourceStudyId ?? null, testDataset.versionId]
+      [testDataset.sourceStudyId ?? null, testDataset.versionId],
     );
   }
 }
 
 function makeSuccessfulInputData(
-  sourceStudyId: string | null
+  sourceStudyId: string | null,
 ): SourceDatasetsSetSourceStudyData {
   return {
     sourceDatasetIds: SUCCESSFUL_UPDATED_DATASETS.map((d) => d.id),
@@ -398,7 +398,7 @@ async function doSourceStudyRequest(
   body: Record<string, unknown>,
   user?: TestUser,
   method = METHOD.PATCH,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
@@ -408,7 +408,7 @@ async function doSourceStudyRequest(
   });
   await withConsoleErrorHiding(
     () => sourceStudyHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

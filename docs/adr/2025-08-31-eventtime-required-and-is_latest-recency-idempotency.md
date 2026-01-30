@@ -19,12 +19,10 @@ Issues observed/risks:
 ## Decision
 
 1. Require `eventTime` in every S3 record.
-
    - Validation is enforced by Yup in `s3RecordSchema` (field `eventTime: string().required()`).
    - The API handler (`pages/api/sns.ts`) validates the entire SNS message and returns `400 Bad Request` for validation errors (via `respondValidationError()` in `app/utils/api-handler.ts`).
 
 2. Determine `is_latest` strictly by `eventTime` recency.
-
    - `saveFileRecord()` in `app/services/s3-notification.ts` compares incoming `eventTime` (ISO 8601) lexicographically against the current latest record’s `eventTime`.
    - If newer, it marks previous versions `is_latest=false` and inserts the new row with `is_latest=true` atomically within a transaction.
    - If older or equal, it leaves the current latest unchanged (prevents flipping when older events arrive later/out-of-order).
@@ -42,11 +40,9 @@ Issues observed/risks:
 ## Alternatives Considered
 
 - Accept missing `eventTime` and treat as oldest (always `is_latest=false`).
-
   - Rejected: silently diverges from producer expectations and hides data issues.
 
 - Accept missing `eventTime` and treat as now (always newest).
-
   - Rejected: would incorrectly flip `is_latest` and mask producer defects.
 
 - Add service-level fallback (defaulting to empty string or a sentinel).

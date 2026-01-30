@@ -4,7 +4,7 @@ import { ValidationError } from "yup";
 import { getSpreadsheetIdFromUrl, InvalidSheetError } from "./google-sheets";
 
 export async function getSheetTitle(
-  spreadsheetUrl: string
+  spreadsheetUrl: string,
 ): Promise<string | null> {
   // Get credentials from environment variable
   const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT;
@@ -37,12 +37,12 @@ export async function getSheetTitle(
       if (error.response?.status === 404) {
         throw new InvalidSheetError(
           `The sheet with ID ${JSON.stringify(
-            spreadsheetId
-          )} does not exist. Please check if the URL is correct.`
+            spreadsheetId,
+          )} does not exist. Please check if the URL is correct.`,
         );
       } else if (error.response?.status === 403) {
         throw new InvalidSheetError(
-          `To enable the tracker to read the spreadsheet, please share it with ${process.env.SERVICE_ACCOUNT_EMAIL}`
+          `To enable the tracker to read the spreadsheet, please share it with ${process.env.SERVICE_ACCOUNT_EMAIL}`,
         );
       }
     }
@@ -58,7 +58,7 @@ export async function getSheetTitle(
  */
 export async function getSheetTitleForApi(
   spreadsheetUrl: string | null | undefined,
-  schemaKey: string
+  schemaKey: string,
 ): Promise<string | null> {
   return spreadsheetUrl
     ? await getSheetTitle(spreadsheetUrl).catch((err) => {

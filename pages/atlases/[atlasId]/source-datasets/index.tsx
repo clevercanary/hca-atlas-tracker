@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { PathParameter } from "../../../../app/common/entities";
@@ -15,7 +16,7 @@ interface SourceDatasetsPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId } = context.params as SourceDatasetsPageUrlParams;
   return {

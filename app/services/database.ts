@@ -15,7 +15,7 @@ function getPool(): pg.Pool {
 export function query<T extends pg.QueryResultRow>(
   queryTextOrConfig: string | pg.QueryConfig<unknown[]>,
   values?: unknown[] | undefined,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<pg.QueryResult<T>> {
   return client
     ? client.query<T>(queryTextOrConfig, values)
@@ -32,7 +32,7 @@ export function query<T extends pg.QueryResultRow>(
 export async function doTransaction<T>(
   func: (client: pg.PoolClient) => Promise<T>,
   catchFunc?: (e: unknown) => T | Promise<T>,
-  finallyFunc?: () => void | Promise<void>
+  finallyFunc?: () => void | Promise<void>,
 ): Promise<T> {
   const client = await getPoolClient();
   try {
@@ -58,7 +58,7 @@ export async function doTransaction<T>(
  */
 export function doOrContinueTransaction<T>(
   client: pg.PoolClient | undefined,
-  func: (client: pg.PoolClient) => Promise<T>
+  func: (client: pg.PoolClient) => Promise<T>,
 ): Promise<T> {
   if (client) return func(client);
   else return doTransaction(func);

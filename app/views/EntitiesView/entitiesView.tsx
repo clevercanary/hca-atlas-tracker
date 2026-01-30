@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Title } from "@databiosphere/findable-ui/lib/components/Index/components/EntityView/components/layout/Title/title";
 import { StyledGridEntityLayout } from "@databiosphere/findable-ui/lib/components/Index/index.styles";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";

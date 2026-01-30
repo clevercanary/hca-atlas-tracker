@@ -6,7 +6,7 @@ import { FormResponseErrors } from "./entities";
  * @returns promise (response errors).
  */
 export async function getFormResponseErrors(
-  response: Response
+  response: Response,
 ): Promise<FormResponseErrors> {
   return await response
     .json()

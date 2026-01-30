@@ -12,5 +12,5 @@ export default handler(
       console.error(e);
     });
     res.status(202).end();
-  }
+  },
 );

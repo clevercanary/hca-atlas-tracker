@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Grid } from "@databiosphere/findable-ui/lib/components/common/Grid/grid";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";

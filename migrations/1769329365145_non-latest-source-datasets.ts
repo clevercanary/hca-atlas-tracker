@@ -34,7 +34,7 @@ export function down(pgm: MigrationBuilder): void {
       source_dataset_id: {
         type: "uuid",
       },
-    }
+    },
   );
 
   // Re-create the index

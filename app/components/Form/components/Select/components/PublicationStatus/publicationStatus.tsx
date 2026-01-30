@@ -1,5 +1,5 @@
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, ReactNode } from "react";
+import { JSX, forwardRef, ReactNode } from "react";
 import { PUBLICATION_STATUS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   Select,
@@ -9,7 +9,7 @@ import {
 export const PublicationStatus = forwardRef<HTMLInputElement, SelectProps>(
   function PublicationStatus(
     { className, ...props }: SelectProps,
-    ref
+    ref,
   ): JSX.Element | null {
     return (
       <Select
@@ -28,7 +28,7 @@ export const PublicationStatus = forwardRef<HTMLInputElement, SelectProps>(
         })}
       </Select>
     );
-  }
+  },
 );
 
 /**

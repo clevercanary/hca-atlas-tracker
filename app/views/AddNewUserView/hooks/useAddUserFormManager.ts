@@ -11,7 +11,7 @@ import { ROUTE } from "../../../routes/constants";
 import { NewUserData } from "../common/entities";
 
 export const useAddUserFormManager = (
-  formMethod: FormMethod<NewUserData, HCAAtlasTrackerUser>
+  formMethod: FormMethod<NewUserData, HCAAtlasTrackerUser>,
 ): FormManager => {
   const { onSubmit } = formMethod;
 
@@ -25,7 +25,7 @@ export const useAddUserFormManager = (
         onSuccess: (data) => onSuccess(data.id, url),
       });
     },
-    [onSubmit]
+    [onSubmit],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

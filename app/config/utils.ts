@@ -6,7 +6,7 @@ import { SelectCategoryValue } from "@databiosphere/findable-ui/lib/common/entit
  * @returns select category value with formatted label.
  */
 export function mapSelectCategoryValue(
-  formatLabel: (label: string) => string
+  formatLabel: (label: string) => string,
 ): (select: SelectCategoryValue) => SelectCategoryValue {
   return (selectCategoryValue: SelectCategoryValue) => {
     return {

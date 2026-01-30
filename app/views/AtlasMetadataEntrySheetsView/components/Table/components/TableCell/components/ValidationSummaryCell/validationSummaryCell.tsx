@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { Chip, Grid, Link as MLink } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";

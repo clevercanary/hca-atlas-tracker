@@ -29,7 +29,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
@@ -52,13 +52,13 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doIntegrationLeadsRequest(USER_CONTENT_ADMIN, false, METHOD.GET)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doIntegrationLeadsRequest(undefined, true))._getStatusCode()
+      (await doIntegrationLeadsRequest(undefined, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -66,7 +66,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doIntegrationLeadsRequest(USER_UNREGISTERED, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -74,7 +74,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doIntegrationLeadsRequest(USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -90,7 +90,7 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -101,20 +101,20 @@ describe(TEST_ROUTE, () => {
 
 async function testSuccessfulRequest(): Promise<void> {
   const integrationLeadDraftBefore = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_DRAFT.email
+    USER_INTEGRATION_LEAD_DRAFT.email,
   );
   const integrationLeadPublicBefore = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_PUBLIC.email
+    USER_INTEGRATION_LEAD_PUBLIC.email,
   );
   const integrationLeadMiscStudiesBefore = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES.email
+    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES.email,
   );
   const integrationLeadNewAtlasBefore = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.email
+    USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.email,
   );
   const bazBefore = await getUserFromDatabase(INTEGRATION_LEAD_BAZ.email);
   const bazBazBefore = await getUserFromDatabase(
-    INTEGRATION_LEAD_BAZ_BAZ.email
+    INTEGRATION_LEAD_BAZ_BAZ.email,
   );
 
   if (expectIsDefined(integrationLeadDraftBefore))
@@ -128,12 +128,12 @@ async function testSuccessfulRequest(): Promise<void> {
   if (expectIsDefined(integrationLeadMiscStudiesBefore))
     expectItemsToBe(
       integrationLeadMiscStudiesBefore.role_associated_resource_ids,
-      [ATLAS_WITH_MISC_SOURCE_STUDIES.id]
+      [ATLAS_WITH_MISC_SOURCE_STUDIES.id],
     );
   if (expectIsDefined(integrationLeadNewAtlasBefore))
     expectItemsToBe(
       integrationLeadNewAtlasBefore.role_associated_resource_ids,
-      [ATLAS_DRAFT.id]
+      [ATLAS_DRAFT.id],
     );
   expect(bazBefore).toBeUndefined();
   expect(bazBazBefore).toBeUndefined();
@@ -141,20 +141,20 @@ async function testSuccessfulRequest(): Promise<void> {
   expect(
     (
       await doIntegrationLeadsRequest(USER_CONTENT_ADMIN, false, METHOD.PATCH)
-    )._getStatusCode()
+    )._getStatusCode(),
   ).toEqual(200);
 
   const integrationLeadDraftAfter = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_DRAFT.email
+    USER_INTEGRATION_LEAD_DRAFT.email,
   );
   const integrationLeadPublicAfter = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_PUBLIC.email
+    USER_INTEGRATION_LEAD_PUBLIC.email,
   );
   const integrationLeadMiscStudiesAfter = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES.email
+    USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES.email,
   );
   const integrationLeadNewAtlasAfter = await getUserFromDatabase(
-    USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.email
+    USER_INTEGRATION_LEAD_WITH_NEW_ATLAS.email,
   );
   const bazAfter = await getUserFromDatabase(INTEGRATION_LEAD_BAZ.email);
   const bazBazAfter = await getUserFromDatabase(INTEGRATION_LEAD_BAZ_BAZ.email);
@@ -170,7 +170,7 @@ async function testSuccessfulRequest(): Promise<void> {
   if (expectIsDefined(integrationLeadMiscStudiesAfter))
     expectItemsToBe(
       integrationLeadMiscStudiesAfter.role_associated_resource_ids,
-      [ATLAS_WITH_MISC_SOURCE_STUDIES.id]
+      [ATLAS_WITH_MISC_SOURCE_STUDIES.id],
     );
   if (expectIsDefined(integrationLeadNewAtlasAfter))
     expectItemsToBe(integrationLeadNewAtlasAfter.role_associated_resource_ids, [
@@ -188,7 +188,7 @@ async function testSuccessfulRequest(): Promise<void> {
 async function doIntegrationLeadsRequest(
   user?: TestUser,
   hideConsoleError = false,
-  method = METHOD.PATCH
+  method = METHOD.PATCH,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -196,7 +196,7 @@ async function doIntegrationLeadsRequest(
   });
   await withConsoleErrorHiding(
     () => integrationLeadsFromAtlasesHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
@@ -209,12 +209,12 @@ function expectItemsToBe(items: unknown[], expectedItems: unknown[]): void {
 }
 
 async function getUserFromDatabase(
-  email: string
+  email: string,
 ): Promise<HCAAtlasTrackerDBUser | undefined> {
   return (
     await query<HCAAtlasTrackerDBUser>(
       "SELECT * FROM hat.users WHERE email=$1",
-      [email]
+      [email],
     )
   ).rows[0];
 }

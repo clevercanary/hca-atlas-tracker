@@ -40,7 +40,7 @@ interface UseFetchData<D> {
 export const useFetchData = <D>(
   requestUrl: string,
   method: METHOD,
-  shouldFetch = true
+  shouldFetch = true,
 ): UseFetchData<D> => {
   const {
     authState: { isAuthenticated },
@@ -50,7 +50,7 @@ export const useFetchData = <D>(
 
   const [progress, progressDispatch] = useReducer(
     fetchProgressReducer,
-    FETCH_PROGRESS.INACTIVE
+    FETCH_PROGRESS.INACTIVE,
   );
 
   // If an error has been saved from the asynchronous fetch, throw it synchronously.
@@ -71,10 +71,10 @@ export const useFetchData = <D>(
         await res
           .json()
           .then(({ message }) => message)
-          .catch(() => `Received ${res.status} response`)
+          .catch(() => `Received ${res.status} response`),
       );
     },
-    [method, requestUrl]
+    [method, requestUrl],
   );
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export const useFetchData = <D>(
 
 function fetchProgressReducer(
   p: FETCH_PROGRESS,
-  a: FetchProgressActionKind
+  a: FetchProgressActionKind,
 ): FETCH_PROGRESS {
   switch (a) {
     case FetchProgressActionKind.Completed:

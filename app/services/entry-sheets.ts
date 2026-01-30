@@ -30,7 +30,7 @@ type ValidationUpdateData = Omit<HCAAtlasTrackerDBEntrySheetValidation, "id">;
 
 export async function getEntrySheetValidation(
   atlasId: string,
-  entrySheetValidationId: string
+  entrySheetValidationId: string,
 ): Promise<WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidation>> {
   const atlasResult = await query<
     Pick<HCAAtlasTrackerDBAtlas, "source_studies">
@@ -50,17 +50,17 @@ export async function getEntrySheetValidation(
       LEFT JOIN hat.source_studies s ON v.source_study_id=s.id
       WHERE v.source_study_id=ANY($1) AND v.id=$2
     `,
-    [atlasSourceStudies, entrySheetValidationId]
+    [atlasSourceStudies, entrySheetValidationId],
   );
   if (validationResult.rows.length === 0)
     throw new NotFoundError(
-      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist on atlas with ID ${atlasId}`
+      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist on atlas with ID ${atlasId}`,
     );
   return validationResult.rows[0];
 }
 
 export async function getAtlasEntrySheetValidations(
-  atlasId: string
+  atlasId: string,
 ): Promise<
   WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidationListFields>[]
 > {
@@ -83,18 +83,18 @@ export async function getAtlasEntrySheetValidations(
         LEFT JOIN hat.source_studies s ON v.source_study_id=s.id
         WHERE v.source_study_id=ANY($1)
       `,
-    [sourceStudies.map((study) => study.id)]
+    [sourceStudies.map((study) => study.id)],
   );
   return validationsResult.rows;
 }
 
 export async function getBaseModelAtlasEntrySheetValidations(
-  atlasId: string
+  atlasId: string,
 ): Promise<HCAAtlasTrackerDBEntrySheetValidation[]> {
   const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
   const validationsResult = await query<HCAAtlasTrackerDBEntrySheetValidation>(
     "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=ANY($1)",
-    [sourceStudies.map((study) => study.id)]
+    [sourceStudies.map((study) => study.id)],
   );
   return validationsResult.rows;
 }
@@ -105,7 +105,7 @@ export async function getBaseModelAtlasEntrySheetValidations(
  * @returns promise resolving to an object containing a promise that resolves when validations have been updated.
  */
 export async function startAtlasEntrySheetValidationsUpdate(
-  atlasId: string
+  atlasId: string,
 ): Promise<CompletionPromiseContainer> {
   const {
     overview: { network: bioNetwork },
@@ -120,7 +120,7 @@ export async function startAtlasEntrySheetValidationsUpdate(
         bioNetwork,
         sourceStudyId: study.id,
         spreadsheetId: sheetInfo.id,
-      }))
+      })),
     )
     .flat();
 
@@ -135,7 +135,7 @@ export async function startAtlasEntrySheetValidationsUpdate(
  */
 export async function startUpdateForEntrySheetValidation(
   atlasId: string,
-  entrySheetValidationId: string
+  entrySheetValidationId: string,
 ): Promise<CompletionPromiseContainer> {
   const atlas = await getBaseModelAtlas(atlasId);
 
@@ -146,18 +146,18 @@ export async function startUpdateForEntrySheetValidation(
     >
   >(
     "SELECT source_study_id, entry_sheet_id FROM hat.entry_sheet_validations WHERE id=$1",
-    [entrySheetValidationId]
+    [entrySheetValidationId],
   );
   if (existingValidationResult.rows.length === 0)
     throw new NotFoundError(
-      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist`
+      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist`,
     );
   const { entry_sheet_id: spreadsheetId, source_study_id: sourceStudyId } =
     existingValidationResult.rows[0];
 
   if (!atlas.source_studies.includes(sourceStudyId))
     throw new NotFoundError(
-      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist on atlas with ID ${atlasId}`
+      `Entry sheet validation with ID ${entrySheetValidationId} doesn't exist on atlas with ID ${atlasId}`,
     );
 
   return await startEntrySheetValidationsUpdate([
@@ -171,25 +171,25 @@ export async function startUpdateForEntrySheetValidation(
  * @returns promise resolving to an object containing a promise that resolves when validations have been updated.
  */
 export async function startEntrySheetValidationsUpdate(
-  entrySheetParams: EntrySheetValidationUpdateParameters[]
+  entrySheetParams: EntrySheetValidationUpdateParameters[],
 ): Promise<CompletionPromiseContainer> {
   const validationResultPromises = entrySheetParams.map((sheet) =>
     getSheetValidationResults(
       sheet.sourceStudyId,
       sheet.spreadsheetId,
-      sheet.bioNetwork
-    )
+      sheet.bioNetwork,
+    ),
   );
 
   return {
     completionPromise: updateEntrySheetValidationsFromResultPromises(
-      validationResultPromises
+      validationResultPromises,
     ),
   };
 }
 
 export async function updateEntrySheetValidationsFromResultPromises(
-  resultPromises: Promise<ValidationUpdateData>[]
+  resultPromises: Promise<ValidationUpdateData>[],
 ): Promise<void> {
   const validationResults = await Promise.allSettled(resultPromises);
 
@@ -212,13 +212,13 @@ export async function updateEntrySheetValidationsFromResultPromises(
         WHERE s.id = ANY($1)
       `,
       [Array.from(sourceStudyIds)],
-      client
+      client,
     );
     const studiesSheetIds = new Set(
-      studiesSheetsResult.rows.map(({ id }) => id)
+      studiesSheetsResult.rows.map(({ id }) => id),
     );
     const validationsToKeep = validations.filter((v) =>
-      studiesSheetIds.has(v.entry_sheet_id)
+      studiesSheetIds.has(v.entry_sheet_id),
     );
 
     // If none are present, there are no changes to make
@@ -231,7 +231,7 @@ export async function updateEntrySheetValidationsFromResultPromises(
 
 async function createAndUpdateEntrySheetValidations(
   validations: ValidationUpdateData[],
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   // Get existing entry sheet validations
   const sheetIds = validations.map((v) => v.entry_sheet_id);
@@ -240,10 +240,10 @@ async function createAndUpdateEntrySheetValidations(
   >(
     "SELECT entry_sheet_id FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
     [sheetIds],
-    client
+    client,
   );
   const existingValidationSheetIds = existingValidationsResult.rows.map(
-    (v) => v.entry_sheet_id
+    (v) => v.entry_sheet_id,
   );
 
   // Split validations into new and updated
@@ -278,7 +278,7 @@ async function createAndUpdateEntrySheetValidations(
         WHERE v.entry_sheet_id = u.entry_sheet_id
       `,
       [JSON.stringify(updatedValidations)],
-      client
+      client,
     );
   if (newValidations.length)
     await query(
@@ -297,34 +297,34 @@ async function createAndUpdateEntrySheetValidations(
         )
       `,
       [JSON.stringify(newValidations)],
-      client
+      client,
     );
 }
 
 export async function deleteEntrySheetValidationsBySpreadsheet(
   spreadsheetIds: string[],
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   await client.query(
     "DELETE FROM hat.entry_sheet_validations WHERE entry_sheet_id=ANY($1)",
-    [spreadsheetIds]
+    [spreadsheetIds],
   );
 }
 
 export async function deleteEntrySheetValidationsOfDeletedSourceStudy(
   sourceStudyId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   await client.query(
     "DELETE FROM hat.entry_sheet_validations WHERE source_study_id=$1",
-    [sourceStudyId]
+    [sourceStudyId],
   );
 }
 
 async function getSheetValidationResults(
   sourceStudyId: string,
   sheetId: string,
-  bioNetwork: NetworkKey
+  bioNetwork: NetworkKey,
 ): Promise<ValidationUpdateData> {
   const syncTime = new Date();
   try {
@@ -334,7 +334,7 @@ async function getSheetValidationResults(
         response.error,
         sourceStudyId,
         sheetId,
-        syncTime
+        syncTime,
       );
     } else {
       return {
@@ -362,7 +362,7 @@ async function getSheetValidationResults(
       message,
       sourceStudyId,
       sheetId,
-      syncTime
+      syncTime,
     );
   }
 }
@@ -371,7 +371,7 @@ function makeValidationWithErrorMessage(
   message: string,
   sourceStudyId: string,
   entrySheetId: string,
-  syncTime: Date
+  syncTime: Date,
 ): ValidationUpdateData {
   return {
     entry_sheet_id: entrySheetId,

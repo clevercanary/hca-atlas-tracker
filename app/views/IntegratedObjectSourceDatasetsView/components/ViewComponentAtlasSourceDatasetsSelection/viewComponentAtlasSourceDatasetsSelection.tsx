@@ -2,7 +2,7 @@ import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/B
 import { AddLinkIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddLinkIcon/addLinkIcon";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Button } from "@mui/material";
-import { Fragment, useState } from "react";
+import { JSX, Fragment, useState } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../common/entities";
 import { ComponentAtlasSourceDatasetsSelection } from "./components/ComponentAtlasSourceDatasetsSelection/componentAtlasSourceDatasetsSelection";

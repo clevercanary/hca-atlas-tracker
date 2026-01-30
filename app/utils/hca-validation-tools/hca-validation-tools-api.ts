@@ -9,7 +9,7 @@ interface EntrySheetValidationRequestBody {
 
 export async function fetchEntrySheetValidationResults(
   googleSheetId: string,
-  bioNetwork: NetworkKey
+  bioNetwork: NetworkKey,
 ): Promise<EntrySheetValidationResponse> {
   const validationApiUrl = process.env.HCA_VALIDATION_TOOLS_URL;
   if (!validationApiUrl)

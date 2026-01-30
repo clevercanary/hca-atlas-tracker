@@ -14,5 +14,5 @@ export default handler(
   async (req, res) => {
     const newInfo = await newUserSchema.validate(req.body);
     res.status(201).json(dbUserToApiUser(await createUser(newInfo)));
-  }
+  },
 );

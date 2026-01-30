@@ -1,7 +1,7 @@
 export type OnSubmitFn = (
   requestURL: string,
   payload: Payload,
-  options?: OnSubmitOptions
+  options?: OnSubmitOptions,
 ) => Promise<void>;
 
 export interface OnSubmitOptions {

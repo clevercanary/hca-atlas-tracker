@@ -28,12 +28,10 @@ Even though external HTTP was mocked in tests, import/mocking order likely allow
 ## Considered Options
 
 1. Suppress or stub logs in tests (e.g., spy on `console`).
-
    - Pros: Quick to implement.
    - Cons: Hides symptoms, not the cause. Background work still runs; risks open handles.
 
 2. Disable auto-start refresh in tests via a flag on the refresh service (selected).
-
    - Pros: Structural fix, prevents background work on import; clean and explicit tests.
    - Cons: Tests that assumed auto-start must be updated to trigger refresh explicitly and use relative call counts.
 

@@ -46,7 +46,7 @@ const { httpGet } = jest.requireMock("../app/utils/http") as {
 const mockHttpGet = httpGet as jest.Mock;
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -86,7 +86,7 @@ describe(TEST_ROUTE, () => {
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
         method: METHOD.GET,
-      }
+      },
     );
 
     await snsHandler(req, res);
@@ -102,7 +102,7 @@ describe(TEST_ROUTE, () => {
           invalid: "payload",
         },
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleErrorHiding(async () => {
@@ -133,7 +133,7 @@ describe(TEST_ROUTE, () => {
       {
         body: snsMessageWithInvalidSignature,
         method: "POST",
-      }
+      },
     );
 
     await withConsoleErrorHiding(async () => {
@@ -161,7 +161,7 @@ describe(TEST_ROUTE, () => {
       expectedMessage: "SNS validation returned no message",
       mockBehavior: (
         message: Record<string, unknown>,
-        callback: (err: Error | null, result?: Record<string, unknown>) => void
+        callback: (err: Error | null, result?: Record<string, unknown>) => void,
       ): void => callback(null, undefined),
       size: 128000,
       testId: "no-validated-message",
@@ -175,7 +175,7 @@ describe(TEST_ROUTE, () => {
     async ({ expectedMessage, mockBehavior, size, testId }) => {
       // Temporarily override the mock with specific behavior
       const MockedMessageValidator = jest.mocked(
-        jest.requireMock(TEST_MODULE_SNS_VALIDATOR)
+        jest.requireMock(TEST_MODULE_SNS_VALIDATOR),
       );
       MockedMessageValidator.mockImplementation(() => ({
         validate: jest.fn(mockBehavior),
@@ -232,7 +232,7 @@ describe(TEST_ROUTE, () => {
           callback(null, message);
         }),
       }));
-    }
+    },
   );
 
   it("rejects notifications from unauthorized SNS topics", async () => {

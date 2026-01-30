@@ -28,7 +28,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -52,10 +52,10 @@ beforeAll(async () => {
   await resetDatabase();
 
   const usersResult = await query<Pick<HCAAtlasTrackerDBUser, "id" | "email">>(
-    "SELECT id, email FROM hat.users"
+    "SELECT id, email FROM hat.users",
   );
   userIdsByEmail = new Map(
-    usersResult.rows.map(({ email, id }) => [email, id])
+    usersResult.rows.map(({ email, id }) => [email, id]),
   );
   userIdsByEmail.set(USER_NONEXISTENT.email, INITIAL_TEST_USERS.length + 100);
 });
@@ -69,13 +69,13 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doUserRequest(USER_STAKEHOLDER, undefined, false, METHOD.POST)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 when user is GET requested by logged out user", async () => {
     expect(
-      (await doUserRequest(USER_STAKEHOLDER, undefined, true))._getStatusCode()
+      (await doUserRequest(USER_STAKEHOLDER, undefined, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -83,7 +83,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doUserRequest(USER_STAKEHOLDER, USER_UNREGISTERED, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -91,7 +91,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doUserRequest(USER_STAKEHOLDER, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -99,7 +99,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doUserRequest(USER_NONEXISTENT, USER_CONTENT_ADMIN, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -115,7 +115,7 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -134,9 +134,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           true,
           METHOD.PATCH,
-          USER_STAKEHOLDER_EDIT
+          USER_STAKEHOLDER_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -148,9 +148,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           true,
           METHOD.PATCH,
-          USER_STAKEHOLDER_EDIT
+          USER_STAKEHOLDER_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -162,9 +162,9 @@ describe(TEST_ROUTE, () => {
           USER_DISABLED_CONTENT_ADMIN,
           false,
           METHOD.PATCH,
-          USER_STAKEHOLDER_EDIT
+          USER_STAKEHOLDER_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -176,9 +176,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           true,
           METHOD.PATCH,
-          USER_STAKEHOLDER_EDIT
+          USER_STAKEHOLDER_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -194,7 +194,7 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -209,9 +209,9 @@ describe(TEST_ROUTE, () => {
           {
             ...USER_STAKEHOLDER_EDIT,
             email: "notanemail",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -226,9 +226,9 @@ describe(TEST_ROUTE, () => {
           {
             ...USER_STAKEHOLDER_EDIT,
             email: USER_STAKEHOLDER_EDIT.email + " ",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -243,9 +243,9 @@ describe(TEST_ROUTE, () => {
           {
             ...USER_STAKEHOLDER_EDIT,
             role: undefined,
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -260,9 +260,9 @@ describe(TEST_ROUTE, () => {
           {
             ...USER_STAKEHOLDER_EDIT,
             role: "notarole",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -272,7 +272,7 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       false,
       METHOD.PATCH,
-      USER_STAKEHOLDER_EDIT
+      USER_STAKEHOLDER_EDIT,
     );
     expect(res._getStatusCode()).toEqual(201);
     const user = res._getJSONData() as HCAAtlasTrackerUser;
@@ -280,12 +280,12 @@ describe(TEST_ROUTE, () => {
     const updatedUserFromDb = (
       await query<HCAAtlasTrackerDBUser>(
         "SELECT * FROM hat.users WHERE email=$1",
-        [USER_STAKEHOLDER_EDIT.email]
+        [USER_STAKEHOLDER_EDIT.email],
       )
     ).rows[0];
     await expectDbUserToMatchInputData(
       updatedUserFromDb,
-      USER_STAKEHOLDER_EDIT
+      USER_STAKEHOLDER_EDIT,
     );
   });
 });
@@ -295,7 +295,7 @@ async function doUserRequest(
   user?: TestUser,
   hideConsoleError = false,
   method = METHOD.GET,
-  updatedData?: Record<string, unknown>
+  updatedData?: Record<string, unknown>,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: updatedData,
@@ -316,13 +316,13 @@ function getQueryValues(user: TestUser): Record<string, string> {
 
 function expectApiUserToMatchEdit(
   apiUser: HCAAtlasTrackerUser,
-  editData: UserEditData
+  editData: UserEditData,
 ): void {
   expect(apiUser.disabled).toEqual(editData.disabled);
   expect(apiUser.email).toEqual(editData.email);
   expect(apiUser.fullName).toEqual(editData.fullName);
   expect(apiUser.role).toEqual(editData.role);
   expect(apiUser.roleAssociatedResourceIds).toEqual(
-    editData.roleAssociatedResourceIds
+    editData.roleAssociatedResourceIds,
   );
 }

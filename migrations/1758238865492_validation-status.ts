@@ -4,7 +4,7 @@ export function up(pgm: MigrationBuilder): void {
   pgm.renameColumn(
     { name: "files", schema: "hat" },
     "status",
-    "validation_status"
+    "validation_status",
   );
 
   pgm.alterColumn({ name: "files", schema: "hat" }, "validation_status", {
@@ -24,7 +24,7 @@ export function up(pgm: MigrationBuilder): void {
           WHEN integrity_status = 'validating' THEN 'requested'
           ELSE 'completed'
         END
-    `
+    `,
   );
 
   pgm.addConstraint(
@@ -33,14 +33,14 @@ export function up(pgm: MigrationBuilder): void {
     {
       check:
         "validation_status IN ('completed', 'job_failed', 'pending', 'request_failed', 'requested', 'stale')",
-    }
+    },
   );
 }
 
 export function down(pgm: MigrationBuilder): void {
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "ck_files_validation_status"
+    "ck_files_validation_status",
   );
 
   pgm.sql("UPDATE hat.files SET validation_status = 'uploaded'");
@@ -52,6 +52,6 @@ export function down(pgm: MigrationBuilder): void {
   pgm.renameColumn(
     { name: "files", schema: "hat" },
     "validation_status",
-    "status"
+    "status",
   );
 }

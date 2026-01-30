@@ -53,7 +53,7 @@ describe("submitDatasetValidationJob", () => {
     // Act
     const { jobId } = await submitDatasetValidationJob(
       { fileId, s3Key },
-      { batchClient: client }
+      { batchClient: client },
     );
 
     // Assert
@@ -77,7 +77,7 @@ describe("submitDatasetValidationJob", () => {
         { name: "FILE_ID", value: fileId },
         { name: "SNS_TOPIC_ARN", value: SNS_TOPIC_ARN },
         { name: "LOG_LEVEL", value: "INFO" },
-      ])
+      ]),
     );
   });
 
@@ -92,8 +92,8 @@ describe("submitDatasetValidationJob", () => {
     await expect(
       submitDatasetValidationJob(
         { fileId: "id", s3Key: "a/b.h5ad" },
-        { batchClient: client }
-      )
+        { batchClient: client },
+      ),
     ).rejects.toThrow(/AWS_BATCH_VALIDATOR_JOB_QUEUE/);
   });
 });

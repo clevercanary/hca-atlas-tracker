@@ -20,7 +20,7 @@ import { SourceStudyEditData } from "../common/entities";
 export const useEditSourceStudyFormManager = (
   formMethod: FormMethod<SourceStudyEditData>,
   onClose: () => void,
-  table: Table<AtlasSourceDataset>
+  table: Table<AtlasSourceDataset>,
 ): FormManager => {
   const { pathParameter } = useEntity() as Entity;
   const { fetchDataDispatch } = useFetchDataState();
@@ -42,10 +42,10 @@ export const useEditSourceStudyFormManager = (
         getRequestURL(API.ATLAS_SOURCE_DATASETS_SOURCE_STUDY, pathParameter),
         METHOD.PATCH,
         sanitizePayload(payload),
-        { onReset: reset, onSuccess }
+        { onReset: reset, onSuccess },
       );
     },
-    [onSuccess, onSubmit, pathParameter, reset]
+    [onSuccess, onSubmit, pathParameter, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

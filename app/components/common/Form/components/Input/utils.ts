@@ -14,7 +14,7 @@ import {
  */
 export function getInputProps<C extends ElementType = "input">(
   value: unknown,
-  viewBuilder?: ControllerViewBuilder<C>
+  viewBuilder?: ControllerViewBuilder<C>,
 ): InputBaseComponentProps & { viewProps?: ViewPropsOf<C> } {
   if (viewBuilder) return { viewProps: viewBuilder(value) };
   return { spellCheck: false };

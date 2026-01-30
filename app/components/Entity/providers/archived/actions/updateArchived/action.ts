@@ -9,7 +9,7 @@ import { UpdateArchivedPayload } from "./entities";
  */
 export function updateArchiveAction(
   state: ArchivedState,
-  payload: UpdateArchivedPayload
+  payload: UpdateArchivedPayload,
 ): ArchivedState {
   return {
     ...state,

@@ -29,7 +29,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -170,13 +170,13 @@ describe("/api/atlases/create", () => {
     expect(
       (
         await doCreateTest(undefined, NEW_ATLAS_DATA, false, "GET")
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doCreateTest(undefined, NEW_ATLAS_DATA, true))._getStatusCode()
+      (await doCreateTest(undefined, NEW_ATLAS_DATA, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -184,7 +184,7 @@ describe("/api/atlases/create", () => {
     expect(
       (
         await doCreateTest(USER_UNREGISTERED, NEW_ATLAS_DATA, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -192,7 +192,7 @@ describe("/api/atlases/create", () => {
     expect(
       (
         await doCreateTest(USER_DISABLED_CONTENT_ADMIN, NEW_ATLAS_DATA)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -206,7 +206,7 @@ describe("/api/atlases/create", () => {
       undefined,
       NEW_ATLAS_DATA,
       false,
-      (res) => expect(res._getStatusCode()).toEqual(403)
+      (res) => expect(res._getStatusCode()).toEqual(403),
     );
   }
 
@@ -219,9 +219,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             network: "notanetwork" as NewAtlasData["network"],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -234,9 +234,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             version: 1 as unknown as NewAtlasData["version"],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -249,9 +249,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             wave: "0" as NewAtlasData["wave"],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -265,9 +265,9 @@ describe("/api/atlases/create", () => {
             integrationLead:
               undefined as unknown as NewAtlasData["integrationLead"],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -284,9 +284,9 @@ describe("/api/atlases/create", () => {
               },
             ] as NewAtlasData["integrationLead"],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -304,9 +304,9 @@ describe("/api/atlases/create", () => {
               },
             ],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -319,9 +319,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_WITH_TARGET_COMPLETION,
             targetCompletion: "2024-06-03T14:07:22.177-0700",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -334,9 +334,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_WITH_TARGET_COMPLETION,
             description: "x".repeat(10001),
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -349,9 +349,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             cellxgeneAtlasCollection: "not-a-uuid",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -364,9 +364,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             codeLinks: [{ url: "not-a-url" }],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -379,9 +379,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             highlights: "x".repeat(10001),
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -394,9 +394,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             dois: ["10.123/foo", "https://doi.org/10.123/foo"],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -409,9 +409,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             metadataSpecificationUrl: "https://example.com",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -425,9 +425,9 @@ describe("/api/atlases/create", () => {
             metadataSpecificationUrl:
               "https://docs.google.com/spreadsheets/d/nonexistent/edit",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -440,9 +440,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             metadataCorrectnessUrl: "not-a-url",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -455,9 +455,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             status: "NOT_AN_ATLAS_STATUS",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -470,9 +470,9 @@ describe("/api/atlases/create", () => {
             ...NEW_ATLAS_DATA,
             capId: "https://celltype.info/project/211278/dataset/778447",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -511,7 +511,7 @@ describe("/api/atlases/create", () => {
     await testSuccessfulCreate(
       NEW_ATLAS_WITH_METADATA_SPECIFICATION,
       [],
-      "New Atlas With Metadata Specification Sheet"
+      "New Atlas With Metadata Specification Sheet",
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
   });
@@ -520,7 +520,7 @@ describe("/api/atlases/create", () => {
 async function testSuccessfulCreate(
   atlasData: NewAtlasData,
   expectedPublicationsInfo: (PublicationInfo | null)[],
-  expectedMetadataSpecificationTitle?: string
+  expectedMetadataSpecificationTitle?: string,
 ): Promise<void> {
   const res = await doCreateTest(USER_CONTENT_ADMIN, atlasData);
   expect(res._getStatusCode()).toEqual(201);
@@ -528,36 +528,36 @@ async function testSuccessfulCreate(
   const newAtlasFromDb = await getAtlasFromDb(newAtlas.id);
   expect(newAtlasFromDb.source_studies).toEqual([]);
   expect(newAtlasFromDb.status).toEqual(
-    atlasData.status ?? ATLAS_STATUS.IN_PROGRESS
+    atlasData.status ?? ATLAS_STATUS.IN_PROGRESS,
   );
   expect(newAtlasFromDb.target_completion).toEqual(
-    atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null
+    atlasData.targetCompletion ? new Date(atlasData.targetCompletion) : null,
   );
   expect(newAtlasFromDb.overview.cellxgeneAtlasCollection).toEqual(
-    atlasData.cellxgeneAtlasCollection ?? null
+    atlasData.cellxgeneAtlasCollection ?? null,
   );
   expect(newAtlasFromDb.overview.codeLinks).toEqual(atlasData.codeLinks ?? []);
   expect(newAtlasFromDb.overview.description).toEqual(
-    atlasData.description ?? ""
+    atlasData.description ?? "",
   );
   expect(newAtlasFromDb.overview.highlights).toEqual(
-    atlasData.highlights ?? ""
+    atlasData.highlights ?? "",
   );
   expect(newAtlasFromDb.overview.integrationLead).toEqual(
-    atlasData.integrationLead
+    atlasData.integrationLead,
   );
   expect(newAtlasFromDb.overview.metadataSpecificationTitle).toEqual(
-    expectedMetadataSpecificationTitle ?? null
+    expectedMetadataSpecificationTitle ?? null,
   );
   expect(newAtlasFromDb.overview.metadataSpecificationUrl).toEqual(
-    atlasData.metadataSpecificationUrl ?? null
+    atlasData.metadataSpecificationUrl ?? null,
   );
   expect(newAtlasFromDb.overview.network).toEqual(atlasData.network);
   expect(newAtlasFromDb.overview.publications.map((p) => p.doi)).toEqual(
-    atlasData.dois ?? []
+    atlasData.dois ?? [],
   );
   expect(
-    newAtlasFromDb.overview.publications.map((p) => p.publication)
+    newAtlasFromDb.overview.publications.map((p) => p.publication),
   ).toEqual(expectedPublicationsInfo);
   expect(newAtlasFromDb.overview.shortName).toEqual(atlasData.shortName);
   expect(newAtlasFromDb.overview.version).toEqual(atlasData.version);
@@ -571,7 +571,7 @@ async function doCreateTest(
   user: TestUser | undefined,
   newData: Record<string, unknown>,
   hideConsoleError = false,
-  method: "GET" | "POST" = "POST"
+  method: "GET" | "POST" = "POST",
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: newData,
@@ -586,7 +586,7 @@ async function getAtlasFromDb(id: string): Promise<HCAAtlasTrackerDBAtlas> {
   return (
     await query<HCAAtlasTrackerDBAtlas>(
       "SELECT * FROM hat.atlases WHERE id=$1",
-      [id]
+      [id],
     )
   ).rows[0];
 }

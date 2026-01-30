@@ -21,7 +21,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         notNull: false,
         type: "uuid",
       },
-    }
+    },
   );
 
   // Add source_dataset_id column to files table
@@ -33,7 +33,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         notNull: false,
         type: "uuid",
       },
-    }
+    },
   );
 
   // Add sns_message_id column for proper SNS message idempotency
@@ -46,7 +46,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         notNull: true,
         type: "varchar(255)",
       },
-    }
+    },
   );
 
   // Add foreign key constraint for component atlas relationship
@@ -60,7 +60,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         onUpdate: "CASCADE",
         references: { name: "component_atlases", schema: "hat" },
       },
-    }
+    },
   );
 
   // Add foreign key constraint for source dataset relationship
@@ -74,7 +74,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         onUpdate: "CASCADE",
         references: { name: "source_datasets", schema: "hat" },
       },
-    }
+    },
   );
 
   // Add indexes for efficient queries
@@ -87,7 +87,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     "uq_files_sns_message_id",
     {
       unique: ["sns_message_id"],
-    }
+    },
   );
 
   // Clear existing file data (nothing links to files, safe to delete)
@@ -99,14 +99,14 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     "source_study_id",
     {
       notNull: false,
-    }
+    },
   );
 
   // Update constraint to use new exclusive foreign key pattern
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
     "ck_files_exclusive_parent_relationship",
-    { ifExists: true }
+    { ifExists: true },
   );
 
   pgm.addConstraint(
@@ -118,7 +118,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         (file_type = 'integrated_object' AND source_dataset_id IS NULL AND component_atlas_id IS NOT NULL) OR
         (file_type = 'ingest_manifest' AND source_dataset_id IS NULL AND component_atlas_id IS NULL)
       )`,
-    }
+    },
   );
 }
 
@@ -127,7 +127,7 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
     "ck_files_exclusive_parent_relationship",
-    { ifExists: true }
+    { ifExists: true },
   );
 
   // Note: Not restoring original constraint as it would conflict with new schema
@@ -146,14 +146,14 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
     "fk_files_component_atlas_id",
-    { ifExists: true }
+    { ifExists: true },
   );
 
   // Remove source dataset foreign key constraint (if exists)
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
     "fk_files_source_dataset_id",
-    { ifExists: true }
+    { ifExists: true },
   );
 
   // Remove source dataset index (if exists)
@@ -165,7 +165,7 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
     "uq_files_sns_message_id",
-    { ifExists: true }
+    { ifExists: true },
   );
 
   // Intentionally do not restore legacy atlas_id or its FK to avoid conflicts

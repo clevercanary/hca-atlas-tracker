@@ -18,7 +18,7 @@ import { ROUTE } from "../../../routes/constants";
  */
 export function getBreadcrumbs(
   pathParameter: PathParameter,
-  atlas?: HCAAtlasTrackerAtlas
+  atlas?: HCAAtlasTrackerAtlas,
 ): Breadcrumb[] {
   return [
     getAtlasesBreadcrumb(),

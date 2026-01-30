@@ -14,7 +14,7 @@ interface UseFetchIntegratedObjectSourceDatasets {
 }
 
 export const useFetchIntegratedObjectSourceDatasets = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchIntegratedObjectSourceDatasets => {
   const {
     fetchDataState: { shouldFetchByKey },
@@ -26,7 +26,7 @@ export const useFetchIntegratedObjectSourceDatasets = (
   >(
     getRequestURL(API.ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS, pathParameter),
     METHOD.GET,
-    shouldFetch
+    shouldFetch,
   );
 
   useResetFetchStatus(progress, [INTEGRATED_OBJECT_SOURCE_DATASETS]);

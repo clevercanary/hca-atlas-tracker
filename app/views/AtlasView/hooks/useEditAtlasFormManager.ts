@@ -13,7 +13,7 @@ import { AtlasEditData } from "../common/entities";
 
 export const useEditAtlasFormManager = (
   pathParameter: PathParameter,
-  formMethod: FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>
+  formMethod: FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>,
 ): FormManager => {
   const { onSubmit, reset } = formMethod;
 
@@ -30,10 +30,10 @@ export const useEditAtlasFormManager = (
         {
           onReset: reset,
           onSuccess: (data) => onSuccess(data.id, url),
-        }
+        },
       );
     },
-    [onSubmit, pathParameter, reset]
+    [onSubmit, pathParameter, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

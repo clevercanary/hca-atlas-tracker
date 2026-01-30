@@ -18,7 +18,7 @@ const crossrefRelationSchema = array()
     object({
       id: string().required(),
       "id-type": string().required(),
-    }).required()
+    }).required(),
   )
   .required();
 
@@ -37,16 +37,16 @@ const crossrefWorkSchema = object({
             try {
               crossrefOrganizationAuthorSchema.validateSync(value);
               return true;
-            } catch (e) {
+            } catch {
               try {
                 crossrefPersonAuthorSchema.validateSync(value);
                 return true;
-              } catch (e) {
+              } catch {
                 return false;
               }
             }
-          }
-        )
+          },
+        ),
     )
     .required(),
   "container-title": array().of(string().required()).required(),
@@ -74,7 +74,7 @@ const crossrefWorkSchema = object({
   .test(
     "type-subtype",
     'Must have type "journal-article" or subtype "preprint"',
-    (value) => value.type === "journal-article" || value.subtype === "preprint"
+    (value) => value.type === "journal-article" || value.subtype === "preprint",
   );
 
 type CrossrefOrganizationAuthor = InferType<
@@ -93,7 +93,7 @@ export type CrossrefWork = Omit<
 };
 
 export async function getCrossrefPublicationInfo(
-  doi: string
+  doi: string,
 ): Promise<PublicationInfo | null> {
   const unvalidatedWork = await fetchCrossrefWork(doi);
   if (unvalidatedWork === null) return null;
@@ -113,7 +113,7 @@ export async function getCrossrefPublicationInfo(
         : {
             name: htmlToPlainText(author.family),
             personalName: author.given ? htmlToPlainText(author.given) : null,
-          }
+          },
     ),
     hasPreprintDoi: getDoiFromRelation(work.relation["has-preprint"]),
     journal: htmlToPlainText(journal),

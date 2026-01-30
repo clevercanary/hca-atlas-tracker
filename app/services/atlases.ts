@@ -28,7 +28,7 @@ interface AtlasInputDbData {
 }
 
 export async function getAllAtlases(
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI[]> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
@@ -54,13 +54,13 @@ export async function getAllAtlases(
       FROM hat.atlases a
     `,
     undefined,
-    client
+    client,
   );
   return queryResult.rows;
 }
 
 export async function getAtlas(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
@@ -86,7 +86,7 @@ export async function getAtlas(
       FROM hat.atlases a
       WHERE a.id=$1
     `,
-    [id]
+    [id],
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
@@ -94,11 +94,11 @@ export async function getAtlas(
 }
 
 export async function getBaseModelAtlas(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
     "SELECT * FROM hat.atlases WHERE id=$1",
-    [id]
+    [id],
   );
 
   if (queryResult.rows.length === 0)
@@ -108,7 +108,7 @@ export async function getBaseModelAtlas(
 }
 
 export async function createAtlas(
-  inputData: NewAtlasData
+  inputData: NewAtlasData,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const { overviewData, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
@@ -124,7 +124,7 @@ export async function createAtlas(
   };
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING id",
-    [JSON.stringify(overview), "[]", status, targetCompletion]
+    [JSON.stringify(overview), "[]", status, targetCompletion],
   );
   const newId = queryResult.rows[0].id;
   return await getAtlas(newId);
@@ -132,13 +132,13 @@ export async function createAtlas(
 
 export async function updateAtlas(
   id: string,
-  inputData: AtlasEditData
+  inputData: AtlasEditData,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const { overviewData, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
     "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3 WHERE id=$4 RETURNING *",
-    [JSON.stringify(overviewData), status, targetCompletion, id]
+    [JSON.stringify(overviewData), status, targetCompletion, id],
   );
   if (queryResult.rowCount === 0)
     throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
@@ -146,12 +146,12 @@ export async function updateAtlas(
 }
 
 export async function atlasInputDataToDbData(
-  inputData: NewAtlasData | AtlasEditData
+  inputData: NewAtlasData | AtlasEditData,
 ): Promise<AtlasInputDbData> {
   const publications = await getPublicationsFromInputDois(inputData.dois);
   const metadataSpecificationTitle = await getSheetTitleForApi(
     inputData.metadataSpecificationUrl,
-    "metadataSpecificationUrl"
+    "metadataSpecificationUrl",
   );
   return {
     overviewData: {
@@ -178,7 +178,7 @@ export async function atlasInputDataToDbData(
 }
 
 async function getPublicationsFromInputDois(
-  dois: string[] | undefined
+  dois: string[] | undefined,
 ): Promise<DoiPublicationInfo[]> {
   const publications: DoiPublicationInfo[] = [];
   if (dois) {
@@ -195,7 +195,7 @@ async function getPublicationsFromInputDois(
         throw new ValidationError(
           `Crossref data doesn't fit: ${e.message}`,
           undefined,
-          "dois"
+          "dois",
         );
       }
       throw e;
@@ -243,7 +243,7 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
       WHERE a.id = counts.atlas_id;
     `,
     undefined,
-    client
+    client,
   );
 }
 

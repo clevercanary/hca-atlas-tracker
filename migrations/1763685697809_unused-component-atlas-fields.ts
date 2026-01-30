@@ -33,6 +33,6 @@ export function down(pgm: MigrationBuilder): void {
         notNull: true,
         type: "text",
       },
-    }
+    },
   );
 }

@@ -19,11 +19,11 @@ import {
 } from "./entities";
 
 export const CAP_PROJECT_URL_REGEXP = new RegExp(
-  `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+)?$`
+  `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+)?$`,
 );
 
 export const CAP_DATASET_URL_REGEXP = new RegExp(
-  `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+/dataset/\\d+)?$`
+  `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+/dataset/\\d+)?$`,
 );
 
 export const GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX =
@@ -55,7 +55,7 @@ export const newAtlasSchema = object({
     object({
       label: string(),
       url: string().url().required(),
-    }).required()
+    }).required(),
   ),
   description: string().max(10000),
   dois: array()
@@ -77,7 +77,7 @@ export const newAtlasSchema = object({
         name: string()
           .default("")
           .required("Integration lead name is required"),
-      }).required()
+      }).required(),
     )
     .required(),
   metadataCorrectnessUrl: string()
@@ -86,7 +86,7 @@ export const newAtlasSchema = object({
   metadataSpecificationUrl: string()
     .matches(
       GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
-      'Metadata specification must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
+      'Metadata specification must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."',
     )
     .nullable(),
   network: string()
@@ -143,7 +143,7 @@ export type ComponentAtlasDeleteSourceDatasetsData = InferType<
  */
 function makeSourceStudyUnionSchema<T extends { [k: string]: unknown }>(
   publishedSchema: Schema,
-  unpublishedSchema: Schema
+  unpublishedSchema: Schema,
 ): MixedSchema<T> {
   return (
     mixed<T>()
@@ -198,7 +198,7 @@ export const newPublishedSourceStudySchema = object({
     .test(
       "is-doi",
       "DOI must be a syntactically-valid DOI",
-      (value) => typeof value !== "string" || isDoi(value)
+      (value) => typeof value !== "string" || isDoi(value),
     ),
 })
   .noUnknown("If DOI is specified, it must be the only field")
@@ -213,7 +213,7 @@ export const newUnpublishedSourceStudySchema = object({
   title: string().required("Title is required when DOI is absent"),
 })
   .noUnknown(
-    "If DOI is unspecified, only email, author, and name may be present"
+    "If DOI is unspecified, only email, author, and name may be present",
   )
   .strict(true);
 
@@ -221,7 +221,7 @@ export const newUnpublishedSourceStudySchema = object({
 export const newSourceStudySchema =
   makeSourceStudyUnionSchema<NewSourceStudyData>(
     newPublishedSourceStudySchema,
-    newUnpublishedSourceStudySchema
+    newUnpublishedSourceStudySchema,
   );
 
 export type NewPublishedSourceStudyData = InferType<
@@ -245,10 +245,10 @@ export const metadataSpreadsheetUrlsSchema = array(
     url: string()
       .matches(
         GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
-        'Metadata spreadsheet must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."'
+        'Metadata spreadsheet must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."',
       )
       .required("Metadata spreadsheet URL cannot be empty"),
-  }).required()
+  }).required(),
 ).test("unique-metadata-urls", (sheets, context) => {
   if (sheets) {
     const prevUrls = new Set();
@@ -272,12 +272,12 @@ export const publishedSourceStudyEditSchema = object({
     .test(
       "is-doi",
       "DOI must be a syntactically-valid DOI",
-      (value) => typeof value !== "string" || isDoi(value)
+      (value) => typeof value !== "string" || isDoi(value),
     ),
   metadataSpreadsheets: metadataSpreadsheetUrlsSchema.required(),
 })
   .noUnknown(
-    "If DOI is specified, it must appear alongside CAP ID, metadata spreadsheet URLs, and no other fields"
+    "If DOI is specified, it must appear alongside CAP ID, metadata spreadsheet URLs, and no other fields",
   )
   .strict(true);
 
@@ -298,7 +298,7 @@ export const unpublishedSourceStudyEditSchema = object({
   title: string().required("Title is required when DOI is absent"),
 })
   .noUnknown(
-    "If DOI is unspecified, only CAP ID, CELLxGENE ID, email, HCA ID, author, and title may be present"
+    "If DOI is unspecified, only CAP ID, CELLxGENE ID, email, HCA ID, author, and title may be present",
   )
   .strict(true);
 
@@ -306,7 +306,7 @@ export const unpublishedSourceStudyEditSchema = object({
 export const sourceStudyEditSchema =
   makeSourceStudyUnionSchema<SourceStudyEditData>(
     publishedSourceStudyEditSchema,
-    unpublishedSourceStudyEditSchema
+    unpublishedSourceStudyEditSchema,
   );
 
 export type PublishedSourceStudyEditData = InferType<
@@ -426,8 +426,8 @@ export const taskCellxGeneInProgressSchema = array()
       .test(
         "is-doi",
         "DOIs must be syntactically-valid",
-        (value) => typeof value !== "string" || isDoi(value)
-      )
+        (value) => typeof value !== "string" || isDoi(value),
+      ),
   )
   .strict()
   .required()

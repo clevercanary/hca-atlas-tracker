@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { useEntity } from "../../../../providers/entity/hook";
 import { Entity } from "../../entities";
 import { LinkedSourceDatasets } from "../LinkedSourceDatasets/linkedSourceDatasets";

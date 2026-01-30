@@ -19,7 +19,7 @@ const postHandler = handler(registeredUser, async (req, res) => {
   const newComment = await createValidationComment(
     validationId,
     await newCommentThreadSchema.validate(req.body),
-    await getRegisteredActiveUser(req, res)
+    await getRegisteredActiveUser(req, res),
   );
   res.status(201).json(dbCommentToApiComment(newComment));
 });

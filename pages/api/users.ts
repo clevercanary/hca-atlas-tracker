@@ -29,5 +29,5 @@ export default handler(
       users = await getAllUsers();
     }
     res.json(users.map(dbUserToApiUser));
-  }
+  },
 );

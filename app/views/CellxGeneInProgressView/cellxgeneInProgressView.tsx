@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { ContentView } from "@databiosphere/findable-ui/lib/views/ContentView/contentView";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";

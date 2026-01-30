@@ -25,7 +25,7 @@ export const up = (pgm: MigrationBuilder): void => {
         notNull: true,
         type: "timestamp",
       },
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -33,7 +33,7 @@ export const up = (pgm: MigrationBuilder): void => {
     "pk_component_atlases_id",
     {
       primaryKey: "id",
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -44,7 +44,7 @@ export const up = (pgm: MigrationBuilder): void => {
         columns: "atlas_id",
         references: { name: "atlases", schema: "hat" },
       },
-    }
+    },
   );
 
   pgm.createTrigger(
@@ -55,6 +55,6 @@ export const up = (pgm: MigrationBuilder): void => {
       level: "ROW",
       operation: "UPDATE",
       when: "BEFORE",
-    }
+    },
   );
 };

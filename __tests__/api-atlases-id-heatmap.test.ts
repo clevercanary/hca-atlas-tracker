@@ -30,7 +30,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -151,9 +151,9 @@ describe(TEST_ROUTE, () => {
         await doHeatmapRequest(
           ATLAS_HEATMAP_TEST.id,
           USER_CONTENT_ADMIN,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -164,9 +164,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_HEATMAP_TEST.id,
           undefined,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -177,9 +177,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_HEATMAP_TEST.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -190,9 +190,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_HEATMAP_TEST.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -203,9 +203,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_NONEXISTENT.id,
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -223,7 +223,7 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const heatmap = res._getJSONData() as Heatmap;
         expectHeatmapToMatch(heatmap, EXPECTED_HEATMAP_CLASSES);
-      }
+      },
     );
   }
 
@@ -231,7 +231,7 @@ describe(TEST_ROUTE, () => {
     const res = await doHeatmapRequest(
       ATLAS_HEATMAP_TEST.id,
       USER_CONTENT_ADMIN,
-      METHOD.GET
+      METHOD.GET,
     );
     expect(res._getStatusCode()).toEqual(200);
     const heatmap = res._getJSONData() as Heatmap;
@@ -241,12 +241,12 @@ describe(TEST_ROUTE, () => {
 
 function expectHeatmapToMatch(
   heatmap: Heatmap,
-  expectedClasses: Pick<HeatmapClass, "sheets" | "title">[]
+  expectedClasses: Pick<HeatmapClass, "sheets" | "title">[],
 ): void {
   expect(heatmap.classes).toHaveLength(expectedClasses.length);
   for (const expectedClass of expectedClasses) {
     const heatmapClass = heatmap.classes.find(
-      (c) => c.title === expectedClass.title
+      (c) => c.title === expectedClass.title,
     );
     if (!expectIsDefined(heatmapClass)) return;
     expectHeatmapSheetsToMatch(heatmapClass.sheets, expectedClass.sheets);
@@ -255,12 +255,12 @@ function expectHeatmapToMatch(
 
 function expectHeatmapSheetsToMatch(
   heatmapSheets: HeatmapEntrySheet[],
-  expectedSheets: HeatmapEntrySheet[]
+  expectedSheets: HeatmapEntrySheet[],
 ): void {
   expect(heatmapSheets).toHaveLength(expectedSheets.length);
   for (const expectedSheet of expectedSheets) {
     const heatmapSheet = heatmapSheets.find(
-      (s) => s.title === expectedSheet.title
+      (s) => s.title === expectedSheet.title,
     );
     if (!expectIsDefined(heatmapSheet)) return;
     expect(heatmapSheet).toEqual(expectedSheet);
@@ -271,7 +271,7 @@ async function doHeatmapRequest(
   atlasId: string,
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -280,7 +280,7 @@ async function doHeatmapRequest(
   });
   await withConsoleErrorHiding(
     () => heatmapHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
@@ -292,12 +292,12 @@ function getQueryValues(atlasId: string): Record<string, string> {
 function makeExpectedCorrectCounts(
   entityType: string,
   rowCount: number,
-  nonFullCounts: Record<string, number> = {}
+  nonFullCounts: Record<string, number> = {},
 ): Record<string, number> {
   const ddClass = dataDictionary.classes.find((c) => c.name === entityType);
   if (!ddClass) throw new Error(`Data dictionary missing ${entityType} class`);
   const fullCounts = Object.fromEntries(
-    ddClass.attributes.map((a) => [a.name, rowCount])
+    ddClass.attributes.map((a) => [a.name, rowCount]),
   );
   return { ...fullCounts, ...nonFullCounts };
 }

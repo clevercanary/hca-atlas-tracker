@@ -4,7 +4,7 @@ import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui
 import { TAB_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/tab";
 import { Tab } from "@mui/material";
 import Router from "next/router";
-import { SyntheticEvent, useCallback, useMemo } from "react";
+import { JSX, SyntheticEvent, useCallback, useMemo } from "react";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../../../../../common/utils";
@@ -20,7 +20,7 @@ export const Tabs = ({
 }: Props): JSX.Element | null => {
   const validatorNames = useMemo(
     () => getValidatorNames(validationReports),
-    [validationReports]
+    [validationReports],
   );
 
   const onChange = useCallback(
@@ -29,10 +29,10 @@ export const Tabs = ({
         getRouteURL(validationRoute, {
           ...pathParameter,
           validatorName,
-        })
+        }),
       );
     },
-    [pathParameter, validationRoute]
+    [pathParameter, validationRoute],
   );
 
   if (!validatorName || !validationReports) return null;

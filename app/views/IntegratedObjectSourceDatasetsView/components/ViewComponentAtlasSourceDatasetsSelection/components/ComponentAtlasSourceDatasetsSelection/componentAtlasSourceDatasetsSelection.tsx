@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { DialogBody } from "../../../../../../components/common/Form/components/Dialog/components/DialogBody/dialogBody";
@@ -21,12 +22,12 @@ export const ComponentAtlasSourceDatasetsSelection = ({
   pathParameter,
 }: ComponentAtlasSourceDatasetsSelectionProps): JSX.Element => {
   const formMethod = useComponentAtlasSourceDatasetsSelectionForm(
-    componentAtlasSourceDatasets
+    componentAtlasSourceDatasets,
   );
   const formManager = useComponentAtlasSourceDatasetsSelectionFormManager(
     pathParameter,
     formMethod,
-    onClose
+    onClose,
   );
   const { watch } = formMethod;
   const sourceDatasetIds = watch(FIELD_NAME.SOURCE_DATASET_IDS);

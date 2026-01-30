@@ -7,27 +7,27 @@ jest.mock("googleapis");
 describe("getSheetTitle", () => {
   it("throws InvalidSheetError when URL is not a Google Sheets URL", async () => {
     await expect(getSheetTitle("https://example.com")).rejects.toThrow(
-      InvalidSheetError
+      InvalidSheetError,
     );
   });
 
   it("throws InvalidSheetError when has no ID following `/d/`", async () => {
     await expect(
-      getSheetTitle("https://docs.google.com/spreadsheets/d/")
+      getSheetTitle("https://docs.google.com/spreadsheets/d/"),
     ).rejects.toThrow(InvalidSheetError);
   });
 
   it("throws InvalidSheetError when sheet doesn't exist", async () => {
     await expect(
-      getSheetTitle("https://docs.google.com/spreadsheets/d/nonexistent/edit")
+      getSheetTitle("https://docs.google.com/spreadsheets/d/nonexistent/edit"),
     ).rejects.toThrow(InvalidSheetError);
   });
 
   it("throws InvalidSheetError when sheet isn't shared", async () => {
     await expect(
       getSheetTitle(
-        "https://docs.google.com/spreadsheets/d/sheet-unshared/edit"
-      )
+        "https://docs.google.com/spreadsheets/d/sheet-unshared/edit",
+      ),
     ).rejects.toThrow(InvalidSheetError);
   });
 
@@ -36,7 +36,7 @@ describe("getSheetTitle", () => {
       const credentials = process.env.GOOGLE_SERVICE_ACCOUNT;
       process.env.GOOGLE_SERVICE_ACCOUNT = "";
       await expect(
-        getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo")
+        getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo"),
       ).resolves.toBeNull();
       process.env.GOOGLE_SERVICE_ACCOUNT = credentials;
     });
@@ -44,33 +44,33 @@ describe("getSheetTitle", () => {
 
   it("returns sheet title for valid URL with nothing following ID", async () => {
     await expect(
-      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo")
+      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo"),
     ).resolves.toEqual("Sheet Foo");
   });
 
   it("returns sheet title for valid URL with subpath following ID", async () => {
     await expect(
-      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo/edit")
+      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo/edit"),
     ).resolves.toEqual("Sheet Foo");
   });
 
   it("returns sheet title for valid URL with query string following ID", async () => {
     await expect(
-      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo?gid=0")
+      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo?gid=0"),
     ).resolves.toEqual("Sheet Foo");
   });
 
   it("returns sheet title for valid URL with fragment following ID", async () => {
     await expect(
-      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo#gid=0")
+      getSheetTitle("https://docs.google.com/spreadsheets/d/sheet-foo#gid=0"),
     ).resolves.toEqual("Sheet Foo");
   });
 
   it("returns sheet title for valid URL with subpath, query string, and fragment", async () => {
     await expect(
       getSheetTitle(
-        "https://docs.google.com/spreadsheets/d/sheet-foo/edit?gid=0#gid=0"
-      )
+        "https://docs.google.com/spreadsheets/d/sheet-foo/edit?gid=0#gid=0",
+      ),
     ).resolves.toEqual("Sheet Foo");
   });
 });

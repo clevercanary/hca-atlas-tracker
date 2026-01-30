@@ -74,9 +74,9 @@ export type EntrySheetValidationResponse =
 
 export async function validateEntrySheet(
   googleSheetId: string,
-  bioNetwork: NetworkKey
+  bioNetwork: NetworkKey,
 ): Promise<EntrySheetValidationResponse> {
   return await entrySheetValidationResponseSchema.validate(
-    await fetchEntrySheetValidationResults(googleSheetId, bioNetwork)
+    await fetchEntrySheetValidationResults(googleSheetId, bioNetwork),
   );
 }

@@ -24,7 +24,7 @@ export const useTable = (cls: HeatmapClass): Table => {
 
   // Initialize column visibility state.
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    initVisibilityState(meta)
+    initVisibilityState(meta),
   );
 
   const state = { columnVisibility };

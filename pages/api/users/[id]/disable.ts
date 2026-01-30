@@ -19,12 +19,12 @@ export default handler(
     if (id === null) return;
     const queryResult = await query(
       "UPDATE hat.users SET disabled=true WHERE id=$1",
-      [id]
+      [id],
     );
     if (queryResult.rowCount === 0) {
       res.status(404).end();
       return;
     }
     res.status(200).end();
-  }
+  },
 );

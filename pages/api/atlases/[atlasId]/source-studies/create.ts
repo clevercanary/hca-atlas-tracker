@@ -21,8 +21,8 @@ export default handler(
     const atlasId = req.query.atlasId as string;
     const newStudy = await createSourceStudy(
       atlasId,
-      await newSourceStudySchema.validate(req.body)
+      await newSourceStudySchema.validate(req.body),
     );
     res.status(201).json(dbSourceStudyToApiSourceStudy(newStudy));
-  }
+  },
 );

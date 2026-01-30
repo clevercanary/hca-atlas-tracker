@@ -10,7 +10,9 @@ import { getCapIngestStatus } from "../app/components/Table/components/TableCell
 describe("getCapIngestStatus", () => {
   it("returns NOT_REQUIRED for reprocessed source datasets", () => {
     const status = getCapIngestStatus(
-      createSourceDataset({ reprocessedStatus: REPROCESSED_STATUS.REPROCESSED })
+      createSourceDataset({
+        reprocessedStatus: REPROCESSED_STATUS.REPROCESSED,
+      }),
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.NOT_REQUIRED);
@@ -20,7 +22,7 @@ describe("getCapIngestStatus", () => {
     const status = getCapIngestStatus(
       createSourceDataset({
         reprocessedStatus: REPROCESSED_STATUS.UNSPECIFIED,
-      })
+      }),
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.UPDATES_REQUIRED);
@@ -31,7 +33,7 @@ describe("getCapIngestStatus", () => {
       createComponentAtlas({
         validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
         validationSummary: null,
-      })
+      }),
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.NEEDS_VALIDATION);
@@ -45,7 +47,7 @@ describe("getCapIngestStatus", () => {
           overallValid: true,
           validators: { cap: true },
         },
-      })
+      }),
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.CAP_READY);
@@ -59,7 +61,7 @@ describe("getCapIngestStatus", () => {
           overallValid: false,
           validators: {},
         },
-      })
+      }),
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.UPDATES_REQUIRED);
@@ -69,7 +71,7 @@ describe("getCapIngestStatus", () => {
     const status = getCapIngestStatus(
       createComponentAtlas({
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
-      })
+      }),
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.NEEDS_VALIDATION);
@@ -82,7 +84,7 @@ describe("getCapIngestStatus", () => {
  * @returns Component atlas.
  */
 function createComponentAtlas(
-  overrides: Partial<HCAAtlasTrackerComponentAtlas> = {}
+  overrides: Partial<HCAAtlasTrackerComponentAtlas> = {},
 ): HCAAtlasTrackerComponentAtlas {
   return {
     validationStatus: FILE_VALIDATION_STATUS.PENDING,
@@ -97,7 +99,7 @@ function createComponentAtlas(
  * @returns Source dataset.
  */
 function createSourceDataset(
-  overrides: Partial<HCAAtlasTrackerSourceDataset> = {}
+  overrides: Partial<HCAAtlasTrackerSourceDataset> = {},
 ): HCAAtlasTrackerSourceDataset {
   return {
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,

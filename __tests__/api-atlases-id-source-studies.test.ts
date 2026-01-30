@@ -26,7 +26,7 @@ import { TestPublishedSourceStudy, TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -49,7 +49,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doStudiesRequest(ATLAS_PUBLIC.id, undefined, METHOD.POST)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -57,7 +57,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doStudiesRequest(ATLAS_PUBLIC.id, undefined, METHOD.GET, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -68,9 +68,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_PUBLIC.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -78,7 +78,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doStudiesRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -86,7 +86,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doStudiesRequest(ATLAS_DRAFT.id, undefined, METHOD.GET, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -97,9 +97,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -107,7 +107,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doStudiesRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -127,13 +127,13 @@ describe(TEST_ROUTE, () => {
         expect(studies).toHaveLength(2);
         expectStudyPropertiesToMatch(
           studies.find((d) => d.id === SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF,
         );
         expectStudyPropertiesToMatch(
           studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
-          SOURCE_STUDY_SHARED
+          SOURCE_STUDY_SHARED,
         );
-      }
+      },
     );
 
     testApiRole(
@@ -151,17 +151,17 @@ describe(TEST_ROUTE, () => {
         expect(studies).toHaveLength(3);
         expectStudyPropertiesToMatch(
           studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
-          SOURCE_STUDY_DRAFT_OK
+          SOURCE_STUDY_DRAFT_OK,
         );
         expectStudyPropertiesToMatch(
           studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
-          SOURCE_STUDY_SHARED
+          SOURCE_STUDY_SHARED,
         );
         expectStudyPropertiesToMatch(
           studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
-          SOURCE_STUDY_DRAFT_NO_CROSSREF
+          SOURCE_STUDY_DRAFT_NO_CROSSREF,
         );
-      }
+      },
     );
   }
 
@@ -172,15 +172,15 @@ describe(TEST_ROUTE, () => {
     expect(studies).toHaveLength(3);
     expectStudyPropertiesToMatch(
       studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
-      SOURCE_STUDY_DRAFT_OK
+      SOURCE_STUDY_DRAFT_OK,
     );
     expectStudyPropertiesToMatch(
       studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
-      SOURCE_STUDY_SHARED
+      SOURCE_STUDY_SHARED,
     );
     expectStudyPropertiesToMatch(
       studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
-      SOURCE_STUDY_DRAFT_NO_CROSSREF
+      SOURCE_STUDY_DRAFT_NO_CROSSREF,
     );
     for (const study of studies) {
       await expectApiSourceStudyToHaveMatchingDbValidations(study);
@@ -190,12 +190,12 @@ describe(TEST_ROUTE, () => {
   it("returns source studies including study with archived source dataset, returning source dataset count only for the requested atlas", async () => {
     const res = await doStudiesRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     const study = studies.find(
-      (d) => d.id === SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id
+      (d) => d.id === SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
     );
     expect(study?.sourceDatasetCount).toEqual(1);
   });
@@ -205,7 +205,7 @@ async function doStudiesRequest(
   atlasId: string,
   user?: TestUser,
   method = METHOD.GET,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -214,7 +214,7 @@ async function doStudiesRequest(
   });
   await withConsoleErrorHiding(
     () => studiesHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
@@ -225,7 +225,7 @@ function getQueryValues(atlasId: string): Record<string, string> {
 
 function expectStudyPropertiesToMatch(
   apiStudy: HCAAtlasTrackerSourceStudy | undefined,
-  testStudy: TestPublishedSourceStudy
+  testStudy: TestPublishedSourceStudy,
 ): void {
   expect(apiStudy).toBeDefined();
   if (!apiStudy) return;
@@ -236,10 +236,10 @@ function expectStudyPropertiesToMatch(
     expect(apiStudy.title).toEqual(testStudy.publication.title);
     expect(apiStudy.journal).toEqual(testStudy.publication.journal);
     expect(apiStudy.publicationDate).toEqual(
-      testStudy.publication.publicationDate
+      testStudy.publication.publicationDate,
     );
     expect(apiStudy.referenceAuthor).toEqual(
-      testStudy.publication.authors[0]?.name
+      testStudy.publication.authors[0]?.name,
     );
   } else {
     expect(apiStudy.title).toBeNull();

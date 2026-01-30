@@ -9,8 +9,8 @@ const DEFAULT_INGESTION_COUNTS = {
 export function up(pgm: MigrationBuilder): void {
   pgm.sql(
     `UPDATE hat.atlases SET overview=overview||'{"ingestionTaskCounts": ${JSON.stringify(
-      DEFAULT_INGESTION_COUNTS
-    )}}'`
+      DEFAULT_INGESTION_COUNTS,
+    )}}'`,
   );
 }
 

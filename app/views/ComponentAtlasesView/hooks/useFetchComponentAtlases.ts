@@ -17,7 +17,7 @@ interface UseFetchComponentAtlases {
 }
 
 export const useFetchComponentAtlases = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchComponentAtlases => {
   const {
     fetchDataState: { shouldFetchByKey },
@@ -34,10 +34,10 @@ export const useFetchComponentAtlases = (
   >(
     `${getRequestURL(
       API.ATLAS_COMPONENT_ATLASES,
-      pathParameter
+      pathParameter,
     )}?archived=${archived}`,
     METHOD.GET,
-    shouldFetch
+    shouldFetch,
   );
 
   useResetFetchStatus(progress, [INTEGRATED_OBJECTS]);
@@ -47,7 +47,7 @@ export const useFetchComponentAtlases = (
 
   const componentAtlases = useMemo(
     () => mapData(atlasId, data),
-    [atlasId, data]
+    [atlasId, data],
   );
 
   return { componentAtlases };
@@ -61,7 +61,7 @@ export const useFetchComponentAtlases = (
  */
 function mapData(
   atlasId: string,
-  data: HCAAtlasTrackerComponentAtlas[] = []
+  data: HCAAtlasTrackerComponentAtlas[] = [],
 ): AtlasIntegratedObject[] {
   return data.map((integratedObject) => ({
     ...integratedObject,

@@ -21,7 +21,7 @@ import {
 
 export const useEditSourceStudyFormManager = (
   pathParameter: PathParameter,
-  formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>
+  formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>,
 ): FormManager => {
   const { onSubmit, reset, unregister, watch } = formMethod;
   const publicationStatus = watch(FIELD_NAME.PUBLICATION_STATUS);
@@ -31,7 +31,7 @@ export const useEditSourceStudyFormManager = (
     (url?: string) => {
       Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDIES, pathParameter));
     },
-    [pathParameter]
+    [pathParameter],
   );
 
   const onSave = useCallback(
@@ -44,10 +44,10 @@ export const useEditSourceStudyFormManager = (
         {
           onReset: reset,
           onSuccess: (data) => onSuccess(pathParameter, data.id, url),
-        }
+        },
       );
     },
-    [onSubmit, pathParameter, reset, unregister]
+    [onSubmit, pathParameter, reset, unregister],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave }, isDirty);
@@ -84,7 +84,7 @@ function getIdentifierId(identifierUrl: string | null): string {
  * @returns schema fields.
  */
 function getSchemaFields(
-  publicationStatus: PUBLICATION_STATUS
+  publicationStatus: PUBLICATION_STATUS,
 ): SourceStudyEditDataKeys[] {
   if (publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT) {
     return PUBLISHED_PREPRINT_FIELDS;
@@ -100,7 +100,7 @@ function getSchemaFields(
  */
 function isFormDirty(
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>,
-  publicationStatus: PUBLICATION_STATUS
+  publicationStatus: PUBLICATION_STATUS,
 ): boolean {
   const {
     formState: { dirtyFields },
@@ -119,7 +119,7 @@ function mapPayload(payload: SourceStudyEditData): SourceStudyEditData {
   const mappedPayload = { ...payload };
   if (payload.cellxgeneCollectionId)
     mappedPayload.cellxgeneCollectionId = getIdentifierId(
-      payload.cellxgeneCollectionId
+      payload.cellxgeneCollectionId,
     );
   if (payload.hcaProjectId)
     mappedPayload.hcaProjectId = getIdentifierId(payload.hcaProjectId);
@@ -135,10 +135,10 @@ function mapPayload(payload: SourceStudyEditData): SourceStudyEditData {
 function onSuccess(
   pathParameter: PathParameter,
   sourceStudyId: string,
-  url?: string
+  url?: string,
 ): void {
   Router.push(
-    url ?? getRouteURL(ROUTE.SOURCE_STUDY, { ...pathParameter, sourceStudyId })
+    url ?? getRouteURL(ROUTE.SOURCE_STUDY, { ...pathParameter, sourceStudyId }),
   );
 }
 
@@ -148,7 +148,7 @@ function onSuccess(
  * @returns fields to be unregistered.
  */
 function unregisterSchemaFields(
-  payload: SourceStudyEditData
+  payload: SourceStudyEditData,
 ): SourceStudyEditDataKeys[] {
   const [keysForThisStatus, keysForOtherStatus] =
     payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT

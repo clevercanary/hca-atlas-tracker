@@ -9,7 +9,6 @@ export type EntityData = {
   entrySheets: MetadataEntrySheet[] | undefined;
 };
 
-export interface MetadataEntrySheet
-  extends HCAAtlasTrackerListEntrySheetValidation {
+export interface MetadataEntrySheet extends HCAAtlasTrackerListEntrySheetValidation {
   atlasId: AtlasId;
 }

@@ -18,5 +18,5 @@ export default handler(
     const { fileIds } = await filesSetIsArchivedSchema.validate(req.body);
     await updateAtlasFilesArchiveStatus(atlasId, fileIds, true);
     res.status(200).end();
-  }
+  },
 );

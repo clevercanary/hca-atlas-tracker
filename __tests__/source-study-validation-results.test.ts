@@ -45,7 +45,7 @@ type ExpectedNewValidationProperties = Pick<
   Partial<Pick<HCAAtlasTrackerValidationResult, "differences">>;
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
@@ -405,7 +405,7 @@ describe("getSourceStudyValidationResults", () => {
         ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
         ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
       ],
-      VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE
+      VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE,
     );
   });
 
@@ -413,7 +413,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_HCA,
       [ATLAS_WITH_IL, ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
-      VALIDATIONS_PUBLISHED_WITH_HCA
+      VALIDATIONS_PUBLISHED_WITH_HCA,
     );
   });
 
@@ -421,7 +421,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
       [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C],
-      VALIDATIONS_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO
+      VALIDATIONS_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO,
     );
   });
 
@@ -429,7 +429,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
       [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
-      VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH
+      VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
     );
   });
 
@@ -437,7 +437,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
       [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
-      VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH
+      VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_NEAR_MATCH,
     );
   });
 
@@ -445,7 +445,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
       [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A],
-      VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA
+      VALIDATIONS_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
     );
   });
 
@@ -453,7 +453,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
       [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B],
-      VALIDATIONS_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE
+      VALIDATIONS_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
     );
   });
 
@@ -461,7 +461,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
       [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B],
-      VALIDATIONS_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE
+      VALIDATIONS_PUBLISHED_WITH_CAP_AND_NO_CELLXGENE,
     );
   });
 
@@ -469,7 +469,7 @@ describe("getSourceStudyValidationResults", () => {
     await testValidations(
       SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE,
       [ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B],
-      VALIDATIONS_PUBLISHED_WITH_CAP_AND_CELLXGENE
+      VALIDATIONS_PUBLISHED_WITH_CAP_AND_CELLXGENE,
     );
   });
 });
@@ -477,15 +477,15 @@ describe("getSourceStudyValidationResults", () => {
 async function testValidations(
   testStudy: TestSourceStudy,
   testAtlases: TestAtlas[],
-  expectedValidationProperties: ExpectedValidationProperties[]
+  expectedValidationProperties: ExpectedValidationProperties[],
 ): Promise<void> {
   const sourceStudy = await getSourceStudyWithAtlasProperties(
     testStudy.id,
-    client
+    client,
   );
   const validationResults = await getSourceStudyValidationResults(
     sourceStudy,
-    client
+    client,
   );
   expect(validationResults).toHaveLength(expectedValidationProperties.length);
   const atlasIds = testAtlases.map((atlas) => atlas.id);
@@ -494,10 +494,10 @@ async function testValidations(
     const validationExpectedProperties = expectedValidationProperties[i];
     // Check properties shared between full results and meta-results
     expect(validationResult.validationId).toEqual(
-      validationExpectedProperties.validationId
+      validationExpectedProperties.validationId,
     );
     expect(validationResult.validationStatus).toEqual(
-      validationExpectedProperties.validationStatus
+      validationExpectedProperties.validationStatus,
     );
     // Check additional properties if not expecting a meta-result
     if (
@@ -505,7 +505,7 @@ async function testValidations(
       VALIDATION_META_STATUS.SKIP_UPDATE
     ) {
       expect(validationResult.validationStatus).not.toEqual(
-        VALIDATION_META_STATUS.SKIP_UPDATE
+        VALIDATION_META_STATUS.SKIP_UPDATE,
       );
       if (
         validationResult.validationStatus === VALIDATION_META_STATUS.SKIP_UPDATE
@@ -514,7 +514,7 @@ async function testValidations(
       }
       if (validationResult.differences.length)
         expect(validationResult.differences).toEqual(
-          validationExpectedProperties.differences
+          validationExpectedProperties.differences,
         );
       expect(validationResult).toMatchObject(validationExpectedProperties);
       expect(validationResult.atlasIds).toEqual(atlasIds);
@@ -522,7 +522,7 @@ async function testValidations(
       expect(validationResult.entityTitle).toEqual(
         "unpublishedInfo" in testStudy
           ? testStudy.unpublishedInfo.title
-          : testStudy.publication?.title ?? testStudy.id
+          : (testStudy.publication?.title ?? testStudy.id),
       );
     }
   }

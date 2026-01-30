@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Divider } from "../../../TrackerForm/components/Divider/divider.styles";
 import { RequestAccess as Section } from "../../../TrackerForm/components/Section/components/RequestAccess/requestAccess";
 

@@ -4,7 +4,7 @@ import { AtlasEntrySheetsSyncState, UseAtlasEntrySheetsSync } from "./types";
 import { startAtlasEntrySheetsSync } from "./utils";
 
 export const useAtlasEntrySheetsSync = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseAtlasEntrySheetsSync => {
   const [entrySheetSyncState, setEntrySheetSyncState] =
     useState<AtlasEntrySheetsSyncState>({ started: false });

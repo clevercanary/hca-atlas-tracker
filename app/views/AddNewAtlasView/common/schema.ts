@@ -18,7 +18,7 @@ export const newAtlasSchema = object({
       name: string().default("").required("Integration lead name is required"),
     })
       .strict(true)
-      .required()
+      .required(),
   )
     .min(1)
     .required(),
@@ -36,7 +36,7 @@ export const newAtlasSchema = object({
     .notRequired()
     .matches(
       CELLXGENE_COLLECTION_ID_REGEX,
-      "CELLxGENE collection ID must be a UUID or CELLxGENE collection URL"
+      "CELLxGENE collection ID must be a UUID or CELLxGENE collection URL",
     ),
   [FIELD_NAME.DOI]: string()
     .default("")
@@ -44,7 +44,7 @@ export const newAtlasSchema = object({
     .test(
       "is-doi",
       "DOI must be a syntactically-valid DOI",
-      (value) => !value || isDoi(value)
+      (value) => !value || isDoi(value),
     ),
   [FIELD_NAME.SHORT_NAME]: string()
     .default("")

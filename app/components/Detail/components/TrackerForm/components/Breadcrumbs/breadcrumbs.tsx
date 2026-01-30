@@ -5,7 +5,7 @@ import {
   Link as MLink,
   Typography as MTypography,
 } from "@mui/material";
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 import { FormAction } from "../../../../../../hooks/useFormManager/common/entities";
 import { navigateToRoute } from "../../../../../../hooks/useFormManager/common/utils";
 import { RouteValue } from "../../../../../../routes/entities";
@@ -44,7 +44,7 @@ export const Breadcrumbs = ({
           <MTypography key={b} maxWidth={180} noWrap>
             {text}
           </MTypography>
-        )
+        ),
       )}
     </MBreadcrumbs>
   );

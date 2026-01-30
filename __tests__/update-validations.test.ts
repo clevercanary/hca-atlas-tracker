@@ -19,7 +19,7 @@ import { resetDatabase } from "../testing/db-utils";
 import { delay } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -185,7 +185,7 @@ describe("updateValidations", () => {
     ]);
     expect(await getDbTestValidation(VALIDATION_ID_VW)).toBeDefined();
     const othersAfter = await getDbTestValidationsById(
-      Object.keys(othersBefore)
+      Object.keys(othersBefore),
     );
     expect(othersAfter).toEqual(othersBefore);
   });
@@ -198,7 +198,7 @@ describe("updateValidations", () => {
     ]);
     expect(await getDbTestValidation(VALIDATION_ID_VZ)).toBeDefined();
     const threadBefore = await getThreadCommentsFromDatabase(
-      THREAD_ID_BY_STAKEHOLDER2
+      THREAD_ID_BY_STAKEHOLDER2,
     );
     expect(threadBefore).not.toEqual([]);
     await testUpdateValidations([VALIDATION_VX, VALIDATION_VY]);
@@ -206,11 +206,11 @@ describe("updateValidations", () => {
     expect(othersAfter[VALIDATION_ID_VZ]).toBeUndefined();
     expect(othersAfter).toEqual(othersBefore);
     const threadAfter = await getThreadCommentsFromDatabase(
-      THREAD_ID_BY_STAKEHOLDER2
+      THREAD_ID_BY_STAKEHOLDER2,
     );
     expect(threadAfter).toEqual([]);
     const otherThreadAfter = await getThreadCommentsFromDatabase(
-      THREAD_ID_BY_CONTENT_ADMIN
+      THREAD_ID_BY_CONTENT_ADMIN,
     );
     expect(otherThreadAfter).not.toEqual([]);
   });
@@ -244,7 +244,7 @@ describe("updateValidations", () => {
     await resetTestValidations();
     const vyBefore = await getDbTestValidation(VALIDATION_ID_VY);
     expect(vyBefore?.validation_info.entityTitle).toEqual(
-      VALIDATION_VY.entityTitle
+      VALIDATION_VY.entityTitle,
     );
     const othersBefore = await getDbTestValidationsById([
       VALIDATION_ID_VX,
@@ -257,7 +257,7 @@ describe("updateValidations", () => {
     ]);
     const vyAfter = await getDbTestValidation(VALIDATION_ID_VY);
     expect(vyAfter?.validation_info.entityTitle).toEqual(
-      VALIDATION_VY_UPDATED_TITLE.entityTitle
+      VALIDATION_VY_UPDATED_TITLE.entityTitle,
     );
     expect(vyAfter?.updated_at).not.toEqual(vyBefore?.updated_at);
     const othersAfter = await getDbTestValidationsById([
@@ -339,38 +339,38 @@ describe("updateValidations", () => {
 });
 
 async function getDbTestValidationsById(
-  validationIds?: string[]
+  validationIds?: string[],
 ): Promise<Record<string, HCAAtlasTrackerDBValidation>> {
   const queryResult = validationIds
     ? await query<HCAAtlasTrackerDBValidation>(
         "SELECT * FROM hat.validations WHERE entity_id=$1 AND validation_id=ANY($2)",
-        [ENTITY_ID_EX, validationIds]
+        [ENTITY_ID_EX, validationIds],
       )
     : await query<HCAAtlasTrackerDBValidation>(
         "SELECT * FROM hat.validations WHERE entity_id=$1",
-        [ENTITY_ID_EX]
+        [ENTITY_ID_EX],
       );
   return Object.fromEntries(queryResult.rows.map((v) => [v.validation_id, v]));
 }
 
 async function getDbTestValidation(
-  validationId: string
+  validationId: string,
 ): Promise<HCAAtlasTrackerDBValidation | undefined> {
   return (
     await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE entity_id=$1 AND validation_id=$2",
-      [ENTITY_ID_EX, validationId]
+      [ENTITY_ID_EX, validationId],
     )
   ).rows[0];
 }
 
 async function getThreadCommentsFromDatabase(
-  threadId: string
+  threadId: string,
 ): Promise<HCAAtlasTrackerDBComment[]> {
   return (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE thread_id=$1",
-      [threadId]
+      [threadId],
     )
   ).rows;
 }
@@ -381,14 +381,14 @@ async function resetTestValidations(): Promise<void> {
   for (const { threadId, validationId } of THREAD_IDS_WITH_VALIDATION_IDS) {
     await query(
       "UPDATE hat.validations SET comment_thread_id=$1 WHERE validation_id=$2",
-      [threadId, validationId]
+      [threadId, validationId],
     );
   }
   await delay(20); // Wait briefly to ensure that any further updates will produce distinct updated_at timestamps
 }
 
 async function testUpdateValidations(
-  validationResults: HCAAtlasTrackerValidationResult[]
+  validationResults: HCAAtlasTrackerValidationResult[],
 ): Promise<void> {
   const client = await getPoolClient();
   await updateValidations(ENTITY_ID_EX, validationResults, client);

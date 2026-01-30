@@ -19,5 +19,5 @@ export default handler(
     const atlasId = req.query.atlasId as string;
     const fileId = req.query.fileId as string;
     res.status(200).json(await getAtlasFileDownloadUrl(atlasId, fileId));
-  }
+  },
 );

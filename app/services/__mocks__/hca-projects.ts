@@ -12,13 +12,13 @@ export function areProjectsRefreshing(): boolean {
 }
 
 export function getProjectIdByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<string | null> {
   return getProjectInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
 
 export function getProjectInfoByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<ProjectInfo | null> {
   for (const doi of dois) {
     const projectsResponse = TEST_HCA_PROJECTS_BY_DOI.get(doi);
@@ -30,7 +30,7 @@ export function getProjectInfoByDoi(
 }
 
 export function getProjectInfoById(
-  id: string
+  id: string,
 ): RefreshDataResult<ProjectInfo | null> {
   const projectsResponse = TEST_HCA_PROJECTS_BY_ID.get(id);
   if (!projectsResponse) return RefreshDataResult.ok(null);
@@ -38,11 +38,11 @@ export function getProjectInfoById(
 }
 
 function testProjectsResponseToResult(
-  projectsResponse: ProjectsResponse
+  projectsResponse: ProjectsResponse,
 ): RefreshDataResult<ProjectInfo> {
   if (TEST_HCA_PROJECTS_WITH_UNAVAILABLE_SERVICE.includes(projectsResponse)) {
     return RefreshDataResult.error(
-      "DOI to HCA project ID mapping not initialized"
+      "DOI to HCA project ID mapping not initialized",
     );
   } else {
     return RefreshDataResult.ok(getProjectsInfo(projectsResponse)[0]);

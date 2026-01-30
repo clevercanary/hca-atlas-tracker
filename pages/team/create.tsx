@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { GetServerSideProps } from "next";
 import { AddNewUserView } from "../../app/views/AddNewUserView/addNewUserView";
 

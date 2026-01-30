@@ -8,7 +8,7 @@ import { HCAAtlasTrackerEntrySheetValidation } from "../../../../apis/catalog/hc
 export function buildSummaryValues(
   validationSummary:
     | HCAAtlasTrackerEntrySheetValidation["validationSummary"]
-    | undefined
+    | undefined,
 ): Record<string, number> | undefined {
   if (!validationSummary) return;
   return {

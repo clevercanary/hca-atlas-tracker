@@ -30,7 +30,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -47,7 +47,7 @@ jest.mock("../app/services/entry-sheets", () => {
   >("../app/services/entry-sheets");
   return {
     startUpdateForEntrySheetValidation: jest.fn(
-      hcaValidationTools.startUpdateForEntrySheetValidation
+      hcaValidationTools.startUpdateForEntrySheetValidation,
     ),
   };
 });
@@ -74,9 +74,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_CONTENT_ADMIN,
-          METHOD.GET
+          METHOD.GET,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -88,9 +88,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           undefined,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -102,9 +102,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_UNREGISTERED,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -116,9 +116,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -130,9 +130,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await resolveUpdate().catch(() => undefined);
   });
@@ -145,9 +145,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_ID_NONEXISTENT,
           USER_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await resolveUpdate().catch(() => undefined);
   });
@@ -160,9 +160,9 @@ describe(TEST_ROUTE, () => {
           ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
           USER_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await resolveUpdate().catch(() => undefined);
   });
@@ -176,7 +176,7 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-        ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+        ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
       ),
       undefined,
       false,
@@ -184,22 +184,22 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(202);
         await resolveUpdate();
         const updatedValidation = await getEntrySheetValidationFromDatabase(
-          ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+          ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
         );
         expect(updatedValidation?.entry_sheet_title).toEqual(
-          ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.sheet_title
+          ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.sheet_title,
         );
         await deleteEntrySheetValidationFromDatabase(
-          ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+          ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
         );
         await initEntrySheetValidation(ENTRY_SHEET_VALIDATION_WITH_UPDATE);
         const restoredValidation = await getEntrySheetValidationFromDatabase(
-          ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+          ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
         );
         expect(restoredValidation?.entry_sheet_title).toEqual(
-          ENTRY_SHEET_VALIDATION_WITH_UPDATE.entry_sheet_title
+          ENTRY_SHEET_VALIDATION_WITH_UPDATE.entry_sheet_title,
         );
-      }
+      },
     );
   }
 
@@ -213,11 +213,11 @@ async function doMainAtlasTest(): Promise<void> {
 
   const validationWithFailedUpdateBefore =
     await getEntrySheetValidationFromDatabase(
-      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id
+      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id,
     );
 
   const validationWithUpdateBefore = await getEntrySheetValidationFromDatabase(
-    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
   );
 
   // Call API
@@ -227,9 +227,9 @@ async function doMainAtlasTest(): Promise<void> {
         ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
         ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
         USER_CONTENT_ADMIN,
-        METHOD.POST
+        METHOD.POST,
       )
-    )._getStatusCode()
+    )._getStatusCode(),
   ).toEqual(202);
 
   await resolveUpdate();
@@ -237,7 +237,7 @@ async function doMainAtlasTest(): Promise<void> {
   // Get validation after API call
 
   const validationWithUpdateAfter = await getEntrySheetValidationFromDatabase(
-    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
   );
 
   // Check successfully-updated validation
@@ -245,20 +245,20 @@ async function doMainAtlasTest(): Promise<void> {
   if (expectIsDefined(validationWithUpdateAfter)) {
     if (expectIsDefined(validationWithUpdateBefore)) {
       expect(validationWithUpdateAfter.last_synced).not.toEqual(
-        validationWithUpdateBefore.last_synced
+        validationWithUpdateBefore.last_synced,
       );
     }
     expect(validationWithUpdateAfter.validation_report).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.errors
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.errors,
     );
     expect(validationWithUpdateAfter.last_updated).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.last_updated
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.last_updated,
     );
     expect(validationWithUpdateAfter.entry_sheet_title).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.sheet_title
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.sheet_title,
     );
     expect(validationWithUpdateAfter.validation_summary).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.summary
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.summary,
     );
   }
 
@@ -266,14 +266,14 @@ async function doMainAtlasTest(): Promise<void> {
 
   const validationWithFailedUpdateAfter =
     await getEntrySheetValidationFromDatabase(
-      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id
+      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id,
     );
   if (
     expectIsDefined(validationWithFailedUpdateBefore) &&
     expectIsDefined(validationWithFailedUpdateAfter)
   ) {
     expect(validationWithFailedUpdateAfter.last_synced).toEqual(
-      validationWithFailedUpdateBefore.last_synced
+      validationWithFailedUpdateBefore.last_synced,
     );
   }
 }
@@ -283,7 +283,7 @@ async function doSyncRequest(
   entrySheetValidationId: string,
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -296,7 +296,7 @@ async function doSyncRequest(
 
 function getQueryValues(
   atlasId: string,
-  entrySheetValidationId: string
+  entrySheetValidationId: string,
 ): Record<string, string> {
   return { atlasId, entrySheetValidationId };
 }

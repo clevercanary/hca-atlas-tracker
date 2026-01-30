@@ -9,7 +9,7 @@ interface UseFetchEntrySheetValidation {
 }
 
 export const useFetchEntrySheetValidation = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchEntrySheetValidation => {
   // Validate atlasId and entrySheetValidationId - required for API request.
   if (!pathParameter.atlasId) throw new Error("Atlas ID is required");

@@ -4,14 +4,14 @@ export function up(pgm: MigrationBuilder): void {
   // Drop component atlas ID constraint from files
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "fk_files_component_atlas_id"
+    "fk_files_component_atlas_id",
   );
 
   // Rename component atlas `id` to `version_id`, as we want `version_id` to be the primary key
   pgm.renameColumn(
     { name: "component_atlases", schema: "hat" },
     "id",
-    "version_id"
+    "version_id",
   );
 
   // Add new component atlas columns needed for versioning
@@ -33,7 +33,7 @@ export function up(pgm: MigrationBuilder): void {
         notNull: true,
         type: "integer",
       },
-    }
+    },
   );
 
   // For existing component atlases, we want `id` to be the same as the existing ID now stored in `version_id`,
@@ -90,7 +90,7 @@ export function down(pgm: MigrationBuilder): void {
       component_atlas_id: {
         type: "uuid",
       },
-    }
+    },
   );
 
   // Re-create the index
@@ -126,7 +126,7 @@ export function down(pgm: MigrationBuilder): void {
   pgm.renameColumn(
     { name: "component_atlases", schema: "hat" },
     "version_id",
-    "id"
+    "id",
   );
 
   // Re-add the foreign key constraint
@@ -139,6 +139,6 @@ export function down(pgm: MigrationBuilder): void {
         onUpdate: "CASCADE",
         references: { name: "component_atlases", schema: "hat" },
       },
-    }
+    },
   );
 }

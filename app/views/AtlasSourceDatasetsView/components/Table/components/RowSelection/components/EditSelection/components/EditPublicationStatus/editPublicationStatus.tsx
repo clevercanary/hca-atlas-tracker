@@ -2,7 +2,7 @@ import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Di
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
 import { DialogActions, DialogContent } from "@mui/material";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import { StyledDialog } from "../../../../../../../../../../components/common/Dialog/dialog.styles";
 import { Controllers } from "../../../../../../../../../../components/common/Form/components/Controllers/controllers";
 import { FormActions } from "../../../../../../../../../../components/common/Form/components/FormActions/formActions";
@@ -23,7 +23,7 @@ export const EditPublicationStatus = (props: Props): JSX.Element | null => {
   const formManager = useEditPublicationStatusFormManager(
     formMethod,
     onClose,
-    table
+    table,
   );
 
   return (
@@ -34,7 +34,7 @@ export const EditPublicationStatus = (props: Props): JSX.Element | null => {
           // Set the selected source dataset IDs.
           formMethod.setValue(
             FIELD_NAME.SOURCE_DATASET_IDS,
-            rows.map((row) => row.id)
+            rows.map((row) => row.id),
           );
         }}
       >

@@ -25,9 +25,9 @@ export default handler(
           await getComponentAtlasSourceDataset(
             atlasId,
             componentAtlasId,
-            sourceDatasetId
-          )
-        )
+            sourceDatasetId,
+          ),
+        ),
       );
-  }
+  },
 );

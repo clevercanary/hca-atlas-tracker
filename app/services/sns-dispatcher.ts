@@ -10,7 +10,7 @@ import { processValidationResultsMessage } from "./validation-results-notificati
  * @throws UnauthorizedAWSResourceError if topic is not authorized
  */
 export async function dispatchSNSNotification(
-  message: SNSMessage
+  message: SNSMessage,
 ): Promise<void> {
   // Validate topic authorization
   validateSNSTopicAuthorization(message.TopicArn);

@@ -16,7 +16,7 @@ import { ContentProps } from "./entities";
 
 export async function getContentStaticProps(
   context: GetStaticPropsContext,
-  pageTitle: string
+  pageTitle: string,
 ): Promise<GetStaticPropsResult<ContentProps>> {
   const slug = getSlug(context);
   const contentPathname = getContentPathname();

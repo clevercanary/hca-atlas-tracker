@@ -17,14 +17,14 @@ import { atlasEditSchema } from "../common/schema";
 const SCHEMA = atlasEditSchema;
 
 export const useEditAtlasForm = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): FormMethod<AtlasEditData, HCAAtlasTrackerAtlas> => {
   const { atlas } = useFetchAtlas(pathParameter);
   return useForm<AtlasEditData, HCAAtlasTrackerAtlas>(
     SCHEMA,
     atlas,
     mapSchemaValues,
-    mapApiValues
+    mapApiValues,
   );
 };
 
@@ -44,14 +44,14 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
       ],
     };
   const sortedIntegrationLead = atlas.integrationLead.sort((a, b) =>
-    a.name.localeCompare(b.name)
+    a.name.localeCompare(b.name),
   );
   return {
     [FIELD_NAME.INTEGRATION_LEAD]: sortedIntegrationLead,
     [FIELD_NAME.BIO_NETWORK]: atlas.bioNetwork,
     [FIELD_NAME.CAP_ID]: atlas.capId,
     [FIELD_NAME.CELLXGENE_ATLAS_COLLECTION]: mapCELLxGENECollectionId(
-      atlas.cellxgeneAtlasCollection
+      atlas.cellxgeneAtlasCollection,
     ),
     [FIELD_NAME.DOI]: atlas.publications[0]?.doi,
     [FIELD_NAME.METADATA_CORRECTNESS_URL]: atlas.metadataCorrectnessUrl ?? "",
@@ -72,7 +72,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
  * @returns URL.
  */
 function mapCELLxGENECollectionId(
-  cellxgeneCollectionId: string | null
+  cellxgeneCollectionId: string | null,
 ): string {
   if (!cellxgeneCollectionId) return "";
   return `${ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL}${ATLAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION}/${cellxgeneCollectionId}`;

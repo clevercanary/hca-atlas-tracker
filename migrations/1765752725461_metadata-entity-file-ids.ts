@@ -8,7 +8,7 @@ export function up(pgm: MigrationBuilder): void {
         references: { name: "files", schema: "hat" },
         type: "uuid",
       },
-    }
+    },
   );
 
   pgm.addColumns(
@@ -18,7 +18,7 @@ export function up(pgm: MigrationBuilder): void {
         references: { name: "files", schema: "hat" },
         type: "uuid",
       },
-    }
+    },
   );
 
   pgm.sql(
@@ -27,7 +27,7 @@ export function up(pgm: MigrationBuilder): void {
       SET file_id = f.id
       FROM hat.files f
       WHERE f.is_latest AND f.component_atlas_id = c.id
-    `
+    `,
   );
 
   pgm.sql(
@@ -36,7 +36,7 @@ export function up(pgm: MigrationBuilder): void {
       SET file_id = f.id
       FROM hat.files f
       WHERE f.is_latest AND f.source_dataset_id = c.id
-    `
+    `,
   );
 
   // Note: setting notNull here requires that any old metadata entities from before the files table existed have been deleted
@@ -53,7 +53,7 @@ export function up(pgm: MigrationBuilder): void {
   // In the future, the metadata entity references will be dropped
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "ck_files_exclusive_parent_relationship"
+    "ck_files_exclusive_parent_relationship",
   );
 
   // Recreate foreign key constraints without onDelete setting the reference to null
@@ -61,12 +61,12 @@ export function up(pgm: MigrationBuilder): void {
 
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "fk_files_component_atlas_id"
+    "fk_files_component_atlas_id",
   );
 
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "fk_files_source_dataset_id"
+    "fk_files_source_dataset_id",
   );
 
   pgm.addConstraint(
@@ -78,7 +78,7 @@ export function up(pgm: MigrationBuilder): void {
         onUpdate: "CASCADE",
         references: { name: "component_atlases", schema: "hat" },
       },
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -90,7 +90,7 @@ export function up(pgm: MigrationBuilder): void {
         onUpdate: "CASCADE",
         references: { name: "source_datasets", schema: "hat" },
       },
-    }
+    },
   );
 }
 
@@ -99,12 +99,12 @@ export function down(pgm: MigrationBuilder): void {
 
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "fk_files_component_atlas_id"
+    "fk_files_component_atlas_id",
   );
 
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "fk_files_source_dataset_id"
+    "fk_files_source_dataset_id",
   );
 
   pgm.addConstraint(
@@ -117,7 +117,7 @@ export function down(pgm: MigrationBuilder): void {
         onUpdate: "CASCADE",
         references: { name: "component_atlases", schema: "hat" },
       },
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -130,7 +130,7 @@ export function down(pgm: MigrationBuilder): void {
         onUpdate: "CASCADE",
         references: { name: "source_datasets", schema: "hat" },
       },
-    }
+    },
   );
 
   // Add constraint on null foreign keys
@@ -144,7 +144,7 @@ export function down(pgm: MigrationBuilder): void {
         (file_type = 'integrated_object' AND source_dataset_id IS NULL AND component_atlas_id IS NOT NULL) OR
         (file_type = 'ingest_manifest' AND source_dataset_id IS NULL AND component_atlas_id IS NULL)
       )`,
-    }
+    },
   );
 
   // Remove file ID columns

@@ -8,7 +8,7 @@ import { TrackerFormSectionProps } from "../../Detail/components/TrackerForm/com
 export interface SectionConfig<
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 > extends Omit<TrackerFormSectionProps<T, R, C>, "formManager" | "formMethod"> {
   showDivider?: boolean;
 }
@@ -23,5 +23,5 @@ export interface SectionContentProps<T extends FieldValues, R = undefined> {
 
 export type SectionContent<
   T extends FieldValues,
-  R = undefined
+  R = undefined,
 > = React.FunctionComponent<SectionContentProps<T, R>>;

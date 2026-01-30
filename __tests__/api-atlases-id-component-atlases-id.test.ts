@@ -40,7 +40,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -79,9 +79,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           undefined,
-          METHOD.PUT
+          METHOD.PUT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -92,9 +92,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           undefined,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -107,9 +107,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -122,9 +122,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -134,9 +134,9 @@ describe(TEST_ROUTE, () => {
         await doComponentAtlasRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_DISABLED_CONTENT_ADMIN
+          USER_DISABLED_CONTENT_ADMIN,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -149,9 +149,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           undefined,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -171,10 +171,10 @@ describe(TEST_ROUTE, () => {
           res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
         expectDetailApiComponentAtlasToMatchTest(
           componentAtlas,
-          COMPONENT_ATLAS_DRAFT_FOO
+          COMPONENT_ATLAS_DRAFT_FOO,
         );
         expect(componentAtlas.sourceDatasetCount).toEqual(3);
-      }
+      },
     );
   }
 
@@ -182,14 +182,14 @@ describe(TEST_ROUTE, () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
       COMPONENT_ATLAS_DRAFT_FOO.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
-      COMPONENT_ATLAS_DRAFT_FOO
+      COMPONENT_ATLAS_DRAFT_FOO,
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(3);
     expect(componentAtlas.title).toEqual("");
@@ -204,14 +204,14 @@ describe(TEST_ROUTE, () => {
     const res = await doComponentAtlasRequest(
       ATLAS_DRAFT.id,
       COMPONENT_ATLAS_DRAFT_BAR.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
-      COMPONENT_ATLAS_DRAFT_BAR
+      COMPONENT_ATLAS_DRAFT_BAR,
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(2);
     expect(componentAtlas.title).not.toEqual("");
@@ -226,14 +226,14 @@ describe(TEST_ROUTE, () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
-      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2
+      COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(0);
     expect(componentAtlas.title).not.toEqual("");
@@ -248,14 +248,14 @@ describe(TEST_ROUTE, () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(1);
     expect(componentAtlas.title).not.toEqual("");
@@ -270,14 +270,14 @@ describe(TEST_ROUTE, () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expectDetailApiComponentAtlasToMatchTest(
       componentAtlas,
-      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(1);
   });
@@ -291,9 +291,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -306,9 +306,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -321,9 +321,9 @@ describe(TEST_ROUTE, () => {
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -336,13 +336,13 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-        COMPONENT_ATLAS_MISC_FOO.id
+        COMPONENT_ATLAS_MISC_FOO.id,
       ),
       MISC_FOO_EDIT_DATA,
       false,
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -355,9 +355,9 @@ describe(TEST_ROUTE, () => {
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -370,9 +370,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -385,9 +385,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -400,9 +400,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
           MISC_FOO_EDIT_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -414,7 +414,7 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
       editData,
-      true
+      true,
     );
     expect(res._getStatusCode()).toEqual(400);
     expect(res._getData()).toContain("latest version");
@@ -432,9 +432,9 @@ describe(TEST_ROUTE, () => {
             ...MISC_BAR_EDIT_DATA,
             capUrl: "https://example.com/not-a-cap-url",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -450,9 +450,9 @@ describe(TEST_ROUTE, () => {
             ...MISC_BAR_EDIT_DATA,
             capUrl: "https://celltype.info/project/534534",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -462,7 +462,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_MISC_FOO.id,
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
       METHOD.PATCH,
-      MISC_FOO_EDIT_DATA
+      MISC_FOO_EDIT_DATA,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
@@ -476,7 +476,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_MISC_BAR.id,
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      MISC_BAR_EDIT_DATA
+      MISC_BAR_EDIT_DATA,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
@@ -490,7 +490,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_MISC_BAZ.id,
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      MISC_BAZ_EDIT_DATA
+      MISC_BAZ_EDIT_DATA,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
@@ -507,7 +507,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      editData
+      editData,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlas =
@@ -522,7 +522,7 @@ async function doComponentAtlasRequest(
   user?: TestUser,
   method = METHOD.GET,
   updatedData?: Record<string, unknown>,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: updatedData,
@@ -532,14 +532,14 @@ async function doComponentAtlasRequest(
   });
   await withConsoleErrorHiding(
     () => componentAtlasHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 function getQueryValues(
   atlasId: string,
-  componentAtlasId: string
+  componentAtlasId: string,
 ): Record<string, string> {
   return { atlasId, componentAtlasId };
 }

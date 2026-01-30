@@ -10,7 +10,7 @@ export function up(pgm: MigrationBuilder): void {
       )
       DELETE FROM hat.entry_sheet_validations v
       WHERE NOT EXISTS(SELECT 1 FROM study_sheets WHERE study_sheets.id = v.entry_sheet_id)
-    `
+    `,
   );
 }
 

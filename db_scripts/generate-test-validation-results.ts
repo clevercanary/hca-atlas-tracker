@@ -65,7 +65,7 @@ async function generateAndAddValidationResults(): Promise<void> {
 
   console.log(
     "Added validation results to:\n" +
-      Array.from(fileKeysById.values()).join("\n")
+      Array.from(fileKeysById.values()).join("\n"),
   );
 
   endPgPool();
@@ -74,7 +74,7 @@ async function generateAndAddValidationResults(): Promise<void> {
 async function addValidationResultsToFiles(
   fileIds: string[],
   fileKeysById: Map<string, string>,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   for (const fileId of fileIds) {
     const validationDate = new Date().toISOString();
@@ -84,7 +84,7 @@ async function addValidationResultsToFiles(
     } else {
       successRelatedFields = getSuccessfulValidationFields(
         fileKeysById,
-        fileId
+        fileId,
       );
     }
     const validationInfo: HCAAtlasTrackerDBFileValidationInfo = {
@@ -117,7 +117,7 @@ async function addValidationResultsToFiles(
         successRelatedFields.validation_status,
         JSON.stringify(successRelatedFields.validation_summary),
         fileId,
-      ]
+      ],
     );
   }
 }
@@ -140,7 +140,7 @@ function getFailedValidationFields(fileId: string): SuccessRelatedFields {
 
 function getSuccessfulValidationFields(
   fileKeysById: Map<string, string>,
-  fileId: string
+  fileId: string,
 ): SuccessRelatedFields {
   const key = fileKeysById.get(fileId);
   const [validationReports, validationSummary] = makeValidationReports();
@@ -171,7 +171,7 @@ function getSuccessfulValidationFields(
 
 function makeValidationReports(): [
   FileValidationReports,
-  FileValidationSummary
+  FileValidationSummary,
 ] {
   const validationReports: FileValidationReports = {};
   const validationSummary: FileValidationSummary = {
@@ -215,18 +215,18 @@ function generateArrayVia(makeItem: (letter: string) => string): string[] {
 
 async function getFileKeysById(
   fileIds: string[],
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<Map<string, string>> {
   const result = await client.query<Pick<HCAAtlasTrackerDBFile, "id" | "key">>(
     "SELECT id, key FROM hat.files WHERE id=ANY($1)",
-    [fileIds]
+    [fileIds],
   );
   return new Map(result.rows.map((r) => [r.id, r.key]));
 }
 
 async function getFileIdsByEntityKeywords(
   keywords: string[],
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<string[]> {
   const atlasIds: string[] = [];
   const sourceDatasetIds: string[] = [];
@@ -248,7 +248,7 @@ async function getFileIdsByEntityKeywords(
           OR LOWER(overview->>'shortName') = LOWER($1)
           OR LOWER((overview->>'shortName') || ' v' || (overview->>'version')) = LOWER($1)
       `,
-      "id"
+      "id",
     );
     foundEntity = await findEntityOfTypeForKeyword(
       "source datasets",
@@ -257,7 +257,7 @@ async function getFileIdsByEntityKeywords(
       foundEntity,
       client,
       "SELECT version_id FROM hat.source_datasets WHERE id::text = $1 AND is_latest",
-      "version_id"
+      "version_id",
     );
     foundEntity = await findEntityOfTypeForKeyword(
       "integrated objects",
@@ -266,7 +266,7 @@ async function getFileIdsByEntityKeywords(
       foundEntity,
       client,
       "SELECT version_id FROM hat.component_atlases WHERE id::text = $1 AND is_latest",
-      "version_id"
+      "version_id",
     );
     foundEntity = await findEntityOfTypeForKeyword(
       "files",
@@ -282,7 +282,7 @@ async function getFileIdsByEntityKeywords(
           OR LOWER(split_part(key, '/', 4)) = LOWER($1)
         ) AND (file_type = 'integrated_object' OR file_type = 'source_dataset')
       `,
-      "id"
+      "id",
     );
     if (!foundEntity)
       throw new Error(`No entity found for keyword ${JSON.stringify(keyword)}`);
@@ -293,19 +293,19 @@ async function getFileIdsByEntityKeywords(
       Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
     >(
       "SELECT d.version_id FROM hat.atlases a JOIN hat.source_datasets d ON d.version_id=ANY(a.source_datasets) WHERE a.id=ANY($1)",
-      [atlasIds]
+      [atlasIds],
     );
     sourceDatasetIds.push(
-      ...sourceDatasetsResult.rows.map((r) => r.version_id)
+      ...sourceDatasetsResult.rows.map((r) => r.version_id),
     );
     const componentAtlasesResult = await client.query<
       Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
     >(
       "SELECT c.version_id FROM hat.component_atlases c JOIN hat.atlases a ON c.version_id=ANY(a.component_atlases) WHERE a.id=ANY($1)",
-      [atlasIds]
+      [atlasIds],
     );
     componentAtlasIds.push(
-      ...componentAtlasesResult.rows.map((r) => r.version_id)
+      ...componentAtlasesResult.rows.map((r) => r.version_id),
     );
   }
 
@@ -339,19 +339,19 @@ async function findEntityOfTypeForKeyword<TIdKey extends string>(
   foundEntity: boolean,
   client: pg.PoolClient,
   query: string,
-  idKey: TIdKey
+  idKey: TIdKey,
 ): Promise<boolean> {
   const result = await client.query<Record<TIdKey, string>>(query, [keyword]);
   if (result.rows.length > 0) {
     if (foundEntity)
       throw new Error(
-        `Found multiple entities for keyword ${JSON.stringify(keyword)}`
+        `Found multiple entities for keyword ${JSON.stringify(keyword)}`,
       );
     if (result.rows.length > 1)
       throw new Error(
         `Found multiple ${entityTypePlural} for keyword ${JSON.stringify(
-          keyword
-        )}`
+          keyword,
+        )}`,
       );
     if (result.rows.length === 1) {
       ids.push(result.rows[0][idKey]);

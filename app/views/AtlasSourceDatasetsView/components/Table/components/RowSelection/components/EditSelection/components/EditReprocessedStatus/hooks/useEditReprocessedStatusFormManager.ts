@@ -19,7 +19,7 @@ import { ReprocessedStatusEditData } from "../common/entities";
 export const useEditReprocessedStatusFormManager = (
   formMethod: FormMethod<ReprocessedStatusEditData>,
   onClose: () => void,
-  table: Table<AtlasSourceDataset>
+  table: Table<AtlasSourceDataset>,
 ): FormManager => {
   const { pathParameter } = useEntity() as Entity;
   const { fetchDataDispatch } = useFetchDataState();
@@ -40,14 +40,14 @@ export const useEditReprocessedStatusFormManager = (
       onSubmit(
         getRequestURL(
           API.ATLAS_SOURCE_DATASETS_REPROCESSED_STATUS,
-          pathParameter
+          pathParameter,
         ),
         METHOD.PATCH,
         payload,
-        { onReset: reset, onSuccess }
+        { onReset: reset, onSuccess },
       );
     },
-    [onSuccess, onSubmit, pathParameter, reset]
+    [onSuccess, onSubmit, pathParameter, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

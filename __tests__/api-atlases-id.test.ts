@@ -43,7 +43,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -202,13 +202,13 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doAtlasRequest(ATLAS_PUBLIC.id, undefined, false, METHOD.POST)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 when public atlas is GET requested by logged out user", async () => {
     expect(
-      (await doAtlasRequest(ATLAS_PUBLIC.id, undefined, true))._getStatusCode()
+      (await doAtlasRequest(ATLAS_PUBLIC.id, undefined, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -216,7 +216,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doAtlasRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -224,13 +224,13 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doAtlasRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
   it("returns error 401 when draft atlas is GET requested by logged out user", async () => {
     expect(
-      (await doAtlasRequest(ATLAS_DRAFT.id, undefined, true))._getStatusCode()
+      (await doAtlasRequest(ATLAS_DRAFT.id, undefined, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -238,7 +238,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -246,7 +246,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doAtlasRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -254,7 +254,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doAtlasRequest(ATLAS_ID_NONEXISTENT, USER_CONTENT_ADMIN, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -273,7 +273,7 @@ describe(TEST_ROUTE, () => {
         const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
         expectApiAtlasToMatchTest(atlas, ATLAS_PUBLIC);
         expect(atlas.shortName).toEqual(ATLAS_PUBLIC.shortName);
-      }
+      },
     );
 
     testApiRole(
@@ -291,7 +291,7 @@ describe(TEST_ROUTE, () => {
         expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
         expect(atlas.componentAtlasCount).toEqual(2);
         expect(atlas.entrySheetValidationCount).toEqual(2);
-      }
+      },
     );
   }
 
@@ -307,7 +307,7 @@ describe(TEST_ROUTE, () => {
   it("returns atlas with both component atlases and entry sheet validations when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(
       ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
@@ -319,7 +319,7 @@ describe(TEST_ROUTE, () => {
   it("returns atlas with archived component atlas and source dataset when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
@@ -332,7 +332,7 @@ describe(TEST_ROUTE, () => {
   it("returns metadata entity counts based only on linked versions when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
@@ -349,9 +349,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           true,
           METHOD.PUT,
-          ATLAS_PUBLIC_EDIT
+          ATLAS_PUBLIC_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -363,9 +363,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           true,
           METHOD.PUT,
-          ATLAS_PUBLIC_EDIT
+          ATLAS_PUBLIC_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -377,9 +377,9 @@ describe(TEST_ROUTE, () => {
           USER_DISABLED_CONTENT_ADMIN,
           false,
           METHOD.PUT,
-          ATLAS_PUBLIC_EDIT
+          ATLAS_PUBLIC_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -395,7 +395,7 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -407,9 +407,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           true,
           METHOD.PUT,
-          ATLAS_PUBLIC_EDIT
+          ATLAS_PUBLIC_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -424,9 +424,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             network: "notanetwork" as AtlasEditData["network"],
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -441,9 +441,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             version: 1 as unknown as AtlasEditData["version"],
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -458,9 +458,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             wave: "0" as AtlasEditData["wave"],
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -476,9 +476,9 @@ describe(TEST_ROUTE, () => {
             ...ATLAS_PUBLIC_EDIT,
             integrationLead:
               undefined as unknown as AtlasEditData["integrationLead"],
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -497,9 +497,9 @@ describe(TEST_ROUTE, () => {
                 email: "bar@example.com",
               },
             ] as AtlasEditData["integrationLead"],
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -514,9 +514,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             targetCompletion: "2024-06-09T05:21:52.277-0700",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -531,9 +531,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             description: "x".repeat(10001),
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -548,9 +548,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             metadataSpecificationUrl: "https://example.com",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -566,9 +566,9 @@ describe(TEST_ROUTE, () => {
             ...ATLAS_PUBLIC_BAZ_EDIT,
             metadataSpecificationUrl:
               "https://docs.google.com/spreadsheets/d/nonexistent/edit",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -583,9 +583,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             metadataCorrectnessUrl: "not-a-url",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -600,9 +600,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             status: "NOT_AN_ATLAS_STATUS",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -617,9 +617,9 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             capId: "https://celltype.info/project/183529/dataset/198031",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -643,7 +643,7 @@ describe(TEST_ROUTE, () => {
       [
         PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
         PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
-      ]
+      ],
     );
     expect(updatedAtlas.target_completion).toBeNull();
   });
@@ -653,7 +653,7 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_MISC_SOURCE_STUDIES,
       ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT,
       3,
-      []
+      [],
     );
     expect(updatedAtlas.overview.description).toEqual("");
   });
@@ -663,7 +663,7 @@ describe(TEST_ROUTE, () => {
       ATLAS_PUBLIC_BAR,
       ATLAS_PUBLIC_BAR_EDIT,
       0,
-      []
+      [],
     );
     expect(updatedAtlas.status).toEqual(ATLAS_STATUS.IN_PROGRESS);
   });
@@ -673,7 +673,7 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_METADATA_CORRECTNESS,
       ATLAS_WITH_METADATA_CORRECTNESS_EDIT,
       0,
-      []
+      [],
     );
     expect(updatedAtlas.overview.metadataCorrectnessUrl).toBeNull();
   });
@@ -683,7 +683,7 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_CAP_ID,
       ATLAS_WITH_CAP_ID_EDIT,
       0,
-      []
+      [],
     );
     expect(updatedAtlas.overview.capId).toBeNull();
   });
@@ -695,7 +695,7 @@ describe(TEST_ROUTE, () => {
       ATLAS_PUBLIC_BAZ_EDIT,
       0,
       [],
-      "Atlas Public Baz Sheet"
+      "Atlas Public Baz Sheet",
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
   });
@@ -706,44 +706,44 @@ async function testSuccessfulEdit(
   editData: AtlasEditData,
   expectedComponentAtlasCount: number,
   expectedPublicationsInfo: PublicationInfo[],
-  expectedMetadataSpecificationTitle?: string
+  expectedMetadataSpecificationTitle?: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const res = await doAtlasRequest(
     testAtlas.id,
     USER_CONTENT_ADMIN,
     false,
     METHOD.PUT,
-    editData
+    editData,
   );
   expect(res._getStatusCode()).toEqual(200);
   const updatedAtlas: HCAAtlasTrackerAtlas = res._getJSONData();
   const updatedAtlasFromDb = (
     await query<HCAAtlasTrackerDBAtlas>(
       "SELECT * FROM hat.atlases WHERE id=$1",
-      [testAtlas.id]
+      [testAtlas.id],
     )
   ).rows[0];
 
   const updatedOverview = updatedAtlasFromDb.overview;
 
   expect(updatedOverview.cellxgeneAtlasCollection).toEqual(
-    editData.cellxgeneAtlasCollection ?? null
+    editData.cellxgeneAtlasCollection ?? null,
   );
   expect(updatedOverview.codeLinks).toEqual(editData.codeLinks ?? []);
   expect(updatedOverview.description).toEqual(editData.description ?? "");
   expect(updatedOverview.publications.map((p) => p.doi)).toEqual(
-    editData.dois ?? []
+    editData.dois ?? [],
   );
   expect(updatedOverview.publications.map((p) => p.publication)).toEqual(
-    expectedPublicationsInfo
+    expectedPublicationsInfo,
   );
   expect(updatedOverview.highlights).toEqual(editData.highlights ?? "");
   expect(updatedOverview.integrationLead).toEqual(editData.integrationLead);
   expect(updatedOverview.metadataSpecificationTitle).toEqual(
-    expectedMetadataSpecificationTitle ?? null
+    expectedMetadataSpecificationTitle ?? null,
   );
   expect(updatedOverview.metadataSpecificationUrl).toEqual(
-    editData.metadataSpecificationUrl ?? null
+    editData.metadataSpecificationUrl ?? null,
   );
   expect(updatedOverview.network).toEqual(editData.network);
   expect(updatedOverview.shortName).toEqual(editData.shortName);
@@ -751,22 +751,26 @@ async function testSuccessfulEdit(
   expect(updatedOverview.wave).toEqual(editData.wave);
 
   expect(updatedAtlas.status).toEqual(
-    editData.status ?? ATLAS_STATUS.IN_PROGRESS
+    editData.status ?? ATLAS_STATUS.IN_PROGRESS,
   );
   expect(updatedAtlas.targetCompletion).toEqual(
-    editData.targetCompletion ?? null
+    editData.targetCompletion ?? null,
   );
 
   expectDbAtlasToMatchApi(
     updatedAtlasFromDb,
     updatedAtlas,
-    expectedComponentAtlasCount
+    expectedComponentAtlasCount,
   );
 
   const overview = makeTestAtlasOverview(testAtlas);
   await query(
     "UPDATE hat.atlases SET overview=$1, target_completion=$2 WHERE id=$3",
-    [JSON.stringify(overview), testAtlas.targetCompletion ?? null, testAtlas.id]
+    [
+      JSON.stringify(overview),
+      testAtlas.targetCompletion ?? null,
+      testAtlas.id,
+    ],
   );
 
   return updatedAtlasFromDb;
@@ -777,7 +781,7 @@ async function doAtlasRequest(
   user?: TestUser,
   hideConsoleError = false,
   method = METHOD.GET,
-  updatedData?: Record<string, unknown>
+  updatedData?: Record<string, unknown>,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: updatedData,

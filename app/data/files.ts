@@ -42,11 +42,11 @@ export type FileArchiveStatusInfo = Pick<
 export async function markPreviousVersionsAsNotLatest(
   bucket: string,
   key: string,
-  transaction: pg.PoolClient
+  transaction: pg.PoolClient,
 ): Promise<number> {
   const result = await transaction.query(
     `UPDATE hat.files SET is_latest = FALSE WHERE bucket = $1 AND key = $2`,
-    [bucket, key]
+    [bucket, key],
   );
   return result.rowCount || 0;
 }
@@ -61,13 +61,13 @@ export async function markPreviousVersionsAsNotLatest(
 export async function getExistingMetadataObjectId(
   bucket: string,
   key: string,
-  transaction: pg.PoolClient
+  transaction: pg.PoolClient,
 ): Promise<string | null> {
   const fileResult = await transaction.query<
     Pick<HCAAtlasTrackerDBFile, "file_type" | "id">
   >(
     `SELECT file_type, id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
-    [bucket, key]
+    [bucket, key],
   );
 
   if (fileResult.rows.length === 0) return null;
@@ -105,12 +105,12 @@ export async function getExistingETag(
   bucket: string,
   key: string,
   versionId: string | null,
-  transaction: pg.PoolClient
+  transaction: pg.PoolClient,
 ): Promise<string | null> {
   if (versionId === null) return null; // The query will not have any results if versionId is null, so return null early
   const result = await transaction.query<Pick<HCAAtlasTrackerDBFile, "etag">>(
     `SELECT etag FROM hat.files WHERE bucket = $1 AND key = $2 AND version_id = $3`,
-    [bucket, key, versionId]
+    [bucket, key, versionId],
   );
   return result.rows[0]?.etag || null;
 }
@@ -125,7 +125,7 @@ export async function getExistingETag(
 export async function getLatestNotificationInfo(
   bucket: string,
   key: string,
-  transaction: pg.PoolClient
+  transaction: pg.PoolClient,
 ): Promise<Pick<
   HCAAtlasTrackerDBFile,
   "event_info" | "sns_message_id"
@@ -134,7 +134,7 @@ export async function getLatestNotificationInfo(
     Pick<HCAAtlasTrackerDBFile, "event_info" | "sns_message_id">
   >(
     `SELECT event_info, sns_message_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
-    [bucket, key]
+    [bucket, key],
   );
   return result.rows[0] ?? null;
 }
@@ -149,7 +149,7 @@ export async function getLatestNotificationInfo(
 export async function getAtlasByNetworkVersionAndShortName(
   network: NetworkKey,
   version: string,
-  shortName: string
+  shortName: string,
 ): Promise<string> {
   const versionVariants = getVersionVariants(version);
 
@@ -159,18 +159,18 @@ export async function getAtlasByNetworkVersionAndShortName(
        WHERE overview->>'network' = $1 
        AND overview->>'version' = ANY($2)
        AND LOWER(overview->>'shortName') = LOWER($3)`,
-    [network, versionVariants, shortName]
+    [network, versionVariants, shortName],
   );
 
   if (result.rows.length === 0) {
     throw new NotFoundError(
-      `Atlas not found for network: ${network}, shortName: ${shortName}, version: ${version}`
+      `Atlas not found for network: ${network}, shortName: ${shortName}, version: ${version}`,
     );
   }
 
   if (result.rows.length > 1) {
     throw new Error(
-      `Multiple atlases found for network: ${network}, shortName: ${shortName}, version: ${version}. Found ${result.rows.length} matches.`
+      `Multiple atlases found for network: ${network}, shortName: ${shortName}, version: ${version}. Found ${result.rows.length} matches.`,
     );
   }
 
@@ -184,7 +184,7 @@ export async function getAtlasByNetworkVersionAndShortName(
  */
 export async function confirmFileExistsOnAtlas(
   fileId: string,
-  atlasId: string
+  atlasId: string,
 ): Promise<void> {
   await confirmFilesExistOnAtlas([fileId], atlasId);
 }
@@ -196,7 +196,7 @@ export async function confirmFileExistsOnAtlas(
  */
 export async function confirmFilesExistOnAtlas(
   fileIds: string[],
-  atlasId: string
+  atlasId: string,
 ): Promise<void> {
   const { rows: filesInfo } = await query<
     Pick<HCAAtlasTrackerDBFile, "file_type" | "id" | "is_latest">
@@ -212,8 +212,8 @@ export async function confirmFilesExistOnAtlas(
   if (nonLatestFileIds.length)
     throw new InvalidOperationError(
       `Specified file ID(s) are not latest version: ${nonLatestFileIds.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
 
   // Get file IDs that are not associated with the atlas for each file type
@@ -221,25 +221,25 @@ export async function confirmFilesExistOnAtlas(
     ...(await getTypeFilesMissingFromAtlas(
       FILE_TYPE.INGEST_MANIFEST,
       filesInfo,
-      atlasId
+      atlasId,
     )),
     ...(await getTypeFilesMissingFromAtlas(
       FILE_TYPE.INTEGRATED_OBJECT,
       filesInfo,
-      atlasId
+      atlasId,
     )),
     ...(await getTypeFilesMissingFromAtlas(
       FILE_TYPE.SOURCE_DATASET,
       filesInfo,
-      atlasId
+      atlasId,
     )),
   ];
 
   if (missingFileIds.length)
     throw new NotFoundError(
       `No files exist on atlas with ID ${atlasId} with ID(s): ${missingFileIds.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
 }
 
@@ -252,18 +252,18 @@ export async function confirmFilesExistOnAtlas(
 export async function confirmFileIsOfType(
   fileId: string,
   expectedType: FILE_TYPE,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   const result = await client.query<Pick<HCAAtlasTrackerDBFile, "file_type">>(
     "SELECT file_type FROM hat.files WHERE id = $1",
-    [fileId]
+    [fileId],
   );
   if (result.rows.length === 0)
     throw new NotFoundError(`File with ID ${fileId} doesn't exist`);
   const file = result.rows[0];
   if (file.file_type !== expectedType)
     throw new InvalidOperationError(
-      `File ${fileId} is not of type ${expectedType}`
+      `File ${fileId} is not of type ${expectedType}`,
     );
 }
 
@@ -277,7 +277,7 @@ export async function confirmFileIsOfType(
 async function getTypeFilesMissingFromAtlas(
   fileType: FILE_TYPE,
   filesInfo: Pick<HCAAtlasTrackerDBFile, "file_type" | "id">[],
-  atlasId: string
+  atlasId: string,
 ): Promise<string[]> {
   const fileIds = filesInfo
     .filter((f) => f.file_type === fileType)
@@ -298,7 +298,7 @@ async function getTypeFilesMissingFromAtlas(
           Pick<HCAAtlasTrackerDBComponentAtlas, "file_id" | "version_id">
         >(
           "SELECT file_id, version_id FROM hat.component_atlases WHERE file_id = ANY($1)",
-          [fileIds]
+          [fileIds],
         )
       ).rows;
       getAtlasEntityIds = getAtlasComponentAtlasVersionIds;
@@ -310,7 +310,7 @@ async function getTypeFilesMissingFromAtlas(
           Pick<HCAAtlasTrackerDBSourceDataset, "file_id" | "version_id">
         >(
           "SELECT file_id, version_id FROM hat.source_datasets WHERE file_id = ANY($1)",
-          [fileIds]
+          [fileIds],
         )
       ).rows;
       getAtlasEntityIds = getAtlasSourceDatasetVersionIds;
@@ -319,16 +319,16 @@ async function getTypeFilesMissingFromAtlas(
   }
 
   const idsWithMetadataEntities = new Set(
-    metadataEntities.map((m) => m.file_id)
+    metadataEntities.map((m) => m.file_id),
   );
   const idsWithoutMetadataEntities = fileIds.filter(
-    (id) => !idsWithMetadataEntities.has(id)
+    (id) => !idsWithMetadataEntities.has(id),
   );
   if (idsWithoutMetadataEntities.length)
     throw new Error(
       `No metadata entities found for files of type ${fileType} with ID(s): ${idsWithoutMetadataEntities.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
 
   const atlasEntityIds = new Set(await getAtlasEntityIds(atlasId));
@@ -375,14 +375,14 @@ export interface FileUpsertData {
  */
 export async function upsertFileRecord(
   fileData: FileUpsertData,
-  transaction: pg.PoolClient
+  transaction: pg.PoolClient,
 ): Promise<FileUpsertResult> {
   // First check if a file with same bucket/key/version already exists
   const existingETag = await getExistingETag(
     fileData.bucket,
     fileData.key,
     fileData.versionId,
-    transaction
+    transaction,
   );
 
   if (existingETag !== null && existingETag !== fileData.etag) {
@@ -392,7 +392,7 @@ export async function upsertFileRecord(
       fileData.key,
       fileData.versionId,
       existingETag,
-      fileData.etag
+      fileData.etag,
     );
   }
   // For same ETag, this is likely a duplicate notification; handle via ON CONFLICT
@@ -426,7 +426,7 @@ export async function upsertFileRecord(
       true,
       fileData.fileType,
       fileData.snsMessageId,
-    ]
+    ],
   );
 
   // Check if the operation succeeded
@@ -438,7 +438,7 @@ export async function upsertFileRecord(
       fileData.bucket,
       fileData.key,
       fileData.versionId,
-      transaction
+      transaction,
     );
     if (existingETag) {
       throw new ETagMismatchError(
@@ -446,7 +446,7 @@ export async function upsertFileRecord(
         fileData.key,
         fileData.versionId,
         existingETag,
-        fileData.etag
+        fileData.etag,
       );
     }
     // Fallback: if we could not retrieve the existing ETag, throw a generic mismatch error
@@ -465,7 +465,7 @@ export async function getAllFilesValidationParams(): Promise<
 > {
   return (
     await query<Pick<HCAAtlasTrackerDBFile, "file_type" | "id" | "key">>(
-      "SELECT file_type, id, key FROM hat.files WHERE is_latest AND NOT is_archived"
+      "SELECT file_type, id, key FROM hat.files WHERE is_latest AND NOT is_archived",
     )
   ).rows;
 }
@@ -478,11 +478,11 @@ export async function getAllFilesValidationParams(): Promise<
  */
 export async function setFilesArchiveStatus(
   fileIds: string[],
-  isArchived: boolean
+  isArchived: boolean,
 ): Promise<void> {
   const queryResult = await query<Pick<HCAAtlasTrackerDBFile, "id">>(
     "UPDATE hat.files SET is_archived = $1 WHERE id=ANY($2) RETURNING id",
-    [isArchived, fileIds]
+    [isArchived, fileIds],
   );
 
   confirmQueryRowsContainIds(queryResult.rows, fileIds, "files");
@@ -491,24 +491,24 @@ export async function setFilesArchiveStatus(
 export async function setFileValidationStatus(
   fileId: string,
   validationStatus: FILE_VALIDATION_STATUS,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<void> {
   await query(
     "UPDATE hat.files SET validation_status = $1 WHERE id = $2",
     [validationStatus, fileId],
-    client
+    client,
   );
 }
 
 export async function setFileIntegrityStatus(
   fileId: string,
   integrityStatus: INTEGRITY_STATUS,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<void> {
   await query(
     "UPDATE hat.files SET integrity_status = $1 WHERE id = $2",
     [integrityStatus, fileId],
-    client
+    client,
   );
 }
 
@@ -518,11 +518,11 @@ export async function setFileIntegrityStatus(
  * @returns archive status per file.
  */
 export async function getFilesArchiveStatus(
-  fileIds: string[]
+  fileIds: string[],
 ): Promise<FileArchiveStatusInfo[]> {
   const queryResult = await query<FileArchiveStatusInfo>(
     "SELECT id, is_archived FROM hat.files WHERE id=ANY($1)",
-    [fileIds]
+    [fileIds],
   );
   confirmQueryRowsContainIds(queryResult.rows, fileIds, "files");
   return queryResult.rows;
@@ -531,7 +531,7 @@ export async function getFilesArchiveStatus(
 export async function getFileKey(fileId: string): Promise<string> {
   const result = await query<Pick<HCAAtlasTrackerDBFile, "key">>(
     "SELECT key FROM hat.files WHERE id=$1",
-    [fileId]
+    [fileId],
   );
   if (result.rows.length === 0) throw getFileNotFoundError(fileId);
   return result.rows[0].key;
@@ -545,7 +545,7 @@ export async function getFileKey(fileId: string): Promise<string> {
  */
 export async function getLastValidationTimestamp(
   fileId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<Date | null> {
   const result = await client.query<
     Pick<HCAAtlasTrackerDBFile, "integrity_checked_at">
@@ -611,17 +611,17 @@ export async function addValidationResultsToFile(params: {
       JSON.stringify(validationReports),
       JSON.stringify(validationSummary),
       fileId,
-    ]
+    ],
   );
 }
 
 function getFileNotFoundError(
   fileId: string,
-  atlasId: string | null = null
+  atlasId: string | null = null,
 ): NotFoundError {
   return new NotFoundError(
     `File with ID ${fileId} doesn't exist${
       atlasId === null ? "" : ` on atlas with ID ${atlasId}`
-    }`
+    }`,
   );
 }

@@ -25,7 +25,7 @@ describe("getBucketFileKeys", () => {
       if (pagesKeys[pagesKeys.length - 1].length === TEST_PAGE_SIZE)
         pagesKeys.push([]);
       pagesKeys[pagesKeys.length - 1].push(
-        `gut/gut-v1/source-datasets/test-${i}.h5ad`
+        `gut/gut-v1/source-datasets/test-${i}.h5ad`,
       );
     }
 
@@ -52,7 +52,7 @@ describe("getBucketFileKeys", () => {
       },
       true,
       undefined,
-      ["log"]
+      ["log"],
     );
 
     expect(resultKeys).toEqual(pagesKeys.flat());

@@ -12,9 +12,8 @@ const ENTITY_TYPES = ["dataset", "donor", "sample"] as const;
 type EntityType = (typeof ENTITY_TYPES)[number];
 
 export async function getAtlasHeatmap(atlasId: string): Promise<Heatmap> {
-  const entrySheetValidations = await getBaseModelAtlasEntrySheetValidations(
-    atlasId
-  );
+  const entrySheetValidations =
+    await getBaseModelAtlasEntrySheetValidations(atlasId);
   return {
     classes: ENTITY_TYPES.map((entityType) => {
       const ddClass = dataDictionary.classes.find((c) => c.name === entityType);
@@ -27,7 +26,7 @@ export async function getAtlasHeatmap(atlasId: string): Promise<Heatmap> {
 function getClassHeatmap(
   entityType: EntityType,
   ddClass: Class,
-  entrySheetValidations: HCAAtlasTrackerDBEntrySheetValidation[]
+  entrySheetValidations: HCAAtlasTrackerDBEntrySheetValidation[],
 ): Heatmap["classes"][number] {
   const sheetsInfo: Heatmap["classes"][number]["sheets"] = [];
   for (const validation of entrySheetValidations) {
@@ -47,8 +46,8 @@ function getClassHeatmap(
           ddClass,
           sheetTitle,
           rowCount,
-          validation.validation_report
-        )
+          validation.validation_report,
+        ),
       );
     }
   }
@@ -71,10 +70,10 @@ function getSheetHeatmap(
   ddClass: Class,
   sheetTitle: string,
   rowCount: number,
-  errors: EntrySheetValidationErrorInfo[]
+  errors: EntrySheetValidationErrorInfo[],
 ): Heatmap["classes"][number]["sheets"][number] {
   const correctCounts: Record<string, number> = Object.fromEntries(
-    ddClass.attributes.map((a) => [a.name, rowCount])
+    ddClass.attributes.map((a) => [a.name, rowCount]),
   );
   const countedCells = new Set<string>();
   for (const error of errors) {

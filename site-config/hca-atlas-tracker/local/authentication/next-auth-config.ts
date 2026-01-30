@@ -4,7 +4,7 @@ import { SESSION_MAX_AGE } from "./constants";
 import { GoogleAuthParams } from "./entities";
 
 const googleAuthParams: GoogleAuthParams = JSON.parse(
-  process.env.GOOGLE_AUTH ?? ""
+  process.env.GOOGLE_AUTH ?? "",
 );
 
 export const nextAuthOptions: NextAuthOptions = {

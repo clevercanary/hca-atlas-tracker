@@ -3,7 +3,7 @@ import {
   TabValue,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
+import { JSX, useCallback } from "react";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { getRouteURL } from "../../../../../../common/utils";
@@ -26,7 +26,7 @@ export const Tabs = ({
     (tabValue: TabValue): void => {
       navigateToRoute(getRouteURL(tabValue, pathParameter));
     },
-    [pathParameter]
+    [pathParameter],
   );
 
   return (
@@ -37,7 +37,7 @@ export const Tabs = ({
         {
           label: getTabLabelWithCount(
             "Datasets",
-            sourceStudy?.sourceDatasetCount
+            sourceStudy?.sourceDatasetCount,
           ),
           value: ROUTE.SOURCE_DATASETS,
         },

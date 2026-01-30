@@ -9,7 +9,7 @@ import {
 } from "../testing/constants";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/source-studies");
 jest.mock("../app/services/source-datasets");

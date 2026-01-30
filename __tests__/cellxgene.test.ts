@@ -58,11 +58,11 @@ describe("getCellxGeneIdByDoi", () => {
       async () => getCellxGeneIdByDoi([DOI_NORMAL]),
       true,
       undefined,
-      ["warn"]
+      ["warn"],
     );
     const isError = result.mapRefreshOrElse(
       () => false,
-      () => true
+      () => true,
     );
     expect(isError).toBe(true);
   });

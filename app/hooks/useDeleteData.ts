@@ -10,7 +10,7 @@ export interface UseDeleteData<T> {
 export const useDeleteData = <T>(
   requestUrl: string,
   method = METHOD.DELETE,
-  options?: OnDeleteOptions
+  options?: OnDeleteOptions,
 ): UseDeleteData<T> => {
   const onDelete = useCallback(
     async (payload?: T): Promise<void> => {
@@ -22,11 +22,11 @@ export const useDeleteData = <T>(
           await res
             .json()
             .then(({ message }) => message)
-            .catch(() => `Received ${res.status} response`)
+            .catch(() => `Received ${res.status} response`),
         );
       }
     },
-    [method, options, requestUrl]
+    [method, options, requestUrl],
   );
 
   return {

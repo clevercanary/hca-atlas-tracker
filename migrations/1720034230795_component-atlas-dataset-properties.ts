@@ -30,6 +30,6 @@ export function up(pgm: MigrationBuilder): void {
 
 export function down(pgm: MigrationBuilder): void {
   pgm.sql(
-    "UPDATE hat.component_atlases SET component_info=component_info-'assay'-'cellCount'-'disease'-'suspensionType'-'tissue'"
+    "UPDATE hat.component_atlases SET component_info=component_info-'assay'-'cellCount'-'disease'-'suspensionType'-'tissue'",
   );
 }

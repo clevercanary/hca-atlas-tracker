@@ -19,12 +19,13 @@ import { useFormManager } from "../../../../../../../hooks/useFormManager/useFor
 
 export const useEditTasksFormManager = <
   T extends FieldValues,
-  R extends HCAAtlasTrackerValidationRecord[] = HCAAtlasTrackerValidationRecord[]
+  R extends HCAAtlasTrackerValidationRecord[] =
+    HCAAtlasTrackerValidationRecord[],
 >(
   formMethod: FormMethod<T, R>,
   closeDialog: () => void,
   requestURL?: API,
-  requestMethod?: METHOD
+  requestMethod?: METHOD,
 ): FormManager => {
   const { entityMapper } = useEntityService<
     HCAAtlasTrackerListValidationRecord,
@@ -60,7 +61,7 @@ export const useEditTasksFormManager = <
       onSubmit,
       requestMethod,
       requestURL,
-    ]
+    ],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });
@@ -77,7 +78,7 @@ function mapEntities(
   entityMapper?: EntityMapper<
     HCAAtlasTrackerListValidationRecord,
     HCAAtlasTrackerValidationRecord
-  >
+  >,
 ): HCAAtlasTrackerListValidationRecord[] {
   if (!entityMapper) {
     throw new Error("Entity mapper is required.");

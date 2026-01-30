@@ -16,7 +16,7 @@ export default handler(method(METHOD.GET), registeredUser, async (req, res) => {
     .status(200)
     .json(
       (await getAtlasEntrySheetValidations(atlasId)).map(
-        dbEntrySheetValidationToApiListModel
-      )
+        dbEntrySheetValidationToApiListModel,
+      ),
     );
 });

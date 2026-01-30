@@ -9,14 +9,14 @@ interface UseFetchMetadataCorrectness {
 }
 
 export const useFetchMetadataCorrectness = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchMetadataCorrectness => {
   // Validate atlasId - required for API request.
   if (!pathParameter.atlasId) throw new Error("Atlas ID is required");
 
   const { data: heatmap } = useFetchData<Heatmap | undefined>(
     getRequestURL(API.ATLAS_METADATA_CORRECTNESS, pathParameter),
-    METHOD.GET
+    METHOD.GET,
   );
 
   return { heatmap };

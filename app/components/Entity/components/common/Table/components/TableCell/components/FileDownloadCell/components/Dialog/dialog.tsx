@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";

@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode } from "react";
+import { JSX, FormEvent, ReactNode } from "react";
 import { Form } from "./trackerForm.styles";
 
 export interface TrackerFormProps {

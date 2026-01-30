@@ -21,7 +21,7 @@ export default handler(
       req,
       res,
       "archived",
-      /^(?:true|false)$/
+      /^(?:true|false)$/,
     );
     if (responseSent) return;
     const isArchivedValue = archived === "true";
@@ -29,8 +29,8 @@ export default handler(
       .status(200)
       .json(
         (await getAtlasComponentAtlases(atlasId, isArchivedValue)).map(
-          dbComponentAtlasFileToApiComponentAtlas
-        )
+          dbComponentAtlasFileToApiComponentAtlas,
+        ),
       );
-  }
+  },
 );

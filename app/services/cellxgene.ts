@@ -70,7 +70,7 @@ export const isCellxGeneRefreshing = refreshService.isRefreshing;
  * @returns CELLxGENE collection ID, or null if none is found.
  */
 export function getCellxGeneIdByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<string | null> {
   return getCellxGeneInfoByDoi(dois).mapRefresh((info) => info?.id ?? null);
 }
@@ -81,7 +81,7 @@ export function getCellxGeneIdByDoi(
  * @returns CELLxGENE collection info, or null if none is found.
  */
 export function getCellxGeneInfoByDoi(
-  dois: string[]
+  dois: string[],
 ): RefreshDataResult<CollectionInfo | null> {
   return refreshService.getData().mapRefresh(({ collectionInfoByDoi }) => {
     for (const doi of dois) {
@@ -93,7 +93,7 @@ export function getCellxGeneInfoByDoi(
 }
 
 export function getCellxGeneCollectionInfoById(
-  collectionId: string
+  collectionId: string,
 ): RefreshDataResult<CollectionInfo | undefined> {
   return refreshService
     .getData()

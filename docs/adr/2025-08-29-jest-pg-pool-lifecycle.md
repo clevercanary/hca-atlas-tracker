@@ -48,14 +48,12 @@ Adopt a lazy singleton `pg.Pool` in application code and standardize Jest setup/
 ## Implementation
 
 - `app/services/database.ts`
-
   - Lazy singleton pool in `getPool()`.
   - `getPoolClient()` to acquire a client.
   - `doTransaction()` wrapper to automatically `BEGIN`/`COMMIT`/`ROLLBACK` and `client.release()` in `finally`.
   - `endPgPool()` sets the module-level `pool` to `null` first, then awaits `p.end()` to finish closing connections.
 
 - `testing/setup.ts`
-
   - Registered via Jest `setupFilesAfterEnv`.
   - `afterAll(async () => { const { endPgPool } = await import("../app/services/database"); await endPgPool(); });`
   - Ensures the pool is closed exactly once after the entire test run.

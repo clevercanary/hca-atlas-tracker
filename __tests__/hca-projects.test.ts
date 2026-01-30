@@ -16,7 +16,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/cellxgene");
 jest.mock("../app/utils/pg-app-connect-config");
@@ -67,11 +67,11 @@ describe("getProjectIdByDoi", () => {
       async () => getProjectIdByDoi([DOI_NORMAL]),
       true,
       undefined,
-      ["warn"]
+      ["warn"],
     );
     const isError = result.mapRefreshOrElse(
       () => false,
-      () => true
+      () => true,
     );
     expect(isError).toBe(true);
   });

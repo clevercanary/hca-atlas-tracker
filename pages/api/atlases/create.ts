@@ -14,5 +14,5 @@ export default handler(
   async (req, res) => {
     const data = await newAtlasSchema.validate(req.body);
     res.status(201).json(dbAtlasToApiAtlas(await createAtlas(data)));
-  }
+  },
 );

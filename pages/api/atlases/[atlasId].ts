@@ -16,7 +16,7 @@ const getHandler = handler(
   async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
     const id = req.query.atlasId as string;
     res.json(dbAtlasToApiAtlas(await getAtlas(id)));
-  }
+  },
 );
 
 const putHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {

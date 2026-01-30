@@ -25,7 +25,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -57,13 +57,13 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCreateTest(undefined, NEW_USER_DATA, false, METHOD.GET)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doCreateTest(undefined, NEW_USER_DATA, true))._getStatusCode()
+      (await doCreateTest(undefined, NEW_USER_DATA, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -71,7 +71,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCreateTest(USER_UNREGISTERED, NEW_USER_DATA, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -79,7 +79,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCreateTest(USER_DISABLED_CONTENT_ADMIN, NEW_USER_DATA)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -95,7 +95,7 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -109,9 +109,9 @@ describe(TEST_ROUTE, () => {
             email: "notanemail",
           },
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -125,9 +125,9 @@ describe(TEST_ROUTE, () => {
             email: NEW_USER_DATA.email + " ",
           },
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -141,9 +141,9 @@ describe(TEST_ROUTE, () => {
             role: undefined,
           },
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -157,9 +157,9 @@ describe(TEST_ROUTE, () => {
             role: "notarole",
           },
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -172,13 +172,13 @@ describe(TEST_ROUTE, () => {
     expect(newUser.fullName).toEqual(NEW_USER_DATA.fullName);
     expect(newUser.role).toEqual(NEW_USER_DATA.role);
     expect(newUser.roleAssociatedResourceIds).toEqual(
-      NEW_USER_DATA.roleAssociatedResourceIds
+      NEW_USER_DATA.roleAssociatedResourceIds,
     );
 
     const newUserFromDb = (
       await query<HCAAtlasTrackerDBUser>(
         "SELECT * FROM hat.users WHERE email=$1",
-        [USER_NEW.email]
+        [USER_NEW.email],
       )
     ).rows[0];
 
@@ -190,7 +190,7 @@ async function doCreateTest(
   user: TestUser | undefined,
   newData: Record<string, unknown>,
   hideConsoleError = false,
-  method: "GET" | "POST" = "POST"
+  method: "GET" | "POST" = "POST",
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: newData,

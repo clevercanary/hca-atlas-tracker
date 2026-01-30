@@ -12,11 +12,11 @@ import {
  * @returns Promise that resolves when the entry sheet sync process is started.
  */
 export async function startEntrySheetSync(
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): Promise<void> {
   const res = await fetch(
     getRequestURL(API.ATLAS_ENTRY_SHEET_SYNC, pathParameter),
-    { method: METHOD.POST }
+    { method: METHOD.POST },
   );
   if (res.status !== FETCH_STATUS.ACCEPTED) {
     const responseText = await res.text();

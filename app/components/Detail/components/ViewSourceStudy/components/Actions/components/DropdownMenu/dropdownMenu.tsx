@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
 import { PathParameter } from "../../../../../../../../common/entities";
 import { FormStatus } from "../../../../../../../../hooks/useFormManager/common/entities";

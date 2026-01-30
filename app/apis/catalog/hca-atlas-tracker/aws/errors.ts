@@ -18,12 +18,12 @@ export class ETagMismatchError extends ConflictError {
     key: string,
     versionId: string | null,
     existingETag: string,
-    newETag: string
+    newETag: string,
   ) {
     super(
       `ETag mismatch for ${bucket}/${key} (version: ${
         versionId || "null"
-      }): existing=${existingETag}, new=${newETag}`
+      }): existing=${existingETag}, new=${newETag}`,
     );
     this.name = "ETagMismatchError";
   }

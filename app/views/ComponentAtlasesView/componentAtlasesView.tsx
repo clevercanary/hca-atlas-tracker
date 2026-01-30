@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";

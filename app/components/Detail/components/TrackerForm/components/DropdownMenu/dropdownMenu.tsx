@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import {
   DropdownMenuIconButtonProps,
   DropdownMenuItemProps,
@@ -23,7 +24,7 @@ export const DropdownMenu = ({
     <MoreDropdownMenu
       className={className}
       button={(
-        props: Pick<DropdownMenuIconButtonProps, "onClick" | "open">
+        props: Pick<DropdownMenuIconButtonProps, "onClick" | "open">,
       ) => (
         <IconButton
           color={ICON_BUTTON_PROPS.COLOR.SECONDARY}

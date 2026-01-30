@@ -24,7 +24,7 @@ export type ViewPropsOf<C extends ElementType> =
     : never;
 
 export type ControllerViewBuilder<C extends ElementType = "input"> = (
-  value: unknown
+  value: unknown,
 ) => ViewPropsOf<C>;
 
 type PickedInputProps =
@@ -41,7 +41,7 @@ type PickedSelectProps = "displayEmpty" | "label" | "isRowStart";
 export interface ControllerConfig<
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 > {
   inputProps?: ControllerInputConfig;
   labelLink?: LabelLinkConfig | true;

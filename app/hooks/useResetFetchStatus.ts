@@ -14,7 +14,7 @@ import { useFetchDataState } from "./useFetchDataState";
 
 export const useResetFetchStatus = (
   fetchProgress: FETCH_PROGRESS,
-  fetchKeys?: string[]
+  fetchKeys?: string[],
 ): void => {
   const { fetchDataDispatch } = useFetchDataState();
   useEffect(() => {

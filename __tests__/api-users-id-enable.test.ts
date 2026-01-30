@@ -15,7 +15,7 @@ import { TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -48,7 +48,9 @@ afterAll(async () => {
 describe(TEST_ROUTE, () => {
   it("returns error 401 for non-POST request", async () => {
     expect(
-      (await doEnableRequest(undefined, userDisabledId, "GET"))._getStatusCode()
+      (
+        await doEnableRequest(undefined, userDisabledId, "GET")
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -56,7 +58,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doEnableRequest(undefined, userDisabledId, "POST", true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -64,7 +66,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doEnableRequest(USER_UNREGISTERED, userDisabledId, "POST", true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -72,7 +74,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doEnableRequest(USER_DISABLED_CONTENT_ADMIN, userDisabledId)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -88,13 +90,13 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
   it("returns error 400 when specified ID is non-numeric", async () => {
     expect(
-      (await doEnableRequest(USER_CONTENT_ADMIN, "test"))._getStatusCode()
+      (await doEnableRequest(USER_CONTENT_ADMIN, "test"))._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -102,7 +104,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doEnableRequest(USER_CONTENT_ADMIN, nonexistentId)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -121,7 +123,7 @@ async function doEnableRequest(
   user: TestUser | undefined,
   targetId: string,
   method: "GET" | "POST" = "POST",
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },

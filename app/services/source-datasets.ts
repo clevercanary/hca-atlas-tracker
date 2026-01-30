@@ -49,12 +49,12 @@ export interface UpdatedSourceDatasetsInfo {
  */
 export async function getSourceStudyDatasets(
   atlasId: string,
-  sourceStudyId: string
+  sourceStudyId: string,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   return await getSourceDatasetsForApi(
     await getSourceStudySourceDatasetVersionIds(sourceStudyId, atlasId),
-    true
+    true,
   );
 }
 
@@ -66,12 +66,12 @@ export async function getSourceStudyDatasets(
  */
 export async function getAtlasDatasets(
   atlasId: string,
-  isArchivedValue = false
+  isArchivedValue = false,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   return await getSourceDatasetsForApi(
     await getAtlasSourceDatasetVersionIds(atlasId),
     true,
-    [isArchivedValue]
+    [isArchivedValue],
   );
 }
 
@@ -83,15 +83,15 @@ export async function getAtlasDatasets(
  */
 export async function getComponentAtlasDatasets(
   atlasId: string,
-  componentAtlasId: string
+  componentAtlasId: string,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
-    atlasId
+    atlasId,
   );
   return await getSourceDatasetsForApi(
     await getComponentAtlasSourceDatasetVersionIds(componentAtlasVersion),
-    true
+    true,
   );
 }
 
@@ -105,12 +105,12 @@ export async function getComponentAtlasDatasets(
 export async function getAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForDetailAPI> {
   const sourceDatasetVersion = await getSourceDatasetVersionForAtlas(
     sourceDatasetId,
     atlasId,
-    client
+    client,
   );
   return await getSourceDatasetForDetailApi(sourceDatasetVersion, client);
 }
@@ -125,20 +125,20 @@ export async function getAtlasSourceDataset(
 export async function getComponentAtlasSourceDataset(
   atlasId: string,
   componentAtlasId: string,
-  sourceDatasetId: string
+  sourceDatasetId: string,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
-    atlasId
+    atlasId,
   );
   const sourceDatasetVersion = await getSourceDatasetVersionForComponentAtlas(
     sourceDatasetId,
-    componentAtlasVersion
+    componentAtlasVersion,
   );
   const [sourceDataset] = await getSourceDatasetsForApi(
     [sourceDatasetVersion],
     false,
-    [true, false]
+    [true, false],
   );
   return sourceDataset;
 }
@@ -151,14 +151,14 @@ export async function getComponentAtlasSourceDataset(
  */
 export async function createSourceDataset(
   fileId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<string> {
   const info = createSourceDatasetInfo();
   const insertResult = await client.query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
     "INSERT INTO hat.source_datasets (sd_info, file_id) VALUES ($1, $2) RETURNING version_id",
-    [JSON.stringify(info), fileId]
+    [JSON.stringify(info), fileId],
   );
   return insertResult.rows[0].version_id;
 }
@@ -175,18 +175,18 @@ function createSourceDatasetInfo(): HCAAtlasTrackerDBSourceDatasetInfo {
 export async function updateAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
-  inputData: AtlasSourceDatasetEditData
+  inputData: AtlasSourceDatasetEditData,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   const sourceDatasetVersion = await getSourceDatasetVersionForAtlas(
     sourceDatasetId,
-    atlasId
+    atlasId,
   );
   await confirmSourceDatasetsAreEditable([sourceDatasetVersion]);
   const updatedInfoFields: SourceDatasetInfoUpdateFields = {
     capUrl: inputData.capUrl || null,
     metadataSpreadsheetTitle: await getSheetTitleForApi(
       inputData.metadataSpreadsheetUrl,
-      "metadataSpreadsheetUrl"
+      "metadataSpreadsheetUrl",
     ),
     metadataSpreadsheetUrl: inputData.metadataSpreadsheetUrl || null,
   };
@@ -194,7 +194,7 @@ export async function updateAtlasSourceDataset(
     await query(
       "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE version_id = $2",
       [JSON.stringify(updatedInfoFields), sourceDatasetVersion],
-      client
+      client,
     );
     return await getAtlasSourceDataset(atlasId, sourceDatasetId, client);
   });
@@ -207,18 +207,18 @@ export async function updateAtlasSourceDataset(
  */
 export async function setAtlasSourceDatasetsReprocessedStatus(
   atlasId: string,
-  inputData: SourceDatasetsSetReprocessedStatusData
+  inputData: SourceDatasetsSetReprocessedStatusData,
 ): Promise<void> {
   const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
     inputData.sourceDatasetIds,
-    atlasId
+    atlasId,
   );
 
   await confirmSourceDatasetsAreEditable(sourceDatasetVersions);
 
   await query(
     "UPDATE hat.source_datasets SET reprocessed_status = $1 WHERE version_id = ANY($2)",
-    [inputData.reprocessedStatus, sourceDatasetVersions]
+    [inputData.reprocessedStatus, sourceDatasetVersions],
   );
 }
 
@@ -229,18 +229,18 @@ export async function setAtlasSourceDatasetsReprocessedStatus(
  */
 export async function setAtlasSourceDatasetsPublicationStatus(
   atlasId: string,
-  inputData: SourceDatasetsSetPublicationStatusData
+  inputData: SourceDatasetsSetPublicationStatusData,
 ): Promise<void> {
   const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
     inputData.sourceDatasetIds,
-    atlasId
+    atlasId,
   );
 
   await confirmSourceDatasetsAreEditable(sourceDatasetVersions);
 
   await setSourceDatasetsPublicationStatus(
     sourceDatasetVersions,
-    inputData.publicationStatus
+    inputData.publicationStatus,
   );
 }
 
@@ -251,17 +251,17 @@ export async function setAtlasSourceDatasetsPublicationStatus(
  */
 export async function setAtlasSourceDatasetsSourceStudy(
   atlasId: string,
-  inputData: SourceDatasetsSetSourceStudyData
+  inputData: SourceDatasetsSetSourceStudyData,
 ): Promise<void> {
   if (inputData.sourceStudyId !== null)
     await confirmSourceStudyExistsOnAtlas(inputData.sourceStudyId, atlasId);
   const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
     inputData.sourceDatasetIds,
-    atlasId
+    atlasId,
   );
   await confirmSourceDatasetsAreEditable(sourceDatasetVersions);
   await setSourceDatasetsSourceStudy(
     sourceDatasetVersions,
-    inputData.sourceStudyId
+    inputData.sourceStudyId,
   );
 }

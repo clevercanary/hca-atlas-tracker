@@ -16,7 +16,7 @@ import { useFetchSourceStudy } from "./useFetchSourceStudy";
 const SCHEMA = sourceStudyEditSchema;
 
 export const useEditSourceStudyForm = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy> => {
   const { sourceStudy } = useFetchSourceStudy(pathParameter);
   return useForm<SourceStudyEditData, HCAAtlasTrackerSourceStudy>(
@@ -24,7 +24,7 @@ export const useEditSourceStudyForm = (
     sourceStudy,
     mapSchemaValues,
     undefined,
-    { defaultValues: mapSchemaValues(sourceStudy) }
+    { defaultValues: mapSchemaValues(sourceStudy) },
   );
 };
 
@@ -34,7 +34,7 @@ export const useEditSourceStudyForm = (
  * @returns URL.
  */
 function mapCELLxGENECollectionId(
-  cellxgeneCollectionId: string | null
+  cellxgeneCollectionId: string | null,
 ): string {
   if (!cellxgeneCollectionId) return "";
   return `${ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL}${ATLAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION}/${cellxgeneCollectionId}`;
@@ -67,17 +67,17 @@ export function mapPublicationStatus(doi?: string | null): PUBLICATION_STATUS {
  * @returns schema default values.
  */
 function mapSchemaValues(
-  sourceStudy?: HCAAtlasTrackerSourceStudy
+  sourceStudy?: HCAAtlasTrackerSourceStudy,
 ): SourceStudyEditData {
   return {
     capId: null, // TODO remove when capId is removed from BE.
     [FIELD_NAME.CELLXGENE_COLLECTION_ID]: mapCELLxGENECollectionId(
-      sourceStudy?.cellxgeneCollectionId ?? null
+      sourceStudy?.cellxgeneCollectionId ?? null,
     ),
     [FIELD_NAME.CONTACT_EMAIL]: sourceStudy?.contactEmail ?? "",
     [FIELD_NAME.DOI]: sourceStudy?.doi ?? "",
     [FIELD_NAME.HCA_PROJECT_ID]: mapHCAProjectId(
-      sourceStudy?.hcaProjectId ?? null
+      sourceStudy?.hcaProjectId ?? null,
     ),
     [FIELD_NAME.METADATA_SPREADSHEETS]:
       sourceStudy?.metadataSpreadsheets.map(({ id, ...props }) => ({

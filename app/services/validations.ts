@@ -126,7 +126,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
           relatedEntityUrl: getCellxGeneRelatedEntityUrl(sourceStudy),
           status: passedIfTruthy(
             getDbSourceStudyTierOneMetadataStatus(sourceStudy) ===
-              TIER_ONE_METADATA_STATUS.COMPLETE
+              TIER_ONE_METADATA_STATUS.COMPLETE,
           ),
         };
       },
@@ -171,7 +171,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
                 },
               ];
             return info;
-          }
+          },
         );
       },
       validationId:
@@ -187,7 +187,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
           (projectInfo, infoProperties) => ({
             ...infoProperties,
             status: passedIfTruthy(projectInfo?.hasPrimaryData),
-          })
+          }),
         );
       },
       validationId: VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
@@ -219,20 +219,20 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
               };
             }
             const projectAtlasNames = projectInfo.atlases.map(
-              ({ shortName, version }) => shortName + " " + version
+              ({ shortName, version }) => shortName + " " + version,
             );
             const projectNetworksLower = projectInfo.networks.map((name) =>
-              name.toLowerCase()
+              name.toLowerCase(),
             );
             const atlasesMatch =
               sourceStudy.atlas_names.length === projectAtlasNames.length &&
               sourceStudy.atlas_names.every((name) =>
-                projectAtlasNames.includes(name)
+                projectAtlasNames.includes(name),
               );
             const networksMatch =
               sourceStudy.networks.length === projectNetworksLower.length &&
               sourceStudy.networks.every((name) =>
-                projectNetworksLower.includes(name.toLocaleLowerCase())
+                projectNetworksLower.includes(name.toLocaleLowerCase()),
               );
             const info: ValidationStatusInfo = {
               ...infoProperties,
@@ -255,7 +255,7 @@ export const SOURCE_STUDY_VALIDATIONS: ValidationDefinition<HCAAtlasTrackerDBSou
                 });
             }
             return info;
-          }
+          },
         );
       },
       validationId:
@@ -275,14 +275,14 @@ function validateSourceStudyHcaProjectInfo(
   validate: (
     projectInfo: ProjectInfo | null,
     infoProperties: Partial<ValidationStatusInfo>,
-    publication: PublicationInfo | null
-  ) => ValidationStatusInfo | null
+    publication: PublicationInfo | null,
+  ) => ValidationStatusInfo | null,
 ): ValidationStatusInfo | null {
   if (!sourceStudy.study_info.hcaProjectId) {
     return null;
   }
   return getProjectInfoById(
-    sourceStudy.study_info.hcaProjectId
+    sourceStudy.study_info.hcaProjectId,
   ).mapRefreshOrElse(
     (projectInfo) => {
       const infoProperties = {
@@ -291,14 +291,14 @@ function validateSourceStudyHcaProjectInfo(
       return validate(
         projectInfo,
         infoProperties,
-        sourceStudy.study_info.publication
+        sourceStudy.study_info.publication,
       );
     },
     () => {
       return {
         status: VALIDATION_META_STATUS.SKIP_UPDATE,
       };
-    }
+    },
   );
 }
 
@@ -308,13 +308,13 @@ function validateSourceStudyHcaProjectInfo(
  * @returns HCA project URL, or undefined if unavailable.
  */
 function getHcaRelatedEntityUrl(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
 ): string | undefined {
   const { hcaProjectId } = sourceStudy.study_info;
   return hcaProjectId === null
     ? undefined
     : `https://explore.data.humancellatlas.org/projects/${encodeURIComponent(
-        hcaProjectId
+        hcaProjectId,
       )}`;
 }
 
@@ -324,13 +324,13 @@ function getHcaRelatedEntityUrl(
  * @returns CELLxGENE collection URL, or undefined if unavailable.
  */
 function getCellxGeneRelatedEntityUrl(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
 ): string | undefined {
   const { cellxgeneCollectionId } = sourceStudy.study_info;
   return cellxgeneCollectionId === null
     ? undefined
     : `https://cellxgene.cziscience.com/collections/${encodeURIComponent(
-        cellxgeneCollectionId
+        cellxgeneCollectionId,
       )}`;
 }
 
@@ -340,7 +340,7 @@ function getCellxGeneRelatedEntityUrl(
  * @returns CAP URL, or undefined if unavailable.
  */
 function getCapRelatedEntityUrl(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
 ): string | undefined {
   return sourceStudy.study_info.capId ?? undefined;
 }
@@ -353,7 +353,7 @@ function getCapRelatedEntityUrl(
  */
 export async function getValidationRecords(
   ids?: string[],
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBValidationWithAtlasProperties[]> {
   const queryResult = ids
     ? await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(
@@ -371,7 +371,7 @@ export async function getValidationRecords(
           GROUP BY v.entity_id, v.validation_id;
         `,
         [ids],
-        client
+        client,
       )
     : await query<HCAAtlasTrackerDBValidationWithAtlasProperties>(
         `
@@ -387,7 +387,7 @@ export async function getValidationRecords(
           GROUP BY v.entity_id, v.validation_id;
         `,
         undefined,
-        client
+        client,
       );
   return queryResult.rows;
 }
@@ -400,12 +400,12 @@ export async function getValidationRecords(
  */
 export async function getValidationRecordsWithoutAtlasPropertiesForEntities(
   entityIds: string[],
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBValidation[]> {
   return (
     await client.query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE entity_id=ANY($1)",
-      [entityIds]
+      [entityIds],
     )
   ).rows;
 }
@@ -422,7 +422,7 @@ function getValidationResult<T extends ENTITY_TYPE>(
   entityType: T,
   validation: ValidationDefinition<ValidationDBEntityOfType<T>>,
   entity: ValidationDBEntityOfType<T>,
-  typeSpecificProperties: TypeSpecificValidationProperties
+  typeSpecificProperties: TypeSpecificValidationProperties,
 ): HCAAtlasTrackerValidationResult | ValidationMetaResult | null {
   const validationStatusInfo = validation.validate(entity);
   if (validationStatusInfo === null) return null;
@@ -480,11 +480,11 @@ async function revalidateAllSourceStudies(): Promise<void> {
  */
 export async function updateSourceStudyValidations(
   sourceStudy: HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   const validationResults = await getSourceStudyValidationResults(
     sourceStudy,
-    client
+    client,
   );
 
   await updateValidations(sourceStudy.id, validationResults, client);
@@ -499,23 +499,23 @@ export async function updateSourceStudyValidations(
 export async function updateValidations(
   entityId: string,
   validationResults: (HCAAtlasTrackerValidationResult | ValidationMetaResult)[],
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   const { rows: existingValidations } =
     await client.query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE entity_id=$1",
-      [entityId]
+      [entityId],
     );
 
   const existingValidationsById = new Map(
     existingValidations.map((validation) => [
       validation.validation_id,
       validation,
-    ])
+    ]),
   );
 
   const validationIdsToDelete = new Set(
-    existingValidations.map((validation) => validation.validation_id)
+    existingValidations.map((validation) => validation.validation_id),
   );
 
   // Insert and update from new results
@@ -535,7 +535,7 @@ export async function updateValidations(
   const deletedValidationsInfo = (
     await client.query<Pick<HCAAtlasTrackerDBValidation, "comment_thread_id">>(
       "DELETE FROM hat.validations WHERE entity_id=$1 AND validation_id=ANY($2) RETURNING comment_thread_id",
-      [entityId, Array.from(validationIdsToDelete)]
+      [entityId, Array.from(validationIdsToDelete)],
     )
   ).rows;
   for (const { comment_thread_id: threadId } of deletedValidationsInfo) {
@@ -546,13 +546,13 @@ export async function updateValidations(
 async function updateValidation(
   result: HCAAtlasTrackerValidationResult,
   existingValidation: HCAAtlasTrackerDBValidation | undefined,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   const existingTaskStatus = existingValidation?.validation_info.taskStatus;
 
   const resolvedAt =
     result.validationStatus === VALIDATION_STATUS.PASSED
-      ? existingValidation?.resolved_at ?? new Date()
+      ? (existingValidation?.resolved_at ?? new Date())
       : null;
 
   const taskStatus =
@@ -593,7 +593,7 @@ async function updateValidation(
         newColumns.resolved_at,
         JSON.stringify(newColumns.validation_info),
         existingValidation.id,
-      ]
+      ],
     );
   } else {
     // Insert new validation record if the record doesn't already exist
@@ -605,7 +605,7 @@ async function updateValidation(
         newColumns.resolved_at,
         newColumns.validation_id,
         JSON.stringify(newColumns.validation_info),
-      ]
+      ],
     );
   }
 }
@@ -618,7 +618,7 @@ async function updateValidation(
  */
 function shouldUpdateValidation(
   existingValidation: HCAAtlasTrackerDBValidation,
-  validationResult: HCAAtlasTrackerValidationResult
+  validationResult: HCAAtlasTrackerValidationResult,
 ): boolean {
   if (!dequal(existingValidation.atlas_ids, validationResult.atlasIds))
     return true;
@@ -638,7 +638,7 @@ function shouldUpdateValidation(
  */
 export async function getSourceStudyValidationResults(
   sourceStudy: HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<(HCAAtlasTrackerValidationResult | ValidationMetaResult)[]> {
   const validationResults: (
     | HCAAtlasTrackerValidationResult
@@ -656,7 +656,7 @@ export async function getSourceStudyValidationResults(
         doi: sourceStudy.doi,
         entityTitle: title,
         publicationString: getDbEntityCitation(sourceStudy),
-      }
+      },
     );
     if (!validationResult) continue;
     validationResults.push(validationResult);
@@ -670,7 +670,7 @@ export async function getSourceStudyValidationResults(
  * @returns source study title.
  */
 function getSourceStudyTitle(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
 ): string {
   return (
     sourceStudy.study_info.publication?.title ??
@@ -687,11 +687,11 @@ function getSourceStudyTitle(
  */
 async function getSourceStudyAtlasIds(
   sourceStudy: HCAAtlasTrackerDBSourceStudy,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<string[]> {
   const queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     "SELECT id FROM hat.atlases WHERE source_studies @> $1",
-    [JSON.stringify(sourceStudy.id)]
+    [JSON.stringify(sourceStudy.id)],
   );
   return Array.from(new Set(queryResult.rows.map(({ id }) => id)));
 }
@@ -706,7 +706,7 @@ async function getSourceStudyAtlasIds(
 export async function updateSourceStudyTaskStatusesByDois(
   dois: string[],
   validationId: VALIDATION_ID,
-  status: TASK_STATUS
+  status: TASK_STATUS,
 ): Promise<TaskStatusesUpdatedByDOIResult> {
   return await doTransaction(async (client) => {
     // Get source studies with the given DOIs
@@ -749,14 +749,14 @@ export async function updateSourceStudyTaskStatusesByDois(
             AND entity_id=ANY($4)
           RETURNING entity_id
         `,
-        [status, validationId, allowedValidationStatus, sourceStudyIds]
+        [status, validationId, allowedValidationStatus, sourceStudyIds],
       )
     ).rows.map((v) => v.entity_id);
 
     // Calculate info about non-updated validations
 
     const notUpdatedSourceStudyIds = sourceStudyIds.filter(
-      (id) => !updatedValidationSourceStudyIds.includes(id)
+      (id) => !updatedValidationSourceStudyIds.includes(id),
     );
 
     const unchangedValidationsInfo = (
@@ -768,7 +768,7 @@ export async function updateSourceStudyTaskStatusesByDois(
           FROM hat.validations
           WHERE validation_id=$1 AND entity_id=ANY($2)
         `,
-        [validationId, notUpdatedSourceStudyIds]
+        [validationId, notUpdatedSourceStudyIds],
       )
     ).rows;
 
@@ -808,7 +808,7 @@ export async function updateSourceStudyTaskStatusesByDois(
 export async function createValidationComment(
   validationId: string,
   inputData: NewCommentThreadData,
-  user: HCAAtlasTrackerDBUser
+  user: HCAAtlasTrackerDBUser,
 ): Promise<HCAAtlasTrackerDBComment> {
   return await doTransaction(async (client) => {
     const existingThreadResult = await client.query<
@@ -818,7 +818,7 @@ export async function createValidationComment(
     ]);
     if (existingThreadResult.rows.length === 0)
       throw new NotFoundError(
-        `Validation with ID ${validationId} doesn't exist`
+        `Validation with ID ${validationId} doesn't exist`,
       );
     const existingThreadId = existingThreadResult.rows[0].comment_thread_id;
     if (existingThreadId !== null)
@@ -826,7 +826,7 @@ export async function createValidationComment(
     const newComment = await createCommentThread(inputData, user, client);
     await client.query(
       "UPDATE hat.validations SET comment_thread_id=$1 WHERE id=$2",
-      [newComment.thread_id, validationId]
+      [newComment.thread_id, validationId],
     );
     return newComment;
   });
@@ -838,7 +838,7 @@ export async function createValidationComment(
  * @returns promise.
  */
 export async function deleteValidationComment(
-  validationId: string
+  validationId: string,
 ): Promise<void> {
   return await doTransaction(async (client) => {
     const existingThreadResult = await client.query<
@@ -848,14 +848,14 @@ export async function deleteValidationComment(
     ]);
     if (existingThreadResult.rows.length === 0)
       throw new NotFoundError(
-        `Validation with ID ${validationId} doesn't exist`
+        `Validation with ID ${validationId} doesn't exist`,
       );
     const existingThreadId = existingThreadResult.rows[0].comment_thread_id;
     if (existingThreadId === null)
       throw new NotFoundError("No comment thread exists for the validation");
     await client.query(
       "UPDATE hat.validations SET comment_thread_id=NULL WHERE id=$1",
-      [validationId]
+      [validationId],
     );
     await deleteCommentThread(existingThreadId, client);
   });
@@ -869,18 +869,18 @@ export async function deleteValidationComment(
  */
 export async function updateTargetCompletions(
   targetCompletion: Date | null,
-  validationIds: string[]
+  validationIds: string[],
 ): Promise<HCAAtlasTrackerDBValidationWithAtlasProperties[]> {
   const client = await getPoolClient();
   try {
     client.query("BEGIN");
     const queryResult = await client.query(
       "UPDATE hat.validations SET target_completion=$1 WHERE id=ANY($2)",
-      [targetCompletion, validationIds]
+      [targetCompletion, validationIds],
     );
     if (queryResult.rowCount !== validationIds.length)
       throw new NotFoundError(
-        "One or more of the specified validations do not exist"
+        "One or more of the specified validations do not exist",
       );
     const results = await getValidationRecords(validationIds, client);
     client.query("COMMIT");

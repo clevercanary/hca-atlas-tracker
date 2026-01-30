@@ -58,7 +58,7 @@ import {
 import { expectIsDefined, withConsoleMessageHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -122,7 +122,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -135,7 +135,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify that no file was written to the database for this key
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST],
     );
     expect(fileRows.rows).toHaveLength(0);
   });
@@ -161,7 +161,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -173,7 +173,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that file was saved to database with NULL SHA256
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -223,7 +223,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Ensure first file is marked latest
     const firstFileResult = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED],
     );
     expect(firstFileResult.rows).toHaveLength(1);
     const firstFileId = firstFileResult.rows[0].id;
@@ -237,7 +237,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       Pick<HCAAtlasTrackerDBSourceDataset, "sd_info">
     >(
       "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE file_id = $2 RETURNING sd_info",
-      [JSON.stringify(sdInfoUpdateFields), firstFileId]
+      [JSON.stringify(sdInfoUpdateFields), firstFileId],
     );
     const sdInfoBefore = sdInfoResult.rows[0].sd_info;
     expect(sdInfoBefore).toMatchObject(sdInfoUpdateFields);
@@ -283,7 +283,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify sd_info remains the same on the linked source dataset
     const sdAfter = await query(
       "SELECT sd_info FROM hat.source_datasets WHERE version_id = $1",
-      [firstSourceDataset.version_id]
+      [firstSourceDataset.version_id],
     );
     expect(sdAfter.rows).toHaveLength(1);
     expect(sdAfter.rows[0].sd_info).toEqual(sdInfoBefore);
@@ -291,7 +291,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify file versioning flags: latest remains true on newest, previous false
     const versions = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED],
     );
     expect(versions.rows).toHaveLength(2);
     expect(versions.rows[0].is_latest).toBe(false); // older
@@ -340,7 +340,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Ensure first file is marked latest
     const firstFileResult = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
     expect(firstFileResult.rows).toHaveLength(1);
     const firstFile = firstFileResult.rows[0];
@@ -356,7 +356,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Get the first component atlas's atlas for later checks
     const atlasBefore = await getComponentAtlasAtlas(
-      firstComponentAtlas.version_id
+      firstComponentAtlas.version_id,
     );
 
     // Second upload (update) with newer eventTime
@@ -391,7 +391,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Verify that the first component atlas remains the same, exluding updated_at and is_latest, the latter of which should be false
     const firstComponentAtlasAfter = await getComponentAtlasFromDatabase(
-      componentAtlasVersion
+      componentAtlasVersion,
     );
     if (!expectIsDefined(firstComponentAtlasAfter)) return;
     expect({
@@ -408,7 +408,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify file versioning flags: latest remains true on newest, previous false
     const versions = await query(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
     expect(versions.rows).toHaveLength(2);
     expect(versions.rows[0].is_latest).toBe(false); // older
@@ -416,15 +416,15 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Get new file's component atlas, compare it to the first component atlas, and check that it's marked as latest and has WIP number 2
     const secondComponentAtlas = await getFileComponentAtlas(
-      versions.rows[1].id
+      versions.rows[1].id,
     );
     expect(secondComponentAtlas).not.toEqual(firstComponentAtlasAfter);
     expect(secondComponentAtlas.id).toEqual(firstComponentAtlas.id);
     expect(secondComponentAtlas.component_info).toEqual(
-      firstComponentAtlas.component_info
+      firstComponentAtlas.component_info,
     );
     expect(secondComponentAtlas.source_datasets).toEqual(
-      firstComponentAtlas.source_datasets
+      firstComponentAtlas.source_datasets,
     );
     expect(secondComponentAtlas.is_latest).toEqual(true);
     expect(secondComponentAtlas.wip_number).toEqual(2);
@@ -433,10 +433,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const atlasAfter = await getAtlasFromDatabase(atlasBefore.id);
     if (expectIsDefined(atlasAfter)) {
       expect(atlasAfter.component_atlases).not.toContain(
-        firstComponentAtlas.version_id
+        firstComponentAtlas.version_id,
       );
       expect(atlasAfter.component_atlases).toContain(
-        secondComponentAtlas.version_id
+        secondComponentAtlas.version_id,
       );
     }
   });
@@ -459,7 +459,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -471,7 +471,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that file was saved to database
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -515,7 +515,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -527,7 +527,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that file was saved to database
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -553,11 +553,11 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify atlas has the component atlas in its component_atlases array
     const atlasRows = await query(
       "SELECT component_atlases FROM hat.atlases WHERE id = $1",
-      [TEST_GUT_ATLAS_ID]
+      [TEST_GUT_ATLAS_ID],
     );
     expect(atlasRows.rows).toHaveLength(1);
     expect(atlasRows.rows[0].component_atlases).toContain(
-      componentAtlasVersion
+      componentAtlasVersion,
     );
 
     // Verify component atlas is latest and has WIP number 1
@@ -586,7 +586,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: malformedSNSMessage,
         method: "POST",
-      }
+      },
     );
 
     // Mock SNS validator to pass signature validation but preserve malformed JSON
@@ -608,19 +608,19 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         await snsHandler(req, res);
       },
       true,
-      { error: errorMessages }
+      { error: errorMessages },
     );
 
     // Should reject with 400 Bad Request due to JSON parsing error
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
       message: expect.stringContaining(
-        "Failed to parse S3 event from SNS message"
+        "Failed to parse S3 event from SNS message",
       ),
     });
 
     expect(String(errorMessages[0]?.[0])).toEqual(
-      expect.stringContaining(messageJson)
+      expect.stringContaining(messageJson),
     );
   });
 
@@ -655,7 +655,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Get file ID and check fields and relationships
     const fileRowsBefore = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE],
     );
     expect(fileRowsBefore.rows).toHaveLength(1);
     const fileId = fileRowsBefore.rows[0].id;
@@ -684,7 +684,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Should still only have one record
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -737,7 +737,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Get file ID and check fields and relationships
     const fileRowsBefore = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG],
     );
     expect(fileRowsBefore.rows).toHaveLength(1);
     const fileId = fileRowsBefore.rows[0].id;
@@ -781,20 +781,20 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const responseBody = JSON.parse(res2._getData());
     expect(responseBody.message).toContain("ETag mismatch");
     expect(responseBody.message).toContain(
-      "existing=original-replay-etag-11111111111111111111111111111111"
+      "existing=original-replay-etag-11111111111111111111111111111111",
     );
     expect(responseBody.message).toContain(
-      "new=tampered-replay-etag-22222222222222222222222222222222"
+      "new=tampered-replay-etag-22222222222222222222222222222222",
     );
 
     // Verify only one record exists and it remains the original
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG],
     );
     expect(fileRows.rows).toHaveLength(1);
     expect(fileRows.rows[0].etag).toBe(
-      "original-replay-etag-11111111111111111111111111111111"
+      "original-replay-etag-11111111111111111111111111111111",
     );
     expect(fileRows.rows[0].id).toEqual(fileId);
 
@@ -840,7 +840,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Get file ID and check fields and relationships
     const fileRowsBefore = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG],
     );
     expect(fileRowsBefore.rows).toHaveLength(1);
     const fileId = fileRowsBefore.rows[0].id;
@@ -890,7 +890,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify only one record exists with original ETag
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_ETAG],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -933,7 +933,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -948,7 +948,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that no file was saved to the database
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, key]
+      [TEST_S3_BUCKET, key],
     );
 
     expect(fileRows.rows).toHaveLength(0);
@@ -1019,7 +1019,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check database state - should have 2 records for the same file
     const allVersions = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
 
     expect(allVersions.rows).toHaveLength(2);
@@ -1080,7 +1080,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       rows: [firstVersionBefore],
     } = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
 
     // Set is_archived to true
@@ -1121,7 +1121,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check database state - should have 2 records for the same file
     const allVersions = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY_ORDERED,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
 
     expect(allVersions.rows).toHaveLength(2);
@@ -1193,8 +1193,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
           const fileRows = await doS3Event(s3EventOptions, snsMessageOptions);
           expect(fileRows).toHaveLength(1);
           return fileRows[0];
-        })
-      )
+        }),
+      ),
     );
 
     const [sdFileA1, sdFileB1, ioFileA1] = initialFiles;
@@ -1206,7 +1206,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     await query(
       "UPDATE hat.component_atlases SET source_datasets = $1 WHERE file_id = $2",
-      [[sourceDatasetA1.version_id, sourceDatasetB.version_id], ioFileA1.id]
+      [[sourceDatasetA1.version_id, sourceDatasetB.version_id], ioFileA1.id],
     );
 
     // Add new integrated object version
@@ -1222,8 +1222,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         },
         {
           messageId: "6ef1ec02-897e-4147-a526-73031f7b79e1",
-        }
-      )
+        },
+      ),
     );
     expect(ioFileA2).toBeDefined();
     expect(ioFileA2.is_latest).toEqual(true);
@@ -1268,8 +1268,8 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
           size: 25464,
           versionId: "sd-a-v2",
         },
-        { messageId: "364e573e-1400-4627-b68c-93e9eaf328ff" }
-      )
+        { messageId: "364e573e-1400-4627-b68c-93e9eaf328ff" },
+      ),
     );
     expect(sdFileA2).toBeDefined();
     expect(sdFileA2.is_latest).toEqual(true);
@@ -1369,17 +1369,17 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         await snsHandler(reqOlder, resOlder);
       },
       true,
-      { error: errorMessages }
+      { error: errorMessages },
     );
     expect(resOlder.statusCode).toBe(200);
     expect(errorMessages).toContainEqual(
-      expect.arrayContaining([expect.stringContaining("out-of-order")])
+      expect.arrayContaining([expect.stringContaining("out-of-order")]),
     );
 
     // Expect only one version to exist for this key
     const allRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
     expect(allRows.rows).toHaveLength(1);
 
@@ -1387,7 +1387,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const latestFile = allRows.rows[0];
     expect(latestFile.version_id).toBe("ooo-version-2");
     expect(latestFile.etag).toBe(
-      "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "ooo-version2-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     );
 
     // Check component atlases
@@ -1396,7 +1396,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(latestComponentAtlas.wip_number).toEqual(1);
     const componentAtlasesResult = await query(
       "SELECT 1 FROM hat.component_atlases WHERE id = $1",
-      [latestComponentAtlas.id]
+      [latestComponentAtlas.id],
     );
     expect(componentAtlasesResult.rowCount).toEqual(1);
   });
@@ -1422,7 +1422,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: "POST",
-      }
+      },
     );
 
     const handler = (await import("../pages/api/sns")).default;
@@ -1457,7 +1457,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -1469,7 +1469,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that file was saved with correct file_type
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -1512,7 +1512,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -1524,7 +1524,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify file saved as ingest_manifest and not linked to any metadata objects
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.MANIFEST]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.MANIFEST],
     );
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
@@ -1558,7 +1558,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -1570,7 +1570,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that file was saved with correct file_type
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.MANIFEST]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.MANIFEST],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -1648,7 +1648,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       // Check that file was saved and linked appropriately when applicable
       const fileRows = await query<HCAAtlasTrackerDBFile>(
         SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-        [TEST_S3_BUCKET, key]
+        [TEST_S3_BUCKET, key],
       );
 
       expect(fileRows.rows).toHaveLength(1);
@@ -1661,13 +1661,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       expect(file.validation_status).toBe(
         expectedToValidate
           ? FILE_VALIDATION_STATUS.REQUESTED
-          : FILE_VALIDATION_STATUS.PENDING
+          : FILE_VALIDATION_STATUS.PENDING,
       );
       expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
       expect(file.integrity_status).toBe(
         expectedToValidate
           ? INTEGRITY_STATUS.REQUESTED
-          : INTEGRITY_STATUS.PENDING
+          : INTEGRITY_STATUS.PENDING,
       );
 
       if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
@@ -1675,7 +1675,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       } else if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
         expect(await getFileComponentAtlas(file.id)).toBeTruthy();
       }
-    }
+    },
   );
 
   // S3 Path Validation Tests
@@ -1700,7 +1700,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -1710,7 +1710,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(res.statusCode).toBe(400);
     const responseBody = JSON.parse(res._getData());
     expect(responseBody.message).toContain(
-      "Unknown bionetwork: not-a-bionetwork"
+      "Unknown bionetwork: not-a-bionetwork",
     );
   });
 
@@ -1745,7 +1745,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       const responseBody = JSON.parse(res._getData());
       expect(responseBody.message).toContain("Invalid S3 key format");
       expect(responseBody.message).toContain(
-        "Expected format: bio_network/atlas-name/folder-type/filename"
+        "Expected format: bio_network/atlas-name/folder-type/filename",
       );
     });
   });
@@ -1770,7 +1770,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -1780,10 +1780,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(res.statusCode).toBe(400);
     const responseBody = JSON.parse(res._getData());
     expect(responseBody.message).toContain(
-      "Unknown folder type: unknown-folder"
+      "Unknown folder type: unknown-folder",
     );
     expect(responseBody.message).toContain(
-      "Expected: source-datasets, integrated-objects, or manifests"
+      "Expected: source-datasets, integrated-objects, or manifests",
     );
   });
 
@@ -1848,7 +1848,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -1899,7 +1899,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(mockSubmitJob).toHaveBeenLastCalledWith(
       expect.objectContaining({
         s3Key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
-      })
+      }),
     );
 
     // Second upload (update) with newer eventTime
@@ -1937,7 +1937,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(mockSubmitJob).toHaveBeenLastCalledWith(
       expect.objectContaining({
         s3Key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
-      })
+      }),
     );
   });
 
@@ -1979,7 +1979,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(mockSubmitJob).toHaveBeenLastCalledWith(
       expect.objectContaining({
         s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      })
+      }),
     );
 
     // Second upload (update) with newer eventTime
@@ -2017,7 +2017,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(mockSubmitJob).toHaveBeenLastCalledWith(
       expect.objectContaining({
         s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
-      })
+      }),
     );
   });
 
@@ -2043,7 +2043,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -2090,7 +2090,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(mockSubmitJob).toHaveBeenLastCalledWith(
       expect.objectContaining({
         s3Key: TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE,
-      })
+      }),
     );
 
     const { req: req2, res: res2 } = httpMocks.createMocks<
@@ -2135,7 +2135,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       {
         body: snsMessage,
         method: METHOD.POST,
-      }
+      },
     );
 
     await withConsoleMessageHiding(async () => {
@@ -2147,7 +2147,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that file was saved to database with correct status
     const fileRows = await query<HCAAtlasTrackerDBFile>(
       SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST]
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST],
     );
 
     expect(fileRows.rows).toHaveLength(1);
@@ -2155,7 +2155,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe(TEST_FILE_PATHS.SOURCE_DATASET_TEST);
     expect(file.etag).toBe(
-      "validation-error-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "validation-error-etag-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     );
     expect(file.size_bytes).toBe("1024000");
     expect(file.version_id).toBe("validation-error-version");

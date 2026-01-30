@@ -21,7 +21,7 @@ import { TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -51,7 +51,7 @@ beforeAll(async () => {
   validations = (
     await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE entity_id=$1",
-      [SOURCE_STUDY_PUBLISHED_WITH_HCA.id]
+      [SOURCE_STUDY_PUBLISHED_WITH_HCA.id],
     )
   ).rows;
   if (validations.length < 2) throw new Error("Missing test validations");
@@ -73,9 +73,9 @@ describe(TEST_ROUTE, () => {
           DATE_VALID,
           validationIds,
           false,
-          METHOD.GET
+          METHOD.GET,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
     await expectValidationsToBeUnchanged();
   });
@@ -87,9 +87,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           DATE_VALID,
           validationIds,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectValidationsToBeUnchanged();
   });
@@ -101,9 +101,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           DATE_VALID,
           validationIds,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectValidationsToBeUnchanged();
   });
@@ -114,9 +114,9 @@ describe(TEST_ROUTE, () => {
         await doCompletionDatesRequest(
           USER_DISABLED_CONTENT_ADMIN,
           DATE_VALID,
-          validationIds
+          validationIds,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectValidationsToBeUnchanged();
   });
@@ -134,7 +134,7 @@ describe(TEST_ROUTE, () => {
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
         await expectValidationsToBeUnchanged();
-      }
+      },
     );
   }
 
@@ -145,9 +145,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           DATE_NON_UTC,
           validationIds,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectValidationsToBeUnchanged();
   });
@@ -159,9 +159,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           DATE_NON_UTC,
           [...validationIds, "notauuid"],
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectValidationsToBeUnchanged();
   });
@@ -173,9 +173,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           DATE_VALID,
           [...validationIds, VALIDATION_ID_NONEXISTENT],
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectValidationsToBeUnchanged();
   });
@@ -184,7 +184,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCompletionDatesRequest(USER_CONTENT_ADMIN, DATE_VALID, [], true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectValidationsToBeUnchanged();
   });
@@ -193,7 +193,7 @@ describe(TEST_ROUTE, () => {
     const res = await doCompletionDatesRequest(
       USER_CONTENT_ADMIN,
       DATE_VALID,
-      validationIds
+      validationIds,
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedValidations: HCAAtlasTrackerValidationRecord[] =
@@ -207,7 +207,7 @@ describe(TEST_ROUTE, () => {
     const updatedValidationsFromDb = (
       await query<HCAAtlasTrackerDBValidation>(
         "SELECT * FROM hat.validations WHERE id=ANY($1)",
-        [validationIds]
+        [validationIds],
       )
     ).rows;
     for (const validation of updatedValidationsFromDb) {
@@ -238,23 +238,23 @@ async function expectValidationsToBeUnchanged(): Promise<void> {
   const currentValidations = (
     await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE id=ANY($1)",
-      [validationIds]
+      [validationIds],
     )
   ).rows;
   for (const currentValidation of currentValidations) {
     expect(currentValidation).toEqual(
-      validations.find((v) => v.id === currentValidation.id)
+      validations.find((v) => v.id === currentValidation.id),
     );
   }
 }
 
 async function getValidationFromDb(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBValidation> {
   return (
     await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE id=$1",
-      [id]
+      [id],
     )
   ).rows[0];
 }
@@ -264,7 +264,7 @@ async function doCompletionDatesRequest(
   targetCompletion: string | null,
   taskIds: string[],
   hideConsoleError = false,
-  method = METHOD.PATCH
+  method = METHOD.PATCH,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: getBody(targetCompletion, taskIds),
@@ -273,7 +273,7 @@ async function doCompletionDatesRequest(
   });
   await withConsoleErrorHiding(
     () => completionDatesHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

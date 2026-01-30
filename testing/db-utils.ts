@@ -79,7 +79,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
         user.name,
         user.role,
         user.roleAssociatedResourceIds,
-      ]
+      ],
     );
   }
 
@@ -101,7 +101,7 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
 
   const dbSourceStudies = (
     await client.query<HCAAtlasTrackerDBSourceStudy>(
-      "SELECT * FROM hat.source_studies"
+      "SELECT * FROM hat.source_studies",
     )
   ).rows;
   for (const study of dbSourceStudies) {
@@ -116,14 +116,14 @@ async function initSourceStudies(client: pg.PoolClient): Promise<void> {
     const sdInfo = makeTestSourceStudyOverview(study);
     await client.query(
       "INSERT INTO hat.source_studies (doi, id, study_info) VALUES ($1, $2, $3)",
-      ["doi" in study ? study.doi : null, study.id, JSON.stringify(sdInfo)]
+      ["doi" in study ? study.doi : null, study.id, JSON.stringify(sdInfo)],
     );
   }
 }
 
 export async function initSourceDatasets(
   client: pg.PoolClient,
-  testSourceDatasets = INITIAL_TEST_SOURCE_DATASETS
+  testSourceDatasets = INITIAL_TEST_SOURCE_DATASETS,
 ): Promise<void> {
   for (const sourceDataset of testSourceDatasets) {
     const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
@@ -139,7 +139,7 @@ export async function initSourceDatasets(
         normDataset.versionId,
         normDataset.isLatest,
         normDataset.wipNumber,
-      ]
+      ],
     );
   }
 }
@@ -157,7 +157,7 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
         JSON.stringify(atlas.sourceStudies || []),
         atlas.status,
         atlas.targetCompletion ?? null,
-      ]
+      ],
     );
   }
 }
@@ -180,7 +180,7 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.file.id,
         componentAtlas.wipNumber ?? 1,
         componentAtlas.isLatest ?? true,
-      ]
+      ],
     );
   }
 }
@@ -201,7 +201,7 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
 async function initTestFile(
   client: pg.PoolClient,
   file: TestFile,
-  createdFiles: Set<TestFile>
+  createdFiles: Set<TestFile>,
 ): Promise<void> {
   // Avoid creating the file if it's already been created, which may happen if it's referenced in multiple test entity definitions
   if (createdFiles.has(file)) return;
@@ -262,7 +262,7 @@ async function initTestFile(
       JSON.stringify(validationSummary),
       JSON.stringify(validationReports),
       isArchived,
-    ]
+    ],
   );
 }
 
@@ -274,7 +274,7 @@ async function initEntrySheetValidations(client: pg.PoolClient): Promise<void> {
 
 export async function initEntrySheetValidation(
   validation: TestEntrySheetValidation,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<void> {
   await query(
     "INSERT INTO hat.entry_sheet_validations (entry_sheet_id, entry_sheet_title, id, last_synced, last_updated, source_study_id, validation_report, validation_summary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
@@ -288,13 +288,13 @@ export async function initEntrySheetValidation(
       JSON.stringify(validation.validation_report),
       validation.validation_summary,
     ],
-    client
+    client,
   );
 }
 
 async function initComments(
   client: pg.PoolClient,
-  dbUsersByEmail: Record<string, HCAAtlasTrackerDBUser>
+  dbUsersByEmail: Record<string, HCAAtlasTrackerDBUser>,
 ): Promise<void> {
   for (const comment of INITIAL_TEST_COMMENTS) {
     const createdAt = new Date(comment.createdAt);
@@ -318,7 +318,7 @@ async function initComments(
         fields.thread_id,
         fields.updated_at,
         fields.updated_by,
-      ]
+      ],
     );
   }
 }
@@ -334,7 +334,7 @@ export async function createTestFile(
     sizeBytes: number;
     versionId?: string;
   },
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<void> {
   // Use the same defaults as fillTestFileDefaults for consistency
   const eventInfo = {
@@ -360,13 +360,13 @@ export async function createTestFile(
       config.fileType,
       `test-sns-message-${fileId}`, // Generate unique SNS message ID for test data
     ],
-    client
+    client,
   );
 }
 
 async function runMigrations(
   direction: MigrationDirection,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   await client.query("CREATE SCHEMA IF NOT EXISTS hat");
   await migrate({
@@ -382,7 +382,7 @@ async function runMigrations(
 export async function createTestComponentAtlas(
   atlasId: string,
   info: HCAAtlasTrackerDBComponentAtlasInfo,
-  fileId: string
+  fileId: string,
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   return doTransaction(async (client) => {
     const componentAtlas = (
@@ -392,33 +392,33 @@ export async function createTestComponentAtlas(
         VALUES ($1, $2)
         RETURNING *
       `,
-        [JSON.stringify(info), fileId]
+        [JSON.stringify(info), fileId],
       )
     ).rows[0];
     await client.query(
       "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
-      [componentAtlas.version_id, atlasId]
+      [componentAtlas.version_id, atlasId],
     );
     return componentAtlas;
   });
 }
 
 export async function getDbUsersByEmail(
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<Record<string, HCAAtlasTrackerDBUser>> {
   return Object.fromEntries(
     (
       await query<HCAAtlasTrackerDBUser>(
         "SELECT * FROM hat.users",
         undefined,
-        client
+        client,
       )
-    ).rows.map((u) => [u.email, u])
+    ).rows.map((u) => [u.email, u]),
   );
 }
 
 export async function getExistingAtlasFromDatabase(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const result = await getAtlasFromDatabase(id);
   if (!result) throw new Error(`Atlas ${id} doesn't exist`);
@@ -426,64 +426,64 @@ export async function getExistingAtlasFromDatabase(
 }
 
 export async function getAtlasFromDatabase(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBAtlas | undefined> {
   return (
     await query<HCAAtlasTrackerDBAtlas>(
       "SELECT * FROM hat.atlases WHERE id=$1",
-      [id]
+      [id],
     )
   ).rows[0];
 }
 
 export async function getComponentAtlasFromDatabase(
-  versionId: string
+  versionId: string,
 ): Promise<HCAAtlasTrackerDBComponentAtlas | undefined> {
   return (
     await query<HCAAtlasTrackerDBComponentAtlas>(
       "SELECT * FROM hat.component_atlases WHERE version_id=$1",
-      [versionId]
+      [versionId],
     )
   ).rows[0];
 }
 
 export async function setComponentAtlasDatasets(
   componentAtlas: TestComponentAtlas,
-  sourceDatasetVersions: string[]
+  sourceDatasetVersions: string[],
 ): Promise<void> {
   await query(
     "UPDATE hat.component_atlases SET source_datasets=$1 WHERE version_id=$2",
-    [sourceDatasetVersions, componentAtlas.versionId]
+    [sourceDatasetVersions, componentAtlas.versionId],
   );
 }
 
 export async function getComponentAtlasSourceDatasets(
-  componentAtlas: TestComponentAtlas
+  componentAtlas: TestComponentAtlas,
 ): Promise<string[]> {
   return (
     await query<HCAAtlasTrackerDBComponentAtlas>(
       "SELECT * FROM hat.component_atlases WHERE version_id=$1",
-      [componentAtlas.versionId]
+      [componentAtlas.versionId],
     )
   ).rows[0].source_datasets;
 }
 
 export async function getComponentAtlasAtlas(
-  componentAtlasVersion: string
+  componentAtlasVersion: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
     "SELECT * FROM hat.atlases WHERE $1 = ANY(component_atlases)",
-    [componentAtlasVersion]
+    [componentAtlasVersion],
   );
   if (queryResult.rows.length === 0)
     throw new Error(
-      `Atlas not found for test component atlas version ${componentAtlasVersion}`
+      `Atlas not found for test component atlas version ${componentAtlasVersion}`,
     );
   return queryResult.rows[0];
 }
 
 export async function getExistingSourceStudyFromDatabase(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   const result = await getSourceStudyFromDatabase(id);
   if (!result) throw new Error(`Source study ${id} doesn't exist`);
@@ -491,44 +491,44 @@ export async function getExistingSourceStudyFromDatabase(
 }
 
 export async function getSourceStudyFromDatabase(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBSourceStudy | undefined> {
   return (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [id]
+      [id],
     )
   ).rows[0];
 }
 
 export async function getAtlasSourceDatasetsFromDatabase(
-  atlasId: string
+  atlasId: string,
 ): Promise<HCAAtlasTrackerDBSourceDataset[]> {
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT d.* FROM hat.source_datasets d JOIN hat.atlases a ON d.version_id=ANY(a.source_datasets) WHERE a.id=$1",
-      [atlasId]
+      [atlasId],
     )
   ).rows;
 }
 
 export async function getSourceDatasetFromDatabase(
-  versionId: string
+  versionId: string,
 ): Promise<HCAAtlasTrackerDBSourceDataset | undefined> {
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT * FROM hat.source_datasets WHERE version_id=$1",
-      [versionId]
+      [versionId],
     )
   ).rows[0];
 }
 
 export async function getAllSourceDatasetsFromDatabase(
-  sort = false
+  sort = false,
 ): Promise<HCAAtlasTrackerDBSourceDataset[]> {
   const datasets = (
     await query<HCAAtlasTrackerDBSourceDataset>(
-      "SELECT * FROM hat.source_datasets"
+      "SELECT * FROM hat.source_datasets",
     )
   ).rows;
   if (sort) datasets.sort((a, b) => a.version_id.localeCompare(b.version_id));
@@ -536,86 +536,86 @@ export async function getAllSourceDatasetsFromDatabase(
 }
 
 export async function getCellxGeneSourceDatasetFromDatabase(
-  cellxgeneId: string
+  cellxgeneId: string,
 ): Promise<HCAAtlasTrackerDBSourceDataset | null> {
   const result = (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT * FROM hat.source_datasets WHERE sd_info->>'cellxgeneDatasetId'=$1",
-      [cellxgeneId]
+      [cellxgeneId],
     )
   ).rows[0];
   return result ?? null;
 }
 
 export async function getSourceStudySourceDatasetsFromDatabase(
-  sourceStudyId: string
+  sourceStudyId: string,
 ): Promise<HCAAtlasTrackerDBSourceDataset[]> {
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
-      [sourceStudyId]
+      [sourceStudyId],
     )
   ).rows;
 }
 
 export async function getEntrySheetValidationFromDatabase(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {
   return (
     await query<HCAAtlasTrackerDBEntrySheetValidation>(
       "SELECT * FROM hat.entry_sheet_validations WHERE id=$1",
-      [id]
+      [id],
     )
   ).rows[0];
 }
 
 export async function getEntrySheetValidationBySheetId(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {
   return (
     await query<HCAAtlasTrackerDBEntrySheetValidation>(
       "SELECT * FROM hat.entry_sheet_validations WHERE entry_sheet_id=$1",
-      [id]
+      [id],
     )
   ).rows[0];
 }
 
 export async function getSourceStudyEntrySheetValidationsFromDatabase(
-  sourceStudyId: string
+  sourceStudyId: string,
 ): Promise<HCAAtlasTrackerDBEntrySheetValidation[]> {
   return (
     await query<HCAAtlasTrackerDBEntrySheetValidation>(
       "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=$1",
-      [sourceStudyId]
+      [sourceStudyId],
     )
   ).rows;
 }
 
 export async function deleteEntrySheetValidationFromDatabase(
-  id: string
+  id: string,
 ): Promise<void> {
   await query<HCAAtlasTrackerDBEntrySheetValidation>(
     "DELETE FROM hat.entry_sheet_validations WHERE id=$1",
-    [id]
+    [id],
   );
 }
 
 export async function deleteEntrySheetValidationBySheetId(
-  id: string
+  id: string,
 ): Promise<void> {
   await query<HCAAtlasTrackerDBEntrySheetValidation>(
     "DELETE FROM hat.entry_sheet_validations WHERE entry_sheet_id=$1",
-    [id]
+    [id],
   );
 }
 
 export async function getStudySourceDatasets(
-  studyId: string
+  studyId: string,
 ): Promise<HCAAtlasTrackerDBSourceDataset[]> {
   return (
     await query<HCAAtlasTrackerDBSourceDataset>(
       "SELECT * FROM hat.source_datasets WHERE source_study_id=$1",
-      [studyId]
+      [studyId],
     )
   ).rows;
 }
@@ -627,7 +627,7 @@ export async function getAllFileIdsFromDatabase(): Promise<string[]> {
 }
 
 export async function getFileFromDatabase(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBFile | undefined> {
   return (
     await query<HCAAtlasTrackerDBFile>("SELECT * FROM hat.files WHERE id=$1", [
@@ -637,19 +637,19 @@ export async function getFileFromDatabase(
 }
 
 export async function getValidationsByEntityId(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBValidation[]> {
   return (
     await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE entity_id=$1",
-      [id]
+      [id],
     )
   ).rows;
 }
 
 export async function expectComponentAtlasToHaveSourceDatasets(
   componentAtlas: TestComponentAtlas,
-  expectedSourceDatasets: TestSourceDataset[]
+  expectedSourceDatasets: TestSourceDataset[],
 ): Promise<void> {
   const sourceDatasets = await getComponentAtlasSourceDatasets(componentAtlas);
   expect(sourceDatasets).toHaveLength(expectedSourceDatasets.length);
@@ -659,10 +659,10 @@ export async function expectComponentAtlasToHaveSourceDatasets(
 }
 
 export async function expectSourceDatasetToBeUnchanged(
-  sourceDataset: TestSourceDataset
+  sourceDataset: TestSourceDataset,
 ): Promise<void> {
   const datasetFromDb = await getSourceDatasetFromDatabase(
-    sourceDataset.versionId
+    sourceDataset.versionId,
   );
   if (!expectIsDefined(datasetFromDb)) return;
   expectDbSourceDatasetToMatchTest(datasetFromDb, sourceDataset);
@@ -670,13 +670,13 @@ export async function expectSourceDatasetToBeUnchanged(
 
 export async function expectSourceDatasetsToHaveSourceStudy(
   sourceDatasetVersions: string[],
-  sourceStudyValue: string | null
+  sourceStudyValue: string | null,
 ): Promise<void> {
   const { rows: sourceDatasets } = await query<
     Pick<HCAAtlasTrackerDBSourceDataset, "source_study_id">
   >(
     "SELECT source_study_id FROM hat.source_datasets WHERE version_id=ANY($1)",
-    [sourceDatasetVersions]
+    [sourceDatasetVersions],
   );
   expect(sourceDatasets).toHaveLength(sourceDatasetVersions.length);
   for (const dataset of sourceDatasets) {
@@ -685,7 +685,7 @@ export async function expectSourceDatasetsToHaveSourceStudy(
 }
 
 export async function expectApiSourceStudyToHaveMatchingDbValidations(
-  sourceStudy: HCAAtlasTrackerSourceStudy
+  sourceStudy: HCAAtlasTrackerSourceStudy,
 ): Promise<void> {
   const validations = await getValidationsByEntityId(sourceStudy.id);
   expectApiValidationsToMatchDb(sourceStudy.tasks, validations);
@@ -693,15 +693,15 @@ export async function expectApiSourceStudyToHaveMatchingDbValidations(
 
 export async function expectFilesToHaveArchiveStatus(
   fileIds: string[],
-  isArchivedValue: boolean
+  isArchivedValue: boolean,
 ): Promise<void> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBFile, "id" | "is_archived">
   >("SELECT id, is_archived FROM hat.files WHERE id=ANY($1)", [fileIds]);
   expect(queryResult.rows).toEqual(
     new Array(fileIds.length).fill(
-      expect.objectContaining({ is_archived: isArchivedValue })
-    )
+      expect.objectContaining({ is_archived: isArchivedValue }),
+    ),
   );
 }
 
@@ -714,7 +714,7 @@ export async function expectSourceDatasetFileToBeConsistentWith(
     otherVersion?: HCAAtlasTrackerDBSourceDataset;
     sourceDataset?: string;
     wipNumber: number;
-  }
+  },
 ): Promise<{
   file: HCAAtlasTrackerDBFile;
   sourceDataset: HCAAtlasTrackerDBSourceDataset;
@@ -735,29 +735,29 @@ export async function expectSourceDatasetFileToBeConsistentWith(
     expect(atlas.source_datasets).toContain(sourceDataset.version_id);
     if (params.otherVersion)
       expect(atlas.source_datasets).not.toContain(
-        params.otherVersion.version_id
+        params.otherVersion.version_id,
       );
   }
 
   for (const componentAtlasVersion of params.componentAtlases ?? []) {
     const componentAtlas = await getComponentAtlasFromDatabase(
-      componentAtlasVersion
+      componentAtlasVersion,
     );
     if (!componentAtlas)
       throw new Error(
-        `Component atlas version ${componentAtlasVersion} doesn't exist`
+        `Component atlas version ${componentAtlasVersion} doesn't exist`,
       );
     expect(componentAtlas.source_datasets).toContain(sourceDataset.version_id);
     if (params.otherVersion)
       expect(componentAtlas.source_datasets).not.toContain(
-        params.otherVersion.version_id
+        params.otherVersion.version_id,
       );
   }
 
   if (params.otherVersion) {
     await expectSourceDatasetToBeConsistentWithOtherVersion(
       sourceDataset,
-      params.otherVersion
+      params.otherVersion,
     );
   }
 
@@ -766,14 +766,14 @@ export async function expectSourceDatasetFileToBeConsistentWith(
 
 async function expectSourceDatasetToBeConsistentWithOtherVersion(
   sourceDataset: HCAAtlasTrackerDBSourceDataset,
-  otherVersionPrevData: HCAAtlasTrackerDBSourceDataset
+  otherVersionPrevData: HCAAtlasTrackerDBSourceDataset,
 ): Promise<void> {
   const otherVersion = await getSourceDatasetFromDatabase(
-    otherVersionPrevData.version_id
+    otherVersionPrevData.version_id,
   );
   if (!otherVersion)
     throw new Error(
-      `Source dataset version ${otherVersionPrevData.version_id} doesn't exist`
+      `Source dataset version ${otherVersionPrevData.version_id} doesn't exist`,
     );
   expect(otherVersion.version_id).not.toEqual(sourceDataset.version_id);
   expect(otherVersion.id).toEqual(sourceDataset.id);
@@ -790,23 +790,23 @@ async function expectSourceDatasetToBeConsistentWithOtherVersion(
 }
 
 export async function expectFileNotToBeReferencedByAnyMetadataEntity(
-  fileId: string
+  fileId: string,
 ): Promise<void> {
   const {
     rows: [{ referenced }],
   } = await query<{ referenced: boolean }>(
     "SELECT EXISTS(SELECT 1 FROM hat.component_atlases WHERE file_id = $1) OR EXISTS(SELECT 1 FROM hat.source_datasets WHERE file_id = $1) AS referenced",
-    [fileId]
+    [fileId],
   );
   expect(referenced).toEqual(false);
 }
 
 export async function getFileComponentAtlas(
-  fileId: string
+  fileId: string,
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
     "SELECT * FROM hat.component_atlases WHERE file_id = $1",
-    [fileId]
+    [fileId],
   );
   if (!queryResult.rows.length)
     throw new Error(`No component atlas found for file ${fileId}`);
@@ -814,11 +814,11 @@ export async function getFileComponentAtlas(
 }
 
 export async function getFileSourceDataset(
-  fileId: string
+  fileId: string,
 ): Promise<HCAAtlasTrackerDBSourceDataset> {
   const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
     "SELECT * FROM hat.source_datasets WHERE file_id = $1",
-    [fileId]
+    [fileId],
   );
   if (!queryResult.rows.length)
     throw new Error(`No source dataset found for file ${fileId}`);
@@ -827,23 +827,23 @@ export async function getFileSourceDataset(
 
 // Simple count helpers for tests
 export async function countSourceDatasets(
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<number> {
   const result = await query<{ count: number }>(
     "SELECT COUNT(*)::int AS count FROM hat.source_datasets",
     undefined,
-    client
+    client,
   );
   return result.rows[0].count;
 }
 
 export async function countComponentAtlases(
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<number> {
   const result = await query<{ count: number }>(
     "SELECT COUNT(*)::int AS count FROM hat.component_atlases",
     undefined,
-    client
+    client,
   );
   return result.rows[0].count;
 }

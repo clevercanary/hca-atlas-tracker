@@ -6,10 +6,10 @@ import { ValidationErrorInfo } from "../../entities";
  * @returns Total number of validation reports.
  */
 export function getEntityReportCount(
-  columnValidationReports: Map<string, ValidationErrorInfo[]>
+  columnValidationReports: Map<string, ValidationErrorInfo[]>,
 ): number {
   return [...columnValidationReports.values()].reduce(
     (acc, reports) => acc + reports.length,
-    0
+    0,
   );
 }

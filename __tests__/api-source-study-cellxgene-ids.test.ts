@@ -18,7 +18,7 @@ import { TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -51,7 +51,9 @@ afterAll(async () => {
 describe("/api/comments", () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
-      (await doCellxGeneIdsTest(undefined, false, METHOD.POST))._getStatusCode()
+      (
+        await doCellxGeneIdsTest(undefined, false, METHOD.POST)
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -95,7 +97,7 @@ async function testSuccessfulResponse(user?: TestUser): Promise<void> {
 async function doCellxGeneIdsTest(
   user: TestUser | undefined,
   hideConsoleError = false,
-  method = METHOD.GET
+  method = METHOD.GET,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -103,7 +105,7 @@ async function doCellxGeneIdsTest(
   });
   await withConsoleErrorHiding(
     () => cellxgeneIdsHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

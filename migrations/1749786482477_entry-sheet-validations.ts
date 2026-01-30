@@ -37,6 +37,6 @@ export const up = (pgm: MigrationBuilder): void => {
       validation_summary: {
         type: "jsonb",
       },
-    }
+    },
   );
 };

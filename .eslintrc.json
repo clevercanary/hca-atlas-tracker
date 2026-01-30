@@ -66,6 +66,12 @@
       "rules": {
         "@typescript-eslint/explicit-function-return-type": "error"
       }
+    },
+    {
+      "files": ["**/__tests__/**", "**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "sonarjs/no-duplicate-string": "off"
+      }
     }
   ]
 }

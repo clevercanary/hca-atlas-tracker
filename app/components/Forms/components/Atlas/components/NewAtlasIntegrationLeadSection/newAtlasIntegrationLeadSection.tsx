@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { HCAAtlasTrackerAtlas } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../../../../../../views/AddNewAtlasView/common/entities";
 import { SectionContentProps } from "../../../../../Forms/common/entities";

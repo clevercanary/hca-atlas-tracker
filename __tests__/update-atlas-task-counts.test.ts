@@ -15,7 +15,7 @@ import {
 import { TestAtlas } from "../testing/entities";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -70,7 +70,7 @@ async function testAtlasCounts(
   atlas: TestAtlas,
   expectedCount: number,
   expectedCompletedCount: number,
-  expectedIngestionCounts: IngestionTaskCounts
+  expectedIngestionCounts: IngestionTaskCounts,
 ): Promise<void> {
   const { overview } = await getExistingAtlasFromDatabase(atlas.id);
   expect(overview.taskCount).toEqual(expectedCount);

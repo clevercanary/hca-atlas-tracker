@@ -1,7 +1,7 @@
 import { SouthIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SouthIcon/southIcon";
 import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
+import { JSX, useCallback } from "react";
 import { IconButton } from "../../../../../../../common/IconButton/iconButton";
 import { HeroActions } from "./backButton.styles";
 import { Props } from "./entities";
@@ -11,7 +11,7 @@ export const BackButton = ({ backPath }: Props): JSX.Element => {
 
   const onNavigate = useCallback(
     () => push(backPath ?? getBackPath(asPath)),
-    [asPath, backPath, push]
+    [asPath, backPath, push],
   );
 
   return (

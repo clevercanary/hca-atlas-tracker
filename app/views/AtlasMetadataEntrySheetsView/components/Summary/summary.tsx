@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Summary as BaseSummary } from "../../../../components/Entity/components/EntityView/components/Summary/summary";
 import { useEntity } from "../../../../providers/entity/hook";
 import { EntityData } from "../../entities";

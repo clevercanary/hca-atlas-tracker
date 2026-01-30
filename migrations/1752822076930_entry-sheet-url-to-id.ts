@@ -24,7 +24,7 @@ export function up(pgm: MigrationBuilder): void {
           FROM jsonb_array_elements(s.study_info -> 'metadataSpreadsheets') AS sheet(info)
         )
       )
-    `
+    `,
   );
 }
 
@@ -50,6 +50,6 @@ export function down(pgm: MigrationBuilder): void {
           FROM jsonb_array_elements(s.study_info -> 'metadataSpreadsheets') AS sheet(info)
         )
       )
-    `
+    `,
   );
 }

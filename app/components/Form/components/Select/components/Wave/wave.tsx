@@ -1,5 +1,5 @@
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, ReactNode } from "react";
+import { JSX, forwardRef, ReactNode } from "react";
 import { WAVES } from "../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { isWaveValue } from "../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import {
@@ -12,7 +12,7 @@ export const Wave = forwardRef<HTMLInputElement, SelectProps>(function Wave(
     className,
     ...props /* Spread props to allow for Mui SelectProps specific prop overrides and controller related props e.g. "field". */
   }: SelectProps,
-  ref
+  ref,
 ): JSX.Element {
   return (
     <Select

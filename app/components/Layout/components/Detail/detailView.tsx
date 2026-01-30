@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { DetailViewHero } from "./components/DetailViewHero/detailViewHero";
 import {
   DetailViewContent,

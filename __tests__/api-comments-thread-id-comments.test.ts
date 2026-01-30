@@ -27,7 +27,7 @@ import { TestComment, TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -73,9 +73,9 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           NEW_COMMENT_FOO_DATA,
           false,
-          METHOD.PUT
+          METHOD.PUT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -86,9 +86,9 @@ describe("/api/comments/[threadId]/comments", () => {
           undefined,
           THREAD_ID_BY_STAKEHOLDER,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -99,9 +99,9 @@ describe("/api/comments/[threadId]/comments", () => {
           USER_UNREGISTERED,
           THREAD_ID_BY_STAKEHOLDER,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -112,9 +112,9 @@ describe("/api/comments/[threadId]/comments", () => {
           USER_DISABLED_CONTENT_ADMIN,
           THREAD_ID_BY_STAKEHOLDER,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -125,61 +125,61 @@ describe("/api/comments/[threadId]/comments", () => {
           USER_STAKEHOLDER,
           THREAD_ID_NONEXISTENT,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
   it("GET returns thread comments when requested by user with STAKEHOLDER role", async () => {
     const res = await doCommentsTest(
       USER_STAKEHOLDER,
-      THREAD_ID_BY_CONTENT_ADMIN
+      THREAD_ID_BY_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comments = res._getJSONData();
     expectApiCommentsToMatchTest(
       comments,
-      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN]
+      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN],
     );
   });
 
   it("GET returns thread comments when requested by user with INTEGRATION_LEAD role", async () => {
     const res = await doCommentsTest(
       USER_INTEGRATION_LEAD_DRAFT,
-      THREAD_ID_BY_CONTENT_ADMIN
+      THREAD_ID_BY_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comments = res._getJSONData();
     expectApiCommentsToMatchTest(
       comments,
-      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN]
+      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN],
     );
   });
 
   it("GET returns thread comments when requested by user with CELLXGENE_ADMIN role", async () => {
     const res = await doCommentsTest(
       USER_CELLXGENE_ADMIN,
-      THREAD_ID_BY_CONTENT_ADMIN
+      THREAD_ID_BY_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comments = res._getJSONData();
     expectApiCommentsToMatchTest(
       comments,
-      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN]
+      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN],
     );
   });
 
   it("GET returns thread comments when requested by user with CONTENT_ADMIN role", async () => {
     const res = await doCommentsTest(
       USER_CONTENT_ADMIN,
-      THREAD_ID_BY_CONTENT_ADMIN
+      THREAD_ID_BY_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comments = res._getJSONData();
     expectApiCommentsToMatchTest(
       comments,
-      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN]
+      TEST_COMMENTS_BY_THREAD_ID[THREAD_ID_BY_CONTENT_ADMIN],
     );
   });
 
@@ -191,9 +191,9 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           NEW_COMMENT_FOO_DATA,
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -205,9 +205,9 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           NEW_COMMENT_FOO_DATA,
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -219,9 +219,9 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_BY_STAKEHOLDER,
           NEW_COMMENT_FOO_DATA,
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -233,9 +233,9 @@ describe("/api/comments/[threadId]/comments", () => {
           THREAD_ID_NONEXISTENT,
           NEW_COMMENT_FOO_DATA,
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -250,9 +250,9 @@ describe("/api/comments/[threadId]/comments", () => {
             text: 123,
           },
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -267,9 +267,9 @@ describe("/api/comments/[threadId]/comments", () => {
             text: "",
           },
           true,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -277,7 +277,7 @@ describe("/api/comments/[threadId]/comments", () => {
     await testSuccessfulCreate(
       THREAD_ID_BY_CONTENT_ADMIN,
       NEW_COMMENT_FOO_DATA,
-      USER_STAKEHOLDER
+      USER_STAKEHOLDER,
     );
   });
 
@@ -285,7 +285,7 @@ describe("/api/comments/[threadId]/comments", () => {
     await testSuccessfulCreate(
       THREAD_ID_BY_STAKEHOLDER2,
       NEW_COMMENT_BAZ_DATA,
-      USER_INTEGRATION_LEAD_DRAFT
+      USER_INTEGRATION_LEAD_DRAFT,
     );
   });
 
@@ -293,7 +293,7 @@ describe("/api/comments/[threadId]/comments", () => {
     await testSuccessfulCreate(
       THREAD_ID_BY_STAKEHOLDER,
       NEW_COMMENT_BAR_DATA,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
   });
 
@@ -301,7 +301,7 @@ describe("/api/comments/[threadId]/comments", () => {
     await testSuccessfulCreate(
       THREAD_ID_BY_STAKEHOLDER_FOO,
       NEW_COMMENT_FOOFOO_DATA,
-      USER_CELLXGENE_ADMIN
+      USER_CELLXGENE_ADMIN,
     );
   });
 });
@@ -309,7 +309,7 @@ describe("/api/comments/[threadId]/comments", () => {
 async function testSuccessfulCreate(
   threadId: string,
   newData: NewCommentData,
-  user: TestUser
+  user: TestUser,
 ): Promise<HCAAtlasTrackerDBComment> {
   const res = await doCommentsTest(user, threadId, newData, false, METHOD.POST);
   expect(res._getStatusCode()).toEqual(201);
@@ -318,12 +318,12 @@ async function testSuccessfulCreate(
   const threadCommentsFromDb = (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE thread_id=$1",
-      [newComment.threadId]
+      [newComment.threadId],
     )
   ).rows;
   expectDbCommentsToMatchTest(
     threadCommentsFromDb.slice(0, threadCommentsFromDb.length - 1),
-    TEST_COMMENTS_BY_THREAD_ID[threadId]
+    TEST_COMMENTS_BY_THREAD_ID[threadId],
   );
   const newCommentFromDb =
     threadCommentsFromDb[threadCommentsFromDb.length - 1];
@@ -334,7 +334,7 @@ async function testSuccessfulCreate(
 
 function expectApiCommentsToMatchTest(
   apiComments: HCAAtlasTrackerComment[],
-  testComments: TestComment[]
+  testComments: TestComment[],
 ): void {
   expect(apiComments).toHaveLength(testComments.length);
   for (const [i, apiComment] of apiComments.entries()) {
@@ -344,24 +344,24 @@ function expectApiCommentsToMatchTest(
 
 function expectApiCommentToMatchTest(
   dbComment: HCAAtlasTrackerComment,
-  testComment: TestComment
+  testComment: TestComment,
 ): void {
   expect(dbComment.createdAt).toEqual(testComment.createdAt);
   expect(dbComment.createdBy).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
   expect(dbComment.id).toEqual(testComment.id);
   expect(dbComment.text).toEqual(testComment.text);
   expect(dbComment.threadId).toEqual(testComment.threadId);
   expect(dbComment.updatedAt).toEqual(testComment.createdAt);
   expect(dbComment.updatedBy).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
 }
 
 function expectDbCommentsToMatchTest(
   dbComments: HCAAtlasTrackerDBComment[],
-  testComments: TestComment[]
+  testComments: TestComment[],
 ): void {
   expect(dbComments).toHaveLength(testComments.length);
   for (const [i, dbComment] of dbComments.entries()) {
@@ -371,24 +371,24 @@ function expectDbCommentsToMatchTest(
 
 function expectDbCommentToMatchTest(
   dbComment: HCAAtlasTrackerDBComment,
-  testComment: TestComment
+  testComment: TestComment,
 ): void {
   expect(dbComment.created_at).toEqual(new Date(testComment.createdAt));
   expect(dbComment.created_by).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
   expect(dbComment.id).toEqual(testComment.id);
   expect(dbComment.text).toEqual(testComment.text);
   expect(dbComment.thread_id).toEqual(testComment.threadId);
   expect(dbComment.updated_at).toEqual(new Date(testComment.createdAt));
   expect(dbComment.updated_by).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
 }
 
 function expectDbCommentToMatch(
   dbComment: HCAAtlasTrackerDBComment,
-  apiComment: HCAAtlasTrackerComment
+  apiComment: HCAAtlasTrackerComment,
 ): void {
   expect(dbComment.created_at.toISOString()).toEqual(apiComment.createdAt);
   expect(dbComment.created_by).toEqual(apiComment.createdBy);
@@ -404,7 +404,7 @@ async function doCommentsTest(
   threadId: string,
   newData?: Record<string, unknown>,
   hideConsoleError = false,
-  method = METHOD.GET
+  method = METHOD.GET,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: newData,
@@ -416,7 +416,7 @@ async function doCommentsTest(
   });
   await withConsoleErrorHiding(
     () => commentsHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

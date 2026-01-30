@@ -81,7 +81,7 @@ export function makeTestUser(
   nameId: string,
   role = ROLE.UNREGISTERED,
   disabled = false,
-  roleAssociatedResourceIds: string[] = []
+  roleAssociatedResourceIds: string[] = [],
 ): TestUser {
   return {
     authorization: `Bearer ${nameId}`,
@@ -95,7 +95,7 @@ export function makeTestUser(
 }
 
 export function makeTestAtlasOverview(
-  atlas: TestAtlas
+  atlas: TestAtlas,
 ): HCAAtlasTrackerDBAtlasOverview {
   return {
     capId: atlas.capId ?? null,
@@ -123,7 +123,7 @@ export function makeTestAtlasOverview(
 }
 
 export function makeTestSourceStudyOverview(
-  study: TestSourceStudy
+  study: TestSourceStudy,
 ):
   | HCAAtlasTrackerDBPublishedSourceStudyInfo
   | HCAAtlasTrackerDBUnpublishedSourceStudyInfo {
@@ -141,18 +141,18 @@ export function makeTestSourceStudyOverview(
         capId: study.capId ?? null,
         cellxgeneCollectionId:
           study.cellxgeneCollectionId === undefined
-            ? (study.doi &&
+            ? ((study.doi &&
                 TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(study.doi)
                   ?.collection_id) ??
-              null
+              null)
             : study.cellxgeneCollectionId,
         doiStatus: study.doiStatus,
         hcaProjectId:
           study.hcaProjectId === undefined
-            ? (study.doi &&
+            ? ((study.doi &&
                 TEST_HCA_PROJECTS_BY_DOI.get(study.doi)?.projects[0]
                   .projectId) ??
-              null
+              null)
             : study.hcaProjectId,
         metadataSpreadsheets: study.metadataSpreadsheets ?? [],
         publication: study.publication,
@@ -161,7 +161,7 @@ export function makeTestSourceStudyOverview(
 }
 
 export function makeTestSourceDatasetInfo(
-  sourceDataset: NormalizedTestSourceDataset
+  sourceDataset: NormalizedTestSourceDataset,
 ): HCAAtlasTrackerDBSourceDatasetInfo {
   return {
     capUrl: sourceDataset.capUrl,
@@ -177,7 +177,7 @@ export function makeTestProjectsResponse(
   title: string,
   fileFormats = ["fastq"],
   atlases?: { shortName: string; version: string }[],
-  networks?: string[]
+  networks?: string[],
 ): ProjectsResponse {
   return {
     cellSuspensions: [],
@@ -228,7 +228,7 @@ export function makeTestProjectsResponse(
 }
 
 export function fillTestSourceDatasetDefaults(
-  sourceDataset: TestSourceDataset
+  sourceDataset: TestSourceDataset,
 ): NormalizedTestSourceDataset {
   const {
     capUrl = null,
@@ -257,7 +257,7 @@ export function fillTestSourceDatasetDefaults(
 }
 
 export function getNormalizedFileForTestEntity(
-  testEntity: TestSourceDataset | TestComponentAtlas
+  testEntity: TestSourceDataset | TestComponentAtlas,
 ): NormalizedTestFile {
   return fillTestFileDefaults(testEntity.file);
 }
@@ -285,12 +285,12 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     file.validationInfo !== undefined
       ? file.validationInfo
       : integrityCheckedAt === null
-      ? null
-      : {
-          batchJobId: `batch-job-${file.id}`,
-          snsMessageId: `sns-message-${file.id}`,
-          snsMessageTime: integrityCheckedAt,
-        };
+        ? null
+        : {
+            batchJobId: `batch-job-${file.id}`,
+            snsMessageId: `sns-message-${file.id}`,
+            snsMessageTime: integrityCheckedAt,
+          };
   return {
     atlas,
     datasetInfo,
@@ -327,24 +327,24 @@ export function getTestFileKey(file: TestFile, atlas: TestAtlas): string {
   }
   return `${atlas.network}/${atlas.shortName}-v${atlas.version.replaceAll(
     ".",
-    "-"
+    "-",
   )}/${folderName}/${file.fileName}`;
 }
 
 export function getTestSourceStudyCitation(
-  sourceStudy: TestSourceStudy
+  sourceStudy: TestSourceStudy,
 ): string {
   if ("doi" in sourceStudy) {
     return getPublishedCitation(
       sourceStudy.doiStatus,
       sourceStudy.publication?.authors[0].name ?? null,
       sourceStudy.publication?.publicationDate ?? null,
-      sourceStudy.publication?.journal ?? null
+      sourceStudy.publication?.journal ?? null,
     );
   } else {
     return getUnpublishedCitation(
       sourceStudy.unpublishedInfo.referenceAuthor,
-      sourceStudy.unpublishedInfo.contactEmail
+      sourceStudy.unpublishedInfo.contactEmail,
     );
   }
 }
@@ -352,20 +352,20 @@ export function getTestSourceStudyCitation(
 export function getAllTestFiles(): TestFile[] {
   return INITIAL_STANDALONE_TEST_FILES.concat(
     INITIAL_TEST_SOURCE_DATASETS.flatMap((d) => d.file ?? []),
-    INITIAL_TEST_COMPONENT_ATLASES.flatMap((c) => c.file ?? [])
+    INITIAL_TEST_COMPONENT_ATLASES.flatMap((c) => c.file ?? []),
   );
 }
 
 export function withConsoleErrorHiding<T>(
   fn: () => Promise<T>,
   hideConsoleError = true,
-  errorsOutputArray?: unknown[][]
+  errorsOutputArray?: unknown[][],
 ): Promise<T> {
   return withConsoleMessageHiding(
     fn,
     hideConsoleError,
     { error: errorsOutputArray },
-    ["error"]
+    ["error"],
   );
 }
 
@@ -373,7 +373,7 @@ export async function withConsoleMessageHiding<T>(
   fn: () => Promise<T>,
   enableHiding = true,
   outputArrays?: ConsoleMessageOutputArrays,
-  messageTypes: readonly ConsoleMessageFunctionName[] = CONSOLE_MESSAGE_FUNCTION_NAMES
+  messageTypes: readonly ConsoleMessageFunctionName[] = CONSOLE_MESSAGE_FUNCTION_NAMES,
 ): Promise<T> {
   const spies = enableHiding
     ? Array.from(new Set(messageTypes), (messageType) => {
@@ -393,7 +393,7 @@ export async function withConsoleMessageHiding<T>(
 export function promiseWithResolvers<T>(): [
   Promise<T>,
   (v: T) => void,
-  (v: unknown) => void
+  (v: unknown) => void,
 ] {
   let resolve: (v: T) => void;
   let reject: (v: unknown) => void;
@@ -420,8 +420,8 @@ export function testApiRole(
   hideConsoleError: boolean,
   callback: (
     res: httpMocks.MockResponse<NextApiResponse>,
-    user: TestUser
-  ) => void | Promise<void>
+    user: TestUser,
+  ) => void | Promise<void>,
 ): void {
   let user: TestUser;
   let testName: string;
@@ -453,7 +453,7 @@ export function testApiRole(
         headers: { authorization: user.authorization },
         method,
         query: typeof query === "function" ? query() : query,
-      }
+      },
     );
     await withConsoleErrorHiding(() => handler(req, res), hideConsoleError);
     await callback(res, user);
@@ -462,10 +462,10 @@ export function testApiRole(
 
 export function expectApiAtlasToMatchTest(
   apiAtlas: HCAAtlasTrackerAtlas,
-  testAtlas: TestAtlas
+  testAtlas: TestAtlas,
 ): void {
   expect(apiAtlas.cellxgeneAtlasCollection).toEqual(
-    testAtlas.cellxgeneAtlasCollection
+    testAtlas.cellxgeneAtlasCollection,
   );
   expect(apiAtlas.codeLinks).toEqual(testAtlas.codeLinks);
   expect(apiAtlas.description).toEqual(testAtlas.description);
@@ -478,7 +478,7 @@ export function expectApiAtlasToMatchTest(
   expect(apiAtlas.sourceStudyCount).toEqual(testAtlas.sourceStudies.length);
   expect(apiAtlas.status).toEqual(testAtlas.status);
   expect(apiAtlas.targetCompletion).toEqual(
-    testAtlas.targetCompletion?.toISOString() ?? null
+    testAtlas.targetCompletion?.toISOString() ?? null,
   );
   expect(apiAtlas.version).toEqual(testAtlas.version);
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
@@ -487,11 +487,11 @@ export function expectApiAtlasToMatchTest(
 export function expectDbAtlasToMatchApi(
   dbAtlas: HCAAtlasTrackerDBAtlas,
   apiAtlas: HCAAtlasTrackerAtlas,
-  expectedComponentAtlasCount = 0
+  expectedComponentAtlasCount = 0,
 ): void {
   expect(dbAtlas.overview.network).toEqual(apiAtlas.bioNetwork);
   expect(dbAtlas.overview.completedTaskCount).toEqual(
-    apiAtlas.completedTaskCount
+    apiAtlas.completedTaskCount,
   );
   expect(dbAtlas.id).toEqual(apiAtlas.id);
   expect(dbAtlas.overview.integrationLead).toEqual(apiAtlas.integrationLead);
@@ -500,7 +500,7 @@ export function expectDbAtlasToMatchApi(
   expect(dbAtlas.source_studies).toHaveLength(apiAtlas.sourceStudyCount);
   expect(dbAtlas.status).toEqual(apiAtlas.status);
   expect(dbAtlas.target_completion?.toISOString() ?? null).toEqual(
-    apiAtlas.targetCompletion
+    apiAtlas.targetCompletion,
   );
   expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
   expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
@@ -510,13 +510,13 @@ export function expectDbAtlasToMatchApi(
 
 export function expectSourceStudyToMatch(
   dbStudy: HCAAtlasTrackerDBSourceStudy,
-  apiStudy: HCAAtlasTrackerSourceStudy
+  apiStudy: HCAAtlasTrackerSourceStudy,
 ): void {
   expect(dbStudy.doi).toEqual(apiStudy.doi);
   expect(dbStudy.id).toEqual(apiStudy.id);
   expect(dbStudy.study_info.capId).toEqual(apiStudy.capId);
   expect(dbStudy.study_info.cellxgeneCollectionId).toEqual(
-    apiStudy.cellxgeneCollectionId
+    apiStudy.cellxgeneCollectionId,
   );
   expect(dbStudy.study_info.doiStatus).toEqual(apiStudy.doiStatus);
   expect(dbStudy.study_info.hcaProjectId).toEqual(apiStudy.hcaProjectId);
@@ -546,12 +546,12 @@ export function expectSourceStudyToMatch(
 
 export function expectApiSourceDatasetsToMatchTest(
   apiSourceDatasets: HCAAtlasTrackerSourceDataset[],
-  testSourceDatasets: TestSourceDataset[]
+  testSourceDatasets: TestSourceDataset[],
 ): void {
   expect(apiSourceDatasets).toHaveLength(testSourceDatasets.length);
   for (const testSourceDataset of testSourceDatasets) {
     const apiSourceDataset = apiSourceDatasets.find(
-      (c) => c.id === testSourceDataset.id
+      (c) => c.id === testSourceDataset.id,
     );
     if (!expectIsDefined(apiSourceDataset)) continue;
     expectApiSourceDatasetToMatchTest(apiSourceDataset, testSourceDataset);
@@ -560,7 +560,7 @@ export function expectApiSourceDatasetsToMatchTest(
 
 export function expectDetailApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerDetailSourceDataset,
-  testSourceDataset: TestSourceDataset
+  testSourceDataset: TestSourceDataset,
 ): void {
   expectApiSourceDatasetToMatchTest(
     apiSourceDataset,
@@ -568,9 +568,9 @@ export function expectDetailApiSourceDatasetToMatchTest(
     true,
     (testFile) => {
       expect(apiSourceDataset.validationReports).toEqual(
-        testFile.validationReports
+        testFile.validationReports,
       );
-    }
+    },
   );
 }
 
@@ -578,10 +578,10 @@ export function expectApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
   baseTestSourceDataset: TestSourceDataset,
   expectDetail = false,
-  doAdditionalChecks?: (file: NormalizedTestFile) => void
+  doAdditionalChecks?: (file: NormalizedTestFile) => void,
 ): void {
   const testSourceDataset = fillTestSourceDatasetDefaults(
-    baseTestSourceDataset
+    baseTestSourceDataset,
   );
 
   if (!expectIsDefined(testSourceDataset.file)) return;
@@ -590,40 +590,40 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiSourceDataset.capUrl).toEqual(testSourceDataset.capUrl);
   expect(apiSourceDataset.cellCount).toEqual(
-    testFile.datasetInfo?.cellCount ?? 0
+    testFile.datasetInfo?.cellCount ?? 0,
   );
   expect(apiSourceDataset.disease).toEqual(testFile.datasetInfo?.disease ?? []);
   expect(apiSourceDataset.fileEventTime).toEqual(testFile.eventTime);
   expect(apiSourceDataset.fileId).toEqual(testFile.id);
   expect(apiSourceDataset.fileName).toEqual(testFile.fileName);
   expect(apiSourceDataset.geneCount).toEqual(
-    testFile.datasetInfo?.geneCount ?? null
+    testFile.datasetInfo?.geneCount ?? null,
   );
   expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
   expect(apiSourceDataset.metadataSpreadsheetTitle).toEqual(
-    testSourceDataset.metadataSpreadsheetTitle
+    testSourceDataset.metadataSpreadsheetTitle,
   );
   expect(apiSourceDataset.metadataSpreadsheetUrl).toEqual(
-    testSourceDataset.metadataSpreadsheetUrl
+    testSourceDataset.metadataSpreadsheetUrl,
   );
   expect(apiSourceDataset.publicationStatus).toEqual(
-    testSourceDataset.publicationStatus
+    testSourceDataset.publicationStatus,
   );
   expect(apiSourceDataset.reprocessedStatus).toEqual(
-    testSourceDataset.reprocessedStatus
+    testSourceDataset.reprocessedStatus,
   );
   expect(apiSourceDataset.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiSourceDataset.sourceStudyId).toEqual(
-    testSourceDataset.sourceStudyId
+    testSourceDataset.sourceStudyId,
   );
   expect(apiSourceDataset.suspensionType).toEqual(
-    testFile.datasetInfo?.suspensionType ?? []
+    testFile.datasetInfo?.suspensionType ?? [],
   );
   expect(apiSourceDataset.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiSourceDataset.validationStatus).toEqual(testFile.validationStatus);
   expect(apiSourceDataset.validationSummary).toEqual(
-    testFile.validationSummary
+    testFile.validationSummary,
   );
   expect(apiSourceDataset.wipNumber).toEqual(testSourceDataset.wipNumber);
 
@@ -638,22 +638,22 @@ export function expectApiSourceDatasetToMatchTest(
 
 export function expectDbSourceDatasetToMatchTest(
   dbSourceDataset: HCAAtlasTrackerDBSourceDataset,
-  testSourceDataset: TestSourceDataset
+  testSourceDataset: TestSourceDataset,
 ): void {
   expect(dbSourceDataset.sd_info.publicationStatus).toEqual(
-    testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED
+    testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
   );
   expect(dbSourceDataset.reprocessed_status).toEqual(
-    testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED
+    testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
   );
   expect(dbSourceDataset.source_study_id).toEqual(
-    testSourceDataset.sourceStudyId ?? null
+    testSourceDataset.sourceStudyId ?? null,
   );
 }
 
 export function expectDetailApiComponentAtlasToMatchTest(
   apiComponentAtlas: HCAAtlasTrackerDetailComponentAtlas,
-  testComponentAtlas: TestComponentAtlas
+  testComponentAtlas: TestComponentAtlas,
 ): void {
   expectApiComponentAtlasToMatchTest(
     apiComponentAtlas,
@@ -661,9 +661,9 @@ export function expectDetailApiComponentAtlasToMatchTest(
     true,
     (testFile) => {
       expect(apiComponentAtlas.validationReports).toEqual(
-        testFile.validationReports
+        testFile.validationReports,
       );
-    }
+    },
   );
 }
 
@@ -671,7 +671,7 @@ export function expectApiComponentAtlasToMatchTest(
   apiComponentAtlas: HCAAtlasTrackerComponentAtlas,
   testComponentAtlas: TestComponentAtlas,
   expectDetail = false,
-  doAdditionalChecks?: (file: NormalizedTestFile) => void
+  doAdditionalChecks?: (file: NormalizedTestFile) => void,
 ): void {
   if (!expectIsDefined(testComponentAtlas.file)) return;
   const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
@@ -679,31 +679,31 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiComponentAtlas.capUrl).toEqual(testComponentAtlas.capUrl ?? null);
   expect(apiComponentAtlas.cellCount).toEqual(
-    testFile.datasetInfo?.cellCount ?? 0
+    testFile.datasetInfo?.cellCount ?? 0,
   );
   expect(apiComponentAtlas.disease).toEqual(
-    testFile.datasetInfo?.disease ?? []
+    testFile.datasetInfo?.disease ?? [],
   );
   expect(apiComponentAtlas.fileEventTime).toEqual(testFile.eventTime);
   expect(apiComponentAtlas.fileId).toEqual(testFile.id);
   expect(apiComponentAtlas.fileName).toEqual(testFile.fileName);
   expect(apiComponentAtlas.geneCount).toEqual(
-    testFile.datasetInfo?.geneCount ?? null
+    testFile.datasetInfo?.geneCount ?? null,
   );
   expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
   expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiComponentAtlas.suspensionType).toEqual(
-    testFile.datasetInfo?.suspensionType ?? []
+    testFile.datasetInfo?.suspensionType ?? [],
   );
   expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
   expect(apiComponentAtlas.validationSummary).toEqual(
-    testFile.validationSummary
+    testFile.validationSummary,
   );
   expect(apiComponentAtlas.wipNumber).toEqual(
-    testComponentAtlas.wipNumber ?? 1
+    testComponentAtlas.wipNumber ?? 1,
   );
 
   if (expectDetail) {
@@ -717,84 +717,84 @@ export function expectApiComponentAtlasToMatchTest(
 
 export function expectApiValidationsToMatchDb(
   apiValidations: HCAAtlasTrackerValidationRecordWithoutAtlases[],
-  dbValidations: HCAAtlasTrackerDBValidation[]
+  dbValidations: HCAAtlasTrackerDBValidation[],
 ): void {
   expect(apiValidations).toHaveLength(dbValidations.length);
   for (const apiValidation of apiValidations) {
     const dbValidation = dbValidations.find((v) => v.id === apiValidation.id);
     if (!expectIsDefined(dbValidation)) continue;
     expect(apiValidation.commentThreadId).toEqual(
-      dbValidation.comment_thread_id
+      dbValidation.comment_thread_id,
     );
     expect(apiValidation.createdAt).toEqual(
-      dbValidation.created_at.toISOString()
+      dbValidation.created_at.toISOString(),
     );
     expect(apiValidation.description).toEqual(
-      dbValidation.validation_info.description
+      dbValidation.validation_info.description,
     );
     expect(apiValidation.differences).toEqual(
-      dbValidation.validation_info.differences
+      dbValidation.validation_info.differences,
     );
     expect(apiValidation.doi).toEqual(dbValidation.validation_info.doi);
     expect(apiValidation.entityId).toEqual(dbValidation.entity_id);
     expect(apiValidation.entityTitle).toEqual(
-      dbValidation.validation_info.entityTitle
+      dbValidation.validation_info.entityTitle,
     );
     expect(apiValidation.entityType).toEqual(
-      dbValidation.validation_info.entityType
+      dbValidation.validation_info.entityType,
     );
     expect(apiValidation.publicationString).toEqual(
-      dbValidation.validation_info.publicationString
+      dbValidation.validation_info.publicationString,
     );
     expect(apiValidation.relatedEntityUrl).toEqual(
-      dbValidation.validation_info.relatedEntityUrl
+      dbValidation.validation_info.relatedEntityUrl,
     );
     expect(apiValidation.resolvedAt).toEqual(
-      dbValidation.resolved_at?.toISOString() ?? null
+      dbValidation.resolved_at?.toISOString() ?? null,
     );
     expect(apiValidation.system).toEqual(dbValidation.validation_info.system);
     expect(apiValidation.targetCompletion).toEqual(
-      dbValidation.target_completion?.toISOString() ?? null
+      dbValidation.target_completion?.toISOString() ?? null,
     );
     expect(apiValidation.taskStatus).toEqual(
-      dbValidation.validation_info.taskStatus
+      dbValidation.validation_info.taskStatus,
     );
     expect(apiValidation.updatedAt).toEqual(
-      dbValidation.updated_at.toISOString()
+      dbValidation.updated_at.toISOString(),
     );
     expect(apiValidation.validationId).toEqual(dbValidation.validation_id);
     expect(apiValidation.validationStatus).toEqual(
-      dbValidation.validation_info.validationStatus
+      dbValidation.validation_info.validationStatus,
     );
     expect(apiValidation.validationType).toEqual(
-      dbValidation.validation_info.validationType
+      dbValidation.validation_info.validationType,
     );
   }
 }
 
 export function expectApiUserToMatchTest(
   apiUser: HCAAtlasTrackerUser,
-  testUser: TestUser
+  testUser: TestUser,
 ): void {
   expect(apiUser.disabled).toEqual(testUser.disabled);
   expect(apiUser.email).toEqual(testUser.email);
   expect(apiUser.fullName).toEqual(testUser.name);
   expect(apiUser.role).toEqual(testUser.role);
   expect(apiUser.roleAssociatedResourceIds).toEqual(
-    testUser.roleAssociatedResourceIds
+    testUser.roleAssociatedResourceIds,
   );
 }
 
 export async function expectDbUserToMatchInputData(
   dbUser: HCAAtlasTrackerDBUser,
-  inputData: NewUserData | UserEditData
+  inputData: NewUserData | UserEditData,
 ): Promise<void> {
   expect(dbUser.disabled).toEqual(inputData.disabled);
   expect(dbUser.email).toEqual(inputData.email);
   expect(dbUser.full_name).toEqual(inputData.fullName);
   expect(dbUser.role).toEqual(inputData.role);
   expect(dbUser.role_associated_resource_ids).toEqual(
-    inputData.roleAssociatedResourceIds
+    inputData.roleAssociatedResourceIds,
   );
 }
 
@@ -805,7 +805,7 @@ export function expectIsDefined<T>(value: T | undefined): value is T {
 
 export function expectIsInstanceOf<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required to work with InstanceType
-  T extends abstract new (...args: any[]) => any
+  T extends abstract new (...args: any[]) => any,
 >(value: unknown, checkClass: T): value is InstanceType<T> {
   expect(value).toBeInstanceOf(checkClass);
   return value instanceof checkClass;

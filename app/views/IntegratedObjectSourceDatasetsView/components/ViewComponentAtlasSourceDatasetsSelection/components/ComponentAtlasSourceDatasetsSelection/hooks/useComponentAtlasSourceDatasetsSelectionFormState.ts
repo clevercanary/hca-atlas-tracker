@@ -13,14 +13,14 @@ export const useComponentAtlasSourceDatasetsSelectionFormState = (
     ComponentAtlasSourceDatasetsEditData,
     HCAAtlasTrackerSourceDataset[]
   >,
-  tableOptions: PartialTableOptions<HCAAtlasTrackerSourceDataset>
+  tableOptions: PartialTableOptions<HCAAtlasTrackerSourceDataset>,
 ): void => {
   const { state } = tableOptions || {};
   const { rowSelection } = state || {};
   const { setValue } = formMethod;
   const sourceStudyIds = useMemo(
     () => getSourceStudyIds(rowSelection),
-    [rowSelection]
+    [rowSelection],
   );
 
   useEffect(() => {

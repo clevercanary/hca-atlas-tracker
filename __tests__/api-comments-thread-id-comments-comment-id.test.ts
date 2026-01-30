@@ -47,7 +47,7 @@ import { TestComment, TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -93,9 +93,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
           METHOD.PUT,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -107,9 +107,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -121,9 +121,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -135,9 +135,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER,
           COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -149,9 +149,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_CONTENT_ADMIN,
           COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -159,13 +159,13 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     const res = await doCommentTest(
       USER_STAKEHOLDER,
       THREAD_ID_BY_STAKEHOLDER,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comment = res._getJSONData();
     expectApiCommentToMatchTest(
       comment,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER,
     );
   });
 
@@ -173,13 +173,13 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     const res = await doCommentTest(
       USER_INTEGRATION_LEAD_DRAFT,
       THREAD_ID_BY_STAKEHOLDER,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comment = res._getJSONData();
     expectApiCommentToMatchTest(
       comment,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER,
     );
   });
 
@@ -187,13 +187,13 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     const res = await doCommentTest(
       USER_CELLXGENE_ADMIN,
       THREAD_ID_BY_STAKEHOLDER,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comment = res._getJSONData();
     expectApiCommentToMatchTest(
       comment,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER,
     );
   });
 
@@ -201,13 +201,13 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
     const res = await doCommentTest(
       USER_CONTENT_ADMIN,
       THREAD_ID_BY_STAKEHOLDER,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER.id,
     );
     expect(res._getStatusCode()).toEqual(200);
     const comment = res._getJSONData();
     expectApiCommentToMatchTest(
       comment,
-      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER_REPLY1_STAKEHOLDER,
     );
   });
 
@@ -220,9 +220,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
           true,
-          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
   });
@@ -236,9 +236,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
           true,
-          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
   });
@@ -252,9 +252,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
           true,
-          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
   });
@@ -268,9 +268,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           COMMENT_BY_STAKEHOLDER_ROOT.id,
           METHOD.PATCH,
           true,
-          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
   });
@@ -287,9 +287,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           {
             ...COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
             text: 123,
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
   });
@@ -306,9 +306,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           {
             ...COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
             text: "",
-          }
+          },
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_ROOT);
   });
@@ -322,9 +322,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN.id,
           METHOD.PATCH,
           true,
-          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
   });
@@ -338,9 +338,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN.id,
           METHOD.PATCH,
           true,
-          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
   });
@@ -354,9 +354,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN.id,
           METHOD.PATCH,
           true,
-          COMMENT_BY_STAKEHOLDER_ROOT_EDIT
+          COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN);
   });
@@ -367,7 +367,7 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       THREAD_ID_BY_STAKEHOLDER,
       COMMENT_BY_STAKEHOLDER_ROOT.id,
       COMMENT_BY_STAKEHOLDER_ROOT_EDIT,
-      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN
+      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
     );
   });
 
@@ -377,7 +377,7 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       THREAD_ID_BY_STAKEHOLDER,
       COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT.id,
       COMMENT_BY_STAKEHOLDER_REPLY3_INTEGRATION_LEAD_DRAFT_EDIT,
-      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN
+      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
     );
   });
 
@@ -387,16 +387,16 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       THREAD_ID_BY_CELLXGENE_ADMIN,
       COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN.id,
       COMMENT_BY_CELLXGENE_ADMIN_REPLY2_CELLXGENE_ADMIN_EDIT,
-      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN
+      COMMENT_BY_STAKEHOLDER_REPLY2_ADMIN,
     );
   });
 
   it("PATCH updates another user's comment when requested by user with CONTENT_ADMIN role", async () => {
     const commentBefore = await getCommentFromDatabase(
-      COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER.id
+      COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER.id,
     );
     expect(commentBefore?.updated_by).toEqual(
-      dbUsersByEmail[USER_STAKEHOLDER.email].id
+      dbUsersByEmail[USER_STAKEHOLDER.email].id,
     );
 
     const updatedCommentFromDb = await testSuccessfulEdit(
@@ -404,14 +404,14 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       THREAD_ID_BY_CONTENT_ADMIN,
       COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER.id,
       COMMENT_BY_CONTENT_ADMIN_REPLY1_STAKEHOLDER_EDIT,
-      COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN
+      COMMENT_BY_CONTENT_ADMIN_REPLY2_ADMIN,
     );
 
     expect(updatedCommentFromDb.updated_by).toEqual(
-      dbUsersByEmail[USER_CONTENT_ADMIN.email].id
+      dbUsersByEmail[USER_CONTENT_ADMIN.email].id,
     );
     expect(updatedCommentFromDb.created_by).toEqual(
-      dbUsersByEmail[USER_STAKEHOLDER.email].id
+      dbUsersByEmail[USER_STAKEHOLDER.email].id,
     );
   });
 
@@ -423,12 +423,12 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
     );
   });
 
@@ -440,12 +440,12 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
     );
   });
 
@@ -457,12 +457,12 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
     );
   });
 
@@ -474,12 +474,12 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_CONTENT_ADMIN,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
     );
   });
 
@@ -491,9 +491,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_ROOT.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER2_ROOT);
   });
@@ -506,12 +506,12 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
     );
   });
 
@@ -523,9 +523,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER_FOO,
           COMMENT_BY_STAKEHOLDER_FOO_ROOT.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_ROOT);
   });
@@ -538,12 +538,12 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
     );
   });
 
@@ -555,9 +555,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER_FOO,
           COMMENT_BY_STAKEHOLDER_FOO_ROOT.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER_FOO_ROOT);
   });
@@ -570,12 +570,12 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_STAKEHOLDER2,
           COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentToBeUnchanged(
-      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER
+      COMMENT_BY_STAKEHOLDER2_REPLY2_STAKEHOLDER,
     );
   });
 
@@ -587,9 +587,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_CELLXGENE_ADMIN,
           COMMENT_BY_CELLXGENE_ADMIN_ROOT.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_CELLXGENE_ADMIN_ROOT);
   });
@@ -602,9 +602,9 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
           THREAD_ID_BY_CONTENT_ADMIN_FOO,
           COMMENT_BY_CONTENT_ADMIN_FOO_ROOT.id,
           METHOD.DELETE,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectCommentToBeUnchanged(COMMENT_BY_CONTENT_ADMIN_FOO_ROOT);
   });
@@ -614,7 +614,7 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       USER_STAKEHOLDER2,
       THREAD_ID_BY_STAKEHOLDER_FOO,
       COMMENT_BY_STAKEHOLDER_FOO_REPLY2_STAKEHOLDER2,
-      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN,
     );
   });
 
@@ -623,7 +623,7 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       USER_INTEGRATION_LEAD_DRAFT,
       THREAD_ID_BY_STAKEHOLDER_FOO,
       COMMENT_BY_STAKEHOLDER_FOO_REPLY3_INTEGRATION_LEAD_DRAFT,
-      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN,
     );
   });
 
@@ -632,7 +632,7 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       USER_CELLXGENE_ADMIN,
       THREAD_ID_BY_STAKEHOLDER2,
       COMMENT_BY_STAKEHOLDER2_REPLY3_CELLXGENE_ADMIN,
-      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN
+      COMMENT_BY_STAKEHOLDER_FOO_REPLY1_ADMIN,
     );
   });
 
@@ -641,13 +641,13 @@ describe("/api/comments/[threadId]/comments/[commentId]", () => {
       USER_CONTENT_ADMIN,
       THREAD_ID_BY_CONTENT_ADMIN_FOO,
       COMMENT_BY_CONTENT_ADMIN_FOO_REPLY1_STAKEHOLDER,
-      COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2
+      COMMENT_BY_CONTENT_ADMIN_FOO_REPLY2_STAKEHOLDER2,
     );
   });
 });
 
 async function expectCommentToBeUnchanged(
-  testComment: TestComment
+  testComment: TestComment,
 ): Promise<void> {
   const dbComment = await getCommentFromDatabase(testComment.id);
   expect(dbComment).toBeDefined();
@@ -657,41 +657,41 @@ async function expectCommentToBeUnchanged(
 
 function expectApiCommentToMatchTest(
   dbComment: HCAAtlasTrackerComment,
-  testComment: TestComment
+  testComment: TestComment,
 ): void {
   expect(dbComment.createdAt).toEqual(testComment.createdAt);
   expect(dbComment.createdBy).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
   expect(dbComment.id).toEqual(testComment.id);
   expect(dbComment.text).toEqual(testComment.text);
   expect(dbComment.threadId).toEqual(testComment.threadId);
   expect(dbComment.updatedAt).toEqual(testComment.createdAt);
   expect(dbComment.updatedBy).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
 }
 
 function expectDbCommentToMatchTest(
   dbComment: HCAAtlasTrackerDBComment,
-  testComment: TestComment
+  testComment: TestComment,
 ): void {
   expect(dbComment.created_at).toEqual(new Date(testComment.createdAt));
   expect(dbComment.created_by).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
   expect(dbComment.id).toEqual(testComment.id);
   expect(dbComment.text).toEqual(testComment.text);
   expect(dbComment.thread_id).toEqual(testComment.threadId);
   expect(dbComment.updated_at).toEqual(new Date(testComment.createdAt));
   expect(dbComment.updated_by).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
 }
 
 function expectDbCommentToMatch(
   dbComment: HCAAtlasTrackerDBComment,
-  apiComment: HCAAtlasTrackerComment
+  apiComment: HCAAtlasTrackerComment,
 ): void {
   expect(dbComment.created_at.toISOString()).toEqual(apiComment.createdAt);
   expect(dbComment.created_by).toEqual(apiComment.createdBy);
@@ -707,7 +707,7 @@ async function testSuccessfulEdit(
   threadId: string,
   commentId: string,
   editData: CommentEditData,
-  unchangedComment: TestComment
+  unchangedComment: TestComment,
 ): Promise<HCAAtlasTrackerDBComment> {
   const res = await doCommentTest(
     user,
@@ -715,7 +715,7 @@ async function testSuccessfulEdit(
     commentId,
     METHOD.PATCH,
     false,
-    editData
+    editData,
   );
   expect(res._getStatusCode()).toEqual(200);
   const updatedComment = res._getJSONData() as HCAAtlasTrackerComment;
@@ -732,13 +732,13 @@ async function testSuccessfulDelete(
   user: TestUser,
   threadId: string,
   comment: TestComment,
-  unchangedComment: TestComment
+  unchangedComment: TestComment,
 ): Promise<void> {
   await expectCommentToBeUnchanged(comment);
   expect(
     (
       await doCommentTest(user, threadId, comment.id, METHOD.DELETE, true)
-    )._getStatusCode()
+    )._getStatusCode(),
   ).toEqual(200);
   expect(await getCommentFromDatabase(comment.id)).toBeUndefined();
   await expectCommentToBeUnchanged(unchangedComment);
@@ -750,7 +750,7 @@ async function doCommentTest(
   commentId: string,
   method = METHOD.GET,
   hideConsoleError = false,
-  editData?: Record<string, unknown>
+  editData?: Record<string, unknown>,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: editData,
@@ -763,18 +763,18 @@ async function doCommentTest(
   });
   await withConsoleErrorHiding(
     () => commentHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 async function getCommentFromDatabase(
-  commentId: string
+  commentId: string,
 ): Promise<HCAAtlasTrackerDBComment | undefined> {
   return (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE id=$1",
-      [commentId]
+      [commentId],
     )
   ).rows[0];
 }

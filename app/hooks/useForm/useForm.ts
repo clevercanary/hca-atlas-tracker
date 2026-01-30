@@ -26,8 +26,10 @@ import {
 } from "./common/entities";
 import { getFormResponseErrors } from "./common/utils";
 
-export interface UseForm<T extends FieldValues, R = undefined>
-  extends CustomUseFormReturn<T> {
+export interface UseForm<
+  T extends FieldValues,
+  R = undefined,
+> extends CustomUseFormReturn<T> {
   data?: R;
   onDelete: OnDeleteFn;
   onSubmit: OnSubmitFn<T, R>;
@@ -38,11 +40,11 @@ export const useForm = <T extends FieldValues, R = undefined>(
   apiData?: R,
   mapSchemaValues?: MapSchemaValuesFn<T, R>,
   mapApiValues: MapApiValuesFn<T> = (p): unknown => p,
-  options: CustomUseFormOptions<T> = {}
+  options: CustomUseFormOptions<T> = {},
 ): UseForm<T, R> => {
   const values = useMemo(
     () => schema.cast(mapSchemaValues?.(apiData)),
-    [apiData, mapSchemaValues, schema]
+    [apiData, mapSchemaValues, schema],
   );
   const formMethod = useReactHookForm<YupValidatedFormValues<T>>({
     reValidateMode: "onSubmit",
@@ -68,14 +70,14 @@ export const useForm = <T extends FieldValues, R = undefined>(
         });
       }
     },
-    [reset, setError]
+    [reset, setError],
   );
 
   const onDelete = useCallback(
     async (
       requestURL: string,
       requestMethod: METHOD,
-      options?: OnDeleteOptions
+      options?: OnDeleteOptions,
     ): Promise<void> => {
       const res = await fetchResource(requestURL, requestMethod);
       if (isFetchStatusOk(res.status)) {
@@ -84,7 +86,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
         onError(await getFormResponseErrors(res));
       }
     },
-    [onError]
+    [onError],
   );
 
   const onSubmit = useCallback(
@@ -92,7 +94,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
       requestURL: string,
       requestMethod: METHOD,
       payload: YupValidatedFormValues<T>,
-      options?: OnSubmitOptions<T, R>
+      options?: OnSubmitOptions<T, R>,
     ): Promise<void> => {
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
       const res = await fetchResource(requestURL, requestMethod, apiPayload);
@@ -102,14 +104,14 @@ export const useForm = <T extends FieldValues, R = undefined>(
           setData(response);
           options?.onSuccess?.(response);
           options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
-        } catch (e) {
+        } catch {
           options?.onSuccess?.(undefined as R);
         }
       } else {
         onError(await getFormResponseErrors(res));
       }
     },
-    [mapApiValues, mapSchemaValues, onError, schema]
+    [mapApiValues, mapSchemaValues, onError, schema],
   );
 
   // Initialize data with given API response.

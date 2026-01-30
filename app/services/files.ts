@@ -27,7 +27,7 @@ import { submitDatasetValidationJob } from "./validator-batch";
  */
 export async function getAtlasFileDownloadUrl(
   atlasId: string,
-  fileId: string
+  fileId: string,
 ): Promise<PresignedUrlInfo> {
   await confirmFileExistsOnAtlas(fileId, atlasId);
   return { url: await getDownloadUrl(await getFileKey(fileId)) };
@@ -42,7 +42,7 @@ export async function getAtlasFileDownloadUrl(
 export async function updateAtlasFilesArchiveStatus(
   atlasId: string,
   fileIds: string[],
-  isArchived: boolean
+  isArchived: boolean,
 ): Promise<void> {
   await confirmFilesExistOnAtlas(fileIds, atlasId);
 
@@ -53,8 +53,8 @@ export async function updateAtlasFilesArchiveStatus(
   if (alreadySetFileIds.length)
     throw new InvalidOperationError(
       `Archived is already set to ${isArchived} for files with ID(s): ${alreadySetFileIds.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
 
   await setFilesArchiveStatus(fileIds, isArchived);
@@ -79,7 +79,7 @@ export async function validateAllFiles(): Promise<void> {
  */
 export async function startFileValidation(
   fileId: string,
-  s3Key: string
+  s3Key: string,
 ): Promise<void> {
   try {
     // Start job
@@ -92,22 +92,22 @@ export async function startFileValidation(
       await setFileValidationStatus(
         fileId,
         FILE_VALIDATION_STATUS.REQUESTED,
-        client
+        client,
       );
       await setFileIntegrityStatus(fileId, INTEGRITY_STATUS.REQUESTED, client);
     });
     console.log(
-      `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`
+      `Started Batch job ${jobId} to validate ${s3Key} (file ${fileId})`,
     );
   } catch (e) {
     console.error(
       `An error occurred while starting validation for ${s3Key} (file ${fileId}):`,
-      e
+      e,
     );
     // Update validation status to note that the validation request failed
     await setFileValidationStatus(
       fileId,
-      FILE_VALIDATION_STATUS.REQUEST_FAILED
+      FILE_VALIDATION_STATUS.REQUEST_FAILED,
     );
   }
 }

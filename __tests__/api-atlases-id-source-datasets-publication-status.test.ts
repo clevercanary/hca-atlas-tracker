@@ -41,7 +41,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -59,7 +59,7 @@ const SUCCESSFUL_UPDATED_DATASETS: TestSourceDataset[] = [
 ];
 
 const INPUT_DATA_SUCCESSFUL = makeSuccessfulUpdateData(
-  PUBLICATION_STATUS.PUBLISHED
+  PUBLICATION_STATUS.PUBLISHED,
 );
 
 const INPUT_DATA_NO_DATASETS = {
@@ -116,9 +116,9 @@ describe(`${TEST_ROUTE} (misc)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           INPUT_DATA_SUCCESSFUL,
           undefined,
-          METHOD.PUT
+          METHOD.PUT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 });
@@ -132,9 +132,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_SUCCESSFUL,
           undefined,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
@@ -147,9 +147,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_SUCCESSFUL,
           USER_UNREGISTERED,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
@@ -162,9 +162,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_SUCCESSFUL,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.PATCH,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
@@ -182,9 +182,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
         await expectSourceDatasetToBeUnchanged(
-          SOURCE_DATASET_ATLAS_LINKED_A_FOO
+          SOURCE_DATASET_ATLAS_LINKED_A_FOO,
         );
-      }
+      },
     );
   }
 
@@ -196,9 +196,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_SUCCESSFUL,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.PATCH,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
@@ -211,9 +211,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NONEXISTENT_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -225,9 +225,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NO_DATASETS,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -239,9 +239,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_NON_LINKED_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_FOO);
@@ -255,15 +255,15 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_ARCHIVED_DATASET,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3
+      SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
     );
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2
+      SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
     );
   });
 
@@ -279,15 +279,15 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           inputData,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
     );
     await expectSourceDatasetToBeUnchanged(
-      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
     );
   });
 
@@ -299,9 +299,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
           INPUT_DATA_INVALID_STATUS,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
@@ -309,42 +309,42 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
   it('updates publication statuses to "Published" when PATCH requested by user with INTEGRATION_LEAD role for the atlas', async () => {
     await doSuccessfulPublicationStatusTest(
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-      PUBLICATION_STATUS.PUBLISHED
+      PUBLICATION_STATUS.PUBLISHED,
     );
   });
 
   it('updates publication statuses to "Published" when PATCH requested by user with CONTENT_ADMIN role', async () => {
     await doSuccessfulPublicationStatusTest(
       USER_CONTENT_ADMIN,
-      PUBLICATION_STATUS.PUBLISHED
+      PUBLICATION_STATUS.PUBLISHED,
     );
   });
 
   it('updates publication statuses to "Unpublished" when PATCH requested by user with CONTENT_ADMIN role', async () => {
     await doSuccessfulPublicationStatusTest(
       USER_CONTENT_ADMIN,
-      PUBLICATION_STATUS.UNPUBLISHED
+      PUBLICATION_STATUS.UNPUBLISHED,
     );
   });
 
   it('updates publication statuses to "Unspecified" when PATCH requested by user with CONTENT_ADMIN role', async () => {
     await doSuccessfulPublicationStatusTest(
       USER_CONTENT_ADMIN,
-      PUBLICATION_STATUS.UNSPECIFIED
+      PUBLICATION_STATUS.UNSPECIFIED,
     );
   });
 });
 
 async function doSuccessfulPublicationStatusTest(
   user: TestUser,
-  publicationStatus: PUBLICATION_STATUS
+  publicationStatus: PUBLICATION_STATUS,
 ): Promise<void> {
   const atlasDatasetsByIdBefore = new Map(
     (
       await getAtlasSourceDatasetsFromDatabase(
-        ATLAS_WITH_MISC_SOURCE_STUDIES.id
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       )
-    ).map((d) => [d.id, d])
+    ).map((d) => [d.id, d]),
   );
 
   for (const testDataset of SUCCESSFUL_UPDATED_DATASETS) {
@@ -358,17 +358,17 @@ async function doSuccessfulPublicationStatusTest(
       await doPublicationStatusRequest(
         ATLAS_WITH_MISC_SOURCE_STUDIES.id,
         makeSuccessfulUpdateData(publicationStatus),
-        user
+        user,
       )
-    )._getStatusCode()
+    )._getStatusCode(),
   ).toEqual(200);
 
   const atlasDatasetsByIdAfter = new Map(
     (
       await getAtlasSourceDatasetsFromDatabase(
-        ATLAS_WITH_MISC_SOURCE_STUDIES.id
+        ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       )
-    ).map((d) => [d.id, d])
+    ).map((d) => [d.id, d]),
   );
 
   const nonUpdatedIds = new Set(atlasDatasetsByIdBefore.keys());
@@ -382,7 +382,7 @@ async function doSuccessfulPublicationStatusTest(
 
   for (const datasetId of nonUpdatedIds) {
     expect(atlasDatasetsByIdAfter.get(datasetId)).toEqual(
-      atlasDatasetsByIdBefore.get(datasetId)
+      atlasDatasetsByIdBefore.get(datasetId),
     );
   }
 
@@ -392,13 +392,13 @@ async function doSuccessfulPublicationStatusTest(
       [
         testDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
         testDataset.versionId,
-      ]
+      ],
     );
   }
 }
 
 function makeSuccessfulUpdateData(
-  publicationStatus: PUBLICATION_STATUS
+  publicationStatus: PUBLICATION_STATUS,
 ): SourceDatasetsSetPublicationStatusData {
   return {
     publicationStatus,
@@ -411,7 +411,7 @@ async function doPublicationStatusRequest(
   body: Record<string, unknown>,
   user?: TestUser,
   method = METHOD.PATCH,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
@@ -421,7 +421,7 @@ async function doPublicationStatusRequest(
   });
   await withConsoleErrorHiding(
     () => publicationStatusHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

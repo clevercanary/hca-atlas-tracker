@@ -8,7 +8,7 @@ import { CellContext, RowData } from "@tanstack/react-table";
  * @returns Partial CellContext.
  */
 export function getPartialCellContext<T extends RowData, TValue>(
-  value: TValue
+  value: TValue,
 ): CellContext<T, TValue> {
   return {
     getValue: () => value,

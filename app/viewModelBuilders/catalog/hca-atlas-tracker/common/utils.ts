@@ -27,7 +27,7 @@ function isComponentName(value: string): value is COMPONENT_NAME {
  */
 export function mapColumnsWithExtraProps<T extends RowData>(
   columns: ColumnConfig<T>[],
-  extraPropsByComponentName: ExtraPropsByComponentName
+  extraPropsByComponentName: ExtraPropsByComponentName,
 ): ColumnConfig<T>[] {
   return columns.map((column) => {
     const { componentConfig } = column;
@@ -56,7 +56,7 @@ export function mapColumnsWithExtraProps<T extends RowData>(
  * @returns string label describing the metadata in plural form.
  */
 export function getPluralizedMetadataLabel(
-  metadataKey: keyof typeof METADATA_KEY
+  metadataKey: keyof typeof METADATA_KEY,
 ): string {
   return PLURALIZED_METADATA_LABEL[metadataKey];
 }
@@ -69,7 +69,7 @@ export function getPluralizedMetadataLabel(
  */
 export function partitionMetadataValues(
   values: MetadataValue[],
-  pinned: MetadataValue[]
+  pinned: MetadataValue[],
 ): MetadataValueTuple {
   const partitionedValues: MetadataValueTuple = [[], []];
   return values.reduce((acc, value) => {

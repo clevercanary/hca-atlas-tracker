@@ -22,8 +22,8 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   const sourceDatasetId = req.query.sourceDatasetId as string;
   res.json(
     dbSourceDatasetToDetailApiSourceDataset(
-      await getAtlasSourceDataset(atlasId, sourceDatasetId)
-    )
+      await getAtlasSourceDataset(atlasId, sourceDatasetId),
+    ),
   );
 });
 
@@ -36,10 +36,10 @@ const patchHandler = handler(
     const inputData = await atlasSourceDatasetEditSchema.validate(req.body);
     res.json(
       dbSourceDatasetToApiSourceDataset(
-        await updateAtlasSourceDataset(atlasId, sourceDatasetId, inputData)
-      )
+        await updateAtlasSourceDataset(atlasId, sourceDatasetId, inputData),
+      ),
     );
-  }
+  },
 );
 
 /**

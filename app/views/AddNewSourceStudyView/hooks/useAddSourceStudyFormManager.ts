@@ -21,7 +21,7 @@ import {
 
 export const useAddSourceStudyFormManager = (
   pathParameter: PathParameter,
-  formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>
+  formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>,
 ): FormManager => {
   const { onSubmit, unregister, watch } = formMethod;
   const publicationStatus = watch(FIELD_NAME.PUBLICATION_STATUS);
@@ -31,7 +31,7 @@ export const useAddSourceStudyFormManager = (
     (url?: string) => {
       Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDIES, pathParameter));
     },
-    [pathParameter]
+    [pathParameter],
   );
 
   const onSave = useCallback(
@@ -43,10 +43,10 @@ export const useAddSourceStudyFormManager = (
         filterPayload(payload),
         {
           onSuccess: (data) => onSuccess(pathParameter, data.id, url),
-        }
+        },
       );
     },
-    [onSubmit, pathParameter, unregister]
+    [onSubmit, pathParameter, unregister],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave }, isDirty);
@@ -72,7 +72,7 @@ function filterPayload(payload: NewSourceStudyData): NewSourceStudyData {
  * @returns schema fields.
  */
 function getSchemaFields(
-  publicationStatus: PUBLICATION_STATUS
+  publicationStatus: PUBLICATION_STATUS,
 ): NewSourceStudyDataKeys[] {
   if (publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT) {
     return PUBLISHED_PREPRINT_FIELDS;
@@ -88,7 +88,7 @@ function getSchemaFields(
  */
 function isFormDirty(
   formMethod: FormMethod<NewSourceStudyData, HCAAtlasTrackerSourceStudy>,
-  publicationStatus: PUBLICATION_STATUS
+  publicationStatus: PUBLICATION_STATUS,
 ): boolean {
   const {
     formState: { dirtyFields },
@@ -106,10 +106,10 @@ function isFormDirty(
 function onSuccess(
   pathParameter: PathParameter,
   sourceStudyId: string,
-  url?: string
+  url?: string,
 ): void {
   Router.push(
-    url ?? getRouteURL(ROUTE.SOURCE_STUDY, { ...pathParameter, sourceStudyId })
+    url ?? getRouteURL(ROUTE.SOURCE_STUDY, { ...pathParameter, sourceStudyId }),
   );
 }
 
@@ -119,7 +119,7 @@ function onSuccess(
  * @returns fields to be unregistered.
  */
 function unregisterSchemaFields(
-  payload: NewSourceStudyData
+  payload: NewSourceStudyData,
 ): NewSourceStudyDataKeys[] {
   const fieldKeys: NewSourceStudyDataKeys[] = [];
   if (payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT) {

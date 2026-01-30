@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Tooltip, Typography } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
@@ -12,7 +13,7 @@ import {
 } from "./utils";
 
 export const GraphValueCell = (
-  cellContext: CellContext<HeatmapEntrySheet, number>
+  cellContext: CellContext<HeatmapEntrySheet, number>,
 ): JSX.Element | null => {
   const [value, numerator, denominator] = getGraphValues(cellContext);
   return (

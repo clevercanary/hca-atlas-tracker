@@ -12,13 +12,13 @@ import { useFetchAtlasSourceDataset } from "./useFetchAtlasSourceDataset";
 const SCHEMA = viewAtlasSourceDatasetSchema;
 
 export const useEditAtlasSourceDatasetForm = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): FormMethod<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset> => {
   const { sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
   return useForm<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset>(
     SCHEMA,
     sourceDataset,
-    mapSchemaValues
+    mapSchemaValues,
   );
 };
 
@@ -28,7 +28,7 @@ export const useEditAtlasSourceDatasetForm = (
  * @returns schema default values.
  */
 function mapSchemaValues(
-  sourceDataset?: HCAAtlasTrackerSourceDataset
+  sourceDataset?: HCAAtlasTrackerSourceDataset,
 ): ViewAtlasSourceDatasetData | undefined {
   if (!sourceDataset) return;
   return {

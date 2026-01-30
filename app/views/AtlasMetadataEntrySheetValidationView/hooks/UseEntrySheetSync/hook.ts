@@ -4,7 +4,7 @@ import { EntrySheetSyncState, UseEntrySheetSync } from "./types";
 import { startEntrySheetSync } from "./utils";
 
 export const useEntrySheetSync = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseEntrySheetSync => {
   const [entrySheetSyncState, setEntrySheetSyncState] =
     useState<EntrySheetSyncState>({ started: false });

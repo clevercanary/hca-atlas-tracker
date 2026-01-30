@@ -47,7 +47,7 @@ export function getSlug(context: GetStaticPropsContext): string[] | undefined {
  */
 export function isContentPathnameExists(
   dirPath?: string,
-  slug?: string[]
+  slug?: string[],
 ): boolean {
   if (!dirPath || !slug) {
     return false;

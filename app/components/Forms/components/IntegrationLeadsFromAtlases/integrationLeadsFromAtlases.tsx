@@ -1,6 +1,6 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { useCallback, useState } from "react";
+import { JSX, useCallback, useState } from "react";
 import { METHOD } from "../../../../common/entities";
 import { fetchResource, isFetchStatusOk } from "../../../../common/utils";
 import { FormResponseErrors } from "../../../../hooks/useForm/common/entities";
@@ -16,7 +16,7 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
         setIsDisabled(true);
         const res = await fetchResource(
           "/api/users/integration-leads-from-atlases",
-          METHOD.PATCH
+          METHOD.PATCH,
         );
         if (isFetchStatusOk(res.status)) {
           setResponseErrors(undefined);
@@ -25,7 +25,7 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
           setResponseErrors(
             await res.json().catch(() => ({
               message: `Received ${res.status} ${res.statusText} response`,
-            }))
+            })),
           );
         }
       } catch (e) {
@@ -56,8 +56,8 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
           {responseErrors
             ? buildResponseErrors(responseErrors)
             : didUpdate
-            ? "Updated"
-            : ""}
+              ? "Updated"
+              : ""}
         </div>
       ) : (
         ""

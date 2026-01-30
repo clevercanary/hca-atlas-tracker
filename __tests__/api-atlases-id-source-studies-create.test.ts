@@ -60,7 +60,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -138,7 +138,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCreateTest(undefined, ATLAS_DRAFT, NEW_STUDY_DATA, false, "GET")
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -146,7 +146,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCreateTest(undefined, ATLAS_DRAFT, NEW_STUDY_DATA, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -154,7 +154,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCreateTest(USER_UNREGISTERED, ATLAS_DRAFT, NEW_STUDY_DATA, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -164,9 +164,9 @@ describe(TEST_ROUTE, () => {
         await doCreateTest(
           USER_DISABLED_CONTENT_ADMIN,
           ATLAS_DRAFT,
-          NEW_STUDY_DATA
+          NEW_STUDY_DATA,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -182,7 +182,7 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -190,7 +190,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doCreateTest(USER_UNREGISTERED, ATLAS_DRAFT, NEW_STUDY_DATA, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -201,9 +201,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           ATLAS_NONEXISTENT,
           NEW_STUDY_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -217,9 +217,9 @@ describe(TEST_ROUTE, () => {
             ...NEW_STUDY_DATA,
             doi: 123,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -233,9 +233,9 @@ describe(TEST_ROUTE, () => {
             ...NEW_STUDY_DATA,
             doi: "",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -249,9 +249,9 @@ describe(TEST_ROUTE, () => {
             ...NEW_STUDY_DATA,
             doi: "10.nota/doi",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -262,9 +262,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           ATLAS_DRAFT,
           NEW_STUDY_UNSUPPORTED_TYPE_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -274,7 +274,7 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_DATA,
       PUBLICATION_NORMAL,
       HCA_ID_NORMAL,
-      CELLXGENE_ID_NORMAL
+      CELLXGENE_ID_NORMAL,
     );
     const validations = await getValidationsByEntityId(dbStudy.id);
     expect(validations).not.toHaveLength(0);
@@ -287,7 +287,7 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_PREPRINT_NO_JOURNAL_DATA,
       PUBLICATION_PREPRINT_NO_JOURNAL,
       null,
-      null
+      null,
     );
   });
 
@@ -297,7 +297,7 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_PREPRINT_WITH_JOURNAL_COUNTERPART_DATA,
       PUBLICATION_PREPRINT_WITH_JOURNAL_COUNTERPART,
       HCA_ID_JOURNAL_COUNTERPART,
-      CELLXGENE_ID_JOURNAL_COUNTERPART
+      CELLXGENE_ID_JOURNAL_COUNTERPART,
     );
   });
 
@@ -307,7 +307,7 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_JOURNAL_WITH_PREPRINT_COUNTERPART_DATA,
       PUBLICATION_JOURNAL_WITH_PREPRINT_COUNTERPART,
       HCA_ID_PREPRINT_COUNTERPART,
-      CELLXGENE_ID_PREPRINT_COUNTERPART
+      CELLXGENE_ID_PREPRINT_COUNTERPART,
     );
   });
 
@@ -321,9 +321,9 @@ describe(TEST_ROUTE, () => {
             ...NEW_STUDY_DATA,
             ...NEW_STUDY_UNPUBLISHED_DATA,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -337,9 +337,9 @@ describe(TEST_ROUTE, () => {
             ...NEW_STUDY_UNPUBLISHED_DATA,
             contactEmail: undefined,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -353,9 +353,9 @@ describe(TEST_ROUTE, () => {
             ...NEW_STUDY_UNPUBLISHED_DATA,
             contactEmail: undefined,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -364,7 +364,7 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       ATLAS_DRAFT,
       NEW_STUDY_DRAFT_OK,
-      true
+      true,
     );
     expect(res._getStatusCode()).toEqual(400);
     const errors = res._getJSONData();
@@ -377,7 +377,7 @@ describe(TEST_ROUTE, () => {
     await testSuccessfulUnpublishedCreate(
       NEW_STUDY_UNPUBLISHED_DATA,
       undefined,
-      USER_INTEGRATION_LEAD_DRAFT
+      USER_INTEGRATION_LEAD_DRAFT,
     );
   });
 
@@ -387,7 +387,7 @@ describe(TEST_ROUTE, () => {
       {
         ...NEW_STUDY_EMPTY_STRING_CONTACT_EMAIL,
         contactEmail: null,
-      }
+      },
     );
   });
 
@@ -397,7 +397,7 @@ describe(TEST_ROUTE, () => {
 
   it("adds, revalidates, and returns source study that already exists", async () => {
     const validationsBefore = await getValidationsByEntityId(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id,
     );
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(1);
@@ -407,11 +407,11 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_DRAFT_OK,
       PUBLICATION_DRAFT_OK,
       null,
-      null
+      null,
     );
     expect(dbStudy.id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
     const validationsAfter = await getValidationsByEntityId(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id,
     );
     expect(validationsAfter[0].atlas_ids).toHaveLength(2);
     expect(validationsAfter[0].atlas_ids).toContain(ATLAS_PUBLIC.id);
@@ -423,7 +423,7 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_PUBLIC_WITH_PREPRINT_PREPRINT,
       PUBLICATION_PUBLIC_WITH_PREPRINT,
       null,
-      null
+      null,
     );
     expect(dbStudy.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_PREPRINT.id);
   });
@@ -434,7 +434,7 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_PUBLIC_WITH_JOURNAL_JOURNAL,
       PUBLICATION_PUBLIC_WITH_JOURNAL,
       null,
-      null
+      null,
     );
     expect(dbStudy.id).toEqual(SOURCE_STUDY_PUBLIC_WITH_JOURNAL.id);
   });
@@ -447,7 +447,7 @@ describe(TEST_ROUTE, () => {
       NEW_STUDY_WITH_NEW_SOURCE_DATASETS,
       null,
       null,
-      CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS
+      CELLXGENE_ID_WITH_NEW_SOURCE_DATASETS,
     );
 
     expect(apiStudy.sourceDatasetCount).toEqual(0);
@@ -467,7 +467,7 @@ async function testSuccessfulCreate(
   newData: Record<string, unknown>,
   expectedPublication: PublicationInfo | null,
   expectedHcaId: string | null,
-  expectedCellxGeneId: string | null
+  expectedCellxGeneId: string | null,
 ): Promise<{
   apiStudy: HCAAtlasTrackerSourceStudy;
   dbStudy: HCAAtlasTrackerDBSourceStudy;
@@ -478,14 +478,14 @@ async function testSuccessfulCreate(
   const { source_studies: atlasStudies } = (
     await query<HCAAtlasTrackerDBAtlas>(
       "SELECT source_studies FROM hat.atlases WHERE id=$1",
-      [atlas.id]
+      [atlas.id],
     )
   ).rows[0];
   expect(atlasStudies).toContain(newStudy.id);
   const newStudyFromDb = (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [newStudy.id]
+      [newStudy.id],
     )
   ).rows[0];
   expectDbStudyToMatch(
@@ -493,7 +493,7 @@ async function testSuccessfulCreate(
     newStudy,
     expectedPublication,
     expectedHcaId,
-    expectedCellxGeneId
+    expectedCellxGeneId,
   );
   return {
     apiStudy: newStudy,
@@ -504,25 +504,25 @@ async function testSuccessfulCreate(
 async function testSuccessfulUnpublishedCreate(
   newData: Record<string, unknown>,
   expectedUnpublishedInfo = newData,
-  user = USER_CONTENT_ADMIN
+  user = USER_CONTENT_ADMIN,
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   const res = await doCreateTest(user, ATLAS_DRAFT, newData);
   expect(res._getStatusCode()).toEqual(201);
   const newStudy: HCAAtlasTrackerSourceStudy = res._getJSONData();
   expect(newStudy.contactEmail).toEqual(expectedUnpublishedInfo.contactEmail);
   expect(newStudy.referenceAuthor).toEqual(
-    expectedUnpublishedInfo.referenceAuthor
+    expectedUnpublishedInfo.referenceAuthor,
   );
   expect(newStudy.title).toEqual(expectedUnpublishedInfo.title);
   const newStudyFromDb = (
     await query<HCAAtlasTrackerDBSourceStudy>(
       "SELECT * FROM hat.source_studies WHERE id=$1",
-      [newStudy.id]
+      [newStudy.id],
     )
   ).rows[0];
   expect(newStudyFromDb).toBeDefined();
   expect(newStudyFromDb.study_info.unpublishedInfo).toEqual(
-    expectedUnpublishedInfo
+    expectedUnpublishedInfo,
   );
   return newStudyFromDb;
 }
@@ -532,7 +532,7 @@ async function doCreateTest(
   atlas: Pick<TestAtlas, "id">,
   newData: Record<string, unknown>,
   hideConsoleError = false,
-  method: "GET" | "POST" = "POST"
+  method: "GET" | "POST" = "POST",
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: newData,
@@ -553,7 +553,7 @@ function expectDbStudyToMatch(
   apiStudy: HCAAtlasTrackerSourceStudy,
   publication: PublicationInfo | null,
   hcaId: string | null,
-  cellxgeneId: string | null
+  cellxgeneId: string | null,
 ): void {
   expect(dbStudy).toBeDefined();
   expect(dbStudy.study_info.publication).toEqual(publication);

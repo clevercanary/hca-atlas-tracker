@@ -9,5 +9,5 @@ export default handler(
   async (req, res) => {
     await addIntegrationLeadsFromAtlases();
     res.status(200).end();
-  }
+  },
 );

@@ -83,13 +83,11 @@
 Our system uses the unique constraint `(bucket, key, version_id)` to identify duplicate S3 notifications:
 
 - **Scenario 1: Same bucket + key + version_id + ETag (True Duplicate)**
-
   - **Action**: Do nothing - Update record with same values, log as "duplicate notification"
   - **Rationale**: Legitimate duplicate notification from AWS (network retry, etc.)
   - **Result**: HTTP 200, no data changes, operation logged as 'updated'
 
 - **Scenario 2: Same bucket + key + version_id + Different ETag (Data Corruption)**
-
   - **Action**: REJECT - Throw error, return HTTP 500
   - **Rationale**: Same S3 object version should never have different ETags - indicates corruption
   - **Result**: HTTP 500, detailed error logging, transaction rolled back

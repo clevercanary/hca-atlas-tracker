@@ -52,7 +52,7 @@ export const atlasEntityConfig: EntityConfig = {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TARGET_COMPLETION_DATE,
             mapSelectCategoryValue: mapSelectCategoryValue(
-              formatDateToQuarterYear
+              formatDateToQuarterYear,
             ),
           },
           {

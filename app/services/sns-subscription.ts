@@ -10,7 +10,7 @@ import { httpGet } from "../utils/http";
  * @throws InvalidOperationError if SubscribeURL is missing for confirmation
  */
 export async function handleSNSSubscription(
-  message: SNSMessage
+  message: SNSMessage,
 ): Promise<void> {
   // Verify the topic is authorized before processing
   validateSNSTopicAuthorization(message.TopicArn);
@@ -24,7 +24,7 @@ export async function handleSNSSubscription(
       break;
     default:
       throw new InvalidOperationError(
-        `Unknown subscription message type: ${message.Type}`
+        `Unknown subscription message type: ${message.Type}`,
       );
   }
 }
@@ -37,7 +37,7 @@ export async function handleSNSSubscription(
 async function confirmSubscription(message: SNSMessage): Promise<void> {
   if (!message.SubscribeURL) {
     throw new InvalidOperationError(
-      "SubscribeURL is required for subscription confirmation"
+      "SubscribeURL is required for subscription confirmation",
     );
   }
 
@@ -49,7 +49,7 @@ async function confirmSubscription(message: SNSMessage): Promise<void> {
   });
 
   console.log(
-    `Successfully confirmed SNS subscription for topic: ${message.TopicArn}`
+    `Successfully confirmed SNS subscription for topic: ${message.TopicArn}`,
   );
 }
 

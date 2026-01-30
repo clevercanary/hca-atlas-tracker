@@ -23,7 +23,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         DRAFT_NETWORK,
         DRAFT_VERSION,
-        DRAFT_SHORT_NAME
+        DRAFT_SHORT_NAME,
       );
 
       expect(atlasId).toBe(DRAFT_ATLAS_ID);
@@ -33,7 +33,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasIdDecimal = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2.0",
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasIdDecimal).toBe(IL_ATLAS_ID);
@@ -41,7 +41,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasIdNoDecimal = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2",
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasIdNoDecimal).toBe(IL_ATLAS_ID);
@@ -51,7 +51,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         DRAFT_NETWORK,
         DRAFT_VERSION,
-        "TEST-DRAFT"
+        "TEST-DRAFT",
       );
 
       expect(atlasId).toBe(DRAFT_ATLAS_ID);
@@ -64,10 +64,10 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
         getAtlasByNetworkVersionAndShortName(
           "nonexistent-network" as NetworkKey,
           DRAFT_VERSION,
-          DRAFT_SHORT_NAME
-        )
+          DRAFT_SHORT_NAME,
+        ),
       ).rejects.toThrow(
-        `Atlas not found for network: nonexistent-network, shortName: ${DRAFT_SHORT_NAME}, version: ${DRAFT_VERSION}`
+        `Atlas not found for network: nonexistent-network, shortName: ${DRAFT_SHORT_NAME}, version: ${DRAFT_VERSION}`,
       );
     });
 
@@ -76,10 +76,10 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
         getAtlasByNetworkVersionAndShortName(
           DRAFT_NETWORK,
           "99.99",
-          DRAFT_SHORT_NAME
-        )
+          DRAFT_SHORT_NAME,
+        ),
       ).rejects.toThrow(
-        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: ${DRAFT_SHORT_NAME}, version: 99.99`
+        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: ${DRAFT_SHORT_NAME}, version: 99.99`,
       );
     });
 
@@ -88,10 +88,10 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
         getAtlasByNetworkVersionAndShortName(
           DRAFT_NETWORK,
           DRAFT_VERSION,
-          "nonexistent-atlas"
-        )
+          "nonexistent-atlas",
+        ),
       ).rejects.toThrow(
-        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: nonexistent-atlas, version: ${DRAFT_VERSION}`
+        `Atlas not found for network: ${DRAFT_NETWORK}, shortName: nonexistent-atlas, version: ${DRAFT_VERSION}`,
       );
     });
   });
@@ -101,7 +101,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2.0.0",
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasId).toBe(IL_ATLAS_ID);
@@ -111,7 +111,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2",
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasId).toBe(IL_ATLAS_ID);

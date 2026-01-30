@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { AlertTitle } from "@mui/material";
 import { StyledAlert } from "./alert.styles";
 import { ALERT_PROPS } from "./constants";

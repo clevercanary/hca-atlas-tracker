@@ -14,7 +14,7 @@ export const up = (pgm: MigrationBuilder): void => {
         type: "timestamp",
       },
       role: { notNull: true, type: "varchar(50)" },
-    }
+    },
   );
 
   pgm.addConstraint({ name: "users", schema: "hat" }, "pk_users_id", {

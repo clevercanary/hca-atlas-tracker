@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import { ROUTE } from "../../../../../../../../../routes/constants";
 import { RouteValue } from "../../../../../../../../../routes/entities";
 

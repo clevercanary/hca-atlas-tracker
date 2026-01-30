@@ -9,12 +9,12 @@ import {
  * @returns Validation summary validators.
  */
 export function getValidators(
-  validationSummary: FileValidationSummary
+  validationSummary: FileValidationSummary,
 ): [FileValidatorName, boolean][] {
   return (
     Object.entries(validationSummary.validators) as [
       FileValidatorName,
-      boolean
+      boolean,
     ][]
   ).filter(filterValidator);
 }

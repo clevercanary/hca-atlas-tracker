@@ -19,9 +19,9 @@ export default handler(
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const inputData = await sourceDatasetsSetPublicationStatusSchema.validate(
-      req.body
+      req.body,
     );
     await setAtlasSourceDatasetsPublicationStatus(atlasId, inputData);
     res.status(200).end();
-  }
+  },
 );

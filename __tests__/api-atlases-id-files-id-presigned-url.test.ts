@@ -23,7 +23,7 @@ import { TestFile, TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -63,9 +63,9 @@ describe(`${TEST_ROUTE}`, () => {
             ATLAS_WITH_MISC_SOURCE_STUDIES.id,
             testFile.id,
             USER_CONTENT_ADMIN,
-            METHOD.GET
+            METHOD.GET,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(405);
     });
 
@@ -77,9 +77,9 @@ describe(`${TEST_ROUTE}`, () => {
             testFile.id,
             undefined,
             METHOD.POST,
-            true
+            true,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(401);
     });
 
@@ -91,9 +91,9 @@ describe(`${TEST_ROUTE}`, () => {
             testFile.id,
             USER_UNREGISTERED,
             METHOD.POST,
-            true
+            true,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(403);
     });
 
@@ -105,9 +105,9 @@ describe(`${TEST_ROUTE}`, () => {
             testFile.id,
             USER_DISABLED_CONTENT_ADMIN,
             METHOD.POST,
-            false
+            false,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(403);
     });
 
@@ -123,7 +123,7 @@ describe(`${TEST_ROUTE}`, () => {
         false,
         async (res) => {
           expect(res._getStatusCode()).toEqual(403);
-        }
+        },
       );
     }
 
@@ -135,9 +135,9 @@ describe(`${TEST_ROUTE}`, () => {
             testFile.id,
             USER_INTEGRATION_LEAD_PUBLIC,
             METHOD.POST,
-            false
+            false,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(403);
     });
 
@@ -149,9 +149,9 @@ describe(`${TEST_ROUTE}`, () => {
             testFile.id,
             USER_CONTENT_ADMIN,
             METHOD.POST,
-            true
+            true,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(404);
     });
 
@@ -163,9 +163,9 @@ describe(`${TEST_ROUTE}`, () => {
             testFile.id,
             USER_CONTENT_ADMIN,
             METHOD.POST,
-            true
+            true,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(404);
     });
 
@@ -175,7 +175,7 @@ describe(`${TEST_ROUTE}`, () => {
         testFile.id,
         USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
         METHOD.POST,
-        false
+        false,
       );
       expect(res._getStatusCode()).toEqual(200);
       const urlInfo = res._getJSONData() as PresignedUrlInfo;
@@ -188,7 +188,7 @@ describe(`${TEST_ROUTE}`, () => {
         testFile.id,
         USER_CONTENT_ADMIN,
         METHOD.POST,
-        false
+        false,
       );
       expect(res._getStatusCode()).toEqual(200);
       const urlInfo = res._getJSONData() as PresignedUrlInfo;
@@ -204,9 +204,9 @@ describe(`${TEST_ROUTE}`, () => {
           "09269a6f-9b9b-4b33-b69b-ba2c21b2b8c2",
           USER_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -218,9 +218,9 @@ describe(`${TEST_ROUTE}`, () => {
           FILE_MANIFEST_FOO.id,
           USER_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 });
@@ -230,7 +230,7 @@ async function doPresignedUrlRequest(
   fileId: string,
   user?: TestUser,
   method = METHOD.POST,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -239,14 +239,14 @@ async function doPresignedUrlRequest(
   });
   await withConsoleErrorHiding(
     () => presignedUrlHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 function getQueryValues(
   atlasId: string,
-  fileId: string
+  fileId: string,
 ): Record<string, string> {
   return { atlasId, fileId };
 }

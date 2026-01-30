@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { JSX, useEffect } from "react";
 import { Controller as FormController } from "react-hook-form";
 import { ContentProps } from "../../../../../../common/entities";
 import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../../../common/constants";

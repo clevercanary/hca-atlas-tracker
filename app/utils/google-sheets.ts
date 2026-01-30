@@ -7,7 +7,7 @@ export function getSpreadsheetIdFromUrl(urlString: string): string {
 
   if (!spreadsheetId) {
     throw new InvalidSheetError(
-      "Invalid Google Sheets URL. Expected format: https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/..."
+      "Invalid Google Sheets URL. Expected format: https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/...",
     );
   }
 
@@ -31,7 +31,7 @@ export function buildSheetsUrl(
   entrySheetId: string,
   gid: number | null = null,
   cell: string | null = null,
-  row: number | null = null
+  row: number | null = null,
 ): string {
   const base = `https://docs.google.com/spreadsheets/d/${entrySheetId}/edit`;
 

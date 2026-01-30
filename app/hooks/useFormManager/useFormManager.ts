@@ -32,7 +32,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
     onDiscard?: (path?: string) => void;
     onSave?: (payload: YupValidatedFormValues<T>, path?: string) => void;
   } = {},
-  isDirty = formMethod?.formState.isDirty ?? false
+  isDirty = formMethod?.formState.isDirty ?? false,
 ): UseFormManager => {
   const {
     authState: { isAuthenticated },
@@ -81,7 +81,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
     (payload: YupValidatedFormValues<T>): void => {
       onSave?.(payload, nextPath);
     },
-    [onSave, nextPath]
+    [onSave, nextPath],
   );
 
   const onNavigate = useCallback(
@@ -93,7 +93,7 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
       }
       Router.push(path);
     },
-    [canEdit, isDirty]
+    [canEdit, isDirty],
   );
 
   useEffect(() => {

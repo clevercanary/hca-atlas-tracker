@@ -21,7 +21,7 @@ export const up = (pgm: MigrationBuilder): void => {
         notNull: true,
         type: "timestamp",
       },
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -29,7 +29,7 @@ export const up = (pgm: MigrationBuilder): void => {
     "pk_source_datasets_id",
     {
       primaryKey: "id",
-    }
+    },
   );
 
   pgm.createTrigger(
@@ -40,6 +40,6 @@ export const up = (pgm: MigrationBuilder): void => {
       level: "ROW",
       operation: "UPDATE",
       when: "BEFORE",
-    }
+    },
   );
 };

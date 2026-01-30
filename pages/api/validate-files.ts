@@ -11,5 +11,5 @@ export default handler(
       console.error("Encountered error while validating files:", e);
     });
     res.status(202).end();
-  }
+  },
 );

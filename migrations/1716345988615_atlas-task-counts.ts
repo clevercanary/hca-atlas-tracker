@@ -23,6 +23,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(
-    `UPDATE hat.atlases SET overview=overview-'taskCount'-'completedTaskCount'`
+    `UPDATE hat.atlases SET overview=overview-'taskCount'-'completedTaskCount'`,
   );
 }

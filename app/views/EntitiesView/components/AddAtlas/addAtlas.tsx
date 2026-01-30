@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import Link from "next/link";
 import { ROUTE } from "../../../../routes/constants";
 import { ActionButton } from "../ActionButton/actionButton";

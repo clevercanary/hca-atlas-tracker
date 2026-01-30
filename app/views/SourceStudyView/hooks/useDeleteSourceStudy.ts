@@ -15,12 +15,12 @@ export interface UseDeleteSourceStudy {
 }
 
 export const useDeleteSourceStudy = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseDeleteSourceStudy => {
   const onDelete = useCallback(async (): Promise<void> => {
     const res = await fetchResource(
       getRequestURL(API.ATLAS_SOURCE_STUDY, pathParameter),
-      METHOD.DELETE
+      METHOD.DELETE,
     );
     if (isFetchStatusOk(res.status)) {
       onDeleteSuccess(pathParameter);
@@ -29,7 +29,7 @@ export const useDeleteSourceStudy = (
         await res
           .json()
           .then(({ message }) => message)
-          .catch(() => `Received ${res.status} response`)
+          .catch(() => `Received ${res.status} response`),
       );
     }
   }, [pathParameter]);

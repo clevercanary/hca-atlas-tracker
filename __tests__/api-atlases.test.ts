@@ -25,7 +25,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -74,25 +74,25 @@ afterAll(() => {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
-      (await doAtlasesRequest(undefined, "POST", true))._getStatusCode()
+      (await doAtlasesRequest(undefined, "POST", true))._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doAtlasesRequest(undefined, "GET", true))._getStatusCode()
+      (await doAtlasesRequest(undefined, "GET", true))._getStatusCode(),
     ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doAtlasesRequest(USER_UNREGISTERED, "GET", true))._getStatusCode()
+      (await doAtlasesRequest(USER_UNREGISTERED, "GET", true))._getStatusCode(),
     ).toEqual(403);
   });
 
   it("returns error 403 for disabled user", async () => {
     expect(
-      (await doAtlasesRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode()
+      (await doAtlasesRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -111,7 +111,7 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
         expectApiAtlasesToHaveRelatedEntities(data);
-      }
+      },
     );
   }
 
@@ -126,7 +126,7 @@ describe(TEST_ROUTE, () => {
 
 function expectApiAtlasesToIncludeTests(
   apiAtlases: HCAAtlasTrackerAtlas[],
-  testAtlases: TestAtlas[]
+  testAtlases: TestAtlas[],
 ): void {
   for (const testAtlas of testAtlases) {
     const apiAtlas = apiAtlases.find((a) => a.id === testAtlas.id);
@@ -137,7 +137,7 @@ function expectApiAtlasesToIncludeTests(
 }
 
 function expectApiAtlasesToHaveRelatedEntities(
-  apiAtlases: HCAAtlasTrackerAtlas[]
+  apiAtlases: HCAAtlasTrackerAtlas[],
 ): void {
   for (const {
     atlasId,
@@ -150,7 +150,7 @@ function expectApiAtlasesToHaveRelatedEntities(
     expect(apiAtlas.componentAtlasCount).toEqual(componentAtlasCount);
     expect(apiAtlas.sourceDatasetCount).toEqual(sourceDatasetCount);
     expect(apiAtlas.entrySheetValidationCount).toEqual(
-      entrySheetValidationCount
+      entrySheetValidationCount,
     );
   }
 }
@@ -158,7 +158,7 @@ function expectApiAtlasesToHaveRelatedEntities(
 async function doAtlasesRequest(
   user?: TestUser,
   method: "GET" | "POST" = "GET",
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -166,7 +166,7 @@ async function doAtlasesRequest(
   });
   await withConsoleErrorHiding(
     () => atlasesHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
