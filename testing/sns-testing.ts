@@ -315,7 +315,7 @@ export async function createTestAtlasData(): Promise<void> {
 
 export async function doS3Event(
   s3EventOptions: S3EventOptions,
-  snsMessageOptions: Omit<SNSMessageOptions, "s3Event">
+  snsMessageOptions: Omit<SNSMessageOptions, "s3Event">,
 ): Promise<HCAAtlasTrackerDBFile[]> {
   const snsMessage = createSNSMessage({
     ...snsMessageOptions,
@@ -333,7 +333,7 @@ export async function doS3Event(
 
   const fileRows = await query<HCAAtlasTrackerDBFile>(
     SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-    [TEST_S3_BUCKET, s3EventOptions.key]
+    [TEST_S3_BUCKET, s3EventOptions.key],
   );
 
   return fileRows.rows;

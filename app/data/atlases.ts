@@ -26,10 +26,10 @@ export async function updateComponentAtlasVersionInAtlases(
 export async function updateSourceDatasetVersionInAtlases(
   existingVersionId: string,
   newVersionId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   await client.query(
     "UPDATE hat.atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2)",
-    [existingVersionId, newVersionId]
+    [existingVersionId, newVersionId],
   );
 }

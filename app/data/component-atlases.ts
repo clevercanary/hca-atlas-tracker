@@ -60,10 +60,10 @@ export async function markComponentAtlasAsNotLatest(
 export async function updateSourceDatasetVersionInComponentAtlases(
   existingVersionId: string,
   newVersionId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   await client.query(
     "UPDATE hat.component_atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE is_latest",
-    [existingVersionId, newVersionId]
+    [existingVersionId, newVersionId],
   );
 }

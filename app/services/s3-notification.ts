@@ -56,7 +56,7 @@ import { createSourceDataset } from "./source-datasets";
  * @throws UnauthorizedAWSResourceError if SNS topic or S3 bucket is not authorized
  */
 export async function processS3NotificationMessage(
-  snsMessage: SNSMessage
+  snsMessage: SNSMessage,
 ): Promise<void> {
   // Parse S3 event from SNS message
   let s3Event: unknown;
@@ -64,7 +64,7 @@ export async function processS3NotificationMessage(
     s3Event = JSON.parse(snsMessage.Message);
   } catch {
     throw new InvalidOperationError(
-      `Failed to parse S3 event from SNS message; invalid JSON: ${snsMessage.Message}`
+      `Failed to parse S3 event from SNS message; invalid JSON: ${snsMessage.Message}`,
     );
   }
 
@@ -94,7 +94,7 @@ export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
 
   if (pathParts.length < 4) {
     throw new InvalidOperationError(
-      `Invalid S3 key format: ${s3Key}. Expected format: bio_network/atlas-name/folder-type/filename`
+      `Invalid S3 key format: ${s3Key}. Expected format: bio_network/atlas-name/folder-type/filename`,
     );
   }
 
@@ -130,7 +130,7 @@ function determineFileType(s3Key: string): FILE_TYPE {
       return FILE_TYPE.INGEST_MANIFEST;
     default:
       throw new InvalidOperationError(
-        `Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`
+        `Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`,
       );
   }
 }
@@ -153,7 +153,7 @@ function parseS3AtlasName(s3AtlasName: string): {
 
   if (!versionMatch) {
     throw new Error(
-      `Invalid S3 atlas name format: ${s3AtlasName}. Expected format: name-v1 or name-v1-1`
+      `Invalid S3 atlas name format: ${s3AtlasName}. Expected format: name-v1 or name-v1-1`,
     );
   }
 
@@ -193,7 +193,7 @@ function compareLatestNotificationInfo(
   latestNotificationInfo: Pick<
     HCAAtlasTrackerDBFile,
     "event_info" | "sns_message_id"
-  > | null
+  > | null,
 ): { isLatestVersion: boolean; isNewVersion: boolean } {
   if (latestNotificationInfo !== null) {
     const { event_info: latestEventInfo, sns_message_id: latestSnsMessageId } =
@@ -213,7 +213,7 @@ function compareLatestNotificationInfo(
 // Helper: Determine whether incoming record is newer than the current latest based on event times
 function isNewerEventForFile(
   currentLatestInfo: FileEventInfo,
-  incomingEventInfo: FileEventInfo
+  incomingEventInfo: FileEventInfo,
 ): boolean {
   // ISO 8601 timestamps compare lexicographically for ordering
   return incomingEventInfo.eventTime > currentLatestInfo.eventTime;
@@ -223,13 +223,13 @@ function isNewerEventForFile(
 type FileCreationHandler = (
   atlasId: string,
   fileId: string,
-  transaction: PoolClient
+  transaction: PoolClient,
 ) => Promise<void>;
 
 async function createIntegratedObject(
   atlasId: string,
   fileId: string,
-  transaction: PoolClient
+  transaction: PoolClient,
 ): Promise<void> {
   await createComponentAtlas(atlasId, fileId, transaction);
 }
@@ -237,7 +237,7 @@ async function createIntegratedObject(
 async function createSourceDatasetFromS3(
   atlasId: string,
   fileId: string,
-  transaction: PoolClient
+  transaction: PoolClient,
 ): Promise<void> {
   // Create source dataset using canonical service within the existing transaction
   const sourceDatasetVersion = await createSourceDataset(fileId, transaction);
@@ -245,18 +245,18 @@ async function createSourceDatasetFromS3(
   // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(
     "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
-    [atlasId, sourceDatasetVersion]
+    [atlasId, sourceDatasetVersion],
   );
 
   if (alreadyLinkedResult.rows[0].exists) {
     throw new InvalidOperationError(
-      `Source dataset version ${sourceDatasetVersion} is unexpectedly already linked to atlas ${atlasId} during create flow`
+      `Source dataset version ${sourceDatasetVersion} is unexpectedly already linked to atlas ${atlasId} during create flow`,
     );
   }
 
   await transaction.query(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
-    [atlasId, sourceDatasetVersion]
+    [atlasId, sourceDatasetVersion],
   );
 }
 
@@ -264,53 +264,53 @@ async function createSourceDatasetFromS3(
 type FileUpdateHandler = (
   fileId: string,
   metadataEntityId: string,
-  transaction: PoolClient
+  transaction: PoolClient,
 ) => Promise<void>;
 
 async function updateIntegratedObjectFromS3(
   fileId: string,
   componentAtlasId: string,
-  transaction: PoolClient
+  transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markComponentAtlasAsNotLatest(
     componentAtlasId,
-    transaction
+    transaction,
   );
   const newVersion = await createNewComponentAtlasVersion(
     prevLatestVersion,
     fileId,
-    transaction
+    transaction,
   );
   await updateComponentAtlasVersionInAtlases(
     prevLatestVersion,
     newVersion,
-    transaction
+    transaction,
   );
 }
 
 async function updateSourceDatasetFromS3(
   fileId: string,
   sourceDatasetId: string,
-  transaction: PoolClient
+  transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markSourceDatasetAsNotLatest(
     sourceDatasetId,
-    transaction
+    transaction,
   );
   const newVersion = await createNewSourceDatasetVersion(
     prevLatestVersion,
     fileId,
-    transaction
+    transaction,
   );
   await updateSourceDatasetVersionInAtlases(
     prevLatestVersion,
     newVersion,
-    transaction
+    transaction,
   );
   await updateSourceDatasetVersionInComponentAtlases(
     prevLatestVersion,
     newVersion,
-    transaction
+    transaction,
   );
 }
 
@@ -341,18 +341,18 @@ function logFileOperation(
   operation: string,
   bucket: { name: string },
   object: { key: string },
-  isNewFile: boolean
+  isNewFile: boolean,
 ): void {
   if (operation === "inserted") {
     // New file version successfully created
     const fileStatus = isNewFile ? "New file" : "New version of existing file";
     console.log(
-      `${fileStatus} record created for ${bucket.name}/${object.key}`
+      `${fileStatus} record created for ${bucket.name}/${object.key}`,
     );
   } else if (operation === "updated") {
     // Duplicate notification handled idempotently
     console.log(
-      `Duplicate notification for ${bucket.name}/${object.key} - ignoring`
+      `Duplicate notification for ${bucket.name}/${object.key} - ignoring`,
     );
   }
 }
@@ -374,7 +374,7 @@ async function handleInsertedFile(
   fileType: FILE_TYPE,
   metadataObjectId: string | null,
   atlasId: string,
-  transaction: PoolClient
+  transaction: PoolClient,
 ): Promise<void> {
   // Dispatch file operations based on state and type
   if (isNewFile) {
@@ -389,7 +389,7 @@ async function handleInsertedFile(
     if (handler) {
       if (metadataObjectId === null)
         throw new Error(
-          `No existing metadata object found for existing ${fileType} file with key ${object.key}`
+          `No existing metadata object found for existing ${fileType} file with key ${object.key}`,
         );
       await handler(result.id, metadataObjectId, transaction);
     }
@@ -410,7 +410,7 @@ async function handleInsertedFile(
  */
 async function saveFileRecord(
   record: S3EventRecord,
-  snsMessageId: string
+  snsMessageId: string,
 ): Promise<{
   fileId: string;
   s3Key: string;
@@ -456,14 +456,14 @@ async function saveFileRecord(
     metadataObjectId = await getExistingMetadataObjectId(
       bucket.name,
       object.key,
-      transaction
+      transaction,
     );
 
     // Determine recency and whether incoming record should be latest
     const latestNotificationInfo = await getLatestNotificationInfo(
       bucket.name,
       object.key,
-      transaction
+      transaction,
     );
 
     const isNewFile = latestNotificationInfo === null;
@@ -471,13 +471,13 @@ async function saveFileRecord(
     const { isLatestVersion, isNewVersion } = compareLatestNotificationInfo(
       snsMessageId,
       eventInfo,
-      latestNotificationInfo
+      latestNotificationInfo,
     );
 
     // If this is not the latest version, the notification has arrived out-of-order and is discarded
     if (!isLatestVersion) {
       console.error(
-        `Received S3 notification ${snsMessageId} for file ${object.key} out-of-order (event time ${eventInfo.eventTime})`
+        `Received S3 notification ${snsMessageId} for file ${object.key} out-of-order (event time ${eventInfo.eventTime})`,
       );
       return null;
     }
@@ -488,7 +488,7 @@ async function saveFileRecord(
       await markPreviousVersionsAsNotLatest(
         bucket.name,
         object.key,
-        transaction
+        transaction,
       );
 
     // Determine atlas ID from S3 path
@@ -499,7 +499,7 @@ async function saveFileRecord(
     const atlasId: string = await getAtlasByNetworkVersionAndShortName(
       network,
       dbVersion,
-      atlasBaseName
+      atlasBaseName,
     );
 
     // Insert new file version with ON CONFLICT handling
@@ -517,7 +517,7 @@ async function saveFileRecord(
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: object.versionId || null,
       },
-      transaction
+      transaction,
     );
 
     if (result.operation === "inserted") {
@@ -528,7 +528,7 @@ async function saveFileRecord(
         fileType,
         metadataObjectId,
         atlasId,
-        transaction
+        transaction,
       );
     }
 
@@ -549,7 +549,7 @@ async function saveFileRecord(
 
 export async function saveAndProcessFileRecord(
   record: S3EventRecord,
-  snsMessageId: string
+  snsMessageId: string,
 ): Promise<void> {
   const result = await saveFileRecord(record, snsMessageId);
 
@@ -567,7 +567,7 @@ export async function saveAndProcessFileRecord(
  */
 export async function processS3Record(
   s3EventInput: unknown,
-  snsMessage: SNSMessage
+  snsMessage: SNSMessage,
 ): Promise<void> {
   // Authorize SNS topic
   validateSNSTopicAuthorization(snsMessage.TopicArn);
@@ -578,7 +578,7 @@ export async function processS3Record(
   // S3 ObjectCreated events should contain exactly one record per SNS message
   if (s3Event.Records.length !== 1) {
     throw new InvalidOperationError(
-      `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`
+      `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`,
     );
   }
 
@@ -603,7 +603,7 @@ function authorizeS3Buckets(s3Event: S3Event): void {
   // S3 ObjectCreated events should contain exactly one record per SNS message
   if (s3Event.Records.length !== 1) {
     throw new InvalidOperationError(
-      `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`
+      `Expected exactly 1 S3 record, but received ${s3Event.Records.length} records`,
     );
   }
 

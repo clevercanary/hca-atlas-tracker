@@ -240,7 +240,7 @@ describe(TEST_ROUTE, () => {
   it("returns source datasets including non-latest version linked to atlas", async () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];

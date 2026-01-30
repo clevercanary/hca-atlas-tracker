@@ -24,7 +24,7 @@ const PLURAL_ENTITY_NAME = "source datasets";
  */
 export async function getAtlasSourceDatasetVersionIds(
   atlasId: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<string[]> {
   const atlasResult = await query<
     Pick<HCAAtlasTrackerDBAtlas, "source_datasets">
@@ -42,7 +42,7 @@ export async function getAtlasSourceDatasetVersionIds(
  */
 export async function getSourceStudySourceDatasetVersionIds(
   sourceStudyId: string,
-  atlasId: string
+  atlasId: string,
 ): Promise<string[]> {
   await confirmSourceStudyExists(sourceStudyId);
   await confirmAtlasExists(atlasId);
@@ -55,7 +55,7 @@ export async function getSourceStudySourceDatasetVersionIds(
       JOIN hat.atlases a ON d.version_id=ANY(a.source_datasets)
       WHERE d.source_study_id=$1 AND a.id=$2
     `,
-    [sourceStudyId, atlasId]
+    [sourceStudyId, atlasId],
   );
   return queryResult.rows.map((r) => r.version_id);
 }
@@ -66,7 +66,7 @@ export async function getSourceStudySourceDatasetVersionIds(
  * @returns source dataset version IDs.
  */
 export async function getComponentAtlasSourceDatasetVersionIds(
-  componentAtlasVersion: string
+  componentAtlasVersion: string,
 ): Promise<string[]> {
   const componentAtlasResult = await query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
@@ -75,7 +75,7 @@ export async function getComponentAtlasSourceDatasetVersionIds(
   ]);
   if (componentAtlasResult.rows.length === 0)
     throw new NotFoundError(
-      `Component atlas with version ID ${componentAtlasVersion} doesn't exist`
+      `Component atlas with version ID ${componentAtlasVersion} doesn't exist`,
     );
   return componentAtlasResult.rows[0].source_datasets;
 }
@@ -92,7 +92,7 @@ export async function getSourceDatasetsForApi(
   sourceDatasetVersions: string[],
   acceptSubset = false,
   isArchivedValues = [false],
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   const { rows: sourceDatasets } =
     await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
@@ -115,14 +115,14 @@ export async function getSourceDatasetsForApi(
         WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2)
       `,
       [sourceDatasetVersions, isArchivedValues],
-      client
+      client,
     );
 
   if (!acceptSubset)
     confirmQueryRowsContainVersionIds(
       sourceDatasets,
       sourceDatasetVersions,
-      PLURAL_ENTITY_NAME
+      PLURAL_ENTITY_NAME,
     );
 
   return sourceDatasets;
@@ -136,7 +136,7 @@ export async function getSourceDatasetsForApi(
  */
 export async function getSourceDatasetForDetailApi(
   sourceDatasetVersion: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForDetailAPI> {
   const queryResult = await query<HCAAtlasTrackerDBSourceDatasetForDetailAPI>(
     `
@@ -159,11 +159,11 @@ export async function getSourceDatasetForDetailApi(
       WHERE d.version_id = $1
     `,
     [sourceDatasetVersion],
-    client
+    client,
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
-      `Source dataset with version ID ${sourceDatasetVersion} does not exist`
+      `Source dataset with version ID ${sourceDatasetVersion} does not exist`,
     );
   return queryResult.rows[0];
 }
@@ -175,7 +175,7 @@ export async function getSourceDatasetForDetailApi(
  */
 export async function setSourceDatasetsPublicationStatus(
   sourceDatasetVersionIds: string[],
-  publicationStatus: PUBLICATION_STATUS
+  publicationStatus: PUBLICATION_STATUS,
 ): Promise<void> {
   const sdInfoUpdate: Pick<
     HCAAtlasTrackerDBSourceDatasetInfo,
@@ -189,12 +189,12 @@ export async function setSourceDatasetsPublicationStatus(
       Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
     >(
       "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE version_id = ANY($2) RETURNING version_id",
-      [JSON.stringify(sdInfoUpdate), sourceDatasetVersionIds]
+      [JSON.stringify(sdInfoUpdate), sourceDatasetVersionIds],
     );
     confirmQueryRowsContainVersionIds(
       rows,
       sourceDatasetVersionIds,
-      PLURAL_ENTITY_NAME
+      PLURAL_ENTITY_NAME,
     );
   });
 }
@@ -206,20 +206,20 @@ export async function setSourceDatasetsPublicationStatus(
  */
 export async function setSourceDatasetsSourceStudy(
   sourceDatasetVersions: string[],
-  sourceStudyId: string | null
+  sourceStudyId: string | null,
 ): Promise<void> {
   await doTransaction(async (client) => {
     const queryResult = await client.query<
       Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
     >(
       "UPDATE hat.source_datasets SET source_study_id = $1 WHERE version_id = ANY($2) RETURNING version_id",
-      [sourceStudyId, sourceDatasetVersions]
+      [sourceStudyId, sourceDatasetVersions],
     );
 
     confirmQueryRowsContainVersionIds(
       queryResult.rows,
       sourceDatasetVersions,
-      PLURAL_ENTITY_NAME
+      PLURAL_ENTITY_NAME,
     );
   });
 }
@@ -234,7 +234,7 @@ export async function setSourceDatasetsSourceStudy(
 export async function createNewSourceDatasetVersion(
   prevVersionId: string,
   fileId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
@@ -246,7 +246,7 @@ export async function createNewSourceDatasetVersion(
       WHERE version_id = $1
       RETURNING version_id
     `,
-    [prevVersionId, fileId]
+    [prevVersionId, fileId],
   );
   return queryResult.rows[0].version_id;
 }
@@ -259,17 +259,17 @@ export async function createNewSourceDatasetVersion(
  */
 export async function markSourceDatasetAsNotLatest(
   sourceDatasetId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
     "UPDATE hat.source_datasets SET is_latest = FALSE WHERE id = $1 AND is_latest RETURNING version_id",
-    [sourceDatasetId]
+    [sourceDatasetId],
   );
   if (queryResult.rows.length === 0)
     throw new Error(
-      `No latest version found for source dataset ${sourceDatasetId}`
+      `No latest version found for source dataset ${sourceDatasetId}`,
     );
   return queryResult.rows[0].version_id;
 }
@@ -281,11 +281,11 @@ export async function markSourceDatasetAsNotLatest(
  */
 export async function unlinkAllSourceDatasetsFromSourceStudy(
   sourceStudyId: string,
-  client: pg.PoolClient
+  client: pg.PoolClient,
 ): Promise<void> {
   await client.query(
     "UPDATE hat.source_datasets SET source_study_id = NULL WHERE source_study_id = $1",
-    [sourceStudyId]
+    [sourceStudyId],
   );
 }
 
@@ -294,7 +294,7 @@ export async function unlinkAllSourceDatasetsFromSourceStudy(
  * @param sourceDatasetVersionIds - Version IDs of source datasets to check.
  */
 export async function confirmSourceDatasetsAreEditable(
-  sourceDatasetVersionIds: string[]
+  sourceDatasetVersionIds: string[],
 ): Promise<void> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
@@ -305,53 +305,53 @@ export async function confirmSourceDatasetsAreEditable(
       JOIN hat.files f ON f.id = d.file_id
       WHERE d.version_id = ANY($1) AND d.is_latest AND NOT f.is_archived
     `,
-    [sourceDatasetVersionIds]
+    [sourceDatasetVersionIds],
   );
   confirmQueryRowsContainVersionIds(
     queryResult.rows,
     sourceDatasetVersionIds,
     PLURAL_ENTITY_NAME,
-    InvalidOperationError
+    InvalidOperationError,
   );
 }
 
 export async function getSourceDatasetVersionForAtlas(
   sourceDatasetId: string,
   atlasId: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<string> {
   const versions = await getSourceDatasetVersionsPresentOnAtlas(
     [sourceDatasetId],
     atlasId,
-    client
+    client,
   );
   if (versions.length === 0)
     throw new NotFoundError(
-      `Atlas with ID ${atlasId} does not have source dataset with ID ${sourceDatasetId}`
+      `Atlas with ID ${atlasId} does not have source dataset with ID ${sourceDatasetId}`,
     );
   return versions[0].version_id;
 }
 
 export async function getSourceDatasetVersionsForAtlas(
   sourceDatasetIds: string[],
-  atlasId: string
+  atlasId: string,
 ): Promise<string[]> {
   const presentVersions = await getSourceDatasetVersionsPresentOnAtlas(
     sourceDatasetIds,
-    atlasId
+    atlasId,
   );
 
   const presentSourceDatasetIds = new Set(presentVersions.map(({ id }) => id));
 
   const missingSourceDatasetIds = sourceDatasetIds.filter(
-    (id) => !presentSourceDatasetIds.has(id)
+    (id) => !presentSourceDatasetIds.has(id),
   );
 
   if (missingSourceDatasetIds.length > 0)
     throw new NotFoundError(
       `Atlas with ID ${atlasId} does not have source dataset(s): ${missingSourceDatasetIds.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
 
   return presentVersions.map(({ version_id }) => version_id);
@@ -360,7 +360,7 @@ export async function getSourceDatasetVersionsForAtlas(
 async function getSourceDatasetVersionsPresentOnAtlas(
   sourceDatasetIds: string[],
   atlasId: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">[]> {
   return (
     await query<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">>(
@@ -371,7 +371,7 @@ async function getSourceDatasetVersionsPresentOnAtlas(
         WHERE a.id = $1 AND d.id = ANY($2)
       `,
       [atlasId, sourceDatasetIds],
-      client
+      client,
     )
   ).rows;
 }
@@ -386,7 +386,7 @@ async function getSourceDatasetVersionsPresentOnAtlas(
 export async function getSourceDatasetVersionForComponentAtlas(
   sourceDatasetId: string,
   componentAtlasVersion: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
@@ -399,17 +399,17 @@ export async function getSourceDatasetVersionForComponentAtlas(
       WHERE sd.id = $1 AND ca.version_id = $2
     `,
     [sourceDatasetId, componentAtlasVersion],
-    client
+    client,
   );
 
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} doesn't exist on component atlas with version ID ${componentAtlasVersion}`
+      `Source dataset with ID ${sourceDatasetId} doesn't exist on component atlas with version ID ${componentAtlasVersion}`,
     );
 
   if (queryResult.rows.length > 1)
     throw new Error(
-      `Multiple versions of source dataset ${sourceDatasetId} found linked to component atlas version ${componentAtlasVersion}`
+      `Multiple versions of source dataset ${sourceDatasetId} found linked to component atlas version ${componentAtlasVersion}`,
     );
 
   return queryResult.rows[0].version_id;

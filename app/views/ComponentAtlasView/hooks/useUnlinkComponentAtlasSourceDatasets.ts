@@ -22,7 +22,7 @@ export const useUnlinkComponentAtlasSourceDatasets = (
     {
       onSuccess: () => {
         fetchDataDispatch(
-          fetchData([INTEGRATED_OBJECT, INTEGRATED_OBJECT_SOURCE_DATASETS])
+          fetchData([INTEGRATED_OBJECT, INTEGRATED_OBJECT_SOURCE_DATASETS]),
         );
       },
     },

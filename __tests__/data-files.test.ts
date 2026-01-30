@@ -45,7 +45,7 @@ const TEST_EVENT_INFO = JSON.stringify({
 
 // Mock external dependencies
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -55,10 +55,10 @@ jest.mock("next-auth");
 
 beforeEach(async () => {
   await query(
-    "DELETE FROM hat.files f WHERE f.file_type = 'integrated_object' AND NOT EXISTS (SELECT 1 FROM hat.component_atlases c WHERE c.file_id = f.id)"
+    "DELETE FROM hat.files f WHERE f.file_type = 'integrated_object' AND NOT EXISTS (SELECT 1 FROM hat.component_atlases c WHERE c.file_id = f.id)",
   );
   await query(
-    "DELETE FROM hat.files f WHERE f.file_type = 'source_dataset' AND NOT EXISTS (SELECT 1 FROM hat.source_datasets c WHERE c.file_id = f.id)"
+    "DELETE FROM hat.files f WHERE f.file_type = 'source_dataset' AND NOT EXISTS (SELECT 1 FROM hat.source_datasets c WHERE c.file_id = f.id)",
   );
   await resetDatabase();
 });
@@ -76,7 +76,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should not throw an error
       await expect(
-        confirmFileExistsOnAtlas(fileId, atlasId)
+        confirmFileExistsOnAtlas(fileId, atlasId),
       ).resolves.toBeUndefined();
     });
 
@@ -87,13 +87,13 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should throw NotFoundError when checking for different atlas
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId)
+        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId)
+        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
       ).rejects.toThrow(
-        `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${COMPONENT_ATLAS_DRAFT_FOO.file.id}`
+        `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${COMPONENT_ATLAS_DRAFT_FOO.file.id}`,
       );
     });
   });
@@ -106,7 +106,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should not throw an error
       await expect(
-        confirmFileExistsOnAtlas(fileId, atlasId)
+        confirmFileExistsOnAtlas(fileId, atlasId),
       ).resolves.toBeUndefined();
     });
 
@@ -117,13 +117,13 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should throw NotFoundError when checking for different atlas
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId)
+        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId)
+        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
       ).rejects.toThrow(
-        `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id}`
+        `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id}`,
       );
     });
 
@@ -132,13 +132,13 @@ describe("confirmFileExistsOnAtlas", () => {
       const nonLinkedAtlasId = ATLAS_WITH_MISC_SOURCE_STUDIES.id;
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId)
+        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId)
+        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId),
       ).rejects.toThrow(
-        `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id}`
+        `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id}`,
       );
     });
   });
@@ -148,11 +148,11 @@ describe("confirmFileExistsOnAtlas", () => {
       const nonExistentFileId = "550e8400-e29b-41d4-a716-446655440099";
 
       await expect(
-        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
+        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
+        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id),
       ).rejects.toThrow(`No files exist with ID(s): ${nonExistentFileId}`);
     });
 
@@ -169,7 +169,7 @@ describe("confirmFileExistsOnAtlas", () => {
       });
 
       await expect(
-        confirmFileExistsOnAtlas(testFileId, ATLAS_DRAFT.id)
+        confirmFileExistsOnAtlas(testFileId, ATLAS_DRAFT.id),
       ).rejects.toThrow(NotFoundError);
     });
 
@@ -177,7 +177,7 @@ describe("confirmFileExistsOnAtlas", () => {
       const nonExistentFileId = "550e8400-e29b-41d4-a716-446655440098";
 
       await expect(
-        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id)
+        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id),
       ).rejects.toThrow(`No files exist with ID(s): ${nonExistentFileId}`);
     });
   });
@@ -186,7 +186,7 @@ describe("confirmFileExistsOnAtlas", () => {
     it("should handle invalid UUID format for file ID", async () => {
       // Test with invalid UUID format - should get database error, not NotFoundError
       await expect(
-        confirmFileExistsOnAtlas("invalid-uuid", ATLAS_DRAFT.id)
+        confirmFileExistsOnAtlas("invalid-uuid", ATLAS_DRAFT.id),
       ).rejects.toThrow(); // Any error is fine, just not a successful resolution
     });
 
@@ -196,7 +196,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should get database error due to invalid UUID format
       await expect(
-        confirmFileExistsOnAtlas(fileId, "invalid-uuid")
+        confirmFileExistsOnAtlas(fileId, "invalid-uuid"),
       ).rejects.toThrow(); // Any error is fine
     });
   });
@@ -383,7 +383,7 @@ describe("upsertFileRecord", () => {
       // Verify original record unchanged
       const queryResult = await query(
         "SELECT * FROM hat.files WHERE bucket = $1 AND key = $2",
-        [originalFileData.bucket, originalFileData.key]
+        [originalFileData.bucket, originalFileData.key],
       );
       expect(queryResult.rows[0].etag).toBe("original-etag");
     });
@@ -433,7 +433,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
-        transaction
+        transaction,
       );
 
       // Insert second version
@@ -453,7 +453,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
-        transaction
+        transaction,
       );
     });
 
@@ -495,7 +495,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
-        transaction
+        transaction,
       );
 
       await upsertTestFile(
@@ -514,7 +514,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
           validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
-        transaction
+        transaction,
       );
     });
 
@@ -569,7 +569,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           TEST_KEY_INTEGRATED,
-          transaction
+          transaction,
         );
       });
 
@@ -581,7 +581,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           "non/existent/file.h5ad",
-          transaction
+          transaction,
         );
       });
 
@@ -608,7 +608,7 @@ describe("getExistingMetadataObjectId", () => {
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-v1",
           },
-          transaction
+          transaction,
         );
 
         // Second version (this will mark the first as not latest)
@@ -628,7 +628,7 @@ describe("getExistingMetadataObjectId", () => {
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-2",
           },
-          transaction
+          transaction,
         );
       });
 
@@ -637,7 +637,7 @@ describe("getExistingMetadataObjectId", () => {
         await markPreviousVersionsAsNotLatest(
           TEST_BUCKET,
           TEST_KEY_INTEGRATED,
-          transaction
+          transaction,
         );
       });
 
@@ -646,7 +646,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           TEST_KEY_INTEGRATED,
-          transaction
+          transaction,
         );
       });
 
@@ -678,7 +678,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           TEST_KEY_SOURCE_DATASET,
-          transaction
+          transaction,
         );
       });
 
@@ -690,7 +690,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           "non/existent/dataset.h5ad",
-          transaction
+          transaction,
         );
       });
 
@@ -720,7 +720,7 @@ describe("getExistingMetadataObjectId", () => {
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-integrated",
           },
-          transaction
+          transaction,
         );
 
         // Source dataset file
@@ -740,7 +740,7 @@ describe("getExistingMetadataObjectId", () => {
             validationStatus: FILE_VALIDATION_STATUS.PENDING,
             versionId: "test-version-source",
           },
-          transaction
+          transaction,
         );
       });
 
@@ -749,7 +749,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           `${baseKey}.h5ad`,
-          transaction
+          transaction,
         );
       });
 
@@ -758,7 +758,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           `${baseKey}-dataset.h5ad`,
-          transaction
+          transaction,
         );
       });
 
@@ -789,7 +789,7 @@ describe("getExistingMetadataObjectId", () => {
         return await getExistingMetadataObjectId(
           TEST_BUCKET,
           "test/path/manifest.json",
-          transaction
+          transaction,
         );
       });
 
@@ -808,7 +808,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_DRAFT.network,
         ATLAS_DRAFT.version,
-        ATLAS_DRAFT.shortName
+        ATLAS_DRAFT.shortName,
       );
 
       expect(atlasId).toBe(ATLAS_DRAFT.id);
@@ -818,7 +818,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2.0",
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasId).toBe(ATLAS_WITH_IL.id);
@@ -828,7 +828,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_DRAFT.network,
         ATLAS_DRAFT.version,
-        "TEST-DRAFT"
+        "TEST-DRAFT",
       );
 
       expect(atlasId).toBe(ATLAS_DRAFT.id);
@@ -838,7 +838,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         ATLAS_WITH_IL.version,
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasId).toBe(ATLAS_WITH_IL.id);
@@ -851,10 +851,10 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
         getAtlasByNetworkVersionAndShortName(
           "nonexistent-network" as NetworkKey,
           ATLAS_DRAFT.version,
-          ATLAS_DRAFT.shortName
-        )
+          ATLAS_DRAFT.shortName,
+        ),
       ).rejects.toThrow(
-        `Atlas not found for network: nonexistent-network, shortName: ${ATLAS_DRAFT.shortName}, version: ${ATLAS_DRAFT.version}`
+        `Atlas not found for network: nonexistent-network, shortName: ${ATLAS_DRAFT.shortName}, version: ${ATLAS_DRAFT.version}`,
       );
     });
 
@@ -863,10 +863,10 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
         getAtlasByNetworkVersionAndShortName(
           ATLAS_DRAFT.network,
           "99.99",
-          ATLAS_DRAFT.shortName
-        )
+          ATLAS_DRAFT.shortName,
+        ),
       ).rejects.toThrow(
-        `Atlas not found for network: ${ATLAS_DRAFT.network}, shortName: ${ATLAS_DRAFT.shortName}, version: 99.99`
+        `Atlas not found for network: ${ATLAS_DRAFT.network}, shortName: ${ATLAS_DRAFT.shortName}, version: 99.99`,
       );
     });
 
@@ -875,8 +875,8 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
         getAtlasByNetworkVersionAndShortName(
           ATLAS_DRAFT.network,
           ATLAS_DRAFT.version,
-          "nonexistent-atlas"
-        )
+          "nonexistent-atlas",
+        ),
       ).rejects.toThrow("Atlas not found");
     });
   });
@@ -886,7 +886,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2.0.0",
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasId).toBe(ATLAS_WITH_IL.id);
@@ -896,7 +896,7 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
       const atlasId = await getAtlasByNetworkVersionAndShortName(
         ATLAS_WITH_IL.network,
         "2",
-        ATLAS_WITH_IL.shortName
+        ATLAS_WITH_IL.shortName,
       );
 
       expect(atlasId).toBe(ATLAS_WITH_IL.id);
@@ -906,19 +906,19 @@ describe("getAtlasByNetworkVersionAndShortName", () => {
 
 async function upsertTestFile(
   fileData: TestFileUpsertData,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<void> {
   await doOrContinueTransaction(client, async (client) => {
     const fileResult = await upsertFileRecord(fileData, client);
     if (typeof fileData.componentAtlasId === "string") {
       await client.query(
         "UPDATE hat.component_atlases SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.componentAtlasId]
+        [fileResult.id, fileData.componentAtlasId],
       );
     } else if (typeof fileData.sourceDatasetId === "string") {
       await client.query(
         "UPDATE hat.source_datasets SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.sourceDatasetId]
+        [fileResult.id, fileData.sourceDatasetId],
       );
     }
   });

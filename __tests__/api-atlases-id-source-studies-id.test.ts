@@ -80,7 +80,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/utils/crossref/crossref-api");
@@ -97,12 +97,12 @@ jest.mock("../app/services/entry-sheets", () => {
     {
       deleteEntrySheetValidationsBySpreadsheet(...args) {
         return actualEntrySheetsModule.deleteEntrySheetValidationsBySpreadsheet(
-          ...args
+          ...args,
         );
       },
       deleteEntrySheetValidationsOfDeletedSourceStudy(...args) {
         return actualEntrySheetsModule.deleteEntrySheetValidationsOfDeletedSourceStudy(
-          ...args
+          ...args,
         );
       },
     };
@@ -202,9 +202,9 @@ describe(`${TEST_ROUTE} (misc)`, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           undefined,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 });
@@ -219,9 +219,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           undefined,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -234,9 +234,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           USER_UNREGISTERED,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -246,9 +246,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
         await doStudyRequest(
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
-          USER_DISABLED_CONTENT_ADMIN
+          USER_DISABLED_CONTENT_ADMIN,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -261,9 +261,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           undefined,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -276,9 +276,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           USER_UNREGISTERED,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -288,9 +288,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
         await doStudyRequest(
           ATLAS_DRAFT.id,
           SOURCE_STUDY_DRAFT_OK.id,
-          USER_DISABLED_CONTENT_ADMIN
+          USER_DISABLED_CONTENT_ADMIN,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -303,9 +303,9 @@ describe(`${TEST_ROUTE} (GET)`, () => {
           USER_CONTENT_ADMIN,
           undefined,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -313,7 +313,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     const res = await doStudyRequest(
       ATLAS_PUBLIC.id,
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
-      USER_STAKEHOLDER
+      USER_STAKEHOLDER,
     );
     expect(res._getStatusCode()).toEqual(200);
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
@@ -335,7 +335,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
         expect(res._getStatusCode()).toEqual(200);
         const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
         expect(study.doi).toEqual(SOURCE_STUDY_DRAFT_OK.doi);
-      }
+      },
     );
   }
 
@@ -343,7 +343,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     const res = await doStudyRequest(
       ATLAS_DRAFT.id,
       SOURCE_STUDY_DRAFT_OK.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
@@ -354,7 +354,7 @@ describe(`${TEST_ROUTE} (GET)`, () => {
     const res = await doStudyRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const study = res._getJSONData() as HCAAtlasTrackerSourceStudy;
@@ -372,9 +372,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
           undefined,
           METHOD.PUT,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -387,9 +387,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
           METHOD.PUT,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -402,9 +402,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.PUT,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -422,7 +422,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
         await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
-      }
+      },
     );
   }
 
@@ -434,9 +434,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_INTEGRATION_LEAD_DRAFT,
           METHOD.PUT,
-          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
+          SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -450,9 +450,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
           USER_CONTENT_ADMIN,
           METHOD.PUT,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -469,9 +469,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
             ...SOURCE_STUDY_DRAFT_OK_EDIT,
             contactEmail: undefined,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
   });
@@ -488,9 +488,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
             ...SOURCE_STUDY_DRAFT_OK_EDIT,
             cellxgeneCollectionId: undefined,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
   });
@@ -507,9 +507,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
             ...SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
             cellxgeneCollectionId: CELLXGENE_ID_NORMAL,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -533,9 +533,9 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
               ...SOURCE_STUDY_DRAFT_OK_EDIT.metadataSpreadsheets,
             ],
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
   });
@@ -552,20 +552,20 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
             ...SOURCE_STUDY_DRAFT_OK_EDIT,
             capId: "https://celltype.info/project/223439/dataset/552505",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
   });
 
   it("updates, revalidates, and returns study with published data, including validations, when PUT requested", async () => {
     const validationsBefore = await getValidationsByEntityId(
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
     );
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].validation_info.doi).toEqual(
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF.doi
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.doi,
     );
 
     const res = await doStudyRequest(
@@ -573,7 +573,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
       USER_CONTENT_ADMIN,
       METHOD.PUT,
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT,
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
@@ -581,18 +581,18 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(studyFromDb.study_info.publication).toEqual(
-      PUBLICATION_PREPRINT_NO_JOURNAL
+      PUBLICATION_PREPRINT_NO_JOURNAL,
     );
     expect(studyFromDb.study_info.hcaProjectId).toEqual(null);
     expect(studyFromDb.study_info.cellxgeneCollectionId).toEqual(null);
     expectSourceStudyToMatch(studyFromDb, updatedStudy);
 
     const validationsAfter = await getValidationsByEntityId(
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
     );
     expect(validationsAfter).not.toHaveLength(0);
     expect(validationsAfter[0].validation_info.doi).toEqual(
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT.doi
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF_EDIT.doi,
     );
 
     expectApiValidationsToMatchDb(updatedStudy.tasks, validationsAfter);
@@ -607,15 +607,15 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     const validationEntrySheetIdsBefore = (
       await getSourceStudyEntrySheetValidationsFromDatabase(
-        SOURCE_STUDY_DRAFT_OK.id
+        SOURCE_STUDY_DRAFT_OK.id,
       )
     ).map((v) => v.entry_sheet_id);
 
     expect(validationEntrySheetIdsBefore).toContain(
-      ENTRY_SHEET_ID_DRAFT_OK_FOO
+      ENTRY_SHEET_ID_DRAFT_OK_FOO,
     );
     expect(validationEntrySheetIdsBefore).toContain(
-      ENTRY_SHEET_ID_DRAFT_OK_BAR
+      ENTRY_SHEET_ID_DRAFT_OK_BAR,
     );
 
     const res = await doStudyRequest(
@@ -623,7 +623,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN,
       METHOD.PUT,
-      SOURCE_STUDY_DRAFT_OK_EDIT
+      SOURCE_STUDY_DRAFT_OK_EDIT,
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData();
@@ -633,18 +633,18 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     expectDbSourceStudyToMatchUnpublishedEdit(
       studyFromDb,
-      SOURCE_STUDY_DRAFT_OK_EDIT
+      SOURCE_STUDY_DRAFT_OK_EDIT,
     );
 
     const validationEntrySheetIdsAfter = (
       await getSourceStudyEntrySheetValidationsFromDatabase(
-        SOURCE_STUDY_DRAFT_OK.id
+        SOURCE_STUDY_DRAFT_OK.id,
       )
     ).map((v) => v.entry_sheet_id);
 
     expect(validationEntrySheetIdsAfter).toContain(ENTRY_SHEET_ID_DRAFT_OK_FOO);
     expect(validationEntrySheetIdsAfter).not.toContain(
-      ENTRY_SHEET_ID_DRAFT_OK_BAR
+      ENTRY_SHEET_ID_DRAFT_OK_BAR,
     );
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
@@ -674,7 +674,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN,
       METHOD.PUT,
-      SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT
+      SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT,
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
@@ -683,7 +683,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(studyFromDb.study_info.capId).toEqual(
-      SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId
+      SOURCE_STUDY_DRAFT_OK_CAP_ID_EDIT.capId,
     );
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
@@ -699,22 +699,22 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN,
       METHOD.PUT,
-      SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT
+      SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT,
     );
     expect(res._getStatusCode()).toEqual(200);
     const editIds =
       SOURCE_STUDY_DRAFT_OK_METADATA_SPREADSHEET_EDIT.metadataSpreadsheets.map(
-        ({ url }) => getSpreadsheetIdFromUrl(url)
+        ({ url }) => getSpreadsheetIdFromUrl(url),
       );
     const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
     expect(updatedStudy.metadataSpreadsheets.map(({ id }) => id)).toEqual(
-      editIds
+      editIds,
     );
     const studyFromDb = await getSourceStudyFromDatabase(updatedStudy.id);
     expect(studyFromDb).toBeDefined();
     if (!studyFromDb) return;
     expect(
-      studyFromDb.study_info.metadataSpreadsheets.map(({ id }) => id)
+      studyFromDb.study_info.metadataSpreadsheets.map(({ id }) => id),
     ).toEqual(editIds);
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
@@ -739,7 +739,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_UNPUBLISHED_WITH_HCA.id,
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
       METHOD.PUT,
-      SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT
+      SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT,
     );
     expect(res._getStatusCode()).toEqual(200);
     const updatedStudy = res._getJSONData();
@@ -749,7 +749,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
     expectDbSourceStudyToMatchUnpublishedEdit(
       studyFromDb,
-      SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT
+      SOURCE_STUDY_UNPUBLISHED_WITH_HCA_EDIT,
     );
 
     expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
@@ -759,7 +759,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
   it("does not update CELLxGENE datasets when source study is PUT requested", async () => {
     const studyDatasetsBefore = await getStudySourceDatasets(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id,
     );
 
     expect(studyDatasetsBefore).toHaveLength(2);
@@ -771,7 +771,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_DRAFT_OK.id,
       USER_CONTENT_ADMIN,
       METHOD.PUT,
-      SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT
+      SOURCE_STUDY_DRAFT_OK_NEW_SOURCE_DATASETS_EDIT,
     );
     expect(res._getStatusCode()).toEqual(200);
 
@@ -780,7 +780,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(updatedStudy.sourceDatasetCount).toEqual(2);
 
     const studyDatasetsAfter = await getStudySourceDatasets(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id,
     );
 
     expect(studyDatasetsAfter).toHaveLength(2);
@@ -796,7 +796,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
 
   it("does not delete CELLxGENE datasets when source study is PUT requested with CELLxGENE ID removed", async () => {
     const studyDatasetsBefore = await getStudySourceDatasets(
-      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
     );
 
     expect(studyDatasetsBefore).toHaveLength(3);
@@ -808,7 +808,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
       USER_CONTENT_ADMIN,
       METHOD.PUT,
-      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT,
     );
     expect(res._getStatusCode()).toEqual(200);
 
@@ -817,7 +817,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(updatedStudy.sourceDatasetCount).toEqual(2); // One isn't linked to the atlas
 
     const studyDatasetsAfter = await getStudySourceDatasets(
-      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id
+      SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE.id,
     );
 
     expect(studyDatasetsAfter).toHaveLength(3);
@@ -840,14 +840,14 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     };
 
     const studyBefore = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id,
     );
 
     const { hca: hcaValidationsBefore, other: otherValidationsBefore } =
       splitHcaDependentValidations(
         await getValidationsByEntityId(
-          SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
-        )
+          SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id,
+        ),
       );
 
     expect(studyBefore?.study_info.capId).toBeNull();
@@ -857,19 +857,19 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id,
       USER_CONTENT_ADMIN,
       METHOD.PUT,
-      EDIT_DATA
+      EDIT_DATA,
     );
     expect(res._getStatusCode()).toEqual(200);
 
     const studyAfter = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
+      SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id,
     );
 
     const { hca: hcaValidationsAfter, other: otherValidationsAfter } =
       splitHcaDependentValidations(
         await getValidationsByEntityId(
-          SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id
-        )
+          SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id,
+        ),
       );
 
     expect(studyAfter?.study_info.capId).toEqual(EDIT_CAP_ID);
@@ -889,9 +889,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           undefined,
           METHOD.DELETE,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -903,9 +903,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_STAKEHOLDER,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -917,9 +917,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_DISABLED_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -937,7 +937,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
         await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
-      }
+      },
     );
   }
 
@@ -948,9 +948,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
@@ -964,22 +964,22 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
   });
 
   it("deletes source study only from specified atlas and revalidates when shared by multiple atlases", async () => {
     const validationsBefore = await getValidationsByEntityId(
-      SOURCE_STUDY_SHARED.id
+      SOURCE_STUDY_SHARED.id,
     );
     expect(validationsBefore).not.toHaveLength(0);
     expect(validationsBefore[0].atlas_ids).toHaveLength(2);
 
     const datasetsBefore = await getSourceStudySourceDatasetsFromDatabase(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id,
     );
     expect(datasetsBefore).toHaveLength(2);
     expect(datasetsBefore[0].source_study_id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
@@ -990,9 +990,9 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_DRAFT.id,
           SOURCE_STUDY_SHARED.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     const draftStudys = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
       ?.source_studies;
@@ -1003,19 +1003,19 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
     await expectStudyToBeUnchanged(SOURCE_STUDY_PUBLIC_NO_CROSSREF);
 
     const validationsAfter = await getValidationsByEntityId(
-      SOURCE_STUDY_SHARED.id
+      SOURCE_STUDY_SHARED.id,
     );
     expect(validationsAfter).not.toHaveLength(0);
     expect(validationsAfter[0].atlas_ids).toHaveLength(1);
 
     const datasetsAfter = await getSourceStudySourceDatasetsFromDatabase(
-      SOURCE_STUDY_DRAFT_OK.id
+      SOURCE_STUDY_DRAFT_OK.id,
     );
     expect(datasetsAfter).toHaveLength(2);
     expect(datasetsAfter[0].source_study_id).toEqual(SOURCE_STUDY_DRAFT_OK.id);
 
     expect(
-      await getSourceDatasetFromDatabase(SOURCE_DATASET_FOO.versionId)
+      await getSourceDatasetFromDatabase(SOURCE_DATASET_FOO.versionId),
     ).toBeDefined();
 
     await query("UPDATE hat.atlases SET source_studies=$1 WHERE id=$2", [
@@ -1026,7 +1026,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
 
   it("deletes source study entirely, including validations, when only in one atlas", async () => {
     const validationsBefore = await getValidationsByEntityId(
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
     );
     expect(validationsBefore).not.toHaveLength(0);
 
@@ -1036,20 +1036,20 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_PUBLIC.id,
           SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     const publicStudies = (await getAtlasFromDatabase(ATLAS_PUBLIC.id))
       ?.source_studies;
     expect(publicStudies).not.toContain(SOURCE_STUDY_PUBLIC_NO_CROSSREF.id);
     const studyFromDb = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
     );
     expect(studyFromDb).toBeUndefined();
 
     const validationsAfter = await getValidationsByEntityId(
-      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id
+      SOURCE_STUDY_PUBLIC_NO_CROSSREF.id,
     );
     expect(validationsAfter).toHaveLength(0);
   });
@@ -1057,7 +1057,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
   it("deletes entry sheet validations when source study is fully deleted", async () => {
     const entrySheetValidationsBefore =
       await getSourceStudyEntrySheetValidationsFromDatabase(
-        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
       );
     expect(entrySheetValidationsBefore).toHaveLength(1);
 
@@ -1067,24 +1067,24 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     const atlasStudies = (
       await getAtlasFromDatabase(ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id)
     )?.source_studies;
     expect(atlasStudies).not.toContain(
-      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
     );
     const studyFromDb = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+      SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
     );
     expect(studyFromDb).toBeUndefined();
 
     const entrySheetValidationsAfter =
       await getSourceStudyEntrySheetValidationsFromDatabase(
-        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id
+        SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
       );
     expect(entrySheetValidationsAfter).toHaveLength(0);
   });
@@ -1096,15 +1096,15 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_DRAFT.id,
           SOURCE_STUDY_DRAFT_NO_CROSSREF.id,
           USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     const draftStudies = (await getAtlasFromDatabase(ATLAS_DRAFT.id))
       ?.source_studies;
     expect(draftStudies).not.toContain(SOURCE_STUDY_DRAFT_NO_CROSSREF.id);
     const studyFromDb = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_DRAFT_NO_CROSSREF.id
+      SOURCE_STUDY_DRAFT_NO_CROSSREF.id,
     );
     expect(studyFromDb).toBeUndefined();
   });
@@ -1116,18 +1116,18 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     const miscStudies = (
       await getAtlasFromDatabase(ATLAS_WITH_MISC_SOURCE_STUDIES.id)
     )?.source_studies;
     expect(miscStudies).not.toContain(
-      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
     );
     const studyFromDb = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
     );
     expect(studyFromDb).toBeUndefined();
     await expectSourceDatasetsToHaveSourceStudy(
@@ -1137,7 +1137,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
         SOURCE_DATASET_ATLAS_LINKED_B_BAZ.versionId,
       ],
       // The source study should be fully deleted, so the source datasets should no longer be linked to it
-      null
+      null,
     );
   });
 
@@ -1148,18 +1148,18 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     const miscStudies = (
       await getAtlasFromDatabase(ATLAS_WITH_MISC_SOURCE_STUDIES.id)
     )?.source_studies;
     expect(miscStudies).not.toContain(
-      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
     );
     const studyFromDb = await getSourceStudyFromDatabase(
-      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
     );
     expect(studyFromDb).toBeDefined();
     await expectSourceDatasetsToHaveSourceStudy(
@@ -1168,7 +1168,7 @@ describe(`${TEST_ROUTE} (DELETE)`, () => {
         SOURCE_DATASET_ATLAS_LINKED_A_BAR.versionId,
       ],
       // The source study should still exist, so the datasets should remain linked to it
-      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id
+      SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
     );
   });
 });
@@ -1179,7 +1179,7 @@ async function doStudyRequest(
   user?: TestUser,
   method = METHOD.GET,
   updatedData?: Record<string, unknown>,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: updatedData,
@@ -1193,7 +1193,7 @@ async function doStudyRequest(
 
 function getQueryValues(
   atlasId: string,
-  sourceStudyId: string
+  sourceStudyId: string,
 ): Record<string, string> {
   return { atlasId, sourceStudyId };
 }
@@ -1205,13 +1205,13 @@ async function restoreDbStudy(study: TestSourceStudy): Promise<void> {
       "doi" in study ? study.doi : null,
       JSON.stringify(makeTestSourceStudyOverview(study)),
       study.id,
-    ]
+    ],
   );
 }
 
 function expectDbSourceStudyToMatchUnpublishedEdit(
   studyFromDb: HCAAtlasTrackerDBSourceStudy,
-  editData: UnpublishedSourceStudyEditData
+  editData: UnpublishedSourceStudyEditData,
 ): void {
   expect(studyFromDb.doi).toEqual(null);
   expect(studyFromDb.study_info.publication).toEqual(null);
@@ -1223,15 +1223,15 @@ function expectDbSourceStudyToMatchUnpublishedEdit(
   expect(unpublishedInfo?.title).toEqual(editData.title);
   expect(studyFromDb.study_info.capId).toEqual(editData.capId);
   expect(studyFromDb.study_info.cellxgeneCollectionId).toEqual(
-    editData.cellxgeneCollectionId
+    editData.cellxgeneCollectionId,
   );
   expect(studyFromDb.study_info.hcaProjectId).toEqual(editData.hcaProjectId);
   expect(
-    studyFromDb.study_info.metadataSpreadsheets.map((sheet) => sheet.id)
+    studyFromDb.study_info.metadataSpreadsheets.map((sheet) => sheet.id),
   ).toEqual(
     editData.metadataSpreadsheets.map((sheet) =>
-      getSpreadsheetIdFromUrl(sheet.url)
-    )
+      getSpreadsheetIdFromUrl(sheet.url),
+    ),
   );
 }
 
@@ -1241,7 +1241,7 @@ async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {
   if (!studyFromDb) return;
   if ("unpublishedInfo" in study) {
     expect(studyFromDb.study_info.unpublishedInfo).toEqual(
-      study.unpublishedInfo
+      study.unpublishedInfo,
     );
   } else {
     expect(studyFromDb.doi).toEqual(study.doi);
@@ -1251,7 +1251,7 @@ async function expectStudyToBeUnchanged(study: TestSourceStudy): Promise<void> {
 }
 
 function splitHcaDependentValidations(
-  validations: HCAAtlasTrackerDBValidation[]
+  validations: HCAAtlasTrackerDBValidation[],
 ): {
   hca: HCAAtlasTrackerDBValidation[];
   other: HCAAtlasTrackerDBValidation[];
@@ -1259,7 +1259,7 @@ function splitHcaDependentValidations(
   const hca: HCAAtlasTrackerDBValidation[] = [];
   const other: HCAAtlasTrackerDBValidation[] = [];
   for (const v of validations.sort((a, b) =>
-    a.validation_id.localeCompare(b.validation_id)
+    a.validation_id.localeCompare(b.validation_id),
   )) {
     (HCA_DEPENDENT_VALIDATIONS.has(v.validation_id) ? hca : other).push(v);
   }

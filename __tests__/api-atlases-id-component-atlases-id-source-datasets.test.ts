@@ -61,7 +61,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -130,9 +130,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.file.id,
           undefined,
-          METHOD.PUT
+          METHOD.PUT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -145,9 +145,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -160,9 +160,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           METHOD.GET,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -172,9 +172,9 @@ describe(TEST_ROUTE, () => {
         await doSourceDatasetsRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_DISABLED_CONTENT_ADMIN
+          USER_DISABLED_CONTENT_ADMIN,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -197,7 +197,7 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_FOOBAR,
           SOURCE_DATASET_FOOBAZ,
         ]);
-      }
+      },
     );
   }
 
@@ -205,7 +205,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_DRAFT.id,
       COMPONENT_ATLAS_DRAFT_FOO.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -220,7 +220,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -233,7 +233,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       COMPONENT_ATLAS_ARCHIVED_FOO.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -246,7 +246,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -259,7 +259,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -277,9 +277,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           METHOD.POST,
           NEW_DATASETS_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -293,9 +293,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           METHOD.POST,
           NEW_DATASETS_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -308,9 +308,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST,
-          NEW_DATASETS_DATA
+          NEW_DATASETS_DATA,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -328,7 +328,7 @@ describe(TEST_ROUTE, () => {
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
         await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-      }
+      },
     );
   }
 
@@ -340,9 +340,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.POST,
-          NEW_DATASETS_DATA
+          NEW_DATASETS_DATA,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -356,9 +356,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.POST,
           NEW_DATASETS_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -372,9 +372,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.POST,
           NEW_DATASETS_WITH_EXISTING_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -388,9 +388,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.POST,
           NEW_DATASETS_WITH_NONEXISTENT_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -402,7 +402,7 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       METHOD.POST,
       NEW_DATASETS_DATA_WITH_ARCHIVED,
-      true
+      true,
     );
     expect(res._getStatusCode()).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
@@ -418,18 +418,18 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       METHOD.POST,
       newDatasetsData,
-      true
+      true,
     );
     expect(res._getStatusCode()).toEqual(400);
     expect(res._getData()).toContain("latest version");
     await expectComponentAtlasToBeUnchanged(
-      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
     );
   });
 
   it("adds source datasets when POST requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_BAR
+      COMPONENT_ATLAS_DRAFT_BAR,
     );
 
     const res = await doSourceDatasetsRequest(
@@ -437,7 +437,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_DRAFT_BAR.id,
       USER_INTEGRATION_LEAD_DRAFT,
       METHOD.POST,
-      NEW_DATASETS_DATA
+      NEW_DATASETS_DATA,
     );
     expect(res._getStatusCode()).toEqual(201);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
@@ -450,13 +450,13 @@ describe(TEST_ROUTE, () => {
 
     await setComponentAtlasDatasets(
       COMPONENT_ATLAS_DRAFT_BAR,
-      sourceDatasetsBefore
+      sourceDatasetsBefore,
     );
   });
 
   it("adds source datasets when POST requested by user with CONTENT_ADMIN role", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_FOO
+      COMPONENT_ATLAS_DRAFT_FOO,
     );
 
     const res = await doSourceDatasetsRequest(
@@ -464,7 +464,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_DRAFT_FOO.id,
       USER_CONTENT_ADMIN,
       METHOD.POST,
-      NEW_DATASETS_DATA
+      NEW_DATASETS_DATA,
     );
     expect(res._getStatusCode()).toEqual(201);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
@@ -478,13 +478,13 @@ describe(TEST_ROUTE, () => {
 
     await setComponentAtlasDatasets(
       COMPONENT_ATLAS_DRAFT_FOO,
-      sourceDatasetsBefore
+      sourceDatasetsBefore,
     );
   });
 
   it("adds source datasets when POST requested with archived source dataset for non-archived component atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
     );
 
     const res = await doSourceDatasetsRequest(
@@ -492,7 +492,7 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
       USER_CONTENT_ADMIN,
       METHOD.POST,
-      NEW_DATASETS_DATA_WITH_ARCHIVED
+      NEW_DATASETS_DATA_WITH_ARCHIVED,
     );
     expect(res._getStatusCode()).toEqual(201);
     await expectComponentAtlasToHaveSourceDatasets(
@@ -501,13 +501,13 @@ describe(TEST_ROUTE, () => {
         SOURCE_DATASET_ARCHIVED_FOO,
         SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
         SOURCE_DATASET_ARCHIVED_BAR,
-      ]
+      ],
     );
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
 
     await setComponentAtlasDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
-      sourceDatasetsBefore
+      sourceDatasetsBefore,
     );
   });
 
@@ -520,9 +520,9 @@ describe(TEST_ROUTE, () => {
           undefined,
           METHOD.DELETE,
           DELETE_DATASETS_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -536,9 +536,9 @@ describe(TEST_ROUTE, () => {
           USER_UNREGISTERED,
           METHOD.DELETE,
           DELETE_DATASETS_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -551,9 +551,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.DELETE,
-          DELETE_DATASETS_DATA
+          DELETE_DATASETS_DATA,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -571,7 +571,7 @@ describe(TEST_ROUTE, () => {
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
         await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
-      }
+      },
     );
   }
 
@@ -583,9 +583,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.DELETE,
-          DELETE_DATASETS_DATA
+          DELETE_DATASETS_DATA,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -599,9 +599,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           DELETE_DATASETS_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -615,9 +615,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           DELETE_DATASETS_WITH_MISSING_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -631,9 +631,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           DELETE_DATASETS_WITH_NONEXISTENT_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
@@ -647,9 +647,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           DELETE_DATASETS_DATA_WITH_ARCHIVED,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_ARCHIVED_FOO);
   });
@@ -664,18 +664,18 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       METHOD.DELETE,
       deleteDatasetsData,
-      true
+      true,
     );
     expect(res._getStatusCode()).toEqual(400);
     expect(res._getData()).toContain("latest version");
     await expectComponentAtlasToBeUnchanged(
-      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
     );
   });
 
   it("deletes source datasets when requested by user with INTEGRATION_LEAD role for the atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_BAR
+      COMPONENT_ATLAS_DRAFT_BAR,
     );
 
     expect(
@@ -685,9 +685,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_BAR.id,
           USER_INTEGRATION_LEAD_DRAFT,
           METHOD.DELETE,
-          DELETE_DRAFT_BAR_DATASETS_DATA
+          DELETE_DRAFT_BAR_DATASETS_DATA,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
@@ -696,13 +696,13 @@ describe(TEST_ROUTE, () => {
 
     await setComponentAtlasDatasets(
       COMPONENT_ATLAS_DRAFT_BAR,
-      sourceDatasetsBefore
+      sourceDatasetsBefore,
     );
   });
 
   it("deletes source datasets when requested by user with CONTENT_ADMIN role", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_DRAFT_FOO
+      COMPONENT_ATLAS_DRAFT_FOO,
     );
 
     expect(
@@ -712,9 +712,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
-          DELETE_DATASETS_DATA
+          DELETE_DATASETS_DATA,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
       SOURCE_DATASET_FOOBAZ,
@@ -723,13 +723,13 @@ describe(TEST_ROUTE, () => {
 
     await setComponentAtlasDatasets(
       COMPONENT_ATLAS_DRAFT_FOO,
-      sourceDatasetsBefore
+      sourceDatasetsBefore,
     );
   });
 
   it("deletes source datasets when requested with archived source dataset for non-archived component atlas", async () => {
     const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
-      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3
+      COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
     );
 
     expect(
@@ -739,19 +739,19 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
-          DELETE_DATASETS_DATA_WITH_ARCHIVED
+          DELETE_DATASETS_DATA_WITH_ARCHIVED,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
-      [SOURCE_DATASET_WITH_MULTIPLE_FILES_W3]
+      [SOURCE_DATASET_WITH_MULTIPLE_FILES_W3],
     );
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_MISC_FOO);
 
     await setComponentAtlasDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
-      sourceDatasetsBefore
+      sourceDatasetsBefore,
     );
   });
 });
@@ -762,7 +762,7 @@ async function doSourceDatasetsRequest(
   user?: TestUser,
   method = METHOD.GET,
   body?: Record<string, unknown>,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
@@ -772,38 +772,38 @@ async function doSourceDatasetsRequest(
   });
   await withConsoleErrorHiding(
     () => sourceDatasetsHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 function getQueryValues(
   atlasId: string,
-  componentAtlasId: string
+  componentAtlasId: string,
 ): Record<string, string> {
   return { atlasId, componentAtlasId };
 }
 
 async function expectComponentAtlasToBeUnchanged(
-  componentAtlas: TestComponentAtlas
+  componentAtlas: TestComponentAtlas,
 ): Promise<void> {
   const componentAtlasFromDb = await getComponentAtlasFromDatabase(
-    componentAtlas.id
+    componentAtlas.id,
   );
   expect(componentAtlasFromDb).toBeDefined();
   if (!componentAtlasFromDb) return;
   expect(componentAtlasFromDb.component_info.capUrl).toEqual(
-    componentAtlas.capUrl ?? null
+    componentAtlas.capUrl ?? null,
   );
 }
 
 async function getComponentAtlasFromDatabase(
-  id: string
+  id: string,
 ): Promise<HCAAtlasTrackerDBComponentAtlas | undefined> {
   return (
     await query<HCAAtlasTrackerDBComponentAtlas>(
       "SELECT * FROM hat.component_atlases WHERE id=$1",
-      [id]
+      [id],
     )
   ).rows[0];
 }
