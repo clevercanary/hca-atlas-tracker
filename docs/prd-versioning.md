@@ -217,6 +217,32 @@ After uploading new SD1 file to v1.1:
 - An IO version may be shared across multiple atlas versions (with different SD mappings)
 - Atlas arrays/jsonb store `version_id`s (not entity `id`s)
 
+### Atlas Draft Constraint
+
+**Only one draft version per atlas at a time.** Creating a new draft from a published atlas is only allowed if no other draft exists for that atlas. This prevents conflicts and simplifies the versioning model.
+
+### SD/IO Scope: Per-Atlas, Not Shared
+
+**SDs and IOs belong to exactly one atlas.** They cannot be shared across different atlases.
+
+- If you need the same dataset in two atlases (e.g., Brain and Lung), you upload separate copies
+- Each copy is an independent SD with its own `id`, revision numbers, and version history
+- Same applies to IOs
+
+**Rationale:** This simplifies versioning since each atlas has full ownership of its SDs/IOs. Cross-atlas sharing would create complex dependency chains.
+
+### SD→IO Mapping Constraint
+
+**An SD can only be linked to an IO if the SD is already in the atlas's `source_datasets` list.**
+
+- Enforced at API level (required)
+- Enforced at DB level via trigger or check constraint (if feasible)
+
+For draft atlases, when linking an SD to an IO:
+
+1. Check if SD version is in atlas's `source_datasets`
+2. If not, reject the operation (user must add SD to atlas first)
+
 ## Events & Actions
 
 ### File Upload Events
@@ -231,11 +257,11 @@ After uploading new SD1 file to v1.1:
 
 ### Atlas Actions
 
-| Action                       | Current                   | Target                                                                                       |
-| ---------------------------- | ------------------------- | -------------------------------------------------------------------------------------------- |
-| **Create atlas**             | Sets `status=IN_PROGRESS` | Also set `generation=1`, `revision=0`, `draft=true`                                          |
-| **Create new atlas version** | Not implemented           | Copy atlas, set `draft=true`; option to bump generation (resets revision=0) or bump revision |
-| **Publish atlas**            | Not implemented           | Set `published_at` on all linked SD/IO versions, set `draft=false`; one-way operation        |
+| Action                       | Current                   | Target                                                                                              |
+| ---------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Create atlas**             | Sets `status=IN_PROGRESS` | Also set `generation=1`, `revision=0`, `draft=true`                                                 |
+| **Create new atlas version** | Not implemented           | Reject if draft already exists; copy atlas, set `draft=true`; option to bump generation or revision |
+| **Publish atlas**            | Not implemented           | Set `published_at` on all linked SD/IO versions, set `draft=false`; one-way operation               |
 
 ### Source Study Actions
 
@@ -539,14 +565,16 @@ This must be fixed to scope updates to the specific target atlas:
 
 **Logic:**
 
-1. Create new atlas row copying from source
-2. If `bumpGeneration`: `generation + 1`, `revision = 0`
-3. Else: same `generation`, `revision + 1`
-4. Set `draft = true`
-5. Copy `source_datasets[]`, `component_atlas_mappings`, and relevant overview fields
+1. **Check no draft exists** - reject with 409 Conflict if a draft version already exists for this atlas
+2. Create new atlas row copying from source
+3. If `bumpGeneration`: `generation + 1`, `revision = 0`
+4. Else: same `generation`, `revision + 1`
+5. Set `draft = true`
+6. Copy `source_datasets[]`, `component_atlases` jsonb, and relevant overview fields
 
 **Acceptance Criteria:**
 
+- [ ] Rejects if draft already exists (409 Conflict)
 - [ ] New atlas with correct generation/revision
 - [ ] SD list and IO mappings copied
 - [ ] New atlas is draft
