@@ -67,11 +67,11 @@ Second publish:
 
 ### What's Missing
 
-| Entity              | Needed Columns/Changes                                              |
-| ------------------- | ------------------------------------------------------------------- |
-| `source_datasets`   | `revision_number`, `published_at`                                   |
-| `component_atlases` | `revision_number`, `published_at`; REMOVE `source_datasets[]` array |
-| `atlases`           | `generation`, `revision`, `draft`, `component_atlas_mappings` JSONB |
+| Entity              | Needed Columns/Changes                                                                  |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| `source_datasets`   | `revision_number`, `published_at`                                                       |
+| `component_atlases` | `revision_number`, `published_at`; REMOVE `source_datasets[]` array                     |
+| `atlases`           | `generation`, `revision`, `draft`; MIGRATE `component_atlases` from `uuid[]` to `jsonb` |
 
 ## Design Principles
 
@@ -93,11 +93,14 @@ Second publish:
 **Atlases:**
 
 - Published atlas:
-  - `component_atlas_mappings` (which IOs and their SD associations) are frozen
-  - File content (h5ad hash) of linked SDs/IOs cannot change (no new file uploads)
-  - SD→IO mappings within the published atlas CAN be edited (adding/removing existing SDs to IOs)
-  - Source studies: can still be added, removed, or modified (reference material)
-  - Other atlas metadata (integration leads, etc.) can change
+  - **Frozen (cannot change):**
+    - Set of IOs in the atlas (cannot add/remove IOs)
+    - Set of SDs in the atlas (cannot add/remove SDs)
+    - File versions (cannot upload new files for existing SDs/IOs)
+  - **Mutable:**
+    - SD→IO mappings (can link/unlink existing SDs to existing IOs)
+    - Source studies (reference material)
+    - Other atlas metadata (integration leads, etc.)
 - Draft atlas: all changes allowed (add/remove SDs/IOs, new file uploads, change mappings)
 - **New atlas version required** to add/remove SDs/IOs or upload new files
 
@@ -107,14 +110,24 @@ Second publish:
 
 **Solution:** Store SD→IO mappings at the Atlas level, not on the IO.
 
+**Schema Change:** Migrate existing `component_atlases` column from `uuid[]` to `jsonb`:
+
+```typescript
+// Before (current):
+component_atlases: uuid[]  // ["io1-version-id", "io2-version-id"]
+
+// After (migrated):
+component_atlases: jsonb   // with SD mappings embedded
+```
+
 **New Atlas Structure:**
 
 ```typescript
 {
   id: "atlas-uuid",
   // ... other fields ...
-  source_datasets: ["sd1-version-id", "sd2-version-id"],  // flat list
-  component_atlas_mappings: [
+  source_datasets: ["sd1-version-id", "sd2-version-id"],  // flat list (unchanged)
+  component_atlases: [  // migrated from uuid[] to jsonb
     {
       io_version_id: "io1-version-id",
       source_datasets: ["sd1-version-id"]
@@ -174,12 +187,35 @@ Second publish:
 - The file upload is then made to the draft atlas
 - This prevents accidental modifications and makes versioning explicit
 
+### Automatic Version Updates in Draft Atlas
+
+When a new SD/IO file is uploaded to a **draft** atlas for an existing entity (same filename within same bionetwork):
+
+1. **New version created** with appropriate revision/wip numbers
+2. **Atlas `source_datasets[]` updated:** Old version_id replaced with new version_id
+3. **Atlas `component_atlases` jsonb updated:** All references to old SD version_id replaced with new version_id (for SD uploads)
+4. **Only the target atlas is modified** - other atlases sharing the same SD/IO version are NOT affected
+
+**Example:**
+
+```
+Before upload to v1.1 (draft):
+  v1.0 (published): source_datasets = [SD1-r1]
+  v1.1 (draft):     source_datasets = [SD1-r1]
+
+After uploading new SD1 file to v1.1:
+  v1.0 (published): source_datasets = [SD1-r1]     ← unchanged
+  v1.1 (draft):     source_datasets = [SD1-r2-wip-1] ← updated
+```
+
+**Note:** This behavior is already implemented but currently updates ALL atlases. Ticket 3.4 fixes this to scope updates to the target atlas only.
+
 ### Linking Rules
 
-- SD→IO mappings are stored per-atlas in `component_atlas_mappings`
+- SD→IO mappings are stored per-atlas in `component_atlases` jsonb
 - A source dataset version may belong to multiple integrated objects (within same atlas)
 - An IO version may be shared across multiple atlas versions (with different SD mappings)
-- Atlas arrays store `version_id`s (not entity `id`s)
+- Atlas arrays/jsonb store `version_id`s (not entity `id`s)
 
 ## Events & Actions
 
@@ -243,8 +279,8 @@ Second publish:
 For existing data:
 
 - `source_datasets`: Set `revision_number=1`, `published_at=NULL`
-- `component_atlases`: Set `revision_number=1`, `published_at=NULL`; remove `source_datasets[]` column after migrating data
-- `atlases`: Parse `overview.version` → `generation`/`revision`, set `draft=true`; migrate `component_atlases[]` array to `component_atlas_mappings` JSONB
+- `component_atlases`: Set `revision_number=1`, `published_at=NULL`; remove `source_datasets[]` column after migrating to atlas
+- `atlases`: Parse `overview.version` → `generation`/`revision`, set `draft=true`; migrate `component_atlases` from `uuid[]` to `jsonb` with embedded SD mappings
 
 ---
 
@@ -437,11 +473,35 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 - On S3 notification for new file version: check if atlas is `draft=false`
 - If published, reject with error (user must create new atlas version first)
 
+**Critical Implementation Note - Scope Updates to Target Atlas:**
+
+The current implementation has a bug where version updates affect ALL atlases:
+
+```typescript
+// Current (WRONG for versioning):
+"UPDATE hat.atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2)";
+// This updates ALL atlases that contain the old version!
+```
+
+This must be fixed to scope updates to the specific target atlas:
+
+```typescript
+// Correct:
+"UPDATE hat.atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE id = $3";
+```
+
+**Functions requiring this fix:**
+
+- `updateSourceDatasetVersionInAtlases()` in `app/data/atlases.ts`
+- `updateComponentAtlasVersionInAtlases()` in `app/data/atlases.ts`
+- `updateSourceDatasetVersionInComponentAtlases()` in `app/data/component-atlases.ts`
+
 **Acceptance Criteria:**
 
 - [ ] New file upload for SD/IO on published atlas returns error
 - [ ] Error message instructs user to create new atlas version
 - [ ] Draft atlases still accept uploads normally
+- [ ] Version updates only affect the target atlas, not other atlases sharing the same SD/IO version
 
 **Dependencies:** Ticket 3.1
 
@@ -516,12 +576,31 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 
 **Goal:** Move SD→IO relationship from IO entity to Atlas, enabling independent mappings per atlas version.
 
-#### Ticket 5.1: [Backend] Add component_atlas_mappings JSONB to atlases
+#### Ticket 5.1: [Backend] Migrate component_atlases from uuid[] to jsonb
 
 **Schema:**
 
 ```sql
-ALTER TABLE hat.atlases ADD COLUMN component_atlas_mappings jsonb NOT NULL DEFAULT '[]';
+-- Migrate component_atlases from uuid[] to jsonb with embedded SD mappings
+ALTER TABLE hat.atlases ADD COLUMN component_atlases_new jsonb NOT NULL DEFAULT '[]';
+
+-- Migration populates new column from old array + IO source_datasets
+UPDATE hat.atlases SET component_atlases_new = (
+  SELECT jsonb_agg(
+    jsonb_build_object(
+      'io_version_id', ca_version,
+      'source_datasets', COALESCE(
+        (SELECT source_datasets FROM hat.component_atlases WHERE version_id = ca_version),
+        '{}'::uuid[]
+      )
+    )
+  )
+  FROM unnest(component_atlases) AS ca_version
+);
+
+-- Swap columns
+ALTER TABLE hat.atlases DROP COLUMN component_atlases;
+ALTER TABLE hat.atlases RENAME COLUMN component_atlases_new TO component_atlases;
 ```
 
 **Structure:**
@@ -533,22 +612,18 @@ ALTER TABLE hat.atlases ADD COLUMN component_atlas_mappings jsonb NOT NULL DEFAU
 ]
 ```
 
-**Migration:**
-
-1. For each atlas, build mappings from current `component_atlases[]` array
-2. For each IO version in the array, copy its `source_datasets[]` into the mapping
-3. Populate `component_atlas_mappings` with the result
-
 **Code:**
 
-- Update IO list API to read SD associations from atlas mappings instead of IO table
-- Update SD→IO link/unlink operations to modify atlas mappings
+- Update IO list API to read SD associations from atlas `component_atlases` jsonb instead of IO table
+- Update SD→IO link/unlink operations to modify atlas `component_atlases` jsonb
+- Update all code that reads/writes `component_atlases` to handle new jsonb structure
 
 **Acceptance Criteria:**
 
-- [ ] Migration populates mappings correctly
+- [ ] Migration populates mappings correctly from existing data
 - [ ] IO API returns SDs from atlas mappings
 - [ ] Link/unlink operations work on mappings
+- [ ] All existing atlas operations continue to work
 
 ---
 
@@ -672,28 +747,28 @@ ALTER TABLE hat.component_atlases DROP COLUMN source_datasets;
 
 ## Ticket Summary
 
-| Slice | Ticket | Type | Description                                        |
-| ----- | ------ | ---- | -------------------------------------------------- |
-| 1     | 1.1    | BE   | Atlas generation/revision columns + API            |
-| 1     | 1.2    | FE   | Display atlas version                              |
-| 2     | 2.1    | BE   | SD revision_number column + API                    |
-| 2     | 2.2    | BE   | IO revision_number column + API                    |
-| 2     | 2.3    | FE   | Display SD/IO version                              |
-| 3     | 3.1    | BE   | published_at (SD/IO) + draft (atlas) columns + API |
-| 3     | 3.2    | BE   | Publish atlas endpoint                             |
-| 3     | 3.3    | BE   | Increment revision_number after publish            |
-| 3     | 3.4    | BE   | Enforce published atlas immutability               |
-| 3     | 3.5    | FE   | Display draft/published + publish action           |
-| 4     | 4.1    | BE   | Create new atlas version endpoint                  |
-| 4     | 4.2    | FE   | Create new version action                          |
-| 5     | 5.1    | BE   | Add component_atlas_mappings JSONB to atlases      |
-| 5     | 5.2    | BE   | Remove source_datasets from component_atlases      |
-| 5     | 5.3    | FE   | Update IO detail for atlas-scoped SD mappings      |
-| 6     | 6.1    | BE   | SD version history endpoint                        |
-| 6     | 6.2    | BE   | IO version history endpoint                        |
-| 6     | 6.3    | FE   | Version history view                               |
-| 7     | 7.1    | BE   | Versioned download filenames                       |
-| 7     | 7.2    | FE   | Download with versioned names                      |
+| Slice | Ticket | Type | Description                                         |
+| ----- | ------ | ---- | --------------------------------------------------- |
+| 1     | 1.1    | BE   | Atlas generation/revision columns + API             |
+| 1     | 1.2    | FE   | Display atlas version                               |
+| 2     | 2.1    | BE   | SD revision_number column + API                     |
+| 2     | 2.2    | BE   | IO revision_number column + API                     |
+| 2     | 2.3    | FE   | Display SD/IO version                               |
+| 3     | 3.1    | BE   | published_at (SD/IO) + draft (atlas) columns + API  |
+| 3     | 3.2    | BE   | Publish atlas endpoint                              |
+| 3     | 3.3    | BE   | Increment revision_number after publish             |
+| 3     | 3.4    | BE   | Enforce published atlas immutability                |
+| 3     | 3.5    | FE   | Display draft/published + publish action            |
+| 4     | 4.1    | BE   | Create new atlas version endpoint                   |
+| 4     | 4.2    | FE   | Create new version action                           |
+| 5     | 5.1    | BE   | Migrate component_atlases to jsonb with SD mappings |
+| 5     | 5.2    | BE   | Remove source_datasets from component_atlases       |
+| 5     | 5.3    | FE   | Update IO detail for atlas-scoped SD mappings       |
+| 6     | 6.1    | BE   | SD version history endpoint                         |
+| 6     | 6.2    | BE   | IO version history endpoint                         |
+| 6     | 6.3    | FE   | Version history view                                |
+| 7     | 7.1    | BE   | Versioned download filenames                        |
+| 7     | 7.2    | FE   | Download with versioned names                       |
 
 ---
 
