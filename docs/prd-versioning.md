@@ -503,7 +503,7 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 **Logic:**
 
 1. Verify atlas exists and `draft=true`
-2. Set `published_at = NOW()` on all linked SD and IO versions
+2. Set `published_at = NOW()` on all linked SD and IO versions **where published_at IS NULL**
 3. Set `atlas.draft = false`
 4. Return updated atlas
 
@@ -511,10 +511,12 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 
 - One-way operation (no unpublish)
 - No validation requirements
+- Only sets `published_at` on versions not already published (preserves original publish date for shared versions)
 
 **Acceptance Criteria:**
 
-- [ ] All linked SD/IO versions have `published_at` set
+- [ ] All linked SD/IO versions have `published_at` set (new or existing)
+- [ ] Already-published versions keep their original `published_at` timestamp
 - [ ] Atlas `draft` is false
 - [ ] Returns 409 if already published
 - [ ] Proper authorization
