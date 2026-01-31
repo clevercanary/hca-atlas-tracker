@@ -327,6 +327,21 @@ For draft atlases, when linking an SD to an IO:
 | **Unlink SD from IO** | Draft       | Remove SD version_id from IO's entry                           |
 | **Unlink SD from IO** | Published   | Allowed (just removes mapping, SD stays in atlas)              |
 
+### SD/IO Addition/Removal Actions
+
+| Action                   | Atlas State | Behavior                                                           |
+| ------------------------ | ----------- | ------------------------------------------------------------------ |
+| **Add SD to atlas**      | Draft       | Add SD version_id to `source_datasets` array                       |
+| **Add SD to atlas**      | Published   | **Rejected** - must create new atlas version                       |
+| **Remove SD from atlas** | Draft       | Remove from `source_datasets`; cascade remove from all IO mappings |
+| **Remove SD from atlas** | Published   | **Rejected** - must create new atlas version                       |
+| **Add IO to atlas**      | Draft       | Add entry to `component_atlases` jsonb                             |
+| **Add IO to atlas**      | Published   | **Rejected** - must create new atlas version                       |
+| **Remove IO from atlas** | Draft       | Remove entry from `component_atlases` jsonb                        |
+| **Remove IO from atlas** | Published   | **Rejected** - must create new atlas version                       |
+
+**Cascading removal:** When removing an SD from a draft atlas, all references to that SD version in `component_atlases[].source_datasets` must also be removed to maintain consistency.
+
 ## API Endpoints
 
 ### New Endpoints Needed
@@ -628,12 +643,19 @@ SELECT ... FROM hat.files WHERE bucket = $1 AND key = $2
 
 **Logic:**
 
-1. **Check no draft exists** - reject with 409 Conflict if a draft version already exists for this atlas
-2. Create new atlas row copying from source
-3. If `bumpGeneration`: `generation + 1`, `revision = 0`
-4. Else: same `generation`, `revision + 1`
-5. Set `draft = true`
-6. Copy `source_datasets[]`, `component_atlases` jsonb, and relevant overview fields
+1. Calculate target generation and revision:
+   - If `bumpGeneration`: `generation = max(existing generations) + 1`, `revision = 0`
+   - Else: same `generation` as source, `revision = max(existing revisions in this generation) + 1`
+2. **Check no draft exists** for target (short_name, network, generation) - reject with 409 Conflict if draft already exists
+3. Create new atlas row copying from source with calculated generation/revision
+4. Set `draft = true`
+5. Copy `source_datasets[]`, `component_atlases` jsonb, and relevant overview fields
+
+**Notes:**
+
+- Use max generation/revision to avoid version conflicts when creating from older versions
+- Example: Creating from v1.0 when v1.1 exists → creates v1.2-draft (not v1.1-draft)
+- Example: Creating from v1.0 with bumpGeneration when v2.0 exists → creates v3.0-draft
 
 **Acceptance Criteria:**
 
