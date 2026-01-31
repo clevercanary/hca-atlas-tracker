@@ -17,7 +17,7 @@ This document describes the versioning strategy for HCA Atlases, integrated obje
 | **Source Dataset**    | A dataset from a source study selected for integration                                                    |
 | **Source Study**      | A publication that generated datasets                                                                     |
 | **Generation**        | Major atlas iteration (1, 2, 3...) - manually bumped when creating new version (e.g., adding new studies) |
-| **Revision**          | Published update within a generation (0, 1, 2...)                                                         |
+| **Revision**          | Numbered update within a generation, representing a file version change (0, 1, 2...)                      |
 | **WIP Number**        | Work-in-progress checkpoint counter within a revision                                                     |
 
 ## Versioning Scheme
