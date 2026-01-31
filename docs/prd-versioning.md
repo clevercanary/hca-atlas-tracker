@@ -193,10 +193,12 @@ When a new SD/IO file is uploaded to a **draft** atlas for an existing entity (s
 
 1. **New version created** with appropriate revision/wip numbers
 2. **Atlas `source_datasets[]` updated:** Old version_id replaced with new version_id
-3. **Atlas `component_atlases` jsonb updated:** All references to old SD version_id replaced with new version_id (for SD uploads)
+3. **Atlas `component_atlases` jsonb updated:**
+   - For SD uploads: All references to old SD version_id replaced with new version_id in all IO mappings
+   - For IO uploads: The IO entry's `io_version_id` is replaced; `source_datasets` array is preserved
 4. **Only the target atlas is modified** - other atlases sharing the same SD/IO version are NOT affected
 
-**Example:**
+**Example (SD upload):**
 
 ```
 Before upload to v1.1 (draft):
@@ -208,6 +210,17 @@ After uploading new SD1 file to v1.1:
   v1.1 (draft):     source_datasets = [SD1-r2-wip-1] ← updated
 ```
 
+**Example (IO upload):**
+
+```
+Before upload to v1.1 (draft):
+  v1.1: component_atlases = [{io: IO1-r1, sds: [SD1-r1, SD2-r1]}]
+
+After uploading new IO1 file to v1.1:
+  v1.1: component_atlases = [{io: IO1-r2-wip-1, sds: [SD1-r1, SD2-r1]}]
+  (SD mappings preserved)
+```
+
 **Note:** This behavior is already implemented but currently updates ALL atlases. Ticket 3.4 fixes this to scope updates to the target atlas only.
 
 ### Linking Rules
@@ -217,9 +230,21 @@ After uploading new SD1 file to v1.1:
 - An IO version may be shared across multiple atlas versions (with different SD mappings)
 - Atlas arrays/jsonb store `version_id`s (not entity `id`s)
 
+### Atlas Version Grouping
+
+Atlas versions are grouped by **(short_name, network, generation)**. For example:
+
+- `brain-v1.0` and `brain-v1.1` are versions within generation 1 of the Brain atlas
+- `brain-v2.0` is a new generation (major iteration)
+
+This grouping is used for:
+
+1. **Draft constraint:** Only one draft per (short_name, network, generation)
+2. **SD/IO matching:** When uploading, find existing entities across all versions of the same atlas
+
 ### Atlas Draft Constraint
 
-**Only one draft version per atlas at a time.** Creating a new draft from a published atlas is only allowed if no other draft exists for that atlas. This prevents conflicts and simplifies the versioning model.
+**Only one draft version per atlas at a time.** Creating a new draft from a published atlas is only allowed if no other draft exists for that atlas (same short_name, network, generation). This prevents conflicts and simplifies the versioning model.
 
 ### SD/IO Scope: Per-Atlas, Not Shared
 
@@ -230,6 +255,29 @@ After uploading new SD1 file to v1.1:
 - Same applies to IOs
 
 **Rationale:** This simplifies versioning since each atlas has full ownership of its SDs/IOs. Cross-atlas sharing would create complex dependency chains.
+
+### File Upload Matching Logic
+
+When a file is uploaded, the system determines whether it's a **new entity** or a **new version of existing entity**.
+
+**Matching criteria:** (network, filename, atlas entity)
+
+- **Network:** First segment of S3 key (e.g., `brain_network`)
+- **Filename:** Last segment of S3 key (e.g., `my-dataset.h5ad`)
+- **Atlas entity:** Same (short_name, network, generation)
+
+**Example:**
+
+```
+Existing: brain_network/brain-v1/source-datasets/my-dataset.h5ad → SD1-r1
+Upload:   brain_network/brain-v1-1/source-datasets/my-dataset.h5ad
+
+Match: Same network (brain_network), same filename (my-dataset.h5ad),
+       same atlas entity (brain, brain_network, generation 1)
+Result: New version of SD1 → SD1-r2-wip-1
+```
+
+**Implementation Note:** The current code matches by full S3 key. This needs to be updated to match by (network, filename) within the same atlas entity. See Ticket 3.4.
 
 ### SD→IO Mapping Constraint
 
@@ -274,7 +322,7 @@ For draft atlases, when linking an SD to an IO:
 
 | Action                | Atlas State | Behavior                                                       |
 | --------------------- | ----------- | -------------------------------------------------------------- |
-| **Link SD to IO**     | Draft       | Add SD version_id to IO's entry in `component_atlas_mappings`  |
+| **Link SD to IO**     | Draft       | Add SD version_id to IO's entry in `component_atlases` jsonb   |
 | **Link SD to IO**     | Published   | Allowed (SD must already be in atlas's `source_datasets` list) |
 | **Unlink SD from IO** | Draft       | Remove SD version_id from IO's entry                           |
 | **Unlink SD from IO** | Published   | Allowed (just removes mapping, SD stays in atlas)              |
@@ -522,12 +570,25 @@ This must be fixed to scope updates to the specific target atlas:
 - `updateComponentAtlasVersionInAtlases()` in `app/data/atlases.ts`
 - `updateSourceDatasetVersionInComponentAtlases()` in `app/data/component-atlases.ts`
 
+**Critical Implementation Note - Matching Logic:**
+
+The current `getExistingMetadataObjectId()` matches by full S3 key. This must be changed to match by (network, filename) within the same atlas entity (short_name, network, generation).
+
+```typescript
+// Current (WRONG for cross-version matching):
+SELECT ... FROM hat.files WHERE bucket = $1 AND key = $2
+
+// Correct: Match by network + filename within atlas entity
+// (requires joining to find SDs/IOs belonging to any version of the same atlas)
+```
+
 **Acceptance Criteria:**
 
 - [ ] New file upload for SD/IO on published atlas returns error
 - [ ] Error message instructs user to create new atlas version
 - [ ] Draft atlases still accept uploads normally
 - [ ] Version updates only affect the target atlas, not other atlases sharing the same SD/IO version
+- [ ] File matching works across atlas versions (same filename in brain-v1-1 matches existing SD from brain-v1)
 
 **Dependencies:** Ticket 3.1
 
@@ -842,13 +903,13 @@ Each slice is deployable end-to-end:
 
 ### Flow 3: Different SD Mappings Per Atlas Version
 
-| Step | Action                      | Result                                                          |
-| ---- | --------------------------- | --------------------------------------------------------------- |
-| 1    | Starting state              | Atlas v1.0 (published) → [{io: IO1-r1, sds: [SD1-r1, SD2-r1]}]  |
-| 2    | Create draft v1.1           | v1.1 copies mappings from v1.0                                  |
-| 3    | Remove SD2 from IO1 on v1.1 | v1.1 mappings = [{io: IO1-r1, sds: [SD1-r1]}]                   |
-|      |                             | v1.0 unchanged: [{io: IO1-r1, sds: [SD1-r1, SD2-r1]}]           |
-| 4    | Add SD2 to IO1 on v1.0      | v1.0 mappings = [{io: IO1-r1, sds: [SD1-r1, SD2-r1]}] (allowed) |
-|      |                             | v1.1 still = [{io: IO1-r1, sds: [SD1-r1]}] (isolated)           |
+| Step | Action                      | Result                                                         |
+| ---- | --------------------------- | -------------------------------------------------------------- |
+| 1    | Starting state              | Atlas v1.0 (published) → [{io: IO1-r1, sds: [SD1-r1, SD2-r1]}] |
+| 2    | Create draft v1.1           | v1.1 copies mappings from v1.0                                 |
+| 3    | Remove SD2 from IO1 on v1.1 | v1.1 mappings = [{io: IO1-r1, sds: [SD1-r1]}]                  |
+|      |                             | v1.0 unchanged: [{io: IO1-r1, sds: [SD1-r1, SD2-r1]}]          |
+| 4    | Remove SD1 from IO1 on v1.0 | v1.0 mappings = [{io: IO1-r1, sds: [SD2-r1]}] (allowed)        |
+|      |                             | v1.1 unchanged: [{io: IO1-r1, sds: [SD1-r1]}] (isolated)       |
 
-**Result:** Same IO version (IO1-r1), different SD mappings per atlas version
+**Result:** Same IO version (IO1-r1), completely different SD mappings per atlas version. Editing v1.0 does not affect v1.1 and vice versa.
