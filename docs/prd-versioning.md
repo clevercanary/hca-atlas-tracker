@@ -70,13 +70,13 @@ Second publish:
 
 ### What's Missing
 
-| Entity              | Needed Columns/Changes                   |
-| ------------------- | ---------------------------------------- |
-| `concepts`          | New table: `id`, `doi`, `title`, `alias` |
-| `files`             | `concept_id` → concepts                  |
-| `source_datasets`   | `revision_number`, `published_at`        |
-| `component_atlases` | `revision_number`, `published_at`        |
-| `atlases`           | `generation`, `revision`, `draft`        |
+| Entity              | Needed Columns/Changes                                |
+| ------------------- | ----------------------------------------------------- |
+| `concepts`          | New table: `id`, `doi`, `title`, `file_type`, `alias` |
+| `files`             | `concept_id` → concepts                               |
+| `source_datasets`   | `revision_number`, `published_at`                     |
+| `component_atlases` | `revision_number`, `published_at`                     |
+| `atlases`           | `generation`, `revision`, `draft`                     |
 
 ## Design Principles
 
@@ -114,16 +114,18 @@ CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   doi TEXT,
   title TEXT NOT NULL,
+  file_type TEXT NOT NULL,  -- 'source_dataset' or 'integrated_object'
   alias UUID REFERENCES hat.concepts(id)  -- points to canonical after merge
 );
+CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(doi, title, file_type) WHERE alias IS NULL;
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
 **Behavior:**
 
-- On file upload: extract DOI + title from H5AD → find or create concept
-- Both SDs and IOs have concepts (via their file)
+- On file upload: extract DOI + title from H5AD → find or create concept by (DOI, title, file_type)
+- Both SDs and IOs have concepts (via their file), but they're separate due to file_type
 - Alias lookup is automatic (system follows chain to canonical)
 - Concept merge: update `concept_id` on affected files, set `merged.alias = canonical`
 
@@ -142,6 +144,8 @@ SDs and IOs exist in a shared library and can be linked to multiple atlases.
 - Explicit import action links existing SD/IO to another atlas
 - Only originating atlas uploaders can upload new versions
 - Any atlas can import any SD/IO (no restrictions)
+
+**Originating Atlas:** Derived from first appearance (the atlas that first contained this SD/IO). No explicit column needed—query by earliest `created_at` for files with same concept.
 
 ### SD→IO Relationship (Stays on IO)
 
@@ -199,6 +203,8 @@ When a file is uploaded, the system determines whether it's a **new entity** or 
 
 When a new file is uploaded for an existing SD/IO, **all draft atlases** of the same (short_name, network) automatically get the new version—including drafts of different generations. For example, uploading to brain-v1.1-draft also updates brain-v2.0-draft.
 
+**Important:** Auto-update only **replaces** existing SD/IO versions in each draft. If a draft doesn't contain that SD/IO, nothing is added. Auto-update is mandatory—no opt-out.
+
 **Opt-in (different atlas):**
 
 Atlases that imported an SD/IO from another atlas see a "newer version available" indicator. Users explicitly adopt the new version.
@@ -250,7 +256,12 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 | **Link SD to IO**     | Add SD to IO's `source_datasets[]`; propagates to all atlases using that IO |
 | **Unlink SD from IO** | Remove SD from IO's `source_datasets[]`; propagates to all atlases          |
 
-**Constraint:** Can only link SD if it's in the viewing atlas's `source_datasets[]`.
+**Constraints:**
+
+- Can only link SD if it's in the viewing atlas's `source_datasets[]`
+- Can only manage links on **native IOs** (not imported IOs)
+
+**Propagation:** Both draft and published atlases can update links; changes propagate globally to all atlases using that IO version.
 
 **Display:** Each atlas filters IO's SDs to only show those in its own `source_datasets[]`.
 
@@ -320,21 +331,23 @@ CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   doi TEXT,
   title TEXT NOT NULL,
+  file_type TEXT NOT NULL,  -- 'source_dataset' or 'integrated_object'
   alias UUID REFERENCES hat.concepts(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
-CREATE INDEX idx_concepts_doi_title ON hat.concepts(doi, title);
+CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(doi, title, file_type) WHERE alias IS NULL;
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
-**Migration:** Create concepts from existing files' DOI + title; populate `concept_id`.
+**Migration:** Create concepts from existing files' DOI + title + file_type; populate `concept_id`.
 
 **Acceptance Criteria:**
 
 - [ ] Concepts table created with proper indexes
 - [ ] Existing files have concept_id populated
 - [ ] Alias lookup follows chain to canonical
+- [ ] Uniqueness enforced on (doi, title, file_type) for non-aliased concepts
 
 ---
 
@@ -343,14 +356,15 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 **Code:**
 
 - On S3 notification, extract DOI and title from H5AD file metadata
-- Find or create concept by (DOI, title)
+- Determine file_type from S3 path (source-datasets/ or integrated-objects/)
+- Find or create concept by (DOI, title, file_type)
 - Set `file.concept_id`
 
 **Acceptance Criteria:**
 
 - [ ] New uploads get concept_id assigned
-- [ ] Same DOI + title reuses existing concept
-- [ ] Different DOI or title creates new concept
+- [ ] Same DOI + title + file_type reuses existing concept
+- [ ] Different DOI, title, or file_type creates new concept
 
 ---
 
@@ -644,8 +658,10 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 4. **Slice 8** (8.1-8.2): Versioned downloads
 5. **Slice 4** (4.1-4.5): Publishing workflow
 6. **Slice 5** (5.1-5.2): Create new atlas versions
-7. **Slice 6** (6.1-6.6): Import and opt-in
+7. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
 8. **Slice 7** (7.1-7.2): Version history
+
+**Note on IO Import:** Import IO should be implemented after SD import is working, as importing an IO without its mapped SDs results in an IO with no visible SDs (due to display filtering). UI should prompt users to import related SDs when importing an IO.
 
 ---
 
