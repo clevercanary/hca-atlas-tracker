@@ -184,8 +184,8 @@ When a file is uploaded, the system determines whether it's a **new entity** or 
 **Flow:**
 
 1. File uploaded to S3 (`{network}/{atlas}/source-datasets/{filename}`)
-2. System extracts DOI + title from H5AD content
-3. Look up concept by (DOI, title) → find existing or create new
+2. System extracts DOI + title from H5AD content; determines file_type from path
+3. Look up concept by (DOI, title, file_type) → find existing or create new
 4. If existing concept with files: create new version of that SD/IO
 5. If new concept: create new SD/IO
 
@@ -216,7 +216,14 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 - `brain-v1.0` and `brain-v1.1` are versions within generation 1
 - `brain-v2.0` is a new generation
 
-**Draft constraint:** Only one draft per (short_name, network, generation). Different generations CAN have concurrent drafts (e.g., `brain-v1.2-draft` and `brain-v2.0-draft`).
+**Draft constraints:**
+
+- Only one draft per (short_name, network, generation)
+  - ✅ Allowed: `brain-v1.2-draft` and `brain-v2.0-draft` (different generations)
+  - ❌ Not allowed: `brain-v1.1-draft` and `brain-v1.2-draft` (same generation)
+- Can only create a new draft from the **latest published version** in that generation
+  - If v1.1 is published, new draft must be created from v1.1 (not v1.0)
+  - Cannot create from older versions to avoid SD/IO version divergence
 
 ## Events & Actions
 
@@ -504,9 +511,10 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 
 **Logic:**
 
-1. Calculate: `generation = max + 1` (if bump) or `revision = max + 1`
-2. Reject if draft exists for target (short_name, network, generation)
-3. Copy atlas with `draft = true`
+1. Reject if source atlas is not the latest published in its generation
+2. Calculate: `generation = max + 1` (if bump) or `revision = max + 1`
+3. Reject if draft exists for target (short_name, network, generation)
+4. Copy atlas with `draft = true`
 
 ---
 
