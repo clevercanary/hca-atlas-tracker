@@ -19,6 +19,9 @@ Object.defineProperty(globalThis, "crypto", {
 
 jest.mock("../app/utils/pg-app-connect-config");
 
+// Set ENVIRONMENT to test for all test runs
+process.env.ENVIRONMENT = "test";
+
 process.env.GOOGLE_SERVICE_ACCOUNT =
   '"TEST_GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"';
 process.env.GOOGLE_AUTH =
