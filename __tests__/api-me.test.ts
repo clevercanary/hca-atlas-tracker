@@ -145,10 +145,7 @@ async function doMeRequest(
     headers: { authorization: user?.authorization },
     method,
   });
-  await await withConsoleErrorHiding(
-    () => meHandler(req, res),
-    hideConsoleError,
-  );
+  await withConsoleErrorHiding(() => meHandler(req, res), hideConsoleError);
   return res;
 }
 
