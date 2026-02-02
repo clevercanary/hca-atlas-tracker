@@ -16,7 +16,8 @@ This document describes the versioning strategy for HCA Atlases, integrated obje
 | **Integrated Object** | An anndata file combining cells/metadata from multiple source datasets                                    |
 | **Source Dataset**    | A dataset from a source study selected for integration                                                    |
 | **Source Study**      | A publication that generated datasets                                                                     |
-| **Concept**           | A logical entity (SD or IO) identified by DOI + title, independent of filename                            |
+| **Concept**           | A logical entity (SD or IO) identified by identifier + title, independent of filename                     |
+| **Identifier**        | DOI (e.g., "10.1234/example") or publication string (e.g., "Rogers-2026a-unpublished") for lineage        |
 | **Native SD/IO**      | An SD/IO created by upload to this atlas (originating atlas)                                              |
 | **Imported SD/IO**    | An SD/IO linked from another atlas via explicit import action                                             |
 | **Generation**        | Major atlas iteration (1, 2, 3...) - manually bumped when creating new version (e.g., adding new studies) |
@@ -70,13 +71,13 @@ Second publish:
 
 ### What's Missing
 
-| Entity              | Needed Columns/Changes                                |
-| ------------------- | ----------------------------------------------------- |
-| `concepts`          | New table: `id`, `doi`, `title`, `file_type`, `alias` |
-| `files`             | `concept_id` → concepts                               |
-| `source_datasets`   | `revision_number`, `published_at`                     |
-| `component_atlases` | `revision_number`, `published_at`                     |
-| `atlases`           | `generation`, `revision`, `draft`                     |
+| Entity              | Needed Columns/Changes                                       |
+| ------------------- | ------------------------------------------------------------ |
+| `concepts`          | New table: `id`, `identifier`, `title`, `file_type`, `alias` |
+| `files`             | `concept_id` → concepts                                      |
+| `source_datasets`   | `revision_number`, `published_at`                            |
+| `component_atlases` | `revision_number`, `published_at`                            |
+| `atlases`           | `generation`, `revision`, `draft`                            |
 
 ## Design Principles
 
@@ -112,22 +113,29 @@ Concepts provide lineage tracking independent of filename.
 ```sql
 CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  doi TEXT,
+  identifier TEXT,  -- DOI or publication string (e.g., "Rogers-2026a-unpublished")
   title TEXT NOT NULL,
   file_type TEXT NOT NULL,  -- 'source_dataset' or 'integrated_object'
   alias UUID REFERENCES hat.concepts(id)  -- points to canonical after merge
 );
-CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(doi, title, file_type) WHERE alias IS NULL;
+CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(identifier, title, file_type) WHERE alias IS NULL;
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
+**Identifier Types:**
+
+- **DOI**: Standard DOI string (e.g., "10.1234/example") from published source study
+- **Publication string**: Format `{FirstAuthor}-{Year}{Letter}-unpublished` (e.g., "Rogers-2026a-unpublished") for unpublished studies
+
 **Behavior:**
 
-- On file upload: extract DOI + title from H5AD → find or create concept by (DOI, title, file_type)
+- On file upload: `concept_id = NULL` (concept not yet assigned)
+- On link to source study: derive identifier from source study → find or create concept by (identifier, title, file_type) → set `file.concept_id`
 - Both SDs and IOs have concepts (via their file), but they're separate due to file_type
 - Alias lookup is automatic (system follows chain to canonical)
 - Concept merge: update `concept_id` on affected files, set `merged.alias = canonical`
+- **Auto-merge on DOI**: When a source study receives a DOI, automatically merge the old publication-string concept into the new DOI concept
 
 ### SD/IO Shared Library
 
@@ -177,19 +185,38 @@ SD→IO mappings remain on the IO entity (`component_atlases.source_datasets[]`)
 - Used to determine display format (show/hide wip)
 - **Publishing is one-way** - cannot unpublish
 
-### File Upload Matching (Concept-Based)
+### File Upload Flow
 
-When a file is uploaded, the system determines whether it's a **new entity** or a **new version of existing entity**.
+**Upload Process (via hca-smart-sync CLI):**
 
-**Flow:**
+1. User runs `hca-smart-sync` which compares local files with S3 by filename + sha256
+2. New/changed files are uploaded to S3 (`{network}/{atlas}/source-datasets/{filename}`)
+3. S3 triggers SNS notification → AppRunner API endpoint
+4. System extracts title from H5AD; determines file_type from S3 path
+5. Creates file record with `concept_id = NULL` (not yet linked to concept)
+6. Creates SD/IO record linked to the file
+7. Triggers validation
 
-1. File uploaded to S3 (`{network}/{atlas}/source-datasets/{filename}`)
-2. System extracts DOI + title from H5AD content; determines file_type from path
-3. Look up concept by (DOI, title, file_type) → find existing or create new
-4. If existing concept with files: create new version of that SD/IO
-5. If new concept: create new SD/IO
+**Concept Assignment (on source study link):**
 
-**S3 path** determines which atlas receives the upload; **concept** determines lineage.
+SDs are **not usable until linked to a source study**. On link:
+
+1. Get identifier from source study (DOI or publication string)
+2. Extract title from file's H5AD metadata
+3. Look up concept by (identifier, title, file_type) → find existing or create new
+4. Set `file.concept_id`
+5. If existing concept with files: this is a new version of that SD
+6. If new concept: this is a new SD
+
+**S3 path** determines which atlas receives the upload; **concept** (assigned on link) determines lineage.
+
+**Version Matching (subsequent uploads):**
+
+After initial link, subsequent uploads match by concept:
+
+1. New file uploaded → `concept_id = NULL`
+2. When linked to same source study → same identifier + title → same concept
+3. System recognizes as new version of existing SD
 
 ### Version Update Behavior
 
@@ -229,13 +256,14 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 ### File Upload Events
 
-| Event                                 | Precondition                 | Behavior                                                       |
-| ------------------------------------- | ---------------------------- | -------------------------------------------------------------- |
-| **New SD file (first ever)**          | Atlas is draft               | Create concept, SD with `revision_number=1`, `wip_number=1`    |
-| **New SD file (existing, draft)**     | Atlas is draft, SD draft     | Same `revision_number`, `wip_number+1`; auto-update same atlas |
-| **New SD file (existing, published)** | Atlas is draft, SD published | `revision_number+1`, `wip_number=1`; auto-update same atlas    |
-| **New SD file to published atlas**    | Atlas is published           | **Rejected** - must create draft atlas first                   |
-| **New IO file**                       | Same as SD                   | Same patterns as SD                                            |
+| Event                                 | Precondition                 | Behavior                                                              |
+| ------------------------------------- | ---------------------------- | --------------------------------------------------------------------- |
+| **New SD file (first ever)**          | Atlas is draft               | Create SD with `revision_number=1`, `wip_number=1`, `concept_id=NULL` |
+| **New SD file (existing, draft)**     | Atlas is draft, SD draft     | Same `revision_number`, `wip_number+1`; auto-update same atlas        |
+| **New SD file (existing, published)** | Atlas is draft, SD published | `revision_number+1`, `wip_number=1`; auto-update same atlas           |
+| **New SD file to published atlas**    | Atlas is published           | **Rejected** - must create draft atlas first                          |
+| **New IO file**                       | Same as SD                   | Same patterns as SD                                                   |
+| **Link SD to source study**           | SD has `concept_id=NULL`     | Derive identifier → find/create concept → set `concept_id`            |
 
 ### Atlas Actions
 
@@ -304,11 +332,13 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 For existing data:
 
-- `concepts`: Create concepts from existing files' DOI + title combinations
-- `files`: Populate `concept_id` based on DOI + title lookup
+- `concepts`: Create concepts from existing files linked to source studies (identifier from source study DOI or publication string + title from H5AD)
+- `files`: Populate `concept_id` for files with linked source studies; leave NULL for unlinked files
 - `source_datasets`: Set `revision_number=1`, `published_at=NULL`
 - `component_atlases`: Set `revision_number=1`, `published_at=NULL`
 - `atlases`: Parse `overview.version` → `generation`/`revision`, set `draft=true`
+
+**Note:** Files without linked source studies will have `concept_id=NULL` and must be linked before they can be versioned.
 
 ---
 
@@ -327,7 +357,7 @@ Organized as vertical slices for incremental end-to-end delivery.
 
 ### Slice 1: Concept Model
 
-**Goal:** Track SD/IO lineage independent of filename using DOI + title.
+**Goal:** Track SD/IO lineage independent of filename using identifier + title.
 
 #### Ticket 1.1: [Backend] Create concepts table and file.concept_id
 
@@ -336,42 +366,55 @@ Organized as vertical slices for incremental end-to-end delivery.
 ```sql
 CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  doi TEXT,
+  identifier TEXT,  -- DOI or publication string (e.g., "Rogers-2026a-unpublished")
   title TEXT NOT NULL,
   file_type TEXT NOT NULL,  -- 'source_dataset' or 'integrated_object'
   alias UUID REFERENCES hat.concepts(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
-CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(doi, title, file_type) WHERE alias IS NULL;
+CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(identifier, title, file_type) WHERE alias IS NULL;
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
-**Migration:** Create concepts from existing files' DOI + title + file_type; populate `concept_id`.
+**Migration:** Create concepts from existing files' identifier + title + file_type (derived from linked source study); populate `concept_id`.
 
 **Acceptance Criteria:**
 
 - [ ] Concepts table created with proper indexes
-- [ ] Existing files have concept_id populated
+- [ ] Existing files with linked source studies have concept_id populated
+- [ ] Files without linked source studies have concept_id = NULL
 - [ ] Alias lookup follows chain to canonical
-- [ ] Uniqueness enforced on (doi, title, file_type) for non-aliased concepts
+- [ ] Uniqueness enforced on (identifier, title, file_type) for non-aliased concepts
 
 ---
 
-#### Ticket 1.2: [Backend] Extract DOI + title on file upload
+#### Ticket 1.2: [Backend] Assign concept on source study link
 
 **Code:**
 
-- On S3 notification, extract DOI and title from H5AD file metadata
-- Determine file_type from S3 path (source-datasets/ or integrated-objects/)
-- Find or create concept by (DOI, title, file_type)
-- Set `file.concept_id`
+- On link SD to source study:
+  - Extract title from H5AD file metadata
+  - Get identifier from source study (DOI or generate publication string)
+  - Determine file_type from S3 path (source-datasets/ or integrated-objects/)
+  - Find or create concept by (identifier, title, file_type)
+  - Set `file.concept_id`
+- On file upload: `concept_id` remains NULL until source study is linked
+
+**Publication String Format:** `{FirstAuthor}-{Year}{Letter}-unpublished`
+
+- FirstAuthor: Last name of first author
+- Year: Publication year (4 digits)
+- Letter: Disambiguator if multiple (a, b, c...)
+- Example: "Rogers-2026a-unpublished"
 
 **Acceptance Criteria:**
 
-- [ ] New uploads get concept_id assigned
-- [ ] Same DOI + title + file_type reuses existing concept
-- [ ] Different DOI, title, or file_type creates new concept
+- [ ] New uploads have concept_id = NULL
+- [ ] Linking to source study assigns concept_id
+- [ ] Same identifier + title + file_type reuses existing concept
+- [ ] Different identifier, title, or file_type creates new concept
+- [ ] Publication string generated correctly for unpublished studies
 
 ---
 
@@ -383,18 +426,45 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 
 **Logic:**
 
-1. Update all files with `concept_id = source` to `concept_id = target`
-2. Set `source.alias = target`
+1. Verify all files in source concept are unpublished (WIP only)
+2. Update all files with `concept_id = source` to `concept_id = target`
+3. Set `source.alias = target`
+
+**Constraint:** Only allow merge of concepts with unpublished (WIP) files. This avoids revision number conflicts in merged lineage.
 
 **Acceptance Criteria:**
 
+- [ ] Reject merge if source concept has any published files
 - [ ] Files updated to target concept
 - [ ] Source concept has alias set
 - [ ] Lookups for source concept return target
 
 ---
 
-#### Ticket 1.4: [Frontend] Concept merge UI
+#### Ticket 1.4: [Backend] Auto-merge concept when source study gets DOI
+
+**Trigger:** When a source study's DOI field is updated from NULL to a DOI value.
+
+**Logic:**
+
+1. Find all files linked to this source study
+2. For each file with a publication-string-based concept:
+   - Find or create DOI-based concept (DOI, same title, same file_type)
+   - If old concept has only WIP files: merge old concept into DOI concept
+   - If old concept has published files: log warning, skip auto-merge (requires manual resolution)
+3. Update `file.concept_id` to point to DOI concept
+
+**Acceptance Criteria:**
+
+- [ ] DOI update triggers concept migration
+- [ ] Files move from publication-string concept to DOI concept
+- [ ] Old concept gets alias set to new concept
+- [ ] Published files block auto-merge with warning
+- [ ] Multiple files from same study share the same DOI concept
+
+---
+
+#### Ticket 1.5: [Frontend] Concept merge UI
 
 **Changes:**
 
@@ -631,9 +701,10 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 | Slice | Ticket | Type | Description                             |
 | ----- | ------ | ---- | --------------------------------------- |
 | 1     | 1.1    | BE   | Concepts table + file.concept_id        |
-| 1     | 1.2    | BE   | Extract DOI + title on upload           |
+| 1     | 1.2    | BE   | Assign concept on source study link     |
 | 1     | 1.3    | BE   | Concept merge API                       |
-| 1     | 1.4    | FE   | Concept merge UI                        |
+| 1     | 1.4    | BE   | Auto-merge concept on DOI assignment    |
+| 1     | 1.5    | FE   | Concept merge UI                        |
 | 2     | 2.1    | BE   | Atlas generation/revision columns       |
 | 2     | 2.2    | FE   | Display atlas version                   |
 | 3     | 3.1    | BE   | SD/IO revision_number columns           |
@@ -660,7 +731,7 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 
 ## Recommended Delivery Order
 
-1. **Slice 1** (1.1-1.4): Concept model foundation
+1. **Slice 1** (1.1-1.5): Concept model foundation
 2. **Slice 2** (2.1-2.2): Atlas shows `v1.0` format
 3. **Slice 3** (3.1-3.2): SD/IO show revision numbers
 4. **Slice 8** (8.1-8.2): Versioned downloads
@@ -677,14 +748,15 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 
 ### Flow 1: Initial Creation and First Publish
 
-| Step | Action               | Result                                                               |
-| ---- | -------------------- | -------------------------------------------------------------------- |
-| 1    | Create Atlas "Brain" | Atlas brain-v1.0 (draft)                                             |
-| 2    | Upload IO file       | Concept created from DOI+title; IO1-r1-wip-1 created; added to atlas |
-| 3    | Upload SD file       | Concept created; SD1-r1-wip-1 created; added to atlas                |
-| 4    | Link SD1 to IO1      | IO1.source_datasets = [SD1] (propagates globally)                    |
-| 5    | Upload new IO file   | Same concept → IO1-r1-wip-2 (wip bump); atlas auto-updated           |
-| 6    | Publish v1.0         | published_at set on IO1, SD1; draft=false                            |
+| Step | Action                   | Result                                                     |
+| ---- | ------------------------ | ---------------------------------------------------------- |
+| 1    | Create Atlas "Brain"     | Atlas brain-v1.0 (draft)                                   |
+| 2    | Upload IO file           | IO1-r1-wip-1 created with concept_id=NULL; added to atlas  |
+| 3    | Upload SD file           | SD1-r1-wip-1 created with concept_id=NULL; added to atlas  |
+| 4    | Link SD1 to source study | Concept created from identifier+title; SD1.concept_id set  |
+| 5    | Link SD1 to IO1          | IO1.source_datasets = [SD1] (propagates globally)          |
+| 6    | Upload new IO file       | Same concept → IO1-r1-wip-2 (wip bump); atlas auto-updated |
+| 7    | Publish v1.0             | published_at set on IO1, SD1; draft=false                  |
 
 ### Flow 2: Update SD After Publish (Same Atlas)
 
@@ -741,3 +813,17 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 |      |                          | Lung still has SD1-r1 (different atlas, opt-in required) |
 | 4    | Lung creates v1.1-draft  | lung-v1.1-draft has SD1-r1, sees "newer available"       |
 | 5    | Lung adopts new version  | lung-v1.1-draft now has SD1-r2-wip-1                     |
+
+### Flow 7: Source Study Gets DOI (Auto-Merge)
+
+| Step | Action                     | Result                                                        |
+| ---- | -------------------------- | ------------------------------------------------------------- |
+| 1    | Starting state             | SD1 linked to unpublished source study "Rogers-2026a"         |
+|      |                            | Concept: (identifier="Rogers-2026a-unpublished", title="...") |
+| 2    | Source study gets DOI      | DOI "10.1234/example" assigned to source study                |
+| 3    | System auto-merges concept | New concept: (identifier="10.1234/example", title="...")      |
+|      |                            | Old concept gets alias → new concept                          |
+|      |                            | SD1's file.concept_id updated to new concept                  |
+| 4    | Future uploads             | Match by DOI-based concept for correct lineage                |
+
+**Note:** Auto-merge only succeeds if all files in old concept are unpublished. Published files require manual resolution.
