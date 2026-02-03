@@ -36,6 +36,39 @@ This document describes the versioning strategy for HCA Atlases, integrated obje
 - Atlas: `atlas-name-v{generation}.{revision}-draft` (e.g., `my-atlas-v1.2-draft`)
 - Files: `file-name-r{revision}-wip-{checkpoint}.h5ad` (e.g., `my-dataset-r2-wip-3.h5ad`)
 
+## Key Behaviors
+
+### Concepts (Lineage Tracking)
+
+Each SD/IO has a **concept** that tracks its identity across versions. Concepts are identified by **(atlas family + base filename)**—not the specific atlas version.
+
+- **Base filename** = filename with version suffix stripped (`brain-cells.h5ad` from `brain-cells-r1-wip-2.h5ad`)
+- **Atlas family** = (short_name, network), e.g., all versions of "Brain" atlas share concepts
+- Same filename uploaded to any version of the same atlas → same concept → new version
+- Different filename → new concept → new SD/IO
+
+### Native vs Imported
+
+- **Native:** SD/IO created by uploading to this atlas. Only the originating atlas can upload new versions.
+- **Imported:** SD/IO linked from another atlas via explicit import action. Can opt-in to newer versions.
+
+### Auto-Update (Same Atlas Family)
+
+When a new file is uploaded for an existing concept, **all draft atlases** in the same atlas family automatically get the new version—including different generations (e.g., v1.1 upload also updates v2.0-draft).
+
+- Only replaces existing SD/IO versions; doesn't add new ones
+- Published atlases are frozen; must create a new draft first
+- Mandatory—no opt-out
+
+### Merge ("Mark as new version of...")
+
+When a user renames a file, it creates a new concept. To preserve lineage:
+
+1. User selects the new SD/IO and chooses **"Mark as new version of..."**
+2. System reassigns files to the target concept, renumbers versions
+3. Target concept adopts the new filename as canonical
+4. Future uploads with the new filename match the merged concept
+
 ### Example Lifecycle
 
 ```
