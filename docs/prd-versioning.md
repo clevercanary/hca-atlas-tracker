@@ -69,6 +69,36 @@ When a user renames a file, it creates a new concept. To preserve lineage:
 3. Target concept adopts the new filename as canonical
 4. Future uploads with the new filename match the merged concept
 
+### Archive (Already Implemented)
+
+Archive is a **soft-delete** for removing SD/IOs from an atlas without destroying data.
+
+- Sets `is_archived = true` on the file record
+- Archived items remain in atlas arrays but are **filtered out** of counts and active views
+- Can be **unarchived** to restore visibility
+- Only works on latest versions (`is_latest = true`)
+
+**Current workflow for filename changes (without lineage):**
+
+1. Archive the old SD/IO
+2. Upload with new filename (creates new concept)
+3. Re-link source study (for SD) or source datasets (for IO)
+
+This works but **breaks lineage**—the new SD/IO has no version history connection to the old one.
+
+### Archive vs Merge: When to Use What
+
+| Scenario                        | Use Archive           | Use Merge                         |
+| ------------------------------- | --------------------- | --------------------------------- |
+| File was uploaded by mistake    | ✅ Archive it         | —                                 |
+| Wrong file, need to remove      | ✅ Archive it         | —                                 |
+| Filename changed, same data     | —                     | ✅ Merge to preserve lineage      |
+| Renamed for clarity/consistency | —                     | ✅ Merge to preserve lineage      |
+| Duplicate accidentally created  | Archive the duplicate | Or merge if it has useful history |
+| Need to undo an archive         | ✅ Unarchive it       | —                                 |
+
+**Rule of thumb:** Use **archive** for mistakes; use **merge** for intentional filename changes where you want to keep version history.
+
 ### Example Lifecycle
 
 ```
