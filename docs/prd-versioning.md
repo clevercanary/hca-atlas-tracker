@@ -77,6 +77,17 @@ Archive is a **soft-delete** for removing SD/IOs from an atlas without destroyin
 - Archived items remain in atlas arrays but are **filtered out** of counts and active views
 - Can be **unarchived** to restore visibility
 - Only works on latest versions (`is_latest = true`)
+- **Only works on unpublished SD/IOs** (`published_at IS NULL`)
+
+**Removing Published SD/IOs:**
+
+Once an SD/IO is published, archive is not allowed. To remove a published SD/IO from an atlas:
+
+1. Create a new draft version of the atlas
+2. Remove the SD/IO from the draft (removes from atlas's arrays)
+3. Publish the new version
+
+This preserves the historical record—v1.0 still shows the SD/IO; v1.1 does not.
 
 **Current workflow for filename changes (without lineage):**
 
@@ -127,7 +138,7 @@ Second publish:
 
 | Entity              | Columns                                                  | Behavior                                   |
 | ------------------- | -------------------------------------------------------- | ------------------------------------------ |
-| `files`             | `is_latest`, `version_id` (S3)                           | New row per S3 upload                      |
+| `files`             | `is_latest`, `version_id` (S3), `is_archived`            | New row per S3 upload                      |
 | `source_datasets`   | `id`, `version_id`, `is_latest`, `wip_number`, `file_id` | New row per file version; metadata mutable |
 | `component_atlases` | `id`, `version_id`, `is_latest`, `wip_number`, `file_id` | New row per file version; metadata mutable |
 | `atlases`           | `status`, `overview.version`                             | No versioning; arrays store version_ids    |
@@ -416,6 +427,16 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 | **Adopt new version** | Draft       | Replace old version_id with new in `source_datasets`/`component_atlases` |
 | **Adopt new version** | Published   | **Rejected** - must create draft first                                   |
 
+### Archive & Remove Actions
+
+| Action                      | Precondition                             | Behavior                                           |
+| --------------------------- | ---------------------------------------- | -------------------------------------------------- |
+| **Archive SD/IO**           | `is_latest=true`, `published_at IS NULL` | Set `is_archived=true`; filtered from active views |
+| **Unarchive SD/IO**         | `is_latest=true`, `is_archived=true`     | Set `is_archived=false`; visible again             |
+| **Archive published SD/IO** | `published_at IS NOT NULL`               | **Rejected** - must create draft and remove        |
+| **Remove SD/IO from atlas** | Atlas is draft                           | Remove version_id from atlas's arrays              |
+| **Remove SD/IO from atlas** | Atlas is published                       | **Rejected** - must create draft first             |
+
 ### Linking Actions (SD→IO)
 
 | Action                | Behavior                                                                    |
@@ -442,6 +463,8 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 | `POST /atlases/{id}/versions`                          | Create new draft version from current          |
 | `POST /atlases/{id}/source-datasets/import`            | Import SD from another atlas                   |
 | `POST /atlases/{id}/integrated-objects/import`         | Import IO from another atlas                   |
+| `DELETE /atlases/{id}/source-datasets/{sdId}`          | Remove SD from draft atlas                     |
+| `DELETE /atlases/{id}/integrated-objects/{ioId}`       | Remove IO from draft atlas                     |
 | `POST /atlases/{id}/source-datasets/{sdId}/adopt`      | Adopt newer version of imported SD             |
 | `POST /atlases/{id}/integrated-objects/{ioId}/adopt`   | Adopt newer version of imported IO             |
 | `POST /atlases/{id}/source-datasets/{sdId}/merge`      | Merge SD into another (mark as new version of) |
@@ -459,6 +482,7 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 | `GET /atlases/{id}/source-datasets`    | Include `revision_number`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable` |
 | `GET /atlases/{id}/integrated-objects` | Include `revision_number`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable` |
 | `GET /atlases/{id}/integrated-objects` | Filter `source_datasets` to those in atlas's SD list                                         |
+| `PATCH /atlases/{id}/files/archive`    | Reject if any file has `published_at IS NOT NULL`                                            |
 | Download endpoints                     | Generate versioned filenames via Content-Disposition header or presigned URL parameter       |
 
 ## Data Migration
@@ -687,6 +711,50 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 
 ---
 
+#### Ticket 4.6: [Backend] Enforce archive only on unpublished SD/IOs
+
+**Code:** Update `updateAtlasFilesArchiveStatus` to reject if any file has `published_at IS NOT NULL`.
+
+**Acceptance Criteria:**
+
+- [ ] Archive action rejected for published SD/IOs with clear error message
+- [ ] Unarchive action still works on any unpublished SD/IO
+- [ ] Tests verify archive blocked on published SD/IOs
+
+---
+
+#### Ticket 4.7: [Backend] Remove SD/IO from draft atlas endpoint
+
+**Endpoints:**
+
+- `DELETE /atlases/{atlasId}/source-datasets/{sdId}` - Remove SD from draft atlas
+- `DELETE /atlases/{atlasId}/integrated-objects/{ioId}` - Remove IO from draft atlas
+
+**Logic:**
+
+1. Verify atlas is draft
+2. Remove version_id from atlas's `source_datasets[]` or `component_atlases[]` array
+3. Does NOT delete the SD/IO—just removes from this atlas
+
+**Acceptance Criteria:**
+
+- [ ] SD/IO removed from atlas arrays
+- [ ] SD/IO still exists in database (can be re-imported)
+- [ ] Rejected on published atlases
+- [ ] Rejected if SD/IO not in atlas
+
+---
+
+#### Ticket 4.8: [Frontend] Remove SD/IO action on draft atlases
+
+**Changes:**
+
+- Add "Remove from atlas" action on SD/IO detail view (draft atlases only)
+- Confirmation dialog explaining the SD/IO can be re-imported later
+- Hidden on published atlases
+
+---
+
 ### Slice 5: Create New Atlas Version
 
 **Goal:** Create new draft from published atlas.
@@ -836,6 +904,9 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 | 4     | 4.3    | BE   | Increment revision after publish              |
 | 4     | 4.4    | BE   | Enforce immutability + scope updates          |
 | 4     | 4.5    | FE   | Draft/published UI + publish action           |
+| 4     | 4.6    | BE   | Enforce archive only on unpublished SD/IOs    |
+| 4     | 4.7    | BE   | Remove SD/IO from draft atlas endpoint        |
+| 4     | 4.8    | FE   | Remove SD/IO action on draft atlases          |
 | 5     | 5.1    | BE   | Create atlas version endpoint                 |
 | 5     | 5.2    | FE   | Create new version action                     |
 | 6     | 6.1    | BE   | SD/IO library browse endpoints                |
