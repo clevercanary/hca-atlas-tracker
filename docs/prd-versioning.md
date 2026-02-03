@@ -453,7 +453,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 **Acceptance Criteria:**
 
 - [ ] Concepts table created with proper indexes
-- [ ] Existing files have concept_id populated based on (short_name, network, filename)
+- [ ] Existing files have concept_id populated based on (short_name, network, base_filename)
 - [ ] Uniqueness enforced on (atlas_short_name, network, base_filename, file_type)
 
 ---
@@ -493,7 +493,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 2. Warn if source has published versions (require `force: true`)
 3. Reassign source concept's files to target concept
 4. Renumber versions (append to target's version sequence)
-5. Update target concept's `base_filename` to source's filename (new canonical name)
+5. Update target concept's `base_filename` to source's base_filename (new canonical name)
 6. Delete source concept
 7. Return updated target SD/IO
 
@@ -743,7 +743,10 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 
 #### Ticket 8.1: [Backend] Generate versioned download filenames
 
-**Logic:** `{base_filename_stem}-r{revision}.h5ad` or `{base_filename_stem}-r{revision}-wip-{wip}.h5ad`
+**Logic:** Strip `.h5ad` extension from base_filename, append version, re-add extension:
+
+- Published: `{name}-r{revision}.h5ad`
+- Draft: `{name}-r{revision}-wip-{wip}.h5ad`
 
 Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
@@ -895,7 +898,7 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 | 2    | Upload `brain-cells.h5ad` again             | Same concept A; brain-cells-r1-wip-2                     |
 | 3    | Rename file, upload `neurons.h5ad`          | Concept B created (different filename); neurons-r1-wip-1 |
 | 4    | Realize neurons.h5ad is same as brain-cells | User selects "Mark as new version of..."                 |
-| 5    | Merge B into A                              | B's file reassigned to A; becomes brain-cells-r1-wip-3   |
+| 5    | Merge B into A                              | B's file reassigned to A; becomes neurons-r1-wip-3       |
 |      |                                             | Concept A's base_filename updated to `neurons.h5ad`      |
 |      |                                             | Concept B deleted                                        |
 | 6    | Future upload of `neurons.h5ad`             | Matches Concept A (now has base_filename=neurons.h5ad)   |
