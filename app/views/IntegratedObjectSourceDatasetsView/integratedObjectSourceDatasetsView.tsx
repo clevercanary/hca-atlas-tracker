@@ -17,6 +17,8 @@ import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/useFetchAssociatedAtlasSourceDatasets";
 import { useFetchIntegratedObjectSourceDatasets } from "./hooks/useFetchIntegratedObjectSourceDatasets";
+import { useEditIntegratedObjectSourceDatasets } from "./hooks/useEditIntegratedObjectSourceDatasets";
+import { EditIntegratedObjectSourceDatasetsContext } from "./providers/editIntegratedObjectSourceDatasets/context";
 
 interface Props {
   pathParameter: PathParameter;
@@ -25,6 +27,7 @@ interface Props {
 export const IntegratedObjectSourceDatasetsView = ({
   pathParameter,
 }: Props): JSX.Element => {
+  const { onDelete } = useEditIntegratedObjectSourceDatasets(pathParameter);
   const { atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } =
     useFetchAssociatedAtlasSourceDatasets(pathParameter);
@@ -48,30 +51,32 @@ export const IntegratedObjectSourceDatasetsView = ({
       formManager={formManager}
       pathParameter={pathParameter}
     >
-      <ConditionalComponent
-        isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
-      >
-        <DetailView
-          breadcrumbs={
-            <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
-          }
-          mainColumn={
-            <EntityView
-              accessFallback={renderAccessFallback(formManager)}
-              sectionConfigs={
-                VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS
-              }
-            />
-          }
-          tabs={
-            <Tabs
-              pathParameter={pathParameter}
-              tabs={getTabs(componentAtlas)}
-            />
-          }
-          title={componentAtlas?.title || "Integrated Object Source Datasets"}
-        />
-      </ConditionalComponent>
+      <EditIntegratedObjectSourceDatasetsContext.Provider value={{ onDelete }}>
+        <ConditionalComponent
+          isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
+        >
+          <DetailView
+            breadcrumbs={
+              <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+            }
+            mainColumn={
+              <EntityView
+                accessFallback={renderAccessFallback(formManager)}
+                sectionConfigs={
+                  VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS
+                }
+              />
+            }
+            tabs={
+              <Tabs
+                pathParameter={pathParameter}
+                tabs={getTabs(componentAtlas)}
+              />
+            }
+            title={componentAtlas?.title || "Integrated Object Source Datasets"}
+          />
+        </ConditionalComponent>
+      </EditIntegratedObjectSourceDatasetsContext.Provider>
     </EntityProvider>
   );
 };

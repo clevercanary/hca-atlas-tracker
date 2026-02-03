@@ -7,7 +7,6 @@ import {
   ColumnConfig,
   ViewContext,
 } from "@databiosphere/findable-ui/lib/config/entities";
-import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import {
   CellContext,
@@ -53,7 +52,6 @@ import { ROUTE } from "../../../../routes/constants";
 import { formatDateToQuarterYear } from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { AtlasIntegratedObject } from "../../../../views/ComponentAtlasesView/entities";
-import { UseUnlinkComponentAtlasSourceDatasets } from "../../../../views/ComponentAtlasView/hooks/useUnlinkComponentAtlasSourceDatasets";
 import { EXTRA_PROPS } from "./constants";
 import {
   COMPONENT_NAME,
@@ -979,34 +977,6 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
 }
 
 /**
- * Returns the table column definition model for the atlas component source datasets table.
- * @param onUnlink - Unlink source datasets function.
- * @param canEdit - Edit state for user.
- * @param atlasId - ID of the associated atlas.
- * @returns Table column definition.
- */
-export function getAtlasComponentSourceDatasetsTableColumns(
-  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"],
-  canEdit: boolean,
-  atlasId: string,
-): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  const columnDefs: ColumnDef<HCAAtlasTrackerSourceDataset>[] = [
-    getComponentAtlasSourceDatasetPublicationColumnDef(),
-    getComponentAtlasSourceDatasetFileNameColumnDef(atlasId),
-    getComponentAtlasSourceDatasetTitleColumnDef(),
-    getAssayColumnDef(),
-    getSuspensionTypeColumnDef(),
-    getTissueColumnDef(),
-    getDiseaseColumnDef(),
-    getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(),
-  ];
-  if (canEdit) {
-    columnDefs.push(getComponentAtlasSourceDatasetUnlinkColumnDef(onUnlink));
-  }
-  return columnDefs;
-}
-
-/**
  * Returns the table column definition model for the atlas source datasets table.
  * @returns Table column definition.
  */
@@ -1143,95 +1113,6 @@ function getCellCountColumnDef<
     cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
     header: "Cell Count",
     meta: { width: { max: "0.75fr", min: "120px" } },
-  };
-}
-
-/**
- * Returns component atlas source dataset file name column def.
- * @param atlasId - ID of the associated atlas.
- * @returns ColumnDef.
- */
-function getComponentAtlasSourceDatasetFileNameColumnDef(
-  atlasId: string,
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "fileName",
-    cell: ({ row }) =>
-      C.Link({
-        label: row.original.fileName,
-        url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
-          atlasId: atlasId,
-          sourceDatasetId: row.original.id,
-        }),
-      }),
-    header: "File Name",
-    meta: { columnPinned: true },
-  };
-}
-
-/**
- * Returns source dataset publication column def.
- * @returns Column def.
- */
-function getComponentAtlasSourceDatasetPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "publicationString",
-    cell: ({ row }) =>
-      C.Link({
-        label: row.original.publicationString,
-        url: getDOILink(row.original.doi),
-      }),
-    header: "Publication",
-  };
-}
-
-/**
- * Returns component atlas source dataset cell count column def.
- * @returns ColumnDef.
- */
-function getComponentAtlasSourceDatasetSourceStudyCellCountColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "cellCount",
-    cell: ({ row }) => C.BasicCell(buildCellCount(row.original)),
-    header: "Cell count",
-  };
-}
-
-/**
- * Returns component atlas source dataset title column def.
- * @returns ColumnDef.
- */
-function getComponentAtlasSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "title",
-    cell: ({ row }) => C.BasicCell({ value: row.original.title }),
-    header: "Source Dataset",
-    meta: { columnPinned: true },
-  };
-}
-
-/**
- * Returns component atlas source dataset unlink column def.
- * @param onUnlink - Unlink source datasets function.
- * @returns ColumnDef.
- */
-function getComponentAtlasSourceDatasetUnlinkColumnDef(
-  onUnlink: UseUnlinkComponentAtlasSourceDatasets["onUnlink"],
-): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "delete",
-    cell: ({ row }) =>
-      C.IconButton({
-        Icon: C.UnLinkIcon,
-        color: ICON_BUTTON_PROPS.COLOR.SECONDARY,
-        onClick: () =>
-          onUnlink({
-            sourceDatasetIds: [row.original.id],
-          }),
-        size: ICON_BUTTON_PROPS.SIZE.MEDIUM,
-      }),
-    enableSorting: false,
-    header: "",
   };
 }
 
@@ -1625,5 +1506,31 @@ function getTissueColumnDef<
     accessorKey: "tissue",
     cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
+  };
+}
+
+/**
+ * Returns NTagCell component.
+ * @param propGetter - Fn that returns props for NTagCell component.
+ * @returns NTagCell component.
+ */
+export function renderNTagCell<T extends RowData>(
+  propGetter: (data: T) => ComponentProps<typeof C.NTagCell>,
+): (ctx: CellContext<T, unknown>) => JSX.Element {
+  return ({ row }) => {
+    return C.NTagCell(propGetter(row.original));
+  };
+}
+
+/**
+ * Returns PinnedNTagCell component.
+ * @param propGetter - Fn that returns props for PinnedNTagCell component.
+ * @returns PinnedNTagCell component.
+ */
+export function renderPinnedNTagCell<T extends RowData>(
+  propGetter: (data: T) => ComponentProps<typeof C.PinnedNTagCell>,
+): (ctx: CellContext<T, unknown>) => JSX.Element {
+  return ({ row }) => {
+    return C.PinnedNTagCell(propGetter(row.original));
   };
 }

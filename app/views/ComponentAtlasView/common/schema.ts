@@ -1,13 +1,7 @@
-import { array, number, object, string } from "yup";
+import { number, object, string } from "yup";
 import { CAP_DATASET_URL_REGEXP } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { CAP_INGEST_STATUS } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/entities";
 import { FIELD_NAME } from "./constants";
-
-export const componentAtlasDeleteSourceDatasetsSchema = object({
-  [FIELD_NAME.SOURCE_DATASET_IDS]: array()
-    .of(string().required().min(1))
-    .default([]),
-}).strict(true);
 
 export const viewIntegratedObjectSchema = object({
   [FIELD_NAME.CAP_INGEST_STATUS]: string().oneOf(
