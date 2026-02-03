@@ -21,7 +21,7 @@ This document describes the versioning strategy for HCA Atlases, integrated obje
 | **Native SD/IO**      | An SD/IO created by upload to this atlas (originating atlas)                                              |
 | **Imported SD/IO**    | An SD/IO linked from another atlas via explicit import action                                             |
 | **Generation**        | Major atlas iteration (1, 2, 3...) - manually bumped when creating new version (e.g., adding new studies) |
-| **Revision**          | Numbered update within a generation, representing a file version change (0, 1, 2...)                      |
+| **Revision**          | Numbered update within a generation, representing a file version change (1, 2, 3...)                      |
 | **WIP Number**        | Work-in-progress checkpoint counter within a revision                                                     |
 
 ## Versioning Scheme
@@ -185,7 +185,7 @@ SD→IO mappings remain on the IO entity (`component_atlases.source_datasets[]`)
 
 **Display Filtering:** When viewing an IO on atlas X, only show SDs that are in X's `source_datasets[]`. This ensures published atlases with frozen SD sets display consistently even if the underlying IO has more mappings.
 
-**Constraint:** Can only link an SD to an IO if the SD is in the atlas's `source_datasets[]`.
+**Constraint:** Can only link an SD to an IO if the SD is in the viewing atlas's `source_datasets[]`. This is enforced at link creation time.
 
 ### Version Numbering Rules
 
@@ -269,7 +269,7 @@ When a user renames a file, the system creates a new concept (different base fil
 **UI:**
 
 - Action appears on SD/IO detail view: **"Mark as new version of..."**
-- Opens picker showing other SDs/IOs in the same atlas
+- Opens picker showing other SDs/IOs in the same atlas family
 - Confirms the merge with preview of version renumbering
 
 **Constraints:**
@@ -365,7 +365,7 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 - Can only link SD if it's in the viewing atlas's `source_datasets[]`
 - Can only manage links on **native IOs** (not imported IOs)
 
-**Propagation:** Both draft and published atlases can update links; changes propagate globally to all atlases using that IO version.
+**Propagation:** For native IOs, both draft and published atlases of the originating atlas family can update SD→IO links; changes propagate globally to all atlases using that IO version. Imported IOs cannot have their links modified directly.
 
 **Display:** Each atlas filters IO's SDs to only show those in its own `source_datasets[]`.
 
@@ -396,7 +396,7 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 | `GET /atlases/{id}/source-datasets`    | Include `revision_number`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable` |
 | `GET /atlases/{id}/integrated-objects` | Include `revision_number`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable` |
 | `GET /atlases/{id}/integrated-objects` | Filter `source_datasets` to those in atlas's SD list                                         |
-| Download endpoints                     | Generate versioned filenames                                                                 |
+| Download endpoints                     | Generate versioned filenames via Content-Disposition header or presigned URL parameter       |
 
 ## Data Migration
 
@@ -406,7 +406,7 @@ For existing data:
 - `files`: Populate `concept_id` based on (short_name, network, base_filename, file_type) lookup
 - `source_datasets`: Set `revision_number=1`, `published_at=NULL`
 - `component_atlases`: Set `revision_number=1`, `published_at=NULL`
-- `atlases`: Parse `overview.version` → `generation`/`revision`, set `draft=true`
+- `atlases`: Parse `overview.version` (e.g., "1.0" → generation=1, revision=0), set `draft=true`. If unparseable or NULL, default to generation=1, revision=0.
 
 **Note:** All existing files will get concept_id assigned immediately based on their filename. No manual linking required.
 
@@ -635,7 +635,9 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 **Logic:**
 
 1. Reject if source atlas is not the latest published in its generation
-2. Calculate: `generation = max + 1` (if bump) or `revision = max + 1`
+2. Calculate version numbers from atlases with same (short_name, network):
+   - If bumping generation: `generation = max(generation) + 1`, `revision = 0`
+   - If bumping revision: keep generation, `revision = max(revision within generation) + 1`
 3. Reject if draft exists for target (short_name, network, generation)
 4. Copy atlas with `draft = true`
 
@@ -694,8 +696,8 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 
 **Logic:**
 
-- `imported`: true if originating atlas ≠ current atlas
-- `newerVersionAvailable`: true if latest version_id > current version_id for this concept
+- `imported`: true if originating atlas family ≠ current atlas family
+- `newerVersionAvailable`: true if a newer version exists for this concept (compare by created_at or wip_number)
 
 ---
 
