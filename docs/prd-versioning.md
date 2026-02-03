@@ -110,6 +110,8 @@ This works but **breaks lineage**—the new SD/IO has no version history connect
 
 **Rule of thumb:** Use **archive** for mistakes; use **merge** for intentional filename changes where you want to keep version history.
 
+**Note:** Archive only works on unpublished SD/IOs. For published SD/IOs, create a draft and use **remove** instead.
+
 ### Example Lifecycle
 
 ```
@@ -246,10 +248,10 @@ SDs and IOs exist in a shared library and can be linked to multiple atlases.
 
 - First upload creates SD/IO linked to uploading atlas only
 - Explicit import action links existing SD/IO to another atlas
-- Only originating atlas uploaders can upload new versions
+- Only the originating atlas family can upload new versions (enforced by concept model: upload to different atlas = different concept)
 - Any atlas can import any SD/IO (no restrictions)
 
-**Originating Atlas:** Derived from first appearance (the atlas that first contained this SD/IO). No explicit column needed—query by earliest `created_at` for files with same concept.
+**Originating Atlas:** Determined by the concept's `atlas_short_name`. Since concepts are scoped to (short_name, network), the originating atlas family is inherent in the concept itself—no separate tracking needed.
 
 ### SD→IO Relationship (Stays on IO)
 
@@ -713,7 +715,7 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 
 #### Ticket 4.6: [Backend] Enforce archive only on unpublished SD/IOs
 
-**Code:** Update `updateAtlasFilesArchiveStatus` to reject if any file has `published_at IS NOT NULL`.
+**Code:** Update `updateAtlasFilesArchiveStatus` to reject if any file's linked SD/IO has `published_at IS NOT NULL`. Requires joining files → source_datasets/component_atlases to check.
 
 **Acceptance Criteria:**
 
@@ -928,7 +930,7 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 2. **Slice 2** (2.1-2.2): Atlas shows `v1.0` format
 3. **Slice 3** (3.1-3.2): SD/IO show revision numbers
 4. **Slice 8** (8.1-8.2): Versioned downloads
-5. **Slice 4** (4.1-4.5): Publishing workflow
+5. **Slice 4** (4.1-4.8): Publishing workflow, archive constraints, remove from draft
 6. **Slice 5** (5.1-5.2): Create new atlas versions
 7. **Slice 1 continued** (1.3-1.4): Merge concepts (can be deferred until needed)
 8. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
