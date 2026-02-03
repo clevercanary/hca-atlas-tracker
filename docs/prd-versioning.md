@@ -16,7 +16,8 @@ This document describes the versioning strategy for HCA Atlases, integrated obje
 | **Integrated Object** | An anndata file combining cells/metadata from multiple source datasets                                    |
 | **Source Dataset**    | A dataset from a source study selected for integration                                                    |
 | **Source Study**      | A publication that generated datasets                                                                     |
-| **Concept**           | A logical entity (SD or IO) identified by source_study_id + title, independent of filename                |
+| **Concept**           | A logical entity (SD or IO) identified by atlas + base filename, providing version lineage                |
+| **Base Filename**     | Filename with version suffix stripped (e.g., `brain-cells.h5ad` from `brain-cells-r1-wip-2.h5ad`)         |
 | **Native SD/IO**      | An SD/IO created by upload to this atlas (originating atlas)                                              |
 | **Imported SD/IO**    | An SD/IO linked from another atlas via explicit import action                                             |
 | **Generation**        | Major atlas iteration (1, 2, 3...) - manually bumped when creating new version (e.g., adding new studies) |
@@ -70,13 +71,13 @@ Second publish:
 
 ### What's Missing
 
-| Entity              | Needed Columns/Changes                                   |
-| ------------------- | -------------------------------------------------------- |
-| `concepts`          | New table: `id`, `source_study_id`, `title`, `file_type` |
-| `files`             | `concept_id` → concepts                                  |
-| `source_datasets`   | `revision_number`, `published_at`                        |
-| `component_atlases` | `revision_number`, `published_at`                        |
-| `atlases`           | `generation`, `revision`, `draft`                        |
+| Entity              | Needed Columns/Changes                                    |
+| ------------------- | --------------------------------------------------------- |
+| `concepts`          | New table: `id`, `atlas_id`, `base_filename`, `file_type` |
+| `files`             | `concept_id` → concepts                                   |
+| `source_datasets`   | `revision_number`, `published_at`                         |
+| `component_atlases` | `revision_number`, `published_at`                         |
+| `atlases`           | `generation`, `revision`, `draft`                         |
 
 ## Design Principles
 
@@ -105,28 +106,52 @@ Second publish:
 
 ### Concept Model
 
-Concepts provide lineage tracking independent of filename. When a new file is uploaded, the concept determines which existing SD/IO (if any) it should be a new version of.
+Concepts provide lineage tracking using filename as identity. When a new file is uploaded, the system strips any version suffix from the filename to find the base filename, then matches to an existing concept or creates a new one.
 
 **Schema:**
 
 ```sql
 CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  source_study_id UUID REFERENCES hat.source_studies(id),
-  title TEXT NOT NULL,
-  file_type TEXT NOT NULL  -- 'source_dataset' or 'integrated_object'
+  atlas_id UUID NOT NULL REFERENCES hat.atlases(id),
+  base_filename TEXT NOT NULL,  -- filename with version suffix stripped
+  file_type TEXT NOT NULL,      -- 'source_dataset' or 'integrated_object'
+  created_at TIMESTAMP DEFAULT NOW()
 );
-CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(source_study_id, title, file_type);
+CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(atlas_id, base_filename, file_type);
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
+**Version Suffix Stripping:**
+
+On upload, the system strips version suffixes to determine the base filename:
+
+| Uploaded Filename           | Base Filename      | Version Detected |
+| --------------------------- | ------------------ | ---------------- |
+| `brain-cells.h5ad`          | `brain-cells.h5ad` | (none)           |
+| `brain-cells-r1-wip-2.h5ad` | `brain-cells.h5ad` | r1-wip-2         |
+| `brain-cells-r2.h5ad`       | `brain-cells.h5ad` | r2               |
+
+**Regex pattern:** `-r\d+(-wip-\d+)?(?=\.h5ad$)`
+
 **Behavior:**
 
-- On file upload: `concept_id = NULL` (concept not yet assigned)
-- On link to source study: look up concept by (source_study_id, title, file_type) → find or create → set `file.concept_id`
-- Both SDs and IOs have concepts (via their file), but they're separate due to file_type
-- The `source_study_id` is stable—it doesn't change when a DOI is added, so no migration needed
+- On file upload: strip version suffix → find or create concept by (atlas_id, base_filename, file_type) → set `file.concept_id`
+- Same base filename in same atlas → same concept → new version
+- Different base filename → different concept → new SD/IO
+- Version in uploaded filename is informational only; system assigns the next version number
+
+**Why Filename-Based:**
+
+- Works for both SDs and IOs (IOs don't have source studies)
+- Immediate concept assignment on upload (no waiting for source study link)
+- Users naturally keep filenames stable; version suffix allows external version visibility
+- Simple mental model: "same filename = same thing"
+
+**Escape Hatch - Merge:**
+
+When a filename changes (user renamed the file), the system creates a new concept. Users can merge concepts to preserve lineage. See [Merge Concepts](#merge-concepts) section.
 
 ### SD/IO Shared Library
 
@@ -183,30 +208,73 @@ SD→IO mappings remain on the IO entity (`component_atlases.source_datasets[]`)
 1. User runs `hca-smart-sync` which compares local files with S3 by filename + sha256
 2. New/changed files are uploaded to S3 (`{network}/{atlas}/source-datasets/{filename}`)
 3. S3 triggers SNS notification → AppRunner API endpoint
-4. System extracts title from H5AD; determines file_type from S3 path
-5. Creates file record with `concept_id = NULL` (not yet linked to concept)
-6. Creates SD/IO record linked to the file
-7. Triggers validation
+4. System determines atlas_id and file_type from S3 path
+5. System strips version suffix from filename to get base_filename
+6. System finds or creates concept by (atlas_id, base_filename, file_type)
+7. Creates file record with concept_id set
+8. Creates SD/IO record linked to the file (new version if concept exists, new SD/IO if new concept)
+9. Triggers validation
 
-**Concept Assignment (on source study link):**
+**Version Suffix Stripping Examples:**
 
-SDs are **not usable until linked to a source study**. On link:
+| S3 Key                                          | Atlas | Base Filename  | Concept Match     |
+| ----------------------------------------------- | ----- | -------------- | ----------------- |
+| `bio/brain/source-datasets/cells.h5ad`          | brain | `cells.h5ad`   | Find/create       |
+| `bio/brain/source-datasets/cells-r1-wip-2.h5ad` | brain | `cells.h5ad`   | Same concept      |
+| `bio/brain/source-datasets/cells-r2.h5ad`       | brain | `cells.h5ad`   | Same concept      |
+| `bio/brain/source-datasets/neurons.h5ad`        | brain | `neurons.h5ad` | Different concept |
 
-1. Extract title from file's H5AD metadata
-2. Look up concept by (source_study_id, title, file_type) → find existing or create new
-3. Set `file.concept_id`
-4. If existing concept with files: this is a new version of that SD
-5. If new concept: this is a new SD
+**Key Points:**
 
-**S3 path** determines which atlas receives the upload; **concept** (assigned on link) determines lineage.
+- **S3 path** determines atlas_id and file_type
+- **Base filename** (version suffix stripped) determines concept
+- Concept assignment is **immediate** on upload (no waiting for source study link)
+- Version in uploaded filename is ignored for matching; system assigns next version number
 
-**Version Matching (subsequent uploads):**
+**CAP Team Workflow:**
 
-After initial link, subsequent uploads match by concept:
+1. CAP downloads `SD1-r1-wip-1.h5ad` (versioned filename)
+2. CAP annotates the file locally
+3. CAP uploads `SD1-r1-wip-1.h5ad` (same filename they downloaded)
+4. System strips suffix → base filename `SD1.h5ad` → matches existing concept
+5. System creates `SD1-r1-wip-2` (next wip number)
 
-1. New file uploaded → `concept_id = NULL`
-2. When linked to same source study → same source_study_id + title → same concept
-3. System recognizes as new version of existing SD
+The uploaded filename's version suffix is informational—it tells the system what version CAP _had_, but the system assigns the _next_ version.
+
+### Merge Concepts
+
+When a user renames a file, the system creates a new concept (different base filename). To preserve version lineage, users can merge concepts using **"Mark as new version of..."**.
+
+**Scenario:**
+
+1. User uploads `brain-cells.h5ad` → Concept A created (wip-1, wip-2)
+2. User renames file to `brain-cells-final.h5ad` and uploads → Concept B created (wip-1)
+3. User realizes B should continue A's lineage
+4. User selects B and chooses "Mark as new version of A"
+
+**Merge Operation:**
+
+1. Reassign Concept B's files to Concept A (`file.concept_id = A`)
+2. Renumber versions (B's wip-1 becomes A's wip-3)
+3. Update Concept A's `base_filename` to `brain-cells-final.h5ad` (new canonical name)
+4. Delete Concept B (now empty)
+5. Future uploads of `brain-cells-final.h5ad` match Concept A
+
+**UI:**
+
+- Action appears on SD/IO detail view: **"Mark as new version of..."**
+- Opens picker showing other SDs/IOs in the same atlas
+- Confirms the merge with preview of version renumbering
+
+**Constraints:**
+
+- Can only merge concepts within the same atlas
+- Can only merge concepts of the same file_type (SD→SD, IO→IO)
+- Source concept (being merged away) should have no published versions, or user must confirm
+
+**Real-World Analogy:**
+
+Similar to Jira's "Mark as duplicate" or Zenodo's "new version of existing record"—explicitly linking two things that are actually the same.
 
 ### Version Update Behavior
 
@@ -246,14 +314,19 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 ### File Upload Events
 
-| Event                                 | Precondition                 | Behavior                                                                  |
-| ------------------------------------- | ---------------------------- | ------------------------------------------------------------------------- |
-| **New SD file (first ever)**          | Atlas is draft               | Create SD with `revision_number=1`, `wip_number=1`, `concept_id=NULL`     |
-| **New SD file (existing, draft)**     | Atlas is draft, SD draft     | Same `revision_number`, `wip_number+1`; auto-update same atlas            |
-| **New SD file (existing, published)** | Atlas is draft, SD published | `revision_number+1`, `wip_number=1`; auto-update same atlas               |
-| **New SD file to published atlas**    | Atlas is published           | **Rejected** - must create draft atlas first                              |
-| **New IO file**                       | Same as SD                   | Same patterns as SD                                                       |
-| **Link SD to source study**           | SD has `concept_id=NULL`     | Look up concept by (source_study_id, title, file_type) → set `concept_id` |
+| Event                                 | Precondition                 | Behavior                                                                           |
+| ------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------- |
+| **New SD file (new concept)**         | Atlas is draft               | Strip suffix → new concept → Create SD with `revision_number=1`, `wip_number=1`    |
+| **New SD file (existing, draft)**     | Atlas is draft, SD draft     | Strip suffix → match concept → Same `revision_number`, `wip_number+1`; auto-update |
+| **New SD file (existing, published)** | Atlas is draft, SD published | Strip suffix → match concept → `revision_number+1`, `wip_number=1`; auto-update    |
+| **New SD file to published atlas**    | Atlas is published           | **Rejected** - must create draft atlas first                                       |
+| **New IO file**                       | Same as SD                   | Same patterns as SD                                                                |
+
+### Merge Actions
+
+| Action                        | Precondition                              | Behavior                                                                                         |
+| ----------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Mark as new version of...** | Source has no published versions (or ack) | Reassign files to target concept, renumber versions, update base_filename, delete source concept |
 
 ### Atlas Actions
 
@@ -294,18 +367,20 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 ### New Endpoints
 
-| Endpoint                                               | Description                               |
-| ------------------------------------------------------ | ----------------------------------------- |
-| `POST /atlases/{id}/publish`                           | Publish the atlas                         |
-| `POST /atlases/{id}/versions`                          | Create new draft version from current     |
-| `POST /atlases/{id}/source-datasets/import`            | Import SD from another atlas              |
-| `POST /atlases/{id}/integrated-objects/import`         | Import IO from another atlas              |
-| `POST /atlases/{id}/source-datasets/{sdId}/adopt`      | Adopt newer version of imported SD        |
-| `POST /atlases/{id}/integrated-objects/{ioId}/adopt`   | Adopt newer version of imported IO        |
-| `GET /atlases/{id}/source-datasets/{sdId}/versions`    | List all versions of a source dataset     |
-| `GET /atlases/{id}/integrated-objects/{ioId}/versions` | List all versions of an integrated object |
-| `GET /source-datasets`                                 | Browse SD library (for import)            |
-| `GET /integrated-objects`                              | Browse IO library (for import)            |
+| Endpoint                                               | Description                                    |
+| ------------------------------------------------------ | ---------------------------------------------- |
+| `POST /atlases/{id}/publish`                           | Publish the atlas                              |
+| `POST /atlases/{id}/versions`                          | Create new draft version from current          |
+| `POST /atlases/{id}/source-datasets/import`            | Import SD from another atlas                   |
+| `POST /atlases/{id}/integrated-objects/import`         | Import IO from another atlas                   |
+| `POST /atlases/{id}/source-datasets/{sdId}/adopt`      | Adopt newer version of imported SD             |
+| `POST /atlases/{id}/integrated-objects/{ioId}/adopt`   | Adopt newer version of imported IO             |
+| `POST /atlases/{id}/source-datasets/{sdId}/merge`      | Merge SD into another (mark as new version of) |
+| `POST /atlases/{id}/integrated-objects/{ioId}/merge`   | Merge IO into another (mark as new version of) |
+| `GET /atlases/{id}/source-datasets/{sdId}/versions`    | List all versions of a source dataset          |
+| `GET /atlases/{id}/integrated-objects/{ioId}/versions` | List all versions of an integrated object      |
+| `GET /source-datasets`                                 | Browse SD library (for import)                 |
+| `GET /integrated-objects`                              | Browse IO library (for import)                 |
 
 ### Modified Endpoints
 
@@ -321,13 +396,13 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 For existing data:
 
-- `concepts`: Create concepts from existing files linked to source studies (source_study_id + title from H5AD + file_type)
-- `files`: Populate `concept_id` for files with linked source studies; leave NULL for unlinked files
+- `concepts`: Create concepts from existing files using (atlas_id, base_filename, file_type); strip any version suffixes from existing filenames
+- `files`: Populate `concept_id` based on (atlas_id, base_filename, file_type) lookup
 - `source_datasets`: Set `revision_number=1`, `published_at=NULL`
 - `component_atlases`: Set `revision_number=1`, `published_at=NULL`
 - `atlases`: Parse `overview.version` → `generation`/`revision`, set `draft=true`
 
-**Note:** Files without linked source studies will have `concept_id=NULL` and must be linked before they can be versioned.
+**Note:** All existing files will get concept_id assigned immediately based on their filename. No manual linking required.
 
 ---
 
@@ -346,7 +421,7 @@ Organized as vertical slices for incremental end-to-end delivery.
 
 ### Slice 1: Concept Model
 
-**Goal:** Track SD/IO lineage independent of filename using source_study_id + title.
+**Goal:** Track SD/IO lineage using filename as identity, with version suffix stripping.
 
 #### Ticket 1.1: [Backend] Create concepts table and file.concept_id
 
@@ -355,44 +430,91 @@ Organized as vertical slices for incremental end-to-end delivery.
 ```sql
 CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  source_study_id UUID REFERENCES hat.source_studies(id),
-  title TEXT NOT NULL,
-  file_type TEXT NOT NULL,  -- 'source_dataset' or 'integrated_object'
+  atlas_id UUID NOT NULL REFERENCES hat.atlases(id),
+  base_filename TEXT NOT NULL,  -- filename with version suffix stripped
+  file_type TEXT NOT NULL,      -- 'source_dataset' or 'integrated_object'
   created_at TIMESTAMP DEFAULT NOW()
 );
-CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(source_study_id, title, file_type);
+CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(atlas_id, base_filename, file_type);
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
-**Migration:** Create concepts from existing files linked to source studies (source_study_id + title + file_type); populate `concept_id`.
+**Migration:** Create concepts from existing files using (atlas_id, base_filename, file_type); populate `concept_id`.
 
 **Acceptance Criteria:**
 
 - [ ] Concepts table created with proper indexes
-- [ ] Existing files with linked source studies have concept_id populated
-- [ ] Files without linked source studies have concept_id = NULL
-- [ ] Uniqueness enforced on (source_study_id, title, file_type)
+- [ ] Existing files have concept_id populated based on atlas + filename
+- [ ] Uniqueness enforced on (atlas_id, base_filename, file_type)
 
 ---
 
-#### Ticket 1.2: [Backend] Assign concept on source study link
+#### Ticket 1.2: [Backend] Version suffix stripping and concept assignment on upload
 
 **Code:**
 
-- On link SD to source study:
-  - Extract title from H5AD file metadata
-  - Determine file_type from S3 path (source-datasets/ or integrated-objects/)
-  - Find or create concept by (source_study_id, title, file_type)
+- Implement `stripVersionSuffix(filename)` function:
+  - Pattern: `-r\d+(-wip-\d+)?(?=\.h5ad$)`
+  - Examples: `foo-r1-wip-2.h5ad` → `foo.h5ad`, `foo-r2.h5ad` → `foo.h5ad`
+- On file upload:
+  - Extract atlas_id and file_type from S3 path
+  - Strip version suffix from filename → base_filename
+  - Find or create concept by (atlas_id, base_filename, file_type)
   - Set `file.concept_id`
-- On file upload: `concept_id` remains NULL until source study is linked
 
 **Acceptance Criteria:**
 
-- [ ] New uploads have concept_id = NULL
-- [ ] Linking to source study assigns concept_id
-- [ ] Same source_study_id + title + file_type reuses existing concept
-- [ ] Different source_study_id, title, or file_type creates new concept
+- [ ] Version suffix correctly stripped from various filename patterns
+- [ ] New uploads immediately get concept_id assigned
+- [ ] Same base filename in same atlas → same concept (new version)
+- [ ] Different base filename → different concept (new SD/IO)
+- [ ] Version in uploaded filename is ignored for matching
+
+---
+
+#### Ticket 1.3: [Backend] Merge concepts endpoint
+
+**Endpoint:** `POST /atlases/{atlasId}/source-datasets/{sdId}/merge`
+
+**Body:** `{ "targetConceptId": "uuid" }`
+
+**Logic:**
+
+1. Validate source and target are in same atlas, same file_type
+2. Warn if source has published versions (require `force: true`)
+3. Reassign source concept's files to target concept
+4. Renumber versions (append to target's version sequence)
+5. Update target concept's `base_filename` to source's filename (new canonical name)
+6. Delete source concept
+7. Return updated target SD/IO
+
+**Acceptance Criteria:**
+
+- [ ] Files reassigned to target concept
+- [ ] Versions renumbered correctly
+- [ ] Target's base_filename updated
+- [ ] Source concept deleted
+- [ ] Rejects cross-atlas or cross-type merges
+- [ ] Warns/rejects if source has published versions (unless forced)
+
+---
+
+#### Ticket 1.4: [Frontend] "Mark as new version of..." UI
+
+**Changes:**
+
+- Add action to SD/IO detail view: "Mark as new version of..."
+- Picker showing other SDs/IOs in same atlas (same type)
+- Confirmation dialog with version renumbering preview
+- Warning if source has published versions
+
+**Acceptance Criteria:**
+
+- [ ] Action visible on SD/IO detail view
+- [ ] Picker filters to same atlas, same file_type
+- [ ] Preview shows how versions will be renumbered
+- [ ] Merge completes and UI updates
 
 ---
 
@@ -484,7 +606,7 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 - Reject file uploads to published atlases
 - Auto-update all draft atlases of the same (short_name, network) on new version
   - Note: Updates ALL drafts regardless of generation (e.g., uploading to brain-v1.1-draft also updates brain-v2.0-draft)
-- Match files by concept_id (not filename)
+- Match files by concept_id
 
 **Fix:** Current code uses unscoped `ARRAY_REPLACE` that updates ALL atlases. Must be changed to update only drafts of the same (short_name, network).
 
@@ -621,46 +743,51 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 
 ## Ticket Summary
 
-| Slice | Ticket | Type | Description                             |
-| ----- | ------ | ---- | --------------------------------------- |
-| 1     | 1.1    | BE   | Concepts table + file.concept_id        |
-| 1     | 1.2    | BE   | Assign concept on source study link     |
-| 2     | 2.1    | BE   | Atlas generation/revision columns       |
-| 2     | 2.2    | FE   | Display atlas version                   |
-| 3     | 3.1    | BE   | SD/IO revision_number columns           |
-| 3     | 3.2    | FE   | Display SD/IO version                   |
-| 4     | 4.1    | BE   | published_at + draft columns            |
-| 4     | 4.2    | BE   | Publish atlas endpoint                  |
-| 4     | 4.3    | BE   | Increment revision after publish        |
-| 4     | 4.4    | BE   | Enforce immutability + scope updates    |
-| 4     | 4.5    | FE   | Draft/published UI + publish action     |
-| 5     | 5.1    | BE   | Create atlas version endpoint           |
-| 5     | 5.2    | FE   | Create new version action               |
-| 6     | 6.1    | BE   | SD/IO library browse endpoints          |
-| 6     | 6.2    | BE   | Import SD/IO endpoints                  |
-| 6     | 6.3    | BE   | Adopt new version endpoints             |
-| 6     | 6.4    | BE   | imported + newerVersionAvailable fields |
-| 6     | 6.5    | FE   | Import SD/IO UI                         |
-| 6     | 6.6    | FE   | Imported indicator + adopt action       |
-| 7     | 7.1    | BE   | Version history endpoints               |
-| 7     | 7.2    | FE   | Version history view                    |
-| 8     | 8.1    | BE   | Versioned download filenames            |
-| 8     | 8.2    | FE   | Download with versioned names           |
+| Slice | Ticket | Type | Description                                   |
+| ----- | ------ | ---- | --------------------------------------------- |
+| 1     | 1.1    | BE   | Concepts table + file.concept_id              |
+| 1     | 1.2    | BE   | Version suffix stripping + concept assignment |
+| 1     | 1.3    | BE   | Merge concepts endpoint                       |
+| 1     | 1.4    | FE   | "Mark as new version of..." UI                |
+| 2     | 2.1    | BE   | Atlas generation/revision columns             |
+| 2     | 2.2    | FE   | Display atlas version                         |
+| 3     | 3.1    | BE   | SD/IO revision_number columns                 |
+| 3     | 3.2    | FE   | Display SD/IO version                         |
+| 4     | 4.1    | BE   | published_at + draft columns                  |
+| 4     | 4.2    | BE   | Publish atlas endpoint                        |
+| 4     | 4.3    | BE   | Increment revision after publish              |
+| 4     | 4.4    | BE   | Enforce immutability + scope updates          |
+| 4     | 4.5    | FE   | Draft/published UI + publish action           |
+| 5     | 5.1    | BE   | Create atlas version endpoint                 |
+| 5     | 5.2    | FE   | Create new version action                     |
+| 6     | 6.1    | BE   | SD/IO library browse endpoints                |
+| 6     | 6.2    | BE   | Import SD/IO endpoints                        |
+| 6     | 6.3    | BE   | Adopt new version endpoints                   |
+| 6     | 6.4    | BE   | imported + newerVersionAvailable fields       |
+| 6     | 6.5    | FE   | Import SD/IO UI                               |
+| 6     | 6.6    | FE   | Imported indicator + adopt action             |
+| 7     | 7.1    | BE   | Version history endpoints                     |
+| 7     | 7.2    | FE   | Version history view                          |
+| 8     | 8.1    | BE   | Versioned download filenames                  |
+| 8     | 8.2    | FE   | Download with versioned names                 |
 
 ---
 
 ## Recommended Delivery Order
 
-1. **Slice 1** (1.1-1.2): Concept model foundation
+1. **Slice 1** (1.1-1.2): Concept model foundation (filename-based, immediate assignment)
 2. **Slice 2** (2.1-2.2): Atlas shows `v1.0` format
 3. **Slice 3** (3.1-3.2): SD/IO show revision numbers
 4. **Slice 8** (8.1-8.2): Versioned downloads
 5. **Slice 4** (4.1-4.5): Publishing workflow
 6. **Slice 5** (5.1-5.2): Create new atlas versions
-7. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
-8. **Slice 7** (7.1-7.2): Version history
+7. **Slice 1 continued** (1.3-1.4): Merge concepts (can be deferred until needed)
+8. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
+9. **Slice 7** (7.1-7.2): Version history
 
 **Note on IO Import:** Import IO should be implemented after SD import is working, as importing an IO without its mapped SDs results in an IO with no visible SDs (due to display filtering). UI should prompt users to import related SDs when importing an IO.
+
+**Note on Merge:** The merge functionality (1.3-1.4) can be deferred until users actually need it. Most users will keep filenames stable; merge is the escape hatch for when they don't.
 
 ---
 
@@ -668,15 +795,15 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 
 ### Flow 1: Initial Creation and First Publish
 
-| Step | Action                   | Result                                                         |
-| ---- | ------------------------ | -------------------------------------------------------------- |
-| 1    | Create Atlas "Brain"     | Atlas brain-v1.0 (draft)                                       |
-| 2    | Upload IO file           | IO1-r1-wip-1 created with concept_id=NULL; added to atlas      |
-| 3    | Upload SD file           | SD1-r1-wip-1 created with concept_id=NULL; added to atlas      |
-| 4    | Link SD1 to source study | Concept created from source_study_id+title; SD1.concept_id set |
-| 5    | Link SD1 to IO1          | IO1.source_datasets = [SD1] (propagates globally)              |
-| 6    | Upload new IO file       | Same concept → IO1-r1-wip-2 (wip bump); atlas auto-updated     |
-| 7    | Publish v1.0             | published_at set on IO1, SD1; draft=false                      |
+| Step | Action                   | Result                                                          |
+| ---- | ------------------------ | --------------------------------------------------------------- |
+| 1    | Create Atlas "Brain"     | Atlas brain-v1.0 (draft)                                        |
+| 2    | Upload `IO1.h5ad`        | Concept created (brain, IO1.h5ad, IO); IO1-r1-wip-1 added       |
+| 3    | Upload `SD1.h5ad`        | Concept created (brain, SD1.h5ad, SD); SD1-r1-wip-1 added       |
+| 4    | Link SD1 to source study | Source study linked (concept already assigned from filename)    |
+| 5    | Link SD1 to IO1          | IO1.source_datasets = [SD1] (propagates globally)               |
+| 6    | Upload `IO1.h5ad` again  | Same filename → same concept → IO1-r1-wip-2; atlas auto-updated |
+| 7    | Publish v1.0             | published_at set on IO1, SD1; draft=false                       |
 
 ### Flow 2: Update SD After Publish (Same Atlas)
 
@@ -733,3 +860,30 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 |      |                          | Lung still has SD1-r1 (different atlas, opt-in required) |
 | 4    | Lung creates v1.1-draft  | lung-v1.1-draft has SD1-r1, sees "newer available"       |
 | 5    | Lung adopts new version  | lung-v1.1-draft now has SD1-r2-wip-1                     |
+
+### Flow 7: CAP Annotation Workflow
+
+| Step | Action                            | Result                                        |
+| ---- | --------------------------------- | --------------------------------------------- |
+| 1    | Atlas dev uploads `cells.h5ad`    | Concept created; cells-r1-wip-1               |
+| 2    | CAP downloads cells-r1-wip-1      | Gets file named `cells-r1-wip-1.h5ad`         |
+| 3    | CAP annotates locally             | File still named `cells-r1-wip-1.h5ad`        |
+| 4    | CAP uploads `cells-r1-wip-1.h5ad` | Suffix stripped → `cells.h5ad` → same concept |
+|      |                                   | Creates cells-r1-wip-2                        |
+| 5    | Atlas dev downloads r1-wip-2      | Gets CAP's annotations                        |
+| 6    | Atlas dev uploads `cells.h5ad`    | Same concept → cells-r1-wip-3                 |
+
+**Key:** CAP uploads with the versioned filename they downloaded; system strips suffix and matches to existing concept.
+
+### Flow 8: Filename Rename with Merge
+
+| Step | Action                                      | Result                                                   |
+| ---- | ------------------------------------------- | -------------------------------------------------------- |
+| 1    | Upload `brain-cells.h5ad`                   | Concept A created; brain-cells-r1-wip-1                  |
+| 2    | Upload `brain-cells.h5ad` again             | Same concept A; brain-cells-r1-wip-2                     |
+| 3    | Rename file, upload `neurons.h5ad`          | Concept B created (different filename); neurons-r1-wip-1 |
+| 4    | Realize neurons.h5ad is same as brain-cells | User selects "Mark as new version of..."                 |
+| 5    | Merge B into A                              | B's file reassigned to A; becomes brain-cells-r1-wip-3   |
+|      |                                             | Concept A's base_filename updated to `neurons.h5ad`      |
+|      |                                             | Concept B deleted                                        |
+| 6    | Future upload of `neurons.h5ad`             | Matches Concept A (now has base_filename=neurons.h5ad)   |
