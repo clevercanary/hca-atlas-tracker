@@ -16,7 +16,7 @@ This document describes the versioning strategy for HCA Atlases, integrated obje
 | **Integrated Object** | An anndata file combining cells/metadata from multiple source datasets                                    |
 | **Source Dataset**    | A dataset from a source study selected for integration                                                    |
 | **Source Study**      | A publication that generated datasets                                                                     |
-| **Concept**           | A logical entity (SD or IO) identified by atlas + base filename, providing version lineage                |
+| **Concept**           | A logical entity (SD or IO) identified by atlas family (short_name + network) + base filename             |
 | **Base Filename**     | Filename with version suffix stripped (e.g., `brain-cells.h5ad` from `brain-cells-r1-wip-2.h5ad`)         |
 | **Native SD/IO**      | An SD/IO created by upload to this atlas (originating atlas)                                              |
 | **Imported SD/IO**    | An SD/IO linked from another atlas via explicit import action                                             |
@@ -71,13 +71,13 @@ Second publish:
 
 ### What's Missing
 
-| Entity              | Needed Columns/Changes                                    |
-| ------------------- | --------------------------------------------------------- |
-| `concepts`          | New table: `id`, `atlas_id`, `base_filename`, `file_type` |
-| `files`             | `concept_id` → concepts                                   |
-| `source_datasets`   | `revision_number`, `published_at`                         |
-| `component_atlases` | `revision_number`, `published_at`                         |
-| `atlases`           | `generation`, `revision`, `draft`                         |
+| Entity              | Needed Columns/Changes                                                       |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `concepts`          | New table: `id`, `atlas_short_name`, `network`, `base_filename`, `file_type` |
+| `files`             | `concept_id` → concepts                                                      |
+| `source_datasets`   | `revision_number`, `published_at`                                            |
+| `component_atlases` | `revision_number`, `published_at`                                            |
+| `atlases`           | `generation`, `revision`, `draft`                                            |
 
 ## Design Principles
 
@@ -108,17 +108,23 @@ Second publish:
 
 Concepts provide lineage tracking using filename as identity. When a new file is uploaded, the system strips any version suffix from the filename to find the base filename, then matches to an existing concept or creates a new one.
 
+**Why (short_name, network) instead of atlas_id?**
+
+Atlas versioning creates separate atlas records (v1.0, v1.1, v2.0 each have different IDs). Tying concepts to a specific atlas_id would break lineage across versions. Using (short_name, network) ensures all versions of "Brain" share the same concepts.
+
 **Schema:**
 
 ```sql
 CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  atlas_id UUID NOT NULL REFERENCES hat.atlases(id),
+  atlas_short_name TEXT NOT NULL,
+  network TEXT NOT NULL,
   base_filename TEXT NOT NULL,  -- filename with version suffix stripped
   file_type TEXT NOT NULL,      -- 'source_dataset' or 'integrated_object'
   created_at TIMESTAMP DEFAULT NOW()
 );
-CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(atlas_id, base_filename, file_type);
+CREATE UNIQUE INDEX idx_concepts_unique
+  ON hat.concepts(atlas_short_name, network, base_filename, file_type);
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
@@ -137,8 +143,8 @@ On upload, the system strips version suffixes to determine the base filename:
 
 **Behavior:**
 
-- On file upload: strip version suffix → find or create concept by (atlas_id, base_filename, file_type) → set `file.concept_id`
-- Same base filename in same atlas → same concept → new version
+- On file upload: strip version suffix → find or create concept by (short_name, network, base_filename, file_type) → set `file.concept_id`
+- Same base filename in same atlas family → same concept → new version (even across atlas versions like v1.0 → v1.1)
 - Different base filename → different concept → new SD/IO
 - Version in uploaded filename is informational only; system assigns the next version number
 
@@ -208,25 +214,25 @@ SD→IO mappings remain on the IO entity (`component_atlases.source_datasets[]`)
 1. User runs `hca-smart-sync` which compares local files with S3 by filename + sha256
 2. New/changed files are uploaded to S3 (`{network}/{atlas}/source-datasets/{filename}`)
 3. S3 triggers SNS notification → AppRunner API endpoint
-4. System determines atlas_id and file_type from S3 path
+4. System determines (short_name, network) and file_type from S3 path
 5. System strips version suffix from filename to get base_filename
-6. System finds or creates concept by (atlas_id, base_filename, file_type)
+6. System finds or creates concept by (short_name, network, base_filename, file_type)
 7. Creates file record with concept_id set
 8. Creates SD/IO record linked to the file (new version if concept exists, new SD/IO if new concept)
 9. Triggers validation
 
 **Version Suffix Stripping Examples:**
 
-| S3 Key                                          | Atlas | Base Filename  | Concept Match     |
-| ----------------------------------------------- | ----- | -------------- | ----------------- |
-| `bio/brain/source-datasets/cells.h5ad`          | brain | `cells.h5ad`   | Find/create       |
-| `bio/brain/source-datasets/cells-r1-wip-2.h5ad` | brain | `cells.h5ad`   | Same concept      |
-| `bio/brain/source-datasets/cells-r2.h5ad`       | brain | `cells.h5ad`   | Same concept      |
-| `bio/brain/source-datasets/neurons.h5ad`        | brain | `neurons.h5ad` | Different concept |
+| S3 Key                                          | short_name | network | Base Filename  | Concept Match     |
+| ----------------------------------------------- | ---------- | ------- | -------------- | ----------------- |
+| `bio/brain/source-datasets/cells.h5ad`          | brain      | bio     | `cells.h5ad`   | Find/create       |
+| `bio/brain/source-datasets/cells-r1-wip-2.h5ad` | brain      | bio     | `cells.h5ad`   | Same concept      |
+| `bio/brain/source-datasets/cells-r2.h5ad`       | brain      | bio     | `cells.h5ad`   | Same concept      |
+| `bio/brain/source-datasets/neurons.h5ad`        | brain      | bio     | `neurons.h5ad` | Different concept |
 
 **Key Points:**
 
-- **S3 path** determines atlas_id and file_type
+- **S3 path** determines (short_name, network) and file_type
 - **Base filename** (version suffix stripped) determines concept
 - Concept assignment is **immediate** on upload (no waiting for source study link)
 - Version in uploaded filename is ignored for matching; system assigns next version number
@@ -268,7 +274,7 @@ When a user renames a file, the system creates a new concept (different base fil
 
 **Constraints:**
 
-- Can only merge concepts within the same atlas
+- Can only merge concepts within the same atlas family (short_name, network)
 - Can only merge concepts of the same file_type (SD→SD, IO→IO)
 - Source concept (being merged away) should have no published versions, or user must confirm
 
@@ -396,8 +402,8 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 For existing data:
 
-- `concepts`: Create concepts from existing files using (atlas_id, base_filename, file_type); strip any version suffixes from existing filenames
-- `files`: Populate `concept_id` based on (atlas_id, base_filename, file_type) lookup
+- `concepts`: Create concepts from existing files using (short_name, network, base_filename, file_type); strip any version suffixes from existing filenames
+- `files`: Populate `concept_id` based on (short_name, network, base_filename, file_type) lookup
 - `source_datasets`: Set `revision_number=1`, `published_at=NULL`
 - `component_atlases`: Set `revision_number=1`, `published_at=NULL`
 - `atlases`: Parse `overview.version` → `generation`/`revision`, set `draft=true`
@@ -430,23 +436,25 @@ Organized as vertical slices for incremental end-to-end delivery.
 ```sql
 CREATE TABLE hat.concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  atlas_id UUID NOT NULL REFERENCES hat.atlases(id),
+  atlas_short_name TEXT NOT NULL,
+  network TEXT NOT NULL,
   base_filename TEXT NOT NULL,  -- filename with version suffix stripped
   file_type TEXT NOT NULL,      -- 'source_dataset' or 'integrated_object'
   created_at TIMESTAMP DEFAULT NOW()
 );
-CREATE UNIQUE INDEX idx_concepts_unique ON hat.concepts(atlas_id, base_filename, file_type);
+CREATE UNIQUE INDEX idx_concepts_unique
+  ON hat.concepts(atlas_short_name, network, base_filename, file_type);
 
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
-**Migration:** Create concepts from existing files using (atlas_id, base_filename, file_type); populate `concept_id`.
+**Migration:** Create concepts from existing files using (short_name, network, base_filename, file_type); populate `concept_id`.
 
 **Acceptance Criteria:**
 
 - [ ] Concepts table created with proper indexes
-- [ ] Existing files have concept_id populated based on atlas + filename
-- [ ] Uniqueness enforced on (atlas_id, base_filename, file_type)
+- [ ] Existing files have concept_id populated based on (short_name, network, filename)
+- [ ] Uniqueness enforced on (atlas_short_name, network, base_filename, file_type)
 
 ---
 
@@ -458,16 +466,16 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
   - Pattern: `-r\d+(-wip-\d+)?(?=\.h5ad$)`
   - Examples: `foo-r1-wip-2.h5ad` → `foo.h5ad`, `foo-r2.h5ad` → `foo.h5ad`
 - On file upload:
-  - Extract atlas_id and file_type from S3 path
+  - Extract (short_name, network) and file_type from S3 path
   - Strip version suffix from filename → base_filename
-  - Find or create concept by (atlas_id, base_filename, file_type)
+  - Find or create concept by (short_name, network, base_filename, file_type)
   - Set `file.concept_id`
 
 **Acceptance Criteria:**
 
 - [ ] Version suffix correctly stripped from various filename patterns
 - [ ] New uploads immediately get concept_id assigned
-- [ ] Same base filename in same atlas → same concept (new version)
+- [ ] Same base filename in same atlas family → same concept (new version)
 - [ ] Different base filename → different concept (new SD/IO)
 - [ ] Version in uploaded filename is ignored for matching
 
@@ -481,7 +489,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 
 **Logic:**
 
-1. Validate source and target are in same atlas, same file_type
+1. Validate source and target are in same atlas family (short_name, network), same file_type
 2. Warn if source has published versions (require `force: true`)
 3. Reassign source concept's files to target concept
 4. Renumber versions (append to target's version sequence)
@@ -495,7 +503,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 - [ ] Versions renumbered correctly
 - [ ] Target's base_filename updated
 - [ ] Source concept deleted
-- [ ] Rejects cross-atlas or cross-type merges
+- [ ] Rejects cross-atlas-family or cross-type merges
 - [ ] Warns/rejects if source has published versions (unless forced)
 
 ---
@@ -505,14 +513,14 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 **Changes:**
 
 - Add action to SD/IO detail view: "Mark as new version of..."
-- Picker showing other SDs/IOs in same atlas (same type)
+- Picker showing other SDs/IOs in same atlas family (same type)
 - Confirmation dialog with version renumbering preview
 - Warning if source has published versions
 
 **Acceptance Criteria:**
 
 - [ ] Action visible on SD/IO detail view
-- [ ] Picker filters to same atlas, same file_type
+- [ ] Picker filters to same atlas family (short_name, network), same file_type
 - [ ] Preview shows how versions will be renumbered
 - [ ] Merge completes and UI updates
 
@@ -733,7 +741,9 @@ Include: concept info, originating atlas, latest version, current atlas usage.
 
 #### Ticket 8.1: [Backend] Generate versioned download filenames
 
-**Logic:** `{title}-r{revision}.h5ad` or `{title}-r{revision}-wip-{wip}.h5ad`
+**Logic:** `{base_filename_stem}-r{revision}.h5ad` or `{base_filename_stem}-r{revision}-wip-{wip}.h5ad`
+
+Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
 ---
 
