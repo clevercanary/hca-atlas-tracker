@@ -48,17 +48,17 @@ export const useFetchIntegratedObjectSourceDatasets = (
 };
 
 /**
- * Map HCAAtlasTrackerSourceDataset[] to AtlasSourceDataset[].
+ * Map HCAAtlasTrackerSourceDataset[] to IntegratedObjectSourceDataset[].
  * @param atlasId - Atlas ID.
  * @param data - Atlas source datasets.
- * @returns AtlasSourceDataset[].
+ * @returns IntegratedObjectSourceDataset[].
  */
 function mapData(
   atlasId: string,
   data: HCAAtlasTrackerSourceDataset[] = [],
 ): IntegratedObjectSourceDataset[] {
-  return data.map((atlasSourceDataset) => ({
+  return data.map((sourceDataset) => ({
     atlasId,
-    ...atlasSourceDataset,
+    ...sourceDataset,
   }));
 }
