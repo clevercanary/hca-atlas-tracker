@@ -13,7 +13,7 @@ import { VALIDATION_STATUS_COLOR } from "./constants";
  * @returns Props to be used for the ChipCell component.
  */
 export function buildValidationStatus(
-  validationStatus: FILE_VALIDATION_STATUS
+  validationStatus: FILE_VALIDATION_STATUS,
 ): ComponentProps<typeof ChipCell> {
   return {
     getValue: (() => {

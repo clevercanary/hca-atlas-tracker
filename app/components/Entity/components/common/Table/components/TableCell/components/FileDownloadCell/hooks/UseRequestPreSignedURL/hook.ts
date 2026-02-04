@@ -26,7 +26,7 @@ export const useRequestPreSignedURL = ({
   const { data: { url } = {}, progress } = useFetchData<Response | undefined>(
     getRequestURL(API.ATLAS_FILE_PRESIGNED_URL, { atlasId, fileId }),
     METHOD.POST,
-    shouldFetch
+    shouldFetch,
   );
 
   useResetFetchStatus(progress);

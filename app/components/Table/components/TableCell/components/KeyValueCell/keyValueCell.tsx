@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import {
   KeyValuePairs,
   KeyValuePairsProps,
@@ -10,7 +11,7 @@ import { KeyValuesElType } from "./components/KeyValuesElType/keyValuesElType";
 
 export const KeyValueCell = <
   T extends RowData,
-  TValue extends KeyValuePairsProps = KeyValuePairsProps
+  TValue extends KeyValuePairsProps = KeyValuePairsProps,
 >({
   className,
   getValue,

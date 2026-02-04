@@ -22,9 +22,6 @@ export default withPlugins(
   [[withMDX, { pageExtensions: ["md", "mdx", "ts", "tsx"] }]],
   {
     basePath: "",
-    experimental: {
-      instrumentationHook: true,
-    },
     images: {
       unoptimized: true,
     },
@@ -39,5 +36,5 @@ export default withPlugins(
       ];
     },
     transpilePackages: [...ESM_PACKAGES],
-  }
+  },
 );

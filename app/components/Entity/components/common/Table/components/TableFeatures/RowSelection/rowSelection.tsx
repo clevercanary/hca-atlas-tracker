@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { RowData } from "@tanstack/react-table";
 import { Props } from "./entities";
 import { StyledRowSelection } from "./rowSelection.styles";

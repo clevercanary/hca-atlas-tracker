@@ -37,7 +37,7 @@ import { TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -74,9 +74,9 @@ describe(`${TEST_ROUTE}`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           ARCHIVE_DATA_SOURCE_DATASET_A_BAR,
           USER_CONTENT_ADMIN,
-          METHOD.GET
+          METHOD.GET,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -88,9 +88,9 @@ describe(`${TEST_ROUTE}`, () => {
           ARCHIVE_DATA_SOURCE_DATASET_A_BAR,
           undefined,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -102,9 +102,9 @@ describe(`${TEST_ROUTE}`, () => {
           ARCHIVE_DATA_SOURCE_DATASET_A_BAR,
           USER_UNREGISTERED,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -115,9 +115,9 @@ describe(`${TEST_ROUTE}`, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           ARCHIVE_DATA_SOURCE_DATASET_A_BAR,
           USER_DISABLED_CONTENT_ADMIN,
-          METHOD.PATCH
+          METHOD.PATCH,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -133,7 +133,7 @@ describe(`${TEST_ROUTE}`, () => {
       false,
       async (res) => {
         expect(res._getStatusCode()).toEqual(403);
-      }
+      },
     );
   }
 
@@ -145,9 +145,9 @@ describe(`${TEST_ROUTE}`, () => {
           ARCHIVE_DATA_SOURCE_DATASET_A_BAR,
           USER_INTEGRATION_LEAD_PUBLIC,
           METHOD.PATCH,
-          false
+          false,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -159,9 +159,9 @@ describe(`${TEST_ROUTE}`, () => {
           ARCHIVE_DATA_SOURCE_DATASET_A_BAR,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -173,9 +173,9 @@ describe(`${TEST_ROUTE}`, () => {
           ARCHIVE_DATA_SOURCE_DATASET_A_BAR,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -187,9 +187,9 @@ describe(`${TEST_ROUTE}`, () => {
           ARCHIVE_DATA_COMPONENT_ATLAS_MISC_FOO,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -204,9 +204,9 @@ describe(`${TEST_ROUTE}`, () => {
           INPUT_DATA,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -221,9 +221,9 @@ describe(`${TEST_ROUTE}`, () => {
           INPUT_DATA,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -238,9 +238,9 @@ describe(`${TEST_ROUTE}`, () => {
           INPUT_DATA,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -255,9 +255,9 @@ describe(`${TEST_ROUTE}`, () => {
           INPUT_DATA,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -279,7 +279,7 @@ describe(`${TEST_ROUTE}`, () => {
       INPUT_DATA,
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      true
+      true,
     );
     expect(res._getStatusCode()).toEqual(404);
     const { message } = res._getJSONData();
@@ -302,9 +302,9 @@ describe(`${TEST_ROUTE}`, () => {
           INPUT_DATA,
           USER_CONTENT_ADMIN,
           METHOD.PATCH,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -315,13 +315,13 @@ describe(`${TEST_ROUTE}`, () => {
       INPUT_DATA,
       USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
       METHOD.PATCH,
-      false
+      false,
     );
     expect(res._getStatusCode()).toEqual(200);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id],
-      false
+      false,
     );
   });
 
@@ -334,13 +334,13 @@ describe(`${TEST_ROUTE}`, () => {
       INPUT_DATA,
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      false
+      false,
     );
     expect(res._getStatusCode()).toEqual(200);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id],
-      false
+      false,
     );
   });
 
@@ -351,13 +351,13 @@ describe(`${TEST_ROUTE}`, () => {
       INPUT_DATA,
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      false
+      false,
     );
     expect(res._getStatusCode()).toEqual(200);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.file.id],
-      false
+      false,
     );
   });
 
@@ -375,13 +375,13 @@ describe(`${TEST_ROUTE}`, () => {
       INPUT_DATA,
       USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      false
+      false,
     );
     expect(res._getStatusCode()).toEqual(200);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id],
-      false
+      false,
     );
   });
 });
@@ -391,7 +391,7 @@ async function doArchiveRequest(
   body: Record<string, unknown>,
   user?: TestUser,
   method = METHOD.PATCH,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
@@ -401,7 +401,7 @@ async function doArchiveRequest(
   });
   await withConsoleErrorHiding(
     () => archiveHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

@@ -26,7 +26,7 @@ const MEDIA_TABLET_UP = "media (min-width: 768px)";
 export function makeConfig(
   browserUrl: string,
   portalUrl: string,
-  gitHubUrl: string
+  gitHubUrl: string,
 ): SiteConfig {
   return {
     appTitle: APP_TITLE,
@@ -170,7 +170,7 @@ export function makeConfig(
 const config: SiteConfig = makeConfig(
   BROWSER_URL,
   PORTAL_URL,
-  GIT_HUB_REPO_URL
+  GIT_HUB_REPO_URL,
 );
 
 export default config;

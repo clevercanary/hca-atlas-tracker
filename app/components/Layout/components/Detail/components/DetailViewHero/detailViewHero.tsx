@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/title";
 import { BackPageTabs } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/backPageView.styles";
 import { SubTitle } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/components/BackPageHero/components/SubTitle/subTitle";

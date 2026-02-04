@@ -39,7 +39,7 @@ export function buildCAPIngestStatus({
  * @returns CAP ingest status.
  */
 export function getCapIngestStatus(
-  original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset
+  original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
 ): CAP_INGEST_STATUS {
   const { validationStatus, validationSummary } = original;
 

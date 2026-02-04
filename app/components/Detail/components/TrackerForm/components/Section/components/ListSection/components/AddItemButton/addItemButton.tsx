@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
 import { ButtonProps } from "@mui/material";
 import { BUTTON_PROPS } from "../../constants";

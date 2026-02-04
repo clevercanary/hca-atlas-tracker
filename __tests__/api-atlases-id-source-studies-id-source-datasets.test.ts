@@ -38,7 +38,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -65,9 +65,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           undefined,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -79,9 +79,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           undefined,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -93,9 +93,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -105,9 +105,9 @@ describe(TEST_ROUTE, () => {
         await doSourceDatasetsRequest(
           ATLAS_WITH_MISC_SOURCE_STUDIES.id,
           SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-          USER_DISABLED_CONTENT_ADMIN
+          USER_DISABLED_CONTENT_ADMIN,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -120,7 +120,7 @@ describe(TEST_ROUTE, () => {
       role,
       getQueryValues(
         ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-        SOURCE_STUDY_WITH_SOURCE_DATASETS.id
+        SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
       ),
       undefined,
       false,
@@ -138,7 +138,7 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
           SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
         ]);
-      }
+      },
     );
   }
 
@@ -146,7 +146,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_STUDY_WITH_SOURCE_DATASETS.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -166,7 +166,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -174,11 +174,11 @@ describe(TEST_ROUTE, () => {
       SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
     ]);
     const datasetWithMultipleFiles = sourceDatasets.find(
-      (d) => d.id === SOURCE_DATASET_ID_WITH_MULTIPLE_FILES
+      (d) => d.id === SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
     );
     if (!expectIsDefined(datasetWithMultipleFiles)) return;
     expect(datasetWithMultipleFiles.sizeBytes).toEqual(
-      Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes)
+      Number(FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.sizeBytes),
     );
   });
 
@@ -186,7 +186,7 @@ describe(TEST_ROUTE, () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
@@ -201,7 +201,7 @@ async function doSourceDatasetsRequest(
   sourceStudyId: string,
   user?: TestUser,
   method = METHOD.GET,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -210,14 +210,14 @@ async function doSourceDatasetsRequest(
   });
   await withConsoleErrorHiding(
     () => sourceDatasetsHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 function getQueryValues(
   atlasId: string,
-  sourceStudyId: string
+  sourceStudyId: string,
 ): Record<string, string> {
   return { atlasId, sourceStudyId };
 }

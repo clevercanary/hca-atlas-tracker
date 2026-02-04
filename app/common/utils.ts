@@ -11,7 +11,7 @@ import { FETCH_STATUS, METHOD, PathParameter } from "./entities";
  */
 export function getFetchOptions(
   method: METHOD,
-  defaultHeaders: HeadersInit = method === METHOD.DELETE ? {} : DEFAULT_HEADERS
+  defaultHeaders: HeadersInit = method === METHOD.DELETE ? {} : DEFAULT_HEADERS,
 ): RequestInit {
   return {
     headers: defaultHeaders,
@@ -31,7 +31,7 @@ export async function fetchResource<P>(
   requestURL: string,
   requestMethod: METHOD,
   payload?: P,
-  additionalFetchOptions?: RequestInit
+  additionalFetchOptions?: RequestInit,
 ): Promise<Response> {
   return await fetch(requestURL, {
     ...getFetchOptions(requestMethod, payload ? DEFAULT_HEADERS : undefined),
@@ -66,7 +66,7 @@ export function isFetchStatusOk(status: number): boolean {
  */
 export function getRequestURL(
   apiURL: APIValue,
-  pathParameter: PathParameter = {}
+  pathParameter: PathParameter = {},
 ): string {
   return replacePathParameters(apiURL, pathParameter);
 }
@@ -79,7 +79,7 @@ export function getRequestURL(
  */
 export function getRouteURL(
   route: RouteValue,
-  pathParameter: PathParameter = {}
+  pathParameter: PathParameter = {},
 ): string {
   return replacePathParameters(route, pathParameter);
 }
@@ -92,14 +92,14 @@ export function getRouteURL(
  */
 function replacePathParameters(
   str: string,
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): string {
   const result = Object.entries(pathParameter).reduce(
     (acc, [parameter, parameterId]) => {
       const regex = new RegExp(`\\[${parameter}]`, "g");
       return acc.replace(regex, parameterId);
     },
-    str
+    str,
   );
   if (/\[\w+]/.test(result)) {
     throw new Error(`URL still contains path parameters: ${result}`);

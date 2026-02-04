@@ -16,5 +16,5 @@ export default handler(
     const atlasId = req.query.atlasId as string;
     await startAtlasEntrySheetValidationsUpdate(atlasId);
     res.status(202).end();
-  }
+  },
 );

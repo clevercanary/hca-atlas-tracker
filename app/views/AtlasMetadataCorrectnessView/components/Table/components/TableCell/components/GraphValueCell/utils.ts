@@ -16,7 +16,7 @@ export function formatValue(value: number): string {
  * @returns Denominator.
  */
 export function getDenominator(
-  cellContext: CellContext<HeatmapEntrySheet, number>
+  cellContext: CellContext<HeatmapEntrySheet, number>,
 ): number {
   return cellContext.row.original.correctness?.rowCount || 0;
 }
@@ -38,7 +38,7 @@ export function getGraphColor(value: number): string {
  * @returns Graph values tuple [value, numerator, denominator].
  */
 export function getGraphValues(
-  cellContext: CellContext<HeatmapEntrySheet, number>
+  cellContext: CellContext<HeatmapEntrySheet, number>,
 ): [number, number, number] {
   const numerator = getNumerator(cellContext);
   const denominator = getDenominator(cellContext);
@@ -56,7 +56,7 @@ export function getGraphValues(
  * @returns Numerator.
  */
 export function getNumerator(
-  cellContext: CellContext<HeatmapEntrySheet, number>
+  cellContext: CellContext<HeatmapEntrySheet, number>,
 ): number {
   return cellContext.getValue();
 }
@@ -71,7 +71,7 @@ export function getNumerator(
 export function renderTooltipTitle(
   value: number,
   numerator: number,
-  denominator: number
+  denominator: number,
 ): string | null {
   if (value === 1) return null;
 

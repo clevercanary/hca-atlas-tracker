@@ -4,14 +4,14 @@ export function up(pgm: MigrationBuilder): void {
   // Drop the constraint on file source dataset ID, so that it can refer to the new `id` column
   pgm.dropConstraint(
     { name: "files", schema: "hat" },
-    "fk_files_source_dataset_id"
+    "fk_files_source_dataset_id",
   );
 
   // Rename source dataset `id` to `version_id`, as we want `version_id` to be the primary key
   pgm.renameColumn(
     { name: "source_datasets", schema: "hat" },
     "id",
-    "version_id"
+    "version_id",
   );
 
   // Add new source dataset columns needed for versioning
@@ -33,7 +33,7 @@ export function up(pgm: MigrationBuilder): void {
         notNull: true,
         type: "integer",
       },
-    }
+    },
   );
 
   // For existing source datasets, we want `id` to be the same as the existing ID now stored in `version_id`,
@@ -72,7 +72,7 @@ export function down(pgm: MigrationBuilder): void {
   pgm.renameColumn(
     { name: "source_datasets", schema: "hat" },
     "version_id",
-    "id"
+    "id",
   );
 
   // Re-add the foreign key constraint
@@ -85,6 +85,6 @@ export function down(pgm: MigrationBuilder): void {
         onUpdate: "CASCADE",
         references: { name: "source_datasets", schema: "hat" },
       },
-    }
+    },
   );
 }

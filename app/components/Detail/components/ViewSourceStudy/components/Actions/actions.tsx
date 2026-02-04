@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { PathParameter } from "../../../../../../common/entities";
 import { FormStatus } from "../../../../../../hooks/useFormManager/common/entities";
 import { HeroActions } from "./actions.styles";

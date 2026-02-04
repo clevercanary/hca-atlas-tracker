@@ -17,14 +17,16 @@ export const button = css`
 export const buttonPrimary = css`
   ${button};
   background-color: ${PALETTE.PRIMARY_MAIN};
-  box-shadow: 0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08},
+  box-shadow:
+    0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08},
     inset 0 -1px 0 0 ${COLOR_MIXES.COMMON_BLACK_20};
   color: ${PALETTE.COMMON_WHITE};
 
   &:hover,
   &:active {
     background-color: ${PALETTE.PRIMARY_DARK};
-    box-shadow: 0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08},
+    box-shadow:
+      0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_08},
       inset 0 -1px 0 0 ${COLOR_MIXES.COMMON_BLACK_20};
   }
 
@@ -39,14 +41,16 @@ export const buttonPrimary = css`
 export const buttonSecondary = css`
   ${button};
   background-color: ${PALETTE.COMMON_WHITE};
-  box-shadow: inset 0 0 0 1px ${PALETTE.SMOKE_DARK},
+  box-shadow:
+    inset 0 0 0 1px ${PALETTE.SMOKE_DARK},
     0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_05};
   color: ${PALETTE.INK_MAIN};
 
   &:hover,
   &:active {
     background-color: ${PALETTE.SMOKE_LIGHTEST};
-    box-shadow: inset 0 0 0 1px ${PALETTE.SMOKE_DARK},
+    box-shadow:
+      inset 0 0 0 1px ${PALETTE.SMOKE_DARK},
       0 1px 0 0 ${COLOR_MIXES.COMMON_BLACK_05};
   }
 

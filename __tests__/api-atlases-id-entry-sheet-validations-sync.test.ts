@@ -44,7 +44,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -61,7 +61,7 @@ jest.mock("../app/services/entry-sheets", () => {
   >("../app/services/entry-sheets");
   return {
     startAtlasEntrySheetValidationsUpdate: jest.fn(
-      hcaValidationTools.startAtlasEntrySheetValidationsUpdate
+      hcaValidationTools.startAtlasEntrySheetValidationsUpdate,
     ),
   };
 });
@@ -83,9 +83,9 @@ describe(TEST_ROUTE, () => {
         await doSyncRequest(
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_CONTENT_ADMIN,
-          METHOD.GET
+          METHOD.GET,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -96,9 +96,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           undefined,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -109,9 +109,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_UNREGISTERED,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -122,9 +122,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -135,9 +135,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_NONEXISTENT.id,
           USER_CONTENT_ADMIN,
           METHOD.POST,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await resolveUpdate().catch(() => undefined);
   });
@@ -156,15 +156,15 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(202);
         await resolveUpdate();
         expect(
-          await getEntrySheetValidationBySheetId(ENTRY_SHEET_ID_NEW_NON_SHARED)
+          await getEntrySheetValidationBySheetId(ENTRY_SHEET_ID_NEW_NON_SHARED),
         ).toBeDefined();
         await deleteEntrySheetValidationBySheetId(
-          ENTRY_SHEET_ID_NEW_NON_SHARED
+          ENTRY_SHEET_ID_NEW_NON_SHARED,
         );
         expect(
-          await getEntrySheetValidationBySheetId(ENTRY_SHEET_ID_NEW_NON_SHARED)
+          await getEntrySheetValidationBySheetId(ENTRY_SHEET_ID_NEW_NON_SHARED),
         ).toBeUndefined();
-      }
+      },
     );
   }
 
@@ -177,19 +177,19 @@ async function doMainAtlasTest(): Promise<void> {
   // Get validations before API call
 
   const validationNoSyncBefore = await getEntrySheetValidationFromDatabase(
-    ENTRY_SHEET_VALIDATION_NO_SYNC.id
+    ENTRY_SHEET_VALIDATION_NO_SYNC.id,
   );
 
   const validationWithUpdateBefore = await getEntrySheetValidationFromDatabase(
-    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
   );
   const validationWithFailedUpdateBefore =
     await getEntrySheetValidationFromDatabase(
-      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id
+      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id,
     );
   const validationWithErroredUpdateBefore =
     await getEntrySheetValidationFromDatabase(
-      ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE.id
+      ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE.id,
     );
 
   // Call API
@@ -201,37 +201,36 @@ async function doMainAtlasTest(): Promise<void> {
           await doSyncRequest(
             ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
             USER_CONTENT_ADMIN,
-            METHOD.POST
+            METHOD.POST,
           )
-        )._getStatusCode()
+        )._getStatusCode(),
       ).toEqual(202);
 
       await resolveUpdate();
     },
     true,
-    consoleErrorCalls
+    consoleErrorCalls,
   );
 
   // Get validations after API call
 
   const validationWithUpdateAfter = await getEntrySheetValidationFromDatabase(
-    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id
+    ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
   );
   const validationWithFailedUpdateAfter =
     await getEntrySheetValidationFromDatabase(
-      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id
+      ENTRY_SHEET_VALIDATION_WITH_FAILED_UPDATE.id,
     );
   const validationWithErroredUpdateAfter =
     await getEntrySheetValidationFromDatabase(
-      ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE.id
+      ENTRY_SHEET_VALIDATION_WITH_ERRORED_UPDATE.id,
     );
 
-  const validationNewAfter = await getEntrySheetValidationBySheetId(
-    ENTRY_SHEET_ID_NEW
-  );
+  const validationNewAfter =
+    await getEntrySheetValidationBySheetId(ENTRY_SHEET_ID_NEW);
   const validationWithMalformedResponseAfter =
     await getEntrySheetValidationBySheetId(
-      ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE
+      ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE,
     );
 
   // Check number of Tracker-side errors
@@ -243,20 +242,20 @@ async function doMainAtlasTest(): Promise<void> {
   if (expectIsDefined(validationWithUpdateAfter)) {
     if (expectIsDefined(validationWithUpdateBefore)) {
       expect(validationWithUpdateAfter.last_synced).not.toEqual(
-        validationWithUpdateBefore.last_synced
+        validationWithUpdateBefore.last_synced,
       );
     }
     expect(validationWithUpdateAfter.validation_report).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.errors
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.errors,
     );
     expect(validationWithUpdateAfter.last_updated).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.last_updated
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.last_updated,
     );
     expect(validationWithUpdateAfter.entry_sheet_title).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.sheet_title
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.sheet_title,
     );
     expect(validationWithUpdateAfter.validation_summary).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.summary
+      ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.summary,
     );
   }
 
@@ -265,7 +264,7 @@ async function doMainAtlasTest(): Promise<void> {
   if (expectIsDefined(validationWithFailedUpdateAfter)) {
     if (expectIsDefined(validationWithFailedUpdateBefore)) {
       expect(validationWithFailedUpdateAfter.last_synced).not.toEqual(
-        validationWithFailedUpdateBefore.last_synced
+        validationWithFailedUpdateBefore.last_synced,
       );
     }
     expect(validationWithFailedUpdateAfter.validation_report).toEqual<
@@ -285,7 +284,7 @@ async function doMainAtlasTest(): Promise<void> {
     expect(validationWithFailedUpdateAfter.last_updated).toBeNull();
     expect(validationWithFailedUpdateAfter.entry_sheet_title).toBeNull();
     expect(
-      validationWithFailedUpdateAfter.validation_summary
+      validationWithFailedUpdateAfter.validation_summary,
     ).toEqual<EntrySheetValidationSummary>({
       dataset_count: null,
       donor_count: null,
@@ -299,14 +298,14 @@ async function doMainAtlasTest(): Promise<void> {
   expect(consoleErrorCalls[0]).toHaveLength(1);
   if (expectIsInstanceOf(consoleErrorCalls[0][0], Error)) {
     expect(consoleErrorCalls[0][0].message).toEqual(
-      TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE
+      TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE,
     );
   }
 
   if (expectIsDefined(validationWithErroredUpdateAfter)) {
     if (expectIsDefined(validationWithErroredUpdateBefore)) {
       expect(validationWithErroredUpdateAfter.last_synced).not.toEqual(
-        validationWithErroredUpdateBefore.last_synced
+        validationWithErroredUpdateBefore.last_synced,
       );
     }
     expect(validationWithErroredUpdateAfter.validation_report).toEqual<
@@ -326,7 +325,7 @@ async function doMainAtlasTest(): Promise<void> {
     expect(validationWithErroredUpdateAfter.last_updated).toBeNull();
     expect(validationWithErroredUpdateAfter.entry_sheet_title).toBeNull();
     expect(
-      validationWithErroredUpdateAfter.validation_summary
+      validationWithErroredUpdateAfter.validation_summary,
     ).toEqual<EntrySheetValidationSummary>({
       dataset_count: null,
       donor_count: null,
@@ -339,16 +338,16 @@ async function doMainAtlasTest(): Promise<void> {
 
   if (expectIsDefined(validationNewAfter)) {
     expect(validationNewAfter.validation_report).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.errors
+      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.errors,
     );
     expect(validationNewAfter.last_updated).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.last_updated
+      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.last_updated,
     );
     expect(validationNewAfter.entry_sheet_title).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.sheet_title
+      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.sheet_title,
     );
     expect(validationNewAfter.validation_summary).toEqual(
-      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.summary
+      ENTRY_SHEET_VALIDATION_RESPONSE_NEW.summary,
     );
   }
 
@@ -379,7 +378,7 @@ async function doMainAtlasTest(): Promise<void> {
     expect(validationWithMalformedResponseAfter.last_updated).toBeNull();
     expect(validationWithMalformedResponseAfter.entry_sheet_title).toBeNull();
     expect(
-      validationWithMalformedResponseAfter.validation_summary
+      validationWithMalformedResponseAfter.validation_summary,
     ).toEqual<EntrySheetValidationSummary>({
       dataset_count: null,
       donor_count: null,
@@ -391,14 +390,14 @@ async function doMainAtlasTest(): Promise<void> {
   // Check validation not involved in sync
 
   const validationNoSyncAfter = await getEntrySheetValidationFromDatabase(
-    ENTRY_SHEET_VALIDATION_NO_SYNC.id
+    ENTRY_SHEET_VALIDATION_NO_SYNC.id,
   );
   if (
     expectIsDefined(validationNoSyncBefore) &&
     expectIsDefined(validationNoSyncAfter)
   ) {
     expect(validationNoSyncAfter.last_synced).toEqual(
-      validationNoSyncBefore.last_synced
+      validationNoSyncBefore.last_synced,
     );
   }
 }
@@ -407,7 +406,7 @@ async function doSyncRequest(
   atlasId: string,
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },

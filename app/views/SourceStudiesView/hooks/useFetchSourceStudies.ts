@@ -13,7 +13,7 @@ interface UseFetchSourceStudies {
 }
 
 export const useFetchSourceStudies = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchSourceStudies => {
   const {
     fetchDataState: { shouldFetchByKey },
@@ -25,7 +25,7 @@ export const useFetchSourceStudies = (
   >(
     getRequestURL(API.ATLAS_SOURCE_STUDIES, pathParameter),
     METHOD.GET,
-    shouldFetch
+    shouldFetch,
   );
 
   useResetFetchStatus(progress, [SOURCE_STUDIES]);

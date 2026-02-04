@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import React from "react";
 import { FormResponseErrors } from "../../../../../hooks/useForm/common/entities";
 import { AdminFormErrors } from "../AdminFormErrors/adminFormErrors";
@@ -26,7 +27,7 @@ export const AdminFormResults = ({
 
 function applyResultWrapper(
   result: React.ReactNode,
-  wrapResult: ((result: React.ReactNode) => React.ReactNode) | null
+  wrapResult: ((result: React.ReactNode) => React.ReactNode) | null,
 ): React.ReactNode {
   return wrapResult === null ? result : wrapResult(result);
 }

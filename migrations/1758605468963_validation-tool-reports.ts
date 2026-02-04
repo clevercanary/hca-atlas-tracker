@@ -12,6 +12,6 @@ export function up(pgm: MigrationBuilder): void {
         notNull: false,
         type: "jsonb",
       },
-    }
+    },
   );
 }

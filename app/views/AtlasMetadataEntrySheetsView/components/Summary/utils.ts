@@ -6,7 +6,7 @@ import { MetadataEntrySheet } from "../../entities";
  * @returns Summary object.
  */
 export function buildSummaryValues(
-  entrySheets: MetadataEntrySheet[]
+  entrySheets: MetadataEntrySheet[],
 ): Record<string, number> {
   return entrySheets.reduce(
     (acc, entrySheet) => {
@@ -16,6 +16,6 @@ export function buildSummaryValues(
       acc.sampleCount += entrySheet.validationSummary?.sample_count || 0;
       return acc;
     },
-    { datasetCount: 0, donorCount: 0, errorCount: 0, sampleCount: 0 }
+    { datasetCount: 0, donorCount: 0, errorCount: 0, sampleCount: 0 },
   );
 }

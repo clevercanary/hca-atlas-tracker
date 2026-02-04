@@ -44,7 +44,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -57,7 +57,7 @@ const syncMock = syncFilesFromS3 as jest.Mock;
 
 jest.mock("../app/services/s3-sync", () => {
   const s3Sync = jest.requireActual<typeof import("../app/services/s3-sync")>(
-    "../app/services/s3-sync"
+    "../app/services/s3-sync",
   );
   return {
     syncFilesFromS3: jest.fn(s3Sync.syncFilesFromS3),
@@ -277,7 +277,7 @@ const HEAD_RESPONSES_BY_KEY = new Map<string, Partial<HeadObjectCommandOutput>>(
     [KEY_QUOTED_ETAG, HEAD_RESPONSE_QUOTED_ETAG],
     [KEY_EXISTING_CHANGED, HEAD_RESPONSE_EXISTING_CHANGED],
     [KEY_EXISTING_UNCHANGED, HEAD_RESPONSE_EXISTING_UNCHANGED],
-  ]
+  ],
 );
 
 const LIST_OBJECTS_RESPONSE = {
@@ -307,13 +307,13 @@ const EXPECTED_VALIDATED_KEYS = [
 describe(TEST_ROUTE, () => {
   it("returns error 405 for GET request", async () => {
     expect(
-      (await doSyncFilesRequest(undefined, METHOD.GET))._getStatusCode()
+      (await doSyncFilesRequest(undefined, METHOD.GET))._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 when POST requested by logged out user", async () => {
     expect(
-      (await doSyncFilesRequest(undefined, METHOD.POST, true))._getStatusCode()
+      (await doSyncFilesRequest(undefined, METHOD.POST, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -321,7 +321,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doSyncFilesRequest(USER_UNREGISTERED, METHOD.POST, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -329,7 +329,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doSyncFilesRequest(USER_DISABLED_CONTENT_ADMIN, METHOD.POST)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -343,7 +343,7 @@ describe(TEST_ROUTE, () => {
       undefined,
       undefined,
       false,
-      (res) => expect(res._getStatusCode()).toEqual(403)
+      (res) => expect(res._getStatusCode()).toEqual(403),
     );
   }
 
@@ -368,7 +368,7 @@ async function doMainTest(): Promise<void> {
   const componentAtlasExistingUnchangedBefore = await createTestComponentAtlas(
     ATLAS_DRAFT.id,
     EMPTY_COMPONENT_INFO,
-    FILE_ID_EXISTING_UNCHANGED
+    FILE_ID_EXISTING_UNCHANGED,
   );
 
   await createTestFile(FILE_ID_EXISTING_CHANGED, {
@@ -383,16 +383,16 @@ async function doMainTest(): Promise<void> {
   const componentAtlasExistingChangedBefore = await createTestComponentAtlas(
     ATLAS_DRAFT.id,
     EMPTY_COMPONENT_INFO,
-    FILE_ID_EXISTING_CHANGED
+    FILE_ID_EXISTING_CHANGED,
   );
 
   const fileIdsBefore = await getAllFileIdsFromDatabase();
 
   const fileExistingUnchangedBefore = await getFileFromDatabase(
-    FILE_ID_EXISTING_UNCHANGED
+    FILE_ID_EXISTING_UNCHANGED,
   );
   const fileExistingChangedBefore = await getFileFromDatabase(
-    FILE_ID_EXISTING_CHANGED
+    FILE_ID_EXISTING_CHANGED,
   );
   expect(fileExistingChangedBefore).toBeDefined();
   expect(fileExistingUnchangedBefore).toBeDefined();
@@ -419,14 +419,14 @@ async function doMainTest(): Promise<void> {
       return res;
     },
     true,
-    consoleMessages
+    consoleMessages,
   );
 
   expect(res._getStatusCode()).toBe(202);
 
   const warningMessages = consoleMessages.warn.flat();
   const errorMessageStrings = consoleMessages.error.flatMap((value) =>
-    String(value)
+    String(value),
   );
 
   // Check that the expected number of errors were reported
@@ -440,7 +440,7 @@ async function doMainTest(): Promise<void> {
   expect(mockSubmitJob.mock.calls).toEqual(
     EXPECTED_VALIDATED_KEYS.map((key) => [
       expect.objectContaining({ s3Key: key }),
-    ])
+    ]),
   );
 
   // Check that all file IDs passed to the dataset validator are new ones
@@ -456,7 +456,7 @@ async function doMainTest(): Promise<void> {
 
   // Get latest versions of updated files
   const filesByKey = new Map(
-    files.filter((f) => f.is_latest).map((f) => [f.key, f])
+    files.filter((f) => f.is_latest).map((f) => [f.key, f]),
   );
 
   // Check that the expected number of files are distinguished in the mapping
@@ -465,10 +465,10 @@ async function doMainTest(): Promise<void> {
 
   // Check files from responses with all fields filled
   expect(filesByKey.get(KEY_COMPLETE_FOO)).toMatchObject(
-    EXPECTED_FILE_COMPLETE_FOO
+    EXPECTED_FILE_COMPLETE_FOO,
   );
   expect(filesByKey.get(KEY_COMPLETE_BAR)).toMatchObject(
-    EXPECTED_FILE_COMPLETE_BAR
+    EXPECTED_FILE_COMPLETE_BAR,
   );
 
   // Check file from response without content length
@@ -477,7 +477,7 @@ async function doMainTest(): Promise<void> {
 
   // Check that response without etag was skipped
   expect(warningMessages).toContain(
-    `S3 sync: No ETag received for s3://${TEST_S3_BUCKET}/${KEY_NO_ETAG} -- skipping`
+    `S3 sync: No ETag received for s3://${TEST_S3_BUCKET}/${KEY_NO_ETAG} -- skipping`,
   );
   expect(filesByKey.get(KEY_NO_ETAG)).toBeUndefined();
 
@@ -492,40 +492,40 @@ async function doMainTest(): Promise<void> {
   // Check file from response without version ID
   // Expected data has version ID set to null
   expect(filesByKey.get(KEY_NO_VERSION)).toMatchObject(
-    EXPECTED_FILE_NO_VERSION
+    EXPECTED_FILE_NO_VERSION,
   );
 
   // Check file with quoted etag
   // Expected data has etag without quotes
   expect(filesByKey.get(KEY_QUOTED_ETAG)).toMatchObject(
-    EXPECTED_FILE_QUOTED_ETAG
+    EXPECTED_FILE_QUOTED_ETAG,
   );
 
   // Check that existing file and its component atlas are not changed, and no new file is created, when version ID is the same
   expect(errorMessageStrings).toContainEqual(
-    expect.stringMatching("out-of-order")
+    expect.stringMatching("out-of-order"),
   );
   expect(filesByKey.get(KEY_EXISTING_UNCHANGED)).toBeUndefined();
   const fileExistingUnchangedAfter = await getFileFromDatabase(
-    FILE_ID_EXISTING_UNCHANGED
+    FILE_ID_EXISTING_UNCHANGED,
   );
   expect(fileExistingUnchangedAfter).toEqual(fileExistingUnchangedBefore);
   const componentAtlasExistingUnchangedAfter =
     await getComponentAtlasFromDatabase(
-      componentAtlasExistingUnchangedBefore.version_id
+      componentAtlasExistingUnchangedBefore.version_id,
     );
   expect(componentAtlasExistingUnchangedAfter).toEqual(
-    componentAtlasExistingUnchangedBefore
+    componentAtlasExistingUnchangedBefore,
   );
 
   // Check that existing file is set to non-latest and a new file is created when version ID is different
   const fileExistingChangedNew = filesByKey.get(KEY_EXISTING_CHANGED);
   expect(fileExistingChangedNew).toBeDefined();
   expect(filesByKey.get(KEY_EXISTING_CHANGED)).not.toEqual(
-    fileExistingChangedBefore
+    fileExistingChangedBefore,
   );
   const fileExistingChangedAfter = await getFileFromDatabase(
-    FILE_ID_EXISTING_CHANGED
+    FILE_ID_EXISTING_CHANGED,
   );
   expect(fileExistingChangedBefore?.is_latest).toEqual(true);
   expect(fileExistingChangedAfter?.is_latest).toEqual(false);
@@ -554,7 +554,7 @@ async function doMainTest(): Promise<void> {
     expectIsDefined(componentAtlasExistingUnchangedAfter)
   )
     expect(await getFileComponentAtlas(fileExistingUnchangedAfter.id)).toEqual(
-      componentAtlasExistingUnchangedAfter
+      componentAtlasExistingUnchangedAfter,
     );
 
   // Check and compare component atlases of changed file
@@ -563,19 +563,19 @@ async function doMainTest(): Promise<void> {
     expectIsDefined(fileExistingChangedNew)
   ) {
     const componentAtlasExistingChangedAfter = await getFileComponentAtlas(
-      fileExistingChangedAfter.id
+      fileExistingChangedAfter.id,
     );
     const componentAtlasExistingChangedNew = await getFileComponentAtlas(
-      fileExistingChangedNew.id
+      fileExistingChangedNew.id,
     );
     expect(componentAtlasExistingChangedBefore.version_id).toEqual(
-      componentAtlasExistingChangedAfter.version_id
+      componentAtlasExistingChangedAfter.version_id,
     );
     expect(componentAtlasExistingChangedAfter).not.toEqual(
-      componentAtlasExistingChangedNew
+      componentAtlasExistingChangedNew,
     );
     expect(componentAtlasExistingChangedAfter.id).toEqual(
-      componentAtlasExistingChangedNew.id
+      componentAtlasExistingChangedNew.id,
     );
     expect(componentAtlasExistingChangedAfter.is_latest).toEqual(false);
     expect(componentAtlasExistingChangedNew.is_latest).toEqual(true);
@@ -587,7 +587,7 @@ async function doMainTest(): Promise<void> {
 async function doSyncFilesRequest(
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -595,17 +595,17 @@ async function doSyncFilesRequest(
   });
   await withConsoleErrorHiding(
     () => syncFilesHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 async function getDbFilesModifiedAfter(
-  date: Date
+  date: Date,
 ): Promise<HCAAtlasTrackerDBFile[]> {
   const result = await query<HCAAtlasTrackerDBFile>(
     "SELECT * FROM hat.files WHERE updated_at >= $1",
-    [date]
+    [date],
   );
   return result.rows;
 }

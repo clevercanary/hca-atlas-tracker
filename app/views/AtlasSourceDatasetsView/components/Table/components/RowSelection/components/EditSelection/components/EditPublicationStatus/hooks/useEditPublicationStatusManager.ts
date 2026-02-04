@@ -19,7 +19,7 @@ import { PublicationStatusEditData } from "../common/entities";
 export const useEditPublicationStatusFormManager = (
   formMethod: FormMethod<PublicationStatusEditData>,
   onClose: () => void,
-  table: Table<AtlasSourceDataset>
+  table: Table<AtlasSourceDataset>,
 ): FormManager => {
   const { pathParameter } = useEntity() as Entity;
   const { fetchDataDispatch } = useFetchDataState();
@@ -40,14 +40,14 @@ export const useEditPublicationStatusFormManager = (
       onSubmit(
         getRequestURL(
           API.ATLAS_SOURCE_DATASETS_PUBLICATION_STATUS,
-          pathParameter
+          pathParameter,
         ),
         METHOD.PATCH,
         payload,
-        { onReset: reset, onSuccess }
+        { onReset: reset, onSuccess },
       );
     },
-    [onSuccess, onSubmit, pathParameter, reset]
+    [onSuccess, onSubmit, pathParameter, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

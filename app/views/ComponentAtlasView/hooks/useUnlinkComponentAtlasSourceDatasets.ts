@@ -13,7 +13,7 @@ export interface UseUnlinkComponentAtlasSourceDatasets {
 }
 
 export const useUnlinkComponentAtlasSourceDatasets = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseUnlinkComponentAtlasSourceDatasets => {
   const { fetchDataDispatch } = useFetchDataState();
   const { onDelete } = useDeleteData<ComponentAtlasDeleteSourceDatasetsData>(
@@ -22,10 +22,10 @@ export const useUnlinkComponentAtlasSourceDatasets = (
     {
       onSuccess: () => {
         fetchDataDispatch(
-          fetchData([INTEGRATED_OBJECT, INTEGRATED_OBJECT_SOURCE_DATASETS])
+          fetchData([INTEGRATED_OBJECT, INTEGRATED_OBJECT_SOURCE_DATASETS]),
         );
       },
-    }
+    },
   );
 
   return {

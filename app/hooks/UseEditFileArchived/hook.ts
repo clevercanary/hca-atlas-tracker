@@ -8,7 +8,7 @@ export const useEditFileArchived = (): UseEditFileArchived => {
     async (
       requestURL: string,
       payload: Payload,
-      options?: OnSubmitOptions
+      options?: OnSubmitOptions,
     ): Promise<void> => {
       const res = await fetchResource(requestURL, METHOD.PATCH, payload);
       if (isFetchStatusOk(res.status)) {
@@ -18,11 +18,11 @@ export const useEditFileArchived = (): UseEditFileArchived => {
           await res
             .json()
             .then(({ message }) => message)
-            .catch(() => `Received ${res.status} response`)
+            .catch(() => `Received ${res.status} response`),
         );
       }
     },
-    []
+    [],
   );
 
   return { onSubmit };

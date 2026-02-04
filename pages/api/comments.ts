@@ -19,9 +19,9 @@ export default handler(
         dbCommentToApiComment(
           await createCommentThread(
             await newCommentThreadSchema.validate(req.body),
-            await getRegisteredActiveUser(req, res)
-          )
-        )
+            await getRegisteredActiveUser(req, res),
+          ),
+        ),
       );
-  }
+  },
 );

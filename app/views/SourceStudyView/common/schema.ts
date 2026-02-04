@@ -15,16 +15,16 @@ export const sourceStudyEditSchema = newSourceStudySchema.concat(
       .notRequired()
       .matches(
         CELLXGENE_COLLECTION_ID_REGEX,
-        "CELLxGENE collection ID must be a UUID or CELLxGENE collection URL"
+        "CELLxGENE collection ID must be a UUID or CELLxGENE collection URL",
       ),
     [FIELD_NAME.HCA_PROJECT_ID]: string()
       .default("")
       .notRequired()
       .matches(
         HCA_PROJECT_ID_REGEX,
-        "HCA project ID must be a UUID or HCA Data Explorer project URL"
+        "HCA project ID must be a UUID or HCA Data Explorer project URL",
       ),
     [FIELD_NAME.METADATA_SPREADSHEETS]:
       metadataSpreadsheetUrlsSchema.required(),
-  })
+  }),
 );

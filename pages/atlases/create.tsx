@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { GetServerSideProps } from "next";
 import { AddNewAtlasView } from "../../app/views/AddNewAtlasView/addNewAtlasView";
 

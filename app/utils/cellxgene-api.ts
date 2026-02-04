@@ -10,7 +10,7 @@ const API_URL_COLLECTIONS =
   "https://api.cellxgene.cziscience.com/curation/v1/collections";
 
 export async function getCellxGeneCollections(
-  kyOptions?: KyOptions
+  kyOptions?: KyOptions,
 ): Promise<CellxGeneCollection[]> {
   return await ky(API_URL_COLLECTIONS, kyOptions).json();
 }

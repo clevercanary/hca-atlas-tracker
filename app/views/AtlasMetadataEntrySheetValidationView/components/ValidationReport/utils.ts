@@ -9,7 +9,7 @@ import { EntityType, ValidationErrorInfo } from "./entities";
  * @returns Map of entity type to validation report, keyed by entity type, and then column.
  */
 export function buildEntityValidationReports(
-  data: EntityData
+  data: EntityData,
 ):
   | Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>>
   | undefined {
@@ -19,7 +19,7 @@ export function buildEntityValidationReports(
     .sort(sortReport)
     .reduce(
       mapReport,
-      new Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>>()
+      new Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>>(),
     );
 
   return moveShortValidationErrorsToOther(entityReports);
@@ -33,7 +33,7 @@ export function buildEntityValidationReports(
  */
 function mapReport(
   acc: Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>>,
-  report: ValidationErrorInfo
+  report: ValidationErrorInfo,
 ): Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>> {
   const entityReports =
     acc.get(report.entity_type ?? "entrySheet") || new Map();
@@ -58,7 +58,7 @@ function moveShortValidationErrorsToOther(
   entityReports: Map<
     EntityType | "entrySheet",
     Map<string, ValidationErrorInfo[]>
-  >
+  >,
 ): Map<EntityType | "entrySheet", Map<string, ValidationErrorInfo[]>> {
   const columnsToDelete = [];
   for (const [, columnReports] of entityReports) {
@@ -91,12 +91,12 @@ function moveShortValidationErrorsToOther(
  */
 function sortReport(
   r01: ValidationErrorInfo,
-  r02: ValidationErrorInfo
+  r02: ValidationErrorInfo,
 ): number {
   // Sort by entity type first.
   const firstCompare = COLLATOR_CASE_INSENSITIVE.compare(
     r01.entity_type ?? "",
-    r02.entity_type ?? ""
+    r02.entity_type ?? "",
   );
 
   // If entity types are different, return the comparison result.

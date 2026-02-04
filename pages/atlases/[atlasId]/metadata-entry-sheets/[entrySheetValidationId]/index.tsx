@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import {
@@ -17,7 +18,7 @@ interface MetadataEntrySheetValidationPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId, entrySheetValidationId } =
     context.params as MetadataEntrySheetValidationPageUrlParams;

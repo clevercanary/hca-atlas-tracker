@@ -17,7 +17,7 @@ interface UseFetchAtlasSourceDatasets {
 }
 
 export const useFetchAtlasSourceDatasets = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchAtlasSourceDatasets => {
   const {
     fetchDataState: { shouldFetchByKey },
@@ -34,10 +34,10 @@ export const useFetchAtlasSourceDatasets = (
   >(
     `${getRequestURL(
       API.ATLAS_SOURCE_DATASETS,
-      pathParameter
+      pathParameter,
     )}?archived=${archived}`,
     METHOD.GET,
-    shouldFetch
+    shouldFetch,
   );
 
   useResetFetchStatus(progress, [SOURCE_DATASETS]);
@@ -47,7 +47,7 @@ export const useFetchAtlasSourceDatasets = (
 
   const atlasSourceDatasets = useMemo(
     () => mapData(atlasId, data),
-    [atlasId, data]
+    [atlasId, data],
   );
 
   return { atlasSourceDatasets };
@@ -61,7 +61,7 @@ export const useFetchAtlasSourceDatasets = (
  */
 function mapData(
   atlasId: string,
-  data: HCAAtlasTrackerSourceDataset[] = []
+  data: HCAAtlasTrackerSourceDataset[] = [],
 ): AtlasSourceDataset[] {
   return data.map((atlasSourceDataset) => ({
     atlasId,

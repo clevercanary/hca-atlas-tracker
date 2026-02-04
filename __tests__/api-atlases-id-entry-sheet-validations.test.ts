@@ -31,7 +31,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -69,9 +69,9 @@ describe(TEST_ROUTE, () => {
         await doEntrySheetValidationsRequest(
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_CONTENT_ADMIN,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -82,9 +82,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           undefined,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -95,9 +95,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -108,9 +108,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -121,9 +121,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_NONEXISTENT.id,
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -144,9 +144,9 @@ describe(TEST_ROUTE, () => {
         expectListEntrySheetValidationsToMatchTest(
           validations,
           EXPECTED_ENTRY_SHEET_VALIDATIONS_A,
-          EXPECTED_ENTRY_SHEET_STUDIES_A
+          EXPECTED_ENTRY_SHEET_STUDIES_A,
         );
-      }
+      },
     );
   }
 
@@ -154,7 +154,7 @@ describe(TEST_ROUTE, () => {
     const res = await doEntrySheetValidationsRequest(
       ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
       USER_CONTENT_ADMIN,
-      METHOD.GET
+      METHOD.GET,
     );
     expect(res._getStatusCode()).toEqual(200);
     const validations =
@@ -162,7 +162,7 @@ describe(TEST_ROUTE, () => {
     expectListEntrySheetValidationsToMatchTest(
       validations,
       EXPECTED_ENTRY_SHEET_VALIDATIONS_A,
-      EXPECTED_ENTRY_SHEET_STUDIES_A
+      EXPECTED_ENTRY_SHEET_STUDIES_A,
     );
   });
 });
@@ -170,19 +170,19 @@ describe(TEST_ROUTE, () => {
 function expectListEntrySheetValidationsToMatchTest(
   listValidations: HCAAtlasTrackerListEntrySheetValidation[],
   testValidations: TestEntrySheetValidation[],
-  testSourceStudies: TestSourceStudy[]
+  testSourceStudies: TestSourceStudy[],
 ): void {
   expect(listValidations).toHaveLength(testValidations.length);
   for (const [i, testValidation] of testValidations.entries()) {
     const testSourceStudy = testSourceStudies[i];
     const listValidation = listValidations.find(
-      (v) => v.id === testValidation.id
+      (v) => v.id === testValidation.id,
     );
     if (expectIsDefined(listValidation))
       expectListEntrySheetValidationToMatchTest(
         listValidation,
         testValidation,
-        testSourceStudy
+        testSourceStudy,
       );
   }
 }
@@ -190,23 +190,23 @@ function expectListEntrySheetValidationsToMatchTest(
 function expectListEntrySheetValidationToMatchTest(
   listValidation: HCAAtlasTrackerListEntrySheetValidation,
   testValidation: TestEntrySheetValidation,
-  testSourceStudy: TestSourceStudy
+  testSourceStudy: TestSourceStudy,
 ): void {
   expect(listValidation.entrySheetId).toEqual(testValidation.entry_sheet_id);
   expect(listValidation.entrySheetTitle).toEqual(
-    testValidation.entry_sheet_title
+    testValidation.entry_sheet_title,
   );
   expect(listValidation.id).toEqual(testValidation.id);
   expect(listValidation.lastSynced).toEqual(
-    testValidation.last_synced.toISOString()
+    testValidation.last_synced.toISOString(),
   );
   expect(listValidation.lastUpdated).toEqual(testValidation.last_updated);
   expect(listValidation.sourceStudyId).toEqual(testValidation.source_study_id);
   expect(listValidation.validationSummary).toEqual(
-    testValidation.validation_summary
+    testValidation.validation_summary,
   );
   expect(listValidation.publicationString).toEqual(
-    getTestSourceStudyCitation(testSourceStudy)
+    getTestSourceStudyCitation(testSourceStudy),
   );
 }
 
@@ -214,7 +214,7 @@ async function doEntrySheetValidationsRequest(
   atlasId: string,
   user: TestUser | undefined,
   method: METHOD,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -223,7 +223,7 @@ async function doEntrySheetValidationsRequest(
   });
   await withConsoleErrorHiding(
     () => entrySheetValidationsHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }

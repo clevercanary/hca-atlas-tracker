@@ -1,5 +1,5 @@
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, ReactNode } from "react";
+import { JSX, forwardRef, ReactNode } from "react";
 import { NETWORKS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { isNetworkKey } from "../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getBioNetworkByKey } from "../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -15,7 +15,7 @@ export const BioNetwork = forwardRef<HTMLInputElement, SelectProps>(
       className,
       ...props /* Spread props to allow for Mui SelectProps specific prop overrides and controller related props e.g. "field". */
     }: SelectProps,
-    ref
+    ref,
   ): JSX.Element {
     return (
       <Select
@@ -31,7 +31,7 @@ export const BioNetwork = forwardRef<HTMLInputElement, SelectProps>(
         ))}
       </Select>
     );
-  }
+  },
 );
 
 /**

@@ -62,7 +62,7 @@ function getFormattedMonth(month: number): string {
  * @returns quarters.
  */
 export function getPastAndNextTwoYearsQuartersByDate(
-  date = new Date()
+  date = new Date(),
 ): Map<string, string> {
   const quartersByDate: Map<string, string> = new Map();
   const finalListedYear = getYear(date) + 1;
@@ -73,7 +73,7 @@ export function getPastAndNextTwoYearsQuartersByDate(
       const lastMomentOfQuarter = getLastMomentOfQuarter(quarter, year);
       quartersByDate.set(
         formatDate(lastMomentOfQuarter),
-        formatDate(lastMomentOfQuarter, FORMAT_STR_YEAR_QUARTER)
+        formatDate(lastMomentOfQuarter, FORMAT_STR_YEAR_QUARTER),
       );
     }
   }

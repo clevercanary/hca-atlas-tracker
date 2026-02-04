@@ -11,7 +11,7 @@ interface UseFetchAtlas {
 export const useFetchAtlases = (): UseFetchAtlas => {
   const { data: atlases } = useFetchData<HCAAtlasTrackerAtlas[] | undefined>(
     getRequestURL(API.ATLASES),
-    METHOD.GET
+    METHOD.GET,
   );
   return { atlases };
 };

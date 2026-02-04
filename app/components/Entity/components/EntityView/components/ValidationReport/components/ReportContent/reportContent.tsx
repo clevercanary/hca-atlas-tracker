@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import { Props } from "./entities";
@@ -15,7 +16,7 @@ export const ReportContent = ({
         {getReportValues(
           validationStatus,
           validationReports,
-          validatorName
+          validatorName,
         ).map((value, i) => (
           <div key={i}>{value}</div>
         ))}

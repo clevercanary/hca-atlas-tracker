@@ -10,7 +10,7 @@ import { getFetchOptions, getRequestURL } from "../common/utils";
 import { useFetchData } from "./useFetchData";
 
 export const useFetchSourceStudiesSourceDatasets = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): HCAAtlasTrackerSourceDataset[] | undefined => {
   const [sourceStudiesSourceDatasets, setSourceStudiesSourceDatasets] =
     useState<HCAAtlasTrackerSourceDataset[]>();
@@ -21,7 +21,7 @@ export const useFetchSourceStudiesSourceDatasets = (
   const fetchData = useCallback(
     async (
       sourceStudyIds: SourceStudyId[],
-      pathParameter: PathParameter
+      pathParameter: PathParameter,
     ): Promise<void> => {
       try {
         const requests = sourceStudyIds.map((sourceStudyId) =>
@@ -30,8 +30,8 @@ export const useFetchSourceStudiesSourceDatasets = (
               ...pathParameter,
               sourceStudyId,
             }),
-            getFetchOptions(METHOD.GET)
-          ).then((response) => response.json())
+            getFetchOptions(METHOD.GET),
+          ).then((response) => response.json()),
         );
         const responses = await Promise.all(requests);
         setSourceStudiesSourceDatasets(responses.flatMap((r) => r));
@@ -39,14 +39,14 @@ export const useFetchSourceStudiesSourceDatasets = (
         console.error("Error fetching data:", error);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
     if (!sourceStudies) return;
     fetchData(
       sourceStudies.map(({ id }) => id),
-      pathParameter
+      pathParameter,
     );
   }, [fetchData, pathParameter, sourceStudies]);
 

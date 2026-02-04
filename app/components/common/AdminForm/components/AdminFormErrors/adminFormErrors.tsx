@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { FormResponseErrors } from "../../../../../hooks/useForm/common/entities";
 
 export interface Props {

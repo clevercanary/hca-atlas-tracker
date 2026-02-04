@@ -19,12 +19,12 @@ interface UserProfile {
 export type MiddlewareFunction = (
   req: NextApiRequest,
   res: NextApiResponse,
-  next: () => void
+  next: () => void,
 ) => Promise<void>;
 
 export type Handler = (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => Promise<void>;
 
 export class InvalidOperationError extends Error {
@@ -79,7 +79,7 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
  * @returns API handler function.
  */
 export function handleByMethod(
-  handlers: Partial<Record<METHOD, Handler>>
+  handlers: Partial<Record<METHOD, Handler>>,
 ): Handler {
   const allowHeaderText = Object.keys(handlers).join(", ");
   return async (req, res) => {
@@ -158,7 +158,7 @@ export function role(allowedRoles: ROLE | ROLE[]): MiddlewareFunction {
 export const integrationLeadAssociatedAtlasOnly: MiddlewareFunction = async (
   req,
   res,
-  next
+  next,
 ) => {
   const user = await getRegisteredActiveUser(req, res);
   if (user.role === ROLE.INTEGRATION_LEAD) {
@@ -183,13 +183,13 @@ export function handleRequiredParam(
   req: NextApiRequest,
   res: NextApiResponse,
   paramName: string,
-  paramRegExp?: RegExp
+  paramRegExp?: RegExp,
 ): null | string {
   const { param, responseSent } = handleOptionalParam(
     req,
     res,
     paramName,
-    paramRegExp
+    paramRegExp,
   );
   if (responseSent) return null;
   if (param === undefined) {
@@ -211,7 +211,7 @@ export function handleOptionalParam(
   req: NextApiRequest,
   res: NextApiResponse,
   paramName: string,
-  paramRegExp?: RegExp
+  paramRegExp?: RegExp,
 ): { param: string | undefined; responseSent: boolean } {
   const param = req.query[paramName];
   if (param === undefined) return { param, responseSent: false };
@@ -226,21 +226,21 @@ export function handleOptionalParam(
 
 export async function getActiveUserRole(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<ROLE> {
   return (await getActiveUser(req, res))?.role ?? ROLE.UNREGISTERED;
 }
 
 export async function getActiveUser(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<HCAAtlasTrackerDBUser | null> {
   const userProfile = await getProvidedUserProfile(req, res);
   const email = userProfile?.email;
   if (email) {
     const { rows } = await query<HCAAtlasTrackerDBUser>(
       "SELECT * FROM hat.users WHERE email=$1",
-      [email]
+      [email],
     );
     if (rows.length > 0) return rows[0];
   }
@@ -249,13 +249,13 @@ export async function getActiveUser(
 
 export async function getRegisteredActiveUser(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<HCAAtlasTrackerDBUser> {
   const user = await getActiveUser(req, res);
   if (!user) {
     const userProfile = await getProvidedUserProfile(req, res);
     throw new (userProfile ? ForbiddenError : UnauthenticatedError)(
-      "User must be registered"
+      "User must be registered",
     );
   }
   return user;
@@ -290,7 +290,7 @@ function respondError(res: NextApiResponse, error: unknown): void {
  */
 export function respondValidationError(
   res: NextApiResponse,
-  error: ValidationError
+  error: ValidationError,
 ): void {
   const errorInfo: FormResponseErrors = error.path
     ? {
@@ -306,7 +306,7 @@ export function respondValidationError(
 
 export async function getProvidedUserProfile(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<UserProfile | null> {
   const session = await getServerSession(req, res, nextAuthOptions);
   if (!session) return null;

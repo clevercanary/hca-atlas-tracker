@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { AtlasId } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -13,7 +14,7 @@ interface MetadataEntrySheetsPageProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { atlasId } = context.params as MetadataEntrySheetsPageUrlParams;
   return {

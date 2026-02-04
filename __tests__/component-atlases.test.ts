@@ -10,7 +10,7 @@ import {
 import { expectIsDefined } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -51,10 +51,10 @@ describe("createComponentAtlas", () => {
       (async (): Promise<void> => {
         const result = await createComponentAtlas(
           ATLAS_ID_NONEXISTENT,
-          FILE_ID_NONEXISTENT_ATLAS
+          FILE_ID_NONEXISTENT_ATLAS,
         );
         componentAtlasIds.push(result.id);
-      })()
+      })(),
     ).rejects.toThrow();
   });
 
@@ -69,7 +69,7 @@ describe("createComponentAtlas", () => {
 
     const result = await createComponentAtlas(
       ATLAS_DRAFT.id,
-      FILE_ID_SUCCESSFUL
+      FILE_ID_SUCCESSFUL,
     );
 
     componentAtlasIds.push(result.id);

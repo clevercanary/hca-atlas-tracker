@@ -1,5 +1,5 @@
 import { Select as MSelect, SelectProps as MSelectProps } from "@mui/material";
-import { forwardRef, ReactNode } from "react";
+import { JSX, forwardRef, ReactNode } from "react";
 import { FormControl } from "../FormControl/formControl.styles";
 import { FormHelperText } from "../FormHelperText/formHelperText";
 import { FormLabel } from "../FormLabel/formLabel";
@@ -27,7 +27,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(function Select(
     onBlur,
     ...props /* Spread props to allow for Mui SelectProps specific prop overrides e.g. "disabled". */
   }: SelectProps,
-  ref
+  ref,
 ): JSX.Element {
   return (
     <FormControl

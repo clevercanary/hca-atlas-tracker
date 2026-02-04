@@ -22,8 +22,8 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
     .status(200)
     .json(
       (await getComponentAtlasDatasets(atlasId, componentAtlasId)).map(
-        dbSourceDatasetToApiSourceDataset
-      )
+        dbSourceDatasetToApiSourceDataset,
+      ),
     );
 });
 
@@ -38,10 +38,10 @@ const postHandler = handler(
     await addSourceDatasetsToComponentAtlas(
       atlasId,
       componentAtlasId,
-      sourceDatasetIds
+      sourceDatasetIds,
     );
     res.status(201).end();
-  }
+  },
 );
 
 const deleteHandler = handler(
@@ -55,10 +55,10 @@ const deleteHandler = handler(
     await deleteSourceDatasetsFromComponentAtlas(
       atlasId,
       componentAtlasId,
-      sourceDatasetIds
+      sourceDatasetIds,
     );
     res.status(200).end();
-  }
+  },
 );
 
 /**

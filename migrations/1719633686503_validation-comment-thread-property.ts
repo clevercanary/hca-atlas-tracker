@@ -7,6 +7,6 @@ export function up(pgm: MigrationBuilder): void {
       comment_thread_id: {
         type: "uuid",
       },
-    }
+    },
   );
 }

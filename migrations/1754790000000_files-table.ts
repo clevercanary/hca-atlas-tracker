@@ -131,7 +131,7 @@ export const up = (pgm: MigrationBuilder): void => {
         // S3 Object Identity
         type: VARCHAR_255,
       },
-    }
+    },
   );
 
   pgm.addConstraint({ name: "files", schema: "hat" }, "pk_files_id", {
@@ -144,7 +144,7 @@ export const up = (pgm: MigrationBuilder): void => {
     "uq_files_bucket_key_version",
     {
       unique: ["bucket", "key", "version_id"],
-    }
+    },
   );
 
   // Foreign key constraint for source study relationship
@@ -159,7 +159,7 @@ export const up = (pgm: MigrationBuilder): void => {
         references: { name: "source_studies", schema: "hat" },
         referencesConstraintName: "pk_source_studies_id",
       },
-    }
+    },
   );
 
   // Foreign key constraint for atlas relationship
@@ -185,7 +185,7 @@ export const up = (pgm: MigrationBuilder): void => {
         (file_type = 'source_dataset' AND atlas_id IS NULL) OR
         (file_type IN ('integrated_object', 'ingest_manifest') AND source_study_id IS NULL AND atlas_id IS NOT NULL)
       )`,
-    }
+    },
   );
 
   // Index for common queries
@@ -207,7 +207,7 @@ export const up = (pgm: MigrationBuilder): void => {
     {
       check:
         "integrity_status IN ('pending', 'validating', 'valid', 'invalid', 'error')",
-    }
+    },
   );
 
   // Add updated_at trigger following existing pattern

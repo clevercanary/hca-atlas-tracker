@@ -10,7 +10,7 @@ import { FetchDataState } from "../../fetchDataState";
  */
 export function resetFetchStatusAction(
   state: FetchDataState,
-  payload?: string[]
+  payload?: string[],
 ): FetchDataState {
   if (!payload) return { ...state, shouldFetch: false };
 

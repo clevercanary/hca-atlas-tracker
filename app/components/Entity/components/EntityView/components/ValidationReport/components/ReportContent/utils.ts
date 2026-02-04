@@ -15,14 +15,14 @@ import {
 export function getReportValues(
   validationStatus: FILE_VALIDATION_STATUS,
   validationReports?: FileValidationReports | null,
-  validatorName?: FileValidatorName
+  validatorName?: FileValidatorName,
 ): string[] {
   const values: string[] = [];
 
   if (!validatorName || !validationReports) {
     // If no validator name or validation reports are provided, return the validation status.
     values.push(
-      `Validation Status: ${FILE_VALIDATION_STATUS_NAME_LABEL[validationStatus]}`
+      `Validation Status: ${FILE_VALIDATION_STATUS_NAME_LABEL[validationStatus]}`,
     );
     return values;
   }

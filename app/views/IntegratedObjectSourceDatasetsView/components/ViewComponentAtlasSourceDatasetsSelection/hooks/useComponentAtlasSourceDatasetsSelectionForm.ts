@@ -8,7 +8,7 @@ import { componentAtlasSourceDatasetsEditSchema } from "../common/schema";
 const SCHEMA = componentAtlasSourceDatasetsEditSchema;
 
 export const useComponentAtlasSourceDatasetsSelectionForm = (
-  componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[]
+  componentAtlasSourceDatasets: HCAAtlasTrackerSourceDataset[],
 ): FormMethod<
   ComponentAtlasSourceDatasetsEditData,
   HCAAtlasTrackerSourceDataset[]
@@ -18,7 +18,7 @@ export const useComponentAtlasSourceDatasetsSelectionForm = (
     componentAtlasSourceDatasets,
     mapSchemaValues,
     undefined,
-    { defaultValues: mapSchemaValues(componentAtlasSourceDatasets) }
+    { defaultValues: mapSchemaValues(componentAtlasSourceDatasets) },
   );
 };
 
@@ -28,7 +28,7 @@ export const useComponentAtlasSourceDatasetsSelectionForm = (
  * @returns source dataset IDs.
  */
 function getSourceDatasetIds(
-  componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[]
+  componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[],
 ): string[] {
   return (componentAtlasSourceDatasets || []).map(({ id }) => id);
 }
@@ -39,11 +39,11 @@ function getSourceDatasetIds(
  * @returns schema default values.
  */
 function mapSchemaValues(
-  componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[]
+  componentAtlasSourceDatasets?: HCAAtlasTrackerSourceDataset[],
 ): ComponentAtlasSourceDatasetsEditData {
   return {
     [FIELD_NAME.SOURCE_DATASET_IDS]: getSourceDatasetIds(
-      componentAtlasSourceDatasets
+      componentAtlasSourceDatasets,
     ),
   };
 }

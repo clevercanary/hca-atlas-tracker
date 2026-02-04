@@ -1,5 +1,5 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { forwardRef, Fragment } from "react";
+import { JSX, forwardRef, Fragment } from "react";
 import { CAP_PROJECT_URL_REGEXP } from "../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   Input,
@@ -13,7 +13,7 @@ export const CapId = forwardRef<HTMLInputElement, InputProps>(function CapId(
     className,
     ...props /* Spread props to allow for Mui InputProps specific prop overrides and controller related props e.g. "field". */
   }: InputProps,
-  ref
+  ref,
 ): JSX.Element {
   const { label, value } = props;
   return (

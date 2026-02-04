@@ -11,11 +11,11 @@ export interface ProjectInfo {
 }
 
 export function getProjectsInfo(
-  projectsResponse: ProjectsResponse
+  projectsResponse: ProjectsResponse,
 ): ProjectInfo[] {
   const projectsInfo: ProjectInfo[] = [];
   const hasPrimaryData = projectsResponse.fileTypeSummaries.some((fileType) =>
-    /^fastq(?:\.gz)?$/i.test(fileType.format)
+    /^fastq(?:\.gz)?$/i.test(fileType.format),
   );
   for (const project of projectsResponse.projects) {
     const networks = project.bionetworkName;

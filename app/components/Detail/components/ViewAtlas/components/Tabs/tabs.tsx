@@ -1,6 +1,6 @@
 import { TabValue } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
+import { JSX, useCallback } from "react";
 import { HCAAtlasTrackerAtlas } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { getRouteURL } from "../../../../../../common/utils";
@@ -33,7 +33,7 @@ export const Tabs = ({
     (tabValue: TabValue): void => {
       onNavigate(getRouteURL(tabValue, pathParameter), tabValue);
     },
-    [onNavigate, pathParameter]
+    [onNavigate, pathParameter],
   );
 
   return (
@@ -48,7 +48,7 @@ export const Tabs = ({
         {
           label: getTabLabelWithCount(
             "Metadata Entry Sheets",
-            entrySheetValidationCount
+            entrySheetValidationCount,
           ),
           value: ROUTE.METADATA_ENTRY_SHEETS,
         },
@@ -59,7 +59,7 @@ export const Tabs = ({
         {
           label: getTabLabelWithCount(
             "Integrated Objects",
-            componentAtlasCount
+            componentAtlasCount,
           ),
           value: ROUTE.COMPONENT_ATLASES,
         },

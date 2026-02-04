@@ -61,7 +61,7 @@ async function getRequestBody(req: NextApiRequest): Promise<unknown> {
       }),
       // Timeout after 10 seconds to prevent hanging
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Request body timeout")), 10000)
+        setTimeout(() => reject(new Error("Request body timeout")), 10000),
       ),
     ]);
 
@@ -101,13 +101,13 @@ async function validateSNSSignature(message: SNSMessage): Promise<void> {
         if (!validatedMessage) {
           // Malformed SNS message → 400 Bad Request
           reject(
-            new InvalidOperationError("SNS validation returned no message")
+            new InvalidOperationError("SNS validation returned no message"),
           );
           return;
         }
 
         resolve();
-      }
+      },
     );
   });
 }
@@ -137,7 +137,7 @@ export default handler(method(METHOD.POST), async (req, res) => {
     case "UnsubscribeConfirmation":
       // Handle subscription lifecycle messages
       console.log(
-        `Processing ${snsMessage.Type} for topic: ${snsMessage.TopicArn}`
+        `Processing ${snsMessage.Type} for topic: ${snsMessage.TopicArn}`,
       );
       await handleSNSSubscription(snsMessage);
       break;
@@ -150,7 +150,7 @@ export default handler(method(METHOD.POST), async (req, res) => {
 
     default:
       throw new InvalidOperationError(
-        `Unknown SNS message type: ${snsMessage.Type}`
+        `Unknown SNS message type: ${snsMessage.Type}`,
       );
   }
 

@@ -23,7 +23,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -49,14 +49,14 @@ afterAll(() => {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for non-PUT request", async () => {
     expect(
-      (await doMeRequest(USER_STAKEHOLDER, METHOD.GET))._getStatusCode()
+      (await doMeRequest(USER_STAKEHOLDER, METHOD.GET))._getStatusCode(),
     ).toEqual(405);
     await expectUsersToBeUnchanged();
   });
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doMeRequest(undefined, undefined, true))._getStatusCode()
+      (await doMeRequest(undefined, undefined, true))._getStatusCode(),
     ).toEqual(401);
     await expectUsersToBeUnchanged();
   });
@@ -85,14 +85,14 @@ describe(TEST_ROUTE, () => {
     const user: HCAAtlasTrackerActiveUser = res._getJSONData();
     expectActiveUserToMatchTest(user, USER_CONTENT_ADMIN);
     const userContentAdminFromDb = await getDbUserByEmail(
-      USER_CONTENT_ADMIN.email
+      USER_CONTENT_ADMIN.email,
     );
     if (!expectIsDefined(userContentAdminFromDb)) return;
     const lastLoginTime = userContentAdminFromDb.last_login.getTime();
     expect(Math.abs(lastLoginTime - requestTime)).toBeLessThan(1000);
 
     const userStakeholderFromDb = await getDbUserByEmail(
-      USER_STAKEHOLDER.email
+      USER_STAKEHOLDER.email,
     );
     expect(userStakeholderFromDb?.last_login.getFullYear()).toEqual(1970);
   });
@@ -111,7 +111,7 @@ describe(TEST_ROUTE, () => {
         expect(res.statusCode).toEqual(200);
         const user: HCAAtlasTrackerActiveUser = res._getJSONData();
         expectActiveUserToMatchTest(user, testUser);
-      }
+      },
     );
   }
 });
@@ -125,21 +125,21 @@ async function expectUsersToBeUnchanged(): Promise<void> {
 
 function expectActiveUserToMatchTest(
   activeUser: HCAAtlasTrackerActiveUser,
-  testUser: TestUser
+  testUser: TestUser,
 ): void {
   expect(activeUser.disabled).toEqual(testUser.disabled);
   expect(activeUser.email).toEqual(testUser.email);
   expect(activeUser.fullName).toEqual(testUser.name);
   expect(activeUser.role).toEqual(testUser.role);
   expect(activeUser.roleAssociatedResourceIds).toEqual(
-    testUser.roleAssociatedResourceIds ?? []
+    testUser.roleAssociatedResourceIds ?? [],
   );
 }
 
 async function doMeRequest(
   user?: TestUser,
   method = METHOD.PUT,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -150,12 +150,12 @@ async function doMeRequest(
 }
 
 async function getDbUserByEmail(
-  email: string
+  email: string,
 ): Promise<HCAAtlasTrackerDBUser | undefined> {
   return (
     await query<HCAAtlasTrackerDBUser>(
       "SELECT * FROM hat.users WHERE email=$1",
-      [email]
+      [email],
     )
   ).rows[0];
 }

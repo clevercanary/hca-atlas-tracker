@@ -1,6 +1,6 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button, TextField } from "@mui/material";
-import { useCallback, useRef, useState } from "react";
+import { JSX, useCallback, useRef, useState } from "react";
 import {
   TASK_STATUS,
   TaskStatusesUpdatedByDOIResult,
@@ -15,7 +15,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
   const [updateResult, setUpdateResult] =
     useState<TaskStatusesUpdatedByDOIResult>();
 
-  const textareaRef = useRef<HTMLTextAreaElement>();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const onSave = useCallback(() => {
     (async (): Promise<void> => {
@@ -27,7 +27,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
         const res = await fetchResource(
           "/api/tasks/cellxgene-in-progress",
           METHOD.PATCH,
-          dois
+          dois,
         );
         if (isFetchStatusOk(res.status)) {
           setResponseErrors(undefined);
@@ -36,7 +36,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
           setResponseErrors(
             await res.json().catch(() => ({
               message: `Received ${res.status} ${res.statusText} response`,
-            }))
+            })),
           );
         }
       } catch (e) {
@@ -77,8 +77,8 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
           {responseErrors
             ? buildResponseErrors(responseErrors)
             : updateResult
-            ? buildUpdateResult(updateResult)
-            : ""}
+              ? buildUpdateResult(updateResult)
+              : ""}
         </>
       ) : (
         ""
@@ -103,11 +103,11 @@ function buildResponseErrors(responseErrors: FormResponseErrors): JSX.Element {
 }
 
 function buildUpdateResult(
-  updateResult: TaskStatusesUpdatedByDOIResult
+  updateResult: TaskStatusesUpdatedByDOIResult,
 ): JSX.Element {
   const notUpdatedIncompatible = Object.values(TASK_STATUS)
     .map((status) =>
-      status === TASK_STATUS.IN_PROGRESS ? [] : updateResult.notUpdated[status]
+      status === TASK_STATUS.IN_PROGRESS ? [] : updateResult.notUpdated[status],
     )
     .flat();
   return (
@@ -116,11 +116,11 @@ function buildUpdateResult(
       {buildDoiList("Not found", updateResult.notFound)}
       {buildDoiList(
         "Not updated (already marked as in progress)",
-        updateResult.notUpdated.IN_PROGRESS
+        updateResult.notUpdated.IN_PROGRESS,
       )}
       {buildDoiList(
         "Not updated (existing task status is incompatible)",
-        notUpdatedIncompatible
+        notUpdatedIncompatible,
       )}
     </>
   );

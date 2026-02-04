@@ -1,5 +1,5 @@
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, ReactNode, useMemo } from "react";
+import { JSX, forwardRef, ReactNode, useMemo } from "react";
 import { getPastAndNextTwoYearsQuartersByDate } from "../../../../../../utils/date-fns";
 import {
   Select,
@@ -13,11 +13,11 @@ export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(
       className,
       ...props /* Spread props to allow for Mui SelectProps specific prop overrides and controller related props e.g. "field". */
     }: SelectProps,
-    ref
+    ref,
   ): JSX.Element {
     const quartersByDate = useMemo(
       () => getPastAndNextTwoYearsQuartersByDate(),
-      []
+      [],
     );
     return (
       <Select
@@ -34,7 +34,7 @@ export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(
         <MMenuItem value={TARGET_COMPLETION_NULL}>Unplanned</MMenuItem>
       </Select>
     );
-  }
+  },
 );
 
 /**
@@ -45,7 +45,7 @@ export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(
  */
 function renderValue(
   value: unknown,
-  futureQuarterByDate: Map<string, string>
+  futureQuarterByDate: Map<string, string>,
 ): ReactNode {
   if (value && typeof value === "string") {
     if (value === TARGET_COMPLETION_NULL) return "Unplanned";

@@ -23,7 +23,7 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -45,13 +45,15 @@ afterAll(() => {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
-      (await doUsersRequest(undefined, undefined, "POST"))._getStatusCode()
+      (await doUsersRequest(undefined, undefined, "POST"))._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doUsersRequest(undefined, undefined, "GET", true))._getStatusCode()
+      (
+        await doUsersRequest(undefined, undefined, "GET", true)
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -59,13 +61,13 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doUsersRequest(USER_UNREGISTERED, undefined, "GET", true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
   it("returns error 403 for disabled user", async () => {
     expect(
-      (await doUsersRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode()
+      (await doUsersRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -87,7 +89,7 @@ describe(TEST_ROUTE, () => {
           if (!expectIsDefined(user)) continue;
           expectApiUserToMatchTest(user, testUser);
         }
-      }
+      },
     );
   }
 
@@ -105,7 +107,7 @@ describe(TEST_ROUTE, () => {
   it("returns singular user when email parameter is set to an existing user's email", async () => {
     const res = await doUsersRequest(
       USER_CONTENT_ADMIN,
-      USER_STAKEHOLDER.email
+      USER_STAKEHOLDER.email,
     );
     expect(res._getStatusCode()).toEqual(200);
     const users = res._getJSONData() as HCAAtlasTrackerUser[];
@@ -116,7 +118,7 @@ describe(TEST_ROUTE, () => {
   it("returns no users when email parameter is set to a nonexistent user's email", async () => {
     const res = await doUsersRequest(
       USER_CONTENT_ADMIN,
-      USER_NONEXISTENT.email
+      USER_NONEXISTENT.email,
     );
     expect(res._getStatusCode()).toEqual(200);
     expect(res._getJSONData().length).toEqual(0);
@@ -127,7 +129,7 @@ async function doUsersRequest(
   user?: TestUser,
   email?: string,
   method: "GET" | "POST" = "GET",
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },

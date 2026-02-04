@@ -12,7 +12,7 @@ import { NewAtlasData } from "../common/entities";
 import { getIdentifierId } from "../common/utils";
 
 export const useAddAtlasFormManager = (
-  formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>
+  formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>,
 ): FormManager => {
   const { onSubmit } = formMethod;
 
@@ -26,7 +26,7 @@ export const useAddAtlasFormManager = (
         onSuccess: (data) => onSuccess(data.id, url),
       });
     },
-    [onSubmit]
+    [onSubmit],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

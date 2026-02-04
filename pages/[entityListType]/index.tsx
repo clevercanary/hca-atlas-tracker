@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { AzulEntitiesStaticResponse } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main.styles";
 import { EntityConfig } from "@databiosphere/findable-ui/lib/config/entities";
@@ -27,7 +28,7 @@ interface ListPageProps extends AzulEntitiesStaticResponse {
  */
 const seedDatabase = async function seedDatabase( // TODO get rid of this duplicated code
   entityListType: string,
-  entityConfig: EntityConfig
+  entityConfig: EntityConfig,
 ): Promise<void> {
   const { label, staticLoadFile } = entityConfig;
 
@@ -39,7 +40,7 @@ const seedDatabase = async function seedDatabase( // TODO get rid of this duplic
   let jsonText;
   try {
     jsonText = await fsp.readFile(staticLoadFile, "utf8");
-  } catch (e) {
+  } catch {
     throw new Error(`File ${staticLoadFile} not found for entity ${label}`);
   }
 

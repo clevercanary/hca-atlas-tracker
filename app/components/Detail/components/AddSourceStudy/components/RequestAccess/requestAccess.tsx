@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { ROUTE } from "../../../../../../routes/constants";
 import { Divider } from "../../../TrackerForm/components/Divider/divider.styles";

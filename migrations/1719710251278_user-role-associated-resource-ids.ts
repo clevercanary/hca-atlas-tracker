@@ -9,7 +9,7 @@ export function up(pgm: MigrationBuilder): void {
         notNull: true,
         type: "uuid[]",
       },
-    }
+    },
   );
   pgm.alterColumn(
     { name: "users", schema: "hat" },
@@ -17,13 +17,13 @@ export function up(pgm: MigrationBuilder): void {
     {
       notNull: true,
       type: "uuid[]",
-    }
+    },
   );
 }
 
 export function down(pgm: MigrationBuilder): void {
   pgm.dropColumn(
     { name: "users", schema: "hat" },
-    "role_associated_resource_ids"
+    "role_associated_resource_ids",
   );
 }

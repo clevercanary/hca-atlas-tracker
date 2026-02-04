@@ -10,7 +10,7 @@ import { ArchivedState } from "./entities";
  */
 export function archivedReducer(
   state: ArchivedState,
-  action: ArchivedAction
+  action: ArchivedAction,
 ): ArchivedState {
   const { payload, type } = action;
   // eslint-disable-next-line sonarjs/no-small-switch -- allow small switch.

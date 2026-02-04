@@ -6,7 +6,7 @@ import { TARGET_COMPLETION_NULL } from "./constants";
  * @returns target completion payload.
  */
 export function mapTargetCompletion(
-  targetCompletion: string | null
+  targetCompletion: string | null,
 ): string | null {
   return targetCompletion === TARGET_COMPLETION_NULL ? null : targetCompletion;
 }

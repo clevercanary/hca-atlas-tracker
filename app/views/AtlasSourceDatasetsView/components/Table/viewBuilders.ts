@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { CellContext } from "@tanstack/react-table";
 import { INTEGRITY_STATUS } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import * as C from "../../../../components";
@@ -10,7 +11,7 @@ import { AtlasSourceDataset } from "../../entities";
  * @returns CAP URL cell.
  */
 export function renderCAPUrl(
-  ctx: CellContext<AtlasSourceDataset, string>
+  ctx: CellContext<AtlasSourceDataset, string>,
 ): JSX.Element {
   const { row } = ctx;
   const { original } = row;
@@ -26,7 +27,7 @@ export function renderCAPUrl(
  * @returns Cell count.
  */
 export function renderSourceDatasetCellCount(
-  ctx: CellContext<AtlasSourceDataset, number>
+  ctx: CellContext<AtlasSourceDataset, number>,
 ): string {
   const { getValue, row } = ctx;
   if (row.getValue("validationStatus") === INTEGRITY_STATUS.PENDING) return "";
@@ -39,7 +40,7 @@ export function renderSourceDatasetCellCount(
  * @returns File download cell.
  */
 export function renderSourceDatasetFileDownloadCell(
-  ctx: CellContext<AtlasSourceDataset, number>
+  ctx: CellContext<AtlasSourceDataset, number>,
 ): JSX.Element {
   const {
     row,
@@ -65,7 +66,7 @@ export function renderSourceDatasetFileDownloadCell(
  * @returns Validation status cell.
  */
 export function renderSourceDatasetValidationStatus(
-  ctx: CellContext<AtlasSourceDataset, AtlasSourceDataset["validationStatus"]>
+  ctx: CellContext<AtlasSourceDataset, AtlasSourceDataset["validationStatus"]>,
 ): JSX.Element | null {
   const { row } = ctx;
   const { id: sourceDatasetId } = row.original;

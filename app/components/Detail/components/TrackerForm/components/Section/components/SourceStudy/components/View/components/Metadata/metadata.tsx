@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import { useFieldArray } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
@@ -76,13 +76,13 @@ export const Metadata = ({
 
 function getMetadataSpreadsheetHelperText(
   sourceStudy: HCAAtlasTrackerSourceStudy | undefined,
-  sheetUrl: string
+  sheetUrl: string,
 ): string | null {
   if (sourceStudy) {
     let sheetId: string;
     try {
       sheetId = getSpreadsheetIdFromUrl(sheetUrl);
-    } catch (_) {
+    } catch {
       return null;
     }
     for (const sheet of sourceStudy.metadataSpreadsheets) {

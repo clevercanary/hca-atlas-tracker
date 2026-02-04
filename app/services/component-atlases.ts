@@ -25,11 +25,10 @@ type ComponentAtlasInfoUpdateFields = Pick<
  */
 export async function getAtlasComponentAtlases(
   atlasId: string,
-  isArchivedValue = false
+  isArchivedValue = false,
 ): Promise<HCAAtlasTrackerDBComponentAtlasForAPI[]> {
-  const componentAtlasVersions = await getAtlasComponentAtlasVersionIds(
-    atlasId
-  );
+  const componentAtlasVersions =
+    await getAtlasComponentAtlasVersionIds(atlasId);
   const { rows } = await query<HCAAtlasTrackerDBComponentAtlasForAPI>(
     `
         SELECT
@@ -53,7 +52,7 @@ export async function getAtlasComponentAtlases(
         JOIN hat.files f ON f.id = ca.file_id
         WHERE f.is_archived = $2 AND ca.version_id=ANY($1)
       `,
-    [componentAtlasVersions, isArchivedValue]
+    [componentAtlasVersions, isArchivedValue],
   );
   return rows;
 }
@@ -68,12 +67,12 @@ export async function getAtlasComponentAtlases(
 export async function getComponentAtlas(
   atlasId: string,
   componentAtlasId: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBComponentAtlasForDetailAPI> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
     atlasId,
-    client
+    client,
   );
   const queryResult = await query<HCAAtlasTrackerDBComponentAtlasForDetailAPI>(
     `
@@ -100,7 +99,7 @@ export async function getComponentAtlas(
       WHERE ca.version_id=$1
     `,
     [componentAtlasVersion],
-    client
+    client,
   );
   if (queryResult.rows.length === 0)
     throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
@@ -113,7 +112,7 @@ export async function getComponentAtlas(
  * @returns component atlas IDs.
  */
 export async function getAtlasComponentAtlasVersionIds(
-  atlasId: string
+  atlasId: string,
 ): Promise<string[]> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBAtlas, "component_atlases">
@@ -133,11 +132,11 @@ export async function getAtlasComponentAtlasVersionIds(
 export async function updateComponentAtlas(
   atlasId: string,
   componentAtlasId: string,
-  inputData: ComponentAtlasEditData
+  inputData: ComponentAtlasEditData,
 ): Promise<HCAAtlasTrackerDBComponentAtlasForDetailAPI> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
-    atlasId
+    atlasId,
   );
   await confirmComponentAtlasIsEditable(componentAtlasVersion);
   const updatedInfoFields: ComponentAtlasInfoUpdateFields = {
@@ -147,7 +146,7 @@ export async function updateComponentAtlas(
     await query(
       "UPDATE hat.component_atlases SET component_info = component_info || $1 WHERE version_id = $2",
       [JSON.stringify(updatedInfoFields), componentAtlasVersion],
-      client
+      client,
     );
     return await getComponentAtlas(atlasId, componentAtlasId, client);
   });
@@ -162,18 +161,18 @@ export async function updateComponentAtlas(
 export async function addSourceDatasetsToComponentAtlas(
   atlasId: string,
   componentAtlasId: string,
-  sourceDatasetIds: string[]
+  sourceDatasetIds: string[],
 ): Promise<void> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
-    atlasId
+    atlasId,
   );
 
   await confirmComponentAtlasIsEditable(componentAtlasVersion);
 
   const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
     sourceDatasetIds,
-    atlasId
+    atlasId,
   );
 
   const existingDatasetsResult = await query<{ array: string[] }>(
@@ -182,7 +181,7 @@ export async function addSourceDatasetsToComponentAtlas(
         SELECT sd_version FROM unnest(source_datasets) AS sd_version WHERE sd_version=ANY($1)
       ) FROM hat.component_atlases WHERE version_id=$2
     `,
-    [sourceDatasetVersions, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion],
   );
 
   if (existingDatasetsResult.rows.length === 0)
@@ -193,13 +192,13 @@ export async function addSourceDatasetsToComponentAtlas(
   if (existingSpecifiedDatasets.length !== 0)
     throw new InvalidOperationError(
       `Component atlas with ID ${componentAtlasId} already has source datasets with version IDs: ${existingSpecifiedDatasets.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
 
   await query(
     "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE version_id=$2",
-    [sourceDatasetVersions, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion],
   );
 }
 
@@ -212,18 +211,18 @@ export async function addSourceDatasetsToComponentAtlas(
 export async function deleteSourceDatasetsFromComponentAtlas(
   atlasId: string,
   componentAtlasId: string,
-  sourceDatasetIds: string[]
+  sourceDatasetIds: string[],
 ): Promise<void> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
-    atlasId
+    atlasId,
   );
 
   await confirmComponentAtlasIsEditable(componentAtlasVersion);
 
   const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
     sourceDatasetIds,
-    atlasId
+    atlasId,
   );
 
   const missingDatasetsResult = await query<{ array: string[] }>(
@@ -232,7 +231,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
         SELECT sd_version FROM unnest($1::uuid[]) AS sd_version WHERE NOT sd_version=ANY(source_datasets)
       ) FROM hat.component_atlases WHERE version_id=$2
     `,
-    [sourceDatasetVersions, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion],
   );
 
   if (missingDatasetsResult.rows.length === 0)
@@ -243,8 +242,8 @@ export async function deleteSourceDatasetsFromComponentAtlas(
   if (missingDatasets.length !== 0)
     throw new InvalidOperationError(
       `Component atlas with ID ${componentAtlasId} doesn't have source datasets with version IDs: ${missingDatasets.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
 
   await query(
@@ -253,7 +252,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
       SET source_datasets = ARRAY(SELECT unnest(source_datasets) EXCEPT SELECT unnest($1::uuid[]))
       WHERE version_id=$2
     `,
-    [sourceDatasetVersions, componentAtlasVersion]
+    [sourceDatasetVersions, componentAtlasVersion],
   );
 }
 
@@ -267,7 +266,7 @@ export async function deleteSourceDatasetsFromComponentAtlas(
 export async function createComponentAtlas(
   atlasId: string,
   fileId: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {
     capUrl: null,
@@ -281,7 +280,7 @@ export async function createComponentAtlas(
         RETURNING *
       `,
       [JSON.stringify(info), fileId],
-      client
+      client,
     );
 
     const componentAtlas = result.rows[0];
@@ -289,7 +288,7 @@ export async function createComponentAtlas(
     const atlasResult = await query(
       "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
       [componentAtlas.version_id, atlasId],
-      client
+      client,
     );
 
     if (atlasResult.rowCount === 0)
@@ -309,7 +308,7 @@ export async function createComponentAtlas(
 export async function getComponentAtlasVersionForAtlas(
   componentAtlasId: string,
   atlasId: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
@@ -322,7 +321,7 @@ export async function getComponentAtlasVersionForAtlas(
       WHERE ca.id = $1 AND a.id = $2
     `,
     [componentAtlasId, atlasId],
-    client
+    client,
   );
 
   if (queryResult.rows.length === 0)
@@ -330,7 +329,7 @@ export async function getComponentAtlasVersionForAtlas(
 
   if (queryResult.rows.length > 1)
     throw new Error(
-      `Multiple versions of component atlas ${componentAtlasId} found linked to atlas ${atlasId}`
+      `Multiple versions of component atlas ${componentAtlasId} found linked to atlas ${atlasId}`,
     );
 
   return queryResult.rows[0].version_id;
@@ -341,7 +340,7 @@ export async function getComponentAtlasVersionForAtlas(
  * @param componentAtlasVersion - The version ID of the component atlas to check.
  */
 async function confirmComponentAtlasIsEditable(
-  componentAtlasVersion: string
+  componentAtlasVersion: string,
 ): Promise<void> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "is_latest"> &
@@ -353,29 +352,29 @@ async function confirmComponentAtlasIsEditable(
         JOIN hat.files f ON f.id = c.file_id
         WHERE c.version_id = $1
       `,
-    [componentAtlasVersion]
+    [componentAtlasVersion],
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
-      `Component atlas with version ID ${componentAtlasVersion} doesn't exist`
+      `Component atlas with version ID ${componentAtlasVersion} doesn't exist`,
     );
   const { is_archived, is_latest } = queryResult.rows[0];
   if (is_archived)
     throw new InvalidOperationError(
-      `Component atlas with version ID ${componentAtlasVersion} is archived and can't be edited`
+      `Component atlas with version ID ${componentAtlasVersion} is archived and can't be edited`,
     );
   if (!is_latest) {
     throw new InvalidOperationError(
-      `Component atlas with version ID ${componentAtlasVersion} is not the latest version of the component atlas and can't be edited`
+      `Component atlas with version ID ${componentAtlasVersion} is not the latest version of the component atlas and can't be edited`,
     );
   }
 }
 
 export function getComponentAtlasNotFoundError(
   atlasId: string,
-  componentAtlasId: string
+  componentAtlasId: string,
 ): NotFoundError {
   return new NotFoundError(
-    `Component atlas with ID ${componentAtlasId} doesn't exist on atlas with ID ${atlasId}`
+    `Component atlas with ID ${componentAtlasId} doesn't exist on atlas with ID ${atlasId}`,
   );
 }

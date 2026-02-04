@@ -36,7 +36,7 @@ export const up = (pgm: MigrationBuilder): void => {
       },
       validation_id: { notNull: true, type: "text" },
       validation_info: { notNull: true, type: "jsonb" },
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -44,7 +44,7 @@ export const up = (pgm: MigrationBuilder): void => {
     "pk_validations_id",
     {
       primaryKey: ["entity_id", "validation_id"],
-    }
+    },
   );
 
   pgm.createTrigger(
@@ -55,6 +55,6 @@ export const up = (pgm: MigrationBuilder): void => {
       level: "ROW",
       operation: "UPDATE",
       when: "BEFORE",
-    }
+    },
   );
 };

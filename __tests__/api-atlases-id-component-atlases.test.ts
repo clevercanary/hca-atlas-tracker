@@ -35,7 +35,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -58,7 +58,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doComponentAtlasesRequest(ATLAS_DRAFT.id, undefined, METHOD.POST)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -69,9 +69,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           undefined,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -82,9 +82,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -93,9 +93,9 @@ describe(TEST_ROUTE, () => {
       (
         await doComponentAtlasesRequest(
           ATLAS_DRAFT.id,
-          USER_DISABLED_CONTENT_ADMIN
+          USER_DISABLED_CONTENT_ADMIN,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -107,9 +107,9 @@ describe(TEST_ROUTE, () => {
           USER_CONTENT_ADMIN,
           undefined,
           undefined,
-          "invalid-valid"
+          "invalid-valid",
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -130,16 +130,16 @@ describe(TEST_ROUTE, () => {
         expectComponentAtlasesToMatch(
           componentAtlases,
           [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR],
-          [3, 2]
+          [3, 2],
         );
-      }
+      },
     );
   }
 
   it("returns draft atlas component atlases when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doComponentAtlasesRequest(
       ATLAS_DRAFT.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
@@ -147,14 +147,14 @@ describe(TEST_ROUTE, () => {
     expectComponentAtlasesToMatch(
       componentAtlases,
       [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR],
-      [3, 2]
+      [3, 2],
     );
   });
 
   it("returns component atlases only for latest file versions and only if they're non-archived", async () => {
     const res = await doComponentAtlasesRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
@@ -162,12 +162,12 @@ describe(TEST_ROUTE, () => {
     expectComponentAtlasesToMatch(
       componentAtlases,
       [COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3],
-      [1]
+      [1],
     );
     const componentAtlas = componentAtlases[0];
     if (!expectIsDefined(componentAtlas)) return;
     expect(componentAtlas.sizeBytes).toEqual(
-      Number(FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES.sizeBytes)
+      Number(FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES.sizeBytes),
     );
   });
 
@@ -177,7 +177,7 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       undefined,
       undefined,
-      "false"
+      "false",
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
@@ -185,7 +185,7 @@ describe(TEST_ROUTE, () => {
     expectComponentAtlasesToMatch(
       componentAtlases,
       [COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3],
-      [1]
+      [1],
     );
   });
 
@@ -195,7 +195,7 @@ describe(TEST_ROUTE, () => {
       USER_CONTENT_ADMIN,
       undefined,
       undefined,
-      "true"
+      "true",
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
@@ -209,14 +209,14 @@ describe(TEST_ROUTE, () => {
         COMPONENT_ATLAS_ARCHIVED_BAZ,
         COMPONENT_ATLAS_ARCHIVED_FOOFOO,
       ],
-      [0, 1, 0, 0, 0]
+      [0, 1, 0, 0, 0],
     );
   });
 
   it("returns non-latest component atlases linked to the atlas", async () => {
     const res = await doComponentAtlasesRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
@@ -228,7 +228,7 @@ describe(TEST_ROUTE, () => {
         COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
         COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
       ],
-      [1, 1, 0]
+      [1, 1, 0],
     );
   });
 });
@@ -238,7 +238,7 @@ async function doComponentAtlasesRequest(
   user?: TestUser,
   method = METHOD.GET,
   hideConsoleError = false,
-  archived?: string
+  archived?: string,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -247,14 +247,14 @@ async function doComponentAtlasesRequest(
   });
   await withConsoleErrorHiding(
     () => componentAtlasesHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 function getQueryValues(
   atlasId: string,
-  archived?: string
+  archived?: string,
 ): Record<string, string> {
   return { atlasId, ...(typeof archived === "string" ? { archived } : {}) };
 }
@@ -262,7 +262,7 @@ function getQueryValues(
 function expectComponentAtlasesToMatch(
   componentAtlases: HCAAtlasTrackerComponentAtlas[],
   expectedTestComponentAtlases: TestComponentAtlas[],
-  expectedSourceDatasetCounts: number[]
+  expectedSourceDatasetCounts: number[],
 ): void {
   expect(componentAtlases).toHaveLength(expectedTestComponentAtlases.length);
   for (const [
@@ -270,13 +270,13 @@ function expectComponentAtlasesToMatch(
     testComponentAtlas,
   ] of expectedTestComponentAtlases.entries()) {
     const componentAtlas = componentAtlases.find(
-      (c) => c.id === testComponentAtlas.id
+      (c) => c.id === testComponentAtlas.id,
     );
     expect(componentAtlas).toBeDefined();
     if (!componentAtlas) continue;
     expectApiComponentAtlasToMatchTest(componentAtlas, testComponentAtlas);
     expect(componentAtlas.sourceDatasetCount).toEqual(
-      expectedSourceDatasetCounts[i]
+      expectedSourceDatasetCounts[i],
     );
   }
 }

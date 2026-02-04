@@ -9,10 +9,10 @@ import {
  * @returns The names of the validators that are not cellxgene.
  */
 export function getValidatorNames(
-  validationReports?: FileValidationReports | null
+  validationReports?: FileValidationReports | null,
 ): FileValidatorName[] {
   return (Object.keys(validationReports ?? {}) as FileValidatorName[]).filter(
-    filterValidatorName
+    filterValidatorName,
   );
 }
 

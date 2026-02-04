@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Grid, GridProps } from "@mui/material";
 
 export const KeyValuesElType = ({

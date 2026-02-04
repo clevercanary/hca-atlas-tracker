@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useState } from "react";
+import { JSX, Fragment, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
 import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
@@ -49,7 +49,7 @@ export const GeneralInfo = ({
       setPublicationStatus(value);
       setValue(FIELD_NAME.PUBLICATION_STATUS, value, { shouldDirty: false });
     },
-    [clearErrors, setValue]
+    [clearErrors, setValue],
   );
 
   return (

@@ -23,7 +23,7 @@ import { TestSourceStudy, TestUser } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("../app/services/hca-projects");
@@ -44,13 +44,13 @@ afterAll(() => {
 describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
-      (await doTasksRequest(USER_STAKEHOLDER, METHOD.POST))._getStatusCode()
+      (await doTasksRequest(USER_STAKEHOLDER, METHOD.POST))._getStatusCode(),
     ).toEqual(405);
   });
 
   it("returns error 401 for logged out user", async () => {
     expect(
-      (await doTasksRequest(undefined, METHOD.GET, true))._getStatusCode()
+      (await doTasksRequest(undefined, METHOD.GET, true))._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -58,13 +58,13 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doTasksRequest(USER_UNREGISTERED, METHOD.GET, true)
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
   it("returns error 403 for disabled user", async () => {
     expect(
-      (await doTasksRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode()
+      (await doTasksRequest(USER_DISABLED_CONTENT_ADMIN))._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -81,7 +81,7 @@ describe(TEST_ROUTE, () => {
       (res) => {
         expect(res._getStatusCode()).toEqual(200);
         expectInitialValidationsToExist(res._getJSONData());
-      }
+      },
     );
   }
 
@@ -95,7 +95,7 @@ describe(TEST_ROUTE, () => {
 async function doTasksRequest(
   user?: TestUser,
   method = METHOD.GET,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -106,11 +106,11 @@ async function doTasksRequest(
 }
 
 function expectInitialValidationsToExist(
-  validations: HCAAtlasTrackerValidationRecord[]
+  validations: HCAAtlasTrackerValidationRecord[],
 ): void {
   for (const testStudy of INITIAL_TEST_SOURCE_STUDIES) {
     const studyValidations = validations.filter(
-      (v) => v.entityId === testStudy.id
+      (v) => v.entityId === testStudy.id,
     );
     let expectedValidationCount = 3;
     if (hasAvailableHcaId(testStudy)) {
@@ -138,7 +138,7 @@ function hasAvailableHcaId(testStudy: TestSourceStudy): boolean {
     testProject =
       testStudy.doi === null
         ? null
-        : TEST_HCA_PROJECTS_BY_DOI.get(testStudy.doi) ?? null;
+        : (TEST_HCA_PROJECTS_BY_DOI.get(testStudy.doi) ?? null);
     hasId = testProject !== null;
   } else {
     const id = testStudy.hcaProjectId;
@@ -146,7 +146,7 @@ function hasAvailableHcaId(testStudy: TestSourceStudy): boolean {
       testProject = null;
       hasId = false;
     } else {
-      testProject = id ? TEST_HCA_PROJECTS_BY_ID.get(id) ?? null : null;
+      testProject = id ? (TEST_HCA_PROJECTS_BY_ID.get(id) ?? null) : null;
       hasId = true;
     }
   }

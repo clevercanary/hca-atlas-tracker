@@ -2,7 +2,14 @@ import {
   OutlinedInput as MOutlinedInput,
   OutlinedInputProps as MOutlinedInputProps,
 } from "@mui/material";
-import { ElementType, forwardRef, ReactNode, Ref, RefAttributes } from "react";
+import {
+  JSX,
+  ElementType,
+  forwardRef,
+  ReactNode,
+  Ref,
+  RefAttributes,
+} from "react";
 import { ControllerViewBuilder } from "../Controllers/common/entities";
 import {
   FormHelperText,
@@ -12,8 +19,9 @@ import { FormLabel } from "../FormLabel/formLabel";
 import { InputFormControl as FormControl } from "./input.styles";
 import { getInputProps } from "./utils";
 
-export interface InputProps<C extends ElementType = "input">
-  extends MOutlinedInputProps {
+export interface InputProps<
+  C extends ElementType = "input",
+> extends MOutlinedInputProps {
   className?: string;
   helperText?: ReactNode;
   helperTextProps?: Partial<FormHelperTextProps>;
@@ -38,7 +46,7 @@ function InputBase<C extends ElementType = "input">(
     viewBuilder,
     ...props /* Spread props to allow for Mui OutlinedInputProps specific prop overrides e.g. "disabled". */
   }: InputProps<C>,
-  ref: Ref<HTMLInputElement>
+  ref: Ref<HTMLInputElement>,
 ): JSX.Element {
   return (
     <FormControl
@@ -77,5 +85,5 @@ function InputBase<C extends ElementType = "input">(
 }
 
 export const Input = forwardRef(InputBase) as <C extends ElementType = "input">(
-  props: InputProps<C> & RefAttributes<HTMLInputElement>
+  props: InputProps<C> & RefAttributes<HTMLInputElement>,
 ) => JSX.Element;

@@ -11,7 +11,7 @@ interface UseFetchEntrySheetsValidations {
 }
 
 export const useFetchEntrySheetsValidations = (
-  pathParameter: PathParameter
+  pathParameter: PathParameter,
 ): UseFetchEntrySheetsValidations => {
   // Validate atlasId - required for API request.
   if (!pathParameter.atlasId) throw new Error("Atlas ID is required");
@@ -27,7 +27,7 @@ export const useFetchEntrySheetsValidations = (
   // This enables in-app routing and ensures atlasId is always present in table cell data.
   const entrySheets = useMemo(
     () => data?.map((entrySheet) => ({ atlasId, ...entrySheet })),
-    [atlasId, data]
+    [atlasId, data],
   );
 
   return { entrySheets };

@@ -37,12 +37,12 @@ import {
 } from "./utils";
 
 export function dbAtlasToApiAtlas(
-  dbAtlas: HCAAtlasTrackerDBAtlasForAPI
+  dbAtlas: HCAAtlasTrackerDBAtlasForAPI,
 ): HCAAtlasTrackerAtlas {
   const cxgTitle =
     dbAtlas.overview.cellxgeneAtlasCollection &&
     getCellxGeneCollectionInfoById(
-      dbAtlas.overview.cellxgeneAtlasCollection
+      dbAtlas.overview.cellxgeneAtlasCollection,
     ).unwrapRefresh(undefined)?.title;
   return {
     bioNetwork: dbAtlas.overview.network,
@@ -75,7 +75,7 @@ export function dbAtlasToApiAtlas(
 }
 
 export function dbComponentAtlasFileToDetailApiComponentAtlas(
-  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForDetailAPI
+  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForDetailAPI,
 ): HCAAtlasTrackerDetailComponentAtlas {
   return {
     ...dbComponentAtlasFileToApiComponentAtlas(dbComponentAtlas),
@@ -84,7 +84,7 @@ export function dbComponentAtlasFileToDetailApiComponentAtlas(
 }
 
 export function dbComponentAtlasFileToApiComponentAtlas(
-  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForAPI
+  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForAPI,
 ): HCAAtlasTrackerComponentAtlas {
   return {
     assay: dbComponentAtlas.dataset_info?.assay ?? [],
@@ -110,13 +110,13 @@ export function dbComponentAtlasFileToApiComponentAtlas(
 }
 
 export function dbSourceStudyToApiSourceStudy(
-  dbSourceStudy: HCAAtlasTrackerDBSourceStudyWithRelatedEntities
+  dbSourceStudy: HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
 ): HCAAtlasTrackerSourceStudy {
   const {
     study_info: { capId, cellxgeneCollectionId, hcaProjectId, publication },
   } = dbSourceStudy;
   const tasks = dbSourceStudy.validations.map(
-    dbValidationToApiValidationWithoutAtlasProperties
+    dbValidationToApiValidationWithoutAtlasProperties,
   );
   if (dbSourceStudy.doi === null) {
     const unpublishedInfo = dbSourceStudy.study_info.unpublishedInfo;
@@ -157,7 +157,7 @@ export function dbSourceStudyToApiSourceStudy(
 }
 
 export function dbSourceDatasetToDetailApiSourceDataset(
-  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForDetailAPI
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForDetailAPI,
 ): HCAAtlasTrackerDetailSourceDataset {
   return {
     ...dbSourceDatasetToApiSourceDataset(dbSourceDataset),
@@ -166,7 +166,7 @@ export function dbSourceDatasetToDetailApiSourceDataset(
 }
 
 export function dbSourceDatasetToApiSourceDataset(
-  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForAPI
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForAPI,
 ): HCAAtlasTrackerSourceDataset {
   const studyInfo = dbSourceDataset.study_info;
   const publicationString =
@@ -208,7 +208,7 @@ export function dbSourceDatasetToApiSourceDataset(
 }
 
 export function dbValidationToApiValidation(
-  validation: HCAAtlasTrackerDBValidationWithAtlasProperties
+  validation: HCAAtlasTrackerDBValidationWithAtlasProperties,
 ): HCAAtlasTrackerValidationRecord {
   return {
     ...dbValidationToApiValidationWithoutAtlasProperties(validation),
@@ -222,7 +222,7 @@ export function dbValidationToApiValidation(
 }
 
 function dbValidationToApiValidationWithoutAtlasProperties(
-  validation: HCAAtlasTrackerDBValidation
+  validation: HCAAtlasTrackerDBValidation,
 ): HCAAtlasTrackerValidationRecordWithoutAtlases {
   const validationInfo = validation.validation_info;
   return {
@@ -249,7 +249,7 @@ function dbValidationToApiValidationWithoutAtlasProperties(
 }
 
 export function dbEntrySheetValidationToApiModel(
-  entrySheetValidation: WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidation>
+  entrySheetValidation: WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidation>,
 ): HCAAtlasTrackerEntrySheetValidation {
   return {
     entrySheetId: entrySheetValidation.entry_sheet_id,
@@ -265,7 +265,7 @@ export function dbEntrySheetValidationToApiModel(
 }
 
 export function dbEntrySheetValidationToApiListModel(
-  entrySheetValidation: WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidationListFields>
+  entrySheetValidation: WithSourceStudyInfo<HCAAtlasTrackerDBEntrySheetValidationListFields>,
 ): HCAAtlasTrackerListEntrySheetValidation {
   return {
     entrySheetId: entrySheetValidation.entry_sheet_id,
@@ -280,7 +280,7 @@ export function dbEntrySheetValidationToApiListModel(
 }
 
 export function dbCommentToApiComment(
-  dbComment: HCAAtlasTrackerDBComment
+  dbComment: HCAAtlasTrackerDBComment,
 ): HCAAtlasTrackerComment {
   return {
     createdAt: dbComment.created_at.toISOString(),
@@ -294,7 +294,7 @@ export function dbCommentToApiComment(
 }
 
 export function dbUserToApiUser(
-  dbUser: HCAAtlasTrackerDBUserWithAssociatedResources
+  dbUser: HCAAtlasTrackerDBUserWithAssociatedResources,
 ): HCAAtlasTrackerUser {
   return {
     disabled: dbUser.disabled,
@@ -314,7 +314,7 @@ export function dbUserToApiUser(
  * @returns Tier 1 metadata status.
  */
 export function getCellxGeneDatasetTierOneMetadataStatus(
-  cellxgeneDatasetId: string
+  cellxgeneDatasetId: string,
 ): TIER_ONE_METADATA_STATUS {
   return Object.hasOwn(savedCellxgeneInfo.datasets, cellxgeneDatasetId)
     ? savedCellxgeneInfo.datasets[cellxgeneDatasetId].tierOneStatus
@@ -337,7 +337,7 @@ export function getDbEntityCitation(entity: WithSourceStudyInfo): string {
       studyInfo.doiStatus,
       publication?.authors[0].name ?? null,
       publication?.publicationDate ?? null,
-      publication?.journal ?? null
+      publication?.journal ?? null,
     );
   }
 }
@@ -348,15 +348,15 @@ export function getDbEntityCitation(entity: WithSourceStudyInfo): string {
  * @returns Tier 1 metadata status.
  */
 export function getDbSourceStudyTierOneMetadataStatus(
-  sourceStudy: HCAAtlasTrackerDBSourceStudy
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
 ): TIER_ONE_METADATA_STATUS {
   const collectionId = sourceStudy.study_info.cellxgeneCollectionId;
   return collectionId
     ? Object.hasOwn(savedCellxgeneInfo.collections, collectionId)
       ? getCompositeTierOneMetadataStatus(
           savedCellxgeneInfo.collections[collectionId].datasets.map(
-            getCellxGeneDatasetTierOneMetadataStatus
-          )
+            getCellxGeneDatasetTierOneMetadataStatus,
+          ),
         )
       : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
     : TIER_ONE_METADATA_STATUS.NA;

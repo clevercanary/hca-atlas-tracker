@@ -25,28 +25,27 @@ import { doTransaction } from "./database";
  * @throws InvalidOperationError if the SNS message doesn't contain a valid validation results message
  */
 export async function processValidationResultsMessage(
-  snsMessage: SNSMessage
+  snsMessage: SNSMessage,
 ): Promise<void> {
   // Parse and validate SNS message data
 
   let parsedMessage: unknown;
   try {
     parsedMessage = JSON.parse(snsMessage.Message);
-  } catch (parseError) {
+  } catch {
     throw new InvalidOperationError(
-      `Failed to parse validation results from SNS message ${snsMessage.MessageId}; invalid JSON: ${snsMessage.Message}`
+      `Failed to parse validation results from SNS message ${snsMessage.MessageId}; invalid JSON: ${snsMessage.Message}`,
     );
   }
 
   let validationResults: DatasetValidatorResults;
 
   try {
-    validationResults = await datasetValidatorResultsSchema.validate(
-      parsedMessage
-    );
+    validationResults =
+      await datasetValidatorResultsSchema.validate(parsedMessage);
   } catch (e) {
     console.error(
-      `Validation results message ${snsMessage.MessageId} contained invalid data: ${snsMessage.Message}`
+      `Validation results message ${snsMessage.MessageId} contained invalid data: ${snsMessage.Message}`,
     );
     throw e;
   }
@@ -63,8 +62,8 @@ export async function processValidationResultsMessage(
     validationResults.status === "success"
       ? FILE_VALIDATION_STATUS.COMPLETED
       : validationResults.integrity_status === INTEGRITY_STATUS.INVALID // Currently, the dataset validator sets the status as "failure" when the integrity check doesn't pass
-      ? FILE_VALIDATION_STATUS.COMPLETED
-      : FILE_VALIDATION_STATUS.JOB_FAILED;
+        ? FILE_VALIDATION_STATUS.COMPLETED
+        : FILE_VALIDATION_STATUS.JOB_FAILED;
   const [validationReports, validationSummary] =
     getValidationReportsAndSummary(validationResults);
 
@@ -73,7 +72,7 @@ export async function processValidationResultsMessage(
 
     if (lastValidationTime && newValidationTime < lastValidationTime) {
       throw new ConflictError(
-        `Newer validation results already exist for file with ID ${fileId} (${s3Uri}); received time was ${newValidationTime}`
+        `Newer validation results already exist for file with ID ${fileId} (${s3Uri}); received time was ${newValidationTime}`,
       );
     }
 
@@ -92,7 +91,7 @@ export async function processValidationResultsMessage(
   });
 
   console.log(
-    `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`
+    `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`,
   );
 }
 
@@ -102,7 +101,7 @@ export async function processValidationResultsMessage(
  * @returns - Dataset info, or null if metadata is not present in the validation results.
  */
 function getDatasetInfoFromValidationResults(
-  validationResults: DatasetValidatorResults
+  validationResults: DatasetValidatorResults,
 ): HCAAtlasTrackerDBFileDatasetInfo | null {
   const metadataSummary = validationResults.metadata_summary;
   if (metadataSummary === null) return null;
@@ -125,7 +124,7 @@ function getDatasetInfoFromValidationResults(
  */
 function getValidationInfo(
   validationResults: DatasetValidatorResults,
-  snsMessage: SNSMessage
+  snsMessage: SNSMessage,
 ): HCAAtlasTrackerDBFileValidationInfo {
   return {
     batchJobId: validationResults.batch_job_id,
@@ -140,7 +139,7 @@ function getValidationInfo(
  * @returns validation reports and summary.
  */
 function getValidationReportsAndSummary(
-  validationResults: DatasetValidatorResults
+  validationResults: DatasetValidatorResults,
 ): [FileValidationReports | null, FileValidationSummary | null] {
   if (validationResults.tool_reports === null) return [null, null];
   const validationReports: FileValidationReports = {};

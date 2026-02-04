@@ -10,19 +10,19 @@ import { useCallback, useState } from "react";
 export type PartialTableOptions<T extends RowData> = Partial<TableOptions<T>>;
 
 export const useTableOptions = <T extends RowData>(
-  tableOptions?: Partial<TableOptions<T>>
+  tableOptions?: Partial<TableOptions<T>>,
 ): PartialTableOptions<T> => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
-    initRowSelection(tableOptions)
+    initRowSelection(tableOptions),
   );
 
   const onRowSelectionChange = useCallback(
     (updater: Updater<RowSelectionState>): void => {
       setRowSelection(
-        typeof updater === "function" ? updater(rowSelection) : updater
+        typeof updater === "function" ? updater(rowSelection) : updater,
       );
     },
-    [rowSelection]
+    [rowSelection],
   );
 
   return {
@@ -39,7 +39,7 @@ export const useTableOptions = <T extends RowData>(
  * @returns initial row selection state.
  */
 function initRowSelection<T extends RowData>(
-  tableOptions?: Partial<TableOptions<T>>
+  tableOptions?: Partial<TableOptions<T>>,
 ): RowSelectionState {
   return tableOptions?.initialState?.rowSelection || {};
 }

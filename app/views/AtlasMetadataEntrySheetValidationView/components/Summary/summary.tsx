@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Summary as BaseSummary } from "../../../../components/Entity/components/EntityView/components/Summary/summary";
 import { useEntity } from "../../../../providers/entity/hook";
 import { EntityData } from "../../entities";
@@ -11,7 +12,7 @@ export const Summary = (): JSX.Element | null => {
   const entityData = data as EntityData;
 
   const summary = buildSummaryValues(
-    entityData.entrySheetValidation?.validationSummary
+    entityData.entrySheetValidation?.validationSummary,
   );
 
   if (!summary) return null;

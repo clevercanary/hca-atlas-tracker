@@ -17,8 +17,8 @@ export default handler(
       .status(200)
       .json(
         (await getSourceStudyDatasets(atlasId, sourceStudyId)).map(
-          dbSourceDatasetToApiSourceDataset
-        )
+          dbSourceDatasetToApiSourceDataset,
+        ),
       );
-  }
+  },
 );

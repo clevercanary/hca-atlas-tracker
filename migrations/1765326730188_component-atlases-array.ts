@@ -9,7 +9,7 @@ export function up(pgm: MigrationBuilder): void {
         notNull: true,
         type: "uuid[]",
       },
-    }
+    },
   );
 
   pgm.sql(
@@ -18,12 +18,12 @@ export function up(pgm: MigrationBuilder): void {
       SET component_atlases = (
         SELECT COALESCE(array_agg(c.id), '{}') FROM hat.component_atlases c WHERE c.atlas_id=a.id
       )
-    `
+    `,
   );
 
   pgm.dropConstraint(
     { name: "component_atlases", schema: "hat" },
-    "pk_component_atlases_atlas_id"
+    "pk_component_atlases_atlas_id",
   );
 
   pgm.dropColumn({ name: "component_atlases", schema: "hat" }, "atlas_id");
@@ -37,7 +37,7 @@ export function down(pgm: MigrationBuilder): void {
         notNull: false, // Different from the original column, in order to support component atlas rows that may not be referenced by any atlas; this could theoretically lead to orphaned component atlases in the case of a down migration
         type: "uuid",
       },
-    }
+    },
   );
 
   pgm.addConstraint(
@@ -48,7 +48,7 @@ export function down(pgm: MigrationBuilder): void {
         columns: "atlas_id",
         references: { name: "atlases", schema: "hat" },
       },
-    }
+    },
   );
 
   pgm.sql(
@@ -57,7 +57,7 @@ export function down(pgm: MigrationBuilder): void {
       SET atlas_id = (
         SELECT a.id FROM hat.atlases a WHERE c.id = ANY(a.component_atlases) LIMIT 1
       )
-    `
+    `,
   );
 
   pgm.dropColumn({ name: "atlases", schema: "hat" }, "component_atlases");

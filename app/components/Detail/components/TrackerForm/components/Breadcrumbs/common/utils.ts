@@ -36,7 +36,7 @@ import {
  */
 export function getAtlasBreadcrumb(
   pathParameter?: PathParameter,
-  atlas?: HCAAtlasTrackerAtlas
+  atlas?: HCAAtlasTrackerAtlas,
 ): Breadcrumb {
   const breadcrumb = resolveBreadcrumbPath(BREADCRUMB_ATLAS, pathParameter);
   if (!atlas) return breadcrumb;
@@ -57,7 +57,7 @@ export function getAtlasesBreadcrumb(): Breadcrumb {
  * @returns atkas source datasets view breadcrumb.
  */
 export function getAtlasSourceDatasetsBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_ATLAS_SOURCE_DATASETS, pathParameter);
 }
@@ -68,7 +68,7 @@ export function getAtlasSourceDatasetsBreadcrumb(
  * @returns atlas source dataset view breadcrumb.
  */
 export function getAtlasSourceDatasetBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_ATLAS_SOURCE_DATASET, pathParameter);
 }
@@ -79,11 +79,11 @@ export function getAtlasSourceDatasetBreadcrumb(
  * @returns atlas source dataset validations view breadcrumb.
  */
 export function getAtlasSourceDatasetValidationsBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(
     BREADCRUMB_ATLAS_SOURCE_DATASET_VALIDATIONS,
-    pathParameter
+    pathParameter,
   );
 }
 
@@ -93,7 +93,7 @@ export function getAtlasSourceDatasetValidationsBreadcrumb(
  * @returns component atlases view breadcrumb.
  */
 export function getComponentAtlasesBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_COMPONENT_ATLASES, pathParameter);
 }
@@ -106,11 +106,11 @@ export function getComponentAtlasesBreadcrumb(
  */
 export function getComponentAtlasBreadcrumb(
   pathParameter?: PathParameter,
-  componentAtlas?: HCAAtlasTrackerComponentAtlas
+  componentAtlas?: HCAAtlasTrackerComponentAtlas,
 ): Breadcrumb {
   const breadcrumb = resolveBreadcrumbPath(
     BREADCRUMB_COMPONENT_ATLAS,
-    pathParameter
+    pathParameter,
   );
   if (!componentAtlas) return breadcrumb;
   return { ...breadcrumb, text: componentAtlas.title };
@@ -122,11 +122,11 @@ export function getComponentAtlasBreadcrumb(
  * @returns integrated object source datasets view breadcrumb.
  */
 export function getIntegratedObjectSourceDatasetsBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(
     BREADCRUMB_INTEGRATED_OBJECT_SOURCE_DATASETS,
-    pathParameter
+    pathParameter,
   );
 }
 
@@ -136,11 +136,11 @@ export function getIntegratedObjectSourceDatasetsBreadcrumb(
  * @returns integrated object validations view breadcrumb.
  */
 export function getIntegratedObjectValidationsBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(
     BREADCRUMB_INTEGRATED_OBJECT_VALIDATIONS,
-    pathParameter
+    pathParameter,
   );
 }
 
@@ -150,7 +150,7 @@ export function getIntegratedObjectValidationsBreadcrumb(
  * @returns metadata correctness view breadcrumb.
  */
 export function getMetadataCorrectnessBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_METADATA_CORRECTNESS, pathParameter);
 }
@@ -161,7 +161,7 @@ export function getMetadataCorrectnessBreadcrumb(
  * @returns metadata entry sheets view breadcrumb.
  */
 export function getMetadataEntrySheetsBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_METADATA_ENTRY_SHEETS, pathParameter);
 }
@@ -172,7 +172,7 @@ export function getMetadataEntrySheetsBreadcrumb(
  * @returns source studies view breadcrumb.
  */
 export function getSourceStudiesBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_SOURCE_STUDIES, pathParameter);
 }
@@ -185,11 +185,11 @@ export function getSourceStudiesBreadcrumb(
  */
 export function getSourceStudyBreadcrumb(
   pathParameter?: PathParameter,
-  sourceStudy?: HCAAtlasTrackerSourceStudy
+  sourceStudy?: HCAAtlasTrackerSourceStudy,
 ): Breadcrumb {
   const breadcrumb = resolveBreadcrumbPath(
     BREADCRUMB_SOURCE_STUDY,
-    pathParameter
+    pathParameter,
   );
   if (!sourceStudy) return breadcrumb;
   return { ...breadcrumb, text: sourceStudy.title };
@@ -201,7 +201,7 @@ export function getSourceStudyBreadcrumb(
  * @returns source datasets view breadcrumb.
  */
 export function getSourceDatasetsBreadcrumb(
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   return resolveBreadcrumbPath(BREADCRUMB_SOURCE_DATASETS, pathParameter);
 }
@@ -214,7 +214,7 @@ export function getSourceDatasetsBreadcrumb(
  */
 export function getUserBreadcrumb(
   pathParameter?: PathParameter,
-  user?: HCAAtlasTrackerUser
+  user?: HCAAtlasTrackerUser,
 ): Breadcrumb {
   const breadcrumb = resolveBreadcrumbPath(BREADCRUMB_USER, pathParameter);
   if (!user) return breadcrumb;
@@ -237,7 +237,7 @@ export function getUsersBreadcrumb(): Breadcrumb {
  */
 export function resolveBreadcrumbPath(
   breadcrumb: Breadcrumb,
-  pathParameter?: PathParameter
+  pathParameter?: PathParameter,
 ): Breadcrumb {
   if (!pathParameter || !isRouteValue(breadcrumb.path)) {
     return { path: "", text: breadcrumb.text };

@@ -36,7 +36,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -64,9 +64,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_CONTENT_ADMIN,
-          METHOD.PUT
+          METHOD.PUT,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -78,9 +78,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_CONTENT_ADMIN,
-          METHOD.POST
+          METHOD.POST,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -92,9 +92,9 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOO.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -107,9 +107,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_FOOBAZ.id,
           undefined,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
   });
 
@@ -122,9 +122,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_FOOBAZ.id,
           USER_UNREGISTERED,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -135,9 +135,9 @@ describe(TEST_ROUTE, () => {
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           SOURCE_DATASET_FOOBAZ.id,
-          USER_DISABLED_CONTENT_ADMIN
+          USER_DISABLED_CONTENT_ADMIN,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
@@ -150,9 +150,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_FOOBAZ.id,
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -165,9 +165,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_FOOBAZ.id,
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -180,9 +180,9 @@ describe(TEST_ROUTE, () => {
           "a08b7ea9-7ba4-413b-a0f5-73ad26f6d630",
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -195,9 +195,9 @@ describe(TEST_ROUTE, () => {
           SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
           USER_CONTENT_ADMIN,
           METHOD.GET,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -211,7 +211,7 @@ describe(TEST_ROUTE, () => {
       getQueryValues(
         ATLAS_DRAFT.id,
         COMPONENT_ATLAS_DRAFT_FOO.id,
-        SOURCE_DATASET_FOOBAZ.id
+        SOURCE_DATASET_FOOBAZ.id,
       ),
       undefined,
       false,
@@ -221,9 +221,9 @@ describe(TEST_ROUTE, () => {
           res._getJSONData() as HCAAtlasTrackerSourceDataset;
         expectApiSourceDatasetsToMatchTest(
           [sourceDataset],
-          [SOURCE_DATASET_FOOBAZ]
+          [SOURCE_DATASET_FOOBAZ],
         );
-      }
+      },
     );
   }
 
@@ -232,13 +232,13 @@ describe(TEST_ROUTE, () => {
       ATLAS_DRAFT.id,
       COMPONENT_ATLAS_DRAFT_FOO.id,
       SOURCE_DATASET_FOOBAZ.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expectApiSourceDatasetsToMatchTest(
       [sourceDataset],
-      [SOURCE_DATASET_FOOBAZ]
+      [SOURCE_DATASET_FOOBAZ],
     );
   });
 
@@ -247,13 +247,13 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
       SOURCE_DATASET_ARCHIVED_FOO.id,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expectApiSourceDatasetsToMatchTest(
       [sourceDataset],
-      [SOURCE_DATASET_ARCHIVED_FOO]
+      [SOURCE_DATASET_ARCHIVED_FOO],
     );
   });
 
@@ -262,13 +262,13 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       COMPONENT_ATLAS_ARCHIVED_FOO.id,
       SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expectApiSourceDatasetsToMatchTest(
       [sourceDataset],
-      [SOURCE_DATASET_WITH_MULTIPLE_FILES_W3]
+      [SOURCE_DATASET_WITH_MULTIPLE_FILES_W3],
     );
   });
 
@@ -277,13 +277,13 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
       SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_FOO,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expectApiSourceDatasetsToMatchTest(
       [sourceDataset],
-      [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2]
+      [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2],
     );
   });
 
@@ -292,13 +292,13 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
       SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expectApiSourceDatasetsToMatchTest(
       [sourceDataset],
-      [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2]
+      [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2],
     );
   });
 });
@@ -309,7 +309,7 @@ async function doSourceDatasetRequest(
   sourceDatasetId: string,
   user?: TestUser,
   method = METHOD.GET,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
@@ -318,7 +318,7 @@ async function doSourceDatasetRequest(
   });
   await withConsoleErrorHiding(
     () => sourceDatasetHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
@@ -326,7 +326,7 @@ async function doSourceDatasetRequest(
 function getQueryValues(
   atlasId: string,
   componentAtlasId: string,
-  sourceDatasetId: string
+  sourceDatasetId: string,
 ): Record<string, string> {
   return { atlasId, componentAtlasId, sourceDatasetId };
 }

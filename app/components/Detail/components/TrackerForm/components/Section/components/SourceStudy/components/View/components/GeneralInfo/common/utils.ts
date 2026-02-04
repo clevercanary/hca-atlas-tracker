@@ -9,7 +9,7 @@ import { TabsProps } from "../../../../../../../../Tabs/tabs";
  */
 export function getSectionTabs(
   isReadOnly: boolean,
-  hasDoi: boolean
+  hasDoi: boolean,
 ): TabsProps["tabs"] {
   return [
     {

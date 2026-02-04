@@ -14,7 +14,7 @@ export default handler(
   role([ROLE.CONTENT_ADMIN, ROLE.CELLXGENE_ADMIN]),
   async (req, res) => {
     const dois = (await taskCellxGeneInProgressSchema.validate(req.body)).map(
-      normalizeDoi
+      normalizeDoi,
     );
     res
       .status(200)
@@ -22,8 +22,8 @@ export default handler(
         await updateSourceStudyTaskStatusesByDois(
           dois,
           VALIDATION_ID.SOURCE_STUDY_IN_CELLXGENE,
-          TASK_STATUS.IN_PROGRESS
-        )
+          TASK_STATUS.IN_PROGRESS,
+        ),
       );
-  }
+  },
 );

@@ -18,7 +18,7 @@ export const useAddUserForm = (): FormMethod<
     SCHEMA,
     undefined,
     mapSchemaValues,
-    mapApiValues
+    mapApiValues,
   );
 };
 

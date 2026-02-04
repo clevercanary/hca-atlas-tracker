@@ -1,7 +1,7 @@
 import { Section } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/Section/section";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
-import { Fragment } from "react";
+import { JSX, Fragment } from "react";
 import {
   CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES,
   SYSTEM_DISPLAY_NAMES,
@@ -41,7 +41,7 @@ function getTaskDescription(task: HCAAtlasTrackerListValidationRecord): string {
  * @returns task differences.
  */
 function getTaskDifferences(
-  task: HCAAtlasTrackerListValidationRecord
+  task: HCAAtlasTrackerListValidationRecord,
 ): JSX.Element {
   return (
     <>
@@ -52,7 +52,7 @@ function getTaskDifferences(
           const missing = getUnsharedValues(
             expected,
             actual,
-            caseSensitive
+            caseSensitive,
           ).join(", ");
           const extra =
             actual &&
@@ -94,11 +94,11 @@ function getTaskDifferences(
 function getUnsharedValues(
   fromArray: string[],
   byArray: string[] | null,
-  caseSensitive = true
+  caseSensitive = true,
 ): string[] {
   if (!byArray) return fromArray;
   if (!caseSensitive) byArray = byArray.map((value) => value.toLowerCase());
   return fromArray.filter(
-    (value) => !byArray?.includes(caseSensitive ? value : value.toLowerCase())
+    (value) => !byArray?.includes(caseSensitive ? value : value.toLowerCase()),
   );
 }

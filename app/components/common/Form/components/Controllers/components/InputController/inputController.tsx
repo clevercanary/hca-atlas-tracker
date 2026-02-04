@@ -1,5 +1,5 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { ElementType, Fragment, ReactNode } from "react";
+import { JSX, ElementType, Fragment, ReactNode } from "react";
 import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 import { TypographyNoWrap } from "../../../../../../../components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import {
@@ -18,7 +18,7 @@ export interface LabelLinkConfig {
 export interface InputControllerProps<
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 > extends UseControllerProps<YupValidatedFormValues<T>> {
   className?: string;
   formManager: FormManager;
@@ -32,7 +32,7 @@ export interface InputControllerProps<
 export const InputController = <
   T extends FieldValues,
   R = undefined,
-  C extends ElementType = "input"
+  C extends ElementType = "input",
 >({
   className,
   formManager,
@@ -64,7 +64,7 @@ export const InputController = <
               ? getLabelWithLink(
                   label,
                   labelLink === true ? {} : labelLink,
-                  field.value
+                  field.value,
                 )
               : label
           }
@@ -93,10 +93,10 @@ function getLabelWithLink(
     getUrl = (v): string | null => (v ? v : null),
     label: linkLabel = "Visit link",
   }: LabelLinkConfig,
-  value: unknown
+  value: unknown,
 ): JSX.Element {
   const url = getUrl(
-    value === null || value === undefined ? null : String(value)
+    value === null || value === undefined ? null : String(value),
   );
   return (
     <Fragment>

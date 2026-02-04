@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { OpenInNewIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/OpenInNewIcon/openInNewIcon";
 import {
   ANCHOR_TARGET,

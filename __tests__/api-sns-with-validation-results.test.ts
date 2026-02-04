@@ -47,7 +47,7 @@ import {
 } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/utils/crossref/crossref-api");
 jest.mock("../app/services/hca-projects");
@@ -74,7 +74,7 @@ const FILE_SOURCE_DATASET_FOO = fillTestFileDefaults(SOURCE_DATASET_FOO.file);
 const FILE_SOURCE_DATASET_BAR = fillTestFileDefaults(SOURCE_DATASET_BAR.file);
 const FILE_SOURCE_DATASET_BAZ = fillTestFileDefaults(SOURCE_DATASET_BAZ.file);
 const FILE_SOURCE_DATASET_FOOFOO = fillTestFileDefaults(
-  SOURCE_DATASET_FOOFOO.file
+  SOURCE_DATASET_FOOFOO.file,
 );
 
 const FILE_COMPONENT_ATLAS_DRAFT_FOO = COMPONENT_ATLAS_DRAFT_FOO.file;
@@ -114,12 +114,12 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     expect(res.statusCode).toBe(400);
     expect(res._getJSONData()).toEqual({
       message: expect.stringContaining(
-        "Failed to parse validation results from SNS message"
+        "Failed to parse validation results from SNS message",
       ),
     });
 
     expect(String(errorMessages[0]?.[0])).toEqual(
-      expect.stringContaining(messageJson)
+      expect.stringContaining(messageJson),
     );
   });
 
@@ -136,7 +136,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
         FILE_SOURCE_DATASET_FOO,
-        FILE_SOURCE_DATASET_FOO.resolvedAtlas
+        FILE_SOURCE_DATASET_FOO.resolvedAtlas,
       ),
       metadata: null,
       timestamp: validationTime,
@@ -175,7 +175,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
           integrityStatus: INTEGRITY_STATUS.VALID,
           key: getTestFileKey(
             FILE_SOURCE_DATASET_FOO,
-            FILE_SOURCE_DATASET_FOO.resolvedAtlas
+            FILE_SOURCE_DATASET_FOO.resolvedAtlas,
           ),
           metadata: null,
           timestamp: validationTime,
@@ -199,7 +199,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       const fileAfter = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
 
       expect(fileAfter).toEqual(fileBefore);
-    }
+    },
   );
 
   it("returns error 409 when validation results are sent with out-of-order timestamps", async () => {
@@ -254,7 +254,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
         FILE_SOURCE_DATASET_BAR,
-        FILE_SOURCE_DATASET_BAR.resolvedAtlas
+        FILE_SOURCE_DATASET_BAR.resolvedAtlas,
       ),
       metadata: firstMetadata,
       timestamp: firstValidationTime,
@@ -290,7 +290,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
         FILE_SOURCE_DATASET_BAR,
-        FILE_SOURCE_DATASET_BAR.resolvedAtlas
+        FILE_SOURCE_DATASET_BAR.resolvedAtlas,
       ),
       metadata: secondMetadata,
       timestamp: secondValidationTime,
@@ -307,7 +307,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     expect(res.statusCode).toBe(409);
     expect(res._getJSONData()).toEqual({
       message: expect.stringContaining(
-        `Newer validation results already exist for file with ID ${FILE_SOURCE_DATASET_BAR.id}`
+        `Newer validation results already exist for file with ID ${FILE_SOURCE_DATASET_BAR.id}`,
       ),
     });
 
@@ -323,7 +323,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         snsMessageTime: firstSnsMessageTime,
       },
       firstToolReports,
-      firstExpectedValidationSummary
+      firstExpectedValidationSummary,
     );
   });
 
@@ -378,7 +378,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
         FILE_SOURCE_DATASET_FOO,
-        FILE_SOURCE_DATASET_FOO.resolvedAtlas
+        FILE_SOURCE_DATASET_FOO.resolvedAtlas,
       ),
       metadata,
       timestamp: validationTime,
@@ -404,7 +404,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         snsMessageTime,
       },
       toolReports,
-      expectedValidationSummary
+      expectedValidationSummary,
     );
   });
 
@@ -463,7 +463,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
         FILE_COMPONENT_ATLAS_DRAFT_FOO,
-        FILE_COMPONENT_ATLAS_DRAFT_FOO.atlas()
+        FILE_COMPONENT_ATLAS_DRAFT_FOO.atlas(),
       ),
       metadata,
       timestamp: validationTime,
@@ -489,7 +489,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         snsMessageTime,
       },
       toolReports,
-      expectedValidationSummary
+      expectedValidationSummary,
     );
   });
 
@@ -516,7 +516,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       integrityStatus: INTEGRITY_STATUS.VALID,
       key: getTestFileKey(
         FILE_SOURCE_DATASET_BAZ,
-        FILE_SOURCE_DATASET_BAZ.resolvedAtlas
+        FILE_SOURCE_DATASET_BAZ.resolvedAtlas,
       ),
       metadata,
       timestamp: validationTime,
@@ -543,7 +543,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         snsMessageTime,
       },
       SUCCESSFUL_TOOL_REPORTS,
-      SUCCESSFUL_VALIDATION_SUMMARY
+      SUCCESSFUL_VALIDATION_SUMMARY,
     );
 
     // Expect second, duplicate request to be successful
@@ -561,7 +561,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         snsMessageTime,
       },
       SUCCESSFUL_TOOL_REPORTS,
-      SUCCESSFUL_VALIDATION_SUMMARY
+      SUCCESSFUL_VALIDATION_SUMMARY,
     );
   });
 
@@ -606,7 +606,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         integrityStatus: messageIntegrityStatus,
         key: getTestFileKey(
           FILE_SOURCE_DATASET_FOOFOO,
-          FILE_SOURCE_DATASET_FOOFOO.resolvedAtlas
+          FILE_SOURCE_DATASET_FOOFOO.resolvedAtlas,
         ),
         metadata: null,
         status: messageStatus,
@@ -623,16 +623,16 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
       expect(
         (await getFileFromDatabase(FILE_SOURCE_DATASET_FOOFOO.id))
-          ?.validation_status
+          ?.validation_status,
       ).toEqual(expectedValidationStatus);
-    }
+    },
   );
 });
 
 async function doSnsRequest(
   body: Record<string, unknown>,
   hideConsoleMessages = false,
-  consoleMessageOutputArrays?: ConsoleMessageOutputArrays
+  consoleMessageOutputArrays?: ConsoleMessageOutputArrays,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
@@ -641,7 +641,7 @@ async function doSnsRequest(
   await withConsoleMessageHiding(
     () => snsHandler(req, res),
     hideConsoleMessages,
-    consoleMessageOutputArrays
+    consoleMessageOutputArrays,
   );
   return res;
 }

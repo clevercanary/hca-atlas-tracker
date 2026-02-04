@@ -11,7 +11,7 @@ interface UseFetchUser {
 export const useFetchUser = (pathParameter: PathParameter): UseFetchUser => {
   const { data: user } = useFetchData<HCAAtlasTrackerUser | undefined>(
     getRequestURL(API.USER, pathParameter),
-    METHOD.GET
+    METHOD.GET,
   );
   return { user };
 };

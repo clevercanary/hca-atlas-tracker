@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { PathParameter } from "../../../app/common/entities";
@@ -12,7 +13,7 @@ interface UserPageUrlParams extends ParsedUrlQuery {
 }
 
 export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { userId } = context.params as UserPageUrlParams;
   return {

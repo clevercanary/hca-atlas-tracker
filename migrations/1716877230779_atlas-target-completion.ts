@@ -8,6 +8,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         default: null,
         type: "timestamp",
       },
-    }
+    },
   );
 }

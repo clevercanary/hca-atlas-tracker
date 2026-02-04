@@ -17,5 +17,5 @@ export default handler(
     const entrySheetValidationId = req.query.entrySheetValidationId as string;
     await startUpdateForEntrySheetValidation(atlasId, entrySheetValidationId);
     res.status(202).end();
-  }
+  },
 );

@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { FILE_VALIDATION_STATUS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { ValidationStatus } from "./components/ValidationStatus/validationStatus";
 import { ValidationSummary } from "./components/ValidationSummary/validationSummary";

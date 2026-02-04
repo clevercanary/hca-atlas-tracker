@@ -21,7 +21,7 @@ const PROJECTS_PAGE_SIZE = 75;
 export async function getLatestCatalog(kyOptions?: KyOptions): Promise<string> {
   const catalogs: AzulCatalogResponse = await ky(
     API_URL_CATALOGS,
-    kyOptions
+    kyOptions,
   ).json();
   return catalogs.default_catalog;
 }
@@ -34,18 +34,17 @@ export async function getLatestCatalog(kyOptions?: KyOptions): Promise<string> {
  */
 export async function getAllProjects(
   catalog: string,
-  kyOptions?: KyOptions
+  kyOptions?: KyOptions,
 ): Promise<ProjectsResponse[]> {
-  let url:
-    | string
-    | undefined = `${API_URL_PROJECTS}?catalog=${encodeURIComponent(
-    catalog
-  )}&size=${PROJECTS_PAGE_SIZE}`;
+  let url: string | undefined =
+    `${API_URL_PROJECTS}?catalog=${encodeURIComponent(
+      catalog,
+    )}&size=${PROJECTS_PAGE_SIZE}`;
   const hits: ProjectsResponse[] = [];
   while (url) {
     const responseData: AzulEntitiesResponse<ProjectsResponse> = await ky(
       url,
-      kyOptions
+      kyOptions,
     ).json();
     hits.push(...responseData.hits);
     url = responseData.pagination.next;

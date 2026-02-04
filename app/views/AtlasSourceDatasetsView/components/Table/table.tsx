@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";

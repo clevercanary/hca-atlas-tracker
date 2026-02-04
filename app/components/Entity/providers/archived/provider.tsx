@@ -1,4 +1,4 @@
-import { ReactNode, useReducer } from "react";
+import { JSX, ReactNode, useReducer } from "react";
 import { INITIAL_ARGS } from "./constants";
 import { ArchivedContext } from "./context";
 import { archivedReducer } from "./reducer";
@@ -10,7 +10,7 @@ export function ArchivedProvider({
 }): JSX.Element {
   const [archivedState, archivedDispatch] = useReducer(
     archivedReducer,
-    INITIAL_ARGS
+    INITIAL_ARGS,
   );
   return (
     <ArchivedContext.Provider value={{ archivedDispatch, archivedState }}>

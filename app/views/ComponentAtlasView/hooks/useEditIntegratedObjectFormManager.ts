@@ -22,7 +22,7 @@ export const useEditIntegratedObjectFormManager = (
   formMethod: FormMethod<
     ViewIntegratedObjectData,
     HCAAtlasTrackerComponentAtlas
-  >
+  >,
 ): FormManager => {
   const { fetchDataDispatch } = useFetchDataState();
   const { onSubmit, reset } = formMethod;
@@ -31,7 +31,7 @@ export const useEditIntegratedObjectFormManager = (
     (url?: string) => {
       Router.push(url ?? getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter));
     },
-    [pathParameter]
+    [pathParameter],
   );
 
   const onSave = useCallback(
@@ -46,10 +46,10 @@ export const useEditIntegratedObjectFormManager = (
             url
               ? Router.push(url)
               : fetchDataDispatch(fetchData([INTEGRATED_OBJECT])),
-        }
+        },
       );
     },
-    [fetchDataDispatch, onSubmit, pathParameter, reset]
+    [fetchDataDispatch, onSubmit, pathParameter, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

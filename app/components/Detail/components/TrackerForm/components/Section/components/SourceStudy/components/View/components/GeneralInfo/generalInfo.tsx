@@ -2,7 +2,7 @@ import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/Cust
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { Fragment, useCallback } from "react";
+import { JSX, Fragment, useCallback } from "react";
 import { Controller } from "react-hook-form";
 import {
   DOI_STATUS,
@@ -58,7 +58,7 @@ export const GeneralInfo = ({
       clearErrors();
       setValue(FIELD_NAME.PUBLICATION_STATUS, value, { shouldDirty: false });
     },
-    [clearErrors, setValue]
+    [clearErrors, setValue],
   );
 
   return (
@@ -87,7 +87,7 @@ export const GeneralInfo = ({
                     error={Boolean(errors[FIELD_NAME.DOI])}
                     helperText={renderDoiHelperText(
                       sourceStudy,
-                      errors[FIELD_NAME.DOI]?.message
+                      errors[FIELD_NAME.DOI]?.message,
                     )}
                     isFilled={Boolean(field.value)}
                     label={
@@ -187,7 +187,7 @@ export const GeneralInfo = ({
  * @returns end adornment.
  */
 function renderDoiEndAdornment(
-  sourceStudy: HCAAtlasTrackerSourceStudy | undefined
+  sourceStudy: HCAAtlasTrackerSourceStudy | undefined,
 ): JSX.Element | undefined {
   switch (sourceStudy?.doiStatus) {
     case DOI_STATUS.DOI_NOT_ON_CROSSREF:
@@ -219,7 +219,7 @@ function renderDoiEndAdornment(
  */
 function renderDoiHelperText(
   sourceStudy: HCAAtlasTrackerSourceStudy | undefined,
-  errorMessage: string | undefined
+  errorMessage: string | undefined,
 ): string | undefined {
   if (errorMessage) return errorMessage;
   return getSourceStudyCitation(sourceStudy);

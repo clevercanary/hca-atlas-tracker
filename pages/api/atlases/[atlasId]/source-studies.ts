@@ -10,7 +10,7 @@ export default handler(
   async (req, res) => {
     const id = req.query.atlasId as string;
     res.json(
-      (await getAtlasSourceStudies(id)).map(dbSourceStudyToApiSourceStudy)
+      (await getAtlasSourceStudies(id)).map(dbSourceStudyToApiSourceStudy),
     );
-  }
+  },
 );

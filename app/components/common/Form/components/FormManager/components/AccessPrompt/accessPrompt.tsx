@@ -1,5 +1,5 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 import { ROUTE } from "../../../../../../../routes/constants";
 import {
   Section,

@@ -13,8 +13,8 @@ export default handler(
       await taskCompletionDatesSchema.validate(req.body);
     const updatedValidations = await updateTargetCompletions(
       targetCompletion === null ? null : new Date(targetCompletion),
-      taskIds
+      taskIds,
     );
     res.json(updatedValidations.map(dbValidationToApiValidation));
-  }
+  },
 );

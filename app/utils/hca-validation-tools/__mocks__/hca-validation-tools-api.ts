@@ -7,7 +7,7 @@ import { expectIsDefined } from "../../../../testing/utils";
 import { EntrySheetValidationResponse } from "../hca-validation-tools";
 
 export async function fetchEntrySheetValidationResults(
-  googleSheetId: string
+  googleSheetId: string,
 ): Promise<EntrySheetValidationResponse> {
   if (FETCH_ERROR_ENTRY_SHEET_IDS.has(googleSheetId))
     throw new Error(TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE);

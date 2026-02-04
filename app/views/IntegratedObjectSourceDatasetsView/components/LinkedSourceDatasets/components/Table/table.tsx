@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { SectionTable } from "../../../../../../components/Detail/components/TrackerForm/components/Section/section.styles";
@@ -25,7 +26,7 @@ export const Table = ({
       columns={getAtlasComponentSourceDatasetsTableColumns(
         onUnlink,
         canEdit,
-        pathParameter.atlasId
+        pathParameter.atlasId,
       )}
       gridTemplateColumns={getGridTemplateColumns(canEdit)}
       items={componentAtlasSourceDatasets}

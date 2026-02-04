@@ -11,12 +11,12 @@ export const DEFAULT_HEADERS = {
 export const CELLXGENE_COLLECTION_ID_REGEX = new RegExp(
   `^$|^(?:${escapeRegExp(
     ATLAS_ECOSYSTEM_URLS.CELLXGENE_PORTAL +
-      ATLAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION
-  )}/)?[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$`
+      ATLAS_ECOSYSTEM_PATHS.CELLXGENE_COLLECTION,
+  )}/)?[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$`,
 );
 
 export const HCA_PROJECT_ID_REGEX = new RegExp(
   `^$|^(?:${escapeRegExp(
-    ATLAS_ECOSYSTEM_URLS.HCA_EXPLORER + ATLAS_ECOSYSTEM_PATHS.HCA_PROJECT
-  )}/)?[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$`
+    ATLAS_ECOSYSTEM_URLS.HCA_EXPLORER + ATLAS_ECOSYSTEM_PATHS.HCA_PROJECT,
+  )}/)?[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$`,
 );

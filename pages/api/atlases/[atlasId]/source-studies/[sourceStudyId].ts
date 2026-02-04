@@ -24,10 +24,10 @@ const getHandler = handler(
 
     res.json(
       dbSourceStudyToApiSourceStudy(
-        await getSourceStudy(atlasId, sourceStudyId)
-      )
+        await getSourceStudy(atlasId, sourceStudyId),
+      ),
     );
-  }
+  },
 );
 
 const putHandler = handler(
@@ -39,10 +39,10 @@ const putHandler = handler(
     const newStudy = await updateSourceStudy(
       atlasId,
       sourceStudyId,
-      await sourceStudyEditSchema.validate(req.body)
+      await sourceStudyEditSchema.validate(req.body),
     );
     res.json(dbSourceStudyToApiSourceStudy(newStudy));
-  }
+  },
 );
 
 const deleteHandler = handler(
@@ -53,7 +53,7 @@ const deleteHandler = handler(
     const sourceStudyId = req.query.sourceStudyId as string;
     await deleteAtlasSourceStudy(atlasId, sourceStudyId);
     res.status(200).end();
-  }
+  },
 );
 
 export default handleByMethod({

@@ -3,7 +3,7 @@ import { Session } from "next-auth";
 import { TEST_USERS } from "../testing/constants";
 
 export async function getServerSession(
-  req: NextApiRequest
+  req: NextApiRequest,
 ): Promise<Session | null> {
   const authorization = req.headers.authorization;
   if (!authorization) return null;

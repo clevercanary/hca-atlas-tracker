@@ -26,7 +26,7 @@ import { TestComment, TestUser } from "../testing/entities";
 import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config"
+  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
 jest.mock("../app/services/hca-projects");
 jest.mock("../app/services/cellxgene");
@@ -95,9 +95,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithoutCommentA.id,
           USER_STAKEHOLDER,
-          METHOD.GET
+          METHOD.GET,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(405);
   });
 
@@ -109,9 +109,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           undefined,
           METHOD.POST,
           NEW_COMMENT_FOO_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
   });
@@ -124,9 +124,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           USER_UNREGISTERED,
           METHOD.POST,
           NEW_COMMENT_FOO_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
   });
@@ -139,9 +139,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.POST,
           NEW_COMMENT_FOO_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
   });
@@ -154,9 +154,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           USER_STAKEHOLDER,
           METHOD.POST,
           NEW_COMMENT_FOO_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
     await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
   });
@@ -169,9 +169,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           USER_STAKEHOLDER,
           METHOD.POST,
           NEW_COMMENT_FOO_DATA,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     await expectCommentTextToNotExist(NEW_COMMENT_FOO_DATA.text);
   });
@@ -187,9 +187,9 @@ describe("/api/tasks/[validationId]/comment", () => {
             ...NEW_COMMENT_FOO_DATA,
             text: 123,
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -204,9 +204,9 @@ describe("/api/tasks/[validationId]/comment", () => {
             ...NEW_COMMENT_FOO_DATA,
             text: "",
           },
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
@@ -214,7 +214,7 @@ describe("/api/tasks/[validationId]/comment", () => {
     await testSuccessfulCreate(
       validationWithoutCommentA.id,
       NEW_COMMENT_FOO_DATA,
-      USER_STAKEHOLDER
+      USER_STAKEHOLDER,
     );
   });
 
@@ -222,7 +222,7 @@ describe("/api/tasks/[validationId]/comment", () => {
     await testSuccessfulCreate(
       validationWithoutCommentC.id,
       NEW_COMMENT_BAZ_DATA,
-      USER_INTEGRATION_LEAD_DRAFT
+      USER_INTEGRATION_LEAD_DRAFT,
     );
   });
 
@@ -230,7 +230,7 @@ describe("/api/tasks/[validationId]/comment", () => {
     await testSuccessfulCreate(
       validationWithoutCommentE.id,
       NEW_COMMENT_FOOFOO_DATA,
-      USER_CELLXGENE_ADMIN
+      USER_CELLXGENE_ADMIN,
     );
   });
 
@@ -238,7 +238,7 @@ describe("/api/tasks/[validationId]/comment", () => {
     await testSuccessfulCreate(
       validationWithoutCommentB.id,
       NEW_COMMENT_BAR_DATA,
-      USER_CONTENT_ADMIN
+      USER_CONTENT_ADMIN,
     );
   });
 
@@ -250,9 +250,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           undefined,
           METHOD.DELETE,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(401);
     expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
   });
@@ -265,9 +265,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           USER_UNREGISTERED,
           METHOD.DELETE,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
   });
@@ -278,9 +278,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_DISABLED_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
   });
@@ -293,9 +293,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -305,9 +305,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_STAKEHOLDER,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
   });
@@ -318,9 +318,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
   });
@@ -331,9 +331,9 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_CELLXGENE_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(403);
     expectThreadToBeUnchanged(THREAD_ID_BY_STAKEHOLDER);
   });
@@ -346,9 +346,9 @@ describe("/api/tasks/[validationId]/comment", () => {
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           undefined,
-          true
+          true,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(404);
   });
 
@@ -359,12 +359,12 @@ describe("/api/tasks/[validationId]/comment", () => {
         await doCommentRequest(
           validationWithComment.id,
           USER_CONTENT_ADMIN,
-          METHOD.DELETE
+          METHOD.DELETE,
         )
-      )._getStatusCode()
+      )._getStatusCode(),
     ).toEqual(200);
     expect(
-      await getThreadCommentsFromDatabase(THREAD_ID_BY_STAKEHOLDER)
+      await getThreadCommentsFromDatabase(THREAD_ID_BY_STAKEHOLDER),
     ).toHaveLength(0);
     expectCommentToBeUnchanged(COMMENT_BY_STAKEHOLDER2_ROOT);
   });
@@ -373,7 +373,7 @@ describe("/api/tasks/[validationId]/comment", () => {
 async function testSuccessfulCreate(
   validationId: string,
   newData: NewCommentThreadData,
-  user: TestUser
+  user: TestUser,
 ): Promise<HCAAtlasTrackerDBComment> {
   const res = await doCommentRequest(validationId, user, METHOD.POST, newData);
   expect(res._getStatusCode()).toEqual(201);
@@ -382,7 +382,7 @@ async function testSuccessfulCreate(
   const threadCommentsFromDb = (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE thread_id=$1",
-      [newComment.threadId]
+      [newComment.threadId],
     )
   ).rows;
   expect(threadCommentsFromDb).toHaveLength(1);
@@ -392,7 +392,7 @@ async function testSuccessfulCreate(
   const validationFromDb = (
     await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE id=$1",
-      [validationId]
+      [validationId],
     )
   ).rows[0];
   expect(validationFromDb.comment_thread_id).toEqual(newComment.threadId);
@@ -402,12 +402,12 @@ async function testSuccessfulCreate(
 async function expectThreadToBeUnchanged(threadId: string): Promise<void> {
   expectDbCommentsToMatchTest(
     await getThreadCommentsFromDatabase(threadId),
-    TEST_COMMENTS_BY_THREAD_ID[threadId]
+    TEST_COMMENTS_BY_THREAD_ID[threadId],
   );
 }
 
 async function expectCommentToBeUnchanged(
-  testComment: TestComment
+  testComment: TestComment,
 ): Promise<void> {
   const dbComment = await getCommentFromDatabase(testComment.id);
   expect(dbComment).toBeDefined();
@@ -417,7 +417,7 @@ async function expectCommentToBeUnchanged(
 
 function expectDbCommentsToMatchTest(
   dbComments: HCAAtlasTrackerDBComment[],
-  testComments: TestComment[]
+  testComments: TestComment[],
 ): void {
   expect(dbComments).toHaveLength(testComments.length);
   for (const [i, dbComment] of dbComments.entries()) {
@@ -427,24 +427,24 @@ function expectDbCommentsToMatchTest(
 
 function expectDbCommentToMatchTest(
   dbComment: HCAAtlasTrackerDBComment,
-  testComment: TestComment
+  testComment: TestComment,
 ): void {
   expect(dbComment.created_at).toEqual(new Date(testComment.createdAt));
   expect(dbComment.created_by).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
   expect(dbComment.id).toEqual(testComment.id);
   expect(dbComment.text).toEqual(testComment.text);
   expect(dbComment.thread_id).toEqual(testComment.threadId);
   expect(dbComment.updated_at).toEqual(new Date(testComment.createdAt));
   expect(dbComment.updated_by).toEqual(
-    dbUsersByEmail[testComment.createdBy.email].id
+    dbUsersByEmail[testComment.createdBy.email].id,
   );
 }
 
 function expectDbCommentToMatch(
   dbComment: HCAAtlasTrackerDBComment,
-  apiComment: HCAAtlasTrackerComment
+  apiComment: HCAAtlasTrackerComment,
 ): void {
   expect(dbComment.created_at.toISOString()).toEqual(apiComment.createdAt);
   expect(dbComment.created_by).toEqual(apiComment.createdBy);
@@ -459,7 +459,7 @@ async function expectCommentTextToNotExist(text: string): Promise<void> {
   const matchingComments = (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE text=$1",
-      [text]
+      [text],
     )
   ).rows;
   expect(matchingComments).toEqual([]);
@@ -470,7 +470,7 @@ async function doCommentRequest(
   user: TestUser | undefined,
   method: METHOD,
   data?: Record<string, unknown>,
-  hideConsoleError = false
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: data,
@@ -482,29 +482,29 @@ async function doCommentRequest(
   });
   await withConsoleErrorHiding(
     () => commentHandler(req, res),
-    hideConsoleError
+    hideConsoleError,
   );
   return res;
 }
 
 async function getThreadCommentsFromDatabase(
-  threadId: string
+  threadId: string,
 ): Promise<HCAAtlasTrackerDBComment[]> {
   return (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE thread_id=$1",
-      [threadId]
+      [threadId],
     )
   ).rows;
 }
 
 async function getCommentFromDatabase(
-  commentId: string
+  commentId: string,
 ): Promise<HCAAtlasTrackerDBComment | undefined> {
   return (
     await query<HCAAtlasTrackerDBComment>(
       "SELECT * FROM hat.comments WHERE id=$1",
-      [commentId]
+      [commentId],
     )
   ).rows[0];
 }

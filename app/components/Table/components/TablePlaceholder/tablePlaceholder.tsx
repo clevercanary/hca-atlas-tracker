@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 import { TypographyTextBody400 } from "../../../common/Typography/components/TypographyTextBody400/typographyTextBody400";
 import { GridPaperSection } from "./tablePlaceholder.styles";
 
