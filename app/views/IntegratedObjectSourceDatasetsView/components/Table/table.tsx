@@ -33,7 +33,7 @@ export const Table = (): JSX.Element => {
         {table.getRowCount() > 0 && <CommonTable table={table} />}
         <TablePlaceholder
           message="No linked source datasets"
-          rowCount={integratedObjectSourceDatasets.length}
+          rowCount={table.getRowCount()}
         />
       </GridPaper>
     </FluidPaper>
