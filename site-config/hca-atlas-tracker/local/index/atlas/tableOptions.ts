@@ -20,16 +20,7 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"]
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE]: false,
       },
       expanded: true,
-      grouping: [HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE],
       sorting: [
-        {
-          desc: SORT_DIRECTION.ASCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
-        },
-        {
-          desc: SORT_DIRECTION.DESCENDING,
-          id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
-        },
         {
           desc: SORT_DIRECTION.ASCENDING,
           id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NAME,
