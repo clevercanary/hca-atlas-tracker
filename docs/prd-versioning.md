@@ -243,7 +243,10 @@ On upload, the system strips version suffixes to determine the base filename:
 - Different base filename → different concept → new SD/IO
 - Version in uploaded filename is informational only; system assigns the next version number
 
-**Duplicate filename warning:** If uploading a filename that exists as a concept in another generation of the same atlas family, the UI should warn the user and suggest importing from the existing concept instead.
+**Duplicate filename warning:** If uploading a filename that exists as a concept in another generation of the same atlas family, the system should warn the user and suggest importing from the existing concept instead. Options to consider for implementation:
+
+- Post-upload notification in the tracker UI
+- Pre-upload check via smart-sync CLI + new API endpoint
 
 **Why Filename-Based:**
 
@@ -515,7 +518,7 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 For existing data:
 
-- `concepts`: Create concepts from existing files using (short_name, network, generation, base_filename, file_type); strip any version suffixes from existing filenames; generation derived from the atlas's generation
+- `concepts`: Create concepts from existing files using (short_name, network, generation, base_filename, file_type); strip any version suffixes from existing filenames; generation derived from S3 key
 - `files`: Populate `concept_id` based on (short_name, network, generation, base_filename, file_type) lookup
 - `source_datasets`: Set `revision_number=1`, `published_at=NULL`
 - `component_atlases`: Set `revision_number=1`, `published_at=NULL`
@@ -562,7 +565,7 @@ CREATE UNIQUE INDEX idx_concepts_unique
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
-**Migration:** Create concepts from existing files using (short_name, network, generation, base_filename, file_type); populate `concept_id`. Generation is derived from the atlas's generation column.
+**Migration:** Create concepts from existing files using (short_name, network, generation, base_filename, file_type); populate `concept_id`. Generation is derived from the S3 key (e.g., `gut/gut_v1_0/...` → generation 1).
 
 **Acceptance Criteria:**
 
