@@ -164,8 +164,8 @@ Second publish:
 | ------------------- | ------------------------------------------------------------------------------------------ |
 | `concepts`          | New table: `id`, `atlas_short_name`, `network`, `generation`, `base_filename`, `file_type` |
 | `files`             | `concept_id` → concepts                                                                    |
-| `source_datasets`   | `revision_number`, `published_at`                                                          |
-| `component_atlases` | `revision_number`, `published_at`                                                          |
+| `source_datasets`   | `id` → concepts (FK), `revision_number`, `published_at`                                    |
+| `component_atlases` | `id` → concepts (FK), `revision_number`, `published_at`                                    |
 | `atlases`           | `generation`, `revision`, `draft`                                                          |
 
 ## Design Principles
@@ -205,6 +205,17 @@ Atlas versioning creates separate atlas records (v1.0, v1.1, v2.0 each have diff
 
 Including generation in the concept key ensures there's only ONE place to upload new versions of a concept (the home generation). Without generation, uploading to any generation's draft would update all generations, which is confusing. With generation scoping, cross-generation sharing is explicit via import.
 
+**Concept ID = SD/IO ID**
+
+The concept's UUID is used as the SD/IO's `id`. All version rows for the same SD/IO share the same `id` (the concept ID), while `version_id` remains unique per row. This makes the concept the stable identity across versions.
+
+| Field                          | Meaning                                      |
+| ------------------------------ | -------------------------------------------- |
+| `source_datasets.id`           | = concept ID (stable across all versions)    |
+| `source_datasets.version_id`   | Unique per row (identifies specific version) |
+| `component_atlases.id`         | = concept ID (stable across all versions)    |
+| `component_atlases.version_id` | Unique per row (identifies specific version) |
+
 **Schema:**
 
 ```sql
@@ -220,6 +231,13 @@ CREATE TABLE hat.concepts (
 CREATE UNIQUE INDEX idx_concepts_unique
   ON hat.concepts(atlas_short_name, network, generation, base_filename, file_type);
 
+-- SD/IO id references concept id (stable identity across versions)
+ALTER TABLE hat.source_datasets
+  ADD CONSTRAINT fk_sd_concept FOREIGN KEY (id) REFERENCES hat.concepts(id);
+ALTER TABLE hat.component_atlases
+  ADD CONSTRAINT fk_io_concept FOREIGN KEY (id) REFERENCES hat.concepts(id);
+
+-- Files also reference concept for direct lookup
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
@@ -545,7 +563,7 @@ Organized as vertical slices for incremental end-to-end delivery.
 
 **Goal:** Track SD/IO lineage using filename as identity, with version suffix stripping.
 
-#### Ticket 1.1: [Backend] Create concepts table and file.concept_id
+#### Ticket 1.1: [Backend] Create concepts table and link SD/IO id
 
 **Schema:**
 
@@ -562,16 +580,30 @@ CREATE TABLE hat.concepts (
 CREATE UNIQUE INDEX idx_concepts_unique
   ON hat.concepts(atlas_short_name, network, generation, base_filename, file_type);
 
+-- SD/IO id references concept id (stable identity across versions)
+ALTER TABLE hat.source_datasets
+  ADD CONSTRAINT fk_sd_concept FOREIGN KEY (id) REFERENCES hat.concepts(id);
+ALTER TABLE hat.component_atlases
+  ADD CONSTRAINT fk_io_concept FOREIGN KEY (id) REFERENCES hat.concepts(id);
+
+-- Files also reference concept for direct lookup
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
-**Migration:** Create concepts from existing files using (short_name, network, generation, base_filename, file_type); populate `concept_id`. Generation is derived from the S3 key (e.g., `gut/gut_v1_0/...` → generation 1).
+**Migration:**
+
+1. Create concepts using existing SD/IO `id` as concept `id` (no need to update SD/IO ids or atlas arrays)
+2. Populate concept fields (short_name, network, generation, base_filename, file_type) from SD/IO records
+3. Populate `file.concept_id` based on linked SD/IO
+4. Generation is derived from S3 key (e.g., `gut/gut_v1_0/...` → generation 1)
 
 **Acceptance Criteria:**
 
 - [ ] Concepts table created with proper indexes
-- [ ] Existing files have concept_id populated based on (short_name, network, generation, base_filename)
+- [ ] Concepts created with ids matching existing SD/IO ids
+- [ ] Existing files have concept_id populated
 - [ ] Uniqueness enforced on (atlas_short_name, network, generation, base_filename, file_type)
+- [ ] All version rows for same SD/IO share the same `id` (concept ID)
 
 ---
 
@@ -587,14 +619,16 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
   - Strip version suffix from filename → base_filename
   - Find or create concept by (short_name, network, generation, base_filename, file_type)
   - Set `file.concept_id`
+  - Create SD/IO version row with `id` = concept id (same id for all versions)
 
 **Acceptance Criteria:**
 
 - [ ] Version suffix correctly stripped from various filename patterns
 - [ ] New uploads immediately get concept_id assigned
-- [ ] Same base filename in same generation → same concept (new version)
-- [ ] Same base filename in different generation → new concept
-- [ ] Different base filename → different concept (new SD/IO)
+- [ ] SD/IO version row created with `id` = concept id
+- [ ] Same base filename in same generation → same concept (new version row with same id)
+- [ ] Same base filename in different generation → new concept (new id)
+- [ ] Different base filename → different concept (new SD/IO with new id)
 - [ ] Version in uploaded filename is ignored for matching
 
 ---
@@ -603,23 +637,27 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 
 **Endpoint:** `POST /atlases/{atlasId}/source-datasets/{sdId}/merge`
 
-**Body:** `{ "targetConceptId": "uuid" }`
+**Body:** `{ "targetSdId": "uuid" }` (target SD/IO id, which equals target concept id)
 
 **Logic:**
 
 1. Validate source and target are in same atlas family and generation (short_name, network, generation), same file_type
 2. Warn if source has published versions (require `force: true`)
-3. Reassign source concept's files to target concept
-4. Renumber versions (append to target's version sequence)
-5. Update target concept's `base_filename` to source's base_filename (new canonical name)
-6. Delete source concept
-7. Return updated target SD/IO
+3. Update source SD/IO version rows: set `id` = target concept id
+4. Reassign source concept's files to target concept (`file.concept_id` = target)
+5. Renumber versions (append to target's version sequence)
+6. Update target concept's `base_filename` to source's base_filename (new canonical name)
+7. Update atlas arrays to replace source id with target id
+8. Delete source concept
+9. Return updated target SD/IO
 
 **Acceptance Criteria:**
 
+- [ ] Source SD/IO version rows now have target's id
 - [ ] Files reassigned to target concept
 - [ ] Versions renumbered correctly
 - [ ] Target's base_filename updated
+- [ ] Atlas arrays updated to reference target id
 - [ ] Source concept deleted
 - [ ] Rejects cross-generation, cross-atlas-family, or cross-type merges
 - [ ] Warns/rejects if source has published versions (unless forced)
@@ -922,7 +960,7 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
 | Slice | Ticket | Type | Description                                   |
 | ----- | ------ | ---- | --------------------------------------------- |
-| 1     | 1.1    | BE   | Concepts table + file.concept_id              |
+| 1     | 1.1    | BE   | Concepts table + SD/IO id linkage             |
 | 1     | 1.2    | BE   | Version suffix stripping + concept assignment |
 | 1     | 1.3    | BE   | Merge concepts endpoint                       |
 | 1     | 1.4    | FE   | "Mark as new version of..." UI                |
