@@ -592,15 +592,15 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 
 **Migration:**
 
-1. Create concepts from existing SD/IO records using (short_name, network, generation, base_filename, file_type)
-2. Update SD/IO `id` to match concept `id` (requires updating FK references in atlases arrays)
+1. Create concepts using existing SD/IO `id` as concept `id` (no need to update SD/IO ids or atlas arrays)
+2. Populate concept fields (short_name, network, generation, base_filename, file_type) from SD/IO records
 3. Populate `file.concept_id` based on linked SD/IO
 4. Generation is derived from S3 key (e.g., `gut/gut_v1_0/...` → generation 1)
 
 **Acceptance Criteria:**
 
 - [ ] Concepts table created with proper indexes
-- [ ] Existing SD/IO ids updated to reference concepts
+- [ ] Concepts created with ids matching existing SD/IO ids
 - [ ] Existing files have concept_id populated
 - [ ] Uniqueness enforced on (atlas_short_name, network, generation, base_filename, file_type)
 - [ ] All version rows for same SD/IO share the same `id` (concept ID)
