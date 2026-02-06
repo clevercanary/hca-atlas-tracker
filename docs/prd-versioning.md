@@ -563,7 +563,9 @@ Organized as vertical slices for incremental end-to-end delivery.
 
 **Goal:** Track SD/IO lineage using filename as identity, with version suffix stripping.
 
-#### Ticket 1.1: [Backend] Create concepts table and link SD/IO id
+#### Ticket 1.1: [Backend] Concepts table, version suffix stripping, and concept assignment
+
+**Note:** Schema creation and upload processing must be released together. New uploads would fail if the concepts table exists but the upload handler doesn't populate it.
 
 **Schema:**
 
@@ -590,6 +592,18 @@ ALTER TABLE hat.component_atlases
 ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 ```
 
+**Code:**
+
+- Implement `stripVersionSuffix(filename)` function:
+  - Pattern: `-r\d+(-wip-\d+)?(?=\.h5ad$)`
+  - Examples: `foo-r1-wip-2.h5ad` → `foo.h5ad`, `foo-r2.h5ad` → `foo.h5ad`
+- On file upload:
+  - Extract (short_name, network, generation) and file_type from S3 path
+  - Strip version suffix from filename → base_filename
+  - Find or create concept by (short_name, network, generation, base_filename, file_type)
+  - Set `file.concept_id`
+  - Create SD/IO version row with `id` = concept id (same id for all versions)
+
 **Migration:**
 
 1. Create concepts using existing SD/IO `id` as concept `id` (no need to update SD/IO ids or atlas arrays)
@@ -604,25 +618,6 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 - [ ] Existing files have concept_id populated
 - [ ] Uniqueness enforced on (atlas_short_name, network, generation, base_filename, file_type)
 - [ ] All version rows for same SD/IO share the same `id` (concept ID)
-
----
-
-#### Ticket 1.2: [Backend] Version suffix stripping and concept assignment on upload
-
-**Code:**
-
-- Implement `stripVersionSuffix(filename)` function:
-  - Pattern: `-r\d+(-wip-\d+)?(?=\.h5ad$)`
-  - Examples: `foo-r1-wip-2.h5ad` → `foo.h5ad`, `foo-r2.h5ad` → `foo.h5ad`
-- On file upload:
-  - Extract (short_name, network, generation) and file_type from S3 path
-  - Strip version suffix from filename → base_filename
-  - Find or create concept by (short_name, network, generation, base_filename, file_type)
-  - Set `file.concept_id`
-  - Create SD/IO version row with `id` = concept id (same id for all versions)
-
-**Acceptance Criteria:**
-
 - [ ] Version suffix correctly stripped from various filename patterns
 - [ ] New uploads immediately get concept_id assigned
 - [ ] SD/IO version row created with `id` = concept id
@@ -633,7 +628,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 
 ---
 
-#### Ticket 1.3: [Backend] Merge concepts endpoint
+#### Ticket 1.2: [Backend] Merge concepts endpoint
 
 **Endpoint:** `POST /atlases/{atlasId}/source-datasets/{sdId}/merge`
 
@@ -664,7 +659,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 
 ---
 
-#### Ticket 1.4: [Frontend] "Mark as new version of..." UI
+#### Ticket 1.3: [Frontend] "Mark as new version of..." UI
 
 **Changes:**
 
@@ -960,48 +955,47 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
 ## Ticket Summary
 
-| Slice | Ticket | Type | Description                                   |
-| ----- | ------ | ---- | --------------------------------------------- |
-| 1     | 1.1    | BE   | Concepts table + SD/IO id linkage             |
-| 1     | 1.2    | BE   | Version suffix stripping + concept assignment |
-| 1     | 1.3    | BE   | Merge concepts endpoint                       |
-| 1     | 1.4    | FE   | "Mark as new version of..." UI                |
-| 2     | 2.1    | BE   | Atlas generation/revision columns             |
-| 2     | 2.2    | FE   | Display atlas version                         |
-| 3     | 3.1    | BE   | SD/IO revision columns                        |
-| 3     | 3.2    | FE   | Display SD/IO version                         |
-| 4     | 4.1    | BE   | published_at columns (atlas, SD/IO)           |
-| 4     | 4.2    | BE   | Publish atlas endpoint                        |
-| 4     | 4.3    | BE   | Increment revision after publish              |
-| 4     | 4.4    | BE   | Enforce immutability + scope updates          |
-| 4     | 4.5    | FE   | Draft/published UI + publish action           |
-| 4     | 4.6    | BE   | Enforce archive only on unpublished SD/IOs    |
-| 4     | 4.7    | BE   | Remove SD/IO from draft atlas endpoint        |
-| 4     | 4.8    | FE   | Remove SD/IO action on draft atlases          |
-| 5     | 5.1    | BE   | Create atlas version endpoint                 |
-| 5     | 5.2    | FE   | Create new version action                     |
-| 6     | 6.1    | BE   | SD/IO library browse endpoints                |
-| 6     | 6.2    | BE   | Import SD/IO endpoints                        |
-| 6     | 6.3    | BE   | Adopt new version endpoints                   |
-| 6     | 6.4    | BE   | imported + newerVersionAvailable fields       |
-| 6     | 6.5    | FE   | Import SD/IO UI                               |
-| 6     | 6.6    | FE   | Imported indicator + adopt action             |
-| 7     | 7.1    | BE   | Version history endpoints                     |
-| 7     | 7.2    | FE   | Version history view                          |
-| 8     | 8.1    | BE   | Versioned download filenames                  |
-| 8     | 8.2    | FE   | Download with versioned names                 |
+| Slice | Ticket | Type | Description                                        |
+| ----- | ------ | ---- | -------------------------------------------------- |
+| 1     | 1.1    | BE   | Concepts table + suffix stripping + upload handler |
+| 1     | 1.2    | BE   | Merge concepts endpoint                            |
+| 1     | 1.3    | FE   | "Mark as new version of..." UI                     |
+| 2     | 2.1    | BE   | Atlas generation/revision columns                  |
+| 2     | 2.2    | FE   | Display atlas version                              |
+| 3     | 3.1    | BE   | SD/IO revision columns                             |
+| 3     | 3.2    | FE   | Display SD/IO version                              |
+| 4     | 4.1    | BE   | published_at columns (atlas, SD/IO)                |
+| 4     | 4.2    | BE   | Publish atlas endpoint                             |
+| 4     | 4.3    | BE   | Increment revision after publish                   |
+| 4     | 4.4    | BE   | Enforce immutability + scope updates               |
+| 4     | 4.5    | FE   | Draft/published UI + publish action                |
+| 4     | 4.6    | BE   | Enforce archive only on unpublished SD/IOs         |
+| 4     | 4.7    | BE   | Remove SD/IO from draft atlas endpoint             |
+| 4     | 4.8    | FE   | Remove SD/IO action on draft atlases               |
+| 5     | 5.1    | BE   | Create atlas version endpoint                      |
+| 5     | 5.2    | FE   | Create new version action                          |
+| 6     | 6.1    | BE   | SD/IO library browse endpoints                     |
+| 6     | 6.2    | BE   | Import SD/IO endpoints                             |
+| 6     | 6.3    | BE   | Adopt new version endpoints                        |
+| 6     | 6.4    | BE   | imported + newerVersionAvailable fields            |
+| 6     | 6.5    | FE   | Import SD/IO UI                                    |
+| 6     | 6.6    | FE   | Imported indicator + adopt action                  |
+| 7     | 7.1    | BE   | Version history endpoints                          |
+| 7     | 7.2    | FE   | Version history view                               |
+| 8     | 8.1    | BE   | Versioned download filenames                       |
+| 8     | 8.2    | FE   | Download with versioned names                      |
 
 ---
 
 ## Recommended Delivery Order
 
-1. **Slice 1** (1.1-1.2): Concept model foundation (filename-based, immediate assignment)
+1. **Slice 1** (1.1): Concept model foundation (filename-based, immediate assignment)
 2. **Slice 2** (2.1-2.2): Atlas shows `v1.0` format
 3. **Slice 3** (3.1-3.2): SD/IO show revision numbers
 4. **Slice 8** (8.1-8.2): Versioned downloads
 5. **Slice 4** (4.1-4.8): Publishing workflow, archive constraints, remove from draft
 6. **Slice 5** (5.1-5.2): Create new atlas versions
-7. **Slice 1 continued** (1.3-1.4): Merge concepts (can be deferred until needed)
+7. **Slice 1 continued** (1.2-1.3): Merge concepts (can be deferred until needed)
 8. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
 9. **Slice 7** (7.1-7.2): Version history
 
