@@ -164,9 +164,9 @@ Second publish:
 | ------------------- | ------------------------------------------------------------------------------------------ |
 | `concepts`          | New table: `id`, `atlas_short_name`, `network`, `generation`, `base_filename`, `file_type` |
 | `files`             | `concept_id` → concepts                                                                    |
-| `source_datasets`   | `id` → concepts (FK), `revision_number`, `published_at`                                    |
-| `component_atlases` | `id` → concepts (FK), `revision_number`, `published_at`                                    |
-| `atlases`           | `generation`, `revision`, `draft`                                                          |
+| `source_datasets`   | `id` → concepts (FK), `revision`, `published_at`                                           |
+| `component_atlases` | `id` → concepts (FK), `revision`, `published_at`                                           |
+| `atlases`           | `generation`, `revision`, `published_at`                                                   |
 
 ## Design Principles
 
@@ -441,13 +441,13 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 ### File Upload Events
 
-| Event                                 | Precondition                 | Behavior                                                                           |
-| ------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------- |
-| **New SD file (new concept)**         | Atlas is draft               | Strip suffix → new concept → Create SD with `revision_number=1`, `wip_number=1`    |
-| **New SD file (existing, draft)**     | Atlas is draft, SD draft     | Strip suffix → match concept → Same `revision_number`, `wip_number+1`; auto-update |
-| **New SD file (existing, published)** | Atlas is draft, SD published | Strip suffix → match concept → `revision_number+1`, `wip_number=1`; auto-update    |
-| **New SD file to published atlas**    | Atlas is published           | **Rejected** - must create draft atlas first                                       |
-| **New IO file**                       | Same as SD                   | Same patterns as SD                                                                |
+| Event                                 | Precondition                 | Behavior                                                                    |
+| ------------------------------------- | ---------------------------- | --------------------------------------------------------------------------- |
+| **New SD file (new concept)**         | Atlas is draft               | Strip suffix → new concept → Create SD with `revision=1`, `wip_number=1`    |
+| **New SD file (existing, draft)**     | Atlas is draft, SD draft     | Strip suffix → match concept → Same `revision`, `wip_number+1`; auto-update |
+| **New SD file (existing, published)** | Atlas is draft, SD published | Strip suffix → match concept → `revision+1`, `wip_number=1`; auto-update    |
+| **New SD file to published atlas**    | Atlas is published           | **Rejected** - must create draft atlas first                                |
+| **New IO file**                       | Same as SD                   | Same patterns as SD                                                         |
 
 ### Merge Actions
 
@@ -457,11 +457,11 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 ### Atlas Actions
 
-| Action                       | Behavior                                                                                            |
-| ---------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Create atlas**             | Set `generation=1`, `revision=0`, `draft=true`                                                      |
-| **Create new atlas version** | Reject if draft already exists; copy atlas, set `draft=true`; option to bump generation or revision |
-| **Publish atlas**            | Set `published_at` on linked SD/IO versions (where NULL), set `draft=false`; one-way                |
+| Action                       | Behavior                                                                                                   |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Create atlas**             | Set `generation=1`, `revision=0`, `published_at=NULL`                                                      |
+| **Create new atlas version** | Reject if draft already exists; copy atlas, set `published_at=NULL`; option to bump generation or revision |
+| **Publish atlas**            | Set `published_at = NOW()` on atlas and linked SD/IO versions (where NULL); one-way                        |
 
 ### Import Actions
 
@@ -523,14 +523,14 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 ### Modified Endpoints
 
-| Endpoint                               | Changes                                                                                      |
-| -------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `GET /atlases`                         | Include `generation`, `revision`, `draft`                                                    |
-| `GET /atlases/{id}/source-datasets`    | Include `revision_number`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable` |
-| `GET /atlases/{id}/integrated-objects` | Include `revision_number`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable` |
-| `GET /atlases/{id}/integrated-objects` | Filter `source_datasets` to those in atlas's SD list                                         |
-| `PATCH /atlases/{id}/files/archive`    | Reject if any file has `published_at IS NOT NULL`                                            |
-| Download endpoints                     | Generate versioned filenames via Content-Disposition header or presigned URL parameter       |
+| Endpoint                               | Changes                                                                                |
+| -------------------------------------- | -------------------------------------------------------------------------------------- |
+| `GET /atlases`                         | Include `generation`, `revision`, `published_at`                                       |
+| `GET /atlases/{id}/source-datasets`    | Include `revision`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable`  |
+| `GET /atlases/{id}/integrated-objects` | Include `revision`, `wip_number`, `published_at`, `imported`, `newerVersionAvailable`  |
+| `GET /atlases/{id}/integrated-objects` | Filter `source_datasets` to those in atlas's SD list                                   |
+| `PATCH /atlases/{id}/files/archive`    | Reject if any file has `published_at IS NOT NULL`                                      |
+| Download endpoints                     | Generate versioned filenames via Content-Disposition header or presigned URL parameter |
 
 ## Data Migration
 
@@ -538,9 +538,9 @@ For existing data:
 
 - `concepts`: Create concepts from existing files using (short_name, network, generation, base_filename, file_type); strip any version suffixes from existing filenames; generation derived from S3 key
 - `files`: Populate `concept_id` based on (short_name, network, generation, base_filename, file_type) lookup
-- `source_datasets`: Set `revision_number=1`, `published_at=NULL`
-- `component_atlases`: Set `revision_number=1`, `published_at=NULL`
-- `atlases`: Parse `overview.version` (e.g., "1.0" → generation=1, revision=0), set `draft=true`. If unparseable or NULL, default to generation=1, revision=0.
+- `source_datasets`: Set `revision=1`, `published_at=NULL`
+- `component_atlases`: Set `revision=1`, `published_at=NULL`
+- `atlases`: Parse `overview.version` (e.g., "1.0" → generation=1, revision=0), set `published_at=NULL` (all existing are drafts). If unparseable or NULL, default to generation=1, revision=0.
 
 **Note:** All existing files will get concept_id assigned immediately based on their filename and atlas generation. No manual linking required.
 
@@ -712,16 +712,16 @@ ALTER TABLE hat.atlases ADD COLUMN revision integer NOT NULL DEFAULT 0;
 
 **Goal:** Track published revision numbers (`r1`, `r2`) separately from WIP numbers.
 
-#### Ticket 3.1: [Backend] Add revision_number to source_datasets and component_atlases
+#### Ticket 3.1: [Backend] Add revision to source_datasets and component_atlases
 
 **Schema:**
 
 ```sql
-ALTER TABLE hat.source_datasets ADD COLUMN revision_number integer NOT NULL DEFAULT 1;
-ALTER TABLE hat.component_atlases ADD COLUMN revision_number integer NOT NULL DEFAULT 1;
+ALTER TABLE hat.source_datasets ADD COLUMN revision integer NOT NULL DEFAULT 1;
+ALTER TABLE hat.component_atlases ADD COLUMN revision integer NOT NULL DEFAULT 1;
 ```
 
-**Code:** Update version creation functions to copy `revision_number` from previous version.
+**Code:** Update version creation functions to copy `revision` from previous version.
 
 ---
 
@@ -733,15 +733,17 @@ ALTER TABLE hat.component_atlases ADD COLUMN revision_number integer NOT NULL DE
 
 **Goal:** Publish an atlas, marking linked SD/IO versions as published.
 
-#### Ticket 4.1: [Backend] Add published_at to SD/IO and draft to atlas
+#### Ticket 4.1: [Backend] Add published_at to atlases, SD/IO
 
 **Schema:**
 
 ```sql
+ALTER TABLE hat.atlases ADD COLUMN published_at timestamp;
 ALTER TABLE hat.source_datasets ADD COLUMN published_at timestamp;
 ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
-ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 ```
+
+**Note:** `published_at = NULL` means draft; `published_at IS NOT NULL` means published. Consistent across all three tables.
 
 ---
 
@@ -751,15 +753,15 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 
 **Logic:**
 
-1. Verify `draft=true`
+1. Verify `atlas.published_at IS NULL` (is draft)
 2. Set `published_at = NOW()` on linked SD/IO versions **where NULL**
-3. Set `atlas.draft = false`
+3. Set `atlas.published_at = NOW()`
 
 ---
 
-#### Ticket 4.3: [Backend] Increment revision_number after publish
+#### Ticket 4.3: [Backend] Increment revision after publish
 
-**Code:** If previous version has `published_at`, set `revision_number + 1`, `wip_number = 1`.
+**Code:** If previous version has `published_at`, set `revision + 1`, `wip_number = 1`.
 
 ---
 
@@ -838,8 +840,8 @@ ALTER TABLE hat.atlases ADD COLUMN draft boolean NOT NULL DEFAULT true;
 2. Calculate version numbers from atlases with same (short_name, network):
    - If bumping generation: `generation = max(generation) + 1`, `revision = 0`
    - If bumping revision: keep generation, `revision = max(revision within generation) + 1`
-3. Reject if draft exists for target (short_name, network, generation)
-4. Copy atlas with `draft = true`
+3. Reject if draft exists for target (short_name, network, generation) — i.e., atlas with `published_at IS NULL`
+4. Copy atlas with `published_at = NULL`
 
 ---
 
@@ -966,9 +968,9 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 | 1     | 1.4    | FE   | "Mark as new version of..." UI                |
 | 2     | 2.1    | BE   | Atlas generation/revision columns             |
 | 2     | 2.2    | FE   | Display atlas version                         |
-| 3     | 3.1    | BE   | SD/IO revision_number columns                 |
+| 3     | 3.1    | BE   | SD/IO revision columns                        |
 | 3     | 3.2    | FE   | Display SD/IO version                         |
-| 4     | 4.1    | BE   | published_at + draft columns                  |
+| 4     | 4.1    | BE   | published_at columns (atlas, SD/IO)           |
 | 4     | 4.2    | BE   | Publish atlas endpoint                        |
 | 4     | 4.3    | BE   | Increment revision after publish              |
 | 4     | 4.4    | BE   | Enforce immutability + scope updates          |
