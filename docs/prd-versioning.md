@@ -160,13 +160,18 @@ Second publish:
 
 ### What's Missing
 
-| Entity              | Needed Columns/Changes                                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------ |
-| `concepts`          | New table: `id`, `atlas_short_name`, `network`, `generation`, `base_filename`, `file_type` |
-| `files`             | `concept_id` → concepts                                                                    |
-| `source_datasets`   | `revision_number`, `published_at`                                                          |
-| `component_atlases` | `revision_number`, `published_at`                                                          |
-| `atlases`           | `generation`, `revision`, `draft`                                                          |
+| Entity              | Needed Columns/Changes                             |
+| ------------------- | -------------------------------------------------- |
+| `source_datasets`   | `base_filename`, `revision_number`, `published_at` |
+| `component_atlases` | `base_filename`, `revision_number`, `published_at` |
+| `atlases`           | `generation`, `revision`, `draft`                  |
+
+**Note:** No separate `concepts` table needed. Concept identity is inlined into SD/IO:
+
+- `base_filename` on SD/IO stores the canonical filename for matching future uploads
+- SD/IO `id` is the stable identity across versions
+- (short_name, network, generation) come from the atlas; `base_filename` is stored on SD/IO
+- Merge updates `base_filename` on the target SD/IO
 
 ## Design Principles
 
@@ -176,7 +181,7 @@ Second publish:
 
 - New row only when AWS file is new
 - File key and AWS version are immutable
-- Metadata fields (validation_status, integrity_status, concept_id, etc.) are mutable
+- Metadata fields (validation_status, integrity_status, etc.) are mutable
 
 **Source Datasets / Integrated Objects:**
 
@@ -193,35 +198,29 @@ Second publish:
 - Draft atlas: all changes allowed
 - **New atlas version required** to add/remove SDs/IOs or upload new files
 
-### Concept Model
+### Concept Model (Inlined into SD/IO)
 
-Concepts provide lineage tracking using filename as identity. When a new file is uploaded, the system strips any version suffix from the filename to find the base filename, then matches to an existing concept or creates a new one.
+Concepts provide lineage tracking using filename as identity. Rather than a separate `concepts` table, concept identity is **inlined into the SD/IO tables**. The SD/IO `id` serves as the stable identity across versions.
 
-**Why (short_name, network, generation) instead of atlas_id?**
+**Concept identity** = (short_name, network, generation, base_filename, file_type)
 
-Atlas versioning creates separate atlas records (v1.0, v1.1, v2.0 each have different IDs). Tying concepts to a specific atlas_id would break lineage across revisions within a generation. Using (short_name, network, generation) ensures all revisions within a generation share the same concepts, while keeping generations separate.
+- `short_name`, `network`, `generation` come from the atlas
+- `base_filename` is stored directly on the SD/IO (mutable for merge)
+- `file_type` is implicit (source_datasets vs component_atlases table)
 
-**Why include generation?**
+**Why (short_name, network, generation)?**
 
-Including generation in the concept key ensures there's only ONE place to upload new versions of a concept (the home generation). Without generation, uploading to any generation's draft would update all generations, which is confusing. With generation scoping, cross-generation sharing is explicit via import.
+- Atlas versioning creates separate atlas records (v1.0, v1.1, v2.0 each have different IDs)
+- Using (short_name, network, generation) ensures all revisions within a generation share the same SD/IO identity
+- Including generation ensures there's only ONE place to upload new versions (the home generation)
+- Cross-generation sharing is explicit via import
 
-**Schema:**
+**Why inline into SD/IO instead of a concepts table?**
 
-```sql
-CREATE TABLE hat.concepts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  atlas_short_name TEXT NOT NULL,
-  network TEXT NOT NULL,
-  generation INTEGER NOT NULL,   -- home generation for this concept
-  base_filename TEXT NOT NULL,   -- filename with version suffix stripped
-  file_type TEXT NOT NULL,       -- 'source_dataset' or 'integrated_object'
-  created_at TIMESTAMP DEFAULT NOW()
-);
-CREATE UNIQUE INDEX idx_concepts_unique
-  ON hat.concepts(atlas_short_name, network, generation, base_filename, file_type);
-
-ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
-```
+- SD/IO `id` already provides stable identity across versions — no mapping needed
+- Storing `base_filename` on SD/IO enables merge (update filename without changing identity)
+- Simpler schema, one fewer table
+- Querying is straightforward: find SD/IO where `base_filename` matches
 
 **Version Suffix Stripping:**
 
@@ -237,13 +236,14 @@ On upload, the system strips version suffixes to determine the base filename:
 
 **Behavior:**
 
-- On file upload: strip version suffix → find or create concept by (short_name, network, generation, base_filename, file_type) → set `file.concept_id`
-- Same base filename in same generation → same concept → new version
-- Same base filename in different generation → new concept (cross-generation sharing requires import)
-- Different base filename → different concept → new SD/IO
+- On file upload: strip version suffix → find existing SD/IO by matching `base_filename` field → create new version row with same `id`, or new SD/IO if not found
+- Same base filename in same generation → same SD/IO `id` → new version
+- Same base filename in different generation → new SD/IO (cross-generation sharing requires import)
+- Different base filename → new SD/IO
 - Version in uploaded filename is informational only; system assigns the next version number
+- Merge updates the target SD/IO's `base_filename` so future uploads match it
 
-**Duplicate filename warning:** If uploading a filename that exists as a concept in another generation of the same atlas family, the UI should warn the user and suggest importing from the existing concept instead.
+**Duplicate filename warning:** If uploading a filename that exists as an SD/IO in another generation of the same atlas family, the UI should warn the user and suggest importing from the existing SD/IO instead.
 
 **Why Filename-Based:**
 
@@ -515,13 +515,11 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 For existing data:
 
-- `concepts`: Create concepts from existing files using (short_name, network, generation, base_filename, file_type); strip any version suffixes from existing filenames; generation derived from the atlas's generation
-- `files`: Populate `concept_id` based on (short_name, network, generation, base_filename, file_type) lookup
-- `source_datasets`: Set `revision_number=1`, `published_at=NULL`
-- `component_atlases`: Set `revision_number=1`, `published_at=NULL`
+- `source_datasets`: Add `base_filename` (strip version suffix from linked file's filename), set `revision_number=1`, `published_at=NULL`
+- `component_atlases`: Add `base_filename` (strip version suffix from linked file's filename), set `revision_number=1`, `published_at=NULL`
 - `atlases`: Parse `overview.version` (e.g., "1.0" → generation=1, revision=0), set `draft=true`. If unparseable or NULL, default to generation=1, revision=0.
 
-**Note:** All existing files will get concept_id assigned immediately based on their filename and atlas generation. No manual linking required.
+**Note:** All existing SD/IOs will get `base_filename` populated based on their file's filename (with version suffix stripped). No manual linking required.
 
 ---
 
@@ -538,41 +536,30 @@ Organized as vertical slices for incremental end-to-end delivery.
 
 ---
 
-### Slice 1: Concept Model
+### Slice 1: Concept Model (Inlined into SD/IO)
 
-**Goal:** Track SD/IO lineage using filename as identity, with version suffix stripping.
+**Goal:** Track SD/IO lineage using filename as identity, with version suffix stripping. Concept is inlined into SD/IO tables (no separate concepts table).
 
-#### Ticket 1.1: [Backend] Create concepts table and file.concept_id
+#### Ticket 1.1: [Backend] Add base_filename to SD/IO tables
 
 **Schema:**
 
 ```sql
-CREATE TABLE hat.concepts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  atlas_short_name TEXT NOT NULL,
-  network TEXT NOT NULL,
-  generation INTEGER NOT NULL,   -- home generation for this concept
-  base_filename TEXT NOT NULL,   -- filename with version suffix stripped
-  file_type TEXT NOT NULL,       -- 'source_dataset' or 'integrated_object'
-  created_at TIMESTAMP DEFAULT NOW()
-);
-CREATE UNIQUE INDEX idx_concepts_unique
-  ON hat.concepts(atlas_short_name, network, generation, base_filename, file_type);
-
-ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
+ALTER TABLE hat.source_datasets ADD COLUMN base_filename TEXT;
+ALTER TABLE hat.component_atlases ADD COLUMN base_filename TEXT;
 ```
 
-**Migration:** Create concepts from existing files using (short_name, network, generation, base_filename, file_type); populate `concept_id`. Generation is derived from the atlas's generation column.
+**Migration:** Populate `base_filename` from each SD/IO's linked file's S3 key (strip version suffix from filename).
 
 **Acceptance Criteria:**
 
-- [ ] Concepts table created with proper indexes
-- [ ] Existing files have concept_id populated based on (short_name, network, generation, base_filename)
-- [ ] Uniqueness enforced on (atlas_short_name, network, generation, base_filename, file_type)
+- [ ] `base_filename` column added to both tables
+- [ ] Existing SD/IOs have `base_filename` populated from their file's filename
+- [ ] Version suffixes correctly stripped during migration
 
 ---
 
-#### Ticket 1.2: [Backend] Version suffix stripping and concept assignment on upload
+#### Ticket 1.2: [Backend] Version suffix stripping and SD/IO matching on upload
 
 **Code:**
 
@@ -582,43 +569,42 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 - On file upload:
   - Extract (short_name, network, generation) and file_type from S3 path
   - Strip version suffix from filename → base_filename
-  - Find or create concept by (short_name, network, generation, base_filename, file_type)
-  - Set `file.concept_id`
+  - Find existing SD/IO in same (short_name, network, generation) with matching `base_filename`
+  - If found → create new version row with same `id`
+  - If not found → create new SD/IO with new `id` and set `base_filename`
 
 **Acceptance Criteria:**
 
 - [ ] Version suffix correctly stripped from various filename patterns
-- [ ] New uploads immediately get concept_id assigned
-- [ ] Same base filename in same generation → same concept (new version)
-- [ ] Same base filename in different generation → new concept
-- [ ] Different base filename → different concept (new SD/IO)
+- [ ] Same base filename in same generation → same SD/IO `id` (new version)
+- [ ] Same base filename in different generation → new SD/IO
+- [ ] Different base filename → new SD/IO
 - [ ] Version in uploaded filename is ignored for matching
 
 ---
 
-#### Ticket 1.3: [Backend] Merge concepts endpoint
+#### Ticket 1.3: [Backend] Merge SD/IOs endpoint
 
 **Endpoint:** `POST /atlases/{atlasId}/source-datasets/{sdId}/merge`
 
-**Body:** `{ "targetConceptId": "uuid" }`
+**Body:** `{ "targetSdId": "uuid" }`
 
 **Logic:**
 
-1. Validate source and target are in same atlas family and generation (short_name, network, generation), same file_type
+1. Validate source and target are in same atlas family and generation (short_name, network, generation)
 2. Warn if source has published versions (require `force: true`)
-3. Reassign source concept's files to target concept
+3. Update all source SD/IO version rows to have target's `id`
 4. Renumber versions (append to target's version sequence)
-5. Update target concept's `base_filename` to source's base_filename (new canonical name)
-6. Delete source concept
+5. Update target's `base_filename` to source's base_filename (new canonical name)
+6. Source SD/IO effectively disappears (all rows now have target's `id`)
 7. Return updated target SD/IO
 
 **Acceptance Criteria:**
 
-- [ ] Files reassigned to target concept
+- [ ] Source version rows reassigned to target's `id`
 - [ ] Versions renumbered correctly
-- [ ] Target's base_filename updated
-- [ ] Source concept deleted
-- [ ] Rejects cross-generation, cross-atlas-family, or cross-type merges
+- [ ] Target's `base_filename` updated
+- [ ] Rejects cross-generation or cross-atlas-family merges
 - [ ] Warns/rejects if source has published versions (unless forced)
 
 ---
@@ -635,7 +621,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 **Acceptance Criteria:**
 
 - [ ] Action visible on SD/IO detail view
-- [ ] Picker filters to same atlas family and generation (short_name, network, generation), same file_type
+- [ ] Picker filters to same atlas family and generation (short_name, network, generation)
 - [ ] Preview shows how versions will be renumbered
 - [ ] Merge completes and UI updates
 
@@ -917,48 +903,48 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
 ## Ticket Summary
 
-| Slice | Ticket | Type | Description                                   |
-| ----- | ------ | ---- | --------------------------------------------- |
-| 1     | 1.1    | BE   | Concepts table + file.concept_id              |
-| 1     | 1.2    | BE   | Version suffix stripping + concept assignment |
-| 1     | 1.3    | BE   | Merge concepts endpoint                       |
-| 1     | 1.4    | FE   | "Mark as new version of..." UI                |
-| 2     | 2.1    | BE   | Atlas generation/revision columns             |
-| 2     | 2.2    | FE   | Display atlas version                         |
-| 3     | 3.1    | BE   | SD/IO revision_number columns                 |
-| 3     | 3.2    | FE   | Display SD/IO version                         |
-| 4     | 4.1    | BE   | published_at + draft columns                  |
-| 4     | 4.2    | BE   | Publish atlas endpoint                        |
-| 4     | 4.3    | BE   | Increment revision after publish              |
-| 4     | 4.4    | BE   | Enforce immutability + scope updates          |
-| 4     | 4.5    | FE   | Draft/published UI + publish action           |
-| 4     | 4.6    | BE   | Enforce archive only on unpublished SD/IOs    |
-| 4     | 4.7    | BE   | Remove SD/IO from draft atlas endpoint        |
-| 4     | 4.8    | FE   | Remove SD/IO action on draft atlases          |
-| 5     | 5.1    | BE   | Create atlas version endpoint                 |
-| 5     | 5.2    | FE   | Create new version action                     |
-| 6     | 6.1    | BE   | SD/IO library browse endpoints                |
-| 6     | 6.2    | BE   | Import SD/IO endpoints                        |
-| 6     | 6.3    | BE   | Adopt new version endpoints                   |
-| 6     | 6.4    | BE   | imported + newerVersionAvailable fields       |
-| 6     | 6.5    | FE   | Import SD/IO UI                               |
-| 6     | 6.6    | FE   | Imported indicator + adopt action             |
-| 7     | 7.1    | BE   | Version history endpoints                     |
-| 7     | 7.2    | FE   | Version history view                          |
-| 8     | 8.1    | BE   | Versioned download filenames                  |
-| 8     | 8.2    | FE   | Download with versioned names                 |
+| Slice | Ticket | Type | Description                                |
+| ----- | ------ | ---- | ------------------------------------------ |
+| 1     | 1.1    | BE   | Add base_filename to SD/IO tables          |
+| 1     | 1.2    | BE   | Version suffix stripping + SD/IO matching  |
+| 1     | 1.3    | BE   | Merge SD/IOs endpoint                      |
+| 1     | 1.4    | FE   | "Mark as new version of..." UI             |
+| 2     | 2.1    | BE   | Atlas generation/revision columns          |
+| 2     | 2.2    | FE   | Display atlas version                      |
+| 3     | 3.1    | BE   | SD/IO revision_number columns              |
+| 3     | 3.2    | FE   | Display SD/IO version                      |
+| 4     | 4.1    | BE   | published_at + draft columns               |
+| 4     | 4.2    | BE   | Publish atlas endpoint                     |
+| 4     | 4.3    | BE   | Increment revision after publish           |
+| 4     | 4.4    | BE   | Enforce immutability + scope updates       |
+| 4     | 4.5    | FE   | Draft/published UI + publish action        |
+| 4     | 4.6    | BE   | Enforce archive only on unpublished SD/IOs |
+| 4     | 4.7    | BE   | Remove SD/IO from draft atlas endpoint     |
+| 4     | 4.8    | FE   | Remove SD/IO action on draft atlases       |
+| 5     | 5.1    | BE   | Create atlas version endpoint              |
+| 5     | 5.2    | FE   | Create new version action                  |
+| 6     | 6.1    | BE   | SD/IO library browse endpoints             |
+| 6     | 6.2    | BE   | Import SD/IO endpoints                     |
+| 6     | 6.3    | BE   | Adopt new version endpoints                |
+| 6     | 6.4    | BE   | imported + newerVersionAvailable fields    |
+| 6     | 6.5    | FE   | Import SD/IO UI                            |
+| 6     | 6.6    | FE   | Imported indicator + adopt action          |
+| 7     | 7.1    | BE   | Version history endpoints                  |
+| 7     | 7.2    | FE   | Version history view                       |
+| 8     | 8.1    | BE   | Versioned download filenames               |
+| 8     | 8.2    | FE   | Download with versioned names              |
 
 ---
 
 ## Recommended Delivery Order
 
-1. **Slice 1** (1.1-1.2): Concept model foundation (filename-based, immediate assignment)
+1. **Slice 1** (1.1-1.2): Add base_filename to SD/IO, version suffix stripping
 2. **Slice 2** (2.1-2.2): Atlas shows `v1.0` format
 3. **Slice 3** (3.1-3.2): SD/IO show revision numbers
 4. **Slice 8** (8.1-8.2): Versioned downloads
 5. **Slice 4** (4.1-4.8): Publishing workflow, archive constraints, remove from draft
 6. **Slice 5** (5.1-5.2): Create new atlas versions
-7. **Slice 1 continued** (1.3-1.4): Merge concepts (can be deferred until needed)
+7. **Slice 1 continued** (1.3-1.4): Merge SD/IOs (can be deferred until needed)
 8. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
 9. **Slice 7** (7.1-7.2): Version history
 
