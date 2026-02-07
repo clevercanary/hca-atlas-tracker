@@ -72,7 +72,25 @@ export async function getConceptIdForFile(
   const baseFilename = stripVersionSuffix(filename);
 
   // Extract generation from version (e.g., "1.0" -> 1, "2.1" -> 2)
-  const generation = parseInt(atlasVersion.split(".")[0], 10);
+  if (!atlasVersion || typeof atlasVersion !== "string") {
+    throw new Error(
+      `Invalid atlas version format: ${atlasVersion}. Expected a version string like "1.0" or "2.1"`,
+    );
+  }
+
+  const versionParts = atlasVersion.split(".");
+  if (versionParts.length === 0 || !versionParts[0]) {
+    throw new Error(
+      `Invalid atlas version format: ${atlasVersion}. Expected a version string like "1.0" or "2.1"`,
+    );
+  }
+
+  const generation = parseInt(versionParts[0], 10);
+  if (isNaN(generation) || generation <= 0) {
+    throw new Error(
+      `Invalid generation number parsed from atlas version: ${atlasVersion}. Expected a positive integer.`,
+    );
+  }
 
   // Find or create concept
   return await findOrCreateConcept(

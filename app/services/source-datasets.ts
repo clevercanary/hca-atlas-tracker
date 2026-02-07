@@ -162,13 +162,15 @@ export async function createSourceDataset(
   );
 
   if (fileResult.rows.length === 0) {
-    throw new Error(`File not found: ${fileId}`);
+    throw new Error(`Database record not found for file ID: ${fileId}`);
   }
 
   const conceptId = fileResult.rows[0].concept_id;
 
   if (!conceptId) {
-    throw new Error(`File ${fileId} does not have a concept_id assigned`);
+    throw new Error(
+      `File ${fileId} does not have a concept_id assigned. This should be set during file upload.`,
+    );
   }
 
   // Insert with concept_id as the id

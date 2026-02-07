@@ -48,4 +48,9 @@ describe("stripVersionSuffix", () => {
   it("should only strip suffix immediately before .h5ad", () => {
     expect(stripVersionSuffix("dataset-r5.h5ad")).toBe("dataset.h5ad");
   });
+
+  it("should not strip version-like text in the middle of filename", () => {
+    // If there's text after -r1, it's part of the name, not a version suffix
+    expect(stripVersionSuffix("foo-r1-bar-r2.h5ad")).toBe("foo-r1-bar.h5ad");
+  });
 });

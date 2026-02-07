@@ -62,6 +62,8 @@ export function up(pgm: MigrationBuilder): void {
 
   // Populate concepts table from existing source_datasets
   // For each source dataset, extract metadata from associated file and create concept
+  // Note: Using ANY() with array field is acceptable for one-time migration backfill
+  // For production queries on large datasets, consider using unnest() or GIN indexes on array fields
   pgm.sql(`
     INSERT INTO hat.concepts (id, atlas_short_name, network, generation, base_filename, file_type)
     SELECT DISTINCT
@@ -81,6 +83,7 @@ export function up(pgm: MigrationBuilder): void {
   `);
 
   // Populate concepts table from existing component_atlases (integrated objects)
+  // Note: Using ANY() with array field is acceptable for one-time migration backfill
   pgm.sql(`
     INSERT INTO hat.concepts (id, atlas_short_name, network, generation, base_filename, file_type)
     SELECT DISTINCT
