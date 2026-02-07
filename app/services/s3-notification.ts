@@ -492,7 +492,7 @@ async function saveFileRecord(
       );
 
     // Determine atlas ID from S3 path
-    const { atlasName, network } = parseS3KeyPath(object.key);
+    const { atlasName, filename, network } = parseS3KeyPath(object.key);
     const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
     const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
     const dbVersion = normalizeAtlasVersion(dbVersionRaw);
@@ -502,10 +502,28 @@ async function saveFileRecord(
       atlasBaseName,
     );
 
+    // Get concept ID for the file (only for source datasets and integrated objects)
+    let conceptId: string | null = null;
+    if (
+      fileType === FILE_TYPE.SOURCE_DATASET ||
+      fileType === FILE_TYPE.INTEGRATED_OBJECT
+    ) {
+      const { getConceptIdForFile } = await import("../data/concepts");
+      conceptId = await getConceptIdForFile(
+        filename,
+        atlasBaseName,
+        network,
+        dbVersion,
+        fileType,
+        transaction,
+      );
+    }
+
     // Insert new file version with ON CONFLICT handling
     const result = await upsertFileRecord(
       {
         bucket: bucket.name,
+        conceptId,
         etag: object.eTag,
         eventInfo: JSON.stringify(eventInfo),
         fileType,

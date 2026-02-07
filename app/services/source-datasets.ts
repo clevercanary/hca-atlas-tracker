@@ -154,11 +154,29 @@ export async function createSourceDataset(
   client: pg.PoolClient,
 ): Promise<string> {
   const info = createSourceDatasetInfo();
+
+  // Get concept_id from the file
+  const fileResult = await client.query<{ concept_id: string | null }>(
+    "SELECT concept_id FROM hat.files WHERE id = $1",
+    [fileId],
+  );
+
+  if (fileResult.rows.length === 0) {
+    throw new Error(`File not found: ${fileId}`);
+  }
+
+  const conceptId = fileResult.rows[0].concept_id;
+
+  if (!conceptId) {
+    throw new Error(`File ${fileId} does not have a concept_id assigned`);
+  }
+
+  // Insert with concept_id as the id
   const insertResult = await client.query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
-    "INSERT INTO hat.source_datasets (sd_info, file_id) VALUES ($1, $2) RETURNING version_id",
-    [JSON.stringify(info), fileId],
+    "INSERT INTO hat.source_datasets (id, sd_info, file_id) VALUES ($1, $2, $3) RETURNING version_id",
+    [conceptId, JSON.stringify(info), fileId],
   );
   return insertResult.rows[0].version_id;
 }

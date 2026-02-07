@@ -273,13 +273,31 @@ export async function createComponentAtlas(
   };
 
   return doOrContinueTransaction(client, async (client) => {
+    // Get concept_id from the file
+    const fileResult = await query<{ concept_id: string | null }>(
+      "SELECT concept_id FROM hat.files WHERE id = $1",
+      [fileId],
+      client,
+    );
+
+    if (fileResult.rows.length === 0) {
+      throw new Error(`File not found: ${fileId}`);
+    }
+
+    const conceptId = fileResult.rows[0].concept_id;
+
+    if (!conceptId) {
+      throw new Error(`File ${fileId} does not have a concept_id assigned`);
+    }
+
+    // Insert with concept_id as the id
     const result = await query<HCAAtlasTrackerDBComponentAtlas>(
       `
-        INSERT INTO hat.component_atlases (component_info, file_id)
-        VALUES ($1, $2)
+        INSERT INTO hat.component_atlases (id, component_info, file_id)
+        VALUES ($1, $2, $3)
         RETURNING *
       `,
-      [JSON.stringify(info), fileId],
+      [conceptId, JSON.stringify(info), fileId],
       client,
     );
 
