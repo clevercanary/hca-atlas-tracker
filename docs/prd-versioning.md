@@ -742,7 +742,9 @@ ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
 
 ---
 
-#### Ticket 4.2: [Backend] Implement publish atlas endpoint
+#### Ticket 4.2: [Backend] Publish endpoint, revision increment, and immutability enforcement
+
+**Note:** These must be deployed together. Publishing without immutability enforcement would allow modifying published atlases.
 
 **Endpoint:** `POST /atlases/{atlasId}/publish`
 
@@ -752,17 +754,11 @@ ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
 2. Set `published_at = NOW()` on linked SD/IO versions **where NULL**
 3. Set `atlas.published_at = NOW()`
 
----
+**Revision Increment:**
 
-#### Ticket 4.3: [Backend] Increment revision after publish
+- On new file upload: if previous version has `published_at`, set `revision + 1`, `wip_number = 1`
 
-**Code:** If previous version has `published_at`, set `revision + 1`, `wip_number = 1`.
-
----
-
-#### Ticket 4.4: [Backend] Enforce published atlas immutability and scope updates
-
-**Logic:**
+**Immutability Enforcement:**
 
 - Reject file uploads to published atlases
 - Auto-update draft atlases of the same (short_name, network, generation) on new version
@@ -771,13 +767,21 @@ ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
 
 **Fix:** Current code uses unscoped `ARRAY_REPLACE` that updates ALL atlases. Must be changed to update only drafts of the same (short_name, network, generation).
 
+**Acceptance Criteria:**
+
+- [ ] Publish endpoint sets published_at on atlas and SD/IOs
+- [ ] Published atlases reject file uploads
+- [ ] New uploads after publish increment revision number
+- [ ] Auto-update scoped to same (short_name, network, generation)
+- [ ] Cross-generation updates require opt-in
+
 ---
 
-#### Ticket 4.5: [Frontend] Display draft/published status and publish action
+#### Ticket 4.3: [Frontend] Display draft/published status and publish action
 
 ---
 
-#### Ticket 4.6: [Backend] Enforce archive only on unpublished SD/IOs
+#### Ticket 4.4: [Backend] Enforce archive only on unpublished SD/IOs
 
 **Code:** Update `updateAtlasFilesArchiveStatus` to reject if any file's linked SD/IO has `published_at IS NOT NULL`. Requires joining files → source_datasets/component_atlases to check.
 
@@ -789,7 +793,7 @@ ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
 
 ---
 
-#### Ticket 4.7: [Backend] Remove SD/IO from draft atlas endpoint
+#### Ticket 4.5: [Backend] Remove SD/IO from draft atlas endpoint
 
 **Endpoints:**
 
@@ -811,7 +815,7 @@ ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
 
 ---
 
-#### Ticket 4.8: [Frontend] Remove SD/IO action on draft atlases
+#### Ticket 4.6: [Frontend] Remove SD/IO action on draft atlases
 
 **Changes:**
 
@@ -955,35 +959,33 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
 ## Ticket Summary
 
-| Slice | Ticket | Type | Description                                        |
-| ----- | ------ | ---- | -------------------------------------------------- |
-| 1     | 1.1    | BE   | Concepts table + suffix stripping + upload handler |
-| 1     | 1.2    | BE   | Merge concepts endpoint                            |
-| 1     | 1.3    | FE   | "Mark as new version of..." UI                     |
-| 2     | 2.1    | BE   | Atlas generation/revision columns                  |
-| 2     | 2.2    | FE   | Display atlas version                              |
-| 3     | 3.1    | BE   | SD/IO revision columns                             |
-| 3     | 3.2    | FE   | Display SD/IO version                              |
-| 4     | 4.1    | BE   | published_at columns (atlas, SD/IO)                |
-| 4     | 4.2    | BE   | Publish atlas endpoint                             |
-| 4     | 4.3    | BE   | Increment revision after publish                   |
-| 4     | 4.4    | BE   | Enforce immutability + scope updates               |
-| 4     | 4.5    | FE   | Draft/published UI + publish action                |
-| 4     | 4.6    | BE   | Enforce archive only on unpublished SD/IOs         |
-| 4     | 4.7    | BE   | Remove SD/IO from draft atlas endpoint             |
-| 4     | 4.8    | FE   | Remove SD/IO action on draft atlases               |
-| 5     | 5.1    | BE   | Create atlas version endpoint                      |
-| 5     | 5.2    | FE   | Create new version action                          |
-| 6     | 6.1    | BE   | SD/IO library browse endpoints                     |
-| 6     | 6.2    | BE   | Import SD/IO endpoints                             |
-| 6     | 6.3    | BE   | Adopt new version endpoints                        |
-| 6     | 6.4    | BE   | imported + newerVersionAvailable fields            |
-| 6     | 6.5    | FE   | Import SD/IO UI                                    |
-| 6     | 6.6    | FE   | Imported indicator + adopt action                  |
-| 7     | 7.1    | BE   | Version history endpoints                          |
-| 7     | 7.2    | FE   | Version history view                               |
-| 8     | 8.1    | BE   | Versioned download filenames                       |
-| 8     | 8.2    | FE   | Download with versioned names                      |
+| Slice | Ticket | Type | Description                                          |
+| ----- | ------ | ---- | ---------------------------------------------------- |
+| 1     | 1.1    | BE   | Concepts table + suffix stripping + upload handler   |
+| 1     | 1.2    | BE   | Merge concepts endpoint                              |
+| 1     | 1.3    | FE   | "Mark as new version of..." UI                       |
+| 2     | 2.1    | BE   | Atlas generation/revision columns                    |
+| 2     | 2.2    | FE   | Display atlas version                                |
+| 3     | 3.1    | BE   | SD/IO revision columns                               |
+| 3     | 3.2    | FE   | Display SD/IO version                                |
+| 4     | 4.1    | BE   | published_at columns (atlas, SD/IO)                  |
+| 4     | 4.2    | BE   | Publish endpoint + revision increment + immutability |
+| 4     | 4.3    | FE   | Draft/published UI + publish action                  |
+| 4     | 4.4    | BE   | Enforce archive only on unpublished SD/IOs           |
+| 4     | 4.5    | BE   | Remove SD/IO from draft atlas endpoint               |
+| 4     | 4.6    | FE   | Remove SD/IO action on draft atlases                 |
+| 5     | 5.1    | BE   | Create atlas version endpoint                        |
+| 5     | 5.2    | FE   | Create new version action                            |
+| 6     | 6.1    | BE   | SD/IO library browse endpoints                       |
+| 6     | 6.2    | BE   | Import SD/IO endpoints                               |
+| 6     | 6.3    | BE   | Adopt new version endpoints                          |
+| 6     | 6.4    | BE   | imported + newerVersionAvailable fields              |
+| 6     | 6.5    | FE   | Import SD/IO UI                                      |
+| 6     | 6.6    | FE   | Imported indicator + adopt action                    |
+| 7     | 7.1    | BE   | Version history endpoints                            |
+| 7     | 7.2    | FE   | Version history view                                 |
+| 8     | 8.1    | BE   | Versioned download filenames                         |
+| 8     | 8.2    | FE   | Download with versioned names                        |
 
 ---
 
@@ -993,7 +995,7 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 2. **Slice 2** (2.1-2.2): Atlas shows `v1.0` format
 3. **Slice 3** (3.1-3.2): SD/IO show revision numbers
 4. **Slice 8** (8.1-8.2): Versioned downloads
-5. **Slice 4** (4.1-4.8): Publishing workflow, archive constraints, remove from draft
+5. **Slice 4** (4.1-4.6): Publishing workflow, archive constraints, remove from draft
 6. **Slice 5** (5.1-5.2): Create new atlas versions
 7. **Slice 1 continued** (1.2-1.3): Merge concepts (can be deferred until needed)
 8. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
