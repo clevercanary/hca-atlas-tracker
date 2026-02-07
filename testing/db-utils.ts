@@ -42,6 +42,7 @@ import {
   TestFile,
   TestSourceDataset,
 } from "./entities";
+import { stripVersionSuffix } from "../app/utils/concepts";
 import {
   expectApiValidationsToMatchDb,
   expectDbSourceDatasetToMatchTest,
@@ -52,6 +53,7 @@ import {
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
+  resolveTestAtlas,
 } from "./utils";
 
 export async function resetDatabase(initEntities = true): Promise<void> {
@@ -88,6 +90,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   await initSourceStudies(client);
 
   await initFiles(client);
+
+  await initConcepts(client);
 
   await initSourceDatasets(client);
 
@@ -266,6 +270,48 @@ async function initTestFile(
   );
 }
 
+async function initConcepts(client: pg.PoolClient): Promise<void> {
+  // Create concepts for all test source datasets
+  for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
+    const atlas = resolveTestAtlas(sourceDataset.file);
+    const baseFilename = stripVersionSuffix(sourceDataset.file.fileName);
+    const generation = parseInt(atlas.version.split(".")[0], 10) || 1;
+    await client.query(
+      `INSERT INTO hat.concepts (id, atlas_short_name, network, generation, base_filename, file_type)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (atlas_short_name, network, generation, base_filename, file_type) DO NOTHING`,
+      [
+        sourceDataset.id,
+        atlas.shortName,
+        atlas.network,
+        generation,
+        baseFilename,
+        FILE_TYPE.SOURCE_DATASET,
+      ],
+    );
+  }
+
+  // Create concepts for all test component atlases
+  for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
+    const atlas = resolveTestAtlas(componentAtlas.file);
+    const baseFilename = stripVersionSuffix(componentAtlas.file.fileName);
+    const generation = parseInt(atlas.version.split(".")[0], 10) || 1;
+    await client.query(
+      `INSERT INTO hat.concepts (id, atlas_short_name, network, generation, base_filename, file_type)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (atlas_short_name, network, generation, base_filename, file_type) DO NOTHING`,
+      [
+        componentAtlas.id,
+        atlas.shortName,
+        atlas.network,
+        generation,
+        baseFilename,
+        FILE_TYPE.INTEGRATED_OBJECT,
+      ],
+    );
+  }
+}
+
 async function initEntrySheetValidations(client: pg.PoolClient): Promise<void> {
   for (const validation of INITIAL_TEST_ENTRY_SHEET_VALIDATIONS) {
     await initEntrySheetValidation(validation, client);
@@ -321,6 +367,34 @@ async function initComments(
       ],
     );
   }
+}
+
+export async function createTestConcept(
+  conceptId: string,
+  config: {
+    atlasShortName: string;
+    baseFilename: string;
+    fileType: FILE_TYPE | string;
+    generation: number;
+    network: string;
+  },
+  client?: pg.PoolClient,
+): Promise<void> {
+  await query(
+    `INSERT INTO hat.concepts (id, atlas_short_name, network, generation, base_filename, file_type)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     ON CONFLICT (atlas_short_name, network, generation, base_filename, file_type)
+     DO NOTHING`,
+    [
+      conceptId,
+      config.atlasShortName,
+      config.network,
+      config.generation,
+      config.baseFilename,
+      config.fileType,
+    ],
+    client,
+  );
 }
 
 export async function createTestFile(
@@ -385,14 +459,50 @@ export async function createTestComponentAtlas(
   fileId: string,
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   return doTransaction(async (client) => {
+    // Create a concept for this component atlas based on file's S3 key
+    const fileResult = await client.query<Pick<HCAAtlasTrackerDBFile, "key">>(
+      "SELECT key FROM hat.files WHERE id = $1",
+      [fileId],
+    );
+    const fileKey = fileResult.rows[0].key;
+    const pathParts = fileKey.split("/");
+    const network = pathParts[0];
+    const atlasNamePart = pathParts[1];
+    const filename = pathParts[pathParts.length - 1];
+    const shortName = atlasNamePart.replace(/-v\d+(-\d+)*$/, "");
+    const versionMatch = atlasNamePart.match(/-v(\d+)/);
+    const generation = versionMatch ? parseInt(versionMatch[1], 10) : 1;
+    const baseFilename = stripVersionSuffix(filename);
+
+    const conceptResult = await client.query<{ id: string }>(
+      `WITH new_concept AS (
+        INSERT INTO hat.concepts (atlas_short_name, network, generation, base_filename, file_type)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (atlas_short_name, network, generation, base_filename, file_type) DO NOTHING
+        RETURNING id
+      )
+      SELECT id FROM new_concept
+      UNION ALL
+      SELECT id FROM hat.concepts WHERE atlas_short_name=$1 AND network=$2 AND generation=$3 AND base_filename=$4 AND file_type=$5
+      LIMIT 1`,
+      [
+        shortName,
+        network,
+        generation,
+        baseFilename,
+        FILE_TYPE.INTEGRATED_OBJECT,
+      ],
+    );
+    const conceptId = conceptResult.rows[0].id;
+
     const componentAtlas = (
       await client.query<HCAAtlasTrackerDBComponentAtlas>(
         `
-        INSERT INTO hat.component_atlases (component_info, file_id)
-        VALUES ($1, $2)
+        INSERT INTO hat.component_atlases (component_info, file_id, id)
+        VALUES ($1, $2, $3)
         RETURNING *
       `,
-        [JSON.stringify(info), fileId],
+        [JSON.stringify(info), fileId, conceptId],
       )
     ).rows[0];
     await client.query(

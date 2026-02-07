@@ -427,6 +427,7 @@ export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;
+  concept_id: string | null;
   created_at: Date;
   dataset_info: HCAAtlasTrackerDBFileDatasetInfo | null;
   etag: string;
@@ -450,6 +451,16 @@ export interface HCAAtlasTrackerDBFile {
   validation_status: FILE_VALIDATION_STATUS;
   validation_summary: FileValidationSummary | null;
   version_id: string | null;
+}
+
+export interface HCAAtlasTrackerDBConcept {
+  atlas_short_name: string;
+  base_filename: string;
+  created_at: Date;
+  file_type: string;
+  generation: number;
+  id: string;
+  network: string;
 }
 
 export interface HCAAtlasTrackerDBFileDatasetInfo {
