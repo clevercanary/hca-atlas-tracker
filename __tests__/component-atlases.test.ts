@@ -4,6 +4,7 @@ import { endPgPool, query } from "../app/services/database";
 import { ATLAS_DRAFT, EMPTY_COMPONENT_INFO } from "../testing/constants";
 import {
   createTestFile,
+  createTestConcept,
   getAtlasFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
@@ -21,6 +22,9 @@ const ATLAS_ID_NONEXISTENT = "ea885ef9-54ae-42c7-8a7a-75c32e4703a6";
 const FILE_ID_NONEXISTENT_ATLAS = "0f0864cf-2d33-4122-a3a6-967167be3496";
 const FILE_ID_SUCCESSFUL = "607b7741-1532-436d-aa5d-ad659b57ac78";
 
+const CONCEPT_ID_NONEXISTENT_ATLAS = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+const CONCEPT_ID_SUCCESSFUL = "b2c3d4e5-f6a7-8901-bcde-f12345678901";
+
 const FILE_IDS = [FILE_ID_NONEXISTENT_ATLAS, FILE_ID_SUCCESSFUL];
 
 const componentAtlasIds: string[] = [];
@@ -34,12 +38,22 @@ afterAll(async () => {
     componentAtlasIds,
   ]);
   await query("DELETE FROM hat.files WHERE id=ANY($1)", [FILE_IDS]);
+  await query("DELETE FROM hat.concepts WHERE id=ANY($1)", [
+    [CONCEPT_ID_NONEXISTENT_ATLAS, CONCEPT_ID_SUCCESSFUL],
+  ]);
 
   await endPgPool();
 });
 
 describe("createComponentAtlas", () => {
   it("throws error when creating component atlas for non-existent atlas", async () => {
+    await createTestConcept(CONCEPT_ID_NONEXISTENT_ATLAS, {
+      atlasShortName: "some-atlas",
+      baseFilename: "file-nonexistent-atlas.h5ad",
+      fileType: FILE_TYPE.INTEGRATED_OBJECT,
+      generation: 1,
+      network: "lung",
+    });
     await createTestFile(FILE_ID_NONEXISTENT_ATLAS, {
       bucket: "bucket-nonexistent-atlas",
       etag: "bfe8b775d61f4f8aaad1a6c2b9c12222",
@@ -52,6 +66,7 @@ describe("createComponentAtlas", () => {
         const result = await createComponentAtlas(
           ATLAS_ID_NONEXISTENT,
           FILE_ID_NONEXISTENT_ATLAS,
+          CONCEPT_ID_NONEXISTENT_ATLAS,
         );
         componentAtlasIds.push(result.id);
       })(),
@@ -59,6 +74,13 @@ describe("createComponentAtlas", () => {
   });
 
   it("creates component atlas with empty values in component info", async () => {
+    await createTestConcept(CONCEPT_ID_SUCCESSFUL, {
+      atlasShortName: "some-atlas",
+      baseFilename: "file-successful.h5ad",
+      fileType: FILE_TYPE.INTEGRATED_OBJECT,
+      generation: 1,
+      network: "lung",
+    });
     await createTestFile(FILE_ID_SUCCESSFUL, {
       bucket: "bucket-successful",
       etag: "fc7112b0ae8f49a6896e4d0d3f76714b",
@@ -70,6 +92,7 @@ describe("createComponentAtlas", () => {
     const result = await createComponentAtlas(
       ATLAS_DRAFT.id,
       FILE_ID_SUCCESSFUL,
+      CONCEPT_ID_SUCCESSFUL,
     );
 
     componentAtlasIds.push(result.id);

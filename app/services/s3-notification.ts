@@ -29,6 +29,7 @@ import {
   markComponentAtlasAsNotLatest,
   updateSourceDatasetVersionInComponentAtlases,
 } from "../data/component-atlases";
+import { findOrCreateConcept } from "../data/concepts";
 import {
   FileUpsertResult,
   getAtlasByNetworkVersionAndShortName,
@@ -43,6 +44,7 @@ import {
 } from "../data/source-datasets";
 import { InvalidOperationError } from "../utils/api-handler";
 import { normalizeAtlasVersion } from "../utils/atlases";
+import { extractGeneration, stripVersionSuffix } from "../utils/concepts";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
@@ -223,24 +225,31 @@ function isNewerEventForFile(
 type FileCreationHandler = (
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ) => Promise<void>;
 
 async function createIntegratedObject(
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
-  await createComponentAtlas(atlasId, fileId, transaction);
+  await createComponentAtlas(atlasId, fileId, conceptId, transaction);
 }
 
 async function createSourceDatasetFromS3(
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
   // Create source dataset using canonical service within the existing transaction
-  const sourceDatasetVersion = await createSourceDataset(fileId, transaction);
+  const sourceDatasetVersion = await createSourceDataset(
+    fileId,
+    conceptId,
+    transaction,
+  );
 
   // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(
@@ -365,6 +374,7 @@ function logFileOperation(
  * @param fileType - File type.
  * @param metadataObjectId - Existing latest metadata object ID for the file.
  * @param atlasId - ID of the file's atlas.
+ * @param conceptId - Concept ID for the file (used when creating new SD/IO).
  * @param transaction - Postgres client to use.
  */
 async function handleInsertedFile(
@@ -374,6 +384,7 @@ async function handleInsertedFile(
   fileType: FILE_TYPE,
   metadataObjectId: string | null,
   atlasId: string,
+  conceptId: string | null,
   transaction: PoolClient,
 ): Promise<void> {
   // Dispatch file operations based on state and type
@@ -381,7 +392,11 @@ async function handleInsertedFile(
     const handler = FILE_CREATION_HANDLERS[fileType];
 
     if (handler) {
-      await handler(atlasId, result.id, transaction);
+      if (conceptId === null)
+        throw new Error(
+          `No concept ID available for new ${fileType} file with key ${object.key}`,
+        );
+      await handler(atlasId, result.id, conceptId, transaction);
     }
   } else {
     const handler = FILE_UPDATE_HANDLERS[fileType];
@@ -492,7 +507,7 @@ async function saveFileRecord(
       );
 
     // Determine atlas ID from S3 path
-    const { atlasName, network } = parseS3KeyPath(object.key);
+    const { atlasName, filename, network } = parseS3KeyPath(object.key);
     const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
     const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
     const dbVersion = normalizeAtlasVersion(dbVersionRaw);
@@ -502,10 +517,31 @@ async function saveFileRecord(
       atlasBaseName,
     );
 
+    // Find or create concept for SD/IO file types
+    let conceptId: string | null = null;
+    if (
+      fileType === FILE_TYPE.SOURCE_DATASET ||
+      fileType === FILE_TYPE.INTEGRATED_OBJECT
+    ) {
+      const generation = extractGeneration(s3Version);
+      const baseFilename = stripVersionSuffix(filename);
+      conceptId = await findOrCreateConcept(
+        {
+          atlasShortName: atlasBaseName,
+          baseFilename,
+          fileType,
+          generation,
+          network,
+        },
+        transaction,
+      );
+    }
+
     // Insert new file version with ON CONFLICT handling
     const result = await upsertFileRecord(
       {
         bucket: bucket.name,
+        conceptId,
         etag: object.eTag,
         eventInfo: JSON.stringify(eventInfo),
         fileType,
@@ -528,6 +564,7 @@ async function saveFileRecord(
         fileType,
         metadataObjectId,
         atlasId,
+        conceptId,
         transaction,
       );
     }

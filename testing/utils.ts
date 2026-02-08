@@ -312,6 +312,10 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
   };
 }
 
+export function resolveTestAtlas(file: TestFile): TestAtlas {
+  return typeof file.atlas === "function" ? file.atlas() : file.atlas;
+}
+
 export function getTestFileKey(file: TestFile, atlas: TestAtlas): string {
   let folderName: string;
   switch (file.fileType) {
