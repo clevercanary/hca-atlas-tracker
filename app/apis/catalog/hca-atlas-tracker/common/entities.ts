@@ -299,6 +299,16 @@ export interface HCAAtlasTrackerDBComponentAtlasInfo {
   capUrl: string | null;
 }
 
+export interface HCAAtlasTrackerDBConcept {
+  atlas_short_name: string;
+  base_filename: string;
+  created_at: Date;
+  file_type: FILE_TYPE;
+  generation: number;
+  id: string;
+  network: NetworkKey;
+}
+
 export type HCAAtlasTrackerDBComponentAtlasForAPI =
   HCAAtlasTrackerDBComponentAtlas &
     Pick<
@@ -427,6 +437,7 @@ export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;
+  concept_id: string | null;
   created_at: Date;
   dataset_info: HCAAtlasTrackerDBFileDatasetInfo | null;
   etag: string;
