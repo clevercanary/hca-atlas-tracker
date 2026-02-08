@@ -536,15 +536,14 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 Published atlases can be accessed with only a bearer token (no user role required). This enables programmatic access for downstream consumers.
 
-| Endpoint                                               | Description                                  |
-| ------------------------------------------------------ | -------------------------------------------- |
-| `GET /published-atlases`                               | List all published atlases with short names  |
-| `GET /atlases/{id}`                                    | Get published atlas details                  |
-| `GET /atlases/{id}/source-studies`                     | List source studies for published atlas      |
-| `GET /atlases/{id}/source-datasets`                    | List source datasets for published atlas     |
-| `GET /atlases/{id}/integrated-objects`                 | List integrated objects for published atlas  |
-| `GET /atlases/{id}/source-datasets/{sdId}/download`    | Get presigned URL for source dataset file    |
-| `GET /atlases/{id}/integrated-objects/{ioId}/download` | Get presigned URL for integrated object file |
+| Endpoint                                       | Description                                      |
+| ---------------------------------------------- | ------------------------------------------------ |
+| `GET /published-atlases`                       | List published atlases (discovery endpoint)      |
+| `GET /atlases/{id}`                            | Get published atlas details                      |
+| `GET /atlases/{id}/source-studies`             | List source studies for published atlas          |
+| `GET /atlases/{id}/source-datasets`            | List source datasets for published atlas         |
+| `GET /atlases/{id}/integrated-objects`         | List integrated objects for published atlas      |
+| `GET /atlases/{id}/files/{versionId}/download` | Get presigned URL (versionId from SD/IO listing) |
 
 **Atlas Addressing:**
 
@@ -1000,6 +999,77 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
 ---
 
+### Slice 9: Published Atlas Public API
+
+**Goal:** Enable programmatic access to published atlases for downstream consumers.
+
+#### Ticket 9.1: [Backend] Published atlases discovery and short name addressing
+
+**Endpoint:** `GET /published-atlases`
+
+Returns list of published atlases for discovery:
+
+```json
+[
+  {
+    "id": "uuid",
+    "shortName": "gut",
+    "version": "v1.0",
+    "name": "Gut Atlas",
+    "network": "gut"
+  }
+]
+```
+
+**Short Name Addressing:**
+
+- Atlas endpoints accept `{id}` as UUID or short name format (`{short_name}_v{generation}.{revision}`)
+- Example: `GET /atlases/gut_v1.0` resolves to the published atlas
+- Only works for published atlases
+
+**Access Control:** Bearer token only (no user role required)
+
+---
+
+#### Ticket 9.2: [Backend] Public read endpoints for published atlases
+
+**Endpoints (bearer token only):**
+
+- `GET /atlases/{id}` - Atlas details
+- `GET /atlases/{id}/source-studies` - List source studies
+- `GET /atlases/{id}/source-datasets` - List source datasets (frozen at publish time)
+- `GET /atlases/{id}/integrated-objects` - List integrated objects (frozen at publish time)
+
+**Note:** SD/IO listings return only the versions frozen in the atlas arrays. Each item includes `versionId` for use with download endpoint.
+
+**Access Control:**
+
+- Bearer token authentication only
+- Reject if atlas is draft (`published_at IS NULL`)
+
+---
+
+#### Ticket 9.3: [Backend] Public download endpoint for published atlases
+
+**Endpoint:** `GET /atlases/{atlasId}/files/{versionId}/download`
+
+Uses SD/IO `version_id` (from listing) to identify the file to download.
+
+**Logic:**
+
+1. Look up SD/IO by `version_id`
+2. Verify atlas is published and contains this version
+3. Get `file_id` from SD/IO record
+4. Return presigned URL for file
+
+**Access Control:**
+
+- Bearer token authentication only
+- Reject if atlas is draft
+- Reject if version not in atlas
+
+---
+
 ## Ticket Summary
 
 | Slice | Ticket | Type | Description                                          |
@@ -1029,6 +1099,9 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 | 7     | 7.2    | FE   | Version history view                                 |
 | 8     | 8.1    | BE   | Versioned download filenames                         |
 | 8     | 8.2    | FE   | Download with versioned names                        |
+| 9     | 9.1    | BE   | Discovery endpoint + short name addressing           |
+| 9     | 9.2    | BE   | Public read endpoints for published atlases          |
+| 9     | 9.3    | BE   | Public download endpoint for published atlases       |
 
 ---
 
@@ -1040,9 +1113,10 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 4. **Slice 8** (8.1-8.2): Versioned downloads
 5. **Slice 4** (4.1-4.6): Publishing workflow, archive constraints, remove from draft
 6. **Slice 5** (5.1-5.2): Create new atlas versions
-7. **Slice 1 continued** (1.2-1.3): Merge concepts (can be deferred until needed)
-8. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
-9. **Slice 7** (7.1-7.2): Version history
+7. **Slice 9** (9.1-9.3): Published atlas public API (requires Slice 4)
+8. **Slice 1 continued** (1.2-1.3): Merge concepts (can be deferred until needed)
+9. **Slice 6** (6.1-6.6): Import and opt-in (SD import first, IO import last)
+10. **Slice 7** (7.1-7.2): Version history
 
 **Note on IO Import:** Import IO should be implemented after SD import is working, as importing an IO without its mapped SDs results in an IO with no visible SDs (due to display filtering). UI should prompt users to import related SDs when importing an IO.
 
