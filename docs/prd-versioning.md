@@ -532,6 +532,49 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 | `PATCH /atlases/{id}/files/archive`    | Reject if any file has `published_at IS NOT NULL`                                      |
 | Download endpoints                     | Generate versioned filenames via Content-Disposition header or presigned URL parameter |
 
+### Published Atlas Public API
+
+Published atlases can be accessed with only a bearer token (no user role required). This enables programmatic access for downstream consumers.
+
+| Endpoint                                               | Description                                  |
+| ------------------------------------------------------ | -------------------------------------------- |
+| `GET /published-atlases`                               | List all published atlases with short names  |
+| `GET /atlases/{id}`                                    | Get published atlas details                  |
+| `GET /atlases/{id}/source-studies`                     | List source studies for published atlas      |
+| `GET /atlases/{id}/source-datasets`                    | List source datasets for published atlas     |
+| `GET /atlases/{id}/integrated-objects`                 | List integrated objects for published atlas  |
+| `GET /atlases/{id}/source-datasets/{sdId}/download`    | Get presigned URL for source dataset file    |
+| `GET /atlases/{id}/integrated-objects/{ioId}/download` | Get presigned URL for integrated object file |
+
+**Atlas Addressing:**
+
+The `{id}` parameter accepts either:
+
+- UUID: `550e8400-e29b-41d4-a716-446655440000`
+- Short name with version: `gut_v1.0` (format: `{short_name}_v{generation}.{revision}`)
+
+**Discovery Endpoint:**
+
+`GET /published-atlases` returns a list of published atlases:
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "shortName": "gut",
+    "version": "v1.0",
+    "name": "Gut Atlas",
+    "network": "gut"
+  }
+]
+```
+
+**Access Control:**
+
+- Bearer token authentication only (no user account required)
+- Only published atlases (`published_at IS NOT NULL`) are accessible
+- Draft atlases require authenticated user with appropriate role
+
 ## Data Migration
 
 For existing data:
