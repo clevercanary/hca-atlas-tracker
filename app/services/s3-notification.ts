@@ -3,7 +3,6 @@ import {
   S3Event,
   S3EventRecord,
   s3EventSchema,
-  S3Object,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
@@ -369,7 +368,6 @@ function logFileOperation(
 /**
  * Handle updates associated with the insertion of a new file record.
  * @param result - File insertion result.
- * @param object - Associated S3 object.
  * @param isNewFile - Whether the inserted record represents a new file.
  * @param fileType - File type.
  * @param conceptId - Existing latest metadata object ID for the file.
@@ -378,11 +376,10 @@ function logFileOperation(
  */
 async function handleInsertedFile(
   result: FileUpsertResult,
-  object: S3Object,
   isNewFile: boolean,
   fileType: FILE_TYPE,
-  conceptId: string | null,
-  atlasId: string | null,
+  conceptId: string,
+  atlasId: string,
   transaction: PoolClient,
 ): Promise<void> {
   // Dispatch file operations based on state and type
@@ -390,24 +387,12 @@ async function handleInsertedFile(
     const handler = FILE_CREATION_HANDLERS[fileType];
 
     if (handler) {
-      if (atlasId === null)
-        throw new Error(
-          `No atlas found for new ${fileType} file with key ${object.key}`,
-        );
-      if (conceptId === null)
-        throw new Error(
-          `No concept found for new ${fileType} file with key ${object.key}`,
-        );
       await handler(atlasId, result.id, conceptId, transaction);
     }
   } else {
     const handler = FILE_UPDATE_HANDLERS[fileType];
 
     if (handler) {
-      if (conceptId === null)
-        throw new Error(
-          `No concept found for existing ${fileType} file with key ${object.key}`,
-        );
       await handler(result.id, conceptId, transaction);
     }
   }
@@ -446,6 +431,11 @@ async function saveFileRecord(
   // Determine file type from S3 key path structure
   const fileType = determineFileType(object.key);
 
+  // Ingest manifests are no longer saved in the database - ignore the notification if one is received
+  if (fileType === FILE_TYPE.INGEST_MANIFEST) {
+    return null;
+  }
+
   // Determine atlas short name and version, as well as file name, from S3 key
   const { atlasName, filename, network } = parseS3KeyPath(object.key);
   const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
@@ -475,34 +465,24 @@ async function saveFileRecord(
   // - Application-level locking: Complex, doesn't scale, potential deadlocks
   // - Ignore duplicates: Loses important ETag mismatch detection
   return await doTransaction(async (transaction) => {
-    // Get or create concept ID for the file, if relevant
-    const conceptId =
-      fileType === FILE_TYPE.INGEST_MANIFEST
-        ? null
-        : await getOrCreateConceptId(
-            {
-              // TODO: move lowercasing somewhere else?
-              atlas_short_name: atlasBaseName.toLowerCase(),
-              base_filename: filename,
-              file_type: fileType,
-              generation: atlasGeneration,
-              network,
-            },
-            transaction,
-          );
+    // Get or create concept ID for the file
+    const conceptId = await getOrCreateConceptId(
+      {
+        // TODO: move lowercasing somewhere else?
+        atlas_short_name: atlasBaseName.toLowerCase(),
+        base_filename: filename,
+        file_type: fileType,
+        generation: atlasGeneration,
+        network,
+      },
+      transaction,
+    );
 
     // Determine atlas from concept
-    const atlas =
-      conceptId === null
-        ? null
-        : await getAtlasMatchingConcept(conceptId, transaction);
+    const atlas = await getAtlasMatchingConcept(conceptId, transaction);
 
     // Confirm that the atlas matches the revision specified in the S3 key
-    // TODO: how should this apply to ingest manifests?
-    if (
-      atlas &&
-      atlas.overview.version !== `${atlasGeneration}.${atlasRevision}`
-    ) {
+    if (atlas.overview.version !== `${atlasGeneration}.${atlasRevision}`) {
       throw new Error(
         `Received file for ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision}, but atlas is at version ${atlas.overview.version}`,
       );
@@ -561,11 +541,10 @@ async function saveFileRecord(
     if (result.operation === "inserted") {
       await handleInsertedFile(
         result,
-        object,
         isNewFile,
         fileType,
         conceptId,
-        atlas?.id ?? null,
+        atlas.id,
         transaction,
       );
     }
