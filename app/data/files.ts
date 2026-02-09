@@ -6,21 +6,16 @@ import {
   FILE_VALIDATION_STATUS,
   FileValidationReports,
   FileValidationSummary,
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerSourceDataset,
   INTEGRITY_STATUS,
-  NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
-import { getVersionVariants } from "../utils/atlases";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {
@@ -49,48 +44,6 @@ export async function markPreviousVersionsAsNotLatest(
     [bucket, key],
   );
   return result.rowCount || 0;
-}
-
-/**
- * Get existing metadata object ID for a file based on file type.
- * @param bucket - S3 bucket name
- * @param key - S3 object key
- * @param transaction - Database transaction client
- * @returns Metadata object ID if found, null otherwise
- */
-export async function getExistingMetadataObjectId(
-  bucket: string,
-  key: string,
-  transaction: pg.PoolClient,
-): Promise<string | null> {
-  const fileResult = await transaction.query<
-    Pick<HCAAtlasTrackerDBFile, "file_type" | "id">
-  >(
-    `SELECT file_type, id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
-    [bucket, key],
-  );
-
-  if (fileResult.rows.length === 0) return null;
-
-  const { file_type: fileType, id: fileId } = fileResult.rows[0];
-
-  if (fileType === FILE_TYPE.INTEGRATED_OBJECT) {
-    const result = await transaction.query<
-      Pick<HCAAtlasTrackerComponentAtlas, "id">
-    >("SELECT id FROM hat.component_atlases WHERE file_id = $1", [fileId]);
-    if (result.rows.length === 0)
-      throw new Error(`No component atlas found for file with ID ${fileId}`);
-    return result.rows[0].id;
-  } else if (fileType === FILE_TYPE.SOURCE_DATASET) {
-    const result = await transaction.query<
-      Pick<HCAAtlasTrackerSourceDataset, "id">
-    >("SELECT id FROM hat.source_datasets WHERE file_id = $1", [fileId]);
-    if (result.rows.length === 0)
-      throw new Error(`No source dataset found for file with ID ${fileId}`);
-    return result.rows[0].id;
-  }
-
-  return null;
 }
 
 /**
@@ -137,44 +90,6 @@ export async function getLatestNotificationInfo(
     [bucket, key],
   );
   return result.rows[0] ?? null;
-}
-
-/**
- * Get atlas ID by network, version, and short name with flexible version matching.
- * @param network - Atlas network.
- * @param version - Atlas version (supports flexible matching like "1" vs "1.0").
- * @param shortName - Atlas short name (case-insensitive match).
- * @returns Atlas ID.
- */
-export async function getAtlasByNetworkVersionAndShortName(
-  network: NetworkKey,
-  version: string,
-  shortName: string,
-): Promise<string> {
-  const versionVariants = getVersionVariants(version);
-
-  const result = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    `SELECT id
-       FROM hat.atlases 
-       WHERE overview->>'network' = $1 
-       AND overview->>'version' = ANY($2)
-       AND LOWER(overview->>'shortName') = LOWER($3)`,
-    [network, versionVariants, shortName],
-  );
-
-  if (result.rows.length === 0) {
-    throw new NotFoundError(
-      `Atlas not found for network: ${network}, shortName: ${shortName}, version: ${version}`,
-    );
-  }
-
-  if (result.rows.length > 1) {
-    throw new Error(
-      `Multiple atlases found for network: ${network}, shortName: ${shortName}, version: ${version}. Found ${result.rows.length} matches.`,
-    );
-  }
-
-  return result.rows[0].id;
 }
 
 /**

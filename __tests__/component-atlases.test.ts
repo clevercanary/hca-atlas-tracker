@@ -23,7 +23,10 @@ const FILE_ID_SUCCESSFUL = "607b7741-1532-436d-aa5d-ad659b57ac78";
 
 const FILE_IDS = [FILE_ID_NONEXISTENT_ATLAS, FILE_ID_SUCCESSFUL];
 
-const componentAtlasIds: string[] = [];
+const CONCEPT_ID_NONEXISTENT_ATLAS = "f1bfda5d-fae3-4685-aaf0-24ebd422c13e";
+const CONCEPT_ID_SUCCESSFUL = "a51561dc-a383-489d-b492-6d1781c85006";
+
+const CONCEPT_IDS = [CONCEPT_ID_NONEXISTENT_ATLAS, CONCEPT_ID_SUCCESSFUL];
 
 beforeAll(async () => {
   await resetDatabase();
@@ -31,9 +34,10 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await query("DELETE FROM hat.component_atlases WHERE id=ANY($1)", [
-    componentAtlasIds,
+    CONCEPT_IDS,
   ]);
   await query("DELETE FROM hat.files WHERE id=ANY($1)", [FILE_IDS]);
+  await query("DELETE FROM hat.concepts WHERE id=ANY($1)", [CONCEPT_IDS]);
 
   await endPgPool();
 });
@@ -49,11 +53,11 @@ describe("createComponentAtlas", () => {
     });
     await expect(
       (async (): Promise<void> => {
-        const result = await createComponentAtlas(
+        await createComponentAtlas(
           ATLAS_ID_NONEXISTENT,
           FILE_ID_NONEXISTENT_ATLAS,
+          CONCEPT_ID_NONEXISTENT_ATLAS,
         );
-        componentAtlasIds.push(result.id);
       })(),
     ).rejects.toThrow();
   });
@@ -70,9 +74,8 @@ describe("createComponentAtlas", () => {
     const result = await createComponentAtlas(
       ATLAS_DRAFT.id,
       FILE_ID_SUCCESSFUL,
+      CONCEPT_ID_SUCCESSFUL,
     );
-
-    componentAtlasIds.push(result.id);
 
     expect(result).toBeDefined();
     expect(result.component_info).toEqual(EMPTY_COMPONENT_INFO);

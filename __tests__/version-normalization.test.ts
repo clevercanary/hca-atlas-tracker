@@ -19,12 +19,15 @@ describe("normalizeAtlasVersion", () => {
     ["1.2", "1.2"],
     ["2.0", "2.0"],
     ["2.3", "2.3"],
+    ["1.99", "1.99"],
+    ["1.90", "1.90"],
   ])("maps %s -> %s", (raw, expected) => {
     expect(normalizeAtlasVersion(raw)).toBe(expected);
   });
 
   it.each<readonly [raw: string]>([
-    ["1.99"],
+    ["1.00"],
+    ["1.01"],
     ["1.0.0"],
     ["2..00"],
     [".1"],

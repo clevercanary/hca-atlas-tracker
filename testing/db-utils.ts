@@ -10,6 +10,7 @@ import {
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
+  HCAAtlasTrackerDBConcept,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBSourceDataset,
@@ -321,6 +322,34 @@ async function initComments(
       ],
     );
   }
+}
+
+export async function createTestConcept(
+  info: Pick<
+    HCAAtlasTrackerDBConcept,
+    | "atlas_short_name"
+    | "base_filename"
+    | "file_type"
+    | "generation"
+    | "id"
+    | "network"
+  >,
+  client: pg.PoolClient,
+): Promise<void> {
+  await client.query(
+    `
+      INSERT INTO hat.concepts (atlas_short_name, base_filename, file_type, generation, network, id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `,
+    [
+      info.atlas_short_name,
+      info.base_filename,
+      info.file_type,
+      info.generation,
+      info.network,
+      info.id,
+    ],
+  );
 }
 
 export async function createTestFile(

@@ -31,8 +31,6 @@ import {
 } from "../data/component-atlases";
 import {
   FileUpsertResult,
-  getAtlasByNetworkVersionAndShortName,
-  getExistingMetadataObjectId,
   getLatestNotificationInfo,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
@@ -42,11 +40,15 @@ import {
   markSourceDatasetAsNotLatest,
 } from "../data/source-datasets";
 import { InvalidOperationError } from "../utils/api-handler";
-import { normalizeAtlasVersion } from "../utils/atlases";
+import { normalizeAtlasVersion, parseAtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
 import { createSourceDataset } from "./source-datasets";
+import {
+  getAtlasMatchingConcept,
+  getOrCreateConceptId,
+} from "../data/concepts";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -223,24 +225,31 @@ function isNewerEventForFile(
 type FileCreationHandler = (
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ) => Promise<void>;
 
 async function createIntegratedObject(
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
-  await createComponentAtlas(atlasId, fileId, transaction);
+  await createComponentAtlas(atlasId, fileId, conceptId, transaction);
 }
 
 async function createSourceDatasetFromS3(
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
   // Create source dataset using canonical service within the existing transaction
-  const sourceDatasetVersion = await createSourceDataset(fileId, transaction);
+  const sourceDatasetVersion = await createSourceDataset(
+    fileId,
+    conceptId,
+    transaction,
+  );
 
   // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(
@@ -269,11 +278,11 @@ type FileUpdateHandler = (
 
 async function updateIntegratedObjectFromS3(
   fileId: string,
-  componentAtlasId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markComponentAtlasAsNotLatest(
-    componentAtlasId,
+    conceptId,
     transaction,
   );
   const newVersion = await createNewComponentAtlasVersion(
@@ -290,11 +299,11 @@ async function updateIntegratedObjectFromS3(
 
 async function updateSourceDatasetFromS3(
   fileId: string,
-  sourceDatasetId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markSourceDatasetAsNotLatest(
-    sourceDatasetId,
+    conceptId,
     transaction,
   );
   const newVersion = await createNewSourceDatasetVersion(
@@ -363,7 +372,7 @@ function logFileOperation(
  * @param object - Associated S3 object.
  * @param isNewFile - Whether the inserted record represents a new file.
  * @param fileType - File type.
- * @param metadataObjectId - Existing latest metadata object ID for the file.
+ * @param conceptId - Existing latest metadata object ID for the file.
  * @param atlasId - ID of the file's atlas.
  * @param transaction - Postgres client to use.
  */
@@ -372,8 +381,8 @@ async function handleInsertedFile(
   object: S3Object,
   isNewFile: boolean,
   fileType: FILE_TYPE,
-  metadataObjectId: string | null,
-  atlasId: string,
+  conceptId: string | null,
+  atlasId: string | null,
   transaction: PoolClient,
 ): Promise<void> {
   // Dispatch file operations based on state and type
@@ -381,17 +390,25 @@ async function handleInsertedFile(
     const handler = FILE_CREATION_HANDLERS[fileType];
 
     if (handler) {
-      await handler(atlasId, result.id, transaction);
+      if (atlasId === null)
+        throw new Error(
+          `No atlas found for new ${fileType} file with key ${object.key}`,
+        );
+      if (conceptId === null)
+        throw new Error(
+          `No concept found for new ${fileType} file with key ${object.key}`,
+        );
+      await handler(atlasId, result.id, conceptId, transaction);
     }
   } else {
     const handler = FILE_UPDATE_HANDLERS[fileType];
 
     if (handler) {
-      if (metadataObjectId === null)
+      if (conceptId === null)
         throw new Error(
-          `No existing metadata object found for existing ${fileType} file with key ${object.key}`,
+          `No concept found for existing ${fileType} file with key ${object.key}`,
         );
-      await handler(result.id, metadataObjectId, transaction);
+      await handler(result.id, conceptId, transaction);
     }
   }
 }
@@ -429,6 +446,15 @@ async function saveFileRecord(
   // Determine file type from S3 key path structure
   const fileType = determineFileType(object.key);
 
+  // Determine atlas short name and version, as well as file name, from S3 key
+  const { atlasName, filename, network } = parseS3KeyPath(object.key);
+  const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
+  // TODO: merge version parsing into one function?
+  const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
+  const dbVersion = normalizeAtlasVersion(dbVersionRaw);
+  const { generation: atlasGeneration, revision: atlasRevision } =
+    parseAtlasVersion(dbVersion);
+
   // Note: Atlas ID determination removed - will be handled when creating metadata objects
 
   // IDEMPOTENCY STRATEGY: PostgreSQL ON CONFLICT
@@ -449,15 +475,38 @@ async function saveFileRecord(
   // - Application-level locking: Complex, doesn't scale, potential deadlocks
   // - Ignore duplicates: Loses important ETag mismatch detection
   return await doTransaction(async (transaction) => {
-    // Get existing metadata object ID based on file type
-    // This is needed before creating new metadata objects or updating existing ones
-    let metadataObjectId: string | null = null;
+    // Get or create concept ID for the file, if relevant
+    const conceptId =
+      fileType === FILE_TYPE.INGEST_MANIFEST
+        ? null
+        : await getOrCreateConceptId(
+            {
+              // TODO: move lowercasing somewhere else?
+              atlas_short_name: atlasBaseName.toLowerCase(),
+              base_filename: filename,
+              file_type: fileType,
+              generation: atlasGeneration,
+              network,
+            },
+            transaction,
+          );
 
-    metadataObjectId = await getExistingMetadataObjectId(
-      bucket.name,
-      object.key,
-      transaction,
-    );
+    // Determine atlas from concept
+    const atlas =
+      conceptId === null
+        ? null
+        : await getAtlasMatchingConcept(conceptId, transaction);
+
+    // Confirm that the atlas matches the revision specified in the S3 key
+    // TODO: how should this apply to ingest manifests?
+    if (
+      atlas &&
+      atlas.overview.version !== `${atlasGeneration}.${atlasRevision}`
+    ) {
+      throw new Error(
+        `Received file for ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision}, but atlas is at version ${atlas.overview.version}`,
+      );
+    }
 
     // Determine recency and whether incoming record should be latest
     const latestNotificationInfo = await getLatestNotificationInfo(
@@ -491,17 +540,6 @@ async function saveFileRecord(
         transaction,
       );
 
-    // Determine atlas ID from S3 path
-    const { atlasName, network } = parseS3KeyPath(object.key);
-    const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
-    const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
-    const dbVersion = normalizeAtlasVersion(dbVersionRaw);
-    const atlasId: string = await getAtlasByNetworkVersionAndShortName(
-      network,
-      dbVersion,
-      atlasBaseName,
-    );
-
     // Insert new file version with ON CONFLICT handling
     const result = await upsertFileRecord(
       {
@@ -526,8 +564,8 @@ async function saveFileRecord(
         object,
         isNewFile,
         fileType,
-        metadataObjectId,
-        atlasId,
+        conceptId,
+        atlas?.id ?? null,
         transaction,
       );
     }
