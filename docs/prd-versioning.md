@@ -1045,11 +1045,14 @@ Returns list of published atlases for discovery:
 **Access Control:**
 
 - Bearer token authentication only
-- Reject if atlas is draft (`published_at IS NULL`)
+- For unregistered users: reject if atlas is draft (`published_at IS NULL`)
+- Registered users can access drafts they have permission for via these same routes
 
 ---
 
 #### Ticket 9.3: [Backend] Public download endpoint for published atlases
+
+**Note:** An existing route already provides presigned download URLs: `GET /atlases/[atlasId]/files/[fileId]/presigned-url`. This ticket extends that pattern for version-based access.
 
 **Endpoint:** `GET /atlases/{atlasId}/files/{versionId}/download`
 
@@ -1058,9 +1061,9 @@ Uses SD/IO `version_id` (from listing) to identify the file to download.
 **Logic:**
 
 1. Look up SD/IO by `version_id`
-2. Verify atlas is published and contains this version
+2. Verify atlas is published and contains this version (for unregistered users)
 3. Get `file_id` from SD/IO record
-4. Return presigned URL for file
+4. Return presigned URL for file (can delegate to existing presigned-url logic)
 
 **Access Control:**
 
