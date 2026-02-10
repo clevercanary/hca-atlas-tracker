@@ -766,16 +766,18 @@ ALTER TABLE hat.source_datasets ADD COLUMN revision integer NOT NULL DEFAULT 1;
 ALTER TABLE hat.component_atlases ADD COLUMN revision integer NOT NULL DEFAULT 1;
 ```
 
-**Code:** Update version creation functions to copy `revision` from previous version.
+**Code:** Update version creation functions to copy `revision` from previous row and bump `wip_number`. Revision stays constant while draft; only bumps after publish (handled in Slice 4).
 
 **Frontend:** Display SD/IO version as `r{revision}-wip-{wip}` in UI.
 
 **Acceptance Criteria:**
 
-- [ ] Migration adds revision columns
-- [ ] Version creation copies revision from previous version
+- [ ] Migration adds revision columns (existing SD/IOs get revision=1)
+- [ ] New SD/IO version row copies `revision` from previous row and bumps `wip_number`
 - [ ] API responses include revision
 - [ ] SD/IO version displays as `r{revision}-wip-{wip}` in UI
+
+**Note:** Revision increment (when uploading after publish) handled in Slice 4.
 
 ---
 
