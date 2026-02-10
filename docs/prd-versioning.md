@@ -723,7 +723,7 @@ ALTER TABLE hat.files ADD COLUMN concept_id UUID REFERENCES hat.concepts(id);
 
 **Goal:** Show atlas version as `v{generation}.{revision}`.
 
-#### Ticket 2.1: [Backend] Add generation/revision columns to atlases
+#### Ticket 2.1: Atlas generation/revision columns and display
 
 **Schema:**
 
@@ -734,14 +734,13 @@ ALTER TABLE hat.atlases ADD COLUMN revision integer NOT NULL DEFAULT 0;
 
 **Migration:** Parse `overview.version` (e.g., "1.0" → generation=1, revision=0)
 
+**Frontend:** Display atlas version as `v{generation}.{revision}` in UI.
+
 **Acceptance Criteria:**
 
 - [ ] Migration parses existing versions correctly
 - [ ] API responses include generation/revision
-
----
-
-#### Ticket 2.2: [Frontend] Display atlas version as v{generation}.{revision}
+- [ ] Atlas version displays as `v{generation}.{revision}` in UI
 
 ---
 
@@ -749,7 +748,7 @@ ALTER TABLE hat.atlases ADD COLUMN revision integer NOT NULL DEFAULT 0;
 
 **Goal:** Track published revision numbers (`r1`, `r2`) separately from WIP numbers.
 
-#### Ticket 3.1: [Backend] Add revision to source_datasets and component_atlases
+#### Ticket 3.1: SD/IO revision columns and display
 
 **Schema:**
 
@@ -760,9 +759,14 @@ ALTER TABLE hat.component_atlases ADD COLUMN revision integer NOT NULL DEFAULT 1
 
 **Code:** Update version creation functions to copy `revision` from previous version.
 
----
+**Frontend:** Display SD/IO version as `r{revision}-wip-{wip}` in UI.
 
-#### Ticket 3.2: [Frontend] Display SD/IO version as r{revision}-wip-{wip}
+**Acceptance Criteria:**
+
+- [ ] Migration adds revision columns
+- [ ] Version creation copies revision from previous version
+- [ ] API responses include revision
+- [ ] SD/IO version displays as `r{revision}-wip-{wip}` in UI
 
 ---
 
@@ -871,7 +875,7 @@ ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
 
 **Goal:** Create new draft from published atlas.
 
-#### Ticket 5.1: [Backend] Implement create atlas version endpoint
+#### Ticket 5.1: Create atlas version endpoint and UI
 
 **Endpoint:** `POST /atlases/{atlasId}/versions`
 
@@ -884,9 +888,16 @@ ALTER TABLE hat.component_atlases ADD COLUMN published_at timestamp;
 3. Reject if draft exists for target (short_name, network, generation) — i.e., atlas with `published_at IS NULL`
 4. Copy atlas with `published_at = NULL`
 
----
+**Frontend:** Add "Create New Version" action on published atlas detail view.
 
-#### Ticket 5.2: [Frontend] Add "Create New Version" action
+**Acceptance Criteria:**
+
+- [ ] Endpoint creates new draft from published atlas
+- [ ] Rejects if source is not latest published in generation
+- [ ] Rejects if draft already exists for target generation
+- [ ] Version numbers calculated correctly
+- [ ] "Create New Version" action visible on published atlases
+- [ ] Action hidden on draft atlases
 
 ---
 
@@ -1080,18 +1091,15 @@ Uses SD/IO `version_id` (from listing) to identify the file to download.
 | 1     | 1.1    | BE   | Concepts table + suffix stripping + upload handler   |
 | 1     | 1.2    | BE   | Merge concepts endpoint                              |
 | 1     | 1.3    | FE   | "Mark as new version of..." UI                       |
-| 2     | 2.1    | BE   | Atlas generation/revision columns                    |
-| 2     | 2.2    | FE   | Display atlas version                                |
-| 3     | 3.1    | BE   | SD/IO revision columns                               |
-| 3     | 3.2    | FE   | Display SD/IO version                                |
+| 2     | 2.1    | Full | Atlas generation/revision columns + display          |
+| 3     | 3.1    | Full | SD/IO revision columns + display                     |
 | 4     | 4.1    | BE   | published_at columns (atlas, SD/IO)                  |
 | 4     | 4.2    | BE   | Publish endpoint + revision increment + immutability |
 | 4     | 4.3    | FE   | Draft/published UI + publish action                  |
 | 4     | 4.4    | BE   | Enforce archive only on unpublished SD/IOs           |
 | 4     | 4.5    | BE   | Remove SD/IO from draft atlas endpoint               |
 | 4     | 4.6    | FE   | Remove SD/IO action on draft atlases                 |
-| 5     | 5.1    | BE   | Create atlas version endpoint                        |
-| 5     | 5.2    | FE   | Create new version action                            |
+| 5     | 5.1    | Full | Create atlas version endpoint + UI                   |
 | 6     | 6.1    | BE   | SD/IO library browse endpoints                       |
 | 6     | 6.2    | BE   | Import SD/IO endpoints                               |
 | 6     | 6.3    | BE   | Adopt new version endpoints                          |
@@ -1111,8 +1119,8 @@ Uses SD/IO `version_id` (from listing) to identify the file to download.
 ## Recommended Delivery Order
 
 1. **Slice 1** (1.1): Concept model foundation (filename-based, immediate assignment)
-2. **Slice 2** (2.1-2.2): Atlas shows `v1.0` format
-3. **Slice 3** (3.1-3.2): SD/IO show revision numbers
+2. **Slice 2** (2.1): Atlas shows `v1.0` format
+3. **Slice 3** (3.1): SD/IO show revision numbers
 4. **Slice 8** (8.1-8.2): Versioned downloads
 5. **Slice 4** (4.1-4.6): Publishing workflow, archive constraints, remove from draft
 6. **Slice 5** (5.1-5.2): Create new atlas versions
