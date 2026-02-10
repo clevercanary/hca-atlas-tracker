@@ -1025,7 +1025,7 @@ Returns list of published atlases for discovery:
 
 - Atlas endpoints accept `{id}` as UUID or short name format (`{short_name}_v{generation}.{revision}`)
 - Example: `GET /atlases/gut_v1.0` resolves to the published atlas
-- Only works for published atlases
+- Works for published atlases (unregistered users) and any accessible atlas (registered users)
 
 **Access Control:** Bearer token only (no user role required)
 
@@ -1052,9 +1052,9 @@ Returns list of published atlases for discovery:
 
 #### Ticket 9.3: [Backend] Public download endpoint for published atlases
 
-**Note:** An existing route already provides presigned download URLs: `GET /atlases/[atlasId]/files/[fileId]/presigned-url`. This ticket extends that pattern for version-based access.
+**Note:** An existing route already provides presigned download URLs: `GET /atlases/[atlasId]/files/[fileId]/presigned-url`. The SD/IO listing endpoints (Ticket 9.2) already return `file_id`, so clients can use the existing presigned-url endpoint directly. No new download endpoint may be needed.
 
-**Endpoint:** `GET /atlases/{atlasId}/files/{versionId}/download`
+**If new endpoint is desired:** `GET /atlases/{atlasId}/files/{versionId}/download`
 
 Uses SD/IO `version_id` (from listing) to identify the file to download.
 
@@ -1063,7 +1063,7 @@ Uses SD/IO `version_id` (from listing) to identify the file to download.
 1. Look up SD/IO by `version_id`
 2. Verify atlas is published and contains this version (for unregistered users)
 3. Get `file_id` from SD/IO record
-4. Return presigned URL for file (can delegate to existing presigned-url logic)
+4. Delegate to existing presigned-url logic
 
 **Access Control:**
 
