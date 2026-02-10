@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.14 (Homebrew)
--- Dumped by pg_dump version 14.14 (Homebrew)
+-- Dumped from database version 14.18 (Homebrew)
+-- Dumped by pg_dump version 14.18 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -129,7 +129,6 @@ CREATE TABLE hat.files (
     validation_status character varying(50) DEFAULT '''pending'''::character varying NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id character varying(255),
-    source_dataset_id uuid,
     sns_message_id character varying(255) NOT NULL,
     dataset_info jsonb,
     validation_info jsonb,
@@ -177,6 +176,13 @@ COMMENT ON COLUMN hat.files.integrity_status IS 'Status: pending, requested, val
 
 
 --
+-- Name: COLUMN files.is_latest; Type: COMMENT; Schema: hat; Owner: -
+--
+
+COMMENT ON COLUMN hat.files.is_latest IS 'Whether this is the latest version of the file';
+
+
+--
 -- Name: COLUMN files.sha256_client; Type: COMMENT; Schema: hat; Owner: -
 --
 
@@ -195,13 +201,6 @@ COMMENT ON COLUMN hat.files.sha256_server IS 'SHA256 checksum calculated by serv
 --
 
 COMMENT ON COLUMN hat.files.source_study_id IS 'FK to source_studies.id - NULL for staged validation, set later';
-
-
---
--- Name: COLUMN files.source_dataset_id; Type: COMMENT; Schema: hat; Owner: -
---
-
-COMMENT ON COLUMN hat.files.source_dataset_id IS 'FK to source_datasets.id - set for source_dataset files';
 
 
 --
@@ -262,12 +261,15 @@ ALTER SEQUENCE hat.pgmigrations_id_seq OWNED BY hat.pgmigrations.id;
 
 CREATE TABLE hat.source_datasets (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    version_id uuid DEFAULT gen_random_uuid() NOT NULL,
     sd_info jsonb NOT NULL,
     source_study_id uuid,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     reprocessed_status text DEFAULT 'Unspecified'::text NOT NULL,
-    file_id uuid NOT NULL
+    file_id uuid NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    is_latest boolean DEFAULT true NOT NULL,
+    wip_number integer DEFAULT 1 NOT NULL
 );
 
 
@@ -412,7 +414,7 @@ ALTER TABLE ONLY hat.files
 --
 
 ALTER TABLE ONLY hat.source_datasets
-    ADD CONSTRAINT pk_source_datasets_id PRIMARY KEY (id);
+    ADD CONSTRAINT pk_source_datasets_id PRIMARY KEY (version_id);
 
 
 --
@@ -508,13 +510,6 @@ CREATE INDEX files_sha256_client_index ON hat.files USING btree (sha256_client);
 
 
 --
--- Name: files_source_dataset_id_index; Type: INDEX; Schema: hat; Owner: -
---
-
-CREATE INDEX files_source_dataset_id_index ON hat.files USING btree (source_dataset_id);
-
-
---
 -- Name: files_status_index; Type: INDEX; Schema: hat; Owner: -
 --
 
@@ -600,14 +595,6 @@ ALTER TABLE ONLY hat.comments
 
 ALTER TABLE ONLY hat.comments
     ADD CONSTRAINT fk_comments_updated_by_user_id FOREIGN KEY (updated_by) REFERENCES hat.users(id);
-
-
---
--- Name: files fk_files_source_dataset_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
---
-
-ALTER TABLE ONLY hat.files
-    ADD CONSTRAINT fk_files_source_dataset_id FOREIGN KEY (source_dataset_id) REFERENCES hat.source_datasets(id) ON UPDATE CASCADE;
 
 
 --
