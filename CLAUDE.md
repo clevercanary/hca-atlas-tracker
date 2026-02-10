@@ -54,7 +54,6 @@ npm run check-format         # Check Prettier formatting (does not modify files)
 ```bash
 npm run build-catalog        # Build catalog files
 npm run download-data-dictionary  # Download data dictionary
-python3 catalog/build/get_cellxgene_files_info.py  # Update CELLxGENE metadata (requires venv)
 ```
 
 ## Architecture Documentation
@@ -62,8 +61,8 @@ python3 catalog/build/get_cellxgene_files_info.py  # Update CELLxGENE metadata (
 **Important:** This repository includes detailed architecture documentation in the `docs/` directory:
 
 - **`docs/api-creation-guide.md`** - Architectural patterns for creating APIs (required reading for API work)
-- **`docs/entity-relationship-model.md`** - Database schema and entity relationships
-- **`docs/s3-notification-design-decisions.md`** - S3 event processing architecture
+- **`docs/entity-relationship-model.md`** - Database schema and entity relationships (may be outdated)
+- **`docs/s3-notification-design-decisions.md`** - S3 event processing architecture (may be outdated)
 - **`docs/aws-resource-configuration.md`** - AWS resource setup and configuration
 - **`docs/adr/`** - Architecture Decision Records
 
@@ -80,7 +79,7 @@ The application uses raw SQL queries via the `pg` library with a transaction-ori
 - **`app/services/database.ts`** - Core database utilities:
   - `query()` - Execute single queries against connection pool
   - `doTransaction()` - Wrap multiple queries in BEGIN/COMMIT/ROLLBACK
-  - `doOrContinueTransaction()` - Allow nested transactions
+  - `doOrContinueTransaction()` - Reuse existing transaction if available, otherwise create new one
 
 - **`app/data/`** - Low-level data access layer (SQL queries, minimal transformation)
 
@@ -191,9 +190,9 @@ Views use hooks for data fetching and form management:
 
 **CELLxGENE API** (`app/services/cellxgene.ts`):
 
-- Auto-refresh cache with 4-hour interval
+- Auto-refresh cache periodically
 - Maps DOIs to CELLxGENE collection IDs
-- Retries with 1-minute delay, 5 attempts, 2-minute timeout
+- Retries on failure
 
 **HCA Data Repository (Azul)** (`app/utils/hca-api.ts`):
 
@@ -236,15 +235,13 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
 - `hat.source_datasets` - Individual datasets from scientific studies
 - `hat.component_atlases` - Integrated objects (business term) that combine source datasets
 - `hat.files` - File metadata with versioning, integrity validation, and S3 location
-- `hat.validations` - Validation records and status tracking
+- `hat.validations` - Validation records for source studies
 - `hat.users` - User accounts with roles
 - `hat.comments` - Comment threads and replies
 
 **Important Business Rules:**
 
 1. **Files ARE the datasets/integrated objects**, not containers for them
-   - Source dataset files link to `source_study_id`
-   - Integrated object files link to `atlas_id`
    - File type determined by S3 path structure: `bio_network/atlas-name/folder-type/filename`
 
 2. **File Type Determination:**
@@ -253,12 +250,10 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
    - `manifests/` folder → `file_type = 'ingest_manifest'`
 
 3. **Entity Relationships:**
-   - Atlas ↔ Source Dataset: Many-to-Many (via array in atlas table)
-   - Atlas ↔ Integrated Object: One-to-Many
+   - Atlas → Source Dataset: One-to-Many (determined by S3 path)
+   - Atlas → Integrated Object: One-to-Many
    - Integrated Object ↔ Source Dataset: Many-to-Many (via array in component_atlases table)
-   - Source Study ↔ Source Dataset: One-to-Many
-   - Source Dataset File → Source Study: Many-to-One
-   - Integrated Object File → Atlas: Many-to-One
+   - Source Study → Source Dataset: One-to-Many
 
 4. **File Processing Workflow:**
    - S3 upload → SNS notification → API endpoint (`/api/sns`)
@@ -309,8 +304,8 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
 
 **ESLint Rules:**
 
-- **Required JSDoc**: All functions must have JSDoc comments with descriptions, params, and returns
-- **Explicit return types**: All functions must specify return types (except in `*.styles.ts` files)
+- **JSDoc**: JSDoc comments are encouraged for functions
+- **Explicit return types**: Functions generally require return types (with some exceptions for typed function expressions)
 - **Sorted keys**: Object keys, destructuring, interfaces, and string enums must be alphabetically sorted
 - **SonarJS**: Code quality and complexity checks
 - **React hooks**: Exhaustive dependencies required
@@ -342,7 +337,7 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
 
 ```bash
 npm test -- <test-file-name>
-# Example: npm test -- api-atlases-create
+# Example: npm test -- api-atlases-create.test
 ```
 
 ### Database Workflow
