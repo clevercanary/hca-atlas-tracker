@@ -734,13 +734,22 @@ ALTER TABLE hat.atlases ADD COLUMN revision integer NOT NULL DEFAULT 0;
 
 **Migration:** Parse `overview.version` (e.g., "1.0" → generation=1, revision=0)
 
-**Frontend:** Display atlas version as `v{generation}.{revision}` in UI.
+**Frontend Changes:**
+
+1. **Atlas list:** Update atlas column to display version as `v{generation}.{revision}` using new API fields
+2. **Add Atlas form → "Add Atlas Family":** Remove Version input field; always creates v1.0
+3. **Edit Atlas form:** Generation/revision displayed as read-only `v{generation}.{revision}`
+
+**Note:** Creating new generations and new revisions handled in separate tickets (Slice 5).
 
 **Acceptance Criteria:**
 
 - [ ] Migration parses existing versions correctly
 - [ ] API responses include generation/revision
-- [ ] Atlas version displays as `v{generation}.{revision}` in UI
+- [ ] Atlas list displays version as `v{generation}.{revision}`
+- [ ] "Add Atlas" renamed to "Add Atlas Family", always creates v1.0
+- [ ] Version input removed from Add Atlas Family form
+- [ ] Edit form shows version as read-only
 
 ---
 
