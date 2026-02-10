@@ -52,8 +52,8 @@ npm run check-format         # Check Prettier formatting (does not modify files)
 ### Other Commands
 
 ```bash
-npm run build-catalog        # Build catalog files
 npm run download-data-dictionary  # Download data dictionary
+python3 catalog/build/get_cellxgene_files_info.py  # Update CELLxGENE metadata (requires venv)
 ```
 
 ## Architecture Documentation
