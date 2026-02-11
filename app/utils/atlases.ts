@@ -1,6 +1,6 @@
 import { InvalidOperationError } from "./api-handler";
 
-interface AtlasVersionNumbers {
+export interface AtlasVersionNumbers {
   generation: number;
   revision: number;
 }

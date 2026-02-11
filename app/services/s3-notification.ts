@@ -39,7 +39,7 @@ import {
   markSourceDatasetAsNotLatest,
 } from "../data/source-datasets";
 import { InvalidOperationError } from "../utils/api-handler";
-import { parseS3AtlasVersion } from "../utils/atlases";
+import { AtlasVersionNumbers, parseS3AtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
@@ -115,14 +115,12 @@ export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
 
 /**
  * Determines the file type based on the S3 key folder structure
- * @param s3Key - The S3 object key to analyze
+ * @param s3TypeFolder - The S3 folder name indicating the file type
  * @returns The file type: 'source_dataset', 'integrated_object', or 'ingest_manifest'
  * @throws UnknownFolderTypeError if the folder type is not recognized
  */
-function determineFileType(s3Key: string): FILE_TYPE {
-  const { folderType } = parseS3KeyPath(s3Key);
-
-  switch (folderType) {
+function determineFileType(s3TypeFolder: string): FILE_TYPE {
+  switch (s3TypeFolder) {
     case "source-datasets":
       return FILE_TYPE.SOURCE_DATASET;
     case "integrated-objects":
@@ -131,7 +129,7 @@ function determineFileType(s3Key: string): FILE_TYPE {
       return FILE_TYPE.INGEST_MANIFEST;
     default:
       throw new InvalidOperationError(
-        `Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`,
+        `Unknown folder type: ${s3TypeFolder}. Expected: source-datasets, integrated-objects, or manifests`,
       );
   }
 }
@@ -160,6 +158,34 @@ function parseS3AtlasName(s3AtlasName: string): {
 
   const [, atlasBaseName, s3Version] = versionMatch;
   return { atlasBaseName, s3Version };
+}
+
+function getFileBaseName(fileName: string): string {
+  return fileName;
+}
+
+/**
+ * Derive normalized atlas and file info from an S3 key.
+ * @param s3Key - S3 key.
+ * @returns normalized atlas and file info.
+ */
+function parseNormalizedInfoFromS3Key(s3Key: string): {
+  atlasNetwork: NetworkKey;
+  atlasShortName: string;
+  atlasVersion: AtlasVersionNumbers;
+  fileBaseName: string;
+  fileType: FILE_TYPE;
+} {
+  const { atlasName, filename, folderType, network } = parseS3KeyPath(s3Key);
+  const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
+
+  return {
+    atlasNetwork: network,
+    atlasShortName: atlasBaseName.toLowerCase(),
+    atlasVersion: parseS3AtlasVersion(s3Version),
+    fileBaseName: getFileBaseName(filename),
+    fileType: determineFileType(folderType),
+  };
 }
 
 /**
@@ -409,19 +435,19 @@ async function saveFileRecord(
   // S3 notifications don't include SHA256 metadata - will be populated later via separate integrity validation
   const sha256 = null;
 
-  // Determine file type from S3 key path structure
-  const fileType = determineFileType(object.key);
+  // Get atlas and file info from S3 key
+  const {
+    atlasNetwork: network,
+    atlasShortName,
+    atlasVersion: { generation: atlasGeneration, revision: atlasRevision },
+    fileBaseName,
+    fileType,
+  } = parseNormalizedInfoFromS3Key(object.key);
 
   // Ingest manifests are no longer saved in the database - ignore the notification if one is received
   if (fileType === FILE_TYPE.INGEST_MANIFEST) {
     return null;
   }
-
-  // Determine atlas short name and version, as well as file name, from S3 key
-  const { atlasName, filename, network } = parseS3KeyPath(object.key);
-  const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
-  const { generation: atlasGeneration, revision: atlasRevision } =
-    parseS3AtlasVersion(s3Version);
 
   // Note: Atlas ID determination removed - will be handled when creating metadata objects
 
@@ -446,9 +472,8 @@ async function saveFileRecord(
     // Get or create concept ID for the file
     const conceptId = await getOrCreateConceptId(
       {
-        // TODO: move lowercasing somewhere else?
-        atlas_short_name: atlasBaseName.toLowerCase(),
-        base_filename: filename,
+        atlas_short_name: atlasShortName,
+        base_filename: fileBaseName,
         file_type: fileType,
         generation: atlasGeneration,
         network,
