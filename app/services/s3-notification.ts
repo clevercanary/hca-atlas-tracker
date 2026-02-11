@@ -490,7 +490,10 @@ async function saveFileRecord(
     const atlas = await getAtlasMatchingConcept(conceptId, transaction);
 
     // Confirm that the atlas matches the revision specified in the S3 key
-    if (atlas.overview.version !== `${atlasGeneration}.${atlasRevision}`) {
+    const currentAtlasVersion = atlas.overview.version.includes(".")
+      ? atlas.overview.version
+      : `${atlas.overview.version}.0`;
+    if (currentAtlasVersion !== `${atlasGeneration}.${atlasRevision}`) {
       throw new Error(
         `Received file for ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision}, but atlas is at version ${atlas.overview.version}`,
       );
