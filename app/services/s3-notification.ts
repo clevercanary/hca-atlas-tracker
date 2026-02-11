@@ -39,7 +39,7 @@ import {
   markSourceDatasetAsNotLatest,
 } from "../data/source-datasets";
 import { InvalidOperationError } from "../utils/api-handler";
-import { normalizeAtlasVersion, parseAtlasVersion } from "../utils/atlases";
+import { parseS3AtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
@@ -160,25 +160,6 @@ function parseS3AtlasName(s3AtlasName: string): {
 
   const [, atlasBaseName, s3Version] = versionMatch;
   return { atlasBaseName, s3Version };
-}
-
-/**
- * Converts S3 version format to database version format
- * @param s3Version - The version string from S3 (without 'v' prefix)
- * @returns Database-compatible version string
- * @example
- * convertS3VersionToDbVersion('1') // Returns: '1'
- * convertS3VersionToDbVersion('1-1') // Returns: '1.1'
- * convertS3VersionToDbVersion('2-3') // Returns: '2.3'
- */
-function convertS3VersionToDbVersion(s3Version: string): string {
-  if (s3Version.includes("-")) {
-    // Convert '1-1' to '1.1'
-    return s3Version.replace("-", ".");
-  } else {
-    // Keep as-is: '1' stays '1'
-    return s3Version;
-  }
 }
 
 /**
@@ -439,11 +420,8 @@ async function saveFileRecord(
   // Determine atlas short name and version, as well as file name, from S3 key
   const { atlasName, filename, network } = parseS3KeyPath(object.key);
   const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
-  // TODO: merge version parsing into one function?
-  const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
-  const dbVersion = normalizeAtlasVersion(dbVersionRaw);
   const { generation: atlasGeneration, revision: atlasRevision } =
-    parseAtlasVersion(dbVersion);
+    parseS3AtlasVersion(s3Version);
 
   // Note: Atlas ID determination removed - will be handled when creating metadata objects
 
