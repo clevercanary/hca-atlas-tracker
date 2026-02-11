@@ -165,7 +165,7 @@ function parseS3AtlasName(s3AtlasName: string): {
  * @param fileName - Actual file name.
  * @returns file name with version information stripped.
  */
-function getFileBaseName(fileName: string): string {
+export function getFileBaseName(fileName: string): string {
   return fileName.replace(/-r\d+(?:-wip-\d+)?(?=\.[^.]+$)/, "");
 }
 

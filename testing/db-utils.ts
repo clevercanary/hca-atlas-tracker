@@ -54,6 +54,7 @@ import {
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
 } from "./utils";
+import { getFileBaseName } from "app/services/s3-notification";
 
 export async function resetDatabase(initEntities = true): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
@@ -188,14 +189,27 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 
 async function initFiles(client: pg.PoolClient): Promise<void> {
   const createdFiles = new Set<TestFile>();
+  const createdConcepts = new Set<string>();
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
-    await initTestFile(client, componentAtlas.file, createdFiles);
+    await initTestFile(
+      client,
+      componentAtlas.file,
+      createdFiles,
+      createdConcepts,
+      componentAtlas.id,
+    );
   }
   for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
-    await initTestFile(client, sourceDataset.file, createdFiles);
+    await initTestFile(
+      client,
+      sourceDataset.file,
+      createdFiles,
+      createdConcepts,
+      sourceDataset.id,
+    );
   }
   for (const file of INITIAL_STANDALONE_TEST_FILES) {
-    await initTestFile(client, file, createdFiles);
+    await initTestFile(client, file, createdFiles, createdConcepts);
   }
 }
 
@@ -203,6 +217,8 @@ async function initTestFile(
   client: pg.PoolClient,
   file: TestFile,
   createdFiles: Set<TestFile>,
+  createdConcepts: Set<string>,
+  conceptId: string | null = null,
 ): Promise<void> {
   // Avoid creating the file if it's already been created, which may happen if it's referenced in multiple test entity definitions
   if (createdFiles.has(file)) return;
@@ -231,15 +247,36 @@ async function initTestFile(
     validationSummary,
     versionId,
   } = fillTestFileDefaults(file);
+
   const key = getTestFileKey(file, atlas);
+
+  // Create concept if needed
+  if (conceptId && !createdConcepts.has(conceptId)) {
+    if (fileType === FILE_TYPE.INGEST_MANIFEST)
+      throw new Error("Can't create concept for ingest manifest");
+    await createTestConcept(
+      {
+        atlas_short_name: atlas.shortName.toLowerCase(),
+        base_filename: getFileBaseName(file.fileName),
+        file_type: fileType,
+        generation: Number(atlas.version.split(".")[0]),
+        id: conceptId,
+        network: atlas.network,
+      },
+      client,
+    );
+    createdConcepts.add(conceptId);
+  }
+
   const eventInfo: FileEventInfo = {
     eventName,
     eventTime,
   };
+
   await client.query(
     `
-      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, validation_status, is_latest, file_type, sns_message_id, dataset_info, validation_info, validation_summary, validation_reports, is_archived)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, validation_status, is_latest, file_type, sns_message_id, dataset_info, validation_info, validation_summary, validation_reports, is_archived, concept_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
     `,
     [
       id,
@@ -263,6 +300,7 @@ async function initTestFile(
       JSON.stringify(validationSummary),
       JSON.stringify(validationReports),
       isArchived,
+      conceptId,
     ],
   );
 }
