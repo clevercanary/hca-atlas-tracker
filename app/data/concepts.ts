@@ -96,7 +96,7 @@ export async function getAtlasesMatchingConcept(
   return (
     await client.query<HCAAtlasTrackerDBAtlas>(
       `
-      SELECT a.id
+      SELECT a.*
       FROM hat.atlases a
       JOIN hat.concepts c ON
         a.overview->>'network' = c.network
