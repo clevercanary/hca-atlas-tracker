@@ -47,7 +47,7 @@ import { createSourceDataset } from "./source-datasets";
 import {
   getAtlasMatchingConcept,
   getOrCreateConceptId,
-} from "../data/concepts";
+} from "../services/concepts";
 
 /**
  * Processes an SNS notification message containing S3 events

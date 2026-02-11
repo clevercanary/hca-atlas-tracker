@@ -5,20 +5,13 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "app/utils/api-handler";
 
-// TODO: separate into service layer
-
 /**
- * Get an existing concept ID if it exists, or create a new concept otherwise.
- * @param info - Values with which to look up or create a concept.
- * @param info.atlas_short_name - Lowercase atlas short name.
- * @param info.base_filename - File name.
- * @param info.file_type - File type.
- * @param info.generation - Atlas generation.
- * @param info.network - Atlas network.
+ * Get the ID of the concept matching the given info, if it exists.
+ * @param info - Identifying info to look up a concept by.
  * @param client - Postgres client to use.
- * @returns concept ID.
+ * @returns concept ID, or null if no matching concept exists.
  */
-export async function getOrCreateConceptId(
+export async function getConceptIdByInfo(
   info: Pick<
     HCAAtlasTrackerDBConcept,
     | "atlas_short_name"
@@ -28,8 +21,8 @@ export async function getOrCreateConceptId(
     | "network"
   >,
   client: pg.PoolClient,
-): Promise<string> {
-  const selectResult = await client.query<Pick<HCAAtlasTrackerDBConcept, "id">>(
+): Promise<string | null> {
+  const queryResult = await client.query<Pick<HCAAtlasTrackerDBConcept, "id">>(
     `
       SELECT id FROM hat.concepts
       WHERE atlas_short_name = $1
@@ -47,9 +40,27 @@ export async function getOrCreateConceptId(
     ],
   );
 
-  if (selectResult.rows.length > 0) return selectResult.rows[0].id;
+  return queryResult.rows.length > 0 ? queryResult.rows[0].id : null;
+}
 
-  const insertResult = await client.query<Pick<HCAAtlasTrackerDBConcept, "id">>(
+/**
+ * Create a new concept.
+ * @param info - Info to populate the new concept with.
+ * @param client - Postgres client to use.
+ * @returns new concept ID.
+ */
+export async function createConcept(
+  info: Pick<
+    HCAAtlasTrackerDBConcept,
+    | "atlas_short_name"
+    | "base_filename"
+    | "file_type"
+    | "generation"
+    | "network"
+  >,
+  client: pg.PoolClient,
+): Promise<string> {
+  const queryResult = await client.query<Pick<HCAAtlasTrackerDBConcept, "id">>(
     `
       INSERT INTO hat.concepts (atlas_short_name, base_filename, file_type, generation, network)
       VALUES ($1, $2, $3, $4, $5)
@@ -68,21 +79,23 @@ export async function getOrCreateConceptId(
     ],
   );
 
-  return insertResult.rows[0].id;
+  return queryResult.rows[0].id;
 }
 
 /**
- * Get the atlas with metadata matching the given concept.
- * @param conceptId - Concept ID.
+ * Get all atlases matching the given concept.
+ * @param conceptId - ID of concept to get atlases for.
  * @param client - Postgres client to use.
- * @returns matching atlas.
+ * @returns array of matching atlases.
+ * @note In theory, this will always return one atlas -- further handling is needed for error detection.
  */
-export async function getAtlasMatchingConcept(
+export async function getAtlasesMatchingConcept(
   conceptId: string,
   client: pg.PoolClient,
-): Promise<HCAAtlasTrackerDBAtlas> {
-  const queryResult = await client.query<HCAAtlasTrackerDBAtlas>(
-    `
+): Promise<HCAAtlasTrackerDBAtlas[]> {
+  return (
+    await client.query<HCAAtlasTrackerDBAtlas>(
+      `
       SELECT a.id
       FROM hat.atlases a
       JOIN hat.concepts c ON
@@ -91,36 +104,26 @@ export async function getAtlasMatchingConcept(
         AND split_part(a.overview->>'version', '.', 1)::int = c.generation
       WHERE c.id = $1
     `,
-    [conceptId],
-  );
-
-  if (queryResult.rows.length === 0) {
-    const atlasInfo = await getConceptAtlasInfoString(conceptId, client);
-    throw new NotFoundError(
-      `No atlas found matching concept ${conceptId} (${atlasInfo})`,
-    );
-  }
-
-  if (queryResult.rows.length > 1) {
-    const atlasInfo = await getConceptAtlasInfoString(conceptId, client);
-    throw new Error(
-      `Multiple atlases found matching concept ${conceptId} (${atlasInfo})`,
-    );
-  }
-
-  return queryResult.rows[0];
+      [conceptId],
+    )
+  ).rows;
 }
 
-async function getConceptAtlasInfoString(
+/**
+ * Get a concept by ID.
+ * @param conceptId - ID of concept to get.
+ * @param client - Postgres client to use.
+ * @returns concept.
+ */
+export async function getConcept(
   conceptId: string,
   client: pg.PoolClient,
-): Promise<string> {
+): Promise<HCAAtlasTrackerDBConcept> {
   const queryResult = await client.query<HCAAtlasTrackerDBConcept>(
     "SELECT * FROM hat.concepts WHERE id = $1",
     [conceptId],
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Concept with ID ${conceptId} does not exist`);
-  const concept = queryResult.rows[0];
-  return `${concept.atlas_short_name} v${concept.generation} in ${concept.network} network`;
+  return queryResult.rows[0];
 }
