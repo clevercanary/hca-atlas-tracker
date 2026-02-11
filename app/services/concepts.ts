@@ -59,8 +59,9 @@ export async function getAtlasMatchingConcept(
 
   if (atlases.length > 1) {
     const atlasInfo = await getConceptAtlasInfoString(conceptId, client);
+    const atlasIds = atlases.map((a) => a.id);
     throw new Error(
-      `Multiple atlases found matching concept ${conceptId} (${atlasInfo})`,
+      `Multiple atlases found matching concept ${conceptId} (${atlasInfo}): ${atlasIds.join(", ")}`,
     );
   }
 

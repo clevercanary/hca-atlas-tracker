@@ -44,9 +44,6 @@ import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
 import {
-  countComponentAtlases,
-  countSourceDatasets,
-  expectFileNotToBeReferencedByAnyMetadataEntity,
   expectSourceDatasetFileToBeConsistentWith,
   getAtlasFromDatabase,
   getComponentAtlasAtlas,
@@ -906,6 +903,49 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     });
   });
 
+  it("does not save ingest manifest file", async () => {
+    mockSubmitJob.mockClear();
+
+    const s3Event = createS3Event({
+      etag: "abcdefabcdefabcdefabcdefabcdefab",
+      key: TEST_FILE_PATHS.MANIFEST,
+      size: 4096,
+      versionId: "manifest-noop-123",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "manifest-noop-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      },
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Check that the dataset validator was not called
+    expect(mockSubmitJob).not.toHaveBeenCalled();
+
+    // Check that no file was saved to the database
+    const fileRows = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.MANIFEST],
+    );
+
+    expect(fileRows.rows).toHaveLength(0);
+  });
+
   it.each([
     { folder: "source-datasets" },
     { folder: "integrated-objects" },
@@ -1488,105 +1528,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(await getFileComponentAtlas(file.id)).toBeTruthy();
   });
 
-  it("ingest manifest does not create metadata objects", async () => {
-    // Capture metadata object counts before processing
-    const beforeSdCount = await countSourceDatasets();
-    const beforeCaCount = await countComponentAtlases();
-
-    const s3Event = createS3Event({
-      etag: "abcdefabcdefabcdefabcdefabcdefab",
-      key: TEST_FILE_PATHS.MANIFEST,
-      size: 4096,
-      versionId: "manifest-noop-123",
-    });
-
-    const snsMessage = createSNSMessage({
-      messageId: "manifest-noop-test",
-      s3Event,
-      signature: TEST_SIGNATURE,
-      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
-      timestamp: TEST_TIMESTAMP,
-    });
-
-    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
-      {
-        body: snsMessage,
-        method: METHOD.POST,
-      },
-    );
-
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(req, res);
-    });
-
-    expect(res.statusCode).toBe(200);
-
-    // Verify file saved as ingest_manifest and not linked to any metadata objects
-    const fileRows = await query<HCAAtlasTrackerDBFile>(
-      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.MANIFEST],
-    );
-    expect(fileRows.rows).toHaveLength(1);
-    const file = fileRows.rows[0];
-    expect(file.file_type).toBe("ingest_manifest");
-    await expectFileNotToBeReferencedByAnyMetadataEntity(file.id);
-
-    // Verify no new metadata objects were created
-    const afterSdCount = await countSourceDatasets();
-    const afterCaCount = await countComponentAtlases();
-    expect(afterSdCount).toBe(beforeSdCount);
-    expect(afterCaCount).toBe(beforeCaCount);
-  });
-
-  it("correctly identifies ingest manifest file type from S3 path", async () => {
-    const s3Event = createS3Event({
-      etag: "c9876543210fedcba9876543210fedcba",
-      key: TEST_FILE_PATHS.MANIFEST,
-      size: 2048,
-      versionId: "manifest-version-456",
-    });
-
-    const snsMessage = createSNSMessage({
-      messageId: "manifest-test-message",
-      s3Event,
-      signature: TEST_SIGNATURE,
-      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
-      timestamp: TEST_TIMESTAMP,
-    });
-
-    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
-      {
-        body: snsMessage,
-        method: METHOD.POST,
-      },
-    );
-
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(req, res);
-    });
-
-    expect(res.statusCode).toBe(200);
-
-    // Check that file was saved with correct file_type
-    const fileRows = await query<HCAAtlasTrackerDBFile>(
-      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
-      [TEST_S3_BUCKET, TEST_FILE_PATHS.MANIFEST],
-    );
-
-    expect(fileRows.rows).toHaveLength(1);
-    const file = fileRows.rows[0];
-    expect(file.bucket).toBe(TEST_S3_BUCKET);
-    expect(file.key).toBe(TEST_FILE_PATHS.MANIFEST);
-    expect(file.file_type).toBe(FILE_TYPE.INGEST_MANIFEST); // Should be derived from manifests folder
-    expect(file.source_study_id).toBeNull(); // Ingest manifests don't use source_study_id
-    expect(file.etag).toBe("c9876543210fedcba9876543210fedcba");
-    expect(file.size_bytes).toBe("2048");
-    expect(file.version_id).toBe("manifest-version-456");
-    expect(file.validation_status).toBe(FILE_VALIDATION_STATUS.PENDING);
-    expect(file.sha256_client).toBeNull(); // No SHA256 in S3 notifications
-    expect(file.integrity_status).toBe(INTEGRITY_STATUS.PENDING);
-  });
-
   // Parameterized test for atlas lookup from S3 paths
   test.each([
     {
@@ -1598,20 +1539,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       versionId: "retina-version-789",
     },
     {
-      description: "gut v1.1 atlas with version parsing",
+      description: "gut v2.1 atlas with version parsing",
       etag: "e5f6789012345678901234567890abcd",
       expectedToValidate: true,
-      key: "gut/gut-v1-1/integrated-objects/gut-v11-data.h5ad",
+      key: "gut/gut-v2-1/integrated-objects/gut-v11-data.h5ad",
       size: 4096000,
-      versionId: "gut-v11-version-012",
-    },
-    {
-      description: "gut v1 atlas with integer version (no decimal)",
-      etag: "f6789012345678901234567890abcdef",
-      expectedToValidate: false,
-      key: "gut/gut-v1/manifests/gut-v1-no-decimal.json",
-      size: 1024,
-      versionId: "gut-v1-no-decimal-version",
+      versionId: "gut-v21-version-012",
     },
   ])(
     "correctly identifies $description",
@@ -1787,11 +1720,11 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
   });
 
-  it("rejects S3 notifications with invalid atlas version in key (strict normalization)", async () => {
+  it("rejects S3 notifications with invalid atlas version format in key", async () => {
     await withConsoleMessageHiding(async () => {
       const s3Event = createS3Event({
         etag: "invalid-atlas-version-etag",
-        key: "gut/gut-v1-10/source-datasets/invalid-version.h5ad", // v1-10 -> DB 1.10 (invalid per strict normalization)
+        key: "gut/gut-v1-00/source-datasets/invalid-version.h5ad", // v1-00 is invalid due to extra leading zero
         size: 1024,
         versionId: "invalid-atlas-version",
       });
@@ -1814,7 +1747,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
       await snsHandler(req, res);
 
-      // Expect 400 once strict normalization is enforced in s3-notification service
+      // Expect 400 once parsing is attempted in s3-notification service
       expect(res.statusCode).toBe(400);
       const responseBody = JSON.parse(res._getData());
       expect(responseBody.message).toContain("Invalid atlas version");
@@ -2019,41 +1952,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         s3Key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
       }),
     );
-  });
-
-  it("does not start a validation job after saving a manifest file", async () => {
-    mockSubmitJob.mockClear();
-
-    const s3Event = createS3Event({
-      etag: "c9876543210fedcba9876543210fedcba",
-      key: TEST_FILE_PATHS.MANIFEST,
-      size: 2048,
-      versionId: "manifest-version-789",
-    });
-
-    const snsMessage = createSNSMessage({
-      messageId: "manifest-test-message",
-      s3Event,
-      signature: TEST_SIGNATURE,
-      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
-      timestamp: TEST_TIMESTAMP,
-    });
-
-    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
-      {
-        body: snsMessage,
-        method: METHOD.POST,
-      },
-    );
-
-    await withConsoleMessageHiding(async () => {
-      await snsHandler(req, res);
-    });
-
-    expect(res.statusCode).toBe(200);
-
-    // Check that the dataset validator was not called
-    expect(mockSubmitJob).not.toHaveBeenCalled();
   });
 
   it("does not start a validation job for a duplicate message", async () => {

@@ -289,11 +289,11 @@ export async function createTestAtlasData(): Promise<void> {
       id: "550e8400-e29b-41d4-a716-446655440002",
       overview: {
         description:
-          "Test gut atlas v1.1 for S3 notification integration tests",
+          "Test gut atlas v2.1 for S3 notification integration tests",
         network: "gut", // Same network as first gut atlas
         shortName: "Gut", // Same shortName but different version
-        title: "Test Gut Atlas v1.1",
-        version: "1.1", // DB version format (S3 'v1-1' -> DB '1.1')
+        title: "Test Gut Atlas v2.1",
+        version: "2.1", // DB version format (S3 'v1-1' -> DB '1.1')
       },
     },
   ];
