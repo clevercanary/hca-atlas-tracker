@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.56.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.56.0...v1.56.1) (2026-02-12)
+
+
+### Documentation
+
+* merge small FE tickets into full-stack tickets [#1041](https://github.com/clevercanary/hca-atlas-tracker/issues/1041) ([#1106](https://github.com/clevercanary/hca-atlas-tracker/issues/1106)) ([1313aea](https://github.com/clevercanary/hca-atlas-tracker/commit/1313aea63e6b71087a3ed4425c760d2558808581))
+
 ## [1.56.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.55.0...v1.56.0) (2026-02-10)
 
 
