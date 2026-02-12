@@ -28,7 +28,7 @@ import {
 } from "../testing/constants";
 import { createTestFile, resetDatabase } from "../testing/db-utils";
 
-interface TestFileUpsertData extends FileUpsertData {
+interface TestFileUpsertData extends Omit<FileUpsertData, "conceptId"> {
   componentAtlasId: string | null;
   sourceDatasetId: string | null;
 }
@@ -220,7 +220,7 @@ describe("upsertFileRecord", () => {
       const mockFileData = {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID
+        conceptId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID
         etag: TEST_ETAG,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -229,7 +229,6 @@ describe("upsertFileRecord", () => {
         sha256Client: TEST_SHA256,
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: TEST_SNS_MESSAGE_ID,
-        sourceDatasetId: null,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: TEST_VERSION_ID,
       };
@@ -259,7 +258,7 @@ describe("upsertFileRecord", () => {
       const fileData = {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        conceptId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
         etag: TEST_ETAG,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -268,7 +267,6 @@ describe("upsertFileRecord", () => {
         sha256Client: null,
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: TEST_SNS_MESSAGE_ID,
-        sourceDatasetId: null, // Must be null for integrated_object
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: TEST_VERSION_ID,
       };
@@ -299,7 +297,7 @@ describe("upsertFileRecord", () => {
       const fileData = {
         atlasId: null,
         bucket: TEST_BUCKET,
-        componentAtlasId: null, // Must be null for source_dataset
+        conceptId: SOURCE_DATASET_DRAFT_OK_FOO.id, // Valid UUID for source_dataset
         etag: TEST_ETAG_ALT,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.SOURCE_DATASET,
@@ -308,7 +306,6 @@ describe("upsertFileRecord", () => {
         sha256Client: null, // This should be allowed
         sizeBytes: 2048,
         snsMessageId: "test-sns-message-789",
-        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id, // Valid UUID for source_dataset
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: null, // This should be allowed
       };
@@ -336,7 +333,7 @@ describe("upsertFileRecord", () => {
       const originalFileData = {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        conceptId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
         etag: "original-etag",
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -345,7 +342,6 @@ describe("upsertFileRecord", () => {
         sha256Client: null,
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: "original-sns-message",
-        sourceDatasetId: null,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: "test-version-123",
       };
@@ -536,7 +532,15 @@ async function upsertTestFile(
   client?: pg.PoolClient,
 ): Promise<void> {
   await doOrContinueTransaction(client, async (client) => {
-    const fileResult = await upsertFileRecord(fileData, client);
+    const conceptId = fileData.componentAtlasId ?? fileData.sourceDatasetId;
+    if (conceptId === null)
+      throw new Error(
+        `No component atlas or source dataset ID specified for upserting test file with key ${fileData.key}`,
+      );
+    const fileResult = await upsertFileRecord(
+      { ...fileData, conceptId },
+      client,
+    );
     if (typeof fileData.componentAtlasId === "string") {
       await client.query(
         "UPDATE hat.component_atlases SET file_id = $1 WHERE id = $2",

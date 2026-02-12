@@ -535,6 +535,7 @@ async function saveFileRecord(
     const result = await upsertFileRecord(
       {
         bucket: bucket.name,
+        conceptId,
         etag: object.eTag,
         eventInfo: JSON.stringify(eventInfo),
         fileType,

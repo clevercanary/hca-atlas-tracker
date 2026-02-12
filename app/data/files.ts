@@ -258,6 +258,7 @@ async function getTypeFilesMissingFromAtlas(
 
 export interface FileUpsertData {
   bucket: string;
+  conceptId: string;
   etag: string;
   eventInfo: string;
   fileType: string;
@@ -313,8 +314,8 @@ export async function upsertFileRecord(
   // For same ETag, this is likely a duplicate notification; handle via ON CONFLICT
 
   const result = await transaction.query<FileUpsertResult>(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id, concept_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
        ON CONFLICT (sns_message_id) 
@@ -341,6 +342,7 @@ export async function upsertFileRecord(
       true,
       fileData.fileType,
       fileData.snsMessageId,
+      fileData.conceptId,
     ],
   );
 
