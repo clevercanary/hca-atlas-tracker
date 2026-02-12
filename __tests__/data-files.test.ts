@@ -1,4 +1,3 @@
-import pg from "pg";
 import { ETagMismatchError } from "../app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
@@ -7,16 +6,10 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmFileExistsOnAtlas,
-  FileUpsertData,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../app/data/files";
-import {
-  doOrContinueTransaction,
-  doTransaction,
-  endPgPool,
-  query,
-} from "../app/services/database";
+import { doTransaction, endPgPool, query } from "../app/services/database";
 import { NotFoundError } from "../app/utils/api-handler";
 import {
   ATLAS_DRAFT,
@@ -26,12 +19,11 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
 } from "../testing/constants";
-import { createTestFile, resetDatabase } from "../testing/db-utils";
-
-interface TestFileUpsertData extends Omit<FileUpsertData, "conceptId"> {
-  componentAtlasId: string | null;
-  sourceDatasetId: string | null;
-}
+import {
+  createTestConceptFromS3Key,
+  createTestFile,
+  resetDatabase,
+} from "../testing/db-utils";
 
 // Shared test constants
 const TEST_EVENT_INFO = JSON.stringify({
@@ -161,6 +153,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       await createTestFile(testFileId, {
         bucket: "test-bucket-orphan",
+        conceptId: null,
         etag: "550e8400-e29b-41d4-a716-test-etag2",
         fileType: FILE_TYPE.INGEST_MANIFEST,
         key: "test/atlas-v1/manifests/test.json",
@@ -395,11 +388,15 @@ describe("markPreviousVersionsAsNotLatest", () => {
   });
 
   it("should return 0 for new file (no previous versions)", async () => {
-    const bucket = "test-bucket-new";
-    const key = "test/path/new-file.h5ad";
+    const conceptId = "c574828f-d4b0-4a73-a402-fe7f9d65ca07";
+
+    await createTestConceptFromS3Key(
+      "heart/test-v1/integrated-objects/new-file.h5ad",
+      conceptId,
+    );
 
     const rowsUpdated = await doTransaction(async (transaction) => {
-      return await markPreviousVersionsAsNotLatest(bucket, key, transaction);
+      return await markPreviousVersionsAsNotLatest(conceptId, transaction);
     });
 
     expect(rowsUpdated).toBe(0);
@@ -407,45 +404,36 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
   it("should return count of updated rows for existing file with previous versions", async () => {
     const bucket = "test-bucket-existing";
-    const key = "test/path/existing-file.h5ad";
+    const key = "heart/test-v1/integrated-objects/existing-file.h5ad";
+    const conceptId = "a17f0bbb-b916-4c34-833d-e0437377afd6";
 
     // Create multiple versions of the same file
     await doTransaction(async (transaction) => {
       // Insert first version
-      await upsertTestFile(
+      await createTestFile(
+        "f089e3fd-8dfa-497d-b6d9-0d425d037824",
         {
           bucket,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId,
           etag: "etag-v1",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key,
-          sha256Client: null,
           sizeBytes: 1024,
-          snsMessageId: "sns-message-v1",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
         transaction,
       );
 
       // Insert second version
-      await upsertTestFile(
+      await createTestFile(
+        "8976f453-c6cf-4ccd-881f-2655114ece63",
         {
           bucket,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId,
           etag: "etag-v2",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key,
-          sha256Client: null,
           sizeBytes: 2048,
-          snsMessageId: "sns-message-v2",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
         transaction,
@@ -454,7 +442,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
     // Now mark previous versions as not latest
     const rowsUpdated = await doTransaction(async (transaction) => {
-      return await markPreviousVersionsAsNotLatest(bucket, key, transaction);
+      return await markPreviousVersionsAsNotLatest(conceptId, transaction);
     });
 
     // Should have updated 2 rows (both previous versions)
@@ -466,56 +454,48 @@ describe("markPreviousVersionsAsNotLatest", () => {
     expect(queryResult.rows.every((row) => row.is_latest === false)).toBe(true);
   });
 
-  it("should only affect files with matching bucket and key", async () => {
+  it("should only affect files with matching concept ID", async () => {
     const bucket1 = "test-bucket-1";
     const bucket2 = "test-bucket-2";
-    const key1 = "test/path/file1.h5ad";
-    const key2 = "test/path/file2.h5ad";
+    const key1 = "heart/test-v1/integrated-objects/file1.h5ad";
+    const key2 = "heart/test-v1/integrated-objects/file2.h5ad";
+    const conceptIdA = "a327e685-d565-423a-b60f-e12c4f7e4850";
+    const conceptIdB = "4bba5b32-ff01-4929-92f8-4e8f8591cf5d";
 
     // Create files in different buckets and with different keys
     await doTransaction(async (transaction) => {
-      await upsertTestFile(
+      await createTestFile(
+        "4b130664-cafe-4141-9b3a-904eb3116427",
         {
           bucket: bucket1,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId: conceptIdA,
           etag: "etag-1",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key: key1,
-          sha256Client: null,
           sizeBytes: 1024,
-          snsMessageId: "sns-message-1",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
         transaction,
       );
 
-      await upsertTestFile(
+      await createTestFile(
+        "4b9c7c14-7eec-4e6e-827c-363794b9ba4a",
         {
           bucket: bucket2,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId: conceptIdB,
           etag: "etag-2",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key: key2,
-          sha256Client: null,
           sizeBytes: 1024,
-          snsMessageId: "sns-message-2",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
         transaction,
       );
     });
 
-    // Mark previous versions as not latest for bucket1/key1 only
+    // Mark previous versions as not latest for the first concept only
     const rowsUpdated = await doTransaction(async (transaction) => {
-      return await markPreviousVersionsAsNotLatest(bucket1, key1, transaction);
+      return await markPreviousVersionsAsNotLatest(conceptIdA, transaction);
     });
 
     // Should have updated only 1 row
@@ -529,31 +509,3 @@ describe("markPreviousVersionsAsNotLatest", () => {
     expect(bucket2Result.rows[0].is_latest).toBe(true);
   });
 });
-
-async function upsertTestFile(
-  fileData: TestFileUpsertData,
-  client?: pg.PoolClient,
-): Promise<void> {
-  await doOrContinueTransaction(client, async (client) => {
-    const conceptId = fileData.componentAtlasId ?? fileData.sourceDatasetId;
-    if (conceptId === null)
-      throw new Error(
-        `No component atlas or source dataset ID specified for upserting test file with key ${fileData.key}`,
-      );
-    const fileResult = await upsertFileRecord(
-      { ...fileData, conceptId },
-      client,
-    );
-    if (typeof fileData.componentAtlasId === "string") {
-      await client.query(
-        "UPDATE hat.component_atlases SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.componentAtlasId],
-      );
-    } else if (typeof fileData.sourceDatasetId === "string") {
-      await client.query(
-        "UPDATE hat.source_datasets SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.sourceDatasetId],
-      );
-    }
-  });
-}

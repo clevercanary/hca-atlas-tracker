@@ -46,6 +46,7 @@ describe("createComponentAtlas", () => {
   it("throws error when creating component atlas for non-existent atlas", async () => {
     await createTestFile(FILE_ID_NONEXISTENT_ATLAS, {
       bucket: "bucket-nonexistent-atlas",
+      conceptId: CONCEPT_ID_NONEXISTENT_ATLAS,
       etag: "bfe8b775d61f4f8aaad1a6c2b9c12222",
       fileType: FILE_TYPE.INTEGRATED_OBJECT,
       key: "lung/some-atlas-v1/integrated-objects/file-nonexistent-atlas.h5ad",
@@ -65,6 +66,7 @@ describe("createComponentAtlas", () => {
   it("creates component atlas with empty values in component info", async () => {
     await createTestFile(FILE_ID_SUCCESSFUL, {
       bucket: "bucket-successful",
+      conceptId: CONCEPT_ID_SUCCESSFUL,
       etag: "fc7112b0ae8f49a6896e4d0d3f76714b",
       fileType: FILE_TYPE.INTEGRATED_OBJECT,
       key: "lung/some-atlas-v1/integrated-objects/file-successful.h5ad",

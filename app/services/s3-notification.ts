@@ -174,7 +174,7 @@ export function getFileBaseName(fileName: string): string {
  * @param s3Key - S3 key.
  * @returns normalized atlas and file info.
  */
-function parseNormalizedInfoFromS3Key(s3Key: string): {
+export function parseNormalizedInfoFromS3Key(s3Key: string): {
   atlasNetwork: NetworkKey;
   atlasShortName: string;
   atlasVersion: AtlasVersionNumbers;
@@ -501,8 +501,7 @@ async function saveFileRecord(
 
     // Determine recency and whether incoming record should be latest
     const latestNotificationInfo = await getLatestNotificationInfo(
-      bucket.name,
-      object.key,
+      conceptId,
       transaction,
     );
 
@@ -525,11 +524,7 @@ async function saveFileRecord(
     // If this is the latest version but not a new version, the existing version is the same as this version and shouldn't be marked non-latest
     // In that case, the notification is a duplicate and is handled idempotently at file insertion time
     if (isNewVersion)
-      await markPreviousVersionsAsNotLatest(
-        bucket.name,
-        object.key,
-        transaction,
-      );
+      await markPreviousVersionsAsNotLatest(conceptId, transaction);
 
     // Insert new file version with ON CONFLICT handling
     const result = await upsertFileRecord(

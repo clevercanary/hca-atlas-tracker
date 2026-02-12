@@ -54,7 +54,10 @@ import {
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
 } from "./utils";
-import { getFileBaseName } from "app/services/s3-notification";
+import {
+  getFileBaseName,
+  parseNormalizedInfoFromS3Key,
+} from "app/services/s3-notification";
 
 export async function resetDatabase(initEntities = true): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
@@ -263,6 +266,7 @@ async function initTestFile(
         id: conceptId,
         network: atlas.network,
       },
+      undefined,
       client,
     );
     createdConcepts.add(conceptId);
@@ -362,6 +366,29 @@ async function initComments(
   }
 }
 
+export async function createTestConceptFromS3Key(
+  s3Key: string,
+  conceptId: string,
+  allowExistingForId?: boolean,
+  client?: pg.PoolClient,
+): Promise<void> {
+  const info = parseNormalizedInfoFromS3Key(s3Key);
+  if (info.fileType === FILE_TYPE.INGEST_MANIFEST)
+    throw new Error("Can't create concept for ingest manifest");
+  await createTestConcept(
+    {
+      atlas_short_name: info.atlasShortName,
+      base_filename: info.fileBaseName,
+      file_type: info.fileType,
+      generation: info.atlasVersion.generation,
+      id: conceptId,
+      network: info.atlasNetwork,
+    },
+    allowExistingForId,
+    client,
+  );
+}
+
 export async function createTestConcept(
   info: Pick<
     HCAAtlasTrackerDBConcept,
@@ -372,13 +399,13 @@ export async function createTestConcept(
     | "id"
     | "network"
   >,
-  client: pg.PoolClient,
+  allowExistingForId = false,
+  client?: pg.PoolClient,
 ): Promise<void> {
-  await client.query(
-    `
-      INSERT INTO hat.concepts (atlas_short_name, base_filename, file_type, generation, network, id)
-      VALUES ($1, $2, $3, $4, $5, $6)
-    `,
+  await query(
+    allowExistingForId
+      ? "INSERT INTO hat.concepts (atlas_short_name, base_filename, file_type, generation, network, id) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO NOTHING"
+      : "INSERT INTO hat.concepts (atlas_short_name, base_filename, file_type, generation, network, id) VALUES ($1, $2, $3, $4, $5, $6)",
     [
       info.atlas_short_name,
       info.base_filename,
@@ -387,6 +414,7 @@ export async function createTestConcept(
       info.network,
       info.id,
     ],
+    client,
   );
 }
 
@@ -394,6 +422,7 @@ export async function createTestFile(
   fileId: string,
   config: {
     bucket: string;
+    conceptId: string | null;
     etag: string;
     eventTime?: string;
     fileType: FILE_TYPE;
@@ -403,6 +432,15 @@ export async function createTestFile(
   },
   client?: pg.PoolClient,
 ): Promise<void> {
+  // Create concept if needed
+  if (config.conceptId !== null)
+    await createTestConceptFromS3Key(
+      config.key,
+      config.conceptId,
+      true,
+      client,
+    );
+
   // Use the same defaults as fillTestFileDefaults for consistency
   const eventInfo = {
     eventName: "ObjectCreated:*",
@@ -410,8 +448,8 @@ export async function createTestFile(
   };
   await query(
     `INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, 
-     sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())`,
+     sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id, created_at, updated_at, concept_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW(), $14)`,
     [
       fileId,
       config.bucket,
@@ -426,6 +464,7 @@ export async function createTestFile(
       true, // isLatest
       config.fileType,
       `test-sns-message-${fileId}`, // Generate unique SNS message ID for test data
+      config.conceptId,
     ],
     client,
   );
@@ -450,16 +489,18 @@ export async function createTestComponentAtlas(
   atlasId: string,
   info: HCAAtlasTrackerDBComponentAtlasInfo,
   fileId: string,
+  conceptId?: string,
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  if (conceptId === undefined) conceptId = crypto.randomUUID();
   return doTransaction(async (client) => {
     const componentAtlas = (
       await client.query<HCAAtlasTrackerDBComponentAtlas>(
         `
-        INSERT INTO hat.component_atlases (component_info, file_id)
-        VALUES ($1, $2)
+        INSERT INTO hat.component_atlases (component_info, file_id, id)
+        VALUES ($1, $2, $3)
         RETURNING *
       `,
-        [JSON.stringify(info), fileId],
+        [JSON.stringify(info), fileId, conceptId],
       )
     ).rows[0];
     await client.query(

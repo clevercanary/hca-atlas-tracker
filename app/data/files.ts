@@ -29,19 +29,17 @@ export type FileArchiveStatusInfo = Pick<
 
 /**
  * Marks all previous versions of a file as no longer latest
- * @param bucket - S3 bucket name
- * @param key - S3 object key
+ * @param conceptId - Concept ID of the file
  * @param transaction - Database transaction client
  * @returns Number of rows updated (0 = new file, >0 = existing file with previous versions)
  */
 export async function markPreviousVersionsAsNotLatest(
-  bucket: string,
-  key: string,
+  conceptId: string,
   transaction: pg.PoolClient,
 ): Promise<number> {
   const result = await transaction.query(
-    `UPDATE hat.files SET is_latest = FALSE WHERE bucket = $1 AND key = $2`,
-    [bucket, key],
+    `UPDATE hat.files SET is_latest = FALSE WHERE concept_id = $1`,
+    [conceptId],
   );
   return result.rowCount || 0;
 }
@@ -69,15 +67,13 @@ export async function getExistingETag(
 }
 
 /**
- * Get the latest event_info and sns_notification_id for a file by bucket/key.
- * @param bucket - S3 bucket name
- * @param key - S3 object key
+ * Get the latest event_info and sns_notification_id for a file by concept ID.
+ * @param conceptId - Concept ID for the file
  * @param transaction - Database transaction client
  * @returns Latest event_info and sns_message_id JSON if present, otherwise null
  */
 export async function getLatestNotificationInfo(
-  bucket: string,
-  key: string,
+  conceptId: string,
   transaction: pg.PoolClient,
 ): Promise<Pick<
   HCAAtlasTrackerDBFile,
@@ -86,8 +82,8 @@ export async function getLatestNotificationInfo(
   const result = await transaction.query<
     Pick<HCAAtlasTrackerDBFile, "event_info" | "sns_message_id">
   >(
-    `SELECT event_info, sns_message_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
-    [bucket, key],
+    `SELECT event_info, sns_message_id FROM hat.files WHERE concept_id = $1 AND is_latest = true LIMIT 1`,
+    [conceptId],
   );
   return result.rows[0] ?? null;
 }
