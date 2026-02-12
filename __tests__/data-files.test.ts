@@ -50,13 +50,16 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("next-auth");
 
 beforeEach(async () => {
+  await resetDatabase();
+});
+
+afterEach(async () => {
   await query(
     "DELETE FROM hat.files f WHERE f.file_type = 'integrated_object' AND NOT EXISTS (SELECT 1 FROM hat.component_atlases c WHERE c.file_id = f.id)",
   );
   await query(
     "DELETE FROM hat.files f WHERE f.file_type = 'source_dataset' AND NOT EXISTS (SELECT 1 FROM hat.source_datasets c WHERE c.file_id = f.id)",
   );
-  await resetDatabase();
 });
 
 afterAll(() => {
