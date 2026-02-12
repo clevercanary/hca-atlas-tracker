@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.56.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.55.0...v1.56.0) (2026-02-10)
+
+
+### Features
+
+* remove default grouping on atlas list page ([#1091](https://github.com/clevercanary/hca-atlas-tracker/issues/1091)) ([#1092](https://github.com/clevercanary/hca-atlas-tracker/issues/1092)) ([9c4962e](https://github.com/clevercanary/hca-atlas-tracker/commit/9c4962eed01ce017ce339a4540aa12883621f253))
+
+
+### Chores
+
+* remove duplicate `await` ([#1085](https://github.com/clevercanary/hca-atlas-tracker/issues/1085)) ([#1087](https://github.com/clevercanary/hca-atlas-tracker/issues/1087)) ([f954b58](https://github.com/clevercanary/hca-atlas-tracker/commit/f954b5829c9854008525a86111121812f9af2e30))
+* update findable-ui to latest ([#1075](https://github.com/clevercanary/hca-atlas-tracker/issues/1075)) ([#1076](https://github.com/clevercanary/hca-atlas-tracker/issues/1076)) ([ad026c9](https://github.com/clevercanary/hca-atlas-tracker/commit/ad026c912cb6adf65d5c135ff0138981c514b46c))
+* update schema.sql to reflect source dataset versioning ([#1104](https://github.com/clevercanary/hca-atlas-tracker/issues/1104)) ([d5b3a19](https://github.com/clevercanary/hca-atlas-tracker/commit/d5b3a19c37cda37094cb2baa8afc88a0e90ded84))
+
+
+### Documentation
+
+* add CLAUDE.md for Claude Code project context ([#1105](https://github.com/clevercanary/hca-atlas-tracker/issues/1105)) ([c33b8f7](https://github.com/clevercanary/hca-atlas-tracker/commit/c33b8f7b490820c5cb8d5741edb7a967b724b866))
+* add generation to concept key for upload scoping ([#1093](https://github.com/clevercanary/hca-atlas-tracker/issues/1093)) ([f2aba0b](https://github.com/clevercanary/hca-atlas-tracker/commit/f2aba0b850c1ceb6fc377b466cffe0f8bec4afda))
+* add Published Atlas Public API feature (Slice 9) [#1041](https://github.com/clevercanary/hca-atlas-tracker/issues/1041) ([#1103](https://github.com/clevercanary/hca-atlas-tracker/issues/1103)) ([845ddd0](https://github.com/clevercanary/hca-atlas-tracker/commit/845ddd03f457e36f39a6efedd260dea96f7e062c))
+* align column names - published_at and revision [#1041](https://github.com/clevercanary/hca-atlas-tracker/issues/1041) ([#1097](https://github.com/clevercanary/hca-atlas-tracker/issues/1097)) ([7c6c37c](https://github.com/clevercanary/hca-atlas-tracker/commit/7c6c37cbb7330d74a896dd3b0ac23561d08f5647))
+* combine tickets 1.1 and 1.2 into single release unit [#1041](https://github.com/clevercanary/hca-atlas-tracker/issues/1041) ([#1098](https://github.com/clevercanary/hca-atlas-tracker/issues/1098)) ([96026fb](https://github.com/clevercanary/hca-atlas-tracker/commit/96026fbf155509c3a22e6147d2e1cc711c2b3990))
+* combine tickets 4.2, 4.3, 4.4 into single release unit [#1041](https://github.com/clevercanary/hca-atlas-tracker/issues/1041) ([#1102](https://github.com/clevercanary/hca-atlas-tracker/issues/1102)) ([bec6849](https://github.com/clevercanary/hca-atlas-tracker/commit/bec68495270a75cbfd30d235292d95439d8dc905))
+* use concept ID as SD/IO ID for stable identity [#1041](https://github.com/clevercanary/hca-atlas-tracker/issues/1041) ([#1096](https://github.com/clevercanary/hca-atlas-tracker/issues/1096)) ([2f0428f](https://github.com/clevercanary/hca-atlas-tracker/commit/2f0428f800beebc77bc1da968210aabdc8db43ac))
+
+
+### Code Refactoring
+
+* refactor linkedsourcedatasets to use entity table component and its own table hook ([#1003](https://github.com/clevercanary/hca-atlas-tracker/issues/1003)) ([#1089](https://github.com/clevercanary/hca-atlas-tracker/issues/1089)) ([1e81a89](https://github.com/clevercanary/hca-atlas-tracker/commit/1e81a891a5096ab8017be96bbdbd88e1c9dfbc1e))
+
 ## [1.55.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.54.0...v1.55.0) (2026-01-28)
 
 
