@@ -703,6 +703,39 @@ export async function getFileFromDatabase(
   ).rows[0];
 }
 
+export async function getConceptFromDatabaseByExpectedId(
+  id: string | null,
+): Promise<HCAAtlasTrackerDBConcept | undefined> {
+  expect(id).not.toBeNull();
+  if (id === null) return;
+  return getConceptFromDatabase(id);
+}
+
+export async function getConceptFromDatabase(
+  id: string,
+): Promise<HCAAtlasTrackerDBConcept | undefined> {
+  return (
+    await query<HCAAtlasTrackerDBConcept>(
+      "SELECT * FROM hat.concepts WHERE id=$1",
+      [id],
+    )
+  ).rows[0];
+}
+
+export async function getConceptFromDatabaseByFileName(
+  name: string,
+): Promise<HCAAtlasTrackerDBConcept | undefined> {
+  const concepts = (
+    await query<HCAAtlasTrackerDBConcept>(
+      "SELECT * FROM hat.concepts WHERE base_filename=$1",
+      [name],
+    )
+  ).rows;
+  if (concepts.length > 1)
+    throw new Error(`Multiple concepts exist with filename ${name}`);
+  return concepts[0];
+}
+
 export async function getValidationsByEntityId(
   id: string,
 ): Promise<HCAAtlasTrackerDBValidation[]> {

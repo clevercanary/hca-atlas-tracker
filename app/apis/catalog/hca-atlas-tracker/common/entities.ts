@@ -438,6 +438,7 @@ export interface HCAAtlasTrackerDBConcept {
 
 export interface HCAAtlasTrackerDBFile {
   bucket: string;
+  concept_id: string | null;
   created_at: Date;
   dataset_info: HCAAtlasTrackerDBFileDatasetInfo | null;
   etag: string;

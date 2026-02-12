@@ -48,6 +48,8 @@ import {
   getAtlasFromDatabase,
   getComponentAtlasAtlas,
   getComponentAtlasFromDatabase,
+  getConceptFromDatabaseByExpectedId,
+  getConceptFromDatabaseByFileName,
   getFileComponentAtlas,
   getFileSourceDataset,
   resetDatabase,
@@ -135,6 +137,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_TEST],
     );
     expect(fileRows.rows).toHaveLength(0);
+
+    // Verify that no concept was created for this file
+    const concept = await getConceptFromDatabaseByFileName("test-file.h5ad");
+    expect(concept).toBeUndefined();
   });
 
   // SHA256 Integrity Validation Tests
@@ -184,6 +190,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       isLatest: true,
       wipNumber: 1,
     });
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    expect(concept).toBeDefined();
   });
 
   it("does not clear sd_info on source_dataset update, and preserves is_latest", async () => {
@@ -301,6 +311,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       otherVersion: firstSourceDataset,
       wipNumber: 2,
     });
+
+    // Check that both versions share the same concept
+    const firstConcept = await getConceptFromDatabaseByExpectedId(
+      versions.rows[0].concept_id,
+    );
+    expect(firstConcept).toBeDefined();
+    expect(versions.rows[1].concept_id).toEqual(versions.rows[0].concept_id);
   });
 
   it("does not modify existing component atlas on integrated_object update, and preserves is_latest", async () => {
@@ -436,6 +453,19 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         secondComponentAtlas.version_id,
       );
     }
+
+    // Check that both versions share the same concept
+    const firstConcept = await getConceptFromDatabaseByExpectedId(
+      firstFile.concept_id,
+    );
+    expect(firstConcept).toBeDefined();
+    const secondFile = (
+      await query<HCAAtlasTrackerDBFile>(
+        SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+        [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
+      )
+    ).rows[0];
+    expect(secondFile.concept_id).toEqual(firstFile.concept_id);
   });
 
   // Happy Path Processing Tests
@@ -493,6 +523,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       isLatest: true,
       wipNumber: 1,
     });
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    expect(concept).toBeDefined();
   });
 
   it("successfully processes valid SNS notification for integrated object with S3 ObjectCreated event", async () => {
@@ -560,6 +594,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify component atlas is latest and has WIP number 1
     expect(componentAtlas.is_latest).toEqual(true);
     expect(componentAtlas.wip_number).toEqual(1);
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    expect(concept).toBeDefined();
   });
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {
@@ -655,10 +693,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_DUPLICATE],
     );
     expect(fileRowsBefore.rows).toHaveLength(1);
-    const fileId = fileRowsBefore.rows[0].id;
+    const fileBefore = fileRowsBefore.rows[0];
     const {
       sourceDataset: { version_id: sourceDatasetVersion },
-    } = await expectSourceDatasetFileToBeConsistentWith(fileId, {
+    } = await expectSourceDatasetFileToBeConsistentWith(fileBefore.id, {
       atlas: TEST_GUT_ATLAS_ID,
       isLatest: true,
       wipNumber: 1,
@@ -689,15 +727,20 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
     expect(file.is_latest).toEqual(true);
-    expect(file.id).toEqual(fileId);
+    expect(file.id).toEqual(fileBefore.id);
 
     // Check fields and relationships -- should be the same as before
-    await expectSourceDatasetFileToBeConsistentWith(fileId, {
+    await expectSourceDatasetFileToBeConsistentWith(fileBefore.id, {
       atlas: TEST_GUT_ATLAS_ID,
       isLatest: true,
       sourceDataset: sourceDatasetVersion,
       wipNumber: 1,
     });
+
+    // Check that concept exists and is still linked
+    expect(file.concept_id).toEqual(fileBefore.concept_id);
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    expect(concept).toBeDefined();
   });
 
   it("rejects replay with same SNS MessageId but altered ETag", async () => {
@@ -802,6 +845,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       sourceDataset: sourceDatasetVersion,
       wipNumber: 1,
     });
+
+    // Check that concept exists and is still linked
+    const concept = await getConceptFromDatabaseByExpectedId(
+      fileRows.rows[0].concept_id,
+    );
+    expect(concept).toBeDefined();
   });
 
   it("rejects notifications with ETag mismatches for existing files", async () => {
@@ -901,6 +950,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       sourceDataset: sourceDatasetVersion,
       wipNumber: 1,
     });
+
+    // Check that concept exists and is still linked
+    const concept = await getConceptFromDatabaseByExpectedId(
+      fileRows.rows[0].concept_id,
+    );
+    expect(concept).toBeDefined();
   });
 
   it("does not save ingest manifest file", async () => {
@@ -944,6 +999,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
 
     expect(fileRows.rows).toHaveLength(0);
+
+    // Verify that no concept was created for this file
+    const concept = await getConceptFromDatabaseByFileName(
+      "upload-manifest.json",
+    );
+    expect(concept).toBeUndefined();
   });
 
   it.each([
@@ -992,6 +1053,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
 
     expect(fileRows.rows).toHaveLength(0);
+
+    // Verify that no concept was created for this file
+    const concept = await getConceptFromDatabaseByFileName(".keep");
+    expect(concept).toBeUndefined();
   });
 
   // File Versioning Tests
@@ -1083,6 +1148,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(secondComponentAtlas.is_latest).toEqual(true);
     expect(firstComponentAtlas.wip_number).toEqual(1);
     expect(secondComponentAtlas.wip_number).toEqual(2);
+
+    // Check that both versions share the same concept
+    const firstConcept = await getConceptFromDatabaseByExpectedId(
+      firstVersion.concept_id,
+    );
+    expect(firstConcept).toBeDefined();
+    expect(secondVersion.concept_id).toEqual(firstVersion.concept_id);
   });
 
   it("sets is_latest and is_archived as normal when existing latest file has archived = true", async () => {
@@ -1183,6 +1255,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     const secondComponentAtlas = await getFileComponentAtlas(secondVersion.id);
     expect(firstComponentAtlas).not.toEqual(secondComponentAtlas);
     expect(firstComponentAtlas.id).toEqual(secondComponentAtlas.id);
+
+    // Check that both versions share the same concept
+    const firstConcept = await getConceptFromDatabaseByExpectedId(
+      firstVersion.concept_id,
+    );
+    expect(firstConcept).toBeDefined();
+    expect(secondVersion.concept_id).toEqual(firstVersion.concept_id);
   });
 
   it("updates source dataset arrays for only latest-version component atlases when a new source dataset version is added", async () => {
@@ -1347,6 +1426,25 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       sourceDataset: sourceDatasetB.version_id,
       wipNumber: 1,
     });
+
+    // Check that concepts exist for all initial files
+    const sdAConceptId = sdFileA1.concept_id;
+    const sdAConcept = await getConceptFromDatabaseByExpectedId(sdAConceptId);
+    expect(sdAConcept).toBeDefined();
+
+    const sdBConcept = await getConceptFromDatabaseByExpectedId(
+      sdFileB1.concept_id,
+    );
+    expect(sdBConcept).toBeDefined();
+
+    const ioAConcept = await getConceptFromDatabaseByExpectedId(
+      ioFileA1.concept_id,
+    );
+    expect(ioAConcept).toBeDefined();
+
+    // Check that versioned files share the same concept as their first version
+    expect(sdFileA2.concept_id).toEqual(sdAConceptId);
+    expect(ioFileA2.concept_id).toEqual(ioFileA1.concept_id);
   });
 
   it("discards notification but returns successfully when older version arrives after newer version", async () => {
@@ -1439,6 +1537,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       [latestComponentAtlas.id],
     );
     expect(componentAtlasesResult.rowCount).toEqual(1);
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(
+      latestFile.concept_id,
+    );
+    expect(concept).toBeDefined();
   });
 
   it("rejects notifications from unauthorized S3 buckets", async () => {
@@ -1526,6 +1630,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
 
     expect(await getFileComponentAtlas(file.id)).toBeTruthy();
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    expect(concept).toBeDefined();
   });
 
   // Parameterized test for atlas lookup from S3 paths
@@ -1608,6 +1716,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       } else if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
         expect(await getFileComponentAtlas(file.id)).toBeTruthy();
       }
+
+      // Check that concept was created and linked to the file
+      const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+      expect(concept).toBeDefined();
     },
   );
 
@@ -2064,5 +2176,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Verify that submitJob was called once and failed
     expect(mockSubmitJob).toHaveBeenCalledTimes(1);
     expect(mockSubmitJob).not.toHaveReturned();
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    expect(concept).toBeDefined();
   });
 });
