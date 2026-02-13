@@ -225,6 +225,7 @@ describe("upsertFileRecord", () => {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
         componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID
+        conceptId: null,
         etag: TEST_ETAG,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -264,6 +265,7 @@ describe("upsertFileRecord", () => {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
         componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        conceptId: null,
         etag: TEST_ETAG,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -304,6 +306,7 @@ describe("upsertFileRecord", () => {
         atlasId: null,
         bucket: TEST_BUCKET,
         componentAtlasId: null, // Must be null for source_dataset
+        conceptId: null,
         etag: TEST_ETAG_ALT,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.SOURCE_DATASET,
@@ -341,6 +344,7 @@ describe("upsertFileRecord", () => {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
         componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        conceptId: null,
         etag: "original-etag",
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,

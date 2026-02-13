@@ -260,12 +260,14 @@ export async function deleteSourceDatasetsFromComponentAtlas(
  * Create a new component atlas.
  * @param atlasId - ID of the parent atlas.
  * @param fileId - Associated file ID for the new component atlas to reference.
+ * @param conceptId - Concept ID to use as the component atlas's stable `id`.
  * @param client - Optional database client for transactions.
  * @returns the created component atlas.
  */
 export async function createComponentAtlas(
   atlasId: string,
   fileId: string,
+  conceptId: string,
   client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {
@@ -275,11 +277,11 @@ export async function createComponentAtlas(
   return doOrContinueTransaction(client, async (client) => {
     const result = await query<HCAAtlasTrackerDBComponentAtlas>(
       `
-        INSERT INTO hat.component_atlases (component_info, file_id)
-        VALUES ($1, $2)
+        INSERT INTO hat.component_atlases (component_info, file_id, id)
+        VALUES ($1, $2, $3)
         RETURNING *
       `,
-      [JSON.stringify(info), fileId],
+      [JSON.stringify(info), fileId, conceptId],
       client,
     );
 

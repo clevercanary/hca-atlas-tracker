@@ -470,13 +470,32 @@ async function createComponentAtlas(
     capUrl: null,
   };
 
+  // Look up the file key to derive concept fields
+  const fileResult = await client.query<Pick<HCAAtlasTrackerDBFile, "key">>(
+    "SELECT key FROM hat.files WHERE id = $1",
+    [fileId],
+  );
+  const fileKey = fileResult.rows[0].key;
+  const conceptId = await findOrCreateConceptFromKey(
+    client,
+    fileKey,
+    atlas,
+    FILE_TYPE.INTEGRATED_OBJECT,
+  );
+
   await client.query(
     `
-      INSERT INTO hat.component_atlases (version_id, component_info, file_id)
-      VALUES ($1, $2, $3)
+      INSERT INTO hat.component_atlases (version_id, component_info, file_id, id)
+      VALUES ($1, $2, $3, $4)
     `,
-    [componentAtlasVersion, JSON.stringify(info), fileId],
+    [componentAtlasVersion, JSON.stringify(info), fileId, conceptId],
   );
+
+  // Set concept_id on the file record
+  await client.query("UPDATE hat.files SET concept_id = $1 WHERE id = $2", [
+    conceptId,
+    fileId,
+  ]);
 
   await client.query(
     "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
@@ -491,7 +510,6 @@ async function createSourceDataset(
   atlas: HCAAtlasTrackerDBAtlas,
   fileId: string,
 ): Promise<string> {
-  const sourceDatasetId = crypto.randomUUID();
   const sourceDatasetVersion = crypto.randomUUID();
 
   const sd_info: HCAAtlasTrackerDBSourceDatasetInfo = {
@@ -501,17 +519,30 @@ async function createSourceDataset(
     publicationStatus: PUBLICATION_STATUS.UNSPECIFIED,
   };
 
+  // Look up the file key to derive concept fields
+  const fileResult = await client.query<Pick<HCAAtlasTrackerDBFile, "key">>(
+    "SELECT key FROM hat.files WHERE id = $1",
+    [fileId],
+  );
+  const fileKey = fileResult.rows[0].key;
+  const conceptId = await findOrCreateConceptFromKey(
+    client,
+    fileKey,
+    atlas,
+    FILE_TYPE.SOURCE_DATASET,
+  );
+
   await client.query(
     `
       INSERT INTO hat.source_datasets (id, sd_info, file_id, version_id)
       VALUES ($1, $2, $3, $4)
     `,
-    [sourceDatasetId, JSON.stringify(sd_info), fileId, sourceDatasetVersion],
+    [conceptId, JSON.stringify(sd_info), fileId, sourceDatasetVersion],
   );
 
   await client.query(
-    "UPDATE hat.files SET source_dataset_id = $1 WHERE id = $2",
-    [sourceDatasetId, fileId],
+    "UPDATE hat.files SET source_dataset_id = $1, concept_id = $1 WHERE id = $2",
+    [conceptId, fileId],
   );
 
   await client.query(
@@ -519,7 +550,53 @@ async function createSourceDataset(
     [sourceDatasetVersion, atlas.id],
   );
 
-  return sourceDatasetId;
+  return conceptId;
+}
+
+/**
+ * Find or create a concept from a file's S3 key and atlas info.
+ * @param client - Database client.
+ * @param fileKey - S3 key of the file.
+ * @param atlas - Atlas the file belongs to.
+ * @param fileType - Type of the file.
+ * @returns The concept ID.
+ */
+async function findOrCreateConceptFromKey(
+  client: pg.PoolClient,
+  fileKey: string,
+  atlas: HCAAtlasTrackerDBAtlas,
+  fileType: FILE_TYPE,
+): Promise<string> {
+  const filename = fileKey.split("/").pop() || "";
+  const baseFilename = filename.replace(/-r\d+(-wip-\d+)?(?=\.h5ad$)/, "");
+  const versionStr = atlas.overview.version;
+  const generation = parseInt(versionStr.split(".")[0], 10) || 1;
+
+  const result = await client.query<{ id: string }>(
+    `
+      WITH new_concept AS (
+        INSERT INTO hat.concepts (atlas_short_name, network, generation, base_filename, file_type)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (atlas_short_name, network, generation, base_filename, file_type)
+        DO NOTHING
+        RETURNING id
+      )
+      SELECT id FROM new_concept
+      UNION ALL
+      SELECT id FROM hat.concepts
+      WHERE atlas_short_name = $1 AND network = $2 AND generation = $3 AND base_filename = $4 AND file_type = $5
+      LIMIT 1
+    `,
+    [
+      atlas.overview.shortName,
+      atlas.overview.network,
+      generation,
+      baseFilename,
+      fileType,
+    ],
+  );
+
+  return result.rows[0].id;
 }
 
 async function generateAndAddAtlases(client: pg.PoolClient): Promise<string[]> {

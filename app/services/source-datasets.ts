@@ -146,19 +146,21 @@ export async function getComponentAtlasSourceDataset(
 /**
  * Create a source dataset.
  * @param fileId - Associated file ID for the new source dataset to reference.
+ * @param conceptId - Concept ID to use as the source dataset's stable `id`.
  * @param client - Postgres client to reuse an existing transaction.
  * @returns version ID of the created source dataset.
  */
 export async function createSourceDataset(
   fileId: string,
+  conceptId: string,
   client: pg.PoolClient,
 ): Promise<string> {
   const info = createSourceDatasetInfo();
   const insertResult = await client.query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
-    "INSERT INTO hat.source_datasets (sd_info, file_id) VALUES ($1, $2) RETURNING version_id",
-    [JSON.stringify(info), fileId],
+    "INSERT INTO hat.source_datasets (sd_info, file_id, id) VALUES ($1, $2, $3) RETURNING version_id",
+    [JSON.stringify(info), fileId, conceptId],
   );
   return insertResult.rows[0].version_id;
 }
