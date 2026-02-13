@@ -52,7 +52,7 @@ export async function markPreviousVersionsAsNotLatest(
  * @param transaction - Database transaction client
  * @returns Existing ETag if found, null otherwise
  */
-export async function getExistingETag(
+export async function getSavedETagForS3File(
   bucket: string,
   key: string,
   versionId: string | null,
@@ -290,7 +290,7 @@ export async function upsertFileRecord(
   transaction: pg.PoolClient,
 ): Promise<FileUpsertResult> {
   // First check if a file with same bucket/key/version already exists
-  const existingETag = await getExistingETag(
+  const existingETag = await getSavedETagForS3File(
     fileData.bucket,
     fileData.key,
     fileData.versionId,
@@ -347,7 +347,7 @@ export async function upsertFileRecord(
     // This happens when ON CONFLICT DO UPDATE WHERE condition fails
     // Meaning ETags don't match - throw ETagMismatchError
     // Fetch the existing ETag so the caller can construct a detailed error without extra reads
-    const existingETag = await getExistingETag(
+    const existingETag = await getSavedETagForS3File(
       fileData.bucket,
       fileData.key,
       fileData.versionId,
