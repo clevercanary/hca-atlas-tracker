@@ -34,6 +34,7 @@ import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  HCAAtlasTrackerDBConcept,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
@@ -1263,6 +1264,193 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(firstConcept).toBeDefined();
     expect(secondVersion.concept_id).toEqual(firstVersion.concept_id);
   });
+
+  it.each([
+    {
+      description: "different capitalization of same atlas short name",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "test-file.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/test-file.h5ad",
+      secondKey: "gut/Gut-v1/source-datasets/test-file.h5ad",
+    },
+    {
+      description: "different filename version suffix (revision and WIP)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "cells.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/cells.h5ad",
+      secondKey: "gut/gut-v1/source-datasets/cells-r1-wip-2.h5ad",
+    },
+    {
+      description: "different filename version suffix (revision only)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "data.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/data.h5ad",
+      secondKey: "gut/gut-v1/source-datasets/data-r2.h5ad",
+    },
+    {
+      description: "atlas revision 0 omitted",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "sample.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/sample.h5ad",
+      secondKey: "gut/gut-v1-0/source-datasets/sample.h5ad",
+    },
+  ])(
+    "uses the same concept for S3 key with $description",
+    async ({ description, expectedConceptFields, firstKey, secondKey }) => {
+      // Generate unique identifiers for this test case based on description
+      const testId = description.replace(/\s+/g, "-");
+
+      // Upload first file
+      const firstEvent = createS3Event({
+        etag: `${testId}-etag-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+        eventTime: TEST_TIMESTAMP,
+        key: firstKey,
+        size: 12345,
+        versionId: `${testId}-version-1`,
+      });
+
+      const firstMessage = createSNSMessage({
+        messageId: `${testId}-message-1`,
+        s3Event: firstEvent,
+        signature: TEST_SIGNATURE_VALID,
+        timestamp: TEST_TIMESTAMP,
+      });
+
+      const { req: req1, res: res1 } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req1, res1);
+      });
+      expect(res1.statusCode).toBe(200);
+
+      // Get first file and verify concept created with expected fields
+      const firstFileRows = await query<HCAAtlasTrackerDBFile>(
+        SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+        [TEST_S3_BUCKET, firstKey],
+      );
+      expect(firstFileRows.rows).toHaveLength(1);
+      const firstFile = firstFileRows.rows[0];
+      expect(firstFile.is_latest).toBe(true);
+
+      const firstConcept = await getConceptFromDatabaseByExpectedId(
+        firstFile.concept_id,
+      );
+      expect(firstConcept).toBeDefined();
+      if (!firstConcept) return;
+
+      // Verify concept fields match expected values
+      expect(firstConcept.atlas_short_name).toBe(
+        expectedConceptFields.atlas_short_name,
+      );
+      expect(firstConcept.base_filename).toBe(
+        expectedConceptFields.base_filename,
+      );
+      expect(firstConcept.file_type).toBe(expectedConceptFields.file_type);
+      expect(firstConcept.generation).toBe(expectedConceptFields.generation);
+      expect(firstConcept.network).toBe(expectedConceptFields.network);
+
+      // Verify source dataset was created with WIP number 1
+      await expectSourceDatasetFileToBeConsistentWith(firstFile.id, {
+        atlas: TEST_GUT_ATLAS_ID,
+        isLatest: true,
+        wipNumber: 1,
+      });
+
+      // Upload second file with variation
+      const secondEvent = createS3Event({
+        etag: `${testId}-etag-2-bbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+        eventTime: TEST_TIMESTAMP_PLUS_1H,
+        key: secondKey,
+        size: 23456,
+        versionId: `${testId}-version-2`,
+      });
+
+      const secondMessage = createSNSMessage({
+        messageId: `${testId}-message-2`,
+        s3Event: secondEvent,
+        signature: TEST_SIGNATURE_VALID,
+        timestamp: TEST_TIMESTAMP_PLUS_1H,
+      });
+
+      const { req: req2, res: res2 } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req2, res2);
+      });
+      expect(res2.statusCode).toBe(200);
+
+      // Get second file and verify it uses the same concept
+      const secondFileRows = await query<HCAAtlasTrackerDBFile>(
+        SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+        [TEST_S3_BUCKET, secondKey],
+      );
+      expect(secondFileRows.rows).toHaveLength(1);
+      const secondFile = secondFileRows.rows[0];
+      expect(secondFile.is_latest).toBe(true);
+
+      // Verify same concept is reused
+      expect(secondFile.concept_id).toBe(firstFile.concept_id);
+
+      // Verify first file is no longer latest
+      const updatedFirstFile = await query<HCAAtlasTrackerDBFile>(
+        "SELECT * FROM hat.files WHERE id = $1",
+        [firstFile.id],
+      );
+      expect(updatedFirstFile.rows[0].is_latest).toBe(false);
+
+      // Verify source dataset was updated with WIP number 2
+      await expectSourceDatasetFileToBeConsistentWith(secondFile.id, {
+        atlas: TEST_GUT_ATLAS_ID,
+        isLatest: true,
+        wipNumber: 2,
+      });
+
+      // Verify only one concept exists for this base filename
+      const allConcepts = await query<HCAAtlasTrackerDBConcept>(
+        "SELECT * FROM hat.concepts WHERE base_filename = $1 AND file_type = $2 AND network = $3 AND generation = $4",
+        [
+          expectedConceptFields.base_filename,
+          expectedConceptFields.file_type,
+          expectedConceptFields.network,
+          expectedConceptFields.generation,
+        ],
+      );
+      expect(allConcepts.rows).toHaveLength(1);
+      expect(allConcepts.rows[0].id).toBe(firstConcept.id);
+    },
+  );
 
   it("updates source dataset arrays for only latest-version component atlases when a new source dataset version is added", async () => {
     // Create initial files -- two source datasets and one integrated object
