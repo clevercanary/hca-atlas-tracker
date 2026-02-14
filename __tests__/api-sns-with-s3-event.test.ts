@@ -8,9 +8,13 @@ import {
   SNS_MESSAGE_DEFAULTS,
   SNSMessageOptions,
   SQL_QUERIES,
+  TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
+  TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
+  TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
   TEST_AWS_CONFIG,
   TEST_FILE_PATHS,
   TEST_GUT_ATLAS_ID,
+  TEST_GUT_ATLAS_V2_ID,
   TEST_MODULE_SNS_VALIDATOR,
   TEST_S3_BUCKET,
   TEST_S3_EVENT_NAME_OBJECT_CREATED,
@@ -1482,6 +1486,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
   it.each([
     {
       description: "different base filename",
+      expectedFirstAtlasId: TEST_GUT_ATLAS_ID,
       expectedFirstConceptFields: {
         atlas_short_name: "gut",
         base_filename: "file-a.h5ad",
@@ -1489,6 +1494,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         generation: 1,
         network: "gut",
       },
+      expectedSecondAtlasId: TEST_GUT_ATLAS_ID,
       expectedSecondConceptFields: {
         atlas_short_name: "gut",
         base_filename: "file-b.h5ad",
@@ -1501,6 +1507,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     },
     {
       description: "different file type",
+      expectedFirstAtlasId: TEST_GUT_ATLAS_ID,
       expectedFirstConceptFields: {
         atlas_short_name: "gut",
         base_filename: "data.h5ad",
@@ -1508,6 +1515,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         generation: 1,
         network: "gut",
       },
+      expectedSecondAtlasId: TEST_GUT_ATLAS_ID,
       expectedSecondConceptFields: {
         atlas_short_name: "gut",
         base_filename: "data.h5ad",
@@ -1520,6 +1528,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     },
     {
       description: "different generation",
+      expectedFirstAtlasId: TEST_GUT_ATLAS_ID,
       expectedFirstConceptFields: {
         atlas_short_name: "gut",
         base_filename: "cells.h5ad",
@@ -1527,6 +1536,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         generation: 1,
         network: "gut",
       },
+      expectedSecondAtlasId: TEST_GUT_ATLAS_V2_ID,
       expectedSecondConceptFields: {
         atlas_short_name: "gut",
         base_filename: "cells.h5ad",
@@ -1537,18 +1547,63 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       firstKey: "gut/gut-v1/source-datasets/cells.h5ad",
       secondKey: "gut/gut-v2-1/source-datasets/cells.h5ad",
     },
+    {
+      description: "different short name",
+      expectedFirstAtlasId: TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
+      expectedFirstConceptFields: {
+        atlas_short_name: "test-short-name-a",
+        base_filename: "test-file-name-and-network-contrasts.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "heart",
+      },
+      expectedSecondAtlasId: TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
+      expectedSecondConceptFields: {
+        atlas_short_name: "test-short-name-b",
+        base_filename: "test-file-name-and-network-contrasts.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "heart",
+      },
+      firstKey:
+        "heart/test-short-name-a-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
+      secondKey:
+        "heart/test-short-name-b-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
+    },
+    {
+      description: "different network",
+      expectedFirstAtlasId: TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
+      expectedFirstConceptFields: {
+        atlas_short_name: "test-short-name-a",
+        base_filename: "test-file-name-and-network-contrasts.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "heart",
+      },
+      expectedSecondAtlasId: TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
+      expectedSecondConceptFields: {
+        atlas_short_name: "test-short-name-a",
+        base_filename: "test-file-name-and-network-contrasts.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "lung",
+      },
+      firstKey:
+        "heart/test-short-name-a-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
+      secondKey:
+        "lung/test-short-name-a-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
+    },
   ])(
     "creates different concepts for S3 keys with $description",
     async ({
       description,
+      expectedFirstAtlasId,
       expectedFirstConceptFields,
+      expectedSecondAtlasId,
       expectedSecondConceptFields,
       firstKey,
       secondKey,
     }) => {
-      // Atlas ID for gut v2.1
-      const GUT_V2_1_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440002";
-
       // Generate unique identifiers for this test case based on description
       const testId = description.replace(/\s+/g, "-");
 
@@ -1688,10 +1743,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       // Verify appropriate entity was created for each file type
       if (firstFile.file_type === FILE_TYPE.SOURCE_DATASET) {
         await expectSourceDatasetFileToBeConsistentWith(firstFile.id, {
-          atlas:
-            expectedFirstConceptFields.generation === 1
-              ? TEST_GUT_ATLAS_ID
-              : GUT_V2_1_ATLAS_ID,
+          atlas: expectedFirstAtlasId,
           isLatest: true,
           wipNumber: 1,
         });
@@ -1704,10 +1756,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
       if (secondFile.file_type === FILE_TYPE.SOURCE_DATASET) {
         await expectSourceDatasetFileToBeConsistentWith(secondFile.id, {
-          atlas:
-            expectedSecondConceptFields.generation === 1
-              ? TEST_GUT_ATLAS_ID
-              : GUT_V2_1_ATLAS_ID,
+          atlas: expectedSecondAtlasId,
           isLatest: true,
           wipNumber: 1,
         });

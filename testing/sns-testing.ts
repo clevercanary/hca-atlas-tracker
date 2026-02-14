@@ -13,10 +13,12 @@ import {
   FileValidationReport,
   FileValidationReports,
   FileValidationSummary,
+  HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
+  SYSTEM,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../app/services/database";
 import snsHandler from "../pages/api/sns";
@@ -25,6 +27,13 @@ import { expectIsDefined } from "./utils";
 
 export const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 export const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
+export const TEST_GUT_ATLAS_V2_ID = "550e8400-e29b-41d4-a716-446655440002";
+export const TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID =
+  "aea1a4b5-8324-4363-9d41-0022c2e76249";
+export const TEST_ATLAS_WITH_CONTRASTING_NAME_ID =
+  "6e84836e-3e34-48d3-8dd4-ab7d35a38f7d";
+export const TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID =
+  "7fadb3d2-166e-43d0-a728-d54ca4f7bd99";
 export const TEST_S3_EVENT_NAME = "s3:ObjectCreated:Put";
 export const TEST_SNS_TOPIC_S3_NOTIFICATIONS =
   "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications";
@@ -286,7 +295,7 @@ export async function createTestAtlasData(): Promise<void> {
       },
     },
     {
-      id: "550e8400-e29b-41d4-a716-446655440002",
+      id: TEST_GUT_ATLAS_V2_ID,
       overview: {
         description:
           "Test gut atlas v2.1 for S3 notification integration tests",
@@ -296,16 +305,72 @@ export async function createTestAtlasData(): Promise<void> {
         version: "2.1", // DB version format (S3 'v1-1' -> DB '1.1')
       },
     },
-  ];
+    {
+      id: TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
+      overview: {
+        description: "Test Atlas With Network And Name Contrasts",
+        network: "heart",
+        shortName: "test-short-name-a",
+        version: "1.0",
+      },
+    },
+    {
+      id: TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
+      overview: {
+        description: "Test Atlas With Contrasting Name",
+        network: "heart",
+        shortName: "test-short-name-b",
+        version: "1.0",
+      },
+    },
+    {
+      id: TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
+      overview: {
+        description: "Test Atlas With Contrasting Network",
+        network: "lung",
+        shortName: "test-short-name-a",
+        version: "1.0",
+      },
+    },
+  ] as const;
 
   // Insert all test atlases
   for (const atlas of atlases) {
+    const overview: HCAAtlasTrackerDBAtlasOverview = {
+      ...atlas.overview,
+      capId: null,
+      cellxgeneAtlasCollection: null,
+      codeLinks: [],
+      completedTaskCount: 0,
+      highlights: "",
+      ingestionTaskCounts: {
+        [SYSTEM.CAP]: {
+          completedCount: 0,
+          count: 0,
+        },
+        [SYSTEM.CELLXGENE]: {
+          completedCount: 0,
+          count: 0,
+        },
+        [SYSTEM.HCA_DATA_REPOSITORY]: {
+          completedCount: 0,
+          count: 0,
+        },
+      },
+      integrationLead: [],
+      metadataCorrectnessUrl: null,
+      metadataSpecificationTitle: null,
+      metadataSpecificationUrl: null,
+      publications: [],
+      taskCount: 0,
+      wave: "1",
+    };
     await query(
       `INSERT INTO hat.atlases (id, overview, source_studies, status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, NOW(), NOW())`,
       [
         atlas.id,
-        JSON.stringify(atlas.overview),
+        JSON.stringify(overview),
         JSON.stringify([]), // Empty source studies array
         "draft", // Status field
       ],
