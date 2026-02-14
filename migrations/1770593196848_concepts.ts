@@ -64,6 +64,7 @@ export function up(pgm: MigrationBuilder): void {
 
   // Create concepts for source datasets and component atlases
   // To ensure compatibility, the regular expressions used for short name and generation are based on the one used to parse an atlas name for file insertion
+  // File names are assumed to already lack version information, since that feature doesn't exist at the time of migration
   pgm.sql(
     `
       INSERT INTO hat.concepts (atlas_short_name, base_filename, file_type, generation, id, network)
