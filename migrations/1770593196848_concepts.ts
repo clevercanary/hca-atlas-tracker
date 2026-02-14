@@ -76,7 +76,7 @@ export function up(pgm: MigrationBuilder): void {
         d.id,
         split_part(f.key, '/', 1)
       FROM hat.source_datasets d
-      LEFT JOIN hat.files f ON d.file_id = f.id
+      JOIN hat.files f ON d.file_id = f.id
       WHERE d.is_latest
     `,
   );
@@ -91,7 +91,7 @@ export function up(pgm: MigrationBuilder): void {
         c.id,
         split_part(f.key, '/', 1)
       FROM hat.component_atlases c
-      LEFT JOIN hat.files f ON c.file_id = f.id
+      JOIN hat.files f ON c.file_id = f.id
       WHERE c.is_latest
     `,
   );
