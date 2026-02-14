@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.18 (Homebrew)
--- Dumped by pg_dump version 14.18 (Homebrew)
+-- Dumped from database version 14.14 (Homebrew)
+-- Dumped by pg_dump version 14.14 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -91,6 +91,22 @@ CREATE TABLE hat.component_atlases (
 
 
 --
+-- Name: concepts; Type: TABLE; Schema: hat; Owner: -
+--
+
+CREATE TABLE hat.concepts (
+    atlas_short_name text NOT NULL,
+    base_filename text NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    file_type text NOT NULL,
+    generation integer NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    network text NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
 -- Name: entry_sheet_validations; Type: TABLE; Schema: hat; Owner: -
 --
 
@@ -120,7 +136,6 @@ CREATE TABLE hat.files (
     integrity_checked_at timestamp without time zone,
     integrity_error text,
     integrity_status character varying(20) DEFAULT '''pending'''::character varying NOT NULL,
-    is_latest boolean DEFAULT true NOT NULL,
     key text NOT NULL,
     sha256_client character varying(64),
     sha256_server character varying(64),
@@ -135,6 +150,8 @@ CREATE TABLE hat.files (
     validation_reports jsonb,
     validation_summary jsonb,
     is_archived boolean DEFAULT false NOT NULL,
+    is_latest boolean DEFAULT true NOT NULL,
+    concept_id uuid,
     CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'requested'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[]))),
     CONSTRAINT ck_files_validation_status CHECK (((validation_status)::text = ANY ((ARRAY['completed'::character varying, 'job_failed'::character varying, 'pending'::character varying, 'request_failed'::character varying, 'requested'::character varying, 'stale'::character varying])::text[])))
 );
@@ -173,13 +190,6 @@ COMMENT ON COLUMN hat.files.integrity_error IS 'Error message if integrity valid
 --
 
 COMMENT ON COLUMN hat.files.integrity_status IS 'Status: pending, requested, valid, invalid, error';
-
-
---
--- Name: COLUMN files.is_latest; Type: COMMENT; Schema: hat; Owner: -
---
-
-COMMENT ON COLUMN hat.files.is_latest IS 'Whether this is the latest version of the file';
 
 
 --
@@ -354,6 +364,14 @@ ALTER TABLE ONLY hat.users ALTER COLUMN id SET DEFAULT nextval('hat.users_id_seq
 
 
 --
+-- Name: concepts concepts_pkey; Type: CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.concepts
+    ADD CONSTRAINT concepts_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: entry_sheet_validations entry_sheet_validations_entry_sheet_id_key; Type: CONSTRAINT; Schema: hat; Owner: -
 --
 
@@ -517,6 +535,13 @@ CREATE INDEX files_status_index ON hat.files USING btree (validation_status);
 
 
 --
+-- Name: idx_concepts_identity_fields; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_concepts_identity_fields ON hat.concepts USING btree (atlas_short_name, base_filename, file_type, generation, network);
+
+
+--
 -- Name: atlases update_updated_at; Type: TRIGGER; Schema: hat; Owner: -
 --
 
@@ -535,6 +560,13 @@ CREATE TRIGGER update_updated_at BEFORE UPDATE ON hat.comments FOR EACH ROW EXEC
 --
 
 CREATE TRIGGER update_updated_at BEFORE UPDATE ON hat.component_atlases FOR EACH ROW EXECUTE FUNCTION hat.update_updated_at_column();
+
+
+--
+-- Name: concepts update_updated_at; Type: TRIGGER; Schema: hat; Owner: -
+--
+
+CREATE TRIGGER update_updated_at BEFORE UPDATE ON hat.concepts FOR EACH ROW EXECUTE FUNCTION hat.update_updated_at_column();
 
 
 --
@@ -582,6 +614,14 @@ ALTER TABLE ONLY hat.entry_sheet_validations
 
 
 --
+-- Name: files files_concept_id_fkey; Type: FK CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.files
+    ADD CONSTRAINT files_concept_id_fkey FOREIGN KEY (concept_id) REFERENCES hat.concepts(id);
+
+
+--
 -- Name: comments fk_comments_created_by_user_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
 --
 
@@ -595,6 +635,22 @@ ALTER TABLE ONLY hat.comments
 
 ALTER TABLE ONLY hat.comments
     ADD CONSTRAINT fk_comments_updated_by_user_id FOREIGN KEY (updated_by) REFERENCES hat.users(id);
+
+
+--
+-- Name: component_atlases fk_component_atlases_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.component_atlases
+    ADD CONSTRAINT fk_component_atlases_id FOREIGN KEY (id) REFERENCES hat.concepts(id);
+
+
+--
+-- Name: source_datasets fk_source_datasets_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.source_datasets
+    ADD CONSTRAINT fk_source_datasets_id FOREIGN KEY (id) REFERENCES hat.concepts(id);
 
 
 --

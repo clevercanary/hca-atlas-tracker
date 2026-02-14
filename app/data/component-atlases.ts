@@ -30,23 +30,23 @@ export async function createNewComponentAtlasVersion(
 
 /**
  * Mark the existing latest version of the given component atlas as not latest.
- * @param componentAtlasId - ID of the component atlas to update.
+ * @param conceptId - Concept ID of the component atlas to update.
  * @param client - Postgres client to use.
  * @returns ID of the previously-latest component atlas version.
  */
 export async function markComponentAtlasAsNotLatest(
-  componentAtlasId: string,
+  conceptId: string,
   client: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
   >(
     "UPDATE hat.component_atlases SET is_latest = FALSE WHERE id = $1 AND is_latest RETURNING version_id",
-    [componentAtlasId],
+    [conceptId],
   );
   if (queryResult.rows.length === 0)
     throw new Error(
-      `No latest version found for component atlas ${componentAtlasId}`,
+      `No latest version found for component atlas of concept ${conceptId}`,
     );
   return queryResult.rows[0].version_id;
 }
