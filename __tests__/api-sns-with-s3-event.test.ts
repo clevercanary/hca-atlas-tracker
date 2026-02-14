@@ -1314,9 +1314,33 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       firstKey: "gut/gut-v1/source-datasets/sample.h5ad",
       secondKey: "gut/gut-v1-0/source-datasets/sample.h5ad",
     },
+    {
+      afterFirst: async (): Promise<void> => {
+        await query(
+          `UPDATE hat.atlases SET overview = overview || '{"version": "1.1"}' WHERE id = $1`,
+          [TEST_GUT_ATLAS_ID],
+        );
+      },
+      description: "different revision number matching updated atlas",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "test-file-new-rev.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1-0/source-datasets/test-file-new-rev.h5ad",
+      secondKey: "gut/gut-v1-1/source-datasets/test-file-new-rev.h5ad",
+    },
   ])(
     "uses the same concept for S3 key with $description",
-    async ({ description, expectedConceptFields, firstKey, secondKey }) => {
+    async ({
+      afterFirst,
+      description,
+      expectedConceptFields,
+      firstKey,
+      secondKey,
+    }) => {
       // Generate unique identifiers for this test case based on description
       const testId = description.replace(/\s+/g, "-");
 
@@ -1381,6 +1405,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         isLatest: true,
         wipNumber: 1,
       });
+
+      // Call `afterFirst` function, if specified
+      await afterFirst?.();
 
       // Upload second file with variation
       const secondEvent = createS3Event({
