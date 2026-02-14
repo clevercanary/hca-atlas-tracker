@@ -4,11 +4,11 @@ import { parseS3AtlasVersion } from "../app/utils/atlases";
 /**
  * Parameterized tests for atlas version parsing.
  * Rules:
- * - "1" -> "1.0"
- * - "2" -> "2.0"
- * - "1.0" -> "1.0"
- * - "1.2" -> "1.2"
- * - Reject malformed: "1.99", "1.0.0", "2..00", ".1", "1.", "01", "x", ""
+ * - "1"   -> generation 1, revision 0
+ * - "2"   -> generation 2, revision 0
+ * - "1-2" -> generation 1, revision 2
+ * - "<gen>-<rev>" where both are non-negative, non-padded integers
+ * - Reject malformed: "1.0", "1-00", "1-01", "1-0-0", "2--00", "-1", "1-", "01", "x", ""
  */
 
 describe("parseS3AtlasVersion", () => {
