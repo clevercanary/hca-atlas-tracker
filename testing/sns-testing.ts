@@ -302,7 +302,7 @@ export async function createTestAtlasData(): Promise<void> {
         network: "gut", // Same network as first gut atlas
         shortName: "Gut", // Same shortName but different version
         title: "Test Gut Atlas v2.1",
-        version: "2.1", // DB version format (S3 'v1-1' -> DB '1.1')
+        version: "2.1", // DB version format (S3 'v2-1' -> DB '2.1')
       },
     },
     {
