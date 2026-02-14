@@ -15,13 +15,12 @@ describe("parseS3AtlasVersion", () => {
   it.each<readonly [raw: string, expectedGen: number, expectedRev: number]>([
     ["1", 1, 0],
     ["2", 2, 0],
-    ["1.0", 1, 0],
-    ["1.2", 1, 2],
-    ["2.0", 2, 0],
-    ["2.3", 2, 3],
-    ["1.99", 1, 99],
-    ["1.90", 1, 90],
     ["1-0", 1, 0],
+    ["1-2", 1, 2],
+    ["2-0", 2, 0],
+    ["2-3", 2, 3],
+    ["1-99", 1, 99],
+    ["1-90", 1, 90],
     ["12-34", 12, 34],
   ])(
     "parses %s -> generation %i, revision %i",
@@ -34,12 +33,13 @@ describe("parseS3AtlasVersion", () => {
   );
 
   it.each<readonly [raw: string]>([
-    ["1.00"],
-    ["1.01"],
-    ["1.0.0"],
-    ["2..00"],
-    [".1"],
-    ["1."],
+    ["1.0"],
+    ["1-00"],
+    ["1-01"],
+    ["1-0-0"],
+    ["2--00"],
+    ["-1"],
+    ["1-"],
     ["01"],
     ["x"],
     [""],
@@ -51,9 +51,8 @@ describe("parseS3AtlasVersion", () => {
     it.each<readonly [key: string, expectedGen: number, expectedRev: number]>([
       ["/gut/gut-v1/", 1, 0],
       ["/gut/gut-v2", 2, 0],
-      ["/gut/gut-v1.0", 1, 0],
-      ["/gut/gut-v1.2", 1, 2],
-      ["/gut/gut-v2-1", 2, 1],
+      ["/gut/gut-v1-0", 1, 0],
+      ["/gut/gut-v1-2", 1, 2],
     ])(
       "parses version from %s -> generation %i, revision %i",
       (key, expectedGen, expectedRev) => {

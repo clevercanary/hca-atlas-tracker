@@ -23,8 +23,8 @@ export function parseS3AtlasVersion(s3Version: string): AtlasVersionNumbers {
       revision: 0,
     };
 
-  // Major.minor, no leading zeros in either part except for minor version 0
-  const match = /^([1-9]\d*)[-.](0|[1-9][0-9]*)$/.exec(v);
+  // Major-minor, no leading zeros in either part except for minor version 0
+  const match = /^([1-9]\d*)-(0|[1-9][0-9]*)$/.exec(v);
   if (match)
     return {
       generation: Number(match[1]),
