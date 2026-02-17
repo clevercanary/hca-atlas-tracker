@@ -118,7 +118,7 @@ export const buildAtlasVersion = (
   atlas: HCAAtlasTrackerListAtlas,
 ): ComponentProps<typeof C.BasicCell> => {
   return {
-    value: atlas.version,
+    value: `${atlas.generation}.${atlas.revision}`,
   };
 };
 

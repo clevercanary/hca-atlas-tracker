@@ -42,6 +42,7 @@ export function atlasInputMapper(
     componentAtlasCount: apiAtlas.componentAtlasCount,
     description: apiAtlas.description,
     entrySheetValidationCount: apiAtlas.entrySheetValidationCount,
+    generation: apiAtlas.generation,
     highlights: apiAtlas.highlights,
     id: apiAtlas.id,
     ingestionTaskCounts: apiAtlas.ingestionTaskCounts,
@@ -52,6 +53,7 @@ export function atlasInputMapper(
     metadataSpecificationUrl: apiAtlas.metadataSpecificationUrl,
     name: getAtlasName(apiAtlas),
     publications: apiAtlas.publications,
+    revision: apiAtlas.revision,
     shortName: apiAtlas.shortName,
     sourceDatasetCount: apiAtlas.sourceDatasetCount,
     sourceStudyCount: apiAtlas.sourceStudyCount,
@@ -59,13 +61,12 @@ export function atlasInputMapper(
     targetCompletion: apiAtlas.targetCompletion ?? GREATEST_UNIX_TIME,
     taskCount: apiAtlas.taskCount,
     title: apiAtlas.title,
-    version: apiAtlas.version,
     wave: apiAtlas.wave,
   };
 }
 
 export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
-  return `${atlas.shortName} v${atlas.version}`;
+  return `${atlas.shortName} v${atlas.generation}.${atlas.revision}`;
 }
 
 /**

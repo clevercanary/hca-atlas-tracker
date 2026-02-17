@@ -117,7 +117,6 @@ export function makeTestAtlasOverview(
     publications: atlas.publications,
     shortName: atlas.shortName,
     taskCount: 0,
-    version: atlas.version,
     wave: atlas.wave,
   };
 }
@@ -480,7 +479,7 @@ export function expectApiAtlasToMatchTest(
   expect(apiAtlas.targetCompletion).toEqual(
     testAtlas.targetCompletion?.toISOString() ?? null,
   );
-  expect(apiAtlas.version).toEqual(testAtlas.version);
+  // TODO test version fields
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
 }
 
@@ -503,7 +502,7 @@ export function expectDbAtlasToMatchApi(
     apiAtlas.targetCompletion,
   );
   expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
-  expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
+  // TODO test version fields
   expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
   expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
 }

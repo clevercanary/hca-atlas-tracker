@@ -167,7 +167,6 @@ export async function atlasInputDataToDbData(
       network: inputData.network,
       publications,
       shortName: inputData.shortName,
-      version: "", // TODO remove
       wave: inputData.wave,
     },
     status: inputData.status ?? ATLAS_STATUS.IN_PROGRESS,
