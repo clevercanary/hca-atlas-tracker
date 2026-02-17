@@ -248,8 +248,10 @@ export type ValidationDBEntityOfType<T extends ENTITY_TYPE> =
 export interface HCAAtlasTrackerDBAtlas {
   component_atlases: string[];
   created_at: Date;
+  generation: number;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
+  revision: number;
   source_datasets: string[];
   source_studies: string[];
   status: ATLAS_STATUS;
