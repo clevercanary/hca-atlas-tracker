@@ -63,7 +63,6 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   network: "eye",
   shortName: "test",
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "1.0",
   wave: "1",
 };
 
@@ -78,7 +77,6 @@ const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
   ],
   network: "eye",
   shortName: "test2",
-  version: "1.0",
   wave: "1",
 };
 
@@ -101,7 +99,6 @@ const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
   ],
   network: "development",
   shortName: "test3",
-  version: "1.2",
   wave: "3",
 };
 
@@ -112,7 +109,6 @@ const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
   network: "musculoskeletal",
   shortName: "test4",
   targetCompletion: "2024-06-03T21:07:22.177Z",
-  version: "3.3",
   wave: "2",
 };
 
@@ -121,7 +117,6 @@ const NEW_ATLAS_WITHOUT_DESCRIPTION: NewAtlasData = {
   integrationLead: [],
   network: "nervous-system",
   shortName: "test5",
-  version: "5.3",
   wave: "2",
 };
 
@@ -131,7 +126,6 @@ const NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION: NewAtlasData = {
   integrationLead: [],
   network: "lung",
   shortName: "test6",
-  version: "2.3",
   wave: "1",
 };
 
@@ -141,7 +135,6 @@ const NEW_ATLAS_COMPLETE: NewAtlasData = {
   network: "kidney",
   shortName: "test7",
   status: ATLAS_STATUS.OC_ENDORSED,
-  version: "6.2",
   wave: "1",
 };
 
@@ -152,7 +145,6 @@ const NEW_ATLAS_WITH_METADATA_SPECIFICATION: NewAtlasData = {
     "https://docs.google.com/spreadsheets/d/new-atlas-with-metadata-specification/edit",
   network: "nervous-system",
   shortName: "test8",
-  version: "2.5",
   wave: "3",
 };
 
@@ -218,21 +210,6 @@ describe("/api/atlases/create", () => {
           {
             ...NEW_ATLAS_DATA,
             network: "notanetwork" as NewAtlasData["network"],
-          },
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
-  });
-
-  it("returns error 400 when version is a number rather than a string", async () => {
-    expect(
-      (
-        await doCreateTest(
-          USER_CONTENT_ADMIN,
-          {
-            ...NEW_ATLAS_DATA,
-            version: 1 as unknown as NewAtlasData["version"],
           },
           true,
         )
@@ -560,7 +537,6 @@ async function testSuccessfulCreate(
     newAtlasFromDb.overview.publications.map((p) => p.publication),
   ).toEqual(expectedPublicationsInfo);
   expect(newAtlasFromDb.overview.shortName).toEqual(atlasData.shortName);
-  expect(newAtlasFromDb.overview.version).toEqual(atlasData.version);
   expect(newAtlasFromDb.overview.wave).toEqual(atlasData.wave);
   expect(newAtlasFromDb.overview.taskCount).toEqual(0);
   expect(newAtlasFromDb.overview.completedTaskCount).toEqual(0);

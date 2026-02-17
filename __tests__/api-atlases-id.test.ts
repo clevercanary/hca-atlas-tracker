@@ -81,7 +81,6 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
   shortName: "test-public-edited",
   status: ATLAS_PUBLIC.status,
   targetCompletion: "2024-06-09T12:21:52.277Z",
-  version: "2.0",
   wave: "2",
 };
 
@@ -91,7 +90,6 @@ const ATLAS_WITH_IL_EDIT: AtlasEditData = {
   integrationLead: [],
   network: "development",
   shortName: ATLAS_WITH_IL.shortName,
-  version: "2.1",
   wave: ATLAS_WITH_IL.wave,
 };
 
@@ -114,7 +112,6 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
   ],
   network: "development",
   shortName: "test3",
-  version: "1.2",
   wave: "3",
 };
 
@@ -130,7 +127,6 @@ const ATLAS_PUBLIC_EDIT_NO_TARGET_COMPLETION_OR_CELLXGENE: AtlasEditData = {
   integrationLead: ATLAS_PUBLIC.integrationLead,
   network: ATLAS_PUBLIC.network,
   shortName: ATLAS_PUBLIC.shortName,
-  version: ATLAS_PUBLIC.version,
   wave: ATLAS_PUBLIC.wave,
 };
 
@@ -141,7 +137,6 @@ const ATLAS_WITH_MISC_SOURCE_STUDIES_EDIT: AtlasEditData = {
   integrationLead: ATLAS_WITH_MISC_SOURCE_STUDIES.integrationLead,
   network: ATLAS_WITH_MISC_SOURCE_STUDIES.network,
   shortName: ATLAS_WITH_MISC_SOURCE_STUDIES.shortName,
-  version: ATLAS_WITH_MISC_SOURCE_STUDIES.version,
   wave: ATLAS_WITH_MISC_SOURCE_STUDIES.wave,
 };
 
@@ -151,7 +146,6 @@ const ATLAS_PUBLIC_BAR_EDIT: AtlasEditData = {
   integrationLead: ATLAS_PUBLIC_BAR.integrationLead,
   network: ATLAS_PUBLIC_BAR.network,
   shortName: ATLAS_PUBLIC_BAR.shortName,
-  version: ATLAS_PUBLIC_BAR.version,
   wave: ATLAS_PUBLIC_BAR.wave,
 };
 
@@ -162,7 +156,6 @@ const ATLAS_WITH_METADATA_CORRECTNESS_EDIT: AtlasEditData = {
   integrationLead: ATLAS_WITH_METADATA_CORRECTNESS.integrationLead,
   network: ATLAS_WITH_METADATA_CORRECTNESS.network,
   shortName: ATLAS_WITH_METADATA_CORRECTNESS.shortName,
-  version: ATLAS_WITH_METADATA_CORRECTNESS.version,
   wave: ATLAS_WITH_METADATA_CORRECTNESS.wave,
 };
 
@@ -174,7 +167,6 @@ const ATLAS_PUBLIC_BAZ_EDIT: AtlasEditData = {
     "https://docs.google.com/spreadsheets/d/atlas-public-baz/edit",
   network: ATLAS_PUBLIC_BAZ.network,
   shortName: ATLAS_PUBLIC_BAZ.shortName,
-  version: ATLAS_PUBLIC_BAZ.version,
   wave: ATLAS_PUBLIC_BAZ.wave,
 };
 
@@ -185,7 +177,6 @@ const ATLAS_WITH_CAP_ID_EDIT: AtlasEditData = {
   metadataSpecificationUrl: ATLAS_WITH_CAP_ID.metadataSpecificationUrl,
   network: ATLAS_WITH_CAP_ID.network,
   shortName: ATLAS_WITH_CAP_ID.shortName,
-  version: ATLAS_WITH_CAP_ID.version,
   wave: ATLAS_WITH_CAP_ID.wave,
 };
 
@@ -424,23 +415,6 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             network: "notanetwork" as AtlasEditData["network"],
-          },
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
-  });
-
-  it("PUT returns error 400 when version is a number rather than a string", async () => {
-    expect(
-      (
-        await doAtlasRequest(
-          ATLAS_PUBLIC.id,
-          USER_CONTENT_ADMIN,
-          true,
-          METHOD.PUT,
-          {
-            ...ATLAS_PUBLIC_EDIT,
-            version: 1 as unknown as AtlasEditData["version"],
           },
         )
       )._getStatusCode(),
@@ -747,7 +721,6 @@ async function testSuccessfulEdit(
   );
   expect(updatedOverview.network).toEqual(editData.network);
   expect(updatedOverview.shortName).toEqual(editData.shortName);
-  expect(updatedOverview.version).toEqual(editData.version);
   expect(updatedOverview.wave).toEqual(editData.wave);
 
   expect(updatedAtlas.status).toEqual(

@@ -123,7 +123,7 @@ export async function createAtlas(
     taskCount: 0,
   };
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING id",
+    "INSERT INTO hat.atlases (generation, revision, overview, source_studies, status, target_completion) VALUES (1, 0, $1, $2, $3, $4) RETURNING id",
     [JSON.stringify(overview), "[]", status, targetCompletion],
   );
   const newId = queryResult.rows[0].id;
@@ -167,7 +167,7 @@ export async function atlasInputDataToDbData(
       network: inputData.network,
       publications,
       shortName: inputData.shortName,
-      version: inputData.version,
+      version: "", // TODO remove
       wave: inputData.wave,
     },
     status: inputData.status ?? ATLAS_STATUS.IN_PROGRESS,
