@@ -101,7 +101,7 @@ export async function getAtlasesMatchingConcept(
       JOIN hat.concepts c ON
         a.overview->>'network' = c.network
         AND lower(a.overview->>'shortName') = c.atlas_short_name
-        AND split_part(a.overview->>'version', '.', 1)::int = c.generation
+        AND a.generation = c.generation
       WHERE c.id = $1
     `,
       [conceptId],

@@ -24,7 +24,7 @@ export async function getAllUsers(): Promise<
         u.*,
         (
           CASE WHEN cardinality(u.role_associated_resource_ids) = 0 THEN '{}'::text[]
-          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version'))
+          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.generation, '.', a.revision))
           END
         ) AS role_associated_resource_names
       FROM hat.users u
@@ -49,7 +49,7 @@ export async function getUserByEmail(
         u.*,
         (
           CASE WHEN cardinality(u.role_associated_resource_ids) = 0 THEN '{}'::text[]
-          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version'))
+          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.generation, '.', a.revision))
           END
         ) AS role_associated_resource_names
       FROM hat.users u
@@ -78,7 +78,7 @@ export async function getUserById(
         u.*,
         (
           CASE WHEN cardinality(u.role_associated_resource_ids) = 0 THEN '{}'::text[]
-          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version'))
+          ELSE ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.generation, '.', a.revision))
           END
         ) AS role_associated_resource_names
       FROM hat.users u

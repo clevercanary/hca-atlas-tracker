@@ -649,9 +649,9 @@ export async function getSourceStudiesWithAtlasProperties(
     await client.query<HCAAtlasTrackerDBSourceStudyWithAtlasProperties>(`
       SELECT
         s.*,
-        ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS atlas_names,
+        ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.generation, '.', a.revision)) AS atlas_names,
         ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
-        ARRAY_AGG(DISTINCT a.overview->>'version') AS atlas_versions,
+        ARRAY_AGG(DISTINCT a.generation || '.' || a.revision) AS atlas_versions,
         ARRAY_AGG(DISTINCT a.overview->>'network') AS networks
       FROM hat.source_studies s
       LEFT JOIN hat.atlases a ON a.source_studies @> to_jsonb(s.id)
@@ -675,9 +675,9 @@ export async function getSourceStudyWithAtlasProperties(
       `
         SELECT
           s.*,
-          ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.overview->>'version')) AS atlas_names,
+          ARRAY_AGG(DISTINCT concat(a.overview->>'shortName', ' v', a.generation, '.', a.revision)) AS atlas_names,
           ARRAY_AGG(DISTINCT a.overview->>'shortName') AS atlas_short_names,
-          ARRAY_AGG(DISTINCT a.overview->>'version') AS atlas_versions,
+          ARRAY_AGG(DISTINCT a.generation || '.' || a.revision) AS atlas_versions,
           ARRAY_AGG(DISTINCT a.overview->>'network') AS networks
         FROM hat.source_studies s
         LEFT JOIN hat.atlases a ON a.source_studies @> to_jsonb(s.id)
