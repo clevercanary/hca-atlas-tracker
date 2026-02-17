@@ -324,10 +324,7 @@ export function getTestFileKey(file: TestFile, atlas: TestAtlas): string {
       folderName = "source-datasets";
       break;
   }
-  return `${atlas.network}/${atlas.shortName}-v${atlas.version.replaceAll(
-    ".",
-    "-",
-  )}/${folderName}/${file.fileName}`;
+  return `${atlas.network}/${atlas.shortName}-v${atlas.generation}-${atlas.revision}/${folderName}/${file.fileName}`;
 }
 
 export function getTestSourceStudyCitation(
@@ -479,7 +476,8 @@ export function expectApiAtlasToMatchTest(
   expect(apiAtlas.targetCompletion).toEqual(
     testAtlas.targetCompletion?.toISOString() ?? null,
   );
-  // TODO test version fields
+  expect(apiAtlas.generation).toEqual(testAtlas.generation);
+  expect(apiAtlas.revision).toEqual(testAtlas.revision);
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
 }
 
@@ -502,7 +500,8 @@ export function expectDbAtlasToMatchApi(
     apiAtlas.targetCompletion,
   );
   expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
-  // TODO test version fields
+  expect(dbAtlas.generation).toEqual(apiAtlas.generation);
+  expect(dbAtlas.revision).toEqual(apiAtlas.revision);
   expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
   expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
 }

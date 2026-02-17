@@ -540,6 +540,8 @@ async function testSuccessfulCreate(
   expect(newAtlasFromDb.overview.wave).toEqual(atlasData.wave);
   expect(newAtlasFromDb.overview.taskCount).toEqual(0);
   expect(newAtlasFromDb.overview.completedTaskCount).toEqual(0);
+  expect(newAtlasFromDb.generation).toEqual(1);
+  expect(newAtlasFromDb.revision).toEqual(0);
   expectDbAtlasToMatchApi(newAtlasFromDb, newAtlas);
 }
 

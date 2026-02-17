@@ -153,7 +153,10 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
   for (const atlas of INITIAL_TEST_ATLASES) {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
-      "INSERT INTO hat.atlases (id, overview, component_atlases, source_datasets, source_studies, status, target_completion) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+      `
+        INSERT INTO hat.atlases (id, overview, component_atlases, source_datasets, source_studies, status, target_completion, generation, revision)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `,
       [
         atlas.id,
         JSON.stringify(overview),
@@ -162,6 +165,8 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
         JSON.stringify(atlas.sourceStudies || []),
         atlas.status,
         atlas.targetCompletion ?? null,
+        atlas.generation,
+        atlas.revision,
       ],
     );
   }
@@ -262,7 +267,7 @@ async function initTestFile(
         atlas_short_name: atlas.shortName.toLowerCase(),
         base_filename: getFileBaseName(file.fileName),
         file_type: fileType,
-        generation: Number(atlas.version.split(".")[0]),
+        generation: atlas.generation,
         id: conceptId,
         network: atlas.network,
       },

@@ -126,7 +126,9 @@ function expectInitialValidationsToExist(
     const { atlasNames } = studyValidations[0];
     expect(atlasNames).toHaveLength(studyAtlases.length);
     for (const atlas of studyAtlases) {
-      expect(atlasNames).toContain(`${atlas.shortName} v${atlas.version}`);
+      expect(atlasNames).toContain(
+        `${atlas.shortName} v${atlas.generation}.${atlas.revision}`,
+      );
     }
   }
 }
