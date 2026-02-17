@@ -6,6 +6,5 @@ export const FIELD_NAME = {
   INTEGRATION_LEAD: "integrationLead",
   SHORT_NAME: "shortName",
   STATUS: "status",
-  VERSION: "version",
   WAVE: "wave",
 } as const;
