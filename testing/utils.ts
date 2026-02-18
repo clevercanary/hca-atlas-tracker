@@ -117,7 +117,6 @@ export function makeTestAtlasOverview(
     publications: atlas.publications,
     shortName: atlas.shortName,
     taskCount: 0,
-    version: atlas.version,
     wave: atlas.wave,
   };
 }
@@ -325,10 +324,7 @@ export function getTestFileKey(file: TestFile, atlas: TestAtlas): string {
       folderName = "source-datasets";
       break;
   }
-  return `${atlas.network}/${atlas.shortName}-v${atlas.version.replaceAll(
-    ".",
-    "-",
-  )}/${folderName}/${file.fileName}`;
+  return `${atlas.network}/${atlas.shortName}-v${atlas.generation}-${atlas.revision}/${folderName}/${file.fileName}`;
 }
 
 export function getTestSourceStudyCitation(
@@ -480,7 +476,8 @@ export function expectApiAtlasToMatchTest(
   expect(apiAtlas.targetCompletion).toEqual(
     testAtlas.targetCompletion?.toISOString() ?? null,
   );
-  expect(apiAtlas.version).toEqual(testAtlas.version);
+  expect(apiAtlas.generation).toEqual(testAtlas.generation);
+  expect(apiAtlas.revision).toEqual(testAtlas.revision);
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
 }
 
@@ -503,7 +500,8 @@ export function expectDbAtlasToMatchApi(
     apiAtlas.targetCompletion,
   );
   expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
-  expect(dbAtlas.overview.version).toEqual(apiAtlas.version);
+  expect(dbAtlas.generation).toEqual(apiAtlas.generation);
+  expect(dbAtlas.revision).toEqual(apiAtlas.revision);
   expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
   expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
 }

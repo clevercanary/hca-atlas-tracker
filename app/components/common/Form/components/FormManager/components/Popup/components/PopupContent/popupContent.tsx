@@ -33,7 +33,7 @@ export function renderText(route?: RouteValue): string {
     case ROUTE.ATLASES:
       return `"Atlases" page`;
     case ROUTE.CREATE_ATLAS:
-      return `"Add New Atlas" page`;
+      return `"Add New Atlas Family" page`;
     case ROUTE.CREATE_SOURCE_STUDY:
       return `"Add Source Study" page`;
     case ROUTE.ATLAS_SOURCE_DATASET:

@@ -145,7 +145,7 @@ async function generateAndAddFilesForAtlases(
 
     for (const atlas of atlases) {
       const counts = await generateAndAddFilesForAtlas(client, atlas);
-      const name = `${atlas.overview.shortName} v${atlas.overview.version}`;
+      const name = `${atlas.overview.shortName} v${atlas.generation}.${atlas.revision}`;
       atlasGeneratedCounts.push([name, ...counts]);
     }
   }
@@ -413,7 +413,7 @@ async function generateAndAddFile(
   const fileName = crypto.randomUUID() + extension;
   const key = `${atlas.overview.network}/${
     atlas.overview.shortName
-  }-v${atlas.overview.version.replaceAll(".", "-")}/${folderName}/${fileName}`;
+  }-v${atlas.generation}-${atlas.revision}/${folderName}/${fileName}`;
   const conceptId =
     fileType === FILE_TYPE.INGEST_MANIFEST
       ? null
@@ -422,7 +422,7 @@ async function generateAndAddFile(
             atlas_short_name: atlas.overview.shortName.toLowerCase(),
             base_filename: fileName,
             file_type: fileType,
-            generation: Number(atlas.overview.version.split(".")[0]),
+            generation: atlas.generation,
             network: atlas.overview.network,
           },
           client,
@@ -571,7 +571,8 @@ async function generateAndAddAtlases(client: pg.PoolClient): Promise<string[]> {
 async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
   const network = chooseRandom(networkOptions);
   const shortName = `files_test_${randomInRange(0, 99999)}`;
-  const version = `${randomInRange(0, 9)}.${randomInRange(0, 9)}`;
+  const generation = randomInRange(0, 9);
+  const revision = randomInRange(0, 9);
   const wave = chooseRandom(waveOptions);
   const status = chooseRandom(atlasStatusOptions);
   const integrationLead = chooseRandom(integrationLeadOptions);
@@ -595,13 +596,12 @@ async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
     publications: [],
     shortName,
     taskCount: 0,
-    version,
     wave,
   };
 
   const result = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion) VALUES ($1, $2, $3, $4) RETURNING id",
-    [JSON.stringify(overview), "[]", status, null],
+    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion, generation, revision) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+    [JSON.stringify(overview), "[]", status, null, generation, revision],
   );
 
   return result.rows[0].id;

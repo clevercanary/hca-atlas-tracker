@@ -97,7 +97,6 @@ export const newAtlasSchema = object({
   shortName: string().default("").required("Short name is required"),
   status: string().oneOf(Object.values(ATLAS_STATUS)),
   targetCompletion: string().datetime().nullable(),
-  version: string().default("").required("Version is required"),
   wave: string()
     .default("")
     .required("Wave is required")

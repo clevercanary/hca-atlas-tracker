@@ -1320,10 +1320,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     },
     {
       afterFirst: async (): Promise<void> => {
-        await query(
-          `UPDATE hat.atlases SET overview = overview || '{"version": "1.1"}' WHERE id = $1`,
-          [TEST_GUT_ATLAS_ID],
-        );
+        await query(`UPDATE hat.atlases SET revision = 1 WHERE id = $1`, [
+          TEST_GUT_ATLAS_ID,
+        ]);
       },
       description: "different revision number matching updated atlas",
       expectedConceptFields: {

@@ -275,26 +275,29 @@ export async function createTestAtlasData(): Promise<void> {
   // Create multiple test atlases to cover different network/version scenarios
   const atlases = [
     {
+      generation: 1,
       id: TEST_GUT_ATLAS_ID,
       overview: {
         description: "Test gut atlas for S3 notification integration tests",
         network: "gut", // Matches S3 path 'gut/gut-v1/...'
         shortName: "Gut", // Case-insensitive match with S3 atlas base name 'gut'
         title: "Test Gut Atlas v1",
-        version: "1", // DB version format (S3 'v1' -> DB '1')
       },
+      revision: 0,
     },
     {
+      generation: 1,
       id: "550e8400-e29b-41d4-a716-446655440001",
       overview: {
         description: "Test retina atlas for S3 notification integration tests",
         network: "eye", // Matches S3 path 'eye/retina-v1/...'
         shortName: "Retina", // Case-insensitive match with S3 atlas base name 'retina'
         title: "Test Retina Atlas v1",
-        version: "1", // DB version format (S3 'v1' -> DB '1')
       },
+      revision: 0,
     },
     {
+      generation: 2,
       id: TEST_GUT_ATLAS_V2_ID,
       overview: {
         description:
@@ -302,35 +305,38 @@ export async function createTestAtlasData(): Promise<void> {
         network: "gut", // Same network as first gut atlas
         shortName: "Gut", // Same shortName but different version
         title: "Test Gut Atlas v2.1",
-        version: "2.1", // DB version format (S3 'v2-1' -> DB '2.1')
       },
+      revision: 1,
     },
     {
+      generation: 1,
       id: TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
       overview: {
         description: "Test Atlas With Network And Name Contrasts",
         network: "heart",
         shortName: "test-short-name-a",
-        version: "1.0",
       },
+      revision: 0,
     },
     {
+      generation: 1,
       id: TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
       overview: {
         description: "Test Atlas With Contrasting Name",
         network: "heart",
         shortName: "test-short-name-b",
-        version: "1.0",
       },
+      revision: 0,
     },
     {
+      generation: 1,
       id: TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
       overview: {
         description: "Test Atlas With Contrasting Network",
         network: "lung",
         shortName: "test-short-name-a",
-        version: "1.0",
       },
+      revision: 0,
     },
   ] as const;
 
@@ -366,13 +372,15 @@ export async function createTestAtlasData(): Promise<void> {
       wave: "1",
     };
     await query(
-      `INSERT INTO hat.atlases (id, overview, source_studies, status, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, NOW(), NOW())`,
+      `INSERT INTO hat.atlases (id, overview, source_studies, status, generation, revision, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
       [
         atlas.id,
         JSON.stringify(overview),
         JSON.stringify([]), // Empty source studies array
         "draft", // Status field
+        atlas.generation,
+        atlas.revision,
       ],
     );
   }

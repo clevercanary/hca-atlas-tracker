@@ -54,6 +54,7 @@ export function dbAtlasToApiAtlas(
     componentAtlasCount: dbAtlas.component_atlas_count,
     description: dbAtlas.overview.description,
     entrySheetValidationCount: dbAtlas.entry_sheet_validation_count,
+    generation: dbAtlas.generation,
     highlights: dbAtlas.overview.highlights,
     id: dbAtlas.id,
     ingestionTaskCounts: dbAtlas.overview.ingestionTaskCounts,
@@ -62,6 +63,7 @@ export function dbAtlasToApiAtlas(
     metadataSpecificationTitle: dbAtlas.overview.metadataSpecificationTitle,
     metadataSpecificationUrl: dbAtlas.overview.metadataSpecificationUrl,
     publications: dbAtlas.overview.publications,
+    revision: dbAtlas.revision,
     shortName: dbAtlas.overview.shortName,
     sourceDatasetCount: dbAtlas.source_dataset_count,
     sourceStudyCount: dbAtlas.source_studies.length,
@@ -69,7 +71,6 @@ export function dbAtlasToApiAtlas(
     targetCompletion: dbAtlas.target_completion?.toISOString() ?? null,
     taskCount: dbAtlas.overview.taskCount,
     title: "",
-    version: dbAtlas.overview.version,
     wave: dbAtlas.overview.wave,
   };
 }

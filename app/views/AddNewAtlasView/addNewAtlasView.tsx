@@ -32,7 +32,7 @@ export const AddNewAtlasView = (): JSX.Element => {
           sectionConfigs={ADD_ATLAS_SECTION_CONFIGS}
         />
       }
-      title="Add New Atlas"
+      title="Add New Atlas Family"
     />
   );
 };
@@ -47,7 +47,9 @@ function renderAccessFallback(formManager: FormManager): JSX.Element | null {
     access: { canEdit, canView },
   } = formManager;
   if (!canView)
-    return <AccessPrompt divider={<Divider />} text="to add a new atlas" />;
+    return (
+      <AccessPrompt divider={<Divider />} text="to add a new atlas family" />
+    );
   if (!canEdit) return <AccessDeniedPrompt divider={<Divider />} />;
   return null;
 }

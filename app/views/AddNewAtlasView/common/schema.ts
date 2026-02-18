@@ -49,7 +49,6 @@ export const newAtlasSchema = object({
   [FIELD_NAME.SHORT_NAME]: string()
     .default("")
     .required("Short name is required"),
-  [FIELD_NAME.VERSION]: string().default("").required("Version is required"),
   [FIELD_NAME.WAVE]: string()
     .default("")
     .required("Wave is required")

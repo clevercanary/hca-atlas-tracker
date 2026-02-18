@@ -42,14 +42,6 @@ const TARGET_COMPLETION: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> =
     },
   };
 
-const VERSION: CommonControllerConfig = {
-  inputProps: {
-    label: "Version",
-    placeholder: "e.g. 1.0",
-  },
-  name: FIELD_NAME.VERSION,
-};
-
 const WAVE: CommonControllerConfig = {
   name: FIELD_NAME.WAVE,
   selectProps: {
@@ -136,7 +128,7 @@ const METADATA_CORRECTNESS_URL: ControllerConfig<
 export const GENERAL_INFO_NEW_ATLAS_CONTROLLERS: ControllerConfig<
   NewAtlasData,
   HCAAtlasTrackerAtlas
->[] = [SHORT_NAME, VERSION, BIO_NETWORK, WAVE, DOI];
+>[] = [SHORT_NAME, BIO_NETWORK, WAVE, DOI];
 
 export const IDENTIFIERS_NEW_ATLAS_CONTROLLERS: ControllerConfig<
   NewAtlasData,

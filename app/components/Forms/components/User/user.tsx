@@ -141,7 +141,7 @@ export const UserForm = ({
                 >
                   {(atlases ?? []).map((atlas) => (
                     <MMenuItem key={atlas.id} value={atlas.id}>
-                      {atlas.shortName} v{atlas.version}
+                      {atlas.shortName} v{atlas.generation}.{atlas.revision}
                     </MMenuItem>
                   ))}
                 </Select>

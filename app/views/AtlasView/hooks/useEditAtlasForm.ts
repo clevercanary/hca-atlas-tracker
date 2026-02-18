@@ -61,7 +61,6 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
     [FIELD_NAME.STATUS]: atlas.status,
     [FIELD_NAME.TARGET_COMPLETION]:
       atlas.targetCompletion ?? TARGET_COMPLETION_NULL,
-    [FIELD_NAME.VERSION]: atlas.version,
     [FIELD_NAME.WAVE]: atlas.wave,
   };
 }

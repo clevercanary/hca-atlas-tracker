@@ -28,6 +28,7 @@ export interface HCAAtlasTrackerAtlas {
   componentAtlasCount: number;
   description: string;
   entrySheetValidationCount: number;
+  generation: number;
   highlights: string;
   id: string;
   ingestionTaskCounts: IngestionTaskCounts;
@@ -36,6 +37,7 @@ export interface HCAAtlasTrackerAtlas {
   metadataSpecificationTitle: string | null;
   metadataSpecificationUrl: string | null;
   publications: DoiPublicationInfo[];
+  revision: number;
   shortName: string;
   sourceDatasetCount: number;
   sourceStudyCount: number;
@@ -43,7 +45,6 @@ export interface HCAAtlasTrackerAtlas {
   targetCompletion: string | null;
   taskCount: number;
   title: string;
-  version: string;
   wave: Wave;
 }
 
@@ -248,8 +249,10 @@ export type ValidationDBEntityOfType<T extends ENTITY_TYPE> =
 export interface HCAAtlasTrackerDBAtlas {
   component_atlases: string[];
   created_at: Date;
+  generation: number;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
+  revision: number;
   source_datasets: string[];
   source_studies: string[];
   status: ATLAS_STATUS;
@@ -279,7 +282,6 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   publications: DoiPublicationInfo[];
   shortName: string;
   taskCount: number;
-  version: string;
   wave: Wave;
 }
 

@@ -246,7 +246,7 @@ async function getFileIdsByEntityKeywords(
         WHERE
           id::text = $1
           OR LOWER(overview->>'shortName') = LOWER($1)
-          OR LOWER((overview->>'shortName') || ' v' || (overview->>'version')) = LOWER($1)
+          OR LOWER((overview->>'shortName') || ' v' || generation || '.' || revision) = LOWER($1)
       `,
       "id",
     );

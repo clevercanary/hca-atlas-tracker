@@ -3485,6 +3485,7 @@ export const ATLAS_DRAFT: TestAtlas = {
     COMPONENT_ATLAS_DRAFT_BAR.versionId,
   ],
   description: "bar baz baz foo baz",
+  generation: 1,
   highlights: "",
   id: ATLAS_ID_DRAFT,
   integrationLead: [
@@ -3499,6 +3500,7 @@ export const ATLAS_DRAFT: TestAtlas = {
   ],
   network: "eye",
   publications: [],
+  revision: 2,
   shortName: "test-draft",
   sourceDatasets: [
     SOURCE_DATASET_DRAFT_OK_FOO.versionId,
@@ -3515,7 +3517,6 @@ export const ATLAS_DRAFT: TestAtlas = {
     SOURCE_STUDY_DRAFT_NO_CROSSREF.id,
   ],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "1.2",
   wave: "1",
 };
 
@@ -3524,6 +3525,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   codeLinks: [{ label: "foo", url: "https://example.com/atlas-public-foo" }],
   componentAtlases: [],
   description: "foo foo bar bar foo",
+  generation: 2,
   highlights: "bar foo baz foo foo bar baz",
   id: ATLAS_ID_PUBLIC,
   integrationLead: [
@@ -3539,6 +3541,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   metadataSpecificationUrl: "https://docs.google.com/spreadsheets/foo",
   network: "lung",
   publications: [],
+  revision: 3,
   shortName: "test-public",
   sourceDatasets: [
     SOURCE_DATASET_FOOFOO.versionId,
@@ -3547,7 +3550,6 @@ export const ATLAS_PUBLIC: TestAtlas = {
   sourceStudies: [SOURCE_STUDY_PUBLIC_NO_CROSSREF.id, SOURCE_STUDY_SHARED.id],
   status: ATLAS_STATUS.OC_ENDORSED,
   targetCompletion: new Date("2024-05-28T22:31:45.731Z"),
-  version: "2.3",
   wave: "1",
 };
 
@@ -3556,15 +3558,16 @@ export const ATLAS_WITH_IL: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "foo baz bar baz foo baz",
+  generation: 2,
   highlights: "",
   id: "798b563d-16ff-438a-8e15-77be05b1f8ec",
   integrationLead: [INTEGRATION_LEAD_BAZ],
   network: "heart",
   publications: [],
+  revision: 0,
   shortName: "test-with-il",
   sourceStudies: [SOURCE_STUDY_PUBLISHED_WITH_HCA.id],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "2.0",
   wave: "3",
 };
 
@@ -3579,11 +3582,13 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     COMPONENT_ATLAS_MISC_BAZ.versionId,
   ],
   description: "bar foo bar bar foo baz",
+  generation: 2,
   highlights: "foo foo foo foo bar foo bar",
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES,
   integrationLead: [INTEGRATION_LEAD_BAZ_BAZ],
   network: "adipose",
   publications: [{ doi: DOI_NORMAL, publication: PUBLICATION_NORMAL }],
+  revision: 3,
   shortName: "test-with-misc-source-studies",
   sourceDatasets: [
     SOURCE_DATASET_FOO.versionId,
@@ -3619,7 +3624,6 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
     SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B.id,
   ],
   status: ATLAS_STATUS.OC_ENDORSED,
-  version: "2.3",
   wave: "2",
 };
 
@@ -3635,11 +3639,13 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
     COMPONENT_ATLAS_ARCHIVED_FOOFOO.versionId,
   ],
   description: "baz baz baz foo bar bar",
+  generation: 5,
   highlights: "",
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B,
   integrationLead: [],
   network: "eye",
   publications: [],
+  revision: 3,
   shortName: "test-with-misc-source-studies-b",
   sourceDatasets: [
     SOURCE_DATASET_WITH_MULTIPLE_FILES_W3.versionId,
@@ -3652,7 +3658,6 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   ],
   sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "5.3",
   wave: "2",
 };
 
@@ -3661,11 +3666,13 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "baz bar foo foo bar baz baz foo",
+  generation: 6,
   highlights: "",
   id: ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C,
   integrationLead: [],
   network: "lung",
   publications: [],
+  revision: 2,
   shortName: "test-with-misc-source-studies-c",
   sourceDatasets: [
     SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO.versionId,
@@ -3675,7 +3682,6 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
   ],
   sourceStudies: [SOURCE_STUDY_MISC_C_FOO.id, SOURCE_STUDY_MISC_C_BAR.id],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "6.2",
   wave: "1",
 };
 
@@ -3684,11 +3690,13 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "foo baz baz bar foo bar",
+  generation: 5,
   highlights: "",
   id: "7ce0814d-606c-475b-942a-0f72ff8c5c0b",
   integrationLead: [],
   network: "organoid",
   publications: [],
+  revision: 4,
   shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A,
   sourceStudies: [
     SOURCE_STUDY_PUBLISHED_WITH_HCA.id,
@@ -3698,7 +3706,6 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A: TestAtlas = {
     SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA.id,
   ],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "5.4",
   wave: "2",
 };
 
@@ -3707,11 +3714,13 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   codeLinks: [],
   componentAtlases: [COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.versionId],
   description: "baz foo baz foo bar bar foo",
+  generation: 3,
   highlights: "",
   id: "9766683a-3c8d-4ec8-b8b5-3fceb8fe0d31",
   integrationLead: [],
   network: "gut",
   publications: [],
+  revision: 5,
   shortName: "test-with-source-study-validations-b",
   sourceDatasets: [
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ.versionId,
@@ -3724,7 +3733,6 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
     SOURCE_STUDY_PUBLISHED_WITH_CAP_AND_CELLXGENE.id,
   ],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "3.5",
   wave: "1",
 };
 
@@ -3733,15 +3741,16 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "bar baz baz bar foo foo foo bar",
+  generation: 6,
   highlights: "",
   id: "0e65d1fb-d352-4af4-8109-368935fd0c48",
   integrationLead: [],
   network: "organoid",
   publications: [],
+  revision: 5,
   shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_C,
   sourceStudies: [SOURCE_STUDY_PUBLISHED_WITH_HCA_UNAVAILABLE_FOO.id],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "6.5",
   wave: "2",
 };
 
@@ -3750,15 +3759,16 @@ export const ATLAS_PUBLIC_BAR: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "bar bar foo baz foo foo baz",
+  generation: 7,
   highlights: "",
   id: "40cd10f3-021b-4472-9820-b49978fa6b58",
   integrationLead: [],
   network: "adipose",
   publications: [],
+  revision: 2,
   shortName: "test-public-bar",
   sourceStudies: [],
   status: ATLAS_STATUS.OC_ENDORSED,
-  version: "7.2",
   wave: "3",
 };
 
@@ -3767,17 +3777,18 @@ export const ATLAS_WITH_METADATA_CORRECTNESS: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "foo barbaz bazbar foo foo foobaz",
+  generation: 2,
   highlights: "",
   id: "22d1ece3-9e62-42f5-a737-a9c84042a1a0",
   integrationLead: [],
   metadataCorrectnessUrl: "https://example.com/atlas-with-metadata-correctness",
   network: "reproduction",
   publications: [],
+  revision: 6,
   shortName: "test-with-metadata-correctness",
   sourceDatasets: [],
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "2.6",
   wave: "3",
 };
 
@@ -3786,15 +3797,16 @@ export const ATLAS_PUBLIC_BAZ: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "bar baz foo foo bar bar bar bar bar foo bar",
+  generation: 5,
   highlights: "",
   id: "ca000a2b-8246-4694-8f21-f47bcbfe1852",
   integrationLead: [],
   network: "musculoskeletal",
   publications: [],
+  revision: 2,
   shortName: "test-public-baz",
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "5.2",
   wave: "3",
 };
 
@@ -3804,15 +3816,16 @@ export const ATLAS_WITH_CAP_ID: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "bar foo baz baz foo foo bar bar bar",
+  generation: 6,
   highlights: "",
   id: "381ae4f6-7795-4084-9ce4-e2f5b0794c74",
   integrationLead: [],
   network: "heart",
   publications: [],
+  revision: 2,
   shortName: "test-with-cap-id",
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "6.2",
   wave: "1",
 };
 
@@ -3824,18 +3837,19 @@ export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A: TestAtlas = {
     COMPONENT_ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_BAR.versionId,
   ],
   description: "foo baz baz foo bar baz baz bar foo bar",
+  generation: 6,
   highlights: "",
   id: ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A,
   integrationLead: [],
   network: "kidney",
   publications: [],
+  revision: 7,
   shortName: "test-with-entry-sheet-validations-a",
   sourceStudies: [
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
   ],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "6.7",
   wave: "2",
 };
 
@@ -3844,18 +3858,19 @@ export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "foo foo foo bar bar foo baz baz foo foo bar foo",
+  generation: 5,
   highlights: "",
   id: "7cedbe48-2e45-4246-ba09-3a90c1f29275",
   integrationLead: [],
   network: "nervous-system",
   publications: [],
+  revision: 0,
   shortName: "test-with-entry-sheet-validations-b",
   sourceStudies: [
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ.id,
   ],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "5.0",
   wave: "2",
 };
 
@@ -3864,15 +3879,16 @@ export const ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "baz bar baz bar foo bar baz foo foo bar baz",
+  generation: 6,
   highlights: "",
   id: ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   integrationLead: [],
   network: "lung",
   publications: [],
+  revision: 1,
   shortName: "test-with-non-shared-entry-sheet-validations",
   sourceStudies: [SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS.id],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "6.1",
   wave: "1",
 };
 
@@ -3882,18 +3898,19 @@ export const ATLAS_HEATMAP_TEST: TestAtlas = {
   codeLinks: [],
   componentAtlases: [],
   description: "Test atlas for comprehensive heatmap testing",
+  generation: 1,
   highlights: "",
   id: "16a9a162-cdf5-42cd-a84b-f5f49e9bea22",
   integrationLead: [],
   network: "eye",
   publications: [],
+  revision: 0,
   shortName: "heatmap-test-atlas",
   sourceStudies: [
     SOURCE_STUDY_HEATMAP_TEST_FOO.id,
     SOURCE_STUDY_HEATMAP_TEST_BAR.id,
   ],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "1.0",
   wave: "1",
 };
 
@@ -3906,11 +3923,13 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
     COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1.versionId,
   ],
   description: "foo bar foobar barfoo foobarbar bazbarfoo",
+  generation: 4,
   highlights: "",
   id: "e278426b-daaf-4f18-b204-081c90ebfe67",
   integrationLead: [],
   network: "reproduction",
   publications: [],
+  revision: 1,
   shortName: "test-with-non-latest-metadata-entities",
   sourceDatasets: [
     SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2.versionId,
@@ -3918,7 +3937,6 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   ],
   sourceStudies: [SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES.id],
   status: ATLAS_STATUS.IN_PROGRESS,
-  version: "4.1",
   wave: "2",
 };
 

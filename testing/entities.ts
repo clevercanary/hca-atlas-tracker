@@ -38,6 +38,7 @@ export interface TestAtlas {
   codeLinks: LinkInfo[];
   componentAtlases: string[];
   description: string;
+  generation: number;
   highlights: string;
   id: string;
   integrationLead: IntegrationLead[];
@@ -45,12 +46,12 @@ export interface TestAtlas {
   metadataSpecificationUrl?: string;
   network: NetworkKey;
   publications: DoiPublicationInfo[];
+  revision: number;
   shortName: string;
   sourceDatasets?: string[];
   sourceStudies: string[];
   status: ATLAS_STATUS;
   targetCompletion?: Date;
-  version: string;
   wave: Wave;
 }
 
