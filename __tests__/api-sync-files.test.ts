@@ -72,6 +72,7 @@ const TEST_UUID_NO_VERSION = "ca1a73e7-d7b0-476e-b8db-88ed90c8eb6a";
 const TEST_UUID_QUOTED_ETAG = "561fbc54-e806-4b15-870e-2b67c5f47ace";
 const TEST_UUID_EXISTING_UNCHANGED = "96e89fc4-8bc7-4a5c-8d81-0f87c58e073f";
 const TEST_UUID_EXISTING_CHANGED = "51938c9b-ac8f-4dac-8e14-0178b491730c";
+const TEST_UUID_INGEST_MANIFEST = "b9f677c6-83a4-42d1-9885-d6323329b9f8";
 
 // These should be in the same order as HEAD_RESPONSES_BY_KEY
 setTestRandomUuids([
@@ -83,6 +84,7 @@ setTestRandomUuids([
   TEST_UUID_QUOTED_ETAG,
   TEST_UUID_EXISTING_UNCHANGED,
   TEST_UUID_EXISTING_CHANGED,
+  TEST_UUID_INGEST_MANIFEST,
 ]);
 
 const s3Mock = mockClient(S3Client);
@@ -107,18 +109,22 @@ const KEY_COMPLETE_FOO =
   "eye/test-draft-v1-2/integrated-objects/test-complete-foo.h5ad";
 const KEY_COMPLETE_BAR =
   "eye/test-draft-v1-2/source-datasets/test-complete-bar.h5ad";
-const KEY_NO_LENGTH = "eye/test-draft-v1-2/manifests/test-no-length.json";
+const KEY_NO_LENGTH =
+  "eye/test-draft-v1-2/integrated-objects/test-no-length.h5ad";
 const KEY_NO_ETAG =
   "lung/test-public-v2-3/integrated-objects/test-no-etag.h5ad";
 const KEY_NO_MODIFIED =
   "lung/test-public-v2-3/source-datasets/test-no-modified.h5ad";
-const KEY_NO_VERSION = "lung/test-public-v2-3/manifests/test-no-version.json";
+const KEY_NO_VERSION =
+  "lung/test-public-v2-3/integrated-objects/test-no-version.h5ad";
 const KEY_QUOTED_ETAG =
-  "lung/test-public-v2-3/source-datasets/test-quoted-etag.json";
+  "lung/test-public-v2-3/source-datasets/test-quoted-etag.h5ad";
 const KEY_EXISTING_UNCHANGED =
   "lung/test-public-v2-3/integrated-objects/test-existing-unchanged.h5ad";
 const KEY_EXISTING_CHANGED =
   "lung/test-public-v2-3/integrated-objects/test-existing-changed.h5ad";
+const KEY_INGEST_MANIFEST =
+  "lung/test-public-v2-3/manifests/test-ingest-manifest.json";
 const KEY_KEEP_SUBPATH = "eye/test-draft-v1-2/integrated-objects/.keep";
 const KEY_KEEP_ROOT = ".keep";
 
@@ -186,6 +192,13 @@ const HEAD_RESPONSE_EXISTING_CHANGED = {
   VersionId: "645643",
 };
 
+const HEAD_RESPONSE_INGEST_MANIFEST = {
+  ContentLength: 5345,
+  ETag: "3bcf66e65e12d5a4a04487bc39edaa59",
+  LastModified: new Date("2025-09-07T23:21:53.256Z"),
+  VersionId: "647434",
+};
+
 const EXPECTED_FILE_COMPLETE_FOO = {
   bucket: TEST_S3_BUCKET,
   etag: HEAD_RESPONSE_COMPLETE_FOO.ETag,
@@ -221,7 +234,7 @@ const EXPECTED_FILE_NO_LENGTH = {
     eventName: OBJECT_CREATED,
     eventTime: HEAD_RESPONSE_NO_LENGTH.LastModified.toISOString(),
   },
-  file_type: FILE_TYPE.INGEST_MANIFEST,
+  file_type: FILE_TYPE.INTEGRATED_OBJECT,
   key: KEY_NO_LENGTH,
   size_bytes: "0",
   sns_message_id: `SYNTHETIC-${TEST_UUID_NO_LENGTH}`,
@@ -245,7 +258,7 @@ const EXPECTED_FILE_NO_VERSION = {
     eventName: OBJECT_CREATED,
     eventTime: HEAD_RESPONSE_NO_VERSION.LastModified.toISOString(),
   },
-  file_type: FILE_TYPE.INGEST_MANIFEST,
+  file_type: FILE_TYPE.INTEGRATED_OBJECT,
   key: KEY_NO_VERSION,
   size_bytes: String(HEAD_RESPONSE_NO_VERSION.ContentLength),
   sns_message_id: `SYNTHETIC-${TEST_UUID_NO_VERSION}`,
@@ -277,6 +290,7 @@ const HEAD_RESPONSES_BY_KEY = new Map<string, Partial<HeadObjectCommandOutput>>(
     [KEY_QUOTED_ETAG, HEAD_RESPONSE_QUOTED_ETAG],
     [KEY_EXISTING_CHANGED, HEAD_RESPONSE_EXISTING_CHANGED],
     [KEY_EXISTING_UNCHANGED, HEAD_RESPONSE_EXISTING_UNCHANGED],
+    [KEY_INGEST_MANIFEST, HEAD_RESPONSE_INGEST_MANIFEST],
   ],
 );
 
@@ -295,13 +309,14 @@ const LIST_OBJECTS_RESPONSE = {
 const EXPECTED_VALIDATED_KEYS = [
   KEY_COMPLETE_FOO,
   KEY_COMPLETE_BAR,
+  KEY_NO_LENGTH,
   KEY_NO_MODIFIED,
+  KEY_NO_VERSION,
   KEY_QUOTED_ETAG,
   KEY_EXISTING_CHANGED,
 ];
 // Not validated:
-// KEY_NO_ETAG, KEY_KEEP_SUBPATH, KEY_KEEP_ROOT -- skipped entirely
-// KEY_NO_LENGTH, KEY_NO_VERSION -- are manifest files
+// KEY_NO_ETAG, KEY_KEEP_SUBPATH, KEY_KEEP_ROOT, KEY_INGEST_MANIFEST -- skipped entirely
 // KEY_EXISTING_UNCHANGED -- errors on insertion
 
 describe(TEST_ROUTE, () => {
@@ -354,10 +369,13 @@ describe(TEST_ROUTE, () => {
 
 async function doMainTest(): Promise<void> {
   const FILE_ID_EXISTING_UNCHANGED = "3c324e37-ff0a-4b2b-8c23-b80eb277a222";
+  const CONCEPT_ID_EXISTING_UNCHANGED = "2b9b4a99-cdbf-40c6-876a-7f90ab664ec3";
   const FILE_ID_EXISTING_CHANGED = "7306f44c-ef9b-4adc-9280-ebdf1e902f3e";
+  const CONCEPT_ID_EXISTING_CHANGED = "701f5193-6481-4f1c-a6ab-5647d193dc53";
 
   await createTestFile(FILE_ID_EXISTING_UNCHANGED, {
     bucket: TEST_S3_BUCKET,
+    conceptId: CONCEPT_ID_EXISTING_UNCHANGED,
     etag: HEAD_RESPONSE_EXISTING_UNCHANGED.ETag,
     eventTime: HEAD_RESPONSE_EXISTING_UNCHANGED.LastModified.toISOString(),
     fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -369,10 +387,12 @@ async function doMainTest(): Promise<void> {
     ATLAS_DRAFT.id,
     EMPTY_COMPONENT_INFO,
     FILE_ID_EXISTING_UNCHANGED,
+    CONCEPT_ID_EXISTING_UNCHANGED,
   );
 
   await createTestFile(FILE_ID_EXISTING_CHANGED, {
     bucket: TEST_S3_BUCKET,
+    conceptId: CONCEPT_ID_EXISTING_CHANGED,
     etag: HEAD_RESPONSE_EXISTING_CHANGED.ETag,
     eventTime: "2025-09-07T23:20:33.500Z",
     fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -384,6 +404,7 @@ async function doMainTest(): Promise<void> {
     ATLAS_DRAFT.id,
     EMPTY_COMPONENT_INFO,
     FILE_ID_EXISTING_CHANGED,
+    CONCEPT_ID_EXISTING_CHANGED,
   );
 
   const fileIdsBefore = await getAllFileIdsFromDatabase();
@@ -500,6 +521,9 @@ async function doMainTest(): Promise<void> {
   expect(filesByKey.get(KEY_QUOTED_ETAG)).toMatchObject(
     EXPECTED_FILE_QUOTED_ETAG,
   );
+
+  // Check that ingest manifest was skipped
+  expect(filesByKey.get(KEY_INGEST_MANIFEST)).toBeUndefined();
 
   // Check that existing file and its component atlas are not changed, and no new file is created, when version ID is the same
   expect(errorMessageStrings).toContainEqual(

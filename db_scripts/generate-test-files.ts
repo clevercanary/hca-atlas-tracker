@@ -12,6 +12,7 @@ import {
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasInfo,
+  HCAAtlasTrackerDBConcept,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetInfo,
@@ -270,7 +271,8 @@ async function generateAndAddFilesForAtlas(
       FILE_TYPE.INTEGRATED_OBJECT,
       ".h5ad",
     );
-    await createComponentAtlas(client, atlas, file.id);
+    if (!file.concept_id) throw new Error("Missing concept ID");
+    await createComponentAtlas(client, atlas, file.id, file.concept_id);
   }
 
   // Generate source dataset files linked to source datasets
@@ -284,7 +286,8 @@ async function generateAndAddFilesForAtlas(
       FILE_TYPE.SOURCE_DATASET,
       ".h5ad",
     );
-    await createSourceDataset(client, atlas, file.id);
+    if (!file.concept_id) throw new Error("Missing concept ID");
+    await createSourceDataset(client, atlas, file.id, file.concept_id);
   }
 
   return [manifestAmount, integratedObjectAmount, sourceDatasetAmount];
@@ -313,6 +316,7 @@ async function generateAndAddVersionsForFile(
         file.version_id !== null,
         file.file_type,
         file.key,
+        file.concept_id,
       )
     ).id;
     newIds.push(newId);
@@ -410,12 +414,26 @@ async function generateAndAddFile(
   const key = `${atlas.overview.network}/${
     atlas.overview.shortName
   }-v${atlas.overview.version.replaceAll(".", "-")}/${folderName}/${fileName}`;
+  const conceptId =
+    fileType === FILE_TYPE.INGEST_MANIFEST
+      ? null
+      : await createConcept(
+          {
+            atlas_short_name: atlas.overview.shortName.toLowerCase(),
+            base_filename: fileName,
+            file_type: fileType,
+            generation: Number(atlas.overview.version.split(".")[0]),
+            network: atlas.overview.network,
+          },
+          client,
+        );
   return await generateAndAddFileVersion(
     client,
     bucketName,
     versioned,
     fileType,
     key,
+    conceptId,
   );
 }
 
@@ -425,6 +443,7 @@ async function generateAndAddFileVersion(
   versioned: boolean,
   fileType: FILE_TYPE,
   key: string,
+  conceptId: string | null,
 ): Promise<HCAAtlasTrackerDBFile> {
   const versionId = versioned
     ? randomInRange(0, 999999).toString().padStart(6, "0")
@@ -438,8 +457,8 @@ async function generateAndAddFileVersion(
 
   const insertResult = await client.query<HCAAtlasTrackerDBFile>(
     `
-      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11)
+      INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id, concept_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10, $11, $12)
       RETURNING *
     `,
     [
@@ -454,6 +473,7 @@ async function generateAndAddFileVersion(
       FILE_VALIDATION_STATUS.PENDING,
       fileType,
       snsMessageId,
+      conceptId,
     ],
   );
 
@@ -464,6 +484,7 @@ async function createComponentAtlas(
   client: pg.PoolClient,
   atlas: HCAAtlasTrackerDBAtlas,
   fileId: string,
+  conceptId: string,
 ): Promise<string> {
   const componentAtlasVersion = crypto.randomUUID();
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {
@@ -472,10 +493,10 @@ async function createComponentAtlas(
 
   await client.query(
     `
-      INSERT INTO hat.component_atlases (version_id, component_info, file_id)
-      VALUES ($1, $2, $3)
+      INSERT INTO hat.component_atlases (version_id, component_info, file_id, id)
+      VALUES ($1, $2, $3, $4)
     `,
-    [componentAtlasVersion, JSON.stringify(info), fileId],
+    [componentAtlasVersion, JSON.stringify(info), fileId, conceptId],
   );
 
   await client.query(
@@ -490,8 +511,8 @@ async function createSourceDataset(
   client: pg.PoolClient,
   atlas: HCAAtlasTrackerDBAtlas,
   fileId: string,
-): Promise<string> {
-  const sourceDatasetId = crypto.randomUUID();
+  conceptId: string,
+): Promise<void> {
   const sourceDatasetVersion = crypto.randomUUID();
 
   const sd_info: HCAAtlasTrackerDBSourceDatasetInfo = {
@@ -506,20 +527,37 @@ async function createSourceDataset(
       INSERT INTO hat.source_datasets (id, sd_info, file_id, version_id)
       VALUES ($1, $2, $3, $4)
     `,
-    [sourceDatasetId, JSON.stringify(sd_info), fileId, sourceDatasetVersion],
-  );
-
-  await client.query(
-    "UPDATE hat.files SET source_dataset_id = $1 WHERE id = $2",
-    [sourceDatasetId, fileId],
+    [conceptId, JSON.stringify(sd_info), fileId, sourceDatasetVersion],
   );
 
   await client.query(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $1::uuid WHERE id=$2",
     [sourceDatasetVersion, atlas.id],
   );
+}
 
-  return sourceDatasetId;
+async function createConcept(
+  info: Pick<
+    HCAAtlasTrackerDBConcept,
+    | "atlas_short_name"
+    | "base_filename"
+    | "file_type"
+    | "generation"
+    | "network"
+  >,
+  client: pg.PoolClient,
+): Promise<string> {
+  const queryResult = await client.query<Pick<HCAAtlasTrackerDBConcept, "id">>(
+    "INSERT INTO hat.concepts (atlas_short_name, base_filename, file_type, generation, network) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+    [
+      info.atlas_short_name,
+      info.base_filename,
+      info.file_type,
+      info.generation,
+      info.network,
+    ],
+  );
+  return queryResult.rows[0].id;
 }
 
 async function generateAndAddAtlases(client: pg.PoolClient): Promise<string[]> {

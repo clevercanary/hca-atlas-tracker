@@ -253,23 +253,23 @@ export async function createNewSourceDatasetVersion(
 
 /**
  * Mark the existing latest version of the given source dataset as not latest.
- * @param sourceDatasetId - ID of the source dataset to update.
+ * @param conceptId - Concept ID of the source dataset to update.
  * @param client - Postgres client to use.
  * @returns ID of the previously-latest source dataset version.
  */
 export async function markSourceDatasetAsNotLatest(
-  sourceDatasetId: string,
+  conceptId: string,
   client: pg.PoolClient,
 ): Promise<string> {
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
     "UPDATE hat.source_datasets SET is_latest = FALSE WHERE id = $1 AND is_latest RETURNING version_id",
-    [sourceDatasetId],
+    [conceptId],
   );
   if (queryResult.rows.length === 0)
     throw new Error(
-      `No latest version found for source dataset ${sourceDatasetId}`,
+      `No latest version found for source dataset of concept ${conceptId}`,
     );
   return queryResult.rows[0].version_id;
 }

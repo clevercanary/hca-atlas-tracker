@@ -1,41 +1,29 @@
-import pg from "pg";
 import { ETagMismatchError } from "../app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
   INTEGRITY_STATUS,
-  NetworkKey,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmFileExistsOnAtlas,
-  FileUpsertData,
-  getAtlasByNetworkVersionAndShortName,
-  getExistingMetadataObjectId,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../app/data/files";
-import {
-  doOrContinueTransaction,
-  doTransaction,
-  endPgPool,
-  query,
-} from "../app/services/database";
+import { doTransaction, endPgPool, query } from "../app/services/database";
 import { NotFoundError } from "../app/utils/api-handler";
 import {
   ATLAS_DRAFT,
-  ATLAS_WITH_IL,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_DRAFT_OK_FOO,
 } from "../testing/constants";
-import { createTestFile, resetDatabase } from "../testing/db-utils";
-
-interface TestFileUpsertData extends FileUpsertData {
-  componentAtlasId: string | null;
-  sourceDatasetId: string | null;
-}
+import {
+  createTestConceptFromS3Key,
+  createTestFile,
+  resetDatabase,
+} from "../testing/db-utils";
 
 // Shared test constants
 const TEST_EVENT_INFO = JSON.stringify({
@@ -54,13 +42,16 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("next-auth");
 
 beforeEach(async () => {
+  await resetDatabase();
+});
+
+afterEach(async () => {
   await query(
     "DELETE FROM hat.files f WHERE f.file_type = 'integrated_object' AND NOT EXISTS (SELECT 1 FROM hat.component_atlases c WHERE c.file_id = f.id)",
   );
   await query(
     "DELETE FROM hat.files f WHERE f.file_type = 'source_dataset' AND NOT EXISTS (SELECT 1 FROM hat.source_datasets c WHERE c.file_id = f.id)",
   );
-  await resetDatabase();
 });
 
 afterAll(() => {
@@ -162,6 +153,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       await createTestFile(testFileId, {
         bucket: "test-bucket-orphan",
+        conceptId: null,
         etag: "550e8400-e29b-41d4-a716-test-etag2",
         fileType: FILE_TYPE.INGEST_MANIFEST,
         key: "test/atlas-v1/manifests/test.json",
@@ -224,7 +216,7 @@ describe("upsertFileRecord", () => {
       const mockFileData = {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID
+        conceptId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID
         etag: TEST_ETAG,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -233,7 +225,6 @@ describe("upsertFileRecord", () => {
         sha256Client: TEST_SHA256,
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: TEST_SNS_MESSAGE_ID,
-        sourceDatasetId: null,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: TEST_VERSION_ID,
       };
@@ -263,7 +254,7 @@ describe("upsertFileRecord", () => {
       const fileData = {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        conceptId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
         etag: TEST_ETAG,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -272,7 +263,6 @@ describe("upsertFileRecord", () => {
         sha256Client: null,
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: TEST_SNS_MESSAGE_ID,
-        sourceDatasetId: null, // Must be null for integrated_object
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: TEST_VERSION_ID,
       };
@@ -303,7 +293,7 @@ describe("upsertFileRecord", () => {
       const fileData = {
         atlasId: null,
         bucket: TEST_BUCKET,
-        componentAtlasId: null, // Must be null for source_dataset
+        conceptId: SOURCE_DATASET_DRAFT_OK_FOO.id, // Valid UUID for source_dataset
         etag: TEST_ETAG_ALT,
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.SOURCE_DATASET,
@@ -312,7 +302,6 @@ describe("upsertFileRecord", () => {
         sha256Client: null, // This should be allowed
         sizeBytes: 2048,
         snsMessageId: "test-sns-message-789",
-        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id, // Valid UUID for source_dataset
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: null, // This should be allowed
       };
@@ -340,7 +329,7 @@ describe("upsertFileRecord", () => {
       const originalFileData = {
         atlasId: ATLAS_DRAFT.id,
         bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
+        conceptId: COMPONENT_ATLAS_DRAFT_FOO.id, // Valid UUID for integrated_object
         etag: "original-etag",
         eventInfo: TEST_EVENT_INFO,
         fileType: FILE_TYPE.INTEGRATED_OBJECT,
@@ -349,7 +338,6 @@ describe("upsertFileRecord", () => {
         sha256Client: null,
         sizeBytes: TEST_SIZE_BYTES,
         snsMessageId: "original-sns-message",
-        sourceDatasetId: null,
         validationStatus: FILE_VALIDATION_STATUS.PENDING,
         versionId: "test-version-123",
       };
@@ -400,11 +388,15 @@ describe("markPreviousVersionsAsNotLatest", () => {
   });
 
   it("should return 0 for new file (no previous versions)", async () => {
-    const bucket = "test-bucket-new";
-    const key = "test/path/new-file.h5ad";
+    const conceptId = "c574828f-d4b0-4a73-a402-fe7f9d65ca07";
+
+    await createTestConceptFromS3Key(
+      "heart/test-v1/integrated-objects/new-file.h5ad",
+      conceptId,
+    );
 
     const rowsUpdated = await doTransaction(async (transaction) => {
-      return await markPreviousVersionsAsNotLatest(bucket, key, transaction);
+      return await markPreviousVersionsAsNotLatest(conceptId, transaction);
     });
 
     expect(rowsUpdated).toBe(0);
@@ -412,45 +404,36 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
   it("should return count of updated rows for existing file with previous versions", async () => {
     const bucket = "test-bucket-existing";
-    const key = "test/path/existing-file.h5ad";
+    const key = "heart/test-v1/integrated-objects/existing-file.h5ad";
+    const conceptId = "a17f0bbb-b916-4c34-833d-e0437377afd6";
 
     // Create multiple versions of the same file
     await doTransaction(async (transaction) => {
       // Insert first version
-      await upsertTestFile(
+      await createTestFile(
+        "f089e3fd-8dfa-497d-b6d9-0d425d037824",
         {
           bucket,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId,
           etag: "etag-v1",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key,
-          sha256Client: null,
           sizeBytes: 1024,
-          snsMessageId: "sns-message-v1",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
         transaction,
       );
 
       // Insert second version
-      await upsertTestFile(
+      await createTestFile(
+        "8976f453-c6cf-4ccd-881f-2655114ece63",
         {
           bucket,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId,
           etag: "etag-v2",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key,
-          sha256Client: null,
           sizeBytes: 2048,
-          snsMessageId: "sns-message-v2",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
         transaction,
@@ -459,7 +442,7 @@ describe("markPreviousVersionsAsNotLatest", () => {
 
     // Now mark previous versions as not latest
     const rowsUpdated = await doTransaction(async (transaction) => {
-      return await markPreviousVersionsAsNotLatest(bucket, key, transaction);
+      return await markPreviousVersionsAsNotLatest(conceptId, transaction);
     });
 
     // Should have updated 2 rows (both previous versions)
@@ -471,56 +454,48 @@ describe("markPreviousVersionsAsNotLatest", () => {
     expect(queryResult.rows.every((row) => row.is_latest === false)).toBe(true);
   });
 
-  it("should only affect files with matching bucket and key", async () => {
+  it("should only affect files with matching concept ID", async () => {
     const bucket1 = "test-bucket-1";
     const bucket2 = "test-bucket-2";
-    const key1 = "test/path/file1.h5ad";
-    const key2 = "test/path/file2.h5ad";
+    const key1 = "heart/test-v1/integrated-objects/file1.h5ad";
+    const key2 = "heart/test-v1/integrated-objects/file2.h5ad";
+    const conceptIdA = "a327e685-d565-423a-b60f-e12c4f7e4850";
+    const conceptIdB = "4bba5b32-ff01-4929-92f8-4e8f8591cf5d";
 
     // Create files in different buckets and with different keys
     await doTransaction(async (transaction) => {
-      await upsertTestFile(
+      await createTestFile(
+        "4b130664-cafe-4141-9b3a-904eb3116427",
         {
           bucket: bucket1,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId: conceptIdA,
           etag: "etag-1",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key: key1,
-          sha256Client: null,
           sizeBytes: 1024,
-          snsMessageId: "sns-message-1",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-1",
         },
         transaction,
       );
 
-      await upsertTestFile(
+      await createTestFile(
+        "4b9c7c14-7eec-4e6e-827c-363794b9ba4a",
         {
           bucket: bucket2,
-          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+          conceptId: conceptIdB,
           etag: "etag-2",
-          eventInfo: TEST_EVENT_INFO,
           fileType: FILE_TYPE.INTEGRATED_OBJECT,
-          integrityStatus: INTEGRITY_STATUS.PENDING,
           key: key2,
-          sha256Client: null,
           sizeBytes: 1024,
-          snsMessageId: "sns-message-2",
-          sourceDatasetId: null,
-          validationStatus: FILE_VALIDATION_STATUS.PENDING,
           versionId: "version-2",
         },
         transaction,
       );
     });
 
-    // Mark previous versions as not latest for bucket1/key1 only
+    // Mark previous versions as not latest for the first concept only
     const rowsUpdated = await doTransaction(async (transaction) => {
-      return await markPreviousVersionsAsNotLatest(bucket1, key1, transaction);
+      return await markPreviousVersionsAsNotLatest(conceptIdA, transaction);
     });
 
     // Should have updated only 1 row
@@ -534,392 +509,3 @@ describe("markPreviousVersionsAsNotLatest", () => {
     expect(bucket2Result.rows[0].is_latest).toBe(true);
   });
 });
-
-describe("getExistingMetadataObjectId", () => {
-  // Test constants
-  const TEST_BUCKET = "test-bucket-metadata";
-  const TEST_KEY_INTEGRATED = "test/path/integrated-object.h5ad";
-  const TEST_KEY_SOURCE_DATASET = "test/path/source-dataset.h5ad";
-
-  beforeEach(async () => {
-    await resetDatabase();
-  });
-
-  describe("integrated object files", () => {
-    it("should return component atlas ID for existing integrated object file", async () => {
-      // First create a file record with component atlas ID
-      await upsertTestFile({
-        bucket: TEST_BUCKET,
-        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
-        etag: "test-etag-integrated",
-        eventInfo: TEST_EVENT_INFO,
-        fileType: FILE_TYPE.INTEGRATED_OBJECT,
-        integrityStatus: INTEGRITY_STATUS.PENDING,
-        key: TEST_KEY_INTEGRATED,
-        sha256Client: null,
-        sizeBytes: 2048,
-        snsMessageId: "test-sns-integrated",
-        sourceDatasetId: null,
-        validationStatus: FILE_VALIDATION_STATUS.PENDING,
-        versionId: "test-version-integrated",
-      });
-
-      // Now test getExistingMetadataObjectId
-      const result = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          TEST_KEY_INTEGRATED,
-          transaction,
-        );
-      });
-
-      expect(result).toBe(COMPONENT_ATLAS_DRAFT_FOO.id);
-    });
-
-    it("should return null for non-existent integrated object file", async () => {
-      const result = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          "non/existent/file.h5ad",
-          transaction,
-        );
-      });
-
-      expect(result).toBeNull();
-    });
-
-    it("should return null for integrated object file that is not latest", async () => {
-      // Create two versions of the same file
-      await doTransaction(async (transaction) => {
-        // First version
-        await upsertTestFile(
-          {
-            bucket: TEST_BUCKET,
-            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
-            etag: "test-etag-v1",
-            eventInfo: TEST_EVENT_INFO,
-            fileType: FILE_TYPE.INTEGRATED_OBJECT,
-            integrityStatus: INTEGRITY_STATUS.PENDING,
-            key: TEST_KEY_INTEGRATED,
-            sha256Client: null,
-            sizeBytes: 1024,
-            snsMessageId: "test-sns-1",
-            sourceDatasetId: null,
-            validationStatus: FILE_VALIDATION_STATUS.PENDING,
-            versionId: "test-version-v1",
-          },
-          transaction,
-        );
-
-        // Second version (this will mark the first as not latest)
-        await upsertTestFile(
-          {
-            bucket: TEST_BUCKET,
-            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
-            etag: "test-etag-v2",
-            eventInfo: TEST_EVENT_INFO,
-            fileType: FILE_TYPE.INTEGRATED_OBJECT,
-            integrityStatus: INTEGRITY_STATUS.PENDING,
-            key: TEST_KEY_INTEGRATED,
-            sha256Client: null,
-            sizeBytes: 2048,
-            snsMessageId: "test-sns-2",
-            sourceDatasetId: null,
-            validationStatus: FILE_VALIDATION_STATUS.PENDING,
-            versionId: "test-version-2",
-          },
-          transaction,
-        );
-      });
-
-      // Mark all versions as not latest
-      await doTransaction(async (transaction) => {
-        await markPreviousVersionsAsNotLatest(
-          TEST_BUCKET,
-          TEST_KEY_INTEGRATED,
-          transaction,
-        );
-      });
-
-      // Should return null since no version is marked as latest
-      const result = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          TEST_KEY_INTEGRATED,
-          transaction,
-        );
-      });
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe("source dataset files", () => {
-    it("should return source dataset ID for existing source dataset file", async () => {
-      // First create a file record with source dataset ID
-      await upsertTestFile({
-        bucket: TEST_BUCKET,
-        componentAtlasId: null,
-        etag: "test-etag-source",
-        eventInfo: TEST_EVENT_INFO,
-        fileType: FILE_TYPE.SOURCE_DATASET,
-        integrityStatus: INTEGRITY_STATUS.PENDING,
-        key: TEST_KEY_SOURCE_DATASET,
-        sha256Client: null,
-        sizeBytes: 1024,
-        snsMessageId: "test-sns-source",
-        sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
-        validationStatus: FILE_VALIDATION_STATUS.PENDING,
-        versionId: "test-version-source",
-      });
-
-      // Now test getExistingMetadataObjectId
-      const result = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          TEST_KEY_SOURCE_DATASET,
-          transaction,
-        );
-      });
-
-      expect(result).toBe(SOURCE_DATASET_DRAFT_OK_FOO.id);
-    });
-
-    it("should return null for non-existent source dataset file", async () => {
-      const result = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          "non/existent/dataset.h5ad",
-          transaction,
-        );
-      });
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe("edge cases", () => {
-    it("should handle different file types correctly", async () => {
-      // Create files of different types with the same bucket/key pattern
-      const baseKey = "test/path/file";
-      await doTransaction(async (transaction) => {
-        // Integrated object file
-        await upsertTestFile(
-          {
-            bucket: TEST_BUCKET,
-            componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
-            etag: "test-etag-integrated",
-            eventInfo: TEST_EVENT_INFO,
-            fileType: FILE_TYPE.INTEGRATED_OBJECT,
-            integrityStatus: INTEGRITY_STATUS.PENDING,
-            key: `${baseKey}.h5ad`,
-            sha256Client: null,
-            sizeBytes: 1024,
-            snsMessageId: "test-sns-integrated",
-            sourceDatasetId: null,
-            validationStatus: FILE_VALIDATION_STATUS.PENDING,
-            versionId: "test-version-integrated",
-          },
-          transaction,
-        );
-
-        // Source dataset file
-        await upsertTestFile(
-          {
-            bucket: TEST_BUCKET,
-            componentAtlasId: null,
-            etag: "test-etag-source",
-            eventInfo: TEST_EVENT_INFO,
-            fileType: FILE_TYPE.SOURCE_DATASET,
-            integrityStatus: INTEGRITY_STATUS.PENDING,
-            key: `${baseKey}-dataset.h5ad`,
-            sha256Client: null,
-            sizeBytes: 2048,
-            snsMessageId: "test-sns-source",
-            sourceDatasetId: SOURCE_DATASET_DRAFT_OK_FOO.id,
-            validationStatus: FILE_VALIDATION_STATUS.PENDING,
-            versionId: "test-version-source",
-          },
-          transaction,
-        );
-      });
-
-      // Test integrated object lookup
-      const integratedResult = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          `${baseKey}.h5ad`,
-          transaction,
-        );
-      });
-
-      // Test source dataset lookup
-      const sourceResult = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          `${baseKey}-dataset.h5ad`,
-          transaction,
-        );
-      });
-
-      expect(integratedResult).toBe(COMPONENT_ATLAS_DRAFT_FOO.id);
-      expect(sourceResult).toBe(SOURCE_DATASET_DRAFT_OK_FOO.id);
-    });
-
-    it("should return null for unsupported file types", async () => {
-      // Create a file with an unsupported file type
-      await upsertTestFile({
-        bucket: TEST_BUCKET,
-        componentAtlasId: null,
-        etag: "test-etag-manifest",
-        eventInfo: TEST_EVENT_INFO,
-        fileType: FILE_TYPE.INGEST_MANIFEST,
-        integrityStatus: INTEGRITY_STATUS.PENDING,
-        key: "test/path/manifest.json",
-        sha256Client: null,
-        sizeBytes: 512,
-        snsMessageId: "test-sns-manifest",
-        sourceDatasetId: null,
-        validationStatus: FILE_VALIDATION_STATUS.PENDING,
-        versionId: "test-version-manifest",
-      });
-
-      // Should return null for unsupported file type
-      const result = await doTransaction(async (transaction) => {
-        return await getExistingMetadataObjectId(
-          TEST_BUCKET,
-          "test/path/manifest.json",
-          transaction,
-        );
-      });
-
-      expect(result).toBeNull();
-    });
-  });
-});
-
-describe("getAtlasByNetworkVersionAndShortName", () => {
-  beforeEach(async () => {
-    await resetDatabase();
-  });
-
-  describe("successful lookups", () => {
-    it("should find atlas by exact version match", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
-        ATLAS_DRAFT.network,
-        ATLAS_DRAFT.version,
-        ATLAS_DRAFT.shortName,
-      );
-
-      expect(atlasId).toBe(ATLAS_DRAFT.id);
-    });
-
-    it("should find atlas with version without decimal (2.0 -> 2)", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
-        ATLAS_WITH_IL.network,
-        "2.0",
-        ATLAS_WITH_IL.shortName,
-      );
-
-      expect(atlasId).toBe(ATLAS_WITH_IL.id);
-    });
-
-    it("should find atlas with case-insensitive short name match", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
-        ATLAS_DRAFT.network,
-        ATLAS_DRAFT.version,
-        "TEST-DRAFT",
-      );
-
-      expect(atlasId).toBe(ATLAS_DRAFT.id);
-    });
-
-    it("should prioritize exact version match over decimal-stripped version", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
-        ATLAS_WITH_IL.network,
-        ATLAS_WITH_IL.version,
-        ATLAS_WITH_IL.shortName,
-      );
-
-      expect(atlasId).toBe(ATLAS_WITH_IL.id);
-    });
-  });
-
-  describe("error cases", () => {
-    it("should throw error when atlas not found by network", async () => {
-      await expect(
-        getAtlasByNetworkVersionAndShortName(
-          "nonexistent-network" as NetworkKey,
-          ATLAS_DRAFT.version,
-          ATLAS_DRAFT.shortName,
-        ),
-      ).rejects.toThrow(
-        `Atlas not found for network: nonexistent-network, shortName: ${ATLAS_DRAFT.shortName}, version: ${ATLAS_DRAFT.version}`,
-      );
-    });
-
-    it("should throw error when atlas not found by version", async () => {
-      await expect(
-        getAtlasByNetworkVersionAndShortName(
-          ATLAS_DRAFT.network,
-          "99.99",
-          ATLAS_DRAFT.shortName,
-        ),
-      ).rejects.toThrow(
-        `Atlas not found for network: ${ATLAS_DRAFT.network}, shortName: ${ATLAS_DRAFT.shortName}, version: 99.99`,
-      );
-    });
-
-    it("should throw error when atlas not found by short name", async () => {
-      await expect(
-        getAtlasByNetworkVersionAndShortName(
-          ATLAS_DRAFT.network,
-          ATLAS_DRAFT.version,
-          "nonexistent-atlas",
-        ),
-      ).rejects.toThrow("Atlas not found");
-    });
-  });
-
-  describe("version matching edge cases", () => {
-    it("should handle version with multiple decimals", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
-        ATLAS_WITH_IL.network,
-        "2.0.0",
-        ATLAS_WITH_IL.shortName,
-      );
-
-      expect(atlasId).toBe(ATLAS_WITH_IL.id);
-    });
-
-    it("should handle single digit version matching decimal version", async () => {
-      const atlasId = await getAtlasByNetworkVersionAndShortName(
-        ATLAS_WITH_IL.network,
-        "2",
-        ATLAS_WITH_IL.shortName,
-      );
-
-      expect(atlasId).toBe(ATLAS_WITH_IL.id);
-    });
-  });
-});
-
-async function upsertTestFile(
-  fileData: TestFileUpsertData,
-  client?: pg.PoolClient,
-): Promise<void> {
-  await doOrContinueTransaction(client, async (client) => {
-    const fileResult = await upsertFileRecord(fileData, client);
-    if (typeof fileData.componentAtlasId === "string") {
-      await client.query(
-        "UPDATE hat.component_atlases SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.componentAtlasId],
-      );
-    } else if (typeof fileData.sourceDatasetId === "string") {
-      await client.query(
-        "UPDATE hat.source_datasets SET file_id = $1 WHERE id = $2",
-        [fileResult.id, fileData.sourceDatasetId],
-      );
-    }
-  });
-}

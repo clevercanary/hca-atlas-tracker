@@ -3,7 +3,6 @@ import {
   S3Event,
   S3EventRecord,
   s3EventSchema,
-  S3Object,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
@@ -31,8 +30,6 @@ import {
 } from "../data/component-atlases";
 import {
   FileUpsertResult,
-  getAtlasByNetworkVersionAndShortName,
-  getExistingMetadataObjectId,
   getLatestNotificationInfo,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
@@ -42,11 +39,15 @@ import {
   markSourceDatasetAsNotLatest,
 } from "../data/source-datasets";
 import { InvalidOperationError } from "../utils/api-handler";
-import { normalizeAtlasVersion } from "../utils/atlases";
+import { AtlasVersionNumbers, parseS3AtlasVersion } from "../utils/atlases";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
 import { createSourceDataset } from "./source-datasets";
+import {
+  getAtlasMatchingConcept,
+  getOrCreateConceptId,
+} from "../services/concepts";
 
 /**
  * Processes an SNS notification message containing S3 events
@@ -114,14 +115,12 @@ export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
 
 /**
  * Determines the file type based on the S3 key folder structure
- * @param s3Key - The S3 object key to analyze
+ * @param s3TypeFolder - The S3 folder name indicating the file type
  * @returns The file type: 'source_dataset', 'integrated_object', or 'ingest_manifest'
  * @throws UnknownFolderTypeError if the folder type is not recognized
  */
-function determineFileType(s3Key: string): FILE_TYPE {
-  const { folderType } = parseS3KeyPath(s3Key);
-
-  switch (folderType) {
+function determineFileType(s3TypeFolder: string): FILE_TYPE {
+  switch (s3TypeFolder) {
     case "source-datasets":
       return FILE_TYPE.SOURCE_DATASET;
     case "integrated-objects":
@@ -130,7 +129,7 @@ function determineFileType(s3Key: string): FILE_TYPE {
       return FILE_TYPE.INGEST_MANIFEST;
     default:
       throw new InvalidOperationError(
-        `Unknown folder type: ${folderType}. Expected: source-datasets, integrated-objects, or manifests`,
+        `Unknown folder type: ${s3TypeFolder}. Expected: source-datasets, integrated-objects, or manifests`,
       );
   }
 }
@@ -162,22 +161,36 @@ function parseS3AtlasName(s3AtlasName: string): {
 }
 
 /**
- * Converts S3 version format to database version format
- * @param s3Version - The version string from S3 (without 'v' prefix)
- * @returns Database-compatible version string
- * @example
- * convertS3VersionToDbVersion('1') // Returns: '1'
- * convertS3VersionToDbVersion('1-1') // Returns: '1.1'
- * convertS3VersionToDbVersion('2-3') // Returns: '2.3'
+ * Get a file's base name by stripping version information.
+ * @param fileName - Actual file name.
+ * @returns file name with version information stripped.
  */
-function convertS3VersionToDbVersion(s3Version: string): string {
-  if (s3Version.includes("-")) {
-    // Convert '1-1' to '1.1'
-    return s3Version.replace("-", ".");
-  } else {
-    // Keep as-is: '1' stays '1'
-    return s3Version;
-  }
+export function getFileBaseName(fileName: string): string {
+  return fileName.replace(/-r\d+(?:-wip-\d+)?(?=\..+$)/, "");
+}
+
+/**
+ * Derive normalized atlas and file info from an S3 key.
+ * @param s3Key - S3 key.
+ * @returns normalized atlas and file info.
+ */
+export function parseNormalizedInfoFromS3Key(s3Key: string): {
+  atlasNetwork: NetworkKey;
+  atlasShortName: string;
+  atlasVersion: AtlasVersionNumbers;
+  fileBaseName: string;
+  fileType: FILE_TYPE;
+} {
+  const { atlasName, filename, folderType, network } = parseS3KeyPath(s3Key);
+  const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
+
+  return {
+    atlasNetwork: network,
+    atlasShortName: atlasBaseName.toLowerCase(),
+    atlasVersion: parseS3AtlasVersion(s3Version),
+    fileBaseName: getFileBaseName(filename),
+    fileType: determineFileType(folderType),
+  };
 }
 
 /**
@@ -223,24 +236,31 @@ function isNewerEventForFile(
 type FileCreationHandler = (
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ) => Promise<void>;
 
 async function createIntegratedObject(
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
-  await createComponentAtlas(atlasId, fileId, transaction);
+  await createComponentAtlas(atlasId, fileId, conceptId, transaction);
 }
 
 async function createSourceDatasetFromS3(
   atlasId: string,
   fileId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
   // Create source dataset using canonical service within the existing transaction
-  const sourceDatasetVersion = await createSourceDataset(fileId, transaction);
+  const sourceDatasetVersion = await createSourceDataset(
+    fileId,
+    conceptId,
+    transaction,
+  );
 
   // Link source dataset to atlas's source_datasets array if not already linked
   const alreadyLinkedResult = await transaction.query(
@@ -269,11 +289,11 @@ type FileUpdateHandler = (
 
 async function updateIntegratedObjectFromS3(
   fileId: string,
-  componentAtlasId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markComponentAtlasAsNotLatest(
-    componentAtlasId,
+    conceptId,
     transaction,
   );
   const newVersion = await createNewComponentAtlasVersion(
@@ -290,11 +310,11 @@ async function updateIntegratedObjectFromS3(
 
 async function updateSourceDatasetFromS3(
   fileId: string,
-  sourceDatasetId: string,
+  conceptId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markSourceDatasetAsNotLatest(
-    sourceDatasetId,
+    conceptId,
     transaction,
   );
   const newVersion = await createNewSourceDatasetVersion(
@@ -360,19 +380,17 @@ function logFileOperation(
 /**
  * Handle updates associated with the insertion of a new file record.
  * @param result - File insertion result.
- * @param object - Associated S3 object.
  * @param isNewFile - Whether the inserted record represents a new file.
  * @param fileType - File type.
- * @param metadataObjectId - Existing latest metadata object ID for the file.
+ * @param conceptId - Existing latest metadata object ID for the file.
  * @param atlasId - ID of the file's atlas.
  * @param transaction - Postgres client to use.
  */
 async function handleInsertedFile(
   result: FileUpsertResult,
-  object: S3Object,
   isNewFile: boolean,
   fileType: FILE_TYPE,
-  metadataObjectId: string | null,
+  conceptId: string,
   atlasId: string,
   transaction: PoolClient,
 ): Promise<void> {
@@ -381,17 +399,13 @@ async function handleInsertedFile(
     const handler = FILE_CREATION_HANDLERS[fileType];
 
     if (handler) {
-      await handler(atlasId, result.id, transaction);
+      await handler(atlasId, result.id, conceptId, transaction);
     }
   } else {
     const handler = FILE_UPDATE_HANDLERS[fileType];
 
     if (handler) {
-      if (metadataObjectId === null)
-        throw new Error(
-          `No existing metadata object found for existing ${fileType} file with key ${object.key}`,
-        );
-      await handler(result.id, metadataObjectId, transaction);
+      await handler(result.id, conceptId, transaction);
     }
   }
 }
@@ -426,8 +440,19 @@ async function saveFileRecord(
   // S3 notifications don't include SHA256 metadata - will be populated later via separate integrity validation
   const sha256 = null;
 
-  // Determine file type from S3 key path structure
-  const fileType = determineFileType(object.key);
+  // Get atlas and file info from S3 key
+  const {
+    atlasNetwork: network,
+    atlasShortName,
+    atlasVersion: { generation: atlasGeneration, revision: atlasRevision },
+    fileBaseName,
+    fileType,
+  } = parseNormalizedInfoFromS3Key(object.key);
+
+  // Ingest manifests are no longer saved in the database - ignore the notification if one is received
+  if (fileType === FILE_TYPE.INGEST_MANIFEST) {
+    return null;
+  }
 
   // Note: Atlas ID determination removed - will be handled when creating metadata objects
 
@@ -449,20 +474,34 @@ async function saveFileRecord(
   // - Application-level locking: Complex, doesn't scale, potential deadlocks
   // - Ignore duplicates: Loses important ETag mismatch detection
   return await doTransaction(async (transaction) => {
-    // Get existing metadata object ID based on file type
-    // This is needed before creating new metadata objects or updating existing ones
-    let metadataObjectId: string | null = null;
-
-    metadataObjectId = await getExistingMetadataObjectId(
-      bucket.name,
-      object.key,
+    // Get or create concept ID for the file
+    const conceptId = await getOrCreateConceptId(
+      {
+        atlas_short_name: atlasShortName,
+        base_filename: fileBaseName,
+        file_type: fileType,
+        generation: atlasGeneration,
+        network,
+      },
       transaction,
     );
 
+    // Determine atlas from concept
+    const atlas = await getAtlasMatchingConcept(conceptId, transaction);
+
+    // Confirm that the atlas matches the revision specified in the S3 key
+    const currentAtlasVersion = atlas.overview.version.includes(".")
+      ? atlas.overview.version
+      : `${atlas.overview.version}.0`;
+    if (currentAtlasVersion !== `${atlasGeneration}.${atlasRevision}`) {
+      throw new Error(
+        `Received file for ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision}, but atlas is at version ${atlas.overview.version}`,
+      );
+    }
+
     // Determine recency and whether incoming record should be latest
     const latestNotificationInfo = await getLatestNotificationInfo(
-      bucket.name,
-      object.key,
+      conceptId,
       transaction,
     );
 
@@ -485,27 +524,13 @@ async function saveFileRecord(
     // If this is the latest version but not a new version, the existing version is the same as this version and shouldn't be marked non-latest
     // In that case, the notification is a duplicate and is handled idempotently at file insertion time
     if (isNewVersion)
-      await markPreviousVersionsAsNotLatest(
-        bucket.name,
-        object.key,
-        transaction,
-      );
-
-    // Determine atlas ID from S3 path
-    const { atlasName, network } = parseS3KeyPath(object.key);
-    const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
-    const dbVersionRaw = convertS3VersionToDbVersion(s3Version);
-    const dbVersion = normalizeAtlasVersion(dbVersionRaw);
-    const atlasId: string = await getAtlasByNetworkVersionAndShortName(
-      network,
-      dbVersion,
-      atlasBaseName,
-    );
+      await markPreviousVersionsAsNotLatest(conceptId, transaction);
 
     // Insert new file version with ON CONFLICT handling
     const result = await upsertFileRecord(
       {
         bucket: bucket.name,
+        conceptId,
         etag: object.eTag,
         eventInfo: JSON.stringify(eventInfo),
         fileType,
@@ -523,11 +548,10 @@ async function saveFileRecord(
     if (result.operation === "inserted") {
       await handleInsertedFile(
         result,
-        object,
         isNewFile,
         fileType,
-        metadataObjectId,
-        atlasId,
+        conceptId,
+        atlas.id,
         transaction,
       );
     }

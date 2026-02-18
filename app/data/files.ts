@@ -6,21 +6,16 @@ import {
   FILE_VALIDATION_STATUS,
   FileValidationReports,
   FileValidationSummary,
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerSourceDataset,
   INTEGRITY_STATUS,
-  NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
-import { getVersionVariants } from "../utils/atlases";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {
@@ -34,63 +29,19 @@ export type FileArchiveStatusInfo = Pick<
 
 /**
  * Marks all previous versions of a file as no longer latest
- * @param bucket - S3 bucket name
- * @param key - S3 object key
+ * @param conceptId - Concept ID of the file
  * @param transaction - Database transaction client
  * @returns Number of rows updated (0 = new file, >0 = existing file with previous versions)
  */
 export async function markPreviousVersionsAsNotLatest(
-  bucket: string,
-  key: string,
+  conceptId: string,
   transaction: pg.PoolClient,
 ): Promise<number> {
   const result = await transaction.query(
-    `UPDATE hat.files SET is_latest = FALSE WHERE bucket = $1 AND key = $2`,
-    [bucket, key],
+    `UPDATE hat.files SET is_latest = FALSE WHERE concept_id = $1`,
+    [conceptId],
   );
   return result.rowCount || 0;
-}
-
-/**
- * Get existing metadata object ID for a file based on file type.
- * @param bucket - S3 bucket name
- * @param key - S3 object key
- * @param transaction - Database transaction client
- * @returns Metadata object ID if found, null otherwise
- */
-export async function getExistingMetadataObjectId(
-  bucket: string,
-  key: string,
-  transaction: pg.PoolClient,
-): Promise<string | null> {
-  const fileResult = await transaction.query<
-    Pick<HCAAtlasTrackerDBFile, "file_type" | "id">
-  >(
-    `SELECT file_type, id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true`,
-    [bucket, key],
-  );
-
-  if (fileResult.rows.length === 0) return null;
-
-  const { file_type: fileType, id: fileId } = fileResult.rows[0];
-
-  if (fileType === FILE_TYPE.INTEGRATED_OBJECT) {
-    const result = await transaction.query<
-      Pick<HCAAtlasTrackerComponentAtlas, "id">
-    >("SELECT id FROM hat.component_atlases WHERE file_id = $1", [fileId]);
-    if (result.rows.length === 0)
-      throw new Error(`No component atlas found for file with ID ${fileId}`);
-    return result.rows[0].id;
-  } else if (fileType === FILE_TYPE.SOURCE_DATASET) {
-    const result = await transaction.query<
-      Pick<HCAAtlasTrackerSourceDataset, "id">
-    >("SELECT id FROM hat.source_datasets WHERE file_id = $1", [fileId]);
-    if (result.rows.length === 0)
-      throw new Error(`No source dataset found for file with ID ${fileId}`);
-    return result.rows[0].id;
-  }
-
-  return null;
 }
 
 /**
@@ -101,7 +52,7 @@ export async function getExistingMetadataObjectId(
  * @param transaction - Database transaction client
  * @returns Existing ETag if found, null otherwise
  */
-export async function getExistingETag(
+export async function getSavedETagForS3File(
   bucket: string,
   key: string,
   versionId: string | null,
@@ -116,15 +67,13 @@ export async function getExistingETag(
 }
 
 /**
- * Get the latest event_info and sns_notification_id for a file by bucket/key.
- * @param bucket - S3 bucket name
- * @param key - S3 object key
+ * Get the latest event_info and sns_notification_id for a file by concept ID.
+ * @param conceptId - Concept ID for the file
  * @param transaction - Database transaction client
  * @returns Latest event_info and sns_message_id JSON if present, otherwise null
  */
 export async function getLatestNotificationInfo(
-  bucket: string,
-  key: string,
+  conceptId: string,
   transaction: pg.PoolClient,
 ): Promise<Pick<
   HCAAtlasTrackerDBFile,
@@ -133,48 +82,10 @@ export async function getLatestNotificationInfo(
   const result = await transaction.query<
     Pick<HCAAtlasTrackerDBFile, "event_info" | "sns_message_id">
   >(
-    `SELECT event_info, sns_message_id FROM hat.files WHERE bucket = $1 AND key = $2 AND is_latest = true LIMIT 1`,
-    [bucket, key],
+    `SELECT event_info, sns_message_id FROM hat.files WHERE concept_id = $1 AND is_latest = true LIMIT 1`,
+    [conceptId],
   );
   return result.rows[0] ?? null;
-}
-
-/**
- * Get atlas ID by network, version, and short name with flexible version matching.
- * @param network - Atlas network.
- * @param version - Atlas version (supports flexible matching like "1" vs "1.0").
- * @param shortName - Atlas short name (case-insensitive match).
- * @returns Atlas ID.
- */
-export async function getAtlasByNetworkVersionAndShortName(
-  network: NetworkKey,
-  version: string,
-  shortName: string,
-): Promise<string> {
-  const versionVariants = getVersionVariants(version);
-
-  const result = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    `SELECT id
-       FROM hat.atlases 
-       WHERE overview->>'network' = $1 
-       AND overview->>'version' = ANY($2)
-       AND LOWER(overview->>'shortName') = LOWER($3)`,
-    [network, versionVariants, shortName],
-  );
-
-  if (result.rows.length === 0) {
-    throw new NotFoundError(
-      `Atlas not found for network: ${network}, shortName: ${shortName}, version: ${version}`,
-    );
-  }
-
-  if (result.rows.length > 1) {
-    throw new Error(
-      `Multiple atlases found for network: ${network}, shortName: ${shortName}, version: ${version}. Found ${result.rows.length} matches.`,
-    );
-  }
-
-  return result.rows[0].id;
 }
 
 /**
@@ -343,6 +254,7 @@ async function getTypeFilesMissingFromAtlas(
 
 export interface FileUpsertData {
   bucket: string;
+  conceptId: string;
   etag: string;
   eventInfo: string;
   fileType: string;
@@ -378,7 +290,7 @@ export async function upsertFileRecord(
   transaction: pg.PoolClient,
 ): Promise<FileUpsertResult> {
   // First check if a file with same bucket/key/version already exists
-  const existingETag = await getExistingETag(
+  const existingETag = await getSavedETagForS3File(
     fileData.bucket,
     fileData.key,
     fileData.versionId,
@@ -398,8 +310,8 @@ export async function upsertFileRecord(
   // For same ETag, this is likely a duplicate notification; handle via ON CONFLICT
 
   const result = await transaction.query<FileUpsertResult>(
-    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `INSERT INTO hat.files (bucket, key, version_id, etag, size_bytes, event_info, sha256_client, integrity_status, validation_status, is_latest, file_type, sns_message_id, concept_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        
        -- Handle conflicts on sns_message_id (proper SNS idempotency)
        ON CONFLICT (sns_message_id) 
@@ -426,6 +338,7 @@ export async function upsertFileRecord(
       true,
       fileData.fileType,
       fileData.snsMessageId,
+      fileData.conceptId,
     ],
   );
 
@@ -434,7 +347,7 @@ export async function upsertFileRecord(
     // This happens when ON CONFLICT DO UPDATE WHERE condition fails
     // Meaning ETags don't match - throw ETagMismatchError
     // Fetch the existing ETag so the caller can construct a detailed error without extra reads
-    const existingETag = await getExistingETag(
+    const existingETag = await getSavedETagForS3File(
       fileData.bucket,
       fileData.key,
       fileData.versionId,
