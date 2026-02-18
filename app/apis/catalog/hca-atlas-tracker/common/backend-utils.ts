@@ -99,6 +99,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     id: dbComponentAtlas.id,
     integrityStatus: dbComponentAtlas.integrity_status,
     isArchived: dbComponentAtlas.is_archived,
+    revision: dbComponentAtlas.revision,
     sizeBytes: Number(dbComponentAtlas.size_bytes),
     sourceDatasetCount: dbComponentAtlas.source_dataset_count,
     suspensionType: dbComponentAtlas.dataset_info?.suspensionType ?? [],
@@ -192,6 +193,7 @@ export function dbSourceDatasetToApiSourceDataset(
     publicationStatus: dbSourceDataset.sd_info.publicationStatus,
     publicationString,
     reprocessedStatus: dbSourceDataset.reprocessed_status,
+    revision: dbSourceDataset.revision,
     sizeBytes: Number(dbSourceDataset.size_bytes),
     sourceStudyId: dbSourceDataset.source_study_id,
     sourceStudyTitle:

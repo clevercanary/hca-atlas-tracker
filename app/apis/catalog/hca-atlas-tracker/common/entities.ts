@@ -60,6 +60,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   id: string;
   integrityStatus: INTEGRITY_STATUS;
   isArchived: boolean;
+  revision: number;
   sizeBytes: number;
   sourceDatasetCount: number;
   suspensionType: string[];
@@ -130,6 +131,7 @@ export interface HCAAtlasTrackerSourceDataset {
   publicationStatus: PUBLICATION_STATUS;
   publicationString: string;
   reprocessedStatus: REPROCESSED_STATUS;
+  revision: number;
   sizeBytes: number;
   sourceStudyId: string | null;
   sourceStudyTitle: string | null;
@@ -291,6 +293,7 @@ export interface HCAAtlasTrackerDBComponentAtlas {
   file_id: string;
   id: string;
   is_latest: boolean;
+  revision: number;
   source_datasets: string[];
   updated_at: Date;
   version_id: string;
@@ -394,6 +397,7 @@ export interface HCAAtlasTrackerDBSourceDataset {
   id: string;
   is_latest: boolean;
   reprocessed_status: REPROCESSED_STATUS;
+  revision: number;
   sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
   source_study_id: string | null;
   updated_at: Date;
