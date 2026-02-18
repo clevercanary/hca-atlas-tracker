@@ -338,8 +338,8 @@ async function generateAndAddVersionsForFile(
         Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
       >(
         `
-          INSERT INTO hat.component_atlases (component_info, file_id, id, is_latest, source_datasets, wip_number)
-          VALUES ($1, $2, $3, $4, $5, $6)
+          INSERT INTO hat.component_atlases (component_info, file_id, id, is_latest, source_datasets, wip_number, revision)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
           RETURNING version_id
         `,
         [
@@ -349,6 +349,7 @@ async function generateAndAddVersionsForFile(
           i === newIds.length - 1,
           existingComponentAtlas.source_datasets,
           existingComponentAtlas.wip_number + 1 + i,
+          existingComponentAtlas.revision,
         ],
       );
       newComponentAtlasVersion = newComponentAtlasResult.rows[0].version_id;
@@ -372,8 +373,8 @@ async function generateAndAddVersionsForFile(
         Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
       >(
         `
-          INSERT INTO hat.source_datasets (sd_info, file_id, id, is_latest, source_study_id, wip_number, reprocessed_status)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          INSERT INTO hat.source_datasets (sd_info, file_id, id, is_latest, source_study_id, wip_number, reprocessed_status, revision)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           RETURNING version_id
         `,
         [
@@ -384,6 +385,7 @@ async function generateAndAddVersionsForFile(
           existingSourceDataset.source_study_id,
           existingSourceDataset.wip_number + 1 + i,
           existingSourceDataset.reprocessed_status,
+          existingSourceDataset.revision,
         ],
       );
       newSourceDatasetVersion = newSourceDatasetResult.rows[0].version_id;
