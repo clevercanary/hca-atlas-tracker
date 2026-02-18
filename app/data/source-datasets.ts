@@ -240,8 +240,8 @@ export async function createNewSourceDatasetVersion(
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
     `
-      INSERT INTO hat.source_datasets (sd_info, reprocessed_status, source_study_id, id, wip_number, file_id)
-      SELECT sd_info, reprocessed_status, source_study_id, id, wip_number + 1, $2
+      INSERT INTO hat.source_datasets (sd_info, reprocessed_status, source_study_id, id, wip_number, file_id, revision)
+      SELECT sd_info, reprocessed_status, source_study_id, id, wip_number + 1, $2, revision
       FROM hat.source_datasets
       WHERE version_id = $1
       RETURNING version_id
