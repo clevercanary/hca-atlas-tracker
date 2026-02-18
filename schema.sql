@@ -54,7 +54,9 @@ CREATE TABLE hat.atlases (
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     target_completion timestamp without time zone,
     source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL,
-    component_atlases uuid[] DEFAULT '{}'::uuid[] NOT NULL
+    component_atlases uuid[] DEFAULT '{}'::uuid[] NOT NULL,
+    generation integer DEFAULT 1 NOT NULL,
+    revision integer DEFAULT 0 NOT NULL
 );
 
 
