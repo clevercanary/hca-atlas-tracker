@@ -38,6 +38,7 @@ import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBConcept,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBSourceDataset,
@@ -1282,6 +1283,199 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     );
     expect(firstConcept).toBeDefined();
     expect(secondVersion.concept_id).toEqual(firstVersion.concept_id);
+  });
+
+  it("copies revision number for new source dataset version", async () => {
+    // First upload (creates source dataset and file record)
+    const firstEvent = createS3Event({
+      etag: "sd-v1-etag-11111111222222222233333333333333",
+      eventTime: TEST_TIMESTAMP, // older
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 12345,
+      versionId: "sd-version-1",
+    });
+
+    const firstMessage = createSNSMessage({
+      messageId: "sd-revision-test-v1",
+      s3Event: firstEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Get first file
+    const firstFileResult = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED],
+    );
+    expect(firstFileResult.rows).toHaveLength(1);
+    const firstFile = firstFileResult.rows[0];
+
+    // Set a distinctive revision number before adding a new file version
+    const firstSourceDatasetResult =
+      await query<HCAAtlasTrackerDBSourceDataset>(
+        "UPDATE hat.source_datasets SET revision = $1 WHERE file_id = $2 RETURNING *",
+        [123, firstFile.id],
+      );
+    const firstSourceDataset = firstSourceDatasetResult.rows[0];
+
+    // Check first source dataset WIP number
+    expect(firstSourceDataset.wip_number).toEqual(1);
+
+    // Second upload (update) with newer eventTime
+    const secondEvent = createS3Event({
+      etag: "sd-v2-etag-33333333333222222222222211111111",
+      eventTime: TEST_TIMESTAMP_PLUS_1H, // newer
+      key: TEST_FILE_PATHS.SOURCE_DATASET_VERSIONED,
+      size: 23456,
+      versionId: "sd-version-2",
+    });
+
+    const secondMessage = createSNSMessage({
+      messageId: "sd-revision-test-v2",
+      s3Event: secondEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Get new source dataset
+    const newSourceDatasetResult = await query<HCAAtlasTrackerDBSourceDataset>(
+      "SELECT * FROM hat.source_datasets WHERE id = $1 AND is_latest",
+      [firstSourceDataset.id],
+    );
+    expect(newSourceDatasetResult.rows).toHaveLength(1);
+    const newSourceDataset = newSourceDatasetResult.rows[0];
+    expect(newSourceDataset.version_id).not.toEqual(
+      firstSourceDataset.version_id,
+    );
+
+    // Check version numbers
+    expect(newSourceDataset.wip_number).toEqual(2);
+    expect(newSourceDataset.revision).toEqual(123);
+  });
+
+  it("copies revision number for new component atlas version", async () => {
+    // First upload (creates component atlas and file record)
+    const firstEvent = createS3Event({
+      etag: "io-v1-etag-11111112222222222222223333333333",
+      eventTime: TEST_TIMESTAMP, // older
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 12345,
+      versionId: "io-version-1",
+    });
+
+    const firstMessage = createSNSMessage({
+      messageId: "io-revision-test-v1",
+      s3Event: firstEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: firstMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Get first file
+    const firstFileResult = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
+    );
+    expect(firstFileResult.rows).toHaveLength(1);
+    const firstFile = firstFileResult.rows[0];
+
+    // Set a distinctive revision number before adding a new file version
+    const firstComponentAtlasResult =
+      await query<HCAAtlasTrackerDBComponentAtlas>(
+        "UPDATE hat.component_atlases SET revision = $1 WHERE file_id = $2 RETURNING *",
+        [123, firstFile.id],
+      );
+    const firstComponentAtlas = firstComponentAtlasResult.rows[0];
+
+    // Check first component atlas WIP number
+    expect(firstComponentAtlas.wip_number).toEqual(1);
+
+    // Second upload (update) with newer eventTime
+    const secondEvent = createS3Event({
+      etag: "io-v2-etag-33333333333333111111111111111111",
+      eventTime: TEST_TIMESTAMP_PLUS_1H, // newer
+      key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+      size: 23456,
+      versionId: "io-version-2",
+    });
+
+    const secondMessage = createSNSMessage({
+      messageId: "io-revision-test-v2",
+      s3Event: secondEvent,
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    {
+      const { req, res } = httpMocks.createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
+        body: secondMessage,
+        method: METHOD.POST,
+      });
+      await withConsoleMessageHiding(async () => {
+        await snsHandler(req, res);
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    // Get new component atlas
+    const newComponentAtlasResult =
+      await query<HCAAtlasTrackerDBComponentAtlas>(
+        "SELECT * FROM hat.component_atlases WHERE id = $1 AND is_latest",
+        [firstComponentAtlas.id],
+      );
+    expect(newComponentAtlasResult.rows).toHaveLength(1);
+    const newComponentAtlas = newComponentAtlasResult.rows[0];
+    expect(newComponentAtlas.version_id).not.toEqual(
+      firstComponentAtlas.version_id,
+    );
+
+    // Check version numbers
+    expect(newComponentAtlas.wip_number).toEqual(2);
+    expect(newComponentAtlas.revision).toEqual(123);
   });
 
   it.each([
