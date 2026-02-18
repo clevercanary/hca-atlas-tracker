@@ -6,7 +6,7 @@ import { ActionButton } from "../ActionButton/actionButton";
 export const AddAtlas = (): JSX.Element | null => {
   return (
     <ActionButton component={Link} href={ROUTE.CREATE_ATLAS}>
-      Add Atlas
+      Add Atlas Family
     </ActionButton>
   );
 };

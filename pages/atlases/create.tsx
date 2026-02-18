@@ -5,7 +5,7 @@ import { AddNewAtlasView } from "../../app/views/AddNewAtlasView/addNewAtlasView
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
-      pageTitle: "Add New Atlas",
+      pageTitle: "Add New Atlas Family",
     },
   };
 };
