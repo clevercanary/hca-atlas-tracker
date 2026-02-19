@@ -53,13 +53,18 @@ export const useAddSourceStudyFormManager = (
 };
 
 /**
- * Filters the payload to exclude the publication status.
+ * Filters the payload to only include fields relevant to the publication status.
  * @param payload - Payload.
- * @returns filtered payload (payload without the publication status).
+ * @returns filtered payload.
  */
 function filterPayload(payload: NewSourceStudyData): NewSourceStudyData {
+  const fieldsToInclude: NewSourceStudyDataKeys[] =
+    payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT
+      ? PUBLISHED_PREPRINT_FIELDS
+      : NO_DOI_FIELDS;
+
   return Object.entries(payload).reduce((acc, [key, value]) => {
-    if (key !== FIELD_NAME.PUBLICATION_STATUS) {
+    if (fieldsToInclude.includes(key as NewSourceStudyDataKeys)) {
       return { ...acc, [key]: value };
     }
     return acc;
