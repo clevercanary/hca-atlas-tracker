@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.57.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.56.0...v1.57.0) (2026-02-19)
+
+
+### Features
+
+* add atlas version columns ([#1107](https://github.com/clevercanary/hca-atlas-tracker/issues/1107)) ([#1114](https://github.com/clevercanary/hca-atlas-tracker/issues/1114)) ([5196152](https://github.com/clevercanary/hca-atlas-tracker/commit/5196152ad8501bb98ad7f19e5c336e5ea8d5ce80))
+* add revision to component atlases and source datasets ([#1108](https://github.com/clevercanary/hca-atlas-tracker/issues/1108)) ([#1119](https://github.com/clevercanary/hca-atlas-tracker/issues/1119)) ([b338ddb](https://github.com/clevercanary/hca-atlas-tracker/commit/b338ddbca5aa2447474696ba16f00fe9f592a7a6))
+* create and maintain concepts ([#1099](https://github.com/clevercanary/hca-atlas-tracker/issues/1099)) ([#1111](https://github.com/clevercanary/hca-atlas-tracker/issues/1111)) ([61b2b1d](https://github.com/clevercanary/hca-atlas-tracker/commit/61b2b1d857e463f132b901aa2928ce700b1a3fd2))
+* filter source study form payload by publication status [#1113](https://github.com/clevercanary/hca-atlas-tracker/issues/1113) ([6a10083](https://github.com/clevercanary/hca-atlas-tracker/commit/6a1008344e3ed82cc350b4590a170288742787fb))
+
+
+### Bug Fixes
+
+* bug can't create or edit a source study ([#1113](https://github.com/clevercanary/hca-atlas-tracker/issues/1113)) ([#1118](https://github.com/clevercanary/hca-atlas-tracker/issues/1118)) ([6a10083](https://github.com/clevercanary/hca-atlas-tracker/commit/6a1008344e3ed82cc350b4590a170288742787fb))
+
+
+### Documentation
+
+* merge small FE tickets into full-stack tickets [#1041](https://github.com/clevercanary/hca-atlas-tracker/issues/1041) ([#1106](https://github.com/clevercanary/hca-atlas-tracker/issues/1106)) ([1313aea](https://github.com/clevercanary/hca-atlas-tracker/commit/1313aea63e6b71087a3ed4425c760d2558808581))
+
 ## [1.56.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.55.0...v1.56.0) (2026-02-10)
 
 
