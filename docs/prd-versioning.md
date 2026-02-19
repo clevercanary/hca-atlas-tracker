@@ -534,16 +534,16 @@ Atlas versions are grouped by **(short_name, network, generation)**:
 
 ### Published Atlas Public API
 
-Published atlases can be accessed with only a bearer token (no user role required). This enables programmatic access for downstream consumers.
+Published atlases are publicly accessible — no login or bearer token required. This enables programmatic access for downstream consumers (e.g. HCA Data Portal, CAP, pipelines).
 
-| Endpoint                                       | Description                                      |
-| ---------------------------------------------- | ------------------------------------------------ |
-| `GET /published-atlases`                       | List published atlases (discovery endpoint)      |
-| `GET /atlases/{id}`                            | Get published atlas details                      |
-| `GET /atlases/{id}/source-studies`             | List source studies for published atlas          |
-| `GET /atlases/{id}/source-datasets`            | List source datasets for published atlas         |
-| `GET /atlases/{id}/integrated-objects`         | List integrated objects for published atlas      |
-| `GET /atlases/{id}/files/{versionId}/download` | Get presigned URL (versionId from SD/IO listing) |
+| Endpoint                                         | Description                                 |
+| ------------------------------------------------ | ------------------------------------------- |
+| `GET /published-atlases`                         | List published atlases (discovery endpoint) |
+| `GET /atlases/{id}`                              | Get published atlas details                 |
+| `GET /atlases/{id}/source-studies`               | List source studies for published atlas     |
+| `GET /atlases/{id}/source-datasets`              | List source datasets for published atlas    |
+| `GET /atlases/{id}/integrated-objects`           | List integrated objects for published atlas |
+| `GET /atlases/{id}/files/{fileId}/presigned-url` | Get presigned download URL                  |
 
 **Atlas Addressing:**
 
@@ -570,9 +570,10 @@ The `{id}` parameter accepts either:
 
 **Access Control:**
 
-- Bearer token authentication only (no user account required)
-- Only published atlases (`published_at IS NOT NULL`) are accessible
-- Draft atlases require authenticated user with appropriate role
+- **Published atlases:** No authentication required. Endpoints are fully public.
+- **Draft atlases:** Require authenticated user with appropriate role (existing behavior).
+- **Abuse prevention:** CORS restricts browser-based cross-origin requests to allowed origins. IP-based rate limiting on presigned URL and listing endpoints prevents bulk scripting abuse.
+- **Future: AWS Open Data Program.** Long-term, published files will be copied to the HCA Open Data bucket on publish, providing direct public URLs with AWS-subsidized egress. This eliminates presigned URLs for published data entirely. Until then, presigned URLs from the private bucket are used with CORS + rate limiting as the access control mechanism.
 
 ## Data Migration
 
@@ -1023,13 +1024,15 @@ Example: base_filename `cells.h5ad` → download as `cells-r1-wip-2.h5ad`
 
 ### Slice 9: Published Atlas Public API
 
-**Goal:** Enable programmatic access to published atlases for downstream consumers.
+**Goal:** Enable programmatic access to published atlases for downstream consumers. No authentication required for published data.
+
+**Access Model:** Published atlas endpoints are fully public (no login, no bearer token). Abuse prevention via CORS (browser-only cross-origin restriction) and IP-based rate limiting. Long-term, published files will move to the AWS Open Data Program bucket, eliminating presigned URLs entirely.
 
 #### Ticket 9.1: [Backend] Published atlases discovery and short name addressing
 
 **Endpoint:** `GET /published-atlases`
 
-Returns list of published atlases for discovery:
+Returns list of published atlases for discovery. Fully public, no authentication required.
 
 ```json
 [
@@ -1047,51 +1050,43 @@ Returns list of published atlases for discovery:
 
 - Atlas endpoints accept `{id}` as UUID or short name format (`{short_name}_v{generation}.{revision}`)
 - Example: `GET /atlases/gut_v1.0` resolves to the published atlas
-- Works for published atlases (unregistered users) and any accessible atlas (registered users)
-
-**Access Control:** Bearer token only (no user role required)
+- Works for published atlases (unauthenticated users) and any accessible atlas (registered users)
 
 ---
 
 #### Ticket 9.2: [Backend] Public read endpoints for published atlases
 
-**Endpoints (bearer token only):**
+**Endpoints (no authentication required for published atlases):**
 
 - `GET /atlases/{id}` - Atlas details
 - `GET /atlases/{id}/source-studies` - List source studies
 - `GET /atlases/{id}/source-datasets` - List source datasets (frozen at publish time)
 - `GET /atlases/{id}/integrated-objects` - List integrated objects (frozen at publish time)
 
-**Note:** SD/IO listings return only the versions frozen in the atlas arrays. Each item includes `versionId` for use with download endpoint.
+**Note:** SD/IO listings return only the versions frozen in the atlas arrays. Each item includes `fileId` for use with the presigned URL endpoint.
 
 **Access Control:**
 
-- Bearer token authentication only
-- For unregistered users: reject if atlas is draft (`published_at IS NULL`)
-- Registered users can access drafts they have permission for via these same routes
+- Unauthenticated requests: allowed only if atlas is published (`published_at IS NOT NULL`); return 403 for draft atlases
+- Registered users: can access drafts they have permission for via these same routes (existing behavior)
 
 ---
 
-#### Ticket 9.3: [Backend] Public download endpoint for published atlases
+#### Ticket 9.3: [Backend] Public download for published atlas files
 
-**Note:** An existing route already provides presigned download URLs: `GET /atlases/[atlasId]/files/[fileId]/presigned-url`. The SD/IO listing endpoints (Ticket 9.2) already return `file_id`, so clients can use the existing presigned-url endpoint directly. No new download endpoint may be needed.
-
-**If new endpoint is desired:** `GET /atlases/{atlasId}/files/{versionId}/download`
-
-Uses SD/IO `version_id` (from listing) to identify the file to download.
-
-**Logic:**
-
-1. Look up SD/IO by `version_id`
-2. Verify atlas is published and contains this version (for unregistered users)
-3. Get `file_id` from SD/IO record
-4. Delegate to existing presigned-url logic
+The existing presigned URL endpoint (`POST /atlases/{atlasId}/files/{fileId}/presigned-url`) is updated to allow unauthenticated access for files on published atlases.
 
 **Access Control:**
 
-- Bearer token authentication only
-- Reject if atlas is draft
-- Reject if version not in atlas
+- Unauthenticated requests: allowed only if the atlas is published; return 403 for draft atlases
+- Registered users with appropriate role: can download from draft atlases (existing behavior)
+
+**Abuse Prevention:**
+
+- CORS: restrict allowed origins to the HCA Data Portal and Atlas Tracker domains
+- Rate limiting: IP-based rate limit on presigned URL endpoint (e.g. 100 requests/hour/IP)
+
+**Future:** When the AWS Open Data Program bucket is available, published files will be copied there on publish. The public API will then return direct public URLs instead of presigned URLs, and rate limiting becomes unnecessary for downloads.
 
 ---
 
@@ -1123,7 +1118,7 @@ Uses SD/IO `version_id` (from listing) to identify the file to download.
 | 8     | 8.2    | FE   | Download with versioned names                        |
 | 9     | 9.1    | BE   | Discovery endpoint + short name addressing           |
 | 9     | 9.2    | BE   | Public read endpoints for published atlases          |
-| 9     | 9.3    | BE   | Public download endpoint for published atlases       |
+| 9     | 9.3    | BE   | Public download for published atlas files            |
 
 ---
 
