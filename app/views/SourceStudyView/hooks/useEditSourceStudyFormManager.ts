@@ -54,13 +54,20 @@ export const useEditSourceStudyFormManager = (
 };
 
 /**
- * Filters the payload to exclude the publication status.
+ * Filters the payload to only include fields relevant to the publication status.
  * @param payload - Payload.
- * @returns filtered payload (payload without the publication status).
+ * @returns filtered payload.
  */
 function filterPayload(payload: SourceStudyEditData): SourceStudyEditData {
+  const fieldsToInclude =
+    payload.publicationStatus === PUBLICATION_STATUS.PUBLISHED_PREPRINT
+      ? [...PUBLISHED_PREPRINT_FIELDS]
+      : [...NO_DOI_FIELDS];
+
+  fieldsToInclude.push("capId"); // @deprecated - legacy field required by BE but not shown in UI. Remove when BE removes capId.
+
   return Object.entries(payload).reduce((acc, [key, value]) => {
-    if (key !== FIELD_NAME.PUBLICATION_STATUS) {
+    if (fieldsToInclude.includes(key as SourceStudyEditDataKeys)) {
       return { ...acc, [key]: value };
     }
     return acc;
