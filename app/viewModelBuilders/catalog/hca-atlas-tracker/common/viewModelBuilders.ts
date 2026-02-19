@@ -1318,7 +1318,7 @@ function getIntegratedObjectVersionColumnDef(): ColumnDef<
     accessorFn: getApiEntityFileVersion,
     cell: (ctx) => C.BasicCell(buildComponentAtlasVersion(ctx)),
     header: "Version",
-    meta: { columnPinned: true, width: { max: "1fr", min: "120px" } },
+    meta: { width: { max: "1fr", min: "120px" } },
   };
 }
 
