@@ -8,6 +8,7 @@ import { FIELD_NAME } from "../common/constants";
 import { ViewIntegratedObjectData } from "../common/entities";
 import { viewIntegratedObjectSchema } from "../common/schema";
 import { useFetchComponentAtlas } from "./useFetchComponentAtlas";
+import { getApiEntityFileVersion } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 
 const SCHEMA = viewIntegratedObjectSchema;
 
@@ -41,5 +42,6 @@ function mapSchemaValues(
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),
     [FIELD_NAME.TITLE]: integratedObject.title,
     [FIELD_NAME.VALIDATION_STATUS]: integratedObject.validationStatus,
+    [FIELD_NAME.VERSION]: getApiEntityFileVersion(integratedObject),
   };
 }

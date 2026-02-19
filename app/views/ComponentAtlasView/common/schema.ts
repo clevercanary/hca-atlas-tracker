@@ -18,4 +18,5 @@ export const viewIntegratedObjectSchema = object({
   [FIELD_NAME.SIZE_BY_BYTES]: string(),
   [FIELD_NAME.TITLE]: string(),
   [FIELD_NAME.VALIDATION_STATUS]: string(),
+  [FIELD_NAME.VERSION]: string(),
 }).strict(true);
