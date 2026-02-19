@@ -2,6 +2,7 @@ import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities"
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
+import { getApiEntityFileVersion } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
@@ -20,7 +21,6 @@ import {
   renderSourceDatasetFileDownloadCell,
   renderSourceDatasetValidationStatus,
 } from "./viewBuilders";
-import { getApiEntityFileVersion } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 
 const COLUMN_CAP_URL = {
   accessorKey: "capUrl",
