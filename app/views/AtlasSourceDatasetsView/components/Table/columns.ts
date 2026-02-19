@@ -1,7 +1,7 @@
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
@@ -20,6 +20,7 @@ import {
   renderSourceDatasetFileDownloadCell,
   renderSourceDatasetValidationStatus,
 } from "./viewBuilders";
+import { getApiEntityFileVersion } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 
 const COLUMN_CAP_URL = {
   accessorKey: "capUrl",
@@ -163,11 +164,22 @@ const COLUMN_VALIDATION_STATUS = {
   meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
+const COLUMN_VERSION = {
+  accessorFn: getApiEntityFileVersion,
+  cell: (ctx) => {
+    const { getValue } = ctx as CellContext<AtlasSourceDataset, string>;
+    return C.BasicCell({ value: getValue() });
+  },
+  header: "Version",
+  meta: { width: { max: "1fr", min: "120px" } },
+} as ColumnDef<AtlasSourceDataset>;
+
 export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_DEF.ROW_POSITION as ColumnDef<AtlasSourceDataset>,
   COLUMN_DEF.ROW_SELECTION as ColumnDef<AtlasSourceDataset>,
   COLUMN_DOWNLOAD,
   COLUMN_FILE_NAME,
+  COLUMN_VERSION,
   COLUMN_TITLE,
   COLUMN_SIZE_BYTES,
   COLUMN_FILE_EVENT_TIME,

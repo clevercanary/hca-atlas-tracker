@@ -4,8 +4,10 @@ import {
   DOI_STATUS,
   DoiPublicationInfo,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
+  HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
@@ -192,6 +194,30 @@ export function getPublicationDois(
     primaryDoi,
     ...(publication?.hasPreprintDoi ? [publication.hasPreprintDoi] : []),
   ];
+}
+
+/**
+ * Get the version string for an API-model component atlas or source dataset.
+ * @param entity - Component atlas or source dataset.
+ * @returns version string.
+ */
+export function getApiEntityFileVersion(
+  entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
+): string {
+  return makeFileVersionString(entity.revision, entity.wipNumber);
+}
+
+/**
+ * Get the version string for a file based on given version numbers.
+ * @param revision - Revision number from the file's metadata entity.
+ * @param wipNumber - WIP number from the file's metadata entity.
+ * @returns version string.
+ */
+export function makeFileVersionString(
+  revision: number,
+  wipNumber: number,
+): string {
+  return `r${revision}-wip-${wipNumber}`;
 }
 
 /**

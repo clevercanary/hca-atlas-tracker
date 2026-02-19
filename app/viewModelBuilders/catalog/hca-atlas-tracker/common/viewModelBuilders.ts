@@ -39,6 +39,7 @@ import {
   VALIDATION_ID,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
+  getApiEntityFileVersion,
   getSourceStudyCitation,
   getSourceStudyTaskStatus,
   isTask,
@@ -185,6 +186,22 @@ export const buildComponentAtlasFileName = ({
       children: fileName,
       href: getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
     }),
+  };
+};
+
+/**
+ * Build props for the component atlas version BasicCell component.
+ * @param ctx - Cell context.
+ * @param ctx.getValue - Get the value of the cell.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildComponentAtlasVersion = ({
+  getValue,
+}: CellContext<AtlasIntegratedObject, string>): ComponentProps<
+  typeof C.BasicCell
+> => {
+  return {
+    value: getValue(),
   };
 };
 
@@ -917,6 +934,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     COLUMN_DEF.ROW_SELECTION,
     getIntegratedObjectFileDownloadColumnDef(),
     getIntegratedObjectFileNameColumnDef(),
+    getIntegratedObjectVersionColumnDef(),
     getComponentAtlasTitleColumnDef(),
     getIntegratedObjectFileSizeColumnDef(),
     {
@@ -1285,6 +1303,22 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
     },
     header: "Validation Summary",
     meta: { width: { max: "1fr", min: "136px" } },
+  };
+}
+
+/**
+ * Returns the integrated object version column def.
+ * @returns ColumnDef.
+ */
+function getIntegratedObjectVersionColumnDef(): ColumnDef<
+  AtlasIntegratedObject,
+  string
+> {
+  return {
+    accessorFn: getApiEntityFileVersion,
+    cell: (ctx) => C.BasicCell(buildComponentAtlasVersion(ctx)),
+    header: "Version",
+    meta: { columnPinned: true, width: { max: "1fr", min: "120px" } },
   };
 }
 
