@@ -88,7 +88,8 @@ CREATE TABLE hat.component_atlases (
     file_id uuid NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     is_latest boolean DEFAULT true NOT NULL,
-    wip_number integer DEFAULT 1 NOT NULL
+    wip_number integer DEFAULT 1 NOT NULL,
+    revision integer DEFAULT 1 NOT NULL
 );
 
 
@@ -281,7 +282,8 @@ CREATE TABLE hat.source_datasets (
     file_id uuid NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     is_latest boolean DEFAULT true NOT NULL,
-    wip_number integer DEFAULT 1 NOT NULL
+    wip_number integer DEFAULT 1 NOT NULL,
+    revision integer DEFAULT 1 NOT NULL
 );
 
 

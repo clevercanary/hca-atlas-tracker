@@ -858,6 +858,7 @@ export async function expectSourceDatasetFileToBeConsistentWith(
     componentAtlases?: string[];
     isLatest: boolean;
     otherVersion?: HCAAtlasTrackerDBSourceDataset;
+    revision: number;
     sourceDataset?: string;
     wipNumber: number;
   },
@@ -871,6 +872,7 @@ export async function expectSourceDatasetFileToBeConsistentWith(
 
   expect(file.is_latest).toEqual(params.isLatest);
   expect(sourceDataset.is_latest).toEqual(params.isLatest);
+  expect(sourceDataset.revision).toEqual(params.revision);
   expect(sourceDataset.wip_number).toEqual(params.wipNumber);
 
   if (params.sourceDataset)

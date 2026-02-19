@@ -86,7 +86,7 @@ const PUBLICATION_STATUS: CommonControllerConfig = {
 
 const SIZE_BYTES: CommonControllerConfig = {
   inputProps: {
-    isFullWidth: false,
+    isFullWidth: true,
     label: "File Size",
     readOnly: true,
   },
@@ -113,11 +113,21 @@ const VALIDATION_STATUS: ChipInputControllerConfig = {
   viewBuilder: buildValidationStatus,
 };
 
+const VERSION: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: false,
+    label: "Version",
+    readOnly: true,
+  },
+  name: FIELD_NAME.VERSION,
+};
+
 export const GENERAL_INFO_SOURCE_DATASET_CONTROLLERS: (
   | ChipInputControllerConfig
   | CommonControllerConfig
 )[] = [
   FILE_NAME,
+  VERSION,
   SIZE_BYTES,
   TITLE,
   CELL_COUNT,

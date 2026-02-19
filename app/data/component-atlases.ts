@@ -17,8 +17,8 @@ export async function createNewComponentAtlasVersion(
     Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
   >(
     `
-      INSERT INTO hat.component_atlases (component_info, source_datasets, id, wip_number, file_id)
-      SELECT component_info, source_datasets, id, wip_number + 1, $2
+      INSERT INTO hat.component_atlases (component_info, source_datasets, id, wip_number, file_id, revision)
+      SELECT component_info, source_datasets, id, wip_number + 1, $2, revision
       FROM hat.component_atlases
       WHERE version_id = $1
       RETURNING version_id

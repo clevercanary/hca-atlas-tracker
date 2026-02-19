@@ -1,5 +1,6 @@
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getApiEntityFileVersion } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../../common/entities";
 import { getCapIngestStatus } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { FormMethod } from "../../../hooks/useForm/common/entities";
@@ -42,5 +43,6 @@ function mapSchemaValues(
     [FIELD_NAME.SIZE_BYTES]: formatFileSize(sourceDataset.sizeBytes),
     [FIELD_NAME.TITLE]: sourceDataset.title,
     [FIELD_NAME.VALIDATION_STATUS]: sourceDataset.validationStatus,
+    [FIELD_NAME.VERSION]: getApiEntityFileVersion(sourceDataset),
   };
 }

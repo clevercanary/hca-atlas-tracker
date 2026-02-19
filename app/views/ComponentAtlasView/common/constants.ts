@@ -8,4 +8,5 @@ export const FIELD_NAME = {
   SIZE_BY_BYTES: "sizeBytes",
   TITLE: "title",
   VALIDATION_STATUS: "validationStatus",
+  VERSION: "version",
 } as const;
