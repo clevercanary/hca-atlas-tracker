@@ -1,4 +1,4 @@
-import { parseS3KeyPath } from "app/services/s3-notification";
+import { parseS3KeyPath } from "../../../../utils/files";
 import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import {

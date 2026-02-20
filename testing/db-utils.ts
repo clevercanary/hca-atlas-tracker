@@ -57,7 +57,7 @@ import {
 import {
   getFileBaseName,
   parseNormalizedInfoFromS3Key,
-} from "app/services/s3-notification";
+} from "../app/utils/files";
 
 export async function resetDatabase(initEntities = true): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();
