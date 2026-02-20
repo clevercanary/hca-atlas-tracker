@@ -107,10 +107,12 @@ export async function getSourceDatasetsForApi(
           f.dataset_info,
           f.validation_status,
           f.validation_summary,
+          con.base_filename,
           s.doi,
           s.study_info
         FROM hat.source_datasets d
         JOIN hat.files f ON f.id = d.file_id
+        JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
         WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2)
       `,
@@ -151,10 +153,12 @@ export async function getSourceDatasetForDetailApi(
         f.validation_status,
         f.validation_summary,
         f.validation_reports,
+        con.base_filename,
         s.doi,
         s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.id = d.file_id
+      JOIN hat.concepts con ON con.id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
       WHERE d.version_id = $1
     `,

@@ -50,6 +50,7 @@ export interface HCAAtlasTrackerAtlas {
 
 export interface HCAAtlasTrackerComponentAtlas {
   assay: string[];
+  baseFileName: string;
   capUrl: string | null;
   cellCount: number;
   disease: string[];
@@ -115,6 +116,7 @@ export interface HCAAtlasTrackerUnpublishedSourceStudy extends HCAAtlasTrackerSo
 
 export interface HCAAtlasTrackerSourceDataset {
   assay: string[];
+  baseFileName: string;
   capUrl: string | null;
   cellCount: number;
   createdAt: string;
@@ -316,7 +318,11 @@ export type HCAAtlasTrackerDBComponentAtlasForAPI =
       | "size_bytes"
       | "validation_status"
       | "validation_summary"
-    > & { file_id: string; source_dataset_count: number };
+    > &
+    Pick<HCAAtlasTrackerDBConcept, "base_filename"> & {
+      file_id: string;
+      source_dataset_count: number;
+    };
 
 export type HCAAtlasTrackerDBComponentAtlasForDetailAPI =
   HCAAtlasTrackerDBComponentAtlasForAPI &
@@ -425,7 +431,8 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
     | "is_archived"
     | "validation_status"
     | "validation_summary"
-  > & { file_id: string };
+  > &
+  Pick<HCAAtlasTrackerDBConcept, "base_filename"> & { file_id: string };
 
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI &

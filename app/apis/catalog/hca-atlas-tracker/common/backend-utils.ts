@@ -92,6 +92,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
 ): HCAAtlasTrackerComponentAtlas {
   return {
     assay: dbComponentAtlas.dataset_info?.assay ?? [],
+    baseFileName: dbComponentAtlas.base_filename,
     capUrl: dbComponentAtlas.component_info.capUrl,
     cellCount: dbComponentAtlas.dataset_info?.cellCount ?? 0,
     disease: dbComponentAtlas.dataset_info?.disease ?? [],
@@ -180,6 +181,7 @@ export function dbSourceDatasetToApiSourceDataset(
       : getDbEntityCitation(dbSourceDataset);
   return {
     assay: dbSourceDataset.dataset_info?.assay ?? [],
+    baseFileName: dbSourceDataset.base_filename,
     capUrl: dbSourceDataset.sd_info.capUrl,
     cellCount: dbSourceDataset.dataset_info?.cellCount ?? 0,
     createdAt: dbSourceDataset.created_at.toISOString(),
