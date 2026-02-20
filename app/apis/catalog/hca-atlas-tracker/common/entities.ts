@@ -720,6 +720,7 @@ export interface FileValidationSummary {
 export type FileValidatorName = (typeof FILE_VALIDATOR_NAMES)[number];
 
 export interface PresignedUrlInfo {
+  filename: string;
   url: string;
 }
 

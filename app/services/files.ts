@@ -45,7 +45,7 @@ export async function getAtlasFileDownloadUrl(
     s3Key,
     getDbEntityFileVersion(metadataEntity),
   );
-  return { url: await getDownloadUrl(s3Key, filename) };
+  return { filename, url: await getDownloadUrl(s3Key, filename) };
 }
 
 /**
