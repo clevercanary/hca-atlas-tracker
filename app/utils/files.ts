@@ -94,41 +94,41 @@ function parseS3AtlasName(s3AtlasName: string): {
 }
 
 /**
- * Get the file name from the given S3 key and insert the given version string, replacing any existing version information.
- * @param s3Key - S3 key to get file name from.
+ * Get the filename from the given S3 key and insert the given version string, replacing any existing version information.
+ * @param s3Key - S3 key to get filename from.
  * @param versionString - Version string to insert.
- * @returns file name with version information.
+ * @returns filename with version information.
  */
-export function insertVersionInFileNameFromS3Key(
+export function insertVersionInFilenameFromS3Key(
   s3Key: string,
   versionString: string,
 ): string {
-  return insertVersionInFileName(
+  return insertVersionInFilename(
     getFileBaseName(parseS3KeyPath(s3Key).filename),
     versionString,
   );
 }
 
 /**
- * Insert a version string into a file name.
- * @param baseFileName - Base file name, without version.
+ * Insert a version string into a filename.
+ * @param baseFilename - Base filename, without version.
  * @param versionString - Version string to insert.
- * @returns file name with version information.
+ * @returns filename with version information.
  */
-function insertVersionInFileName(
-  baseFileName: string,
+function insertVersionInFilename(
+  baseFilename: string,
   versionString: string,
 ): string {
-  return baseFileName.replace(/(?=\..+$)/, "-" + versionString);
+  return baseFilename.replace(/(?=\..+$)/, "-" + versionString);
 }
 
 /**
  * Get a file's base name by stripping version information.
- * @param fileName - Actual file name.
- * @returns file name with version information stripped.
+ * @param filename - Actual filename.
+ * @returns filename with version information stripped.
  */
-export function getFileBaseName(fileName: string): string {
-  return fileName.replace(/-r\d+(?:-wip-\d+)?(?=\..+$)/, "");
+export function getFileBaseName(filename: string): string {
+  return filename.replace(/-r\d+(?:-wip-\d+)?(?=\..+$)/, "");
 }
 
 /**

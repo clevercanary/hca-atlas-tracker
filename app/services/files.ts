@@ -24,7 +24,7 @@ import { submitDatasetValidationJob } from "./validator-batch";
 import { getComponentAtlasForAtlasFile } from "../data/component-atlases";
 import { getSourceDatasetForAtlasFile } from "../data/source-datasets";
 import { getDbEntityFileVersion } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { insertVersionInFileNameFromS3Key } from "../utils/files";
+import { insertVersionInFilenameFromS3Key } from "../utils/files";
 
 /**
  * Get a presigned S3 URL for downloading the given file.
@@ -41,11 +41,11 @@ export async function getAtlasFileDownloadUrl(
     atlasId,
   );
   const s3Key = await getFileKey(fileId);
-  const fileName = insertVersionInFileNameFromS3Key(
+  const filename = insertVersionInFilenameFromS3Key(
     s3Key,
     getDbEntityFileVersion(metadataEntity),
   );
-  return { url: await getDownloadUrl(s3Key, fileName) };
+  return { url: await getDownloadUrl(s3Key, filename) };
 }
 
 /**
