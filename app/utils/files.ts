@@ -4,7 +4,6 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { isNetworkKey } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { AtlasVersionNumbers, parseS3AtlasVersion } from "../utils/atlases";
-import { InvalidOperationError } from "./api-handler";
 
 // Parsed S3 key path components
 interface S3KeyPathComponents {
@@ -12,6 +11,10 @@ interface S3KeyPathComponents {
   filename: string; // e.g., 'file.h5ad'
   folderType: string; // e.g., 'source-datasets', 'integrated-objects', 'manifests'
   network: NetworkKey; // e.g., 'bio_network'
+}
+
+export class S3KeyFormatError extends Error {
+  name = "S3KeyFormatError";
 }
 
 /**
@@ -27,7 +30,7 @@ export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   const pathParts = s3Key.split("/");
 
   if (pathParts.length < 4) {
-    throw new InvalidOperationError(
+    throw new S3KeyFormatError(
       `Invalid S3 key format: ${s3Key}. Expected format: bio_network/atlas-name/folder-type/filename`,
     );
   }
@@ -35,7 +38,7 @@ export function parseS3KeyPath(s3Key: string): S3KeyPathComponents {
   const network = pathParts[0];
 
   if (!isNetworkKey(network)) {
-    throw new InvalidOperationError(`Unknown bionetwork: ${network}`);
+    throw new S3KeyFormatError(`Unknown bionetwork: ${network}`);
   }
 
   return {
@@ -61,7 +64,7 @@ function determineFileType(s3TypeFolder: string): FILE_TYPE {
     case "manifests":
       return FILE_TYPE.INGEST_MANIFEST;
     default:
-      throw new InvalidOperationError(
+      throw new S3KeyFormatError(
         `Unknown folder type: ${s3TypeFolder}. Expected: source-datasets, integrated-objects, or manifests`,
       );
   }
@@ -84,7 +87,7 @@ function parseS3AtlasName(s3AtlasName: string): {
   const versionMatch = s3AtlasName.match(/^(.+)-v(\d+(?:-\d+)*)$/);
 
   if (!versionMatch) {
-    throw new Error(
+    throw new S3KeyFormatError(
       `Invalid S3 atlas name format: ${s3AtlasName}. Expected format: name-v1 or name-v1-1`,
     );
   }

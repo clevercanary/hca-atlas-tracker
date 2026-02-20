@@ -9,6 +9,7 @@ import {
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
 import { query } from "../services/database";
+import { S3KeyFormatError } from "./files";
 
 interface UserProfile {
   email: string;
@@ -270,6 +271,8 @@ function respondError(res: NextApiResponse, error: unknown): void {
   if (error instanceof ConflictError)
     res.status(409).json({ message: error.message });
   else if (error instanceof InvalidOperationError)
+    res.status(400).json({ message: error.message });
+  else if (error instanceof S3KeyFormatError)
     res.status(400).json({ message: error.message });
   else if (error instanceof UnauthenticatedError)
     res.status(401).json({ message: error.message });

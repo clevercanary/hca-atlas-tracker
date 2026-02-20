@@ -12,6 +12,7 @@ import { Section } from "./components/DialogContent/components/Section/section";
 import { DIALOG_PROPS } from "./constants";
 import { StyledDialog } from "./dialog.styles";
 import { Props } from "./entities";
+import { getFileBaseName } from "app/utils/files";
 
 export const Dialog = ({
   fileId,
@@ -41,7 +42,9 @@ export const Dialog = ({
         <Section title="Data Format">.h5ad</Section>
         <Section title="Download Details">
           <Stack spacing={1} useFlexGap>
-            <span>FileName: {downloadFileName ?? fileName}</span>
+            <span>
+              FileName: {downloadFileName ?? getFileBaseName(fileName)}
+            </span>
             <span>FileSize: {formatFileSize(sizeBytes)}</span>
           </Stack>
         </Section>
