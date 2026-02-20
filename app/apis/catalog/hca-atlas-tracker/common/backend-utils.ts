@@ -7,10 +7,12 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlasForAPI,
   HCAAtlasTrackerDBComment,
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasForAPI,
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
+  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceStudy,
@@ -34,6 +36,7 @@ import {
   getCompositeTierOneMetadataStatus,
   getPublishedCitation,
   getUnpublishedCitation,
+  makeFileVersionString,
 } from "./utils";
 
 export function dbAtlasToApiAtlas(
@@ -363,4 +366,15 @@ export function getDbSourceStudyTierOneMetadataStatus(
         )
       : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
     : TIER_ONE_METADATA_STATUS.NA;
+}
+
+/**
+ * Get the version string for a database-model component atlas or source dataset.
+ * @param entity - Component atlas or source dataset.
+ * @returns version string.
+ */
+export function getDbEntityFileVersion(
+  entity: HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset,
+): string {
+  return makeFileVersionString(entity.revision, entity.wip_number);
 }

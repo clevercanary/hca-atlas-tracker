@@ -1,6 +1,5 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { parseS3KeyPath } from "../utils/files";
 
 const PRESIGNED_DOWNLOAD_URL_EXPIRATION_TIME = 172800; // 48 hours
 
@@ -12,9 +11,10 @@ export function getDataBucketName(): string {
   return bucket;
 }
 
-export async function getDownloadUrl(key: string): Promise<string> {
-  const { filename } = parseS3KeyPath(key);
-
+export async function getDownloadUrl(
+  key: string,
+  filename: string,
+): Promise<string> {
   const bucket = getDataBucketName();
 
   const command = new GetObjectCommand({

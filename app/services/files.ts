@@ -9,7 +9,6 @@ import {
   PresignedUrlInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  confirmFileExistsOnAtlas,
   confirmFilesExistOnAtlas,
   getAllFilesValidationParams,
   getFileKey,
@@ -24,6 +23,8 @@ import { getDownloadUrl } from "./s3-operations";
 import { submitDatasetValidationJob } from "./validator-batch";
 import { getComponentAtlasForAtlasFile } from "../data/component-atlases";
 import { getSourceDatasetForAtlasFile } from "../data/source-datasets";
+import { getDbEntityFileVersion } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { insertVersionInFileNameFromS3Key } from "../utils/files";
 
 /**
  * Get a presigned S3 URL for downloading the given file.
@@ -35,8 +36,16 @@ export async function getAtlasFileDownloadUrl(
   atlasId: string,
   fileId: string,
 ): Promise<PresignedUrlInfo> {
-  await confirmFileExistsOnAtlas(fileId, atlasId);
-  return { url: await getDownloadUrl(await getFileKey(fileId)) };
+  const { entity: metadataEntity } = await getFileMetadataEntityForAtlas(
+    fileId,
+    atlasId,
+  );
+  const s3Key = await getFileKey(fileId);
+  const fileName = insertVersionInFileNameFromS3Key(
+    s3Key,
+    getDbEntityFileVersion(metadataEntity),
+  );
+  return { url: await getDownloadUrl(s3Key, fileName) };
 }
 
 /**
