@@ -49,7 +49,6 @@ export const GeneralInfo = ({
   } = formMethod;
   const watchedFields = watch([FIELD_NAME.DOI, FIELD_NAME.PUBLICATION_STATUS]);
   const [doi, publicationStatus] = watchedFields;
-  const defaultDoi = formMethod.formState.defaultValues?.[FIELD_NAME.DOI];
   const hasDoi = Boolean(doi);
 
   // Callback to handle tab change; clears errors, sets publication status, and updates form value.
@@ -103,7 +102,7 @@ export const GeneralInfo = ({
                         )}
                       </Fragment>
                     }
-                    readOnly={Boolean(defaultDoi) || isReadOnly}
+                    readOnly={isReadOnly}
                   />
                 )}
               />
