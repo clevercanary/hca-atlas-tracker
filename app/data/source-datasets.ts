@@ -315,6 +315,27 @@ export async function confirmSourceDatasetsAreEditable(
   );
 }
 
+/**
+ * Get the source dataset of the given atlas that's associated with the given file.
+ * @param atlasId - Atlas to get source dataset for.
+ * @param fileId - File ID of the source dataset to get.
+ * @returns source dataset.
+ */
+export async function getSourceDatasetForAtlasFile(
+  atlasId: string,
+  fileId: string,
+): Promise<HCAAtlasTrackerDBSourceDataset> {
+  const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
+    "SELECT d.* FROM hat.source_datasets d JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets) WHERE a.id = $1 AND d.file_id = $2",
+    [atlasId, fileId],
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Source dataset file with ID ${fileId} does not exist on atlas with ID ${atlasId}`,
+    );
+  return queryResult.rows[0];
+}
+
 export async function getSourceDatasetVersionForAtlas(
   sourceDatasetId: string,
   atlasId: string,

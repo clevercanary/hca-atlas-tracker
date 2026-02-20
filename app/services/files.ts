@@ -1,7 +1,10 @@
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { InvalidOperationError } from "app/utils/api-handler";
 import {
+  FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
   PresignedUrlInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -11,6 +14,7 @@ import {
   getAllFilesValidationParams,
   getFileKey,
   getFilesArchiveStatus,
+  getFileType,
   setFileIntegrityStatus,
   setFilesArchiveStatus,
   setFileValidationStatus,
@@ -18,6 +22,8 @@ import {
 import { doTransaction } from "./database";
 import { getDownloadUrl } from "./s3-operations";
 import { submitDatasetValidationJob } from "./validator-batch";
+import { getComponentAtlasForAtlasFile } from "../data/component-atlases";
+import { getSourceDatasetForAtlasFile } from "../data/source-datasets";
 
 /**
  * Get a presigned S3 URL for downloading the given file.
@@ -31,6 +37,45 @@ export async function getAtlasFileDownloadUrl(
 ): Promise<PresignedUrlInfo> {
   await confirmFileExistsOnAtlas(fileId, atlasId);
   return { url: await getDownloadUrl(await getFileKey(fileId)) };
+}
+
+/**
+ * Get the metadata linked to the given atlas for the given file.
+ * @param fileId - ID of the file to get the metadata entity for.
+ * @param atlasId - ID of the atlas on which to find the metadata entity.
+ * @returns object containing metadata entity and file type.
+ */
+export async function getFileMetadataEntityForAtlas(
+  fileId: string,
+  atlasId: string,
+): Promise<
+  | {
+      entity: HCAAtlasTrackerDBComponentAtlas;
+      type: FILE_TYPE.INTEGRATED_OBJECT;
+    }
+  | {
+      entity: HCAAtlasTrackerDBSourceDataset;
+      type: FILE_TYPE.SOURCE_DATASET;
+    }
+> {
+  const fileType = await getFileType(fileId);
+  switch (fileType) {
+    case FILE_TYPE.INTEGRATED_OBJECT: {
+      return {
+        entity: await getComponentAtlasForAtlasFile(atlasId, fileId),
+        type: FILE_TYPE.INTEGRATED_OBJECT,
+      };
+    }
+    case FILE_TYPE.SOURCE_DATASET: {
+      return {
+        entity: await getSourceDatasetForAtlasFile(atlasId, fileId),
+        type: FILE_TYPE.SOURCE_DATASET,
+      };
+    }
+  }
+  throw new InvalidOperationError(
+    `File with ID ${fileId} is of type ${fileType}; cannot get metadata entity`,
+  );
 }
 
 /**
