@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.57.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.57.0...v1.57.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* allow content admins to edit DOI on existing source studies ([#1121](https://github.com/clevercanary/hca-atlas-tracker/issues/1121)) ([#1123](https://github.com/clevercanary/hca-atlas-tracker/issues/1123)) ([12ee300](https://github.com/clevercanary/hca-atlas-tracker/commit/12ee30019a436d7a690576515e805c6b8aec61ef))
+
+
+### Documentation
+
+* update Slice 9 public API access model ([#1120](https://github.com/clevercanary/hca-atlas-tracker/issues/1120)) ([67e690a](https://github.com/clevercanary/hca-atlas-tracker/commit/67e690acaffd60997c10bc1ada0925af424352f9))
+* update Slice 9 public API to use CORS + rate limiting instead of bearer token [#1117](https://github.com/clevercanary/hca-atlas-tracker/issues/1117) ([67e690a](https://github.com/clevercanary/hca-atlas-tracker/commit/67e690acaffd60997c10bc1ada0925af424352f9))
+
 ## [1.57.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.56.0...v1.57.0) (2026-02-19)
 
 
