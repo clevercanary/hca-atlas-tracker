@@ -119,7 +119,7 @@ function insertVersionInFileName(
   baseFileName: string,
   versionString: string,
 ): string {
-  return baseFileName.replace(/(?=\..+$)/, versionString);
+  return baseFileName.replace(/(?=\..+$)/, "-" + versionString);
 }
 
 /**
