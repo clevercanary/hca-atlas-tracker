@@ -74,10 +74,10 @@ const COLUMN_FILE_ID = {
 } as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_FILE_NAME = {
-  accessorKey: "fileName",
+  accessorKey: "baseFileName",
   cell: ({ row }) =>
     C.Link({
-      label: row.original.fileName,
+      label: row.original.baseFileName,
       url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
         atlasId: row.original.atlasId,
         sourceDatasetId: row.original.id,
