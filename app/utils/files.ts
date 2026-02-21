@@ -97,28 +97,12 @@ function parseS3AtlasName(s3AtlasName: string): {
 }
 
 /**
- * Get the filename from the given S3 key and insert the given version string, replacing any existing version information.
- * @param s3Key - S3 key to get filename from.
- * @param versionString - Version string to insert.
- * @returns filename with version information.
- */
-export function insertVersionInFilenameFromS3Key(
-  s3Key: string,
-  versionString: string,
-): string {
-  return insertVersionInFilename(
-    getFileBaseName(parseS3KeyPath(s3Key).filename),
-    versionString,
-  );
-}
-
-/**
  * Insert a version string into a filename.
  * @param baseFilename - Base filename, without version.
  * @param versionString - Version string to insert.
  * @returns filename with version information.
  */
-function insertVersionInFilename(
+export function insertVersionInFilename(
   baseFilename: string,
   versionString: string,
 ): string {
