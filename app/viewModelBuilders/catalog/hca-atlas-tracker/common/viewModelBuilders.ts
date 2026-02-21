@@ -1238,11 +1238,11 @@ function getIntegratedObjectFileDownloadColumnDef<
         options: { meta },
       } = table;
       const { canEdit = false } = meta as { canEdit: boolean };
-      const { fileId, fileName, sizeBytes } = row.original;
+      const { baseFileName, fileId, sizeBytes } = row.original;
       return C.FileDownloadCell({
         disabled: !canEdit,
         fileId,
-        fileName,
+        fileName: baseFileName,
         sizeBytes,
       });
     },
@@ -1344,7 +1344,7 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
     cell: (ctx): JSX.Element =>
       C.FileDownloadCell({
         fileId: ctx.row.original.fileId,
-        fileName: ctx.row.original.fileName,
+        fileName: ctx.row.original.baseFileName,
         sizeBytes: ctx.row.original.sizeBytes,
       }),
     enableSorting: false,
