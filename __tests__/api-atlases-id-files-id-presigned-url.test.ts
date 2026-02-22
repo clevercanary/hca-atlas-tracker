@@ -295,7 +295,9 @@ function expectUrlInfoForFile(
   expect(info.filename).toEqual(expectedFilename);
 
   expect(info.url).toMatch(/^https:\/\//);
+  // URL should contain both the S3 filename in the key and the download filename
   expect(info.url).toEqual(expect.stringContaining(testFile.fileName));
+  expect(info.url).toEqual(expect.stringContaining(expectedFilename));
 
   const endingRegex = /(?:-r\d+(?:-wip-\d+)?)?\..+$/;
   const fileNameBeginning = testFile.fileName.replace(endingRegex, "");
