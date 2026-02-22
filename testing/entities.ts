@@ -134,6 +134,13 @@ export type NormalizedTestFile = Required<TestFile> & {
   resolvedAtlas: TestAtlas;
 };
 
+export interface TestConcept {
+  atlas: TestAtlas;
+  baseFilename: string;
+  fileType: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET;
+  id: string;
+}
+
 export type TestEntrySheetValidation = HCAAtlasTrackerDBEntrySheetValidation;
 
 export interface TestComment {

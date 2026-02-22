@@ -28,6 +28,7 @@ import {
   query,
 } from "../app/services/database";
 import {
+  INITIAL_EXPLICIT_TEST_CONCEPTS,
   INITIAL_STANDALONE_TEST_FILES,
   INITIAL_TEST_ATLASES,
   INITIAL_TEST_COMMENTS,
@@ -91,6 +92,8 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   const dbUsersByEmail = await getDbUsersByEmail(client);
 
   await initSourceStudies(client);
+
+  await initExplicitConcepts(client);
 
   await initFiles(client);
 
@@ -197,7 +200,9 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
 
 async function initFiles(client: pg.PoolClient): Promise<void> {
   const createdFiles = new Set<TestFile>();
-  const createdConcepts = new Set<string>();
+  const createdConcepts = new Set<string>(
+    INITIAL_EXPLICIT_TEST_CONCEPTS.map((c) => c.id),
+  );
   for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
     await initTestFile(
       client,
@@ -312,6 +317,23 @@ async function initTestFile(
       conceptId,
     ],
   );
+}
+
+async function initExplicitConcepts(client: pg.PoolClient): Promise<void> {
+  for (const concept of INITIAL_EXPLICIT_TEST_CONCEPTS) {
+    await createTestConcept(
+      {
+        atlas_short_name: concept.atlas.shortName,
+        base_filename: concept.baseFilename,
+        file_type: concept.fileType,
+        generation: concept.atlas.generation,
+        id: concept.id,
+        network: concept.atlas.network,
+      },
+      undefined,
+      client,
+    );
+  }
 }
 
 async function initEntrySheetValidations(client: pg.PoolClient): Promise<void> {
