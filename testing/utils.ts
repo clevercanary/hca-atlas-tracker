@@ -812,6 +812,12 @@ export async function expectDbUserToMatchInputData(
   );
 }
 
+export function assertExpectDefined<T>(
+  value: T | undefined,
+): asserts value is T {
+  expectIsDefined(value);
+}
+
 export function expectIsDefined<T>(value: T | undefined): value is T {
   expect(value).toBeDefined();
   return value !== undefined;

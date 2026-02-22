@@ -14,6 +14,7 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
+  CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
@@ -27,6 +28,7 @@ import {
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
+  SOURCE_DATASET_WITH_OUTDATED_FILENAME,
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
@@ -301,6 +303,26 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       sourceDataset,
       SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
     );
+  });
+
+  it("returns base filename from concept", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      SOURCE_DATASET_WITH_OUTDATED_FILENAME.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+    expectDetailApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_WITH_OUTDATED_FILENAME,
+    );
+    expect(sourceDataset.baseFileName).toEqual(
+      CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME.baseFilename,
+    );
+    expect(sourceDataset.baseFileName).not.toEqual(sourceDataset.fileName);
   });
 });
 

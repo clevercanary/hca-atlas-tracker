@@ -2581,7 +2581,7 @@ export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
   versionId: "34ff6cf5-c049-4f0f-af21-725921854e8d",
 } satisfies TestSourceDataset;
 
-const SOURCE_DATASET_ID_OUTDATED_FILENAME =
+export const SOURCE_DATASET_ID_OUTDATED_FILENAME =
   "f0a1b2c3-d4e5-4f6a-b7c8-d9e0f1a2b3c4";
 export const SOURCE_DATASET_WITH_OUTDATED_FILENAME = {
   file: {
@@ -3458,7 +3458,7 @@ export const COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W2 = {
   wipNumber: 2,
 } satisfies TestComponentAtlas;
 
-const COMPONENT_ATLAS_ID_OUTDATED_FILENAME =
+export const COMPONENT_ATLAS_ID_OUTDATED_FILENAME =
   "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b";
 export const COMPONENT_ATLAS_WITH_OUTDATED_FILENAME = {
   file: {
