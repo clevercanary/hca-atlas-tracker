@@ -107,10 +107,12 @@ export async function getSourceDatasetsForApi(
           f.dataset_info,
           f.validation_status,
           f.validation_summary,
+          con.base_filename,
           s.doi,
           s.study_info
         FROM hat.source_datasets d
         JOIN hat.files f ON f.id = d.file_id
+        JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
         WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2)
       `,
@@ -151,10 +153,12 @@ export async function getSourceDatasetForDetailApi(
         f.validation_status,
         f.validation_summary,
         f.validation_reports,
+        con.base_filename,
         s.doi,
         s.study_info
       FROM hat.source_datasets d
       JOIN hat.files f ON f.id = d.file_id
+      JOIN hat.concepts con ON con.id = d.id
       LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
       WHERE d.version_id = $1
     `,
@@ -313,6 +317,27 @@ export async function confirmSourceDatasetsAreEditable(
     PLURAL_ENTITY_NAME,
     InvalidOperationError,
   );
+}
+
+/**
+ * Get the source dataset of the given atlas that's associated with the given file.
+ * @param atlasId - Atlas to get source dataset for.
+ * @param fileId - File ID of the source dataset to get.
+ * @returns source dataset.
+ */
+export async function getSourceDatasetForAtlasFile(
+  atlasId: string,
+  fileId: string,
+): Promise<HCAAtlasTrackerDBSourceDataset> {
+  const queryResult = await query<HCAAtlasTrackerDBSourceDataset>(
+    "SELECT d.* FROM hat.source_datasets d JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets) WHERE a.id = $1 AND d.file_id = $2",
+    [atlasId, fileId],
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Source dataset file with ID ${fileId} does not exist on atlas with ID ${atlasId}`,
+    );
+  return queryResult.rows[0];
 }
 
 export async function getSourceDatasetVersionForAtlas(

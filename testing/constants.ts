@@ -17,6 +17,7 @@ import {
   TestAtlas,
   TestComment,
   TestComponentAtlas,
+  TestConcept,
   TestEntrySheetValidation,
   TestFile,
   TestPublishedSourceStudy,
@@ -2580,6 +2581,25 @@ export const SOURCE_DATASET_WITH_SOURCE_STUDY_BAR = {
   versionId: "34ff6cf5-c049-4f0f-af21-725921854e8d",
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_ID_OUTDATED_FILENAME =
+  "f0a1b2c3-d4e5-4f6a-b7c8-d9e0f1a2b3c4";
+export const SOURCE_DATASET_WITH_OUTDATED_FILENAME = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-with-outdated-filename",
+    etag: "8d4e9f2a6b3c7e1d5a8f4b2e9c6d3a7f",
+    eventTime: "2025-12-03T09:47:22.581Z",
+    fileName: "source-dataset-with-outdated-filename-OUTDATED.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "d7e8f9a0-b1c2-4d3e-8f4a-5b6c7d8e9f0a",
+    sizeBytes: "463453",
+    versionId: null,
+  },
+  id: SOURCE_DATASET_ID_OUTDATED_FILENAME,
+  versionId: "a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d",
+  wipNumber: 7,
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2623,6 +2643,7 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR,
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   SOURCE_DATASET_WITH_SOURCE_STUDY_BAR,
+  SOURCE_DATASET_WITH_OUTDATED_FILENAME,
 ];
 
 // ATLAS IDS
@@ -3437,6 +3458,26 @@ export const COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W2 = {
   wipNumber: 2,
 } satisfies TestComponentAtlas;
 
+export const COMPONENT_ATLAS_ID_OUTDATED_FILENAME =
+  "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b";
+export const COMPONENT_ATLAS_WITH_OUTDATED_FILENAME = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-with-outdated-filename",
+    etag: "3a9f2b7e4c0d1e8f5a6b7c8d9e0f1a2b",
+    eventTime: "2025-11-15T14:32:47.293Z",
+    fileName: "component-atlas-with-outdated-filename-OUTDATED.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "b5c6d7e8-f9a0-4b1c-9d2e-3f4a5b6c7d8e",
+    sizeBytes: "63634",
+    versionId: null,
+  },
+  id: COMPONENT_ATLAS_ID_OUTDATED_FILENAME,
+  sourceDatasets: [],
+  versionId: "c4d5e6f7-a8b9-4c0d-8e1f-2a3b4c5d6e7f",
+  wipNumber: 5,
+} satisfies TestComponentAtlas;
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
@@ -3463,6 +3504,7 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W2,
+  COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
 ];
 
 // ATLASES
@@ -3664,7 +3706,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
 export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
-  componentAtlases: [],
+  componentAtlases: [COMPONENT_ATLAS_WITH_OUTDATED_FILENAME.versionId],
   description: "baz bar foo foo bar baz baz foo",
   generation: 6,
   highlights: "",
@@ -3679,6 +3721,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
     SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR.versionId,
     SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.versionId,
     SOURCE_DATASET_WITH_SOURCE_STUDY_BAR.versionId,
+    SOURCE_DATASET_WITH_OUTDATED_FILENAME.versionId,
   ],
   sourceStudies: [SOURCE_STUDY_MISC_C_FOO.id, SOURCE_STUDY_MISC_C_BAR.id],
   status: ATLAS_STATUS.IN_PROGRESS,
@@ -4019,6 +4062,31 @@ export const INITIAL_STANDALONE_TEST_FILES: TestFile[] = [
   FILE_MANIFEST_BAR,
   FILE_MANIFEST_BAZ,
 ];
+
+// EXPLICITLY-DEFINED CONCEPTS
+
+export const CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME = {
+  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+  baseFilename: "component-atlas-with-outdated-filename-CURRENT.h5ad",
+  fileType: FILE_TYPE.INTEGRATED_OBJECT,
+  id: COMPONENT_ATLAS_ID_OUTDATED_FILENAME,
+} satisfies TestConcept;
+
+export const CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME = {
+  atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+  baseFilename: "source-dataset-with-outdated-filename-CURRENT.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  id: SOURCE_DATASET_ID_OUTDATED_FILENAME,
+} satisfies TestConcept;
+
+export const INITIAL_EXPLICIT_TEST_CONCEPTS: TestConcept[] = [
+  CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME,
+  CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME,
+];
+
+export const INITIAL_EXPLICIT_TEST_CONCEPTS_BY_ID = new Map(
+  INITIAL_EXPLICIT_TEST_CONCEPTS.map((c) => [c.id, c]),
+);
 
 // ENTRY SHEET VALIDATIONS
 

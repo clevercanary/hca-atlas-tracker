@@ -42,6 +42,7 @@ import { Handler } from "../app/utils/api-handler";
 import {
   ATLAS_DRAFT,
   DEFAULT_USERS_BY_ROLE,
+  INITIAL_EXPLICIT_TEST_CONCEPTS_BY_ID,
   INITIAL_STANDALONE_TEST_FILES,
   INITIAL_TEST_COMPONENT_ATLASES,
   INITIAL_TEST_SOURCE_DATASETS,
@@ -345,6 +346,15 @@ export function getTestSourceStudyCitation(
   }
 }
 
+function getTestEntityBaseFilename(
+  entity: TestComponentAtlas | TestSourceDataset,
+): string {
+  return (
+    INITIAL_EXPLICIT_TEST_CONCEPTS_BY_ID.get(entity.id)?.baseFilename ??
+    entity.file.fileName
+  );
+}
+
 export function getAllTestFiles(): TestFile[] {
   return INITIAL_STANDALONE_TEST_FILES.concat(
     INITIAL_TEST_SOURCE_DATASETS.flatMap((d) => d.file ?? []),
@@ -586,6 +596,9 @@ export function expectApiSourceDatasetToMatchTest(
   const testFile = getNormalizedFileForTestEntity(testSourceDataset);
 
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
+  expect(apiSourceDataset.baseFileName).toEqual(
+    getTestEntityBaseFilename(testSourceDataset),
+  );
   expect(apiSourceDataset.capUrl).toEqual(testSourceDataset.capUrl);
   expect(apiSourceDataset.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0,
@@ -675,6 +688,9 @@ export function expectApiComponentAtlasToMatchTest(
   const testFile = getNormalizedFileForTestEntity(testComponentAtlas);
 
   expect(apiComponentAtlas.assay).toEqual(testFile.datasetInfo?.assay ?? []);
+  expect(apiComponentAtlas.baseFileName).toEqual(
+    getTestEntityBaseFilename(testComponentAtlas),
+  );
   expect(apiComponentAtlas.capUrl).toEqual(testComponentAtlas.capUrl ?? null);
   expect(apiComponentAtlas.cellCount).toEqual(
     testFile.datasetInfo?.cellCount ?? 0,
@@ -794,6 +810,12 @@ export async function expectDbUserToMatchInputData(
   expect(dbUser.role_associated_resource_ids).toEqual(
     inputData.roleAssociatedResourceIds,
   );
+}
+
+export function assertExpectDefined<T>(
+  value: T | undefined,
+): asserts value is T {
+  expectIsDefined(value);
 }
 
 export function expectIsDefined<T>(value: T | undefined): value is T {

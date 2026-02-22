@@ -1,4 +1,4 @@
-import { InvalidOperationError } from "../app/utils/api-handler";
+import { S3KeyFormatError } from "../app/utils/files";
 import { parseS3AtlasVersion } from "../app/utils/atlases";
 
 /**
@@ -44,7 +44,7 @@ describe("parseS3AtlasVersion", () => {
     ["x"],
     [""],
   ])("throws on invalid version '%s'", (raw) => {
-    expect(() => parseS3AtlasVersion(raw)).toThrow(InvalidOperationError);
+    expect(() => parseS3AtlasVersion(raw)).toThrow(S3KeyFormatError);
   });
 
   describe("SNS key examples", () => {

@@ -7,7 +7,9 @@ import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-dataset
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
+  CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ARCHIVED_BAR,
   SOURCE_DATASET_ARCHIVED_BAZ,
@@ -26,11 +28,13 @@ import {
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_ID_OUTDATED_FILENAME,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
+  SOURCE_DATASET_WITH_OUTDATED_FILENAME,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -39,7 +43,9 @@ import {
 import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
+  assertExpectDefined,
   expectApiSourceDatasetsToMatchTest,
+  expectApiSourceDatasetToMatchTest,
   expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
@@ -248,6 +254,29 @@ describe(TEST_ROUTE, () => {
       SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
       SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
     ]);
+  });
+
+  it("returns base filename from concept", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    const sourceDataset = sourceDatasets.find(
+      (sd) => sd.id === SOURCE_DATASET_ID_OUTDATED_FILENAME,
+    );
+    assertExpectDefined(sourceDataset);
+
+    expectApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_WITH_OUTDATED_FILENAME,
+    );
+
+    expect(sourceDataset.baseFileName).toEqual(
+      CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME.baseFilename,
+    );
+    expect(sourceDataset.baseFileName).not.toEqual(sourceDataset.fileName);
   });
 });
 

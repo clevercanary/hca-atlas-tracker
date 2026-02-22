@@ -1,6 +1,7 @@
 import {
   FileId,
   HCAAtlasTrackerAtlas,
+  PresignedUrlInfo,
 } from "../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface EntityData {
@@ -11,10 +12,9 @@ export interface Props {
   fileId?: FileId;
 }
 
-export interface Response {
-  url: string;
-}
+export type Response = PresignedUrlInfo;
 
 export interface UseRequestPreSignedURL {
+  filename?: string;
   url?: string;
 }

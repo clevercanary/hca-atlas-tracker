@@ -1,4 +1,4 @@
-import { parseS3KeyPath } from "app/services/s3-notification";
+import { parseS3KeyPath } from "../../../../utils/files";
 import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import {
@@ -7,10 +7,12 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlasForAPI,
   HCAAtlasTrackerDBComment,
+  HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasForAPI,
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
+  HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceStudy,
@@ -34,6 +36,7 @@ import {
   getCompositeTierOneMetadataStatus,
   getPublishedCitation,
   getUnpublishedCitation,
+  makeFileVersionString,
 } from "./utils";
 
 export function dbAtlasToApiAtlas(
@@ -89,6 +92,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
 ): HCAAtlasTrackerComponentAtlas {
   return {
     assay: dbComponentAtlas.dataset_info?.assay ?? [],
+    baseFileName: dbComponentAtlas.base_filename,
     capUrl: dbComponentAtlas.component_info.capUrl,
     cellCount: dbComponentAtlas.dataset_info?.cellCount ?? 0,
     disease: dbComponentAtlas.dataset_info?.disease ?? [],
@@ -177,6 +181,7 @@ export function dbSourceDatasetToApiSourceDataset(
       : getDbEntityCitation(dbSourceDataset);
   return {
     assay: dbSourceDataset.dataset_info?.assay ?? [],
+    baseFileName: dbSourceDataset.base_filename,
     capUrl: dbSourceDataset.sd_info.capUrl,
     cellCount: dbSourceDataset.dataset_info?.cellCount ?? 0,
     createdAt: dbSourceDataset.created_at.toISOString(),
@@ -363,4 +368,15 @@ export function getDbSourceStudyTierOneMetadataStatus(
         )
       : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
     : TIER_ONE_METADATA_STATUS.NA;
+}
+
+/**
+ * Get the version string for a database-model component atlas or source dataset.
+ * @param entity - Component atlas or source dataset.
+ * @returns version string.
+ */
+export function getDbEntityFileVersion(
+  entity: HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset,
+): string {
+  return makeFileVersionString(entity.revision, entity.wip_number);
 }

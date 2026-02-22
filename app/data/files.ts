@@ -450,6 +450,15 @@ export async function getFileKey(fileId: string): Promise<string> {
   return result.rows[0].key;
 }
 
+export async function getFileType(fileId: string): Promise<FILE_TYPE> {
+  const result = await query<Pick<HCAAtlasTrackerDBFile, "file_type">>(
+    "SELECT file_type FROM hat.files WHERE id=$1",
+    [fileId],
+  );
+  if (result.rows.length === 0) throw getFileNotFoundError(fileId);
+  return result.rows[0].file_type;
+}
+
 /**
  * Get the currently-stored date at which the given file was last validated.
  * @param fileId - ID of file to get validation timestamp of.

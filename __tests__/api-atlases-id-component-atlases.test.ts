@@ -7,6 +7,7 @@ import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-at
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   COMPONENT_ATLAS_ARCHIVED_BAR,
   COMPONENT_ATLAS_ARCHIVED_BAZ,
@@ -14,11 +15,14 @@ import {
   COMPONENT_ATLAS_ARCHIVED_FOOFOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_ID_OUTDATED_FILENAME,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
+  COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
+  CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME,
   FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -28,6 +32,7 @@ import {
 import { resetDatabase } from "../testing/db-utils";
 import { TestComponentAtlas, TestUser } from "../testing/entities";
 import {
+  assertExpectDefined,
   expectApiComponentAtlasToMatchTest,
   expectIsDefined,
   testApiRole,
@@ -230,6 +235,30 @@ describe(TEST_ROUTE, () => {
       ],
       [1, 1, 0],
     );
+  });
+
+  it("returns base filename from concept", async () => {
+    const res = await doComponentAtlasesRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    const componentAtlas = componentAtlases.find(
+      (ca) => ca.id === COMPONENT_ATLAS_ID_OUTDATED_FILENAME,
+    );
+    assertExpectDefined(componentAtlas);
+
+    expectApiComponentAtlasToMatchTest(
+      componentAtlas,
+      COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
+    );
+
+    expect(componentAtlas.baseFileName).toEqual(
+      CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME.baseFilename,
+    );
+    expect(componentAtlas.baseFileName).not.toEqual(componentAtlas.fileName);
   });
 });
 

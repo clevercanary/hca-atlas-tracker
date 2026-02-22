@@ -1,4 +1,4 @@
-import { InvalidOperationError } from "./api-handler";
+import { S3KeyFormatError } from "./files";
 
 export interface AtlasVersionNumbers {
   generation: number;
@@ -13,7 +13,7 @@ export interface AtlasVersionNumbers {
 export function parseS3AtlasVersion(s3Version: string): AtlasVersionNumbers {
   const v = s3Version.trim();
   if (v.length === 0) {
-    throw new InvalidOperationError("Invalid atlas version: empty");
+    throw new S3KeyFormatError("Invalid atlas version: empty");
   }
 
   // Integer major, no leading zeros
@@ -31,5 +31,5 @@ export function parseS3AtlasVersion(s3Version: string): AtlasVersionNumbers {
       revision: Number(match[2]),
     };
 
-  throw new InvalidOperationError(`Invalid atlas version: ${s3Version}`);
+  throw new S3KeyFormatError(`Invalid atlas version: ${s3Version}`);
 }
