@@ -27,6 +27,7 @@ import {
   getAtlasSourceDatasetVersionIds,
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
+import { addSourceStudyToAtlas } from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -225,16 +226,13 @@ export async function createSourceStudy(
     // If study already exists, add that instead
     const existingStudyId = await getExistingStudyId(inputData, client);
     if (existingStudyId) {
-      const queryResult = await client.query(
-        "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2 AND NOT source_studies @> $1",
-        [JSON.stringify([existingStudyId]), atlasId],
-      );
-      if (queryResult.rowCount === 0)
+      await addSourceStudyToAtlas(existingStudyId, atlasId, client, () => {
         throw new ValidationError(
           "DOI already exists in this atlas",
           undefined,
           "doi",
         );
+      });
       await updateSourceStudyValidationsByEntityId(existingStudyId, client);
       const existingStudy = await getSourceStudy(
         atlasId,
@@ -252,10 +250,7 @@ export async function createSourceStudy(
     );
     const newStudyRow = insertResult.rows[0];
     // Update the atlas's list of source studies
-    await client.query(
-      "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2",
-      [JSON.stringify([newStudyRow.id]), atlasId],
-    );
+    await addSourceStudyToAtlas(newStudyRow.id, atlasId, client);
     // Add validations
     await updateSourceStudyValidationsByEntityId(newStudyRow.id, client);
     const newStudy = await getSourceStudy(atlasId, newStudyRow.id, client);
@@ -270,22 +265,23 @@ export async function createSourceStudy(
 }
 
 /**
- * Get ID of existing source study matching values submitted to create a source study.
- * @param inputData - Source study creation values.
+ * Get ID of existing source study matching values submitted to create or edit a source study.
+ * @param inputData - Source study input values.
  * @param client - Postgres client.
  * @returns ID of existing source study, or null.
  */
 async function getExistingStudyId(
-  inputData: NewSourceStudyData,
-  client: pg.PoolClient,
+  inputData: NewSourceStudyData | SourceStudyEditData,
+  client?: pg.PoolClient,
 ): Promise<string | null> {
   if (!("doi" in inputData)) return null;
   const doi = normalizeDoi(inputData.doi);
   return (
     (
-      await client.query<Pick<HCAAtlasTrackerDBSourceStudy, "id">>(
+      await query<Pick<HCAAtlasTrackerDBSourceStudy, "id">>(
         "SELECT id FROM hat.source_studies WHERE doi=$1 OR study_info->'publication'->>'preprintOfDoi'=$1 OR study_info->'publication'->>'hasPreprintDoi'=$1",
         [doi],
+        client,
       )
     ).rows[0]?.id ?? null
   );
@@ -325,6 +321,19 @@ export async function updateSourceStudy(
   const [existingSourceStudy] = await getBaseModelSourceStudies([
     sourceStudyId,
   ]);
+
+  const existingIdMatchingInput = await getExistingStudyId(inputData);
+  if (
+    existingIdMatchingInput !== null &&
+    existingIdMatchingInput !== sourceStudyId
+  ) {
+    return replaceSourceStudy(
+      atlasId,
+      existingSourceStudy.id,
+      existingIdMatchingInput,
+    );
+  }
+
   const existingEntrySheetIds = new Set(
     existingSourceStudy.study_info.metadataSpreadsheets.map(({ id }) => id),
   );
@@ -392,6 +401,25 @@ export async function updateSourceStudy(
   } finally {
     client.release();
   }
+}
+
+/**
+ * Replace a source study with a another source study on a given atlas, deleting the replaced study entirely if it's no longer referenced afterward.
+ * @param atlasId - Atlas to replace the source study on.
+ * @param currentSourceStudyId - ID of the currently-linked source study to replace.
+ * @param replacementSourceStudyId - ID of the source study to replace the current one with.
+ * @returns newly-substituted source study.
+ */
+async function replaceSourceStudy(
+  atlasId: string,
+  currentSourceStudyId: string,
+  replacementSourceStudyId: string,
+): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
+  return doTransaction(async (client) => {
+    await addSourceStudyToAtlas(replacementSourceStudyId, atlasId, client);
+    await deleteAtlasSourceStudy(atlasId, currentSourceStudyId);
+    return getSourceStudy(atlasId, replacementSourceStudyId, client);
+  });
 }
 
 /**
