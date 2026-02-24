@@ -56,7 +56,8 @@ CREATE TABLE hat.atlases (
     source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL,
     component_atlases uuid[] DEFAULT '{}'::uuid[] NOT NULL,
     generation integer DEFAULT 1 NOT NULL,
-    revision integer DEFAULT 0 NOT NULL
+    revision integer DEFAULT 0 NOT NULL,
+    published_at timestamp without time zone
 );
 
 
@@ -89,7 +90,8 @@ CREATE TABLE hat.component_atlases (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     is_latest boolean DEFAULT true NOT NULL,
     wip_number integer DEFAULT 1 NOT NULL,
-    revision integer DEFAULT 1 NOT NULL
+    revision integer DEFAULT 1 NOT NULL,
+    published_at timestamp without time zone
 );
 
 
@@ -283,7 +285,8 @@ CREATE TABLE hat.source_datasets (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     is_latest boolean DEFAULT true NOT NULL,
     wip_number integer DEFAULT 1 NOT NULL,
-    revision integer DEFAULT 1 NOT NULL
+    revision integer DEFAULT 1 NOT NULL,
+    published_at timestamp without time zone
 );
 
 
