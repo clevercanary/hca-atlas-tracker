@@ -25,9 +25,13 @@ import {
 import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import {
   getAtlasSourceDatasetVersionIds,
+  replaceSourceDatasetsSourceStudy,
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
-import { linkSourceStudyToAtlas } from "../data/source-studies";
+import {
+  linkSourceStudyToAtlas,
+  setSourceStudyMetadataSpreadsheets,
+} from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -52,6 +56,7 @@ import {
   getValidationRecordsWithoutAtlasPropertiesForEntities,
   updateSourceStudyValidations,
 } from "./validations";
+import { replaceEntrySheetValidationsSourceStudy } from "app/data/entry-sheets";
 
 export async function getAtlasSourceStudies(
   atlasId: string,
@@ -100,6 +105,12 @@ export async function getBaseModelAtlasSourceStudies(
   return await getBaseModelSourceStudies(
     (await getBaseModelAtlas(atlasId)).source_studies,
   );
+}
+
+export async function getBaseModelSourceStudy(
+  sourceStudyId: string,
+): Promise<HCAAtlasTrackerDBSourceStudy> {
+  return (await getBaseModelSourceStudies([sourceStudyId]))[0];
 }
 
 export async function getBaseModelSourceStudies(
@@ -322,9 +333,7 @@ export async function updateSourceStudy(
   inputData: SourceStudyEditData,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
   const atlas = await getConfirmedSourceStudyAtlas(sourceStudyId, atlasId);
-  const [existingSourceStudy] = await getBaseModelSourceStudies([
-    sourceStudyId,
-  ]);
+  const existingSourceStudy = await getBaseModelSourceStudy(sourceStudyId);
 
   const existingIdMatchingInput = await getExistingStudyId(inputData);
   if (
@@ -333,8 +342,8 @@ export async function updateSourceStudy(
   ) {
     return replaceSourceStudy(
       atlasId,
-      existingSourceStudy.id,
-      existingIdMatchingInput,
+      existingSourceStudy,
+      await getBaseModelSourceStudy(existingIdMatchingInput),
     );
   }
 
@@ -410,19 +419,48 @@ export async function updateSourceStudy(
 /**
  * Replace a source study with a another source study on a given atlas, deleting the replaced study entirely if it's no longer referenced afterward.
  * @param atlasId - Atlas to replace the source study on.
- * @param currentSourceStudyId - ID of the currently-linked source study to replace.
- * @param replacementSourceStudyId - ID of the source study to replace the current one with.
+ * @param currentSourceStudy - Currently-linked source study to replace.
+ * @param replacementSourceStudy - Source study to replace the current one with.
  * @returns newly-substituted source study.
  */
 async function replaceSourceStudy(
   atlasId: string,
-  currentSourceStudyId: string,
-  replacementSourceStudyId: string,
+  currentSourceStudy: HCAAtlasTrackerDBSourceStudy,
+  replacementSourceStudy: HCAAtlasTrackerDBSourceStudy,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
   return doTransaction(async (client) => {
-    await linkSourceStudyToAtlas(replacementSourceStudyId, atlasId, client);
-    await deleteAtlasSourceStudy(atlasId, currentSourceStudyId);
-    return getSourceStudy(atlasId, replacementSourceStudyId, client);
+    await linkSourceStudyToAtlas(replacementSourceStudy.id, atlasId, client);
+
+    await deleteAtlasSourceStudy(atlasId, currentSourceStudy.id, {
+      async beforeFullDelete() {
+        await replaceSourceDatasetsSourceStudy(
+          currentSourceStudy.id,
+          replacementSourceStudy.id,
+          client,
+        );
+        await replaceEntrySheetValidationsSourceStudy(
+          currentSourceStudy.id,
+          replacementSourceStudy.id,
+          client,
+        );
+        // Metadata spreadsheets should not be duplicated between source studies, so these can just be concatenated
+        await setSourceStudyMetadataSpreadsheets(
+          replacementSourceStudy.id,
+          [
+            ...replacementSourceStudy.study_info.metadataSpreadsheets,
+            ...currentSourceStudy.study_info.metadataSpreadsheets,
+          ],
+          client,
+        );
+      },
+    });
+
+    await updateSourceStudyValidationsByEntityId(
+      replacementSourceStudy.id,
+      client,
+    );
+
+    return getSourceStudy(atlasId, replacementSourceStudy.id, client);
   });
 }
 
@@ -557,10 +595,15 @@ async function getMetadataSpreadsheetsInfo(
  * Remove the specified source study from the specified atlas, and delete the source study if it's not contained in any other atlases.
  * @param atlasId - Atlas ID.
  * @param sourceStudyId - Source study ID.
+ * @param options - Additional options.
+ * @param options.beforeFullDelete - Function to call before deleting the source study in the case where it's no longer linked to any atlas.
  */
 export async function deleteAtlasSourceStudy(
   atlasId: string,
   sourceStudyId: string,
+  options: {
+    beforeFullDelete?: () => Promise<void>;
+  } = {},
 ): Promise<void> {
   const client = await getPoolClient();
   try {
@@ -584,6 +627,7 @@ export async function deleteAtlasSourceStudy(
     if (sourceStudyHasAtlases) {
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
+      await options.beforeFullDelete?.();
       await unlinkAllSourceDatasetsFromSourceStudy(sourceStudyId, client);
       await deleteEntrySheetValidationsOfDeletedSourceStudy(
         sourceStudyId,
