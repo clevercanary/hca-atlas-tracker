@@ -27,7 +27,7 @@ import {
   getAtlasSourceDatasetVersionIds,
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
-import { addSourceStudyToAtlas } from "../data/source-studies";
+import { linkSourceStudyToAtlas } from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -226,13 +226,17 @@ export async function createSourceStudy(
     // If study already exists, add that instead
     const existingStudyId = await getExistingStudyId(inputData, client);
     if (existingStudyId) {
-      await addSourceStudyToAtlas(existingStudyId, atlasId, client, () => {
+      const alreadyLinked = await linkSourceStudyToAtlas(
+        existingStudyId,
+        atlasId,
+        client,
+      );
+      if (alreadyLinked)
         throw new ValidationError(
           "DOI already exists in this atlas",
           undefined,
           "doi",
         );
-      });
       await updateSourceStudyValidationsByEntityId(existingStudyId, client);
       const existingStudy = await getSourceStudy(
         atlasId,
@@ -250,7 +254,7 @@ export async function createSourceStudy(
     );
     const newStudyRow = insertResult.rows[0];
     // Update the atlas's list of source studies
-    await addSourceStudyToAtlas(newStudyRow.id, atlasId, client);
+    await linkSourceStudyToAtlas(newStudyRow.id, atlasId, client);
     // Add validations
     await updateSourceStudyValidationsByEntityId(newStudyRow.id, client);
     const newStudy = await getSourceStudy(atlasId, newStudyRow.id, client);
@@ -416,7 +420,7 @@ async function replaceSourceStudy(
   replacementSourceStudyId: string,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
   return doTransaction(async (client) => {
-    await addSourceStudyToAtlas(replacementSourceStudyId, atlasId, client);
+    await linkSourceStudyToAtlas(replacementSourceStudyId, atlasId, client);
     await deleteAtlasSourceStudy(atlasId, currentSourceStudyId);
     return getSourceStudy(atlasId, replacementSourceStudyId, client);
   });
