@@ -18,8 +18,8 @@ import {
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
 import {
-  updateComponentAtlasVersionInAtlases,
-  updateSourceDatasetVersionInAtlases,
+  updateComponentAtlasVersionInAtlas,
+  updateSourceDatasetVersionInAtlas,
 } from "../data/atlases";
 import {
   createNewComponentAtlasVersion,
@@ -162,12 +162,14 @@ async function createSourceDatasetFromS3(
 type FileUpdateHandler = (
   fileId: string,
   metadataEntityId: string,
+  atlasId: string,
   transaction: PoolClient,
 ) => Promise<void>;
 
 async function updateIntegratedObjectFromS3(
   fileId: string,
   conceptId: string,
+  atlasId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markComponentAtlasAsNotLatest(
@@ -179,9 +181,10 @@ async function updateIntegratedObjectFromS3(
     fileId,
     transaction,
   );
-  await updateComponentAtlasVersionInAtlases(
+  await updateComponentAtlasVersionInAtlas(
     prevLatestVersion,
     newVersion,
+    atlasId,
     transaction,
   );
 }
@@ -189,6 +192,7 @@ async function updateIntegratedObjectFromS3(
 async function updateSourceDatasetFromS3(
   fileId: string,
   conceptId: string,
+  atlasId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markSourceDatasetAsNotLatest(
@@ -200,9 +204,10 @@ async function updateSourceDatasetFromS3(
     fileId,
     transaction,
   );
-  await updateSourceDatasetVersionInAtlases(
+  await updateSourceDatasetVersionInAtlas(
     prevLatestVersion,
     newVersion,
+    atlasId,
     transaction,
   );
   await updateSourceDatasetVersionInComponentAtlases(
@@ -283,7 +288,7 @@ async function handleInsertedFile(
     const handler = FILE_UPDATE_HANDLERS[fileType];
 
     if (handler) {
-      await handler(result.id, conceptId, transaction);
+      await handler(result.id, conceptId, atlasId, transaction);
     }
   }
 }
