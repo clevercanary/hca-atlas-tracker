@@ -877,6 +877,10 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
     expect(hcaValidationsAfter).toEqual(hcaValidationsBefore);
     expect(otherValidationsAfter).not.toEqual(otherValidationsBefore);
   });
+
+  it("replaces source study if a DOI is entered that already has a different source study", async () => {
+    //
+  });
 });
 
 describe(`${TEST_ROUTE} (DELETE)`, () => {
