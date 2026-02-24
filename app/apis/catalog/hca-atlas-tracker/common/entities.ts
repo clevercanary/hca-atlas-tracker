@@ -256,6 +256,7 @@ export interface HCAAtlasTrackerDBAtlas {
   generation: number;
   id: string;
   overview: HCAAtlasTrackerDBAtlasOverview;
+  published_at: string;
   revision: number;
   source_datasets: string[];
   source_studies: string[];
@@ -295,6 +296,7 @@ export interface HCAAtlasTrackerDBComponentAtlas {
   file_id: string;
   id: string;
   is_latest: boolean;
+  published_at: string;
   revision: number;
   source_datasets: string[];
   updated_at: Date;
@@ -402,6 +404,7 @@ export interface HCAAtlasTrackerDBSourceDataset {
   file_id: string;
   id: string;
   is_latest: boolean;
+  published_at: string;
   reprocessed_status: REPROCESSED_STATUS;
   revision: number;
   sd_info: HCAAtlasTrackerDBSourceDatasetInfo;
