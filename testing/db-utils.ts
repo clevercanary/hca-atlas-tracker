@@ -137,7 +137,7 @@ export async function initSourceDatasets(
     const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
     const info = makeTestSourceDatasetInfo(normDataset);
     await client.query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number, published_at, revision) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
       [
         normDataset.sourceStudyId,
         info,
@@ -147,6 +147,8 @@ export async function initSourceDatasets(
         normDataset.versionId,
         normDataset.isLatest,
         normDataset.wipNumber,
+        normDataset.publishedAt,
+        normDataset.revision,
       ],
     );
   }
@@ -183,8 +185,8 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
     };
     await client.query(
       `
-        INSERT INTO hat.component_atlases (component_info, id, version_id, source_datasets, file_id, wip_number, is_latest)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO hat.component_atlases (component_info, id, version_id, source_datasets, file_id, wip_number, is_latest, published_at, revision)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
       [
         info,
@@ -194,6 +196,8 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.file.id,
         componentAtlas.wipNumber ?? 1,
         componentAtlas.isLatest ?? true,
+        componentAtlas.publishedAt ?? null,
+        componentAtlas.revision ?? 1,
       ],
     );
   }

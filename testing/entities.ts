@@ -46,7 +46,7 @@ export interface TestAtlas {
   metadataSpecificationUrl?: string;
   network: NetworkKey;
   publications: DoiPublicationInfo[];
-  publishedAt?: string;
+  publishedAt?: string | null;
   revision: number;
   shortName: string;
   sourceDatasets?: string[];
@@ -61,6 +61,8 @@ export interface TestComponentAtlas {
   file: TestFile;
   id: string;
   isLatest?: boolean;
+  publishedAt?: string | null;
+  revision?: number;
   sourceDatasets?: TestSourceDataset[];
   versionId: string;
   wipNumber?: number;
@@ -97,7 +99,9 @@ export interface TestSourceDataset {
   metadataSpreadsheetTitle?: string | null;
   metadataSpreadsheetUrl?: string | null;
   publicationStatus?: PUBLICATION_STATUS;
+  publishedAt?: string | null;
   reprocessedStatus?: REPROCESSED_STATUS;
+  revision?: number;
   sourceStudyId?: string | null;
   versionId: string;
   wipNumber?: number;
