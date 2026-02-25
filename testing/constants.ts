@@ -3983,6 +3983,25 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   wave: "2",
 };
 
+export const ATLAS_PUBLISHED: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  componentAtlases: [],
+  description: "bazbar foobarbaz baz foo bar",
+  generation: 2,
+  highlights: "",
+  id: "6ca07821-624e-42a3-8643-2a31bb0a4831",
+  integrationLead: [],
+  network: "musculoskeletal",
+  publications: [],
+  publishedAt: "2026-02-25T20:44:05.405Z",
+  revision: 7,
+  shortName: "test-published",
+  sourceStudies: [],
+  status: ATLAS_STATUS.OC_ENDORSED,
+  wave: "2",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -4007,6 +4026,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   ATLAS_HEATMAP_TEST,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
+  ATLAS_PUBLISHED,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

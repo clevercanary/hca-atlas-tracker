@@ -46,6 +46,7 @@ export interface TestAtlas {
   metadataSpecificationUrl?: string;
   network: NetworkKey;
   publications: DoiPublicationInfo[];
+  publishedAt?: string;
   revision: number;
   shortName: string;
   sourceDatasets?: string[];
