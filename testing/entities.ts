@@ -150,3 +150,8 @@ export interface TestComment {
   text: string;
   threadId: string;
 }
+
+export type FunctionMocked<T> =
+  T extends jest.Mock<infer TReturn, infer TArgs>
+    ? (...args: TArgs) => TReturn
+    : never;
