@@ -245,7 +245,7 @@ export async function createNewSourceDatasetVersion(
   >(
     `
       INSERT INTO hat.source_datasets (sd_info, reprocessed_status, source_study_id, id, wip_number, file_id, revision)
-      SELECT sd_info, reprocessed_status, source_study_id, id, wip_number + 1, $2, revision
+      SELECT sd_info, reprocessed_status, source_study_id, id, wip_number + 1, $2, (CASE WHEN published_at IS NULL THEN revision ELSE revision + 1 END)
       FROM hat.source_datasets
       WHERE version_id = $1
       RETURNING version_id
