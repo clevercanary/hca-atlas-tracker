@@ -45,6 +45,7 @@ import {
   TestSourceDataset,
 } from "./entities";
 import {
+  assertExpectDefined,
   expectApiValidationsToMatchDb,
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
@@ -561,7 +562,7 @@ export async function getExistingAtlasFromDatabase(
   id: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const result = await getAtlasFromDatabase(id);
-  if (!result) throw new Error(`Atlas ${id} doesn't exist`);
+  assertExpectDefined(result);
   return result;
 }
 
@@ -574,6 +575,14 @@ export async function getAtlasFromDatabase(
       [id],
     )
   ).rows[0];
+}
+
+export async function getExistingComponentAtlasFromDatabase(
+  versionId: string,
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const result = await getComponentAtlasFromDatabase(versionId);
+  assertExpectDefined(result);
+  return result;
 }
 
 export async function getComponentAtlasFromDatabase(
@@ -626,7 +635,7 @@ export async function getExistingSourceStudyFromDatabase(
   id: string,
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   const result = await getSourceStudyFromDatabase(id);
-  if (!result) throw new Error(`Source study ${id} doesn't exist`);
+  assertExpectDefined(result);
   return result;
 }
 
@@ -650,6 +659,14 @@ export async function getAtlasSourceDatasetsFromDatabase(
       [atlasId],
     )
   ).rows;
+}
+
+export async function getExistingSourceDatasetFromDatabase(
+  versionId: string,
+): Promise<HCAAtlasTrackerDBSourceDataset> {
+  const result = await getSourceDatasetFromDatabase(versionId);
+  assertExpectDefined(result);
+  return result;
 }
 
 export async function getSourceDatasetFromDatabase(

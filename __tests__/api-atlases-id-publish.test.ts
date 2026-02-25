@@ -4,16 +4,37 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import publishHandler from "../pages/api/atlases/[atlasId]/publish";
 import {
-  ATLAS_PUBLIC,
+  ATLAS_WITH_LINKED_PUBLISH_STATUSES,
   ATLAS_PUBLISHED,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+import {
+  getExistingAtlasFromDatabase,
+  getExistingComponentAtlasFromDatabase,
+  getExistingSourceDatasetFromDatabase,
+  resetDatabase,
+} from "../testing/db-utils";
+import {
+  TestComponentAtlas,
+  TestSourceDataset,
+  TestUser,
+} from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBSourceDataset,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
@@ -43,7 +64,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doPublishRequest(
-          ATLAS_PUBLIC.id,
+          ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
           USER_CONTENT_ADMIN,
           false,
           METHOD.PUT,
@@ -55,7 +76,11 @@ describe(TEST_ROUTE, () => {
   it("returns error 401 when requested by logged out user", async () => {
     expect(
       (
-        await doPublishRequest(ATLAS_PUBLIC.id, undefined, true)
+        await doPublishRequest(
+          ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+          undefined,
+          true,
+        )
       )._getStatusCode(),
     ).toEqual(401);
   });
@@ -63,7 +88,11 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 when requested by unregistered user", async () => {
     expect(
       (
-        await doPublishRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED, true)
+        await doPublishRequest(
+          ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+          USER_UNREGISTERED,
+          true,
+        )
       )._getStatusCode(),
     ).toEqual(403);
   });
@@ -71,7 +100,10 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 when requested by disabled user", async () => {
     expect(
       (
-        await doPublishRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
+        await doPublishRequest(
+          ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+          USER_DISABLED_CONTENT_ADMIN,
+        )
       )._getStatusCode(),
     ).toEqual(403);
   });
@@ -83,7 +115,7 @@ describe(TEST_ROUTE, () => {
       publishHandler,
       METHOD.POST,
       role,
-      getQueryValues(ATLAS_PUBLIC.id),
+      getQueryValues(ATLAS_WITH_LINKED_PUBLISH_STATUSES.id),
       undefined,
       false,
       (res) => {
@@ -107,7 +139,102 @@ describe(TEST_ROUTE, () => {
       )._getStatusCode(),
     ).toEqual(400);
   });
+
+  it("returns error 400 when already-published atlas is requested", async () => {
+    expect(
+      (
+        await doPublishRequest(ATLAS_PUBLISHED.id, USER_CONTENT_ADMIN, true)
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
+  it("publishes unpublished atlas and linked unpublished metadata entities when requested by content admin", async () => {
+    expect(
+      (
+        await doPublishRequest(
+          ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+          USER_CONTENT_ADMIN,
+        )
+      )._getStatusCode(),
+    ).toEqual(200);
+
+    // Check that atlas is published
+    const atlas = await getExistingAtlasFromDatabase(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+    );
+    expect(atlas.published_at).not.toBeNull();
+
+    // Check linked component atlases
+    expectMetadataEntityPublishResult(
+      COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
+      false,
+      getExistingComponentAtlasFromDatabase,
+    );
+    expectMetadataEntityPublishResult(
+      COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+      false,
+      getExistingComponentAtlasFromDatabase,
+    );
+    expectMetadataEntityPublishResult(
+      COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
+      true,
+      getExistingComponentAtlasFromDatabase,
+    );
+    expectMetadataEntityPublishResult(
+      COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
+      true,
+      getExistingComponentAtlasFromDatabase,
+    );
+
+    // Check linked source datasets
+    expectMetadataEntityPublishResult(
+      SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
+      false,
+      getExistingSourceDatasetFromDatabase,
+    );
+    expectMetadataEntityPublishResult(
+      SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+      false,
+      getExistingSourceDatasetFromDatabase,
+    );
+    expectMetadataEntityPublishResult(
+      SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
+      true,
+      getExistingSourceDatasetFromDatabase,
+    );
+    expectMetadataEntityPublishResult(
+      SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
+      true,
+      getExistingSourceDatasetFromDatabase,
+    );
+  });
 });
+
+async function expectMetadataEntityPublishResult(
+  testEntity: TestComponentAtlas | TestSourceDataset,
+  wasPublished: boolean,
+  getDbEntity: (
+    versionId: string,
+  ) => Promise<
+    HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset
+  >,
+): Promise<void> {
+  const { revision: initRevision = 1, wipNumber: initWipNumber = 1 } =
+    testEntity;
+
+  const dbEntity = await getDbEntity(testEntity.versionId);
+  expect(dbEntity.published_at).not.toBeNull();
+
+  if (wasPublished) {
+    expect(testEntity.publishedAt).toBeTruthy();
+    expect(dbEntity.revision).toEqual(initRevision);
+    expect(dbEntity.wip_number).toEqual(initWipNumber);
+  } else {
+    expect(testEntity.publishedAt).toBeFalsy();
+    expect(dbEntity.revision).toEqual(initRevision + 1);
+    expect(dbEntity.wip_number).toEqual(1);
+  }
+}
 
 async function doPublishRequest(
   atlasId: string,
