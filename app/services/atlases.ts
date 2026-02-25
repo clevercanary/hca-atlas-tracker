@@ -20,7 +20,10 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { query } from "./database";
+import { doTransaction, query } from "./database";
+import { setAtlasAsPublishedNow } from "app/data/atlases";
+import { publishUnpublishedComponentAtlasesOfAtlas } from "app/data/component-atlases";
+import { publishUnpublishedSourceDatasetsOfAtlas } from "app/data/source-datasets";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -208,6 +211,19 @@ async function getPublicationsFromInputDois(
     }
   }
   return publications;
+}
+
+/**
+ * Publish an atlas and its linked entities.
+ * @param atlasId - ID of the atlas to publish.
+ */
+export async function publishAtlas(atlasId: string): Promise<void> {
+  await doTransaction(async (client) => {
+    await confirmAtlasIsEditable(atlasId, client);
+    await publishUnpublishedComponentAtlasesOfAtlas(atlasId, client);
+    await publishUnpublishedSourceDatasetsOfAtlas(atlasId, client);
+    await setAtlasAsPublishedNow(atlasId, client);
+  });
 }
 
 export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {

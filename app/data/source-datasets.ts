@@ -446,3 +446,23 @@ export async function getSourceDatasetVersionForComponentAtlas(
 
   return queryResult.rows[0].version_id;
 }
+
+/**
+ * Set all unpublished source datasets linked to the given atlas as being published at the current timestamp.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+export async function publishUnpublishedSourceDatasetsOfAtlas(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  await client.query(
+    `
+      UPDATE hat.source_datasets d
+      SET published_at = CURRENT_TIMESTAMP
+      FROM hat.atlases a
+      WHERE a.id = $1 AND d.version_id = ANY(a.source_datasets) AND d.published_at IS NULL
+    `,
+    [atlasId],
+  );
+}
