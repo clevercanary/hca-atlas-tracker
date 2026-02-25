@@ -6,7 +6,7 @@ import {
 import { NotFoundError } from "../utils/api-handler";
 import {
   createConcept,
-  getAtlasesMatchingConcept,
+  getAtlasesMatchingConceptAndRevision,
   getConcept,
   getConceptIdByInfo,
 } from "../data/concepts";
@@ -39,21 +39,27 @@ export async function getOrCreateConceptId(
 }
 
 /**
- * Get the atlas with metadata matching the given concept.
+ * Get a specified revision of the atlas with metadata matching the given concept.
  * @param conceptId - Concept ID.
+ * @param revision - Atlas revision to get.
  * @param client - Postgres client to use.
  * @returns matching atlas.
  */
-export async function getAtlasMatchingConcept(
+export async function getAtlasMatchingConceptAndRevision(
   conceptId: string,
+  revision: number,
   client: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlas> {
-  const atlases = await getAtlasesMatchingConcept(conceptId, client);
+  const atlases = await getAtlasesMatchingConceptAndRevision(
+    conceptId,
+    revision,
+    client,
+  );
 
   if (atlases.length === 0) {
     const atlasInfo = await getConceptAtlasInfoString(conceptId, client);
     throw new NotFoundError(
-      `No atlas found matching concept ${conceptId} (${atlasInfo})`,
+      `No atlas of revision ${revision} found matching concept ${conceptId} (${atlasInfo})`,
     );
   }
 
@@ -61,7 +67,7 @@ export async function getAtlasMatchingConcept(
     const atlasInfo = await getConceptAtlasInfoString(conceptId, client);
     const atlasIds = atlases.map((a) => a.id);
     throw new Error(
-      `Multiple atlases found matching concept ${conceptId} (${atlasInfo}): ${atlasIds.join(", ")}`,
+      `Multiple atlases of revision ${revision} found matching concept ${conceptId} (${atlasInfo}): ${atlasIds.join(", ")}`,
     );
   }
 

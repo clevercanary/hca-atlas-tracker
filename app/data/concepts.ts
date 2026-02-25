@@ -84,14 +84,16 @@ export async function createConcept(
 }
 
 /**
- * Get all atlases matching the given concept.
+ * Get all atlases matching the given concept and revision.
  * @param conceptId - ID of concept to get atlases for.
+ * @param revision - Atlas revision to get.
  * @param client - Postgres client to use.
  * @returns array of matching atlases.
  * @note In theory, this will always return one atlas -- further handling is needed for error detection.
  */
-export async function getAtlasesMatchingConcept(
+export async function getAtlasesMatchingConceptAndRevision(
   conceptId: string,
+  revision: number,
   client: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlas[]> {
   return (
@@ -103,9 +105,9 @@ export async function getAtlasesMatchingConcept(
         a.overview->>'network' = c.network
         AND lower(a.overview->>'shortName') = c.atlas_short_name
         AND a.generation = c.generation
-      WHERE c.id = $1
+      WHERE c.id = $1 AND a.revision = $2
     `,
-      [conceptId],
+      [conceptId, revision],
     )
   ).rows;
 }

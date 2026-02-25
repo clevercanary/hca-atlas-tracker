@@ -41,8 +41,9 @@ import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
 import { createSourceDataset } from "./source-datasets";
+import { isPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
-  getAtlasMatchingConcept,
+  getAtlasMatchingConceptAndRevision,
   getOrCreateConceptId,
 } from "../services/concepts";
 import { parseNormalizedInfoFromS3Key, parseS3KeyPath } from "../utils/files";
@@ -369,13 +370,17 @@ async function saveFileRecord(
       transaction,
     );
 
-    // Determine atlas from concept
-    const atlas = await getAtlasMatchingConcept(conceptId, transaction);
+    // Determine atlas from concept and revision
+    const atlas = await getAtlasMatchingConceptAndRevision(
+      conceptId,
+      atlasRevision,
+      transaction,
+    );
 
-    // Confirm that the atlas matches the revision specified in the S3 key
-    if (atlas.revision !== atlasRevision) {
+    // Confirm that the atlas revision specified in the S3 key is a draft
+    if (isPublished(atlas)) {
       throw new Error(
-        `Received file for ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision}, but atlas is at version ${atlas.generation}.${atlas.revision}`,
+        `Atlas version ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision} is published and cannot receive further uploads`,
       );
     }
 

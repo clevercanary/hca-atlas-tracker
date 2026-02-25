@@ -5,6 +5,7 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComment,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasForAPI,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
@@ -379,4 +380,18 @@ export function getDbEntityFileVersion(
   entity: HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset,
 ): string {
   return makeFileVersionString(entity.revision, entity.wip_number);
+}
+
+/**
+ * Determine whether an entity is marked as published.
+ * @param entity - Entity that may be published.
+ * @returns boolean indicating whether the entity is published.
+ */
+export function isPublished(
+  entity:
+    | HCAAtlasTrackerDBAtlas
+    | HCAAtlasTrackerDBComponentAtlas
+    | HCAAtlasTrackerDBSourceDataset,
+): boolean {
+  return entity.published_at !== null;
 }
