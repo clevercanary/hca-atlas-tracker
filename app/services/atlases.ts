@@ -99,10 +99,12 @@ export async function getAtlas(
 
 export async function getBaseModelAtlas(
   id: string,
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
     "SELECT * FROM hat.atlases WHERE id=$1",
     [id],
+    client,
   );
 
   if (queryResult.rows.length === 0)
@@ -251,8 +253,11 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
   );
 }
 
-export async function confirmAtlasIsEditable(atlasId: string): Promise<void> {
-  if (isPublished(await getBaseModelAtlas(atlasId))) {
+export async function confirmAtlasIsEditable(
+  atlasId: string,
+  client?: pg.PoolClient,
+): Promise<void> {
+  if (isPublished(await getBaseModelAtlas(atlasId, client))) {
     throw new InvalidOperationError(
       `Atlas with ID ${atlasId} is published and cannot be edited`,
     );
