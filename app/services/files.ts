@@ -24,8 +24,8 @@ import { submitDatasetValidationJob } from "./validator-batch";
 import { getComponentAtlasForAtlasFile } from "../data/component-atlases";
 import { getSourceDatasetForAtlasFile } from "../data/source-datasets";
 import { getDbEntityFileVersion } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { getConceptForFile } from "app/data/concepts";
-import { insertVersionInFilename } from "app/utils/files";
+import { getConceptForFile } from "../data/concepts";
+import { insertVersionInFilename } from "../utils/files";
 
 /**
  * Get a presigned S3 URL for downloading the given file.
