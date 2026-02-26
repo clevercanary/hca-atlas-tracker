@@ -1,11 +1,7 @@
 import pg from "pg";
 import { ValidationError } from "yup";
-import {
-  InvalidOperationError,
-  NotFoundError,
-} from "../../app/utils/api-handler";
+import { NotFoundError } from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
-import { isPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ATLAS_STATUS,
   DoiPublicationInfo,
@@ -141,7 +137,6 @@ export async function updateAtlas(
   id: string,
   inputData: AtlasEditData,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
-  await confirmAtlasIsEditable(id);
   const { overviewData, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
@@ -265,14 +260,6 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
     undefined,
     client,
   );
-}
-
-export async function confirmAtlasIsEditable(atlasId: string): Promise<void> {
-  if (isPublished(await getBaseModelAtlas(atlasId))) {
-    throw new InvalidOperationError(
-      `Atlas with ID ${atlasId} is published and cannot be edited`,
-    );
-  }
 }
 
 /**
