@@ -1,7 +1,11 @@
 import pg from "pg";
 import { ValidationError } from "yup";
-import { NotFoundError } from "../../app/utils/api-handler";
+import {
+  InvalidOperationError,
+  NotFoundError,
+} from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
+import { isPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ATLAS_STATUS,
   DoiPublicationInfo,
@@ -98,10 +102,12 @@ export async function getAtlas(
 
 export async function getBaseModelAtlas(
   id: string,
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
     "SELECT * FROM hat.atlases WHERE id=$1",
     [id],
+    client,
   );
 
   if (queryResult.rows.length === 0)
@@ -212,7 +218,11 @@ async function getPublicationsFromInputDois(
  */
 export async function publishAtlas(atlasId: string): Promise<void> {
   await doTransaction(async (client) => {
-    await confirmAtlasIsEditable(atlasId, client);
+    if (isPublished(await getBaseModelAtlas(atlasId, client))) {
+      throw new InvalidOperationError(
+        `Atlas with ID ${atlasId} is already published`,
+      );
+    }
     await publishUnpublishedComponentAtlasesOfAtlas(atlasId, client);
     await publishUnpublishedSourceDatasetsOfAtlas(atlasId, client);
     await setAtlasAsPublishedNow(atlasId, client);
