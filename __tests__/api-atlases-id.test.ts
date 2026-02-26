@@ -16,6 +16,7 @@ import {
   ATLAS_PUBLIC,
   ATLAS_PUBLIC_BAR,
   ATLAS_PUBLIC_BAZ,
+  ATLAS_PUBLISHED,
   ATLAS_WITH_CAP_ID,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_IL,
@@ -672,6 +673,17 @@ describe(TEST_ROUTE, () => {
       "Atlas Public Baz Sheet",
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
+  });
+
+  it("PUT updates and returns published atlas", async () => {
+    const editData: AtlasEditData = {
+      capId: null,
+      integrationLead: [],
+      network: "liver",
+      shortName: ATLAS_PUBLISHED.shortName,
+      wave: "1",
+    };
+    await testSuccessfulEdit(ATLAS_PUBLISHED, editData, 0, []);
   });
 });
 
