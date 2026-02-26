@@ -5,7 +5,7 @@ import {
   NotFoundError,
 } from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
-import { isPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ATLAS_STATUS,
   DoiPublicationInfo,
@@ -218,7 +218,7 @@ async function getPublicationsFromInputDois(
  */
 export async function publishAtlas(atlasId: string): Promise<void> {
   await doTransaction(async (client) => {
-    if (isPublished(await getBaseModelAtlas(atlasId, client))) {
+    if (dbEntityIsPublished(await getBaseModelAtlas(atlasId, client))) {
       throw new InvalidOperationError(
         `Atlas with ID ${atlasId} is already published`,
       );

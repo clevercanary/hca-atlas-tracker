@@ -393,11 +393,11 @@ export function getDbEntityFileVersion(
 }
 
 /**
- * Determine whether an entity is marked as published.
+ * Determine whether a database-model entity is marked as published.
  * @param entity - Entity that may be published.
  * @returns boolean indicating whether the entity is published.
  */
-export function isPublished(
+export function dbEntityIsPublished(
   entity:
     | HCAAtlasTrackerDBAtlas
     | HCAAtlasTrackerDBComponentAtlas
