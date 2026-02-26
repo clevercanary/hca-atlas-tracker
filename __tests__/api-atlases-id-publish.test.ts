@@ -163,48 +163,45 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
     );
     expect(atlas.published_at).not.toBeNull();
+    // Make sure that version numbers have not changed
+    expect(atlas.generation).toEqual(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.generation,
+    );
+    expect(atlas.revision).toEqual(ATLAS_WITH_LINKED_PUBLISH_STATUSES.revision);
 
     // Check linked component atlases
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
-      false,
       getExistingComponentAtlasFromDatabase,
     );
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
-      false,
       getExistingComponentAtlasFromDatabase,
     );
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
-      true,
       getExistingComponentAtlasFromDatabase,
     );
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
-      true,
       getExistingComponentAtlasFromDatabase,
     );
 
     // Check linked source datasets
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
-      false,
       getExistingSourceDatasetFromDatabase,
     );
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
-      false,
       getExistingSourceDatasetFromDatabase,
     );
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
-      true,
       getExistingSourceDatasetFromDatabase,
     );
-    expectMetadataEntityPublishResult(
+    await expectMetadataEntityPublishResult(
       SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
-      true,
       getExistingSourceDatasetFromDatabase,
     );
   });
@@ -212,28 +209,20 @@ describe(TEST_ROUTE, () => {
 
 async function expectMetadataEntityPublishResult(
   testEntity: TestComponentAtlas | TestSourceDataset,
-  wasPublished: boolean,
   getDbEntity: (
     versionId: string,
   ) => Promise<
     HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset
   >,
 ): Promise<void> {
-  const { revision: initRevision = 1, wipNumber: initWipNumber = 1 } =
-    testEntity;
-
   const dbEntity = await getDbEntity(testEntity.versionId);
   expect(dbEntity.published_at).not.toBeNull();
 
-  if (wasPublished) {
-    expect(testEntity.publishedAt).toBeTruthy();
-    expect(dbEntity.revision).toEqual(initRevision);
-    expect(dbEntity.wip_number).toEqual(initWipNumber);
-  } else {
-    expect(testEntity.publishedAt).toBeFalsy();
-    expect(dbEntity.revision).toEqual(initRevision + 1);
-    expect(dbEntity.wip_number).toEqual(1);
-  }
+  const { revision: initRevision = 1, wipNumber: initWipNumber = 1 } =
+    testEntity;
+
+  expect(dbEntity.revision).toEqual(initRevision);
+  expect(dbEntity.wip_number).toEqual(initWipNumber);
 }
 
 async function doPublishRequest(
