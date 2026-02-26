@@ -445,6 +445,7 @@ export async function getFilesArchiveStatus(
  * Get an object containing ID and publish status for each of the given files.
  * @param fileIds - IDs of files to get publish status for.
  * @returns publish status per file.
+ * @note Only accepts files of types that *can* be published.
  */
 export async function getFilesPublishStatus(
   fileIds: string[],
@@ -466,7 +467,7 @@ export async function getFilesPublishStatus(
   const allRows = componentAtlasesQueryResult.rows.concat(
     sourceDatasetsQueryResult.rows,
   );
-  confirmQueryRowsContainIds(allRows, fileIds, "files");
+  confirmQueryRowsContainIds(allRows, fileIds, "publishable files");
 
   // Accumulate values, in case mutliple metadata entities reference the same file
   const publishedById = new Map<string, boolean>();
