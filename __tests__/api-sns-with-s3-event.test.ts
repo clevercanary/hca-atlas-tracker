@@ -2171,6 +2171,38 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(ioFileA2.concept_id).toEqual(ioFileA1.concept_id);
   });
 
+  it("rejects S3 notification when atlas specified by key is published", async () => {
+    const s3Event = createS3Event({
+      etag: "published-atlas-etag",
+      key: "nervous-system/test-published-atlas-v1/integrated-objects/test.h5ad",
+      size: 2342,
+      versionId: "published-atlas-version",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "published-atlas-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      },
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(400);
+    const responseBody = JSON.parse(res._getData());
+    expect(responseBody.message).toContain("is published");
+  });
+
   it("discards notification but returns successfully when older version arrives after newer version", async () => {
     // Process newer version first
     const s3EventV2 = createS3Event({
