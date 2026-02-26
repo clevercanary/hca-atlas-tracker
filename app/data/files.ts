@@ -441,6 +441,44 @@ export async function getFilesArchiveStatus(
   return queryResult.rows;
 }
 
+/**
+ * Get an object containing ID and publish status for each of the given files.
+ * @param fileIds - IDs of files to get publish status for.
+ * @returns publish status per file.
+ */
+export async function getFilesPublishStatus(
+  fileIds: string[],
+): Promise<Array<{ id: string; published: boolean }>> {
+  const componentAtlasesQueryResult = await query<
+    Pick<HCAAtlasTrackerDBFile, "id"> &
+      Pick<HCAAtlasTrackerDBComponentAtlas, "published_at">
+  >(
+    "SELECT f.id, c.published_at FROM hat.files f JOIN hat.component_atlases c ON c.file_id = f.id WHERE f.id=ANY($1)",
+    [fileIds],
+  );
+  const sourceDatasetsQueryResult = await query<
+    Pick<HCAAtlasTrackerDBFile, "id"> &
+      Pick<HCAAtlasTrackerDBSourceDataset, "published_at">
+  >(
+    "SELECT f.id, d.published_at FROM hat.files f JOIN hat.source_datasets d ON d.file_id = f.id WHERE f.id=ANY($1)",
+    [fileIds],
+  );
+  const allRows = componentAtlasesQueryResult.rows.concat(
+    sourceDatasetsQueryResult.rows,
+  );
+  confirmQueryRowsContainIds(allRows, fileIds, "files");
+
+  // Accumulate values, in case mutliple metadata entities reference the same file
+  const publishedById = new Map<string, boolean>();
+  for (const { id, published_at } of allRows) {
+    const rowPublished = published_at !== null;
+    const prevPublished = publishedById.get(id) ?? false;
+    publishedById.set(id, prevPublished || rowPublished);
+  }
+
+  return Array.from(publishedById, ([id, published]) => ({ id, published }));
+}
+
 export async function getFileKey(fileId: string): Promise<string> {
   const result = await query<Pick<HCAAtlasTrackerDBFile, "key">>(
     "SELECT key FROM hat.files WHERE id=$1",

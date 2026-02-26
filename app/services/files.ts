@@ -13,6 +13,7 @@ import {
   getAllFilesValidationParams,
   getFileKey,
   getFilesArchiveStatus,
+  getFilesPublishStatus,
   getFileType,
   setFileIntegrityStatus,
   setFilesArchiveStatus,
@@ -101,6 +102,16 @@ export async function updateAtlasFilesArchiveStatus(
   isArchived: boolean,
 ): Promise<void> {
   await confirmFilesExistOnAtlas(fileIds, atlasId);
+
+  if (isArchived) {
+    const publishedFileIds = (await getFilesPublishStatus(fileIds))
+      .filter((f) => f.published)
+      .map(({ id }) => id);
+    if (publishedFileIds.length)
+      throw new InvalidOperationError(
+        `The files with the following ID(s) are published and cannot be archived: ${publishedFileIds.join(", ")}`,
+      );
+  }
 
   const alreadySetFileIds = (await getFilesArchiveStatus(fileIds))
     .filter((f) => f.is_archived === isArchived)
