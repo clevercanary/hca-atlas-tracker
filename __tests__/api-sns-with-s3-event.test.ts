@@ -1355,7 +1355,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       const firstSourceDatasetResult =
         await query<HCAAtlasTrackerDBSourceDataset>(
           "UPDATE hat.source_datasets SET revision = $1, wip_number = $2, published_at = $3 WHERE file_id = $4 RETURNING *",
-          [initRevision, initWipNumber, publishedAt, firstFile.id],
+          [
+            initRevision,
+            initWipNumber,
+            publishedAt ? new Date(publishedAt) : null,
+            firstFile.id,
+          ],
         );
       const firstSourceDataset = firstSourceDatasetResult.rows[0];
 
@@ -1480,7 +1485,12 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       const firstComponentAtlasResult =
         await query<HCAAtlasTrackerDBComponentAtlas>(
           "UPDATE hat.component_atlases SET revision = $1, wip_number = $2, published_at = $3 WHERE file_id = $4 RETURNING *",
-          [initRevision, initWipNumber, publishedAt, firstFile.id],
+          [
+            initRevision,
+            initWipNumber,
+            publishedAt ? new Date(publishedAt) : null,
+            firstFile.id,
+          ],
         );
       const firstComponentAtlas = firstComponentAtlasResult.rows[0];
 

@@ -148,7 +148,7 @@ export async function initSourceDatasets(
         normDataset.versionId,
         normDataset.isLatest,
         normDataset.wipNumber,
-        normDataset.publishedAt,
+        normDataset.publishedAt ? new Date(normDataset.publishedAt) : null,
         normDataset.revision,
       ],
     );
@@ -173,7 +173,7 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
         atlas.targetCompletion ?? null,
         atlas.generation,
         atlas.revision,
-        atlas.publishedAt ?? null,
+        atlas.publishedAt ? new Date(atlas.publishedAt) : null,
       ],
     );
   }
@@ -197,7 +197,9 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.file.id,
         componentAtlas.wipNumber ?? 1,
         componentAtlas.isLatest ?? true,
-        componentAtlas.publishedAt ?? null,
+        componentAtlas.publishedAt
+          ? new Date(componentAtlas.publishedAt)
+          : null,
         componentAtlas.revision ?? 1,
       ],
     );
