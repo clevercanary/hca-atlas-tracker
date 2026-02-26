@@ -379,7 +379,7 @@ async function saveFileRecord(
 
     // Confirm that the atlas revision specified in the S3 key is a draft
     if (isPublished(atlas)) {
-      throw new Error(
+      throw new InvalidOperationError(
         `Atlas version ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision} is published and cannot receive further uploads`,
       );
     }
