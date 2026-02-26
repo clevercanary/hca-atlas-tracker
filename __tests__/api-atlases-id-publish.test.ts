@@ -218,7 +218,9 @@ async function expectMetadataEntityPublishResult(
   const dbEntity = await getDbEntity(testEntity.versionId);
   expect(dbEntity.published_at).not.toBeNull();
   if (testEntity.publishedAt)
-    expect(dbEntity.published_at).toEqual(testEntity.publishedAt);
+    expect(dbEntity.published_at?.toISOString()).toEqual(
+      testEntity.publishedAt,
+    );
 
   const { revision: initRevision = 1, wipNumber: initWipNumber = 1 } =
     testEntity;
