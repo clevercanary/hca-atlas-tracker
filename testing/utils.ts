@@ -632,6 +632,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.reprocessedStatus).toEqual(
     testSourceDataset.reprocessedStatus,
   );
+  expect(apiSourceDataset.revision).toEqual(testSourceDataset.revision);
   expect(apiSourceDataset.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiSourceDataset.sourceStudyId).toEqual(
     testSourceDataset.sourceStudyId,
@@ -669,9 +670,11 @@ export function expectDbSourceDatasetToMatchTest(
   expect(dbSourceDataset.reprocessed_status).toEqual(
     testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
   );
+  expect(dbSourceDataset.revision).toEqual(testSourceDataset.revision ?? 1);
   expect(dbSourceDataset.source_study_id).toEqual(
     testSourceDataset.sourceStudyId ?? null,
   );
+  expect(dbSourceDataset.wip_number).toEqual(testSourceDataset.wipNumber ?? 1);
 }
 
 export function expectDetailApiComponentAtlasToMatchTest(
@@ -721,6 +724,7 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.publishedAt).toEqual(
     testComponentAtlas.publishedAt ?? null,
   );
+  expect(apiComponentAtlas.revision).toEqual(testComponentAtlas.revision ?? 1);
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? [],
