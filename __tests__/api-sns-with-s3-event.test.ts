@@ -1404,6 +1404,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       // Check version numbers
       expect(newSourceDataset.wip_number).toEqual(expectedWipNumber);
       expect(newSourceDataset.revision).toEqual(expectedRevision);
+
+      // Make sure that the new source dataset is not marked as published
+      expect(newSourceDataset.published_at).toBeNull();
     },
   );
 
@@ -1526,6 +1529,9 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       // Check version numbers
       expect(newComponentAtlas.wip_number).toEqual(expectedWipNumber);
       expect(newComponentAtlas.revision).toEqual(expectedRevision);
+
+      // Make sure that the new component atlas is not marked as published
+      expect(newComponentAtlas.published_at).toBeNull();
     },
   );
 
