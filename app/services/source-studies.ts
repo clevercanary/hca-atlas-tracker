@@ -32,7 +32,7 @@ import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
 import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { confirmAtlasIsEditable, getBaseModelAtlas } from "./atlases";
+import { getBaseModelAtlas } from "./atlases";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import {
   doOrContinueTransaction,
@@ -210,7 +210,14 @@ export async function createSourceStudy(
   atlasId: string,
   inputData: NewSourceStudyData,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
-  await confirmAtlasIsEditable(atlasId);
+  const atlasExists = (
+    await query("SELECT EXISTS(SELECT 1 FROM hat.atlases WHERE id=$1)", [
+      atlasId,
+    ])
+  ).rows[0].exists;
+  if (!atlasExists) {
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  }
 
   const client = await getPoolClient();
   try {
@@ -526,7 +533,6 @@ export async function deleteAtlasSourceStudy(
   const client = await getPoolClient();
   try {
     await client.query("BEGIN");
-    await confirmAtlasIsEditable(atlasId, client);
     await confirmSourceStudyExistsOnAtlas(
       sourceStudyId,
       atlasId,
