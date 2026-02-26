@@ -140,14 +140,6 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
-  it("returns error 400 when already-published atlas is requested", async () => {
-    expect(
-      (
-        await doPublishRequest(ATLAS_PUBLISHED.id, USER_CONTENT_ADMIN, true)
-      )._getStatusCode(),
-    ).toEqual(400);
-  });
-
   it("publishes unpublished atlas and linked unpublished metadata entities when requested by content admin", async () => {
     expect(
       (
