@@ -484,6 +484,7 @@ export function expectApiAtlasToMatchTest(
   expect(apiAtlas.integrationLead).toEqual(testAtlas.integrationLead);
   expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);
   expect(apiAtlas.publications).toEqual(testAtlas.publications);
+  expect(apiAtlas.publishedAt).toEqual(testAtlas.publishedAt ?? null);
   expect(apiAtlas.shortName).toEqual(testAtlas.shortName);
   expect(apiAtlas.sourceStudyCount).toEqual(testAtlas.sourceStudies.length);
   expect(apiAtlas.status).toEqual(testAtlas.status);
@@ -515,6 +516,9 @@ export function expectDbAtlasToMatchApi(
   );
   expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
   expect(dbAtlas.generation).toEqual(apiAtlas.generation);
+  expect(dbAtlas.published_at?.toISOString() ?? null).toEqual(
+    apiAtlas.publishedAt,
+  );
   expect(dbAtlas.revision).toEqual(apiAtlas.revision);
   expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
   expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
@@ -624,6 +628,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.publicationStatus).toEqual(
     testSourceDataset.publicationStatus,
   );
+  expect(apiSourceDataset.publishedAt).toEqual(testSourceDataset.publishedAt);
   expect(apiSourceDataset.reprocessedStatus).toEqual(
     testSourceDataset.reprocessedStatus,
   );
@@ -657,6 +662,9 @@ export function expectDbSourceDatasetToMatchTest(
 ): void {
   expect(dbSourceDataset.sd_info.publicationStatus).toEqual(
     testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
+  );
+  expect(dbSourceDataset.published_at?.toISOString() ?? null).toEqual(
+    testSourceDataset.publishedAt ?? null,
   );
   expect(dbSourceDataset.reprocessed_status).toEqual(
     testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
@@ -710,6 +718,9 @@ export function expectApiComponentAtlasToMatchTest(
   );
   expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
   expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
+  expect(apiComponentAtlas.publishedAt).toEqual(
+    testComponentAtlas.publishedAt ?? null,
+  );
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? [],
