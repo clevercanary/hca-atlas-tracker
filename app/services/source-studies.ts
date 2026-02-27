@@ -628,17 +628,7 @@ export async function deleteAtlasSourceStudy(
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
       await options.beforeFullDelete?.();
-      await unlinkAllSourceDatasetsFromSourceStudy(sourceStudyId, client);
-      await deleteEntrySheetValidationsOfDeletedSourceStudy(
-        sourceStudyId,
-        client,
-      );
-      await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
-        sourceStudyId,
-      ]);
-      await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
-        sourceStudyId,
-      ]);
+      await deleteNonAtlasLinkedSourceStudy(sourceStudyId, client);
     }
     await client.query("COMMIT");
   } catch (e) {
@@ -647,6 +637,25 @@ export async function deleteAtlasSourceStudy(
   } finally {
     client.release();
   }
+}
+
+/**
+ * Fully delete a source study that is not linked to any atlas.
+ * @param sourceStudyId - ID of the source study to delete.
+ * @param client - Postgres client to use.
+ */
+async function deleteNonAtlasLinkedSourceStudy(
+  sourceStudyId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  await unlinkAllSourceDatasetsFromSourceStudy(sourceStudyId, client);
+  await deleteEntrySheetValidationsOfDeletedSourceStudy(sourceStudyId, client);
+  await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
+    sourceStudyId,
+  ]);
+  await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
+    sourceStudyId,
+  ]);
 }
 
 /**
