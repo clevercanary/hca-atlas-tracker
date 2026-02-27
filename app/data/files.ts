@@ -469,7 +469,7 @@ export async function getFilesPublishStatus(
   );
   confirmQueryRowsContainIds(allRows, fileIds, "publishable files");
 
-  // Accumulate values, in case mutliple metadata entities reference the same file
+  // Accumulate values, in case multiple metadata entities reference the same file
   const publishedById = new Map<string, boolean>();
   for (const { id, published_at } of allRows) {
     const rowPublished = published_at !== null;
