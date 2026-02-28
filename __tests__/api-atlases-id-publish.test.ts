@@ -18,6 +18,8 @@ import {
   COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
   COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
   COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
+  COMPONENT_ATLAS_MISC_FOO,
+  SOURCE_DATASET_FOO,
 } from "../testing/constants";
 import {
   getExistingAtlasFromDatabase,
@@ -165,10 +167,12 @@ describe(TEST_ROUTE, () => {
     await expectMetadataEntityPublishResult(
       COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
       getExistingComponentAtlasFromDatabase,
+      atlas.published_at,
     );
     await expectMetadataEntityPublishResult(
       COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
       getExistingComponentAtlasFromDatabase,
+      atlas.published_at,
     );
     await expectMetadataEntityPublishResult(
       COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
@@ -183,10 +187,12 @@ describe(TEST_ROUTE, () => {
     await expectMetadataEntityPublishResult(
       SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
       getExistingSourceDatasetFromDatabase,
+      atlas.published_at,
     );
     await expectMetadataEntityPublishResult(
       SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
       getExistingSourceDatasetFromDatabase,
+      atlas.published_at,
     );
     await expectMetadataEntityPublishResult(
       SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
@@ -196,6 +202,19 @@ describe(TEST_ROUTE, () => {
       SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
       getExistingSourceDatasetFromDatabase,
     );
+
+    // Check that non-linked entities are not published
+    expect(
+      (
+        await getExistingComponentAtlasFromDatabase(
+          COMPONENT_ATLAS_MISC_FOO.versionId,
+        )
+      ).published_at,
+    ).toBeNull();
+    expect(
+      (await getExistingSourceDatasetFromDatabase(SOURCE_DATASET_FOO.versionId))
+        .published_at,
+    ).toBeNull();
   });
 });
 
@@ -206,13 +225,19 @@ async function expectMetadataEntityPublishResult(
   ) => Promise<
     HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset
   >,
+  expectedPublishDate?: Date | null,
 ): Promise<void> {
   const dbEntity = await getDbEntity(testEntity.versionId);
   expect(dbEntity.published_at).not.toBeNull();
-  if (testEntity.publishedAt)
+  if (testEntity.publishedAt) {
     expect(dbEntity.published_at?.toISOString()).toEqual(
       testEntity.publishedAt,
     );
+  } else {
+    expect(dbEntity.published_at?.getTime()).toEqual(
+      expectedPublishDate?.getTime(),
+    );
+  }
 
   const { revision: initRevision = 1, wipNumber: initWipNumber = 1 } =
     testEntity;

@@ -39,16 +39,18 @@ export async function updateSourceDatasetVersionInAtlas(
 }
 
 /**
- * Set an atlas's published date to the current timestamp.
+ * Set an atlas's published-at date.
  * @param atlasId - Atlas ID.
+ * @param publishedAt - Publish date to set.
  * @param client - Postgres client to use.
  */
-export async function setAtlasAsPublishedNow(
+export async function setAtlasPublishedAt(
   atlasId: string,
+  publishedAt: Date,
   client: pg.PoolClient,
 ): Promise<void> {
-  await client.query(
-    "UPDATE hat.atlases SET published_at = CURRENT_TIMESTAMP WHERE id = $1",
-    [atlasId],
-  );
+  await client.query("UPDATE hat.atlases SET published_at = $2 WHERE id = $1", [
+    atlasId,
+    publishedAt,
+  ]);
 }

@@ -21,7 +21,7 @@ import {
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { doTransaction, query } from "./database";
-import { setAtlasAsPublishedNow } from "app/data/atlases";
+import { setAtlasPublishedAt } from "app/data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "app/data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "app/data/source-datasets";
 
@@ -223,9 +223,14 @@ export async function publishAtlas(atlasId: string): Promise<void> {
         `Atlas with ID ${atlasId} is already published`,
       );
     }
-    await publishUnpublishedComponentAtlasesOfAtlas(atlasId, client);
-    await publishUnpublishedSourceDatasetsOfAtlas(atlasId, client);
-    await setAtlasAsPublishedNow(atlasId, client);
+    const publishedAt = new Date();
+    await publishUnpublishedComponentAtlasesOfAtlas(
+      atlasId,
+      publishedAt,
+      client,
+    );
+    await publishUnpublishedSourceDatasetsOfAtlas(atlasId, publishedAt, client);
+    await setAtlasPublishedAt(atlasId, publishedAt, client);
   });
 }
 

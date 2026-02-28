@@ -98,21 +98,23 @@ export async function getComponentAtlasForAtlasFile(
 }
 
 /**
- * Set all unpublished component atlases linked to the given atlas as being published at the current timestamp.
+ * Set all unpublished component atlases linked to the given atlas as being published at the given timestamp.
  * @param atlasId - Atlas ID.
+ * @param publishedAt - Published-at date to set.
  * @param client - Postgres client to use.
  */
 export async function publishUnpublishedComponentAtlasesOfAtlas(
   atlasId: string,
+  publishedAt: Date,
   client: pg.PoolClient,
 ): Promise<void> {
   await client.query(
     `
       UPDATE hat.component_atlases c
-      SET published_at = CURRENT_TIMESTAMP
+      SET published_at = $2
       FROM hat.atlases a
       WHERE a.id = $1 AND c.version_id = ANY(a.component_atlases) AND c.published_at IS NULL
     `,
-    [atlasId],
+    [atlasId, publishedAt],
   );
 }
