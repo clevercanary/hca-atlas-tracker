@@ -464,20 +464,16 @@ export async function getFilesPublishStatus(
     "SELECT f.id, d.published_at FROM hat.files f JOIN hat.source_datasets d ON d.file_id = f.id WHERE f.id=ANY($1)",
     [fileIds],
   );
+  // These rows are presumed to include no duplicate file IDs, since a new metadata entity version is created only when there's a new file version
   const allRows = componentAtlasesQueryResult.rows.concat(
     sourceDatasetsQueryResult.rows,
   );
   confirmQueryRowsContainIds(allRows, fileIds, "publishable files");
 
-  // Accumulate values, in case multiple metadata entities reference the same file
-  const publishedById = new Map<string, boolean>();
-  for (const { id, published_at } of allRows) {
-    const rowPublished = published_at !== null;
-    const prevPublished = publishedById.get(id) ?? false;
-    publishedById.set(id, prevPublished || rowPublished);
-  }
-
-  return Array.from(publishedById, ([id, published]) => ({ id, published }));
+  return allRows.map(({ id, published_at }) => ({
+    id,
+    published: published_at !== null,
+  }));
 }
 
 export async function getFileKey(fileId: string): Promise<string> {
