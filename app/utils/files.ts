@@ -21,7 +21,7 @@ export class S3KeyFormatError extends Error {
  * Parses S3 key path into standardized components
  * @param s3Key - The S3 object key to parse
  * @returns Parsed components including network, atlas name, folder type, and filename
- * @throws InvalidS3KeyFormatError if the S3 key doesn't have at least 4 path segments
+ * @throws S3KeyFormatError if the S3 key doesn't have at least 4 path segments
  * @example
  * parseS3KeyPath('bio_network/gut-v1/integrated-objects/file.h5ad')
  * // Returns: { network: 'bio_network', atlasName: 'gut-v1', folderType: 'integrated-objects', filename: 'file.h5ad' }
