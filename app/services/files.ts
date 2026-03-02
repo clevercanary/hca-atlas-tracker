@@ -56,7 +56,7 @@ export async function getAtlasFileDownloadUrl(
  * @param atlasId - ID of the atlas on which to find the metadata entity.
  * @returns object containing metadata entity and file type.
  */
-export async function getFileMetadataEntityForAtlas(
+async function getFileMetadataEntityForAtlas(
   fileId: string,
   atlasId: string,
 ): Promise<
