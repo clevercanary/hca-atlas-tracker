@@ -347,27 +347,27 @@ export async function updateSourceStudy(
     );
   }
 
-  const existingEntrySheetIds = new Set(
-    existingSourceStudy.study_info.metadataSpreadsheets.map(({ id }) => id),
-  );
-
   const newInfo = await sourceStudyInputDataToDbData(
     inputData,
     existingSourceStudy,
   );
 
-  const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] = [];
-  const removedEntrySheetIds = new Set(existingEntrySheetIds);
-  for (const { id: spreadsheetId } of newInfo.study_info.metadataSpreadsheets) {
-    if (!existingEntrySheetIds.has(spreadsheetId)) {
-      newEntrySheetsInfo.push({
-        bioNetwork: atlas.overview.network,
-        sourceStudyId,
-        spreadsheetId,
-      });
-    }
-    removedEntrySheetIds.delete(spreadsheetId);
-  }
+  const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] =
+    getAddedEntrySheetsBetweenLists(
+      existingSourceStudy.study_info.metadataSpreadsheets,
+      newInfo.study_info.metadataSpreadsheets,
+    ).map(({ id: spreadsheetId }) => ({
+      bioNetwork: atlas.overview.network,
+      sourceStudyId,
+      spreadsheetId,
+    }));
+
+  const removedEntrySheetIds = new Set(
+    getRemovedEntrySheetsBetweenLists(
+      existingSourceStudy.study_info.metadataSpreadsheets,
+      newInfo.study_info.metadataSpreadsheets,
+    ).map(({ id }) => id),
+  );
 
   const client = await getPoolClient();
   try {
@@ -462,6 +462,22 @@ async function replaceSourceStudy(
 
     return getSourceStudy(atlasId, replacementSourceStudy.id, client);
   });
+}
+
+function getAddedEntrySheetsBetweenLists(
+  oldEntrySheetList: GoogleSheetInfo[],
+  newEntrySheetList: GoogleSheetInfo[],
+): GoogleSheetInfo[] {
+  const oldListIds = new Set(oldEntrySheetList.map(({ id }) => id));
+  return newEntrySheetList.filter(({ id }) => !oldListIds.has(id));
+}
+
+function getRemovedEntrySheetsBetweenLists(
+  oldEntrySheetList: GoogleSheetInfo[],
+  newEntrySheetList: GoogleSheetInfo[],
+): GoogleSheetInfo[] {
+  const newListIds = new Set(newEntrySheetList.map(({ id }) => id));
+  return oldEntrySheetList.filter(({ id }) => !newListIds.has(id));
 }
 
 /**
