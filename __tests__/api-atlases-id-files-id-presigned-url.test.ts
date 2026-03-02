@@ -8,9 +8,12 @@ import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
   FILE_MANIFEST_FOO,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  SOURCE_DATASET_WITH_OUTDATED_FILENAME,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -48,14 +51,31 @@ describe(`${TEST_ROUTE}`, () => {
   const entityTypeParams = [
     {
       entityType: "source dataset",
+      expectedFilename: "source-dataset-atlas-linked-a-foo-r1-wip-1.h5ad",
       testFile: SOURCE_DATASET_ATLAS_LINKED_A_FOO.file,
+      withDistinctName: {
+        atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+        file: SOURCE_DATASET_WITH_OUTDATED_FILENAME.file,
+        name: "source-dataset-with-outdated-filename-CURRENT-r1-wip-7.h5ad",
+      },
     },
     {
       entityType: "integrated object",
+      expectedFilename: "component-atlas-misc-foo-r1-wip-1.h5ad",
       testFile: COMPONENT_ATLAS_MISC_FOO.file,
+      withDistinctName: {
+        atlas: ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+        file: COMPONENT_ATLAS_WITH_OUTDATED_FILENAME.file,
+        name: "component-atlas-with-outdated-filename-CURRENT-r1-wip-5.h5ad",
+      },
     },
   ];
-  for (const { entityType, testFile } of entityTypeParams) {
+  for (const {
+    entityType,
+    expectedFilename,
+    testFile,
+    withDistinctName,
+  } of entityTypeParams) {
     it(`returns error 405 for GET request to ${entityType} file`, async () => {
       expect(
         (
@@ -175,11 +195,10 @@ describe(`${TEST_ROUTE}`, () => {
         testFile.id,
         USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
         METHOD.POST,
-        false,
       );
       expect(res._getStatusCode()).toEqual(200);
       const urlInfo = res._getJSONData() as PresignedUrlInfo;
-      expectUrlForFile(urlInfo.url, testFile);
+      expectUrlInfoForFile(urlInfo, testFile, expectedFilename);
     });
 
     it(`returns file URL when ${entityType} file is POST requested by user with CONTENT_ADMIN role`, async () => {
@@ -188,11 +207,27 @@ describe(`${TEST_ROUTE}`, () => {
         testFile.id,
         USER_CONTENT_ADMIN,
         METHOD.POST,
-        false,
       );
       expect(res._getStatusCode()).toEqual(200);
       const urlInfo = res._getJSONData() as PresignedUrlInfo;
-      expectUrlForFile(urlInfo.url, testFile);
+      expectUrlInfoForFile(urlInfo, testFile, expectedFilename);
+    });
+
+    it(`returns concept base filename for ${entityType} file`, async () => {
+      const res = await doPresignedUrlRequest(
+        withDistinctName.atlas.id,
+        withDistinctName.file.id,
+        USER_CONTENT_ADMIN,
+        METHOD.POST,
+      );
+      expect(res._getStatusCode()).toEqual(200);
+      const urlInfo = res._getJSONData() as PresignedUrlInfo;
+      expectUrlInfoForFile(
+        urlInfo,
+        withDistinctName.file,
+        withDistinctName.name,
+        true,
+      );
     });
   }
 
@@ -210,7 +245,7 @@ describe(`${TEST_ROUTE}`, () => {
     ).toEqual(404);
   });
 
-  it(`returns error 404 when manifest file is POST requested`, async () => {
+  it(`returns error 400 when manifest file is POST requested`, async () => {
     expect(
       (
         await doPresignedUrlRequest(
@@ -221,7 +256,7 @@ describe(`${TEST_ROUTE}`, () => {
           true,
         )
       )._getStatusCode(),
-    ).toEqual(404);
+    ).toEqual(400);
   });
 });
 
@@ -251,7 +286,25 @@ function getQueryValues(
   return { atlasId, fileId };
 }
 
-function expectUrlForFile(url: string, testFile: TestFile): void {
-  expect(url).toMatch(/^https:\/\//);
-  expect(url).toEqual(expect.stringContaining(testFile.fileName));
+function expectUrlInfoForFile(
+  info: PresignedUrlInfo,
+  testFile: TestFile,
+  expectedFilename: string,
+  expectDistinctFilename = false,
+): void {
+  expect(info.filename).toEqual(expectedFilename);
+
+  expect(info.url).toMatch(/^https:\/\//);
+  // URL should contain both the S3 filename in the key and the download filename
+  expect(info.url).toEqual(expect.stringContaining(testFile.fileName));
+  expect(info.url).toEqual(expect.stringContaining(expectedFilename));
+
+  const endingRegex = /(?:-r\d+(?:-wip-\d+)?)?\..+$/;
+  const fileNameBeginning = testFile.fileName.replace(endingRegex, "");
+  const apiNameBeginning = info.filename.replace(endingRegex, "");
+  if (expectDistinctFilename) {
+    expect(fileNameBeginning).not.toEqual(apiNameBeginning);
+  } else {
+    expect(fileNameBeginning).toEqual(apiNameBeginning);
+  }
 }

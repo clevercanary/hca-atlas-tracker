@@ -4,6 +4,7 @@ import {
   HCAAtlasTrackerDBConcept,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "app/utils/api-handler";
+import { query } from "../services/database";
 
 /**
  * Get the ID of the concept matching the given info, if it exists.
@@ -107,6 +108,25 @@ export async function getAtlasesMatchingConcept(
       [conceptId],
     )
   ).rows;
+}
+
+/**
+ * Get the concept for a file.
+ * @param fileId - ID of the file to get the concept for.
+ * @returns concept.
+ */
+export async function getConceptForFile(
+  fileId: string,
+): Promise<HCAAtlasTrackerDBConcept> {
+  const queryResult = await query<HCAAtlasTrackerDBConcept>(
+    "SELECT c.* FROM hat.concepts c JOIN hat.files f ON c.id = f.concept_id WHERE f.id = $1",
+    [fileId],
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Concept for file with ID ${fileId} does not exist`,
+    );
+  return queryResult.rows[0];
 }
 
 /**

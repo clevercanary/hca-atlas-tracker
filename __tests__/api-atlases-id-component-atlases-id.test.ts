@@ -10,11 +10,13 @@ import {
   ATLAS_PUBLIC,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
   COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+  COMPONENT_ATLAS_ID_OUTDATED_FILENAME,
   COMPONENT_ATLAS_ID_WITH_ARCHIVED_LATEST,
   COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
   COMPONENT_ATLAS_MISC_BAR,
@@ -23,6 +25,8 @@ import {
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
+  COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
+  CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -280,6 +284,25 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
     );
     expect(componentAtlas.sourceDatasetCount).toEqual(1);
+  });
+
+  it("returns base filename from concept", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      COMPONENT_ATLAS_ID_OUTDATED_FILENAME,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expectDetailApiComponentAtlasToMatchTest(
+      componentAtlas,
+      COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
+    );
+    expect(componentAtlas.baseFileName).toEqual(
+      CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME.baseFilename,
+    );
+    expect(componentAtlas.baseFileName).not.toEqual(componentAtlas.fileName);
   });
 
   it("returns error 401 when PATCH requested by logged out user", async () => {

@@ -16,7 +16,7 @@ export function renderFileName({
   row,
 }: CellContext<IntegratedObjectSourceDataset, unknown>): JSX.Element {
   return C.Link({
-    label: row.original.fileName,
+    label: row.original.baseFileName,
     url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
       atlasId: row.original.atlasId,
       sourceDatasetId: row.original.id,

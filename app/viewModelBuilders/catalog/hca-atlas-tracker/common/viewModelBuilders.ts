@@ -176,7 +176,7 @@ export const buildComponentAtlasFileName = ({
   row,
 }: CellContext<
   AtlasIntegratedObject,
-  AtlasIntegratedObject["fileName"]
+  AtlasIntegratedObject["baseFileName"]
 >): ComponentProps<typeof C.LinkCell> => {
   const fileName = getValue();
   const atlasId = row.getValue("atlasId") as string;
@@ -1036,10 +1036,10 @@ function getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(): C
  */
 function getComponentAtlasSourceDatasetsSelectionFileNameColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
   return {
-    accessorKey: "fileName",
+    accessorKey: "baseFileName",
     cell: ({ row }) =>
       C.RowSelectionCell({
-        label: row.original.fileName,
+        label: row.original.baseFileName,
         row,
       }),
     header: "File Name",
@@ -1238,11 +1238,11 @@ function getIntegratedObjectFileDownloadColumnDef<
         options: { meta },
       } = table;
       const { canEdit = false } = meta as { canEdit: boolean };
-      const { fileId, fileName, sizeBytes } = row.original;
+      const { baseFileName, fileId, sizeBytes } = row.original;
       return C.FileDownloadCell({
         disabled: !canEdit,
         fileId,
-        fileName,
+        fileName: baseFileName,
         sizeBytes,
       });
     },
@@ -1258,10 +1258,10 @@ function getIntegratedObjectFileDownloadColumnDef<
  */
 function getIntegratedObjectFileNameColumnDef(): ColumnDef<
   AtlasIntegratedObject,
-  AtlasIntegratedObject["fileName"]
+  AtlasIntegratedObject["baseFileName"]
 > {
   return {
-    accessorKey: "fileName",
+    accessorKey: "baseFileName",
     cell: (ctx) => C.LinkCell(buildComponentAtlasFileName(ctx)),
     header: "File Name",
     meta: { columnPinned: true, width: { max: "1fr", min: "136px" } },
@@ -1344,7 +1344,7 @@ function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDat
     cell: (ctx): JSX.Element =>
       C.FileDownloadCell({
         fileId: ctx.row.original.fileId,
-        fileName: ctx.row.original.fileName,
+        fileName: ctx.row.original.baseFileName,
         sizeBytes: ctx.row.original.sizeBytes,
       }),
     enableSorting: false,

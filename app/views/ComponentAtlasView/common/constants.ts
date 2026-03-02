@@ -3,7 +3,7 @@ export const FIELD_NAME = {
   CAP_URL: "capUrl",
   CELL_COUNT: "cellCount",
   FILE_EVENT_TIME: "fileEventTime",
-  FILE_NAME: "fileName",
+  FILE_NAME: "baseFileName",
   GENE_COUNT: "geneCount",
   SIZE_BY_BYTES: "sizeBytes",
   TITLE: "title",

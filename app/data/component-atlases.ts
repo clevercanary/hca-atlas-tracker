@@ -1,5 +1,7 @@
 import pg from "pg";
 import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { query } from "../services/database";
+import { NotFoundError } from "../utils/api-handler";
 
 /**
  * Create a new latest component atlas version based on the given existing version.
@@ -66,4 +68,25 @@ export async function updateSourceDatasetVersionInComponentAtlases(
     "UPDATE hat.component_atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE is_latest",
     [existingVersionId, newVersionId],
   );
+}
+
+/**
+ * Get the component atlas of the given atlas that's associated with the given file.
+ * @param atlasId - Atlas to get component atlas for.
+ * @param fileId - File ID of the component atlas to get.
+ * @returns component atlas.
+ */
+export async function getComponentAtlasForAtlasFile(
+  atlasId: string,
+  fileId: string,
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const queryResult = await query<HCAAtlasTrackerDBComponentAtlas>(
+    "SELECT c.* FROM hat.component_atlases c JOIN hat.atlases a ON c.version_id = ANY(a.component_atlases) WHERE a.id = $1 AND c.file_id = $2",
+    [atlasId, fileId],
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Integrated object file with ID ${fileId} does not exist on atlas with ID ${atlasId}`,
+    );
+  return queryResult.rows[0];
 }

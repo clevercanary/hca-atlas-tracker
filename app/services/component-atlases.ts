@@ -47,9 +47,11 @@ export async function getAtlasComponentAtlases(
           f.key,
           f.size_bytes,
           f.validation_status,
-          f.validation_summary
+          f.validation_summary,
+          con.base_filename
         FROM hat.component_atlases ca
         JOIN hat.files f ON f.id = ca.file_id
+        JOIN hat.concepts con ON con.id = ca.id
         WHERE f.is_archived = $2 AND ca.version_id=ANY($1)
       `,
     [componentAtlasVersions, isArchivedValue],
@@ -93,9 +95,11 @@ export async function getComponentAtlas(
         f.size_bytes,
         f.validation_status,
         f.validation_summary,
-        f.validation_reports
+        f.validation_reports,
+        con.base_filename
       FROM hat.component_atlases ca
       JOIN hat.files f ON f.id = ca.file_id
+      JOIN hat.concepts con ON con.id = ca.id
       WHERE ca.version_id=$1
     `,
     [componentAtlasVersion],

@@ -42,23 +42,24 @@ const TEST_PATH_PARAMETER = {
   componentAtlasId: TEST_COMPONENT_ATLAS_ID,
 };
 
-const TEST_SOURCE_DATASET: HCAAtlasTrackerSourceDataset = {
+const TEST_SOURCE_DATASET = {
   assay: ["10x 3' v3"],
+  baseFileName: "test-file.h5ad",
   cellCount: 50000,
   disease: ["normal"],
   doi: "10.1234/test-doi",
-  fileName: "test-file.h5ad",
+  fileName: "test-file-r1-wip-1.h5ad",
   id: TEST_SOURCE_DATASET_ID,
   publicationString: "Test Author et al. (2024)",
   suspensionType: ["cell"],
   tissue: ["lung"],
   title: "Test Source Dataset",
-} as HCAAtlasTrackerSourceDataset;
+} satisfies Partial<HCAAtlasTrackerSourceDataset>;
 
-const TEST_INTEGRATED_OBJECT_SOURCE_DATASET: IntegratedObjectSourceDataset = {
+const TEST_INTEGRATED_OBJECT_SOURCE_DATASET = {
   ...TEST_SOURCE_DATASET,
   atlasId: TEST_ATLAS_ID,
-};
+} satisfies Partial<IntegratedObjectSourceDataset>;
 
 describe("useEditIntegratedObjectSourceDatasets", () => {
   const mockOnDelete = jest.fn().mockResolvedValue(undefined);
@@ -130,7 +131,7 @@ describe("useFetchIntegratedObjectSourceDatasets", () => {
   });
 
   it("returns source datasets with atlasId mapped", () => {
-    const testData: HCAAtlasTrackerSourceDataset[] = [TEST_SOURCE_DATASET];
+    const testData = [TEST_SOURCE_DATASET] as HCAAtlasTrackerSourceDataset[];
 
     mockUseFetchData.mockReturnValue({
       data: testData,
@@ -180,11 +181,11 @@ describe("useFetchIntegratedObjectSourceDatasets", () => {
   });
 
   it("maps atlasId to all source datasets", () => {
-    const testData: HCAAtlasTrackerSourceDataset[] = [
+    const testData = [
       { ...TEST_SOURCE_DATASET, id: "dataset-1" },
       { ...TEST_SOURCE_DATASET, id: "dataset-2" },
       { ...TEST_SOURCE_DATASET, id: "dataset-3" },
-    ];
+    ] as HCAAtlasTrackerSourceDataset[];
 
     mockUseFetchData.mockReturnValue({
       data: testData,
@@ -220,8 +221,8 @@ describe("renderFileName", () => {
     const linkElement = result.props.children[0];
     expect(linkElement).toBeDefined();
 
-    // Check that the label (children) matches the file name
-    expect(linkElement.props.children).toBe(TEST_SOURCE_DATASET.fileName);
+    // Check that the label (children) matches the base filename
+    expect(linkElement.props.children).toBe(TEST_SOURCE_DATASET.baseFileName);
 
     // URL should contain both atlasId and sourceDatasetId
     expect(linkElement.props.href).toContain(TEST_ATLAS_ID);
@@ -255,10 +256,10 @@ describe("renderPublicationString", () => {
   });
 
   it("handles null DOI gracefully", () => {
-    const datasetWithNullDoi: IntegratedObjectSourceDataset = {
+    const datasetWithNullDoi = {
       ...TEST_INTEGRATED_OBJECT_SOURCE_DATASET,
       doi: null as unknown as string,
-    };
+    } as IntegratedObjectSourceDataset;
 
     const mockRow = {
       original: datasetWithNullDoi,
@@ -310,7 +311,9 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     mockUseEntity.mockReturnValue(
       createMockEntityContext({
         canEdit: false,
-        integratedObjectSourceDatasets: [TEST_INTEGRATED_OBJECT_SOURCE_DATASET],
+        integratedObjectSourceDatasets: [
+          TEST_INTEGRATED_OBJECT_SOURCE_DATASET as IntegratedObjectSourceDataset,
+        ],
       }),
     );
 
@@ -333,7 +336,9 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     mockUseEntity.mockReturnValue(
       createMockEntityContext({
         canEdit: true,
-        integratedObjectSourceDatasets: [TEST_INTEGRATED_OBJECT_SOURCE_DATASET],
+        integratedObjectSourceDatasets: [
+          TEST_INTEGRATED_OBJECT_SOURCE_DATASET as IntegratedObjectSourceDataset,
+        ],
       }),
     );
 
@@ -379,7 +384,7 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
       { ...TEST_INTEGRATED_OBJECT_SOURCE_DATASET, id: "1" },
       { ...TEST_INTEGRATED_OBJECT_SOURCE_DATASET, id: "2" },
       { ...TEST_INTEGRATED_OBJECT_SOURCE_DATASET, id: "3" },
-    ];
+    ] as IntegratedObjectSourceDataset[];
 
     mockUseEntity.mockReturnValue(
       createMockEntityContext({
@@ -402,7 +407,9 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     mockUseEntity.mockReturnValue(
       createMockEntityContext({
         canEdit: false,
-        integratedObjectSourceDatasets: [TEST_INTEGRATED_OBJECT_SOURCE_DATASET],
+        integratedObjectSourceDatasets: [
+          TEST_INTEGRATED_OBJECT_SOURCE_DATASET as IntegratedObjectSourceDataset,
+        ],
       }),
     );
 

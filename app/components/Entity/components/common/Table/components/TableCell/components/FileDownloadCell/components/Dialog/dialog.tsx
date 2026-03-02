@@ -21,7 +21,9 @@ export const Dialog = ({
   sizeBytes = 0,
 }: Props): JSX.Element => {
   const { fetchDataDispatch } = useFetchDataState();
-  const { url } = useRequestPreSignedURL({ fileId });
+  const { filename: downloadFileName, url } = useRequestPreSignedURL({
+    fileId,
+  });
   return (
     <StyledDialog
       {...DIALOG_PROPS}
@@ -39,7 +41,7 @@ export const Dialog = ({
         <Section title="Data Format">.h5ad</Section>
         <Section title="Download Details">
           <Stack spacing={1} useFlexGap>
-            <span>FileName: {fileName}</span>
+            <span>FileName: {downloadFileName ?? fileName}</span>
             <span>FileSize: {formatFileSize(sizeBytes)}</span>
           </Stack>
         </Section>
