@@ -8,7 +8,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "./popup.styles";
+} from "../../../../../ConfirmationDialog/confirmationDialog.styles";
 
 interface PopupProps extends FormManager {
   content?: ReactNode;

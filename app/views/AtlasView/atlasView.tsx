@@ -1,5 +1,6 @@
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { JSX, Fragment } from "react";
+import { JSX, Fragment, useState } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
@@ -14,6 +15,9 @@ import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
+import { PublishButton } from "./components/PublishButton/publishButton.styles";
+import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
+import { PublishDialog } from "./components/PublishDialog/publishDialog";
 
 interface AtlasViewProps {
   pathParameter: PathParameter;
@@ -25,13 +29,39 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   const {
     access: { canView },
     formAction,
+    formStatus: { isDirty },
     isLoading,
   } = formManager;
   const { data: atlas } = formMethod;
+
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+
   if (isLoading) return <Fragment />;
+
   return (
     <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
+      {isDirty ? (
+        <PublishDialogUnsavedChanges
+          onCancel={() => setPublishDialogOpen(false)}
+          open={publishDialogOpen}
+        />
+      ) : (
+        <PublishDialog
+          atlas={atlas}
+          onCancel={() => setPublishDialogOpen(false)}
+          onPublish={() => undefined}
+          open={publishDialogOpen}
+        />
+      )}
       <DetailView
+        actions={
+          <PublishButton
+            {...BUTTON_PROPS.SECONDARY_CONTAINED}
+            onClick={() => setPublishDialogOpen(true)}
+          >
+            Publish
+          </PublishButton>
+        }
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlas)}

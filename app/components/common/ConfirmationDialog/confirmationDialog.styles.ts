@@ -6,7 +6,7 @@ import {
   DialogActions as MDialogActions,
   DialogContent as MDialogContent,
 } from "@mui/material";
-import { COLOR_MIXES } from "../../../../../../../styles/common/constants/colorMixes";
+import { COLOR_MIXES } from "../../../styles/common/constants/colorMixes";
 
 export const Dialog = styled(MDialog)`
   .MuiBackdrop-root {
