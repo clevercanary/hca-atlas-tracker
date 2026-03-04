@@ -222,6 +222,20 @@ export function makeFileVersionString(
 }
 
 /**
+ * Determine whether an API-model entity is marked as published.
+ * @param entity - Entity that may be published.
+ * @returns boolean indicating whether the entity is published.
+ */
+export function apiEntityIsPublished(
+  entity:
+    | HCAAtlasTrackerAtlas
+    | HCAAtlasTrackerComponentAtlas
+    | HCAAtlasTrackerSourceDataset,
+): boolean {
+  return entity.publishedAt !== null;
+}
+
+/**
  * Returns true if the given key is a valid network key.
  * @param key - Key.
  * @returns true if the key is a valid network key.

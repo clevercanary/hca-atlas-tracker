@@ -1,7 +1,10 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { JSX, Fragment, useState } from "react";
-import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
+import {
+  apiEntityIsPublished,
+  getAtlasName,
+} from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
@@ -31,7 +34,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   const formMethod = useEditAtlasForm(pathParameter);
   const formManager = useEditAtlasFormManager(pathParameter, formMethod);
   const {
-    access: { canView },
+    access: { canEdit, canView },
     formAction,
     formStatus: { isDirty },
     isLoading,
@@ -40,6 +43,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
 
   const { fetchDataDispatch } = useFetchDataState();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const canPublish = atlas ? canEdit && !apiEntityIsPublished(atlas) : false;
 
   if (isLoading) return <Fragment />;
 
@@ -64,12 +68,14 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
       )}
       <DetailView
         actions={
-          <PublishButton
-            {...BUTTON_PROPS.SECONDARY_CONTAINED}
-            onClick={() => setPublishDialogOpen(true)}
-          >
-            Publish
-          </PublishButton>
+          canPublish && (
+            <PublishButton
+              {...BUTTON_PROPS.SECONDARY_CONTAINED}
+              onClick={() => setPublishDialogOpen(true)}
+            >
+              Publish
+            </PublishButton>
+          )
         }
         breadcrumbs={
           <Breadcrumbs
