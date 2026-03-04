@@ -9,16 +9,19 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
 import { VIEW_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
+import { AtlasPublishStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasPublishStatus/atlasPublishStatus";
 import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { ATLAS } from "../../hooks/useFetchAtlas";
+import { useFetchDataState } from "../../hooks/useFetchDataState";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
+import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
 import { PublishButton } from "./components/PublishButton/publishButton.styles";
 import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
 import { PublishDialog } from "./components/PublishDialog/publishDialog";
-import { AtlasPublishStatus } from "app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasPublishStatus/atlasPublishStatus";
 
 interface AtlasViewProps {
   pathParameter: PathParameter;
@@ -35,6 +38,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   } = formManager;
   const { data: atlas } = formMethod;
 
+  const { fetchDataDispatch } = useFetchDataState();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
 
   if (isLoading) return <Fragment />;
@@ -50,8 +54,12 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
         <PublishDialog
           atlas={atlas}
           onCancel={() => setPublishDialogOpen(false)}
-          onPublish={() => undefined}
+          onPublished={() => {
+            setPublishDialogOpen(false);
+            fetchDataDispatch(fetchData([ATLAS]));
+          }}
           open={publishDialogOpen}
+          pathParameter={pathParameter}
         />
       )}
       <DetailView
