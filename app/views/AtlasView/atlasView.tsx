@@ -12,8 +12,7 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
 import { VIEW_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
-import { AtlasPublishStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasPublishStatus/atlasPublishStatus";
-import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
+import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { ATLAS } from "../../hooks/useFetchAtlas";
 import { useFetchDataState } from "../../hooks/useFetchDataState";
@@ -91,14 +90,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
             sectionConfigs={VIEW_ATLAS_SECTION_CONFIGS}
           />
         }
-        status={
-          atlas && (
-            <>
-              <AtlasStatus atlasStatus={atlas.status} />
-              <AtlasPublishStatus publishedAt={atlas.publishedAt} />
-            </>
-          )
-        }
+        status={atlas && <AtlasStatuses statuses={atlas} />}
         tabs={
           <Tabs
             atlas={atlas}

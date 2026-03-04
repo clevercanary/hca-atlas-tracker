@@ -7,7 +7,7 @@ import { AccessPrompt } from "../../components/common/Form/components/FormManage
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
-import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
+import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
@@ -55,7 +55,7 @@ export const AtlasSourceDatasetsView = ({
               sectionConfigs={VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS}
             />
           }
-          status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
+          status={atlas && <AtlasStatuses statuses={atlas} />}
           tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
           title={atlas ? getAtlasName(atlas) : "View Source Datasets"}
         />

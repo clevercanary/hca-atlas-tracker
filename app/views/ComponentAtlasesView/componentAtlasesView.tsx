@@ -6,7 +6,7 @@ import { PathParameter } from "../../common/entities";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewComponentAtlases } from "../../components/Detail/components/ViewComponentAtlases/viewComponentAtlases";
-import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
+import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
@@ -41,7 +41,7 @@ export const ComponentAtlasesView = ({
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }
           mainColumn={<ViewComponentAtlases />}
-          status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
+          status={atlas && <AtlasStatuses statuses={atlas} />}
           tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
           title={atlas ? getAtlasName(atlas) : "View Integrated Objects"}
         />
