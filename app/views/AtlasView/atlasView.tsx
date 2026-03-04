@@ -18,6 +18,7 @@ import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
 import { PublishButton } from "./components/PublishButton/publishButton.styles";
 import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
 import { PublishDialog } from "./components/PublishDialog/publishDialog";
+import { AtlasPublishStatus } from "app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasPublishStatus/atlasPublishStatus";
 
 interface AtlasViewProps {
   pathParameter: PathParameter;
@@ -76,7 +77,14 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
             sectionConfigs={VIEW_ATLAS_SECTION_CONFIGS}
           />
         }
-        status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
+        status={
+          atlas && (
+            <>
+              <AtlasStatus atlasStatus={atlas.status} />
+              <AtlasPublishStatus publishedAt={atlas.publishedAt} />
+            </>
+          )
+        }
         tabs={
           <Tabs
             atlas={atlas}

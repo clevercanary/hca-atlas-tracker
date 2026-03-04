@@ -880,6 +880,25 @@ export const buildWave = (
 };
 
 /**
+ * Get props for the publish status badge component for the given published-at value.
+ * @param publishedAt - Atlas published-at value.
+ * @returns status badge props.
+ */
+export function getAtlasPublishStatusBadgeProps(
+  publishedAt: string | null,
+): ComponentProps<typeof C.StatusBadge> {
+  return publishedAt === null
+    ? {
+        color: STATUS_BADGE_COLOR.INFO,
+        label: "Draft",
+      }
+    : {
+        color: STATUS_BADGE_COLOR.SUCCESS,
+        label: "Published",
+      };
+}
+
+/**
  * Get props for the status badge component for the given atlas status.
  * @param status - Atlas status.
  * @returns status badge props.
