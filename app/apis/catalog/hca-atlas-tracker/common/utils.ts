@@ -205,20 +205,26 @@ export function getPublicationDois(
 export function getApiEntityFileVersion(
   entity: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
 ): string {
-  return makeFileVersionString(entity.revision, entity.wipNumber);
+  return makeFileVersionString(
+    entity.revision,
+    entity.wipNumber,
+    apiEntityIsPublished(entity),
+  );
 }
 
 /**
  * Get the version string for a file based on given version numbers.
  * @param revision - Revision number from the file's metadata entity.
  * @param wipNumber - WIP number from the file's metadata entity.
+ * @param isPublished - Whether the file is published.
  * @returns version string.
  */
 export function makeFileVersionString(
   revision: number,
   wipNumber: number,
+  isPublished: boolean,
 ): string {
-  return `r${revision}-wip-${wipNumber}`;
+  return isPublished ? `r${revision}` : `r${revision}-wip-${wipNumber}`;
 }
 
 /**

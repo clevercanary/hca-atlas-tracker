@@ -389,7 +389,11 @@ export function getDbSourceStudyTierOneMetadataStatus(
 export function getDbEntityFileVersion(
   entity: HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset,
 ): string {
-  return makeFileVersionString(entity.revision, entity.wip_number);
+  return makeFileVersionString(
+    entity.revision,
+    entity.wip_number,
+    dbEntityIsPublished(entity),
+  );
 }
 
 /**
