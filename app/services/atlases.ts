@@ -20,10 +20,10 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
+import { setAtlasPublishedAt } from "../data/atlases";
+import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
+import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { doTransaction, query } from "./database";
-import { setAtlasPublishedAt } from "app/data/atlases";
-import { publishUnpublishedComponentAtlasesOfAtlas } from "app/data/component-atlases";
-import { publishUnpublishedSourceDatasetsOfAtlas } from "app/data/source-datasets";
 
 interface AtlasInputDbData {
   overviewData: Omit<
