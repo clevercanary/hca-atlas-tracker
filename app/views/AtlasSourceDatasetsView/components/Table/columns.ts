@@ -11,6 +11,7 @@ import {
   buildAssay,
   buildDisease,
   buildGeneCount,
+  buildPublishedAt,
   buildSuspensionType,
   buildTissue,
 } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -114,6 +115,13 @@ const COLUMN_FILE_EVENT_TIME = {
   meta: { width: { max: "1fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
+const COLUMN_PUBLISHED_AT = {
+  accessorKey: "publishedAt",
+  cell: ({ row }) => C.BasicCell(buildPublishedAt(row.original)),
+  header: "Published At",
+  meta: { width: { max: "1fr", min: "160px" } },
+} as ColumnDef<AtlasSourceDataset>;
+
 const COLUMN_PUBLICATION_STATUS = {
   accessorKey: "publicationStatus",
   header: "Publication Status",
@@ -183,6 +191,7 @@ export const COLUMNS: ColumnDef<AtlasSourceDataset>[] = [
   COLUMN_TITLE,
   COLUMN_SIZE_BYTES,
   COLUMN_FILE_EVENT_TIME,
+  COLUMN_PUBLISHED_AT,
   COLUMN_SOURCE_STUDY,
   COLUMN_PUBLICATION_STATUS,
   COLUMN_REPROCESSED_STATUS,

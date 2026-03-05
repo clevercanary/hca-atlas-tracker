@@ -386,7 +386,10 @@ export function buildMetadataSpecification(
  * @returns Props to be used for the cell.
  */
 export const buildPublishedAt = (
-  atlas: HCAAtlasTrackerListAtlas,
+  atlas:
+    | HCAAtlasTrackerListAtlas
+    | HCAAtlasTrackerComponentAtlas
+    | HCAAtlasTrackerSourceDataset,
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: atlas.publishedAt
@@ -975,6 +978,12 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
       accessorKey: "fileEventTime",
       cell: ({ row }) => row.original.fileEventTime,
       header: "Uploaded At",
+      meta: { width: { max: "1fr", min: "160px" } },
+    },
+    {
+      accessorKey: "publishedAt",
+      cell: ({ row }) => C.BasicCell(buildPublishedAt(row.original)),
+      header: "Published At",
       meta: { width: { max: "1fr", min: "160px" } },
     },
     getIntegratedObjectValidationStatusColumnDef(),
