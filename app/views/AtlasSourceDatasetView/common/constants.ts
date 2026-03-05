@@ -6,6 +6,7 @@ export const FIELD_NAME = {
   FILE_NAME: "baseFileName",
   GENE_COUNT: "geneCount",
   PUBLICATION_STATUS: "publicationStatus",
+  PUBLISHED_AT: "publishedAt",
   SIZE_BYTES: "sizeBytes",
   TITLE: "title",
   VALIDATION_STATUS: "validationStatus",

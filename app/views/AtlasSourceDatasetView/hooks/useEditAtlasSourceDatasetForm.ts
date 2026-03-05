@@ -40,6 +40,7 @@ function mapSchemaValues(
     [FIELD_NAME.FILE_NAME]: sourceDataset.baseFileName,
     [FIELD_NAME.GENE_COUNT]: sourceDataset.geneCount,
     [FIELD_NAME.PUBLICATION_STATUS]: sourceDataset.publicationStatus,
+    [FIELD_NAME.PUBLISHED_AT]: sourceDataset.publishedAt ?? "Unpublished",
     [FIELD_NAME.SIZE_BYTES]: formatFileSize(sourceDataset.sizeBytes),
     [FIELD_NAME.TITLE]: sourceDataset.title,
     [FIELD_NAME.VALIDATION_STATUS]: sourceDataset.validationStatus,
