@@ -20,7 +20,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { setAtlasPublishedAt } from "../data/atlases";
+import { changeAtlasToPublished } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { doTransaction, query } from "./database";
@@ -230,7 +230,7 @@ export async function publishAtlas(atlasId: string): Promise<void> {
       client,
     );
     await publishUnpublishedSourceDatasetsOfAtlas(atlasId, publishedAt, client);
-    await setAtlasPublishedAt(atlasId, publishedAt, client);
+    await changeAtlasToPublished(atlasId, publishedAt, client);
   });
 }
 

@@ -1,3 +1,4 @@
+import { InvalidOperationError } from "app/utils/api-handler";
 import pg from "pg";
 
 /**
@@ -39,18 +40,22 @@ export async function updateSourceDatasetVersionInAtlas(
 }
 
 /**
- * Set an atlas's published-at date.
+ * Set a currently-unpublished atlas's published-at date, erroring if the atlas is already published.
  * @param atlasId - Atlas ID.
  * @param publishedAt - Publish date to set.
  * @param client - Postgres client to use.
  */
-export async function setAtlasPublishedAt(
+export async function changeAtlasToPublished(
   atlasId: string,
   publishedAt: Date,
   client: pg.PoolClient,
 ): Promise<void> {
-  await client.query("UPDATE hat.atlases SET published_at = $2 WHERE id = $1", [
-    atlasId,
-    publishedAt,
-  ]);
+  const queryResult = await client.query(
+    "UPDATE hat.atlases SET published_at = $2 WHERE id = $1 AND published_at IS NULL",
+    [atlasId, publishedAt],
+  );
+  if (queryResult.rowCount === 0)
+    throw new InvalidOperationError(
+      `Atlas with ID ${atlasId} is already published`,
+    );
 }
