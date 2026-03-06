@@ -34,6 +34,7 @@ import {
 } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 import {
+  HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -143,14 +144,22 @@ describe(TEST_ROUTE, () => {
   });
 
   it("publishes unpublished atlas and linked unpublished metadata entities when requested by content admin", async () => {
-    expect(
-      (
-        await doPublishRequest(
-          ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
-          USER_CONTENT_ADMIN,
-        )
-      )._getStatusCode(),
-    ).toEqual(200);
+    const res = await doPublishRequest(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+
+    // Check that the published atlas was returned
+    const apiAtlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expect(apiAtlas.id).toEqual(ATLAS_WITH_LINKED_PUBLISH_STATUSES.id);
+    expect(apiAtlas.generation).toEqual(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.generation,
+    );
+    expect(apiAtlas.revision).toEqual(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.revision,
+    );
+    expect(apiAtlas.publishedAt).toBeTruthy();
 
     // Check that atlas is published
     const atlas = await getExistingAtlasFromDatabase(

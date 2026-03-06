@@ -1,3 +1,4 @@
+import { dbAtlasToApiAtlas } from "app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../../app/common/entities";
 import { publishAtlas } from "../../../../app/services/atlases";
@@ -12,7 +13,7 @@ export default handler(
   role(ROLE.CONTENT_ADMIN),
   async (req, res) => {
     const id = req.query.atlasId as string;
-    await publishAtlas(id);
-    res.status(200).end();
+    const updatedAtlas = await publishAtlas(id);
+    res.status(200).json(dbAtlasToApiAtlas(updatedAtlas));
   },
 );

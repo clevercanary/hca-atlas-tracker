@@ -68,6 +68,7 @@ export async function getAllAtlases(
 
 export async function getAtlas(
   id: string,
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
@@ -94,6 +95,7 @@ export async function getAtlas(
       WHERE a.id=$1
     `,
     [id],
+    client,
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
@@ -215,9 +217,12 @@ async function getPublicationsFromInputDois(
 /**
  * Publish an atlas and its linked entities.
  * @param atlasId - ID of the atlas to publish.
+ * @returns updated atlas.
  */
-export async function publishAtlas(atlasId: string): Promise<void> {
-  await doTransaction(async (client) => {
+export async function publishAtlas(
+  atlasId: string,
+): Promise<HCAAtlasTrackerDBAtlasForAPI> {
+  return doTransaction(async (client) => {
     if (dbEntityIsPublished(await getBaseModelAtlas(atlasId, client))) {
       throw new InvalidOperationError(
         `Atlas with ID ${atlasId} is already published`,
@@ -231,6 +236,7 @@ export async function publishAtlas(atlasId: string): Promise<void> {
     );
     await publishUnpublishedSourceDatasetsOfAtlas(atlasId, publishedAt, client);
     await changeAtlasToPublished(atlasId, publishedAt, client);
+    return getAtlas(atlasId, client);
   });
 }
 
