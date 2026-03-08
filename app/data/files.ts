@@ -441,6 +441,41 @@ export async function getFilesArchiveStatus(
   return queryResult.rows;
 }
 
+/**
+ * Get an object containing ID and publish status for each of the given files.
+ * @param fileIds - IDs of files to get publish status for.
+ * @returns publish status per file.
+ * @note Only accepts files of types that *can* be published.
+ */
+export async function getFilesPublishStatus(
+  fileIds: string[],
+): Promise<Array<{ id: string; published: boolean }>> {
+  const componentAtlasesQueryResult = await query<
+    Pick<HCAAtlasTrackerDBFile, "id"> &
+      Pick<HCAAtlasTrackerDBComponentAtlas, "published_at">
+  >(
+    "SELECT f.id, c.published_at FROM hat.files f JOIN hat.component_atlases c ON c.file_id = f.id WHERE f.id=ANY($1)",
+    [fileIds],
+  );
+  const sourceDatasetsQueryResult = await query<
+    Pick<HCAAtlasTrackerDBFile, "id"> &
+      Pick<HCAAtlasTrackerDBSourceDataset, "published_at">
+  >(
+    "SELECT f.id, d.published_at FROM hat.files f JOIN hat.source_datasets d ON d.file_id = f.id WHERE f.id=ANY($1)",
+    [fileIds],
+  );
+  // These rows are presumed to include no duplicate file IDs, since a new metadata entity version is created only when there's a new file version
+  const allRows = componentAtlasesQueryResult.rows.concat(
+    sourceDatasetsQueryResult.rows,
+  );
+  confirmQueryRowsContainIds(allRows, fileIds, "publishable files");
+
+  return allRows.map(({ id, published_at }) => ({
+    id,
+    published: published_at !== null,
+  }));
+}
+
 export async function getFileKey(fileId: string): Promise<string> {
   const result = await query<Pick<HCAAtlasTrackerDBFile, "key">>(
     "SELECT key FROM hat.files WHERE id=$1",

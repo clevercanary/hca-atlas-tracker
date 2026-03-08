@@ -2600,6 +2600,84 @@ export const SOURCE_DATASET_WITH_OUTDATED_FILENAME = {
   wipNumber: 7,
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-source-dataset-publish-statuses-unpublished-foo",
+    etag: "35402e3ac80743f1b5cd0fd19ba3d517",
+    eventTime: "2026-02-25T21:12:10.310Z",
+    fileName: "source-dataset-publish-statuses-unpublished-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "d2f9588b-2785-42ce-85d5-a7924900f329",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "65416",
+    versionId: null,
+  },
+  id: "74aec20c-c660-423a-be51-2704f0ab24d9",
+  revision: 2,
+  versionId: "fce87139-41e2-4560-a268-a95465c9d004",
+  wipNumber: 8,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-source-dataset-publish-statuses-unpublished-bar",
+    etag: "6eeefb0ebdb24ec382a117977df05ac0",
+    eventTime: "2026-02-25T21:13:42.527Z",
+    fileName: "source-dataset-publish-statuses-unpublished-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "461549f0-d9aa-4714-9ca9-c8865c398920",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "89001",
+    versionId: null,
+  },
+  id: "fd21cd96-75e3-43eb-86db-4de180c287ed",
+  revision: 9,
+  versionId: "e530c953-1765-4f47-8ec4-1fc0296cbc9f",
+  wipNumber: 6,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-source-dataset-publish-statuses-published-foo",
+    etag: "53d1e3a41c14447d802fe5ef4a1bc17e",
+    eventTime: "2026-02-25T21:12:38.426Z",
+    fileName: "source-dataset-publish-statuses-published-foo.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "39633e22-6a26-48e7-a782-c1ee747529fb",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "22946",
+    versionId: null,
+  },
+  id: "2548a392-5d58-40a2-bf03-5f68ecc12304",
+  publishedAt: "2026-02-25T21:13:34.664Z",
+  revision: 6,
+  versionId: "f6776cb6-fe60-4b76-83b3-ba7dbe47d816",
+  wipNumber: 9,
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-source-dataset-publish-statuses-published-bar",
+    etag: "838a353267034e0b99c3ff33f3fe0ecd",
+    eventTime: "2026-02-25T21:12:51.666Z",
+    fileName: "source-dataset-publish-statuses-published-bar.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "1f9e76a9-9e90-44ea-a621-60bdffbfcb29",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "2577",
+    versionId: null,
+  },
+  id: "be9ec2ed-5c7e-4343-b105-a098f406c4f1",
+  publishedAt: "2026-02-25T21:13:44.198Z",
+  revision: 3,
+  versionId: "9dbeaa6a-0496-481a-9f0d-144006500154",
+  wipNumber: 5,
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2644,6 +2722,10 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
   SOURCE_DATASET_WITH_SOURCE_STUDY_BAR,
   SOURCE_DATASET_WITH_OUTDATED_FILENAME,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
 ];
 
 // ATLAS IDS
@@ -2660,6 +2742,8 @@ const ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
   "c41f8dd8-93ee-49f6-885a-8c5107d30229";
 const ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A =
   "035f5b25-7a2a-4351-9f61-5e6734f1f6dc";
+const ATLAS_ID_WITH_LINKED_PUBLISH_STATUSES =
+  "3b67d7c2-60d7-4907-85b6-897d15a1ca4c";
 
 // USERS
 
@@ -2714,6 +2798,12 @@ export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C = makeTestUser(
   false,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C],
 );
+export const USER_INTEGRATION_LEAD_WITH_LINKED_PUBLISH_STATUSES = makeTestUser(
+  "test-integration-lead-with-linked-publish-statuses",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_ID_WITH_LINKED_PUBLISH_STATUSES],
+);
 export const USER_INTEGRATION_LEAD_WITH_NEW_ATLAS = makeTestUser(
   "test-integration-lead-with-new-atlas",
   ROLE.INTEGRATION_LEAD,
@@ -2755,6 +2845,7 @@ export const INITIAL_TEST_USERS = [
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
+  USER_INTEGRATION_LEAD_WITH_LINKED_PUBLISH_STATUSES,
   USER_INTEGRATION_LEAD_WITH_NEW_ATLAS,
   USER_CELLXGENE_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
@@ -2782,6 +2873,8 @@ export const INTEGRATION_LEADS_BY_ATLAS_ID: Record<string, TestUser> = {
   [ATLAS_ID_PUBLIC]: USER_INTEGRATION_LEAD_PUBLIC,
   [ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A]:
     USER_INTEGRATION_LEAD_WITH_ENTRY_SHEET_VALIDATIONS_A,
+  [ATLAS_ID_WITH_LINKED_PUBLISH_STATUSES]:
+    USER_INTEGRATION_LEAD_WITH_LINKED_PUBLISH_STATUSES,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES]:
     USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_B]:
@@ -3478,6 +3571,84 @@ export const COMPONENT_ATLAS_WITH_OUTDATED_FILENAME = {
   wipNumber: 5,
 } satisfies TestComponentAtlas;
 
+export const COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-component-atlas-publish-statuses-unpublished-foo",
+    etag: "47d439828d784076a55d80d5eec602f6",
+    eventTime: "2026-02-25T21:17:01.192Z",
+    fileName: "component-atlas-publish-statuses-unpublished-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "4a7a7110-6919-44f3-a426-3ff81716c14a",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "51596",
+    versionId: null,
+  },
+  id: "54a9d089-c3aa-4cf5-9b61-e6b092b44348",
+  revision: 4,
+  versionId: "dd76c723-5c0f-4cbe-882a-b5418080590f",
+  wipNumber: 2,
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-component-atlas-publish-statuses-unpublished-bar",
+    etag: "2638679ffaa44dfba6fc1c6faa963cc9",
+    eventTime: "2026-02-25T21:18:01.667Z",
+    fileName: "component-atlas-publish-statuses-unpublished-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "35ee0fe7-986b-4e9f-9fae-ea8d9ae28e40",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "98834",
+    versionId: null,
+  },
+  id: "045b523a-e957-46a3-9a38-d88ff1e1978c",
+  revision: 2,
+  versionId: "5392d2ba-e5ac-4e12-8329-3ba9e9ba0439",
+  wipNumber: 5,
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-component-atlas-publish-statuses-published-foo",
+    etag: "5c93467a7c5e43c7a2aafacfed8ea933",
+    eventTime: "2026-02-25T21:17:48.982Z",
+    fileName: "component-atlas-publish-statuses-published-foo.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "5be87a83-920a-48b8-ba23-e308442700cf",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "84615",
+    versionId: null,
+  },
+  id: "226d8bd3-045e-4bfe-860f-861743c2d86f",
+  publishedAt: "2026-02-25T21:18:29.565Z",
+  revision: 6,
+  versionId: "b926adfb-70c1-4b14-a88c-3ad566938d27",
+  wipNumber: 3,
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+    bucket: "bucket-component-atlas-publish-statuses-published-bar",
+    etag: "6f8f38d1c162424796212452111541dc",
+    eventTime: "2026-02-25T21:17:03.041Z",
+    fileName: "component-atlas-publish-statuses-published-bar.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "7c43d1ac-cab1-451e-90cb-b6d6de0b2a53",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "67347",
+    versionId: null,
+  },
+  id: "2b18330c-bdb4-4c5a-9b29-8557d0e9f3ae",
+  publishedAt: "2026-02-25T21:18:49.986Z",
+  revision: 6,
+  versionId: "1d7ed080-7378-4dc6-8643-c5d8e5d75d48",
+  wipNumber: 4,
+} satisfies TestComponentAtlas;
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
@@ -3505,6 +3676,10 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W2,
   COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
 ];
 
 // ATLASES
@@ -3983,6 +4158,54 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   wave: "2",
 };
 
+export const ATLAS_PUBLISHED: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  componentAtlases: [],
+  description: "bazbar foobarbaz baz foo bar",
+  generation: 2,
+  highlights: "",
+  id: "6ca07821-624e-42a3-8643-2a31bb0a4831",
+  integrationLead: [],
+  network: "musculoskeletal",
+  publications: [],
+  publishedAt: "2026-02-25T20:44:05.405Z",
+  revision: 7,
+  shortName: "test-published",
+  sourceStudies: [],
+  status: ATLAS_STATUS.OC_ENDORSED,
+  wave: "2",
+};
+
+export const ATLAS_WITH_LINKED_PUBLISH_STATUSES: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  componentAtlases: [
+    COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO.versionId,
+    COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR.versionId,
+    COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO.versionId,
+    COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR.versionId,
+  ],
+  description: "foo foo foo bar foo barbar bar",
+  generation: 4,
+  highlights: "",
+  id: ATLAS_ID_WITH_LINKED_PUBLISH_STATUSES,
+  integrationLead: [],
+  network: "organoid",
+  publications: [],
+  revision: 2,
+  shortName: "test-with-linked-publish-statuses",
+  sourceDatasets: [
+    SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO.versionId,
+    SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR.versionId,
+    SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO.versionId,
+    SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR.versionId,
+  ],
+  sourceStudies: [],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  wave: "1",
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -4007,6 +4230,8 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   ATLAS_HEATMAP_TEST,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
+  ATLAS_PUBLISHED,
+  ATLAS_WITH_LINKED_PUBLISH_STATUSES,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

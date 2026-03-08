@@ -6,12 +6,17 @@ import { endPgPool } from "../app/services/database";
 import archiveHandler from "../pages/api/atlases/[atlasId]/files/archive";
 import {
   ATLAS_NONEXISTENT,
+  ATLAS_WITH_LINKED_PUBLISH_STATUSES,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_MISC_BAR,
   COMPONENT_ATLAS_MISC_BAZ,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
   COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS,
   FILE_A_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
@@ -21,6 +26,10 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
   SOURCE_DATASET_ATLAS_LINKED_B_BAR,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -306,6 +315,76 @@ describe(`${TEST_ROUTE}`, () => {
         )
       )._getStatusCode(),
     ).toEqual(400);
+  });
+
+  it("returns error 400 when PATCH requested with published integrated object file", async () => {
+    const INPUT_DATA: FilesSetIsArchivedData = {
+      fileIds: [COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO.file.id],
+    };
+    const res = await doArchiveRequest(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toEqual(expect.stringContaining("are published"));
+  });
+
+  it("returns error 400 when PATCH requested with published source dataset file", async () => {
+    const INPUT_DATA: FilesSetIsArchivedData = {
+      fileIds: [SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO.file.id],
+    };
+    const res = await doArchiveRequest(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toEqual(expect.stringContaining("are published"));
+  });
+
+  it("returns error 400 when PATCH requested with both published and unpublished integrated object files", async () => {
+    const INPUT_DATA: FilesSetIsArchivedData = {
+      fileIds: [
+        COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO.file.id,
+        COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR.file.id,
+        COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO.file.id,
+        COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR.file.id,
+      ],
+    };
+    const res = await doArchiveRequest(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toEqual(expect.stringContaining("are published"));
+  });
+
+  it("returns error 400 when PATCH requested with both published and unpublished source dataset files", async () => {
+    const INPUT_DATA: FilesSetIsArchivedData = {
+      fileIds: [
+        SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO.file.id,
+        SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR.file.id,
+        SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO.file.id,
+        SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR.file.id,
+      ],
+    };
+    const res = await doArchiveRequest(
+      ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toEqual(expect.stringContaining("are published"));
   });
 
   it("archives source dataset file when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {

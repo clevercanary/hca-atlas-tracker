@@ -5,6 +5,7 @@ import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComment,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasForAPI,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBComponentAtlas,
@@ -66,6 +67,8 @@ export function dbAtlasToApiAtlas(
     metadataSpecificationTitle: dbAtlas.overview.metadataSpecificationTitle,
     metadataSpecificationUrl: dbAtlas.overview.metadataSpecificationUrl,
     publications: dbAtlas.overview.publications,
+    publishedAt:
+      dbAtlas.published_at === null ? null : dbAtlas.published_at.toISOString(),
     revision: dbAtlas.revision,
     shortName: dbAtlas.overview.shortName,
     sourceDatasetCount: dbAtlas.source_dataset_count,
@@ -103,6 +106,10 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     id: dbComponentAtlas.id,
     integrityStatus: dbComponentAtlas.integrity_status,
     isArchived: dbComponentAtlas.is_archived,
+    publishedAt:
+      dbComponentAtlas.published_at === null
+        ? null
+        : dbComponentAtlas.published_at.toISOString(),
     revision: dbComponentAtlas.revision,
     sizeBytes: Number(dbComponentAtlas.size_bytes),
     sourceDatasetCount: dbComponentAtlas.source_dataset_count,
@@ -197,6 +204,10 @@ export function dbSourceDatasetToApiSourceDataset(
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,
     publicationStatus: dbSourceDataset.sd_info.publicationStatus,
     publicationString,
+    publishedAt:
+      dbSourceDataset.published_at === null
+        ? null
+        : dbSourceDataset.published_at.toISOString(),
     reprocessedStatus: dbSourceDataset.reprocessed_status,
     revision: dbSourceDataset.revision,
     sizeBytes: Number(dbSourceDataset.size_bytes),
@@ -379,4 +390,18 @@ export function getDbEntityFileVersion(
   entity: HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset,
 ): string {
   return makeFileVersionString(entity.revision, entity.wip_number);
+}
+
+/**
+ * Determine whether a database-model entity is marked as published.
+ * @param entity - Entity that may be published.
+ * @returns boolean indicating whether the entity is published.
+ */
+export function dbEntityIsPublished(
+  entity:
+    | HCAAtlasTrackerDBAtlas
+    | HCAAtlasTrackerDBComponentAtlas
+    | HCAAtlasTrackerDBSourceDataset,
+): boolean {
+  return entity.published_at !== null;
 }

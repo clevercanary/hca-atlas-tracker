@@ -1,7 +1,11 @@
 import pg from "pg";
 import { ValidationError } from "yup";
-import { NotFoundError } from "../../app/utils/api-handler";
+import {
+  InvalidOperationError,
+  NotFoundError,
+} from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
+import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ATLAS_STATUS,
   DoiPublicationInfo,
@@ -16,7 +20,10 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { query } from "./database";
+import { changeAtlasToPublished } from "../data/atlases";
+import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
+import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
+import { doTransaction, query } from "./database";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -61,6 +68,7 @@ export async function getAllAtlases(
 
 export async function getAtlas(
   id: string,
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
@@ -87,6 +95,7 @@ export async function getAtlas(
       WHERE a.id=$1
     `,
     [id],
+    client,
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
@@ -95,10 +104,12 @@ export async function getAtlas(
 
 export async function getBaseModelAtlas(
   id: string,
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
     "SELECT * FROM hat.atlases WHERE id=$1",
     [id],
+    client,
   );
 
   if (queryResult.rows.length === 0)
@@ -201,6 +212,32 @@ async function getPublicationsFromInputDois(
     }
   }
   return publications;
+}
+
+/**
+ * Publish an atlas and its linked entities.
+ * @param atlasId - ID of the atlas to publish.
+ * @returns updated atlas.
+ */
+export async function publishAtlas(
+  atlasId: string,
+): Promise<HCAAtlasTrackerDBAtlasForAPI> {
+  return doTransaction(async (client) => {
+    if (dbEntityIsPublished(await getBaseModelAtlas(atlasId, client))) {
+      throw new InvalidOperationError(
+        `Atlas with ID ${atlasId} is already published`,
+      );
+    }
+    const publishedAt = new Date();
+    await publishUnpublishedComponentAtlasesOfAtlas(
+      atlasId,
+      publishedAt,
+      client,
+    );
+    await publishUnpublishedSourceDatasetsOfAtlas(atlasId, publishedAt, client);
+    await changeAtlasToPublished(atlasId, publishedAt, client);
+    return getAtlas(atlasId, client);
+  });
 }
 
 export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {

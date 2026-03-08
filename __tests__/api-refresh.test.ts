@@ -19,7 +19,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+import { FunctionMocked, TestUser } from "../testing/entities";
 import {
   delay,
   promiseWithResolvers,
@@ -44,9 +44,14 @@ jest.mock("../app/services/source-datasets", () => ({
 jest.mock("next-auth");
 
 const refreshValidations = jest.fn();
-jest.mock("../app/services/validations", () => ({
-  refreshValidations,
-}));
+jest.mock("../app/services/validations", () => {
+  const refreshValidationsProxy: FunctionMocked<
+    typeof refreshValidations
+  > = () => refreshValidations();
+  return {
+    refreshValidations: refreshValidationsProxy,
+  };
+});
 
 let getCollectionsBlock: Promise<void> | undefined;
 let resolveGetCollections: () => void;
@@ -54,19 +59,29 @@ const getCellxGeneCollections = jest.fn(async () => {
   await getCollectionsBlock;
   return TEST_CELLXGENE_COLLECTIONS_A;
 });
-jest.mock("../app/utils/cellxgene-api", () => ({
-  getCellxGeneCollections,
-  getCellxGeneDatasets: jest.fn().mockResolvedValue([]),
-}));
+jest.mock("../app/utils/cellxgene-api", () => {
+  const getCellxGeneCollectionsProxy: FunctionMocked<
+    typeof getCellxGeneCollections
+  > = () => getCellxGeneCollections();
+  return {
+    getCellxGeneCollections: getCellxGeneCollectionsProxy,
+    getCellxGeneDatasets: jest.fn().mockResolvedValue([]),
+  };
+});
 
 const getAllProjects = jest.fn(
   async (catalog: string): Promise<ProjectsResponse[]> =>
     TEST_HCA_CATALOGS[catalog],
 );
-jest.mock("../app/utils/hca-api", () => ({
-  getAllProjects,
-  getLatestCatalog: async (): Promise<string> => HCA_CATALOG_TEST1,
-}));
+jest.mock("../app/utils/hca-api", () => {
+  const getAllProjectsProxy: FunctionMocked<typeof getAllProjects> = (
+    catalog,
+  ) => getAllProjects(catalog);
+  return {
+    getAllProjects: getAllProjectsProxy,
+    getLatestCatalog: async (): Promise<string> => HCA_CATALOG_TEST1,
+  };
+});
 
 const TEST_ROUTE = "/api/refresh";
 

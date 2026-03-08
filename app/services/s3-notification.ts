@@ -18,8 +18,8 @@ import {
   validateSNSTopicAuthorization,
 } from "../config/aws-resources";
 import {
-  updateComponentAtlasVersionInAtlases,
-  updateSourceDatasetVersionInAtlases,
+  updateComponentAtlasVersionInAtlas,
+  updateSourceDatasetVersionInAtlas,
 } from "../data/atlases";
 import {
   createNewComponentAtlasVersion,
@@ -41,8 +41,9 @@ import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
 import { createSourceDataset } from "./source-datasets";
+import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
-  getAtlasMatchingConcept,
+  getAtlasMatchingConceptAndRevision,
   getOrCreateConceptId,
 } from "../services/concepts";
 import { parseNormalizedInfoFromS3Key, parseS3KeyPath } from "../utils/files";
@@ -162,12 +163,14 @@ async function createSourceDatasetFromS3(
 type FileUpdateHandler = (
   fileId: string,
   metadataEntityId: string,
+  atlasId: string,
   transaction: PoolClient,
 ) => Promise<void>;
 
 async function updateIntegratedObjectFromS3(
   fileId: string,
   conceptId: string,
+  atlasId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markComponentAtlasAsNotLatest(
@@ -179,9 +182,10 @@ async function updateIntegratedObjectFromS3(
     fileId,
     transaction,
   );
-  await updateComponentAtlasVersionInAtlases(
+  await updateComponentAtlasVersionInAtlas(
     prevLatestVersion,
     newVersion,
+    atlasId,
     transaction,
   );
 }
@@ -189,6 +193,7 @@ async function updateIntegratedObjectFromS3(
 async function updateSourceDatasetFromS3(
   fileId: string,
   conceptId: string,
+  atlasId: string,
   transaction: PoolClient,
 ): Promise<void> {
   const prevLatestVersion = await markSourceDatasetAsNotLatest(
@@ -200,9 +205,10 @@ async function updateSourceDatasetFromS3(
     fileId,
     transaction,
   );
-  await updateSourceDatasetVersionInAtlases(
+  await updateSourceDatasetVersionInAtlas(
     prevLatestVersion,
     newVersion,
+    atlasId,
     transaction,
   );
   await updateSourceDatasetVersionInComponentAtlases(
@@ -283,7 +289,7 @@ async function handleInsertedFile(
     const handler = FILE_UPDATE_HANDLERS[fileType];
 
     if (handler) {
-      await handler(result.id, conceptId, transaction);
+      await handler(result.id, conceptId, atlasId, transaction);
     }
   }
 }
@@ -364,13 +370,17 @@ async function saveFileRecord(
       transaction,
     );
 
-    // Determine atlas from concept
-    const atlas = await getAtlasMatchingConcept(conceptId, transaction);
+    // Determine atlas from concept and revision
+    const atlas = await getAtlasMatchingConceptAndRevision(
+      conceptId,
+      atlasRevision,
+      transaction,
+    );
 
-    // Confirm that the atlas matches the revision specified in the S3 key
-    if (atlas.revision !== atlasRevision) {
-      throw new Error(
-        `Received file for ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision}, but atlas is at version ${atlas.generation}.${atlas.revision}`,
+    // Confirm that the atlas revision specified in the S3 key is a draft
+    if (dbEntityIsPublished(atlas)) {
+      throw new InvalidOperationError(
+        `Atlas version ${atlas.overview.shortName} v${atlasGeneration}.${atlasRevision} is published and cannot receive further uploads`,
       );
     }
 

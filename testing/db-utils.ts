@@ -45,6 +45,7 @@ import {
   TestSourceDataset,
 } from "./entities";
 import {
+  assertExpectDefined,
   expectApiValidationsToMatchDb,
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
@@ -137,7 +138,7 @@ export async function initSourceDatasets(
     const normDataset = fillTestSourceDatasetDefaults(sourceDataset);
     const info = makeTestSourceDatasetInfo(normDataset);
     await client.query(
-      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+      "INSERT INTO hat.source_datasets (source_study_id, sd_info, id, reprocessed_status, file_id, version_id, is_latest, wip_number, published_at, revision) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
       [
         normDataset.sourceStudyId,
         info,
@@ -147,6 +148,8 @@ export async function initSourceDatasets(
         normDataset.versionId,
         normDataset.isLatest,
         normDataset.wipNumber,
+        normDataset.publishedAt ? new Date(normDataset.publishedAt) : null,
+        normDataset.revision,
       ],
     );
   }
@@ -157,8 +160,8 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
       `
-        INSERT INTO hat.atlases (id, overview, component_atlases, source_datasets, source_studies, status, target_completion, generation, revision)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        INSERT INTO hat.atlases (id, overview, component_atlases, source_datasets, source_studies, status, target_completion, generation, revision, published_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       `,
       [
         atlas.id,
@@ -170,6 +173,7 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
         atlas.targetCompletion ?? null,
         atlas.generation,
         atlas.revision,
+        atlas.publishedAt ? new Date(atlas.publishedAt) : null,
       ],
     );
   }
@@ -182,8 +186,8 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
     };
     await client.query(
       `
-        INSERT INTO hat.component_atlases (component_info, id, version_id, source_datasets, file_id, wip_number, is_latest)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO hat.component_atlases (component_info, id, version_id, source_datasets, file_id, wip_number, is_latest, published_at, revision)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
       [
         info,
@@ -193,6 +197,10 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
         componentAtlas.file.id,
         componentAtlas.wipNumber ?? 1,
         componentAtlas.isLatest ?? true,
+        componentAtlas.publishedAt
+          ? new Date(componentAtlas.publishedAt)
+          : null,
+        componentAtlas.revision ?? 1,
       ],
     );
   }
@@ -556,7 +564,7 @@ export async function getExistingAtlasFromDatabase(
   id: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {
   const result = await getAtlasFromDatabase(id);
-  if (!result) throw new Error(`Atlas ${id} doesn't exist`);
+  assertExpectDefined(result);
   return result;
 }
 
@@ -569,6 +577,14 @@ export async function getAtlasFromDatabase(
       [id],
     )
   ).rows[0];
+}
+
+export async function getExistingComponentAtlasFromDatabase(
+  versionId: string,
+): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  const result = await getComponentAtlasFromDatabase(versionId);
+  assertExpectDefined(result);
+  return result;
 }
 
 export async function getComponentAtlasFromDatabase(
@@ -621,7 +637,7 @@ export async function getExistingSourceStudyFromDatabase(
   id: string,
 ): Promise<HCAAtlasTrackerDBSourceStudy> {
   const result = await getSourceStudyFromDatabase(id);
-  if (!result) throw new Error(`Source study ${id} doesn't exist`);
+  assertExpectDefined(result);
   return result;
 }
 
@@ -645,6 +661,14 @@ export async function getAtlasSourceDatasetsFromDatabase(
       [atlasId],
     )
   ).rows;
+}
+
+export async function getExistingSourceDatasetFromDatabase(
+  versionId: string,
+): Promise<HCAAtlasTrackerDBSourceDataset> {
+  const result = await getSourceDatasetFromDatabase(versionId);
+  assertExpectDefined(result);
+  return result;
 }
 
 export async function getSourceDatasetFromDatabase(

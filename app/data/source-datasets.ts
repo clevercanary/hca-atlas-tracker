@@ -244,8 +244,15 @@ export async function createNewSourceDatasetVersion(
     Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
   >(
     `
-      INSERT INTO hat.source_datasets (sd_info, reprocessed_status, source_study_id, id, wip_number, file_id, revision)
-      SELECT sd_info, reprocessed_status, source_study_id, id, wip_number + 1, $2, revision
+      INSERT INTO hat.source_datasets (sd_info, reprocessed_status, source_study_id, id, file_id, wip_number, revision)
+      SELECT
+        sd_info,
+        reprocessed_status,
+        source_study_id,
+        id,
+        $2,
+        CASE WHEN published_at IS NULL THEN wip_number + 1 ELSE 1 END,
+        CASE WHEN published_at IS NULL THEN revision ELSE revision + 1 END
       FROM hat.source_datasets
       WHERE version_id = $1
       RETURNING version_id
@@ -438,4 +445,26 @@ export async function getSourceDatasetVersionForComponentAtlas(
     );
 
   return queryResult.rows[0].version_id;
+}
+
+/**
+ * Set all unpublished source datasets linked to the given atlas as being published at the given timestamp.
+ * @param atlasId - Atlas ID.
+ * @param publishedAt - Published-at date to set.
+ * @param client - Postgres client to use.
+ */
+export async function publishUnpublishedSourceDatasetsOfAtlas(
+  atlasId: string,
+  publishedAt: Date,
+  client: pg.PoolClient,
+): Promise<void> {
+  await client.query(
+    `
+      UPDATE hat.source_datasets d
+      SET published_at = $2
+      FROM hat.atlases a
+      WHERE a.id = $1 AND d.version_id = ANY(a.source_datasets) AND d.published_at IS NULL
+    `,
+    [atlasId, publishedAt],
+  );
 }

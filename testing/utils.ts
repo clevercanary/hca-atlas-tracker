@@ -237,7 +237,9 @@ export function fillTestSourceDatasetDefaults(
     metadataSpreadsheetTitle = null,
     metadataSpreadsheetUrl = null,
     publicationStatus = PUBLICATION_STATUS.UNSPECIFIED,
+    publishedAt = null,
     reprocessedStatus = REPROCESSED_STATUS.UNSPECIFIED,
+    revision = 1,
     sourceStudyId = null,
     wipNumber = 1,
     ...restFields
@@ -249,7 +251,9 @@ export function fillTestSourceDatasetDefaults(
     metadataSpreadsheetTitle,
     metadataSpreadsheetUrl,
     publicationStatus,
+    publishedAt,
     reprocessedStatus,
+    revision,
     sourceStudyId,
     wipNumber,
     ...restFields,
@@ -480,6 +484,7 @@ export function expectApiAtlasToMatchTest(
   expect(apiAtlas.integrationLead).toEqual(testAtlas.integrationLead);
   expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);
   expect(apiAtlas.publications).toEqual(testAtlas.publications);
+  expect(apiAtlas.publishedAt).toEqual(testAtlas.publishedAt ?? null);
   expect(apiAtlas.shortName).toEqual(testAtlas.shortName);
   expect(apiAtlas.sourceStudyCount).toEqual(testAtlas.sourceStudies.length);
   expect(apiAtlas.status).toEqual(testAtlas.status);
@@ -511,6 +516,9 @@ export function expectDbAtlasToMatchApi(
   );
   expect(dbAtlas.overview.taskCount).toEqual(apiAtlas.taskCount);
   expect(dbAtlas.generation).toEqual(apiAtlas.generation);
+  expect(dbAtlas.published_at?.toISOString() ?? null).toEqual(
+    apiAtlas.publishedAt,
+  );
   expect(dbAtlas.revision).toEqual(apiAtlas.revision);
   expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
   expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
@@ -620,9 +628,11 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.publicationStatus).toEqual(
     testSourceDataset.publicationStatus,
   );
+  expect(apiSourceDataset.publishedAt).toEqual(testSourceDataset.publishedAt);
   expect(apiSourceDataset.reprocessedStatus).toEqual(
     testSourceDataset.reprocessedStatus,
   );
+  expect(apiSourceDataset.revision).toEqual(testSourceDataset.revision);
   expect(apiSourceDataset.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiSourceDataset.sourceStudyId).toEqual(
     testSourceDataset.sourceStudyId,
@@ -654,12 +664,17 @@ export function expectDbSourceDatasetToMatchTest(
   expect(dbSourceDataset.sd_info.publicationStatus).toEqual(
     testSourceDataset.publicationStatus ?? PUBLICATION_STATUS.UNSPECIFIED,
   );
+  expect(dbSourceDataset.published_at?.toISOString() ?? null).toEqual(
+    testSourceDataset.publishedAt ?? null,
+  );
   expect(dbSourceDataset.reprocessed_status).toEqual(
     testSourceDataset.reprocessedStatus ?? REPROCESSED_STATUS.UNSPECIFIED,
   );
+  expect(dbSourceDataset.revision).toEqual(testSourceDataset.revision ?? 1);
   expect(dbSourceDataset.source_study_id).toEqual(
     testSourceDataset.sourceStudyId ?? null,
   );
+  expect(dbSourceDataset.wip_number).toEqual(testSourceDataset.wipNumber ?? 1);
 }
 
 export function expectDetailApiComponentAtlasToMatchTest(
@@ -706,6 +721,10 @@ export function expectApiComponentAtlasToMatchTest(
   );
   expect(apiComponentAtlas.integrityStatus).toEqual(testFile.integrityStatus);
   expect(apiComponentAtlas.isArchived).toEqual(testFile.isArchived);
+  expect(apiComponentAtlas.publishedAt).toEqual(
+    testComponentAtlas.publishedAt ?? null,
+  );
+  expect(apiComponentAtlas.revision).toEqual(testComponentAtlas.revision ?? 1);
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? [],

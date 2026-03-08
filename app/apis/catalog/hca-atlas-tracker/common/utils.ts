@@ -55,6 +55,7 @@ export function atlasInputMapper(
     metadataSpecificationUrl: apiAtlas.metadataSpecificationUrl,
     name: getAtlasName(apiAtlas),
     publications: apiAtlas.publications,
+    publishedAt: apiAtlas.publishedAt,
     revision: apiAtlas.revision,
     shortName: apiAtlas.shortName,
     sourceDatasetCount: apiAtlas.sourceDatasetCount,

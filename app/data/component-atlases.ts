@@ -19,8 +19,14 @@ export async function createNewComponentAtlasVersion(
     Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
   >(
     `
-      INSERT INTO hat.component_atlases (component_info, source_datasets, id, wip_number, file_id, revision)
-      SELECT component_info, source_datasets, id, wip_number + 1, $2, revision
+      INSERT INTO hat.component_atlases (component_info, source_datasets, id, file_id, wip_number, revision)
+      SELECT
+        component_info,
+        source_datasets,
+        id,
+        $2,
+        CASE WHEN published_at IS NULL THEN wip_number + 1 ELSE 1 END,
+        CASE WHEN published_at IS NULL THEN revision ELSE revision + 1 END
       FROM hat.component_atlases
       WHERE version_id = $1
       RETURNING version_id
@@ -89,4 +95,26 @@ export async function getComponentAtlasForAtlasFile(
       `Integrated object file with ID ${fileId} does not exist on atlas with ID ${atlasId}`,
     );
   return queryResult.rows[0];
+}
+
+/**
+ * Set all unpublished component atlases linked to the given atlas as being published at the given timestamp.
+ * @param atlasId - Atlas ID.
+ * @param publishedAt - Published-at date to set.
+ * @param client - Postgres client to use.
+ */
+export async function publishUnpublishedComponentAtlasesOfAtlas(
+  atlasId: string,
+  publishedAt: Date,
+  client: pg.PoolClient,
+): Promise<void> {
+  await client.query(
+    `
+      UPDATE hat.component_atlases c
+      SET published_at = $2
+      FROM hat.atlases a
+      WHERE a.id = $1 AND c.version_id = ANY(a.component_atlases) AND c.published_at IS NULL
+    `,
+    [atlasId, publishedAt],
+  );
 }
