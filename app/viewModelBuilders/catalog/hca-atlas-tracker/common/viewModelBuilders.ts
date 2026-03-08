@@ -382,18 +382,18 @@ export function buildMetadataSpecification(
 
 /**
  * Build props for the published-at cell component.
- * @param atlas - Atlas entity.
+ * @param entity - Atlas, component atlas, or source dataset entity.
  * @returns Props to be used for the cell.
  */
 export const buildPublishedAt = (
-  atlas:
+  entity:
     | HCAAtlasTrackerListAtlas
     | HCAAtlasTrackerComponentAtlas
     | HCAAtlasTrackerSourceDataset,
 ): ComponentProps<typeof C.BasicCell> => {
   return {
-    value: atlas.publishedAt
-      ? getDateFromIsoString(atlas.publishedAt)
+    value: entity.publishedAt
+      ? getDateFromIsoString(entity.publishedAt)
       : "Unpublished",
   };
 };
