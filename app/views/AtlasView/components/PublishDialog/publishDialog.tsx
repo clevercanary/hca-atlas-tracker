@@ -2,17 +2,17 @@ import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/b
 import { Button } from "@mui/material";
 import { JSX, useState } from "react";
 import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { getAtlasName } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../../../common/entities";
+import { getRequestURL } from "../../../../common/utils";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from "../../../../components/common/ConfirmationDialog/confirmationDialog.styles";
-import { usePublishAtlas } from "app/hooks/UsePublishAtlas/hook";
-import { getRequestURL } from "app/common/utils";
-import { API } from "app/apis/catalog/hca-atlas-tracker/common/api";
+import { usePublishAtlas } from "../../../../hooks/UsePublishAtlas/hook";
 
 interface Props {
   atlas: HCAAtlasTrackerAtlas | undefined;

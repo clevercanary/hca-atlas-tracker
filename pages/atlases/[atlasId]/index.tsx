@@ -2,8 +2,8 @@ import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { PathParameter } from "../../../app/common/entities";
+import { FetchDataStateProvider } from "../../../app/providers/fetchDataState/fetchDataState";
 import { AtlasView } from "../../../app/views/AtlasView/atlasView";
-import { FetchDataStateProvider } from "app/providers/fetchDataState/fetchDataState";
 
 interface AtlasPageProps {
   pathParameter: PathParameter;
