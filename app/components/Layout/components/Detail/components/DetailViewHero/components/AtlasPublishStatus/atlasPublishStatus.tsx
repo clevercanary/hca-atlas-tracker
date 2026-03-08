@@ -8,6 +8,6 @@ export interface AtlasPublishStatusProps {
 
 export const AtlasPublishStatus = ({
   publishedAt,
-}: AtlasPublishStatusProps): JSX.Element | null => {
+}: AtlasPublishStatusProps): JSX.Element => {
   return <StatusBadge {...getAtlasPublishStatusBadgeProps(publishedAt)} />;
 };
