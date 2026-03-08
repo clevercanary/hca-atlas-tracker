@@ -21,7 +21,7 @@ export const atlasEditSchema = newAtlasSchema.concat(
         GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX,
         'Metadata specification must be a Google Sheets URL of the form "https://docs.google.com/spreadsheets/d/..."',
       ),
-    [FIELD_NAME.PUBLISHED_AT]: string().nullable(),
+    [FIELD_NAME.PUBLISHED_AT]: string(),
     [FIELD_NAME.STATUS]: string()
       .default("")
       .oneOf(Object.values(ATLAS_STATUS))
