@@ -50,7 +50,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
       {isDirty ? (
         <PublishDialogUnsavedChanges
-          onCancel={() => setPublishDialogOpen(false)}
+          onClose={() => setPublishDialogOpen(false)}
           open={publishDialogOpen}
         />
       ) : (
