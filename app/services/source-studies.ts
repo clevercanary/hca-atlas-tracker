@@ -57,6 +57,7 @@ import {
   updateSourceStudyValidations,
 } from "./validations";
 import { replaceEntrySheetValidationsSourceStudy } from "app/data/entry-sheets";
+import { replaceSourceStudyInAtlases } from "app/data/atlases";
 
 export async function getAtlasSourceStudies(
   atlasId: string,
@@ -335,32 +336,33 @@ export async function updateSourceStudy(
   const atlas = await getConfirmedSourceStudyAtlas(sourceStudyId, atlasId);
   const existingSourceStudy = await getBaseModelSourceStudy(sourceStudyId);
 
-  const existingIdMatchingInput = await getExistingStudyId(inputData);
-  if (
-    existingIdMatchingInput !== null &&
-    existingIdMatchingInput !== sourceStudyId
-  ) {
-    return replaceSourceStudy(
-      atlasId,
-      existingSourceStudy,
-      await getBaseModelSourceStudy(existingIdMatchingInput),
-    );
-  }
-
   const newInfo = await sourceStudyInputDataToDbData(
     inputData,
     existingSourceStudy,
   );
 
-  const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] =
+  const existingIdMatchingInput = await getExistingStudyId(inputData);
+  if (
+    existingIdMatchingInput !== null &&
+    existingIdMatchingInput !== sourceStudyId
+  ) {
+    await mergeSourceStudy(
+      atlas,
+      existingSourceStudy,
+      await getBaseModelSourceStudy(existingIdMatchingInput),
+      newInfo.study_info.metadataSpreadsheets,
+    );
+    return getSourceStudy(atlasId, existingIdMatchingInput);
+  }
+
+  const newEntrySheetsInfo = googleSheetsInfoToValidationParameters(
     getAddedEntrySheetsBetweenLists(
       existingSourceStudy.study_info.metadataSpreadsheets,
       newInfo.study_info.metadataSpreadsheets,
-    ).map(({ id: spreadsheetId }) => ({
-      bioNetwork: atlas.overview.network,
-      sourceStudyId,
-      spreadsheetId,
-    }));
+    ),
+    existingSourceStudy,
+    atlas,
+  );
 
   const removedEntrySheetIds = new Set(
     getRemovedEntrySheetsBetweenLists(
@@ -417,51 +419,145 @@ export async function updateSourceStudy(
 }
 
 /**
- * Replace a source study with a another source study on a given atlas, deleting the replaced study entirely if it's no longer referenced afterward.
- * @param atlasId - Atlas to replace the source study on.
- * @param currentSourceStudy - Currently-linked source study to replace.
- * @param replacementSourceStudy - Source study to replace the current one with.
- * @returns newly-substituted source study.
+ * Merge a source study into a another source study, replacing it with the other study on any linked entities.
+ * @param atlas - Atlas that the source study is accessed through.
+ * @param currentSourceStudy - Currently-existing source study to merge and replace.
+ * @param replacementSourceStudy - Source study to merge the current one into.
+ * @param editedMetadataSpreadsheetList - Metadata spreadsheet list that was submitted as an edit to the current study.
  */
-async function replaceSourceStudy(
-  atlasId: string,
+async function mergeSourceStudy(
+  atlas: HCAAtlasTrackerDBAtlas,
   currentSourceStudy: HCAAtlasTrackerDBSourceStudy,
   replacementSourceStudy: HCAAtlasTrackerDBSourceStudy,
-): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
-  return doTransaction(async (client) => {
-    await linkSourceStudyToAtlas(replacementSourceStudy.id, atlasId, client);
+  editedMetadataSpreadsheetList: GoogleSheetInfo[],
+): Promise<void> {
+  const { newEntrySheetsInfo } = await doTransaction(async (client) => {
+    // Replace source study on linked entities
 
-    await deleteAtlasSourceStudy(atlasId, currentSourceStudy.id, {
-      async beforeFullDelete() {
-        await replaceSourceDatasetsSourceStudy(
-          currentSourceStudy.id,
-          replacementSourceStudy.id,
-          client,
-        );
-        await replaceEntrySheetValidationsSourceStudy(
-          currentSourceStudy.id,
-          replacementSourceStudy.id,
-          client,
-        );
-        // Metadata spreadsheets should not be duplicated between source studies, so these can just be concatenated
-        await setSourceStudyMetadataSpreadsheets(
-          replacementSourceStudy.id,
-          [
-            ...replacementSourceStudy.study_info.metadataSpreadsheets,
-            ...currentSourceStudy.study_info.metadataSpreadsheets,
-          ],
-          client,
-        );
-      },
-    });
+    await replaceSourceDatasetsSourceStudy(
+      currentSourceStudy.id,
+      replacementSourceStudy.id,
+      client,
+    );
+    await replaceEntrySheetValidationsSourceStudy(
+      currentSourceStudy.id,
+      replacementSourceStudy.id,
+      client,
+    );
+    await replaceSourceStudyInAtlases(
+      currentSourceStudy.id,
+      replacementSourceStudy.id,
+      client,
+    );
+
+    // Delete current source study
+
+    await deleteNonAtlasLinkedSourceStudy(currentSourceStudy.id, client);
+
+    // Update metadata spreadsheet list for target source study
+
+    // Metadata spreadsheets should not be duplicated between source studies in the database, so these can just be concatenated
+    const combinedMetadataSpreadsheets = [
+      ...replacementSourceStudy.study_info.metadataSpreadsheets,
+      ...currentSourceStudy.study_info.metadataSpreadsheets,
+    ];
+
+    const addedEntrySheets = getAddedEntrySheetsBetweenLists(
+      currentSourceStudy.study_info.metadataSpreadsheets,
+      editedMetadataSpreadsheetList,
+    );
+    const removedEntrySheets = getRemovedEntrySheetsBetweenLists(
+      currentSourceStudy.study_info.metadataSpreadsheets,
+      editedMetadataSpreadsheetList,
+    );
+
+    const { newToListMetadataSpreadsheets, updatedMetadataSpreadsheets } =
+      applyMetadataSpreadsheetsDiff(
+        combinedMetadataSpreadsheets,
+        addedEntrySheets,
+        removedEntrySheets,
+      );
+
+    await setSourceStudyMetadataSpreadsheets(
+      replacementSourceStudy.id,
+      updatedMetadataSpreadsheets,
+      client,
+    );
+
+    // Delete removed metadata spreadsheet validations
+
+    if (removedEntrySheets.length) {
+      await deleteEntrySheetValidationsBySpreadsheet(
+        removedEntrySheets.map(({ id }) => id),
+        client,
+      );
+    }
+
+    // Update validations for target source study
 
     await updateSourceStudyValidationsByEntityId(
       replacementSourceStudy.id,
       client,
     );
 
-    return getSourceStudy(atlasId, replacementSourceStudy.id, client);
+    // Return list of new sheets to be handled outside the transaction
+
+    return {
+      newEntrySheetsInfo: googleSheetsInfoToValidationParameters(
+        newToListMetadataSpreadsheets,
+        currentSourceStudy,
+        atlas,
+      ),
+    };
   });
+
+  // Start entry sheet validations update without waiting for any errors
+  if (newEntrySheetsInfo.length > 0) {
+    startEntrySheetValidationsUpdate(newEntrySheetsInfo).catch((err) =>
+      console.error(err),
+    );
+  }
+}
+
+/**
+ * Update a metadata spreadsheet list based on new and removed spreadsheets.
+ * @param existingMetadataSpreadsheets - Metadata spreadsheet list to update.
+ * @param newMetadataSpreadsheets - List of added metadata spreadsheets to apply.
+ * @param removedMetadataSpreadsheets - List of removed metadata spreadsheets to apply.
+ * @returns object containing updated metadata spreadsheet list and list of new sheets that were not already in the list.
+ */
+function applyMetadataSpreadsheetsDiff(
+  existingMetadataSpreadsheets: GoogleSheetInfo[],
+  newMetadataSpreadsheets: GoogleSheetInfo[],
+  removedMetadataSpreadsheets: GoogleSheetInfo[],
+): {
+  newToListMetadataSpreadsheets: GoogleSheetInfo[];
+  updatedMetadataSpreadsheets: GoogleSheetInfo[];
+} {
+  const existingSheetIds = new Set(
+    existingMetadataSpreadsheets.map(({ id }) => id),
+  );
+  const removedSheetIds = new Set(
+    removedMetadataSpreadsheets.map(({ id }) => id),
+  );
+
+  // Get sheets that are actually new to the specified list
+  const newToListMetadataSpreadsheets = newMetadataSpreadsheets.filter(
+    ({ id }) => !existingSheetIds.has(id),
+  );
+
+  // Filter out removed sheets and combine list with new sheets
+  const updatedMetadataSpreadsheets = [
+    ...existingMetadataSpreadsheets.filter(
+      ({ id }) => !removedSheetIds.has(id),
+    ),
+    ...newToListMetadataSpreadsheets,
+  ];
+
+  return {
+    newToListMetadataSpreadsheets,
+    updatedMetadataSpreadsheets,
+  };
 }
 
 function getAddedEntrySheetsBetweenLists(
@@ -478,6 +574,25 @@ function getRemovedEntrySheetsBetweenLists(
 ): GoogleSheetInfo[] {
   const newListIds = new Set(newEntrySheetList.map(({ id }) => id));
   return oldEntrySheetList.filter(({ id }) => !newListIds.has(id));
+}
+
+/**
+ * Get entry sheet validation update parameters for the specified metadata entry sheets.
+ * @param entrySheets - Metadata spreadsheets.
+ * @param sourceStudy - Source study of the metadata spreadsheets.
+ * @param atlas - Atlas that the source study is accessed through.
+ * @returns entry sheet validation update parameters.
+ */
+function googleSheetsInfoToValidationParameters(
+  entrySheets: GoogleSheetInfo[],
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
+  atlas: HCAAtlasTrackerDBAtlas,
+): EntrySheetValidationUpdateParameters[] {
+  return entrySheets.map(({ id: spreadsheetId }) => ({
+    bioNetwork: atlas.overview.network,
+    sourceStudyId: sourceStudy.id,
+    spreadsheetId,
+  }));
 }
 
 /**
@@ -611,15 +726,10 @@ async function getMetadataSpreadsheetsInfo(
  * Remove the specified source study from the specified atlas, and delete the source study if it's not contained in any other atlases.
  * @param atlasId - Atlas ID.
  * @param sourceStudyId - Source study ID.
- * @param options - Additional options.
- * @param options.beforeFullDelete - Function to call before deleting the source study in the case where it's no longer linked to any atlas.
  */
 export async function deleteAtlasSourceStudy(
   atlasId: string,
   sourceStudyId: string,
-  options: {
-    beforeFullDelete?: () => Promise<void>;
-  } = {},
 ): Promise<void> {
   const client = await getPoolClient();
   try {
@@ -643,7 +753,6 @@ export async function deleteAtlasSourceStudy(
     if (sourceStudyHasAtlases) {
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
-      await options.beforeFullDelete?.();
       await deleteNonAtlasLinkedSourceStudy(sourceStudyId, client);
     }
     await client.query("COMMIT");
