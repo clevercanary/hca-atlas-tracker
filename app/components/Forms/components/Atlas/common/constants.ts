@@ -74,6 +74,15 @@ const STATUS: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> = {
   },
 };
 
+const PUBLISHED_AT: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> = {
+  inputProps: {
+    isFullWidth: true,
+    label: "Published at",
+    readOnly: true,
+  },
+  name: FIELD_NAME.PUBLISHED_AT,
+};
+
 const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
   inputProps: {
     helperTextProps: {
@@ -138,7 +147,12 @@ export const IDENTIFIERS_NEW_ATLAS_CONTROLLERS: ControllerConfig<
 export const GENERAL_INFO_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   AtlasEditData,
   HCAAtlasTrackerAtlas
->[] = [...GENERAL_INFO_NEW_ATLAS_CONTROLLERS, STATUS, TARGET_COMPLETION];
+>[] = [
+  ...GENERAL_INFO_NEW_ATLAS_CONTROLLERS,
+  STATUS,
+  TARGET_COMPLETION,
+  PUBLISHED_AT,
+];
 
 export const IDENTIFIERS_VIEW_ATLAS_CONTROLLERS: ControllerConfig<
   AtlasEditData,

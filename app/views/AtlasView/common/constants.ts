@@ -4,5 +4,6 @@ export const FIELD_NAME = {
   ...NEW_ATLAS_FIELD_NAME,
   METADATA_CORRECTNESS_URL: "metadataCorrectnessUrl",
   METADATA_SPECIFICATION_URL: "metadataSpecificationUrl",
+  PUBLISHED_AT: "publishedAt",
   TARGET_COMPLETION: "targetCompletion",
 } as const;

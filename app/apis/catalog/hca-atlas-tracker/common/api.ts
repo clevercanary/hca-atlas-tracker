@@ -12,6 +12,7 @@ export enum API {
   ATLAS_FILE_PRESIGNED_URL = "/api/atlases/[atlasId]/files/[fileId]/presigned-url",
   ATLAS_FILE_UNARCHIVE = "/api/atlases/[atlasId]/files/unarchive",
   ATLAS_METADATA_CORRECTNESS = "/api/atlases/[atlasId]/heatmap",
+  ATLAS_PUBLISH = "/api/atlases/[atlasId]/publish",
   ATLAS_SOURCE_DATASET = "/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]",
   ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/source-datasets",
   ATLAS_SOURCE_DATASETS_PUBLICATION_STATUS = "/api/atlases/[atlasId]/source-datasets/publication-status",

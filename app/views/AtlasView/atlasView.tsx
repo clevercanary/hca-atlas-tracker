@@ -1,6 +1,10 @@
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { JSX, Fragment } from "react";
-import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
+import {
+  apiEntityIsPublished,
+  getAtlasName,
+} from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
@@ -8,12 +12,19 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
 import { VIEW_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
-import { AtlasStatus } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatus/atlasStatus";
+import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { ATLAS } from "../../hooks/useFetchAtlas";
+import { useFetchDataState } from "../../hooks/useFetchDataState";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
+import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
+import { PublishButton } from "./components/PublishButton/publishButton.styles";
+import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
+import { PublishDialog } from "./components/PublishDialog/publishDialog";
+import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 
 interface AtlasViewProps {
   pathParameter: PathParameter;
@@ -23,15 +34,53 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   const formMethod = useEditAtlasForm(pathParameter);
   const formManager = useEditAtlasFormManager(pathParameter, formMethod);
   const {
-    access: { canView },
+    access: { canEdit, canView },
     formAction,
+    formStatus: { isDirty },
     isLoading,
   } = formManager;
   const { data: atlas } = formMethod;
+
+  const { fetchDataDispatch } = useFetchDataState();
+  const {
+    onClose: closePublishDialog,
+    onOpen: openPublishDialog,
+    open: publishDialogOpen,
+  } = useDialog();
+  const canPublish = atlas ? canEdit && !apiEntityIsPublished(atlas) : false;
+
   if (isLoading) return <Fragment />;
+
   return (
     <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
+      {isDirty ? (
+        <PublishDialogUnsavedChanges
+          onClose={closePublishDialog}
+          open={publishDialogOpen}
+        />
+      ) : (
+        <PublishDialog
+          atlas={atlas}
+          onCancel={closePublishDialog}
+          onPublished={() => {
+            closePublishDialog();
+            fetchDataDispatch(fetchData([ATLAS]));
+          }}
+          open={publishDialogOpen}
+          pathParameter={pathParameter}
+        />
+      )}
       <DetailView
+        actions={
+          canPublish && (
+            <PublishButton
+              {...BUTTON_PROPS.SECONDARY_CONTAINED}
+              onClick={openPublishDialog}
+            >
+              Publish
+            </PublishButton>
+          )
+        }
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlas)}
@@ -46,7 +95,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
             sectionConfigs={VIEW_ATLAS_SECTION_CONFIGS}
           />
         }
-        status={atlas && <AtlasStatus atlasStatus={atlas.status} />}
+        status={atlas && <AtlasStatuses statuses={atlas} />}
         tabs={
           <Tabs
             atlas={atlas}

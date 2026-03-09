@@ -39,6 +39,7 @@ function mapSchemaValues(
     [FIELD_NAME.FILE_EVENT_TIME]: integratedObject.fileEventTime,
     [FIELD_NAME.FILE_NAME]: integratedObject.baseFileName,
     [FIELD_NAME.GENE_COUNT]: integratedObject.geneCount,
+    [FIELD_NAME.PUBLISHED_AT]: integratedObject.publishedAt ?? "Unpublished",
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),
     [FIELD_NAME.TITLE]: integratedObject.title,
     [FIELD_NAME.VALIDATION_STATUS]: integratedObject.validationStatus,

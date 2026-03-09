@@ -45,8 +45,15 @@ export const atlasEntityConfig: EntityConfig = {
             label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.INTEGRATION_LEAD,
           },
           {
-            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
-            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLISHED_AT,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLISHED_AT,
+            mapSelectCategoryValue: mapSelectCategoryValue(
+              (val) => val || "Unpublished",
+            ),
+          },
+          {
+            key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENDORSEMENT_STATUS,
+            label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENDORSEMENT_STATUS,
           },
           {
             key: HCA_ATLAS_TRACKER_CATEGORY_KEY.TARGET_COMPLETION_DATE,
@@ -193,8 +200,17 @@ export const atlasEntityConfig: EntityConfig = {
           viewBuilder: V.buildStatus,
         } as ComponentConfig<typeof C.StatusBadge, HCAAtlasTrackerListAtlas>,
         enableGrouping: true,
-        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
-        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ENDORSEMENT_STATUS,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ENDORSEMENT_STATUS,
+        width: { max: "132px", min: "132px" },
+      },
+      {
+        componentConfig: {
+          component: C.BasicCell,
+          viewBuilder: V.buildPublishedAt,
+        } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListAtlas>,
+        header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLISHED_AT,
+        id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLISHED_AT,
         width: { max: "132px", min: "132px" },
       },
       {

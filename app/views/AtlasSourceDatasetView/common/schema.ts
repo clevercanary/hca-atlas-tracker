@@ -19,6 +19,7 @@ export const viewAtlasSourceDatasetSchema = object({
   [FIELD_NAME.PUBLICATION_STATUS]: string().oneOf(
     Object.values(PUBLICATION_STATUS),
   ),
+  [FIELD_NAME.PUBLISHED_AT]: string(),
   [FIELD_NAME.SIZE_BYTES]: string(),
   [FIELD_NAME.TITLE]: string(),
   [FIELD_NAME.VALIDATION_STATUS]: string(),

@@ -57,6 +57,7 @@ function mapSchemaValues(atlas?: HCAAtlasTrackerAtlas): Partial<AtlasEditData> {
     [FIELD_NAME.METADATA_CORRECTNESS_URL]: atlas.metadataCorrectnessUrl ?? "",
     [FIELD_NAME.METADATA_SPECIFICATION_URL]:
       atlas.metadataSpecificationUrl ?? "",
+    [FIELD_NAME.PUBLISHED_AT]: atlas.publishedAt ?? "Unpublished",
     [FIELD_NAME.SHORT_NAME]: atlas.shortName,
     [FIELD_NAME.STATUS]: atlas.status,
     [FIELD_NAME.TARGET_COMPLETION]:
@@ -86,6 +87,7 @@ function mapCELLxGENECollectionId(
 function mapApiValues({ doi, ...data }: AtlasEditData): APIAtlasEditData {
   return {
     ...data,
+    ...{ publishedAt: undefined }, // Remove `publishedAt`; the field will be omitted entirely when converted to JSON for the API
     dois: doi ? [doi] : undefined,
     targetCompletion: mapTargetCompletion(data.targetCompletion),
   };

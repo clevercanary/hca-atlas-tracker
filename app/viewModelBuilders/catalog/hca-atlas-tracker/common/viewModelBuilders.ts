@@ -381,6 +381,24 @@ export function buildMetadataSpecification(
 }
 
 /**
+ * Build props for the published-at cell component.
+ * @param entity - Atlas, component atlas, or source dataset entity.
+ * @returns Props to be used for the cell.
+ */
+export const buildPublishedAt = (
+  entity:
+    | HCAAtlasTrackerListAtlas
+    | HCAAtlasTrackerComponentAtlas
+    | HCAAtlasTrackerSourceDataset,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: entity.publishedAt
+      ? getDateFromIsoString(entity.publishedAt)
+      : "Unpublished",
+  };
+};
+
+/**
  * Build props for the "resolved at" BasicCell component.
  * @param task - Task entity.
  * @returns Props to be used for the BasicCell component.
@@ -880,6 +898,25 @@ export const buildWave = (
 };
 
 /**
+ * Get props for the publish status badge component for the given published-at value.
+ * @param publishedAt - Atlas published-at value.
+ * @returns status badge props.
+ */
+export function getAtlasPublishStatusBadgeProps(
+  publishedAt: string | null,
+): ComponentProps<typeof C.StatusBadge> {
+  return publishedAt === null
+    ? {
+        color: STATUS_BADGE_COLOR.INFO,
+        label: "Draft",
+      }
+    : {
+        color: STATUS_BADGE_COLOR.SUCCESS,
+        label: "Published",
+      };
+}
+
+/**
  * Get props for the status badge component for the given atlas status.
  * @param status - Atlas status.
  * @returns status badge props.
@@ -941,6 +978,12 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
       accessorKey: "fileEventTime",
       cell: ({ row }) => row.original.fileEventTime,
       header: "Uploaded At",
+      meta: { width: { max: "1fr", min: "160px" } },
+    },
+    {
+      accessorKey: "publishedAt",
+      cell: ({ row }) => C.BasicCell(buildPublishedAt(row.original)),
+      header: "Published At",
       meta: { width: { max: "1fr", min: "160px" } },
     },
     getIntegratedObjectValidationStatusColumnDef(),
