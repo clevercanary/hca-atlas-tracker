@@ -8,5 +8,6 @@ export interface OnSubmitOptions {
 }
 
 export interface UsePublishAtlas {
+  isRequesting: boolean;
   onSubmit: OnSubmitFn;
 }

@@ -1,6 +1,6 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { JSX, useState } from "react";
+import { JSX } from "react";
 import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { getAtlasName } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
@@ -29,8 +29,7 @@ export const PublishDialog = ({
   open,
   pathParameter,
 }: Props): JSX.Element => {
-  const { onSubmit } = usePublishAtlas();
-  const [submitted, setSubmitted] = useState(false);
+  const { isRequesting, onSubmit } = usePublishAtlas();
   return (
     <Dialog fullWidth maxWidth="xs" onClose={onCancel} open={open}>
       <DialogTitle onClose={onCancel} title="Publish Atlas" />
@@ -43,7 +42,7 @@ export const PublishDialog = ({
       <DialogActions>
         <Button
           color={BUTTON_PROPS.COLOR.SECONDARY}
-          disabled={submitted}
+          disabled={isRequesting}
           onClick={onCancel}
           size={BUTTON_PROPS.SIZE.SMALL}
           variant={BUTTON_PROPS.VARIANT.CONTAINED}
@@ -52,9 +51,8 @@ export const PublishDialog = ({
         </Button>
         <Button
           color={BUTTON_PROPS.COLOR.PRIMARY}
-          disabled={submitted}
+          disabled={isRequesting}
           onClick={() => {
-            setSubmitted(true);
             onSubmit(getRequestURL(API.ATLAS_PUBLISH, pathParameter), {
               onSuccess: onPublished,
             });
