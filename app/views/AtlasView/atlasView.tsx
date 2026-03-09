@@ -1,6 +1,6 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { JSX, Fragment, useState } from "react";
+import { JSX, Fragment } from "react";
 import {
   apiEntityIsPublished,
   getAtlasName,
@@ -24,6 +24,7 @@ import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
 import { PublishButton } from "./components/PublishButton/publishButton.styles";
 import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
 import { PublishDialog } from "./components/PublishDialog/publishDialog";
+import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 
 interface AtlasViewProps {
   pathParameter: PathParameter;
@@ -41,7 +42,11 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   const { data: atlas } = formMethod;
 
   const { fetchDataDispatch } = useFetchDataState();
-  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const {
+    onClose: closePublishDialog,
+    onOpen: openPublishDialog,
+    open: publishDialogOpen,
+  } = useDialog();
   const canPublish = atlas ? canEdit && !apiEntityIsPublished(atlas) : false;
 
   if (isLoading) return <Fragment />;
@@ -50,15 +55,15 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
       {isDirty ? (
         <PublishDialogUnsavedChanges
-          onClose={() => setPublishDialogOpen(false)}
+          onClose={closePublishDialog}
           open={publishDialogOpen}
         />
       ) : (
         <PublishDialog
           atlas={atlas}
-          onCancel={() => setPublishDialogOpen(false)}
+          onCancel={closePublishDialog}
           onPublished={() => {
-            setPublishDialogOpen(false);
+            closePublishDialog();
             fetchDataDispatch(fetchData([ATLAS]));
           }}
           open={publishDialogOpen}
@@ -70,7 +75,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
           canPublish && (
             <PublishButton
               {...BUTTON_PROPS.SECONDARY_CONTAINED}
-              onClick={() => setPublishDialogOpen(true)}
+              onClick={openPublishDialog}
             >
               Publish
             </PublishButton>
