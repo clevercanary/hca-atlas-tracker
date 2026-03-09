@@ -87,7 +87,7 @@ function mapCELLxGENECollectionId(
 function mapApiValues({ doi, ...data }: AtlasEditData): APIAtlasEditData {
   return {
     ...data,
-    ...{ publishedAt: undefined },
+    ...{ publishedAt: undefined }, // Remove `publishedAt`; the field will be omitted entirely when converted to JSON for the API
     dois: doi ? [doi] : undefined,
     targetCompletion: mapTargetCompletion(data.targetCompletion),
   };
