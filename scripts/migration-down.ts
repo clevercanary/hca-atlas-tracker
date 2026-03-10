@@ -2,6 +2,14 @@ import migrate from "node-pg-migrate";
 import pg from "pg";
 import { getPoolConfig } from "../app/utils/pg-migrate-connect-config";
 
+// Prevent migration-down from running in production and dev environments
+if (process.env.APP_ENV === "aws-dev" || process.env.APP_ENV === "aws-prod") {
+  console.error(
+    "ERROR: migrate:down is disabled in production and dev environments."
+  );
+  process.exit(1);
+}
+
 const { Pool } = pg;
 
 const green = (text: string): string => `\x1b[32m${text}\x1b[0m`;
