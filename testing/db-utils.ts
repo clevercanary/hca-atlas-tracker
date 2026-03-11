@@ -717,6 +717,14 @@ export async function getSourceStudySourceDatasetsFromDatabase(
   ).rows;
 }
 
+export async function getExistingEntrySheetValidationFromDatabase(
+  id: string,
+): Promise<HCAAtlasTrackerDBEntrySheetValidation> {
+  const validation = await getEntrySheetValidationFromDatabase(id);
+  assertExpectDefined(validation);
+  return validation;
+}
+
 export async function getEntrySheetValidationFromDatabase(
   id: string,
 ): Promise<HCAAtlasTrackerDBEntrySheetValidation | undefined> {

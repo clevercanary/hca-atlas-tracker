@@ -318,7 +318,7 @@ describe(TEST_ROUTE, () => {
     expectApiAtlasToMatchTest(atlas, ATLAS_WITH_MISC_SOURCE_STUDIES_B);
     expect(atlas.componentAtlasCount).toEqual(1);
     expect(atlas.sourceDatasetCount).toEqual(1);
-    expect(atlas.entrySheetValidationCount).toEqual(0);
+    expect(atlas.entrySheetValidationCount).toEqual(2);
   });
 
   it("returns metadata entity counts based only on linked versions when GET requested by logged in user with CONTENT_ADMIN role", async () => {

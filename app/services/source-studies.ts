@@ -25,8 +25,11 @@ import {
 import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import {
   getAtlasSourceDatasetVersionIds,
+  replaceSourceDatasetsSourceStudy,
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
+import { replaceSourceStudyInAtlases } from "../data/atlases";
+import { setSourceStudyMetadataSpreadsheets } from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -51,6 +54,7 @@ import {
   getValidationRecordsWithoutAtlasPropertiesForEntities,
   updateSourceStudyValidations,
 } from "./validations";
+import { replaceEntrySheetValidationsSourceStudy } from "../data/entry-sheets";
 
 export async function getAtlasSourceStudies(
   atlasId: string,
@@ -99,6 +103,12 @@ export async function getBaseModelAtlasSourceStudies(
   return await getBaseModelSourceStudies(
     (await getBaseModelAtlas(atlasId)).source_studies,
   );
+}
+
+export async function getBaseModelSourceStudy(
+  sourceStudyId: string,
+): Promise<HCAAtlasTrackerDBSourceStudy> {
+  return (await getBaseModelSourceStudies([sourceStudyId]))[0];
 }
 
 export async function getBaseModelSourceStudies(
@@ -270,22 +280,23 @@ export async function createSourceStudy(
 }
 
 /**
- * Get ID of existing source study matching values submitted to create a source study.
- * @param inputData - Source study creation values.
+ * Get ID of existing source study matching values submitted to create or edit a source study.
+ * @param inputData - Source study input values.
  * @param client - Postgres client.
  * @returns ID of existing source study, or null.
  */
 async function getExistingStudyId(
-  inputData: NewSourceStudyData,
-  client: pg.PoolClient,
+  inputData: NewSourceStudyData | SourceStudyEditData,
+  client?: pg.PoolClient,
 ): Promise<string | null> {
   if (!("doi" in inputData)) return null;
   const doi = normalizeDoi(inputData.doi);
   return (
     (
-      await client.query<Pick<HCAAtlasTrackerDBSourceStudy, "id">>(
+      await query<Pick<HCAAtlasTrackerDBSourceStudy, "id">>(
         "SELECT id FROM hat.source_studies WHERE doi=$1 OR study_info->'publication'->>'preprintOfDoi'=$1 OR study_info->'publication'->>'hasPreprintDoi'=$1",
         [doi],
+        client,
       )
     ).rows[0]?.id ?? null
   );
@@ -322,30 +333,42 @@ export async function updateSourceStudy(
   inputData: SourceStudyEditData,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities> {
   const atlas = await getConfirmedSourceStudyAtlas(sourceStudyId, atlasId);
-  const [existingSourceStudy] = await getBaseModelSourceStudies([
-    sourceStudyId,
-  ]);
-  const existingEntrySheetIds = new Set(
-    existingSourceStudy.study_info.metadataSpreadsheets.map(({ id }) => id),
-  );
+  const existingSourceStudy = await getBaseModelSourceStudy(sourceStudyId);
 
   const newInfo = await sourceStudyInputDataToDbData(
     inputData,
     existingSourceStudy,
   );
 
-  const newEntrySheetsInfo: EntrySheetValidationUpdateParameters[] = [];
-  const removedEntrySheetIds = new Set(existingEntrySheetIds);
-  for (const { id: spreadsheetId } of newInfo.study_info.metadataSpreadsheets) {
-    if (!existingEntrySheetIds.has(spreadsheetId)) {
-      newEntrySheetsInfo.push({
-        bioNetwork: atlas.overview.network,
-        sourceStudyId,
-        spreadsheetId,
-      });
-    }
-    removedEntrySheetIds.delete(spreadsheetId);
+  const existingIdMatchingInput = await getExistingStudyId(inputData);
+  if (
+    existingIdMatchingInput !== null &&
+    existingIdMatchingInput !== sourceStudyId
+  ) {
+    await mergeSourceStudy(
+      atlas,
+      existingSourceStudy,
+      await getBaseModelSourceStudy(existingIdMatchingInput),
+      newInfo.study_info.metadataSpreadsheets,
+    );
+    return getSourceStudy(atlasId, existingIdMatchingInput);
   }
+
+  const newEntrySheetsInfo = googleSheetsInfoToValidationParameters(
+    getAddedEntrySheetsBetweenLists(
+      existingSourceStudy.study_info.metadataSpreadsheets,
+      newInfo.study_info.metadataSpreadsheets,
+    ),
+    existingSourceStudy,
+    atlas,
+  );
+
+  const removedEntrySheetIds = new Set(
+    getRemovedEntrySheetsBetweenLists(
+      existingSourceStudy.study_info.metadataSpreadsheets,
+      newInfo.study_info.metadataSpreadsheets,
+    ).map(({ id }) => id),
+  );
 
   const client = await getPoolClient();
   try {
@@ -392,6 +415,183 @@ export async function updateSourceStudy(
   } finally {
     client.release();
   }
+}
+
+/**
+ * Merge a source study into another source study, replacing it with the other study on any linked entities.
+ * @param atlas - Atlas that the source study is accessed through.
+ * @param currentSourceStudy - Currently-existing source study to merge and replace.
+ * @param replacementSourceStudy - Source study to merge the current one into.
+ * @param editedMetadataSpreadsheetList - Metadata spreadsheet list that was submitted as an edit to the current study.
+ */
+async function mergeSourceStudy(
+  atlas: HCAAtlasTrackerDBAtlas,
+  currentSourceStudy: HCAAtlasTrackerDBSourceStudy,
+  replacementSourceStudy: HCAAtlasTrackerDBSourceStudy,
+  editedMetadataSpreadsheetList: GoogleSheetInfo[],
+): Promise<void> {
+  const { newEntrySheetsInfo } = await doTransaction(async (client) => {
+    // Replace source study on linked entities
+
+    await replaceSourceDatasetsSourceStudy(
+      currentSourceStudy.id,
+      replacementSourceStudy.id,
+      client,
+    );
+    await replaceEntrySheetValidationsSourceStudy(
+      currentSourceStudy.id,
+      replacementSourceStudy.id,
+      client,
+    );
+    await replaceSourceStudyInAtlases(
+      currentSourceStudy.id,
+      replacementSourceStudy.id,
+      client,
+    );
+
+    // Delete current source study
+
+    await deleteNonAtlasLinkedSourceStudy(currentSourceStudy.id, client);
+
+    // Update metadata spreadsheet list for target source study
+
+    // Metadata spreadsheets should not be duplicated between source studies in the database, so these can just be concatenated
+    const combinedMetadataSpreadsheets = [
+      ...replacementSourceStudy.study_info.metadataSpreadsheets,
+      ...currentSourceStudy.study_info.metadataSpreadsheets,
+    ];
+
+    const addedEntrySheets = getAddedEntrySheetsBetweenLists(
+      currentSourceStudy.study_info.metadataSpreadsheets,
+      editedMetadataSpreadsheetList,
+    );
+    const removedEntrySheets = getRemovedEntrySheetsBetweenLists(
+      currentSourceStudy.study_info.metadataSpreadsheets,
+      editedMetadataSpreadsheetList,
+    );
+
+    const { newToListMetadataSpreadsheets, updatedMetadataSpreadsheets } =
+      applyMetadataSpreadsheetsDiff(
+        combinedMetadataSpreadsheets,
+        addedEntrySheets,
+        removedEntrySheets,
+      );
+
+    await setSourceStudyMetadataSpreadsheets(
+      replacementSourceStudy.id,
+      updatedMetadataSpreadsheets,
+      client,
+    );
+
+    // Delete removed metadata spreadsheet validations
+
+    if (removedEntrySheets.length) {
+      await deleteEntrySheetValidationsBySpreadsheet(
+        removedEntrySheets.map(({ id }) => id),
+        client,
+      );
+    }
+
+    // Update validations for target source study
+
+    await updateSourceStudyValidationsByEntityId(
+      replacementSourceStudy.id,
+      client,
+    );
+
+    // Return list of new sheets to be handled outside the transaction
+
+    return {
+      newEntrySheetsInfo: googleSheetsInfoToValidationParameters(
+        newToListMetadataSpreadsheets,
+        replacementSourceStudy,
+        atlas,
+      ),
+    };
+  });
+
+  // Start entry sheet validations update without waiting for any errors
+  if (newEntrySheetsInfo.length > 0) {
+    startEntrySheetValidationsUpdate(newEntrySheetsInfo).catch((err) =>
+      console.error(err),
+    );
+  }
+}
+
+/**
+ * Update a metadata spreadsheet list based on new and removed spreadsheets.
+ * @param existingMetadataSpreadsheets - Metadata spreadsheet list to update.
+ * @param newMetadataSpreadsheets - List of added metadata spreadsheets to apply.
+ * @param removedMetadataSpreadsheets - List of removed metadata spreadsheets to apply.
+ * @returns object containing updated metadata spreadsheet list and list of new sheets that were not already in the list.
+ */
+function applyMetadataSpreadsheetsDiff(
+  existingMetadataSpreadsheets: GoogleSheetInfo[],
+  newMetadataSpreadsheets: GoogleSheetInfo[],
+  removedMetadataSpreadsheets: GoogleSheetInfo[],
+): {
+  newToListMetadataSpreadsheets: GoogleSheetInfo[];
+  updatedMetadataSpreadsheets: GoogleSheetInfo[];
+} {
+  const existingSheetIds = new Set(
+    existingMetadataSpreadsheets.map(({ id }) => id),
+  );
+  const removedSheetIds = new Set(
+    removedMetadataSpreadsheets.map(({ id }) => id),
+  );
+
+  // Get sheets that are actually new to the specified list
+  const newToListMetadataSpreadsheets = newMetadataSpreadsheets.filter(
+    ({ id }) => !existingSheetIds.has(id),
+  );
+
+  // Filter out removed sheets and combine list with new sheets
+  const updatedMetadataSpreadsheets = [
+    ...existingMetadataSpreadsheets.filter(
+      ({ id }) => !removedSheetIds.has(id),
+    ),
+    ...newToListMetadataSpreadsheets,
+  ];
+
+  return {
+    newToListMetadataSpreadsheets,
+    updatedMetadataSpreadsheets,
+  };
+}
+
+function getAddedEntrySheetsBetweenLists(
+  oldEntrySheetList: GoogleSheetInfo[],
+  newEntrySheetList: GoogleSheetInfo[],
+): GoogleSheetInfo[] {
+  const oldListIds = new Set(oldEntrySheetList.map(({ id }) => id));
+  return newEntrySheetList.filter(({ id }) => !oldListIds.has(id));
+}
+
+function getRemovedEntrySheetsBetweenLists(
+  oldEntrySheetList: GoogleSheetInfo[],
+  newEntrySheetList: GoogleSheetInfo[],
+): GoogleSheetInfo[] {
+  const newListIds = new Set(newEntrySheetList.map(({ id }) => id));
+  return oldEntrySheetList.filter(({ id }) => !newListIds.has(id));
+}
+
+/**
+ * Get entry sheet validation update parameters for the specified metadata entry sheets.
+ * @param entrySheets - Metadata spreadsheets.
+ * @param sourceStudy - Source study of the metadata spreadsheets.
+ * @param atlas - Atlas that the source study is accessed through.
+ * @returns entry sheet validation update parameters.
+ */
+function googleSheetsInfoToValidationParameters(
+  entrySheets: GoogleSheetInfo[],
+  sourceStudy: HCAAtlasTrackerDBSourceStudy,
+  atlas: HCAAtlasTrackerDBAtlas,
+): EntrySheetValidationUpdateParameters[] {
+  return entrySheets.map(({ id: spreadsheetId }) => ({
+    bioNetwork: atlas.overview.network,
+    sourceStudyId: sourceStudy.id,
+    spreadsheetId,
+  }));
 }
 
 /**
@@ -552,17 +752,7 @@ export async function deleteAtlasSourceStudy(
     if (sourceStudyHasAtlases) {
       await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
     } else {
-      await unlinkAllSourceDatasetsFromSourceStudy(sourceStudyId, client);
-      await deleteEntrySheetValidationsOfDeletedSourceStudy(
-        sourceStudyId,
-        client,
-      );
-      await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
-        sourceStudyId,
-      ]);
-      await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
-        sourceStudyId,
-      ]);
+      await deleteNonAtlasLinkedSourceStudy(sourceStudyId, client);
     }
     await client.query("COMMIT");
   } catch (e) {
@@ -571,6 +761,25 @@ export async function deleteAtlasSourceStudy(
   } finally {
     client.release();
   }
+}
+
+/**
+ * Fully delete a source study that is not linked to any atlas.
+ * @param sourceStudyId - ID of the source study to delete.
+ * @param client - Postgres client to use.
+ */
+async function deleteNonAtlasLinkedSourceStudy(
+  sourceStudyId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  await unlinkAllSourceDatasetsFromSourceStudy(sourceStudyId, client);
+  await deleteEntrySheetValidationsOfDeletedSourceStudy(sourceStudyId, client);
+  await client.query("DELETE FROM hat.source_studies WHERE id=$1", [
+    sourceStudyId,
+  ]);
+  await client.query("DELETE FROM hat.validations WHERE entity_id=$1", [
+    sourceStudyId,
+  ]);
 }
 
 /**
