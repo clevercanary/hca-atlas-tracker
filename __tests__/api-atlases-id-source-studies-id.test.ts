@@ -1000,7 +1000,7 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       });
     }
 
-    // Linked atlases have their source study lists updated
+    // Linked atlases have their source study lists updated without duplicating the replacement study
     const atlasIds = [
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
       ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
@@ -1013,6 +1013,11 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
       expect(atlas.source_studies).toContain(
         SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
       );
+      expect(
+        atlas.source_studies.filter(
+          (id) => id === SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+        ),
+      ).toHaveLength(1);
     }
 
     // Uninvolved entities are not linked to the replacement study
