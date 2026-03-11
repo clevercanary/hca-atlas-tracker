@@ -52,7 +52,7 @@ const RELATED_ENTITY_INFO_TO_CHECK = [
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
     componentAtlasCount: 1,
-    entrySheetValidationCount: 0,
+    entrySheetValidationCount: 2,
     sourceDatasetCount: 1,
   },
   {
