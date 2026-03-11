@@ -505,7 +505,7 @@ async function mergeSourceStudy(
     return {
       newEntrySheetsInfo: googleSheetsInfoToValidationParameters(
         newToListMetadataSpreadsheets,
-        currentSourceStudy,
+        replacementSourceStudy,
         atlas,
       ),
     };
