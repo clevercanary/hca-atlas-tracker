@@ -37,6 +37,7 @@ import {
   ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A,
   ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_B,
   ENTRY_SHEET_ID_LINKED_ENTITIES_NEW,
+  ENTRY_SHEET_ID_WITH_UPDATE,
   ENTRY_SHEET_VALIDATION_WITH_UPDATE,
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
@@ -548,6 +549,29 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
                   "?gid=0#gid=0",
               },
               ...SOURCE_STUDY_DRAFT_OK_EDIT.metadataSpreadsheets,
+            ],
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+    await expectStudyToBeUnchanged(SOURCE_STUDY_DRAFT_OK);
+  });
+
+  it("returns error 400 when metadata spreadsheet already exists on another source study", async () => {
+    expect(
+      (
+        await doStudyRequest(
+          ATLAS_DRAFT.id,
+          SOURCE_STUDY_DRAFT_OK.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            ...SOURCE_STUDY_DRAFT_OK_EDIT,
+            metadataSpreadsheets: [
+              {
+                url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_WITH_UPDATE}/edit`,
+              },
             ],
           },
           true,
