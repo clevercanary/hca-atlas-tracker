@@ -30,8 +30,9 @@ import {
 } from "../data/source-datasets";
 import {
   linkSourceStudyToAtlas,
-  setSourceStudyMetadataSpreadsheets,
-} from "../data/source-studies";
+  replaceSourceStudyInAtlases,
+} from "../data/atlases";
+import { setSourceStudyMetadataSpreadsheets } from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -57,7 +58,6 @@ import {
   updateSourceStudyValidations,
 } from "./validations";
 import { replaceEntrySheetValidationsSourceStudy } from "../data/entry-sheets";
-import { replaceSourceStudyInAtlases } from "../data/atlases";
 
 export async function getAtlasSourceStudies(
   atlasId: string,
