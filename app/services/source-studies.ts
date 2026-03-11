@@ -56,8 +56,8 @@ import {
   getValidationRecordsWithoutAtlasPropertiesForEntities,
   updateSourceStudyValidations,
 } from "./validations";
-import { replaceEntrySheetValidationsSourceStudy } from "app/data/entry-sheets";
-import { replaceSourceStudyInAtlases } from "app/data/atlases";
+import { replaceEntrySheetValidationsSourceStudy } from "../data/entry-sheets";
+import { replaceSourceStudyInAtlases } from "../data/atlases";
 
 export async function getAtlasSourceStudies(
   atlasId: string,
