@@ -419,7 +419,7 @@ export async function updateSourceStudy(
 }
 
 /**
- * Merge a source study into a another source study, replacing it with the other study on any linked entities.
+ * Merge a source study into another source study, replacing it with the other study on any linked entities.
  * @param atlas - Atlas that the source study is accessed through.
  * @param currentSourceStudy - Currently-existing source study to merge and replace.
  * @param replacementSourceStudy - Source study to merge the current one into.
