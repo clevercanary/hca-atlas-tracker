@@ -28,10 +28,7 @@ import {
   replaceSourceDatasetsSourceStudy,
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
-import {
-  linkSourceStudyToAtlas,
-  replaceSourceStudyInAtlases,
-} from "../data/atlases";
+import { replaceSourceStudyInAtlases } from "../data/atlases";
 import { setSourceStudyMetadataSpreadsheets } from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
@@ -238,12 +235,11 @@ export async function createSourceStudy(
     // If study already exists, add that instead
     const existingStudyId = await getExistingStudyId(inputData, client);
     if (existingStudyId) {
-      const alreadyLinked = await linkSourceStudyToAtlas(
-        existingStudyId,
-        atlasId,
-        client,
+      const queryResult = await client.query(
+        "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2 AND NOT source_studies @> $1",
+        [JSON.stringify([existingStudyId]), atlasId],
       );
-      if (alreadyLinked)
+      if (queryResult.rowCount === 0)
         throw new ValidationError(
           "DOI already exists in this atlas",
           undefined,
@@ -266,7 +262,10 @@ export async function createSourceStudy(
     );
     const newStudyRow = insertResult.rows[0];
     // Update the atlas's list of source studies
-    await linkSourceStudyToAtlas(newStudyRow.id, atlasId, client);
+    await client.query(
+      "UPDATE hat.atlases SET source_studies=source_studies||$1 WHERE id=$2",
+      [JSON.stringify([newStudyRow.id]), atlasId],
+    );
     // Add validations
     await updateSourceStudyValidationsByEntityId(newStudyRow.id, client);
     const newStudy = await getSourceStudy(atlasId, newStudyRow.id, client);
