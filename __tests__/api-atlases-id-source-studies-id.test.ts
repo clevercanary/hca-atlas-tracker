@@ -22,6 +22,7 @@ import {
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_C,
   CELLXGENE_ID_NORMAL,
@@ -31,6 +32,12 @@ import {
   DOI_WITH_NEW_SOURCE_DATASETS,
   ENTRY_SHEET_ID_DRAFT_OK_BAR,
   ENTRY_SHEET_ID_DRAFT_OK_FOO,
+  ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_A,
+  ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_B,
+  ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A,
+  ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_B,
+  ENTRY_SHEET_ID_LINKED_ENTITIES_NEW,
+  ENTRY_SHEET_VALIDATION_WITH_UPDATE,
   PUBLICATION_PREPRINT_NO_JOURNAL,
   SOURCE_DATASET_ATLAS_LINKED_A_BAR,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
@@ -38,6 +45,10 @@ import {
   SOURCE_DATASET_ATLAS_LINKED_B_BAZ,
   SOURCE_DATASET_ATLAS_LINKED_B_FOO,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_A,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_B,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
@@ -48,6 +59,8 @@ import {
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_B,
   SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO,
+  SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR,
+  SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD,
   USER_CONTENT_ADMIN,
@@ -62,6 +75,10 @@ import {
   expectSourceDatasetsToHaveSourceStudy,
   getAllSourceDatasetsFromDatabase,
   getAtlasFromDatabase,
+  getEntrySheetValidationBySheetId,
+  getExistingAtlasFromDatabase,
+  getExistingEntrySheetValidationFromDatabase,
+  getExistingSourceDatasetFromDatabase,
   getSourceDatasetFromDatabase,
   getSourceStudyEntrySheetValidationsFromDatabase,
   getSourceStudyFromDatabase,
@@ -879,7 +896,150 @@ describe(`${TEST_ROUTE} (PUT)`, () => {
   });
 
   it("replaces source study if a DOI is entered that already has a different source study", async () => {
-    //
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(0);
+
+    const CAP_ID = "https://celltype.info/project/675345";
+    const EDIT_DATA: SourceStudyEditData = {
+      capId: CAP_ID,
+      doi: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.doi,
+      metadataSpreadsheets: [
+        // (BAR_A is removed from the requested study)
+        // Sheet the requested study already has
+        {
+          url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_B}/edit`,
+        },
+        // Sheet the other study already has
+        {
+          url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A}/edit`,
+        },
+        // New sheet
+        {
+          url: `https://docs.google.com/spreadsheets/d/${ENTRY_SHEET_ID_LINKED_ENTITIES_NEW}/edit`,
+        },
+      ],
+    };
+
+    const res = await doStudyRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      EDIT_DATA,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+
+    const updatedStudy = res._getJSONData() as HCAAtlasTrackerSourceStudy;
+
+    // Existing source study with the given DOI is returned
+    expect(updatedStudy.id).toEqual(SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id);
+
+    // CAP ID is not updated, since it's unused
+    expect(updatedStudy.capId).not.toEqual(CAP_ID);
+
+    const expectedExistingSheetIds = [
+      // Entry sheets from the replacement study still exist
+      ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A,
+      ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_B,
+      // Only the sheet that wasn't removed from the requested study still exists
+      ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_B,
+    ];
+
+    // Metadata spreadsheet lists are merged and updated as appropriate
+    const expectedSheetIds = [
+      ...expectedExistingSheetIds,
+      // The new sheet is added
+      ENTRY_SHEET_ID_LINKED_ENTITIES_NEW,
+    ];
+    expect(updatedStudy.metadataSpreadsheets).toHaveLength(
+      expectedSheetIds.length,
+    );
+    for (const sheetId of expectedSheetIds) {
+      expect(updatedStudy.metadataSpreadsheets).toContainEqual(
+        expect.objectContaining({ id: sheetId }),
+      );
+    }
+
+    // Existing sheets that were retained all have validations linked to the replacement study
+    for (const sheetId of expectedExistingSheetIds) {
+      expect(await getEntrySheetValidationBySheetId(sheetId)).toMatchObject({
+        source_study_id: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+      });
+    }
+
+    // Validation for removed entry sheet no longer exists
+    expect(
+      await getEntrySheetValidationBySheetId(
+        ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_A,
+      ),
+    ).toBeUndefined();
+
+    // New entry sheet is validated
+    expect(entrySheetsUpdateMock).toHaveBeenCalledTimes(1);
+    expect(entrySheetsUpdateMock).toHaveBeenLastCalledWith<
+      Parameters<typeof startEntrySheetValidationsUpdate>
+    >([
+      {
+        bioNetwork: ATLAS_WITH_MISC_SOURCE_STUDIES_C.network,
+        sourceStudyId: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+        spreadsheetId: ENTRY_SHEET_ID_LINKED_ENTITIES_NEW,
+      },
+    ]);
+
+    // Source datasets of the two studies are all linked to the replacement
+    const sourceDatasetVersions = [
+      SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_A.versionId,
+      SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_B.versionId,
+      SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A.versionId,
+      SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B.versionId,
+    ];
+    for (const sourceDatasetVersion of sourceDatasetVersions) {
+      expect(
+        await getSourceDatasetFromDatabase(sourceDatasetVersion),
+      ).toMatchObject({
+        source_study_id: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+      });
+    }
+
+    // Linked atlases have their source study lists updated
+    const atlasIds = [
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+    ];
+    for (const atlasId of atlasIds) {
+      const atlas = await getExistingAtlasFromDatabase(atlasId);
+      expect(atlas.source_studies).not.toContain(
+        SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+      );
+      expect(atlas.source_studies).toContain(
+        SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+      );
+    }
+
+    // Uninvolved entities are not linked to the replacement study
+    expect(
+      (await getExistingAtlasFromDatabase(ATLAS_WITH_MISC_SOURCE_STUDIES.id))
+        .source_studies,
+    ).not.toContain(SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id);
+    expect(
+      (
+        await getExistingEntrySheetValidationFromDatabase(
+          ENTRY_SHEET_VALIDATION_WITH_UPDATE.id,
+        )
+      ).source_study_id,
+    ).not.toEqual(SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id);
+    expect(
+      (await getExistingSourceDatasetFromDatabase(SOURCE_DATASET_FOO.versionId))
+        .source_study_id,
+    ).not.toEqual(SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id);
+
+    // Requested source study is deleted
+    expect(
+      await getSourceStudyFromDatabase(
+        SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+      ),
+    ).toBeUndefined();
+
+    entrySheetsUpdateMock.mockClear();
   });
 });
 
