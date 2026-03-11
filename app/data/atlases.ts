@@ -15,7 +15,7 @@ export async function replaceSourceStudyInAtlases(
   await client.query(
     `
       UPDATE hat.atlases
-      SET source_studies = (source_studies - $1) || jsonb_build_array($2)
+      SET source_studies = (source_studies - $1) || jsonb_build_array($2::text)
       WHERE source_studies ? $1
     `,
     [currentSourceStudyId, replacementSourceStudyId],
