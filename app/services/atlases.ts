@@ -20,9 +20,13 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { changeAtlasToPublished } from "../data/atlases";
+import {
+  changeAtlasToPublished,
+  getAtlasIdByNameAndVersion,
+} from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
+import { parseUrlAtlasName } from "../utils/atlases";
 import { doTransaction, query } from "./database";
 
 interface AtlasInputDbData {
@@ -303,4 +307,22 @@ export async function atlasExists(atlasId: string): Promise<boolean> {
       atlasId,
     ])
   ).rows[0].exists;
+}
+
+/**
+ * Get an atlas's ID based on an identifier given in a URL.
+ * @param urlParam - URL parameter.
+ * @returns atlas ID.
+ */
+export async function getAtlasIdByUrlParameter(
+  urlParam: string,
+): Promise<string> {
+  // Return the parameter as-is if it appears to already be a UUID
+  if (/^[-0-9a-f]+$/i.test(urlParam)) return urlParam;
+
+  // Attempt to parse the parameter as a name
+  const nameInfo = parseUrlAtlasName(urlParam);
+  if (nameInfo === null)
+    throw new InvalidOperationError("Unknown atlas identifier format");
+  return getAtlasIdByNameAndVersion(nameInfo);
 }
