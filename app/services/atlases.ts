@@ -288,6 +288,15 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
 }
 
 /**
+ * Get whether a given atlas is published.
+ * @param atlasId - Atlas ID.
+ * @returns boolean indicating whether the atlas is published.
+ */
+export async function atlasIsPublished(atlasId: string): Promise<boolean> {
+  return dbEntityIsPublished(await getBaseModelAtlas(atlasId));
+}
+
+/**
  * Throw a NotFoundError if the specified atlas doesn't exist.
  * @param atlasId - ID of the atlas to check for.
  */

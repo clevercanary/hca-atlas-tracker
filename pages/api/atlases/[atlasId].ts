@@ -9,14 +9,19 @@ import {
   getAtlasIdByUrlParameter,
   updateAtlas,
 } from "../../../app/services/atlases";
-import { handleByMethod, handler, role } from "../../../app/utils/api-handler";
+import {
+  handleByMethod,
+  handler,
+  publishedOrRole,
+  role,
+} from "../../../app/utils/api-handler";
 
 /**
  * API route to get atlas by ID or update atlas by ID.
  */
 
 const getHandler = handler(
-  role(ROLE_GROUP.READ),
+  publishedOrRole(ROLE_GROUP.READ),
   async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
     const idParam = req.query.atlasId as string;
     const id = await getAtlasIdByUrlParameter(idParam);

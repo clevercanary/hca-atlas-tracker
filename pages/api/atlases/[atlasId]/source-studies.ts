@@ -3,11 +3,15 @@ import { ROLE_GROUP } from "../../../../app/apis/catalog/hca-atlas-tracker/commo
 import { METHOD } from "../../../../app/common/entities";
 import { getAtlasIdByUrlParameter } from "../../../../app/services/atlases";
 import { getAtlasSourceStudies } from "../../../../app/services/source-studies";
-import { handler, method, role } from "../../../../app/utils/api-handler";
+import {
+  handler,
+  method,
+  publishedOrRole,
+} from "../../../../app/utils/api-handler";
 
 export default handler(
   method(METHOD.GET),
-  role(ROLE_GROUP.READ),
+  publishedOrRole(ROLE_GROUP.READ),
   async (req, res) => {
     const idParam = req.query.atlasId as string;
     const id = await getAtlasIdByUrlParameter(idParam);

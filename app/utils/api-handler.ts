@@ -8,6 +8,10 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../common/entities";
 import { FormResponseErrors } from "../hooks/useForm/common/entities";
+import {
+  atlasIsPublished,
+  getAtlasIdByUrlParameter,
+} from "../services/atlases";
 import { query } from "../services/database";
 import { S3KeyFormatError } from "./files";
 
@@ -129,6 +133,26 @@ export const registeredUser: MiddlewareFunction = async (req, res, next) => {
   if (user.disabled) throw new ForbiddenError();
   next();
 };
+
+/**
+ * Creates a middleware function that, unless the requested atlas is published, rejects requests from users who aren't enabled with the specified role.
+ * @param allowedRoles - Allowed user roles.
+ * @returns middleware function restricting, by role, requests that are made to unpublished atlases.
+ */
+export function publishedOrRole(
+  allowedRoles: ROLE | ROLE[],
+): MiddlewareFunction {
+  const roleMiddleware = role(allowedRoles);
+  return async (req, res, next) => {
+    const atlasIdParam = req.query.atlasId as string;
+    const atlasId = await getAtlasIdByUrlParameter(atlasIdParam);
+    if (await atlasIsPublished(atlasId)) {
+      next();
+    } else {
+      await roleMiddleware(req, res, next);
+    }
+  };
+}
 
 /**
  * Creates a middleware function that rejects requests from users who aren't enabled with the specified role.
