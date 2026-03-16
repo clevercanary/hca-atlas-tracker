@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.58.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.57.1...v1.58.0) (2026-03-16)
+
+
+### Features
+
+* add api allowing atlases to be published ([#1116](https://github.com/clevercanary/hca-atlas-tracker/issues/1116)) ([#1128](https://github.com/clevercanary/hca-atlas-tracker/issues/1128)) ([71efccc](https://github.com/clevercanary/hca-atlas-tracker/commit/71efccc6f39eb3f7f0ddcd3f5c2f1cce47ac99d6))
+* add ui for published entities and for publishing an atlas ([#1130](https://github.com/clevercanary/hca-atlas-tracker/issues/1130)) ([#1132](https://github.com/clevercanary/hca-atlas-tracker/issues/1132)) ([fabe269](https://github.com/clevercanary/hca-atlas-tracker/commit/fabe26916018adf6220e07f9c91f7508bc61b6a5))
+* build download filenames from base filename and version ([#1115](https://github.com/clevercanary/hca-atlas-tracker/issues/1115)) ([#1126](https://github.com/clevercanary/hca-atlas-tracker/issues/1126)) ([ff781a6](https://github.com/clevercanary/hca-atlas-tracker/commit/ff781a692420dc1a01540307003400340c682ebb))
+* when a source study is edited to have an existing doi, replace it with the existing study ([#1122](https://github.com/clevercanary/hca-atlas-tracker/issues/1122)) ([#1133](https://github.com/clevercanary/hca-atlas-tracker/issues/1133)) ([482dce9](https://github.com/clevercanary/hca-atlas-tracker/commit/482dce934b860b267854ff69eff5e36e9f69f247))
+
 ## [1.57.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.57.0...v1.57.1) (2026-02-20)
 
 
