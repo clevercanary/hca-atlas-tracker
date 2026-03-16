@@ -229,6 +229,23 @@ export async function setSourceDatasetsSourceStudy(
 }
 
 /**
+ * Update all source datasets linked to a given source study to be linked to another given source study instead.
+ * @param currentSourceStudyId - Source study ID to replace.
+ * @param replacementSourceStudyId - New source study ID to set.
+ * @param client - Postgres client to use.
+ */
+export async function replaceSourceDatasetsSourceStudy(
+  currentSourceStudyId: string,
+  replacementSourceStudyId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  await client.query(
+    "UPDATE hat.source_datasets SET source_study_id = $1 WHERE source_study_id = $2",
+    [replacementSourceStudyId, currentSourceStudyId],
+  );
+}
+
+/**
  * Create a new latest source dataset version based on the given existing version.
  * @param prevVersionId - ID of the previous version of the source dataset.
  * @param fileId - ID of the new version's file.

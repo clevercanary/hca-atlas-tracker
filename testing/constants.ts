@@ -123,6 +123,8 @@ export const DOI_WITH_NEW_SOURCE_DATASETS = "10.123/with-new-source-datasets";
 export const DOI_WITH_ENTRY_SHEET_VALIDATIONS_BAR =
   "10.123/with-entry-sheet-validations-bar";
 
+export const DOI_WITH_LINKED_ENTITIES_FOO = "10.123/with-linked-entities-foo";
+
 // PUBLICATIONS
 
 export const PUBLICATION_DRAFT_OK: PublicationInfo = {
@@ -760,6 +762,33 @@ export const ENTRY_SHEET_ID_WITH_MALFORMED_RESPONSE =
 
 export const ENTRY_SHEET_ID_NO_STUDY =
   "12yIrZ_ZRpPMJgNa0BmoyQEJZTTO3QUxvDiMtcqHal-o";
+
+export const ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A =
+  "1njjBP_kqgK-Xjy0ujgfNja242CdZFWgHo4hIqfvPJCj";
+
+export const ENTRY_SHEET_TITLE_LINKED_ENTITIES_FOO_A =
+  "Entry Sheet Linked Entities Foo A";
+
+export const ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_B =
+  "1yKj06qBz8UJmKIbg0Fzr6GWJ9Pd_vWsVNMTcKUikLT8";
+
+export const ENTRY_SHEET_TITLE_LINKED_ENTITIES_FOO_B =
+  "Entry Sheet Linked Entities Foo B";
+
+export const ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_A =
+  "1mazmj574_aKiye9Rpftvjs4w6wiZa9hLSlwkvW_LRl-";
+
+export const ENTRY_SHEET_TITLE_LINKED_ENTITIES_BAR_A =
+  "Entry Sheet Linked Entities Bar A";
+
+export const ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_B =
+  "1jqyiGovbyUiVuP5F4DxKsxrLYqr4hpPTpJY3OFnxR2l";
+
+export const ENTRY_SHEET_TITLE_LINKED_ENTITIES_BAR_B =
+  "Entry Sheet Linked Entities Bar B";
+
+export const ENTRY_SHEET_ID_LINKED_ENTITIES_NEW =
+  "1EiSq0dxAlAyVH18ivEeJ-Ag-4dYfzjwio81J-TifJCa";
 
 export const ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE = {
   errors: [
@@ -1511,6 +1540,53 @@ export const SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES: TestUnpublishedSour
     },
   };
 
+export const SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO = {
+  cellxgeneCollectionId: null,
+  doi: DOI_WITH_LINKED_ENTITIES_FOO,
+  doiStatus: DOI_STATUS.OK,
+  hcaProjectId: null,
+  id: "7979f23a-1183-4a47-8581-ab796646d512",
+  metadataSpreadsheets: [
+    {
+      id: ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A,
+      title: "Entry Sheet Linked Entities Foo A",
+    },
+    {
+      id: ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_B,
+      title: "Entry Sheet Linked Entities Foo B",
+    },
+  ],
+  publication: {
+    authors: [{ name: "Author With Linked Entities Foo", personalName: null }],
+    hasPreprintDoi: null,
+    journal: "Journal With Linked Entities Foo",
+    preprintOfDoi: null,
+    publicationDate: "2026-02-24",
+    title: "Published With Linked Entities Foo",
+  },
+} satisfies TestPublishedSourceStudy;
+
+export const SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "2970d9a7-e207-43c4-b7d3-f71296439e98",
+  metadataSpreadsheets: [
+    {
+      id: ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_A,
+      title: "Entry Sheet Linked Entities Bar A",
+    },
+    {
+      id: ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_B,
+      title: "Entry Sheet Linked Entities Bar B",
+    },
+  ],
+  unpublishedInfo: {
+    contactEmail: "foobarfoobarbazfoofoo@example.com",
+    referenceAuthor: "Foobar Foobar Baz Foo Foo",
+    title: "Source Study With Linked Entities Bar",
+  },
+} satisfies TestUnpublishedSourceStudy;
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1551,6 +1627,8 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_MISC_C_FOO,
   SOURCE_STUDY_MISC_C_BAR,
   SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES,
+  SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO,
+  SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -2678,6 +2756,78 @@ export const SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR = {
   wipNumber: 5,
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_A = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-study-linked-entities-foo-a",
+    etag: "329aad4e1b1e4b0b9936c2f52b67f542",
+    eventTime: "2025-11-15T11:07:52.415Z",
+    fileName: "source-dataset-study-linked-entities-foo-a.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "95d10691-1803-432c-894f-d903cd776adc",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "6474",
+    versionId: null,
+  },
+  id: "93f520ff-bc42-4ab0-aa86-5024649b96fc",
+  sourceStudyId: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+  versionId: "1cc7bc6f-5c7f-45d2-be8d-4df2a12a121c",
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_B = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-study-linked-entities-foo-b",
+    etag: "329aad4e1b1e4b0b9936c2f52b67f542",
+    eventTime: "2025-11-12T14:22:10.831Z",
+    fileName: "source-dataset-study-linked-entities-foo-b.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "8018db0c-0c46-4dc6-88c6-3ad684dc2904",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "75642",
+    versionId: null,
+  },
+  id: "a754db6e-8aab-41c6-be8d-a1f6b1ea4078",
+  sourceStudyId: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+  versionId: "9b8c74f5-884d-4c7c-a9a9-19d1e9e200b3",
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-study-linked-entities-bar-a",
+    etag: "329aad4e1b1e4b0b9936c2f52b67f542",
+    eventTime: "2025-11-13T09:15:44.207Z",
+    fileName: "source-dataset-study-linked-entities-bar-a.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "664942a6-1f45-4f05-a592-2f86da86c27a",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "6474",
+    versionId: null,
+  },
+  id: "63b38198-9fc9-444a-879d-e9578387bc14",
+  sourceStudyId: SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+  versionId: "f33a17f1-67ef-4d6e-a196-bc60caa68d9c",
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-study-linked-entities-bar-b",
+    etag: "329aad4e1b1e4b0b9936c2f52b67f542",
+    eventTime: "2025-11-14T17:51:03.694Z",
+    fileName: "source-dataset-study-linked-entities-bar-b.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "f35aea14-3b08-4beb-8f87-dee48c67696b",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "6474",
+    versionId: null,
+  },
+  id: "260b364d-a126-47b7-b988-da3e3031fffa",
+  sourceStudyId: SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+  versionId: "d70e264b-8419-46b9-93b1-1baaa118e8ea",
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2726,6 +2876,10 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
   SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
   SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_A,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_B,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A,
+  SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B,
 ];
 
 // ATLAS IDS
@@ -3873,7 +4027,10 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
     SOURCE_DATASET_ARCHIVED_FOOFOO.versionId,
     SOURCE_DATASET_ARCHIVED_FOOBAR.versionId,
   ],
-  sourceStudies: [SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id],
+  sourceStudies: [
+    SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A.id,
+    SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+  ],
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "2",
 };
@@ -3897,8 +4054,17 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
     SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.versionId,
     SOURCE_DATASET_WITH_SOURCE_STUDY_BAR.versionId,
     SOURCE_DATASET_WITH_OUTDATED_FILENAME.versionId,
+    SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_A.versionId,
+    SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_B.versionId,
+    SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A.versionId,
+    SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B.versionId,
   ],
-  sourceStudies: [SOURCE_STUDY_MISC_C_FOO.id, SOURCE_STUDY_MISC_C_BAR.id],
+  sourceStudies: [
+    SOURCE_STUDY_MISC_C_FOO.id,
+    SOURCE_STUDY_MISC_C_BAR.id,
+    SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+    SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+  ],
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "1",
 };
@@ -4663,6 +4829,86 @@ export const ENTRY_SHEET_VALIDATION_HEATMAP_PERFECT = {
   },
 } satisfies TestEntrySheetValidation;
 
+export const ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_FOO_A = {
+  entry_sheet_id: ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A,
+  entry_sheet_title: ENTRY_SHEET_TITLE_LINKED_ENTITIES_FOO_A,
+  id: "89803289-742f-45b0-8ade-fd0a394949d4",
+  last_synced: new Date("2026-02-24T20:54:59.772Z"),
+  last_updated: {
+    by: "foofoo",
+    by_email: "foofoo@example.com",
+    date: "2026-02-24T20:53:49.928Z",
+  },
+  source_study_id: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+  validation_report: [],
+  validation_summary: {
+    dataset_count: 7,
+    donor_count: 4,
+    error_count: 0,
+    sample_count: 11,
+  },
+} satisfies TestEntrySheetValidation;
+
+export const ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_FOO_B = {
+  entry_sheet_id: ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_B,
+  entry_sheet_title: ENTRY_SHEET_TITLE_LINKED_ENTITIES_FOO_B,
+  id: "be3873da-ed25-4efa-a8ab-21560505d9f1",
+  last_synced: new Date("2026-02-24T20:55:03.341Z"),
+  last_updated: {
+    by: "foobar",
+    by_email: "foobar@example.com",
+    date: "2026-02-24T20:54:08.483Z",
+  },
+  source_study_id: SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO.id,
+  validation_report: [],
+  validation_summary: {
+    dataset_count: 2,
+    donor_count: 2,
+    error_count: 0,
+    sample_count: 3,
+  },
+} satisfies TestEntrySheetValidation;
+
+export const ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_BAR_A = {
+  entry_sheet_id: ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_A,
+  entry_sheet_title: ENTRY_SHEET_TITLE_LINKED_ENTITIES_BAR_A,
+  id: "36c965f8-9046-47ac-9db2-ca8bde1afccc",
+  last_synced: new Date("2026-02-24T20:55:07.687Z"),
+  last_updated: {
+    by: "foobaz",
+    by_email: "foobaz@example.com",
+    date: "2026-02-24T20:54:12.225Z",
+  },
+  source_study_id: SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+  validation_report: [],
+  validation_summary: {
+    dataset_count: 6,
+    donor_count: 3,
+    error_count: 0,
+    sample_count: 8,
+  },
+} satisfies TestEntrySheetValidation;
+
+export const ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_BAR_B = {
+  entry_sheet_id: ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_B,
+  entry_sheet_title: ENTRY_SHEET_TITLE_LINKED_ENTITIES_BAR_B,
+  id: "d61cab49-cce1-43e6-b281-3f27fa8d53ed",
+  last_synced: new Date("2026-02-24T20:55:10.286Z"),
+  last_updated: {
+    by: "foofoo",
+    by_email: "foofoo@example.com",
+    date: "2026-02-24T20:54:13.931Z",
+  },
+  source_study_id: SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
+  validation_report: [],
+  validation_summary: {
+    dataset_count: 6,
+    donor_count: 2,
+    error_count: 0,
+    sample_count: 9,
+  },
+} satisfies TestEntrySheetValidation;
+
 export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
   ENTRY_SHEET_VALIDATION_DRAFT_OK_FOO,
   ENTRY_SHEET_VALIDATION_DRAFT_OK_BAR,
@@ -4674,6 +4920,10 @@ export const INITIAL_TEST_ENTRY_SHEET_VALIDATIONS = [
   ENTRY_SHEET_VALIDATION_HEATMAP_PARTIAL,
   ENTRY_SHEET_VALIDATION_HEATMAP_EMPTY,
   ENTRY_SHEET_VALIDATION_HEATMAP_PERFECT,
+  ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_FOO_A,
+  ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_FOO_B,
+  ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_BAR_A,
+  ENTRY_SHEET_VALIDATION_LINKED_ENTITIES_BAR_B,
 ];
 
 // COMMENTS
@@ -4909,6 +5159,15 @@ export const TEST_UNSHARED_GOOGLE_SHEET_IDS = new Set(["sheet-unshared"]);
 export const TEST_GOOGLE_SHEET_TITLES_BY_ID: Record<string, string> = {
   [ENTRY_SHEET_ID_DRAFT_OK_BAR]: ENTRY_SHEET_TITLE_DRAFT_OK_BAR,
   [ENTRY_SHEET_ID_DRAFT_OK_FOO]: ENTRY_SHEET_TITLE_DRAFT_OK_FOO,
+  [ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_A]:
+    ENTRY_SHEET_TITLE_LINKED_ENTITIES_BAR_A,
+  [ENTRY_SHEET_ID_LINKED_ENTITIES_BAR_B]:
+    ENTRY_SHEET_TITLE_LINKED_ENTITIES_BAR_B,
+  [ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_A]:
+    ENTRY_SHEET_TITLE_LINKED_ENTITIES_FOO_A,
+  [ENTRY_SHEET_ID_LINKED_ENTITIES_FOO_B]:
+    ENTRY_SHEET_TITLE_LINKED_ENTITIES_FOO_B,
+  [ENTRY_SHEET_ID_LINKED_ENTITIES_NEW]: "Entry Sheet Linked Entities New",
   "atlas-public-baz": "Atlas Public Baz Sheet",
   "new-atlas-with-metadata-specification":
     "New Atlas With Metadata Specification Sheet",

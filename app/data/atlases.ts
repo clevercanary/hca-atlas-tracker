@@ -2,6 +2,28 @@ import { InvalidOperationError } from "app/utils/api-handler";
 import pg from "pg";
 
 /**
+ * Replace a source study ID with another specified source study ID across all atlas source study lists.
+ * @param currentSourceStudyId - Source study ID to replace.
+ * @param replacementSourceStudyId - Source study ID to insert.
+ * @param client - Postgres client to use.
+ */
+export async function replaceSourceStudyInAtlases(
+  currentSourceStudyId: string,
+  replacementSourceStudyId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  await client.query(
+    `
+      UPDATE hat.atlases
+      -- Remove both source studies to ensure a clean slate, and then re-add the replacement one
+      SET source_studies = (source_studies - $1 - $2) || jsonb_build_array($2::text)
+      WHERE source_studies ? $1
+    `,
+    [currentSourceStudyId, replacementSourceStudyId],
+  );
+}
+
+/**
  * Update an atlas containing a given existing component atlas version to instead contain a different given version.
  * @param existingVersionId - Existing component atlas version ID to replace.
  * @param newVersionId - New component atlas version ID to insert.
