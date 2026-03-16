@@ -70,6 +70,19 @@ export async function getAllAtlases(
   return queryResult.rows;
 }
 
+/**
+ * Get base-model representation of all published atlases.
+ * @returns base-model published atlases.
+ */
+export async function getAllPublishedAtlases(): Promise<
+  HCAAtlasTrackerDBAtlas[]
+> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
+    "SELECT * FROM hat.atlases WHERE published_at IS NOT NULL",
+  );
+  return queryResult.rows;
+}
+
 export async function getAtlas(
   id: string,
   client?: pg.PoolClient,

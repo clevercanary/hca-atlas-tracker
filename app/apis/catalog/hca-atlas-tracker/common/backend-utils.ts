@@ -3,6 +3,7 @@ import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.jso
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import {
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerAtlasSummary,
   HCAAtlasTrackerComment,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
@@ -39,6 +40,20 @@ import {
   getUnpublishedCitation,
   makeFileVersionString,
 } from "./utils";
+
+export function dbAtlasToAtlasSummary(
+  dbAtlas: HCAAtlasTrackerDBAtlas,
+): HCAAtlasTrackerAtlasSummary {
+  const version = `v${dbAtlas.generation}.${dbAtlas.revision}`;
+  return {
+    id: dbAtlas.id,
+    name: `${dbAtlas.overview.shortName} ${version}`,
+    network: dbAtlas.overview.network,
+    publishedAt: dbAtlas.published_at?.toISOString() ?? null,
+    shortName: dbAtlas.overview.shortName,
+    version,
+  };
+}
 
 export function dbAtlasToApiAtlas(
   dbAtlas: HCAAtlasTrackerDBAtlasForAPI,

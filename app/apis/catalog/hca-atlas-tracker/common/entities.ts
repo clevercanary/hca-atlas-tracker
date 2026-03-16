@@ -9,6 +9,15 @@ import { FILE_VALIDATOR_NAMES, NETWORK_KEYS, WAVES } from "./constants";
 export type APIKey = keyof typeof API;
 export type APIValue = (typeof API)[APIKey];
 
+export interface HCAAtlasTrackerAtlasSummary {
+  id: string;
+  name: string;
+  network: NetworkKey;
+  publishedAt: string | null;
+  shortName: string;
+  version: string;
+}
+
 export type HCAAtlasTrackerListAtlas = Omit<
   HCAAtlasTrackerAtlas,
   "integrationLead"
