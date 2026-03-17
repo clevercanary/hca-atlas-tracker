@@ -23,11 +23,13 @@ import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
   changeAtlasToPublished,
   getAtlasIdByNameAndVersion,
+  getAtlasPublishedAt,
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { parseUrlAtlasName } from "../utils/atlases";
 import { doTransaction, query } from "./database";
+import { getPublishedFromPublishedAt } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -306,7 +308,7 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
  * @returns boolean indicating whether the atlas is published.
  */
 export async function atlasIsPublished(atlasId: string): Promise<boolean> {
-  return dbEntityIsPublished(await getBaseModelAtlas(atlasId));
+  return getPublishedFromPublishedAt(await getAtlasPublishedAt(atlasId));
 }
 
 /**

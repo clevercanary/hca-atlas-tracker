@@ -238,7 +238,18 @@ export function apiEntityIsPublished(
     | HCAAtlasTrackerComponentAtlas
     | HCAAtlasTrackerSourceDataset,
 ): boolean {
-  return entity.publishedAt !== null;
+  return getPublishedFromPublishedAt(entity.publishedAt);
+}
+
+/**
+ * Determine whether a published-at value indicates that the associated entity is published.
+ * @param publishedAt - Published-at value; either a Date object, a date string, or null.
+ * @returns boolean indicating whether the associated entity is published.
+ */
+export function getPublishedFromPublishedAt(
+  publishedAt: Date | string | null,
+): boolean {
+  return publishedAt !== null;
 }
 
 /**

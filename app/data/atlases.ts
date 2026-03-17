@@ -94,6 +94,23 @@ export async function updateSourceDatasetVersionInAtlas(
 }
 
 /**
+ * Get an atlas's published-at value.
+ * @param atlasId - Atlas ID.
+ * @returns published-at value.
+ */
+export async function getAtlasPublishedAt(
+  atlasId: string,
+): Promise<Date | null> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "published_at">>(
+    "SELECT published_at FROM hat.atlases WHERE id = $1",
+    [atlasId],
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  return queryResult.rows[0].published_at;
+}
+
+/**
  * Set a currently-unpublished atlas's published-at date, erroring if the atlas is already published.
  * @param atlasId - Atlas ID.
  * @param publishedAt - Publish date to set.

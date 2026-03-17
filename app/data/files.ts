@@ -17,6 +17,7 @@ import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases"
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
+import { getPublishedFromPublishedAt } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {
   operation: "inserted" | "updated";
@@ -472,7 +473,7 @@ export async function getFilesPublishStatus(
 
   return allRows.map(({ id, published_at }) => ({
     id,
-    published: published_at !== null,
+    published: getPublishedFromPublishedAt(published_at),
   }));
 }
 

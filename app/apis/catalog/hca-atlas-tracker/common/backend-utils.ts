@@ -39,6 +39,7 @@ import {
   getPublishedCitation,
   getUnpublishedCitation,
   makeFileVersionString,
+  getPublishedFromPublishedAt,
 } from "./utils";
 
 export function dbAtlasToAtlasSummary(
@@ -422,5 +423,5 @@ export function dbEntityIsPublished(
     | HCAAtlasTrackerDBComponentAtlas
     | HCAAtlasTrackerDBSourceDataset,
 ): boolean {
-  return entity.published_at !== null;
+  return getPublishedFromPublishedAt(entity.published_at);
 }
