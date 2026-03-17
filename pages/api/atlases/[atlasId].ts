@@ -4,15 +4,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { ROLE_GROUP } from "../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../app/common/entities";
-import {
-  getAtlas,
-  getAtlasIdByUrlParameter,
-  updateAtlas,
-} from "../../../app/services/atlases";
+import { getAtlas, updateAtlas } from "../../../app/services/atlases";
 import {
   handleByMethod,
   handler,
   publishedOrRole,
+  resolveAtlasId,
   role,
 } from "../../../app/utils/api-handler";
 
@@ -21,10 +18,10 @@ import {
  */
 
 const getHandler = handler(
+  resolveAtlasId,
   publishedOrRole(ROLE_GROUP.READ),
   async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-    const idParam = req.query.atlasId as string;
-    const id = await getAtlasIdByUrlParameter(idParam);
+    const id = req.query.atlasId as string;
     res.json(dbAtlasToApiAtlas(await getAtlas(id)));
   },
 );

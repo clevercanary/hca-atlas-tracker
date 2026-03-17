@@ -135,6 +135,18 @@ export const registeredUser: MiddlewareFunction = async (req, res, next) => {
 };
 
 /**
+ * Middleware function that updates the request's `atlasId` parameter to be a resolved UUID.
+ * @param req - Next API request to resolve atlas ID on.
+ * @param res - Next API response (unused).
+ * @param next - Middleware next function.
+ */
+export const resolveAtlasId: MiddlewareFunction = async (req, res, next) => {
+  const atlasIdParam = req.query.atlasId as string;
+  req.query.atlasId = await getAtlasIdByUrlParameter(atlasIdParam);
+  next();
+};
+
+/**
  * Creates a middleware function that, unless the requested atlas is published, rejects requests from users who aren't enabled with the specified role.
  * @param allowedRoles - Allowed user roles.
  * @returns middleware function restricting, by role, requests that are made to unpublished atlases.
@@ -144,8 +156,7 @@ export function publishedOrRole(
 ): MiddlewareFunction {
   const roleMiddleware = role(allowedRoles);
   return async (req, res, next) => {
-    const atlasIdParam = req.query.atlasId as string;
-    const atlasId = await getAtlasIdByUrlParameter(atlasIdParam);
+    const atlasId = req.query.atlasId as string;
     if (await atlasIsPublished(atlasId)) {
       next();
     } else {
