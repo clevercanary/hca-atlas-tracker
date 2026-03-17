@@ -5,7 +5,6 @@ import {
   NotFoundError,
 } from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
-import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ATLAS_STATUS,
   DoiPublicationInfo,
@@ -242,7 +241,7 @@ export async function publishAtlas(
   atlasId: string,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   return doTransaction(async (client) => {
-    if (dbEntityIsPublished(await getBaseModelAtlas(atlasId, client))) {
+    if (await atlasIsPublished(atlasId, client)) {
       throw new InvalidOperationError(
         `Atlas with ID ${atlasId} is already published`,
       );
@@ -305,10 +304,16 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
 /**
  * Get whether a given atlas is published.
  * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
  * @returns boolean indicating whether the atlas is published.
  */
-export async function atlasIsPublished(atlasId: string): Promise<boolean> {
-  return getPublishedFromPublishedAt(await getAtlasPublishedAt(atlasId));
+export async function atlasIsPublished(
+  atlasId: string,
+  client?: pg.PoolClient,
+): Promise<boolean> {
+  return getPublishedFromPublishedAt(
+    await getAtlasPublishedAt(atlasId, client),
+  );
 }
 
 /**

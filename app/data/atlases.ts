@@ -96,14 +96,17 @@ export async function updateSourceDatasetVersionInAtlas(
 /**
  * Get an atlas's published-at value.
  * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
  * @returns published-at value.
  */
 export async function getAtlasPublishedAt(
   atlasId: string,
+  client?: pg.PoolClient,
 ): Promise<Date | null> {
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "published_at">>(
     "SELECT published_at FROM hat.atlases WHERE id = $1",
     [atlasId],
+    client,
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
