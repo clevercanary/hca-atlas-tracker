@@ -307,6 +307,16 @@ describe(TEST_ROUTE, () => {
     expect(atlas.entrySheetValidationCount).toEqual(2);
   });
 
+  it("returns atlas when requested by name", async () => {
+    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const res = await doAtlasRequest(atlasName, USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
+    expect(atlas.componentAtlasCount).toEqual(2);
+    expect(atlas.entrySheetValidationCount).toEqual(2);
+  });
+
   it("returns atlas with both component atlases and entry sheet validations when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(
       ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,

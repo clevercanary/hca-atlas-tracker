@@ -202,6 +202,28 @@ describe(TEST_ROUTE, () => {
     ]);
   });
 
+  it("returns source datasets when requested via atlas name", async () => {
+    const atlasName = `${ATLAS_WITH_MISC_SOURCE_STUDIES.shortName}_v${ATLAS_WITH_MISC_SOURCE_STUDIES.generation}.${ATLAS_WITH_MISC_SOURCE_STUDIES.revision}`;
+    const res = await doSourceDatasetsRequest(atlasName, USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_FOO,
+      SOURCE_DATASET_BAR,
+      SOURCE_DATASET_BAZ,
+      SOURCE_DATASET_FOOFOO,
+      SOURCE_DATASET_FOOBAR,
+      SOURCE_DATASET_FOOBAZ,
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR,
+      SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+      SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+    ]);
+  });
+
   it("returns source datasets only for latest file versions and only if they're non-archived", async () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,

@@ -207,6 +207,29 @@ describe(TEST_ROUTE, () => {
     }
   });
 
+  it("returns source studies when requested via atlas name", async () => {
+    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const res = await doStudiesRequest(atlasName, USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(3);
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+      SOURCE_STUDY_DRAFT_OK,
+    );
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+      SOURCE_STUDY_SHARED,
+    );
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+      SOURCE_STUDY_DRAFT_NO_CROSSREF,
+    );
+    for (const study of studies) {
+      await expectApiSourceStudyToHaveMatchingDbValidations(study);
+    }
+  });
+
   it("returns source studies including study with archived source dataset, returning source dataset count only for the requested atlas", async () => {
     const res = await doStudiesRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,

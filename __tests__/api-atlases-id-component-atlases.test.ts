@@ -170,6 +170,19 @@ describe(TEST_ROUTE, () => {
     );
   });
 
+  it("returns component atlases when requested via atlas name", async () => {
+    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const res = await doComponentAtlasesRequest(atlasName, USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR],
+      [3, 2],
+    );
+  });
+
   it("returns component atlases only for latest file versions and only if they're non-archived", async () => {
     const res = await doComponentAtlasesRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
