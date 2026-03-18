@@ -5,6 +5,7 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
 import {
+  ATLAS_PUBLISHED,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
@@ -31,6 +32,7 @@ import {
   SOURCE_DATASET_ID_OUTDATED_FILENAME,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  SOURCE_DATASET_PUBLISHED,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
@@ -132,6 +134,15 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode(),
     ).toEqual(400);
+  });
+
+  it("returns source datasets when requested from published atlas by logged out user", async () => {
+    const res = await doSourceDatasetsRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_PUBLISHED,
+    ]);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {

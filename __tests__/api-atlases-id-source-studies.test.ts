@@ -7,10 +7,12 @@ import studiesHandler from "../pages/api/atlases/[atlasId]/source-studies";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_PUBLISHED,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
+  SOURCE_STUDY_PUBLISHED,
   SOURCE_STUDY_SHARED,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -22,7 +24,11 @@ import {
   expectApiSourceStudyToHaveMatchingDbValidations,
   resetDatabase,
 } from "../testing/db-utils";
-import { TestPublishedSourceStudy, TestUser } from "../testing/entities";
+import {
+  TestPublishedSourceStudy,
+  TestUnpublishedSourceStudy,
+  TestUser,
+} from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
@@ -109,6 +115,20 @@ describe(TEST_ROUTE, () => {
         await doStudiesRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
       )._getStatusCode(),
     ).toEqual(403);
+  });
+
+  it("returns source studies from published atlas when requested by logged out user", async () => {
+    const res = await doStudiesRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(1);
+    expectUnpublishedStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_PUBLISHED.id),
+      SOURCE_STUDY_PUBLISHED,
+    );
+    for (const study of studies) {
+      await expectApiSourceStudyToHaveMatchingDbValidations(study);
+    }
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -247,4 +267,23 @@ function expectStudyPropertiesToMatch(
     expect(apiStudy.publicationDate).toBeNull();
     expect(apiStudy.referenceAuthor).toBeNull();
   }
+}
+
+function expectUnpublishedStudyPropertiesToMatch(
+  apiStudy: HCAAtlasTrackerSourceStudy | undefined,
+  testStudy: TestUnpublishedSourceStudy,
+): void {
+  expect(apiStudy).toBeDefined();
+  if (!apiStudy) return;
+  expect(apiStudy.id).toEqual(testStudy.id);
+  expect(apiStudy.doi).toBeNull();
+  expect(apiStudy.cellxgeneCollectionId).toEqual(
+    testStudy.cellxgeneCollectionId,
+  );
+  expect(apiStudy.hcaProjectId).toEqual(testStudy.hcaProjectId);
+  expect(apiStudy.contactEmail).toEqual(testStudy.unpublishedInfo.contactEmail);
+  expect(apiStudy.referenceAuthor).toEqual(
+    testStudy.unpublishedInfo.referenceAuthor,
+  );
+  expect(apiStudy.title).toEqual(testStudy.unpublishedInfo.title);
 }

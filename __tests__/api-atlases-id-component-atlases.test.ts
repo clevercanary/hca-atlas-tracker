@@ -6,6 +6,7 @@ import { endPgPool } from "../app/services/database";
 import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
 import {
   ATLAS_DRAFT,
+  ATLAS_PUBLISHED,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
@@ -19,6 +20,7 @@ import {
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  COMPONENT_ATLAS_PUBLISHED,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
@@ -116,6 +118,18 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode(),
     ).toEqual(400);
+  });
+
+  it("returns component atlases from published atlas when requested by logged out user", async () => {
+    const res = await doComponentAtlasesRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [COMPONENT_ATLAS_PUBLISHED],
+      [0],
+    );
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {

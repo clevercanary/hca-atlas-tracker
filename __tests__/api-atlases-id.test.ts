@@ -250,6 +250,17 @@ describe(TEST_ROUTE, () => {
     ).toEqual(404);
   });
 
+  it("returns published atlas when GET requested by logged out user", async () => {
+    const res = await doAtlasRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_PUBLISHED);
+    expect(atlas.sourceStudyCount).toEqual(1);
+    expect(atlas.componentAtlasCount).toEqual(1);
+    expect(atlas.sourceDatasetCount).toEqual(1);
+    expect(atlas.entrySheetValidationCount).toEqual(0);
+  });
+
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
       "returns public atlas",
@@ -683,7 +694,7 @@ describe(TEST_ROUTE, () => {
       shortName: ATLAS_PUBLISHED.shortName,
       wave: "1",
     };
-    await testSuccessfulEdit(ATLAS_PUBLISHED, editData, 0, []);
+    await testSuccessfulEdit(ATLAS_PUBLISHED, editData, 1, []);
   });
 });
 
