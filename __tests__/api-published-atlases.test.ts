@@ -58,7 +58,7 @@ describe(TEST_ROUTE, () => {
     expectAtlasSummariesToMatchTests(data, INITIAL_PUBLISHED_TEST_ATLASES);
   });
 
-  it("returns error 403 for disabled user", async () => {
+  it("returns all published atlases for disabled user", async () => {
     const res = await doPublishedAtlasesRequest(USER_DISABLED_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const data = res._getJSONData() as HCAAtlasTrackerAtlasSummary[];
