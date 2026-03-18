@@ -17,6 +17,10 @@ import {
   AtlasEditData,
   NewAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  getPublishedFromPublishedAt,
+  isUuid,
+} from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
@@ -28,7 +32,6 @@ import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atl
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { parseUrlAtlasName } from "../utils/atlases";
 import { doTransaction, query } from "./database";
-import { getPublishedFromPublishedAt } from "app/apis/catalog/hca-atlas-tracker/common/utils";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -347,7 +350,7 @@ export async function getAtlasIdByUrlParameter(
   urlParam: string,
 ): Promise<string> {
   // Return the parameter as-is if it appears to already be a UUID
-  if (/^[-0-9a-f]+$/i.test(urlParam)) return urlParam;
+  if (isUuid(urlParam)) return urlParam;
 
   // Attempt to parse the parameter as a name
   const nameInfo = parseUrlAtlasName(urlParam);

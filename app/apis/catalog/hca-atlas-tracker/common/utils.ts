@@ -305,3 +305,14 @@ export function taskInputMapper(
     targetCompletion: apiTask.targetCompletion ?? GREATEST_UNIX_TIME,
   };
 }
+
+/**
+ * Determine whether a string matches the standard dash-separated-hexadecimal UUID format.
+ * @param s - String to check.
+ * @returns boolean indicating whether the string represents a UUID.
+ */
+export function isUuid(s: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    s,
+  );
+}
