@@ -2855,7 +2855,6 @@ export const SOURCE_DATASET_PUBLISHED = {
   },
   id: "d5e2e9dc-7033-47ab-a40b-212e8eef73cd",
   publishedAt: "2026-03-18T06:18:51.613Z",
-  sourceStudyId: SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR.id,
   versionId: "4fc11334-3cdd-4cb6-8a53-505a2affd997",
 } satisfies TestSourceDataset;
 
