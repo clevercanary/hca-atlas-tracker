@@ -198,49 +198,42 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when public atlas is GET requested by logged out user", async () => {
-    expect(
-      (await doAtlasRequest(ATLAS_PUBLIC.id, undefined, true))._getStatusCode(),
-    ).toEqual(401);
-  });
+  for (const { atlasId, description } of [
+    {
+      atlasId: ATLAS_DRAFT.id,
+      description: "unpublished atlas is GET requested",
+    },
+    {
+      atlasId: ATLAS_ID_NONEXISTENT,
+      description: "nonexistent atlas is GET requested",
+    },
+    {
+      atlasId: "nonexistent_v1.23",
+      description: "nonexistent atlas is GET requested via name",
+    },
+  ]) {
+    it(`returns error 401 when ${description} by logged out user`, async () => {
+      expect(
+        (await doAtlasRequest(atlasId, undefined, true))._getStatusCode(),
+      ).toEqual(401);
+    });
 
-  it("returns error 403 when public atlas is GET requested by unregistered user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED, true)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by unregistered user`, async () => {
+      expect(
+        (
+          await doAtlasRequest(atlasId, USER_UNREGISTERED, true)
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
 
-  it("returns error 403 when public atlas is GET requested by disabled user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
-
-  it("returns error 401 when draft atlas is GET requested by logged out user", async () => {
-    expect(
-      (await doAtlasRequest(ATLAS_DRAFT.id, undefined, true))._getStatusCode(),
-    ).toEqual(401);
-  });
-
-  it("returns error 403 when draft atlas is GET requested by unregistered user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED, true)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
-
-  it("returns error 403 when draft atlas is GET requested by disabled user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by disabled user`, async () => {
+      expect(
+        (
+          await doAtlasRequest(atlasId, USER_DISABLED_CONTENT_ADMIN, true)
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
+  }
 
   it("GET returns error 404 when nonexistent atlas is requested", async () => {
     expect(

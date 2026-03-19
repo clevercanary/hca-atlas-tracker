@@ -42,6 +42,8 @@ jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases/[id]/source-studies";
 
+const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -59,63 +61,49 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when public atlas studies are requested by logged out user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_PUBLIC.id, undefined, METHOD.GET, true)
-      )._getStatusCode(),
-    ).toEqual(401);
-  });
+  for (const { atlasId, description } of [
+    {
+      atlasId: ATLAS_DRAFT.id,
+      description: "unpublished atlas studies are requested",
+    },
+    {
+      atlasId: ATLAS_ID_NONEXISTENT,
+      description: "nonexistent atlas studies are requested",
+    },
+    {
+      atlasId: "nonexistent_v1.23",
+      description: "nonexistent atlas studies are requested via atlas name",
+    },
+  ]) {
+    it(`returns error 401 when ${description} by logged out user`, async () => {
+      expect(
+        (
+          await doStudiesRequest(atlasId, undefined, METHOD.GET, true)
+        )._getStatusCode(),
+      ).toEqual(401);
+    });
 
-  it("returns error 403 when public atlas studies are requested by unregistered user", async () => {
-    expect(
-      (
-        await doStudiesRequest(
-          ATLAS_PUBLIC.id,
-          USER_UNREGISTERED,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by unregistered user`, async () => {
+      expect(
+        (
+          await doStudiesRequest(atlasId, USER_UNREGISTERED, METHOD.GET, true)
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
 
-  it("returns error 403 when public atlas studies are requested by disabled user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
-
-  it("returns error 401 when draft atlas studies are requested by logged out user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_DRAFT.id, undefined, METHOD.GET, true)
-      )._getStatusCode(),
-    ).toEqual(401);
-  });
-
-  it("returns error 403 when draft atlas studies are requested by unregistered user", async () => {
-    expect(
-      (
-        await doStudiesRequest(
-          ATLAS_DRAFT.id,
-          USER_UNREGISTERED,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
-
-  it("returns error 403 when draft atlas studies are requested by disabled user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by disabled user`, async () => {
+      expect(
+        (
+          await doStudiesRequest(
+            atlasId,
+            USER_DISABLED_CONTENT_ADMIN,
+            METHOD.GET,
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
+  }
 
   it("returns source studies from published atlas when requested by logged out user", async () => {
     const res = await doStudiesRequest(ATLAS_PUBLISHED.id);
