@@ -475,25 +475,15 @@ export function expectAtlasSummaryToMatchTestAtlas(
   atlasSummary: HCAAtlasTrackerAtlasSummary,
   testAtlas: TestAtlas,
 ): void {
+  const expectedVersion = `v${testAtlas.generation}.${testAtlas.revision}`;
   expect(atlasSummary.id).toEqual(testAtlas.id);
   expect(atlasSummary.name).toEqual(
-    expect.stringContaining(testAtlas.shortName),
-  );
-  expect(atlasSummary.name).toEqual(
-    expect.stringContaining(String(testAtlas.generation)),
-  );
-  expect(atlasSummary.name).toEqual(
-    expect.stringContaining(String(testAtlas.revision)),
+    `${testAtlas.shortName} ${expectedVersion}`,
   );
   expect(atlasSummary.network).toEqual(testAtlas.network);
   expect(atlasSummary.publishedAt).toEqual(testAtlas.publishedAt ?? null);
   expect(atlasSummary.shortName).toEqual(testAtlas.shortName);
-  expect(atlasSummary.version).toEqual(
-    expect.stringContaining(String(testAtlas.generation)),
-  );
-  expect(atlasSummary.version).toEqual(
-    expect.stringContaining(String(testAtlas.revision)),
-  );
+  expect(atlasSummary.version).toEqual(expectedVersion);
 }
 
 export function expectApiAtlasToMatchTest(
