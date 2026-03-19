@@ -6,12 +6,14 @@ import {
   handleOptionalParam,
   handler,
   method,
-  role,
+  publishedOrRole,
+  resolveAtlasId,
 } from "../../../../app/utils/api-handler";
 
 export default handler(
   method(METHOD.GET),
-  role(ROLE_GROUP.READ),
+  resolveAtlasId,
+  publishedOrRole(ROLE_GROUP.READ),
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const { param: archived, responseSent } = handleOptionalParam(

@@ -198,49 +198,42 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when public atlas is GET requested by logged out user", async () => {
-    expect(
-      (await doAtlasRequest(ATLAS_PUBLIC.id, undefined, true))._getStatusCode(),
-    ).toEqual(401);
-  });
+  for (const { atlasId, description } of [
+    {
+      atlasId: ATLAS_DRAFT.id,
+      description: "unpublished atlas is GET requested",
+    },
+    {
+      atlasId: ATLAS_ID_NONEXISTENT,
+      description: "nonexistent atlas is GET requested",
+    },
+    {
+      atlasId: "nonexistent_v1.23",
+      description: "nonexistent atlas is GET requested via name",
+    },
+  ]) {
+    it(`returns error 401 when ${description} by logged out user`, async () => {
+      expect(
+        (await doAtlasRequest(atlasId, undefined, true))._getStatusCode(),
+      ).toEqual(401);
+    });
 
-  it("returns error 403 when public atlas is GET requested by unregistered user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_UNREGISTERED, true)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by unregistered user`, async () => {
+      expect(
+        (
+          await doAtlasRequest(atlasId, USER_UNREGISTERED, true)
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
 
-  it("returns error 403 when public atlas is GET requested by disabled user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
-
-  it("returns error 401 when draft atlas is GET requested by logged out user", async () => {
-    expect(
-      (await doAtlasRequest(ATLAS_DRAFT.id, undefined, true))._getStatusCode(),
-    ).toEqual(401);
-  });
-
-  it("returns error 403 when draft atlas is GET requested by unregistered user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_DRAFT.id, USER_UNREGISTERED, true)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
-
-  it("returns error 403 when draft atlas is GET requested by disabled user", async () => {
-    expect(
-      (
-        await doAtlasRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by disabled user`, async () => {
+      expect(
+        (
+          await doAtlasRequest(atlasId, USER_DISABLED_CONTENT_ADMIN, true)
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
+  }
 
   it("GET returns error 404 when nonexistent atlas is requested", async () => {
     expect(
@@ -248,6 +241,17 @@ describe(TEST_ROUTE, () => {
         await doAtlasRequest(ATLAS_ID_NONEXISTENT, USER_CONTENT_ADMIN, true)
       )._getStatusCode(),
     ).toEqual(404);
+  });
+
+  it("returns published atlas when GET requested by logged out user", async () => {
+    const res = await doAtlasRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_PUBLISHED);
+    expect(atlas.sourceStudyCount).toEqual(1);
+    expect(atlas.componentAtlasCount).toEqual(1);
+    expect(atlas.sourceDatasetCount).toEqual(1);
+    expect(atlas.entrySheetValidationCount).toEqual(0);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -289,6 +293,16 @@ describe(TEST_ROUTE, () => {
 
   it("returns draft atlas when GET requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doAtlasRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
+    expect(atlas.componentAtlasCount).toEqual(2);
+    expect(atlas.entrySheetValidationCount).toEqual(2);
+  });
+
+  it("returns atlas when requested by name", async () => {
+    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const res = await doAtlasRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expectApiAtlasToMatchTest(atlas, ATLAS_DRAFT);
@@ -683,7 +697,7 @@ describe(TEST_ROUTE, () => {
       shortName: ATLAS_PUBLISHED.shortName,
       wave: "1",
     };
-    await testSuccessfulEdit(ATLAS_PUBLISHED, editData, 0, []);
+    await testSuccessfulEdit(ATLAS_PUBLISHED, editData, 1, []);
   });
 });
 

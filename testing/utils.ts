@@ -6,6 +6,7 @@ import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
   HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerAtlasSummary,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
@@ -468,6 +469,21 @@ export function testApiRole(
     await withConsoleErrorHiding(() => handler(req, res), hideConsoleError);
     await callback(res, user);
   });
+}
+
+export function expectAtlasSummaryToMatchTestAtlas(
+  atlasSummary: HCAAtlasTrackerAtlasSummary,
+  testAtlas: TestAtlas,
+): void {
+  const expectedVersion = `v${testAtlas.generation}.${testAtlas.revision}`;
+  expect(atlasSummary.id).toEqual(testAtlas.id);
+  expect(atlasSummary.name).toEqual(
+    `${testAtlas.shortName} ${expectedVersion}`,
+  );
+  expect(atlasSummary.network).toEqual(testAtlas.network);
+  expect(atlasSummary.publishedAt).toEqual(testAtlas.publishedAt ?? null);
+  expect(atlasSummary.shortName).toEqual(testAtlas.shortName);
+  expect(atlasSummary.version).toEqual(expectedVersion);
 }
 
 export function expectApiAtlasToMatchTest(

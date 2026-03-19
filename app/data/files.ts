@@ -1,4 +1,3 @@
-import { confirmQueryRowsContainIds } from "app/utils/database";
 import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
 import {
@@ -13,8 +12,10 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { getPublishedFromPublishedAt } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
 import { query } from "../services/database";
+import { confirmQueryRowsContainIds } from "../utils/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 
@@ -472,7 +473,7 @@ export async function getFilesPublishStatus(
 
   return allRows.map(({ id, published_at }) => ({
     id,
-    published: published_at !== null,
+    published: getPublishedFromPublishedAt(published_at),
   }));
 }
 

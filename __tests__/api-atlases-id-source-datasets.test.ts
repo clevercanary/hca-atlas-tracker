@@ -5,6 +5,7 @@ import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
 import {
+  ATLAS_PUBLISHED,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
@@ -31,6 +32,7 @@ import {
   SOURCE_DATASET_ID_OUTDATED_FILENAME,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  SOURCE_DATASET_PUBLISHED,
   SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
@@ -62,6 +64,8 @@ jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases/[id]/source-datasets";
 
+const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -83,42 +87,55 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when source datasets are requested by logged out user", async () => {
-    expect(
-      (
-        await doSourceDatasetsRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          undefined,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(401);
-  });
+  for (const { atlasId, description } of [
+    {
+      atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      description: "source datasets are requested from unpublished atlas",
+    },
+    {
+      atlasId: ATLAS_ID_NONEXISTENT,
+      description: "source datasets are requested from nonexistent atlas",
+    },
+    {
+      atlasId: "nonexistent_v1.23",
+      description:
+        "source datasets are requested from nonexistent atlas via atlas name",
+    },
+  ]) {
+    it(`returns error 401 when ${description} by logged out user`, async () => {
+      expect(
+        (
+          await doSourceDatasetsRequest(atlasId, undefined, METHOD.GET, true)
+        )._getStatusCode(),
+      ).toEqual(401);
+    });
 
-  it("returns error 403 when source datasets are requested by unregistered user", async () => {
-    expect(
-      (
-        await doSourceDatasetsRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          USER_UNREGISTERED,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by unregistered user`, async () => {
+      expect(
+        (
+          await doSourceDatasetsRequest(
+            atlasId,
+            USER_UNREGISTERED,
+            METHOD.GET,
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
 
-  it("returns error 403 when source datasets are requested by disabled user", async () => {
-    expect(
-      (
-        await doSourceDatasetsRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          USER_DISABLED_CONTENT_ADMIN,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by disabled user`, async () => {
+      expect(
+        (
+          await doSourceDatasetsRequest(
+            atlasId,
+            USER_DISABLED_CONTENT_ADMIN,
+            METHOD.GET,
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
+  }
 
   it("returns error 400 when `archived` parameter is set to an invalid value", async () => {
     expect(
@@ -132,6 +149,15 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode(),
     ).toEqual(400);
+  });
+
+  it("returns source datasets when requested from published atlas by logged out user", async () => {
+    const res = await doSourceDatasetsRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_PUBLISHED,
+    ]);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -172,6 +198,28 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       USER_CONTENT_ADMIN,
     );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
+    expectApiSourceDatasetsToMatchTest(sourceDatasets, [
+      SOURCE_DATASET_FOO,
+      SOURCE_DATASET_BAR,
+      SOURCE_DATASET_BAZ,
+      SOURCE_DATASET_FOOFOO,
+      SOURCE_DATASET_FOOBAR,
+      SOURCE_DATASET_FOOBAZ,
+      SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+      SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR,
+      SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+      SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+    ]);
+  });
+
+  it("returns source datasets when requested via atlas name", async () => {
+    const atlasName = `${ATLAS_WITH_MISC_SOURCE_STUDIES.shortName}_v${ATLAS_WITH_MISC_SOURCE_STUDIES.generation}.${ATLAS_WITH_MISC_SOURCE_STUDIES.revision}`;
+    const res = await doSourceDatasetsRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [

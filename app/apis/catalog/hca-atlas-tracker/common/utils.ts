@@ -238,7 +238,18 @@ export function apiEntityIsPublished(
     | HCAAtlasTrackerComponentAtlas
     | HCAAtlasTrackerSourceDataset,
 ): boolean {
-  return entity.publishedAt !== null;
+  return getPublishedFromPublishedAt(entity.publishedAt);
+}
+
+/**
+ * Determine whether a published-at value indicates that the associated entity is published.
+ * @param publishedAt - Published-at value; either a Date object, a date string, or null.
+ * @returns boolean indicating whether the associated entity is published.
+ */
+export function getPublishedFromPublishedAt(
+  publishedAt: Date | string | null,
+): boolean {
+  return publishedAt !== null;
 }
 
 /**
@@ -293,4 +304,15 @@ export function taskInputMapper(
     doi: apiTask.doi === null ? UNPUBLISHED : apiTask.doi,
     targetCompletion: apiTask.targetCompletion ?? GREATEST_UNIX_TIME,
   };
+}
+
+/**
+ * Determine whether a string matches the standard dash-separated-hexadecimal UUID format.
+ * @param s - String to check.
+ * @returns boolean indicating whether the string represents a UUID.
+ */
+export function isUuid(s: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    s,
+  );
 }

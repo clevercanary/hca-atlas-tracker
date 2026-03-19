@@ -5,6 +5,26 @@ export interface AtlasVersionNumbers {
   revision: number;
 }
 
+export interface AtlasNameAndVersion extends AtlasVersionNumbers {
+  shortName: string;
+}
+
+/**
+ * Parse short name, generation, and revision from an atlas name obtained from a URL.
+ * @param urlName - Name with version as represented in a URL.
+ * @returns object containing short name, generation, and revision.
+ */
+export function parseUrlAtlasName(urlName: string): AtlasNameAndVersion | null {
+  const match = /^(.+)_v([1-9]\d*)\.(0|[1-9]\d*)$/.exec(urlName);
+  if (match === null) return null;
+  const [, shortName, generationString, revisionString] = match;
+  return {
+    generation: Number(generationString),
+    revision: Number(revisionString),
+    shortName,
+  };
+}
+
 /**
  * Parse generation and revision numbers from an atlas version as written in an S3 key.
  * @param s3Version - Atlas version from S3 key.

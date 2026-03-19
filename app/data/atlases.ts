@@ -1,5 +1,37 @@
-import { InvalidOperationError } from "app/utils/api-handler";
+import { HCAAtlasTrackerDBAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { query } from "../services/database";
+import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { AtlasNameAndVersion } from "../utils/atlases";
 import pg from "pg";
+
+/**
+ * Get an atlas ID based on a case-insensitive short name, a generation number, and a revision number.
+ * @param nameAndVersion - Atlas name and version numbers.
+ * @param nameAndVersion.shortName - Atlas short name.
+ * @param nameAndVersion.generation - Atlas generation.
+ * @param nameAndVersion.revision - Atlas revision.
+ * @returns atlas ID.
+ */
+export async function getAtlasIdByNameAndVersion({
+  generation,
+  revision,
+  shortName,
+}: AtlasNameAndVersion): Promise<string> {
+  const lowerShortName = shortName.toLowerCase();
+  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+    "SELECT id FROM hat.atlases WHERE LOWER(overview->>'shortName') = $1 AND generation = $2 AND revision = $3",
+    [lowerShortName, generation, revision],
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(
+      `Atlas ${shortName} v${generation}.${revision} doesn't exist`,
+    );
+  if (queryResult.rows.length > 1)
+    throw new Error(
+      `Found multiple atlases named ${shortName} v${generation}.${revision}`,
+    );
+  return queryResult.rows[0].id;
+}
 
 /**
  * Replace a source study ID with another specified source study ID across all atlas source study lists.
@@ -59,6 +91,26 @@ export async function updateSourceDatasetVersionInAtlas(
     "UPDATE hat.atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE id = $3",
     [existingVersionId, newVersionId, atlasId],
   );
+}
+
+/**
+ * Get an atlas's published-at value.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ * @returns published-at value.
+ */
+export async function getAtlasPublishedAt(
+  atlasId: string,
+  client?: pg.PoolClient,
+): Promise<Date | null> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "published_at">>(
+    "SELECT published_at FROM hat.atlases WHERE id = $1",
+    [atlasId],
+    client,
+  );
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  return queryResult.rows[0].published_at;
 }
 
 /**

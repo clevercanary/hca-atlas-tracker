@@ -5,7 +5,6 @@ import {
   NotFoundError,
 } from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
-import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ATLAS_STATUS,
   DoiPublicationInfo,
@@ -18,11 +17,20 @@ import {
   AtlasEditData,
   NewAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  getPublishedFromPublishedAt,
+  isUuid,
+} from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
-import { changeAtlasToPublished } from "../data/atlases";
+import {
+  changeAtlasToPublished,
+  getAtlasIdByNameAndVersion,
+  getAtlasPublishedAt,
+} from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
+import { parseUrlAtlasName } from "../utils/atlases";
 import { doTransaction, query } from "./database";
 
 interface AtlasInputDbData {
@@ -62,6 +70,19 @@ export async function getAllAtlases(
     `,
     undefined,
     client,
+  );
+  return queryResult.rows;
+}
+
+/**
+ * Get base-model representation of all published atlases.
+ * @returns base-model published atlases.
+ */
+export async function getAllPublishedAtlases(): Promise<
+  HCAAtlasTrackerDBAtlas[]
+> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
+    "SELECT * FROM hat.atlases WHERE published_at IS NOT NULL",
   );
   return queryResult.rows;
 }
@@ -223,7 +244,7 @@ export async function publishAtlas(
   atlasId: string,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   return doTransaction(async (client) => {
-    if (dbEntityIsPublished(await getBaseModelAtlas(atlasId, client))) {
+    if (await atlasIsPublished(atlasId, client)) {
       throw new InvalidOperationError(
         `Atlas with ID ${atlasId} is already published`,
       );
@@ -284,6 +305,21 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
 }
 
 /**
+ * Get whether a given atlas is published.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ * @returns boolean indicating whether the atlas is published.
+ */
+export async function atlasIsPublished(
+  atlasId: string,
+  client?: pg.PoolClient,
+): Promise<boolean> {
+  return getPublishedFromPublishedAt(
+    await getAtlasPublishedAt(atlasId, client),
+  );
+}
+
+/**
  * Throw a NotFoundError if the specified atlas doesn't exist.
  * @param atlasId - ID of the atlas to check for.
  */
@@ -303,4 +339,22 @@ export async function atlasExists(atlasId: string): Promise<boolean> {
       atlasId,
     ])
   ).rows[0].exists;
+}
+
+/**
+ * Get an atlas's ID based on an identifier given in a URL.
+ * @param urlParam - URL parameter.
+ * @returns atlas ID.
+ */
+export async function getAtlasIdByUrlParameter(
+  urlParam: string,
+): Promise<string> {
+  // Return the parameter as-is if it appears to already be a UUID
+  if (isUuid(urlParam)) return urlParam;
+
+  // Attempt to parse the parameter as a name
+  const nameInfo = parseUrlAtlasName(urlParam);
+  if (nameInfo === null)
+    throw new InvalidOperationError("Unknown atlas identifier format");
+  return getAtlasIdByNameAndVersion(nameInfo);
 }

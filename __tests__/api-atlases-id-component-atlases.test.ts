@@ -6,6 +6,7 @@ import { endPgPool } from "../app/services/database";
 import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
 import {
   ATLAS_DRAFT,
+  ATLAS_PUBLISHED,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
@@ -19,6 +20,7 @@ import {
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  COMPONENT_ATLAS_PUBLISHED,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
@@ -50,6 +52,8 @@ jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases/[id]/component-atlases";
 
+const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -67,42 +71,55 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when draft atlas component atlases are requested by logged out user", async () => {
-    expect(
-      (
-        await doComponentAtlasesRequest(
-          ATLAS_DRAFT.id,
-          undefined,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(401);
-  });
+  for (const { atlasId, description } of [
+    {
+      atlasId: ATLAS_DRAFT.id,
+      description: "component atlases are requested from unpublished atlas",
+    },
+    {
+      atlasId: ATLAS_ID_NONEXISTENT,
+      description: "component atlases are requested from nonexistent atlas",
+    },
+    {
+      atlasId: "nonexistent_v1.23",
+      description:
+        "component atlases are requested from nonexistent atlas via atlas name",
+    },
+  ]) {
+    it(`returns error 401 when ${description} by logged out user`, async () => {
+      expect(
+        (
+          await doComponentAtlasesRequest(atlasId, undefined, METHOD.GET, true)
+        )._getStatusCode(),
+      ).toEqual(401);
+    });
 
-  it("returns error 403 when draft atlas component atlases are requested by unregistered user", async () => {
-    expect(
-      (
-        await doComponentAtlasesRequest(
-          ATLAS_DRAFT.id,
-          USER_UNREGISTERED,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by unregistered user`, async () => {
+      expect(
+        (
+          await doComponentAtlasesRequest(
+            atlasId,
+            USER_UNREGISTERED,
+            METHOD.GET,
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
 
-  it("returns error 403 when draft atlas component atlases are requested by disabled user", async () => {
-    expect(
-      (
-        await doComponentAtlasesRequest(
-          ATLAS_DRAFT.id,
-          USER_DISABLED_CONTENT_ADMIN,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by disabled user`, async () => {
+      expect(
+        (
+          await doComponentAtlasesRequest(
+            atlasId,
+            USER_DISABLED_CONTENT_ADMIN,
+            METHOD.GET,
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
+  }
 
   it("returns error 400 when `archived` parameter is set to an invalid value", async () => {
     expect(
@@ -116,6 +133,18 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode(),
     ).toEqual(400);
+  });
+
+  it("returns component atlases from published atlas when requested by logged out user", async () => {
+    const res = await doComponentAtlasesRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [COMPONENT_ATLAS_PUBLISHED],
+      [0],
+    );
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -146,6 +175,19 @@ describe(TEST_ROUTE, () => {
       ATLAS_DRAFT.id,
       USER_CONTENT_ADMIN,
     );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerComponentAtlas[];
+    expectComponentAtlasesToMatch(
+      componentAtlases,
+      [COMPONENT_ATLAS_DRAFT_FOO, COMPONENT_ATLAS_DRAFT_BAR],
+      [3, 2],
+    );
+  });
+
+  it("returns component atlases when requested via atlas name", async () => {
+    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const res = await doComponentAtlasesRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =
       res._getJSONData() as HCAAtlasTrackerComponentAtlas[];

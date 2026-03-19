@@ -1587,6 +1587,17 @@ export const SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR = {
   },
 } satisfies TestUnpublishedSourceStudy;
 
+export const SOURCE_STUDY_PUBLISHED = {
+  cellxgeneCollectionId: null,
+  hcaProjectId: null,
+  id: "0b736e65-2a21-46c1-bcf1-44e27aa3b017",
+  unpublishedInfo: {
+    contactEmail: "bazfoobarbarfoobazbaz@example.com",
+    referenceAuthor: "Baz Foo Barbarfoo Baz Baz",
+    title: "Source Study Published",
+  },
+} satisfies TestUnpublishedSourceStudy;
+
 // Source studies initialized in the database before tests
 export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_DRAFT_OK,
@@ -1629,6 +1640,7 @@ export const INITIAL_TEST_SOURCE_STUDIES = [
   SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES,
   SOURCE_STUDY_WITH_LINKED_ENTITIES_FOO,
   SOURCE_STUDY_WITH_LINKED_ENTITIES_BAR,
+  SOURCE_STUDY_PUBLISHED,
 ];
 
 export const TEST_SOURCE_STUDIES = [...INITIAL_TEST_SOURCE_STUDIES];
@@ -2828,6 +2840,24 @@ export const SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B = {
   versionId: "d70e264b-8419-46b9-93b1-1baaa118e8ea",
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_PUBLISHED = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_PUBLISHED,
+    bucket: "bucket-source-dataset-published",
+    etag: "633ece4a21954408b64ae581ef6daa1c",
+    eventTime: "2026-03-18T06:17:42.926Z",
+    fileName: "source-dataset-published.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "063ac4d9-bb71-4b22-a836-5b79f7935353",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "75432",
+    versionId: null,
+  },
+  id: "d5e2e9dc-7033-47ab-a40b-212e8eef73cd",
+  publishedAt: "2026-03-18T06:18:51.613Z",
+  versionId: "4fc11334-3cdd-4cb6-8a53-505a2affd997",
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2880,6 +2910,7 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_B,
   SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A,
   SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B,
+  SOURCE_DATASET_PUBLISHED,
 ];
 
 // ATLAS IDS
@@ -3803,6 +3834,26 @@ export const COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR = {
   wipNumber: 4,
 } satisfies TestComponentAtlas;
 
+export const COMPONENT_ATLAS_PUBLISHED = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_PUBLISHED,
+    bucket: "bucket-component-atlas-published",
+    etag: "eae59b25b58742939c936be9241c9d01",
+    eventTime: "2026-03-18T06:14:21.232Z",
+    fileName: "component-atlas-published.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "71b56437-569e-450e-8315-4b76d63c8d41",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "8545",
+    versionId: null,
+  },
+  id: "d00cb141-e02f-466a-9015-fb6a66324c17",
+  publishedAt: "2026-03-18T06:15:35.785Z",
+  revision: 2,
+  versionId: "9c4703c3-5dab-4315-9ce5-e6f7606ead53",
+  wipNumber: 1,
+} satisfies TestComponentAtlas;
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
@@ -3834,6 +3885,7 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
   COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
   COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISHED,
 ];
 
 // ATLASES
@@ -4327,7 +4379,7 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
 export const ATLAS_PUBLISHED: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
-  componentAtlases: [],
+  componentAtlases: [COMPONENT_ATLAS_PUBLISHED.versionId],
   description: "bazbar foobarbaz baz foo bar",
   generation: 2,
   highlights: "",
@@ -4338,7 +4390,8 @@ export const ATLAS_PUBLISHED: TestAtlas = {
   publishedAt: "2026-02-25T20:44:05.405Z",
   revision: 7,
   shortName: "test-published",
-  sourceStudies: [],
+  sourceDatasets: [SOURCE_DATASET_PUBLISHED.versionId],
+  sourceStudies: [SOURCE_STUDY_PUBLISHED.id],
   status: ATLAS_STATUS.OC_ENDORSED,
   wave: "2",
 };

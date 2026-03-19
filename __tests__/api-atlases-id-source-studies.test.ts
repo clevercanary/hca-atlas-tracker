@@ -7,10 +7,12 @@ import studiesHandler from "../pages/api/atlases/[atlasId]/source-studies";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_PUBLISHED,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   SOURCE_STUDY_DRAFT_NO_CROSSREF,
   SOURCE_STUDY_DRAFT_OK,
   SOURCE_STUDY_PUBLIC_NO_CROSSREF,
+  SOURCE_STUDY_PUBLISHED,
   SOURCE_STUDY_SHARED,
   SOURCE_STUDY_WITH_ATLAS_LINKED_DATASETS_A,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -22,7 +24,11 @@ import {
   expectApiSourceStudyToHaveMatchingDbValidations,
   resetDatabase,
 } from "../testing/db-utils";
-import { TestPublishedSourceStudy, TestUser } from "../testing/entities";
+import {
+  TestPublishedSourceStudy,
+  TestUnpublishedSourceStudy,
+  TestUser,
+} from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
@@ -35,6 +41,8 @@ jest.mock("../app/utils/pg-app-connect-config");
 jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases/[id]/source-studies";
+
+const ATLAS_ID_NONEXISTENT = "f643a5ff-0803-4bf1-b650-184161220bc2";
 
 beforeAll(async () => {
   await resetDatabase();
@@ -53,62 +61,62 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 401 when public atlas studies are requested by logged out user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_PUBLIC.id, undefined, METHOD.GET, true)
-      )._getStatusCode(),
-    ).toEqual(401);
-  });
+  for (const { atlasId, description } of [
+    {
+      atlasId: ATLAS_DRAFT.id,
+      description: "unpublished atlas studies are requested",
+    },
+    {
+      atlasId: ATLAS_ID_NONEXISTENT,
+      description: "nonexistent atlas studies are requested",
+    },
+    {
+      atlasId: "nonexistent_v1.23",
+      description: "nonexistent atlas studies are requested via atlas name",
+    },
+  ]) {
+    it(`returns error 401 when ${description} by logged out user`, async () => {
+      expect(
+        (
+          await doStudiesRequest(atlasId, undefined, METHOD.GET, true)
+        )._getStatusCode(),
+      ).toEqual(401);
+    });
 
-  it("returns error 403 when public atlas studies are requested by unregistered user", async () => {
-    expect(
-      (
-        await doStudiesRequest(
-          ATLAS_PUBLIC.id,
-          USER_UNREGISTERED,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by unregistered user`, async () => {
+      expect(
+        (
+          await doStudiesRequest(atlasId, USER_UNREGISTERED, METHOD.GET, true)
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
 
-  it("returns error 403 when public atlas studies are requested by disabled user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_PUBLIC.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
+    it(`returns error 403 when ${description} by disabled user`, async () => {
+      expect(
+        (
+          await doStudiesRequest(
+            atlasId,
+            USER_DISABLED_CONTENT_ADMIN,
+            METHOD.GET,
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(403);
+    });
+  }
 
-  it("returns error 401 when draft atlas studies are requested by logged out user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_DRAFT.id, undefined, METHOD.GET, true)
-      )._getStatusCode(),
-    ).toEqual(401);
-  });
-
-  it("returns error 403 when draft atlas studies are requested by unregistered user", async () => {
-    expect(
-      (
-        await doStudiesRequest(
-          ATLAS_DRAFT.id,
-          USER_UNREGISTERED,
-          METHOD.GET,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(403);
-  });
-
-  it("returns error 403 when draft atlas studies are requested by disabled user", async () => {
-    expect(
-      (
-        await doStudiesRequest(ATLAS_DRAFT.id, USER_DISABLED_CONTENT_ADMIN)
-      )._getStatusCode(),
-    ).toEqual(403);
+  it("returns source studies from published atlas when requested by logged out user", async () => {
+    const res = await doStudiesRequest(ATLAS_PUBLISHED.id);
+    expect(res._getStatusCode()).toEqual(200);
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(1);
+    expectUnpublishedStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_PUBLISHED.id),
+      SOURCE_STUDY_PUBLISHED,
+    );
+    for (const study of studies) {
+      await expectApiSourceStudyToHaveMatchingDbValidations(study);
+    }
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -167,6 +175,29 @@ describe(TEST_ROUTE, () => {
 
   it("returns draft atlas studies, including validations, when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doStudiesRequest(ATLAS_DRAFT.id, USER_CONTENT_ADMIN);
+    expect(res._getStatusCode()).toEqual(200);
+    const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
+    expect(studies).toHaveLength(3);
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
+      SOURCE_STUDY_DRAFT_OK,
+    );
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
+      SOURCE_STUDY_SHARED,
+    );
+    expectStudyPropertiesToMatch(
+      studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
+      SOURCE_STUDY_DRAFT_NO_CROSSREF,
+    );
+    for (const study of studies) {
+      await expectApiSourceStudyToHaveMatchingDbValidations(study);
+    }
+  });
+
+  it("returns source studies when requested via atlas name", async () => {
+    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const res = await doStudiesRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(studies).toHaveLength(3);
@@ -247,4 +278,23 @@ function expectStudyPropertiesToMatch(
     expect(apiStudy.publicationDate).toBeNull();
     expect(apiStudy.referenceAuthor).toBeNull();
   }
+}
+
+function expectUnpublishedStudyPropertiesToMatch(
+  apiStudy: HCAAtlasTrackerSourceStudy | undefined,
+  testStudy: TestUnpublishedSourceStudy,
+): void {
+  expect(apiStudy).toBeDefined();
+  if (!apiStudy) return;
+  expect(apiStudy.id).toEqual(testStudy.id);
+  expect(apiStudy.doi).toBeNull();
+  expect(apiStudy.cellxgeneCollectionId).toEqual(
+    testStudy.cellxgeneCollectionId,
+  );
+  expect(apiStudy.hcaProjectId).toEqual(testStudy.hcaProjectId);
+  expect(apiStudy.contactEmail).toEqual(testStudy.unpublishedInfo.contactEmail);
+  expect(apiStudy.referenceAuthor).toEqual(
+    testStudy.unpublishedInfo.referenceAuthor,
+  );
+  expect(apiStudy.title).toEqual(testStudy.unpublishedInfo.title);
 }
