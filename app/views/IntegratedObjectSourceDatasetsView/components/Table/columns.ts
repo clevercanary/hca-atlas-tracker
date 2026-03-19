@@ -42,7 +42,7 @@ const COLUMN_DISEASE: ColumnDef<IntegratedObjectSourceDataset> = {
 };
 
 const COLUMN_FILE_NAME: ColumnDef<IntegratedObjectSourceDataset> = {
-  accessorKey: "fileName",
+  accessorKey: "baseFileName",
   cell: renderFileName,
   header: "File Name",
   meta: { columnPinned: true, width: { max: "2fr", min: "220px" } },
