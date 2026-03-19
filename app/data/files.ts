@@ -1,4 +1,3 @@
-import { confirmQueryRowsContainIds } from "app/utils/database";
 import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
 import {
@@ -15,6 +14,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
 import { query } from "../services/database";
+import { confirmQueryRowsContainIds } from "../utils/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 import { getPublishedFromPublishedAt } from "app/apis/catalog/hca-atlas-tracker/common/utils";
