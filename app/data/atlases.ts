@@ -34,6 +34,30 @@ export async function getAtlasIdBySlugNameAndVersion({
 }
 
 /**
+ * Create a new atlas revision based on a given atlas.
+ * @param atlasId - ID of the atlas to create a new revision from.
+ * @param client - Postgres client to use.
+ * @returns new atlas ID.
+ */
+export async function createAtlasRevision(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<string> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+    `
+      INSERT INTO hat.atlases (component_atlases, generation, overview, revision, source_datasets, source_studies, status, target_completion)
+      SELECT component_atlases, generation, overview, revision + 1, source_datasets, source_studies, status, target_completion
+      FROM hat.atlases
+      WHERE id = $1
+      RETURNING id
+    `,
+    [atlasId],
+    client,
+  );
+  return queryResult.rows[0].id;
+}
+
+/**
  * Replace a source study ID with another specified source study ID across all atlas source study lists.
  * @param currentSourceStudyId - Source study ID to replace.
  * @param replacementSourceStudyId - Source study ID to insert.
@@ -91,6 +115,35 @@ export async function updateSourceDatasetVersionInAtlas(
     "UPDATE hat.atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE id = $3",
     [existingVersionId, newVersionId, atlasId],
   );
+}
+
+/**
+ * Get whether an atlas is of the latest revision within its family and generation.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ * @returns boolean indicating whether the atlas is of the latest revision.
+ */
+export async function atlasIsLatestRevision(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<boolean> {
+  const queryResult = await query<{ is_latest: boolean }>(
+    `
+      SELECT
+        a.revision = (
+          SELECT MAX(a2.revision)
+          FROM hat.atlases a2
+          WHERE a2.overview->>'shortName' = a.overview->>'shortName' AND a2.generation = a.generation
+        ) as is_latest
+      FROM hat.atlases a
+      WHERE id = $1
+    `,
+    [atlasId],
+    client,
+  );
+  if (queryResult.rows.length === 0)
+    throw new Error(`Atlas with ID ${atlasId} doesn't exist`);
+  return queryResult.rows[0].is_latest;
 }
 
 /**

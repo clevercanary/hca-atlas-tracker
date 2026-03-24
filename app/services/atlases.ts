@@ -24,8 +24,10 @@ import {
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
+  atlasIsLatestRevision,
   changeAtlasToPublished,
   getAtlasIdBySlugNameAndVersion,
+  createAtlasRevision,
   getAtlasPublishedAt,
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
@@ -258,6 +260,28 @@ export async function publishAtlas(
     await publishUnpublishedSourceDatasetsOfAtlas(atlasId, publishedAt, client);
     await changeAtlasToPublished(atlasId, publishedAt, client);
     return getAtlas(atlasId, client);
+  });
+}
+
+/**
+ * Create a new revision based on a given atlas, throwing an error if it's not a latest published atlas.
+ * @param atlasId - ID of the atlas to attempt to create a new revision from.
+ * @returns new atlas.
+ */
+export async function createAtlasRevisionIfValid(
+  atlasId: string,
+): Promise<HCAAtlasTrackerDBAtlasForAPI> {
+  return doTransaction(async (client) => {
+    if (!(await atlasIsLatestRevision(atlasId, client)))
+      throw new InvalidOperationError(
+        `A new atlas revision may only be created from a latest-revision atlas`,
+      );
+    if (!(await atlasIsPublished(atlasId, client)))
+      throw new InvalidOperationError(
+        `The latest revision of an atlas must be published before a new revision may be created`,
+      );
+    const newAtlasId = await createAtlasRevision(atlasId, client);
+    return getAtlas(newAtlasId, client);
   });
 }
 
