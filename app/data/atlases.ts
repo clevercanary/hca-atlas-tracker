@@ -34,6 +34,24 @@ export async function getAtlasIdBySlugNameAndVersion({
 }
 
 /**
+ * Get an atlas's source study IDs.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ * @returns array of source study IDs.
+ */
+export async function getAtlasSourceStudyIds(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<string[]> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_studies">
+  >("SELECT source_studies FROM hat.atlases WHERE id = $1", [atlasId]);
+  if (queryResult.rows.length === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  return queryResult.rows[0].source_studies;
+}
+
+/**
  * Create a new atlas revision based on a given atlas.
  * @param atlasId - ID of the atlas to create a new revision from.
  * @param client - Postgres client to use.

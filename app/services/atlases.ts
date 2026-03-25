@@ -29,11 +29,13 @@ import {
   getAtlasIdBySlugNameAndVersion,
   createAtlasRevision,
   getAtlasPublishedAt,
+  getAtlasSourceStudyIds,
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { parseAtlasNameUrlSlug } from "../utils/atlases";
 import { doTransaction, query } from "./database";
+import { updateSourceStudyValidationsByEntityId } from "./source-studies";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -281,8 +283,23 @@ export async function createAtlasRevisionIfValid(
         `The latest revision of an atlas must be published before a new revision may be created`,
       );
     const newAtlasId = await createAtlasRevision(atlasId, client);
+    await updateAtlasSourceStudyValidations(newAtlasId, client);
     return getAtlas(newAtlasId, client);
   });
+}
+
+/**
+ * Update validations for all source studies of a given atlas.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+async function updateAtlasSourceStudyValidations(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  for (const sourceStudyId of await getAtlasSourceStudyIds(atlasId, client)) {
+    await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
+  }
 }
 
 export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
