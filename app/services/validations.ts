@@ -43,7 +43,7 @@ import { doTransaction, getPoolClient, query } from "./database";
 import { getProjectInfoById } from "./hca-projects";
 import {
   getSourceStudiesByDois,
-  getSourceStudiesWithAtlasProperties,
+  getAllSourceStudiesWithAtlasProperties,
 } from "./source-studies";
 
 export enum VALIDATION_META_STATUS {
@@ -459,7 +459,7 @@ export async function refreshValidations(): Promise<void> {
  */
 async function revalidateAllSourceStudies(): Promise<void> {
   const client = await getPoolClient();
-  for (const study of await getSourceStudiesWithAtlasProperties(client)) {
+  for (const study of await getAllSourceStudiesWithAtlasProperties(client)) {
     try {
       await client.query("BEGIN");
       await updateSourceStudyValidations(study, client);

@@ -55,6 +55,7 @@ import {
   updateSourceStudyValidations,
 } from "./validations";
 import { replaceEntrySheetValidationsSourceStudy } from "../data/entry-sheets";
+import { confirmQueryRowsContainIds } from "app/utils/database";
 
 export async function getAtlasSourceStudies(
   atlasId: string,
@@ -847,11 +848,29 @@ export async function updateSourceStudyValidationsByEntityId(
 }
 
 /**
+ * Update validations for the source study with the given ID.
+ * @param entityIds - Source study IDs.
+ * @param client - Postgres client to use.
+ */
+export async function updateSourceStudyValidationsByEntityIds(
+  entityIds: string[],
+  client: pg.PoolClient,
+): Promise<void> {
+  const sourceStudies = await getSourceStudiesWithAtlasProperties(
+    entityIds,
+    client,
+  );
+  for (const sourceStudy of sourceStudies) {
+    await updateSourceStudyValidations(sourceStudy, client);
+  }
+}
+
+/**
  * Get all source studies, with properties of their atlases added.
  * @param client - Postgres client to use.
  * @returns source studies with atlas properties.
  */
-export async function getSourceStudiesWithAtlasProperties(
+export async function getAllSourceStudiesWithAtlasProperties(
   client: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithAtlasProperties[]> {
   const queryResult =
@@ -871,14 +890,31 @@ export async function getSourceStudiesWithAtlasProperties(
 
 /**
  * Get a specified source study, with properties of its atlases added.
- * @param sourceStudyId - ID of the soruce study to get.
+ * @param sourceStudyId - ID of the source study to get.
  * @param client - Postgres client to use.
- * @returns source studies with atlas properties.
+ * @returns source study with atlas properties.
  */
 export async function getSourceStudyWithAtlasProperties(
   sourceStudyId: string,
   client: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithAtlasProperties> {
+  const [sourceStudy] = await getSourceStudiesWithAtlasProperties(
+    [sourceStudyId],
+    client,
+  );
+  return sourceStudy;
+}
+
+/**
+ * Get a specified list of source studies, with properties of their atlases added.
+ * @param sourceStudyIds - IDs of the source studies to get.
+ * @param client - Postgres client to use.
+ * @returns source studies with atlas properties.
+ */
+export async function getSourceStudiesWithAtlasProperties(
+  sourceStudyIds: string[],
+  client: pg.PoolClient,
+): Promise<HCAAtlasTrackerDBSourceStudyWithAtlasProperties[]> {
   const queryResult =
     await client.query<HCAAtlasTrackerDBSourceStudyWithAtlasProperties>(
       `
@@ -890,16 +926,14 @@ export async function getSourceStudyWithAtlasProperties(
           ARRAY_AGG(DISTINCT a.overview->>'network') AS networks
         FROM hat.source_studies s
         LEFT JOIN hat.atlases a ON a.source_studies @> to_jsonb(s.id)
-        WHERE s.id=$1
+        WHERE s.id=ANY($1)
         GROUP BY s.id
       `,
-      [sourceStudyId],
+      [sourceStudyIds],
     );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(
-      `Source study with ID ${sourceStudyId} doesn't exist`,
-    );
-  return queryResult.rows[0];
+  const sourceStudies = queryResult.rows;
+  confirmQueryRowsContainIds(sourceStudies, sourceStudyIds, "source studies");
+  return sourceStudies;
 }
 
 /**

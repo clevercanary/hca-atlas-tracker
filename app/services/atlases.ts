@@ -34,9 +34,9 @@ import {
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { parseAtlasNameUrlSlug } from "../utils/atlases";
+import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
 import { doTransaction, query } from "./database";
-import { updateSourceStudyValidationsByEntityId } from "./source-studies";
-import { addAssociatedEntityToUsersAssociatedWith } from "app/data/users";
+import { updateSourceStudyValidationsByEntityIds } from "./source-studies";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -313,9 +313,10 @@ async function updateAtlasSourceStudyValidations(
   atlasId: string,
   client: pg.PoolClient,
 ): Promise<void> {
-  for (const sourceStudyId of await getAtlasSourceStudyIds(atlasId, client)) {
-    await updateSourceStudyValidationsByEntityId(sourceStudyId, client);
-  }
+  await updateSourceStudyValidationsByEntityIds(
+    await getAtlasSourceStudyIds(atlasId, client),
+    client,
+  );
 }
 
 export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
