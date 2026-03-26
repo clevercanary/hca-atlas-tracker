@@ -13,10 +13,12 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
+  USER_INTEGRATION_LEAD_PUBLISHED,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import {
   getExistingAtlasFromDatabase,
+  getUserFromDatabaseByEmail,
   getValidationsByEntityId,
   resetDatabase,
 } from "../testing/db-utils";
@@ -187,6 +189,15 @@ describe(TEST_ROUTE, () => {
       expect(validationAfter.atlas_ids).toContain(ATLAS_PUBLISHED.id);
       expect(validationAfter.atlas_ids).toContain(newAtlas.id);
     }
+
+    const integrationLead = await getUserFromDatabaseByEmail(
+      USER_INTEGRATION_LEAD_PUBLISHED.email,
+    );
+    assertExpectDefined(integrationLead);
+    expect(integrationLead.role_associated_resource_ids).toContain(
+      ATLAS_PUBLISHED.id,
+    );
+    expect(integrationLead.role_associated_resource_ids).toContain(newAtlas.id);
   });
 });
 

@@ -36,6 +36,7 @@ import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets
 import { parseAtlasNameUrlSlug } from "../utils/atlases";
 import { doTransaction, query } from "./database";
 import { updateSourceStudyValidationsByEntityId } from "./source-studies";
+import { addAssociatedEntityToUsersAssociatedWith } from "app/data/users";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -297,6 +298,7 @@ export async function createAtlasRevisionIfValid(
         `The latest revision of an atlas must be published before a new revision may be created`,
       );
     const newAtlasId = await createAtlasRevision(atlasId, client);
+    await addAssociatedEntityToUsersAssociatedWith(newAtlasId, atlasId, client);
     await updateAtlasSourceStudyValidations(newAtlasId, client);
     return getAtlas(newAtlasId, client);
   });
