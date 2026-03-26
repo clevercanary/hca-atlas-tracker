@@ -160,7 +160,7 @@ export async function atlasIsLatestRevision(
     client,
   );
   if (queryResult.rows.length === 0)
-    throw new Error(`Atlas with ID ${atlasId} doesn't exist`);
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
   return queryResult.rows[0].is_latest;
 }
 

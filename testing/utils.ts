@@ -494,17 +494,25 @@ export function expectApiAtlasToMatchTest(
   apiAtlas: HCAAtlasTrackerAtlas,
   testAtlas: TestAtlas,
 ): void {
+  expectApiAtlasToMatchTestWithoutRevision(apiAtlas, testAtlas);
+  expect(apiAtlas.publishedAt).toEqual(testAtlas.publishedAt ?? null);
+  expect(apiAtlas.id).toEqual(testAtlas.id);
+  expect(apiAtlas.revision).toEqual(testAtlas.revision);
+}
+
+export function expectApiAtlasToMatchTestWithoutRevision(
+  apiAtlas: HCAAtlasTrackerAtlas,
+  testAtlas: TestAtlas,
+): void {
   expect(apiAtlas.cellxgeneAtlasCollection).toEqual(
     testAtlas.cellxgeneAtlasCollection,
   );
   expect(apiAtlas.codeLinks).toEqual(testAtlas.codeLinks);
   expect(apiAtlas.description).toEqual(testAtlas.description);
   expect(apiAtlas.highlights).toEqual(testAtlas.highlights);
-  expect(apiAtlas.id).toEqual(testAtlas.id);
   expect(apiAtlas.integrationLead).toEqual(testAtlas.integrationLead);
   expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);
   expect(apiAtlas.publications).toEqual(testAtlas.publications);
-  expect(apiAtlas.publishedAt).toEqual(testAtlas.publishedAt ?? null);
   expect(apiAtlas.shortName).toEqual(testAtlas.shortName);
   expect(apiAtlas.sourceStudyCount).toEqual(testAtlas.sourceStudies.length);
   expect(apiAtlas.status).toEqual(testAtlas.status);
@@ -512,7 +520,6 @@ export function expectApiAtlasToMatchTest(
     testAtlas.targetCompletion?.toISOString() ?? null,
   );
   expect(apiAtlas.generation).toEqual(testAtlas.generation);
-  expect(apiAtlas.revision).toEqual(testAtlas.revision);
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
 }
 
