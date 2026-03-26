@@ -281,11 +281,11 @@ export async function publishAtlas(
 }
 
 /**
- * Create a new revision based on a given atlas, throwing an error if it's not a latest published atlas.
+ * Create a new revision based on a given atlas if valid, and update linked entities.
  * @param atlasId - ID of the atlas to attempt to create a new revision from.
  * @returns new atlas.
  */
-export async function createAtlasRevisionIfValid(
+export async function createAndHandleNewAtlasRevision(
   atlasId: string,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   return doTransaction(async (client) => {
