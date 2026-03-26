@@ -56,7 +56,7 @@ export async function getAllAtlases(
         SELECT
           ar.*,
           MAX(ar.revision) OVER (
-            PARTITION BY ar.overview->>'shortName', ar.generation
+            PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
           ) AS max_revision
         FROM hat.atlases ar
       )
@@ -107,13 +107,17 @@ export async function getAtlas(
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
+      WITH atlases_with_revisions AS (
+        SELECT
+          ar.*,
+          MAX(ar.revision) OVER (
+            PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
+          ) AS max_revision
+        FROM hat.atlases ar
+      )
       SELECT
         a.*,
-        a.revision = (
-          SELECT MAX(a2.revision)
-          FROM hat.atlases a2
-          WHERE a2.overview->>'shortName' = a.overview->>'shortName' AND a2.generation = a.generation
-        ) as is_latest,
+        a.revision = a.max_revision as is_latest,
         (
           SELECT COUNT(c.id)::int
           FROM hat.component_atlases c
@@ -131,7 +135,7 @@ export async function getAtlas(
           FROM hat.entry_sheet_validations e
           WHERE a.source_studies ? e.source_study_id::text
         ) AS entry_sheet_validation_count
-      FROM hat.atlases a
+      FROM atlases_with_revisions a
       WHERE a.id=$1
     `,
     [id],

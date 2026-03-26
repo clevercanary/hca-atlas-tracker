@@ -147,14 +147,17 @@ export async function atlasIsLatestRevision(
 ): Promise<boolean> {
   const queryResult = await query<{ is_latest: boolean }>(
     `
-      SELECT
-        a.revision = (
-          SELECT MAX(a2.revision)
-          FROM hat.atlases a2
-          WHERE a2.overview->>'shortName' = a.overview->>'shortName' AND a2.generation = a.generation
-        ) as is_latest
-      FROM hat.atlases a
-      WHERE id = $1
+      WITH atlases_with_revisions AS (
+        SELECT
+          ar.*,
+          MAX(ar.revision) OVER (
+            PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
+          ) AS max_revision
+        FROM hat.atlases ar
+      )
+      SELECT a.revision = a.max_revision as is_latest
+      FROM atlases_with_revisions a
+      WHERE a.id = $1
     `,
     [atlasId],
     client,
