@@ -522,6 +522,7 @@ export function expectApiAtlasToMatchTestWithoutRevision(
   expect(apiAtlas.generation).toEqual(testAtlas.generation);
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
 
+  // Check `isLatest` to the extent that is possible just based on the test atlas definition; tests can do additional checks separately as needed
   if (testAtlas.publishedAt) expect(apiAtlas.isLatest).toBeDefined();
   else expect(apiAtlas.isLatest).toEqual(true);
 }
