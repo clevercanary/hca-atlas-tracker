@@ -848,7 +848,7 @@ export async function updateSourceStudyValidationsByEntityId(
 }
 
 /**
- * Update validations for the source study with the given ID.
+ * Update validations for the source studies with the given IDs.
  * @param entityIds - Source study IDs.
  * @param client - Postgres client to use.
  */
