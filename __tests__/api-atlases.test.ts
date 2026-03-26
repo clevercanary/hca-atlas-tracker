@@ -6,6 +6,8 @@ import { endPgPool } from "../app/services/database";
 import atlasesHandler from "../pages/api/atlases";
 import {
   ATLAS_DRAFT,
+  ATLAS_WITH_DRAFT_LATEST_R0,
+  ATLAS_WITH_DRAFT_LATEST_R1,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
@@ -36,30 +38,48 @@ jest.mock("next-auth");
 
 const TEST_ROUTE = "/api/atlases";
 
-const RELATED_ENTITY_INFO_TO_CHECK = [
+const EXTRA_INFO_TO_CHECK = [
   {
     atlasId: ATLAS_DRAFT.id,
     componentAtlasCount: 2,
     entrySheetValidationCount: 2,
+    isLatest: true,
     sourceDatasetCount: 7,
   },
   {
     atlasId: ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A.id,
     componentAtlasCount: 2,
     entrySheetValidationCount: 3,
+    isLatest: true,
     sourceDatasetCount: 0,
   },
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
     componentAtlasCount: 1,
     entrySheetValidationCount: 2,
+    isLatest: true,
     sourceDatasetCount: 1,
   },
   {
     atlasId: ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
     componentAtlasCount: 3,
     entrySheetValidationCount: 0,
+    isLatest: true,
     sourceDatasetCount: 2,
+  },
+  {
+    atlasId: ATLAS_WITH_DRAFT_LATEST_R0.id,
+    componentAtlasCount: 0,
+    entrySheetValidationCount: 0,
+    isLatest: false,
+    sourceDatasetCount: 0,
+  },
+  {
+    atlasId: ATLAS_WITH_DRAFT_LATEST_R1.id,
+    componentAtlasCount: 0,
+    entrySheetValidationCount: 0,
+    isLatest: true,
+    sourceDatasetCount: 0,
   },
 ];
 
@@ -110,7 +130,7 @@ describe(TEST_ROUTE, () => {
         const data = res._getJSONData() as HCAAtlasTrackerAtlas[];
         expect(res._getStatusCode()).toEqual(200);
         expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
-        expectApiAtlasesToHaveRelatedEntities(data);
+        expectApiAtlasesToHaveExtraInfo(data);
       },
     );
   }
@@ -120,7 +140,7 @@ describe(TEST_ROUTE, () => {
     const data = res._getJSONData() as HCAAtlasTrackerAtlas[];
     expect(res._getStatusCode()).toEqual(200);
     expectApiAtlasesToIncludeTests(data, INITIAL_TEST_ATLASES);
-    expectApiAtlasesToHaveRelatedEntities(data);
+    expectApiAtlasesToHaveExtraInfo(data);
   });
 });
 
@@ -136,15 +156,16 @@ function expectApiAtlasesToIncludeTests(
   }
 }
 
-function expectApiAtlasesToHaveRelatedEntities(
+function expectApiAtlasesToHaveExtraInfo(
   apiAtlases: HCAAtlasTrackerAtlas[],
 ): void {
   for (const {
     atlasId,
     componentAtlasCount,
     entrySheetValidationCount,
+    isLatest,
     sourceDatasetCount,
-  } of RELATED_ENTITY_INFO_TO_CHECK) {
+  } of EXTRA_INFO_TO_CHECK) {
     const apiAtlas = apiAtlases.find((a) => a.id === atlasId);
     if (!expectIsDefined(apiAtlas)) continue;
     expect(apiAtlas.componentAtlasCount).toEqual(componentAtlasCount);
@@ -152,6 +173,7 @@ function expectApiAtlasesToHaveRelatedEntities(
     expect(apiAtlas.entrySheetValidationCount).toEqual(
       entrySheetValidationCount,
     );
+    expect(apiAtlas.isLatest).toEqual(isLatest);
   }
 }
 

@@ -18,6 +18,8 @@ import {
   ATLAS_PUBLIC_BAZ,
   ATLAS_PUBLISHED,
   ATLAS_WITH_CAP_ID,
+  ATLAS_WITH_DRAFT_LATEST_R0,
+  ATLAS_WITH_DRAFT_LATEST_R1,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
   ATLAS_WITH_IL,
   ATLAS_WITH_METADATA_CORRECTNESS,
@@ -346,6 +348,28 @@ describe(TEST_ROUTE, () => {
     expectApiAtlasToMatchTest(atlas, ATLAS_WITH_NON_LATEST_METADATA_ENTITIES);
     expect(atlas.componentAtlasCount).toEqual(3);
     expect(atlas.sourceDatasetCount).toEqual(2);
+  });
+
+  it("returns isLatest = true for latest-revision atlas", async () => {
+    const res = await doAtlasRequest(
+      ATLAS_WITH_DRAFT_LATEST_R1.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_WITH_DRAFT_LATEST_R1);
+    expect(atlas.isLatest).toEqual(true);
+  });
+
+  it("returns isLatest = false for non-latest-revision atlas", async () => {
+    const res = await doAtlasRequest(
+      ATLAS_WITH_DRAFT_LATEST_R0.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
+    expectApiAtlasToMatchTest(atlas, ATLAS_WITH_DRAFT_LATEST_R0);
+    expect(atlas.isLatest).toEqual(false);
   });
 
   it("returns error 401 when public atlas is PUT requested by logged out user", async () => {

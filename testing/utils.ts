@@ -521,6 +521,9 @@ export function expectApiAtlasToMatchTestWithoutRevision(
   );
   expect(apiAtlas.generation).toEqual(testAtlas.generation);
   expect(apiAtlas.wave).toEqual(testAtlas.wave);
+
+  if (testAtlas.publishedAt) expect(apiAtlas.isLatest).toBeDefined();
+  else expect(apiAtlas.isLatest).toEqual(true);
 }
 
 export function expectDbAtlasToMatchApi(
