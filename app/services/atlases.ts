@@ -105,19 +105,12 @@ export async function getAtlas(
   id: string,
   client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
-  const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
+  const queryResult = await query<
+    Omit<HCAAtlasTrackerDBAtlasForAPI, "is_latest">
+  >(
     `
-      WITH atlases_with_revisions AS (
-        SELECT
-          ar.*,
-          MAX(ar.revision) OVER (
-            PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
-          ) AS max_revision
-        FROM hat.atlases ar
-      )
       SELECT
         a.*,
-        a.revision = a.max_revision as is_latest,
         (
           SELECT COUNT(c.id)::int
           FROM hat.component_atlases c
@@ -135,13 +128,16 @@ export async function getAtlas(
           FROM hat.entry_sheet_validations e
           WHERE a.source_studies ? e.source_study_id::text
         ) AS entry_sheet_validation_count
-      FROM atlases_with_revisions a
+      FROM hat.atlases a
       WHERE a.id=$1
     `,
     [id],
     client,
   );
-  return getAtlasInfoFromIdBasedQuery(queryResult, id);
+  return {
+    ...getAtlasInfoFromIdBasedQuery(queryResult, id),
+    is_latest: await atlasIsLatestRevision(id, client),
+  };
 }
 
 export async function getBaseModelAtlas(

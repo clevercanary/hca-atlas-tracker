@@ -141,20 +141,19 @@ export async function updateSourceDatasetVersionInAtlas(
  */
 export async function atlasIsLatestRevision(
   atlasId: string,
-  client: pg.PoolClient,
+  client?: pg.PoolClient,
 ): Promise<boolean> {
   const queryResult = await query<{ is_latest: boolean }>(
     `
-      WITH atlases_with_revisions AS (
-        SELECT
-          ar.*,
-          MAX(ar.revision) OVER (
-            PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
-          ) AS max_revision
-        FROM hat.atlases ar
-      )
-      SELECT a.revision = a.max_revision as is_latest
-      FROM atlases_with_revisions a
+      SELECT
+        a.revision = (
+          SELECT MAX(a2.revision)
+          FROM hat.atlases a2
+          WHERE a2.overview->>'network' = a.overview->>'network'
+            AND a2.overview->>'shortName' = a.overview->>'shortName'
+            AND a2.generation = a.generation
+        ) as is_latest
+      FROM hat.atlases a
       WHERE a.id = $1
     `,
     [atlasId],
