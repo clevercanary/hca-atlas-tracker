@@ -45,6 +45,7 @@ export function makeConfig(
           orgURL: ORG_URL,
           portalURL: portalUrl,
         }),
+        poweredByCC: { src: "/images/powered-by-clevercanary.webp" },
         versionInfo: true,
       },
       header: {
