@@ -28,6 +28,7 @@ import {
   changeAtlasToPublished,
   getAtlasIdBySlugNameAndVersion,
   createAtlasRevision,
+  getAdvisoryLockForAtlas,
   getAtlasPublishedAt,
   getAtlasSourceStudyIds,
 } from "../data/atlases";
@@ -293,6 +294,7 @@ export async function createAndHandleNewAtlasRevision(
   atlasId: string,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   return doTransaction(async (client) => {
+    await getAdvisoryLockForAtlas(atlasId, client);
     if (!(await atlasIsLatestRevision(atlasId, client)))
       throw new InvalidOperationError(
         `A new atlas revision may only be created from a latest-revision atlas`,

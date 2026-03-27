@@ -207,3 +207,27 @@ export async function changeAtlasToPublished(
       `Atlas with ID ${atlasId} is already published`,
     );
 }
+
+/**
+ * Acquire (and wait for) a transaction-level advisory lock keyed by the given atlas's ID.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+export async function getAdvisoryLockForAtlas(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  const queryResult = await client.query(
+    `
+      SELECT pg_advisory_xact_lock(
+        -- Convert second half of hexadecimal UUID to 64-bit int to use as key
+        ('x' || substr(replace(id::text, '-', ''), 17))::bit(64)::bigint
+      )
+      FROM hat.atlases
+      WHERE id = $1
+    `,
+    [atlasId],
+  );
+  if (queryResult.rowCount === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+}
