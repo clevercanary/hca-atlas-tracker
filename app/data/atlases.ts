@@ -46,9 +46,7 @@ export async function getAtlasSourceStudyIds(
   const queryResult = await client.query<
     Pick<HCAAtlasTrackerDBAtlas, "source_studies">
   >("SELECT source_studies FROM hat.atlases WHERE id = $1", [atlasId]);
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  return queryResult.rows[0].source_studies;
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).source_studies;
 }
 
 /**
@@ -72,9 +70,7 @@ export async function createAtlasRevision(
     [atlasId],
     client,
   );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  return queryResult.rows[0].id;
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).id;
 }
 
 /**
@@ -164,9 +160,7 @@ export async function atlasIsLatestRevision(
     [atlasId],
     client,
   );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  return queryResult.rows[0].is_latest;
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).is_latest;
 }
 
 /**
@@ -184,9 +178,7 @@ export async function getAtlasPublishedAt(
     [atlasId],
     client,
   );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  return queryResult.rows[0].published_at;
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).published_at;
 }
 
 /**
@@ -230,6 +222,28 @@ export async function getAdvisoryLockForAtlas(
     `,
     [atlasId],
   );
-  if (queryResult.rowCount === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  if (queryResult.rowCount === 0) throw getAtlasNotFoundError(atlasId);
+}
+
+/**
+ * Get an atlas row that was queried by ID from a query result, throwing a NotFoundError if it doesn't exist.
+ * @param queryResult - Query result that should contain a single row corresponding to an atlas if successful.
+ * @param atlasId - Atlas ID that was queried, to use in the potential error message.
+ * @returns row from query result.
+ */
+export function getAtlasInfoFromIdBasedQuery<T extends pg.QueryResultRow>(
+  queryResult: pg.QueryResult<T>,
+  atlasId: string,
+): T {
+  if (queryResult.rows.length === 0) throw getAtlasNotFoundError(atlasId);
+  return queryResult.rows[0];
+}
+
+/**
+ * Create a NotFoundError indicating that the specified atlas doesn't exist.
+ * @param atlasId - Atlas ID.
+ * @returns NotFoundError.
+ */
+export function getAtlasNotFoundError(atlasId: string): NotFoundError {
+  return new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
 }

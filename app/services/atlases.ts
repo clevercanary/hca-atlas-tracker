@@ -1,9 +1,6 @@
 import pg from "pg";
 import { ValidationError } from "yup";
-import {
-  InvalidOperationError,
-  NotFoundError,
-} from "../../app/utils/api-handler";
+import { InvalidOperationError } from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
 import {
   ATLAS_STATUS,
@@ -29,6 +26,8 @@ import {
   getAtlasIdBySlugNameAndVersion,
   createAtlasRevision,
   getAdvisoryLockForAtlas,
+  getAtlasInfoFromIdBasedQuery,
+  getAtlasNotFoundError,
   getAtlasPublishedAt,
   getAtlasSourceStudyIds,
 } from "../data/atlases";
@@ -142,9 +141,7 @@ export async function getAtlas(
     [id],
     client,
   );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
-  return queryResult.rows[0];
+  return getAtlasInfoFromIdBasedQuery(queryResult, id);
 }
 
 export async function getBaseModelAtlas(
@@ -157,10 +154,7 @@ export async function getBaseModelAtlas(
     client,
   );
 
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
-
-  return queryResult.rows[0];
+  return getAtlasInfoFromIdBasedQuery(queryResult, id);
 }
 
 export async function createAtlas(
@@ -196,8 +190,7 @@ export async function updateAtlas(
     "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3 WHERE id=$4 RETURNING *",
     [JSON.stringify(overviewData), status, targetCompletion, id],
   );
-  if (queryResult.rowCount === 0)
-    throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
+  if (queryResult.rowCount === 0) throw getAtlasNotFoundError(id);
   return await getAtlas(id);
 }
 
@@ -388,8 +381,7 @@ export async function atlasIsPublished(
  * @param atlasId - ID of the atlas to check for.
  */
 export async function confirmAtlasExists(atlasId: string): Promise<void> {
-  if (!(await atlasExists(atlasId)))
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  if (!(await atlasExists(atlasId))) throw getAtlasNotFoundError(atlasId);
 }
 
 /**
