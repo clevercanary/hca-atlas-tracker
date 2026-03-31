@@ -18,6 +18,10 @@ import {
   ROLE,
 } from "./entities";
 
+export const ATLAS_SHORT_NAME_REGEX = /^[a-zA-Z]+(?: [a-zA-Z]+)*$/;
+export const ATLAS_SHORT_NAME_REGEX_MESSAGE =
+  "Short name must contain only letters and single spaces";
+
 export const CAP_PROJECT_URL_REGEXP = new RegExp(
   `^(?:${escapeRegExp("https://celltype.info/project/")}\\d+)?$`,
 );
@@ -94,7 +98,10 @@ export const newAtlasSchema = object({
     .required("Network is required")
     .notOneOf([""], "Network is required")
     .oneOf(NETWORK_KEYS, `Network must be one of: ${NETWORK_KEYS.join(", ")}`),
-  shortName: string().default("").required("Short name is required"),
+  shortName: string()
+    .default("")
+    .required("Short name is required")
+    .matches(ATLAS_SHORT_NAME_REGEX, ATLAS_SHORT_NAME_REGEX_MESSAGE),
   status: string().oneOf(Object.values(ATLAS_STATUS)),
   targetCompletion: string().datetime().nullable(),
   wave: string()
