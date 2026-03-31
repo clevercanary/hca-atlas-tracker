@@ -103,7 +103,7 @@ export async function getAtlasesMatchingConceptAndRevision(
       FROM hat.atlases a
       JOIN hat.concepts c ON
         a.overview->>'network' = c.network
-        AND lower(a.overview->>'shortName') = c.atlas_short_name
+        AND replace(lower(a.overview->>'shortName'), ' ', '-') = c.atlas_short_name
         AND a.generation = c.generation
       WHERE c.id = $1 AND a.revision = $2
     `,

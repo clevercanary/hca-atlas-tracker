@@ -412,7 +412,7 @@ export async function createTestConceptFromS3Key(
     throw new Error("Can't create concept for ingest manifest");
   await createTestConcept(
     {
-      atlas_short_name: info.atlasShortName,
+      atlas_short_name: info.atlasShortNameSlug,
       base_filename: info.fileBaseName,
       file_type: info.fileType,
       generation: info.atlasVersion.generation,

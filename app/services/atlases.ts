@@ -25,12 +25,12 @@ import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
   changeAtlasToPublished,
-  getAtlasIdByNameAndVersion,
+  getAtlasIdBySlugNameAndVersion,
   getAtlasPublishedAt,
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
-import { parseUrlAtlasName } from "../utils/atlases";
+import { parseAtlasNameSlug } from "../utils/atlases";
 import { doTransaction, query } from "./database";
 
 interface AtlasInputDbData {
@@ -353,8 +353,8 @@ export async function getAtlasIdByUrlParameter(
   if (isUuid(urlParam)) return urlParam;
 
   // Attempt to parse the parameter as a name
-  const nameInfo = parseUrlAtlasName(urlParam);
+  const nameInfo = parseAtlasNameSlug(urlParam);
   if (nameInfo === null)
     throw new InvalidOperationError("Unknown atlas identifier format");
-  return getAtlasIdByNameAndVersion(nameInfo);
+  return getAtlasIdBySlugNameAndVersion(nameInfo);
 }
