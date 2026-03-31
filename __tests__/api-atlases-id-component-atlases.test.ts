@@ -37,6 +37,7 @@ import {
   assertExpectDefined,
   expectApiComponentAtlasToMatchTest,
   expectIsDefined,
+  getTestAtlasShortNameSlug,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -186,7 +187,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns component atlases when requested via atlas name", async () => {
-    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const atlasName = `${getTestAtlasShortNameSlug(ATLAS_DRAFT)}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
     const res = await doComponentAtlasesRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const componentAtlases =

@@ -315,7 +315,7 @@ export async function createTestAtlasData(): Promise<void> {
       overview: {
         description: "Test Atlas With Network And Name Contrasts",
         network: "heart",
-        shortName: "test-short-name-a",
+        shortName: "Test Short Name A",
       },
       revision: 0,
     },
@@ -325,7 +325,7 @@ export async function createTestAtlasData(): Promise<void> {
       overview: {
         description: "Test Atlas With Contrasting Name",
         network: "heart",
-        shortName: "test-short-name-b",
+        shortName: "Test Short Name B",
       },
       revision: 0,
     },
@@ -335,7 +335,7 @@ export async function createTestAtlasData(): Promise<void> {
       overview: {
         description: "Test Atlas With Contrasting Network",
         network: "lung",
-        shortName: "test-short-name-a",
+        shortName: "Test Short Name A",
       },
       revision: 0,
     },
@@ -345,7 +345,7 @@ export async function createTestAtlasData(): Promise<void> {
       overview: {
         description: "Test Published Atlas",
         network: "nervous-system",
-        shortName: "test-published-atlas",
+        shortName: "Test Published Atlas",
       },
       publishedAt: "2026-02-26T09:02:15.967Z",
       revision: 0,

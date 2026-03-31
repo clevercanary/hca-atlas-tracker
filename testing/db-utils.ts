@@ -51,6 +51,7 @@ import {
   expectIsDefined,
   fillTestFileDefaults,
   fillTestSourceDatasetDefaults,
+  getTestAtlasShortNameSlug,
   getTestFileKey,
   makeTestAtlasOverview,
   makeTestSourceDatasetInfo,
@@ -277,7 +278,7 @@ async function initTestFile(
       throw new Error("Can't create concept for ingest manifest");
     await createTestConcept(
       {
-        atlas_short_name: atlas.shortName.toLowerCase(),
+        atlas_short_name: getTestAtlasShortNameSlug(atlas),
         base_filename: getFileBaseName(file.fileName),
         file_type: fileType,
         generation: atlas.generation,
@@ -331,7 +332,7 @@ async function initExplicitConcepts(client: pg.PoolClient): Promise<void> {
   for (const concept of INITIAL_EXPLICIT_TEST_CONCEPTS) {
     await createTestConcept(
       {
-        atlas_short_name: concept.atlas.shortName,
+        atlas_short_name: getTestAtlasShortNameSlug(concept.atlas),
         base_filename: concept.baseFilename,
         file_type: concept.fileType,
         generation: concept.atlas.generation,

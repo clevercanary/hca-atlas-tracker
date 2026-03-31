@@ -49,6 +49,7 @@ import {
   expectApiSourceDatasetsToMatchTest,
   expectApiSourceDatasetToMatchTest,
   expectIsDefined,
+  getTestAtlasShortNameSlug,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -218,7 +219,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns source datasets when requested via atlas name", async () => {
-    const atlasName = `${ATLAS_WITH_MISC_SOURCE_STUDIES.shortName}_v${ATLAS_WITH_MISC_SOURCE_STUDIES.generation}.${ATLAS_WITH_MISC_SOURCE_STUDIES.revision}`;
+    const atlasName = `${getTestAtlasShortNameSlug(ATLAS_WITH_MISC_SOURCE_STUDIES)}_v${ATLAS_WITH_MISC_SOURCE_STUDIES.generation}.${ATLAS_WITH_MISC_SOURCE_STUDIES.revision}`;
     const res = await doSourceDatasetsRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];

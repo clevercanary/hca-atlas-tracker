@@ -123,6 +123,10 @@ export function makeTestAtlasOverview(
   };
 }
 
+export function getTestAtlasShortNameSlug(atlas: TestAtlas): string {
+  return atlas.shortName.toLowerCase().replaceAll(" ", "-");
+}
+
 export function makeTestSourceStudyOverview(
   study: TestSourceStudy,
 ):
@@ -330,7 +334,7 @@ export function getTestFileKey(file: TestFile, atlas: TestAtlas): string {
       folderName = "source-datasets";
       break;
   }
-  return `${atlas.network}/${atlas.shortName}-v${atlas.generation}-${atlas.revision}/${folderName}/${file.fileName}`;
+  return `${atlas.network}/${getTestAtlasShortNameSlug(atlas)}-v${atlas.generation}-${atlas.revision}/${folderName}/${file.fileName}`;
 }
 
 export function getTestSourceStudyCitation(

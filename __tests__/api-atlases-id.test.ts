@@ -38,6 +38,7 @@ import { TestAtlas, TestUser } from "../testing/entities";
 import {
   expectApiAtlasToMatchTest,
   expectDbAtlasToMatchApi,
+  getTestAtlasShortNameSlug,
   makeTestAtlasOverview,
   testApiRole,
   withConsoleErrorHiding,
@@ -79,7 +80,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
     },
   ],
   network: ATLAS_PUBLIC.network,
-  shortName: "test-public-edited",
+  shortName: "Test Public Edited",
   status: ATLAS_PUBLIC.status,
   targetCompletion: "2024-06-09T12:21:52.277Z",
   wave: "2",
@@ -112,7 +113,7 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
     },
   ],
   network: "development",
-  shortName: "test3",
+  shortName: "Test Three",
   wave: "3",
 };
 
@@ -301,7 +302,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns atlas when requested by name", async () => {
-    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const atlasName = `${getTestAtlasShortNameSlug(ATLAS_DRAFT)}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
     const res = await doAtlasRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
