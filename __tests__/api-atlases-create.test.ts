@@ -453,6 +453,36 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when short name contains non-alphabetic non-space character", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            shortName: "Test1",
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when short name contains multiple consecutive spaces", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            shortName: "Test  One",
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
     await testSuccessfulCreate(NEW_ATLAS_DATA, [
       PUBLICATION_PREPRINT_NO_JOURNAL,
