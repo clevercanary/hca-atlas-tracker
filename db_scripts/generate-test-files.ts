@@ -576,9 +576,8 @@ async function generateAndAddAtlases(client: pg.PoolClient): Promise<string[]> {
 async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
   const network = chooseRandom(networkOptions);
   // Create a random sequence of letters to name the atlas with
-  const shortNameDiscriminator = Array.from(
-    randomInRange(0, 100000).toString(26),
-    (d) => String.fromCodePoint(65 + parseInt(d, 26)),
+  const shortNameDiscriminator = Array.from({ length: 5 }, () =>
+    String.fromCodePoint(65 + randomInRange(0, 25)),
   ).join("");
   const shortName = `Files Test ${shortNameDiscriminator}`;
   const generation = randomInRange(0, 9);
