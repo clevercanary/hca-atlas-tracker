@@ -61,7 +61,11 @@ import {
   getFileSourceDataset,
   resetDatabase,
 } from "../testing/db-utils";
-import { expectIsDefined, withConsoleMessageHiding } from "../testing/utils";
+import {
+  assertExpectDefined,
+  expectIsDefined,
+  withConsoleMessageHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
@@ -2100,7 +2104,10 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Check that concept was created and linked to the file
     const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
-    expect(concept).toBeDefined();
+    assertExpectDefined(concept);
+
+    // Check that the concept stores the slug-format short name
+    expect(concept.atlas_short_name).toEqual("test-atlas-with-multi-word-name");
   });
 
   it("updates source dataset arrays for only latest-version component atlases when a new source dataset version is added", async () => {
