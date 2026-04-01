@@ -75,13 +75,13 @@ function determineFileType(s3TypeFolder: string): FILE_TYPE {
 }
 
 /**
- * Parses S3 atlas name into base name and version components
+ * Parses S3 atlas name into short name slug, generation, and revision
  * @param s3AtlasName - The atlas name from S3 path (e.g., 'gut-v1', 'retina-v1-1')
- * @returns Object containing the atlas base name and S3 version string
+ * @returns Object containing the short name slug, the generation number, and the revision number
  * @throws Error if the atlas name doesn't match the expected format
  * @example
- * parseS3AtlasName('gut-v1') // Returns: { shortNameSlug: 'gut', s3Version: '1' }
- * parseS3AtlasName('retina-v1-1') // Returns: { shortNameSlug: 'retina', s3Version: '1-1' }
+ * parseS3AtlasName('gut-v1') // Returns: { shortNameSlug: 'gut', generation: 1, revision: 0 }
+ * parseS3AtlasName('retina-v1-1') // Returns: { shortNameSlug: 'retina', generation: 1, revision: 1 }
  */
 function parseS3AtlasName(s3AtlasName: string): AtlasSlugNameAndVersion {
   // Match patterns like 'gut-v1' or 'gut-v1-1' (for v1.1)
