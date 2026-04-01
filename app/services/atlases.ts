@@ -30,7 +30,7 @@ import {
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
-import { parseAtlasNameSlug } from "../utils/atlases";
+import { parseAtlasNameUrlSlug } from "../utils/atlases";
 import { doTransaction, query } from "./database";
 
 interface AtlasInputDbData {
@@ -353,7 +353,7 @@ export async function getAtlasIdByUrlParameter(
   if (isUuid(urlParam)) return urlParam;
 
   // Attempt to parse the parameter as a name
-  const nameInfo = parseAtlasNameSlug(urlParam);
+  const nameInfo = parseAtlasNameUrlSlug(urlParam);
   if (nameInfo === null)
     throw new InvalidOperationError("Unknown atlas identifier format");
   return getAtlasIdBySlugNameAndVersion(nameInfo);

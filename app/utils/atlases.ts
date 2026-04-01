@@ -10,11 +10,11 @@ export interface AtlasSlugNameAndVersion extends AtlasVersionNumbers {
 }
 
 /**
- * Parse short name, generation, and revision from an atlas name slug.
+ * Parse short name, generation, and revision from an atlas name URL slug.
  * @param nameSlug - Name with version in slug format.
  * @returns object containing short name slug, generation, and revision.
  */
-export function parseAtlasNameSlug(
+export function parseAtlasNameUrlSlug(
   nameSlug: string,
 ): AtlasSlugNameAndVersion | null {
   const match = /^(.+)_v([1-9]\d*)\.(0|[1-9]\d*)$/.exec(nameSlug);
