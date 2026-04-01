@@ -38,6 +38,7 @@ import { TestAtlas, TestUser } from "../testing/entities";
 import {
   expectApiAtlasToMatchTest,
   expectDbAtlasToMatchApi,
+  getTestAtlasShortNameSlug,
   makeTestAtlasOverview,
   testApiRole,
   withConsoleErrorHiding,
@@ -79,7 +80,7 @@ const ATLAS_PUBLIC_EDIT: AtlasEditData = {
     },
   ],
   network: ATLAS_PUBLIC.network,
-  shortName: "test-public-edited",
+  shortName: "Test Public Edited",
   status: ATLAS_PUBLIC.status,
   targetCompletion: "2024-06-09T12:21:52.277Z",
   wave: "2",
@@ -112,7 +113,7 @@ const ATLAS_DRAFT_EDIT: AtlasEditData = {
     },
   ],
   network: "development",
-  shortName: "test3",
+  shortName: "Test Three",
   wave: "3",
 };
 
@@ -301,7 +302,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns atlas when requested by name", async () => {
-    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const atlasName = `${getTestAtlasShortNameSlug(ATLAS_DRAFT)}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
     const res = await doAtlasRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
@@ -606,6 +607,49 @@ describe(TEST_ROUTE, () => {
           {
             ...ATLAS_PUBLIC_EDIT,
             capId: "https://celltype.info/project/183529/dataset/198031",
+          },
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
+  it.each([
+    { character: "1" },
+    { character: "_" },
+    { character: "-" },
+    { character: "'" },
+    { character: "*" },
+  ])(
+    'PUT returns error 400 when short name contains non-alphabetic non-space character "$character"',
+    async ({ character }) => {
+      expect(
+        (
+          await doAtlasRequest(
+            ATLAS_PUBLIC.id,
+            USER_CONTENT_ADMIN,
+            true,
+            METHOD.PUT,
+            {
+              ...ATLAS_PUBLIC_EDIT,
+              shortName: "Test" + character,
+            },
+          )
+        )._getStatusCode(),
+      ).toEqual(400);
+    },
+  );
+
+  it("PUT returns error 400 when short name contains multiple consecutive spaces", async () => {
+    expect(
+      (
+        await doAtlasRequest(
+          ATLAS_PUBLIC.id,
+          USER_CONTENT_ADMIN,
+          true,
+          METHOD.PUT,
+          {
+            ...ATLAS_PUBLIC_EDIT,
+            shortName: "Test  One",
           },
         )
       )._getStatusCode(),

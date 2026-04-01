@@ -327,7 +327,7 @@ async function saveFileRecord(
   // Get atlas and file info from S3 key
   const {
     atlasNetwork: network,
-    atlasShortName,
+    atlasShortNameSlug,
     atlasVersion: { generation: atlasGeneration, revision: atlasRevision },
     fileBaseName,
     fileType,
@@ -361,7 +361,7 @@ async function saveFileRecord(
     // Get or create concept ID for the file
     const conceptId = await getOrCreateConceptId(
       {
-        atlas_short_name: atlasShortName,
+        atlas_short_name: atlasShortNameSlug,
         base_filename: fileBaseName,
         file_type: fileType,
         generation: atlasGeneration,

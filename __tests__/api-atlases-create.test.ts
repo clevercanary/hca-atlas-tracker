@@ -61,7 +61,7 @@ const NEW_ATLAS_DATA: NewAtlasData = {
   metadataCorrectnessUrl:
     "https://example.com/new-atlas-foo-metadata-correctness",
   network: "eye",
-  shortName: "test",
+  shortName: "Test",
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "1",
 };
@@ -76,7 +76,7 @@ const NEW_ATLAS_WITH_IL_DATA: NewAtlasData = {
     },
   ],
   network: "eye",
-  shortName: "test2",
+  shortName: "Test Two",
   wave: "1",
 };
 
@@ -98,7 +98,7 @@ const NEW_ATLAS_WITH_MULTIPLE_ILS: NewAtlasData = {
     },
   ],
   network: "development",
-  shortName: "test3",
+  shortName: "Test Three",
   wave: "3",
 };
 
@@ -107,7 +107,7 @@ const NEW_ATLAS_WITH_TARGET_COMPLETION: NewAtlasData = {
   description: "bar bar foo foo foo bar",
   integrationLead: [],
   network: "musculoskeletal",
-  shortName: "test4",
+  shortName: "Test Four",
   targetCompletion: "2024-06-03T21:07:22.177Z",
   wave: "2",
 };
@@ -116,7 +116,7 @@ const NEW_ATLAS_WITHOUT_DESCRIPTION: NewAtlasData = {
   capId: null,
   integrationLead: [],
   network: "nervous-system",
-  shortName: "test5",
+  shortName: "Test Five",
   wave: "2",
 };
 
@@ -125,7 +125,7 @@ const NEW_ATLAS_WITH_NONEXISTENT_PUBLICATION: NewAtlasData = {
   dois: [DOI_NONEXISTENT],
   integrationLead: [],
   network: "lung",
-  shortName: "test6",
+  shortName: "Test Six",
   wave: "1",
 };
 
@@ -133,7 +133,7 @@ const NEW_ATLAS_COMPLETE: NewAtlasData = {
   capId: null,
   integrationLead: [],
   network: "kidney",
-  shortName: "test7",
+  shortName: "Test Seven",
   status: ATLAS_STATUS.OC_ENDORSED,
   wave: "1",
 };
@@ -144,7 +144,7 @@ const NEW_ATLAS_WITH_METADATA_SPECIFICATION: NewAtlasData = {
   metadataSpecificationUrl:
     "https://docs.google.com/spreadsheets/d/new-atlas-with-metadata-specification/edit",
   network: "nervous-system",
-  shortName: "test8",
+  shortName: "Test Eight",
   wave: "3",
 };
 
@@ -446,6 +446,45 @@ describe("/api/atlases/create", () => {
           {
             ...NEW_ATLAS_DATA,
             capId: "https://celltype.info/project/211278/dataset/778447",
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
+  it.each([
+    { character: "1" },
+    { character: "_" },
+    { character: "-" },
+    { character: "'" },
+    { character: "*" },
+  ])(
+    'returns error 400 when short name contains non-alphabetic non-space character "$character"',
+    async ({ character }) => {
+      expect(
+        (
+          await doCreateTest(
+            USER_CONTENT_ADMIN,
+            {
+              ...NEW_ATLAS_DATA,
+              shortName: "Test" + character,
+            },
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(400);
+    },
+  );
+
+  it("returns error 400 when short name contains multiple consecutive spaces", async () => {
+    expect(
+      (
+        await doCreateTest(
+          USER_CONTENT_ADMIN,
+          {
+            ...NEW_ATLAS_DATA,
+            shortName: "Test  One",
           },
           true,
         )

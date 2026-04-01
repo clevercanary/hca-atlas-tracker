@@ -3,7 +3,11 @@ import {
   NETWORK_KEYS,
   WAVES,
 } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
-import { CAP_PROJECT_URL_REGEXP } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
+import {
+  ATLAS_SHORT_NAME_REGEX,
+  ATLAS_SHORT_NAME_REGEX_MESSAGE,
+  CAP_PROJECT_URL_REGEXP,
+} from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { CELLXGENE_COLLECTION_ID_REGEX } from "../../../common/constants";
 import { isDoi } from "../../../utils/doi";
 import { FIELD_NAME } from "./constants";
@@ -48,7 +52,8 @@ export const newAtlasSchema = object({
     ),
   [FIELD_NAME.SHORT_NAME]: string()
     .default("")
-    .required("Short name is required"),
+    .required("Short name is required")
+    .matches(ATLAS_SHORT_NAME_REGEX, ATLAS_SHORT_NAME_REGEX_MESSAGE),
   [FIELD_NAME.WAVE]: string()
     .default("")
     .required("Wave is required")

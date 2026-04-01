@@ -29,7 +29,11 @@ import {
   TestUnpublishedSourceStudy,
   TestUser,
 } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+import {
+  getTestAtlasShortNameSlug,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
@@ -196,7 +200,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns source studies when requested via atlas name", async () => {
-    const atlasName = `${ATLAS_DRAFT.shortName}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
+    const atlasName = `${getTestAtlasShortNameSlug(ATLAS_DRAFT)}_v${ATLAS_DRAFT.generation}.${ATLAS_DRAFT.revision}`;
     const res = await doStudiesRequest(atlasName, USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];

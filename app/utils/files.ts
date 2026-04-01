@@ -3,7 +3,11 @@ import {
   NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { isNetworkKey } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { AtlasVersionNumbers, parseS3AtlasVersion } from "../utils/atlases";
+import {
+  AtlasSlugNameAndVersion,
+  AtlasVersionNumbers,
+  parseS3AtlasVersion,
+} from "../utils/atlases";
 
 // Parsed S3 key path components
 interface S3KeyPathComponents {
@@ -71,18 +75,15 @@ function determineFileType(s3TypeFolder: string): FILE_TYPE {
 }
 
 /**
- * Parses S3 atlas name into base name and version components
+ * Parses S3 atlas name into short name slug, generation, and revision
  * @param s3AtlasName - The atlas name from S3 path (e.g., 'gut-v1', 'retina-v1-1')
- * @returns Object containing the atlas base name and S3 version string
+ * @returns Object containing the short name slug, the generation number, and the revision number
  * @throws Error if the atlas name doesn't match the expected format
  * @example
- * parseS3AtlasName('gut-v1') // Returns: { atlasBaseName: 'gut', s3Version: '1' }
- * parseS3AtlasName('retina-v1-1') // Returns: { atlasBaseName: 'retina', s3Version: '1-1' }
+ * parseS3AtlasName('gut-v1') // Returns: { shortNameSlug: 'gut', generation: 1, revision: 0 }
+ * parseS3AtlasName('retina-v1-1') // Returns: { shortNameSlug: 'retina', generation: 1, revision: 1 }
  */
-function parseS3AtlasName(s3AtlasName: string): {
-  atlasBaseName: string;
-  s3Version: string;
-} {
+function parseS3AtlasName(s3AtlasName: string): AtlasSlugNameAndVersion {
   // Match patterns like 'gut-v1' or 'gut-v1-1' (for v1.1)
   const versionMatch = s3AtlasName.match(/^(.+)-v(\d+(?:-\d+)*)$/);
 
@@ -92,8 +93,8 @@ function parseS3AtlasName(s3AtlasName: string): {
     );
   }
 
-  const [, atlasBaseName, s3Version] = versionMatch;
-  return { atlasBaseName, s3Version };
+  const [, shortNameSlug, s3Version] = versionMatch;
+  return { shortNameSlug, ...parseS3AtlasVersion(s3Version) };
 }
 
 /**
@@ -125,18 +126,18 @@ export function getFileBaseName(filename: string): string {
  */
 export function parseNormalizedInfoFromS3Key(s3Key: string): {
   atlasNetwork: NetworkKey;
-  atlasShortName: string;
+  atlasShortNameSlug: string;
   atlasVersion: AtlasVersionNumbers;
   fileBaseName: string;
   fileType: FILE_TYPE;
 } {
   const { atlasName, filename, folderType, network } = parseS3KeyPath(s3Key);
-  const { atlasBaseName, s3Version } = parseS3AtlasName(atlasName);
+  const { shortNameSlug, ...atlasVersion } = parseS3AtlasName(atlasName);
 
   return {
     atlasNetwork: network,
-    atlasShortName: atlasBaseName.toLowerCase(),
-    atlasVersion: parseS3AtlasVersion(s3Version),
+    atlasShortNameSlug: shortNameSlug.toLowerCase(),
+    atlasVersion,
     fileBaseName: getFileBaseName(filename),
     fileType: determineFileType(folderType),
   };

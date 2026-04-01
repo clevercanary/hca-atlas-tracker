@@ -413,15 +413,18 @@ async function generateAndAddFile(
   extension: string,
 ): Promise<HCAAtlasTrackerDBFile> {
   const fileName = crypto.randomUUID() + extension;
+  const shortNameSlug = atlas.overview.shortName
+    .toLowerCase()
+    .replaceAll(" ", "-");
   const key = `${atlas.overview.network}/${
-    atlas.overview.shortName
+    shortNameSlug
   }-v${atlas.generation}-${atlas.revision}/${folderName}/${fileName}`;
   const conceptId =
     fileType === FILE_TYPE.INGEST_MANIFEST
       ? null
       : await createConcept(
           {
-            atlas_short_name: atlas.overview.shortName.toLowerCase(),
+            atlas_short_name: shortNameSlug,
             base_filename: fileName,
             file_type: fileType,
             generation: atlas.generation,
@@ -572,7 +575,11 @@ async function generateAndAddAtlases(client: pg.PoolClient): Promise<string[]> {
 
 async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
   const network = chooseRandom(networkOptions);
-  const shortName = `files_test_${randomInRange(0, 99999)}`;
+  // Create a random sequence of letters to name the atlas with
+  const shortNameDiscriminator = Array.from({ length: 5 }, () =>
+    String.fromCodePoint(65 + randomInRange(0, 25)),
+  ).join("");
+  const shortName = `Files Test ${shortNameDiscriminator}`;
   const generation = randomInRange(0, 9);
   const revision = randomInRange(0, 9);
   const wave = chooseRandom(waveOptions);

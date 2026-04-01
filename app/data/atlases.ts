@@ -1,34 +1,34 @@
 import { HCAAtlasTrackerDBAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
-import { AtlasNameAndVersion } from "../utils/atlases";
+import { AtlasSlugNameAndVersion } from "../utils/atlases";
 import pg from "pg";
 
 /**
- * Get an atlas ID based on a case-insensitive short name, a generation number, and a revision number.
- * @param nameAndVersion - Atlas name and version numbers.
- * @param nameAndVersion.shortName - Atlas short name.
+ * Get an atlas ID based on a case-insensitive short name slug, a generation number, and a revision number.
+ * @param nameAndVersion - Atlas short name and version numbers.
+ * @param nameAndVersion.shortNameSlug - Slug-format atlas short name.
  * @param nameAndVersion.generation - Atlas generation.
  * @param nameAndVersion.revision - Atlas revision.
  * @returns atlas ID.
  */
-export async function getAtlasIdByNameAndVersion({
+export async function getAtlasIdBySlugNameAndVersion({
   generation,
   revision,
-  shortName,
-}: AtlasNameAndVersion): Promise<string> {
-  const lowerShortName = shortName.toLowerCase();
+  shortNameSlug,
+}: AtlasSlugNameAndVersion): Promise<string> {
+  const lowerSlug = shortNameSlug.toLowerCase();
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "SELECT id FROM hat.atlases WHERE LOWER(overview->>'shortName') = $1 AND generation = $2 AND revision = $3",
-    [lowerShortName, generation, revision],
+    "SELECT id FROM hat.atlases WHERE REPLACE(LOWER(overview->>'shortName'), ' ', '-') = $1 AND generation = $2 AND revision = $3",
+    [lowerSlug, generation, revision],
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(
-      `Atlas ${shortName} v${generation}.${revision} doesn't exist`,
+      `Atlas ${shortNameSlug}_v${generation}.${revision} doesn't exist`,
     );
   if (queryResult.rows.length > 1)
     throw new Error(
-      `Found multiple atlases named ${shortName} v${generation}.${revision}`,
+      `Found multiple atlases named ${shortNameSlug}_v${generation}.${revision}`,
     );
   return queryResult.rows[0].id;
 }

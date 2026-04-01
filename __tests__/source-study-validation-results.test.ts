@@ -211,7 +211,7 @@ const VALIDATIONS_PUBLISHED_WITH_HCA_TITLE_MISMATCH: ExpectedValidationPropertie
         },
         {
           actual: [],
-          expected: ["test-with-source-study-validations-a v5.4"],
+          expected: ["Test With Source Study Validations A v5.4"],
           variable: VALIDATION_VARIABLE.ATLASES,
         },
       ],

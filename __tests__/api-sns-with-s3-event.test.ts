@@ -10,6 +10,7 @@ import {
   SQL_QUERIES,
   TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
   TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
+  TEST_ATLAS_WITH_MULTI_WORD_NAME_ID,
   TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
   TEST_AWS_CONFIG,
   TEST_FILE_PATHS,
@@ -60,7 +61,11 @@ import {
   getFileSourceDataset,
   resetDatabase,
 } from "../testing/db-utils";
-import { expectIsDefined, withConsoleMessageHiding } from "../testing/utils";
+import {
+  assertExpectDefined,
+  expectIsDefined,
+  withConsoleMessageHiding,
+} from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
@@ -2050,6 +2055,61 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     },
   );
 
+  it("successfully links file to atlas with multi-word short name", async () => {
+    const key =
+      "adipose/test-atlas-with-multi-word-name-v1-0/source-datasets/test-multi-word-name.h5ad";
+
+    const s3Event = createS3Event({
+      etag: "01bde36726da4eaaad4df874cb9f7019",
+      key,
+      size: 1024000,
+      versionId: TEST_VERSION_IDS.DEFAULT,
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "260671c3-093b-44fe-98b3-5b413f96a23e",
+      s3Event,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      },
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Check that file was saved to database
+    const fileRows = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, key],
+    );
+
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.etag).toBe("01bde36726da4eaaad4df874cb9f7019");
+
+    // Check fields and relationships
+    await expectSourceDatasetFileToBeConsistentWith(file.id, {
+      atlas: TEST_ATLAS_WITH_MULTI_WORD_NAME_ID,
+      isLatest: true,
+      revision: 1,
+      wipNumber: 1,
+    });
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    assertExpectDefined(concept);
+
+    // Check that the concept stores the slug-format short name
+    expect(concept.atlas_short_name).toEqual("test-atlas-with-multi-word-name");
+  });
+
   it("updates source dataset arrays for only latest-version component atlases when a new source dataset version is added", async () => {
     // Create initial files -- two source datasets and one integrated object
 
@@ -2236,6 +2296,46 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that versioned files share the same concept as their first version
     expect(sdFileA2.concept_id).toEqual(sdAConceptId);
     expect(ioFileA2.concept_id).toEqual(ioFileA1.concept_id);
+  });
+
+  it("rejects S3 notification and does not create concept when atlas doesn't exist", async () => {
+    const shortNameSlug = "nonexistent";
+
+    const s3Event = createS3Event({
+      etag: "nonexistent-atlas-etag",
+      key: `gut/${shortNameSlug}-v1/integrated-objects/test.h5ad`,
+      size: 53452,
+      versionId: "nonexistent-atlas-version",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "nonexistent-atlas-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      },
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(404);
+    const responseBody = JSON.parse(res._getData());
+    expect(responseBody.message).toContain("atlas");
+
+    const conceptResult = await query(
+      "SELECT 1 FROM hat.concepts WHERE atlas_short_name = $1",
+      [shortNameSlug],
+    );
+    expect(conceptResult.rows).toHaveLength(0);
   });
 
   it("rejects S3 notification when atlas specified by key is published", async () => {

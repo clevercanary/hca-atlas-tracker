@@ -39,10 +39,10 @@ export const STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD =
   STAKEHOLDER_ANALOGOUS_ROLES.filter((r) => r !== ROLE.INTEGRATION_LEAD);
 
 const ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A =
-  "test-with-source-study-validations-a";
+  "Test With Source Study Validations A";
 
 const ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_C =
-  "test-with-source-study-validations-c";
+  "Test With Source Study Validations C";
 
 // DOIS
 
@@ -399,7 +399,7 @@ export const HCA_PROJECTS_RESPONSE_PUBLISHED_WITH_HCA =
         shortName: ATLAS_SHORT_NAME_WITH_SOURCE_STUDY_VALIDATIONS_A,
         version: "v5.4",
       },
-      { shortName: "test-with-il", version: "v2.0" },
+      { shortName: "Test With IL", version: "v2.0" },
     ],
     ["Organoid"],
   );
@@ -3924,7 +3924,7 @@ export const ATLAS_DRAFT: TestAtlas = {
   network: "eye",
   publications: [],
   revision: 2,
-  shortName: "test-draft",
+  shortName: "Test Draft",
   sourceDatasets: [
     SOURCE_DATASET_DRAFT_OK_FOO.versionId,
     SOURCE_DATASET_DRAFT_OK_BAR.versionId,
@@ -3965,7 +3965,7 @@ export const ATLAS_PUBLIC: TestAtlas = {
   network: "lung",
   publications: [],
   revision: 3,
-  shortName: "test-public",
+  shortName: "Test Public",
   sourceDatasets: [
     SOURCE_DATASET_FOOFOO.versionId,
     SOURCE_DATASET_FOOBAR.versionId,
@@ -3988,7 +3988,7 @@ export const ATLAS_WITH_IL: TestAtlas = {
   network: "heart",
   publications: [],
   revision: 0,
-  shortName: "test-with-il",
+  shortName: "Test With IL",
   sourceStudies: [SOURCE_STUDY_PUBLISHED_WITH_HCA.id],
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "3",
@@ -4012,7 +4012,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES: TestAtlas = {
   network: "adipose",
   publications: [{ doi: DOI_NORMAL, publication: PUBLICATION_NORMAL }],
   revision: 3,
-  shortName: "test-with-misc-source-studies",
+  shortName: "Test With Misc Source Studies",
   sourceDatasets: [
     SOURCE_DATASET_FOO.versionId,
     SOURCE_DATASET_BAR.versionId,
@@ -4069,7 +4069,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
   network: "eye",
   publications: [],
   revision: 3,
-  shortName: "test-with-misc-source-studies-b",
+  shortName: "Test With Misc Source Studies B",
   sourceDatasets: [
     SOURCE_DATASET_WITH_MULTIPLE_FILES_W3.versionId,
     SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2.versionId,
@@ -4099,7 +4099,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
   network: "lung",
   publications: [],
   revision: 2,
-  shortName: "test-with-misc-source-studies-c",
+  shortName: "Test With Misc Source Studies C",
   sourceDatasets: [
     SOURCE_DATASET_WITHOUT_SOURCE_STUDY_FOO.versionId,
     SOURCE_DATASET_WITHOUT_SOURCE_STUDY_BAR.versionId,
@@ -4157,7 +4157,7 @@ export const ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B: TestAtlas = {
   network: "gut",
   publications: [],
   revision: 5,
-  shortName: "test-with-source-study-validations-b",
+  shortName: "Test With Source Study Validations B",
   sourceDatasets: [
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_BAZ.versionId,
     SOURCE_DATASET_UNPUBLISHED_WITH_CELLXGENE_FOO.versionId,
@@ -4202,7 +4202,7 @@ export const ATLAS_PUBLIC_BAR: TestAtlas = {
   network: "adipose",
   publications: [],
   revision: 2,
-  shortName: "test-public-bar",
+  shortName: "Test Public Bar",
   sourceStudies: [],
   status: ATLAS_STATUS.OC_ENDORSED,
   wave: "3",
@@ -4221,7 +4221,7 @@ export const ATLAS_WITH_METADATA_CORRECTNESS: TestAtlas = {
   network: "reproduction",
   publications: [],
   revision: 6,
-  shortName: "test-with-metadata-correctness",
+  shortName: "Test With Metadata Correctness",
   sourceDatasets: [],
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,
@@ -4240,7 +4240,7 @@ export const ATLAS_PUBLIC_BAZ: TestAtlas = {
   network: "musculoskeletal",
   publications: [],
   revision: 2,
-  shortName: "test-public-baz",
+  shortName: "Test Public Baz",
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "3",
@@ -4259,7 +4259,7 @@ export const ATLAS_WITH_CAP_ID: TestAtlas = {
   network: "heart",
   publications: [],
   revision: 2,
-  shortName: "test-with-cap-id",
+  shortName: "Test With CAP ID",
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "1",
@@ -4280,7 +4280,7 @@ export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A: TestAtlas = {
   network: "kidney",
   publications: [],
   revision: 7,
-  shortName: "test-with-entry-sheet-validations-a",
+  shortName: "Test With Entry Sheet Validations A",
   sourceStudies: [
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_FOO.id,
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
@@ -4301,7 +4301,7 @@ export const ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B: TestAtlas = {
   network: "nervous-system",
   publications: [],
   revision: 0,
-  shortName: "test-with-entry-sheet-validations-b",
+  shortName: "Test With Entry Sheet Validations B",
   sourceStudies: [
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAR.id,
     SOURCE_STUDY_WITH_ENTRY_SHEET_VALIDATIONS_BAZ.id,
@@ -4322,7 +4322,7 @@ export const ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS: TestAtlas = {
   network: "lung",
   publications: [],
   revision: 1,
-  shortName: "test-with-non-shared-entry-sheet-validations",
+  shortName: "Test With Non Shared Entry Sheet Validations",
   sourceStudies: [SOURCE_STUDY_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS.id],
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "1",
@@ -4341,7 +4341,7 @@ export const ATLAS_HEATMAP_TEST: TestAtlas = {
   network: "eye",
   publications: [],
   revision: 0,
-  shortName: "heatmap-test-atlas",
+  shortName: "Heatmap Test Atlas",
   sourceStudies: [
     SOURCE_STUDY_HEATMAP_TEST_FOO.id,
     SOURCE_STUDY_HEATMAP_TEST_BAR.id,
@@ -4366,7 +4366,7 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   network: "reproduction",
   publications: [],
   revision: 1,
-  shortName: "test-with-non-latest-metadata-entities",
+  shortName: "Test With Non Latest Metadata Entities",
   sourceDatasets: [
     SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2.versionId,
     SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2.versionId,
@@ -4389,7 +4389,7 @@ export const ATLAS_PUBLISHED: TestAtlas = {
   publications: [],
   publishedAt: "2026-02-25T20:44:05.405Z",
   revision: 7,
-  shortName: "test-published",
+  shortName: "Test Published",
   sourceDatasets: [SOURCE_DATASET_PUBLISHED.versionId],
   sourceStudies: [SOURCE_STUDY_PUBLISHED.id],
   status: ATLAS_STATUS.OC_ENDORSED,
@@ -4413,7 +4413,7 @@ export const ATLAS_WITH_LINKED_PUBLISH_STATUSES: TestAtlas = {
   network: "organoid",
   publications: [],
   revision: 2,
-  shortName: "test-with-linked-publish-statuses",
+  shortName: "Test With Linked Publish Statuses",
   sourceDatasets: [
     SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO.versionId,
     SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR.versionId,
