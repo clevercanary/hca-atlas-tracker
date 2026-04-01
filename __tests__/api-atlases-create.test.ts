@@ -453,20 +453,29 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
-  it("returns error 400 when short name contains non-alphabetic non-space character", async () => {
-    expect(
-      (
-        await doCreateTest(
-          USER_CONTENT_ADMIN,
-          {
-            ...NEW_ATLAS_DATA,
-            shortName: "Test1",
-          },
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
-  });
+  it.each([
+    { character: "1" },
+    { character: "_" },
+    { character: "-" },
+    { character: "'" },
+    { character: "*" },
+  ])(
+    'returns error 400 when short name contains non-alphabetic non-space character "$character"',
+    async ({ character }) => {
+      expect(
+        (
+          await doCreateTest(
+            USER_CONTENT_ADMIN,
+            {
+              ...NEW_ATLAS_DATA,
+              shortName: "Test" + character,
+            },
+            true,
+          )
+        )._getStatusCode(),
+      ).toEqual(400);
+    },
+  );
 
   it("returns error 400 when short name contains multiple consecutive spaces", async () => {
     expect(

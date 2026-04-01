@@ -613,22 +613,31 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
-  it("PUT returns error 400 when short name contains non-alphabetic non-space character", async () => {
-    expect(
-      (
-        await doAtlasRequest(
-          ATLAS_PUBLIC.id,
-          USER_CONTENT_ADMIN,
-          true,
-          METHOD.PUT,
-          {
-            ...ATLAS_PUBLIC_EDIT,
-            shortName: "Test1",
-          },
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
-  });
+  it.each([
+    { character: "1" },
+    { character: "_" },
+    { character: "-" },
+    { character: "'" },
+    { character: "*" },
+  ])(
+    'PUT returns error 400 when short name contains non-alphabetic non-space character "$character"',
+    async ({ character }) => {
+      expect(
+        (
+          await doAtlasRequest(
+            ATLAS_PUBLIC.id,
+            USER_CONTENT_ADMIN,
+            true,
+            METHOD.PUT,
+            {
+              ...ATLAS_PUBLIC_EDIT,
+              shortName: "Test" + character,
+            },
+          )
+        )._getStatusCode(),
+      ).toEqual(400);
+    },
+  );
 
   it("PUT returns error 400 when short name contains non-alphabetic non-space character", async () => {
     expect(
