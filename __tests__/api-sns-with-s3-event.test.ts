@@ -10,6 +10,7 @@ import {
   SQL_QUERIES,
   TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
   TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
+  TEST_ATLAS_WITH_MULTI_WORD_NAME_ID,
   TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
   TEST_AWS_CONFIG,
   TEST_FILE_PATHS,
@@ -2049,6 +2050,58 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       }
     },
   );
+
+  it("successfully links file to atlas with multi-word short name", async () => {
+    const key =
+      "adipose/test-atlas-with-multi-word-name-v1-0/source_datasets/test-multi-word-name.h5ad";
+
+    const s3Event = createS3Event({
+      etag: "01bde36726da4eaaad4df874cb9f7019",
+      key,
+      size: 1024000,
+      versionId: TEST_VERSION_IDS.DEFAULT,
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "260671c3-093b-44fe-98b3-5b413f96a23e",
+      s3Event,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      },
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(200);
+
+    // Check that file was saved to database
+    const fileRows = await query<HCAAtlasTrackerDBFile>(
+      SQL_QUERIES.SELECT_FILE_BY_BUCKET_AND_KEY,
+      [TEST_S3_BUCKET, key],
+    );
+
+    expect(fileRows.rows).toHaveLength(1);
+    const file = fileRows.rows[0];
+    expect(file.etag).toBe("01bde36726da4eaaad4df874cb9f7019");
+
+    // Check fields and relationships
+    await expectSourceDatasetFileToBeConsistentWith(file.id, {
+      atlas: TEST_ATLAS_WITH_MULTI_WORD_NAME_ID,
+      isLatest: true,
+      revision: 1,
+      wipNumber: 1,
+    });
+
+    // Check that concept was created and linked to the file
+    const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
+    expect(concept).toBeDefined();
+  });
 
   it("updates source dataset arrays for only latest-version component atlases when a new source dataset version is added", async () => {
     // Create initial files -- two source datasets and one integrated object

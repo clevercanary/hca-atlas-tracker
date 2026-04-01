@@ -35,6 +35,8 @@ export const TEST_ATLAS_WITH_CONTRASTING_NAME_ID =
 export const TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID =
   "7fadb3d2-166e-43d0-a728-d54ca4f7bd99";
 export const TEST_PUBLISHED_ATLAS_ID = "a4ef11a4-a521-4143-93e7-8be3c3332be2";
+export const TEST_ATLAS_WITH_MULTI_WORD_NAME_ID =
+  "c659307c-ba20-4784-ae66-7dbc75023954";
 export const TEST_S3_EVENT_NAME = "s3:ObjectCreated:Put";
 export const TEST_SNS_TOPIC_S3_NOTIFICATIONS =
   "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-s3-notifications";
@@ -348,6 +350,16 @@ export async function createTestAtlasData(): Promise<void> {
         shortName: "Test Published Atlas",
       },
       publishedAt: "2026-02-26T09:02:15.967Z",
+      revision: 0,
+    },
+    {
+      generation: 1,
+      id: TEST_ATLAS_WITH_MULTI_WORD_NAME_ID,
+      overview: {
+        description: "Test Atlas With Multi Word Name",
+        network: "adipose",
+        shortName: "Test Atlas With Multi Word Name",
+      },
       revision: 0,
     },
   ] as const;
