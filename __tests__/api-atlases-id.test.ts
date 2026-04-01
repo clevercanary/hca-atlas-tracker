@@ -639,7 +639,7 @@ describe(TEST_ROUTE, () => {
     },
   );
 
-  it("PUT returns error 400 when short name contains non-alphabetic non-space character", async () => {
+  it("PUT returns error 400 when short name contains multiple consecutive spaces", async () => {
     expect(
       (
         await doAtlasRequest(
