@@ -2053,7 +2053,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
   it("successfully links file to atlas with multi-word short name", async () => {
     const key =
-      "adipose/test-atlas-with-multi-word-name-v1-0/source_datasets/test-multi-word-name.h5ad";
+      "adipose/test-atlas-with-multi-word-name-v1-0/source-datasets/test-multi-word-name.h5ad";
 
     const s3Event = createS3Event({
       etag: "01bde36726da4eaaad4df874cb9f7019",
@@ -2289,6 +2289,46 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     // Check that versioned files share the same concept as their first version
     expect(sdFileA2.concept_id).toEqual(sdAConceptId);
     expect(ioFileA2.concept_id).toEqual(ioFileA1.concept_id);
+  });
+
+  it("rejects S3 notification and does not create concept when atlas doesn't exist", async () => {
+    const shortNameSlug = "nonexistent";
+
+    const s3Event = createS3Event({
+      etag: "nonexistent-atlas-etag",
+      key: `gut/${shortNameSlug}-v1/integrated-objects/test.h5ad`,
+      size: 53452,
+      versionId: "nonexistent-atlas-version",
+    });
+
+    const snsMessage = createSNSMessage({
+      messageId: "nonexistent-atlas-test",
+      s3Event,
+      signature: TEST_SIGNATURE,
+      subject: SNS_MESSAGE_DEFAULTS.SUBJECT,
+      timestamp: TEST_TIMESTAMP,
+    });
+
+    const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
+      {
+        body: snsMessage,
+        method: METHOD.POST,
+      },
+    );
+
+    await withConsoleMessageHiding(async () => {
+      await snsHandler(req, res);
+    });
+
+    expect(res.statusCode).toBe(404);
+    const responseBody = JSON.parse(res._getData());
+    expect(responseBody.message).toContain("atlas");
+
+    const conceptResult = await query(
+      "SELECT 1 FROM hat.concepts WHERE atlas_short_name = $1",
+      [shortNameSlug],
+    );
+    expect(conceptResult.rows).toHaveLength(0);
   });
 
   it("rejects S3 notification when atlas specified by key is published", async () => {
