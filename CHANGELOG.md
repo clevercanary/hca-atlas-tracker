@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.59.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.58.0...v1.59.0) (2026-04-01)
+
+
+### Features
+
+* add powered-by-CleverCanary footer image ([#1139](https://github.com/clevercanary/hca-atlas-tracker/issues/1139)) ([#1141](https://github.com/clevercanary/hca-atlas-tracker/issues/1141)) ([325dc2d](https://github.com/clevercanary/hca-atlas-tracker/commit/325dc2d21d28ee83320776dd64a91e6ddebc27c6))
+* add powered-by-CleverCanary footer image and upgrade findable-ui to v50 ([#1139](https://github.com/clevercanary/hca-atlas-tracker/issues/1139)) ([325dc2d](https://github.com/clevercanary/hca-atlas-tracker/commit/325dc2d21d28ee83320776dd64a91e6ddebc27c6))
+* add public apis supporting atlas names ([#1117](https://github.com/clevercanary/hca-atlas-tracker/issues/1117)) ([#1134](https://github.com/clevercanary/hca-atlas-tracker/issues/1134)) ([3565dc7](https://github.com/clevercanary/hca-atlas-tracker/commit/3565dc7cb84caef2c8a2e35a91a7f788483b4b2c))
+* use slug format for atlas short names in urls and s3 keys ([#1142](https://github.com/clevercanary/hca-atlas-tracker/issues/1142)) ([#1143](https://github.com/clevercanary/hca-atlas-tracker/issues/1143)) ([2add171](https://github.com/clevercanary/hca-atlas-tracker/commit/2add1716ab1f073f95f40e9620d5b799cf66001a))
+
+
+### Bug Fixes
+
+* use `baseFileName` for integrated object source datasets file name accessor key ([#1131](https://github.com/clevercanary/hca-atlas-tracker/issues/1131)) ([#1135](https://github.com/clevercanary/hca-atlas-tracker/issues/1135)) ([3721bf9](https://github.com/clevercanary/hca-atlas-tracker/commit/3721bf99943cdcc9975bb62f9eeebbd0f3335f72))
+
 ## [1.58.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.57.1...v1.58.0) (2026-03-16)
 
 
