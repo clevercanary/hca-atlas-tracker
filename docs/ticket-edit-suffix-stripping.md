@@ -35,10 +35,10 @@ New regex must handle all combinations:
 Use alternation to require at least one group matches:
 
 ```
-/(?:-r\d+(?:-wip-\d+)?(?:-edit-[^.]+)?|-edit-[^.]+)(?=\..+$)/
+/(?:-r\d+(?:-wip-\d+)?(?:-edit-.+)?|-edit-.+)(?=\..+$)/
 ```
 
-Note: `-edit-` content is not validated — `[^.]+` captures everything up to the file extension.
+Note: `-edit-` content is not validated — `.+` captures everything up to the file extension (the lookahead enforces the boundary).
 
 ### 2. Add test cases
 

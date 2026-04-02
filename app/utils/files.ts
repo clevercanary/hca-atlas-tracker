@@ -117,7 +117,7 @@ export function insertVersionInFilename(
  */
 export function getFileBaseName(filename: string): string {
   return filename.replace(
-    /(?:-r\d+(?:-wip-\d+)?(?:-edit-[^.]+)?|-edit-[^.]+)(?=\..+$)/,
+    /(?:-r\d+(?:-wip-\d+)?(?:-edit-.+)?|-edit-.+)(?=\..+$)/,
     "",
   );
 }
