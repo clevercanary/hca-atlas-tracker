@@ -111,12 +111,15 @@ export function insertVersionInFilename(
 }
 
 /**
- * Get a file's base name by stripping version information.
+ * Get a file's base name by stripping version and edit suffixes.
  * @param filename - Actual filename.
- * @returns filename with version information stripped.
+ * @returns filename with version and edit suffixes stripped.
  */
 export function getFileBaseName(filename: string): string {
-  return filename.replace(/-r\d+(?:-wip-\d+)?(?=\..+$)/, "");
+  return filename.replace(
+    /(?:-r\d+(?:-wip-\d+)?(?:-edit-[^.]+)?|-edit-[^.]+)(?=\..+$)/,
+    "",
+  );
 }
 
 /**
