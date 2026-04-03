@@ -1588,6 +1588,73 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       secondKey: "gut/gut-v1/source-datasets/data-r2.h5ad",
     },
     {
+      description:
+        "different filename version suffix (revision, WIP, and edit)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "cells.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/cells.h5ad",
+      secondKey:
+        "gut/gut-v1/source-datasets/cells-r1-wip-2-edit-2026-03-15-22-12-01.h5ad",
+    },
+    {
+      description: "different filename version suffix (revision and edit)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "data.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/data.h5ad",
+      secondKey:
+        "gut/gut-v1/source-datasets/data-r2-edit-2026-03-15-22-12-01.h5ad",
+    },
+    {
+      description: "different filename version suffix (edit only)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "cells.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/cells.h5ad",
+      secondKey:
+        "gut/gut-v1/source-datasets/cells-edit-2026-03-15-22-12-01.h5ad",
+    },
+    {
+      description:
+        "different filename version suffix (edit with freeform text)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "cells.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/cells.h5ad",
+      secondKey:
+        "gut/gut-v1/source-datasets/cells-r1-wip-3-edit-fixed-normalization.h5ad",
+    },
+    {
+      description: "different filename version suffix (edit with period)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "cells.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/cells.h5ad",
+      secondKey:
+        "gut/gut-v1/source-datasets/cells-r1-wip-3-edit-fixed.normalization.h5ad",
+    },
+    {
       description: "atlas revision 0 omitted",
       expectedConceptFields: {
         atlas_short_name: "gut",
