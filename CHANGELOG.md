@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.60.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.59.0...v1.60.0) (2026-04-03)
+
+
+### Features
+
+* strip -edit- suffix from uploaded filenames ([#1144](https://github.com/clevercanary/hca-atlas-tracker/issues/1144)) ([#1146](https://github.com/clevercanary/hca-atlas-tracker/issues/1146)) ([af7799c](https://github.com/clevercanary/hca-atlas-tracker/commit/af7799c1626e50b60d2846acff7f84ad208a1c6c))
+
 ## [1.59.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.58.0...v1.59.0) (2026-04-01)
 
 
