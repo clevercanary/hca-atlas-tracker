@@ -1642,6 +1642,19 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         "gut/gut-v1/source-datasets/cells-r1-wip-3-edit-fixed-normalization.h5ad",
     },
     {
+      description: "different filename version suffix (edit with period)",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "cells.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1/source-datasets/cells.h5ad",
+      secondKey:
+        "gut/gut-v1/source-datasets/cells-r1-wip-3-edit-fixed.normalization.h5ad",
+    },
+    {
       description: "atlas revision 0 omitted",
       expectedConceptFields: {
         atlas_short_name: "gut",
