@@ -42,6 +42,7 @@ export interface HCAAtlasTrackerAtlas {
   id: string;
   ingestionTaskCounts: IngestionTaskCounts;
   integrationLead: IntegrationLead[];
+  isLatest: boolean;
   metadataCorrectnessUrl: string | null;
   metadataSpecificationTitle: string | null;
   metadataSpecificationUrl: string | null;
@@ -280,6 +281,7 @@ export interface HCAAtlasTrackerDBAtlas {
 export interface HCAAtlasTrackerDBAtlasForAPI extends HCAAtlasTrackerDBAtlas {
   component_atlas_count: number;
   entry_sheet_validation_count: number;
+  is_latest: boolean;
   source_dataset_count: number;
 }
 

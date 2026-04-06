@@ -2927,8 +2927,12 @@ const ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
   "c41f8dd8-93ee-49f6-885a-8c5107d30229";
 const ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A =
   "035f5b25-7a2a-4351-9f61-5e6734f1f6dc";
+const ATLAS_ID_PUBLISHED_R6 = "88249444-e921-4bbb-a1d1-e4e0fde9f450";
+const ATLAS_ID_PUBLISHED = "6ca07821-624e-42a3-8643-2a31bb0a4831";
 const ATLAS_ID_WITH_LINKED_PUBLISH_STATUSES =
   "3b67d7c2-60d7-4907-85b6-897d15a1ca4c";
+const ATLAS_ID_WITH_DRAFT_LATEST_R0 = "c6a7245f-a112-42a2-9857-d22a5541ab64";
+const ATLAS_ID_WITH_DRAFT_LATEST_R1 = "1d4d4187-8877-4757-9ab9-f2b7c6c66cf4";
 
 // USERS
 
@@ -2983,6 +2987,12 @@ export const USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C = makeTestUser(
   false,
   [ATLAS_ID_WITH_MISC_SOURCE_STUDIES_C],
 );
+export const USER_INTEGRATION_LEAD_PUBLISHED = makeTestUser(
+  "test-integration-lead-published",
+  ROLE.INTEGRATION_LEAD,
+  false,
+  [ATLAS_ID_PUBLISHED_R6, ATLAS_ID_PUBLISHED],
+);
 export const USER_INTEGRATION_LEAD_WITH_LINKED_PUBLISH_STATUSES = makeTestUser(
   "test-integration-lead-with-linked-publish-statuses",
   ROLE.INTEGRATION_LEAD,
@@ -3030,6 +3040,7 @@ export const INITIAL_TEST_USERS = [
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_B,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES_C,
+  USER_INTEGRATION_LEAD_PUBLISHED,
   USER_INTEGRATION_LEAD_WITH_LINKED_PUBLISH_STATUSES,
   USER_INTEGRATION_LEAD_WITH_NEW_ATLAS,
   USER_CELLXGENE_ADMIN,
@@ -3056,6 +3067,8 @@ export const DEFAULT_USERS_BY_ROLE = {
 export const INTEGRATION_LEADS_BY_ATLAS_ID: Record<string, TestUser> = {
   [ATLAS_ID_DRAFT]: USER_INTEGRATION_LEAD_DRAFT,
   [ATLAS_ID_PUBLIC]: USER_INTEGRATION_LEAD_PUBLIC,
+  [ATLAS_ID_PUBLISHED]: USER_INTEGRATION_LEAD_PUBLISHED,
+  [ATLAS_ID_PUBLISHED_R6]: USER_INTEGRATION_LEAD_PUBLISHED,
   [ATLAS_ID_WITH_ENTRY_SHEET_VALIDATIONS_A]:
     USER_INTEGRATION_LEAD_WITH_ENTRY_SHEET_VALIDATIONS_A,
   [ATLAS_ID_WITH_LINKED_PUBLISH_STATUSES]:
@@ -4376,24 +4389,33 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   wave: "2",
 };
 
-export const ATLAS_PUBLISHED: TestAtlas = {
+const BASE_ATLAS_PUBLISHED = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
   componentAtlases: [COMPONENT_ATLAS_PUBLISHED.versionId],
   description: "bazbar foobarbaz baz foo bar",
   generation: 2,
   highlights: "",
-  id: "6ca07821-624e-42a3-8643-2a31bb0a4831",
   integrationLead: [],
   network: "musculoskeletal",
   publications: [],
-  publishedAt: "2026-02-25T20:44:05.405Z",
-  revision: 7,
   shortName: "Test Published",
   sourceDatasets: [SOURCE_DATASET_PUBLISHED.versionId],
   sourceStudies: [SOURCE_STUDY_PUBLISHED.id],
   status: ATLAS_STATUS.OC_ENDORSED,
   wave: "2",
+} satisfies Partial<TestAtlas>;
+export const ATLAS_PUBLISHED_R6: TestAtlas = {
+  ...BASE_ATLAS_PUBLISHED,
+  id: ATLAS_ID_PUBLISHED_R6,
+  publishedAt: "2026-02-24T20:44:05.405Z",
+  revision: 6,
+};
+export const ATLAS_PUBLISHED: TestAtlas = {
+  ...BASE_ATLAS_PUBLISHED,
+  id: ATLAS_ID_PUBLISHED,
+  publishedAt: "2026-02-25T20:44:05.405Z",
+  revision: 7,
 };
 
 export const ATLAS_WITH_LINKED_PUBLISH_STATUSES: TestAtlas = {
@@ -4425,6 +4447,35 @@ export const ATLAS_WITH_LINKED_PUBLISH_STATUSES: TestAtlas = {
   wave: "1",
 };
 
+const BASE_ATLAS_WITH_DRAFT_LATEST = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  componentAtlases: [],
+  description: "foo foo bar baz bar foo barbar foo",
+  generation: 6,
+  highlights: "",
+  integrationLead: [],
+  network: "lung",
+  publications: [],
+  shortName: "test-with-draft-latest",
+  sourceDatasets: [],
+  sourceStudies: [],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  wave: "3",
+} satisfies Partial<TestAtlas>;
+export const ATLAS_WITH_DRAFT_LATEST_R0: TestAtlas = {
+  ...BASE_ATLAS_WITH_DRAFT_LATEST,
+  id: ATLAS_ID_WITH_DRAFT_LATEST_R0,
+  publishedAt: "2026-03-25T21:36:09.268Z",
+  revision: 0,
+};
+export const ATLAS_WITH_DRAFT_LATEST_R1: TestAtlas = {
+  ...BASE_ATLAS_WITH_DRAFT_LATEST,
+  id: ATLAS_ID_WITH_DRAFT_LATEST_R1,
+  publishedAt: null,
+  revision: 1,
+};
+
 export const ATLAS_NONEXISTENT = {
   id: "aa992f01-39ea-4906-ac12-053552561187",
 };
@@ -4449,8 +4500,11 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   ATLAS_HEATMAP_TEST,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
+  ATLAS_PUBLISHED_R6,
   ATLAS_PUBLISHED,
   ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+  ATLAS_WITH_DRAFT_LATEST_R0,
+  ATLAS_WITH_DRAFT_LATEST_R1,
 ];
 
 export const INITIAL_TEST_ATLASES_BY_SOURCE_STUDY = INITIAL_TEST_ATLASES.reduce(

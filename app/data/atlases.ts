@@ -34,6 +34,46 @@ export async function getAtlasIdBySlugNameAndVersion({
 }
 
 /**
+ * Get an atlas's source study IDs.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ * @returns array of source study IDs.
+ */
+export async function getAtlasSourceStudyIds(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<string[]> {
+  const queryResult = await client.query<
+    Pick<HCAAtlasTrackerDBAtlas, "source_studies">
+  >("SELECT source_studies FROM hat.atlases WHERE id = $1", [atlasId]);
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).source_studies;
+}
+
+/**
+ * Create a new atlas revision based on a given atlas.
+ * @param atlasId - ID of the atlas to create a new revision from.
+ * @param client - Postgres client to use.
+ * @returns new atlas ID.
+ */
+export async function createAtlasRevision(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<string> {
+  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+    `
+      INSERT INTO hat.atlases (component_atlases, generation, overview, revision, source_datasets, source_studies, status, target_completion)
+      SELECT component_atlases, generation, overview, revision + 1, source_datasets, source_studies, status, target_completion
+      FROM hat.atlases
+      WHERE id = $1
+      RETURNING id
+    `,
+    [atlasId],
+    client,
+  );
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).id;
+}
+
+/**
  * Replace a source study ID with another specified source study ID across all atlas source study lists.
  * @param currentSourceStudyId - Source study ID to replace.
  * @param replacementSourceStudyId - Source study ID to insert.
@@ -94,6 +134,35 @@ export async function updateSourceDatasetVersionInAtlas(
 }
 
 /**
+ * Get whether an atlas is of the latest revision within its family and generation.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ * @returns boolean indicating whether the atlas is of the latest revision.
+ */
+export async function atlasIsLatestRevision(
+  atlasId: string,
+  client?: pg.PoolClient,
+): Promise<boolean> {
+  const queryResult = await query<{ is_latest: boolean }>(
+    `
+      SELECT
+        a.revision = (
+          SELECT MAX(a2.revision)
+          FROM hat.atlases a2
+          WHERE a2.overview->>'network' = a.overview->>'network'
+            AND a2.overview->>'shortName' = a.overview->>'shortName'
+            AND a2.generation = a.generation
+        ) as is_latest
+      FROM hat.atlases a
+      WHERE a.id = $1
+    `,
+    [atlasId],
+    client,
+  );
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).is_latest;
+}
+
+/**
  * Get an atlas's published-at value.
  * @param atlasId - Atlas ID.
  * @param client - Postgres client to use.
@@ -108,9 +177,7 @@ export async function getAtlasPublishedAt(
     [atlasId],
     client,
   );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-  return queryResult.rows[0].published_at;
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId).published_at;
 }
 
 /**
@@ -132,4 +199,50 @@ export async function changeAtlasToPublished(
     throw new InvalidOperationError(
       `Atlas with ID ${atlasId} is already published`,
     );
+}
+
+/**
+ * Acquire (and wait for) a transaction-level advisory lock keyed by the given atlas's ID.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+export async function getAdvisoryLockForAtlas(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  const queryResult = await client.query(
+    `
+      SELECT pg_advisory_xact_lock(
+        -- Convert second half of hexadecimal UUID to 64-bit int to use as key
+        ('x' || substr(replace(id::text, '-', ''), 17))::bit(64)::bigint
+      )
+      FROM hat.atlases
+      WHERE id = $1
+    `,
+    [atlasId],
+  );
+  if (queryResult.rowCount === 0) throw getAtlasNotFoundError(atlasId);
+}
+
+/**
+ * Get an atlas row that was queried by ID from a query result, throwing a NotFoundError if it doesn't exist.
+ * @param queryResult - Query result that should contain a single row corresponding to an atlas if successful.
+ * @param atlasId - Atlas ID that was queried, to use in the potential error message.
+ * @returns row from query result.
+ */
+export function getAtlasInfoFromIdBasedQuery<T extends pg.QueryResultRow>(
+  queryResult: pg.QueryResult<T>,
+  atlasId: string,
+): T {
+  if (queryResult.rows.length === 0) throw getAtlasNotFoundError(atlasId);
+  return queryResult.rows[0];
+}
+
+/**
+ * Create a NotFoundError indicating that the specified atlas doesn't exist.
+ * @param atlasId - Atlas ID.
+ * @returns NotFoundError.
+ */
+export function getAtlasNotFoundError(atlasId: string): NotFoundError {
+  return new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
 }

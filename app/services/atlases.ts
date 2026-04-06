@@ -1,9 +1,6 @@
 import pg from "pg";
 import { ValidationError } from "yup";
-import {
-  InvalidOperationError,
-  NotFoundError,
-} from "../../app/utils/api-handler";
+import { InvalidOperationError } from "../../app/utils/api-handler";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
 import {
   ATLAS_STATUS,
@@ -24,14 +21,22 @@ import {
 import { normalizeDoi } from "../utils/doi";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
+  atlasIsLatestRevision,
   changeAtlasToPublished,
   getAtlasIdBySlugNameAndVersion,
+  createAtlasRevision,
+  getAdvisoryLockForAtlas,
+  getAtlasInfoFromIdBasedQuery,
+  getAtlasNotFoundError,
   getAtlasPublishedAt,
+  getAtlasSourceStudyIds,
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { parseAtlasNameUrlSlug } from "../utils/atlases";
+import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
 import { doTransaction, query } from "./database";
+import { updateSourceStudyValidationsByEntityIds } from "./source-studies";
 
 interface AtlasInputDbData {
   overviewData: Omit<
@@ -47,8 +52,17 @@ export async function getAllAtlases(
 ): Promise<HCAAtlasTrackerDBAtlasForAPI[]> {
   const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
     `
+      WITH atlases_with_revisions AS (
+        SELECT
+          ar.*,
+          MAX(ar.revision) OVER (
+            PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
+          ) AS max_revision
+        FROM hat.atlases ar
+      )
       SELECT
         a.*,
+        a.revision = a.max_revision AS is_latest,
         (
           SELECT COUNT(c.id)::int
           FROM hat.component_atlases c
@@ -66,7 +80,7 @@ export async function getAllAtlases(
           FROM hat.entry_sheet_validations e
           WHERE a.source_studies ? e.source_study_id::text
         ) AS entry_sheet_validation_count
-      FROM hat.atlases a
+      FROM atlases_with_revisions a
     `,
     undefined,
     client,
@@ -91,7 +105,9 @@ export async function getAtlas(
   id: string,
   client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
-  const queryResult = await query<HCAAtlasTrackerDBAtlasForAPI>(
+  const queryResult = await query<
+    Omit<HCAAtlasTrackerDBAtlasForAPI, "is_latest">
+  >(
     `
       SELECT
         a.*,
@@ -118,9 +134,10 @@ export async function getAtlas(
     [id],
     client,
   );
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
-  return queryResult.rows[0];
+  return {
+    ...getAtlasInfoFromIdBasedQuery(queryResult, id),
+    is_latest: await atlasIsLatestRevision(id, client),
+  };
 }
 
 export async function getBaseModelAtlas(
@@ -133,10 +150,7 @@ export async function getBaseModelAtlas(
     client,
   );
 
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
-
-  return queryResult.rows[0];
+  return getAtlasInfoFromIdBasedQuery(queryResult, id);
 }
 
 export async function createAtlas(
@@ -172,8 +186,7 @@ export async function updateAtlas(
     "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3 WHERE id=$4 RETURNING *",
     [JSON.stringify(overviewData), status, targetCompletion, id],
   );
-  if (queryResult.rowCount === 0)
-    throw new NotFoundError(`Atlas with ID ${id} doesn't exist`);
+  if (queryResult.rowCount === 0) throw getAtlasNotFoundError(id);
   return await getAtlas(id);
 }
 
@@ -261,6 +274,46 @@ export async function publishAtlas(
   });
 }
 
+/**
+ * Create a new revision based on a given atlas if valid, and update linked entities.
+ * @param atlasId - ID of the atlas to attempt to create a new revision from.
+ * @returns new atlas.
+ */
+export async function createAndHandleNewAtlasRevision(
+  atlasId: string,
+): Promise<HCAAtlasTrackerDBAtlasForAPI> {
+  return doTransaction(async (client) => {
+    await getAdvisoryLockForAtlas(atlasId, client);
+    if (!(await atlasIsLatestRevision(atlasId, client)))
+      throw new InvalidOperationError(
+        `A new atlas revision may only be created from a latest-revision atlas`,
+      );
+    if (!(await atlasIsPublished(atlasId, client)))
+      throw new InvalidOperationError(
+        `The latest revision of an atlas must be published before a new revision may be created`,
+      );
+    const newAtlasId = await createAtlasRevision(atlasId, client);
+    await addAssociatedEntityToUsersAssociatedWith(newAtlasId, atlasId, client);
+    await updateAtlasSourceStudyValidations(newAtlasId, client);
+    return getAtlas(newAtlasId, client);
+  });
+}
+
+/**
+ * Update validations for all source studies of a given atlas.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ */
+async function updateAtlasSourceStudyValidations(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  await updateSourceStudyValidationsByEntityIds(
+    await getAtlasSourceStudyIds(atlasId, client),
+    client,
+  );
+}
+
 export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
   await query(
     `
@@ -324,8 +377,7 @@ export async function atlasIsPublished(
  * @param atlasId - ID of the atlas to check for.
  */
 export async function confirmAtlasExists(atlasId: string): Promise<void> {
-  if (!(await atlasExists(atlasId)))
-    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
+  if (!(await atlasExists(atlasId))) throw getAtlasNotFoundError(atlasId);
 }
 
 /**

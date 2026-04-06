@@ -517,7 +517,7 @@ async function testValidations(
           validationExpectedProperties.differences,
         );
       expect(validationResult).toMatchObject(validationExpectedProperties);
-      expect(validationResult.atlasIds).toEqual(atlasIds);
+      expect(validationResult.atlasIds.toSorted()).toEqual(atlasIds.toSorted());
       expect(validationResult.entityId).toEqual(testStudy.id);
       expect(validationResult.entityTitle).toEqual(
         "unpublishedInfo" in testStudy

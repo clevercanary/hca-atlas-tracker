@@ -561,6 +561,16 @@ export async function getDbUsersByEmail(
   );
 }
 
+export async function getUserFromDatabaseByEmail(
+  email: string,
+): Promise<HCAAtlasTrackerDBUser | undefined> {
+  const queryResult = await query<HCAAtlasTrackerDBUser>(
+    "SELECT * FROM hat.users WHERE email = $1",
+    [email],
+  );
+  return queryResult.rows[0];
+}
+
 export async function getExistingAtlasFromDatabase(
   id: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {

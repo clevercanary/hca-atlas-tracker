@@ -50,6 +50,7 @@ export function atlasInputMapper(
     ingestionTaskCounts: apiAtlas.ingestionTaskCounts,
     integrationLeadEmail: apiAtlas.integrationLead.map(({ email }) => email),
     integrationLeadName: apiAtlas.integrationLead.map(({ name }) => name),
+    isLatest: apiAtlas.isLatest,
     metadataCorrectnessUrl: apiAtlas.metadataCorrectnessUrl,
     metadataSpecificationTitle: apiAtlas.metadataSpecificationTitle,
     metadataSpecificationUrl: apiAtlas.metadataSpecificationUrl,
