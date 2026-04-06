@@ -898,6 +898,7 @@ export async function getSourceStudyWithAtlasProperties(
   sourceStudyId: string,
   client: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBSourceStudyWithAtlasProperties> {
+  // `getSourceStudiesWithAtlasProperties` ensures that every specified source study is returned
   const [sourceStudy] = await getSourceStudiesWithAtlasProperties(
     [sourceStudyId],
     client,
