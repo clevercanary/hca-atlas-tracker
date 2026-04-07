@@ -35,7 +35,7 @@ import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atl
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
 import { parseAtlasNameUrlSlug, slugifyAtlasShortName } from "../utils/atlases";
 import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
-import { doTransaction, query } from "./database";
+import { doTransaction, mapDatabaseError, query } from "./database";
 import { updateSourceStudyValidationsByEntityIds } from "./source-studies";
 
 interface AtlasInputDbData {
@@ -169,9 +169,25 @@ export async function createAtlas(
     },
     taskCount: 0,
   };
-  const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "INSERT INTO hat.atlases (generation, revision, overview, source_studies, status, target_completion, short_name_slug) VALUES (1, 0, $1, $2, $3, $4, $5) RETURNING id",
-    [JSON.stringify(overview), "[]", status, targetCompletion, shortNameSlug],
+  const queryResult = await mapDatabaseError(
+    () =>
+      query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+        "INSERT INTO hat.atlases (generation, revision, overview, source_studies, status, target_completion, short_name_slug) VALUES (1, 0, $1, $2, $3, $4, $5) RETURNING id",
+        [
+          JSON.stringify(overview),
+          "[]",
+          status,
+          targetCompletion,
+          shortNameSlug,
+        ],
+      ),
+    () =>
+      new ValidationError(
+        `Atlas ${overview.shortName} v1.0 already exists`,
+        undefined,
+        "shortName",
+      ),
+    { constraint: "atlases_slug_version_unique" },
   );
   const newId = queryResult.rows[0].id;
   return await getAtlas(newId);
@@ -183,9 +199,25 @@ export async function updateAtlas(
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const { overviewData, shortNameSlug, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
-  const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-    "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3, short_name_slug=$4 WHERE id=$5 RETURNING *",
-    [JSON.stringify(overviewData), status, targetCompletion, shortNameSlug, id],
+  const queryResult = await mapDatabaseError(
+    () =>
+      query<HCAAtlasTrackerDBAtlas>(
+        "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3, short_name_slug=$4 WHERE id=$5 RETURNING *",
+        [
+          JSON.stringify(overviewData),
+          status,
+          targetCompletion,
+          shortNameSlug,
+          id,
+        ],
+      ),
+    () =>
+      new ValidationError(
+        `Atlas ${inputData.shortName} of this version already exists`,
+        undefined,
+        "shortName",
+      ),
+    { constraint: "atlases_slug_version_unique" },
   );
   if (queryResult.rowCount === 0) throw getAtlasNotFoundError(id);
   return await getAtlas(id);

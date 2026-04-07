@@ -64,6 +64,29 @@ export function doOrContinueTransaction<T>(
   else return doTransaction(func);
 }
 
+/**
+ * Call a given function, and if it throws a database error, apply the given mapping function and throw the resulting error.
+ * @param f - Function to call.
+ * @param mapError - Function to apply to any database error that occurs to get a new error.
+ * @param filter - Properties that the database error must have in order for the mapping function to be called.
+ * @param filter.constraint - Constraint to limit errors by.
+ * @returns result of calling the given function.
+ */
+export async function mapDatabaseError<T>(
+  f: () => Promise<T>,
+  mapError: (e: pg.DatabaseError) => Error,
+  filter?: { constraint?: string },
+): Promise<T> {
+  try {
+    return await f();
+  } catch (e) {
+    throw e instanceof pg.DatabaseError &&
+      (filter?.constraint === undefined || e.constraint === filter.constraint)
+      ? mapError(e)
+      : e;
+  }
+}
+
 export function getPoolClient(): Promise<pg.PoolClient> {
   return getPool().connect();
 }
