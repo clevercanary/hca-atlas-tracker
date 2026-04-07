@@ -50,6 +50,7 @@ export interface HCAAtlasTrackerAtlas {
   publishedAt: string | null;
   revision: number;
   shortName: string;
+  shortNameSlug: string;
   sourceDatasetCount: number;
   sourceStudyCount: number;
   status: ATLAS_STATUS;
@@ -271,6 +272,7 @@ export interface HCAAtlasTrackerDBAtlas {
   overview: HCAAtlasTrackerDBAtlasOverview;
   published_at: Date | null;
   revision: number;
+  short_name_slug: string;
   source_datasets: string[];
   source_studies: string[];
   status: ATLAS_STATUS;

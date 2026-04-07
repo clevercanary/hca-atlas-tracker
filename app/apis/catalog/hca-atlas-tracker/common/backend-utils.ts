@@ -88,6 +88,7 @@ export function dbAtlasToApiAtlas(
       dbAtlas.published_at === null ? null : dbAtlas.published_at.toISOString(),
     revision: dbAtlas.revision,
     shortName: dbAtlas.overview.shortName,
+    shortNameSlug: dbAtlas.short_name_slug,
     sourceDatasetCount: dbAtlas.source_dataset_count,
     sourceStudyCount: dbAtlas.source_studies.length,
     status: dbAtlas.status,
