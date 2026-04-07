@@ -61,8 +61,8 @@ export async function createAtlasRevision(
 ): Promise<string> {
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     `
-      INSERT INTO hat.atlases (component_atlases, generation, overview, revision, source_datasets, source_studies, status, target_completion)
-      SELECT component_atlases, generation, overview, revision + 1, source_datasets, source_studies, status, target_completion
+      INSERT INTO hat.atlases (component_atlases, generation, overview, revision, short_name_slug, source_datasets, source_studies, status, target_completion)
+      SELECT component_atlases, generation, overview, revision + 1, short_name_slug, source_datasets, source_studies, status, target_completion
       FROM hat.atlases
       WHERE id = $1
       RETURNING id

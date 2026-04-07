@@ -33,7 +33,7 @@ import {
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
-import { parseAtlasNameUrlSlug } from "../utils/atlases";
+import { parseAtlasNameUrlSlug, slugifyAtlasShortName } from "../utils/atlases";
 import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
 import { doTransaction, query } from "./database";
 import { updateSourceStudyValidationsByEntityIds } from "./source-studies";
@@ -43,6 +43,7 @@ interface AtlasInputDbData {
     HCAAtlasTrackerDBAtlasOverview,
     "completedTaskCount" | "taskCount" | "ingestionTaskCounts"
   >;
+  shortNameSlug: HCAAtlasTrackerDBAtlas["short_name_slug"];
   status: HCAAtlasTrackerDBAtlas["status"];
   targetCompletion: HCAAtlasTrackerDBAtlas["target_completion"];
 }
@@ -156,7 +157,7 @@ export async function getBaseModelAtlas(
 export async function createAtlas(
   inputData: NewAtlasData,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
-  const { overviewData, status, targetCompletion } =
+  const { overviewData, shortNameSlug, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
   const overview: HCAAtlasTrackerDBAtlasOverview = {
     ...overviewData,
@@ -169,8 +170,8 @@ export async function createAtlas(
     taskCount: 0,
   };
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "INSERT INTO hat.atlases (generation, revision, overview, source_studies, status, target_completion) VALUES (1, 0, $1, $2, $3, $4) RETURNING id",
-    [JSON.stringify(overview), "[]", status, targetCompletion],
+    "INSERT INTO hat.atlases (generation, revision, overview, source_studies, status, target_completion, short_name_slug) VALUES (1, 0, $1, $2, $3, $4, $5) RETURNING id",
+    [JSON.stringify(overview), "[]", status, targetCompletion, shortNameSlug],
   );
   const newId = queryResult.rows[0].id;
   return await getAtlas(newId);
@@ -180,11 +181,11 @@ export async function updateAtlas(
   id: string,
   inputData: AtlasEditData,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
-  const { overviewData, status, targetCompletion } =
+  const { overviewData, shortNameSlug, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
   const queryResult = await query<HCAAtlasTrackerDBAtlas>(
-    "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3 WHERE id=$4 RETURNING *",
-    [JSON.stringify(overviewData), status, targetCompletion, id],
+    "UPDATE hat.atlases SET overview=overview||$1, status=$2, target_completion=$3, short_name_slug=$4 WHERE id=$5 RETURNING *",
+    [JSON.stringify(overviewData), status, targetCompletion, shortNameSlug, id],
   );
   if (queryResult.rowCount === 0) throw getAtlasNotFoundError(id);
   return await getAtlas(id);
@@ -193,6 +194,7 @@ export async function updateAtlas(
 export async function atlasInputDataToDbData(
   inputData: NewAtlasData | AtlasEditData,
 ): Promise<AtlasInputDbData> {
+  const shortName = inputData.shortName;
   const publications = await getPublicationsFromInputDois(inputData.dois);
   const metadataSpecificationTitle = await getSheetTitleForApi(
     inputData.metadataSpecificationUrl,
@@ -211,9 +213,10 @@ export async function atlasInputDataToDbData(
       metadataSpecificationUrl: inputData.metadataSpecificationUrl || null,
       network: inputData.network,
       publications,
-      shortName: inputData.shortName,
+      shortName,
       wave: inputData.wave,
     },
+    shortNameSlug: slugifyAtlasShortName(shortName),
     status: inputData.status ?? ATLAS_STATUS.IN_PROGRESS,
     targetCompletion: inputData.targetCompletion
       ? new Date(inputData.targetCompletion)

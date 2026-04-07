@@ -161,8 +161,8 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
       `
-        INSERT INTO hat.atlases (id, overview, component_atlases, source_datasets, source_studies, status, target_completion, generation, revision, published_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        INSERT INTO hat.atlases (id, overview, component_atlases, source_datasets, source_studies, status, target_completion, generation, revision, published_at, short_name_slug)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       `,
       [
         atlas.id,
@@ -175,6 +175,7 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
         atlas.generation,
         atlas.revision,
         atlas.publishedAt ? new Date(atlas.publishedAt) : null,
+        getTestAtlasShortNameSlug(atlas),
       ],
     );
   }

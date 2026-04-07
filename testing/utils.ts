@@ -40,6 +40,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 import {
   ATLAS_DRAFT,
   DEFAULT_USERS_BY_ROLE,
@@ -124,7 +125,7 @@ export function makeTestAtlasOverview(
 }
 
 export function getTestAtlasShortNameSlug(atlas: TestAtlas): string {
-  return atlas.shortName.toLowerCase().replaceAll(" ", "-");
+  return slugifyAtlasShortName(atlas.shortName);
 }
 
 export function makeTestSourceStudyOverview(

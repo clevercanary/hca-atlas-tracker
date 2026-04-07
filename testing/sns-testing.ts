@@ -24,16 +24,15 @@ import { query } from "../app/services/database";
 import snsHandler from "../pages/api/sns";
 import { getFileFromDatabase } from "./db-utils";
 import { expectIsDefined } from "./utils";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 
 export const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 export const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
 export const TEST_GUT_ATLAS_V2_ID = "550e8400-e29b-41d4-a716-446655440002";
-export const TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID =
+export const TEST_ATLAS_WITH_NAME_CONTRAST_ID =
   "aea1a4b5-8324-4363-9d41-0022c2e76249";
 export const TEST_ATLAS_WITH_CONTRASTING_NAME_ID =
   "6e84836e-3e34-48d3-8dd4-ab7d35a38f7d";
-export const TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID =
-  "7fadb3d2-166e-43d0-a728-d54ca4f7bd99";
 export const TEST_PUBLISHED_ATLAS_ID = "a4ef11a4-a521-4143-93e7-8be3c3332be2";
 export const TEST_ATLAS_WITH_MULTI_WORD_NAME_ID =
   "c659307c-ba20-4784-ae66-7dbc75023954";
@@ -313,7 +312,7 @@ export async function createTestAtlasData(): Promise<void> {
     },
     {
       generation: 1,
-      id: TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
+      id: TEST_ATLAS_WITH_NAME_CONTRAST_ID,
       overview: {
         description: "Test Atlas With Network And Name Contrasts",
         network: "heart",
@@ -328,16 +327,6 @@ export async function createTestAtlasData(): Promise<void> {
         description: "Test Atlas With Contrasting Name",
         network: "heart",
         shortName: "Test Short Name B",
-      },
-      revision: 0,
-    },
-    {
-      generation: 1,
-      id: TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
-      overview: {
-        description: "Test Atlas With Contrasting Network",
-        network: "lung",
-        shortName: "Test Short Name A",
       },
       revision: 0,
     },
@@ -398,8 +387,8 @@ export async function createTestAtlasData(): Promise<void> {
     const publishedAt: string | null =
       "publishedAt" in atlas ? atlas.publishedAt : null;
     await query(
-      `INSERT INTO hat.atlases (id, overview, source_studies, status, generation, revision, published_at, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())`,
+      `INSERT INTO hat.atlases (id, overview, source_studies, status, generation, revision, published_at, short_name_slug, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
       [
         atlas.id,
         JSON.stringify(overview),
@@ -408,6 +397,7 @@ export async function createTestAtlasData(): Promise<void> {
         atlas.generation,
         atlas.revision,
         publishedAt,
+        slugifyAtlasShortName(atlas.overview.shortName),
       ],
     );
   }

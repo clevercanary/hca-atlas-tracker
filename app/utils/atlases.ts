@@ -9,6 +9,10 @@ export interface AtlasSlugNameAndVersion extends AtlasVersionNumbers {
   shortNameSlug: string;
 }
 
+export function slugifyAtlasShortName(shortName: string): string {
+  return shortName.toLowerCase().replaceAll(" ", "-");
+}
+
 /**
  * Parse short name, generation, and revision from an atlas name URL slug.
  * @param nameSlug - Name with version in slug format.
