@@ -4,6 +4,9 @@ import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { AtlasSlugNameAndVersion } from "../utils/atlases";
 import pg from "pg";
 
+export const CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE =
+  "atlases_slug_version_unique";
+
 /**
  * Get an atlas ID based on a case-insensitive short name slug, a generation number, and a revision number.
  * @param nameAndVersion - Atlas short name and version numbers.

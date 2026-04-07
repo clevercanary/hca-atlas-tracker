@@ -30,6 +30,7 @@ import {
   getAtlasNotFoundError,
   getAtlasPublishedAt,
   getAtlasSourceStudyIds,
+  CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE,
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
@@ -187,7 +188,7 @@ export async function createAtlas(
         undefined,
         "shortName",
       ),
-    { constraint: "atlases_slug_version_unique" },
+    { constraint: CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE },
   );
   const newId = queryResult.rows[0].id;
   return await getAtlas(newId);
@@ -217,7 +218,7 @@ export async function updateAtlas(
         undefined,
         "shortName",
       ),
-    { constraint: "atlases_slug_version_unique" },
+    { constraint: CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE },
   );
   if (queryResult.rowCount === 0) throw getAtlasNotFoundError(id);
   return await getAtlas(id);
