@@ -15,6 +15,7 @@ export interface HCAAtlasTrackerAtlasSummary {
   network: NetworkKey;
   publishedAt: string | null;
   shortName: string;
+  shortNameSlug: string;
   version: string;
 }
 

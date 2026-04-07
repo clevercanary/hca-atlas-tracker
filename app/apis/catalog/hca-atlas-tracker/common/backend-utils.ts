@@ -52,6 +52,7 @@ export function dbAtlasToAtlasSummary(
     network: dbAtlas.overview.network,
     publishedAt: dbAtlas.published_at?.toISOString() ?? null,
     shortName: dbAtlas.overview.shortName,
+    shortNameSlug: dbAtlas.short_name_slug,
     version,
   };
 }
