@@ -9,6 +9,7 @@ import {
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
@@ -822,6 +823,9 @@ async function testSuccessfulEdit(
   );
   expect(updatedAtlas.targetCompletion).toEqual(
     editData.targetCompletion ?? null,
+  );
+  expect(updatedAtlas.shortNameSlug).toEqual(
+    slugifyAtlasShortName(editData.shortName),
   );
 
   expectDbAtlasToMatchApi(

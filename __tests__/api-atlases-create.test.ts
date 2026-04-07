@@ -9,6 +9,7 @@ import {
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import createHandler from "../pages/api/atlases/create";
 import {
@@ -581,6 +582,9 @@ async function testSuccessfulCreate(
   expect(newAtlasFromDb.overview.completedTaskCount).toEqual(0);
   expect(newAtlasFromDb.generation).toEqual(1);
   expect(newAtlasFromDb.revision).toEqual(0);
+  expect(newAtlasFromDb.short_name_slug).toEqual(
+    slugifyAtlasShortName(atlasData.shortName),
+  );
   expectDbAtlasToMatchApi(newAtlasFromDb, newAtlas);
 }
 
