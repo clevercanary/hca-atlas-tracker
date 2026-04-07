@@ -19,7 +19,7 @@ export async function getAtlasIdBySlugNameAndVersion({
 }: AtlasSlugNameAndVersion): Promise<string> {
   const lowerSlug = shortNameSlug.toLowerCase();
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "SELECT id FROM hat.atlases WHERE REPLACE(LOWER(overview->>'shortName'), ' ', '-') = $1 AND generation = $2 AND revision = $3",
+    "SELECT id FROM hat.atlases WHERE short_name_slug = $1 AND generation = $2 AND revision = $3",
     [lowerSlug, generation, revision],
   );
   if (queryResult.rows.length === 0)
