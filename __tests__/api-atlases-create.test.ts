@@ -8,7 +8,9 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
+import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import createHandler from "../pages/api/atlases/create";
 import {
@@ -492,6 +494,22 @@ describe("/api/atlases/create", () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 for short name field when version 1.0 of specified atlas name already exists", async () => {
+    const res = await doCreateTest(
+      USER_CONTENT_ADMIN,
+      {
+        ...NEW_ATLAS_DATA,
+        shortName: "Heatmap Test Atlas",
+      },
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    const data = res._getJSONData() as FormResponseErrors;
+    expect(data).toMatchObject({
+      errors: { shortName: [expect.stringContaining("already exists")] },
+    });
+  });
+
   it("creates and returns atlas entry with no integration leads", async () => {
     await testSuccessfulCreate(NEW_ATLAS_DATA, [
       PUBLICATION_PREPRINT_NO_JOURNAL,
@@ -581,6 +599,9 @@ async function testSuccessfulCreate(
   expect(newAtlasFromDb.overview.completedTaskCount).toEqual(0);
   expect(newAtlasFromDb.generation).toEqual(1);
   expect(newAtlasFromDb.revision).toEqual(0);
+  expect(newAtlasFromDb.short_name_slug).toEqual(
+    slugifyAtlasShortName(atlasData.shortName),
+  );
   expectDbAtlasToMatchApi(newAtlasFromDb, newAtlas);
 }
 

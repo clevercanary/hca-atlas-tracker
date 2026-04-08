@@ -413,18 +413,15 @@ async function generateAndAddFile(
   extension: string,
 ): Promise<HCAAtlasTrackerDBFile> {
   const fileName = crypto.randomUUID() + extension;
-  const shortNameSlug = atlas.overview.shortName
-    .toLowerCase()
-    .replaceAll(" ", "-");
   const key = `${atlas.overview.network}/${
-    shortNameSlug
+    atlas.short_name_slug
   }-v${atlas.generation}-${atlas.revision}/${folderName}/${fileName}`;
   const conceptId =
     fileType === FILE_TYPE.INGEST_MANIFEST
       ? null
       : await createConcept(
           {
-            atlas_short_name: shortNameSlug,
+            atlas_short_name: atlas.short_name_slug,
             base_filename: fileName,
             file_type: fileType,
             generation: atlas.generation,
@@ -580,6 +577,7 @@ async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
     String.fromCodePoint(65 + randomInRange(0, 25)),
   ).join("");
   const shortName = `Files Test ${shortNameDiscriminator}`;
+  const shortNameSlug = shortName.toLowerCase().replaceAll(" ", "-");
   const generation = randomInRange(0, 9);
   const revision = randomInRange(0, 9);
   const wave = chooseRandom(waveOptions);
@@ -609,8 +607,16 @@ async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
   };
 
   const result = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion, generation, revision) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-    [JSON.stringify(overview), "[]", status, null, generation, revision],
+    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion, generation, revision, short_name_slug) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+    [
+      JSON.stringify(overview),
+      "[]",
+      status,
+      null,
+      generation,
+      revision,
+      shortNameSlug,
+    ],
   );
 
   return result.rows[0].id;

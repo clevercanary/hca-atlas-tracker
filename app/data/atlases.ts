@@ -4,6 +4,9 @@ import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { AtlasSlugNameAndVersion } from "../utils/atlases";
 import pg from "pg";
 
+export const CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE =
+  "atlases_slug_version_unique";
+
 /**
  * Get an atlas ID based on a case-insensitive short name slug, a generation number, and a revision number.
  * @param nameAndVersion - Atlas short name and version numbers.
@@ -19,7 +22,7 @@ export async function getAtlasIdBySlugNameAndVersion({
 }: AtlasSlugNameAndVersion): Promise<string> {
   const lowerSlug = shortNameSlug.toLowerCase();
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "SELECT id FROM hat.atlases WHERE REPLACE(LOWER(overview->>'shortName'), ' ', '-') = $1 AND generation = $2 AND revision = $3",
+    "SELECT id FROM hat.atlases WHERE short_name_slug = $1 AND generation = $2 AND revision = $3",
     [lowerSlug, generation, revision],
   );
   if (queryResult.rows.length === 0)
@@ -61,8 +64,8 @@ export async function createAtlasRevision(
 ): Promise<string> {
   const queryResult = await query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
     `
-      INSERT INTO hat.atlases (component_atlases, generation, overview, revision, source_datasets, source_studies, status, target_completion)
-      SELECT component_atlases, generation, overview, revision + 1, source_datasets, source_studies, status, target_completion
+      INSERT INTO hat.atlases (component_atlases, generation, overview, revision, short_name_slug, source_datasets, source_studies, status, target_completion)
+      SELECT component_atlases, generation, overview, revision + 1, short_name_slug, source_datasets, source_studies, status, target_completion
       FROM hat.atlases
       WHERE id = $1
       RETURNING id

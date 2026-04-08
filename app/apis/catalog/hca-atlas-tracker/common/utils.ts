@@ -59,6 +59,7 @@ export function atlasInputMapper(
     publishedAt: apiAtlas.publishedAt,
     revision: apiAtlas.revision,
     shortName: apiAtlas.shortName,
+    shortNameSlug: apiAtlas.shortNameSlug,
     sourceDatasetCount: apiAtlas.sourceDatasetCount,
     sourceStudyCount: apiAtlas.sourceStudyCount,
     status: apiAtlas.status,

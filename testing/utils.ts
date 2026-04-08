@@ -40,6 +40,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 import {
   ATLAS_DRAFT,
   DEFAULT_USERS_BY_ROLE,
@@ -124,7 +125,7 @@ export function makeTestAtlasOverview(
 }
 
 export function getTestAtlasShortNameSlug(atlas: TestAtlas): string {
-  return atlas.shortName.toLowerCase().replaceAll(" ", "-");
+  return slugifyAtlasShortName(atlas.shortName);
 }
 
 export function makeTestSourceStudyOverview(
@@ -487,6 +488,9 @@ export function expectAtlasSummaryToMatchTestAtlas(
   expect(atlasSummary.network).toEqual(testAtlas.network);
   expect(atlasSummary.publishedAt).toEqual(testAtlas.publishedAt ?? null);
   expect(atlasSummary.shortName).toEqual(testAtlas.shortName);
+  expect(atlasSummary.shortNameSlug).toEqual(
+    getTestAtlasShortNameSlug(testAtlas),
+  );
   expect(atlasSummary.version).toEqual(expectedVersion);
 }
 
@@ -514,6 +518,7 @@ export function expectApiAtlasToMatchTestWithoutRevision(
   expect(apiAtlas.bioNetwork).toEqual(testAtlas.network);
   expect(apiAtlas.publications).toEqual(testAtlas.publications);
   expect(apiAtlas.shortName).toEqual(testAtlas.shortName);
+  expect(apiAtlas.shortNameSlug).toEqual(getTestAtlasShortNameSlug(testAtlas));
   expect(apiAtlas.sourceStudyCount).toEqual(testAtlas.sourceStudies.length);
   expect(apiAtlas.status).toEqual(testAtlas.status);
   expect(apiAtlas.targetCompletion).toEqual(
@@ -540,6 +545,7 @@ export function expectDbAtlasToMatchApi(
   expect(dbAtlas.overview.integrationLead).toEqual(apiAtlas.integrationLead);
   expect(dbAtlas.overview.shortName).toEqual(apiAtlas.shortName);
   expect(dbAtlas.overview.publications).toEqual(apiAtlas.publications);
+  expect(dbAtlas.short_name_slug).toEqual(apiAtlas.shortNameSlug);
   expect(dbAtlas.source_studies).toHaveLength(apiAtlas.sourceStudyCount);
   expect(dbAtlas.status).toEqual(apiAtlas.status);
   expect(dbAtlas.target_completion?.toISOString() ?? null).toEqual(

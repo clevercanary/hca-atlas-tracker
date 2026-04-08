@@ -9,9 +9,8 @@ import {
   SNSMessageOptions,
   SQL_QUERIES,
   TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
-  TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
   TEST_ATLAS_WITH_MULTI_WORD_NAME_ID,
-  TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
+  TEST_ATLAS_WITH_NAME_CONTRAST_ID,
   TEST_AWS_CONFIG,
   TEST_FILE_PATHS,
   TEST_GUT_ATLAS_ID,
@@ -543,7 +542,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Check that concept was created and linked to the file
     const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
-    expect(concept).toBeDefined();
+    assertExpectDefined(concept);
+    // Check that concept fields match info in S3 key
+    expect(concept.atlas_short_name).toEqual("gut");
+    expect(concept.base_filename).toEqual("test-file.h5ad");
+    expect(concept.file_type).toEqual(FILE_TYPE.SOURCE_DATASET);
+    expect(concept.generation).toEqual(1);
+    expect(concept.network).toEqual("gut");
   });
 
   it("successfully processes valid SNS notification for integrated object with S3 ObjectCreated event", async () => {
@@ -615,7 +620,13 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
 
     // Check that concept was created and linked to the file
     const concept = await getConceptFromDatabaseByExpectedId(file.concept_id);
-    expect(concept).toBeDefined();
+    assertExpectDefined(concept);
+    // Check that concept fields match info in S3 key
+    expect(concept.atlas_short_name).toEqual("gut");
+    expect(concept.base_filename).toEqual("atlas.h5ad");
+    expect(concept.file_type).toEqual(FILE_TYPE.INTEGRATED_OBJECT);
+    expect(concept.generation).toEqual(1);
+    expect(concept.network).toEqual("gut");
   });
 
   test("rejects SNS messages with unparseable JSON in Message field", async () => {
@@ -1898,7 +1909,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     },
     {
       description: "different short name",
-      expectedFirstAtlasId: TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
+      expectedFirstAtlasId: TEST_ATLAS_WITH_NAME_CONTRAST_ID,
       expectedFirstConceptFields: {
         atlas_short_name: "test-short-name-a",
         base_filename: "test-file-name-and-network-contrasts.h5ad",
@@ -1918,29 +1929,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         "heart/test-short-name-a-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
       secondKey:
         "heart/test-short-name-b-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
-    },
-    {
-      description: "different network",
-      expectedFirstAtlasId: TEST_ATLAS_WITH_NETWORK_AND_NAME_CONTRASTS_ID,
-      expectedFirstConceptFields: {
-        atlas_short_name: "test-short-name-a",
-        base_filename: "test-file-name-and-network-contrasts.h5ad",
-        file_type: FILE_TYPE.SOURCE_DATASET,
-        generation: 1,
-        network: "heart",
-      },
-      expectedSecondAtlasId: TEST_ATLAS_WITH_CONTRASTING_NETWORK_ID,
-      expectedSecondConceptFields: {
-        atlas_short_name: "test-short-name-a",
-        base_filename: "test-file-name-and-network-contrasts.h5ad",
-        file_type: FILE_TYPE.SOURCE_DATASET,
-        generation: 1,
-        network: "lung",
-      },
-      firstKey:
-        "heart/test-short-name-a-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
-      secondKey:
-        "lung/test-short-name-a-v1-0/source-datasets/test-file-name-and-network-contrasts.h5ad",
     },
   ])(
     "creates different concepts for S3 keys with $description",

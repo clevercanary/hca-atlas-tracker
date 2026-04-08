@@ -8,7 +8,9 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
+import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
 import { endPgPool, query } from "../app/services/database";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import atlasHandler from "../pages/api/atlases/[atlasId]";
 import {
@@ -680,6 +682,24 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("PUT returns error 400 for short name field when atlas with the specified short name and the requested atlas's version already exists", async () => {
+    const res = await doAtlasRequest(
+      ATLAS_PUBLIC.id,
+      USER_CONTENT_ADMIN,
+      true,
+      METHOD.PUT,
+      {
+        ...ATLAS_PUBLIC_EDIT,
+        shortName: "Test With Misc Source Studies",
+      },
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    const data = res._getJSONData() as FormResponseErrors;
+    expect(data).toMatchObject({
+      errors: { shortName: [expect.stringContaining("already exists")] },
+    });
+  });
+
   it("PUT updates and returns atlas entry", async () => {
     await testSuccessfulEdit(ATLAS_PUBLIC, ATLAS_PUBLIC_EDIT, 0, []);
   });
@@ -822,6 +842,9 @@ async function testSuccessfulEdit(
   );
   expect(updatedAtlas.targetCompletion).toEqual(
     editData.targetCompletion ?? null,
+  );
+  expect(updatedAtlas.shortNameSlug).toEqual(
+    slugifyAtlasShortName(editData.shortName),
   );
 
   expectDbAtlasToMatchApi(
