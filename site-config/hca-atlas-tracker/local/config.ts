@@ -69,7 +69,7 @@ export function makeConfig(
             {
               label: "Metadata",
               target: ANCHOR_TARGET.BLANK,
-              url: "https://data.humancellatlas.org/metadata/tier-1",
+              url: `${portalUrl}/metadata/tier-1`,
             },
           ],
           [
