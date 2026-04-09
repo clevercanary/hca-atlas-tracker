@@ -66,6 +66,11 @@ export function makeConfig(
             },
             { label: "Reports", url: ROUTE.REPORTS },
             { label: "Team", url: ROUTE.USERS },
+            {
+              label: "Metadata",
+              target: ANCHOR_TARGET.BLANK,
+              url: "https://data.humancellatlas.org/metadata/tier-1",
+            },
           ],
           [
             {
