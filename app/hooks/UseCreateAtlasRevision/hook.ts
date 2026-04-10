@@ -12,23 +12,28 @@ export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
 
   const onSubmit = useCallback(
     async (requestURL: string, options?: OnSubmitOptions): Promise<void> => {
-      setSucceeded(false);
-      setIsRequesting(true);
-      const res = await fetchResource(requestURL, METHOD.POST);
-      setIsRequesting(false);
-      if (isFetchStatusCreated(res.status)) {
-        setSucceeded(true);
-        const atlas = await res.json();
-        options?.onSuccess?.(atlas);
-      } else {
-        setError(
-          new Error(
-            await res
-              .json()
-              .then(({ message }) => message)
-              .catch(() => `Received ${res.status} response`),
-          ),
-        );
+      try {
+        setSucceeded(false);
+        setIsRequesting(true);
+        const res = await fetchResource(requestURL, METHOD.POST);
+        setIsRequesting(false);
+        if (isFetchStatusCreated(res.status)) {
+          setSucceeded(true);
+          const atlas = await res.json();
+          options?.onSuccess?.(atlas);
+        } else {
+          setError(
+            new Error(
+              await res
+                .json()
+                .then(({ message }) => message)
+                .catch(() => `Received ${res.status} response`),
+            ),
+          );
+        }
+      } catch (e) {
+        setIsRequesting(false);
+        setError(e instanceof Error ? e : new Error(String(e)));
       }
     },
     [],
