@@ -1,4 +1,3 @@
-import Router from "next/router";
 import { JSX } from "react";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
 import { PathParameter } from "../../../../common/entities";
@@ -19,8 +18,7 @@ export const CreateRevisionButton = ({ pathParameter }: Props): JSX.Element => {
       onClick={() => {
         onSubmit(getRequestURL(API.ATLAS_VERSIONS, pathParameter), {
           onSuccess: (newAtlas) => {
-            Router.push(getRouteURL(ROUTE.ATLAS, { atlasId: newAtlas.id }));
-            Router.reload();
+            location.assign(getRouteURL(ROUTE.ATLAS, { atlasId: newAtlas.id }));
           },
         });
       }}
