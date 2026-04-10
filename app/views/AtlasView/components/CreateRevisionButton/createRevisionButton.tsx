@@ -21,6 +21,7 @@ export const CreateRevisionButton = ({ pathParameter }: Props): JSX.Element => {
         onCreateRevision(getRequestURL(API.ATLAS_VERSIONS, pathParameter), {
           onSuccess: (newAtlas) => {
             Router.push(getRouteURL(ROUTE.ATLAS, { atlasId: newAtlas.id }));
+            Router.reload();
           },
         });
       }}
