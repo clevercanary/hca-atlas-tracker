@@ -12,4 +12,5 @@ export interface OnSubmitOptions {
 export interface UseCreateAtlasRevision {
   isRequesting: boolean;
   onSubmit: OnSubmitFn;
+  succeeded: boolean;
 }

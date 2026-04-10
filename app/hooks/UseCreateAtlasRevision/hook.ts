@@ -5,16 +5,19 @@ import { OnSubmitOptions, UseCreateAtlasRevision } from "./entities";
 
 export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
   const [isRequesting, setIsRequesting] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState<Error>();
 
   if (error !== undefined) throw error;
 
   const onSubmit = useCallback(
     async (requestURL: string, options?: OnSubmitOptions): Promise<void> => {
+      setSucceeded(false);
       setIsRequesting(true);
       const res = await fetchResource(requestURL, METHOD.POST);
       setIsRequesting(false);
       if (isFetchStatusCreated(res.status)) {
+        setSucceeded(true);
         const atlas = await res.json();
         options?.onSuccess?.(atlas);
       } else {
@@ -31,5 +34,5 @@ export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
     [],
   );
 
-  return { isRequesting, onSubmit };
+  return { isRequesting, onSubmit, succeeded };
 };

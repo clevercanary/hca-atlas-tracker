@@ -12,13 +12,12 @@ interface Props {
 }
 
 export const CreateRevisionButton = ({ pathParameter }: Props): JSX.Element => {
-  const { isRequesting: isCreatingRevision, onSubmit: onCreateRevision } =
-    useCreateAtlasRevision();
+  const { isRequesting, onSubmit, succeeded } = useCreateAtlasRevision();
   return (
     <AtlasActionButton
-      disabled={isCreatingRevision}
+      disabled={isRequesting || succeeded}
       onClick={() => {
-        onCreateRevision(getRequestURL(API.ATLAS_VERSIONS, pathParameter), {
+        onSubmit(getRequestURL(API.ATLAS_VERSIONS, pathParameter), {
           onSuccess: (newAtlas) => {
             Router.push(getRouteURL(ROUTE.ATLAS, { atlasId: newAtlas.id }));
             Router.reload();
