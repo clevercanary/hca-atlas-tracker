@@ -23,7 +23,7 @@ export const CreateRevisionButton = ({ pathParameter }: Props): JSX.Element => {
         });
       }}
     >
-      New Revision
+      Create New Version
     </AtlasActionButton>
   );
 };
