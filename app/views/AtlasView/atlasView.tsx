@@ -49,7 +49,8 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   } = useDialog();
   const isPublished = atlas ? apiEntityIsPublished(atlas) : null;
   const canPublish = canEdit && isPublished === false;
-  const canCreateRevision = canEdit && isPublished === true;
+  const canCreateRevision =
+    canEdit && isPublished === true && atlas?.isLatest === true;
 
   if (isLoading) return <Fragment />;
 
