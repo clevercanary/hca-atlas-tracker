@@ -19,12 +19,13 @@ import { useFetchDataState } from "../../hooks/useFetchDataState";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { getBreadcrumbs } from "./common/utils";
+import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
+import { CreateRevisionDialog } from "./components/CreateRevisionDialog/createRevisionDialog";
+import { CreateRevisionDialogUnsavedChanges } from "./components/CreateRevisionDialogUnsavedChanges/createRevisionDialogUnsavedChanges";
 import { PublishDialog } from "./components/PublishDialog/publishDialog";
 import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
 import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
-import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
-import { CreateRevisionButton } from "./components/CreateRevisionButton/createRevisionButton";
 
 interface AtlasViewProps {
   pathParameter: PathParameter;
@@ -46,6 +47,11 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     onClose: closePublishDialog,
     onOpen: openPublishDialog,
     open: publishDialogOpen,
+  } = useDialog();
+  const {
+    onClose: closeRevisionDialog,
+    onOpen: openRevisionDialog,
+    open: revisionDialogOpen,
   } = useDialog();
   const isPublished = atlas ? apiEntityIsPublished(atlas) : null;
   const canPublish = canEdit && isPublished === false;
@@ -73,6 +79,19 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
           pathParameter={pathParameter}
         />
       )}
+      {isDirty ? (
+        <CreateRevisionDialogUnsavedChanges
+          onClose={closeRevisionDialog}
+          open={revisionDialogOpen}
+        />
+      ) : (
+        <CreateRevisionDialog
+          atlas={atlas}
+          onCancel={closeRevisionDialog}
+          open={revisionDialogOpen}
+          pathParameter={pathParameter}
+        />
+      )}
       <DetailView
         actions={
           <>
@@ -82,7 +101,9 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
               </AtlasActionButton>
             )}
             {canCreateRevision && (
-              <CreateRevisionButton pathParameter={pathParameter} />
+              <AtlasActionButton onClick={openRevisionDialog}>
+                Create New Version
+              </AtlasActionButton>
             )}
           </>
         }
