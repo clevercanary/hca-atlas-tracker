@@ -1,6 +1,6 @@
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { JSX, Fragment } from "react";
+import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
+import { Fragment, JSX } from "react";
 import {
   apiEntityIsPublished,
   getAtlasName,
@@ -19,12 +19,13 @@ import { useFetchDataState } from "../../hooks/useFetchDataState";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { getBreadcrumbs } from "./common/utils";
+import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
+import { CreateRevisionDialog } from "./components/CreateRevisionDialog/createRevisionDialog";
+import { CreateRevisionDialogUnsavedChanges } from "./components/CreateRevisionDialogUnsavedChanges/createRevisionDialogUnsavedChanges";
+import { PublishDialog } from "./components/PublishDialog/publishDialog";
+import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
 import { useEditAtlasForm } from "./hooks/useEditAtlasForm";
 import { useEditAtlasFormManager } from "./hooks/useEditAtlasFormManager";
-import { PublishButton } from "./components/PublishButton/publishButton.styles";
-import { PublishDialogUnsavedChanges } from "./components/PublishDialogUnsavedChanges/publishDialogUnsavedChanges";
-import { PublishDialog } from "./components/PublishDialog/publishDialog";
-import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 
 interface AtlasViewProps {
   pathParameter: PathParameter;
@@ -47,7 +48,15 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     onOpen: openPublishDialog,
     open: publishDialogOpen,
   } = useDialog();
-  const canPublish = atlas ? canEdit && !apiEntityIsPublished(atlas) : false;
+  const {
+    onClose: closeRevisionDialog,
+    onOpen: openRevisionDialog,
+    open: revisionDialogOpen,
+  } = useDialog();
+  const isPublished = atlas ? apiEntityIsPublished(atlas) : null;
+  const canPublish = canEdit && isPublished === false;
+  const canCreateRevision =
+    canEdit && isPublished === true && atlas?.isLatest === true;
 
   if (isLoading) return <Fragment />;
 
@@ -70,16 +79,33 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
           pathParameter={pathParameter}
         />
       )}
+      {isDirty ? (
+        <CreateRevisionDialogUnsavedChanges
+          onClose={closeRevisionDialog}
+          open={revisionDialogOpen}
+        />
+      ) : (
+        <CreateRevisionDialog
+          atlas={atlas}
+          onCancel={closeRevisionDialog}
+          open={revisionDialogOpen}
+          pathParameter={pathParameter}
+        />
+      )}
       <DetailView
         actions={
-          canPublish && (
-            <PublishButton
-              {...BUTTON_PROPS.SECONDARY_CONTAINED}
-              onClick={openPublishDialog}
-            >
-              Publish
-            </PublishButton>
-          )
+          <>
+            {canPublish && (
+              <AtlasActionButton onClick={openPublishDialog}>
+                Publish
+              </AtlasActionButton>
+            )}
+            {canCreateRevision && (
+              <AtlasActionButton onClick={openRevisionDialog}>
+                Create New Version
+              </AtlasActionButton>
+            )}
+          </>
         }
         breadcrumbs={
           <Breadcrumbs

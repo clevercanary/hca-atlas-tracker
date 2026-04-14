@@ -74,6 +74,10 @@ export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
   return `${atlas.shortName} v${atlas.generation}.${atlas.revision}`;
 }
 
+export function getAtlasGenerationName(atlas: HCAAtlasTrackerAtlas): string {
+  return `${atlas.shortName} v${atlas.generation}`;
+}
+
 /**
  * Combine the given Tier 1 metadata statuses into one.
  * @param statuses - Tier 1 metadata statuses.
