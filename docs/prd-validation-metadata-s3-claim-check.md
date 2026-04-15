@@ -4,7 +4,7 @@
 
 The batch validator currently sends validation results back to the tracker via a single SNS message (≤256 KiB). This works for validation pass/fail and basic metadata (title, assay, tissue, disease, cell/gene counts), but is insufficient for richer per-sample metadata that can easily reach megabytes for datasets with thousands of samples.
 
-This document describes a change to the result delivery mechanism: the validator writes full metadata to S3 and sends a lightweight SNS notification with a pointer to the S3 object. The tracker fetches the full metadata from S3 on notification, saves it to the database, and deletes the S3 object.
+This document describes a change to the result delivery mechanism: the validator writes full metadata to S3 and sends an SNS notification. The tracker derives the S3 key from fields already in the SNS message (`file_id` + `batch_job_id`), fetches the full metadata from S3, saves it to the database, and deletes the S3 object. The transition is incremental — see [Rollout Phases](#rollout-phases).
 
 ## Problem
 
@@ -15,7 +15,7 @@ This document describes a change to the result delivery mechanism: the validator
 
 ## Solution: S3 Claim Check Pattern
 
-Use the existing data bucket with a dedicated prefix as an intermediary. The validator writes full results to S3, then sends a small SNS message with the S3 key. The tracker fetches the full payload from S3, writes it to the database, and deletes the S3 object.
+Use the existing data bucket with a dedicated prefix as an intermediary. The validator writes full results to S3 at a deterministic key (`validation-metadata/{file_id}/{batch_job_id}.json`), then sends an SNS message. The tracker derives the S3 key from `file_id` + `batch_job_id` in the message, fetches the full payload from S3, writes it to the database, and deletes the S3 object.
 
 ### Current Flow
 
@@ -26,13 +26,14 @@ Batch Job → build results JSON (≤250KB, truncate if needed)
           → writes to hat.files (dataset_info, validation_reports, etc.)
 ```
 
-### New Flow
+### New Flow (final state after all rollout phases)
 
 ```
 Batch Job → build full results JSON (unlimited size)
           → write to S3: s3://{bucket}/validation-metadata/{file_id}/{batch_job_id}.json
-          → SNS publish (small message with S3 pointer)
+          → SNS publish (lightweight message with file_id + batch_job_id)
           → Tracker /api/sns receives message
+          → derive S3 key from file_id + batch_job_id
           → fetch full JSON from S3
           → write to database
           → delete S3 object
@@ -45,7 +46,7 @@ Batch Job → build full results JSON (unlimited size)
 Use the existing data bucket (`hca-atlas-tracker-data-dev` / `hca-atlas-tracker-data`) with a new prefix:
 
 ```
-s3://{data-bucket}/validation-metadata/{file_id}.json
+s3://{data-bucket}/validation-metadata/{file_id}/{batch_job_id}.json
 ```
 
 **Why reuse the existing bucket:**
@@ -88,7 +89,7 @@ The app runner task role (`app-runner/main.tf`) needs explicit permissions to fe
 
 ### SNS: No Changes
 
-The existing validation-results SNS topic and subscription are reused. Only the message content changes (smaller, with an S3 pointer).
+The existing validation-results SNS topic and subscription are reused. The SNS message format is unchanged during the initial rollout phases; it only slims down in Phase 5.
 
 ### IAM: Local Development Role
 
@@ -117,8 +118,10 @@ This ensures local dev credentials cannot read, write, or delete files outside t
 In `services/dataset-validator/main.py`, after validation completes:
 
 1. Build the full results JSON (same structure as today, plus new per-sample metadata fields)
-2. Write to S3: `s3://{bucket}/validation-metadata/{file_id}/{batch_job_id}.json`
-3. Publish a lightweight SNS message containing:
+2. Try: write to S3: `s3://{bucket}/validation-metadata/{file_id}/{batch_job_id}.json` (log success/failure)
+3. Always: publish the full inline SNS message as today (unchanged during Phases 2-4)
+
+In Phase 5, the SNS message slims down to a lightweight notification:
 
 ```json
 {
@@ -131,7 +134,7 @@ In `services/dataset-validator/main.py`, after validation completes:
 }
 ```
 
-No explicit S3 key field is needed in the SNS message. The tracker constructs the S3 key deterministically from fields already present in the message: `validation-metadata/{file_id}/{batch_job_id}.json`. All detailed data (integrity results, metadata summary, tool reports, per-sample metadata) moves to the S3 object.
+No explicit S3 key field is needed. The tracker constructs the S3 key deterministically from fields already present in the message: `validation-metadata/{file_id}/{batch_job_id}.json`.
 
 ### S3 Object Structure
 
@@ -219,14 +222,13 @@ During rollout, the validator sends **both** the full inline SNS message (as tod
 
 In `app/services/validation-results-notification.ts`:
 
-1. Parse the SNS message
-2. If `metadata_s3_key` is present:
-   - Fetch the full JSON from S3 using `GetObjectCommand`
-   - Parse and validate against the results schema
-   - Process as normal
-   - Delete the S3 object using `DeleteObjectCommand`
-3. If `metadata_s3_key` is absent:
-   - Process inline results as today (backward compatibility)
+1. Parse the SNS message (extract `file_id`, `batch_job_id`, `bucket`)
+2. Construct the S3 key: `validation-metadata/{file_id}/{batch_job_id}.json`
+3. Attempt to fetch full results from S3
+   - On success: use S3 data, delete S3 object after processing
+   - On failure: fall back to inline SNS data (Phase 3) or hard error (Phase 4+)
+
+See [Rollout Phases](#rollout-phases) for how this evolves across phases.
 
 ### S3 Fetch and Delete
 
@@ -346,13 +348,15 @@ The tracker attempts to read from S3 first. If the S3 object exists, use it; oth
 
 - Update `validation-results-notification.ts`:
   - Construct the S3 key from `file_id` + `batch_job_id`: `validation-metadata/{file_id}/{batch_job_id}.json`
-  - Attempt to fetch from S3
+  - Fetch from the same data bucket (`validationResults.bucket`) used for the original file
+  - Retry up to 3 times with exponential backoff on transient S3 errors
   - On success: use S3 data, delete S3 object, log `"Using S3 claim check for file {fileId}"`
-  - On failure (404, fetch error): fall back to inline SNS data, log `"Falling back to inline SNS for file {fileId}: {reason}"`
+  - On failure after retries (404, persistent error): fall back to inline SNS data, log `"Falling back to inline SNS for file {fileId}: {reason}"`
 
 **Acceptance Criteria:**
 
 - [ ] Tracker prefers S3 data when available
+- [ ] Transient S3 failures retried up to 3 times with backoff before falling back
 - [ ] Tracker falls back to inline SNS data gracefully
 - [ ] Logs clearly indicate which source was used
 - [ ] S3 object deleted after successful processing
@@ -362,7 +366,7 @@ The tracker attempts to read from S3 first. If the S3 object exists, use it; oth
 
 ### Phase 4: [Tracker] Require S3, remove inline fallback
 
-Once Phase 3 is verified in production and logs confirm S3 is consistently used, remove the inline fallback.
+Once Phase 3 is verified in production — specifically, a full corpus revalidation completes with zero fallbacks to inline SNS — remove the inline fallback.
 
 **Changes to `hca-atlas-tracker`:**
 
