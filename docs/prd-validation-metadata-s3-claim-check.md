@@ -260,9 +260,9 @@ async function fetchAndDeleteValidationMetadata(
 
 ### Database Schema
 
-The per-sample metadata will be stored in the existing `dataset_info` JSONB column on `hat.files`, or in a new dedicated column/table depending on the data volume and query patterns. This decision can be deferred to implementation — the S3 claim check mechanism works regardless of the database schema choice.
+During Phases 1-5, the database schema is unchanged. The S3 payload has the same shape as the current inline SNS message, and results are written to the existing `dataset_info` JSONB column on `hat.files` exactly as today.
 
-Options:
+Schema changes are deferred to Phase 6 when the payload is extended with per-sample metadata. Options at that point:
 
 1. **Expand `dataset_info` JSONB** — simplest, keeps everything together, but JSONB columns with large arrays can be slow to query
 2. **New `hat.file_sample_metadata` table** — normalized, queryable, but more complex to manage
