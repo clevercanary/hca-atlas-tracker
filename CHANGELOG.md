@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.61.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.60.0...v1.61.0) (2026-04-15)
+
+
+### Features
+
+* add backend support for creating new atlas revisions ([#1137](https://github.com/clevercanary/hca-atlas-tracker/issues/1137)) ([#1140](https://github.com/clevercanary/hca-atlas-tracker/issues/1140)) ([c29b177](https://github.com/clevercanary/hca-atlas-tracker/commit/c29b177a79ff87c04a24ac6cc6224790e9a3a7eb))
+* add button to create a new atlas revision ([#1138](https://github.com/clevercanary/hca-atlas-tracker/issues/1138)) ([#1157](https://github.com/clevercanary/hca-atlas-tracker/issues/1157)) ([1c5d1dc](https://github.com/clevercanary/hca-atlas-tracker/commit/1c5d1dc47d3062835b926450f8a4852ddac29606))
+* add metadata link to header navigation ([#1155](https://github.com/clevercanary/hca-atlas-tracker/issues/1155)) ([#1156](https://github.com/clevercanary/hca-atlas-tracker/issues/1156)) ([793e50f](https://github.com/clevercanary/hca-atlas-tracker/commit/793e50f0e4206cbeb3dc2208d0c14185de2fc939))
+* add short name slug column and unique constraint with version ([#1148](https://github.com/clevercanary/hca-atlas-tracker/issues/1148), [#1149](https://github.com/clevercanary/hca-atlas-tracker/issues/1149)) ([#1153](https://github.com/clevercanary/hca-atlas-tracker/issues/1153)) ([332dc2c](https://github.com/clevercanary/hca-atlas-tracker/commit/332dc2c7ceed784e5c414f9c27b3612c8683a151))
+
+
+### Chores
+
+* upgrade findable-ui from 50.3.0 to 50.7.0 ([#1158](https://github.com/clevercanary/hca-atlas-tracker/issues/1158)) ([#1159](https://github.com/clevercanary/hca-atlas-tracker/issues/1159)) ([b8afdde](https://github.com/clevercanary/hca-atlas-tracker/commit/b8afdde6ca399b9f18ecbfddc978d614df37cb2e))
+
 ## [1.60.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.59.0...v1.60.0) (2026-04-03)
 
 
