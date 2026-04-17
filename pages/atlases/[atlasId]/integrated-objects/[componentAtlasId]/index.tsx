@@ -1,6 +1,6 @@
-import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
+import { JSX } from "react";
 import { PathParameter } from "../../../../../app/common/entities";
 import { FetchDataStateProvider } from "../../../../../app/providers/fetchDataState/fetchDataState";
 import { ComponentAtlasView } from "../../../../../app/views/ComponentAtlasView/componentAtlasView";

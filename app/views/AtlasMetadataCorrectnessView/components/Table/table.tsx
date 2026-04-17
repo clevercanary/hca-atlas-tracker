@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
+import { JSX } from "react";
 import { ToggleButtonGroup } from "./components/ToggleButtonGroup/toggleButtonGroup";
 import { Props } from "./entities";
 import { useTable } from "./hooks/useTable/hook";

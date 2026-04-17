@@ -1,4 +1,4 @@
-import { JSX, createContext, Dispatch, ReactNode, useReducer } from "react";
+import { createContext, Dispatch, JSX, ReactNode, useReducer } from "react";
 import { fetchDataAction } from "./actions/fetchData/action";
 import { resetFetchStatusAction } from "./actions/resetFetchStatus/action";
 

@@ -1,7 +1,5 @@
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { ColumnDef } from "@tanstack/react-table";
-import { renderFileName, renderPublicationString } from "./viewBuilders";
-import { IntegratedObjectSourceDataset } from "../../entities";
 import {
   buildAssay,
   buildDisease,
@@ -10,7 +8,9 @@ import {
   renderNTagCell,
   renderPinnedNTagCell,
 } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { IntegratedObjectSourceDataset } from "../../entities";
 import { IconButton } from "./components/IconButton/iconButton";
+import { renderFileName, renderPublicationString } from "./viewBuilders";
 
 const COLUMN_ACTION: ColumnDef<IntegratedObjectSourceDataset> = {
   cell: IconButton,

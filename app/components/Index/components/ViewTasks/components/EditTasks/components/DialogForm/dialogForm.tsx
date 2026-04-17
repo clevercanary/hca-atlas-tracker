@@ -1,9 +1,9 @@
-import { JSX } from "react";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import {
   DialogActions as MDialogActions,
   DialogContent as MDialogContent,
 } from "@mui/material";
+import { JSX } from "react";
 import { FieldValues } from "react-hook-form";
 import { object, ObjectSchema } from "yup";
 import { HCAAtlasTrackerValidationRecord } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";

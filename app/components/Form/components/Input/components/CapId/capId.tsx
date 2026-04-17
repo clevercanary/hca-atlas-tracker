@@ -1,5 +1,5 @@
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { JSX, forwardRef, Fragment } from "react";
+import { forwardRef, Fragment, JSX } from "react";
 import { CAP_PROJECT_URL_REGEXP } from "../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
 import {
   Input,

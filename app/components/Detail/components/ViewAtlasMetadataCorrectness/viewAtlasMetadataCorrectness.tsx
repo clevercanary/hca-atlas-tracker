@@ -1,9 +1,9 @@
-import { JSX } from "react";
 import { SectionTitle } from "@databiosphere/findable-ui/lib/components/common/Section/components/SectionTitle/sectionTitle";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import { HCAAtlasTrackerAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { JSX } from "react";
 import { FormManager } from "../../../../hooks/useFormManager/common/entities";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { SectionPaper } from "./vewAtlasMetadataCorrectness.styles";

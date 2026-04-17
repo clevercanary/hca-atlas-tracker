@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { FormLabelProps as MFormLabelProps } from "@mui/material";
+import { JSX } from "react";
 import { FormLabel as Label } from "./formLabel.styles";
 
 export const FormLabel = ({

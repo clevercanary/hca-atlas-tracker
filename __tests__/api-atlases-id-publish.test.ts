@@ -1,25 +1,30 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import {
+  HCAAtlasTrackerAtlas,
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBSourceDataset,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import publishHandler from "../pages/api/atlases/[atlasId]/publish";
 import {
-  ATLAS_WITH_LINKED_PUBLISH_STATUSES,
   ATLAS_PUBLISHED,
+  ATLAS_WITH_LINKED_PUBLISH_STATUSES,
+  COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
+  SOURCE_DATASET_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
+  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
+  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
-  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_FOO,
-  SOURCE_DATASET_PUBLISH_STATUSES_PUBLISHED_BAR,
-  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_FOO,
-  SOURCE_DATASET_PUBLISH_STATUSES_UNPUBLISHED_BAR,
-  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO,
-  COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_BAR,
-  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
-  COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
-  COMPONENT_ATLAS_MISC_FOO,
-  SOURCE_DATASET_FOO,
 } from "../testing/constants";
 import {
   getExistingAtlasFromDatabase,
@@ -33,11 +38,6 @@ import {
   TestUser,
 } from "../testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
-import {
-  HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBSourceDataset,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",

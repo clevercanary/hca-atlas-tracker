@@ -1,5 +1,6 @@
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { InvalidOperationError } from "app/utils/api-handler";
+import { getDbEntityFileVersion } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
@@ -8,6 +9,8 @@ import {
   INTEGRITY_STATUS,
   PresignedUrlInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { getComponentAtlasForAtlasFile } from "../data/component-atlases";
+import { getConceptForFile } from "../data/concepts";
 import {
   confirmFilesExistOnAtlas,
   getAllFilesValidationParams,
@@ -19,14 +22,11 @@ import {
   setFilesArchiveStatus,
   setFileValidationStatus,
 } from "../data/files";
+import { getSourceDatasetForAtlasFile } from "../data/source-datasets";
+import { insertVersionInFilename } from "../utils/files";
 import { doTransaction } from "./database";
 import { getDownloadUrl } from "./s3-operations";
 import { submitDatasetValidationJob } from "./validator-batch";
-import { getComponentAtlasForAtlasFile } from "../data/component-atlases";
-import { getSourceDatasetForAtlasFile } from "../data/source-datasets";
-import { getDbEntityFileVersion } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { getConceptForFile } from "../data/concepts";
-import { insertVersionInFilename } from "../utils/files";
 
 /**
  * Get a presigned S3 URL for downloading the given file.

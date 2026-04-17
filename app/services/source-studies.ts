@@ -1,3 +1,4 @@
+import { confirmQueryRowsContainIds } from "app/utils/database";
 import pg from "pg";
 import { ValidationError } from "yup";
 import {
@@ -23,12 +24,13 @@ import {
   UnpublishedSourceStudyEditData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
+import { replaceSourceStudyInAtlases } from "../data/atlases";
+import { replaceEntrySheetValidationsSourceStudy } from "../data/entry-sheets";
 import {
   getAtlasSourceDatasetVersionIds,
   replaceSourceDatasetsSourceStudy,
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
-import { replaceSourceStudyInAtlases } from "../data/atlases";
 import { setSourceStudyMetadataSpreadsheets } from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-handler";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
@@ -54,8 +56,6 @@ import {
   getValidationRecordsWithoutAtlasPropertiesForEntities,
   updateSourceStudyValidations,
 } from "./validations";
-import { replaceEntrySheetValidationsSourceStudy } from "../data/entry-sheets";
-import { confirmQueryRowsContainIds } from "app/utils/database";
 
 export async function getAtlasSourceStudies(
   atlasId: string,

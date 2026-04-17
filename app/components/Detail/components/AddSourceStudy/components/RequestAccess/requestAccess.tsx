@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { JSX } from "react";
 import { ROUTE } from "../../../../../../routes/constants";
 import { Divider } from "../../../TrackerForm/components/Divider/divider.styles";
 import { RequestAccess as Section } from "../../../TrackerForm/components/Section/components/RequestAccess/requestAccess";

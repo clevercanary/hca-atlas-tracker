@@ -1,10 +1,10 @@
-import { JSX } from "react";
 import {
   Tab as DXTab,
   TabsProps as DXTabsProps,
   OnTabChangeFn,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { Tab as MTab } from "@mui/material";
+import { JSX } from "react";
 import { Tabs as SectionTabs } from "./tabs.styles";
 
 interface Tab extends DXTab {

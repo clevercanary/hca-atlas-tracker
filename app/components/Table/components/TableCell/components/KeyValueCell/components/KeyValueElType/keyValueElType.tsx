@@ -1,6 +1,6 @@
-import { JSX } from "react";
 import { KeyValueElTypeProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/components/KeyValueElType/keyValueElType";
 import { Grid, GridProps } from "@mui/material";
+import { JSX } from "react";
 
 export const KeyValueElType = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- `keyValue` is accepted for compatibility but not used.

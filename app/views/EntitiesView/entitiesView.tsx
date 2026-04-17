@@ -1,4 +1,3 @@
-import { JSX } from "react";
 import { Title } from "@databiosphere/findable-ui/lib/components/Index/components/EntityView/components/layout/Title/title";
 import { StyledGridEntityLayout } from "@databiosphere/findable-ui/lib/components/Index/index.styles";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
@@ -8,6 +7,7 @@ import {
   ExploreViewProps as DXExploreViewProps,
   ExploreView,
 } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
+import { JSX } from "react";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { ROUTE } from "../../routes/constants";
 import { StyledGrid, StyledTypography } from "./entitiesView.styles";

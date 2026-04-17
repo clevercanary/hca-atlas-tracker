@@ -1,4 +1,3 @@
-import { JSX } from "react";
 import {
   CircularProgress,
   CircularProgressProps,
@@ -7,6 +6,7 @@ import {
   Link,
   LinkProps,
 } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { JSX } from "react";
 import { Cell } from "./taskCountsCell.styles";
 
 export interface TaskCountsCellProps {

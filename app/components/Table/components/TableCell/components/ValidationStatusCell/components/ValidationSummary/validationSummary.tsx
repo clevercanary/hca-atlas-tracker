@@ -1,4 +1,3 @@
-import { JSX } from "react";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import {
   ANCHOR_TARGET,
@@ -7,6 +6,7 @@ import {
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Link as MLink, Stack } from "@mui/material";
 import Link from "next/link";
+import { JSX } from "react";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../../../../../common/utils";

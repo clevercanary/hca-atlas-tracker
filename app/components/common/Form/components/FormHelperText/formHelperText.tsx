@@ -1,10 +1,10 @@
-import { JSX } from "react";
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import {
   FormHelperTextProps as MFormHelperTextProps,
   Typography,
 } from "@mui/material";
+import { JSX } from "react";
 import { FormHelperText as HelperText } from "./formHelperText.styles";
 
 export interface FormHelperTextProps extends MFormHelperTextProps {

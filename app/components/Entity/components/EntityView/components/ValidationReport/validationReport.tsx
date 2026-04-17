@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
+import { JSX } from "react";
 import { ReportContent } from "./components/ReportContent/reportContent";
 import { Tabs } from "./components/Tabs/tabs";
 import { Props } from "./entities";

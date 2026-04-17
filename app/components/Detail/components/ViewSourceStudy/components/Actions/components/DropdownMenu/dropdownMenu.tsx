@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
+import { JSX } from "react";
 import { PathParameter } from "../../../../../../../../common/entities";
 import { FormStatus } from "../../../../../../../../hooks/useFormManager/common/entities";
 import { useDeleteSourceStudy } from "../../../../../../../../views/SourceStudyView/hooks/useDeleteSourceStudy";

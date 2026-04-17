@@ -42,8 +42,8 @@ import { createCommentThread, deleteCommentThread } from "./comments";
 import { doTransaction, getPoolClient, query } from "./database";
 import { getProjectInfoById } from "./hca-projects";
 import {
-  getSourceStudiesByDois,
   getAllSourceStudiesWithAtlasProperties,
+  getSourceStudiesByDois,
 } from "./source-studies";
 
 export enum VALIDATION_META_STATUS {

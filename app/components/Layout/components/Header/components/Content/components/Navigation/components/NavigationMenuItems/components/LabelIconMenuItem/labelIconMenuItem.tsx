@@ -1,6 +1,6 @@
 import { OpenInNewIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/OpenInNewIcon/openInNewIcon";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { JSX, ElementType } from "react";
+import { ElementType, JSX } from "react";
 import { Label, Text } from "./labelIconMenuItem.styles";
 
 export interface LabelIconMenuItemProps {

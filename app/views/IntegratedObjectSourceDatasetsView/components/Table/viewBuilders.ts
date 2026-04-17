@@ -1,9 +1,9 @@
-import { JSX } from "react";
 import { CellContext } from "@tanstack/react-table";
-import * as C from "../../../../components";
-import { getDOILink } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { JSX } from "react";
 import { getRouteURL } from "../../../../common/utils";
+import * as C from "../../../../components";
 import { ROUTE } from "../../../../routes/constants";
+import { getDOILink } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { IntegratedObjectSourceDataset } from "../../entities";
 
 /**

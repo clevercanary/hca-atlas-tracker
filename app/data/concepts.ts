@@ -1,9 +1,9 @@
+import { NotFoundError } from "app/utils/api-handler";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBConcept,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { NotFoundError } from "app/utils/api-handler";
 import { query } from "../services/database";
 
 /**
