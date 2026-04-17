@@ -1,6 +1,6 @@
-import { JSX } from "react";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Stack, Typography } from "@mui/material";
+import { JSX } from "react";
 import { Props } from "./entities";
 
 export const Section = ({ children, title, ...props }: Props): JSX.Element => {

@@ -1,4 +1,3 @@
-import { JSX } from "react";
 import { OpenInNewIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/OpenInNewIcon/openInNewIcon";
 import {
   ANCHOR_TARGET,
@@ -6,6 +5,7 @@ import {
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
+import { JSX } from "react";
 import { useEntity } from "../../../../providers/entity/hook";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { EntityData } from "../../entities";

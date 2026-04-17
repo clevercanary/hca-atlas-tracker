@@ -1,5 +1,5 @@
-import { S3KeyFormatError } from "../app/utils/files";
 import { parseS3AtlasVersion } from "../app/utils/atlases";
+import { S3KeyFormatError } from "../app/utils/files";
 
 /**
  * Parameterized tests for atlas version parsing.

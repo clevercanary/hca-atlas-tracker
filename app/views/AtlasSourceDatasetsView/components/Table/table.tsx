@@ -1,6 +1,6 @@
-import { JSX } from "react";
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { JSX } from "react";
 import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";

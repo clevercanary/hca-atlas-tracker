@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { GetServerSideProps } from "next";
+import { JSX } from "react";
 import { AddNewUserView } from "../../app/views/AddNewUserView/addNewUserView";
 
 export const getServerSideProps: GetServerSideProps = async () => {

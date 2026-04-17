@@ -5,6 +5,7 @@ import {
   s3EventSchema,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
+import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_TYPE,
@@ -36,17 +37,16 @@ import {
   createNewSourceDatasetVersion,
   markSourceDatasetAsNotLatest,
 } from "../data/source-datasets";
-import { InvalidOperationError } from "../utils/api-handler";
-import { createComponentAtlas } from "./component-atlases";
-import { doTransaction } from "./database";
-import { startFileValidation } from "./files";
-import { createSourceDataset } from "./source-datasets";
-import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   getAtlasMatchingConceptAndRevision,
   getOrCreateConceptId,
 } from "../services/concepts";
+import { InvalidOperationError } from "../utils/api-handler";
 import { parseNormalizedInfoFromS3Key, parseS3KeyPath } from "../utils/files";
+import { createComponentAtlas } from "./component-atlases";
+import { doTransaction } from "./database";
+import { startFileValidation } from "./files";
+import { createSourceDataset } from "./source-datasets";
 
 /**
  * Processes an SNS notification message containing S3 events

@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
+import { JSX } from "react";
 import { EditFileArchivedStatus } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";

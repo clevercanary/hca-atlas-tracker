@@ -1,7 +1,7 @@
-import { JSX } from "react";
 import { Main } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/components/Main/main";
 import { CellxGeneInProgressView } from "app/views/CellxGeneInProgressView/cellxgeneInProgressView";
 import { GetStaticProps } from "next";
+import { JSX } from "react";
 
 export const getStaticProps: GetStaticProps = async () => {
   return {

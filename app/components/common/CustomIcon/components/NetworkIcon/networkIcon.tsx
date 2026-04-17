@@ -1,8 +1,8 @@
-import { JSX } from "react";
 import {
   StaticImage,
   StaticImageProps,
 } from "@databiosphere/findable-ui/lib/components/common/StaticImage/staticImage";
+import { JSX } from "react";
 import { NETWORK_ICONS } from "../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { NetworkKey } from "../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 

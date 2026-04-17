@@ -1,8 +1,8 @@
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
 import { JSX } from "react";
-import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../../../common/entities";
 import { getRequestURL } from "../../../../common/utils";

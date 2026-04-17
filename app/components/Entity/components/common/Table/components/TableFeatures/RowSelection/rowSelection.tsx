@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { RowData } from "@tanstack/react-table";
+import { JSX } from "react";
 import { Props } from "./entities";
 import { StyledRowSelection } from "./rowSelection.styles";
 

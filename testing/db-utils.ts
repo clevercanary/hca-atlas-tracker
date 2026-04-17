@@ -28,6 +28,10 @@ import {
   query,
 } from "../app/services/database";
 import {
+  getFileBaseName,
+  parseNormalizedInfoFromS3Key,
+} from "../app/utils/files";
+import {
   INITIAL_EXPLICIT_TEST_CONCEPTS,
   INITIAL_STANDALONE_TEST_FILES,
   INITIAL_TEST_ATLASES,
@@ -57,10 +61,6 @@ import {
   makeTestSourceDatasetInfo,
   makeTestSourceStudyOverview,
 } from "./utils";
-import {
-  getFileBaseName,
-  parseNormalizedInfoFromS3Key,
-} from "../app/utils/files";
 
 export async function resetDatabase(initEntities = true): Promise<void> {
   const consoleInfoSpy = jest.spyOn(console, "info").mockImplementation();

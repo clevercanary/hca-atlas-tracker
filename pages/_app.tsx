@@ -1,4 +1,3 @@
-import { JSX } from "react";
 import "@databiosphere/findable-ui";
 import { AzulEntitiesStaticResponse } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { Error } from "@databiosphere/findable-ui/lib/components/Error/error";
@@ -25,6 +24,7 @@ import { config } from "app/config/config";
 import { NextPage } from "next";
 import { Session } from "next-auth";
 import type { AppProps } from "next/app";
+import { JSX } from "react";
 import { AuthorizationProvider } from "../app/providers/authorization";
 import { mergeAppTheme } from "../app/theme/theme";
 import { BREAKPOINTS } from "../site-config/common/constants";

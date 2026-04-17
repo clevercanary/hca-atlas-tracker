@@ -1,4 +1,4 @@
-import { JSX, Fragment } from "react";
+import { Fragment, JSX } from "react";
 import { useEntity } from "../../../../providers/entity/hook";
 import { EntityData } from "../../entities";
 import { EntityValidationReport } from "./components/EntityValidationReport/entityValidationReport";

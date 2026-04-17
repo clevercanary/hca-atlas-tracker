@@ -1,13 +1,13 @@
+import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
+import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { JSX } from "react";
+import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
+import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
+import { StyledToolbar } from "../../../../components/Table/components/TableToolbar/tableToolbar.styles";
 import { useEntity } from "../../../../providers/entity/hook";
 import { Entity } from "../../entities";
-import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { useIntegratedObjectSourceDatasetsTable } from "./hooks/UseIntegratedObjectSourceDatasetsTable/hook";
-import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
-import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
-import { StyledToolbar } from "../../../../components/Table/components/TableToolbar/tableToolbar.styles";
-import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { ViewComponentAtlasSourceDatasetsSelection } from "../ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
+import { useIntegratedObjectSourceDatasetsTable } from "./hooks/UseIntegratedObjectSourceDatasetsTable/hook";
 
 export const Table = (): JSX.Element => {
   const { access, table } = useIntegratedObjectSourceDatasetsTable();

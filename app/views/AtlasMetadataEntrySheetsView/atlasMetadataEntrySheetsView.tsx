@@ -1,8 +1,8 @@
-import { JSX } from "react";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Button } from "@mui/material";
+import { JSX } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";

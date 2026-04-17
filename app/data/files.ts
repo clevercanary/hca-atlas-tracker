@@ -15,8 +15,8 @@ import {
 import { getPublishedFromPublishedAt } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
 import { query } from "../services/database";
-import { confirmQueryRowsContainIds } from "../utils/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { confirmQueryRowsContainIds } from "../utils/database";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {

@@ -1,6 +1,6 @@
-import { JSX } from "react";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { SvgIcon, SvgIconProps } from "@mui/material";
+import { JSX } from "react";
 
 /**
  * Custom partially complete icon.

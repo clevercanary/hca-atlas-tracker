@@ -3,13 +3,13 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBConcept,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { NotFoundError } from "../utils/api-handler";
 import {
   createConcept,
   getAtlasesMatchingConceptAndRevision,
   getConcept,
   getConceptIdByInfo,
 } from "../data/concepts";
+import { NotFoundError } from "../utils/api-handler";
 
 /**
  * Get an existing concept ID if it exists, or create a new concept otherwise.

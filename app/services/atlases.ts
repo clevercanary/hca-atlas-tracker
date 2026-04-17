@@ -18,24 +18,24 @@ import {
   getPublishedFromPublishedAt,
   isUuid,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { normalizeDoi } from "../utils/doi";
-import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import {
   atlasIsLatestRevision,
   changeAtlasToPublished,
-  getAtlasIdBySlugNameAndVersion,
+  CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE,
   createAtlasRevision,
   getAdvisoryLockForAtlas,
+  getAtlasIdBySlugNameAndVersion,
   getAtlasInfoFromIdBasedQuery,
   getAtlasNotFoundError,
   getAtlasPublishedAt,
   getAtlasSourceStudyIds,
-  CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE,
 } from "../data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
-import { parseAtlasNameUrlSlug, slugifyAtlasShortName } from "../utils/atlases";
 import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
+import { parseAtlasNameUrlSlug, slugifyAtlasShortName } from "../utils/atlases";
+import { normalizeDoi } from "../utils/doi";
+import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { doTransaction, mapDatabaseError, query } from "./database";
 import { updateSourceStudyValidationsByEntityIds } from "./source-studies";
 

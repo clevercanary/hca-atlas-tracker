@@ -21,10 +21,10 @@ import {
   SYSTEM,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../app/services/database";
+import { slugifyAtlasShortName } from "../app/utils/atlases";
 import snsHandler from "../pages/api/sns";
 import { getFileFromDatabase } from "./db-utils";
 import { expectIsDefined } from "./utils";
-import { slugifyAtlasShortName } from "../app/utils/atlases";
 
 export const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
 export const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";

@@ -7,18 +7,18 @@ jest.mock("../app/hooks/useFetchData");
 jest.mock("../app/hooks/useResetFetchStatus");
 jest.mock("../app/providers/entity/hook");
 
+import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useDeleteData } from "../app/hooks/useDeleteData";
+import { FETCH_PROGRESS, useFetchData } from "../app/hooks/useFetchData";
 import { useFetchDataState } from "../app/hooks/useFetchDataState";
-import { useFetchData, FETCH_PROGRESS } from "../app/hooks/useFetchData";
 import { useEntity } from "../app/providers/entity/hook";
-import { useEditIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
-import { useFetchIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
 import {
   renderFileName,
   renderPublicationString,
 } from "../app/views/IntegratedObjectSourceDatasetsView/components/Table/viewBuilders";
 import { IntegratedObjectSourceDataset } from "../app/views/IntegratedObjectSourceDatasetsView/entities";
-import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { useEditIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
+import { useFetchIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
 
 // Type mocks
 const mockUseDeleteData = useDeleteData as jest.MockedFunction<

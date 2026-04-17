@@ -1,8 +1,8 @@
+import pg from "pg";
 import { HCAAtlasTrackerDBAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
 import { AtlasSlugNameAndVersion } from "../utils/atlases";
-import pg from "pg";
 
 export const CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE =
   "atlases_slug_version_unique";

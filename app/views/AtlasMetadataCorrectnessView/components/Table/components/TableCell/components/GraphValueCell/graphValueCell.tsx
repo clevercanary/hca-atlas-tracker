@@ -1,7 +1,7 @@
-import { JSX } from "react";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Tooltip, Typography } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
+import { JSX } from "react";
 import { HeatmapEntrySheet } from "../../../../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TOOLTIP_PROPS } from "./constants";
 import { StyledBox } from "./graphValueCell.styles";

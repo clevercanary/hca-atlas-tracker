@@ -1,8 +1,8 @@
-import { JSX } from "react";
 import { LoadingIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/LoadingIcon/loadingIcon";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Stack, Typography } from "@mui/material";
+import { JSX } from "react";
 import { Section } from "../../section";
 import { StyledCode } from "./codeSection.styles";
 import { Props } from "./entities";

@@ -1,6 +1,6 @@
-import { JSX } from "react";
 import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { ContentView } from "@databiosphere/findable-ui/lib/views/ContentView/contentView";
+import { JSX } from "react";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { FilesAdminForm } from "../../components/Forms/components/FilesAdmin/filesAdmin";

@@ -1,7 +1,7 @@
-import { JSX } from "react";
 import { LoginView } from "@databiosphere/findable-ui/lib/views/LoginView/loginView";
 import { GetServerSideProps } from "next";
 import { ClientSafeProvider, getProviders } from "next-auth/react";
+import { JSX } from "react";
 
 interface LoginPageProps {
   providers: ClientSafeProvider[];

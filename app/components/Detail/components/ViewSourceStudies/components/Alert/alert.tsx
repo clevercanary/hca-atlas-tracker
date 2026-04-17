@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { AlertTitle } from "@mui/material";
+import { JSX } from "react";
 import { StyledAlert } from "./alert.styles";
 import { ALERT_PROPS } from "./constants";
 

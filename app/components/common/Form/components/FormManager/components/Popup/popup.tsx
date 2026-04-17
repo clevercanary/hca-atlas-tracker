@@ -2,13 +2,13 @@ import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/b
 import { Button } from "@mui/material";
 import { JSX, ReactNode } from "react";
 import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
-import { PopupContent } from "./components/PopupContent/popupContent";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from "../../../../../ConfirmationDialog/confirmationDialog.styles";
+import { PopupContent } from "./components/PopupContent/popupContent";
 
 interface PopupProps extends FormManager {
   content?: ReactNode;

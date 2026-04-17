@@ -1,5 +1,5 @@
-import { JSX } from "react";
 import { TypographyProps } from "@databiosphere/findable-ui/lib/components/common/Typography/common/entities";
+import { JSX } from "react";
 import { NetworkKey } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getBioNetworkByKey,

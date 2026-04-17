@@ -1,6 +1,6 @@
-import { JSX } from "react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
+import { JSX } from "react";
 import { PathParameter } from "../../../../app/common/entities";
 import { SourceStudiesView } from "../../../../app/views/SourceStudiesView/sourceStudiesView";
 

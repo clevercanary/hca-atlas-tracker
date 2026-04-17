@@ -1,8 +1,8 @@
-import { JSX } from "react";
 import {
   Link,
   LinkProps,
 } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { JSX } from "react";
 import { LinksList } from "./linksCell.styles";
 
 export interface LinksProps {

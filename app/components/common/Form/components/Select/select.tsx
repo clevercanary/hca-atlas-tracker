@@ -1,5 +1,5 @@
 import { Select as MSelect, SelectProps as MSelectProps } from "@mui/material";
-import { JSX, forwardRef, ReactNode } from "react";
+import { forwardRef, JSX, ReactNode } from "react";
 import { FormControl } from "../FormControl/formControl.styles";
 import { FormHelperText } from "../FormHelperText/formHelperText";
 import { FormLabel } from "../FormLabel/formLabel";

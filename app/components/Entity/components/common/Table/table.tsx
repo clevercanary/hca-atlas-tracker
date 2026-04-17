@@ -1,4 +1,3 @@
-import { JSX } from "react";
 import { TableBody } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/components/TableBody/tableBody";
 import { TableHead } from "@databiosphere/findable-ui/lib/components/Table/components/TableHead/tableHead";
 import { GridTable } from "@databiosphere/findable-ui/lib/components/Table/table.styles";
@@ -6,6 +5,7 @@ import { getColumnTrackSizing } from "@databiosphere/findable-ui/lib/components/
 import { useCurrentBreakpoint } from "@databiosphere/findable-ui/lib/hooks/useCurrentBreakpoint";
 import { TableContainer } from "@mui/material";
 import { RowData } from "@tanstack/react-table";
+import { JSX } from "react";
 import { Props } from "./types";
 import { getRowDirection } from "./utils";
 

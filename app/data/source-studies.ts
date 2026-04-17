@@ -1,8 +1,8 @@
+import pg from "pg";
 import {
   GoogleSheetInfo,
   HCAAtlasTrackerDBSourceStudy,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import pg from "pg";
 
 /**
  * Set the metadata spreadsheet list of a source study.
