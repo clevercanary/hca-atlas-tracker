@@ -78,7 +78,7 @@ const GENE_COUNT: CommonControllerConfig = {
 const PUBLICATION_STATUS: CommonControllerConfig = {
   inputProps: {
     isFullWidth: true,
-    label: "Publication Status",
+    label: "Study Status",
     readOnly: true,
   },
   name: FIELD_NAME.PUBLICATION_STATUS,
@@ -87,7 +87,7 @@ const PUBLICATION_STATUS: CommonControllerConfig = {
 const PUBLISHED_AT: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
-    label: "Date Published",
+    label: "Release Date",
     readOnly: true,
   },
   name: FIELD_NAME.PUBLISHED_AT,

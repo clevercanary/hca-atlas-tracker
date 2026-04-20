@@ -76,7 +76,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   PROJECT_TITLE: "Project Title",
   PUBLICATION: "Publication",
   PUBLICATION_STRING: "Source Study",
-  PUBLISHED_AT: "Published At",
+  PUBLISHED_AT: "Release Date",
   RELATED_ENTITY_URL: "Resource",
   RESOLVED_AT: "Completed At",
   ROLE: "Role",

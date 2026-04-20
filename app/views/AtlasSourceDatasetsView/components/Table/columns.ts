@@ -118,13 +118,13 @@ const COLUMN_FILE_EVENT_TIME = {
 const COLUMN_PUBLISHED_AT = {
   accessorKey: "publishedAt",
   cell: ({ row }) => C.BasicCell(buildPublishedAt(row.original)),
-  header: "Published At",
+  header: "Release Date",
   meta: { width: { max: "1fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_PUBLICATION_STATUS = {
   accessorKey: "publicationStatus",
-  header: "Publication Status",
+  header: "Study Status",
   meta: { width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
 

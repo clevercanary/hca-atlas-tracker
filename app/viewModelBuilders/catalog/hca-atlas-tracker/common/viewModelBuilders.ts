@@ -983,7 +983,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     {
       accessorKey: "publishedAt",
       cell: ({ row }) => C.BasicCell(buildPublishedAt(row.original)),
-      header: "Published At",
+      header: "Release Date",
       meta: { width: { max: "1fr", min: "160px" } },
     },
     getIntegratedObjectValidationStatusColumnDef(),

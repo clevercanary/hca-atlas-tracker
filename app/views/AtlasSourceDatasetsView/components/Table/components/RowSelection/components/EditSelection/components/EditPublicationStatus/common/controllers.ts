@@ -14,6 +14,6 @@ export const PUBLICATION_STATUS: CommonControllerConfig = {
   selectProps: {
     SelectComponent: PublicationStatus,
     displayEmpty: true,
-    label: "Publication Status",
+    label: "Study Status",
   },
 };
