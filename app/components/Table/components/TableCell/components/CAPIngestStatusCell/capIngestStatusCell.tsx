@@ -8,11 +8,7 @@ import { buildCAPIngestStatus } from "./utils";
 export const CAPIngestStatusCell = ({ row }: Props): JSX.Element | null => {
   const status = row.original.capIngestStatus;
   const tooltip = CAP_INGEST_STATUS_TOOLTIP[status];
-  return (
-    <Tooltip title={tooltip}>
-      <span>
-        <ChipCell {...buildCAPIngestStatus({ row })} />
-      </span>
-    </Tooltip>
-  );
+  const chipCell = <ChipCell {...buildCAPIngestStatus({ row })} />;
+  if (!tooltip) return chipCell;
+  return <Tooltip title={tooltip}>{chipCell}</Tooltip>;
 };
