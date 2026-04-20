@@ -7,14 +7,22 @@ export const CAP_INGEST_STATUS_COLOR: Record<
   ChipProps["color"]
 > = {
   CAP_READY: CHIP_PROPS.COLOR.SUCCESS,
+  CAP_VALIDATION_FAILED: CHIP_PROPS.COLOR.ERROR,
+  INFO_REQUIRED: CHIP_PROPS.COLOR.WARNING,
   NEEDS_VALIDATION: CHIP_PROPS.COLOR.WARNING,
   NOT_REQUIRED: CHIP_PROPS.COLOR.DEFAULT,
-  UPDATES_REQUIRED: CHIP_PROPS.COLOR.ERROR,
 };
 
 export const CAP_INGEST_STATUS_LABEL: Record<CAP_INGEST_STATUS, string> = {
   CAP_READY: "CAP Ready",
+  CAP_VALIDATION_FAILED: "CAP Validation Failed",
+  INFO_REQUIRED: "Info Required",
   NEEDS_VALIDATION: "Needs Validation",
   NOT_REQUIRED: "Not Required",
-  UPDATES_REQUIRED: "Updates Required",
+};
+
+export const CAP_INGEST_STATUS_TOOLTIP: Partial<
+  Record<CAP_INGEST_STATUS, string>
+> = {
+  INFO_REQUIRED: "Set the Reprocessed Status to continue",
 };

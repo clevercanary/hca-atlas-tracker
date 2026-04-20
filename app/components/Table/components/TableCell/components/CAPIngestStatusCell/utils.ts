@@ -50,8 +50,8 @@ export function getCapIngestStatus(
       return CAP_INGEST_STATUS.NOT_REQUIRED;
     }
     if (original.reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
-      // Status is "UPDATES_REQUIRED" for unspecified source datasets.
-      return CAP_INGEST_STATUS.UPDATES_REQUIRED;
+      // Status is "INFO_REQUIRED" for unspecified source datasets.
+      return CAP_INGEST_STATUS.INFO_REQUIRED;
     }
   }
 
@@ -65,8 +65,8 @@ export function getCapIngestStatus(
     if (validationSummary.validators.cap) {
       return CAP_INGEST_STATUS.CAP_READY;
     }
-    // Status is "UPDATES_REQUIRED" with completed validation with errors.
-    return CAP_INGEST_STATUS.UPDATES_REQUIRED;
+    // Status is "CAP_VALIDATION_FAILED" with completed validation with errors.
+    return CAP_INGEST_STATUS.CAP_VALIDATION_FAILED;
   }
 
   return CAP_INGEST_STATUS.NEEDS_VALIDATION;
