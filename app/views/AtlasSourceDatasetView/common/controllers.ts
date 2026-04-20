@@ -105,7 +105,7 @@ const SIZE_BYTES: CommonControllerConfig = {
 const TITLE: CommonControllerConfig = {
   inputProps: {
     isFullWidth: true,
-    label: "Title",
+    label: "Dataset Title",
     readOnly: true,
   },
   name: FIELD_NAME.TITLE,

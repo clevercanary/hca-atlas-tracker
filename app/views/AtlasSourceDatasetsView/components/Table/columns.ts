@@ -161,7 +161,7 @@ const COLUMN_TISSUE = {
 const COLUMN_TITLE = {
   accessorKey: "title",
   cell: ({ row }) => C.BasicCell({ value: row.original.title }),
-  header: "Title",
+  header: "Dataset Title",
   meta: { width: { max: "1fr", min: "180px" } },
 } as ColumnDef<AtlasSourceDataset>;
 

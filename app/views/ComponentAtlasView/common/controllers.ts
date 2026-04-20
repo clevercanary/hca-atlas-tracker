@@ -93,7 +93,7 @@ const SIZE_BY_BYTES: CommonControllerConfig = {
 const TITLE: CommonControllerConfig = {
   inputProps: {
     isFullWidth: true,
-    label: "Title",
+    label: "Integrated Object Title",
     readOnly: true,
   },
   name: FIELD_NAME.TITLE,
