@@ -38,7 +38,7 @@ export const EditPublicationStatus = (props: Props): JSX.Element | null => {
           );
         }}
       >
-        Edit Publication Status
+        Edit Study Status
       </MenuItem>
       <StyledDialog
         {...DIALOG_PROPS}
@@ -47,7 +47,7 @@ export const EditPublicationStatus = (props: Props): JSX.Element | null => {
         onTransitionExited={closeMenu}
       >
         <TrackerForm>
-          <DialogTitle title="Edit Publication Status" onClose={onClose} />
+          <DialogTitle title="Edit Study Status" onClose={onClose} />
           <DialogContent dividers>
             <Controllers<PublicationStatusEditData>
               controllerConfigs={[PUBLICATION_STATUS]}

@@ -75,7 +75,7 @@ const GENE_COUNT: CommonControllerConfig = {
 const PUBLISHED_AT: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
-    label: "Date Published",
+    label: "Release Date",
     readOnly: true,
   },
   name: FIELD_NAME.PUBLISHED_AT,
