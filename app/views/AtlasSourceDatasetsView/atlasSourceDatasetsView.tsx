@@ -8,7 +8,7 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
-import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
@@ -45,7 +45,7 @@ export const AtlasSourceDatasetsView = ({
       <ConditionalComponent
         isIn={shouldRenderView(canView, Boolean(atlas && atlasSourceDatasets))}
       >
-        <DetailView
+        <StyledDetailView
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }

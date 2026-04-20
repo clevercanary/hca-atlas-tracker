@@ -1,6 +1,6 @@
-import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
-import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { JSX } from "react";
+import { Divider } from "@mui/material";
+import { StyledFluidPaper } from "app/components/Table/components/TablePaper/tablePaper.styles";
+import { Fragment, JSX } from "react";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { StyledToolbar } from "../../../../components/Table/components/TableToolbar/tableToolbar.styles";
@@ -18,9 +18,9 @@ export const Table = (): JSX.Element => {
     integratedObjectSourceDatasets = [],
   } = data;
   return (
-    <FluidPaper elevation={0}>
-      <GridPaper>
-        {access?.canEdit && (
+    <StyledFluidPaper elevation={0}>
+      {access?.canEdit && (
+        <Fragment>
           <StyledToolbar>
             <ViewComponentAtlasSourceDatasetsSelection
               componentAtlasIsArchived={componentAtlas?.isArchived ?? false}
@@ -29,13 +29,14 @@ export const Table = (): JSX.Element => {
               atlasSourceDatasets={atlasSourceDatasets}
             />
           </StyledToolbar>
-        )}
-        {table.getRowCount() > 0 && <CommonTable table={table} />}
-        <TablePlaceholder
-          message="No linked source datasets"
-          rowCount={table.getRowCount()}
-        />
-      </GridPaper>
-    </FluidPaper>
+          <Divider />
+        </Fragment>
+      )}
+      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      <TablePlaceholder
+        message="No linked source datasets"
+        rowCount={table.getRowCount()}
+      />
+    </StyledFluidPaper>
   );
 };
