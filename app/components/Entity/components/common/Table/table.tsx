@@ -12,6 +12,7 @@ import { getRowDirection } from "./utils";
 export const Table = <T extends RowData>({
   className,
   gridTemplateColumns,
+  stickyHeader = false,
   table,
 }: Props<T>): JSX.Element => {
   const bp = useCurrentBreakpoint();
@@ -24,6 +25,7 @@ export const Table = <T extends RowData>({
           gridTemplateColumns ||
           getColumnTrackSizing(table.getVisibleFlatColumns())
         }
+        stickyHeader={stickyHeader}
       >
         <TableHead tableInstance={table} />
         <TableBody rowDirection={rowDirection} tableInstance={table} />

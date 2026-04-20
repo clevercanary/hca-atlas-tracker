@@ -1,6 +1,5 @@
-import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
-import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { JSX } from "react";
+import { Divider } from "@mui/material";
+import { Fragment, JSX } from "react";
 import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
@@ -8,27 +7,28 @@ import { TablePlaceholder } from "../../../../components/Table/components/TableP
 import { SOURCE_DATASETS } from "../../hooks/useFetchAtlasSourceDatasets";
 import { EditSelection } from "./components/RowSelection/components/EditSelection/editSelection";
 import { useSourceDatasetsTable } from "./hooks/UseSourceDatasetsTable/hook";
-import { StyledToolbar } from "./table.styles";
+import { StyledFluidPaper, StyledToolbar } from "./table.styles";
 
 export const Table = (): JSX.Element => {
   const { access, table } = useSourceDatasetsTable();
   const { canEdit = false } = access || {};
 
   return (
-    <FluidPaper elevation={0}>
-      <GridPaper>
-        {canEdit && (
+    <StyledFluidPaper elevation={0}>
+      {canEdit && (
+        <Fragment>
           <StyledToolbar>
             <RowSelection component={EditSelection} table={table} />
             <ArchivedStatusToggle fetchKeys={[SOURCE_DATASETS]} />
           </StyledToolbar>
-        )}
-        {table.getRowCount() > 0 && <CommonTable table={table} />}
-        <TablePlaceholder
-          message="No source datasets"
-          rowCount={table.getRowCount()}
-        />
-      </GridPaper>
-    </FluidPaper>
+          <Divider />
+        </Fragment>
+      )}
+      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      <TablePlaceholder
+        message="No source datasets"
+        rowCount={table.getRowCount()}
+      />
+    </StyledFluidPaper>
   );
 };

@@ -10,8 +10,12 @@ import {
 import styled from "@emotion/styled";
 
 export const DetailView = styled(DXBackPageView)`
+  align-content: flex-start;
   gap: 24px 16px;
   grid-template-columns: 1fr;
+  height: 100%;
+  max-height: 100vh;
+  min-height: 0;
 
   ${bpUpSm} {
     grid-template-columns: repeat(12, 1fr);
@@ -24,7 +28,9 @@ export const DetailView = styled(DXBackPageView)`
 `;
 
 export const DetailViewContent = styled(DXBackPageContent)`
+  align-content: flex-start;
   gap: inherit;
+  min-height: 0;
 
   ${bpUpSm} {
     gap: inherit;

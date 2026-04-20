@@ -1,12 +1,11 @@
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
-import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { Button } from "@mui/material";
+import { Button, Divider } from "@mui/material";
 import Link from "next/link";
-import { JSX, useMemo } from "react";
+import { Fragment, JSX, useMemo } from "react";
 import {
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
@@ -70,8 +69,8 @@ export const ViewSourceStudies = ({
       {/* What is a Source Study? */}
       <Alert />
       <StyledFluidPaper elevation={0}>
-        <GridPaper>
-          {canEdit && (
+        {canEdit && (
+          <Fragment>
             <StyledToolbar>
               <Button
                 {...BUTTON_PROPS.SECONDARY_CONTAINED}
@@ -87,24 +86,25 @@ export const ViewSourceStudies = ({
                 Add Source Study
               </Button>
             </StyledToolbar>
-          )}
-          {sourceStudies.length > 0 && (
-            <Table
-              columns={getAtlasSourceStudiesTableColumns(
-                pathParameter,
-                atlasLinkedDatasetsByStudyId,
-              )}
-              gridTemplateColumns="max-content minmax(280px, 1.2fr) minmax(120px, 0.4fr) minmax(200px, 1fr) repeat(2, minmax(180px, 0.75fr))"
-              items={sortedSourceStudies}
-              tableOptions={TABLE_OPTIONS}
-            />
-          )}
-          <TablePlaceholder
-            canEdit={canEdit}
-            message="No source studies"
-            rowCount={sourceStudies.length}
+            <Divider />
+          </Fragment>
+        )}
+        {sourceStudies.length > 0 && (
+          <Table
+            columns={getAtlasSourceStudiesTableColumns(
+              pathParameter,
+              atlasLinkedDatasetsByStudyId,
+            )}
+            gridTemplateColumns="max-content minmax(280px, 1.2fr) minmax(120px, 0.4fr) minmax(200px, 1fr) repeat(2, minmax(180px, 0.75fr))"
+            items={sortedSourceStudies}
+            tableOptions={TABLE_OPTIONS}
           />
-        </GridPaper>
+        )}
+        <TablePlaceholder
+          canEdit={canEdit}
+          message="No source studies"
+          rowCount={sourceStudies.length}
+        />
       </StyledFluidPaper>
     </SubGrid>
   );
