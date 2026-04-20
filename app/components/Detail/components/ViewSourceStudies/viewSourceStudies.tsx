@@ -98,6 +98,7 @@ export const ViewSourceStudies = ({
             gridTemplateColumns="max-content minmax(280px, 1.2fr) minmax(120px, 0.4fr) minmax(200px, 1fr) repeat(2, minmax(180px, 0.75fr))"
             items={sortedSourceStudies}
             tableOptions={TABLE_OPTIONS}
+            tableView={{ table: { stickyHeader: true } }}
           />
         )}
         <TablePlaceholder
