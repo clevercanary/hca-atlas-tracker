@@ -210,7 +210,7 @@ export const FILE_VALIDATOR_NAMES = ["cap", "cellxgene", "hcaSchema"] as const;
 export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
   cap: "CAP",
   cellxgene: "CELLxGENE",
-  hcaSchema: "HCA",
+  hcaSchema: "HCA Tier-1",
 };
 
 export const UNPUBLISHED = "Unpublished";
