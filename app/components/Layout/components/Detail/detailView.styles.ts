@@ -14,7 +14,6 @@ export const DetailView = styled(DXBackPageView)`
   gap: 24px 16px;
   grid-template-columns: 1fr;
   height: 100%;
-  max-height: 100vh;
   min-height: 0;
 
   ${bpUpSm} {

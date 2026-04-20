@@ -7,13 +7,13 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { ViewSourceDatasets } from "../../components/Detail/components/ViewSourceDatasets/viewSourceDatasets";
 import { Actions } from "../../components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "../../components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
-import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { useFetchSourceStudy } from "../SourceStudyView/hooks/useFetchSourceStudy";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
+import { StyledDetailView } from "./sourceDatasetsView.styles";
 
 interface SourceDatasetsViewProps {
   pathParameter: PathParameter;
@@ -37,7 +37,7 @@ export const SourceDatasetsView = ({
           Boolean(atlas && sourceStudy && sourceDatasets),
         )}
       >
-        <DetailView
+        <StyledDetailView
           actions={canEdit && <Actions pathParameter={pathParameter} />}
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />

@@ -10,6 +10,7 @@ export const DetailView = ({
   actions,
   backPath,
   breadcrumbs,
+  className,
   mainColumn,
   status,
   subTitle,
@@ -17,7 +18,7 @@ export const DetailView = ({
   title,
 }: Props): JSX.Element => {
   return (
-    <DetailViewLayout>
+    <DetailViewLayout className={className}>
       <DetailViewHero
         actions={actions}
         backPath={backPath}
