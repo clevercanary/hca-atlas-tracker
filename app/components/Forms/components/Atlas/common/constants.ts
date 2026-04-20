@@ -77,7 +77,7 @@ const STATUS: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> = {
 const PUBLISHED_AT: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> = {
   inputProps: {
     isFullWidth: true,
-    label: "Published at",
+    label: "Release Date",
     readOnly: true,
   },
   name: FIELD_NAME.PUBLISHED_AT,
