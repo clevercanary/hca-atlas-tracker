@@ -7,13 +7,13 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { ViewSourceDatasets } from "../../components/Detail/components/ViewSourceDatasets/viewSourceDatasets";
 import { Actions } from "../../components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "../../components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
+import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { useFetchSourceStudy } from "../SourceStudyView/hooks/useFetchSourceStudy";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
-import { StyledDetailView } from "./sourceDatasetsView.styles";
 
 interface SourceDatasetsViewProps {
   pathParameter: PathParameter;
