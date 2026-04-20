@@ -21,6 +21,11 @@ export class S3KeyFormatError extends Error {
   name = "S3KeyFormatError";
 }
 
+const EXTENSION_REGEX = /\.[^.]+$/;
+const BEFORE_EXTENSION_REGEX = /(?=\.[^.]+$)/;
+const VERSION_SUFFIX_REGEX =
+  /(?:-r\d+(?:-wip-\d+)?(?:-edit-.+)?|-edit-.+)(?=\.[^.]+$)/;
+
 /**
  * Parses S3 key path into standardized components
  * @param s3Key - The S3 object key to parse
@@ -107,7 +112,7 @@ export function insertVersionInFilename(
   baseFilename: string,
   versionString: string,
 ): string {
-  return baseFilename.replace(/(?=\.[^.]+$)/, "-" + versionString);
+  return baseFilename.replace(BEFORE_EXTENSION_REGEX, "-" + versionString);
 }
 
 /**
@@ -116,10 +121,17 @@ export function insertVersionInFilename(
  * @returns filename with version and edit suffixes stripped.
  */
 export function getFileBaseName(filename: string): string {
-  return filename.replace(
-    /(?:-r\d+(?:-wip-\d+)?(?:-edit-.+)?|-edit-.+)(?=\.[^.]+$)/,
-    "",
-  );
+  return filename.replace(VERSION_SUFFIX_REGEX, "");
+}
+
+/**
+ * Get the extension, including separating dot, from a filename, returning empty string if none is found.
+ * @param filename - Filename to get extension from.
+ * @returns extension.
+ */
+export function getFileExtension(filename: string): string {
+  const match = EXTENSION_REGEX.exec(filename);
+  return match?.[0] ?? "";
 }
 
 /**
