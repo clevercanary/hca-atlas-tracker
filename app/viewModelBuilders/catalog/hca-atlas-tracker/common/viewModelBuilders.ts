@@ -1101,7 +1101,7 @@ function getComponentAtlasSourceDatasetsSelectionTitleColumnDef(): ColumnDef<HCA
       C.BasicCell({
         value: row.original.title,
       }),
-    header: "Title",
+    header: "Dataset Title",
   };
 }
 
@@ -1197,7 +1197,7 @@ function getComponentAtlasSourceDatasetCountColumnDef(): ColumnDef<AtlasIntegrat
 function getComponentAtlasTitleColumnDef(): ColumnDef<AtlasIntegratedObject> {
   return {
     accessorKey: "title",
-    header: "Title",
+    header: "Integrated Object Title",
     meta: { width: { max: "1fr", min: "136px" } },
   };
 }
@@ -1406,7 +1406,7 @@ function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDatase
       C.BasicCell({
         value: row.original.title,
       }),
-    header: "Title",
+    header: "Dataset Title",
     meta: { columnPinned: true },
   };
 }
