@@ -56,7 +56,7 @@ function getClassHeatmap(
       return {
         name: ddAttribute.name,
         organSpecific: false,
-        required: ddAttribute.required,
+        required: Boolean(ddAttribute.required),
         title: ddAttribute.title,
       };
     }),

@@ -1,4 +1,4 @@
-import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
+import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { ContentView } from "@databiosphere/findable-ui/lib/views/ContentView/contentView";
 import { JSX } from "react";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
