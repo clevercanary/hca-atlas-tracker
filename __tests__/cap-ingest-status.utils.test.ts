@@ -18,14 +18,14 @@ describe("getCapIngestStatus", () => {
     expect(status).toBe(CAP_INGEST_STATUS.NOT_REQUIRED);
   });
 
-  it("returns UPDATES_REQUIRED for unspecified reprocessed status", () => {
+  it("returns INFO_REQUIRED for unspecified reprocessed status", () => {
     const status = getCapIngestStatus(
       createSourceDataset({
         reprocessedStatus: REPROCESSED_STATUS.UNSPECIFIED,
       }),
     );
 
-    expect(status).toBe(CAP_INGEST_STATUS.UPDATES_REQUIRED);
+    expect(status).toBe(CAP_INGEST_STATUS.INFO_REQUIRED);
   });
 
   it("returns NEEDS_VALIDATION when validation is completed without summary", () => {
@@ -53,7 +53,7 @@ describe("getCapIngestStatus", () => {
     expect(status).toBe(CAP_INGEST_STATUS.CAP_READY);
   });
 
-  it("returns UPDATES_REQUIRED when validation completed with errors", () => {
+  it("returns CAP_VALIDATION_FAILED when validation completed with errors", () => {
     const status = getCapIngestStatus(
       createComponentAtlas({
         validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
@@ -64,7 +64,7 @@ describe("getCapIngestStatus", () => {
       }),
     );
 
-    expect(status).toBe(CAP_INGEST_STATUS.UPDATES_REQUIRED);
+    expect(status).toBe(CAP_INGEST_STATUS.CAP_VALIDATION_FAILED);
   });
 
   it("returns NEEDS_VALIDATION when validation is not completed", () => {
