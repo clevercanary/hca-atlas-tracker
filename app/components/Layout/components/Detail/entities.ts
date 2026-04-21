@@ -1,7 +1,9 @@
+import { BaseComponentProps } from "@databiosphere/findable-ui/lib/components/types";
 import { ComponentProps, ReactNode } from "react";
 import { BackButton } from "./components/DetailViewHero/components/BackButton/backButton";
 
-export interface Props extends ComponentProps<typeof BackButton> {
+export interface Props
+  extends ComponentProps<typeof BackButton>, BaseComponentProps {
   actions?: ReactNode;
   breadcrumbs?: ReactNode;
   mainColumn: ReactNode;

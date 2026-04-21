@@ -1,5 +1,4 @@
-import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
-import { JSX } from "react";
+import { Fragment, JSX } from "react";
 import { EditFileArchivedStatus } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import { RowSelection } from "../../../../components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "../../../../components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
@@ -8,6 +7,7 @@ import { ATLAS } from "../../../../hooks/useFetchAtlas";
 import { INTEGRATED_OBJECTS } from "../../../../views/ComponentAtlasesView/hooks/useFetchComponentAtlases";
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
+import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
 import { StyledToolbar } from "./viewComponentAtlases.styles";
@@ -20,8 +20,8 @@ export const ViewComponentAtlases = (): JSX.Element => {
 
   return (
     <StyledFluidPaper elevation={0}>
-      <GridPaper>
-        {canEdit && (
+      {canEdit && (
+        <Fragment>
           <StyledToolbar>
             <RowSelection
               component={(props) =>
@@ -34,13 +34,14 @@ export const ViewComponentAtlases = (): JSX.Element => {
             />
             <ArchivedStatusToggle fetchKeys={[INTEGRATED_OBJECTS]} />
           </StyledToolbar>
-        )}
-        {table.getRowCount() > 0 && <CommonTable table={table} />}
-        <TablePlaceholder
-          message="No integrated objects"
-          rowCount={table.getRowCount()}
-        />
-      </GridPaper>
+          <Divider />
+        </Fragment>
+      )}
+      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      <TablePlaceholder
+        message="No integrated objects"
+        rowCount={table.getRowCount()}
+      />
     </StyledFluidPaper>
   );
 };

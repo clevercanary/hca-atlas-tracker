@@ -1,6 +1,5 @@
-import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
-import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { useReactTable } from "@tanstack/react-table";
+import { StyledFluidPaper } from "app/components/Table/components/TablePaper/tablePaper.styles";
 import { JSX } from "react";
 import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
 import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
@@ -24,14 +23,12 @@ export const Table = (props: Props): JSX.Element => {
   });
 
   return (
-    <FluidPaper elevation={0}>
-      <GridPaper>
-        {table.getRowCount() > 0 && <CommonTable table={table} />}
-        <TablePlaceholder
-          message="No metadata entry sheets"
-          rowCount={table.getRowCount()}
-        />
-      </GridPaper>
-    </FluidPaper>
+    <StyledFluidPaper elevation={0}>
+      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      <TablePlaceholder
+        message="No metadata entry sheets"
+        rowCount={table.getRowCount()}
+      />
+    </StyledFluidPaper>
   );
 };

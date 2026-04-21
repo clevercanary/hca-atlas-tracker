@@ -6,7 +6,7 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
-import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
@@ -19,7 +19,6 @@ import { useEditIntegratedObjectSourceDatasets } from "./hooks/useEditIntegrated
 import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/useFetchAssociatedAtlasSourceDatasets";
 import { useFetchIntegratedObjectSourceDatasets } from "./hooks/useFetchIntegratedObjectSourceDatasets";
 import { EditIntegratedObjectSourceDatasetsContext } from "./providers/editIntegratedObjectSourceDatasets/context";
-
 interface Props {
   pathParameter: PathParameter;
 }
@@ -55,7 +54,7 @@ export const IntegratedObjectSourceDatasetsView = ({
         <ConditionalComponent
           isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
         >
-          <DetailView
+          <StyledDetailView
             breadcrumbs={
               <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
             }

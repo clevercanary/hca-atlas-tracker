@@ -11,6 +11,8 @@ export const StyledSection = styled.div<Props>`
   gap: 16px;
   grid-column: 1 / -1;
   grid-template-columns: inherit;
+  height: 100%;
+  min-height: 0;
 
   ${bpUpSm} {
     gap: inherit;
