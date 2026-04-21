@@ -30,7 +30,7 @@ export const ViewSourceDatasets = ({
           <Table
             columns={getAtlasSourceStudySourceDatasetsTableColumns()}
             gridTemplateColumns="max-content max-content minmax(240px, 1.6fr) repeat(4, minmax(128px, 1fr)) minmax(124px, .75fr)"
-            items={sourceDatasets.sort(sortSourceDataset)}
+            items={[...sourceDatasets].sort(sortSourceDataset)}
             tableOptions={TABLE_OPTIONS}
           />
         )}
