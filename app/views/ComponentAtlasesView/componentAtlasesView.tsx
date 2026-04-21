@@ -7,13 +7,12 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewComponentAtlases } from "../../components/Detail/components/ViewComponentAtlases/viewComponentAtlases";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
-import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchComponentAtlases } from "./hooks/useFetchComponentAtlases";
-
 interface ComponentAtlasesViewProps {
   pathParameter: PathParameter;
 }
@@ -36,7 +35,7 @@ export const ComponentAtlasesView = ({
       <ConditionalComponent
         isIn={shouldRenderView(canView, Boolean(atlas && componentAtlases))}
       >
-        <DetailView
+        <StyledDetailView
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }

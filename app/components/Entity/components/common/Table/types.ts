@@ -3,5 +3,6 @@ import { RowData, Table } from "@tanstack/react-table";
 
 export interface Props<T extends RowData> extends BaseComponentProps {
   gridTemplateColumns?: string;
+  stickyHeader?: boolean;
   table: Table<T>;
 }

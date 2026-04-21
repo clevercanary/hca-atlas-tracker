@@ -1,5 +1,4 @@
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
-import { GridPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/paper.styles";
 import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
@@ -25,20 +24,19 @@ export const ViewSourceDatasets = ({
   if (!canView) return <RequestAccess />;
   return (
     <StyledFluidPaper elevation={0}>
-      <GridPaper>
-        {sourceDatasets.length > 0 && (
-          <Table
-            columns={getAtlasSourceStudySourceDatasetsTableColumns()}
-            gridTemplateColumns="max-content max-content minmax(240px, 1.6fr) repeat(4, minmax(128px, 1fr)) minmax(124px, .75fr)"
-            items={sourceDatasets.sort(sortSourceDataset)}
-            tableOptions={TABLE_OPTIONS}
-          />
-        )}
-        <TablePlaceholder
-          message="No source datasets"
-          rowCount={sourceDatasets.length}
+      {sourceDatasets.length > 0 && (
+        <Table
+          columns={getAtlasSourceStudySourceDatasetsTableColumns()}
+          gridTemplateColumns="max-content max-content minmax(240px, 1.6fr) repeat(4, minmax(128px, 1fr)) minmax(124px, .75fr)"
+          items={sourceDatasets.sort(sortSourceDataset)}
+          tableOptions={TABLE_OPTIONS}
+          tableView={{ table: { stickyHeader: true } }}
         />
-      </GridPaper>
+      )}
+      <TablePlaceholder
+        message="No source datasets"
+        rowCount={sourceDatasets.length}
+      />
     </StyledFluidPaper>
   );
 };
