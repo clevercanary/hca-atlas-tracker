@@ -1,4 +1,6 @@
+import { getFileExtension } from "app/utils/files";
 import pg from "pg";
+import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBConcept,
@@ -8,8 +10,10 @@ import {
   getAtlasesMatchingConceptAndRevision,
   getConcept,
   getConceptIdByInfo,
+  setConceptBaseFilename,
 } from "../data/concepts";
 import { NotFoundError } from "../utils/api-handler";
+import { mapDatabaseError } from "./database";
 
 /**
  * Get an existing concept ID if it exists, or create a new concept otherwise.
@@ -80,4 +84,39 @@ async function getConceptAtlasInfoString(
 ): Promise<string> {
   const concept = await getConcept(conceptId, client);
   return `${concept.atlas_short_name} v${concept.generation} in ${concept.network} network`;
+}
+
+/**
+ * Update a concept's base filename based on a specified download name, if it's changed, and call a specified function before any actual update occurs.
+ * @param conceptId - ID of the concept to update.
+ * @param newDownloadName - New download name to derive a new base filename from.
+ * @param beforeUpdate - Optional function to call before an update that would change the value occurs.
+ * @param client - Postgres client to use.
+ */
+export async function updateDownloadNameIfChanged(
+  conceptId: string,
+  newDownloadName: string,
+  beforeUpdate: (() => void) | null,
+  client: pg.PoolClient,
+): Promise<void> {
+  const { base_filename: existingBaseFilename } = await getConcept(
+    conceptId,
+    client,
+  );
+  const newBaseFilename =
+    newDownloadName + getFileExtension(existingBaseFilename);
+  if (newBaseFilename === existingBaseFilename) return;
+
+  beforeUpdate?.();
+
+  await mapDatabaseError(
+    () => setConceptBaseFilename(conceptId, newBaseFilename, client),
+    () =>
+      new ValidationError(
+        `A file with download name ${JSON.stringify(newDownloadName)} already exists for this atlas generation`,
+        undefined,
+        "downloadName",
+      ),
+    { constraint: "idx_concepts_identity_fields" },
+  );
 }
