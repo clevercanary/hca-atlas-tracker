@@ -1,6 +1,6 @@
 import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
-import { parseS3KeyPath } from "../../../../utils/files";
+import { parseS3KeyPath, removeFileExtension } from "../../../../utils/files";
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerAtlasSummary,
@@ -118,6 +118,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     capUrl: dbComponentAtlas.component_info.capUrl,
     cellCount: dbComponentAtlas.dataset_info?.cellCount ?? 0,
     disease: dbComponentAtlas.dataset_info?.disease ?? [],
+    downloadName: removeFileExtension(dbComponentAtlas.base_filename),
     fileEventTime: dbComponentAtlas.event_info.eventTime,
     fileId: dbComponentAtlas.file_id,
     fileName: parseS3KeyPath(dbComponentAtlas.key).filename,
@@ -213,6 +214,7 @@ export function dbSourceDatasetToApiSourceDataset(
     createdAt: dbSourceDataset.created_at.toISOString(),
     disease: dbSourceDataset.dataset_info?.disease ?? [],
     doi: dbSourceDataset.doi,
+    downloadName: removeFileExtension(dbSourceDataset.base_filename),
     fileEventTime: dbSourceDataset.event_info.eventTime,
     fileId: dbSourceDataset.file_id,
     fileName: parseS3KeyPath(dbSourceDataset.key).filename,
