@@ -125,6 +125,15 @@ export function getFileBaseName(filename: string): string {
 }
 
 /**
+ * Drop the extension from a filename.
+ * @param filename - Filename to remove extension from.
+ * @returns filename without extension.
+ */
+export function removeFileExtension(filename: string): string {
+  return filename.replace(EXTENSION_REGEX, "");
+}
+
+/**
  * Get the extension, including separating dot, from a filename, returning empty string if none is found.
  * @param filename - Filename to get extension from.
  * @returns extension.
