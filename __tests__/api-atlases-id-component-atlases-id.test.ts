@@ -39,6 +39,7 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
   expectDetailApiComponentAtlasToMatchTest,
+  getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -54,14 +55,17 @@ jest.mock("next-auth");
 
 const MISC_FOO_EDIT_DATA = {
   capUrl: "https://celltype.info/project/982834/dataset/325453",
+  downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_FOO),
 } satisfies ComponentAtlasEditData;
 
 const MISC_BAR_EDIT_DATA = {
   capUrl: "https://celltype.info/project/234782/dataset/645632",
+  downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_BAR),
 } satisfies ComponentAtlasEditData;
 
 const MISC_BAZ_EDIT_DATA = {
   capUrl: "",
+  downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_BAZ),
 } satisfies ComponentAtlasEditData;
 
 const TEST_ROUTE =
@@ -430,7 +434,12 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 400 when PATCH requested with component atlas that the atlas does not have the latest version of", async () => {
-    const editData = { capUrl: null } satisfies ComponentAtlasEditData;
+    const editData = {
+      capUrl: null,
+      downloadName: getTestEntityDownloadName(
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+      ),
+    } satisfies ComponentAtlasEditData;
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
@@ -524,6 +533,9 @@ describe(TEST_ROUTE, () => {
   it("updates component atlas when PATCH requested from atlas that is linked to its latest version", async () => {
     const editData = {
       capUrl: "https://celltype.info/project/928342/dataset/458432",
+      downloadName: getTestEntityDownloadName(
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+      ),
     } satisfies ComponentAtlasEditData;
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,

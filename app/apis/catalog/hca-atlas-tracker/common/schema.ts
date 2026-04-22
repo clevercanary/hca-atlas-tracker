@@ -332,6 +332,7 @@ export type SourceStudyEditData =
  */
 export const componentAtlasEditSchema = object({
   capUrl: capDatasetUrlSchema,
+  downloadName: string().required(),
 }).strict();
 
 export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
@@ -341,6 +342,7 @@ export type ComponentAtlasEditData = InferType<typeof componentAtlasEditSchema>;
  */
 export const atlasSourceDatasetEditSchema = object({
   capUrl: capDatasetUrlSchema,
+  downloadName: string().required(),
   metadataSpreadsheetUrl: string()
     .matches(GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX)
     .nullable(),

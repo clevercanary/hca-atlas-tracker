@@ -45,6 +45,7 @@ import {
 import { TestUser } from "../testing/entities";
 import {
   expectDetailApiSourceDatasetToMatchTest,
+  getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -78,20 +79,24 @@ const SOURCE_DATASET_ID_NONEXISTENT = "52281fde-232c-4481-8b45-cc986570e7b9";
 
 const A_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: null,
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_ATLAS_LINKED_A_FOO),
   metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/d/sheet-bar",
 };
 
 const B_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: null,
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_ATLAS_LINKED_B_BAR),
   metadataSpreadsheetUrl: "",
 };
 
 const A_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: "https://celltype.info/project/534534/dataset/234727",
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_ATLAS_LINKED_A_BAR),
 };
 
 const WSS_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: "",
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_WITH_SOURCE_STUDY_FOO),
 };
 
 beforeAll(async () => {
@@ -465,6 +470,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
   it("returns error 400 when PATCH requested with source dataset with non-latest version linked to the atlas", async () => {
     const editData = {
       capUrl: "https://celltype.info/project/376345/dataset/745632",
+      downloadName: getTestEntityDownloadName(
+        SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      ),
     } satisfies AtlasSourceDatasetEditData;
     expect(
       (
