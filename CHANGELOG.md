@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.63.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.63.0...v1.63.1) (2026-04-22)
+
+
+### Bug Fixes
+
+* bump Validation Summary min-width from 180px to 200px ([#1190](https://github.com/clevercanary/hca-atlas-tracker/issues/1190)) ([c7cb81d](https://github.com/clevercanary/hca-atlas-tracker/commit/c7cb81d22b019d183049e8a26fb5424d2a300fd7))
+* bump Validation Summary min-width to 200px ([#1192](https://github.com/clevercanary/hca-atlas-tracker/issues/1192)) ([c7cb81d](https://github.com/clevercanary/hca-atlas-tracker/commit/c7cb81d22b019d183049e8a26fb5424d2a300fd7))
+
 ## [1.63.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.62.0...v1.63.0) (2026-04-22)
 
 
