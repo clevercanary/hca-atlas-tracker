@@ -8,13 +8,15 @@ export const Report = (): JSX.Element | null => {
   const { data, pathParameter } = useEntity();
   const { sourceDataset } = data as EntityData;
   const { validatorName } = pathParameter || {};
-  const { validationReports, validationStatus } = sourceDataset || {};
+  const { reprocessedStatus, validationReports, validationStatus } =
+    sourceDataset || {};
 
   if (!pathParameter) return null;
 
   return (
     <ValidationReport
       pathParameter={pathParameter}
+      reprocessedStatus={reprocessedStatus}
       validationReports={validationReports}
       validationRoute={ROUTE.ATLAS_SOURCE_DATASET_VALIDATION}
       validationStatus={validationStatus}

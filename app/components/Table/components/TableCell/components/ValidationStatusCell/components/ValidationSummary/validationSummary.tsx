@@ -18,13 +18,14 @@ import { StyledErrorIcon } from "./validationSummary.styles";
 export const ValidationSummary = ({
   atlasId,
   componentAtlasId,
+  reprocessedStatus,
   sourceDatasetId,
   validationRoute,
   validationSummary,
 }: Props): JSX.Element | null => {
   if (!validationSummary) return null;
 
-  const validators = getValidators(validationSummary);
+  const validators = getValidators(validationSummary, reprocessedStatus);
 
   if (validators.length === 0) return null;
 

@@ -205,13 +205,22 @@ export const FILE_VALIDATION_STATUS_NAME_LABEL: Record<
   [FILE_VALIDATION_STATUS.STALE]: "Stale",
 };
 
-export const FILE_VALIDATOR_NAMES = ["cap", "cellxgene", "hcaSchema"] as const;
+export const FILE_VALIDATOR_NAMES = [
+  "cap",
+  "cellxgene",
+  "hcaSchema",
+  "hcaCellAnnotation",
+] as const;
 
 export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
   cap: "CAP",
   cellxgene: "CELLxGENE",
+  hcaCellAnnotation: "HCA Cell Annotation",
   hcaSchema: "HCA Tier-1",
 };
+
+export const FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED: FileValidatorName[] =
+  ["cap", "hcaCellAnnotation"];
 
 export const UNPUBLISHED = "Unpublished";
 

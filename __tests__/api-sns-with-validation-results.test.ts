@@ -159,7 +159,12 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     expect(fileAfter).toEqual(fileBefore);
   });
 
-  it.each([{ tool: "cap" as const }, { tool: "cellxgene" as const }])(
+  it.each([
+    { tool: "cap" as const },
+    { tool: "cellxgene" as const },
+    { tool: "hcaCellAnnotation" as const },
+    { tool: "hcaSchema" as const },
+  ])(
     "returns error 400 when $tool is missing from tool reports",
     async ({ tool }) => {
       const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
@@ -232,6 +237,13 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         valid: false,
         warnings: [],
       },
+      hcaCellAnnotation: {
+        errors: [],
+        finished_at: "2025-09-14T10:00:02.342",
+        started_at: "2025-09-14T10:00:01.645",
+        valid: true,
+        warnings: [],
+      },
       hcaSchema: {
         errors: [],
         finished_at: "2025-09-14T10:00:02.342",
@@ -245,6 +257,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       validators: {
         cap: true,
         cellxgene: false,
+        hcaCellAnnotation: true,
         hcaSchema: true,
       },
     };
@@ -356,6 +369,13 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         valid: false,
         warnings: ["Warning dataset successful CxG"],
       },
+      hcaCellAnnotation: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
       hcaSchema: {
         errors: [],
         finished_at: validationTime,
@@ -369,6 +389,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       validators: {
         cap: false,
         cellxgene: false,
+        hcaCellAnnotation: true,
         hcaSchema: true,
       },
     };
@@ -441,6 +462,13 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         valid: false,
         warnings: ["Warning IO successful CxG"],
       },
+      hcaCellAnnotation: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
       hcaSchema: {
         errors: [],
         finished_at: validationTime,
@@ -454,6 +482,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       validators: {
         cap: false,
         cellxgene: false,
+        hcaCellAnnotation: true,
         hcaSchema: true,
       },
     };
