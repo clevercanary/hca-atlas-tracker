@@ -45,6 +45,15 @@ const CELL_COUNT: CommonControllerConfig = {
   name: FIELD_NAME.CELL_COUNT,
 };
 
+const DOWNLOAD_NAME: CommonControllerConfig = {
+  inputProps: {
+    isFullWidth: false,
+    label: "Download Name",
+    readOnly: true,
+  },
+  name: FIELD_NAME.DOWNLOAD_NAME,
+};
+
 const FILE_EVENT_TIME: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
@@ -83,7 +92,7 @@ const PUBLISHED_AT: CommonControllerConfig = {
 
 const SIZE_BY_BYTES: CommonControllerConfig = {
   inputProps: {
-    isFullWidth: true,
+    isFullWidth: false,
     label: "File Size",
     readOnly: true,
   },
@@ -123,8 +132,9 @@ export const GENERAL_INFO_INTEGRATED_OBJECT_CONTROLLERS: (
   | ChipInputControllerConfig
   | CommonControllerConfig
 )[] = [
-  FILE_NAME,
+  DOWNLOAD_NAME,
   VERSION,
+  FILE_NAME,
   SIZE_BY_BYTES,
   TITLE,
   CELL_COUNT,

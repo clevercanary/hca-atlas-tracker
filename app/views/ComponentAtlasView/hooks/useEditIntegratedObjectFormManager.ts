@@ -15,6 +15,7 @@ import { INTEGRATED_OBJECT } from "./useFetchComponentAtlas";
 
 type Payload = {
   capUrl: string | null;
+  downloadName: string;
 };
 
 export const useEditIntegratedObjectFormManager = (
@@ -61,5 +62,5 @@ export const useEditIntegratedObjectFormManager = (
  * @returns Payload.
  */
 function mapPayload(payload: ViewIntegratedObjectData): Payload {
-  return { capUrl: payload.capUrl || null };
+  return { capUrl: payload.capUrl || null, downloadName: payload.downloadName };
 }

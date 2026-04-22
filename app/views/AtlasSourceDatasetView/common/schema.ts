@@ -13,6 +13,7 @@ export const viewAtlasSourceDatasetSchema = object({
     .matches(CAP_DATASET_URL_REGEXP, "Invalid CAP URL (must be a dataset URL)")
     .nullable(),
   [FIELD_NAME.CELL_COUNT]: number(),
+  [FIELD_NAME.DOWNLOAD_NAME]: string().required("Download name is required"),
   [FIELD_NAME.FILE_EVENT_TIME]: string(),
   [FIELD_NAME.FILE_NAME]: string(),
   [FIELD_NAME.GENE_COUNT]: number().nullable(),
