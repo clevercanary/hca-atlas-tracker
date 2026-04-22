@@ -163,6 +163,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     { tool: "cap" as const },
     { tool: "cellxgene" as const },
     { tool: "hcaCellAnnotation" as const },
+    { tool: "hcaSchema" as const },
   ])(
     "returns error 400 when $tool is missing from tool reports",
     async ({ tool }) => {

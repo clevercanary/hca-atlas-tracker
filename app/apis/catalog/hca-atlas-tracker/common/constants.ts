@@ -208,8 +208,8 @@ export const FILE_VALIDATION_STATUS_NAME_LABEL: Record<
 export const FILE_VALIDATOR_NAMES = [
   "cap",
   "cellxgene",
-  "hcaCellAnnotation",
   "hcaSchema",
+  "hcaCellAnnotation",
 ] as const;
 
 export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
