@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.62.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.61.0...v1.62.0) (2026-04-22)
+
+
+### Features
+
+* make table headers sticky for source dataset and integrated object tables ([#1178](https://github.com/clevercanary/hca-atlas-tracker/issues/1178)) ([4126e11](https://github.com/clevercanary/hca-atlas-tracker/commit/4126e11677c929203bd10c2b2924a4425a3babc7))
+* rename "HCA" to "HCA Tier-1" in validation summary column ([#1175](https://github.com/clevercanary/hca-atlas-tracker/issues/1175)) ([3d84f45](https://github.com/clevercanary/hca-atlas-tracker/commit/3d84f4526afe4c7b54c02072095a11f3868f80a8))
+* rename "Publication Status" to "Study Status" and "Published At" to "Release Date" ([#1176](https://github.com/clevercanary/hca-atlas-tracker/issues/1176)) ([b9c956d](https://github.com/clevercanary/hca-atlas-tracker/commit/b9c956db4b76d874062635d498864166ab7dfa1f))
+* rename "Requested" validation status label to "In Progress" ([#1169](https://github.com/clevercanary/hca-atlas-tracker/issues/1169)) ([e9f3b06](https://github.com/clevercanary/hca-atlas-tracker/commit/e9f3b0632d9511398d99c0be5b6a4aa5dc211fb4))
+* rename "Title" field to "Dataset Title" and "Integrated Object Title" ([#1174](https://github.com/clevercanary/hca-atlas-tracker/issues/1174)) ([cf1fdf2](https://github.com/clevercanary/hca-atlas-tracker/commit/cf1fdf27593a22db078e839bb60a72bd3064a655))
+* split "Updates Required" CAP ingest status into distinct statuses ([#1179](https://github.com/clevercanary/hca-atlas-tracker/issues/1179)) ([3349365](https://github.com/clevercanary/hca-atlas-tracker/commit/3349365c00516c1a62805df1bed979db5e54097d))
+
+
+### Bug Fixes
+
+* fix in-place array mutation in viewsourcedatasets sort ([#1181](https://github.com/clevercanary/hca-atlas-tracker/issues/1181)) ([#1182](https://github.com/clevercanary/hca-atlas-tracker/issues/1182)) ([8fb0289](https://github.com/clevercanary/hca-atlas-tracker/commit/8fb02897591eeca20dcb8a51536e06af00b7f122))
+
+
+### Chores
+
+* enable prettier-plugin-organize-imports ([#1171](https://github.com/clevercanary/hca-atlas-tracker/issues/1171)) ([#1172](https://github.com/clevercanary/hca-atlas-tracker/issues/1172)) ([288beb1](https://github.com/clevercanary/hca-atlas-tracker/commit/288beb1e22635b98b26145e2da8c03ed02676d30))
+* upgrade findable-ui from 50.7.0 to 51.0.0 ([#1183](https://github.com/clevercanary/hca-atlas-tracker/issues/1183)) ([#1184](https://github.com/clevercanary/hca-atlas-tracker/issues/1184)) ([bda0586](https://github.com/clevercanary/hca-atlas-tracker/commit/bda05866402e707510877425105d8d9a3a0aa982))
+
 ## [1.61.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.60.0...v1.61.0) (2026-04-15)
 
 
