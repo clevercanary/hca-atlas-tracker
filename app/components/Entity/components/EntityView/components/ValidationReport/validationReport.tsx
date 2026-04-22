@@ -20,24 +20,33 @@ export const ValidationReport = ({
     [validationReports, reprocessedStatus],
   );
 
+  const hasValidatorVisibilityData =
+    validationReports != null && validatorNames.length > 0;
   const isValidatorHidden = Boolean(
-    validatorName && !validatorNames.includes(validatorName),
+    hasValidatorVisibilityData &&
+    validatorName &&
+    !validatorNames.includes(validatorName),
   );
+  const [fallbackValidatorName] = validatorNames;
 
   useEffect(() => {
     if (!isValidatorHidden) return;
-    const [fallback] = validatorNames;
-    if (!fallback) return;
+    if (!fallbackValidatorName) return;
     Router.replace(
       getRouteURL(validationRoute, {
         ...pathParameter,
-        validatorName: fallback,
+        validatorName: fallbackValidatorName,
       }),
     );
-  }, [isValidatorHidden, pathParameter, validationRoute, validatorNames]);
+  }, [
+    fallbackValidatorName,
+    isValidatorHidden,
+    pathParameter,
+    validationRoute,
+  ]);
 
   if (!validationStatus) return null; // `validationStatus` is a required field; an undefined value implies the data is not yet available.
-  if (isValidatorHidden) return null; // Redirecting to a visible validator; avoid rendering hidden-validator content.
+  if (isValidatorHidden && fallbackValidatorName) return null; // Redirecting to a visible validator; avoid rendering hidden-validator content.
   return (
     <FluidPaper>
       <Tabs
