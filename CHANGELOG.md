@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.63.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.62.0...v1.63.0) (2026-04-22)
+
+
+### Features
+
+* increase min-width of Validation Summary columns ([#1190](https://github.com/clevercanary/hca-atlas-tracker/issues/1190)) ([be2b2c1](https://github.com/clevercanary/hca-atlas-tracker/commit/be2b2c130590da31eb522fa66e49787c111f6364))
+* increase min-width of Validation Summary columns ([#1191](https://github.com/clevercanary/hca-atlas-tracker/issues/1191)) ([be2b2c1](https://github.com/clevercanary/hca-atlas-tracker/commit/be2b2c130590da31eb522fa66e49787c111f6364))
+* persist and expose hcaCellAnnotation validator report ([#1185](https://github.com/clevercanary/hca-atlas-tracker/issues/1185)) ([#1186](https://github.com/clevercanary/hca-atlas-tracker/issues/1186)) ([7af25f4](https://github.com/clevercanary/hca-atlas-tracker/commit/7af25f4370516d7571b76d85b8e77a5f1b00dc5b))
+
 ## [1.62.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.61.0...v1.62.0) (2026-04-22)
 
 
