@@ -7,6 +7,6 @@ import { ReactNode } from "react";
  * @returns tab label with count.
  */
 export function getTabLabelWithCount(label: string, count?: number): ReactNode {
-  if (!count) return label;
+  if (count == null) return label;
   return `${label} (${count})`;
 }
