@@ -12,6 +12,8 @@ export const ValidationStatusCell = ({
 }: Props): JSX.Element | null => {
   const { original } = row;
   const { atlasId, validationStatus, validationSummary } = original;
+  const reprocessedStatus =
+    "reprocessedStatus" in original ? original.reprocessedStatus : undefined;
 
   // Render validation summary if validation status is completed.
   if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED)
@@ -19,6 +21,7 @@ export const ValidationStatusCell = ({
       <ValidationSummary
         atlasId={atlasId}
         componentAtlasId={componentAtlasId}
+        reprocessedStatus={reprocessedStatus}
         sourceDatasetId={sourceDatasetId}
         validationRoute={validationRoute}
         validationSummary={validationSummary}

@@ -219,6 +219,9 @@ export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
   hcaSchema: "HCA Tier-1",
 };
 
+export const FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED: FileValidatorName[] =
+  ["cap", "hcaCellAnnotation"];
+
 export const UNPUBLISHED = "Unpublished";
 
 export const VALID_FILE_TYPES_FOR_VALIDATION = [

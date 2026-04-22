@@ -4,25 +4,20 @@ import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui
 import { TAB_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/tab";
 import { Tab } from "@mui/material";
 import Router from "next/router";
-import { JSX, SyntheticEvent, useCallback, useMemo } from "react";
+import { JSX, SyntheticEvent, useCallback } from "react";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getRouteURL } from "../../../../../../../../common/utils";
 import { Props } from "./entities";
 import { StyledTabs } from "./tabs.styles";
-import { getValidatorNames } from "./utils";
 
 export const Tabs = ({
   pathParameter,
   validationReports,
   validationRoute,
   validatorName,
+  validatorNames,
 }: Props): JSX.Element | null => {
-  const validatorNames = useMemo(
-    () => getValidatorNames(validationReports),
-    [validationReports],
-  );
-
   const onChange = useCallback(
     (_: SyntheticEvent, validatorName: FileValidatorName) => {
       Router.push(

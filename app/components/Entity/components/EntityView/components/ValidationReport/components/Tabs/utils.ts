@@ -1,26 +1,21 @@
 import {
   FileValidationReports,
   FileValidatorName,
+  REPROCESSED_STATUS,
 } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 
 /**
- * Returns the names of the validators that are not cellxgene.
+ * Returns the names of the validators that should be shown as tabs.
  * @param validationReports - The validation reports to get the validator names from.
- * @returns The names of the validators that are not cellxgene.
+ * @param reprocessedStatus - Source dataset reprocessed status, when applicable; used to hide validators that don't apply to reprocessed datasets.
+ * @returns The validator names to render as tabs.
  */
 export function getValidatorNames(
   validationReports?: FileValidationReports | null,
+  reprocessedStatus?: REPROCESSED_STATUS,
 ): FileValidatorName[] {
   return (Object.keys(validationReports ?? {}) as FileValidatorName[]).filter(
-    filterValidatorName,
+    (name) => shouldShowValidator(name, reprocessedStatus),
   );
-}
-
-/**
- * Returns true if the validator name is not cellxgene.
- * @param validatorName - The validator name to check.
- * @returns True if the validator name is not cellxgene.
- */
-function filterValidatorName(validatorName: FileValidatorName): boolean {
-  return validatorName !== "cellxgene";
 }

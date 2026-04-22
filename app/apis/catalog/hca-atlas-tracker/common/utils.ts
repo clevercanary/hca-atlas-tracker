@@ -1,8 +1,14 @@
 import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
-import { NETWORK_KEYS, UNPUBLISHED, WAVES } from "./constants";
+import {
+  FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED,
+  NETWORK_KEYS,
+  UNPUBLISHED,
+  WAVES,
+} from "./constants";
 import {
   DOI_STATUS,
   DoiPublicationInfo,
+  FileValidatorName,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerListAtlas,
@@ -13,6 +19,7 @@ import {
   HCAAtlasTrackerValidationRecord,
   NetworkKey,
   PublicationInfo,
+  REPROCESSED_STATUS,
   TASK_STATUS,
   TIER_ONE_METADATA_STATUS,
   VALIDATION_ID,
@@ -320,5 +327,22 @@ export function taskInputMapper(
 export function isUuid(s: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
     s,
+  );
+}
+
+/**
+ * Whether a validator tab/summary entry should be rendered in the UI.
+ * @param validatorName - Validator.
+ * @param reprocessedStatus - Source dataset reprocessed status, when applicable; integrated objects and non-source-dataset contexts should leave it undefined.
+ * @returns True when the validator should appear in UI listings.
+ */
+export function shouldShowValidator(
+  validatorName: FileValidatorName,
+  reprocessedStatus?: REPROCESSED_STATUS,
+): boolean {
+  if (validatorName === "cellxgene") return false;
+  return !(
+    reprocessedStatus === REPROCESSED_STATUS.REPROCESSED &&
+    FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED.includes(validatorName)
   );
 }

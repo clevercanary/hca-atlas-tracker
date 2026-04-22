@@ -10,4 +10,5 @@ export interface Props {
   validationReports?: FileValidationReports | null;
   validationRoute: RouteValue;
   validatorName?: FileValidatorName;
+  validatorNames: FileValidatorName[];
 }

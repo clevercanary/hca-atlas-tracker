@@ -1,29 +1,24 @@
 import {
   FileValidationSummary,
   FileValidatorName,
+  REPROCESSED_STATUS,
 } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 
 /**
- * Returns the validation summary validators.
+ * Returns the validators to render in the validation summary.
  * @param validationSummary - Validation summary.
- * @returns Validation summary validators.
+ * @param reprocessedStatus - Source dataset reprocessed status, when applicable; used to hide validators that don't apply to reprocessed datasets.
+ * @returns Filtered validator entries.
  */
 export function getValidators(
   validationSummary: FileValidationSummary,
+  reprocessedStatus?: REPROCESSED_STATUS,
 ): [FileValidatorName, boolean][] {
   return (
     Object.entries(validationSummary.validators) as [
       FileValidatorName,
       boolean,
     ][]
-  ).filter(filterValidator);
-}
-
-/**
- * Returns true if the validator is not cellxgene.
- * @param validator - Validator.
- * @returns True if the validator is not cellxgene.
- */
-function filterValidator(validator: [FileValidatorName, boolean]): boolean {
-  return validator[0] !== "cellxgene";
+  ).filter(([name]) => shouldShowValidator(name, reprocessedStatus));
 }
