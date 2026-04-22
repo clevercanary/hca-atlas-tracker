@@ -169,7 +169,7 @@ const COLUMN_VALIDATION_STATUS = {
   accessorKey: "validationStatus",
   cell: renderSourceDatasetValidationStatus,
   header: "Validation Summary",
-  meta: { width: { max: "0.5fr", min: "120px" } },
+  meta: { width: { max: "0.5fr", min: "180px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
 const COLUMN_VERSION = {
