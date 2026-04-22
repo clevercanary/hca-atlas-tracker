@@ -64,6 +64,7 @@ const datasetValidatorToolReportSchema = object({
 const datasetValidatorToolReportsSchema = object({
   cap: datasetValidatorToolReportSchema.required(),
   cellxgene: datasetValidatorToolReportSchema.required(),
+  hcaCellAnnotation: datasetValidatorToolReportSchema.required(),
   hcaSchema: datasetValidatorToolReportSchema.required(),
 });
 
