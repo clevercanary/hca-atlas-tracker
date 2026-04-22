@@ -1,4 +1,4 @@
-import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
+import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { METHOD } from "../common/entities";
 import { fetchResource, isFetchStatusOk } from "../common/utils";

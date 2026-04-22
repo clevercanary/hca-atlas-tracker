@@ -1,4 +1,4 @@
-import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
+import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import Router from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { FieldValues } from "react-hook-form";

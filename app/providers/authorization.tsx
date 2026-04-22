@@ -1,5 +1,5 @@
+import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
-import { useAuth } from "@databiosphere/findable-ui/lib/providers/authentication/auth/hook";
 import { createContext, JSX, ReactNode, useEffect } from "react";
 import {
   HCAAtlasTrackerActiveUser,
