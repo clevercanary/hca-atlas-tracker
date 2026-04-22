@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.64.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.63.1...v1.64.0) (2026-04-22)
+
+
+### Features
+
+* show (0) count on atlas tab headers when lists are empty ([#1180](https://github.com/clevercanary/hca-atlas-tracker/issues/1180)) ([f62cf3c](https://github.com/clevercanary/hca-atlas-tracker/commit/f62cf3c100491b054c9c7eb0bf67ab42a6df91d4))
+* show (0) count on atlas tab headers when lists are empty ([#1194](https://github.com/clevercanary/hca-atlas-tracker/issues/1194)) ([f62cf3c](https://github.com/clevercanary/hca-atlas-tracker/commit/f62cf3c100491b054c9c7eb0bf67ab42a6df91d4))
+
 ## [1.63.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.63.0...v1.63.1) (2026-04-22)
 
 
