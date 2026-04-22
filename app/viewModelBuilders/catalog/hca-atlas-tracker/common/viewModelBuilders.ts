@@ -1345,7 +1345,7 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
       });
     },
     header: "Validation Summary",
-    meta: { width: { max: "1fr", min: "136px" } },
+    meta: { width: { max: "1fr", min: "180px" } },
   };
 }
 
