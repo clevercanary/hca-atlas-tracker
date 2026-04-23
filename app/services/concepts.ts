@@ -87,7 +87,7 @@ async function getConceptAtlasInfoString(
 }
 
 /**
- * Update a concept's base filename based on a specified download name, if it's changed, and call a specified function before any actual update occurs.
+ * Update a concept's base filename based on a specified download name.
  * @param conceptId - ID of the concept to update.
  * @param newDownloadName - New download name to derive a new base filename from.
  * @param client - Postgres client to use.
