@@ -27,6 +27,7 @@ import {
 } from "../data/source-datasets";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { getComponentAtlasVersionForAtlas } from "./component-atlases";
+import { updateDownloadNameIfChanged } from "./concepts";
 import { doTransaction, query } from "./database";
 import { confirmSourceStudyExistsOnAtlas } from "./source-studies";
 
@@ -174,10 +175,19 @@ function createSourceDatasetInfo(): HCAAtlasTrackerDBSourceDatasetInfo {
   };
 }
 
+/**
+ * Update an atlas-linked source dataset.
+ * @param atlasId - ID of the atlas that the source dataset is accessed through.
+ * @param sourceDatasetId - ID of the source dataset to update.
+ * @param inputData - Input data to apply to the source dataset.
+ * @param beforeUpdateDownloadName - Function to call before an update that would change the download name.
+ * @returns update source dataset.
+ */
 export async function updateAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
   inputData: AtlasSourceDatasetEditData,
+  beforeUpdateDownloadName: (() => void) | null,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   const sourceDatasetVersion = await getSourceDatasetVersionForAtlas(
     sourceDatasetId,
@@ -193,6 +203,12 @@ export async function updateAtlasSourceDataset(
     metadataSpreadsheetUrl: inputData.metadataSpreadsheetUrl || null,
   };
   return await doTransaction(async (client) => {
+    await updateDownloadNameIfChanged(
+      sourceDatasetId,
+      inputData.downloadName,
+      beforeUpdateDownloadName,
+      client,
+    );
     await query(
       "UPDATE hat.source_datasets SET sd_info = sd_info || $1 WHERE version_id = $2",
       [JSON.stringify(updatedInfoFields), sourceDatasetVersion],
