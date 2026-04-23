@@ -132,14 +132,12 @@ export async function getAtlasComponentAtlasVersionIds(
  * @param atlasId - ID of the atlas that the component atlas is accessed through.
  * @param componentAtlasId - ID of the component atlas to update.
  * @param inputData - Data with which to update the component atlas.
- * @param beforeUpdateDownloadName - Function to call before an update that would change the download name.
  * @returns updated component atlas.
  */
 export async function updateComponentAtlas(
   atlasId: string,
   componentAtlasId: string,
   inputData: ComponentAtlasEditData,
-  beforeUpdateDownloadName: (() => void) | null,
 ): Promise<HCAAtlasTrackerDBComponentAtlasForDetailAPI> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
@@ -153,7 +151,6 @@ export async function updateComponentAtlas(
     await updateDownloadNameIfChanged(
       componentAtlasId,
       inputData.downloadName,
-      beforeUpdateDownloadName,
       client,
     );
     await query(

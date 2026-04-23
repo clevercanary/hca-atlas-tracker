@@ -180,14 +180,12 @@ function createSourceDatasetInfo(): HCAAtlasTrackerDBSourceDatasetInfo {
  * @param atlasId - ID of the atlas that the source dataset is accessed through.
  * @param sourceDatasetId - ID of the source dataset to update.
  * @param inputData - Input data to apply to the source dataset.
- * @param beforeUpdateDownloadName - Function to call before an update that would change the download name.
  * @returns update source dataset.
  */
 export async function updateAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
   inputData: AtlasSourceDatasetEditData,
-  beforeUpdateDownloadName: (() => void) | null,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
   const sourceDatasetVersion = await getSourceDatasetVersionForAtlas(
     sourceDatasetId,
@@ -206,7 +204,6 @@ export async function updateAtlasSourceDataset(
     await updateDownloadNameIfChanged(
       sourceDatasetId,
       inputData.downloadName,
-      beforeUpdateDownloadName,
       client,
     );
     await query(
