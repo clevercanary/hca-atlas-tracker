@@ -22,6 +22,7 @@ import {
   COMPONENT_ATLAS_MISC_BAR,
   COMPONENT_ATLAS_MISC_BAZ,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
@@ -535,7 +536,7 @@ describe(TEST_ROUTE, () => {
     const editData = {
       capUrl: "https://celltype.info/project/928342/dataset/458432",
       downloadName: getTestEntityDownloadName(
-        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
       ),
     } satisfies ComponentAtlasEditData;
     const res = await doComponentAtlasRequest(
