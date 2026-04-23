@@ -1,6 +1,5 @@
 import { getFileExtension } from "app/utils/files";
 import pg from "pg";
-import { ValidationError } from "yup";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBConcept,
@@ -12,7 +11,7 @@ import {
   getConceptIdByInfo,
   setConceptBaseFilename,
 } from "../data/concepts";
-import { NotFoundError } from "../utils/api-handler";
+import { ConflictError, NotFoundError } from "../utils/api-handler";
 import { mapDatabaseError } from "./database";
 
 /**
@@ -109,9 +108,8 @@ export async function updateDownloadNameIfChanged(
   await mapDatabaseError(
     () => setConceptBaseFilename(conceptId, newBaseFilename, client),
     () =>
-      new ValidationError(
+      new ConflictError(
         `A file with download name ${JSON.stringify(newDownloadName)} already exists for this atlas generation`,
-        undefined,
         "downloadName",
       ),
     { constraint: "idx_concepts_identity_fields" },

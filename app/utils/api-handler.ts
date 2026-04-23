@@ -32,30 +32,45 @@ export type Handler = (
   res: NextApiResponse,
 ) => Promise<void>;
 
-export class InvalidOperationError extends Error {
+abstract class ApiError extends Error {
+  abstract statusCode: number;
+  fieldPath: string | null;
+  constructor(message?: string, fieldPath: string | null = null) {
+    super(message);
+    this.fieldPath = fieldPath;
+  }
+}
+
+export class InvalidOperationError extends ApiError {
   name = "InvalidOperationError";
+  statusCode = 400;
 }
 
 // Represents a request conflict (e.g., ETag mismatch/version conflicts)
 // Maps to HTTP 409 Conflict
-export class ConflictError extends InvalidOperationError {
+export class ConflictError extends ApiError {
   name = "ConflictError";
+  statusCode = 409;
 }
 
-export class UnauthenticatedError extends Error {
+export class UnauthenticatedError extends ApiError {
   name = "UnauthenticatedError";
+  statusCode = 401;
 }
 
-export class ForbiddenError extends Error {
+export class ForbiddenError extends ApiError {
   name = "ForbiddenError";
+  statusCode = 403;
 }
 
-export class AccessError extends Error {
+export class AccessError extends ApiError {
   name = "AccessError";
+  statusCode = 400;
 }
 
-export class NotFoundError extends Error {
+export class NotFoundError extends ApiError {
   name = "NotFoundError";
+  statusCode = 404;
 }
 
 /**
@@ -340,43 +355,34 @@ export async function getRegisteredActiveUser(
  * @param error - Error or other thrown value.
  */
 function respondError(res: NextApiResponse, error: unknown): void {
-  if (error instanceof ConflictError)
-    res.status(409).json({ message: error.message });
-  else if (error instanceof InvalidOperationError)
-    res.status(400).json({ message: error.message });
-  else if (error instanceof S3KeyFormatError)
-    res.status(400).json({ message: error.message });
-  else if (error instanceof UnauthenticatedError)
-    res.status(401).json({ message: error.message });
-  else if (error instanceof ForbiddenError)
-    res.status(403).json({ message: error.message });
-  else if (error instanceof NotFoundError)
-    res.status(404).json({ message: error.message });
-  else if (error instanceof ValidationError) respondValidationError(res, error);
-  else if (error instanceof Error && typeof error.stack === "string")
-    res.status(500).json({ message: error.stack });
-  else res.status(500).json({ message: String(error) });
-}
-
-/**
- * Send an error response based on a Yup validation error.
- * @param res - Next API response.
- * @param error - ValidationError.
- */
-export function respondValidationError(
-  res: NextApiResponse,
-  error: ValidationError,
-): void {
-  const errorInfo: FormResponseErrors = error.path
-    ? {
-        errors: {
-          [error.path]: error.errors,
-        },
-      }
-    : {
-        message: error.message,
-      };
-  res.status(400).json(errorInfo);
+  let status = 500;
+  let errorInfo: FormResponseErrors;
+  if (error instanceof ApiError) {
+    status = error.statusCode;
+    errorInfo =
+      error.fieldPath === null
+        ? { message: error.message }
+        : { errors: { [error.fieldPath]: [error.message] } };
+  } else if (error instanceof ValidationError) {
+    status = 400;
+    errorInfo = error.path
+      ? {
+          errors: {
+            [error.path]: error.errors,
+          },
+        }
+      : {
+          message: error.message,
+        };
+  } else if (error instanceof S3KeyFormatError) {
+    status = 400;
+    errorInfo = { message: error.message };
+  } else if (error instanceof Error && typeof error.stack === "string") {
+    errorInfo = { message: error.stack };
+  } else {
+    errorInfo = { message: String(error) };
+  }
+  res.status(status).json(errorInfo);
 }
 
 export async function getProvidedUserProfile(
