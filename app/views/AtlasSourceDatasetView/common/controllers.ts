@@ -70,7 +70,6 @@ const FILE_NAME: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
     label: "File Name",
-    readOnly: true,
   },
   name: FIELD_NAME.FILE_NAME,
 };
