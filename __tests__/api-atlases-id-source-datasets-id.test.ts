@@ -40,10 +40,13 @@ import {
 } from "../testing/constants";
 import {
   expectSourceDatasetToBeUnchanged,
+  getConceptFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
+  assertExpectDefined,
+  delay,
   expectDetailApiSourceDatasetToMatchTest,
   getTestEntityDownloadName,
   testApiRole,
@@ -587,8 +590,53 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
 
+  it("returns error 400 when PATCH requested with download name set to empty string", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_BAR_EDIT_DATA,
+            downloadName: "",
+          },
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
+  });
+
+  it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_BAR_EDIT_DATA,
+            downloadName: getTestEntityDownloadName(
+              SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+            ),
+          },
+        )
+      )._getStatusCode(),
+    ).toEqual(409);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
+  });
+
   it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {
     const callCountBefore = getSheetTitleMock.mock.calls.length;
+    const conceptBefore = await getConceptFromDatabase(
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+    );
+    assertExpectDefined(conceptBefore);
+    await delay(10); // Ensure timestamps can be different
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
@@ -609,6 +657,14 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.datasetInfo.title,
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
+    const conceptAfter = await getConceptFromDatabase(
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+    );
+    assertExpectDefined(conceptAfter);
+    // Download name wasn't changed, so concept shouldn't have been updated
+    expect(conceptAfter.updated_at.getDate()).toEqual(
+      conceptBefore.updated_at.getDate(),
+    );
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
@@ -645,6 +701,34 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(sourceDataset.downloadName).toEqual(WSS_FOO_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
     expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+  });
+
+  it("updates associated concept when PATCH requested with new download name", async () => {
+    const editData: AtlasSourceDatasetEditData = {
+      capUrl: null,
+      downloadName: "new-download-name",
+      metadataSpreadsheetUrl: null,
+    };
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      editData,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.capUrl).toBeNull();
+    expect(sourceDataset.downloadName).toEqual(editData.downloadName);
+    expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
+    expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+    const concept = await getConceptFromDatabase(
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+    );
+    assertExpectDefined(concept);
+    expect(concept.base_filename).toEqual(editData.downloadName + ".h5ad");
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 });

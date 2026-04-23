@@ -36,9 +36,11 @@ import {
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import { getConceptFromDatabase, resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
+  assertExpectDefined,
+  delay,
   expectDetailApiComponentAtlasToMatchTest,
   getTestEntityDownloadName,
   testApiRole,
@@ -504,7 +506,48 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when PATCH requested with download name set to empty string", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          {
+            ...MISC_BAR_EDIT_DATA,
+            downloadName: "",
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
+  it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          {
+            ...MISC_BAR_EDIT_DATA,
+            downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_FOO),
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(409);
+  });
+
   it("updates component atlas when PATCH requested by user with CONTENT_ADMIN role", async () => {
+    const conceptBefore = await getConceptFromDatabase(
+      COMPONENT_ATLAS_MISC_BAR.id,
+    );
+    assertExpectDefined(conceptBefore);
+    await delay(10); // Ensure timestamps can be different
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       COMPONENT_ATLAS_MISC_BAR.id,
@@ -518,6 +561,14 @@ describe(TEST_ROUTE, () => {
     expect(componentAtlas.capUrl).toEqual(MISC_BAR_EDIT_DATA.capUrl);
     expect(componentAtlas.downloadName).toEqual(
       MISC_BAR_EDIT_DATA.downloadName,
+    );
+    const conceptAfter = await getConceptFromDatabase(
+      COMPONENT_ATLAS_MISC_BAR.id,
+    );
+    assertExpectDefined(conceptAfter);
+    // Download name wasn't changed, so concept shouldn't have been updated
+    expect(conceptAfter.updated_at.getDate()).toEqual(
+      conceptBefore.updated_at.getDate(),
     );
   });
 
@@ -557,6 +608,28 @@ describe(TEST_ROUTE, () => {
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expect(componentAtlas.capUrl).toEqual(editData.capUrl);
     expect(componentAtlas.downloadName).toEqual(editData.downloadName);
+  });
+
+  it("updates associated concept when PATCH requested with new download name", async () => {
+    const editData = {
+      capUrl: null,
+      downloadName: "new-download-name",
+    } satisfies ComponentAtlasEditData;
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      editData,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expect(componentAtlas.capUrl).toEqual(editData.capUrl);
+    expect(componentAtlas.downloadName).toEqual(editData.downloadName);
+    const concept = await getConceptFromDatabase(COMPONENT_ATLAS_MISC_FOO.id);
+    assertExpectDefined(concept);
+    expect(concept.base_filename).toEqual(editData.downloadName + ".h5ad");
   });
 });
 
