@@ -52,7 +52,6 @@ const DOWNLOAD_NAME: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
     label: "Download Name",
-    readOnly: true,
   },
   name: FIELD_NAME.DOWNLOAD_NAME,
 };
@@ -70,6 +69,7 @@ const FILE_NAME: CommonControllerConfig = {
   inputProps: {
     isFullWidth: false,
     label: "File Name",
+    readOnly: true,
   },
   name: FIELD_NAME.FILE_NAME,
 };
