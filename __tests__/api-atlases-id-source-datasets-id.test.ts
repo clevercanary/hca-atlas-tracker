@@ -600,6 +600,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.capUrl).toBeNull();
+    expect(sourceDataset.downloadName).toEqual(A_FOO_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toEqual("Sheet Bar");
     expect(sourceDataset.metadataSpreadsheetUrl).toEqual(
       A_FOO_EDIT_DATA.metadataSpreadsheetUrl,
@@ -623,6 +624,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.capUrl).toEqual(A_BAR_EDIT_DATA.capUrl);
+    expect(sourceDataset.downloadName).toEqual(A_BAR_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
     expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
@@ -640,6 +642,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.capUrl).toBeNull();
+    expect(sourceDataset.downloadName).toEqual(WSS_FOO_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
     expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);

@@ -516,6 +516,9 @@ describe(TEST_ROUTE, () => {
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expect(componentAtlas.capUrl).toEqual(MISC_BAR_EDIT_DATA.capUrl);
+    expect(componentAtlas.downloadName).toEqual(
+      MISC_BAR_EDIT_DATA.downloadName,
+    );
   });
 
   it("sets CAP URL to null when PATCH requested with empty string CAP URL", async () => {
@@ -530,6 +533,9 @@ describe(TEST_ROUTE, () => {
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expect(componentAtlas.capUrl).toBeNull();
+    expect(componentAtlas.downloadName).toEqual(
+      MISC_BAZ_EDIT_DATA.downloadName,
+    );
   });
 
   it("updates component atlas when PATCH requested from atlas that is linked to its latest version", async () => {
@@ -550,6 +556,7 @@ describe(TEST_ROUTE, () => {
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expect(componentAtlas.capUrl).toEqual(editData.capUrl);
+    expect(componentAtlas.downloadName).toEqual(editData.downloadName);
   });
 });
 
