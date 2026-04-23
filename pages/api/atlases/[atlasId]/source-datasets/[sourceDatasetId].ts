@@ -13,7 +13,6 @@ import {
 import {
   handleByMethod,
   handler,
-  integrationLeadAssociatedAtlasOnly,
   role,
 } from "../../../../../app/utils/api-handler";
 
@@ -27,20 +26,16 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   );
 });
 
-const patchHandler = handler(
-  role([ROLE.CONTENT_ADMIN, ROLE.INTEGRATION_LEAD]),
-  integrationLeadAssociatedAtlasOnly,
-  async (req, res) => {
-    const atlasId = req.query.atlasId as string;
-    const sourceDatasetId = req.query.sourceDatasetId as string;
-    const inputData = await atlasSourceDatasetEditSchema.validate(req.body);
-    res.json(
-      dbSourceDatasetToApiSourceDataset(
-        await updateAtlasSourceDataset(atlasId, sourceDatasetId, inputData),
-      ),
-    );
-  },
-);
+const patchHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
+  const atlasId = req.query.atlasId as string;
+  const sourceDatasetId = req.query.sourceDatasetId as string;
+  const inputData = await atlasSourceDatasetEditSchema.validate(req.body);
+  res.json(
+    dbSourceDatasetToApiSourceDataset(
+      await updateAtlasSourceDataset(atlasId, sourceDatasetId, inputData),
+    ),
+  );
+});
 
 /**
  * API route for getting or editing a source dataset of an atlas.
