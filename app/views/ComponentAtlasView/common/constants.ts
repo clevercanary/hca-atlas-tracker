@@ -4,7 +4,7 @@ export const FIELD_NAME = {
   CELL_COUNT: "cellCount",
   DOWNLOAD_NAME: "downloadName",
   FILE_EVENT_TIME: "fileEventTime",
-  FILE_NAME: "baseFileName",
+  FILE_NAME: "fileName",
   GENE_COUNT: "geneCount",
   PUBLISHED_AT: "publishedAt",
   SIZE_BY_BYTES: "sizeBytes",
