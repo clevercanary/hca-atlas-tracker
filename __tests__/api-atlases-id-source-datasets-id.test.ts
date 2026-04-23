@@ -418,6 +418,22 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
 
+  it("returns error 403 when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          METHOD.PATCH,
+          false,
+          B_BAR_EDIT_DATA,
+        )
+      )._getStatusCode(),
+    ).toEqual(403);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_BAR);
+  });
+
   it("returns error 404 when PATCH requested with nonexistent source dataset", async () => {
     expect(
       (
@@ -569,25 +585,6 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       )._getStatusCode(),
     ).toEqual(400);
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
-  });
-
-  it("updates and returns source dataset when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    const res = await doSourceDatasetRequest(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-      METHOD.PATCH,
-      true,
-      B_BAR_EDIT_DATA,
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.capUrl).toBeNull();
-    expect(sourceDataset.metadataSpreadsheetUrl).toEqual(null);
-    expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_ATLAS_LINKED_B_BAR.file.datasetInfo.title,
-    );
-    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
   it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {

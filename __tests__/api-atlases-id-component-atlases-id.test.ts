@@ -388,6 +388,21 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 403 when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_FOO.id,
+          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          false,
+        )
+      )._getStatusCode(),
+    ).toEqual(403);
+  });
+
   it("returns error 404 when PATCH requested with nonexistent component atlas", async () => {
     expect(
       (
@@ -486,20 +501,6 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode(),
     ).toEqual(400);
-  });
-
-  it("updates component atlas when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
-    const res = await doComponentAtlasRequest(
-      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      COMPONENT_ATLAS_MISC_FOO.id,
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
-      METHOD.PATCH,
-      MISC_FOO_EDIT_DATA,
-    );
-    expect(res._getStatusCode()).toEqual(200);
-    const componentAtlas =
-      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
-    expect(componentAtlas.capUrl).toEqual(MISC_FOO_EDIT_DATA.capUrl);
   });
 
   it("updates component atlas when PATCH requested by user with CONTENT_ADMIN role", async () => {
