@@ -1,4 +1,4 @@
-import { getFileExtension } from "app/utils/files";
+import { getFileBaseName, getFileExtension } from "app/utils/files";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
@@ -11,7 +11,11 @@ import {
   getConceptIdByInfo,
   setConceptBaseFilename,
 } from "../data/concepts";
-import { ConflictError, NotFoundError } from "../utils/api-handler";
+import {
+  ConflictError,
+  InvalidOperationError,
+  NotFoundError,
+} from "../utils/api-handler";
 import { mapDatabaseError } from "./database";
 
 /**
@@ -104,6 +108,12 @@ export async function updateDownloadNameIfChanged(
     newDownloadName + getFileExtension(existingBaseFilename);
 
   if (newBaseFilename === existingBaseFilename) return;
+
+  if (getFileBaseName(newBaseFilename) !== newBaseFilename)
+    throw new InvalidOperationError(
+      "The specified download name appears to contain a version suffix",
+      "downloadName",
+    );
 
   await mapDatabaseError(
     () => setConceptBaseFilename(conceptId, newBaseFilename, client),

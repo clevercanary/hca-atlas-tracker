@@ -609,6 +609,25 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
   });
 
+  it("returns error 400 when PATCH requested with download name containing version suffix", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_BAR_EDIT_DATA,
+            downloadName: "file-r1",
+          },
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
+  });
+
   it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
     expect(
       (

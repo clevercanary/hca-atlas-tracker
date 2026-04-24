@@ -524,6 +524,24 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
+  it("returns error 400 when PATCH requested with download name containing version suffix", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          {
+            ...MISC_BAR_EDIT_DATA,
+            downloadName: "file-r1",
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
   it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
     expect(
       (
