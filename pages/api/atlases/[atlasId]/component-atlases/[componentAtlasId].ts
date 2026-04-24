@@ -10,7 +10,6 @@ import {
 import {
   handleByMethod,
   handler,
-  integrationLeadAssociatedAtlasOnly,
   role,
 } from "../../../../../app/utils/api-handler";
 
@@ -26,22 +25,18 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
     );
 });
 
-const patchHandler = handler(
-  role([ROLE.CONTENT_ADMIN, ROLE.INTEGRATION_LEAD]),
-  integrationLeadAssociatedAtlasOnly,
-  async (req, res) => {
-    const atlasId = req.query.atlasId as string;
-    const componentAtlasId = req.query.componentAtlasId as string;
-    const inputData = await componentAtlasEditSchema.validate(req.body);
-    res
-      .status(200)
-      .json(
-        dbComponentAtlasFileToDetailApiComponentAtlas(
-          await updateComponentAtlas(atlasId, componentAtlasId, inputData),
-        ),
-      );
-  },
-);
+const patchHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
+  const atlasId = req.query.atlasId as string;
+  const componentAtlasId = req.query.componentAtlasId as string;
+  const inputData = await componentAtlasEditSchema.validate(req.body);
+  res
+    .status(200)
+    .json(
+      dbComponentAtlasFileToDetailApiComponentAtlas(
+        await updateComponentAtlas(atlasId, componentAtlasId, inputData),
+      ),
+    );
+});
 
 export default handleByMethod({
   [METHOD.GET]: getHandler,

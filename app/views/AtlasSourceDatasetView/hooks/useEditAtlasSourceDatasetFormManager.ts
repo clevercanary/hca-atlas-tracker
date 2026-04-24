@@ -15,6 +15,7 @@ import { SOURCE_DATASET } from "./useFetchAtlasSourceDataset";
 
 type Payload = {
   capUrl: string | null;
+  downloadName: string;
 };
 
 export const useEditAtlasSourceDatasetFormManager = (
@@ -63,5 +64,5 @@ export const useEditAtlasSourceDatasetFormManager = (
  * @returns Payload.
  */
 function mapPayload(payload: ViewAtlasSourceDatasetData): Payload {
-  return { capUrl: payload.capUrl || null };
+  return { capUrl: payload.capUrl || null, downloadName: payload.downloadName };
 }

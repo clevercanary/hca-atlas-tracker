@@ -49,6 +49,7 @@ import {
 import { METHOD } from "../app/common/entities";
 import { resetConfigCache } from "../app/config/aws-resources";
 import { endPgPool, query } from "../app/services/database";
+import { parseNormalizedInfoFromS3Key } from "../app/utils/files";
 import {
   expectSourceDatasetFileToBeConsistentWith,
   getAtlasFromDatabase,
@@ -1694,6 +1695,27 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       firstKey: "gut/gut-v1-0/source-datasets/test-file-new-rev.h5ad",
       secondKey: "gut/gut-v1-1/source-datasets/test-file-new-rev.h5ad",
     },
+    {
+      afterFirst: async (): Promise<void> => {
+        await query(
+          `
+            UPDATE hat.concepts
+            SET base_filename = 'test-file-new-name-after.h5ad'
+            WHERE base_filename = 'test-file-new-name-before.h5ad'
+          `,
+        );
+      },
+      description: "different filename matching updated concept",
+      expectedConceptFields: {
+        atlas_short_name: "gut",
+        base_filename: "test-file-new-name-before.h5ad",
+        file_type: FILE_TYPE.SOURCE_DATASET,
+        generation: 1,
+        network: "gut",
+      },
+      firstKey: "gut/gut-v1-0/source-datasets/test-file-new-name-before.h5ad",
+      secondKey: "gut/gut-v1-0/source-datasets/test-file-new-name-after.h5ad",
+    },
   ])(
     "uses the same concept for S3 key with $description",
     async ({
@@ -1828,14 +1850,16 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
         wipNumber: 2,
       });
 
-      // Verify only one concept exists for this base filename
+      // Verify exactly one concept exists among the original concept fields, the new file's name, and the concept's ID
       const allConcepts = await query<HCAAtlasTrackerDBConcept>(
-        "SELECT * FROM hat.concepts WHERE base_filename = $1 AND file_type = $2 AND network = $3 AND generation = $4",
+        "SELECT * FROM hat.concepts WHERE ((base_filename = $1 OR base_filename = $5) AND file_type = $2 AND network = $3 AND generation = $4) OR id = $6",
         [
           expectedConceptFields.base_filename,
           expectedConceptFields.file_type,
           expectedConceptFields.network,
           expectedConceptFields.generation,
+          parseNormalizedInfoFromS3Key(secondFile.key).fileBaseName,
+          firstConcept.id,
         ],
       );
       expect(allConcepts.rows).toHaveLength(1);

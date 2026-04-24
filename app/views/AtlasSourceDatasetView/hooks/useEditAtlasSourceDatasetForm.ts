@@ -30,14 +30,15 @@ export const useEditAtlasSourceDatasetForm = (
  */
 function mapSchemaValues(
   sourceDataset?: HCAAtlasTrackerSourceDataset,
-): ViewAtlasSourceDatasetData | undefined {
-  if (!sourceDataset) return;
+): ViewAtlasSourceDatasetData {
+  if (!sourceDataset) return { capUrl: null, downloadName: "" };
   return {
     [FIELD_NAME.CAP_INGEST_STATUS]: getCapIngestStatus(sourceDataset),
     [FIELD_NAME.CAP_URL]: sourceDataset.capUrl,
     [FIELD_NAME.CELL_COUNT]: sourceDataset.cellCount,
+    [FIELD_NAME.DOWNLOAD_NAME]: sourceDataset.downloadName,
     [FIELD_NAME.FILE_EVENT_TIME]: sourceDataset.fileEventTime,
-    [FIELD_NAME.FILE_NAME]: sourceDataset.baseFileName,
+    [FIELD_NAME.FILE_NAME]: sourceDataset.fileName,
     [FIELD_NAME.GENE_COUNT]: sourceDataset.geneCount,
     [FIELD_NAME.PUBLICATION_STATUS]: sourceDataset.publicationStatus,
     [FIELD_NAME.PUBLISHED_AT]: sourceDataset.publishedAt ?? "Unpublished",

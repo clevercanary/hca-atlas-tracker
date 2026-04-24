@@ -149,3 +149,20 @@ export async function getConcept(
     throw new NotFoundError(`Concept with ID ${conceptId} does not exist`);
   return queryResult.rows[0];
 }
+
+/**
+ * Set a concept's base filename.
+ * @param conceptId - ID of the concept to update.
+ * @param baseFilename - Base filename to set.
+ * @param client - Postgres client to use.
+ */
+export async function setConceptBaseFilename(
+  conceptId: string,
+  baseFilename: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  await client.query(
+    "UPDATE hat.concepts SET base_filename = $1 WHERE id = $2",
+    [baseFilename, conceptId],
+  );
+}

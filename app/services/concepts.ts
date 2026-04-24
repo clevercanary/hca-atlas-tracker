@@ -1,3 +1,4 @@
+import { getFileBaseName, getFileExtension } from "app/utils/files";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
@@ -8,8 +9,14 @@ import {
   getAtlasesMatchingConceptAndRevision,
   getConcept,
   getConceptIdByInfo,
+  setConceptBaseFilename,
 } from "../data/concepts";
-import { NotFoundError } from "../utils/api-handler";
+import {
+  ConflictError,
+  InvalidOperationError,
+  NotFoundError,
+} from "../utils/api-handler";
+import { mapDatabaseError } from "./database";
 
 /**
  * Get an existing concept ID if it exists, or create a new concept otherwise.
@@ -80,4 +87,41 @@ async function getConceptAtlasInfoString(
 ): Promise<string> {
   const concept = await getConcept(conceptId, client);
   return `${concept.atlas_short_name} v${concept.generation} in ${concept.network} network`;
+}
+
+/**
+ * Update a concept's base filename based on a specified download name.
+ * @param conceptId - ID of the concept to update.
+ * @param newDownloadName - New download name to derive a new base filename from.
+ * @param client - Postgres client to use.
+ */
+export async function updateDownloadNameIfChanged(
+  conceptId: string,
+  newDownloadName: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  const { base_filename: existingBaseFilename } = await getConcept(
+    conceptId,
+    client,
+  );
+  const newBaseFilename =
+    newDownloadName + getFileExtension(existingBaseFilename);
+
+  if (newBaseFilename === existingBaseFilename) return;
+
+  if (getFileBaseName(newBaseFilename) !== newBaseFilename)
+    throw new InvalidOperationError(
+      "The specified download name appears to contain a version suffix",
+      "downloadName",
+    );
+
+  await mapDatabaseError(
+    () => setConceptBaseFilename(conceptId, newBaseFilename, client),
+    () =>
+      new ConflictError(
+        `A file with download name ${JSON.stringify(newDownloadName)} already exists for this atlas generation`,
+        "downloadName",
+      ),
+    { constraint: "idx_concepts_identity_fields" },
+  );
 }

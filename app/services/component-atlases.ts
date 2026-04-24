@@ -10,6 +10,7 @@ import {
 import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { getSourceDatasetVersionsForAtlas } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { updateDownloadNameIfChanged } from "./concepts";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
 
 type ComponentAtlasInfoUpdateFields = Pick<
@@ -147,6 +148,11 @@ export async function updateComponentAtlas(
     capUrl: inputData.capUrl || null,
   };
   return await doTransaction(async (client) => {
+    await updateDownloadNameIfChanged(
+      componentAtlasId,
+      inputData.downloadName,
+      client,
+    );
     await query(
       "UPDATE hat.component_atlases SET component_info = component_info || $1 WHERE version_id = $2",
       [JSON.stringify(updatedInfoFields), componentAtlasVersion],

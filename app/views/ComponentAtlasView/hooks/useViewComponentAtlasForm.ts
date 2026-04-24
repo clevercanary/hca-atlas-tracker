@@ -30,14 +30,15 @@ export const useViewComponentAtlasForm = (
  */
 function mapSchemaValues(
   integratedObject?: HCAAtlasTrackerComponentAtlas,
-): ViewIntegratedObjectData | undefined {
-  if (!integratedObject) return;
+): ViewIntegratedObjectData {
+  if (!integratedObject) return { capUrl: null, downloadName: "" };
   return {
     [FIELD_NAME.CAP_INGEST_STATUS]: getCapIngestStatus(integratedObject),
     [FIELD_NAME.CAP_URL]: integratedObject.capUrl,
     [FIELD_NAME.CELL_COUNT]: integratedObject.cellCount,
+    [FIELD_NAME.DOWNLOAD_NAME]: integratedObject.downloadName,
     [FIELD_NAME.FILE_EVENT_TIME]: integratedObject.fileEventTime,
-    [FIELD_NAME.FILE_NAME]: integratedObject.baseFileName,
+    [FIELD_NAME.FILE_NAME]: integratedObject.fileName,
     [FIELD_NAME.GENE_COUNT]: integratedObject.geneCount,
     [FIELD_NAME.PUBLISHED_AT]: integratedObject.publishedAt ?? "Unpublished",
     [FIELD_NAME.SIZE_BY_BYTES]: formatFileSize(integratedObject.sizeBytes),

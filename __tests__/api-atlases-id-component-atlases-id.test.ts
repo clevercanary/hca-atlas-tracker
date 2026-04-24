@@ -3,6 +3,7 @@ import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerDetailComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ComponentAtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
+import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
 import { endPgPool } from "../app/services/database";
 import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
 import {
@@ -22,6 +23,7 @@ import {
   COMPONENT_ATLAS_MISC_BAR,
   COMPONENT_ATLAS_MISC_BAZ,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
@@ -35,10 +37,13 @@ import {
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
 } from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
+import { getConceptFromDatabase, resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
+  assertExpectDefined,
+  delay,
   expectDetailApiComponentAtlasToMatchTest,
+  getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -54,14 +59,17 @@ jest.mock("next-auth");
 
 const MISC_FOO_EDIT_DATA = {
   capUrl: "https://celltype.info/project/982834/dataset/325453",
+  downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_FOO),
 } satisfies ComponentAtlasEditData;
 
 const MISC_BAR_EDIT_DATA = {
   capUrl: "https://celltype.info/project/234782/dataset/645632",
+  downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_BAR),
 } satisfies ComponentAtlasEditData;
 
 const MISC_BAZ_EDIT_DATA = {
   capUrl: "",
+  downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_BAZ),
 } satisfies ComponentAtlasEditData;
 
 const TEST_ROUTE =
@@ -384,6 +392,21 @@ describe(TEST_ROUTE, () => {
     ).toEqual(403);
   });
 
+  it("returns error 403 when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_FOO.id,
+          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          METHOD.PATCH,
+          MISC_FOO_EDIT_DATA,
+          false,
+        )
+      )._getStatusCode(),
+    ).toEqual(403);
+  });
+
   it("returns error 404 when PATCH requested with nonexistent component atlas", async () => {
     expect(
       (
@@ -430,7 +453,12 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 400 when PATCH requested with component atlas that the atlas does not have the latest version of", async () => {
-    const editData = { capUrl: null } satisfies ComponentAtlasEditData;
+    const editData = {
+      capUrl: null,
+      downloadName: getTestEntityDownloadName(
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+      ),
+    } satisfies ComponentAtlasEditData;
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
       COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
@@ -479,21 +507,72 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
-  it("updates component atlas when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("returns error 400 when PATCH requested with download name set to empty string", async () => {
+    expect(
+      (
+        await doComponentAtlasRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          COMPONENT_ATLAS_MISC_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          {
+            ...MISC_BAR_EDIT_DATA,
+            downloadName: "",
+          },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+  });
+
+  it("returns error 400 when PATCH requested with download name containing version suffix", async () => {
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      COMPONENT_ATLAS_MISC_FOO.id,
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      COMPONENT_ATLAS_MISC_BAR.id,
+      USER_CONTENT_ADMIN,
       METHOD.PATCH,
-      MISC_FOO_EDIT_DATA,
+      {
+        ...MISC_BAR_EDIT_DATA,
+        downloadName: "file-r1",
+      },
+      true,
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const componentAtlas =
-      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
-    expect(componentAtlas.capUrl).toEqual(MISC_FOO_EDIT_DATA.capUrl);
+    expect(res._getStatusCode()).toEqual(400);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("version suffix")],
+      },
+    });
+  });
+
+  it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      {
+        ...MISC_BAR_EDIT_DATA,
+        downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_FOO),
+      },
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(409);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("already exists")],
+      },
+    });
   });
 
   it("updates component atlas when PATCH requested by user with CONTENT_ADMIN role", async () => {
+    const conceptBefore = await getConceptFromDatabase(
+      COMPONENT_ATLAS_MISC_BAR.id,
+    );
+    assertExpectDefined(conceptBefore);
+    await delay(10); // Ensure timestamps can be different
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       COMPONENT_ATLAS_MISC_BAR.id,
@@ -505,6 +584,17 @@ describe(TEST_ROUTE, () => {
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expect(componentAtlas.capUrl).toEqual(MISC_BAR_EDIT_DATA.capUrl);
+    expect(componentAtlas.downloadName).toEqual(
+      MISC_BAR_EDIT_DATA.downloadName,
+    );
+    const conceptAfter = await getConceptFromDatabase(
+      COMPONENT_ATLAS_MISC_BAR.id,
+    );
+    assertExpectDefined(conceptAfter);
+    // Download name wasn't changed, so concept shouldn't have been updated
+    expect(conceptAfter.updated_at.getTime()).toEqual(
+      conceptBefore.updated_at.getTime(),
+    );
   });
 
   it("sets CAP URL to null when PATCH requested with empty string CAP URL", async () => {
@@ -519,11 +609,17 @@ describe(TEST_ROUTE, () => {
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expect(componentAtlas.capUrl).toBeNull();
+    expect(componentAtlas.downloadName).toEqual(
+      MISC_BAZ_EDIT_DATA.downloadName,
+    );
   });
 
   it("updates component atlas when PATCH requested from atlas that is linked to its latest version", async () => {
     const editData = {
       capUrl: "https://celltype.info/project/928342/dataset/458432",
+      downloadName: getTestEntityDownloadName(
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      ),
     } satisfies ComponentAtlasEditData;
     const res = await doComponentAtlasRequest(
       ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
@@ -536,6 +632,29 @@ describe(TEST_ROUTE, () => {
     const componentAtlas =
       res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
     expect(componentAtlas.capUrl).toEqual(editData.capUrl);
+    expect(componentAtlas.downloadName).toEqual(editData.downloadName);
+  });
+
+  it("updates associated concept when PATCH requested with new download name", async () => {
+    const editData = {
+      capUrl: null,
+      downloadName: "new-download-name",
+    } satisfies ComponentAtlasEditData;
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      editData,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expect(componentAtlas.capUrl).toEqual(editData.capUrl);
+    expect(componentAtlas.downloadName).toEqual(editData.downloadName);
+    const concept = await getConceptFromDatabase(COMPONENT_ATLAS_MISC_FOO.id);
+    assertExpectDefined(concept);
+    expect(concept.base_filename).toEqual(editData.downloadName + ".h5ad");
   });
 });
 

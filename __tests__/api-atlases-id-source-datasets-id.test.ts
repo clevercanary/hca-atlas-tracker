@@ -6,6 +6,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasSourceDatasetEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
+import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
 import { endPgPool } from "../app/services/database";
 import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
@@ -40,11 +41,15 @@ import {
 } from "../testing/constants";
 import {
   expectSourceDatasetToBeUnchanged,
+  getConceptFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
+  assertExpectDefined,
+  delay,
   expectDetailApiSourceDatasetToMatchTest,
+  getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -78,20 +83,24 @@ const SOURCE_DATASET_ID_NONEXISTENT = "52281fde-232c-4481-8b45-cc986570e7b9";
 
 const A_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: null,
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_ATLAS_LINKED_A_FOO),
   metadataSpreadsheetUrl: "https://docs.google.com/spreadsheets/d/sheet-bar",
 };
 
 const B_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: null,
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_ATLAS_LINKED_B_BAR),
   metadataSpreadsheetUrl: "",
 };
 
 const A_BAR_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: "https://celltype.info/project/534534/dataset/234727",
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_ATLAS_LINKED_A_BAR),
 };
 
 const WSS_FOO_EDIT_DATA: AtlasSourceDatasetEditData = {
   capUrl: "",
+  downloadName: getTestEntityDownloadName(SOURCE_DATASET_WITH_SOURCE_STUDY_FOO),
 };
 
 beforeAll(async () => {
@@ -413,6 +422,22 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
 
+  it("returns error 403 when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+          USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+          METHOD.PATCH,
+          false,
+          B_BAR_EDIT_DATA,
+        )
+      )._getStatusCode(),
+    ).toEqual(403);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_BAR);
+  });
+
   it("returns error 404 when PATCH requested with nonexistent source dataset", async () => {
     expect(
       (
@@ -465,6 +490,9 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
   it("returns error 400 when PATCH requested with source dataset with non-latest version linked to the atlas", async () => {
     const editData = {
       capUrl: "https://celltype.info/project/376345/dataset/745632",
+      downloadName: getTestEntityDownloadName(
+        SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      ),
     } satisfies AtlasSourceDatasetEditData;
     expect(
       (
@@ -563,27 +591,78 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_FOO);
   });
 
-  it("updates and returns source dataset when PATCH requested by user with INTEGRATION_LEAD role for the atlas", async () => {
+  it("returns error 400 when PATCH requested with download name set to empty string", async () => {
+    expect(
+      (
+        await doSourceDatasetRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PATCH,
+          true,
+          {
+            ...A_BAR_EDIT_DATA,
+            downloadName: "",
+          },
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
+  });
+
+  it("returns error 400 when PATCH requested with download name containing version suffix", async () => {
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-      SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
-      USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+      USER_CONTENT_ADMIN,
       METHOD.PATCH,
       true,
-      B_BAR_EDIT_DATA,
+      {
+        ...A_BAR_EDIT_DATA,
+        downloadName: "file-r1",
+      },
     );
-    expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.capUrl).toBeNull();
-    expect(sourceDataset.metadataSpreadsheetUrl).toEqual(null);
-    expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_ATLAS_LINKED_B_BAR.file.datasetInfo.title,
+    expect(res._getStatusCode()).toEqual(400);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("version suffix")],
+      },
+    });
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
+  });
+
+  it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      {
+        ...A_BAR_EDIT_DATA,
+        downloadName: getTestEntityDownloadName(
+          SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+        ),
+      },
     );
-    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+    expect(res._getStatusCode()).toEqual(409);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("already exists")],
+      },
+    });
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
   });
 
   it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {
     const callCountBefore = getSheetTitleMock.mock.calls.length;
+    const conceptBefore = await getConceptFromDatabase(
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+    );
+    assertExpectDefined(conceptBefore);
+    await delay(10); // Ensure timestamps can be different
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
@@ -595,6 +674,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.capUrl).toBeNull();
+    expect(sourceDataset.downloadName).toEqual(A_FOO_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toEqual("Sheet Bar");
     expect(sourceDataset.metadataSpreadsheetUrl).toEqual(
       A_FOO_EDIT_DATA.metadataSpreadsheetUrl,
@@ -603,6 +683,14 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.datasetInfo.title,
     );
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
+    const conceptAfter = await getConceptFromDatabase(
+      SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
+    );
+    assertExpectDefined(conceptAfter);
+    // Download name wasn't changed, so concept shouldn't have been updated
+    expect(conceptAfter.updated_at.getTime()).toEqual(
+      conceptBefore.updated_at.getTime(),
+    );
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
@@ -618,6 +706,7 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.capUrl).toEqual(A_BAR_EDIT_DATA.capUrl);
+    expect(sourceDataset.downloadName).toEqual(A_BAR_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
     expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
@@ -635,8 +724,37 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(res._getStatusCode()).toEqual(200);
     const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
     expect(sourceDataset.capUrl).toBeNull();
+    expect(sourceDataset.downloadName).toEqual(WSS_FOO_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
     expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+    await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
+  });
+
+  it("updates associated concept when PATCH requested with new download name", async () => {
+    const editData: AtlasSourceDatasetEditData = {
+      capUrl: null,
+      downloadName: "new-download-name",
+      metadataSpreadsheetUrl: null,
+    };
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      editData,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    expect(sourceDataset.capUrl).toBeNull();
+    expect(sourceDataset.downloadName).toEqual(editData.downloadName);
+    expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
+    expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+    const concept = await getConceptFromDatabase(
+      SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
+    );
+    assertExpectDefined(concept);
+    expect(concept.base_filename).toEqual(editData.downloadName + ".h5ad");
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 });

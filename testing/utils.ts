@@ -41,6 +41,7 @@ import {
 import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
 import { slugifyAtlasShortName } from "../app/utils/atlases";
+import { removeFileExtension } from "../app/utils/files";
 import {
   ATLAS_DRAFT,
   DEFAULT_USERS_BY_ROLE,
@@ -354,6 +355,12 @@ export function getTestSourceStudyCitation(
       sourceStudy.unpublishedInfo.contactEmail,
     );
   }
+}
+
+export function getTestEntityDownloadName(
+  entity: TestComponentAtlas | TestSourceDataset,
+): string {
+  return removeFileExtension(getTestEntityBaseFilename(entity));
 }
 
 function getTestEntityBaseFilename(

@@ -67,6 +67,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   capUrl: string | null;
   cellCount: number;
   disease: string[];
+  downloadName: string;
   fileEventTime: string;
   fileId: string;
   fileName: string;
@@ -136,6 +137,7 @@ export interface HCAAtlasTrackerSourceDataset {
   createdAt: string;
   disease: string[];
   doi: string | null;
+  downloadName: string;
   fileEventTime: string;
   fileId: string;
   fileName: string;
