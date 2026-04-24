@@ -1,6 +1,7 @@
 import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import { parseS3KeyPath, removeFileExtension } from "../../../../utils/files";
+import { FILE_VALIDATOR_NAMES } from "./constants";
 import {
   FileValidationSummary,
   HCAAtlasTrackerAtlas,
@@ -384,9 +385,10 @@ function normalizeValidationSummary(
 ): FileValidationSummary | null {
   if (summary === null) return null;
   const validators: FileValidationSummary["validators"] = {};
-  for (const [name, value] of Object.entries(summary.validators)) {
+  for (const name of FILE_VALIDATOR_NAMES) {
+    const value = summary.validators[name];
     if (value === undefined) continue;
-    validators[name as keyof typeof validators] = normalizeValidator(value);
+    validators[name] = normalizeValidator(value);
   }
   return {
     overallValid: summary.overallValid,
