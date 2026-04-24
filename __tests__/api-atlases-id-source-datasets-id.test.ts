@@ -688,8 +688,8 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     );
     assertExpectDefined(conceptAfter);
     // Download name wasn't changed, so concept shouldn't have been updated
-    expect(conceptAfter.updated_at.getDate()).toEqual(
-      conceptBefore.updated_at.getDate(),
+    expect(conceptAfter.updated_at.getTime()).toEqual(
+      conceptBefore.updated_at.getTime(),
     );
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
