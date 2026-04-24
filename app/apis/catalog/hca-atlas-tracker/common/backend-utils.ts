@@ -2,6 +2,7 @@ import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.jso
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import { parseS3KeyPath, removeFileExtension } from "../../../../utils/files";
 import {
+  FileValidationSummary,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerAtlasSummary,
   HCAAtlasTrackerComment,
@@ -31,7 +32,9 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
+  RawFileValidationSummary,
   TIER_ONE_METADATA_STATUS,
+  ValidatorSummaryStatus,
   WithSourceStudyInfo,
 } from "./entities";
 import {
@@ -137,7 +140,9 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     tissue: dbComponentAtlas.dataset_info?.tissue ?? [],
     title: dbComponentAtlas.dataset_info?.title ?? "",
     validationStatus: dbComponentAtlas.validation_status,
-    validationSummary: dbComponentAtlas.validation_summary,
+    validationSummary: normalizeValidationSummary(
+      dbComponentAtlas.validation_summary,
+    ),
     wipNumber: dbComponentAtlas.wip_number,
   };
 }
@@ -242,7 +247,9 @@ export function dbSourceDatasetToApiSourceDataset(
     title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
     validationStatus: dbSourceDataset.validation_status,
-    validationSummary: dbSourceDataset.validation_summary,
+    validationSummary: normalizeValidationSummary(
+      dbSourceDataset.validation_summary,
+    ),
     wipNumber: dbSourceDataset.wip_number,
   };
 }
@@ -345,6 +352,45 @@ export function dbUserToApiUser(
     role: dbUser.role,
     roleAssociatedResourceIds: dbUser.role_associated_resource_ids,
     roleAssociatedResourceNames: dbUser.role_associated_resource_names,
+  };
+}
+
+/**
+ * Normalize a single validator summary entry, mapping legacy boolean values to the current object shape.
+ * Pre-#1188 rows stored a bare boolean per validator; we don't know historical error/warning counts, so they're zeroed and the icon falls back to the `valid` flag.
+ * @param value - Raw validator entry from the database.
+ * @returns Normalized validator summary status.
+ */
+function normalizeValidator(
+  value: boolean | ValidatorSummaryStatus,
+): ValidatorSummaryStatus {
+  if (typeof value === "boolean") {
+    return {
+      errorCount: 0,
+      valid: value,
+      warningCount: 0,
+    };
+  }
+  return value;
+}
+
+/**
+ * Normalize a file validation summary, lifting any legacy boolean validator entries to the current object shape.
+ * @param summary - Raw validation summary from the database, or null.
+ * @returns Validation summary in the current shape, or null.
+ */
+function normalizeValidationSummary(
+  summary: RawFileValidationSummary | null,
+): FileValidationSummary | null {
+  if (summary === null) return null;
+  const validators: FileValidationSummary["validators"] = {};
+  for (const [name, value] of Object.entries(summary.validators)) {
+    if (value === undefined) continue;
+    validators[name as keyof typeof validators] = normalizeValidator(value);
+  }
+  return {
+    overallValid: summary.overallValid,
+    validators,
   };
 }
 

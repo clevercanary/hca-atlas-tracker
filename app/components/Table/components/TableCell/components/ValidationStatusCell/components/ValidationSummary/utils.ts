@@ -3,6 +3,7 @@ import {
   FileValidationSummary,
   FileValidatorName,
   REPROCESSED_STATUS,
+  ValidatorSummaryStatus,
 } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 
@@ -16,8 +17,8 @@ import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-at
 export function getValidators(
   validationSummary: FileValidationSummary,
   reprocessedStatus?: REPROCESSED_STATUS,
-): [FileValidatorName, boolean][] {
-  const entries: [FileValidatorName, boolean][] = [];
+): [FileValidatorName, ValidatorSummaryStatus][] {
+  const entries: [FileValidatorName, ValidatorSummaryStatus][] = [];
   for (const name of FILE_VALIDATOR_NAMES) {
     const value = validationSummary.validators[name];
     if (value === undefined) continue;

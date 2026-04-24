@@ -157,7 +157,11 @@ function getValidationReportsAndSummary(
       warnings: validatorResults.warnings,
     };
     validationReports[validatorName] = validatorReport;
-    validationSummary.validators[validatorName] = validatorReport.valid;
+    validationSummary.validators[validatorName] = {
+      errorCount: validatorReport.errors.length,
+      valid: validatorReport.valid,
+      warningCount: validatorReport.warnings.length,
+    };
     validationSummary.overallValid =
       validationSummary.overallValid && validatorReport.valid;
   }

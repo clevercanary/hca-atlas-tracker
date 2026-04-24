@@ -40,7 +40,7 @@ export const ValidationSummary = ({
         });
         return (
           <Stack key={key} {...INNER_STACK_PROPS}>
-            {value ? (
+            {value.valid ? (
               <SuccessIcon
                 color={SVG_ICON_PROPS.COLOR.SUCCESS}
                 fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}

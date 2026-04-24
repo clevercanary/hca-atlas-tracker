@@ -1680,7 +1680,7 @@ export const SOURCE_DATASET_FOO = {
     validationSummary: {
       overallValid: true,
       validators: {
-        cap: true,
+        cap: { errorCount: 0, valid: true, warningCount: 0 },
       },
     },
     versionId: null,
@@ -2101,7 +2101,7 @@ export const SOURCE_DATASET_ATLAS_LINKED_A_FOO = {
     validationSummary: {
       overallValid: true,
       validators: {
-        cap: true,
+        cap: { errorCount: 0, valid: true, warningCount: 0 },
       },
     },
     versionId: null,
@@ -3143,7 +3143,7 @@ export const COMPONENT_ATLAS_DRAFT_BAR = {
     validationSummary: {
       overallValid: true,
       validators: {
-        cap: true,
+        cap: { errorCount: 0, valid: true, warningCount: 0 },
       },
     },
     versionId: null,

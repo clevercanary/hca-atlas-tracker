@@ -62,7 +62,7 @@ export function getCapIngestStatus(
       return CAP_INGEST_STATUS.NEEDS_VALIDATION;
     }
     // Status is "CAP_READY" with completed, successful validation.
-    if (validationSummary.validators.cap) {
+    if (validationSummary.validators.cap?.valid) {
       return CAP_INGEST_STATUS.CAP_READY;
     }
     // Status is "CAP_VALIDATION_FAILED" with completed validation with errors.
