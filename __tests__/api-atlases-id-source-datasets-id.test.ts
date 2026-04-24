@@ -6,6 +6,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasSourceDatasetEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
+import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
 import { endPgPool } from "../app/services/database";
 import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
 import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
@@ -610,42 +611,48 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
   });
 
   it("returns error 400 when PATCH requested with download name containing version suffix", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
-          USER_CONTENT_ADMIN,
-          METHOD.PATCH,
-          true,
-          {
-            ...A_BAR_EDIT_DATA,
-            downloadName: "file-r1",
-          },
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      {
+        ...A_BAR_EDIT_DATA,
+        downloadName: "file-r1",
+      },
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("version suffix")],
+      },
+    });
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
   });
 
   it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
-    expect(
-      (
-        await doSourceDatasetRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
-          USER_CONTENT_ADMIN,
-          METHOD.PATCH,
-          true,
-          {
-            ...A_BAR_EDIT_DATA,
-            downloadName: getTestEntityDownloadName(
-              SOURCE_DATASET_ATLAS_LINKED_B_FOO,
-            ),
-          },
-        )
-      )._getStatusCode(),
-    ).toEqual(409);
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      true,
+      {
+        ...A_BAR_EDIT_DATA,
+        downloadName: getTestEntityDownloadName(
+          SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+        ),
+      },
+    );
+    expect(res._getStatusCode()).toEqual(409);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("already exists")],
+      },
+    });
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_A_BAR);
   });
 

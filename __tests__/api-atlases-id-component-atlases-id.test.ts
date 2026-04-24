@@ -3,6 +3,7 @@ import httpMocks from "node-mocks-http";
 import { HCAAtlasTrackerDetailComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ComponentAtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
+import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
 import { endPgPool } from "../app/services/database";
 import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
 import {
@@ -525,39 +526,45 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 400 when PATCH requested with download name containing version suffix", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          COMPONENT_ATLAS_MISC_BAR.id,
-          USER_CONTENT_ADMIN,
-          METHOD.PATCH,
-          {
-            ...MISC_BAR_EDIT_DATA,
-            downloadName: "file-r1",
-          },
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      {
+        ...MISC_BAR_EDIT_DATA,
+        downloadName: "file-r1",
+      },
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("version suffix")],
+      },
+    });
   });
 
   it("returns error 409 when PATCH requested with download name that already exists in the atlas generation", async () => {
-    expect(
-      (
-        await doComponentAtlasRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          COMPONENT_ATLAS_MISC_BAR.id,
-          USER_CONTENT_ADMIN,
-          METHOD.PATCH,
-          {
-            ...MISC_BAR_EDIT_DATA,
-            downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_FOO),
-          },
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(409);
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_BAR.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      {
+        ...MISC_BAR_EDIT_DATA,
+        downloadName: getTestEntityDownloadName(COMPONENT_ATLAS_MISC_FOO),
+      },
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(409);
+    const errorInfo = res._getJSONData() as FormResponseErrors;
+    expect(errorInfo).toMatchObject({
+      errors: {
+        downloadName: [expect.stringContaining("already exists")],
+      },
+    });
   });
 
   it("updates component atlas when PATCH requested by user with CONTENT_ADMIN role", async () => {
