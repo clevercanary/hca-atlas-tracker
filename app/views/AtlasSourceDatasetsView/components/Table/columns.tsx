@@ -86,6 +86,7 @@ const COLUMN_FILE_NAME = {
       }),
     }),
   header: "File Name",
+  id: "fileName",
   meta: { columnPinned: true, width: { max: "0.5fr", min: "120px" } },
 } as ColumnDef<AtlasSourceDataset>;
 
