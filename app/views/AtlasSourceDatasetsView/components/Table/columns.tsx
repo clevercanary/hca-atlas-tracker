@@ -7,6 +7,7 @@ import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { ROUTE } from "../../../../routes/constants";
+import { formatISOToUTCDateTime } from "../../../../utils/date-fns";
 import {
   buildAssay,
   buildDisease,
@@ -110,7 +111,17 @@ const COLUMN_SIZE_BYTES = {
 
 const COLUMN_FILE_EVENT_TIME = {
   accessorKey: "fileEventTime",
-  cell: ({ row }) => row.original.fileEventTime,
+  cell: ({ row }) => {
+    const parts = formatISOToUTCDateTime(row.original.fileEventTime);
+    if (!parts) return null;
+    const [date, time] = parts;
+    return (
+      <div>
+        <div>{date}</div>
+        <div>{time}</div>
+      </div>
+    );
+  },
   header: "Uploaded At",
   meta: { width: { max: "1fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;

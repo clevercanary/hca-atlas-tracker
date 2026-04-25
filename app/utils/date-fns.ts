@@ -35,6 +35,22 @@ export function formatDateToQuarterYear(dateStr: string | null): string {
 }
 
 /**
+ * Formats an ISO date string as a UTC date and time.
+ * @param isoString - ISO date string.
+ * @returns tuple of [date, time] formatted as ["YYYY-MM-DD", "HH:MM:SS (UTC)"], or null if invalid.
+ */
+export function formatISOToUTCDateTime(
+  isoString: string | null | undefined,
+): [string, string] | null {
+  if (!isoString) return null;
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return null;
+  const datePart = isoString.slice(0, 10);
+  const timePart = isoString.slice(11, 19);
+  return [datePart, `${timePart} (UTC)`];
+}
+
+/**
  * Returns the date for the given year and month.
  * @param year - Year.
  * @param month - Month.
@@ -54,6 +70,18 @@ function getFormattedMonth(month: number): string {
   const date = new Date(0, month - 1);
   // Format the date to get the month as a two-digit string
   return format(date, "MM");
+}
+
+/**
+ * Returns the last moment of the given quarter.
+ * @param quarter - Quarter.
+ * @param year - Year.
+ * @returns last moment of the quarter.
+ */
+function getLastMomentOfQuarter(quarter: number, year: number): Date {
+  const month = quartersToMonths(quarter);
+  const date = getDate(year, month);
+  return endOfQuarter(date);
 }
 
 /**
@@ -78,16 +106,4 @@ export function getPastAndNextTwoYearsQuartersByDate(
     }
   }
   return quartersByDate;
-}
-
-/**
- * Returns the last moment of the given quarter.
- * @param quarter - Quarter.
- * @param year - Year.
- * @returns last moment of the quarter.
- */
-function getLastMomentOfQuarter(quarter: number, year: number): Date {
-  const month = quartersToMonths(quarter);
-  const date = getDate(year, month);
-  return endOfQuarter(date);
 }
