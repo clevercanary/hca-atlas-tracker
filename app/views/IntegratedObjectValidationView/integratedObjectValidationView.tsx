@@ -38,7 +38,7 @@ export const IntegratedObjectValidationView = ({
         isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
       >
         <DetailView
-          backPath={getRouteURL(ROUTE.COMPONENT_ATLAS, pathParameter)}
+          backPath={getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter)}
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }

@@ -38,7 +38,7 @@ export const AtlasSourceDatasetValidationView = ({
         isIn={shouldRenderView(canView, Boolean(atlas && sourceDataset))}
       >
         <DetailView
-          backPath={getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, pathParameter)}
+          backPath={getRouteURL(ROUTE.ATLAS_SOURCE_DATASETS, pathParameter)}
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }
