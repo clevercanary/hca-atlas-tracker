@@ -46,7 +46,7 @@ export const ValidationSummary = ({
             title={FILE_VALIDATOR_DESCRIPTIONS[key as FileValidatorName]}
           >
             <Stack {...INNER_STACK_PROPS}>
-              {value ? (
+              {value.valid ? (
                 <SuccessIcon
                   color={SVG_ICON_PROPS.COLOR.SUCCESS}
                   fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
