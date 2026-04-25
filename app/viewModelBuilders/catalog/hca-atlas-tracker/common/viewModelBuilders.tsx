@@ -15,7 +15,7 @@ import {
   RowData,
   Table,
 } from "@tanstack/react-table";
-import { BaseSyntheticEvent, ComponentProps, JSX } from "react";
+import { BaseSyntheticEvent, ComponentProps, type JSX } from "react";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   NETWORKS,
@@ -50,7 +50,10 @@ import * as C from "../../../../components";
 import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { ICON_STATUS } from "../../../../components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
 import { ROUTE } from "../../../../routes/constants";
-import { formatDateToQuarterYear } from "../../../../utils/date-fns";
+import {
+  formatDateToQuarterYear,
+  formatISOToUTCDateTime,
+} from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { AtlasIntegratedObject } from "../../../../views/ComponentAtlasesView/entities";
 import { EXTRA_PROPS } from "./constants";
@@ -976,7 +979,17 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     getIntegratedObjectFileSizeColumnDef(),
     {
       accessorKey: "fileEventTime",
-      cell: ({ row }) => row.original.fileEventTime,
+      cell: ({ row }): JSX.Element | null => {
+        const parts = formatISOToUTCDateTime(row.original.fileEventTime);
+        if (!parts) return null;
+        const [date, time] = parts;
+        return (
+          <div>
+            <div>{date}</div>
+            <div>{time}</div>
+          </div>
+        );
+      },
       header: "Uploaded At",
       meta: { width: { max: "1fr", min: "160px" } },
     },
