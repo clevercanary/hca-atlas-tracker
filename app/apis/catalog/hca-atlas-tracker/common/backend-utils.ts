@@ -1,6 +1,10 @@
 import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
-import { parseS3KeyPath, removeFileExtension } from "../../../../utils/files";
+import {
+  normalizeValidationSummary,
+  parseS3KeyPath,
+  removeFileExtension,
+} from "../../../../utils/files";
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerAtlasSummary,
@@ -137,7 +141,9 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     tissue: dbComponentAtlas.dataset_info?.tissue ?? [],
     title: dbComponentAtlas.dataset_info?.title ?? "",
     validationStatus: dbComponentAtlas.validation_status,
-    validationSummary: dbComponentAtlas.validation_summary,
+    validationSummary: normalizeValidationSummary(
+      dbComponentAtlas.validation_summary,
+    ),
     wipNumber: dbComponentAtlas.wip_number,
   };
 }
@@ -242,7 +248,9 @@ export function dbSourceDatasetToApiSourceDataset(
     title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
     validationStatus: dbSourceDataset.validation_status,
-    validationSummary: dbSourceDataset.validation_summary,
+    validationSummary: normalizeValidationSummary(
+      dbSourceDataset.validation_summary,
+    ),
     wipNumber: dbSourceDataset.wip_number,
   };
 }

@@ -182,14 +182,25 @@ function makeValidationReports(): [
     OVERALL_VALID_PROBABILITY ** (1 / FILE_VALIDATOR_NAMES.length);
   for (const validator of FILE_VALIDATOR_NAMES) {
     const valid = Math.random() < validatorValidProbability;
+    const errors = valid
+      ? []
+      : generateArrayVia((l) => `Error ${l.toUpperCase()}`);
+    const warnings =
+      Math.random() < 0.5
+        ? []
+        : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
     validationReports[validator] = {
-      errors: valid ? [] : generateArrayVia((l) => `Error ${l.toUpperCase()}`),
+      errors,
       finishedAt: new Date().toISOString(),
       startedAt: new Date().toISOString(),
       valid,
-      warnings: [],
+      warnings,
     };
-    validationSummary.validators[validator] = valid;
+    validationSummary.validators[validator] = {
+      errorCount: errors.length,
+      valid,
+      warningCount: warnings.length,
+    };
     validationSummary.overallValid = validationSummary.overallValid && valid;
   }
   return [validationReports, validationSummary];

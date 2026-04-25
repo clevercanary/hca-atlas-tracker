@@ -45,7 +45,9 @@ describe("getCapIngestStatus", () => {
         validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
         validationSummary: {
           overallValid: true,
-          validators: { cap: true },
+          validators: {
+            cap: { errorCount: 0, valid: true, warningCount: 0 },
+          },
         },
       }),
     );

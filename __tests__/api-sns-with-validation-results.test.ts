@@ -255,10 +255,10 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const firstExpectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
-        cap: true,
-        cellxgene: false,
-        hcaCellAnnotation: true,
-        hcaSchema: true,
+        cap: { errorCount: 0, valid: true, warningCount: 0 },
+        cellxgene: { errorCount: 1, valid: false, warningCount: 0 },
+        hcaCellAnnotation: { errorCount: 0, valid: true, warningCount: 0 },
+        hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
       },
     };
     const firstValidationResults = createValidationResults({
@@ -387,10 +387,10 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const expectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
-        cap: false,
-        cellxgene: false,
-        hcaCellAnnotation: true,
-        hcaSchema: true,
+        cap: { errorCount: 1, valid: false, warningCount: 0 },
+        cellxgene: { errorCount: 1, valid: false, warningCount: 1 },
+        hcaCellAnnotation: { errorCount: 0, valid: true, warningCount: 0 },
+        hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
       },
     };
     const validationResults = createValidationResults({
@@ -480,10 +480,10 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const expectedValidationSummary: FileValidationSummary = {
       overallValid: false,
       validators: {
-        cap: false,
-        cellxgene: false,
-        hcaCellAnnotation: true,
-        hcaSchema: true,
+        cap: { errorCount: 1, valid: false, warningCount: 0 },
+        cellxgene: { errorCount: 1, valid: false, warningCount: 1 },
+        hcaCellAnnotation: { errorCount: 0, valid: true, warningCount: 0 },
+        hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
       },
     };
     const validationResults = createValidationResults({

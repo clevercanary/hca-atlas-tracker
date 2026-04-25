@@ -1,11 +1,11 @@
 import {
   ATLAS_STATUS,
+  DBFileValidationSummary,
   DOI_STATUS,
   DoiPublicationInfo,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
   FileValidationReports,
-  FileValidationSummary,
   GoogleSheetInfo,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -131,7 +131,7 @@ export interface TestFile {
   validationInfo?: HCAAtlasTrackerDBFileValidationInfo | null;
   validationReports?: FileValidationReports | null;
   validationStatus?: FILE_VALIDATION_STATUS;
-  validationSummary?: FileValidationSummary | null;
+  validationSummary?: DBFileValidationSummary | null;
   versionId: string | null;
 }
 

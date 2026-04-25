@@ -172,10 +172,10 @@ export const SUCCESSFUL_TOOL_REPORTS: DatasetValidatorToolReports = {
 export const SUCCESSFUL_VALIDATION_SUMMARY: FileValidationSummary = {
   overallValid: true,
   validators: {
-    cap: true,
-    cellxgene: true,
-    hcaCellAnnotation: true,
-    hcaSchema: true,
+    cap: { errorCount: 0, valid: true, warningCount: 0 },
+    cellxgene: { errorCount: 0, valid: true, warningCount: 0 },
+    hcaCellAnnotation: { errorCount: 0, valid: true, warningCount: 0 },
+    hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
   },
 };
 
