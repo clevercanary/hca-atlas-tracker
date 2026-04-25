@@ -185,17 +185,21 @@ function makeValidationReports(): [
     const errors = valid
       ? []
       : generateArrayVia((l) => `Error ${l.toUpperCase()}`);
+    const warnings =
+      Math.random() < 0.5
+        ? []
+        : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
     validationReports[validator] = {
       errors,
       finishedAt: new Date().toISOString(),
       startedAt: new Date().toISOString(),
       valid,
-      warnings: [],
+      warnings,
     };
     validationSummary.validators[validator] = {
       errorCount: errors.length,
       valid,
-      warningCount: 0,
+      warningCount: warnings.length,
     };
     validationSummary.overallValid = validationSummary.overallValid && valid;
   }
