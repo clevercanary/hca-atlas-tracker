@@ -3,6 +3,7 @@ import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import { parseS3KeyPath, removeFileExtension } from "../../../../utils/files";
 import { FILE_VALIDATOR_NAMES } from "./constants";
 import {
+  DBFileValidationSummary,
   FileValidationSummary,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerAtlasSummary,
@@ -33,7 +34,6 @@ import {
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
-  RawFileValidationSummary,
   TIER_ONE_METADATA_STATUS,
   ValidatorSummaryStatus,
   WithSourceStudyInfo,
@@ -381,7 +381,7 @@ function normalizeValidator(
  * @returns Validation summary in the current shape, or null.
  */
 function normalizeValidationSummary(
-  summary: RawFileValidationSummary | null,
+  summary: DBFileValidationSummary | null,
 ): FileValidationSummary | null {
   if (summary === null) return null;
   const validators: FileValidationSummary["validators"] = {};

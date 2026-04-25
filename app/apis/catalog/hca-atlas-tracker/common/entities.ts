@@ -495,7 +495,7 @@ export interface HCAAtlasTrackerDBFile {
   validation_info: HCAAtlasTrackerDBFileValidationInfo | null;
   validation_reports: FileValidationReports | null;
   validation_status: FILE_VALIDATION_STATUS;
-  validation_summary: RawFileValidationSummary | null;
+  validation_summary: DBFileValidationSummary | null;
   version_id: string | null;
 }
 
@@ -752,7 +752,7 @@ export interface FileValidationSummary {
   validators: Partial<Record<FileValidatorName, ValidatorSummaryStatus>>;
 }
 
-export interface RawFileValidationSummary {
+export interface DBFileValidationSummary {
   overallValid: boolean;
   validators: Partial<
     Record<FileValidatorName, boolean | ValidatorSummaryStatus>
