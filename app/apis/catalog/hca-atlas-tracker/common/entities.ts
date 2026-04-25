@@ -747,17 +747,16 @@ export interface ValidatorSummaryStatus {
   warningCount: number;
 }
 
-export interface FileValidationSummary {
+export interface FileValidationSummary<
+  TValidatorSummary = ValidatorSummaryStatus,
+> {
   overallValid: boolean;
-  validators: Partial<Record<FileValidatorName, ValidatorSummaryStatus>>;
+  validators: Partial<Record<FileValidatorName, TValidatorSummary>>;
 }
 
-export interface DBFileValidationSummary {
-  overallValid: boolean;
-  validators: Partial<
-    Record<FileValidatorName, boolean | ValidatorSummaryStatus>
-  >;
-}
+export type DBFileValidationSummary =
+  | FileValidationSummary
+  | FileValidationSummary<boolean>;
 
 export type FileValidatorName = (typeof FILE_VALIDATOR_NAMES)[number];
 
