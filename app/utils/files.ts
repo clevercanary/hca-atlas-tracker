@@ -194,7 +194,7 @@ export function normalizeValidationSummary(
 
 /**
  * Normalize a single validator summary entry, mapping legacy boolean values to the current object shape.
- * Pre-#1188 rows stored a bare boolean per validator; we don't know historical error/warning counts, so they're zeroed and the icon falls back to the `valid` flag.
+ * Legacy rows stored a bare boolean per validator with no error or warning counts available, so counts are zeroed.
  * @param value - Raw validator entry from the database.
  * @returns Normalized validator summary status.
  */
