@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.65.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.64.0...v1.65.0) (2026-04-25)
+
+
+### Features
+
+* add editable download name to source dataset and integrated object forms ([#1177](https://github.com/clevercanary/hca-atlas-tracker/issues/1177)) ([#1201](https://github.com/clevercanary/hca-atlas-tracker/issues/1201)) ([d44978a](https://github.com/clevercanary/hca-atlas-tracker/commit/d44978a720e31fec8ece836f8bb9911cd9356fdb))
+* add error and warning counts to validation summary data ([#1188](https://github.com/clevercanary/hca-atlas-tracker/issues/1188)) ([#1203](https://github.com/clevercanary/hca-atlas-tracker/issues/1203)) ([bd325a6](https://github.com/clevercanary/hca-atlas-tracker/commit/bd325a693d23b2baabae536a298c22cba8171cf3))
+* format "Uploaded At" column as human-readable date + time ([#1208](https://github.com/clevercanary/hca-atlas-tracker/issues/1208)) ([b69a269](https://github.com/clevercanary/hca-atlas-tracker/commit/b69a2694752c0af8921653cf454fc8bb2c1b53c5))
+* rename CAP to "CAP Upload" and add validator hover descriptions ([#1197](https://github.com/clevercanary/hca-atlas-tracker/issues/1197)) ([#1207](https://github.com/clevercanary/hca-atlas-tracker/issues/1207)) ([aca6acf](https://github.com/clevercanary/hca-atlas-tracker/commit/aca6acf166acdf0ce36dd0ecc626f0cac5a780cc))
+
+
+### Bug Fixes
+
+* link sd: confusing selection ux ([#1200](https://github.com/clevercanary/hca-atlas-tracker/issues/1200)) ([#1210](https://github.com/clevercanary/hca-atlas-tracker/issues/1210)) ([756a656](https://github.com/clevercanary/hca-atlas-tracker/commit/756a656f9c5413876429d46b77a26ac8af466bf8))
+* replace MUI Link with Next.js Link to fix createElement crash ([#1211](https://github.com/clevercanary/hca-atlas-tracker/issues/1211)) ([8e1b486](https://github.com/clevercanary/hca-atlas-tracker/commit/8e1b486e96240574b40b6fa5e36a657a6052eec8))
+* validation summary back arrow returns to originating list ([#1206](https://github.com/clevercanary/hca-atlas-tracker/issues/1206)) ([0ca21cb](https://github.com/clevercanary/hca-atlas-tracker/commit/0ca21cbc9b0165715ef2121db28d956c3beeee46))
+* validation summary link crashes with createElement error ([#1212](https://github.com/clevercanary/hca-atlas-tracker/issues/1212)) ([8e1b486](https://github.com/clevercanary/hca-atlas-tracker/commit/8e1b486e96240574b40b6fa5e36a657a6052eec8))
+
+
+### Code Refactoring
+
+* rename atlas "Status" label to "OC Endorsed" ([#1196](https://github.com/clevercanary/hca-atlas-tracker/issues/1196)) ([f65d1c7](https://github.com/clevercanary/hca-atlas-tracker/commit/f65d1c7dcdfd861106ec7c76e0386d6769e0fe52))
+* rename atlas "Status" label to "OC Endorsed" ([#1209](https://github.com/clevercanary/hca-atlas-tracker/issues/1209)) ([f65d1c7](https://github.com/clevercanary/hca-atlas-tracker/commit/f65d1c7dcdfd861106ec7c76e0386d6769e0fe52))
+
 ## [1.64.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.63.1...v1.64.0) (2026-04-22)
 
 
