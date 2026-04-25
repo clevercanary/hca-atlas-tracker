@@ -70,7 +70,7 @@ const STATUS: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> = {
   selectProps: {
     SelectComponent: Status,
     displayEmpty: true,
-    label: "Status",
+    label: "OC Endorsed",
   },
 };
 
