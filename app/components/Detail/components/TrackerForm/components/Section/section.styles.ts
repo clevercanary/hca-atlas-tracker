@@ -1,6 +1,5 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { sectionPadding } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
-import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import {
@@ -97,15 +96,3 @@ export const SectionCard = styled(FluidPaper, {
       grid-auto-flow: ${gridAutoFlow};
     `}
 `;
-
-export const SectionTable = styled(CommonTable)`
-  .MuiTable-root {
-    .MuiTableBody-root {
-      .MuiTableRow-root[id^="sub-row"] {
-        .MuiTableCell-root:first-of-type {
-          padding-left: 46px;
-        }
-      }
-    }
-  }
-` as typeof CommonTable;

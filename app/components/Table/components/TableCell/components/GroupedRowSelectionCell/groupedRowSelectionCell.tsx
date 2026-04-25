@@ -1,12 +1,10 @@
 import { CheckedIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/CheckedIcon/checkedIcon";
 import { IndeterminateIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/IndeterminateIcon/indeterminateIcon";
 import { UncheckedIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/UncheckedIcon/uncheckedIcon";
-import {
-  FormControlLabel as DXFormControlLabel,
-  Checkbox as MCheckbox,
-} from "@mui/material";
+import { Checkbox as MCheckbox } from "@mui/material";
 import { Row, RowData, RowSelectionState, Table } from "@tanstack/react-table";
 import { ChangeEvent, JSX, ReactNode, useCallback } from "react";
+import { StyledFormControlLabel } from "./groupedRowSelectionCell.styles";
 
 export interface GroupedRowSelectionCellProps<T extends RowData> {
   label?: ReactNode;
@@ -37,7 +35,7 @@ export const GroupedRowSelectionCell = <T extends RowData>({
   );
 
   return (
-    <DXFormControlLabel
+    <StyledFormControlLabel
       control={
         <MCheckbox
           checked={getIsAllSubRowsSelected()}

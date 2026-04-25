@@ -1,11 +1,9 @@
 import { CheckedIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/CheckedIcon/checkedIcon";
 import { UncheckedIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/UncheckedIcon/uncheckedIcon";
-import {
-  FormControlLabel as DXFormControlLabel,
-  Checkbox as MCheckbox,
-} from "@mui/material";
+import { Checkbox as MCheckbox } from "@mui/material";
 import { Row, RowData } from "@tanstack/react-table";
 import { JSX, ReactNode } from "react";
+import { StyledFormControlLabel } from "./rowSelectionCell.styles";
 
 export interface RowSelectionCellProps<T extends RowData> {
   label?: ReactNode;
@@ -18,7 +16,7 @@ export const RowSelectionCell = <T extends RowData>({
 }: RowSelectionCellProps<T>): JSX.Element => {
   const { getCanSelect, getIsSelected, getToggleSelectedHandler } = row;
   return (
-    <DXFormControlLabel
+    <StyledFormControlLabel
       control={
         <MCheckbox
           checked={getIsSelected()}
