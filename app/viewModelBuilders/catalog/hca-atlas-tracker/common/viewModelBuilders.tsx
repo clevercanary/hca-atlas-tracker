@@ -1078,7 +1078,7 @@ function getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(): C
       table,
     }: CellContext<HCAAtlasTrackerSourceDataset, unknown>) =>
       C.GroupedRowSelectionCell({
-        label: row.original.publicationString || "Unpublished",
+        label: row.original.publicationString || UNPUBLISHED,
         row,
         table,
       }),
