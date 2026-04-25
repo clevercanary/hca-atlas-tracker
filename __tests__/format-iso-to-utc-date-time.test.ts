@@ -28,4 +28,11 @@ describe("formatISOToUTCDateTime", () => {
   it("returns null for invalid date string", () => {
     expect(formatISOToUTCDateTime("not-a-date")).toBeNull();
   });
+
+  it("normalizes a non-UTC ISO offset to UTC", () => {
+    expect(formatISOToUTCDateTime("2026-04-08T20:47:25+02:00")).toEqual([
+      "2026-04-08",
+      "18:47:25 (UTC)",
+    ]);
+  });
 });

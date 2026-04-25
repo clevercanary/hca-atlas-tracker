@@ -45,8 +45,9 @@ export function formatISOToUTCDateTime(
   if (!isoString) return null;
   const date = new Date(isoString);
   if (isNaN(date.getTime())) return null;
-  const datePart = isoString.slice(0, 10);
-  const timePart = isoString.slice(11, 19);
+  const utcISOString = date.toISOString();
+  const datePart = utcISOString.slice(0, 10);
+  const timePart = utcISOString.slice(11, 19);
   return [datePart, `${timePart} (UTC)`];
 }
 
