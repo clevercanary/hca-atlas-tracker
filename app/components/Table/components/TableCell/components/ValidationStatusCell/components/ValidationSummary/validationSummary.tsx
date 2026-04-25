@@ -31,31 +31,35 @@ export const ValidationSummary = ({
 
   return (
     <Stack {...STACK_PROPS}>
-      {validators.map(([key, value]) => (
-        <Stack key={key} {...INNER_STACK_PROPS}>
-          {value ? (
-            <SuccessIcon
-              color={SVG_ICON_PROPS.COLOR.SUCCESS}
-              fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
-            />
-          ) : (
-            <StyledErrorIcon fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL} />
-          )}
-          <MLink
-            component={Link}
-            href={getRouteURL(validationRoute, {
-              atlasId,
-              componentAtlasId,
-              sourceDatasetId,
-              validatorName: key as FileValidatorName,
-            })}
-            rel={REL_ATTRIBUTE.NO_OPENER}
-            target={ANCHOR_TARGET.SELF}
-          >
-            {FILE_VALIDATOR_NAME_LABEL[key as FileValidatorName]}
-          </MLink>
-        </Stack>
-      ))}
+      {validators.map(([key, value]) => {
+        const url = getRouteURL(validationRoute, {
+          atlasId,
+          componentAtlasId,
+          sourceDatasetId,
+          validatorName: key as FileValidatorName,
+        });
+        return (
+          <Stack key={key} {...INNER_STACK_PROPS}>
+            {value ? (
+              <SuccessIcon
+                color={SVG_ICON_PROPS.COLOR.SUCCESS}
+                fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
+              />
+            ) : (
+              <StyledErrorIcon fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL} />
+            )}
+            <MLink
+              as={url}
+              component={Link}
+              href={{ pathname: url, query: { from: "list" } }}
+              rel={REL_ATTRIBUTE.NO_OPENER}
+              target={ANCHOR_TARGET.SELF}
+            >
+              {FILE_VALIDATOR_NAME_LABEL[key as FileValidatorName]}
+            </MLink>
+          </Stack>
+        );
+      })}
     </Stack>
   );
 };
