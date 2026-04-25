@@ -213,7 +213,7 @@ export const FILE_VALIDATOR_NAMES = [
 ] as const;
 
 export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
-  cap: "CAP",
+  cap: "CAP Upload",
   cellxgene: "CELLxGENE",
   hcaCellAnnotation: "HCA Cell Annotation",
   hcaSchema: "HCA Tier-1",
