@@ -60,7 +60,7 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   DISEASE: "Disease",
   DOI: "DOI",
   EMAIL: "Email",
-  ENDORSEMENT_STATUS: "Status",
+  ENDORSEMENT_STATUS: "OC Endorsed",
   ENTITY_TITLE: "Title",
   ENTITY_TYPE: "Entity Type",
   FULL_NAME: "Name",
