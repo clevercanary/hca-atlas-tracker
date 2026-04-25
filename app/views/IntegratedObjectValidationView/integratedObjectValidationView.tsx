@@ -1,6 +1,6 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { useRouter } from "next/router";
-import { Fragment, JSX } from "react";
+import { Fragment, JSX, useRef } from "react";
 import { PathParameter } from "../../common/entities";
 import { getRouteURL } from "../../common/utils";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
@@ -26,6 +26,7 @@ export const IntegratedObjectValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
   const { query } = useRouter();
+  const fromList = useRef(query.from === "list");
   const { atlas } = useFetchAtlas(pathParameter);
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
   const formManager = useFormManager();
@@ -33,10 +34,9 @@ export const IntegratedObjectValidationView = ({
     access: { canView },
     isLoading,
   } = formManager;
-  const backPath =
-    query.from === "list"
-      ? getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter)
-      : getRouteURL(ROUTE.COMPONENT_ATLAS, pathParameter);
+  const backPath = fromList.current
+    ? getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter)
+    : getRouteURL(ROUTE.COMPONENT_ATLAS, pathParameter);
   if (isLoading) return <Fragment />;
   return (
     <EntityProvider data={{ componentAtlas }} pathParameter={pathParameter}>
