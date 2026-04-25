@@ -1,6 +1,6 @@
+import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { SectionTable } from "../../../../../../../../../../components/Detail/components/TrackerForm/components/Section/section.styles";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
 import { getComponentAtlasSourceDatasetsSelectionTableColumns } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../common/entities";
@@ -23,7 +23,7 @@ export const Table = ({
     useComponentAtlasSourceDatasetsSelectionTableOptions(formMethod);
   useComponentAtlasSourceDatasetsSelectionFormState(formMethod, tableOptions);
   return (
-    <SectionTable
+    <CommonTable
       columns={getComponentAtlasSourceDatasetsSelectionTableColumns()}
       gridTemplateColumns="minmax(260px, 1fr) minmax(200px, 0.5fr) repeat(4, minmax(120px, 0.4fr)) minmax(100px, 0.4fr)"
       items={atlasSourceDatasets || []}
