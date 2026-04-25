@@ -4,7 +4,7 @@ import {
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { Link as MLink, Stack, Tooltip } from "@mui/material";
+import { Stack, Tooltip } from "@mui/material";
 import Link from "next/link";
 import { JSX } from "react";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
@@ -14,7 +14,7 @@ import { getRouteURL } from "../../../../../../../../common/utils";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";
 import { getValidators } from "./utils";
-import { StyledErrorIcon } from "./validationSummary.styles";
+import { StyledErrorIcon, StyledStack } from "./validationSummary.styles";
 
 export const ValidationSummary = ({
   atlasId,
@@ -31,7 +31,7 @@ export const ValidationSummary = ({
   if (validators.length === 0) return null;
 
   return (
-    <Stack {...STACK_PROPS}>
+    <StyledStack {...STACK_PROPS}>
       {validators.map(([key, value]) => {
         const url = getRouteURL(validationRoute, {
           atlasId,
@@ -55,19 +55,18 @@ export const ValidationSummary = ({
                 <StyledErrorIcon fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL} />
               )}
 
-              <MLink
+              <Link
                 as={url}
-                component={Link}
                 href={{ pathname: url, query: { from: "list" } }}
                 rel={REL_ATTRIBUTE.NO_OPENER}
                 target={ANCHOR_TARGET.SELF}
               >
                 {FILE_VALIDATOR_NAME_LABEL[key as FileValidatorName]}
-              </MLink>
+              </Link>
             </Stack>
           </Tooltip>
         );
       })}
-    </Stack>
+    </StyledStack>
   );
 };
