@@ -1,10 +1,11 @@
 import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
-import { parseS3KeyPath, removeFileExtension } from "../../../../utils/files";
-import { FILE_VALIDATOR_NAMES } from "./constants";
 import {
-  DBFileValidationSummary,
-  FileValidationSummary,
+  normalizeValidationSummary,
+  parseS3KeyPath,
+  removeFileExtension,
+} from "../../../../utils/files";
+import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerAtlasSummary,
   HCAAtlasTrackerComment,
@@ -35,7 +36,6 @@ import {
   HCAAtlasTrackerValidationRecord,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   TIER_ONE_METADATA_STATUS,
-  ValidatorSummaryStatus,
   WithSourceStudyInfo,
 } from "./entities";
 import {
@@ -353,46 +353,6 @@ export function dbUserToApiUser(
     role: dbUser.role,
     roleAssociatedResourceIds: dbUser.role_associated_resource_ids,
     roleAssociatedResourceNames: dbUser.role_associated_resource_names,
-  };
-}
-
-/**
- * Normalize a single validator summary entry, mapping legacy boolean values to the current object shape.
- * Pre-#1188 rows stored a bare boolean per validator; we don't know historical error/warning counts, so they're zeroed and the icon falls back to the `valid` flag.
- * @param value - Raw validator entry from the database.
- * @returns Normalized validator summary status.
- */
-function normalizeValidator(
-  value: boolean | ValidatorSummaryStatus,
-): ValidatorSummaryStatus {
-  if (typeof value === "boolean") {
-    return {
-      errorCount: 0,
-      valid: value,
-      warningCount: 0,
-    };
-  }
-  return value;
-}
-
-/**
- * Normalize a file validation summary, lifting any legacy boolean validator entries to the current object shape.
- * @param summary - Raw validation summary from the database, or null.
- * @returns Validation summary in the current shape, or null.
- */
-function normalizeValidationSummary(
-  summary: DBFileValidationSummary | null,
-): FileValidationSummary | null {
-  if (summary === null) return null;
-  const validators: FileValidationSummary["validators"] = {};
-  for (const name of FILE_VALIDATOR_NAMES) {
-    const value = summary.validators[name];
-    if (value === undefined) continue;
-    validators[name] = normalizeValidator(value);
-  }
-  return {
-    overallValid: summary.overallValid,
-    validators,
   };
 }
 

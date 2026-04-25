@@ -41,7 +41,10 @@ import {
 import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
 import { slugifyAtlasShortName } from "../app/utils/atlases";
-import { removeFileExtension } from "../app/utils/files";
+import {
+  normalizeValidationSummary,
+  removeFileExtension,
+} from "../app/utils/files";
 import {
   ATLAS_DRAFT,
   DEFAULT_USERS_BY_ROLE,
@@ -688,7 +691,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiSourceDataset.validationStatus).toEqual(testFile.validationStatus);
   expect(apiSourceDataset.validationSummary).toEqual(
-    testFile.validationSummary,
+    normalizeValidationSummary(testFile.validationSummary),
   );
   expect(apiSourceDataset.wipNumber).toEqual(testSourceDataset.wipNumber);
 
@@ -777,7 +780,7 @@ export function expectApiComponentAtlasToMatchTest(
   expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
   expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
   expect(apiComponentAtlas.validationSummary).toEqual(
-    testFile.validationSummary,
+    normalizeValidationSummary(testFile.validationSummary),
   );
   expect(apiComponentAtlas.wipNumber).toEqual(
     testComponentAtlas.wipNumber ?? 1,

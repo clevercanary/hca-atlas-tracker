@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  FileValidationSummary,
   HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -28,6 +29,7 @@ import {
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
+  SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   SOURCE_DATASET_WITH_OUTDATED_FILENAME,
   SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
@@ -332,6 +334,37 @@ describe(`${TEST_ROUTE} (GET)`, () => {
       CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME.baseFilename,
     );
     expect(sourceDataset.baseFileName).not.toEqual(sourceDataset.fileName);
+  });
+
+  it("returns normalized validation summary", async () => {
+    const res = await doSourceDatasetRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+    expectDetailApiSourceDatasetToMatchTest(
+      sourceDataset,
+      SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
+    );
+    expect(sourceDataset.validationSummary).toEqual({
+      overallValid: false,
+      validators: {
+        cap: {
+          errorCount: 0,
+          valid: true,
+          warningCount: 0,
+        },
+        cellxgene: {
+          errorCount: 0,
+          valid: false,
+          warningCount: 0,
+        },
+      },
+    } satisfies FileValidationSummary);
   });
 });
 

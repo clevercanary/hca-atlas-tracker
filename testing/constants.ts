@@ -2858,6 +2858,54 @@ export const SOURCE_DATASET_PUBLISHED = {
   versionId: "4fc11334-3cdd-4cb6-8a53-505a2affd997",
 } satisfies TestSourceDataset;
 
+export const SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-source-dataset-with-boolean-validator-summaries",
+    etag: "cecdb17899554aa1957a6674b7c53193",
+    eventTime: "2026-04-25T03:17:27.741Z",
+    fileName: "source-dataset-with-boolean-validator-summaries.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "73ca4568-c32e-400a-835e-1f95db810291",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "23429",
+    validationInfo: {
+      batchJobId:
+        "validation-job-source-dataset-with-boolean-validator-summaries",
+      snsMessageId:
+        "validation-message-source-dataset-with-boolean-validator-summaries",
+      snsMessageTime: "2026-04-25T03:25:49.402Z",
+    },
+    validationReports: {
+      cap: {
+        errors: [],
+        finishedAt: "2026-04-25T03:25:24.279Z",
+        startedAt: "2026-04-25T03:25:15.565Z",
+        valid: true,
+        warnings: [],
+      },
+      cellxgene: {
+        errors: ["Error foo"],
+        finishedAt: "2026-04-25T03:25:41.475Z",
+        startedAt: "2026-04-25T03:25:33.036Z",
+        valid: false,
+        warnings: [],
+      },
+    },
+    validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+    validationSummary: {
+      overallValid: false,
+      validators: {
+        cap: true,
+        cellxgene: false,
+      },
+    },
+    versionId: null,
+  },
+  id: "a36aa5a4-2939-4d8b-8d3c-d467707bed38",
+  versionId: "30bd5051-9b85-4ab0-9924-f1c765817fa2",
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -2911,6 +2959,7 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A,
   SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B,
   SOURCE_DATASET_PUBLISHED,
+  SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
 ];
 
 // ATLAS IDS
@@ -3867,6 +3916,54 @@ export const COMPONENT_ATLAS_PUBLISHED = {
   wipNumber: 1,
 } satisfies TestComponentAtlas;
 
+export const COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_C,
+    bucket: "bucket-component-atlas-with-boolean-validator-summaries",
+    etag: "31ab9493892541879827e05e163a307d",
+    eventTime: "2026-04-25T03:29:45.451Z",
+    fileName: "component-atlas-with-boolean-validator-summaries.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "23e593b9-486a-4f93-9986-7f7a854cc6d4",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "1453464",
+    validationInfo: {
+      batchJobId:
+        "validation-job-component-atlas-with-boolean-validator-summaries",
+      snsMessageId:
+        "validation-message-component-atlas-with-boolean-validator-summaries",
+      snsMessageTime: "2026-04-25T03:32:39.854Z",
+    },
+    validationReports: {
+      cap: {
+        errors: [],
+        finishedAt: "2026-04-25T03:31:59.232Z",
+        startedAt: "2026-04-25T03:31:50.809Z",
+        valid: true,
+        warnings: [],
+      },
+      cellxgene: {
+        errors: ["Error bar"],
+        finishedAt: "2026-04-25T03:32:19.518Z",
+        startedAt: "2026-04-25T03:32:11.201Z",
+        valid: false,
+        warnings: [],
+      },
+    },
+    validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+    validationSummary: {
+      overallValid: false,
+      validators: {
+        cap: true,
+        cellxgene: false,
+      },
+    },
+    versionId: null,
+  },
+  id: "085abed2-3d0b-4564-84d7-4b5826ae821d",
+  versionId: "52d7f766-3b12-43f7-b884-b5d8b7ad2fb8",
+} satisfies TestComponentAtlas;
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
@@ -3899,6 +3996,7 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_FOO,
   COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
   COMPONENT_ATLAS_PUBLISHED,
+  COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
 ];
 
 // ATLASES
@@ -4103,7 +4201,10 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_B: TestAtlas = {
 export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
-  componentAtlases: [COMPONENT_ATLAS_WITH_OUTDATED_FILENAME.versionId],
+  componentAtlases: [
+    COMPONENT_ATLAS_WITH_OUTDATED_FILENAME.versionId,
+    COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES.versionId,
+  ],
   description: "baz bar foo foo bar baz baz foo",
   generation: 6,
   highlights: "",
@@ -4123,6 +4224,7 @@ export const ATLAS_WITH_MISC_SOURCE_STUDIES_C: TestAtlas = {
     SOURCE_DATASET_STUDY_LINKED_ENTITIES_FOO_B.versionId,
     SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_A.versionId,
     SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B.versionId,
+    SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES.versionId,
   ],
   sourceStudies: [
     SOURCE_STUDY_MISC_C_FOO.id,

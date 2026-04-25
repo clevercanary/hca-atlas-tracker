@@ -1,6 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerDetailComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  FileValidationSummary,
+  HCAAtlasTrackerDetailComponentAtlas,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ComponentAtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../app/common/entities";
 import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
@@ -26,6 +29,7 @@ import {
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
+  COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   COMPONENT_ATLAS_WITH_OUTDATED_FILENAME,
   CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME,
@@ -311,6 +315,36 @@ describe(TEST_ROUTE, () => {
       CONCEPT_COMPONENT_ATLAS_OUTDATED_FILENAME.baseFilename,
     );
     expect(componentAtlas.baseFileName).not.toEqual(componentAtlas.fileName);
+  });
+
+  it("returns normalized validation summary", async () => {
+    const res = await doComponentAtlasRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
+      COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const componentAtlas =
+      res._getJSONData() as HCAAtlasTrackerDetailComponentAtlas;
+    expectDetailApiComponentAtlasToMatchTest(
+      componentAtlas,
+      COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
+    );
+    expect(componentAtlas.validationSummary).toEqual({
+      overallValid: false,
+      validators: {
+        cap: {
+          errorCount: 0,
+          valid: true,
+          warningCount: 0,
+        },
+        cellxgene: {
+          errorCount: 0,
+          valid: false,
+          warningCount: 0,
+        },
+      },
+    } satisfies FileValidationSummary);
   });
 
   it("returns error 401 when PATCH requested by logged out user", async () => {
