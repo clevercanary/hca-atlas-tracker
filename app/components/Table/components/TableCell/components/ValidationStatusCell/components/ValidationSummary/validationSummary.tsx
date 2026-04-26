@@ -1,20 +1,22 @@
-import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
-import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Stack, Tooltip } from "@mui/material";
 import Link from "next/link";
-import { JSX } from "react";
+import { JSX, ReactNode } from "react";
 import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
-import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  FileValidatorName,
+  ValidatorSummaryStatus,
+} from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "../../../../../../../../common/utils";
+import { Icon } from "./components/Icon/icon";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";
-import { getValidators } from "./utils";
-import { StyledErrorIcon, StyledStack } from "./validationSummary.styles";
+import { getValidatorCountLabel, getValidators } from "./utils";
+import { StyledStack } from "./validationSummary.styles";
 
 export const ValidationSummary = ({
   atlasId,
@@ -43,18 +45,10 @@ export const ValidationSummary = ({
           <Tooltip
             disableInteractive={false}
             key={key}
-            title={FILE_VALIDATOR_DESCRIPTIONS[key as FileValidatorName]}
+            title={renderTooltipTitle(key as FileValidatorName, value)}
           >
             <Stack {...INNER_STACK_PROPS}>
-              {value.valid ? (
-                <SuccessIcon
-                  color={SVG_ICON_PROPS.COLOR.SUCCESS}
-                  fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
-                />
-              ) : (
-                <StyledErrorIcon fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL} />
-              )}
-
+              <Icon status={value} />
               <Link
                 as={url}
                 href={{ pathname: url, query: { from: "list" } }}
@@ -70,3 +64,21 @@ export const ValidationSummary = ({
     </StyledStack>
   );
 };
+
+/**
+ * Renders the tooltip title for a validator entry.
+ * @param validatorName - Validator name.
+ * @param status - Validator summary status.
+ * @returns Tooltip title with description and count label.
+ */
+function renderTooltipTitle(
+  validatorName: FileValidatorName,
+  status: ValidatorSummaryStatus,
+): ReactNode {
+  return (
+    <Stack spacing={2} useFlexGap>
+      <div>{FILE_VALIDATOR_DESCRIPTIONS[validatorName]}</div>
+      <div>{getValidatorCountLabel(status)}</div>
+    </Stack>
+  );
+}
