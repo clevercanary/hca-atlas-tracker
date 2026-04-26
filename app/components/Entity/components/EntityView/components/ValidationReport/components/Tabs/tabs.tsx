@@ -49,6 +49,7 @@ export const Tabs = ({
                 <Icon
                   status={{
                     errorCount: validationReports[name]?.errors.length ?? 0,
+                    valid: validationReports[name]?.valid ?? false,
                     warningCount: validationReports[name]?.warnings.length ?? 0,
                   }}
                 />

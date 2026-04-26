@@ -10,12 +10,10 @@ import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-at
 /**
  * Returns a human-readable count label for a validator's errors and warnings.
  * @param status - Validator summary status.
- * @returns Count label e.g. "5 errors, 2 warnings", "2 warnings", or "Passed".
+ * @returns Count label e.g. "5 errors, 2 warnings", "2 warnings", "Failed", or "Passed".
  */
-export function getValidatorCountLabel(
-  status: Pick<ValidatorSummaryStatus, "errorCount" | "warningCount">,
-): string {
-  const { errorCount, warningCount } = status;
+export function getValidatorCountLabel(status: ValidatorSummaryStatus): string {
+  const { errorCount, valid, warningCount } = status;
   const parts: string[] = [];
 
   if (errorCount > 0)
@@ -24,7 +22,8 @@ export function getValidatorCountLabel(
   if (warningCount > 0)
     parts.push(`${warningCount} warning${warningCount !== 1 ? "s" : ""}`);
 
-  return parts.length > 0 ? parts.join(", ") : "Passed";
+  if (parts.length > 0) return parts.join(", ");
+  return valid ? "Passed" : "Failed";
 }
 
 /**

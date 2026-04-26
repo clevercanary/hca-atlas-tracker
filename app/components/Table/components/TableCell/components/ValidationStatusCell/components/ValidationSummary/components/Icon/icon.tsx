@@ -6,11 +6,14 @@ import { ValidIcon } from "../../../../../../../../../common/CustomIcon/componen
 import { Props } from "./entities";
 
 export const Icon = ({ status }: Props): JSX.Element => {
-  const { errorCount, warningCount } = status;
+  const { errorCount, valid, warningCount } = status;
   if (errorCount > 0) {
     if (warningCount > 0) {
       return <PartiallyInvalidIcon />;
     }
+    return <InvalidIcon />;
+  }
+  if (!valid) {
     return <InvalidIcon />;
   }
   if (warningCount > 0) {

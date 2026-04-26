@@ -1,13 +1,15 @@
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { SvgIcon, SvgIconProps } from "@mui/material";
 import { JSX } from "react";
 
 export const PartiallyValidIcon = ({
+  fontSize = SVG_ICON_PROPS.FONT_SIZE.MEDIUM,
   viewBox = "0 0 24 24",
   ...props
 }: SvgIconProps): JSX.Element => {
   return (
-    <SvgIcon viewBox={viewBox} {...props}>
+    <SvgIcon fontSize={fontSize} viewBox={viewBox} {...props}>
       <path
         d="M13.6426 22.3707C16.1119 21.9796 18.3606 20.7203 19.9843 18.8192C21.6079 16.9181 22.5 14.5001 22.5 12C22.5 9.49992 21.6079 7.08187 19.9843 5.1808C18.3606 3.27972 16.1119 2.02037 13.6426 1.62927"
         fill="none"
