@@ -8,7 +8,21 @@ import { FileValidatorName } from "./entities";
 
 export const FILE_VALIDATOR_DESCRIPTIONS: Record<FileValidatorName, ReactNode> =
   {
-    cap: "Validates the dataset/object has sufficient metadata to be uploaded to CAP for annotation.",
+    cap: (
+      <>
+        Validates the dataset/object has sufficient metadata to be uploaded to
+        CAP for annotation. See{" "}
+        <Link
+          color="inherit"
+          href="https://celltype.info/docs/anndata-requirements-for-upload"
+          rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
+          target={ANCHOR_TARGET.BLANK}
+        >
+          CAP Upload Requirements
+        </Link>
+        .
+      </>
+    ),
     cellxgene: "",
     hcaCellAnnotation: (
       <>
