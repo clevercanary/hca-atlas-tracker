@@ -43,8 +43,10 @@ export const ValidationSummary = ({
         });
         return (
           <Tooltip
+            arrow
             disableInteractive={false}
             key={key}
+            placement="right"
             title={renderTooltipTitle(key as FileValidatorName, value)}
           >
             <Stack {...INNER_STACK_PROPS}>
