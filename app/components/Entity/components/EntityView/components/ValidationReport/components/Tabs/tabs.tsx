@@ -1,7 +1,4 @@
-import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
-import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { STACK_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/stack";
-import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Stack, Tab, Tooltip } from "@mui/material";
 import Router from "next/router";
 import { JSX, SyntheticEvent, useCallback } from "react";
@@ -9,6 +6,7 @@ import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "../../../../../../../../common/utils";
+import { Icon } from "../../../../../../../Table/components/TableCell/components/ValidationStatusCell/components/ValidationSummary/components/Icon/icon";
 import { Props } from "./entities";
 import { StyledTabs } from "./tabs.styles";
 
@@ -48,17 +46,13 @@ export const Tabs = ({
                 spacing={2}
                 useFlexGap
               >
-                {validationReports[name]?.valid ? (
-                  <SuccessIcon
-                    color={SVG_ICON_PROPS.COLOR.SUCCESS}
-                    fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
-                  />
-                ) : (
-                  <ErrorIcon
-                    color={SVG_ICON_PROPS.COLOR.ERROR}
-                    fontSize={SVG_ICON_PROPS.FONT_SIZE.SMALL}
-                  />
-                )}
+                <Icon
+                  status={{
+                    errorCount: validationReports[name]?.errors.length ?? 0,
+                    valid: validationReports[name]?.valid ?? false,
+                    warningCount: validationReports[name]?.warnings.length ?? 0,
+                  }}
+                />
                 {FILE_VALIDATOR_NAME_LABEL[name]}
               </Stack>
             </Tooltip>

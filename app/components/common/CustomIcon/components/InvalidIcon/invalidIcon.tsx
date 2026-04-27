@@ -1,0 +1,27 @@
+import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
+import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
+import { SvgIcon, SvgIconProps } from "@mui/material";
+import { JSX } from "react";
+
+export const InvalidIcon = ({
+  fontSize = SVG_ICON_PROPS.FONT_SIZE.MEDIUM,
+  viewBox = "0 0 24 24",
+  ...props
+}: SvgIconProps): JSX.Element => {
+  return (
+    <SvgIcon fontSize={fontSize} viewBox={viewBox} {...props}>
+      <circle
+        cx="12"
+        cy="12"
+        fill="none"
+        r="10.5"
+        stroke={PALETTE.ALERT_MAIN}
+        strokeWidth="3"
+      />
+      <path
+        d="M12.0013 13.3829L9.5346 15.8496C9.3346 16.0496 9.10682 16.1468 8.85127 16.1413C8.59571 16.1357 8.36793 16.0329 8.16793 15.8329C7.96793 15.6329 7.86793 15.4024 7.86793 15.1413C7.86793 14.8802 7.96793 14.6496 8.16793 14.4496L10.6179 11.9996L8.15127 9.53294C7.95127 9.33294 7.85404 9.10239 7.8596 8.84128C7.86516 8.58016 7.96793 8.34961 8.16793 8.14961C8.36793 7.94961 8.59849 7.84961 8.8596 7.84961C9.12071 7.84961 9.35127 7.94961 9.55127 8.14961L12.0013 10.6163L14.4679 8.14961C14.6679 7.94961 14.8985 7.84961 15.1596 7.84961C15.4207 7.84961 15.6513 7.94961 15.8513 8.14961C16.0513 8.34961 16.1513 8.58016 16.1513 8.84128C16.1513 9.10239 16.0513 9.33294 15.8513 9.53294L13.3846 11.9996L15.8513 14.4663C16.0513 14.6663 16.1513 14.8941 16.1513 15.1496C16.1513 15.4052 16.0513 15.6329 15.8513 15.8329C15.6513 16.0329 15.4207 16.1329 15.1596 16.1329C14.8985 16.1329 14.6679 16.0329 14.4679 15.8329L12.0013 13.3829Z"
+        fill={PALETTE.ALERT_MAIN}
+      />
+    </SvgIcon>
+  );
+};

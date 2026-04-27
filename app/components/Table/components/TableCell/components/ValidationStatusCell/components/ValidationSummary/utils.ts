@@ -8,6 +8,25 @@ import {
 import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 
 /**
+ * Returns a human-readable count label for a validator's errors and warnings.
+ * @param status - Validator summary status.
+ * @returns Count label e.g. "5 errors, 2 warnings", "2 warnings", "Failed", or "Passed".
+ */
+export function getValidatorCountLabel(status: ValidatorSummaryStatus): string {
+  const { errorCount, valid, warningCount } = status;
+  const parts: string[] = [];
+
+  if (errorCount > 0)
+    parts.push(`${errorCount} error${errorCount !== 1 ? "s" : ""}`);
+
+  if (warningCount > 0)
+    parts.push(`${warningCount} warning${warningCount !== 1 ? "s" : ""}`);
+
+  if (parts.length > 0) return parts.join(", ");
+  return valid ? "Passed" : "Failed";
+}
+
+/**
  * Returns the validators to render in the validation summary, in canonical FILE_VALIDATOR_NAMES order.
  * Postgres stores the validators map as jsonb, which does not preserve object key order, so the display order is driven off the constant rather than off the incoming object.
  * @param validationSummary - Validation summary.
