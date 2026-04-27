@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.66.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.0...v1.66.1) (2026-04-27)
+
+
+### Bug Fixes
+
+* move validation summary tooltip to right with arrow ([#1222](https://github.com/clevercanary/hca-atlas-tracker/issues/1222)) ([68b798f](https://github.com/clevercanary/hca-atlas-tracker/commit/68b798fba07acb4219c00cef10cc300dea95d94d))
+* move validation summary tooltip to right with arrow ([#1223](https://github.com/clevercanary/hca-atlas-tracker/issues/1223)) ([68b798f](https://github.com/clevercanary/hca-atlas-tracker/commit/68b798fba07acb4219c00cef10cc300dea95d94d))
+* rename Icon to ValidatorIcon to avoid Next.js route conflict ([#1220](https://github.com/clevercanary/hca-atlas-tracker/issues/1220)) ([ab14cf8](https://github.com/clevercanary/hca-atlas-tracker/commit/ab14cf8b3ebdf8b63fa5f4a93a918489d95f4858))
+
 ## [1.66.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.65.0...v1.66.0) (2026-04-27)
 
 
