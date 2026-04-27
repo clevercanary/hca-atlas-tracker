@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.66.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.65.0...v1.66.0) (2026-04-27)
+
+
+### Features
+
+* add link to CAP Upload hover text ([#1213](https://github.com/clevercanary/hca-atlas-tracker/issues/1213)) ([1f9d2e5](https://github.com/clevercanary/hca-atlas-tracker/commit/1f9d2e5d468b20185a29c149b35cdf5a0a7c1b01))
+* add link to CAP Upload hover text ([#1215](https://github.com/clevercanary/hca-atlas-tracker/issues/1215)) ([1f9d2e5](https://github.com/clevercanary/hca-atlas-tracker/commit/1f9d2e5d468b20185a29c149b35cdf5a0a7c1b01))
+* surface warning state and error/warning counts in validation summary ([#1214](https://github.com/clevercanary/hca-atlas-tracker/issues/1214)) ([00dc040](https://github.com/clevercanary/hca-atlas-tracker/commit/00dc040ae9a6362ba439b9873e5fdb891b7e7568))
+
+
+### Bug Fixes
+
+* move ExploreStateProvider inside ErrorBoundary to prevent crash loop ([#1218](https://github.com/clevercanary/hca-atlas-tracker/issues/1218)) ([43cf4c8](https://github.com/clevercanary/hca-atlas-tracker/commit/43cf4c80daf82ad957e68d8143ffea0cfa030720))
+
 ## [1.65.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.64.0...v1.65.0) (2026-04-25)
 
 
