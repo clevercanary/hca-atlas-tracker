@@ -6,7 +6,7 @@ import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/
 import { FileValidatorName } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "../../../../../../../../common/utils";
-import { Icon } from "../../../../../../../Table/components/TableCell/components/ValidationStatusCell/components/ValidationSummary/components/Icon/icon";
+import { ValidatorIcon } from "../../../../../../../Table/components/TableCell/components/ValidationStatusCell/components/ValidationSummary/components/ValidatorIcon/validatorIcon";
 import { Props } from "./entities";
 import { StyledTabs } from "./tabs.styles";
 
@@ -46,7 +46,7 @@ export const Tabs = ({
                 spacing={2}
                 useFlexGap
               >
-                <Icon
+                <ValidatorIcon
                   status={{
                     errorCount: validationReports[name]?.errors.length ?? 0,
                     valid: validationReports[name]?.valid ?? false,

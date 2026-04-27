@@ -5,7 +5,7 @@ import { PartiallyValidIcon } from "../../../../../../../../../common/CustomIcon
 import { ValidIcon } from "../../../../../../../../../common/CustomIcon/components/ValidIcon/validIcon";
 import { Props } from "./entities";
 
-export const Icon = ({ status }: Props): JSX.Element => {
+export const ValidatorIcon = ({ status }: Props): JSX.Element => {
   const { errorCount, valid, warningCount } = status;
   if (errorCount > 0) {
     if (warningCount > 0) {

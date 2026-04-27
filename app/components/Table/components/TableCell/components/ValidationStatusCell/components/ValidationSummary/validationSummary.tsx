@@ -12,7 +12,7 @@ import {
 } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "../../../../../../../../common/utils";
-import { Icon } from "./components/Icon/icon";
+import { ValidatorIcon } from "./components/ValidatorIcon/validatorIcon";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";
 import { getValidatorCountLabel, getValidators } from "./utils";
@@ -48,7 +48,7 @@ export const ValidationSummary = ({
             title={renderTooltipTitle(key as FileValidatorName, value)}
           >
             <Stack {...INNER_STACK_PROPS}>
-              <Icon status={value} />
+              <ValidatorIcon status={value} />
               <Link
                 as={url}
                 href={{ pathname: url, query: { from: "list" } }}
