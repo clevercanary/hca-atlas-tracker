@@ -2,15 +2,20 @@ import pg from "pg";
 import { FILE_VALIDATOR_NAMES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
+  FileValidationReport,
   FileValidationReports,
   FileValidationSummary,
+  FileValidatorName,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFile,
+  HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { addValidationResultsToFile } from "../app/data/files";
 import { doTransaction, endPgPool } from "../app/services/database";
+import { buildValidationReportsAndSummary } from "../app/utils/file-validation-reports";
 
 /**
  * Usage: `npx esrun db_scripts/generate-test-validation-results.ts <keyword ...>`
@@ -40,15 +45,13 @@ const MAX_ARRAY_LENGTH = 6;
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
-type SuccessRelatedFields = Pick<
-  HCAAtlasTrackerDBFile,
-  | "dataset_info"
-  | "integrity_error"
-  | "integrity_status"
-  | "validation_reports"
-  | "validation_status"
-  | "validation_summary"
->;
+interface SuccessRelatedFields {
+  dataset_info: HCAAtlasTrackerDBFileDatasetInfo | null;
+  integrity_status: INTEGRITY_STATUS;
+  validation_reports: FileValidationReports | null;
+  validation_status: FILE_VALIDATION_STATUS;
+  validation_summary: FileValidationSummary | null;
+}
 
 generateAndAddValidationResults();
 
@@ -77,10 +80,10 @@ async function addValidationResultsToFiles(
   client: pg.PoolClient,
 ): Promise<void> {
   for (const fileId of fileIds) {
-    const validationDate = new Date().toISOString();
+    const validatedAt = new Date();
     let successRelatedFields: SuccessRelatedFields;
     if (Math.random() < FAILED_VALIDATION_PROBABILITY) {
-      successRelatedFields = getFailedValidationFields(fileId);
+      successRelatedFields = getFailedValidationFields();
     } else {
       successRelatedFields = getSuccessfulValidationFields(
         fileKeysById,
@@ -90,43 +93,26 @@ async function addValidationResultsToFiles(
     const validationInfo: HCAAtlasTrackerDBFileValidationInfo = {
       batchJobId: `test-batch-job-${crypto.randomUUID()}`,
       snsMessageId: `test-sns-message-${crypto.randomUUID()}`,
-      snsMessageTime: new Date().toISOString(),
+      snsMessageTime: validatedAt.toISOString(),
     };
-    await client.query(
-      `
-        UPDATE hat.files
-        SET
-          dataset_info = $1,
-          integrity_error = $2,
-          integrity_status = $3,
-          validation_info = $4,
-          integrity_checked_at = $5,
-          validation_reports = $6,
-          validation_status = $7,
-          validation_summary = $8
-        WHERE id=$9
-      `,
-      [
-        successRelatedFields.dataset_info &&
-          JSON.stringify(successRelatedFields.dataset_info),
-        successRelatedFields.integrity_error,
-        successRelatedFields.integrity_status,
-        JSON.stringify(validationInfo),
-        validationDate,
-        JSON.stringify(successRelatedFields.validation_reports),
-        successRelatedFields.validation_status,
-        JSON.stringify(successRelatedFields.validation_summary),
-        fileId,
-      ],
-    );
+    await addValidationResultsToFile({
+      client,
+      datasetInfo: successRelatedFields.dataset_info,
+      fileId,
+      integrityStatus: successRelatedFields.integrity_status,
+      validatedAt,
+      validationInfo,
+      validationReports: successRelatedFields.validation_reports,
+      validationStatus: successRelatedFields.validation_status,
+      validationSummary: successRelatedFields.validation_summary,
+    });
   }
 }
 
-function getFailedValidationFields(fileId: string): SuccessRelatedFields {
+function getFailedValidationFields(): SuccessRelatedFields {
   const isJobError = Math.random() < JOB_ERROR_PROBABILITY;
   return {
     dataset_info: null,
-    integrity_error: `Test error ${fileId}`,
     integrity_status: isJobError
       ? INTEGRITY_STATUS.ERROR
       : INTEGRITY_STATUS.INVALID,
@@ -158,7 +144,6 @@ function getSuccessfulValidationFields(
       tissue: generateArray("tissue"),
       title: `Test ${(key && key.split("/").pop()) || fileId}`,
     },
-    integrity_error: null,
     integrity_status: INTEGRITY_STATUS.VALID,
     validation_reports: validationReports,
     validation_status:
@@ -173,13 +158,12 @@ function makeValidationReports(): [
   FileValidationReports,
   FileValidationSummary,
 ] {
-  const validationReports: FileValidationReports = {};
-  const validationSummary: FileValidationSummary = {
-    overallValid: true,
-    validators: {},
-  };
   const validatorValidProbability =
     OVERALL_VALID_PROBABILITY ** (1 / FILE_VALIDATOR_NAMES.length);
+  const reportsByValidator = {} as Record<
+    FileValidatorName,
+    FileValidationReport
+  >;
   for (const validator of FILE_VALIDATOR_NAMES) {
     const valid = Math.random() < validatorValidProbability;
     const errors = valid
@@ -189,21 +173,15 @@ function makeValidationReports(): [
       Math.random() < 0.5
         ? []
         : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
-    validationReports[validator] = {
+    reportsByValidator[validator] = {
       errors,
       finishedAt: new Date().toISOString(),
       startedAt: new Date().toISOString(),
       valid,
       warnings,
     };
-    validationSummary.validators[validator] = {
-      errorCount: errors.length,
-      valid,
-      warningCount: warnings.length,
-    };
-    validationSummary.overallValid = validationSummary.overallValid && valid;
   }
-  return [validationReports, validationSummary];
+  return buildValidationReportsAndSummary(reportsByValidator);
 }
 
 function generateArray(itemBase: string): string[] {
