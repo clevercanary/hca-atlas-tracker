@@ -315,6 +315,13 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
 - Formatting enforced via `prettier` with `organize-imports` plugin
 - Check with `npm run check-format`
 
+**Type Safety:**
+
+We are generally strict about types. Avoid type assertions (`as`) and non-null assertions (`!`) when a typed alternative exists; reach for them only at true boundaries (e.g. parsed JSON, third-party APIs without sufficient types) and ideally with a runtime check.
+
+- Prefer iterating over typed constant arrays (`as const` tuples, string-literal unions) rather than `Object.keys()` / `Object.entries()`, which widen keys to `string` and invite assertions back to the narrow type.
+- Example: in `app/components/Table/components/TableCell/components/ValidationStatusCell/components/ValidationSummary/utils.ts`, `getValidators` iterates over the `FILE_VALIDATOR_NAMES` constant and looks up each value on `validationSummary.validators`. Using `Object.entries(validationSummary.validators)` would type each key as `string` and require an `as FileValidatorName` cast — iterating the constant keeps `name` narrowly typed end-to-end.
+
 ## Environment Configuration
 
 **Multi-Environment Setup:**
