@@ -81,31 +81,31 @@ function MyApp({ Component, pageProps }: AppPropsWithComponent): JSX.Element {
                     >
                       <DXHeader {...header} />
                     </ThemeProvider>
-                    <Main>
-                      <ErrorBoundary
-                        fallbackRender={({
-                          error,
-                          reset,
-                        }: {
-                          error: DataExplorerError;
-                          reset: () => void;
-                        }): JSX.Element => (
-                          <Error
-                            errorMessage={error.message}
-                            requestUrlMessage={error.requestUrlMessage}
-                            rootPath={redirectRootToPath}
-                            onReset={reset}
-                          />
-                        )}
-                      >
-                        <ExploreStateProvider entityListType={entityListType}>
-                          <AuthorizationProvider>
+                    <ExploreStateProvider entityListType={entityListType}>
+                      <AuthorizationProvider>
+                        <Main>
+                          <ErrorBoundary
+                            fallbackRender={({
+                              error,
+                              reset,
+                            }: {
+                              error: DataExplorerError;
+                              reset: () => void;
+                            }): JSX.Element => (
+                              <Error
+                                errorMessage={error.message}
+                                requestUrlMessage={error.requestUrlMessage}
+                                rootPath={redirectRootToPath}
+                                onReset={reset}
+                              />
+                            )}
+                          >
                             <Component {...pageProps} />
                             <Floating {...floating} />
-                          </AuthorizationProvider>
-                        </ExploreStateProvider>
-                      </ErrorBoundary>
-                    </Main>
+                          </ErrorBoundary>
+                        </Main>
+                      </AuthorizationProvider>
+                    </ExploreStateProvider>
                     <Footer {...footer} />
                   </AppLayout>
                 </LayoutDimensionsProvider>
