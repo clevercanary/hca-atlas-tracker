@@ -1,11 +1,13 @@
 import pg from "pg";
+import {
+  DatasetValidatorToolReport,
+  DatasetValidatorToolReports,
+} from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { FILE_VALIDATOR_NAMES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
-  FileValidationReport,
   FileValidationReports,
   FileValidationSummary,
-  FileValidatorName,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -15,7 +17,7 @@ import {
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { addValidationResultsToFile } from "../app/data/files";
 import { doTransaction, endPgPool } from "../app/services/database";
-import { buildValidationReportsAndSummary } from "../app/utils/file-validation-reports";
+import { toolReportsToValidationReportsAndSummary } from "../app/services/validation-results-notification";
 
 /**
  * Usage: `npx esrun db_scripts/generate-test-validation-results.ts <keyword ...>`
@@ -160,28 +162,35 @@ function makeValidationReports(): [
 ] {
   const validatorValidProbability =
     OVERALL_VALID_PROBABILITY ** (1 / FILE_VALIDATOR_NAMES.length);
-  const reportsByValidator = {} as Record<
-    FileValidatorName,
-    FileValidationReport
-  >;
-  for (const validator of FILE_VALIDATOR_NAMES) {
-    const valid = Math.random() < validatorValidProbability;
-    const errors = valid
+
+  const toolReports: DatasetValidatorToolReports = {
+    cap: generateToolReport(validatorValidProbability),
+    cellxgene: generateToolReport(validatorValidProbability),
+    hcaCellAnnotation: generateToolReport(validatorValidProbability),
+    hcaSchema: generateToolReport(validatorValidProbability),
+  };
+
+  return toolReportsToValidationReportsAndSummary(toolReports);
+}
+
+function generateToolReport(
+  validatorValidProbability: number,
+): DatasetValidatorToolReport {
+  const valid = Math.random() < validatorValidProbability;
+  const errors = valid
+    ? []
+    : generateArrayVia((l) => `Error ${l.toUpperCase()}`);
+  const warnings =
+    Math.random() < 0.5
       ? []
-      : generateArrayVia((l) => `Error ${l.toUpperCase()}`);
-    const warnings =
-      Math.random() < 0.5
-        ? []
-        : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
-    reportsByValidator[validator] = {
-      errors,
-      finishedAt: new Date().toISOString(),
-      startedAt: new Date().toISOString(),
-      valid,
-      warnings,
-    };
-  }
-  return buildValidationReportsAndSummary(reportsByValidator);
+      : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
+  return {
+    errors,
+    finished_at: new Date().toISOString(),
+    started_at: new Date().toISOString(),
+    valid,
+    warnings,
+  };
 }
 
 function generateArray(itemBase: string): string[] {
