@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.66.2](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.1...v1.66.2) (2026-04-29)
+
+
+### Bug Fixes
+
+* revert providers outside ErrorBoundary and upgrade findable-ui to v51.1.0 ([#1225](https://github.com/clevercanary/hca-atlas-tracker/issues/1225)) ([87cff86](https://github.com/clevercanary/hca-atlas-tracker/commit/87cff865314f0fb969acbbc45fa36a786065f8d0))
+
+
+### Documentation
+
+* add section regarding type safety and assertions to CLAUDE.md ([#1204](https://github.com/clevercanary/hca-atlas-tracker/issues/1204)) ([#1228](https://github.com/clevercanary/hca-atlas-tracker/issues/1228)) ([547fdcf](https://github.com/clevercanary/hca-atlas-tracker/commit/547fdcfb83db1e5d2abf06482c325433700c76a4))
+
 ## [1.66.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.0...v1.66.1) (2026-04-27)
 
 
