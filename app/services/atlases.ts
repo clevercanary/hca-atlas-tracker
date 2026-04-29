@@ -157,6 +157,7 @@ export async function getBaseModelAtlas(
 
 export async function createAtlas(
   inputData: NewAtlasData,
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   const { overviewData, shortNameSlug, status, targetCompletion } =
     await atlasInputDataToDbData(inputData);
@@ -181,6 +182,7 @@ export async function createAtlas(
           targetCompletion,
           shortNameSlug,
         ],
+        client,
       ),
     () =>
       new ValidationError(
@@ -191,7 +193,7 @@ export async function createAtlas(
     { constraint: CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE },
   );
   const newId = queryResult.rows[0].id;
-  return await getAtlas(newId);
+  return await getAtlas(newId, client);
 }
 
 export async function updateAtlas(
