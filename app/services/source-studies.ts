@@ -32,7 +32,7 @@ import {
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
 import { setSourceStudyMetadataSpreadsheets } from "../data/source-studies";
-import { AccessError, NotFoundError } from "../utils/api-handler";
+import { AccessError, NotFoundError } from "../utils/api-errors";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
 import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";

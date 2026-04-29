@@ -3,12 +3,8 @@ import { ROLE_GROUP } from "../../app/apis/catalog/hca-atlas-tracker/common/cons
 import { HCAAtlasTrackerDBUserWithAssociatedResources } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../app/common/entities";
 import { getAllUsers, getUserByEmail } from "../../app/services/users";
-import {
-  handler,
-  method,
-  NotFoundError,
-  role,
-} from "../../app/utils/api-handler";
+import { NotFoundError } from "../../app/utils/api-errors";
+import { handler, method, role } from "../../app/utils/api-handler";
 
 /**
  * API route for list of users. Optional `email` query paramter filters by email.

@@ -7,7 +7,7 @@ import {
   NetworkKey,
   WithSourceStudyInfo,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { NotFoundError } from "../utils/api-handler";
+import { NotFoundError } from "../utils/api-errors";
 import { validateEntrySheet } from "../utils/hca-validation-tools/hca-validation-tools";
 import { getBaseModelAtlas } from "./atlases";
 import { doTransaction, query } from "./database";

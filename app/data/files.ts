@@ -15,7 +15,7 @@ import {
 import { getPublishedFromPublishedAt } from "../apis/catalog/hca-atlas-tracker/common/utils";
 import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
 import { query } from "../services/database";
-import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
 import { confirmQueryRowsContainIds } from "../utils/database";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 

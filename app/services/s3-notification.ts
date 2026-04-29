@@ -41,7 +41,7 @@ import {
   getAtlasMatchingConceptAndRevision,
   getOrCreateConceptId,
 } from "../services/concepts";
-import { InvalidOperationError } from "../utils/api-handler";
+import { InvalidOperationError } from "../utils/api-errors";
 import { parseNormalizedInfoFromS3Key, parseS3KeyPath } from "../utils/files";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";

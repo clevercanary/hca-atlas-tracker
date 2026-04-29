@@ -16,7 +16,7 @@ import {
   addValidationResultsToFile,
   getLastValidationTimestamp,
 } from "../data/files";
-import { ConflictError, InvalidOperationError } from "../utils/api-handler";
+import { ConflictError, InvalidOperationError } from "../utils/api-errors";
 import { doTransaction } from "./database";
 
 /**

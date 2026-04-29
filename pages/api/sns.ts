@@ -9,11 +9,8 @@ import {
 import { METHOD } from "../../app/common/entities";
 import { dispatchSNSNotification } from "../../app/services/sns-dispatcher";
 import { handleSNSSubscription } from "../../app/services/sns-subscription";
-import {
-  handler,
-  InvalidOperationError,
-  method,
-} from "../../app/utils/api-handler";
+import { InvalidOperationError } from "../../app/utils/api-errors";
+import { handler, method } from "../../app/utils/api-handler";
 
 /**
  * Validates the incoming SNS request and extracts the message

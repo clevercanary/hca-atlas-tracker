@@ -10,7 +10,7 @@ import {
   upsertFileRecord,
 } from "../app/data/files";
 import { doTransaction, endPgPool, query } from "../app/services/database";
-import { NotFoundError } from "../app/utils/api-handler";
+import { NotFoundError } from "../app/utils/api-errors";
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES,

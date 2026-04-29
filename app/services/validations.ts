@@ -35,7 +35,7 @@ import {
   ValidationDBEntityOfType,
   ValidationDifference,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { ForbiddenError, NotFoundError } from "../utils/api-handler";
+import { ForbiddenError, NotFoundError } from "../utils/api-errors";
 import { ProjectInfo } from "../utils/hca-projects";
 import { updateTaskCounts } from "./atlases";
 import { createCommentThread, deleteCommentThread } from "./comments";

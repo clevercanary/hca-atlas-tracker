@@ -1,4 +1,4 @@
-import { NotFoundError } from "./api-handler";
+import { NotFoundError } from "./api-errors";
 
 /**
  * Throw an error if the given query rows do not include all expected version IDs.
