@@ -135,28 +135,7 @@ async function createSourceDatasetFromS3(
   transaction: PoolClient,
 ): Promise<void> {
   // Create source dataset using canonical service within the existing transaction
-  const sourceDatasetVersion = await createSourceDataset(
-    fileId,
-    conceptId,
-    transaction,
-  );
-
-  // Link source dataset to atlas's source_datasets array if not already linked
-  const alreadyLinkedResult = await transaction.query(
-    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
-    [atlasId, sourceDatasetVersion],
-  );
-
-  if (alreadyLinkedResult.rows[0].exists) {
-    throw new InvalidOperationError(
-      `Source dataset version ${sourceDatasetVersion} is unexpectedly already linked to atlas ${atlasId} during create flow`,
-    );
-  }
-
-  await transaction.query(
-    "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
-    [atlasId, sourceDatasetVersion],
-  );
+  await createSourceDataset(atlasId, fileId, conceptId, transaction);
 }
 
 // File update handler functions
