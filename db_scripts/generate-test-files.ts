@@ -275,15 +275,7 @@ async function generateAndAddFilesForAtlas(
       FILE_TYPE.SOURCE_DATASET,
       ".h5ad",
     );
-    const sourceDatasetVersion = await createSourceDataset(
-      fileId,
-      conceptId,
-      client,
-    );
-    await client.query(
-      "UPDATE hat.atlases SET source_datasets = source_datasets || $1::uuid WHERE id=$2",
-      [sourceDatasetVersion, atlas.id],
-    );
+    await createSourceDataset(atlas.id, fileId, conceptId, client);
   }
 
   return [integratedObjectAmount, sourceDatasetAmount];
