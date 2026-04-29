@@ -304,7 +304,7 @@ async function generateAndAddVersionsForFile(
 
   // Determine the atlas containing the file's metadata entity, since data-layer
   // helpers require the atlas ID to update its version arrays.
-  const atlasId = await getAtlasIdForFileMetadata(file, client);
+  const atlasId = await getFileAtlasId(file, client);
 
   const newFileIds: string[] = [];
   for (let i = 0; i < numVersions; i++) {
@@ -363,27 +363,29 @@ async function generateAndAddVersionsForFile(
   return numVersions;
 }
 
-async function getAtlasIdForFileMetadata(
+async function getFileAtlasId(
   file: HCAAtlasTrackerDBFile,
   client: pg.PoolClient,
 ): Promise<string> {
-  const sourceTable =
-    file.file_type === FILE_TYPE.INTEGRATED_OBJECT
-      ? "component_atlases"
-      : "source_datasets";
-  const atlasArrayColumn =
-    file.file_type === FILE_TYPE.INTEGRATED_OBJECT
-      ? "component_atlases"
-      : "source_datasets";
-  const result = await client.query<{ id: string }>(
-    `SELECT DISTINCT a.id FROM hat.atlases a JOIN hat.${sourceTable} e ON e.version_id = ANY(a.${atlasArrayColumn}) WHERE e.file_id = $1`,
-    [file.id],
-  );
-  if (result.rows.length !== 1)
-    throw new Error(
-      `Expected exactly 1 atlas for file ${file.id}, got ${result.rows.length}`,
+  let queryResult: pg.QueryResult<Pick<HCAAtlasTrackerDBAtlas, "id">>;
+  if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
+    queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+      `SELECT DISTINCT a.id FROM hat.atlases a JOIN hat.component_atlases e ON e.version_id = ANY(a.component_atlases) WHERE e.file_id = $1`,
+      [file.id],
     );
-  return result.rows[0].id;
+  } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
+    queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
+      `SELECT DISTINCT a.id FROM hat.atlases a JOIN hat.source_datasets e ON e.version_id = ANY(a.source_datasets) WHERE e.file_id = $1`,
+      [file.id],
+    );
+  } else {
+    throw new Error(`Unexpected file type: ${file.file_type}`);
+  }
+  if (queryResult.rows.length !== 1)
+    throw new Error(
+      `Expected exactly 1 atlas for file ${file.id}, got ${queryResult.rows.length}`,
+    );
+  return queryResult.rows[0].id;
 }
 
 async function generateAndAddFile(
