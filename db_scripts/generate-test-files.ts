@@ -314,39 +314,42 @@ async function generateAndAddVersionsForFile(
 
   if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
     for (const newFileId of newFileIds) {
-      const prevVersion = await markComponentAtlasAsNotLatest(
+      const prevVersionId = await markComponentAtlasAsNotLatest(
         conceptId,
         client,
       );
-      const newVersion = await createNewComponentAtlasVersion(
-        prevVersion,
+      const newVersionId = await createNewComponentAtlasVersion(
+        prevVersionId,
         newFileId,
         client,
       );
       await updateComponentAtlasVersionInAtlas(
-        prevVersion,
-        newVersion,
+        prevVersionId,
+        newVersionId,
         atlasId,
         client,
       );
     }
   } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
     for (const newFileId of newFileIds) {
-      const prevVersion = await markSourceDatasetAsNotLatest(conceptId, client);
-      const newVersion = await createNewSourceDatasetVersion(
-        prevVersion,
+      const prevVersionId = await markSourceDatasetAsNotLatest(
+        conceptId,
+        client,
+      );
+      const newVersionId = await createNewSourceDatasetVersion(
+        prevVersionId,
         newFileId,
         client,
       );
       await updateSourceDatasetVersionInAtlas(
-        prevVersion,
-        newVersion,
+        prevVersionId,
+        newVersionId,
         atlasId,
         client,
       );
       await updateSourceDatasetVersionInComponentAtlases(
-        prevVersion,
-        newVersion,
+        prevVersionId,
+        newVersionId,
         client,
       );
     }
