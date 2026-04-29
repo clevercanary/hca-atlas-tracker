@@ -9,14 +9,12 @@ import {
   FILE_VALIDATION_STATUS,
   FileEventInfo,
   HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBFile,
   HCAAtlasTrackerDBSourceDataset,
   IntegrationLead,
   INTEGRITY_STATUS,
   NetworkKey,
-  SYSTEM,
   Wave,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -36,6 +34,7 @@ import {
   createNewSourceDatasetVersion,
   markSourceDatasetAsNotLatest,
 } from "../app/data/source-datasets";
+import { createAtlas } from "../app/services/atlases";
 import { createComponentAtlas } from "../app/services/component-atlases";
 import { getOrCreateConceptId } from "../app/services/concepts";
 import { doTransaction, endPgPool } from "../app/services/database";
@@ -475,49 +474,30 @@ async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
     String.fromCodePoint(65 + randomInRange(0, 25)),
   ).join("");
   const shortName = `Files Test ${shortNameDiscriminator}`;
-  const shortNameSlug = shortName.toLowerCase().replaceAll(" ", "-");
   const generation = randomInRange(0, 9);
   const revision = randomInRange(0, 9);
   const wave = chooseRandom(waveOptions);
   const status = chooseRandom(atlasStatusOptions);
   const integrationLead = chooseRandom(integrationLeadOptions);
-  const overview: HCAAtlasTrackerDBAtlasOverview = {
-    capId: null,
-    cellxgeneAtlasCollection: null,
-    codeLinks: [],
-    completedTaskCount: 0,
-    description: "",
-    highlights: "",
-    ingestionTaskCounts: {
-      [SYSTEM.CAP]: { completedCount: 0, count: 0 },
-      [SYSTEM.CELLXGENE]: { completedCount: 0, count: 0 },
-      [SYSTEM.HCA_DATA_REPOSITORY]: { completedCount: 0, count: 0 },
-    },
-    integrationLead: [integrationLead],
-    metadataCorrectnessUrl: null,
-    metadataSpecificationTitle: null,
-    metadataSpecificationUrl: null,
-    network,
-    publications: [],
-    shortName,
-    taskCount: 0,
-    wave,
-  };
 
-  const result = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-    "INSERT INTO hat.atlases (overview, source_studies, status, target_completion, generation, revision, short_name_slug) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
-    [
-      JSON.stringify(overview),
-      "[]",
+  const atlas = await createAtlas(
+    {
+      capId: null,
+      integrationLead: [integrationLead],
+      network,
+      shortName,
       status,
-      null,
-      generation,
-      revision,
-      shortNameSlug,
-    ],
+      wave,
+    },
+    client,
   );
 
-  return result.rows[0].id;
+  await client.query(
+    "UPDATE hat.atlases SET generation = $1, revision = $2 WHERE id = $3",
+    [generation, revision, atlas.id],
+  );
+
+  return atlas.id;
 }
 
 function chooseRandom<T>(arr: T[]): T {
