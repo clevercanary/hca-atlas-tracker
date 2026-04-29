@@ -2,14 +2,13 @@ import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/
 import {
   DatasetValidatorResults,
   datasetValidatorResultsSchema,
+  DatasetValidatorToolReports,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_VALIDATION_STATUS,
-  FileValidationReport,
   FileValidationReports,
   FileValidationSummary,
-  FileValidatorName,
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
@@ -19,7 +18,6 @@ import {
   getLastValidationTimestamp,
 } from "../data/files";
 import { ConflictError, InvalidOperationError } from "../utils/api-handler";
-import { buildValidationReportsAndSummary } from "../utils/file-validation-reports";
 import { doTransaction } from "./database";
 
 /**
@@ -145,19 +143,41 @@ function getValidationReportsAndSummary(
   validationResults: DatasetValidatorResults,
 ): [FileValidationReports | null, FileValidationSummary | null] {
   if (validationResults.tool_reports === null) return [null, null];
-  const reportsByValidator = {} as Record<
-    FileValidatorName,
-    FileValidationReport
-  >;
+  return toolReportsToValidationReportsAndSummary(
+    validationResults.tool_reports,
+  );
+}
+
+/**
+ * Get validation reports and summary based on tool reports from validation results.
+ * @param toolReports - Tool reports.
+ * @returns validation reports and summary.
+ */
+export function toolReportsToValidationReportsAndSummary(
+  toolReports: DatasetValidatorToolReports,
+): [FileValidationReports, FileValidationSummary] {
+  const validationReports: FileValidationReports = {};
+  const validationSummary: FileValidationSummary = {
+    overallValid: true,
+    validators: {},
+  };
   for (const validatorName of FILE_VALIDATOR_NAMES) {
-    const validatorResults = validationResults.tool_reports[validatorName];
-    reportsByValidator[validatorName] = {
+    const validatorResults = toolReports[validatorName];
+    const validatorReport = {
       errors: validatorResults.errors,
       finishedAt: validatorResults.finished_at,
       startedAt: validatorResults.started_at,
       valid: validatorResults.valid,
       warnings: validatorResults.warnings,
     };
+    validationReports[validatorName] = validatorReport;
+    validationSummary.validators[validatorName] = {
+      errorCount: validatorReport.errors.length,
+      valid: validatorReport.valid,
+      warningCount: validatorReport.warnings.length,
+    };
+    validationSummary.overallValid =
+      validationSummary.overallValid && validatorReport.valid;
   }
-  return buildValidationReportsAndSummary(reportsByValidator);
+  return [validationReports, validationSummary];
 }
