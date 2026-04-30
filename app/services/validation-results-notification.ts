@@ -19,6 +19,7 @@ import {
 } from "../data/files";
 import { ConflictError, InvalidOperationError } from "../utils/api-errors";
 import { doTransaction } from "./database";
+import { deleteObject, getObjectAsString } from "./s3-operations";
 
 /**
  * Processes an SNS notification message containing dataset validation results
@@ -50,6 +51,12 @@ export async function processValidationResultsMessage(
     );
     throw e;
   }
+
+  // Attempt to load the validation results from the S3 claim check, falling
+  // back to the inline SNS data if the object is missing or unusable.
+
+  const claimCheck = await loadValidationResultsClaimCheck(validationResults);
+  if (claimCheck) validationResults = claimCheck.results;
 
   // Save validation results
 
@@ -94,6 +101,76 @@ export async function processValidationResultsMessage(
   console.log(
     `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`,
   );
+
+  if (claimCheck) {
+    try {
+      await deleteObject(claimCheck.bucket, claimCheck.key);
+    } catch (e) {
+      console.error(
+        `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}: ${getErrorMessage(e)}`,
+      );
+    }
+  }
+}
+
+interface ValidationResultsClaimCheck {
+  bucket: string;
+  key: string;
+  results: DatasetValidatorResults;
+}
+
+/**
+ * Attempt to load and validate validation results from the S3 claim check
+ * object corresponding to the given inline SNS-derived results. The claim
+ * check key is constructed from `file_id` and `batch_job_id` and read from
+ * the same data bucket as the original file.
+ * @param inlineResults - Validation results parsed from the SNS message.
+ * @returns Loaded claim check (bucket, key, validated results), or null if
+ *   the object is unavailable or its contents are invalid.
+ */
+async function loadValidationResultsClaimCheck(
+  inlineResults: DatasetValidatorResults,
+): Promise<ValidationResultsClaimCheck | null> {
+  const fileId = inlineResults.file_id;
+  const bucket = inlineResults.bucket;
+  const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
+
+  let body: string;
+  try {
+    body = await getObjectAsString(bucket, key);
+  } catch (e) {
+    console.log(
+      `Falling back to inline SNS for file ${fileId}: ${getErrorMessage(e)}`,
+    );
+    return null;
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch (e) {
+    console.log(
+      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid JSON: ${getErrorMessage(e)}`,
+    );
+    return null;
+  }
+
+  let results: DatasetValidatorResults;
+  try {
+    results = await datasetValidatorResultsSchema.validate(parsed);
+  } catch (e) {
+    console.log(
+      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid data: ${getErrorMessage(e)}`,
+    );
+    return null;
+  }
+
+  console.log(`Using S3 claim check for file ${fileId}`);
+  return { bucket, key, results };
+}
+
+function getErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
 }
 
 /**
