@@ -4,9 +4,13 @@
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     // Initialize HCA projects
-    await import("./app/services/hca-projects");
+    const { refreshProjectsIfNeeded } =
+      await import("./app/services/hca-projects");
+    refreshProjectsIfNeeded();
 
     // Initialize CELLxGENE collections
-    await import("./app/services/cellxgene");
+    const { refreshCellxGeneIfNeeded } =
+      await import("./app/services/cellxgene");
+    refreshCellxGeneIfNeeded();
   }
 }

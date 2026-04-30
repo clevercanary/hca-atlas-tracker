@@ -32,7 +32,6 @@ const KY_OPTIONS: KyOptions = {
 };
 
 const refreshService = makeRefreshService({
-  autoStart: process.env.NODE_ENV !== "test",
   async getRefreshParams(
     data?: ProjectsData,
     prevRefreshParams?: ProjectsRefreshParams,
@@ -87,6 +86,8 @@ export const forceProjectsRefresh = refreshService.forceRefresh;
 export const getProjectsStatus = refreshService.getStatus;
 
 export const areProjectsRefreshing = refreshService.isRefreshing;
+
+export const refreshProjectsIfNeeded = refreshService.refreshIfNeeded;
 
 /**
  * Find the first of a list of DOIs that matches an HCA project, and return the project's ID, starting a refresh of the DOI-to-project mappings if needed.
