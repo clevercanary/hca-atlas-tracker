@@ -157,7 +157,17 @@ export function makeRefreshService<TData, TRefreshParams>(
   };
 }
 
-async function startRefreshIfNeeded<TData, TRefreshParams>(
+function startRefreshIfNeeded<TData, TRefreshParams>(
+  params: RefreshServiceParams<TData, TRefreshParams>,
+  info: RefreshInfo<TData, TRefreshParams>,
+  force?: boolean,
+): void {
+  doRefreshIfNeeded(params, info, force).catch((e) => {
+    console.error("Error in refresh service:", e);
+  });
+}
+
+async function doRefreshIfNeeded<TData, TRefreshParams>(
   params: RefreshServiceParams<TData, TRefreshParams>,
   info: RefreshInfo<TData, TRefreshParams>,
   force = false,
