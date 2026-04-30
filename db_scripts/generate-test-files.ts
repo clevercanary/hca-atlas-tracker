@@ -365,12 +365,12 @@ async function getFileAtlasId(
   let queryResult: pg.QueryResult<Pick<HCAAtlasTrackerDBAtlas, "id">>;
   if (file.file_type === FILE_TYPE.INTEGRATED_OBJECT) {
     queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-      `SELECT DISTINCT a.id FROM hat.atlases a JOIN hat.component_atlases e ON e.version_id = ANY(a.component_atlases) WHERE e.file_id = $1`,
+      `SELECT DISTINCT a.id FROM hat.atlases a JOIN hat.component_atlases e ON e.version_id = ANY(a.component_atlases) WHERE a.published_at IS NULL AND e.file_id = $1`,
       [file.id],
     );
   } else if (file.file_type === FILE_TYPE.SOURCE_DATASET) {
     queryResult = await client.query<Pick<HCAAtlasTrackerDBAtlas, "id">>(
-      `SELECT DISTINCT a.id FROM hat.atlases a JOIN hat.source_datasets e ON e.version_id = ANY(a.source_datasets) WHERE e.file_id = $1`,
+      `SELECT DISTINCT a.id FROM hat.atlases a JOIN hat.source_datasets e ON e.version_id = ANY(a.source_datasets) WHERE a.published_at IS NULL AND e.file_id = $1`,
       [file.id],
     );
   } else {
@@ -378,7 +378,7 @@ async function getFileAtlasId(
   }
   if (queryResult.rows.length !== 1)
     throw new Error(
-      `Expected exactly 1 atlas for file ${file.id}, got ${queryResult.rows.length}`,
+      `Expected exactly 1 draft atlas for file ${file.id}, got ${queryResult.rows.length}`,
     );
   return queryResult.rows[0].id;
 }
