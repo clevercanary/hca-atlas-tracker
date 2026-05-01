@@ -2,6 +2,7 @@ import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/
 import {
   DatasetValidatorResults,
   datasetValidatorResultsSchema,
+  DatasetValidatorToolReports,
   SNSMessage,
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
@@ -142,13 +143,26 @@ function getValidationReportsAndSummary(
   validationResults: DatasetValidatorResults,
 ): [FileValidationReports | null, FileValidationSummary | null] {
   if (validationResults.tool_reports === null) return [null, null];
+  return toolReportsToValidationReportsAndSummary(
+    validationResults.tool_reports,
+  );
+}
+
+/**
+ * Get validation reports and summary based on tool reports from validation results.
+ * @param toolReports - Tool reports.
+ * @returns validation reports and summary.
+ */
+export function toolReportsToValidationReportsAndSummary(
+  toolReports: DatasetValidatorToolReports,
+): [FileValidationReports, FileValidationSummary] {
   const validationReports: FileValidationReports = {};
   const validationSummary: FileValidationSummary = {
     overallValid: true,
     validators: {},
   };
   for (const validatorName of FILE_VALIDATOR_NAMES) {
-    const validatorResults = validationResults.tool_reports[validatorName];
+    const validatorResults = toolReports[validatorName];
     const validatorReport = {
       errors: validatorResults.errors,
       finishedAt: validatorResults.finished_at,
