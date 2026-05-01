@@ -196,7 +196,7 @@ async function loadValidationResultsClaimCheck(
 }
 
 /**
- * Check that metadata fields match between validation results from S3 and SNS message data, and throw an error they don't.
+ * Check that metadata fields match between validation results from S3 and SNS message data, and throw an error if they don't.
  * @param validationResults - Validation results from S3 object.
  * @param resultsMetadata - Validation results metadata from SNS message.
  */
