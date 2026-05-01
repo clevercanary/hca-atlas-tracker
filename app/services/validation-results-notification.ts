@@ -107,7 +107,8 @@ export async function processValidationResultsMessage(
       await deleteObject(claimCheck.bucket, claimCheck.key);
     } catch (e) {
       console.error(
-        `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}: ${getErrorMessage(e)}`,
+        `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}:`,
+        e,
       );
     }
   }
@@ -139,9 +140,7 @@ async function loadValidationResultsClaimCheck(
   try {
     body = await getObjectAsString(bucket, key);
   } catch (e) {
-    console.log(
-      `Falling back to inline SNS for file ${fileId}: ${getErrorMessage(e)}`,
-    );
+    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
     return null;
   }
 
@@ -149,8 +148,9 @@ async function loadValidationResultsClaimCheck(
   try {
     parsed = JSON.parse(body);
   } catch (e) {
-    console.log(
-      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid JSON: ${getErrorMessage(e)}`,
+    console.error(
+      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid JSON:`,
+      e,
     );
     return null;
   }
@@ -159,18 +159,15 @@ async function loadValidationResultsClaimCheck(
   try {
     results = await datasetValidatorResultsSchema.validate(parsed);
   } catch (e) {
-    console.log(
-      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid data: ${getErrorMessage(e)}`,
+    console.error(
+      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid data:`,
+      e,
     );
     return null;
   }
 
   console.log(`Using S3 claim check for file ${fileId}`);
   return { bucket, key, results };
-}
-
-function getErrorMessage(e: unknown): string {
-  return e instanceof Error ? e.message : String(e);
 }
 
 /**
