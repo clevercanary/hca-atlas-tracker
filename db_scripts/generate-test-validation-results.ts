@@ -184,10 +184,11 @@ function generateToolReport(
     Math.random() < 0.5
       ? []
       : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
+  const timestamp = new Date().toISOString();
   return {
     errors,
-    finished_at: new Date().toISOString(),
-    started_at: new Date().toISOString(),
+    finished_at: timestamp,
+    started_at: timestamp,
     valid,
     warnings,
   };
