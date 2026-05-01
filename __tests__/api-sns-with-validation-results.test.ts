@@ -28,7 +28,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { Readable } from "stream";
 import {
-  DatasetValidatorResults,
   DatasetValidatorToolReports,
   SNSMessage,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
@@ -767,19 +766,15 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         metadata: inlineMetadata,
         timestamp: validationTime,
       });
-      const s3ValidationResults: DatasetValidatorResults = {
-        ...inlineValidationResults,
-        metadata_summary: {
-          assay: s3Metadata.assay,
-          cell_count: s3Metadata.cellCount,
-          disease: s3Metadata.disease,
-          gene_count: s3Metadata.geneCount,
-          suspension_type: s3Metadata.suspensionType,
-          tissue: s3Metadata.tissue,
-          title: s3Metadata.title,
-        },
-        tool_reports: s3ToolReports,
-      };
+      const s3ValidationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        key: fileKey,
+        metadata: s3Metadata,
+        timestamp: validationTime,
+        toolReports: s3ToolReports,
+      });
 
       mockClaimCheckObjectBody(JSON.stringify(s3ValidationResults));
 
