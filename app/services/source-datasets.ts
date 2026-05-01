@@ -25,7 +25,7 @@ import {
   setSourceDatasetsPublicationStatus,
   setSourceDatasetsSourceStudy,
 } from "../data/source-datasets";
-import { InvalidOperationError } from "../utils/api-errors";
+import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { getComponentAtlasVersionForAtlas } from "./component-atlases";
 import { updateDownloadNameIfChanged } from "./concepts";
@@ -175,16 +175,19 @@ export async function createSourceDataset(
     [atlasId, sourceDatasetVersion],
   );
 
-  if (alreadyLinkedResult.rows[0].exists) {
+  if (alreadyLinkedResult.rows[0]?.exists) {
     throw new InvalidOperationError(
       `Source dataset version ${sourceDatasetVersion} is unexpectedly already linked to atlas ${atlasId} during create flow`,
     );
   }
 
-  await client.query(
+  const atlasResult = await client.query(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
     [atlasId, sourceDatasetVersion],
   );
+
+  if (atlasResult.rowCount === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
 }
 
 function createSourceDatasetInfo(): HCAAtlasTrackerDBSourceDatasetInfo {
