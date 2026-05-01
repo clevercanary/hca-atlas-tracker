@@ -43,7 +43,7 @@ import { createSourceDataset } from "../app/services/source-datasets";
 /**
  * Usage: `npx esrun db_scripts/generate-test-files.ts`
  * Any number of existing entity IDs can be added as arguments to the command; if none are specified, new atlases will be generated.
- * Specified entity IDs may be for atlases, component atlases, or source datasets.
+ * Specified entity IDs may be for atlases (draft only), component atlases, or source datasets.
  * File entries will be randomly generated for the given or generated atlases.
  * New file versions will be generated for the given component atlases and source datasets.
  */
