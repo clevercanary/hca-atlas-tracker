@@ -151,7 +151,6 @@ export async function getComponentAtlasSourceDataset(
  * @param fileId - Associated file ID for the new source dataset to reference.
  * @param conceptId - Associated concept ID for the new source dataset to reference.
  * @param client - Postgres client to reuse an existing transaction.
- * @returns version ID of the created source dataset.
  */
 export async function createSourceDataset(
   atlasId: string,
