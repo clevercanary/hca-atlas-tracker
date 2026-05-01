@@ -22,6 +22,18 @@ import { doTransaction } from "./database";
 import { deleteObject, getObjectAsString } from "./s3-operations";
 
 /**
+ * Fields to be checked for consistency between validation results in S3 and SNS message data.
+ */
+const REQUIRED_MATCHING_METADATA_KEYS = [
+  "file_id",
+  "status",
+  "timestamp",
+  "bucket",
+  "key",
+  "batch_job_id",
+] as const;
+
+/**
  * Processes an SNS notification message containing dataset validation results
  * @param snsMessage - The authorized SNS message containing validation results
  * @throws InvalidOperationError if the SNS message doesn't contain a valid validation results message
@@ -166,8 +178,33 @@ async function loadValidationResultsClaimCheck(
     return null;
   }
 
+  try {
+    confirmValidationResultsMatchMetadata(results, inlineResults);
+  } catch (e) {
+    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
+    return null;
+  }
+
   console.log(`Using S3 claim check for file ${fileId}`);
   return { bucket, key, results };
+}
+
+/**
+ * Check that metadata fields match between validation results from S3 and SNS message data, and throw an error they don't.
+ * @param validationResults - Validation results from S3 object.
+ * @param resultsMetadata - Validation results metadata from SNS message.
+ */
+function confirmValidationResultsMatchMetadata(
+  validationResults: DatasetValidatorResults,
+  resultsMetadata: DatasetValidatorResults,
+): void {
+  for (const key of REQUIRED_MATCHING_METADATA_KEYS) {
+    if (validationResults[key] !== resultsMetadata[key]) {
+      throw new Error(
+        `Inconsistent value for ${key} in validation results: got ${JSON.stringify(resultsMetadata[key])} in SNS message but ${JSON.stringify(validationResults[key])} in S3 data`,
+      );
+    }
+  }
 }
 
 /**
