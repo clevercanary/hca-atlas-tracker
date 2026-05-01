@@ -32,7 +32,6 @@ const KY_OPTIONS: KyOptions = {
 };
 
 const refreshService = makeRefreshService({
-  autoStart: process.env.NODE_ENV !== "test",
   getRefreshParams: () => undefined,
   async getRefreshedData() {
     const time = Date.now();
@@ -63,6 +62,8 @@ export const forceCellxGeneRefresh = refreshService.forceRefresh;
 export const getCellxGeneStatus = refreshService.getStatus;
 
 export const isCellxGeneRefreshing = refreshService.isRefreshing;
+
+export const refreshCellxGeneIfNeeded = refreshService.refreshIfNeeded;
 
 /**
  * Find the first of a list of DOIs that matches a CELLxGENE collection, and return the collection's ID, starting a refresh of the DOI-to-collection mappings if needed.

@@ -11,7 +11,7 @@ import {
   ForbiddenError,
   InvalidOperationError,
   NotFoundError,
-} from "../../app/utils/api-handler";
+} from "../../app/utils/api-errors";
 import { query } from "./database";
 
 /**

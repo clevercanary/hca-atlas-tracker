@@ -7,7 +7,7 @@ import {
   HCAAtlasTrackerDBUserWithAssociatedResources,
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { NotFoundError } from "../utils/api-handler";
+import { NotFoundError } from "../utils/api-errors";
 import { getAllAtlases } from "./atlases";
 import { doTransaction, query } from "./database";
 

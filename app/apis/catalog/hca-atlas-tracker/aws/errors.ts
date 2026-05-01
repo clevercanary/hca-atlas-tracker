@@ -5,7 +5,7 @@ import {
   ConflictError,
   ForbiddenError,
   UnauthenticatedError,
-} from "../../../../utils/api-handler";
+} from "../../../../utils/api-errors";
 
 /**
  * Error thrown when S3 object ETag doesn't match expected value

@@ -1,7 +1,7 @@
 import pg from "pg";
 import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
-import { NotFoundError } from "../utils/api-handler";
+import { NotFoundError } from "../utils/api-errors";
 
 /**
  * Create a new latest component atlas version based on the given existing version.

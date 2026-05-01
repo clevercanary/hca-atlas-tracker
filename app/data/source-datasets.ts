@@ -11,7 +11,7 @@ import {
 import { confirmAtlasExists } from "../services/atlases";
 import { doTransaction, query } from "../services/database";
 import { confirmSourceStudyExists } from "../services/source-studies";
-import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
 import { confirmQueryRowsContainVersionIds } from "../utils/database";
 
 const PLURAL_ENTITY_NAME = "source datasets";

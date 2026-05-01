@@ -9,7 +9,7 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import { getSourceDatasetVersionsForAtlas } from "../data/source-datasets";
-import { InvalidOperationError, NotFoundError } from "../utils/api-handler";
+import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
 import { updateDownloadNameIfChanged } from "./concepts";
 import { doOrContinueTransaction, doTransaction, query } from "./database";
 

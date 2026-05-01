@@ -1,4 +1,4 @@
-import { NotFoundError } from "app/utils/api-handler";
+import { NotFoundError } from "app/utils/api-errors";
 import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,

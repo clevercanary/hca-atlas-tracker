@@ -1,5 +1,5 @@
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "app/apis/catalog/hca-atlas-tracker/common/constants";
-import { InvalidOperationError } from "app/utils/api-handler";
+import { InvalidOperationError } from "app/utils/api-errors";
 import { getDbEntityFileVersion } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   FILE_TYPE,
