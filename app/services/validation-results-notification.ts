@@ -13,6 +13,7 @@ import {
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { validateS3BucketAuthorization } from "../config/aws-resources";
 import {
   addValidationResultsToFile,
   getLastValidationTimestamp,
@@ -43,26 +44,10 @@ export async function processValidationResultsMessage(
 ): Promise<void> {
   // Parse and validate SNS message data
 
-  let parsedMessage: unknown;
-  try {
-    parsedMessage = JSON.parse(snsMessage.Message);
-  } catch {
-    throw new InvalidOperationError(
-      `Failed to parse validation results from SNS message ${snsMessage.MessageId}; invalid JSON: ${snsMessage.Message}`,
-    );
-  }
-
-  let validationResults: DatasetValidatorResults;
-
-  try {
-    validationResults =
-      await datasetValidatorResultsSchema.validate(parsedMessage);
-  } catch (e) {
-    console.error(
-      `Validation results message ${snsMessage.MessageId} contained invalid data: ${snsMessage.Message}`,
-    );
-    throw e;
-  }
+  let validationResults = await parseAndValidateValidationResults(
+    snsMessage.Message,
+    `SNS message ${snsMessage.MessageId}`,
+  );
 
   // Attempt to load the validation results from the S3 claim check, falling
   // back to the inline SNS data if the object is missing or unusable.
@@ -159,25 +144,14 @@ async function loadValidationResultsClaimCheck(
     return null;
   }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(body);
-  } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid JSON:`,
-      e,
-    );
-    return null;
-  }
-
   let results: DatasetValidatorResults;
   try {
-    results = await datasetValidatorResultsSchema.validate(parsed);
-  } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId}: S3 claim check s3://${bucket}/${key} contained invalid data:`,
-      e,
+    results = await parseAndValidateValidationResults(
+      body,
+      `S3 claim check s3://${bucket}/${key}`,
     );
+  } catch (e) {
+    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
     return null;
   }
 
@@ -211,6 +185,42 @@ function confirmValidationResultsMatchMetadata(
       );
     }
   }
+}
+
+async function parseAndValidateValidationResults(
+  jsonText: string,
+  sourceDescription: string,
+): Promise<DatasetValidatorResults> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    throw new InvalidOperationError(
+      `Failed to parse validation results from ${sourceDescription}; invalid JSON: ${jsonText}`,
+    );
+  }
+
+  let validationResults: DatasetValidatorResults;
+
+  try {
+    validationResults = await datasetValidatorResultsSchema.validate(parsed);
+  } catch (e) {
+    console.error(
+      `Validation results from ${sourceDescription} contained invalid data: ${jsonText}`,
+    );
+    throw e;
+  }
+
+  try {
+    validateS3BucketAuthorization(validationResults.bucket);
+  } catch (e) {
+    console.error(
+      `Validation results from ${sourceDescription} contained invalid bucket: ${JSON.stringify(validationResults.bucket)}`,
+    );
+    throw e;
+  }
+
+  return validationResults;
 }
 
 /**
