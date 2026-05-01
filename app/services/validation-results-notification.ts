@@ -152,7 +152,10 @@ async function loadValidationResultsClaimCheck(
   try {
     body = await getObjectAsString(bucket, key);
   } catch (e) {
-    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
+    console.error(
+      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
+      e,
+    );
     return null;
   }
 
@@ -181,7 +184,10 @@ async function loadValidationResultsClaimCheck(
   try {
     confirmValidationResultsMatchMetadata(results, inlineResults);
   } catch (e) {
-    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
+    console.error(
+      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
+      e,
+    );
     return null;
   }
 
