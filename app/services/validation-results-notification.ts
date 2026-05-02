@@ -196,7 +196,7 @@ async function parseAndValidateValidationResults(
     parsed = JSON.parse(jsonText);
   } catch {
     throw new InvalidOperationError(
-      `Failed to parse validation results from ${sourceDescription}; invalid JSON: ${jsonText}`,
+      `Failed to parse validation results from ${sourceDescription}; invalid JSON: ${truncateJsonText(jsonText)}`,
     );
   }
 
@@ -206,7 +206,7 @@ async function parseAndValidateValidationResults(
     validationResults = await datasetValidatorResultsSchema.validate(parsed);
   } catch (e) {
     console.error(
-      `Validation results from ${sourceDescription} contained invalid data: ${jsonText}`,
+      `Validation results from ${sourceDescription} contained invalid data: ${truncateJsonText(jsonText)}`,
     );
     throw e;
   }
@@ -221,6 +221,12 @@ async function parseAndValidateValidationResults(
   }
 
   return validationResults;
+}
+
+function truncateJsonText(jsonText: string, maxLength = 3000): string {
+  return jsonText.length > maxLength
+    ? `${jsonText.substring(0, maxLength)} (remaining ${jsonText.length - maxLength} characters of JSON truncated)`
+    : jsonText;
 }
 
 /**
