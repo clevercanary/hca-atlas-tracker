@@ -16,8 +16,17 @@ import {
 setUpAwsConfig();
 
 // Imports
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  NoSuchKey,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { sdkStreamMixin } from "@smithy/util-stream";
+import { mockClient } from "aws-sdk-client-mock";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { Readable } from "stream";
 import {
   DatasetValidatorToolReports,
   SNSMessage,
@@ -36,6 +45,8 @@ import {
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_BAZ,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_FOOBAR,
+  SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
 } from "../testing/constants";
 import { getFileFromDatabase, resetDatabase } from "../testing/db-utils";
@@ -56,6 +67,20 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
+const s3Mock = mockClient(S3Client);
+
+beforeEach(() => {
+  s3Mock.reset();
+  // Default: claim check object does not exist, so handler falls back to inline SNS data.
+  s3Mock.on(GetObjectCommand).rejects(
+    new NoSuchKey({
+      $metadata: {},
+      message: "The specified key does not exist.",
+    }),
+  );
+  s3Mock.on(DeleteObjectCommand).resolves({});
+});
+
 afterEach(() => {
   resetConfigCache();
 });
@@ -75,6 +100,12 @@ const FILE_SOURCE_DATASET_BAR = fillTestFileDefaults(SOURCE_DATASET_BAR.file);
 const FILE_SOURCE_DATASET_BAZ = fillTestFileDefaults(SOURCE_DATASET_BAZ.file);
 const FILE_SOURCE_DATASET_FOOFOO = fillTestFileDefaults(
   SOURCE_DATASET_FOOFOO.file,
+);
+const FILE_SOURCE_DATASET_FOOBAR = fillTestFileDefaults(
+  SOURCE_DATASET_FOOBAR.file,
+);
+const FILE_SOURCE_DATASET_FOOBAZ = fillTestFileDefaults(
+  SOURCE_DATASET_FOOBAZ.file,
 );
 
 const FILE_COMPONENT_ATLAS_DRAFT_FOO = COMPONENT_ATLAS_DRAFT_FOO.file;
@@ -656,7 +687,359 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ).toEqual(expectedValidationStatus);
     },
   );
+
+  describe("S3 claim check", () => {
+    it("loads validation results from S3 and deletes the object on success", async () => {
+      const snsMessageId = "sns-message-claim-check-success";
+      const snsMessageTime = "2025-10-15T01:00:00.000Z";
+      const batchJobId = "batch-job-claim-check-success";
+      const validationTime = "2025-10-15T00:50:00.000Z";
+
+      const inlineMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
+        assay: ["assay-inline"],
+        cellCount: 1,
+        disease: ["disease-inline"],
+        geneCount: 1,
+        suspensionType: ["suspension-type-inline"],
+        tissue: ["tissue-inline"],
+        title: "Inline Title",
+      };
+      const s3Metadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
+        assay: ["assay-from-s3-a", "assay-from-s3-b"],
+        cellCount: 4242,
+        disease: ["disease-from-s3"],
+        geneCount: 3333,
+        suspensionType: ["suspension-type-from-s3"],
+        tissue: ["tissue-from-s3"],
+        title: "Loaded From S3",
+      };
+      const s3ToolReports: DatasetValidatorToolReports = {
+        cap: {
+          errors: [],
+          finished_at: validationTime,
+          started_at: validationTime,
+          valid: true,
+          warnings: [],
+        },
+        cellxgene: {
+          errors: [],
+          finished_at: validationTime,
+          started_at: validationTime,
+          valid: true,
+          warnings: ["Warning from S3"],
+        },
+        hcaCellAnnotation: {
+          errors: [],
+          finished_at: validationTime,
+          started_at: validationTime,
+          valid: true,
+          warnings: [],
+        },
+        hcaSchema: {
+          errors: [],
+          finished_at: validationTime,
+          started_at: validationTime,
+          valid: true,
+          warnings: [],
+        },
+      };
+      const s3ExpectedSummary: FileValidationSummary = {
+        overallValid: true,
+        validators: {
+          cap: { errorCount: 0, valid: true, warningCount: 0 },
+          cellxgene: { errorCount: 0, valid: true, warningCount: 1 },
+          hcaCellAnnotation: { errorCount: 0, valid: true, warningCount: 0 },
+          hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
+        },
+      };
+
+      const fileKey = getTestFileKey(
+        FILE_SOURCE_DATASET_FOOBAR,
+        FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+      );
+
+      const inlineValidationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        key: fileKey,
+        metadata: inlineMetadata,
+        timestamp: validationTime,
+      });
+      const s3ValidationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        key: fileKey,
+        metadata: s3Metadata,
+        timestamp: validationTime,
+        toolReports: s3ToolReports,
+      });
+
+      mockClaimCheckObjectBody(JSON.stringify(s3ValidationResults));
+
+      const snsMessage = createSNSMessage({
+        message: inlineValidationResults,
+        messageId: snsMessageId,
+        timestamp: snsMessageTime,
+        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+      });
+
+      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+      // S3 data should be persisted, not inline data.
+      await expectDbFileValidationFieldsToMatch(
+        FILE_SOURCE_DATASET_FOOBAR.id,
+        validationTime,
+        INTEGRITY_STATUS.VALID,
+        s3Metadata,
+        {
+          batchJobId,
+          snsMessageId,
+          snsMessageTime,
+        },
+        s3ToolReports,
+        s3ExpectedSummary,
+      );
+
+      const expectedKey = `validation-metadata/${FILE_SOURCE_DATASET_FOOBAR.id}/${batchJobId}.json`;
+      const getCalls = s3Mock.commandCalls(GetObjectCommand);
+      expect(getCalls).toHaveLength(1);
+      expect(getCalls[0].args[0].input).toEqual({
+        Bucket: inlineValidationResults.bucket,
+        Key: expectedKey,
+      });
+
+      const deleteCalls = s3Mock.commandCalls(DeleteObjectCommand);
+      expect(deleteCalls).toHaveLength(1);
+      expect(deleteCalls[0].args[0].input).toEqual({
+        Bucket: inlineValidationResults.bucket,
+        Key: expectedKey,
+      });
+    });
+
+    it("falls back to inline SNS data when S3 object is missing", async () => {
+      // Default S3 mock returns NoSuchKey, so this tests the 404 fall-back.
+      const snsMessageId = "sns-message-claim-check-missing";
+      const snsMessageTime = "2025-10-15T02:00:00.000Z";
+      const batchJobId = "batch-job-claim-check-missing";
+      const validationTime = "2025-10-15T01:50:00.000Z";
+
+      const inlineMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
+        assay: ["assay-fallback"],
+        cellCount: 11,
+        disease: ["disease-fallback"],
+        geneCount: 22,
+        suspensionType: ["suspension-type-fallback"],
+        tissue: ["tissue-fallback"],
+        title: "Fallback to Inline",
+      };
+
+      const inlineValidationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOBAZ.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        key: getTestFileKey(
+          FILE_SOURCE_DATASET_FOOBAZ,
+          FILE_SOURCE_DATASET_FOOBAZ.resolvedAtlas,
+        ),
+        metadata: inlineMetadata,
+        timestamp: validationTime,
+      });
+      const snsMessage = createSNSMessage({
+        message: inlineValidationResults,
+        messageId: snsMessageId,
+        timestamp: snsMessageTime,
+        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+      });
+
+      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+      await expectDbFileValidationFieldsToMatch(
+        FILE_SOURCE_DATASET_FOOBAZ.id,
+        validationTime,
+        INTEGRITY_STATUS.VALID,
+        inlineMetadata,
+        {
+          batchJobId,
+          snsMessageId,
+          snsMessageTime,
+        },
+        SUCCESSFUL_TOOL_REPORTS,
+        SUCCESSFUL_VALIDATION_SUMMARY,
+      );
+
+      // The handler attempted to fetch from S3 but did NOT call DeleteObject.
+      expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(1);
+      expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+    });
+
+    it("falls back to inline SNS data when S3 object body is invalid JSON", async () => {
+      mockClaimCheckObjectBody("not-json-{{");
+
+      const snsMessageId = "sns-message-claim-check-bad-json";
+      const snsMessageTime = "2025-10-15T03:00:00.000Z";
+      const batchJobId = "batch-job-claim-check-bad-json";
+      const validationTime = "2025-10-15T02:50:00.000Z";
+
+      const inlineMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
+        assay: ["assay-bad-json"],
+        cellCount: 33,
+        disease: ["disease-bad-json"],
+        geneCount: 44,
+        suspensionType: ["suspension-type-bad-json"],
+        tissue: ["tissue-bad-json"],
+        title: "Bad JSON Fallback",
+      };
+
+      const inlineValidationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOBAZ.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        key: getTestFileKey(
+          FILE_SOURCE_DATASET_FOOBAZ,
+          FILE_SOURCE_DATASET_FOOBAZ.resolvedAtlas,
+        ),
+        metadata: inlineMetadata,
+        timestamp: validationTime,
+      });
+      const snsMessage = createSNSMessage({
+        message: inlineValidationResults,
+        messageId: snsMessageId,
+        timestamp: snsMessageTime,
+        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+      });
+
+      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+      await expectDbFileValidationFieldsToMatch(
+        FILE_SOURCE_DATASET_FOOBAZ.id,
+        validationTime,
+        INTEGRITY_STATUS.VALID,
+        inlineMetadata,
+        {
+          batchJobId,
+          snsMessageId,
+          snsMessageTime,
+        },
+        SUCCESSFUL_TOOL_REPORTS,
+        SUCCESSFUL_VALIDATION_SUMMARY,
+      );
+
+      expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+    });
+
+    it("falls back to inline SNS data when S3 object body has invalid shape", async () => {
+      mockClaimCheckObjectBody(JSON.stringify({ malformed: true }));
+
+      const snsMessageId = "sns-message-claim-check-bad-shape";
+      const snsMessageTime = "2025-10-15T04:00:00.000Z";
+      const batchJobId = "batch-job-claim-check-bad-shape";
+      const validationTime = "2025-10-15T03:50:00.000Z";
+
+      const inlineMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
+        assay: ["assay-bad-shape"],
+        cellCount: 55,
+        disease: ["disease-bad-shape"],
+        geneCount: 66,
+        suspensionType: ["suspension-type-bad-shape"],
+        tissue: ["tissue-bad-shape"],
+        title: "Bad Shape Fallback",
+      };
+
+      const inlineValidationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOBAZ.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        key: getTestFileKey(
+          FILE_SOURCE_DATASET_FOOBAZ,
+          FILE_SOURCE_DATASET_FOOBAZ.resolvedAtlas,
+        ),
+        metadata: inlineMetadata,
+        timestamp: validationTime,
+      });
+      const snsMessage = createSNSMessage({
+        message: inlineValidationResults,
+        messageId: snsMessageId,
+        timestamp: snsMessageTime,
+        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+      });
+
+      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+      await expectDbFileValidationFieldsToMatch(
+        FILE_SOURCE_DATASET_FOOBAZ.id,
+        validationTime,
+        INTEGRITY_STATUS.VALID,
+        inlineMetadata,
+        {
+          batchJobId,
+          snsMessageId,
+          snsMessageTime,
+        },
+        SUCCESSFUL_TOOL_REPORTS,
+        SUCCESSFUL_VALIDATION_SUMMARY,
+      );
+
+      expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+    });
+
+    it("still completes successfully when deleting the S3 object fails", async () => {
+      const snsMessageId = "sns-message-claim-check-delete-fail";
+      const snsMessageTime = "2025-10-15T05:00:00.000Z";
+      const batchJobId = "batch-job-claim-check-delete-fail";
+      const validationTime = "2025-10-15T04:50:00.000Z";
+
+      const fileKey = getTestFileKey(
+        FILE_SOURCE_DATASET_FOOBAR,
+        FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+      );
+
+      const inlineValidationResults = createValidationResults({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        key: fileKey,
+        metadata: null,
+        timestamp: validationTime,
+      });
+
+      mockClaimCheckObjectBody(JSON.stringify(inlineValidationResults));
+      s3Mock
+        .on(DeleteObjectCommand)
+        .rejects(new Error("Simulated delete fail"));
+
+      const snsMessage = createSNSMessage({
+        message: inlineValidationResults,
+        messageId: snsMessageId,
+        timestamp: snsMessageTime,
+        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+      });
+
+      const errorMessages: unknown[][] = [];
+      const res = await doSnsRequest(snsMessage, true, {
+        error: errorMessages,
+      });
+
+      expect(res.statusCode).toEqual(200);
+      expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(1);
+      expect(
+        errorMessages.some((args) =>
+          args.some((arg) =>
+            String(arg).includes("Failed to delete S3 claim check"),
+          ),
+        ),
+      ).toBe(true);
+    });
+  });
 });
+
+function mockClaimCheckObjectBody(body: string): void {
+  // sdkStreamMixin adds transformToString() to the underlying Readable so the
+  // SDK consumer can decode the body the way s3-operations does.
+  const stream = Readable.from([body]);
+  s3Mock.on(GetObjectCommand).resolves({ Body: sdkStreamMixin(stream) });
+}
 
 async function doSnsRequest(
   body: Record<string, unknown>,

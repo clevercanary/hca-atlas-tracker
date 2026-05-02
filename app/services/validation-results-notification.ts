@@ -13,12 +13,26 @@ import {
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { validateS3BucketAuthorization } from "../config/aws-resources";
 import {
   addValidationResultsToFile,
   getLastValidationTimestamp,
 } from "../data/files";
 import { ConflictError, InvalidOperationError } from "../utils/api-errors";
 import { doTransaction } from "./database";
+import { deleteObject, getObjectAsString } from "./s3-operations";
+
+/**
+ * Fields to be checked for consistency between validation results in S3 and SNS message data.
+ */
+const REQUIRED_MATCHING_METADATA_KEYS = [
+  "file_id",
+  "status",
+  "timestamp",
+  "bucket",
+  "key",
+  "batch_job_id",
+] as const;
 
 /**
  * Processes an SNS notification message containing dataset validation results
@@ -30,26 +44,16 @@ export async function processValidationResultsMessage(
 ): Promise<void> {
   // Parse and validate SNS message data
 
-  let parsedMessage: unknown;
-  try {
-    parsedMessage = JSON.parse(snsMessage.Message);
-  } catch {
-    throw new InvalidOperationError(
-      `Failed to parse validation results from SNS message ${snsMessage.MessageId}; invalid JSON: ${snsMessage.Message}`,
-    );
-  }
+  let validationResults = await parseAndValidateValidationResults(
+    snsMessage.Message,
+    `SNS message ${snsMessage.MessageId}`,
+  );
 
-  let validationResults: DatasetValidatorResults;
+  // Attempt to load the validation results from the S3 claim check, falling
+  // back to the inline SNS data if the object is missing or unusable.
 
-  try {
-    validationResults =
-      await datasetValidatorResultsSchema.validate(parsedMessage);
-  } catch (e) {
-    console.error(
-      `Validation results message ${snsMessage.MessageId} contained invalid data: ${snsMessage.Message}`,
-    );
-    throw e;
-  }
+  const claimCheck = await loadValidationResultsClaimCheck(validationResults);
+  if (claimCheck) validationResults = claimCheck.results;
 
   // Save validation results
 
@@ -94,6 +98,135 @@ export async function processValidationResultsMessage(
   console.log(
     `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`,
   );
+
+  if (claimCheck) {
+    try {
+      await deleteObject(claimCheck.bucket, claimCheck.key);
+    } catch (e) {
+      console.error(
+        `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}:`,
+        e,
+      );
+    }
+  }
+}
+
+interface ValidationResultsClaimCheck {
+  bucket: string;
+  key: string;
+  results: DatasetValidatorResults;
+}
+
+/**
+ * Attempt to load and validate validation results from the S3 claim check
+ * object corresponding to the given inline SNS-derived results. The claim
+ * check key is constructed from `file_id` and `batch_job_id` and read from
+ * the same data bucket as the original file.
+ * @param inlineResults - Validation results parsed from the SNS message.
+ * @returns Loaded claim check (bucket, key, validated results), or null if
+ *   the object is unavailable or its contents are invalid.
+ */
+async function loadValidationResultsClaimCheck(
+  inlineResults: DatasetValidatorResults,
+): Promise<ValidationResultsClaimCheck | null> {
+  const fileId = inlineResults.file_id;
+  const bucket = inlineResults.bucket;
+  const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
+
+  let body: string;
+  try {
+    body = await getObjectAsString(bucket, key);
+  } catch (e) {
+    console.error(
+      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
+      e,
+    );
+    return null;
+  }
+
+  let results: DatasetValidatorResults;
+  try {
+    results = await parseAndValidateValidationResults(
+      body,
+      `S3 claim check s3://${bucket}/${key}`,
+    );
+  } catch (e) {
+    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
+    return null;
+  }
+
+  try {
+    confirmValidationResultsMatchMetadata(results, inlineResults);
+  } catch (e) {
+    console.error(
+      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
+      e,
+    );
+    return null;
+  }
+
+  console.log(`Using S3 claim check for file ${fileId}`);
+  return { bucket, key, results };
+}
+
+/**
+ * Check that metadata fields match between validation results from S3 and SNS message data, and throw an error if they don't.
+ * @param validationResults - Validation results from S3 object.
+ * @param resultsMetadata - Validation results metadata from SNS message.
+ */
+function confirmValidationResultsMatchMetadata(
+  validationResults: DatasetValidatorResults,
+  resultsMetadata: DatasetValidatorResults,
+): void {
+  for (const key of REQUIRED_MATCHING_METADATA_KEYS) {
+    if (validationResults[key] !== resultsMetadata[key]) {
+      throw new Error(
+        `Inconsistent value for ${key} in validation results: got ${JSON.stringify(resultsMetadata[key])} in SNS message but ${JSON.stringify(validationResults[key])} in S3 data`,
+      );
+    }
+  }
+}
+
+async function parseAndValidateValidationResults(
+  jsonText: string,
+  sourceDescription: string,
+): Promise<DatasetValidatorResults> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    throw new InvalidOperationError(
+      `Failed to parse validation results from ${sourceDescription}; invalid JSON: ${truncateJsonText(jsonText)}`,
+    );
+  }
+
+  let validationResults: DatasetValidatorResults;
+
+  try {
+    validationResults = await datasetValidatorResultsSchema.validate(parsed);
+  } catch (e) {
+    console.error(
+      `Validation results from ${sourceDescription} contained invalid data: ${truncateJsonText(jsonText)}`,
+    );
+    throw e;
+  }
+
+  try {
+    validateS3BucketAuthorization(validationResults.bucket);
+  } catch (e) {
+    console.error(
+      `Validation results from ${sourceDescription} contained invalid bucket: ${JSON.stringify(validationResults.bucket)}`,
+    );
+    throw e;
+  }
+
+  return validationResults;
+}
+
+function truncateJsonText(jsonText: string, maxLength = 3000): string {
+  return jsonText.length > maxLength
+    ? `${jsonText.substring(0, maxLength)} (remaining ${jsonText.length - maxLength} characters of JSON truncated)`
+    : jsonText;
 }
 
 /**
