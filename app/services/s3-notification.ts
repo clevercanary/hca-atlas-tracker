@@ -119,25 +119,6 @@ type FileCreationHandler = (
   transaction: PoolClient,
 ) => Promise<void>;
 
-async function createIntegratedObject(
-  atlasId: string,
-  fileId: string,
-  conceptId: string,
-  transaction: PoolClient,
-): Promise<void> {
-  await createComponentAtlas(atlasId, fileId, conceptId, transaction);
-}
-
-async function createSourceDatasetFromS3(
-  atlasId: string,
-  fileId: string,
-  conceptId: string,
-  transaction: PoolClient,
-): Promise<void> {
-  // Create source dataset using canonical service within the existing transaction
-  await createSourceDataset(atlasId, fileId, conceptId, transaction);
-}
-
 // File update handler functions
 type FileUpdateHandler = (
   fileId: string,
@@ -200,8 +181,8 @@ async function updateSourceDatasetFromS3(
 // Dispatch maps
 const FILE_CREATION_HANDLERS: Partial<Record<FILE_TYPE, FileCreationHandler>> =
   {
-    [FILE_TYPE.INTEGRATED_OBJECT]: createIntegratedObject,
-    [FILE_TYPE.SOURCE_DATASET]: createSourceDatasetFromS3,
+    [FILE_TYPE.INTEGRATED_OBJECT]: createComponentAtlas,
+    [FILE_TYPE.SOURCE_DATASET]: createSourceDataset,
     // INGEST_MANIFEST files don't need special handling - they just get file records
   };
 const FILE_UPDATE_HANDLERS: Partial<Record<FILE_TYPE, FileUpdateHandler>> = {
