@@ -25,6 +25,10 @@ process.env.GOOGLE_AUTH =
   '{"type": "service_account", "client_email": "test@example.com"}';
 
 process.env.AWS_DATA_BUCKET = TEST_S3_BUCKET;
+process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
+  s3_buckets: [TEST_S3_BUCKET],
+  sns_topics: [],
+});
 
 // Loaded via setupFilesAfterEnv: hooks are available synchronously.
 afterAll(async () => {

@@ -4,6 +4,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { validateS3BucketAuthorization } from "../config/aws-resources";
 
 const PRESIGNED_DOWNLOAD_URL_EXPIRATION_TIME = 172800; // 48 hours
 
@@ -12,6 +13,7 @@ const s3 = new S3Client();
 export function getDataBucketName(): string {
   const bucket = process.env.AWS_DATA_BUCKET;
   if (!bucket) throw new Error("S3 bucket not specified in environment");
+  validateS3BucketAuthorization(bucket);
   return bucket;
 }
 
