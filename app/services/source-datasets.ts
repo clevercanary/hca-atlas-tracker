@@ -25,7 +25,7 @@ import {
   setSourceDatasetsPublicationStatus,
   setSourceDatasetsSourceStudy,
 } from "../data/source-datasets";
-import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
+import { NotFoundError } from "../utils/api-errors";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { getComponentAtlasVersionForAtlas } from "./component-atlases";
 import { updateDownloadNameIfChanged } from "./concepts";
@@ -168,18 +168,6 @@ export async function createSourceDataset(
   );
 
   const sourceDatasetVersion = insertResult.rows[0].version_id;
-
-  // Link source dataset to atlas's source_datasets array if not already linked
-  const alreadyLinkedResult = await client.query(
-    "SELECT EXISTS(SELECT 1 FROM hat.atlases a WHERE a.id = $1 AND $2 = ANY(a.source_datasets))",
-    [atlasId, sourceDatasetVersion],
-  );
-
-  if (alreadyLinkedResult.rows[0]?.exists) {
-    throw new InvalidOperationError(
-      `Source dataset version ${sourceDatasetVersion} is unexpectedly already linked to atlas ${atlasId} during create flow`,
-    );
-  }
 
   const atlasResult = await client.query(
     "UPDATE hat.atlases SET source_datasets = source_datasets || $2::uuid WHERE id = $1",
