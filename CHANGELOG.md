@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.67.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.1...v1.67.0) (2026-05-05)
+
+
+### Features
+
+* save file validation results from s3 object when available ([#1226](https://github.com/clevercanary/hca-atlas-tracker/issues/1226)) ([#1231](https://github.com/clevercanary/hca-atlas-tracker/issues/1231)) ([2f600bc](https://github.com/clevercanary/hca-atlas-tracker/commit/2f600bcdc30b095f03d48c69a9baa627f9f1a026))
+* update metadata entity creation functions for consistency and simplicity ([#1233](https://github.com/clevercanary/hca-atlas-tracker/issues/1233)) ([#1236](https://github.com/clevercanary/hca-atlas-tracker/issues/1236)) ([c025d17](https://github.com/clevercanary/hca-atlas-tracker/commit/c025d17cca04729f41953b3c0e5454088857a322))
+* update test file and validation results generators to use app code where appropriate ([#1154](https://github.com/clevercanary/hca-atlas-tracker/issues/1154)) ([#1232](https://github.com/clevercanary/hca-atlas-tracker/issues/1232)) ([a179280](https://github.com/clevercanary/hca-atlas-tracker/commit/a1792801959b627a6e06c7deaa56a2bfc82b7c2f))
+* validate bucket name in `getDataBucketName` ([#1234](https://github.com/clevercanary/hca-atlas-tracker/issues/1234)) ([#1235](https://github.com/clevercanary/hca-atlas-tracker/issues/1235)) ([7e78c32](https://github.com/clevercanary/hca-atlas-tracker/commit/7e78c3288d20f4b1e8453a2151f8ad0ae71ac755))
+
+
+### Bug Fixes
+
+* revert providers outside ErrorBoundary and upgrade findable-ui to v51.1.0 ([#1225](https://github.com/clevercanary/hca-atlas-tracker/issues/1225)) ([87cff86](https://github.com/clevercanary/hca-atlas-tracker/commit/87cff865314f0fb969acbbc45fa36a786065f8d0))
+
+
+### Documentation
+
+* add section regarding type safety and assertions to CLAUDE.md ([#1204](https://github.com/clevercanary/hca-atlas-tracker/issues/1204)) ([#1228](https://github.com/clevercanary/hca-atlas-tracker/issues/1228)) ([547fdcf](https://github.com/clevercanary/hca-atlas-tracker/commit/547fdcfb83db1e5d2abf06482c325433700c76a4))
+* PRD for validation metadata via S3 claim check ([#1168](https://github.com/clevercanary/hca-atlas-tracker/issues/1168)) ([7fbbccb](https://github.com/clevercanary/hca-atlas-tracker/commit/7fbbccb0506b75356c46846f6eec78482d6d26a2))
+
+
+### Code Refactoring
+
+* update modules imported by service layer to enable service use in scripts ([#1229](https://github.com/clevercanary/hca-atlas-tracker/issues/1229)) ([#1230](https://github.com/clevercanary/hca-atlas-tracker/issues/1230)) ([dc3b176](https://github.com/clevercanary/hca-atlas-tracker/commit/dc3b176123968522524118d777b54733797260bf))
+
 ## [1.66.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.0...v1.66.1) (2026-04-27)
 
 
