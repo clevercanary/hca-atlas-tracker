@@ -289,7 +289,7 @@ export async function createComponentAtlas(
     `
       INSERT INTO hat.component_atlases (component_info, file_id, id)
       VALUES ($1, $2, $3)
-      RETURNING *
+      RETURNING version_id
     `,
     [JSON.stringify(info), fileId, conceptId],
   );
