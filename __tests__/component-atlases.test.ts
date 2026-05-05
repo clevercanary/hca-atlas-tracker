@@ -1,10 +1,11 @@
 import { FILE_TYPE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { createComponentAtlas } from "../app/services/component-atlases";
-import { endPgPool, query } from "../app/services/database";
+import { doTransaction, endPgPool, query } from "../app/services/database";
 import { ATLAS_DRAFT, EMPTY_COMPONENT_INFO } from "../testing/constants";
 import {
   createTestFile,
   getAtlasFromDatabase,
+  getComponentAtlasVersionsFromDatabase,
   resetDatabase,
 } from "../testing/db-utils";
 import { expectIsDefined } from "../testing/utils";
@@ -53,17 +54,23 @@ describe("createComponentAtlas", () => {
       sizeBytes: 2342,
     });
     await expect(
-      (async (): Promise<void> => {
-        await createComponentAtlas(
+      doTransaction(async (client) =>
+        createComponentAtlas(
           ATLAS_ID_NONEXISTENT,
           FILE_ID_NONEXISTENT_ATLAS,
           CONCEPT_ID_NONEXISTENT_ATLAS,
-        );
-      })(),
+          client,
+        ),
+      ),
     ).rejects.toThrow();
   });
 
   it("creates component atlas with empty values in component info", async () => {
+    const versionsBefore = await getComponentAtlasVersionsFromDatabase(
+      CONCEPT_ID_SUCCESSFUL,
+    );
+    expect(versionsBefore).toHaveLength(0);
+
     await createTestFile(FILE_ID_SUCCESSFUL, {
       bucket: "bucket-successful",
       conceptId: CONCEPT_ID_SUCCESSFUL,
@@ -73,20 +80,30 @@ describe("createComponentAtlas", () => {
       sizeBytes: 64342,
     });
 
-    const result = await createComponentAtlas(
-      ATLAS_DRAFT.id,
-      FILE_ID_SUCCESSFUL,
-      CONCEPT_ID_SUCCESSFUL,
+    await doTransaction((client) =>
+      createComponentAtlas(
+        ATLAS_DRAFT.id,
+        FILE_ID_SUCCESSFUL,
+        CONCEPT_ID_SUCCESSFUL,
+        client,
+      ),
     );
 
-    expect(result).toBeDefined();
-    expect(result.component_info).toEqual(EMPTY_COMPONENT_INFO);
-    expect(result.id).toBeDefined();
-    expect(result.created_at).toBeDefined();
-    expect(result.updated_at).toBeDefined();
+    const versionsAfter = await getComponentAtlasVersionsFromDatabase(
+      CONCEPT_ID_SUCCESSFUL,
+    );
+    expect(versionsAfter).toHaveLength(1);
+
+    const componentAtlas = versionsAfter[0];
+
+    expect(componentAtlas).toBeDefined();
+    expect(componentAtlas.component_info).toEqual(EMPTY_COMPONENT_INFO);
+    expect(componentAtlas.id).toBeDefined();
+    expect(componentAtlas.created_at).toBeDefined();
+    expect(componentAtlas.updated_at).toBeDefined();
 
     const atlas = await getAtlasFromDatabase(ATLAS_DRAFT.id);
     if (!expectIsDefined(atlas)) return;
-    expect(atlas.component_atlases).toContain(result.version_id);
+    expect(atlas.component_atlases).toContain(componentAtlas.version_id);
   });
 });

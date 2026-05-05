@@ -11,7 +11,7 @@ import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common
 import { getSourceDatasetVersionsForAtlas } from "../data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
 import { updateDownloadNameIfChanged } from "./concepts";
-import { doOrContinueTransaction, doTransaction, query } from "./database";
+import { doTransaction, query } from "./database";
 
 type ComponentAtlasInfoUpdateFields = Pick<
   HCAAtlasTrackerDBComponentAtlasInfo,
@@ -271,43 +271,38 @@ export async function deleteSourceDatasetsFromComponentAtlas(
  * @param atlasId - ID of the parent atlas.
  * @param fileId - Associated file ID for the new component atlas to reference.
  * @param conceptId - Associated concept ID for the new component atlas to reference.
- * @param client - Optional database client for transactions.
- * @returns the created component atlas.
+ * @param client - Database client for transaction.
  */
 export async function createComponentAtlas(
   atlasId: string,
   fileId: string,
   conceptId: string,
-  client?: pg.PoolClient,
-): Promise<HCAAtlasTrackerDBComponentAtlas> {
+  client: pg.PoolClient,
+): Promise<void> {
   const info: HCAAtlasTrackerDBComponentAtlasInfo = {
     capUrl: null,
   };
 
-  return doOrContinueTransaction(client, async (client) => {
-    const result = await query<HCAAtlasTrackerDBComponentAtlas>(
-      `
-        INSERT INTO hat.component_atlases (component_info, file_id, id)
-        VALUES ($1, $2, $3)
-        RETURNING *
-      `,
-      [JSON.stringify(info), fileId, conceptId],
-      client,
-    );
+  const result = await client.query<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "version_id">
+  >(
+    `
+      INSERT INTO hat.component_atlases (component_info, file_id, id)
+      VALUES ($1, $2, $3)
+      RETURNING version_id
+    `,
+    [JSON.stringify(info), fileId, conceptId],
+  );
 
-    const componentAtlas = result.rows[0];
+  const componentAtlasVersion = result.rows[0].version_id;
 
-    const atlasResult = await query(
-      "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
-      [componentAtlas.version_id, atlasId],
-      client,
-    );
+  const atlasResult = await client.query(
+    "UPDATE hat.atlases SET component_atlases = component_atlases || $1::uuid WHERE id = $2",
+    [componentAtlasVersion, atlasId],
+  );
 
-    if (atlasResult.rowCount === 0)
-      throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
-
-    return componentAtlas;
-  });
+  if (atlasResult.rowCount === 0)
+    throw new NotFoundError(`Atlas with ID ${atlasId} doesn't exist`);
 }
 
 /**

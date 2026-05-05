@@ -591,6 +591,17 @@ export async function getAtlasFromDatabase(
   ).rows[0];
 }
 
+export async function getComponentAtlasVersionsFromDatabase(
+  componentAtlasId: string,
+): Promise<HCAAtlasTrackerDBComponentAtlas[]> {
+  return (
+    await query<HCAAtlasTrackerDBComponentAtlas>(
+      "SELECT * FROM hat.component_atlases WHERE id = $1",
+      [componentAtlasId],
+    )
+  ).rows;
+}
+
 export async function getExistingComponentAtlasFromDatabase(
   versionId: string,
 ): Promise<HCAAtlasTrackerDBComponentAtlas> {
