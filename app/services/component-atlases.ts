@@ -272,7 +272,6 @@ export async function deleteSourceDatasetsFromComponentAtlas(
  * @param fileId - Associated file ID for the new component atlas to reference.
  * @param conceptId - Associated concept ID for the new component atlas to reference.
  * @param client - Database client for transaction.
- * @returns the created component atlas.
  */
 export async function createComponentAtlas(
   atlasId: string,
