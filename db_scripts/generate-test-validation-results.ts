@@ -20,7 +20,7 @@ import { doTransaction, endPgPool } from "../app/services/database";
 import { toolReportsToValidationReportsAndSummary } from "../app/services/validation-results-notification";
 
 /**
- * Usage: `npx esrun db_scripts/generate-test-validation-results.ts <keyword ...>`
+ * Usage: `npx tsx db_scripts/generate-test-validation-results.ts <keyword ...>`
  * Each keyword can be an atlas ID, and atlas short name, an atlas name with version,
  * a component atlas ID, a source dataset ID, a file ID, a file key, or a file name.
  * An atlas represents files of that atlas's component atlases and source datasets,
