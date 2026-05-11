@@ -12,9 +12,8 @@
     "check-format": "prettier --check .",
     "prepare": "husky install .husky",
     "test": "jest --runInBand",
-    "build-catalog": "esrun ./files/build-catalog.ts",
     "migrate": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts",
-    "download-data-dictionary": "esrun ./catalog/build/download-data-dictionary.ts",
+    "download-data-dictionary": "tsx ./catalog/build/download-data-dictionary.ts",
     "migrate:down": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/migration-down.ts -j ts",
     "dump-schema": "pg_dump --schema-only --schema=hat --no-owner --no-privileges atlas-tracker > schema.sql"
   },
@@ -71,7 +70,6 @@
     "@babel/core": "^7.17.10",
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
-    "@digitak/esrun": "^3.2.26",
     "@next/eslint-plugin-next": "^15.5.9",
     "@playwright/test": "^1.37.1",
     "@testing-library/jest-dom": "^5.16.5",
@@ -102,6 +100,7 @@
     "prettier": "^3.7.4",
     "prettier-plugin-organize-imports": "^4.3.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "overrides": {
