@@ -5,7 +5,7 @@ import {
   INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  confirmFileExistsOnAtlas,
+  confirmLatestFilesExistOnAtlas,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
 } from "../app/data/files";
@@ -67,7 +67,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should not throw an error
       await expect(
-        confirmFileExistsOnAtlas(fileId, atlasId),
+        confirmLatestFilesExistOnAtlas([fileId], atlasId),
       ).resolves.toBeUndefined();
     });
 
@@ -78,11 +78,11 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should throw NotFoundError when checking for different atlas
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
+        confirmLatestFilesExistOnAtlas([fileId], wrongAtlasId),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
+        confirmLatestFilesExistOnAtlas([fileId], wrongAtlasId),
       ).rejects.toThrow(
         `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${COMPONENT_ATLAS_DRAFT_FOO.file.id}`,
       );
@@ -97,7 +97,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should not throw an error
       await expect(
-        confirmFileExistsOnAtlas(fileId, atlasId),
+        confirmLatestFilesExistOnAtlas([fileId], atlasId),
       ).resolves.toBeUndefined();
     });
 
@@ -108,11 +108,11 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should throw NotFoundError when checking for different atlas
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
+        confirmLatestFilesExistOnAtlas([fileId], wrongAtlasId),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, wrongAtlasId),
+        confirmLatestFilesExistOnAtlas([fileId], wrongAtlasId),
       ).rejects.toThrow(
         `No files exist on atlas with ID ${wrongAtlasId} with ID(s): ${SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id}`,
       );
@@ -123,11 +123,11 @@ describe("confirmFileExistsOnAtlas", () => {
       const nonLinkedAtlasId = ATLAS_WITH_MISC_SOURCE_STUDIES.id;
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId),
+        confirmLatestFilesExistOnAtlas([fileId], nonLinkedAtlasId),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(fileId, nonLinkedAtlasId),
+        confirmLatestFilesExistOnAtlas([fileId], nonLinkedAtlasId),
       ).rejects.toThrow(
         `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id}`,
       );
@@ -139,11 +139,11 @@ describe("confirmFileExistsOnAtlas", () => {
       const nonExistentFileId = "550e8400-e29b-41d4-a716-446655440099";
 
       await expect(
-        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id),
+        confirmLatestFilesExistOnAtlas([nonExistentFileId], ATLAS_DRAFT.id),
       ).rejects.toThrow(NotFoundError);
 
       await expect(
-        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id),
+        confirmLatestFilesExistOnAtlas([nonExistentFileId], ATLAS_DRAFT.id),
       ).rejects.toThrow(`No files exist with ID(s): ${nonExistentFileId}`);
     });
 
@@ -161,7 +161,7 @@ describe("confirmFileExistsOnAtlas", () => {
       });
 
       await expect(
-        confirmFileExistsOnAtlas(testFileId, ATLAS_DRAFT.id),
+        confirmLatestFilesExistOnAtlas([testFileId], ATLAS_DRAFT.id),
       ).rejects.toThrow(NotFoundError);
     });
 
@@ -169,7 +169,7 @@ describe("confirmFileExistsOnAtlas", () => {
       const nonExistentFileId = "550e8400-e29b-41d4-a716-446655440098";
 
       await expect(
-        confirmFileExistsOnAtlas(nonExistentFileId, ATLAS_DRAFT.id),
+        confirmLatestFilesExistOnAtlas([nonExistentFileId], ATLAS_DRAFT.id),
       ).rejects.toThrow(`No files exist with ID(s): ${nonExistentFileId}`);
     });
   });
@@ -178,7 +178,7 @@ describe("confirmFileExistsOnAtlas", () => {
     it("should handle invalid UUID format for file ID", async () => {
       // Test with invalid UUID format - should get database error, not NotFoundError
       await expect(
-        confirmFileExistsOnAtlas("invalid-uuid", ATLAS_DRAFT.id),
+        confirmLatestFilesExistOnAtlas(["invalid-uuid"], ATLAS_DRAFT.id),
       ).rejects.toThrow(); // Any error is fine, just not a successful resolution
     });
 
@@ -188,7 +188,7 @@ describe("confirmFileExistsOnAtlas", () => {
 
       // Should get database error due to invalid UUID format
       await expect(
-        confirmFileExistsOnAtlas(fileId, "invalid-uuid"),
+        confirmLatestFilesExistOnAtlas([fileId], "invalid-uuid"),
       ).rejects.toThrow(); // Any error is fine
     });
   });
