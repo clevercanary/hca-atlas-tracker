@@ -98,7 +98,7 @@ export async function confirmFileExistsOnAtlas(
   fileId: string,
   atlasId: string,
 ): Promise<void> {
-  await confirmFilesExistOnAtlas([fileId], atlasId);
+  await confirmLatestFilesExistOnAtlas([fileId], atlasId);
 }
 
 /**
@@ -106,7 +106,7 @@ export async function confirmFileExistsOnAtlas(
  * @param fileIds - IDs of the files to check.
  * @param atlasId - ID of the atlas to check for.
  */
-export async function confirmFilesExistOnAtlas(
+export async function confirmLatestFilesExistOnAtlas(
   fileIds: string[],
   atlasId: string,
 ): Promise<void> {
