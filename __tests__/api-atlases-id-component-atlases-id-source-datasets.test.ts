@@ -23,6 +23,8 @@ import {
   COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
   COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W1,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   SOURCE_DATASET_ARCHIVED_BAR,
@@ -35,8 +37,10 @@ import {
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
   SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+  SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
   SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_FOO,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -511,6 +515,44 @@ describe(TEST_ROUTE, () => {
     );
   });
 
+  it("adds source datasets when POST requested with non-latest source dataset linked to the atlas", async () => {
+    const newDatasetsData: ComponentAtlasAddSourceDatasetsData = {
+      sourceDatasetIds: [
+        SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+        SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+      ],
+    };
+
+    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+    );
+
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+      USER_CONTENT_ADMIN,
+      METHOD.POST,
+      newDatasetsData,
+    );
+    expect(res._getStatusCode()).toEqual(201);
+    await expectComponentAtlasToHaveSourceDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      [
+        SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+        SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+        SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+      ],
+    );
+    await expectComponentAtlasToBeUnchanged(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W1,
+    );
+
+    await setComponentAtlasDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      sourceDatasetsBefore,
+    );
+  });
+
   it("returns error 401 when DELETE requested from draft atlas by logged out user", async () => {
     expect(
       (
@@ -754,6 +796,8 @@ describe(TEST_ROUTE, () => {
       sourceDatasetsBefore,
     );
   });
+
+  // TODO non-latest datasets
 });
 
 async function doSourceDatasetsRequest(

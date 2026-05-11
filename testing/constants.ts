@@ -2410,6 +2410,56 @@ export const SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3 = {
   ...BASE_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR,
 } satisfies TestSourceDataset;
 
+const BASE_FILE_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ = {
+  atlas: (): TestAtlas => ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
+  bucket: "bucket-source-dataset-non-latest-metadata-entities-baz",
+  datasetInfo: {
+    assay: ["assay non latest metadata entities baz"],
+    cellCount: 6452,
+    disease: ["disease non latest metadata entities baz"],
+    suspensionType: ["suspension type non latest metadata entities baz"],
+    tissue: ["tissue non latest metadata entities baz"],
+    title: "Source Dataset Non Latest Metadata Entities Baz",
+  },
+  fileName: "source-dataset-non-latest-metadata-entities-baz.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+  versionId: null,
+} satisfies Partial<TestFile>;
+export const SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ =
+  "9aecc948-3ae3-43a7-8be9-2fc4ab69f3cd";
+export const SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1 = {
+  file: {
+    ...BASE_FILE_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ,
+    etag: "a79e207ed7e6491bb45ac31025483d14",
+    eventTime: "2026-05-11T20:37:05.762Z",
+    id: "60bbc6cf-63e6-4a73-917a-8b0a42f6d46f",
+    integrityCheckedAt: "2026-05-11T20:37:30.660Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    isLatest: false,
+    sizeBytes: "35327",
+  },
+  id: SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+  isLatest: false,
+  versionId: "616798c6-e7ba-44dc-9e98-df7306030120",
+  wipNumber: 1,
+} satisfies TestSourceDataset;
+export const SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W2 = {
+  file: {
+    ...BASE_FILE_SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ,
+    etag: "9954a3281e1248b6b59bd54849c38cc1",
+    eventTime: "2026-05-11T20:39:16.728Z",
+    id: "62b7e277-c26c-4303-8b85-f244d9014480",
+    integrityCheckedAt: "2026-05-11T20:39:24.617Z",
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    isLatest: true,
+    sizeBytes: "53236",
+  },
+  id: SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+  isLatest: true,
+  versionId: "aa9d7f7d-fee3-46e1-97c2-9e631befa7a5",
+  wipNumber: 2,
+} satisfies TestSourceDataset;
+
 const BASE_FILE_SOURCE_DATASET_WITH_ARCHIVED_LATEST = {
   atlas: (): TestAtlas => ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   bucket: "bucket-source-dataset-with-archived-latest",
@@ -2938,6 +2988,8 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W1,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W3,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W2,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W1,
   SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
   SOURCE_DATASET_ARCHIVED_FOO,
@@ -4485,6 +4537,7 @@ export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   sourceDatasets: [
     SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2.versionId,
     SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2.versionId,
+    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1.versionId,
   ],
   sourceStudies: [SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES.id],
   status: ATLAS_STATUS.IN_PROGRESS,
