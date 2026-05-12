@@ -64,7 +64,7 @@ s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.js
 
 - **Non-versioned** — payloads are transient and regenerable
 - **Private** — block all public access
-- **Encrypted** — SSE-S3 (or SSE-KMS) at rest
+- **Encrypted** — SSE-S3 (AES256) at rest
 - **Lifecycle-managed** — expire any object older than 7 days as a backstop against orphans (primary cleanup is the tracker delete after DB commit)
 - **Tightly scoped IAM** — only the Batch task role (write) and tracker app role (read+delete) have access
 
@@ -293,6 +293,8 @@ async function deleteValidationMetadata(
 The notification handler orchestrates fetch → parse → schema-validate → DB write → commit → delete in that order. A failure at any step before commit propagates so SNS can retry; a failure on delete is logged but does not fail the request (the lifecycle rule and/or manual cleanup will sweep orphans).
 
 ### Error Handling
+
+The rules below describe the **Phase 4+ steady state**, after the inline SNS fallback has been removed. During **Phase 3**, every S3 failure condition (404, transient fetch error, schema-invalid payload, consistency mismatch) instead falls back to using the inline SNS payload — see the Phase 3 spec for details.
 
 - If the S3 object doesn't exist (404): treat the path as **idempotent** rather than a hard failure. Check whether the file already has results persisted for this `batch_job_id` (or a same-or-newer validation timestamp); if so, log and return success — the message has already been processed and the object has been deleted (or lifecycle-expired). Only fail when no corresponding results are present in the DB.
 - If the S3 fetch fails (transient error): Let the error propagate. SNS will retry delivery, and the next attempt will try fetching again. The S3 object persists until explicitly deleted.
