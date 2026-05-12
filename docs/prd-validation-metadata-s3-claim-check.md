@@ -294,7 +294,7 @@ The notification handler orchestrates fetch → parse → schema-validate → DB
 
 ### Error Handling
 
-- If the S3 object doesn't exist (404): Log error, treat as job failure. It may have already been processed (idempotency). Check if file already has newer results by timestamp.
+- If the S3 object doesn't exist (404): treat the path as **idempotent** rather than a hard failure. Check whether the file already has results persisted for this `batch_job_id` (or a same-or-newer validation timestamp); if so, log and return success — the message has already been processed and the object has been deleted (or lifecycle-expired). Only fail when no corresponding results are present in the DB.
 - If the S3 fetch fails (transient error): Let the error propagate. SNS will retry delivery, and the next attempt will try fetching again. The S3 object persists until explicitly deleted.
 - If the DB write/commit fails: Do **not** delete the S3 object. Let the error propagate so SNS retries; the next delivery refetches the same object and tries again.
 - If the S3 delete fails after successful DB commit: Log a warning but don't fail the request. Orphans are swept by the bucket's lifecycle rule and can also be cleaned up manually.
@@ -351,6 +351,10 @@ Each phase is independently deployable. No phase requires coordinated deployment
 - `validator-batch/iam.tf`: Add `s3:PutObject` for `validation-metadata/*` on the validation-results bucket to the Batch task role; pass `VALIDATION_RESULTS_BUCKET` to the Batch job environment
 - `app-runner/main.tf`: Add `s3:GetObject` and `s3:DeleteObject` for `validation-metadata/*` on the validation-results bucket to the app runner task role; pass `AWS_VALIDATION_RESULTS_BUCKET` to the App Runner service environment
 
+**Tracker config changes:**
+
+- Add the validation-results bucket to the `s3_buckets` array in the tracker's `AWS_RESOURCE_CONFIG` env var (per environment). The tracker's existing `validateS3BucketAuthorization` (`app/config/aws-resources.ts`) gates which buckets the SNS handler is allowed to interact with; the env-derived claim-check bucket must be validated through this same allowlist before any S3 read/delete, mirroring how `AWS_DATA_BUCKET` is validated today.
+
 **Acceptance Criteria:**
 
 - [ ] Validation-results bucket exists per environment with the properties listed above
@@ -359,6 +363,8 @@ Each phase is independently deployable. No phase requires coordinated deployment
 - [ ] App runner can read and delete from `s3://{validation-results-bucket}/validation-metadata/*`
 - [ ] `VALIDATION_RESULTS_BUCKET` is set in the Batch container environment; `AWS_VALIDATION_RESULTS_BUCKET` is set in the App Runner service environment
 - [ ] Lifecycle rule on the validation-results bucket is active
+- [ ] Validation-results bucket is included in the tracker's `AWS_RESOURCE_CONFIG.s3_buckets` allowlist in dev and prod
+- [ ] Tracker validates the env-derived claim-check bucket via `validateS3BucketAuthorization` before fetching or deleting
 
 No functional impact. Existing behavior unchanged.
 
