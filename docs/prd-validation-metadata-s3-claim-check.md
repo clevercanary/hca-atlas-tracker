@@ -385,16 +385,17 @@ The tracker attempts to read from S3 first. If the S3 object exists, use it; oth
 - Update `validation-results-notification.ts`:
   - Resolve the claim-check bucket from `VALIDATION_RESULTS_BUCKET` env var (do not use `validationResults.bucket` — that's the data bucket)
   - Construct the S3 key from `file_id` + `batch_job_id`: `validation-metadata/{file_id}/{batch_job_id}.json`
-  - Retry up to 3 times with exponential backoff on transient S3 errors
-  - On success: parse → schema-validate → write to DB → commit → delete S3 object; log `"Using S3 claim check for file {fileId}"`
-  - On failure after retries (404, persistent error): fall back to inline SNS data, log `"Falling back to inline SNS for file {fileId}: {reason}"`
+  - Rely on the AWS SDK's default retry behavior for transient S3 errors (no application-level retry loop)
+  - Confirm that the S3 payload is consistent with the inline SNS metadata by checking that `file_id`, `status`, `timestamp`, `bucket`, `key`, and `batch_job_id` match between the two. A mismatch falls back to inline SNS data (treated the same as a fetch failure).
+  - On success: parse → schema-validate → consistency-check → write to DB → commit → delete S3 object; log `"Using S3 claim check for file {fileId}"`
+  - On failure (404, persistent S3 error, schema-invalid payload, or consistency mismatch): fall back to inline SNS data, log `"Falling back to inline SNS for file {fileId}: {reason}"`
 
 **Acceptance Criteria:**
 
 - [ ] Tracker reads the claim-check bucket from `VALIDATION_RESULTS_BUCKET`, not from the SNS message
 - [ ] Tracker prefers S3 data when available
-- [ ] Transient S3 failures retried up to 3 times with backoff before falling back
-- [ ] Tracker falls back to inline SNS data gracefully
+- [ ] S3 payload is checked for metadata consistency with the inline SNS message before being used; a mismatch falls back to inline data
+- [ ] Tracker falls back to inline SNS data gracefully on S3 fetch failure, schema-invalid payload, or consistency mismatch
 - [ ] Logs clearly indicate which source was used
 - [ ] S3 object deleted only after the DB write commits successfully
 - [ ] DB write/commit failure leaves the S3 object in place (so SNS retry can recover)
@@ -429,11 +430,16 @@ Once the tracker requires S3, the validator can stop sending the full inline res
 - SNS message becomes a lightweight notification only (`file_id`, `batch_job_id`, `status`, `timestamp`, etc.)
 - Remove `to_length_limited_json()` truncation logic
 
+**Companion change in `hca-atlas-tracker`:**
+
+- The Phase 3 metadata-consistency check (Phase 3 / `confirmValidationResultsMatchMetadata`) compares `file_id`, `status`, `timestamp`, `bucket`, `key`, and `batch_job_id` between the SNS message and the S3 payload. After Phase 4 removes the inline fallback, that check is no longer load-bearing; it can be narrowed to the fields the slim SNS message still carries (at minimum `file_id` + `batch_job_id`) or removed entirely. Decide as part of this phase.
+
 **Acceptance Criteria:**
 
 - [ ] SNS message is small (pointer only)
 - [ ] Truncation logic removed
 - [ ] S3 object contains the full results
+- [ ] Tracker's metadata-consistency check is updated (narrowed or removed) to reflect the slim SNS shape
 
 ---
 
