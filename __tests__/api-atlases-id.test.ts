@@ -349,7 +349,7 @@ describe(TEST_ROUTE, () => {
     const atlas = res._getJSONData() as HCAAtlasTrackerAtlas;
     expectApiAtlasToMatchTest(atlas, ATLAS_WITH_NON_LATEST_METADATA_ENTITIES);
     expect(atlas.componentAtlasCount).toEqual(3);
-    expect(atlas.sourceDatasetCount).toEqual(2);
+    expect(atlas.sourceDatasetCount).toEqual(3);
   });
 
   it("returns isLatest = true for latest-revision atlas", async () => {
