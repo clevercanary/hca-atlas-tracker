@@ -797,7 +797,39 @@ describe(TEST_ROUTE, () => {
     );
   });
 
-  // TODO non-latest datasets
+  it("deletes source datasets when requested with non-latest source dataset linked to the atlas", async () => {
+    const deleteDatasetsData: ComponentAtlasDeleteSourceDatasetsData = {
+      sourceDatasetIds: [SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR],
+    };
+
+    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+    );
+
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+          COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          deleteDatasetsData,
+        )
+      )._getStatusCode(),
+    ).toEqual(200);
+    await expectComponentAtlasToHaveSourceDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      [],
+    );
+    await expectComponentAtlasToBeUnchanged(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W1,
+    );
+
+    await setComponentAtlasDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      sourceDatasetsBefore,
+    );
+  });
 });
 
 async function doSourceDatasetsRequest(
