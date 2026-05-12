@@ -111,7 +111,7 @@ The data bucket IAM policy is unchanged — no new permissions there.
 
 Both the validator and the tracker need the validation-results bucket name in addition to the data bucket name. Following the existing repo convention, tracker/app env vars use the `AWS_*` prefix; the names forwarded into the validator container are unprefixed.
 
-Tracker / App Runner environment (read by `app/services/validator-batch.ts` and `app/services/validation-results-notification.ts`):
+Tracker / App Runner environment (`AWS_DATA_BUCKET` is read today by `app/services/validator-batch.ts`; `AWS_VALIDATION_RESULTS_BUCKET` will be read by `validator-batch.ts` (to forward as a container env) and by `app/services/validation-results-notification.ts` (to resolve the claim-check bucket) once the Phase 1 / #1254 / #1255 tracker changes land):
 
 ```
 AWS_DATA_BUCKET=hca-atlas-tracker-data-dev
@@ -262,6 +262,7 @@ Sequence:
 ```
 SNS received
 → resolve claim-check bucket from AWS_VALIDATION_RESULTS_BUCKET
+→ validate bucket against AWS_RESOURCE_CONFIG.s3_buckets (validateS3BucketAuthorization)
 → derive S3 key from file_id + batch_job_id: validation-metadata/{file_id}/{batch_job_id}.json
 → fetch object
 → parse JSON
