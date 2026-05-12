@@ -116,7 +116,7 @@ AWS_DATA_BUCKET=hca-atlas-tracker-data-dev
 AWS_VALIDATION_RESULTS_BUCKET=hca-atlas-tracker-validation-results-dev
 ```
 
-Validator container environment (set by the tracker when submitting the Batch job; matches the names the validator already reads):
+Validator container environment (set by the tracker when submitting the Batch job; follows the existing unprefixed convention used for `S3_BUCKET` — `VALIDATION_RESULTS_BUCKET` itself is new and read by the validator changes in Phase 2):
 
 ```
 S3_BUCKET=hca-atlas-tracker-data-dev
@@ -269,35 +269,18 @@ SNS received
 → delete S3 object
 ```
 
-Sketch (in `app/services/s3-operations.ts` or similar):
+Reuse the generic helpers already exported from `app/services/s3-operations.ts`:
 
-```typescript
-async function fetchValidationMetadata(
-  bucket: string,
-  key: string,
-): Promise<DatasetValidatorResults> {
-  const response = await s3Client.send(
-    new GetObjectCommand({ Bucket: bucket, Key: key }),
-  );
-  const body = await response.Body.transformToString();
-  return JSON.parse(body);
-}
+- `getObjectAsString(bucket, key)` — fetches an object and returns its body as a string. Already guards against a missing `response.Body` and throws a clear error.
+- `deleteObject(bucket, key)` — deletes an object.
 
-async function deleteValidationMetadata(
-  bucket: string,
-  key: string,
-): Promise<void> {
-  await s3Client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
-}
-```
-
-The notification handler orchestrates fetch → parse → schema-validate → DB write → commit → delete in that order. A failure at any step before commit propagates so SNS can retry; a failure on delete is logged but does not fail the request (the lifecycle rule and/or manual cleanup will sweep orphans).
+The notification handler layers parsing + schema validation on top of `getObjectAsString` and orchestrates fetch → parse → schema-validate → consistency-check → DB write → commit → `deleteObject`. A failure at any step before commit propagates so SNS can retry (Phase 4+) or triggers the inline fallback (Phase 3); a failure on delete is logged but does not fail the request (the lifecycle rule and/or manual cleanup will sweep orphans).
 
 ### Error Handling
 
 The rules below describe the **Phase 4+ steady state**, after the inline SNS fallback has been removed. During **Phase 3**, every S3 failure condition (404, transient fetch error, schema-invalid payload, consistency mismatch) instead falls back to using the inline SNS payload — see the Phase 3 spec for details.
 
-- If the S3 object doesn't exist (404): treat the path as **idempotent** rather than a hard failure. Check whether the file already has results persisted for this `batch_job_id` (or a same-or-newer validation timestamp); if so, log and return success — the message has already been processed and the object has been deleted (or lifecycle-expired). Only fail when no corresponding results are present in the DB.
+- If the S3 object doesn't exist (404): treat the path as **idempotent** rather than a hard failure. Check whether the file's persisted `validation_info` already records this `batch_job_id`; if so, log and return success — the message has already been processed and the object has been deleted (or lifecycle-expired). Only fail when no results for this `file_id` + `batch_job_id` are present in the DB.
 - If the S3 fetch fails (transient error): Let the error propagate. SNS will retry delivery, and the next attempt will try fetching again. The S3 object persists until explicitly deleted.
 - If the DB write/commit fails: Do **not** delete the S3 object. Let the error propagate so SNS retries; the next delivery refetches the same object and tries again.
 - If the S3 delete fails after successful DB commit: Log a warning but don't fail the request. Orphans are swept by the bucket's lifecycle rule and can also be cleaned up manually.
