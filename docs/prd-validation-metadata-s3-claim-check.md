@@ -15,7 +15,9 @@ This document describes a change to the result delivery mechanism: the validator
 
 ## Solution: S3 Claim Check Pattern
 
-Use the existing data bucket with a dedicated prefix as an intermediary. The validator writes full results to S3 at a deterministic key (`validation-metadata/{file_id}/{batch_job_id}.json`), then sends an SNS message. The tracker derives the S3 key from `file_id` + `batch_job_id` in the message, fetches the full payload from S3, writes it to the database, and deletes the S3 object.
+Use a dedicated validation-results bucket as the S3 claim-check store. The data bucket remains versioned and stores protected source data. The validation-results bucket is non-versioned and stores transient validation result payloads that are deleted after successful database persistence and can be regenerated if lost.
+
+The validator writes full results to S3 at a deterministic key (`validation-metadata/{file_id}/{batch_job_id}.json`) in the validation-results bucket, then sends an SNS message. The tracker derives the S3 key from `file_id` + `batch_job_id` in the message, fetches the full payload from S3, writes it to the database, commits, and then deletes the S3 object.
 
 ### Current Flow
 
@@ -30,50 +32,66 @@ Batch Job → build results JSON (≤250KB, truncate if needed)
 
 ```
 Batch Job → build full results JSON (unlimited size)
-          → write to S3: s3://{bucket}/validation-metadata/{file_id}/{batch_job_id}.json
-          → SNS publish (lightweight message with file_id + batch_job_id)
+          → write to S3: s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.json
+          → SNS publish (lightweight pointer message: file_id, batch_job_id, status, timestamp, source bucket/key)
           → Tracker /api/sns receives message
+          → derive validation-results bucket from AWS_VALIDATION_RESULTS_BUCKET env var
           → derive S3 key from file_id + batch_job_id
-          → fetch full JSON from S3
-          → write to database
+          → fetch object
+          → parse JSON
+          → validate schema
+          → write results to DB
+          → commit
           → delete S3 object
 ```
 
 ## Infrastructure Changes
 
-### S3: Reuse Existing Data Bucket
+All Terraform changes in this section live in the [`clevercanary/hca-atlas-tracker-tf-config`](https://github.com/clevercanary/hca-atlas-tracker-tf-config) repository (not in this repo). File paths below (`validator-batch/`, `app-runner/`, etc.) are module directories within that repo.
 
-Use the existing data bucket (`hca-atlas-tracker-data-dev` / `hca-atlas-tracker-data`) with a new prefix:
+### S3: Dedicated Validation-Results Bucket
+
+Create a new bucket per environment, separate from the data bucket:
+
+- `hca-atlas-tracker-validation-results-dev`
+- `hca-atlas-tracker-validation-results`
+
+Object key layout:
 
 ```
-s3://{data-bucket}/validation-metadata/{file_id}/{batch_job_id}.json
+s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.json
 ```
 
-**Why reuse the existing bucket:**
+**Bucket properties:**
 
-- No new bucket to create or manage
-- Both Batch and the tracker app already have credentials for this bucket
-- Prefix-scoped IAM policies keep permissions tight
-- Versioning is already enabled on the bucket
+- **Non-versioned** — payloads are transient and regenerable
+- **Private** — block all public access
+- **Encrypted** — SSE-S3 (AES256) at rest
+- **Lifecycle-managed** — expire any object older than 7 days as a backstop against orphans (primary cleanup is the tracker delete after DB commit)
+- **Tightly scoped IAM** — only the Batch task role (write) and tracker app role (read+delete) have access
 
-**No lifecycle rule:** The app deletes claim check objects immediately after processing. Orphaned objects (from rare processing failures) are small JSON files with negligible storage cost and can be cleaned up manually if needed. Avoiding a lifecycle rule eliminates any risk of misconfiguration accidentally expiring real data files in the bucket.
+**Why a separate bucket (not the data bucket):**
+
+- The data bucket is versioned and holds protected source data; mixing in transient claim-check payloads complicates retention, cost, and blast radius.
+- A dedicated bucket lets us safely apply a lifecycle rule without any risk of expiring real data files.
+- Clear separation of concerns: data bucket = durable source data; validation-results bucket = transient handoff payloads.
 
 ### IAM: Batch Task Role — Add S3 Write
 
-The Batch task role (`validator-batch/iam.tf`) currently has read-only access to the data bucket. Add write access scoped to the `validation-metadata/` prefix:
+The Batch task role (`validator-batch/iam.tf`) currently has read-only access to the data bucket. Add write access scoped to the `validation-metadata/` prefix on the **validation-results bucket**:
 
 ```hcl
 {
   Sid    = "WriteValidationMetadata"
   Effect = "Allow"
   Action = ["s3:PutObject"]
-  Resource = "arn:aws:s3:::${var.data_bucket_name}/validation-metadata/*"
+  Resource = "arn:aws:s3:::${var.validation_results_bucket_name}/validation-metadata/*"
 }
 ```
 
 ### IAM: App Runner Task Role — Add S3 Read and Delete
 
-The app runner task role (`app-runner/main.tf`) needs explicit permissions to fetch and clean up validation metadata. (Note: the app currently relies on implicit permissions for S3 presigned URLs and Batch job submission — those should also be formalized, but that is out of scope for this PRD.)
+The app runner task role (`app-runner/main.tf`) needs permissions to fetch and clean up validation metadata on the validation-results bucket. (Note: the app currently relies on implicit permissions for S3 presigned URLs and Batch job submission — those should also be formalized, but that is out of scope for this PRD.)
 
 ```hcl
 {
@@ -83,33 +101,37 @@ The app runner task role (`app-runner/main.tf`) needs explicit permissions to fe
     "s3:GetObject",
     "s3:DeleteObject"
   ]
-  Resource = "arn:aws:s3:::${var.data_bucket_name}/validation-metadata/*"
+  Resource = "arn:aws:s3:::${var.validation_results_bucket_name}/validation-metadata/*"
 }
 ```
+
+The data bucket IAM policy is unchanged — no new permissions there.
+
+### Environment Variables
+
+Both the validator and the tracker need the validation-results bucket name in addition to the data bucket name. Following the existing repo convention, tracker/app env vars use the `AWS_*` prefix; the names forwarded into the validator container are unprefixed.
+
+Tracker / App Runner environment (`AWS_DATA_BUCKET` is read today by `app/services/validator-batch.ts`; `AWS_VALIDATION_RESULTS_BUCKET` will be read by `app/services/validator-batch.ts` (to forward as a container env) and by `app/services/validation-results-notification.ts` (to resolve the claim-check bucket) once the Phase 1 / #1254 / #1255 tracker changes land):
+
+```
+AWS_DATA_BUCKET=hca-atlas-tracker-data-dev
+AWS_VALIDATION_RESULTS_BUCKET=hca-atlas-tracker-validation-results-dev
+```
+
+Validator container environment (set by the tracker when submitting the Batch job; follows the existing unprefixed convention used for `S3_BUCKET` — `VALIDATION_RESULTS_BUCKET` itself is new and read by the validator changes in Phase 2):
+
+```
+S3_BUCKET=hca-atlas-tracker-data-dev
+VALIDATION_RESULTS_BUCKET=hca-atlas-tracker-validation-results-dev
+```
+
+The validator reads the source file from `S3_BUCKET` and writes the claim-check payload to `VALIDATION_RESULTS_BUCKET`. The tracker resolves the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` (it does **not** read the bucket from the SNS message — the SNS `bucket` field still refers to the original data bucket).
 
 ### SNS: No Changes
 
 The existing validation-results SNS topic and subscription are reused. The SNS message format is unchanged during the initial rollout phases; it only slims down in Phase 5.
 
-### IAM: Local Development Role
-
-Create a `tracker-local-dev` IAM role for local development with permissions scoped to the dev bucket's `validation-metadata/` prefix only:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "LocalDevValidationMetadata",
-      "Effect": "Allow",
-      "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
-      "Resource": "arn:aws:s3:::hca-atlas-tracker-data-dev/validation-metadata/*"
-    }
-  ]
-}
-```
-
-This ensures local dev credentials cannot read, write, or delete files outside the `validation-metadata/` prefix and have no access to the prod bucket. Developers authenticate via SSO or `aws sts assume-role`.
+The claim-check bucket is **not** carried in the SNS message. The `bucket` field already refers to the original data bucket (where the source file lives). The tracker resolves the claim-check bucket from the `AWS_VALIDATION_RESULTS_BUCKET` env var.
 
 ## Validator Changes (hca-validation-tools)
 
@@ -118,7 +140,7 @@ This ensures local dev credentials cannot read, write, or delete files outside t
 In `services/dataset-validator/main.py`, after validation completes:
 
 1. Build the full results JSON (same structure as today, plus new per-sample metadata fields)
-2. Try: write to S3: `s3://{bucket}/validation-metadata/{file_id}/{batch_job_id}.json` (log success/failure)
+2. Try: write to S3: `s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.json` (log success/failure)
 3. Always: publish the full inline SNS message as today (unchanged during Phases 2-4)
 
 In Phase 5, the SNS message slims down to a lightweight notification:
@@ -134,7 +156,7 @@ In Phase 5, the SNS message slims down to a lightweight notification:
 }
 ```
 
-No explicit S3 key field is needed. The tracker constructs the S3 key deterministically from fields already present in the message: `validation-metadata/{file_id}/{batch_job_id}.json`.
+No explicit S3 bucket or key field is needed for the claim check. The `bucket` field still refers to the original data bucket (where the source file lives). The tracker resolves the claim-check bucket from the `AWS_VALIDATION_RESULTS_BUCKET` env var, and constructs the S3 key deterministically from fields already present in the message: `validation-metadata/{file_id}/{batch_job_id}.json`.
 
 ### S3 Object Structure
 
@@ -210,7 +232,7 @@ The existing `to_length_limited_json()` truncation logic remains in place during
 
 ### Environment Variables
 
-The validator already receives `S3_BUCKET` from the Batch job environment. No new environment variables needed — the validator uses the same bucket for reading the file and writing the results.
+The validator already receives the data bucket as `S3_BUCKET` in the Batch container environment (forwarded by the tracker from its own `AWS_DATA_BUCKET`). Add a new container variable `VALIDATION_RESULTS_BUCKET` for the claim-check bucket (forwarded from the tracker's `AWS_VALIDATION_RESULTS_BUCKET`). The validator reads the source file from `S3_BUCKET` and writes the claim-check payload to `VALIDATION_RESULTS_BUCKET`.
 
 ### Backward Compatibility
 
@@ -222,41 +244,49 @@ During rollout, the validator sends **both** the full inline SNS message (as tod
 
 In `app/services/validation-results-notification.ts`:
 
-1. Parse the SNS message (extract `file_id`, `batch_job_id`, `bucket`)
-2. Construct the S3 key: `validation-metadata/{file_id}/{batch_job_id}.json`
-3. Attempt to fetch full results from S3
-   - On success: use S3 data, delete S3 object after processing
+1. Parse the SNS message (extract `file_id`, `batch_job_id`)
+2. Resolve the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` env var (the SNS `bucket` field still refers to the original data bucket — do not use it here)
+3. Construct the S3 key: `validation-metadata/{file_id}/{batch_job_id}.json`
+4. Attempt to fetch full results from S3
+   - On success: parse → schema-validate → write to DB → commit → delete S3 object
    - On failure: fall back to inline SNS data (Phase 3) or hard error (Phase 4+)
 
 See [Rollout Phases](#rollout-phases) for how this evolves across phases.
 
-### S3 Fetch and Delete
+### S3 Fetch, Persist, then Delete
 
-Add an S3 operations function (in `app/services/s3-operations.ts` or similar):
+The S3 object must only be deleted **after** the database write has committed. Deleting earlier (e.g., after JSON parse) would lose the payload if the DB write fails, and SNS retry would no longer be able to recover.
 
-```typescript
-async function fetchAndDeleteValidationMetadata(
-  bucket: string,
-  key: string,
-): Promise<DatasetValidatorResults> {
-  const response = await s3Client.send(
-    new GetObjectCommand({ Bucket: bucket, Key: key }),
-  );
-  const body = await response.Body.transformToString();
-  const results = JSON.parse(body);
+Sequence:
 
-  // Delete after successful parse
-  await s3Client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
-
-  return results;
-}
 ```
+SNS received
+→ resolve claim-check bucket from AWS_VALIDATION_RESULTS_BUCKET
+→ validate bucket against AWS_RESOURCE_CONFIG.s3_buckets (validateS3BucketAuthorization)
+→ derive S3 key from file_id + batch_job_id: validation-metadata/{file_id}/{batch_job_id}.json
+→ fetch object
+→ parse JSON
+→ validate schema
+→ write results to DB
+→ commit
+→ delete S3 object
+```
+
+Reuse the generic helpers already exported from `app/services/s3-operations.ts`:
+
+- `getObjectAsString(bucket, key)` — fetches an object and returns its body as a string. Already guards against a missing `response.Body` and throws a clear error.
+- `deleteObject(bucket, key)` — deletes an object.
+
+The notification handler layers parsing + schema validation on top of `getObjectAsString` and orchestrates fetch → parse → schema-validate → consistency-check → DB write → commit → `deleteObject`. A failure at any step before commit propagates so SNS can retry (Phase 4+) or triggers the inline fallback (Phase 3); a failure on delete is logged but does not fail the request (the lifecycle rule and/or manual cleanup will sweep orphans).
 
 ### Error Handling
 
-- If the S3 object doesn't exist (404): Log error, treat as job failure. It may have already been processed (idempotency). Check if file already has newer results by timestamp.
+The rules below describe the **Phase 4+ steady state**, after the inline SNS fallback has been removed. During **Phase 3**, every S3 failure condition (404, transient fetch error, schema-invalid payload, consistency mismatch) instead falls back to using the inline SNS payload — see the Phase 3 spec for details.
+
+- If the S3 object doesn't exist (404): treat the path as **idempotent** rather than a hard failure. Check whether the file's persisted `validation_info` already records this `batch_job_id`; if so, log and return success — the message has already been processed and the object has been deleted (or lifecycle-expired). Only fail when no results for this `file_id` + `batch_job_id` are present in the DB.
 - If the S3 fetch fails (transient error): Let the error propagate. SNS will retry delivery, and the next attempt will try fetching again. The S3 object persists until explicitly deleted.
-- If the S3 delete fails after successful DB write: Log warning but don't fail. Orphaned objects are small and can be cleaned up manually if they accumulate.
+- If the DB write/commit fails: Do **not** delete the S3 object. Let the error propagate so SNS retries; the next delivery refetches the same object and tries again.
+- If the S3 delete fails after successful DB commit: Log a warning but don't fail the request. Orphans are swept by the bucket's lifecycle rule and can also be cleaned up manually.
 
 ### Database Schema
 
@@ -294,26 +324,37 @@ This structure ensures:
 
 ## Cleanup Strategy
 
-**Primary:** The tracker deletes the S3 object immediately after successfully writing to the database.
+**Primary:** The tracker deletes the S3 object immediately after the database write commits successfully.
 
-No lifecycle rule is used. Orphaned objects from rare processing failures are small JSON files with negligible cost and can be cleaned up manually if needed.
+**Backstop:** A lifecycle rule on the validation-results bucket expires any object older than 7 days. Because the bucket only ever contains transient claim-check payloads (no source data), the lifecycle rule is safe to apply broadly and protects against orphans from rare processing failures.
 
 ## Rollout Phases
 
 Each phase is independently deployable. No phase requires coordinated deployment between the validator and tracker.
 
-### Phase 1: [Infra] Add S3 permissions
+### Phase 1: [Infra] Provision validation-results bucket and add S3 permissions
 
 **Terraform changes:**
 
-- `validator-batch/iam.tf`: Add `s3:PutObject` for `validation-metadata/*` to Batch task role
-- `app-runner/main.tf`: Add `s3:GetObject` and `s3:DeleteObject` for `validation-metadata/*` to app runner task role
+- New module (or addition to an existing one) to create `hca-atlas-tracker-validation-results-{env}` per environment, configured as: non-versioned, block-public-access, SSE encryption, lifecycle rule expiring objects older than 7 days
+- `validator-batch/iam.tf`: Add `s3:PutObject` for `validation-metadata/*` on the validation-results bucket to the Batch task role; pass `VALIDATION_RESULTS_BUCKET` to the Batch job environment
+- `app-runner/main.tf`: Add `s3:GetObject` and `s3:DeleteObject` for `validation-metadata/*` on the validation-results bucket to the app runner task role; pass `AWS_VALIDATION_RESULTS_BUCKET` to the App Runner service environment
+
+**Tracker config changes:**
+
+- Add the validation-results bucket to the `s3_buckets` array in the tracker's `AWS_RESOURCE_CONFIG` env var (per environment). The tracker's existing `validateS3BucketAuthorization` (`app/config/aws-resources.ts`) gates which buckets the SNS handler is allowed to interact with; the env-derived claim-check bucket must be validated through this same allowlist before any S3 read/delete, mirroring how `AWS_DATA_BUCKET` is validated today.
 
 **Acceptance Criteria:**
 
-- [ ] Batch job can write to `s3://{bucket}/validation-metadata/*`
-- [ ] Batch job cannot write to any other prefix
-- [ ] App runner can read and delete from `s3://{bucket}/validation-metadata/*`
+- [ ] Validation-results bucket exists per environment with the properties listed above
+- [ ] Batch job can write to `s3://{validation-results-bucket}/validation-metadata/*`
+- [ ] Batch job cannot write to any other prefix or to the data bucket's claim-check prefix
+- [ ] App runner can read and delete from `s3://{validation-results-bucket}/validation-metadata/*`
+- [ ] `VALIDATION_RESULTS_BUCKET` is set in the Batch container environment; `AWS_VALIDATION_RESULTS_BUCKET` is set in the App Runner service environment
+- [ ] Lifecycle rule on the validation-results bucket is active
+- [ ] Validation-results bucket is included in the tracker's `AWS_RESOURCE_CONFIG.s3_buckets` allowlist in dev and prod
+- [ ] Tracker validates the env-derived claim-check bucket via `validateS3BucketAuthorization` before fetching or deleting
+- [ ] `docs/aws-resource-configuration.md` examples are updated to include the validation-results bucket in the `s3_buckets` allowlist so local/dev/prod setup instructions stay accurate
 
 No functional impact. Existing behavior unchanged.
 
@@ -325,7 +366,7 @@ The validator attempts to write results to S3 first, wrapped in a try/catch. Reg
 
 **Changes to `hca-validation-tools`:**
 
-- Try: write full JSON to `s3://{bucket}/validation-metadata/{file_id}/{batch_job_id}.json`
+- Try: write full JSON to `s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.json`
   - On success: log `"S3 claim check write succeeded for file {file_id}"`
   - On failure: log `"S3 claim check write failed for file {file_id}: {error}"`
 - Always: send the full inline SNS message as today (no changes to SNS message shape, truncation logic stays)
@@ -347,19 +388,22 @@ The tracker attempts to read from S3 first. If the S3 object exists, use it; oth
 **Changes to `hca-atlas-tracker`:**
 
 - Update `validation-results-notification.ts`:
+  - Resolve the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` env var (do not use `validationResults.bucket` — that's the data bucket)
   - Construct the S3 key from `file_id` + `batch_job_id`: `validation-metadata/{file_id}/{batch_job_id}.json`
-  - Fetch from the same data bucket (`validationResults.bucket`) used for the original file
-  - Retry up to 3 times with exponential backoff on transient S3 errors
-  - On success: use S3 data, delete S3 object, log `"Using S3 claim check for file {fileId}"`
-  - On failure after retries (404, persistent error): fall back to inline SNS data, log `"Falling back to inline SNS for file {fileId}: {reason}"`
+  - Rely on the AWS SDK's default retry behavior for transient S3 errors (no application-level retry loop)
+  - Confirm that the S3 payload is consistent with the inline SNS metadata by checking that `file_id`, `status`, `timestamp`, `bucket`, `key`, and `batch_job_id` match between the two. A mismatch falls back to inline SNS data (treated the same as a fetch failure).
+  - On success: parse → schema-validate → consistency-check → write to DB → commit → delete S3 object; log `"Using S3 claim check for file {fileId}"`
+  - On failure (404, persistent S3 error, schema-invalid payload, or consistency mismatch): fall back to inline SNS data, log `"Falling back to inline SNS for file {fileId}: {reason}"`
 
 **Acceptance Criteria:**
 
+- [ ] Tracker reads the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET`, not from the SNS message
 - [ ] Tracker prefers S3 data when available
-- [ ] Transient S3 failures retried up to 3 times with backoff before falling back
-- [ ] Tracker falls back to inline SNS data gracefully
+- [ ] S3 payload is checked for metadata consistency with the inline SNS message before being used; a mismatch falls back to inline data
+- [ ] Tracker falls back to inline SNS data gracefully on S3 fetch failure, schema-invalid payload, or consistency mismatch
 - [ ] Logs clearly indicate which source was used
-- [ ] S3 object deleted after successful processing
+- [ ] S3 object deleted only after the DB write commits successfully
+- [ ] DB write/commit failure leaves the S3 object in place (so SNS retry can recover)
 - [ ] All existing tests still pass (inline path unchanged)
 
 ---
@@ -391,11 +435,16 @@ Once the tracker requires S3, the validator can stop sending the full inline res
 - SNS message becomes a lightweight notification only (`file_id`, `batch_job_id`, `status`, `timestamp`, etc.)
 - Remove `to_length_limited_json()` truncation logic
 
+**Companion change in `hca-atlas-tracker`:**
+
+- The Phase 3 metadata-consistency check (Phase 3 / `confirmValidationResultsMatchMetadata`) compares `file_id`, `status`, `timestamp`, `bucket`, `key`, and `batch_job_id` between the SNS message and the S3 payload. After Phase 4 removes the inline fallback, that check is no longer load-bearing; it can be narrowed to the fields the slim SNS message still carries (at minimum `file_id` + `batch_job_id`) or removed entirely. Decide as part of this phase.
+
 **Acceptance Criteria:**
 
 - [ ] SNS message is small (pointer only)
 - [ ] Truncation logic removed
 - [ ] S3 object contains the full results
+- [ ] Tracker's metadata-consistency check is updated (narrowed or removed) to reflect the slim SNS shape
 
 ---
 
@@ -419,10 +468,13 @@ With the claim check pipeline proven, extend the S3 payload with per-sample meta
 
 ## Risks and Mitigations
 
-| Risk                                          | Mitigation                                                                                          |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| S3 object deleted before tracker reads it     | SNS retries cover transient failures; each validation run has a unique S3 key (batch_job_id)        |
-| S3 write fails in validator                   | Fall back to inline SNS message (degraded but functional)                                           |
-| Large metadata causes slow DB writes          | Use JSONB for now; normalize to separate table if queries are slow                                  |
-| Concurrent re-validation overwrites S3 object | Tracker uses timestamp ordering to reject stale results (existing behavior)                         |
-| Cost of S3 storage                            | Objects are transient (deleted after processing); orphans are small JSON files with negligible cost |
+| Risk                                                  | Mitigation                                                                                                                                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| S3 object expires (lifecycle) before tracker reads it | Lifecycle retention (7 days) is long enough to absorb SNS retry windows; tracker delete is gated on DB commit, so premature deletion by the tracker itself cannot happen |
+| DB write fails after S3 fetch                         | Delete is gated on DB commit, so the object remains in S3 and SNS retry refetches it                                                                                     |
+| S3 write fails in validator                           | Fall back to inline SNS message (degraded but functional)                                                                                                                |
+| Misuse of `bucket` field in SNS message               | Tracker resolves the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` env var; the SNS `bucket` field is only the data bucket                                     |
+| Large metadata causes slow DB writes                  | Use JSONB for now; normalize to separate table if queries are slow                                                                                                       |
+| Concurrent re-validation overwrites S3 object         | Tracker uses timestamp ordering to reject stale results (existing behavior)                                                                                              |
+| Cost of S3 storage                                    | Objects are transient (deleted after DB commit); lifecycle rule on the validation-results bucket sweeps any orphans                                                      |
+| Lifecycle rule accidentally expires real data         | Validation-results bucket holds only transient claim-check payloads — no source data — so a lifecycle rule cannot affect data files                                      |
