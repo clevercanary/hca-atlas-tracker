@@ -58,7 +58,7 @@ afterAll(() => {
   endPgPool();
 });
 
-describe("confirmFileExistsOnAtlas", () => {
+describe("confirmFilesExistOnAtlas", () => {
   describe("integrated object files via component atlas", () => {
     it("should pass when file exists on the specified atlas via component atlas", async () => {
       // Use existing test file that's linked to component atlas
