@@ -259,7 +259,8 @@ Sequence:
 
 ```
 SNS received
-→ derive validation result S3 key (from AWS_VALIDATION_RESULTS_BUCKET + file_id + batch_job_id)
+→ resolve claim-check bucket from AWS_VALIDATION_RESULTS_BUCKET
+→ derive S3 key from file_id + batch_job_id: validation-metadata/{file_id}/{batch_job_id}.json
 → fetch object
 → parse JSON
 → validate schema
