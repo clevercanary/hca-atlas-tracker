@@ -14,10 +14,14 @@ import { NotFoundError } from "../app/utils/api-errors";
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
+  COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
+  COMPONENT_ATLAS_MISC_FOO,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+  SOURCE_DATASET_BAR,
   SOURCE_DATASET_DRAFT_OK_FOO,
+  SOURCE_DATASET_FOO,
 } from "../testing/constants";
 import {
   createTestConceptFromS3Key,
@@ -130,6 +134,45 @@ describe("confirmFilesExistOnAtlas", () => {
         confirmLatestFilesExistOnAtlas([fileId], nonLinkedAtlasId),
       ).rejects.toThrow(
         `No files exist on atlas with ID ${nonLinkedAtlasId} with ID(s): ${FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES.id}`,
+      );
+    });
+  });
+
+  describe("multiple files", () => {
+    it("should pass when all of a mix of files exist on the specified atlas", async () => {
+      // Use a mix of existing component atlases and source datasets linked to the atlas
+      const fileIds = [
+        COMPONENT_ATLAS_DRAFT_FOO.file.id,
+        SOURCE_DATASET_FOO.file.id,
+        SOURCE_DATASET_BAR.file.id,
+        COMPONENT_ATLAS_DRAFT_BAR.file.id,
+      ];
+      const atlasId = ATLAS_DRAFT.id;
+
+      // Should not throw an error
+      await expect(
+        confirmLatestFilesExistOnAtlas(fileIds, atlasId),
+      ).resolves.toBeUndefined();
+    });
+
+    it("should throw NotFoundError when only one of a mix of files is not linked to the specified atlas", async () => {
+      const fileIds = [
+        COMPONENT_ATLAS_DRAFT_FOO.file.id,
+        SOURCE_DATASET_FOO.file.id,
+        COMPONENT_ATLAS_MISC_FOO.file.id,
+        SOURCE_DATASET_BAR.file.id,
+        COMPONENT_ATLAS_DRAFT_BAR.file.id,
+      ];
+      const atlasId = ATLAS_DRAFT.id;
+
+      await expect(
+        confirmLatestFilesExistOnAtlas(fileIds, atlasId),
+      ).rejects.toThrow(NotFoundError);
+
+      await expect(
+        confirmLatestFilesExistOnAtlas(fileIds, atlasId),
+      ).rejects.toThrow(
+        `No files exist on atlas with ID ${atlasId} with ID(s): ${COMPONENT_ATLAS_MISC_FOO.file.id}`,
       );
     });
   });
