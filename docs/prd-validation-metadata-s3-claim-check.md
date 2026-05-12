@@ -33,9 +33,9 @@ Batch Job → build results JSON (≤250KB, truncate if needed)
 ```
 Batch Job → build full results JSON (unlimited size)
           → write to S3: s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.json
-          → SNS publish (lightweight message with file_id + batch_job_id)
+          → SNS publish (lightweight pointer message: file_id, batch_job_id, status, timestamp, source bucket/key)
           → Tracker /api/sns receives message
-          → derive validation-results bucket from VALIDATION_RESULTS_BUCKET env var
+          → derive validation-results bucket from AWS_VALIDATION_RESULTS_BUCKET env var
           → derive S3 key from file_id + batch_job_id
           → fetch object
           → parse JSON
@@ -107,20 +107,29 @@ The data bucket IAM policy is unchanged — no new permissions there.
 
 ### Environment Variables
 
-Both the validator and the tracker need the validation-results bucket name in addition to the data bucket name:
+Both the validator and the tracker need the validation-results bucket name in addition to the data bucket name. Following the existing repo convention, tracker/app env vars use the `AWS_*` prefix; the names forwarded into the validator container are unprefixed.
+
+Tracker / App Runner environment (read by `app/services/validator-batch.ts` and `app/services/validation-results-notification.ts`):
 
 ```
-DATA_BUCKET=hca-atlas-tracker-data-dev
+AWS_DATA_BUCKET=hca-atlas-tracker-data-dev
+AWS_VALIDATION_RESULTS_BUCKET=hca-atlas-tracker-validation-results-dev
+```
+
+Validator container environment (set by the tracker when submitting the Batch job; matches the names the validator already reads):
+
+```
+S3_BUCKET=hca-atlas-tracker-data-dev
 VALIDATION_RESULTS_BUCKET=hca-atlas-tracker-validation-results-dev
 ```
 
-The validator reads the source file from `DATA_BUCKET` and writes the claim-check payload to `VALIDATION_RESULTS_BUCKET`. The tracker derives the claim-check object location from `VALIDATION_RESULTS_BUCKET` (it does **not** read the bucket from the SNS message — the SNS `bucket` field still refers to the original data bucket).
+The validator reads the source file from `S3_BUCKET` and writes the claim-check payload to `VALIDATION_RESULTS_BUCKET`. The tracker resolves the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` (it does **not** read the bucket from the SNS message — the SNS `bucket` field still refers to the original data bucket).
 
 ### SNS: No Changes
 
 The existing validation-results SNS topic and subscription are reused. The SNS message format is unchanged during the initial rollout phases; it only slims down in Phase 5.
 
-The claim-check bucket is **not** carried in the SNS message. The `bucket` field already refers to the original data bucket (where the source file lives). The tracker resolves the claim-check bucket from the `VALIDATION_RESULTS_BUCKET` env var.
+The claim-check bucket is **not** carried in the SNS message. The `bucket` field already refers to the original data bucket (where the source file lives). The tracker resolves the claim-check bucket from the `AWS_VALIDATION_RESULTS_BUCKET` env var.
 
 ## Validator Changes (hca-validation-tools)
 
@@ -145,7 +154,7 @@ In Phase 5, the SNS message slims down to a lightweight notification:
 }
 ```
 
-No explicit S3 bucket or key field is needed for the claim check. The `bucket` field still refers to the original data bucket (where the source file lives). The tracker resolves the claim-check bucket from the `VALIDATION_RESULTS_BUCKET` env var, and constructs the S3 key deterministically from fields already present in the message: `validation-metadata/{file_id}/{batch_job_id}.json`.
+No explicit S3 bucket or key field is needed for the claim check. The `bucket` field still refers to the original data bucket (where the source file lives). The tracker resolves the claim-check bucket from the `AWS_VALIDATION_RESULTS_BUCKET` env var, and constructs the S3 key deterministically from fields already present in the message: `validation-metadata/{file_id}/{batch_job_id}.json`.
 
 ### S3 Object Structure
 
@@ -221,7 +230,7 @@ The existing `to_length_limited_json()` truncation logic remains in place during
 
 ### Environment Variables
 
-The validator already receives the data bucket (`S3_BUCKET` / `DATA_BUCKET`) from the Batch job environment. Add a new variable `VALIDATION_RESULTS_BUCKET` for the claim-check bucket. The validator reads the source file from the data bucket and writes the claim-check payload to the validation-results bucket.
+The validator already receives the data bucket as `S3_BUCKET` in the Batch container environment (forwarded by the tracker from its own `AWS_DATA_BUCKET`). Add a new container variable `VALIDATION_RESULTS_BUCKET` for the claim-check bucket (forwarded from the tracker's `AWS_VALIDATION_RESULTS_BUCKET`). The validator reads the source file from `S3_BUCKET` and writes the claim-check payload to `VALIDATION_RESULTS_BUCKET`.
 
 ### Backward Compatibility
 
@@ -234,7 +243,7 @@ During rollout, the validator sends **both** the full inline SNS message (as tod
 In `app/services/validation-results-notification.ts`:
 
 1. Parse the SNS message (extract `file_id`, `batch_job_id`)
-2. Resolve the claim-check bucket from `VALIDATION_RESULTS_BUCKET` env var (the SNS `bucket` field still refers to the original data bucket — do not use it here)
+2. Resolve the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` env var (the SNS `bucket` field still refers to the original data bucket — do not use it here)
 3. Construct the S3 key: `validation-metadata/{file_id}/{batch_job_id}.json`
 4. Attempt to fetch full results from S3
    - On success: parse → schema-validate → write to DB → commit → delete S3 object
@@ -250,7 +259,7 @@ Sequence:
 
 ```
 SNS received
-→ derive validation result S3 key (from VALIDATION_RESULTS_BUCKET + file_id + batch_job_id)
+→ derive validation result S3 key (from AWS_VALIDATION_RESULTS_BUCKET + file_id + batch_job_id)
 → fetch object
 → parse JSON
 → validate schema
@@ -340,7 +349,7 @@ Each phase is independently deployable. No phase requires coordinated deployment
 
 - New module (or addition to an existing one) to create `hca-atlas-tracker-validation-results-{env}` per environment, configured as: non-versioned, block-public-access, SSE encryption, lifecycle rule expiring objects older than 7 days
 - `validator-batch/iam.tf`: Add `s3:PutObject` for `validation-metadata/*` on the validation-results bucket to the Batch task role; pass `VALIDATION_RESULTS_BUCKET` to the Batch job environment
-- `app-runner/main.tf`: Add `s3:GetObject` and `s3:DeleteObject` for `validation-metadata/*` on the validation-results bucket to the app runner task role; pass `VALIDATION_RESULTS_BUCKET` to the App Runner service environment
+- `app-runner/main.tf`: Add `s3:GetObject` and `s3:DeleteObject` for `validation-metadata/*` on the validation-results bucket to the app runner task role; pass `AWS_VALIDATION_RESULTS_BUCKET` to the App Runner service environment
 
 **Acceptance Criteria:**
 
@@ -348,7 +357,7 @@ Each phase is independently deployable. No phase requires coordinated deployment
 - [ ] Batch job can write to `s3://{validation-results-bucket}/validation-metadata/*`
 - [ ] Batch job cannot write to any other prefix or to the data bucket's claim-check prefix
 - [ ] App runner can read and delete from `s3://{validation-results-bucket}/validation-metadata/*`
-- [ ] `VALIDATION_RESULTS_BUCKET` is set in both Batch and App Runner environments
+- [ ] `VALIDATION_RESULTS_BUCKET` is set in the Batch container environment; `AWS_VALIDATION_RESULTS_BUCKET` is set in the App Runner service environment
 - [ ] Lifecycle rule on the validation-results bucket is active
 
 No functional impact. Existing behavior unchanged.
@@ -383,7 +392,7 @@ The tracker attempts to read from S3 first. If the S3 object exists, use it; oth
 **Changes to `hca-atlas-tracker`:**
 
 - Update `validation-results-notification.ts`:
-  - Resolve the claim-check bucket from `VALIDATION_RESULTS_BUCKET` env var (do not use `validationResults.bucket` — that's the data bucket)
+  - Resolve the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` env var (do not use `validationResults.bucket` — that's the data bucket)
   - Construct the S3 key from `file_id` + `batch_job_id`: `validation-metadata/{file_id}/{batch_job_id}.json`
   - Rely on the AWS SDK's default retry behavior for transient S3 errors (no application-level retry loop)
   - Confirm that the S3 payload is consistent with the inline SNS metadata by checking that `file_id`, `status`, `timestamp`, `bucket`, `key`, and `batch_job_id` match between the two. A mismatch falls back to inline SNS data (treated the same as a fetch failure).
@@ -392,7 +401,7 @@ The tracker attempts to read from S3 first. If the S3 object exists, use it; oth
 
 **Acceptance Criteria:**
 
-- [ ] Tracker reads the claim-check bucket from `VALIDATION_RESULTS_BUCKET`, not from the SNS message
+- [ ] Tracker reads the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET`, not from the SNS message
 - [ ] Tracker prefers S3 data when available
 - [ ] S3 payload is checked for metadata consistency with the inline SNS message before being used; a mismatch falls back to inline data
 - [ ] Tracker falls back to inline SNS data gracefully on S3 fetch failure, schema-invalid payload, or consistency mismatch
@@ -468,7 +477,7 @@ With the claim check pipeline proven, extend the S3 payload with per-sample meta
 | S3 object expires (lifecycle) before tracker reads it | Lifecycle retention (7 days) is long enough to absorb SNS retry windows; tracker delete is gated on DB commit, so premature deletion by the tracker itself cannot happen |
 | DB write fails after S3 fetch                         | Delete is gated on DB commit, so the object remains in S3 and SNS retry refetches it                                                                                     |
 | S3 write fails in validator                           | Fall back to inline SNS message (degraded but functional)                                                                                                                |
-| Misuse of `bucket` field in SNS message               | Tracker resolves the claim-check bucket from `VALIDATION_RESULTS_BUCKET` env var; the SNS `bucket` field is only the data bucket                                         |
+| Misuse of `bucket` field in SNS message               | Tracker resolves the claim-check bucket from `AWS_VALIDATION_RESULTS_BUCKET` env var; the SNS `bucket` field is only the data bucket                                     |
 | Large metadata causes slow DB writes                  | Use JSONB for now; normalize to separate table if queries are slow                                                                                                       |
 | Concurrent re-validation overwrites S3 object         | Tracker uses timestamp ordering to reject stale results (existing behavior)                                                                                              |
 | Cost of S3 storage                                    | Objects are transient (deleted after DB commit); lifecycle rule on the validation-results bucket sweeps any orphans                                                      |
