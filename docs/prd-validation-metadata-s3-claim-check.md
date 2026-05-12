@@ -47,6 +47,8 @@ Batch Job → build full results JSON (unlimited size)
 
 ## Infrastructure Changes
 
+All Terraform changes in this section live in the [`clevercanary/hca-atlas-tracker-tf-config`](https://github.com/clevercanary/hca-atlas-tracker-tf-config) repository (not in this repo). File paths below (`validator-batch/`, `app-runner/`, etc.) are module directories within that repo.
+
 ### S3: Dedicated Validation-Results Bucket
 
 Create a new bucket per environment, separate from the data bucket:
@@ -351,6 +353,7 @@ Each phase is independently deployable. No phase requires coordinated deployment
 - [ ] Lifecycle rule on the validation-results bucket is active
 - [ ] Validation-results bucket is included in the tracker's `AWS_RESOURCE_CONFIG.s3_buckets` allowlist in dev and prod
 - [ ] Tracker validates the env-derived claim-check bucket via `validateS3BucketAuthorization` before fetching or deleting
+- [ ] `docs/aws-resource-configuration.md` examples are updated to include the validation-results bucket in the `s3_buckets` allowlist so local/dev/prod setup instructions stay accurate
 
 No functional impact. Existing behavior unchanged.
 
