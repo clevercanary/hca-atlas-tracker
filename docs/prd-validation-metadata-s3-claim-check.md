@@ -129,7 +129,7 @@ The claim-check bucket is **not** carried in the SNS message. The `bucket` field
 In `services/dataset-validator/main.py`, after validation completes:
 
 1. Build the full results JSON (same structure as today, plus new per-sample metadata fields)
-2. Try: write to S3: `s3://{VALIDATION_RESULTS_BUCKET}/validation-metadata/{file_id}/{batch_job_id}.json` (log success/failure)
+2. Try: write to S3: `s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.json` (log success/failure)
 3. Always: publish the full inline SNS message as today (unchanged during Phases 2-4)
 
 In Phase 5, the SNS message slims down to a lightweight notification:
@@ -361,7 +361,7 @@ The validator attempts to write results to S3 first, wrapped in a try/catch. Reg
 
 **Changes to `hca-validation-tools`:**
 
-- Try: write full JSON to `s3://{VALIDATION_RESULTS_BUCKET}/validation-metadata/{file_id}/{batch_job_id}.json`
+- Try: write full JSON to `s3://{validation-results-bucket}/validation-metadata/{file_id}/{batch_job_id}.json`
   - On success: log `"S3 claim check write succeeded for file {file_id}"`
   - On failure: log `"S3 claim check write failed for file {file_id}: {error}"`
 - Always: send the full inline SNS message as today (no changes to SNS message shape, truncation logic stays)
