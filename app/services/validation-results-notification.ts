@@ -117,20 +117,48 @@ interface ValidationResultsClaimCheck {
   results: DatasetValidatorResults;
 }
 
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} environment variable is required`);
+  return value;
+}
+
 /**
  * Attempt to load and validate validation results from the S3 claim check
- * object corresponding to the given inline SNS-derived results. The claim
- * check key is constructed from `file_id` and `batch_job_id` and read from
- * the same data bucket as the original file.
+ * object corresponding to the given inline SNS-derived results. The
+ * claim-check bucket is read from `AWS_VALIDATION_RESULTS_BUCKET` (a
+ * dedicated bucket separate from the data bucket — see the claim-check PRD)
+ * and validated against `AWS_RESOURCE_CONFIG.s3_buckets` before any S3
+ * operation. The key is constructed from `file_id` and `batch_job_id`.
+ *
+ * Every failure mode returns `null` so the caller falls back to the inline
+ * SNS data. This includes deployment misconfiguration (env var unset, bucket
+ * not in `AWS_RESOURCE_CONFIG.s3_buckets`) as well as runtime failures (S3
+ * fetch error, schema-invalid payload, metadata mismatch with the SNS
+ * message). All failures are logged so misconfiguration is visible in
+ * CloudWatch even though it doesn't block processing.
+ *
  * @param inlineResults - Validation results parsed from the SNS message.
  * @returns Loaded claim check (bucket, key, validated results), or null if
- *   the object is unavailable or its contents are invalid.
+ *   any failure occurred and the caller should fall back to inline data.
  */
 async function loadValidationResultsClaimCheck(
   inlineResults: DatasetValidatorResults,
 ): Promise<ValidationResultsClaimCheck | null> {
   const fileId = inlineResults.file_id;
-  const bucket = inlineResults.bucket;
+
+  let bucket: string;
+  try {
+    bucket = requiredEnv("AWS_VALIDATION_RESULTS_BUCKET");
+    validateS3BucketAuthorization(bucket);
+  } catch (e) {
+    console.error(
+      `Falling back to inline SNS for file ${fileId} (claim-check bucket misconfiguration):`,
+      e,
+    );
+    return null;
+  }
+
   const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
 
   let body: string;

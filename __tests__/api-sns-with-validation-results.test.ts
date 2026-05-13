@@ -6,9 +6,11 @@ import {
   SNS_MESSAGE_DEFAULTS,
   SUCCESSFUL_TOOL_REPORTS,
   SUCCESSFUL_VALIDATION_SUMMARY,
+  TEST_S3_BUCKET,
   TEST_SIGNATURE_VALID,
   TEST_SNS_TOPIC_VALIDATION_RESULTS,
   TEST_TIMESTAMP,
+  TEST_VALIDATION_RESULTS_BUCKET,
   validateTestSnsMessage,
 } from "../testing/sns-testing";
 
@@ -806,14 +808,14 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       const getCalls = s3Mock.commandCalls(GetObjectCommand);
       expect(getCalls).toHaveLength(1);
       expect(getCalls[0].args[0].input).toEqual({
-        Bucket: inlineValidationResults.bucket,
+        Bucket: TEST_VALIDATION_RESULTS_BUCKET,
         Key: expectedKey,
       });
 
       const deleteCalls = s3Mock.commandCalls(DeleteObjectCommand);
       expect(deleteCalls).toHaveLength(1);
       expect(deleteCalls[0].args[0].input).toEqual({
-        Bucket: inlineValidationResults.bucket,
+        Bucket: TEST_VALIDATION_RESULTS_BUCKET,
         Key: expectedKey,
       });
     });
@@ -1031,8 +1033,102 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         ),
       ).toBe(true);
     });
+
+    it("falls back to inline SNS data when AWS_VALIDATION_RESULTS_BUCKET is unset", async () => {
+      // Deployment misconfiguration: env var missing. The handler logs and
+      // proceeds with the inline SNS payload — preserves end-to-end processing
+      // even under misconfig (deliberate departure from PRD Phase 3 fail-fast
+      // guidance; see PR description for rationale).
+      const originalBucket = process.env.AWS_VALIDATION_RESULTS_BUCKET;
+      await expectClaimCheckMisconfigurationFallsBackToInline({
+        misconfigure: () => {
+          delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
+        },
+        restore: () => {
+          if (originalBucket === undefined) {
+            delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
+          } else {
+            process.env.AWS_VALIDATION_RESULTS_BUCKET = originalBucket;
+          }
+        },
+        testId: "claim-check-no-env",
+      });
+    });
+
+    it("falls back to inline SNS data when AWS_VALIDATION_RESULTS_BUCKET is not in the allowlist", async () => {
+      const originalConfig = process.env.AWS_RESOURCE_CONFIG;
+      await expectClaimCheckMisconfigurationFallsBackToInline({
+        misconfigure: () => {
+          process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
+            // Validation-results bucket deliberately absent.
+            s3_buckets: [TEST_S3_BUCKET],
+            sns_topics: [TEST_SNS_TOPIC_VALIDATION_RESULTS],
+          });
+          resetConfigCache();
+        },
+        restore: () => {
+          if (originalConfig === undefined) {
+            delete process.env.AWS_RESOURCE_CONFIG;
+          } else {
+            process.env.AWS_RESOURCE_CONFIG = originalConfig;
+          }
+          resetConfigCache();
+        },
+        testId: "claim-check-not-in-allowlist",
+      });
+    });
   });
 });
+
+/**
+ * Apply a claim-check misconfiguration, post a valid SNS validation-results
+ * message, and assert the handler still returns 200 (falling back to inline
+ * SNS data without attempting any S3 op). Restores the original state in
+ * `finally` even if assertions or `misconfigure()` itself fail.
+ * @param opts - Test options.
+ * @param opts.misconfigure - Mutates env/state to trigger the failure mode.
+ * @param opts.restore - Reverses `misconfigure`. Called in `finally`.
+ * @param opts.testId - Used to namespace the SNS messageId and batchJobId.
+ */
+async function expectClaimCheckMisconfigurationFallsBackToInline(opts: {
+  misconfigure: () => void;
+  restore: () => void;
+  testId: string;
+}): Promise<void> {
+  try {
+    opts.misconfigure();
+    const fileKey = getTestFileKey(
+      FILE_SOURCE_DATASET_FOOBAR,
+      FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+    );
+
+    const inlineValidationResults = createValidationResults({
+      batchJobId: `batch-job-${opts.testId}`,
+      fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: fileKey,
+      metadata: null,
+      timestamp: "2025-10-15T06:50:00.000Z",
+    });
+
+    const snsMessage = createSNSMessage({
+      message: inlineValidationResults,
+      messageId: `sns-message-${opts.testId}`,
+      timestamp: "2025-10-15T07:00:00.000Z",
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    const res = await doSnsRequest(snsMessage, true);
+
+    // Graceful fallback: handler processes inline SNS data successfully.
+    expect(res.statusCode).toEqual(200);
+    // S3 ops never attempted — bucket misconfig caught before any fetch.
+    expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
+    expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+  } finally {
+    opts.restore();
+  }
+}
 
 function mockClaimCheckObjectBody(body: string): void {
   // sdkStreamMixin adds transformToString() to the underlying Readable so the

@@ -20,6 +20,7 @@ import {
   INTEGRITY_STATUS,
   SYSTEM,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { resetConfigCache } from "../app/config/aws-resources";
 import { query } from "../app/services/database";
 import { slugifyAtlasShortName } from "../app/utils/atlases";
 import snsHandler from "../pages/api/sns";
@@ -27,6 +28,8 @@ import { getFileFromDatabase } from "./db-utils";
 import { expectIsDefined } from "./utils";
 
 export const TEST_S3_BUCKET = "hca-atlas-tracker-data-dev";
+export const TEST_VALIDATION_RESULTS_BUCKET =
+  "hca-atlas-tracker-validation-results-dev";
 export const TEST_GUT_ATLAS_ID = "550e8400-e29b-41d4-a716-446655440000";
 export const TEST_GUT_ATLAS_V2_ID = "550e8400-e29b-41d4-a716-446655440002";
 export const TEST_ATLAS_WITH_NAME_CONTRAST_ID =
@@ -42,7 +45,7 @@ export const TEST_SNS_TOPIC_S3_NOTIFICATIONS =
 export const TEST_SNS_TOPIC_VALIDATION_RESULTS =
   "arn:aws:sns:us-east-1:123456789012:hca-atlas-tracker-validation-results";
 export const TEST_AWS_CONFIG = {
-  s3_buckets: [TEST_S3_BUCKET],
+  s3_buckets: [TEST_S3_BUCKET, TEST_VALIDATION_RESULTS_BUCKET],
   sns_topics: [
     TEST_SNS_TOPIC_S3_NOTIFICATIONS,
     TEST_SNS_TOPIC_VALIDATION_RESULTS,
@@ -51,6 +54,12 @@ export const TEST_AWS_CONFIG = {
 
 export function setUpAwsConfig(): void {
   process.env.AWS_RESOURCE_CONFIG = JSON.stringify(TEST_AWS_CONFIG);
+  process.env.AWS_VALIDATION_RESULTS_BUCKET = TEST_VALIDATION_RESULTS_BUCKET;
+  // Invalidate the cached parse in app/config/aws-resources so subsequent
+  // calls to getAWSResourceConfig() see the override. Without this, anything
+  // that called getAWSResourceConfig() earlier in the runtime would keep
+  // using the stale config.
+  resetConfigCache();
 }
 
 // Test file path constants
