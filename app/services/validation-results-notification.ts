@@ -131,24 +131,34 @@ function requiredEnv(name: string): string {
  * and validated against `AWS_RESOURCE_CONFIG.s3_buckets` before any S3
  * operation. The key is constructed from `file_id` and `batch_job_id`.
  *
- * Failure modes:
- * - Env var unset or bucket not in `AWS_RESOURCE_CONFIG.s3_buckets`: throws
- *   (deployment misconfiguration; SNS retry will not help, but surfacing the
- *   error loudly is preferred over silently falling back to inline data).
- * - S3 object missing / parse error / schema-invalid / metadata mismatch:
- *   returns null so the caller falls back to the inline SNS data (Phase 3
- *   PRD behavior; will be tightened in Phase 4).
+ * Every failure mode returns `null` so the caller falls back to the inline
+ * SNS data. This includes deployment misconfiguration (env var unset, bucket
+ * not in `AWS_RESOURCE_CONFIG.s3_buckets`) as well as runtime failures (S3
+ * fetch error, schema-invalid payload, metadata mismatch with the SNS
+ * message). All failures are logged so misconfiguration is visible in
+ * CloudWatch even though it doesn't block processing.
  *
  * @param inlineResults - Validation results parsed from the SNS message.
  * @returns Loaded claim check (bucket, key, validated results), or null if
- *   the object is unavailable or its contents are invalid.
+ *   any failure occurred and the caller should fall back to inline data.
  */
 async function loadValidationResultsClaimCheck(
   inlineResults: DatasetValidatorResults,
 ): Promise<ValidationResultsClaimCheck | null> {
   const fileId = inlineResults.file_id;
-  const bucket = requiredEnv("AWS_VALIDATION_RESULTS_BUCKET");
-  validateS3BucketAuthorization(bucket);
+
+  let bucket: string;
+  try {
+    bucket = requiredEnv("AWS_VALIDATION_RESULTS_BUCKET");
+    validateS3BucketAuthorization(bucket);
+  } catch (e) {
+    console.error(
+      `Falling back to inline SNS for file ${fileId} (claim-check bucket misconfiguration):`,
+      e,
+    );
+    return null;
+  }
+
   const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
 
   let body: string;
