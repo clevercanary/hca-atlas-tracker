@@ -6,6 +6,7 @@ import {
   SNS_MESSAGE_DEFAULTS,
   SUCCESSFUL_TOOL_REPORTS,
   SUCCESSFUL_VALIDATION_SUMMARY,
+  TEST_S3_BUCKET,
   TEST_SIGNATURE_VALID,
   TEST_SNS_TOPIC_VALIDATION_RESULTS,
   TEST_TIMESTAMP,
@@ -1061,7 +1062,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         misconfigure: () => {
           process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
             // Validation-results bucket deliberately absent.
-            s3_buckets: ["hca-atlas-tracker-data-dev"],
+            s3_buckets: [TEST_S3_BUCKET],
             sns_topics: [TEST_SNS_TOPIC_VALIDATION_RESULTS],
           });
           resetConfigCache();
