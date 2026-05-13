@@ -29,6 +29,8 @@ import { makeTestProjectsResponse, makeTestUser } from "./utils";
 
 export const TEST_S3_BUCKET = "test-bucket";
 
+export const TEST_VALIDATION_RESULTS_BUCKET = "test-validation-results-bucket";
+
 export const STAKEHOLDER_ANALOGOUS_ROLES = [
   ROLE.STAKEHOLDER,
   ROLE.INTEGRATION_LEAD,

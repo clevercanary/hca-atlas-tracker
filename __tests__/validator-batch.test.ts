@@ -5,7 +5,10 @@ import {
 } from "@aws-sdk/client-batch";
 import { submitDatasetValidationJob } from "app/services/validator-batch";
 import { mockClient } from "aws-sdk-client-mock";
-import { TEST_S3_BUCKET } from "testing/constants";
+import {
+  TEST_S3_BUCKET,
+  TEST_VALIDATION_RESULTS_BUCKET,
+} from "testing/constants";
 
 // Project-wide mocks for DB connection etc.
 jest.mock("../app/utils/pg-app-connect-config");
@@ -31,18 +34,17 @@ describe("submitDatasetValidationJob", () => {
     const JOB_DEFINITION = "dev-hca-atlas-tracker-validator-batch";
     const SNS_TOPIC_ARN =
       "arn:aws:sns:us-east-1:123456789012:dev-hca-atlas-tracker-validation-results";
-    const VALIDATION_RESULTS_BUCKET = "test-validation-results-bucket";
 
     process.env.AWS_BATCH_VALIDATOR_JOB_QUEUE = JOB_QUEUE;
     process.env.AWS_BATCH_VALIDATOR_JOB_DEFINITION = JOB_DEFINITION;
     process.env.AWS_BATCH_VALIDATOR_SNS_TOPIC_ARN = SNS_TOPIC_ARN;
     process.env.AWS_DATA_BUCKET = TEST_S3_BUCKET;
-    process.env.AWS_VALIDATION_RESULTS_BUCKET = VALIDATION_RESULTS_BUCKET;
+    process.env.AWS_VALIDATION_RESULTS_BUCKET = TEST_VALIDATION_RESULTS_BUCKET;
     process.env.VALIDATOR_LOG_LEVEL = "INFO";
 
     // Allowlist config for resources
     process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
-      s3_buckets: [TEST_S3_BUCKET, VALIDATION_RESULTS_BUCKET],
+      s3_buckets: [TEST_S3_BUCKET, TEST_VALIDATION_RESULTS_BUCKET],
       sns_topics: [SNS_TOPIC_ARN],
     });
 
@@ -80,7 +82,7 @@ describe("submitDatasetValidationJob", () => {
         { name: "FILE_ID", value: fileId },
         {
           name: "VALIDATION_RESULTS_BUCKET",
-          value: VALIDATION_RESULTS_BUCKET,
+          value: TEST_VALIDATION_RESULTS_BUCKET,
         },
         { name: "SNS_TOPIC_ARN", value: SNS_TOPIC_ARN },
         { name: "LOG_LEVEL", value: "INFO" },
