@@ -90,23 +90,11 @@ export async function getLatestNotificationInfo(
 }
 
 /**
- * Check that the specified file exists, is the latest version, and has the specified atlas ID, throwing an error otherwise.
- * @param fileId - ID of the file to check.
- * @param atlasId - ID of the atlas to check for.
- */
-export async function confirmFileExistsOnAtlas(
-  fileId: string,
-  atlasId: string,
-): Promise<void> {
-  await confirmFilesExistOnAtlas([fileId], atlasId);
-}
-
-/**
  * Check that the specified files exist, are the latest version, and are associated via linked entities with the specified atlas, and throw an error if any aren't.
  * @param fileIds - IDs of the files to check.
  * @param atlasId - ID of the atlas to check for.
  */
-export async function confirmFilesExistOnAtlas(
+export async function confirmLatestFilesExistOnAtlas(
   fileIds: string[],
   atlasId: string,
 ): Promise<void> {

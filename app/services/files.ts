@@ -12,7 +12,7 @@ import {
 import { getComponentAtlasForAtlasFile } from "../data/component-atlases";
 import { getConceptForFile } from "../data/concepts";
 import {
-  confirmFilesExistOnAtlas,
+  confirmLatestFilesExistOnAtlas,
   getAllFilesValidationParams,
   getFileKey,
   getFilesArchiveStatus,
@@ -101,7 +101,7 @@ export async function updateAtlasFilesArchiveStatus(
   fileIds: string[],
   isArchived: boolean,
 ): Promise<void> {
-  await confirmFilesExistOnAtlas(fileIds, atlasId);
+  await confirmLatestFilesExistOnAtlas(fileIds, atlasId);
 
   if (isArchived) {
     const publishedFileIds = (await getFilesPublishStatus(fileIds))
