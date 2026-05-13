@@ -1034,108 +1034,100 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     });
 
     it("fails fast when AWS_VALIDATION_RESULTS_BUCKET is unset", async () => {
+      // Missing env var throws a plain Error from requiredEnv → 500.
       const originalBucket = process.env.AWS_VALIDATION_RESULTS_BUCKET;
-      delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
-      try {
-        const batchJobId = "batch-job-claim-check-no-env";
-        const validationTime = "2025-10-15T06:50:00.000Z";
-
-        const fileKey = getTestFileKey(
-          FILE_SOURCE_DATASET_FOOBAR,
-          FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
-        );
-
-        const inlineValidationResults = createValidationResults({
-          batchJobId,
-          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
-          integrityStatus: INTEGRITY_STATUS.VALID,
-          key: fileKey,
-          metadata: null,
-          timestamp: validationTime,
-        });
-
-        const snsMessage = createSNSMessage({
-          message: inlineValidationResults,
-          messageId: "sns-message-claim-check-no-env",
-          timestamp: "2025-10-15T07:00:00.000Z",
-          topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
-        });
-
-        const res = await doSnsRequest(snsMessage, true);
-
-        // Missing env var is a deployment misconfiguration — fail loudly
-        // (SNS retry won't fix it, but surfacing the error is preferable
-        // to silently falling back to inline data).
-        expect(res.statusCode).not.toEqual(200);
-
-        // S3 ops never attempted.
-        expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
-        expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
-      } finally {
-        if (originalBucket === undefined) {
+      await expectClaimCheckMisconfigurationFails({
+        expectedStatusCode: 500,
+        misconfigure: () => {
           delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
-        } else {
-          process.env.AWS_VALIDATION_RESULTS_BUCKET = originalBucket;
-        }
-      }
+        },
+        restore: () => {
+          if (originalBucket === undefined) {
+            delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
+          } else {
+            process.env.AWS_VALIDATION_RESULTS_BUCKET = originalBucket;
+          }
+        },
+        testId: "claim-check-no-env",
+      });
     });
 
     it("fails fast when AWS_VALIDATION_RESULTS_BUCKET is not in the allowlist", async () => {
-      // Override the allowlist to exclude the validation-results bucket.
+      // validateS3BucketAuthorization throws UnauthorizedAWSResourceError
+      // (extends ForbiddenError) → 403.
       const originalConfig = process.env.AWS_RESOURCE_CONFIG;
-      process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
-        s3_buckets: [
-          // Data bucket present; validation-results bucket deliberately absent.
-          "hca-atlas-tracker-data-dev",
-        ],
-        sns_topics: [TEST_SNS_TOPIC_VALIDATION_RESULTS],
+      await expectClaimCheckMisconfigurationFails({
+        expectedStatusCode: 403,
+        misconfigure: () => {
+          process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
+            // Validation-results bucket deliberately absent.
+            s3_buckets: ["hca-atlas-tracker-data-dev"],
+            sns_topics: [TEST_SNS_TOPIC_VALIDATION_RESULTS],
+          });
+          resetConfigCache();
+        },
+        restore: () => {
+          if (originalConfig === undefined) {
+            delete process.env.AWS_RESOURCE_CONFIG;
+          } else {
+            process.env.AWS_RESOURCE_CONFIG = originalConfig;
+          }
+          resetConfigCache();
+        },
+        testId: "claim-check-not-in-allowlist",
       });
-      resetConfigCache();
-      try {
-        const batchJobId = "batch-job-claim-check-not-in-allowlist";
-        const validationTime = "2025-10-15T07:50:00.000Z";
-
-        const fileKey = getTestFileKey(
-          FILE_SOURCE_DATASET_FOOBAR,
-          FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
-        );
-
-        const inlineValidationResults = createValidationResults({
-          batchJobId,
-          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
-          integrityStatus: INTEGRITY_STATUS.VALID,
-          key: fileKey,
-          metadata: null,
-          timestamp: validationTime,
-        });
-
-        const snsMessage = createSNSMessage({
-          message: inlineValidationResults,
-          messageId: "sns-message-claim-check-not-in-allowlist",
-          timestamp: "2025-10-15T08:00:00.000Z",
-          topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
-        });
-
-        const res = await doSnsRequest(snsMessage, true);
-
-        // Bucket not in AWS_RESOURCE_CONFIG.s3_buckets is also a
-        // deployment misconfiguration — fail loudly, do not fall back.
-        expect(res.statusCode).not.toEqual(200);
-
-        // S3 ops never attempted.
-        expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
-        expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
-      } finally {
-        if (originalConfig === undefined) {
-          delete process.env.AWS_RESOURCE_CONFIG;
-        } else {
-          process.env.AWS_RESOURCE_CONFIG = originalConfig;
-        }
-        resetConfigCache();
-      }
     });
   });
 });
+
+/**
+ * Apply a misconfiguration, post a valid SNS validation-results message, and
+ * assert the handler fails with the expected status code without attempting
+ * any S3 op. Restores the original state in `finally` even if assertions fail.
+ * @param opts - Test options.
+ * @param opts.expectedStatusCode - Status code the SNS handler should return.
+ * @param opts.misconfigure - Mutates env/state to trigger the failure mode.
+ * @param opts.restore - Reverses `misconfigure`. Called in `finally`.
+ * @param opts.testId - Used to namespace the SNS messageId and batchJobId.
+ */
+async function expectClaimCheckMisconfigurationFails(opts: {
+  expectedStatusCode: number;
+  misconfigure: () => void;
+  restore: () => void;
+  testId: string;
+}): Promise<void> {
+  opts.misconfigure();
+  try {
+    const fileKey = getTestFileKey(
+      FILE_SOURCE_DATASET_FOOBAR,
+      FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+    );
+
+    const inlineValidationResults = createValidationResults({
+      batchJobId: `batch-job-${opts.testId}`,
+      fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: fileKey,
+      metadata: null,
+      timestamp: "2025-10-15T06:50:00.000Z",
+    });
+
+    const snsMessage = createSNSMessage({
+      message: inlineValidationResults,
+      messageId: `sns-message-${opts.testId}`,
+      timestamp: "2025-10-15T07:00:00.000Z",
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    const res = await doSnsRequest(snsMessage, true);
+
+    expect(res.statusCode).toEqual(opts.expectedStatusCode);
+    expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
+    expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+  } finally {
+    opts.restore();
+  }
+}
 
 function mockClaimCheckObjectBody(body: string): void {
   // sdkStreamMixin adds transformToString() to the underlying Readable so the
