@@ -20,6 +20,7 @@ describe("submitDatasetValidationJob", () => {
     delete process.env.AWS_BATCH_VALIDATOR_JOB_DEFINITION;
     delete process.env.AWS_BATCH_VALIDATOR_SNS_TOPIC_ARN;
     delete process.env.AWS_DATA_BUCKET;
+    delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
     delete process.env.VALIDATOR_LOG_LEVEL;
     delete process.env.AWS_RESOURCE_CONFIG;
   });
@@ -30,16 +31,18 @@ describe("submitDatasetValidationJob", () => {
     const JOB_DEFINITION = "dev-hca-atlas-tracker-validator-batch";
     const SNS_TOPIC_ARN =
       "arn:aws:sns:us-east-1:123456789012:dev-hca-atlas-tracker-validation-results";
+    const VALIDATION_RESULTS_BUCKET = "test-validation-results-bucket";
 
     process.env.AWS_BATCH_VALIDATOR_JOB_QUEUE = JOB_QUEUE;
     process.env.AWS_BATCH_VALIDATOR_JOB_DEFINITION = JOB_DEFINITION;
     process.env.AWS_BATCH_VALIDATOR_SNS_TOPIC_ARN = SNS_TOPIC_ARN;
     process.env.AWS_DATA_BUCKET = TEST_S3_BUCKET;
+    process.env.AWS_VALIDATION_RESULTS_BUCKET = VALIDATION_RESULTS_BUCKET;
     process.env.VALIDATOR_LOG_LEVEL = "INFO";
 
     // Allowlist config for resources
     process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
-      s3_buckets: [TEST_S3_BUCKET],
+      s3_buckets: [TEST_S3_BUCKET, VALIDATION_RESULTS_BUCKET],
       sns_topics: [SNS_TOPIC_ARN],
     });
 
@@ -75,6 +78,10 @@ describe("submitDatasetValidationJob", () => {
         { name: "S3_BUCKET", value: TEST_S3_BUCKET },
         { name: "S3_KEY", value: s3Key },
         { name: "FILE_ID", value: fileId },
+        {
+          name: "VALIDATION_RESULTS_BUCKET",
+          value: VALIDATION_RESULTS_BUCKET,
+        },
         { name: "SNS_TOPIC_ARN", value: SNS_TOPIC_ARN },
         { name: "LOG_LEVEL", value: "INFO" },
       ]),
@@ -95,5 +102,29 @@ describe("submitDatasetValidationJob", () => {
         { batchClient: client },
       ),
     ).rejects.toThrow(/AWS_BATCH_VALIDATOR_JOB_QUEUE/);
+  });
+
+  it("throws when AWS_VALIDATION_RESULTS_BUCKET is missing", async () => {
+    // All other required vars set, but the new validation-results bucket is not
+    process.env.AWS_BATCH_VALIDATOR_JOB_QUEUE =
+      "dev-hca-atlas-tracker-validator-batch";
+    process.env.AWS_BATCH_VALIDATOR_JOB_DEFINITION =
+      "dev-hca-atlas-tracker-validator-batch";
+    process.env.AWS_BATCH_VALIDATOR_SNS_TOPIC_ARN =
+      "arn:aws:sns:us-east-1:123456789012:dev-hca-atlas-tracker-validation-results";
+    process.env.AWS_DATA_BUCKET = TEST_S3_BUCKET;
+    process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
+      s3_buckets: [TEST_S3_BUCKET],
+      sns_topics: [process.env.AWS_BATCH_VALIDATOR_SNS_TOPIC_ARN],
+    });
+
+    const client = new BatchClient();
+
+    await expect(
+      submitDatasetValidationJob(
+        { fileId: "id", s3Key: "a/b.h5ad" },
+        { batchClient: client },
+      ),
+    ).rejects.toThrow(/AWS_VALIDATION_RESULTS_BUCKET/);
   });
 });

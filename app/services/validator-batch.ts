@@ -36,7 +36,8 @@ function optionalEnv(name: string): string | undefined {
  * - AWS_BATCH_VALIDATOR_JOB_QUEUE (required)
  * - AWS_BATCH_VALIDATOR_JOB_DEFINITION (required)
  * - AWS_BATCH_VALIDATOR_SNS_TOPIC_ARN (required – forwarded to container as SNS_TOPIC_ARN)
- * - AWS_DATA_BUCKET (required)
+ * - AWS_DATA_BUCKET (required – forwarded to container as S3_BUCKET)
+ * - AWS_VALIDATION_RESULTS_BUCKET (required – forwarded to container as VALIDATION_RESULTS_BUCKET; the validator writes claim-check payloads here)
  * - VALIDATOR_LOG_LEVEL (optional – forwarded to container as LOG_LEVEL)
  *
  * @param params - Parameters describing the validation request.
@@ -54,11 +55,13 @@ export async function submitDatasetValidationJob(
   const jobQueue = requiredEnv("AWS_BATCH_VALIDATOR_JOB_QUEUE");
   const jobDefinition = requiredEnv("AWS_BATCH_VALIDATOR_JOB_DEFINITION");
   const bucket = requiredEnv("AWS_DATA_BUCKET");
+  const validationResultsBucket = requiredEnv("AWS_VALIDATION_RESULTS_BUCKET");
   const snsTopicArn = requiredEnv("AWS_BATCH_VALIDATOR_SNS_TOPIC_ARN");
   const validatorLogLevel = optionalEnv("VALIDATOR_LOG_LEVEL");
 
   // Ensure allowlist validation (uses AWS_RESOURCE_CONFIG)
   validateS3BucketAuthorization(bucket);
+  validateS3BucketAuthorization(validationResultsBucket);
   validateSNSTopicAuthorization(snsTopicArn);
 
   const jobName = params.jobName ?? `dataset-validator-${params.fileId}`;
@@ -68,6 +71,7 @@ export async function submitDatasetValidationJob(
     { name: "S3_KEY", value: params.s3Key },
     { name: "FILE_ID", value: params.fileId },
     { name: "BATCH_JOB_NAME", value: jobName },
+    { name: "VALIDATION_RESULTS_BUCKET", value: validationResultsBucket },
   ];
 
   environment.push({ name: "SNS_TOPIC_ARN", value: snsTopicArn });
