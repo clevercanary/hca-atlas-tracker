@@ -9,6 +9,7 @@ import {
   TEST_SIGNATURE_VALID,
   TEST_SNS_TOPIC_VALIDATION_RESULTS,
   TEST_TIMESTAMP,
+  TEST_VALIDATION_RESULTS_BUCKET,
   validateTestSnsMessage,
 } from "../testing/sns-testing";
 
@@ -806,14 +807,14 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       const getCalls = s3Mock.commandCalls(GetObjectCommand);
       expect(getCalls).toHaveLength(1);
       expect(getCalls[0].args[0].input).toEqual({
-        Bucket: inlineValidationResults.bucket,
+        Bucket: TEST_VALIDATION_RESULTS_BUCKET,
         Key: expectedKey,
       });
 
       const deleteCalls = s3Mock.commandCalls(DeleteObjectCommand);
       expect(deleteCalls).toHaveLength(1);
       expect(deleteCalls[0].args[0].input).toEqual({
-        Bucket: inlineValidationResults.bucket,
+        Bucket: TEST_VALIDATION_RESULTS_BUCKET,
         Key: expectedKey,
       });
     });
@@ -1030,6 +1031,108 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
           ),
         ),
       ).toBe(true);
+    });
+
+    it("fails fast when AWS_VALIDATION_RESULTS_BUCKET is unset", async () => {
+      const originalBucket = process.env.AWS_VALIDATION_RESULTS_BUCKET;
+      delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
+      try {
+        const batchJobId = "batch-job-claim-check-no-env";
+        const validationTime = "2025-10-15T06:50:00.000Z";
+
+        const fileKey = getTestFileKey(
+          FILE_SOURCE_DATASET_FOOBAR,
+          FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+        );
+
+        const inlineValidationResults = createValidationResults({
+          batchJobId,
+          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+          integrityStatus: INTEGRITY_STATUS.VALID,
+          key: fileKey,
+          metadata: null,
+          timestamp: validationTime,
+        });
+
+        const snsMessage = createSNSMessage({
+          message: inlineValidationResults,
+          messageId: "sns-message-claim-check-no-env",
+          timestamp: "2025-10-15T07:00:00.000Z",
+          topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+        });
+
+        const res = await doSnsRequest(snsMessage, true);
+
+        // Missing env var is a deployment misconfiguration — fail loudly
+        // (SNS retry won't fix it, but surfacing the error is preferable
+        // to silently falling back to inline data).
+        expect(res.statusCode).not.toEqual(200);
+
+        // S3 ops never attempted.
+        expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
+        expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+      } finally {
+        if (originalBucket === undefined) {
+          delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
+        } else {
+          process.env.AWS_VALIDATION_RESULTS_BUCKET = originalBucket;
+        }
+      }
+    });
+
+    it("fails fast when AWS_VALIDATION_RESULTS_BUCKET is not in the allowlist", async () => {
+      // Override the allowlist to exclude the validation-results bucket.
+      const originalConfig = process.env.AWS_RESOURCE_CONFIG;
+      process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
+        s3_buckets: [
+          // Data bucket present; validation-results bucket deliberately absent.
+          "hca-atlas-tracker-data-dev",
+        ],
+        sns_topics: [TEST_SNS_TOPIC_VALIDATION_RESULTS],
+      });
+      resetConfigCache();
+      try {
+        const batchJobId = "batch-job-claim-check-not-in-allowlist";
+        const validationTime = "2025-10-15T07:50:00.000Z";
+
+        const fileKey = getTestFileKey(
+          FILE_SOURCE_DATASET_FOOBAR,
+          FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+        );
+
+        const inlineValidationResults = createValidationResults({
+          batchJobId,
+          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+          integrityStatus: INTEGRITY_STATUS.VALID,
+          key: fileKey,
+          metadata: null,
+          timestamp: validationTime,
+        });
+
+        const snsMessage = createSNSMessage({
+          message: inlineValidationResults,
+          messageId: "sns-message-claim-check-not-in-allowlist",
+          timestamp: "2025-10-15T08:00:00.000Z",
+          topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+        });
+
+        const res = await doSnsRequest(snsMessage, true);
+
+        // Bucket not in AWS_RESOURCE_CONFIG.s3_buckets is also a
+        // deployment misconfiguration — fail loudly, do not fall back.
+        expect(res.statusCode).not.toEqual(200);
+
+        // S3 ops never attempted.
+        expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
+        expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+      } finally {
+        if (originalConfig === undefined) {
+          delete process.env.AWS_RESOURCE_CONFIG;
+        } else {
+          process.env.AWS_RESOURCE_CONFIG = originalConfig;
+        }
+        resetConfigCache();
+      }
     });
   });
 });

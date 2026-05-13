@@ -117,11 +117,28 @@ interface ValidationResultsClaimCheck {
   results: DatasetValidatorResults;
 }
 
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} environment variable is required`);
+  return value;
+}
+
 /**
  * Attempt to load and validate validation results from the S3 claim check
- * object corresponding to the given inline SNS-derived results. The claim
- * check key is constructed from `file_id` and `batch_job_id` and read from
- * the same data bucket as the original file.
+ * object corresponding to the given inline SNS-derived results. The
+ * claim-check bucket is read from `AWS_VALIDATION_RESULTS_BUCKET` (a
+ * dedicated bucket separate from the data bucket — see the claim-check PRD)
+ * and validated against `AWS_RESOURCE_CONFIG.s3_buckets` before any S3
+ * operation. The key is constructed from `file_id` and `batch_job_id`.
+ *
+ * Failure modes:
+ * - Env var unset or bucket not in `AWS_RESOURCE_CONFIG.s3_buckets`: throws
+ *   (deployment misconfiguration; SNS retry will not help, but surfacing the
+ *   error loudly is preferred over silently falling back to inline data).
+ * - S3 object missing / parse error / schema-invalid / metadata mismatch:
+ *   returns null so the caller falls back to the inline SNS data (Phase 3
+ *   PRD behavior; will be tightened in Phase 4).
+ *
  * @param inlineResults - Validation results parsed from the SNS message.
  * @returns Loaded claim check (bucket, key, validated results), or null if
  *   the object is unavailable or its contents are invalid.
@@ -130,7 +147,8 @@ async function loadValidationResultsClaimCheck(
   inlineResults: DatasetValidatorResults,
 ): Promise<ValidationResultsClaimCheck | null> {
   const fileId = inlineResults.file_id;
-  const bucket = inlineResults.bucket;
+  const bucket = requiredEnv("AWS_VALIDATION_RESULTS_BUCKET");
+  validateS3BucketAuthorization(bucket);
   const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
 
   let body: string;

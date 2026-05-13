@@ -1,5 +1,5 @@
 import { TextDecoder, TextEncoder } from "util";
-import { TEST_S3_BUCKET } from "./constants";
+import { TEST_S3_BUCKET, TEST_VALIDATION_RESULTS_BUCKET } from "./constants";
 
 Object.assign(global, { TextDecoder, TextEncoder }); // https://stackoverflow.com/questions/68468203/why-am-i-getting-textencoder-is-not-defined-in-jest
 
@@ -25,8 +25,9 @@ process.env.GOOGLE_AUTH =
   '{"type": "service_account", "client_email": "test@example.com"}';
 
 process.env.AWS_DATA_BUCKET = TEST_S3_BUCKET;
+process.env.AWS_VALIDATION_RESULTS_BUCKET = TEST_VALIDATION_RESULTS_BUCKET;
 process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
-  s3_buckets: [TEST_S3_BUCKET],
+  s3_buckets: [TEST_S3_BUCKET, TEST_VALIDATION_RESULTS_BUCKET],
   sns_topics: [],
 });
 
