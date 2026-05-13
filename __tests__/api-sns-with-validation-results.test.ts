@@ -1097,8 +1097,8 @@ async function expectClaimCheckMisconfigurationFails(opts: {
   restore: () => void;
   testId: string;
 }): Promise<void> {
-  opts.misconfigure();
   try {
+    opts.misconfigure();
     const fileKey = getTestFileKey(
       FILE_SOURCE_DATASET_FOOBAR,
       FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,

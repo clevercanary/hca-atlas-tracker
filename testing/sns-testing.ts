@@ -20,6 +20,7 @@ import {
   INTEGRITY_STATUS,
   SYSTEM,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { resetConfigCache } from "../app/config/aws-resources";
 import { query } from "../app/services/database";
 import { slugifyAtlasShortName } from "../app/utils/atlases";
 import snsHandler from "../pages/api/sns";
@@ -54,6 +55,11 @@ export const TEST_AWS_CONFIG = {
 export function setUpAwsConfig(): void {
   process.env.AWS_RESOURCE_CONFIG = JSON.stringify(TEST_AWS_CONFIG);
   process.env.AWS_VALIDATION_RESULTS_BUCKET = TEST_VALIDATION_RESULTS_BUCKET;
+  // Invalidate the cached parse in app/config/aws-resources so subsequent
+  // calls to getAWSResourceConfig() see the override. Without this, anything
+  // that called getAWSResourceConfig() earlier in the runtime would keep
+  // using the stale config.
+  resetConfigCache();
 }
 
 // Test file path constants
