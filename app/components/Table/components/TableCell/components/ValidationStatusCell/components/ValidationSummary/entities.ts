@@ -8,5 +8,5 @@ import { RouteValue } from "../../../../../../../../routes/entities";
 export interface Props extends PathParameter {
   reprocessedStatus?: REPROCESSED_STATUS;
   validationRoute: RouteValue;
-  validationSummary: FileValidationSummary | null;
+  validationSummary: FileValidationSummary;
 }
