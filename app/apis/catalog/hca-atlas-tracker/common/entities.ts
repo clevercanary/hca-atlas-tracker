@@ -143,6 +143,7 @@ export interface HCAAtlasTrackerSourceDataset {
   fileName: string;
   geneCount: number | null;
   id: string;
+  integrityStatus: INTEGRITY_STATUS;
   isArchived: boolean;
   metadataSpreadsheetTitle: string | null;
   metadataSpreadsheetUrl: string | null;
@@ -450,6 +451,7 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
     | "size_bytes"
     | "dataset_info"
     | "event_info"
+    | "integrity_status"
     | "is_archived"
     | "validation_status"
     | "validation_summary"
