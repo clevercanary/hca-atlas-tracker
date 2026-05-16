@@ -26,8 +26,6 @@ export const ValidationSummary = ({
   validationRoute,
   validationSummary,
 }: Props): JSX.Element | null => {
-  if (!validationSummary) return null;
-
   const validators = getValidators(validationSummary, reprocessedStatus);
 
   if (validators.length === 0) return null;
