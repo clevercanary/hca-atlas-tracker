@@ -2,6 +2,7 @@ import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { Stack, Tooltip } from "@mui/material";
 import Link from "next/link";
 import { JSX, ReactNode } from "react";
@@ -12,6 +13,7 @@ import {
 } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "../../../../../../../../common/utils";
+import { ValidationStatusChipCell } from "../ValidationStatusChipCell/validationStatusChipCell";
 import { ValidatorIcon } from "./components/ValidatorIcon/validatorIcon";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";
@@ -28,7 +30,13 @@ export const ValidationSummary = ({
 }: Props): JSX.Element | null => {
   const validators = getValidators(validationSummary, reprocessedStatus);
 
-  if (validators.length === 0) return null;
+  if (validators.length === 0)
+    return (
+      <ValidationStatusChipCell
+        color={CHIP_PROPS.COLOR.DEFAULT}
+        label="No relevant results"
+      />
+    );
 
   return (
     <StyledStack {...STACK_PROPS}>
