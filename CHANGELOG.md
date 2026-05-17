@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.67.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.1...v1.67.0) (2026-05-17)
+
+
+### Features
+
+* display validation status chips for invalid integrity and missing results ([#1263](https://github.com/clevercanary/hca-atlas-tracker/issues/1263)) ([#1264](https://github.com/clevercanary/hca-atlas-tracker/issues/1264)) ([34ea2e1](https://github.com/clevercanary/hca-atlas-tracker/commit/34ea2e1880c8287594b602673df1951d325e6df0))
+* pass VALIDATION_RESULTS_BUCKET to validator container at SubmitJob ([#1254](https://github.com/clevercanary/hca-atlas-tracker/issues/1254)) ([#1260](https://github.com/clevercanary/hca-atlas-tracker/issues/1260)) ([17ec311](https://github.com/clevercanary/hca-atlas-tracker/commit/17ec3113696c1748d3416bcd2102efaf6ab3fc6b))
+* save file validation results from s3 object when available ([#1226](https://github.com/clevercanary/hca-atlas-tracker/issues/1226)) ([#1231](https://github.com/clevercanary/hca-atlas-tracker/issues/1231)) ([2f600bc](https://github.com/clevercanary/hca-atlas-tracker/commit/2f600bcdc30b095f03d48c69a9baa627f9f1a026))
+* tracker reads validation-results bucket from AWS_VALIDATION_RESULTS_BUCKET ([#1255](https://github.com/clevercanary/hca-atlas-tracker/issues/1255)) ([#1261](https://github.com/clevercanary/hca-atlas-tracker/issues/1261)) ([209164d](https://github.com/clevercanary/hca-atlas-tracker/commit/209164d040d5881695f9e8b5ea4ab7124af67b91))
+* update metadata entity creation functions for consistency and simplicity ([#1233](https://github.com/clevercanary/hca-atlas-tracker/issues/1233)) ([#1236](https://github.com/clevercanary/hca-atlas-tracker/issues/1236)) ([c025d17](https://github.com/clevercanary/hca-atlas-tracker/commit/c025d17cca04729f41953b3c0e5454088857a322))
+* update test file and validation results generators to use app code where appropriate ([#1154](https://github.com/clevercanary/hca-atlas-tracker/issues/1154)) ([#1232](https://github.com/clevercanary/hca-atlas-tracker/issues/1232)) ([a179280](https://github.com/clevercanary/hca-atlas-tracker/commit/a1792801959b627a6e06c7deaa56a2bfc82b7c2f))
+* validate bucket name in `getDataBucketName` ([#1234](https://github.com/clevercanary/hca-atlas-tracker/issues/1234)) ([#1235](https://github.com/clevercanary/hca-atlas-tracker/issues/1235)) ([7e78c32](https://github.com/clevercanary/hca-atlas-tracker/commit/7e78c3288d20f4b1e8453a2151f8ad0ae71ac755))
+
+
+### Bug Fixes
+
+* revert providers outside ErrorBoundary and upgrade findable-ui to v51.1.0 ([#1225](https://github.com/clevercanary/hca-atlas-tracker/issues/1225)) ([87cff86](https://github.com/clevercanary/hca-atlas-tracker/commit/87cff865314f0fb969acbbc45fa36a786065f8d0))
+* run `npm audit fix` to resolve vulnerabilities via non-breaking updates ([#1238](https://github.com/clevercanary/hca-atlas-tracker/issues/1238)) ([#1245](https://github.com/clevercanary/hca-atlas-tracker/issues/1245)) ([2d4ae2e](https://github.com/clevercanary/hca-atlas-tracker/commit/2d4ae2e6390a4b5e48f9896ac6e2ac5705b83a0b))
+* upgrade python dependencies to resolve vulnerabilities ([#1250](https://github.com/clevercanary/hca-atlas-tracker/issues/1250)) ([#1251](https://github.com/clevercanary/hca-atlas-tracker/issues/1251)) ([ef74c7c](https://github.com/clevercanary/hca-atlas-tracker/commit/ef74c7cbea01b16a4acd0059793195c7fb15540d))
+
+
+### Chores
+
+* remove `confirmFileExistsOnAtlas` and clarify `confirmFilesExistOnAtlas` name ([#1257](https://github.com/clevercanary/hca-atlas-tracker/issues/1257)) ([#1258](https://github.com/clevercanary/hca-atlas-tracker/issues/1258)) ([308bb00](https://github.com/clevercanary/hca-atlas-tracker/commit/308bb0002d49e44a26ca39879c7411b394c6836e))
+* upgrade jest ([#1242](https://github.com/clevercanary/hca-atlas-tracker/issues/1242)) ([#1252](https://github.com/clevercanary/hca-atlas-tracker/issues/1252)) ([15c638e](https://github.com/clevercanary/hca-atlas-tracker/commit/15c638eb5813ebaf019d09b12441c33c6037b99d))
+* use `tsx` instead of `esrun` ([#1241](https://github.com/clevercanary/hca-atlas-tracker/issues/1241)) ([#1249](https://github.com/clevercanary/hca-atlas-tracker/issues/1249)) ([917886c](https://github.com/clevercanary/hca-atlas-tracker/commit/917886c631077e05c7b8834172d44db459046a2d))
+
+
+### Documentation
+
+* add section regarding type safety and assertions to CLAUDE.md ([#1204](https://github.com/clevercanary/hca-atlas-tracker/issues/1204)) ([#1228](https://github.com/clevercanary/hca-atlas-tracker/issues/1228)) ([547fdcf](https://github.com/clevercanary/hca-atlas-tracker/commit/547fdcfb83db1e5d2abf06482c325433700c76a4))
+* PRD for validation metadata via S3 claim check ([#1168](https://github.com/clevercanary/hca-atlas-tracker/issues/1168)) ([7fbbccb](https://github.com/clevercanary/hca-atlas-tracker/commit/7fbbccb0506b75356c46846f6eec78482d6d26a2))
+* split claim check to dedicated validation-results bucket ([#1240](https://github.com/clevercanary/hca-atlas-tracker/issues/1240)) ([f015a48](https://github.com/clevercanary/hca-atlas-tracker/commit/f015a48d691e742450bbe5c62b77ed66d158e2c5))
+
+
+### Code Refactoring
+
+* update modules imported by service layer to enable service use in scripts ([#1229](https://github.com/clevercanary/hca-atlas-tracker/issues/1229)) ([#1230](https://github.com/clevercanary/hca-atlas-tracker/issues/1230)) ([dc3b176](https://github.com/clevercanary/hca-atlas-tracker/commit/dc3b176123968522524118d777b54733797260bf))
+
+
+### Tests
+
+* add missing tests for non-latest file cases in apis ([#1125](https://github.com/clevercanary/hca-atlas-tracker/issues/1125)) ([#1259](https://github.com/clevercanary/hca-atlas-tracker/issues/1259)) ([d30387e](https://github.com/clevercanary/hca-atlas-tracker/commit/d30387e0d94ad6cdb9e0b5ceae160a005ae83db1))
+
 ## [1.66.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.0...v1.66.1) (2026-04-27)
 
 
