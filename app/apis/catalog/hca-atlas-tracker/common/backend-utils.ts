@@ -226,6 +226,7 @@ export function dbSourceDatasetToApiSourceDataset(
     fileName: parseS3KeyPath(dbSourceDataset.key).filename,
     geneCount: dbSourceDataset.dataset_info?.geneCount ?? null,
     id: dbSourceDataset.id,
+    integrityStatus: dbSourceDataset.integrity_status,
     isArchived: dbSourceDataset.is_archived,
     metadataSpreadsheetTitle: dbSourceDataset.sd_info.metadataSpreadsheetTitle,
     metadataSpreadsheetUrl: dbSourceDataset.sd_info.metadataSpreadsheetUrl,

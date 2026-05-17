@@ -665,6 +665,7 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.geneCount).toEqual(
     testFile.datasetInfo?.geneCount ?? null,
   );
+  expect(apiSourceDataset.integrityStatus).toEqual(testFile.integrityStatus);
   expect(apiSourceDataset.isArchived).toEqual(testFile.isArchived);
   expect(apiSourceDataset.metadataSpreadsheetTitle).toEqual(
     testSourceDataset.metadataSpreadsheetTitle,
