@@ -67,7 +67,7 @@ export function makeConfig(
             { label: "Reports", url: ROUTE.REPORTS },
             { label: "Team", url: ROUTE.USERS },
             {
-              label: "Metadata",
+              label: "Metadata Dictionary",
               target: ANCHOR_TARGET.BLANK,
               url: `${portalUrl}/metadata/tier-1`,
             },
