@@ -57,3 +57,6 @@ _templates
 venv/
 __pycache__
 
+# claude
+.claude/rules*
+
