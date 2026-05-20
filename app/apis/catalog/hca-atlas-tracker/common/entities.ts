@@ -513,6 +513,7 @@ export interface HCAAtlasTrackerDBFileDatasetInfo {
 
 export interface HCAAtlasTrackerDBFileValidationInfo {
   batchJobId: string;
+  errorMessage?: string;
   snsMessageId: string;
   snsMessageTime: string;
 }

@@ -67,11 +67,13 @@ export async function processValidationResultsMessage(
 
   // Save validation results
 
-  const basicFields = getBasicValidationFieldsForSaving(
+  const basicFields = getBasicValidationFieldsForSaving(validationResults);
+  const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
+  const validationInfo = getValidationInfo(
     validationResults,
     snsMessage,
+    validationResults.error_message,
   );
-  const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
   const validationStatus =
     validationResults.status === "success"
       ? FILE_VALIDATION_STATUS.COMPLETED
@@ -86,6 +88,7 @@ export async function processValidationResultsMessage(
     datasetInfo,
     integrityStatus:
       validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
+    validationInfo,
     validationReports,
     validationStatus,
     validationSummary,
@@ -118,9 +121,15 @@ async function saveClaimCheckErrorResult(
   );
 
   await saveValidationResults({
-    ...getBasicValidationFieldsForSaving(validationMetadata, snsMessage),
+    ...getBasicValidationFieldsForSaving(validationMetadata),
     datasetInfo: null,
     integrityStatus: INTEGRITY_STATUS.PENDING,
+    validationInfo: getValidationInfo(
+      validationMetadata,
+      snsMessage,
+      (claimCheck.errorDescription ? claimCheck.errorDescription + ": " : "") +
+        claimCheck.error,
+    ),
     validationReports: null,
     validationStatus: FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
     validationSummary: null,
@@ -129,16 +138,11 @@ async function saveClaimCheckErrorResult(
 
 function getBasicValidationFieldsForSaving(
   validationResults: DatasetValidatorResultsMetadata,
-  snsMessage: SNSMessage,
-): Pick<
-  SaveValidationResultsParams,
-  "fileId" | "s3Uri" | "validationInfo" | "validatedAt"
-> {
+): Pick<SaveValidationResultsParams, "fileId" | "s3Uri" | "validatedAt"> {
   return {
     fileId: validationResults.file_id,
     s3Uri: `s3://${validationResults.bucket}/${validationResults.key}`,
     validatedAt: new Date(validationResults.timestamp),
-    validationInfo: getValidationInfo(validationResults, snsMessage),
   };
 }
 
@@ -368,16 +372,19 @@ function getDatasetInfoFromValidationResults(
  * Get validation metadata to be saved in a file record.
  * @param validationResults - Validation results to get info from.
  * @param snsMessage - SNS message to get info from.
+ * @param errorMessage - Error message, if present, to include in the validation info.
  * @returns - Validation info.
  */
 function getValidationInfo(
   validationResults: DatasetValidatorResultsMetadata,
   snsMessage: SNSMessage,
+  errorMessage: string | null,
 ): HCAAtlasTrackerDBFileValidationInfo {
   return {
     batchJobId: validationResults.batch_job_id,
     snsMessageId: snsMessage.MessageId,
     snsMessageTime: snsMessage.Timestamp,
+    ...(errorMessage === null ? {} : { errorMessage }),
   };
 }
 
