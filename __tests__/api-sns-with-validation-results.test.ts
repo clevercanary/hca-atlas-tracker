@@ -1034,17 +1034,21 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ).toBe(true);
     });
 
-    // Graceful fallback under deployment misconfiguration: the handler logs
-    // and proceeds with the inline SNS payload, preserving end-to-end
-    // processing under misconfig (deliberate departure from PRD Phase 3
-    // fail-fast guidance; see PR description for rationale).
+    // Deployment misconfiguration: env var missing or claim-check bucket not
+    // in `AWS_RESOURCE_CONFIG.s3_buckets`. The handler logs and saves a
+    // RESULTS_NOT_LOADED error result against the file rather than processing
+    // the inline SNS payload, so the failure is recorded and visible to
+    // operators.
     it.each<{
       description: string;
+      expectedErrorMessage: string;
       misconfigure: () => () => void;
       testId: string;
     }>([
       {
         description: "AWS_VALIDATION_RESULTS_BUCKET is unset",
+        expectedErrorMessage:
+          "Claim-check bucket misconfiguration: Error: AWS_VALIDATION_RESULTS_BUCKET environment variable is required",
         misconfigure: (): (() => void) => {
           const originalBucket = process.env.AWS_VALIDATION_RESULTS_BUCKET;
           delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
@@ -1060,6 +1064,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       },
       {
         description: "AWS_VALIDATION_RESULTS_BUCKET is not in the allowlist",
+        expectedErrorMessage: `Claim-check bucket misconfiguration: UnauthorizedAWSResourceError: Unauthorized S3 bucket: ${TEST_VALIDATION_RESULTS_BUCKET}`,
         misconfigure: (): (() => void) => {
           const originalConfig = process.env.AWS_RESOURCE_CONFIG;
           process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
@@ -1080,38 +1085,62 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         testId: "claim-check-not-in-allowlist",
       },
     ])(
-      "falls back to inline SNS data when $description",
-      async ({ misconfigure, testId }) => {
+      "saves error result when $description",
+      async ({ expectedErrorMessage, misconfigure, testId }) => {
         const restore = misconfigure();
         try {
-          const fileKey = getTestFileKey(
-            FILE_SOURCE_DATASET_FOOBAR,
-            FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
-          );
+          const snsMessageId = `sns-message-${testId}`;
+          const snsMessageTime = "2025-10-15T07:00:00.000Z";
+          const batchJobId = `batch-job-${testId}`;
+          const validationTime = "2025-10-15T06:50:00.000Z";
 
           const inlineValidationResults = createValidationResults({
-            batchJobId: `batch-job-${testId}`,
+            batchJobId,
             fileId: FILE_SOURCE_DATASET_FOOBAR.id,
             integrityStatus: INTEGRITY_STATUS.VALID,
-            key: fileKey,
+            key: getTestFileKey(
+              FILE_SOURCE_DATASET_FOOBAR,
+              FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+            ),
             metadata: null,
-            timestamp: "2025-10-15T06:50:00.000Z",
+            timestamp: validationTime,
           });
 
           const snsMessage = createSNSMessage({
             message: inlineValidationResults,
-            messageId: `sns-message-${testId}`,
-            timestamp: "2025-10-15T07:00:00.000Z",
+            messageId: snsMessageId,
+            timestamp: snsMessageTime,
             topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
           });
 
           const res = await doSnsRequest(snsMessage, true);
 
-          // Graceful fallback: handler processes inline SNS data successfully.
           expect(res.statusCode).toEqual(200);
           // S3 ops never attempted — bucket misconfig caught before any fetch.
           expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
           expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+
+          // Error result persisted: no dataset info or reports/summary,
+          // integrity reset to PENDING (inline VALID is discarded), status
+          // RESULTS_NOT_LOADED, and the claim-check failure recorded in
+          // validation_info.errorMessage.
+          const file = await getFileFromDatabase(FILE_SOURCE_DATASET_FOOBAR.id);
+          expect(file?.dataset_info).toBeNull();
+          expect(file?.integrity_checked_at?.toISOString()).toEqual(
+            validationTime,
+          );
+          expect(file?.integrity_status).toEqual(INTEGRITY_STATUS.PENDING);
+          expect(file?.validation_info).toEqual({
+            batchJobId,
+            errorMessage: expectedErrorMessage,
+            snsMessageId,
+            snsMessageTime,
+          });
+          expect(file?.validation_reports).toBeNull();
+          expect(file?.validation_status).toEqual(
+            FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
+          );
+          expect(file?.validation_summary).toBeNull();
         } finally {
           restore();
         }
