@@ -576,8 +576,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       messageStatus,
       time,
     }) => {
-      const snsMessageId = "sns-message-validation-statuses";
-      const batchJobId = "batch-job-validation-statuses";
+      const testId = `validation-statuses-${messageStatus}-and-${messageIntegrityStatus}`;
+      const snsMessageId = `sns-message-${testId}`;
+      const batchJobId = `batch-job-${testId}`;
       const validationMetadata = initValidationResults({
         batchJobId,
         fileId: FILE_SOURCE_DATASET_FOOFOO.id,
