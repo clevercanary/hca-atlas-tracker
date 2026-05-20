@@ -128,7 +128,7 @@ async function saveClaimCheckErrorResult(
       validationMetadata,
       snsMessage,
       (claimCheck.errorDescription ? claimCheck.errorDescription + ": " : "") +
-        claimCheck.error,
+        String(claimCheck.error),
     ),
     validationReports: null,
     validationStatus: FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
