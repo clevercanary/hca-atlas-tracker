@@ -38,9 +38,9 @@ const REQUIRED_MATCHING_METADATA_KEYS = [
 ] as const;
 
 /**
- * Processes an SNS notification message containing dataset validation results
- * @param snsMessage - The authorized SNS message containing validation results
- * @throws InvalidOperationError if the SNS message doesn't contain a valid validation results message
+ * Processes an SNS notification message providing dataset validation results
+ * @param snsMessage - The authorized SNS message containing validation metadata and pointer to validation results
+ * @throws InvalidOperationError if the SNS message doesn't contain a valid validation results metadata message
  */
 export async function processValidationResultsMessage(
   snsMessage: SNSMessage,
@@ -53,7 +53,7 @@ export async function processValidationResultsMessage(
     (data) => datasetValidatorResultsMetadataSchema.validate(data),
   );
 
-  // Attempt to load the validation results from the S3 claim check, saving
+  // Attempt to load the validation results metadata from the S3 claim check, saving
   // an error result if the object is missing or unusable.
 
   const claimCheck = await loadValidationResultsClaimCheck(validationMetadata);
@@ -114,6 +114,12 @@ export async function processValidationResultsMessage(
   }
 }
 
+/**
+ * Save an error result originating from a claim check failure to the associated file entry.
+ * @param claimCheck - Claim check error result.
+ * @param validationMetadata - Validation results metadata from the SNS message.
+ * @param snsMessage - SNS message.
+ */
 async function saveClaimCheckErrorResult(
   claimCheck: ValidationResultsClaimCheckError,
   validationMetadata: DatasetValidatorResultsMetadata,
@@ -143,6 +149,11 @@ async function saveClaimCheckErrorResult(
   });
 }
 
+/**
+ * Get the S3 URI of the file that was validated for the given validation results/metadata.
+ * @param validationResults - Object containing validation results metadata.
+ * @returns S3 URI of the associated file.
+ */
 function getS3UriFromValidationResults(
   validationResults: DatasetValidatorResultsMetadata,
 ): string {
@@ -156,6 +167,10 @@ interface SaveValidationResultsParams extends Omit<
   s3Uri: string;
 }
 
+/**
+ * Add validation results to the associated file, ensuring that no newer results have already been saved.
+ * @param params - Parameters for `addValidationResultsToFile`, plus `s3Uri` for the file that was validated.
+ */
 async function saveValidationResults(
   params: SaveValidationResultsParams,
 ): Promise<void> {
@@ -205,16 +220,18 @@ function requiredEnv(name: string): string {
  * and validated against `AWS_RESOURCE_CONFIG.s3_buckets` before any S3
  * operation. The key is constructed from `file_id` and `batch_job_id`.
  *
- * Every failure mode returns `null` so the caller falls back to the inline
- * SNS data. This includes deployment misconfiguration (env var unset, bucket
+ * Every failure mode returns an error result so the caller can save it to the
+ * file entry. This includes deployment misconfiguration (env var unset, bucket
  * not in `AWS_RESOURCE_CONFIG.s3_buckets`) as well as runtime failures (S3
  * fetch error, schema-invalid payload, metadata mismatch with the SNS
- * message). All failures are logged so misconfiguration is visible in
- * CloudWatch even though it doesn't block processing.
+ * message). The caller is responsible for logging errors to ensure that
+ * misconfiguration is visible in CloudWatch even though it doesn't block
+ * processing.
  *
  * @param inlineResults - Validation results parsed from the SNS message.
- * @returns Loaded claim check (bucket, key, validated results), or null if
- *   any failure occurred and the caller should fall back to inline data.
+ * @returns Loaded claim check (bucket, key, validated results), or error result
+ *   (bucket if available, key, error, optional description of error context) if
+ *   any failure occurred and the caller should save an error result.
  */
 async function loadValidationResultsClaimCheck(
   inlineResults: DatasetValidatorResultsMetadata,
