@@ -1,6 +1,8 @@
 import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DatasetValidatorResults,
+  DatasetValidatorResultsMetadata,
+  datasetValidatorResultsMetadataSchema,
   datasetValidatorResultsSchema,
   DatasetValidatorToolReports,
   SNSMessage,
@@ -44,16 +46,23 @@ export async function processValidationResultsMessage(
 ): Promise<void> {
   // Parse and validate SNS message data
 
-  let validationResults = await parseAndValidateValidationResults(
+  const validationMetadata = await parseAndValidateValidationResults(
     snsMessage.Message,
     `SNS message ${snsMessage.MessageId}`,
+    (data) => datasetValidatorResultsMetadataSchema.validate(data),
   );
 
-  // Attempt to load the validation results from the S3 claim check, falling
-  // back to the inline SNS data if the object is missing or unusable.
+  // Attempt to load the validation results from the S3 claim check, saving
+  // an error result if the object is missing or unusable.
 
-  const claimCheck = await loadValidationResultsClaimCheck(validationResults);
-  if (claimCheck) validationResults = claimCheck.results;
+  const claimCheck = await loadValidationResultsClaimCheck(validationMetadata);
+
+  if (claimCheck.outcome === "error") {
+    await saveClaimCheckErrorResult(claimCheck);
+    return;
+  }
+
+  const validationResults = claimCheck.results;
 
   // Save validation results
 
@@ -99,7 +108,7 @@ export async function processValidationResultsMessage(
     `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`,
   );
 
-  if (claimCheck) {
+  if (claimCheck.outcome === "success") {
     try {
       await deleteObject(claimCheck.bucket, claimCheck.key);
     } catch (e) {
@@ -111,10 +120,31 @@ export async function processValidationResultsMessage(
   }
 }
 
+async function saveClaimCheckErrorResult(
+  claimCheck: ValidationResultsClaimCheckError,
+): Promise<void> {
+  console.error(
+    `Saving error result for claim check located at s3://${claimCheck.bucket ?? "<unknown bucket>"}/${claimCheck.key}:`,
+    ...(claimCheck.errorDescription ? [claimCheck.errorDescription + ":"] : []),
+    claimCheck.error,
+  );
+
+  // TODO
+}
+
 interface ValidationResultsClaimCheck {
   bucket: string;
   key: string;
+  outcome: "success";
   results: DatasetValidatorResults;
+}
+
+interface ValidationResultsClaimCheckError {
+  bucket: string | null;
+  error: unknown;
+  errorDescription?: string;
+  key: string;
+  outcome: "error";
 }
 
 function requiredEnv(name: string): string {
@@ -143,33 +173,37 @@ function requiredEnv(name: string): string {
  *   any failure occurred and the caller should fall back to inline data.
  */
 async function loadValidationResultsClaimCheck(
-  inlineResults: DatasetValidatorResults,
-): Promise<ValidationResultsClaimCheck | null> {
+  inlineResults: DatasetValidatorResultsMetadata,
+): Promise<ValidationResultsClaimCheck | ValidationResultsClaimCheckError> {
   const fileId = inlineResults.file_id;
+
+  const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
 
   let bucket: string;
   try {
     bucket = requiredEnv("AWS_VALIDATION_RESULTS_BUCKET");
     validateS3BucketAuthorization(bucket);
   } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId} (claim-check bucket misconfiguration):`,
-      e,
-    );
-    return null;
+    return {
+      bucket: null,
+      error: e,
+      errorDescription: "Claim-check bucket misconfiguration",
+      key,
+      outcome: "error",
+    };
   }
-
-  const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
 
   let body: string;
   try {
     body = await getObjectAsString(bucket, key);
   } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
-      e,
-    );
-    return null;
+    return {
+      bucket,
+      error: e,
+      errorDescription: "Failed to read S3 object",
+      key,
+      outcome: "error",
+    };
   }
 
   let results: DatasetValidatorResults;
@@ -177,24 +211,36 @@ async function loadValidationResultsClaimCheck(
     results = await parseAndValidateValidationResults(
       body,
       `S3 claim check s3://${bucket}/${key}`,
+      (data) => datasetValidatorResultsSchema.validate(data),
     );
   } catch (e) {
-    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
-    return null;
+    return {
+      bucket,
+      error: e,
+      errorDescription: "Failed to parse valid data from JSON",
+      key,
+      outcome: "error",
+    };
   }
 
   try {
     confirmValidationResultsMatchMetadata(results, inlineResults);
   } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
-      e,
-    );
-    return null;
+    return {
+      bucket,
+      error: e,
+      key,
+      outcome: "error",
+    };
   }
 
-  console.log(`Using S3 claim check for file ${fileId}`);
-  return { bucket, key, results };
+  console.log(`Loaded S3 claim check for file ${fileId}`);
+  return {
+    bucket,
+    key,
+    outcome: "success",
+    results,
+  };
 }
 
 /**
@@ -204,7 +250,7 @@ async function loadValidationResultsClaimCheck(
  */
 function confirmValidationResultsMatchMetadata(
   validationResults: DatasetValidatorResults,
-  resultsMetadata: DatasetValidatorResults,
+  resultsMetadata: DatasetValidatorResultsMetadata,
 ): void {
   for (const key of REQUIRED_MATCHING_METADATA_KEYS) {
     if (validationResults[key] !== resultsMetadata[key]) {
@@ -215,10 +261,13 @@ function confirmValidationResultsMatchMetadata(
   }
 }
 
-async function parseAndValidateValidationResults(
+async function parseAndValidateValidationResults<
+  T extends DatasetValidatorResultsMetadata,
+>(
   jsonText: string,
   sourceDescription: string,
-): Promise<DatasetValidatorResults> {
+  validate: (data: unknown) => Promise<T>,
+): Promise<T> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(jsonText);
@@ -228,10 +277,10 @@ async function parseAndValidateValidationResults(
     );
   }
 
-  let validationResults: DatasetValidatorResults;
+  let validationResults: T;
 
   try {
-    validationResults = await datasetValidatorResultsSchema.validate(parsed);
+    validationResults = await validate(parsed);
   } catch (e) {
     console.error(
       `Validation results from ${sourceDescription} contained invalid data: ${truncateJsonText(jsonText)}`,

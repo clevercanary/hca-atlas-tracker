@@ -68,38 +68,46 @@ const datasetValidatorToolReportsSchema = object({
   hcaSchema: datasetValidatorToolReportSchema.required(),
 });
 
-export const datasetValidatorResultsSchema = object({
+export const datasetValidatorResultsMetadataSchema = object({
   batch_job_id: string().required(),
-  batch_job_name: string().defined().nullable(),
   bucket: string().required(),
-  downloaded_sha256: string().defined().nullable(),
-  error_message: string().defined().nullable(),
   file_id: string().required(),
-  integrity_status: string()
-    .oneOf(Object.values(INTEGRITY_STATUS))
-    .defined()
-    .nullable(),
   key: string().required(),
-  metadata_summary: object({
-    assay: array(string().required()).required(),
-    cell_count: number().required(),
-    disease: array(string().required()).required(),
-    gene_count: number().required(),
-    suspension_type: array(string().required()).required(),
-    tissue: array(string().required()).required(),
-    title: string().defined(),
-  })
-    .defined()
-    .nullable(),
-  source_sha256: string().defined().nullable(),
   status: string()
     .required()
     .oneOf(["failure", "success"] as const),
   timestamp: string().required(),
-  tool_reports: datasetValidatorToolReportsSchema.defined().nullable(),
 })
   .strict()
   .required();
+
+export const datasetValidatorResultsSchema =
+  datasetValidatorResultsMetadataSchema.concat(
+    object({
+      batch_job_name: string().defined().nullable(),
+      downloaded_sha256: string().defined().nullable(),
+      error_message: string().defined().nullable(),
+      integrity_status: string()
+        .oneOf(Object.values(INTEGRITY_STATUS))
+        .defined()
+        .nullable(),
+      metadata_summary: object({
+        assay: array(string().required()).required(),
+        cell_count: number().required(),
+        disease: array(string().required()).required(),
+        gene_count: number().required(),
+        suspension_type: array(string().required()).required(),
+        tissue: array(string().required()).required(),
+        title: string().defined(),
+      })
+        .defined()
+        .nullable(),
+      source_sha256: string().defined().nullable(),
+      tool_reports: datasetValidatorToolReportsSchema.defined().nullable(),
+    })
+      .strict()
+      .required(),
+  );
 
 // Type inference from Yup schemas
 
@@ -113,6 +121,9 @@ export type DatasetValidatorToolReport = InferType<
 >;
 export type DatasetValidatorToolReports = InferType<
   typeof datasetValidatorToolReportsSchema
+>;
+export type DatasetValidatorResultsMetadata = InferType<
+  typeof datasetValidatorResultsMetadataSchema
 >;
 export type DatasetValidatorResults = InferType<
   typeof datasetValidatorResultsSchema
