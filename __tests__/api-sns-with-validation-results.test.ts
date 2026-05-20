@@ -1,6 +1,7 @@
 import {
   createSNSMessage,
   createValidationResults,
+  createValidationResultsMetadata,
   expectDbFileValidationFieldsToMatch,
   setUpAwsConfig,
   SNS_MESSAGE_DEFAULTS,
@@ -12,6 +13,8 @@ import {
   TEST_TIMESTAMP,
   TEST_VALIDATION_RESULTS_BUCKET,
   validateTestSnsMessage,
+  ValidationResultsMetadataOptions,
+  ValidationResultsOptions,
 } from "../testing/sns-testing";
 
 // Set up AWS resource configuration BEFORE any other imports
@@ -30,6 +33,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { Readable } from "stream";
 import {
+  DatasetValidatorResults,
+  DatasetValidatorResultsMetadata,
   DatasetValidatorToolReports,
   SNSMessage,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
@@ -151,90 +156,6 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     );
   });
 
-  it("returns error 400 when message content has invalid shape", async () => {
-    const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
-
-    const snsMessageId = "sns-message-invalid-message";
-    const snsMessageTime = "2025-09-14T00:00:36.672Z";
-    const batchJobId = "batch-job-invalid-message";
-    const validationTime = "2025-09-13T22:53:03.314Z";
-    const validationResults: Record<string, unknown> = createValidationResults({
-      batchJobId,
-      fileId: FILE_SOURCE_DATASET_FOO.id,
-      integrityStatus: INTEGRITY_STATUS.VALID,
-      key: getTestFileKey(
-        FILE_SOURCE_DATASET_FOO,
-        FILE_SOURCE_DATASET_FOO.resolvedAtlas,
-      ),
-      metadata: null,
-      timestamp: validationTime,
-    });
-    // Set metadata_summary to an invalid value
-    validationResults.metadata_summary = "not-a-metadata-summary";
-    const snsMessage = createSNSMessage({
-      message: validationResults,
-      messageId: snsMessageId,
-      timestamp: snsMessageTime,
-      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
-    });
-
-    const res = await doSnsRequest(snsMessage, true);
-    expect(res.statusCode).toEqual(400);
-    expect(res._getJSONData().errors?.metadata_summary).toBeDefined();
-
-    const fileAfter = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
-
-    expect(fileAfter).toEqual(fileBefore);
-  });
-
-  it.each([
-    { tool: "cap" as const },
-    { tool: "cellxgene" as const },
-    { tool: "hcaCellAnnotation" as const },
-    { tool: "hcaSchema" as const },
-  ])(
-    "returns error 400 when $tool is missing from tool reports",
-    async ({ tool }) => {
-      const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
-
-      const snsMessageId = "sns-message-missing-tool-report";
-      const snsMessageTime = "2025-09-23T21:51:48.354Z";
-      const batchJobId = "batch-job-missing-tool-report";
-      const validationTime = "2025-09-23T21:51:35.241Z";
-      const validationResults: Record<string, unknown> =
-        createValidationResults({
-          batchJobId,
-          fileId: FILE_SOURCE_DATASET_FOO.id,
-          integrityStatus: INTEGRITY_STATUS.VALID,
-          key: getTestFileKey(
-            FILE_SOURCE_DATASET_FOO,
-            FILE_SOURCE_DATASET_FOO.resolvedAtlas,
-          ),
-          metadata: null,
-          timestamp: validationTime,
-        });
-      // Set tool_reports to have a missing value
-      validationResults.tool_reports = {
-        ...SUCCESSFUL_TOOL_REPORTS,
-        [tool]: undefined,
-      };
-      const snsMessage = createSNSMessage({
-        message: validationResults,
-        messageId: snsMessageId,
-        timestamp: snsMessageTime,
-        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
-      });
-
-      const res = await doSnsRequest(snsMessage, true);
-      expect(res.statusCode).toEqual(400);
-      expect(res._getJSONData().errors?.[`tool_reports.${tool}`]).toBeDefined();
-
-      const fileAfter = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
-
-      expect(fileAfter).toEqual(fileBefore);
-    },
-  );
-
   it("returns error 409 when validation results are sent with out-of-order timestamps", async () => {
     // First request with later timestamp (2025-09-14)
     const firstSnsMessageId = "sns-message-ooo-first";
@@ -289,7 +210,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
       },
     };
-    const firstValidationResults = createValidationResults({
+    const firstValidationMetadata = initValidationResults({
       batchJobId: firstBatchJobId,
       fileId: FILE_SOURCE_DATASET_BAR.id,
       integrityStatus: INTEGRITY_STATUS.VALID,
@@ -302,7 +223,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       toolReports: firstToolReports,
     });
     const firstSnsMessage = createSNSMessage({
-      message: firstValidationResults,
+      message: firstValidationMetadata,
       messageId: firstSnsMessageId,
       timestamp: firstSnsMessageTime,
       topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
@@ -325,7 +246,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       tissue: ["tissue-ooo-second"],
       title: "Out-of-Order Second",
     };
-    const secondValidationResults = createValidationResults({
+    const secondValidationMetadata = initValidationResults({
       batchJobId: secondBatchJobId,
       fileId: FILE_SOURCE_DATASET_BAR.id,
       integrityStatus: INTEGRITY_STATUS.VALID,
@@ -337,7 +258,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       timestamp: secondValidationTime,
     });
     const secondSnsMessage = createSNSMessage({
-      message: secondValidationResults,
+      message: secondValidationMetadata,
       messageId: secondSnsMessageId,
       timestamp: secondSnsMessageTime,
       topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
@@ -421,7 +342,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
       },
     };
-    const validationResults = createValidationResults({
+    const validationMetadata = initValidationResults({
       batchJobId,
       fileId: FILE_SOURCE_DATASET_FOO.id,
       integrityStatus: INTEGRITY_STATUS.VALID,
@@ -434,7 +355,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       toolReports,
     });
     const snsMessage = createSNSMessage({
-      message: validationResults,
+      message: validationMetadata,
       messageId: snsMessageId,
       timestamp: snsMessageTime,
       topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
@@ -514,7 +435,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
       },
     };
-    const validationResults = createValidationResults({
+    const validationMetadata = initValidationResults({
       batchJobId,
       fileId: FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
       integrityStatus: INTEGRITY_STATUS.VALID,
@@ -527,7 +448,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       toolReports,
     });
     const snsMessage = createSNSMessage({
-      message: validationResults,
+      message: validationMetadata,
       messageId: snsMessageId,
       timestamp: snsMessageTime,
       topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
@@ -567,7 +488,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       tissue: ["tissue-duplicate"],
       title: "Duplicate",
     };
-    const validationResults = createValidationResults({
+    const validationMetadata = initValidationResults({
       batchJobId,
       fileId: FILE_SOURCE_DATASET_BAZ.id,
       integrityStatus: INTEGRITY_STATUS.VALID,
@@ -579,7 +500,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       timestamp: validationTime,
     });
     const snsMessage = createSNSMessage({
-      message: validationResults,
+      message: validationMetadata,
       messageId: snsMessageId,
       timestamp: snsMessageTime,
       topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
@@ -657,7 +578,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     }) => {
       const snsMessageId = "sns-message-validation-statuses";
       const batchJobId = "batch-job-validation-statuses";
-      const validationResults = createValidationResults({
+      const validationMetadata = initValidationResults({
         batchJobId,
         fileId: FILE_SOURCE_DATASET_FOOFOO.id,
         integrityStatus: messageIntegrityStatus,
@@ -670,7 +591,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         timestamp: time,
       });
       const snsMessage = createSNSMessage({
-        message: validationResults,
+        message: validationMetadata,
         messageId: snsMessageId,
         timestamp: time,
         topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
@@ -871,7 +792,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       description: string;
       expectedErrorContent: string;
       expectGetObject: boolean;
-      setUp?: () => (() => void) | void;
+      setUp?: (
+        metdataOptions: ValidationResultsMetadataOptions,
+      ) => (() => void) | void;
       testId: string;
     }>([
       {
@@ -900,6 +823,29 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         },
         testId: "claim-check-invalid-shape",
       },
+      ...["cap", "cellxgene", "hcaCellAnnotation", "hcaSchema"].map((tool) => ({
+        description: `${tool} is missing from tool reports`,
+        expectGetObject: true,
+        expectedErrorContent: `tool_reports.${tool} is a required field`,
+        setUp(metadataOptions: ValidationResultsMetadataOptions): void {
+          initValidationResults(
+            {
+              ...metadataOptions,
+              integrityStatus: INTEGRITY_STATUS.VALID,
+              metadata: null,
+            },
+            (claimCheckData) => ({
+              ...claimCheckData,
+              // Set tool_reports to have a missing value
+              tool_reports: {
+                ...SUCCESSFUL_TOOL_REPORTS,
+                [tool]: undefined,
+              },
+            }),
+          );
+        },
+        testId: `claim-check-tool-reports-missing-${tool}`,
+      })),
       {
         description: "AWS_VALIDATION_RESULTS_BUCKET is unset",
         expectGetObject: false,
@@ -944,24 +890,26 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     ])(
       "saves error result when $description",
       async ({ expectedErrorContent, expectGetObject, setUp, testId }) => {
-        const cleanUp = setUp?.();
-        try {
-          const snsMessageId = `sns-message-${testId}`;
-          const snsMessageTime = "2025-10-15T07:00:00.000Z";
-          const batchJobId = `batch-job-${testId}`;
-          const validationTime = "2025-10-15T06:50:00.000Z";
+        const snsMessageId = `sns-message-${testId}`;
+        const snsMessageTime = "2025-10-15T07:00:00.000Z";
+        const batchJobId = `batch-job-${testId}`;
+        const validationTime = "2025-10-15T06:50:00.000Z";
+        const validationMetadataOptions: ValidationResultsMetadataOptions = {
+          batchJobId,
+          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+          key: getTestFileKey(
+            FILE_SOURCE_DATASET_FOOBAR,
+            FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+          ),
+          timestamp: validationTime,
+        };
 
-          const inlineValidationResults = createValidationResults({
-            batchJobId,
-            fileId: FILE_SOURCE_DATASET_FOOBAR.id,
-            integrityStatus: INTEGRITY_STATUS.VALID,
-            key: getTestFileKey(
-              FILE_SOURCE_DATASET_FOOBAR,
-              FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
-            ),
-            metadata: null,
-            timestamp: validationTime,
-          });
+        const cleanUp = setUp?.(validationMetadataOptions);
+
+        try {
+          const inlineValidationResults = createValidationResults(
+            validationMetadataOptions,
+          );
 
           const snsMessage = createSNSMessage({
             message: inlineValidationResults,
@@ -1008,6 +956,18 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     );
   });
 });
+
+function initValidationResults(
+  options: ValidationResultsOptions,
+  mapClaimCheckData?: (claimCheckData: DatasetValidatorResults) => unknown,
+): DatasetValidatorResultsMetadata {
+  const claimCheckData = createValidationResults(options);
+  const mappedClaimCheckData = mapClaimCheckData
+    ? mapClaimCheckData(claimCheckData)
+    : claimCheckData;
+  mockClaimCheckObjectBody(JSON.stringify(mappedClaimCheckData));
+  return createValidationResultsMetadata(options);
+}
 
 function mockClaimCheckObjectBody(body: string): void {
   // sdkStreamMixin adds transformToString() to the underlying Readable so the

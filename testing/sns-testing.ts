@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   DatasetValidatorResults,
+  DatasetValidatorResultsMetadata,
   DatasetValidatorToolReport,
   DatasetValidatorToolReports,
   S3Event,
@@ -188,14 +189,19 @@ export const SUCCESSFUL_VALIDATION_SUMMARY: FileValidationSummary = {
   },
 };
 
-export interface ValidationResultsOptions {
+export interface ValidationResultsMetadataOptions {
   batchJobId?: string;
+  fileId: string;
+  key: string;
+  status?: DatasetValidatorResults["status"];
+  timestamp?: string;
+}
+
+export interface ValidationResultsOptions extends ValidationResultsMetadataOptions {
   batchJobName?: string | null;
   downloadedSha256?: string | null;
   errorMessage?: string | null;
-  fileId: string;
   integrityStatus?: INTEGRITY_STATUS | null;
-  key: string;
   metadata?: {
     assay: string[];
     cellCount: number;
@@ -207,9 +213,20 @@ export interface ValidationResultsOptions {
   } | null;
   sha256?: string | null;
   sourceSha256?: string | null;
-  status?: DatasetValidatorResults["status"];
-  timestamp?: string;
   toolReports?: DatasetValidatorToolReports;
+}
+
+export function createValidationResultsMetadata(
+  options: ValidationResultsMetadataOptions,
+): DatasetValidatorResultsMetadata {
+  return {
+    batch_job_id: options.batchJobId ?? "test-batch-job-id",
+    bucket: TEST_S3_BUCKET,
+    file_id: options.fileId,
+    key: options.key,
+    status: options.status ?? "success",
+    timestamp: options.timestamp ?? TEST_TIMESTAMP,
+  };
 }
 
 export function createValidationResults(
@@ -222,14 +239,11 @@ export function createValidationResults(
   } = options;
   const { downloadedSha256 = sha256, sourceSha256 = sha256 } = options;
   return {
-    batch_job_id: options.batchJobId ?? "test-batch-job-id",
+    ...createValidationResultsMetadata(options),
     batch_job_name: batchJobName,
-    bucket: TEST_S3_BUCKET,
     downloaded_sha256: downloadedSha256,
     error_message: options.errorMessage ?? null,
-    file_id: options.fileId,
     integrity_status: integrityStatus,
-    key: options.key,
     metadata_summary: options.metadata
       ? {
           assay: options.metadata.assay,
@@ -242,8 +256,6 @@ export function createValidationResults(
         }
       : null,
     source_sha256: sourceSha256,
-    status: options.status ?? "success",
-    timestamp: options.timestamp ?? TEST_TIMESTAMP,
     tool_reports: options.toolReports ?? SUCCESSFUL_TOOL_REPORTS,
   };
 }
