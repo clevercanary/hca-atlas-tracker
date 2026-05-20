@@ -18,6 +18,7 @@ import {
 import { validateS3BucketAuthorization } from "../config/aws-resources";
 import {
   addValidationResultsToFile,
+  AddValidationResultsToFileParams,
   getLastValidationTimestamp,
 } from "../data/files";
 import { ConflictError, InvalidOperationError } from "../utils/api-errors";
@@ -58,7 +59,7 @@ export async function processValidationResultsMessage(
   const claimCheck = await loadValidationResultsClaimCheck(validationMetadata);
 
   if (claimCheck.outcome === "error") {
-    await saveClaimCheckErrorResult(claimCheck);
+    await saveClaimCheckErrorResult(claimCheck, validationMetadata, snsMessage);
     return;
   }
 
@@ -66,12 +67,11 @@ export async function processValidationResultsMessage(
 
   // Save validation results
 
-  const s3Uri = `s3://${validationResults.bucket}/${validationResults.key}`;
-
-  const fileId = validationResults.file_id;
-  const newValidationTime = new Date(validationResults.timestamp);
+  const basicFields = getBasicValidationFieldsForSaving(
+    validationResults,
+    snsMessage,
+  );
   const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
-  const validationInfo = getValidationInfo(validationResults, snsMessage);
   const validationStatus =
     validationResults.status === "success"
       ? FILE_VALIDATION_STATUS.COMPLETED
@@ -81,47 +81,35 @@ export async function processValidationResultsMessage(
   const [validationReports, validationSummary] =
     getValidationReportsAndSummary(validationResults);
 
-  await doTransaction(async (client) => {
-    const lastValidationTime = await getLastValidationTimestamp(fileId, client);
-
-    if (lastValidationTime && newValidationTime < lastValidationTime) {
-      throw new ConflictError(
-        `Newer validation results already exist for file with ID ${fileId} (${s3Uri}); received time was ${newValidationTime}`,
-      );
-    }
-
-    await addValidationResultsToFile({
-      client,
-      datasetInfo,
-      fileId,
-      integrityStatus:
-        validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
-      validatedAt: newValidationTime,
-      validationInfo,
-      validationReports,
-      validationStatus,
-      validationSummary,
-    });
+  await saveValidationResults({
+    ...basicFields,
+    datasetInfo,
+    integrityStatus:
+      validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
+    validationReports,
+    validationStatus,
+    validationSummary,
   });
 
   console.log(
-    `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`,
+    `Saved validation results from ${basicFields.validatedAt} for file ${basicFields.fileId} (${basicFields.s3Uri}), setting status to ${validationStatus}`,
   );
 
-  if (claimCheck.outcome === "success") {
-    try {
-      await deleteObject(claimCheck.bucket, claimCheck.key);
-    } catch (e) {
-      console.error(
-        `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}:`,
-        e,
-      );
-    }
+  // Since claim check errors are handled earlier and exit the function, this will only run if the claim check is successful
+  try {
+    await deleteObject(claimCheck.bucket, claimCheck.key);
+  } catch (e) {
+    console.error(
+      `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${basicFields.fileId}:`,
+      e,
+    );
   }
 }
 
 async function saveClaimCheckErrorResult(
   claimCheck: ValidationResultsClaimCheckError,
+  validationMetadata: DatasetValidatorResultsMetadata,
+  snsMessage: SNSMessage,
 ): Promise<void> {
   console.error(
     `Saving error result for claim check located at s3://${claimCheck.bucket ?? "<unknown bucket>"}/${claimCheck.key}:`,
@@ -129,7 +117,56 @@ async function saveClaimCheckErrorResult(
     claimCheck.error,
   );
 
-  // TODO
+  await saveValidationResults({
+    ...getBasicValidationFieldsForSaving(validationMetadata, snsMessage),
+    datasetInfo: null,
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    validationReports: null,
+    validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED, // TODO use new status
+    validationSummary: null,
+  });
+}
+
+function getBasicValidationFieldsForSaving(
+  validationResults: DatasetValidatorResultsMetadata,
+  snsMessage: SNSMessage,
+): Pick<
+  SaveValidationResultsParams,
+  "fileId" | "s3Uri" | "validationInfo" | "validatedAt"
+> {
+  return {
+    fileId: validationResults.file_id,
+    s3Uri: `s3://${validationResults.bucket}/${validationResults.key}`,
+    validatedAt: new Date(validationResults.timestamp),
+    validationInfo: getValidationInfo(validationResults, snsMessage),
+  };
+}
+
+interface SaveValidationResultsParams extends Omit<
+  AddValidationResultsToFileParams,
+  "client"
+> {
+  s3Uri: string;
+}
+
+async function saveValidationResults(
+  params: SaveValidationResultsParams,
+): Promise<void> {
+  const { s3Uri, ...addResultsParams } = params;
+  await doTransaction(async (client) => {
+    const lastValidationTime = await getLastValidationTimestamp(
+      params.fileId,
+      client,
+    );
+
+    if (lastValidationTime && params.validatedAt < lastValidationTime) {
+      throw new ConflictError(
+        `Newer validation results already exist for file with ID ${params.fileId} (${s3Uri}); received time was ${params.validatedAt}`,
+      );
+    }
+
+    await addValidationResultsToFile({ client, ...addResultsParams });
+  });
 }
 
 interface ValidationResultsClaimCheck {
@@ -334,7 +371,7 @@ function getDatasetInfoFromValidationResults(
  * @returns - Validation info.
  */
 function getValidationInfo(
-  validationResults: DatasetValidatorResults,
+  validationResults: DatasetValidatorResultsMetadata,
   snsMessage: SNSMessage,
 ): HCAAtlasTrackerDBFileValidationInfo {
   return {
