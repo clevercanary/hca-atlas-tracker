@@ -67,7 +67,10 @@ export async function processValidationResultsMessage(
 
   // Save validation results
 
-  const basicFields = getBasicValidationFieldsForSaving(validationResults);
+  const s3Uri = getS3UriFromValidationResults(validationResults);
+
+  const fileId = validationResults.file_id;
+  const newValidationTime = new Date(validationResults.timestamp);
   const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
   const validationInfo = getValidationInfo(
     validationResults,
@@ -84,10 +87,12 @@ export async function processValidationResultsMessage(
     getValidationReportsAndSummary(validationResults);
 
   await saveValidationResults({
-    ...basicFields,
     datasetInfo,
+    fileId,
     integrityStatus:
       validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
+    s3Uri,
+    validatedAt: newValidationTime,
     validationInfo,
     validationReports,
     validationStatus,
@@ -95,7 +100,7 @@ export async function processValidationResultsMessage(
   });
 
   console.log(
-    `Saved validation results from ${basicFields.validatedAt} for file ${basicFields.fileId} (${basicFields.s3Uri}), setting status to ${validationStatus}`,
+    `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`,
   );
 
   // Since claim check errors are handled earlier and exit the function, this will only run if the claim check is successful
@@ -103,7 +108,7 @@ export async function processValidationResultsMessage(
     await deleteObject(claimCheck.bucket, claimCheck.key);
   } catch (e) {
     console.error(
-      `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${basicFields.fileId}:`,
+      `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}:`,
       e,
     );
   }
@@ -121,9 +126,11 @@ async function saveClaimCheckErrorResult(
   );
 
   await saveValidationResults({
-    ...getBasicValidationFieldsForSaving(validationMetadata),
     datasetInfo: null,
+    fileId: validationMetadata.file_id,
     integrityStatus: INTEGRITY_STATUS.PENDING,
+    s3Uri: getS3UriFromValidationResults(validationMetadata),
+    validatedAt: new Date(validationMetadata.timestamp),
     validationInfo: getValidationInfo(
       validationMetadata,
       snsMessage,
@@ -136,14 +143,10 @@ async function saveClaimCheckErrorResult(
   });
 }
 
-function getBasicValidationFieldsForSaving(
+function getS3UriFromValidationResults(
   validationResults: DatasetValidatorResultsMetadata,
-): Pick<SaveValidationResultsParams, "fileId" | "s3Uri" | "validatedAt"> {
-  return {
-    fileId: validationResults.file_id,
-    s3Uri: `s3://${validationResults.bucket}/${validationResults.key}`,
-    validatedAt: new Date(validationResults.timestamp),
-  };
+): string {
+  return `s3://${validationResults.bucket}/${validationResults.key}`;
 }
 
 interface SaveValidationResultsParams extends Omit<
