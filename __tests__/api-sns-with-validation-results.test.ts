@@ -48,7 +48,6 @@ import {
   SOURCE_DATASET_BAZ,
   SOURCE_DATASET_FOO,
   SOURCE_DATASET_FOOBAR,
-  SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
 } from "../testing/constants";
 import { getFileFromDatabase, resetDatabase } from "../testing/db-utils";
@@ -106,10 +105,6 @@ const FILE_SOURCE_DATASET_FOOFOO = fillTestFileDefaults(
 const FILE_SOURCE_DATASET_FOOBAR = fillTestFileDefaults(
   SOURCE_DATASET_FOOBAR.file,
 );
-const FILE_SOURCE_DATASET_FOOBAZ = fillTestFileDefaults(
-  SOURCE_DATASET_FOOBAZ.file,
-);
-
 const FILE_COMPONENT_ATLAS_DRAFT_FOO = COMPONENT_ATLAS_DRAFT_FOO.file;
 
 beforeAll(async () => {
@@ -820,172 +815,6 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       });
     });
 
-    it("falls back to inline SNS data when S3 object is missing", async () => {
-      // Default S3 mock returns NoSuchKey, so this tests the 404 fall-back.
-      const snsMessageId = "sns-message-claim-check-missing";
-      const snsMessageTime = "2025-10-15T02:00:00.000Z";
-      const batchJobId = "batch-job-claim-check-missing";
-      const validationTime = "2025-10-15T01:50:00.000Z";
-
-      const inlineMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
-        assay: ["assay-fallback"],
-        cellCount: 11,
-        disease: ["disease-fallback"],
-        geneCount: 22,
-        suspensionType: ["suspension-type-fallback"],
-        tissue: ["tissue-fallback"],
-        title: "Fallback to Inline",
-      };
-
-      const inlineValidationResults = createValidationResults({
-        batchJobId,
-        fileId: FILE_SOURCE_DATASET_FOOBAZ.id,
-        integrityStatus: INTEGRITY_STATUS.VALID,
-        key: getTestFileKey(
-          FILE_SOURCE_DATASET_FOOBAZ,
-          FILE_SOURCE_DATASET_FOOBAZ.resolvedAtlas,
-        ),
-        metadata: inlineMetadata,
-        timestamp: validationTime,
-      });
-      const snsMessage = createSNSMessage({
-        message: inlineValidationResults,
-        messageId: snsMessageId,
-        timestamp: snsMessageTime,
-        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
-      });
-
-      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
-
-      await expectDbFileValidationFieldsToMatch(
-        FILE_SOURCE_DATASET_FOOBAZ.id,
-        validationTime,
-        INTEGRITY_STATUS.VALID,
-        inlineMetadata,
-        {
-          batchJobId,
-          snsMessageId,
-          snsMessageTime,
-        },
-        SUCCESSFUL_TOOL_REPORTS,
-        SUCCESSFUL_VALIDATION_SUMMARY,
-      );
-
-      // The handler attempted to fetch from S3 but did NOT call DeleteObject.
-      expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(1);
-      expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
-    });
-
-    it("falls back to inline SNS data when S3 object body is invalid JSON", async () => {
-      mockClaimCheckObjectBody("not-json-{{");
-
-      const snsMessageId = "sns-message-claim-check-bad-json";
-      const snsMessageTime = "2025-10-15T03:00:00.000Z";
-      const batchJobId = "batch-job-claim-check-bad-json";
-      const validationTime = "2025-10-15T02:50:00.000Z";
-
-      const inlineMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
-        assay: ["assay-bad-json"],
-        cellCount: 33,
-        disease: ["disease-bad-json"],
-        geneCount: 44,
-        suspensionType: ["suspension-type-bad-json"],
-        tissue: ["tissue-bad-json"],
-        title: "Bad JSON Fallback",
-      };
-
-      const inlineValidationResults = createValidationResults({
-        batchJobId,
-        fileId: FILE_SOURCE_DATASET_FOOBAZ.id,
-        integrityStatus: INTEGRITY_STATUS.VALID,
-        key: getTestFileKey(
-          FILE_SOURCE_DATASET_FOOBAZ,
-          FILE_SOURCE_DATASET_FOOBAZ.resolvedAtlas,
-        ),
-        metadata: inlineMetadata,
-        timestamp: validationTime,
-      });
-      const snsMessage = createSNSMessage({
-        message: inlineValidationResults,
-        messageId: snsMessageId,
-        timestamp: snsMessageTime,
-        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
-      });
-
-      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
-
-      await expectDbFileValidationFieldsToMatch(
-        FILE_SOURCE_DATASET_FOOBAZ.id,
-        validationTime,
-        INTEGRITY_STATUS.VALID,
-        inlineMetadata,
-        {
-          batchJobId,
-          snsMessageId,
-          snsMessageTime,
-        },
-        SUCCESSFUL_TOOL_REPORTS,
-        SUCCESSFUL_VALIDATION_SUMMARY,
-      );
-
-      expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
-    });
-
-    it("falls back to inline SNS data when S3 object body has invalid shape", async () => {
-      mockClaimCheckObjectBody(JSON.stringify({ malformed: true }));
-
-      const snsMessageId = "sns-message-claim-check-bad-shape";
-      const snsMessageTime = "2025-10-15T04:00:00.000Z";
-      const batchJobId = "batch-job-claim-check-bad-shape";
-      const validationTime = "2025-10-15T03:50:00.000Z";
-
-      const inlineMetadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
-        assay: ["assay-bad-shape"],
-        cellCount: 55,
-        disease: ["disease-bad-shape"],
-        geneCount: 66,
-        suspensionType: ["suspension-type-bad-shape"],
-        tissue: ["tissue-bad-shape"],
-        title: "Bad Shape Fallback",
-      };
-
-      const inlineValidationResults = createValidationResults({
-        batchJobId,
-        fileId: FILE_SOURCE_DATASET_FOOBAZ.id,
-        integrityStatus: INTEGRITY_STATUS.VALID,
-        key: getTestFileKey(
-          FILE_SOURCE_DATASET_FOOBAZ,
-          FILE_SOURCE_DATASET_FOOBAZ.resolvedAtlas,
-        ),
-        metadata: inlineMetadata,
-        timestamp: validationTime,
-      });
-      const snsMessage = createSNSMessage({
-        message: inlineValidationResults,
-        messageId: snsMessageId,
-        timestamp: snsMessageTime,
-        topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
-      });
-
-      expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
-
-      await expectDbFileValidationFieldsToMatch(
-        FILE_SOURCE_DATASET_FOOBAZ.id,
-        validationTime,
-        INTEGRITY_STATUS.VALID,
-        inlineMetadata,
-        {
-          batchJobId,
-          snsMessageId,
-          snsMessageTime,
-        },
-        SUCCESSFUL_TOOL_REPORTS,
-        SUCCESSFUL_VALIDATION_SUMMARY,
-      );
-
-      expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
-    });
-
     it("still completes successfully when deleting the S3 object fails", async () => {
       const snsMessageId = "sns-message-claim-check-delete-fail";
       const snsMessageTime = "2025-10-15T05:00:00.000Z";
@@ -1034,22 +863,49 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ).toBe(true);
     });
 
-    // Deployment misconfiguration: env var missing or claim-check bucket not
-    // in `AWS_RESOURCE_CONFIG.s3_buckets`. The handler logs and saves a
-    // RESULTS_NOT_LOADED error result against the file rather than processing
-    // the inline SNS payload, so the failure is recorded and visible to
+    // Claim check failure cases. The handler logs and saves a
+    // RESULTS_NOT_LOADED error result against the file when claim check
+    // is not available, so the failure is recorded and visible to
     // operators.
     it.each<{
       description: string;
-      expectedErrorMessage: string;
-      misconfigure: () => () => void;
+      expectedErrorContent: string;
+      expectGetObject: boolean;
+      setUp?: () => (() => void) | void;
       testId: string;
     }>([
       {
+        description: "S3 object is missing",
+        expectGetObject: true,
+        expectedErrorContent: "Failed to read S3 object:",
+        // No setup; the mocked object will be missing by default.
+        testId: "claim-check-object-missing",
+      },
+      {
+        description: "S3 object body is invalid JSON",
+        expectGetObject: true,
+        expectedErrorContent: "invalid JSON: not-json-{{",
+        setUp(): void {
+          mockClaimCheckObjectBody("not-json-{{");
+        },
+        testId: "claim-check-invalid-json",
+      },
+      {
+        description: "S3 object body has invalid shape",
+        expectGetObject: true,
+        expectedErrorContent:
+          "Failed to parse valid data from JSON: ValidationError:",
+        setUp(): void {
+          mockClaimCheckObjectBody(JSON.stringify({ malformed: true }));
+        },
+        testId: "claim-check-invalid-shape",
+      },
+      {
         description: "AWS_VALIDATION_RESULTS_BUCKET is unset",
-        expectedErrorMessage:
-          "Claim-check bucket misconfiguration: Error: AWS_VALIDATION_RESULTS_BUCKET environment variable is required",
-        misconfigure: (): (() => void) => {
+        expectGetObject: false,
+        expectedErrorContent:
+          "AWS_VALIDATION_RESULTS_BUCKET environment variable is required",
+        setUp: (): (() => void) => {
           const originalBucket = process.env.AWS_VALIDATION_RESULTS_BUCKET;
           delete process.env.AWS_VALIDATION_RESULTS_BUCKET;
           return (): void => {
@@ -1064,8 +920,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       },
       {
         description: "AWS_VALIDATION_RESULTS_BUCKET is not in the allowlist",
-        expectedErrorMessage: `Claim-check bucket misconfiguration: UnauthorizedAWSResourceError: Unauthorized S3 bucket: ${TEST_VALIDATION_RESULTS_BUCKET}`,
-        misconfigure: (): (() => void) => {
+        expectGetObject: false,
+        expectedErrorContent: `Unauthorized S3 bucket: ${TEST_VALIDATION_RESULTS_BUCKET}`,
+        setUp: (): (() => void) => {
           const originalConfig = process.env.AWS_RESOURCE_CONFIG;
           process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
             // Validation-results bucket deliberately absent.
@@ -1086,8 +943,8 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       },
     ])(
       "saves error result when $description",
-      async ({ expectedErrorMessage, misconfigure, testId }) => {
-        const restore = misconfigure();
+      async ({ expectedErrorContent, expectGetObject, setUp, testId }) => {
+        const cleanUp = setUp?.();
         try {
           const snsMessageId = `sns-message-${testId}`;
           const snsMessageTime = "2025-10-15T07:00:00.000Z";
@@ -1116,8 +973,11 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
           const res = await doSnsRequest(snsMessage, true);
 
           expect(res.statusCode).toEqual(200);
-          // S3 ops never attempted — bucket misconfig caught before any fetch.
-          expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
+          // Appropriate number of calls for GetObjectCommand.
+          expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(
+            expectGetObject ? 1 : 0,
+          );
+          // No attempt to delete object when claim check fails.
           expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
 
           // Error result persisted: no dataset info or reports/summary,
@@ -1132,7 +992,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
           expect(file?.integrity_status).toEqual(INTEGRITY_STATUS.PENDING);
           expect(file?.validation_info).toEqual({
             batchJobId,
-            errorMessage: expectedErrorMessage,
+            errorMessage: expect.stringContaining(expectedErrorContent),
             snsMessageId,
             snsMessageTime,
           });
@@ -1142,7 +1002,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
           );
           expect(file?.validation_summary).toBeNull();
         } finally {
-          restore();
+          cleanUp?.();
         }
       },
     );
