@@ -795,6 +795,7 @@ export enum FILE_VALIDATION_STATUS {
   PENDING = "pending",
   REQUEST_FAILED = "request_failed",
   REQUESTED = "requested",
+  RESULTS_NOT_LOADED = "results_not_loaded",
   STALE = "stale",
 }
 

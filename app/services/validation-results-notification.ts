@@ -122,7 +122,7 @@ async function saveClaimCheckErrorResult(
     datasetInfo: null,
     integrityStatus: INTEGRITY_STATUS.PENDING,
     validationReports: null,
-    validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED, // TODO use new status
+    validationStatus: FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
     validationSummary: null,
   });
 }
