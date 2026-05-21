@@ -51,7 +51,7 @@ const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
 interface SuccessRelatedFields {
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
-  errorMessage: string | null;
+  errorMessage?: string;
   integrityStatus: INTEGRITY_STATUS;
   validationReports: FileValidationReports | null;
   validationStatus: FILE_VALIDATION_STATUS;
@@ -97,11 +97,9 @@ async function addValidationResultsToFiles(
     }
     const validationInfo: HCAAtlasTrackerDBFileValidationInfo = {
       batchJobId: `test-batch-job-${crypto.randomUUID()}`,
+      errorMessage: successRelatedFields.errorMessage,
       snsMessageId: `test-sns-message-${crypto.randomUUID()}`,
       snsMessageTime: validatedAt.toISOString(),
-      ...(successRelatedFields.errorMessage === null
-        ? {}
-        : { errorMessage: successRelatedFields.errorMessage }),
     };
     await addValidationResultsToFile({
       client,
@@ -185,7 +183,6 @@ function getSuccessfulValidationFields(
       tissue: generateArray("tissue"),
       title: `Test ${(key && key.split("/").pop()) || fileId}`,
     },
-    errorMessage: null,
     integrityStatus: INTEGRITY_STATUS.VALID,
     validationReports: validationReports,
     validationStatus:

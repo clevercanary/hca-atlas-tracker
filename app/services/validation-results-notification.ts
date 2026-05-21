@@ -402,9 +402,9 @@ function getValidationInfo(
 ): HCAAtlasTrackerDBFileValidationInfo {
   return {
     batchJobId: validationResults.batch_job_id,
+    errorMessage: errorMessage ?? undefined,
     snsMessageId: snsMessage.MessageId,
     snsMessageTime: snsMessage.Timestamp,
-    ...(errorMessage === null ? {} : { errorMessage }),
   };
 }
 
