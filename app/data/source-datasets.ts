@@ -5,6 +5,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
+  HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -78,6 +79,62 @@ export async function getComponentAtlasSourceDatasetVersionIds(
       `Component atlas with version ID ${componentAtlasVersion} doesn't exist`,
     );
   return componentAtlasResult.rows[0].source_datasets;
+}
+
+/**
+ * Get all source datasets joined with data used for global (as opposed to atlas-specific) API responses.
+ * @returns source datasets with fields for global API.
+ */
+export async function getSourceDatasetsForGlobalApi(): Promise<
+  HCAAtlasTrackerDBSourceDatasetForGlobalAPI[]
+> {
+  const { rows: sourceDatasets } =
+    await query<HCAAtlasTrackerDBSourceDatasetForGlobalAPI>(
+      `
+        WITH atlases_with_revisions AS (
+          SELECT
+            ar.*,
+            MAX(ar.revision) OVER (
+              PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
+            ) AS max_revision
+          FROM hat.atlases ar
+        )
+        SELECT
+          d.*,
+          f.event_info,
+          f.id as file_id,
+          f.integrity_status,
+          f.is_archived,
+          f.key,
+          f.size_bytes,
+          f.dataset_info,
+          f.validation_status,
+          f.validation_summary,
+          con.base_filename,
+          s.doi,
+          s.study_info,
+          ARRAY_AGG(
+            jsonb_build_object(
+              'id', a.id,
+              'isImported', FALSE, -- TODO: update this when importing is possible
+              'isLatest', a.revision = a.max_revision,
+              'name', concat(a.overview->>'shortName', ' v', a.generation, '.', a.revision),
+              'network', a.overview->>'network',
+              'shortName', a.overview->>'shortName',
+              'version', concat(a.generation, '.', a.revision)
+            )
+          ) as atlases
+        FROM hat.source_datasets d
+        JOIN hat.files f ON f.id = d.file_id
+        JOIN hat.concepts con ON con.id = d.id
+        LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
+        JOIN atlases_with_revisions a ON d.version_id = ANY(a.source_datasets)
+        WHERE (d.is_latest OR d.published_at IS NOT NULL) AND NOT f.is_archived
+        GROUP BY d.version_id, f.id, con.id, s.id
+      `,
+    );
+
+  return sourceDatasets;
 }
 
 /**

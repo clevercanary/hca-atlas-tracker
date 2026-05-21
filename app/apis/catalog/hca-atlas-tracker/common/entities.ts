@@ -19,6 +19,16 @@ export interface HCAAtlasTrackerAtlasSummary {
   version: string;
 }
 
+export interface HCAAtlasTrackerLinkedAtlasSummary {
+  id: string;
+  isImported: boolean;
+  isLatest: boolean;
+  name: string;
+  network: string;
+  shortName: string;
+  version: string;
+}
+
 export type HCAAtlasTrackerListAtlas = Omit<
   HCAAtlasTrackerAtlas,
   "integrationLead"
@@ -162,6 +172,10 @@ export interface HCAAtlasTrackerSourceDataset {
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
   wipNumber: number;
+}
+
+export interface HCAAtlasTrackerGlobalSourceDataset extends HCAAtlasTrackerSourceDataset {
+  atlases: HCAAtlasTrackerLinkedAtlasSummary[];
 }
 
 export interface HCAAtlasTrackerDetailSourceDataset extends HCAAtlasTrackerSourceDataset {
@@ -457,6 +471,11 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
     | "validation_summary"
   > &
   Pick<HCAAtlasTrackerDBConcept, "base_filename"> & { file_id: string };
+
+export type HCAAtlasTrackerDBSourceDatasetForGlobalAPI =
+  HCAAtlasTrackerDBSourceDatasetForAPI & {
+    atlases: HCAAtlasTrackerLinkedAtlasSummary[];
+  };
 
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI &
