@@ -29,11 +29,20 @@ import { toolReportsToValidationReportsAndSummary } from "../app/services/valida
  * added to them.
  */
 
+// Probability of failed validation (of various types) vs. successful validation containing tool reports etc.
 const FAILED_VALIDATION_PROBABILITY = 0.5;
+
+// Probabilities of failure types, with the remaining possibility being an integrity failure
 const JOB_ERROR_PROBABILITY = 0.4;
 const CLAIM_CHECK_ERROR_PROBABILITY = 0.3;
+
+// Probability of an integrity failure being an error vs. invalid
 const INTEGRITY_ERROR_PROBABILITY = 0.5;
+
+// Probability of successful results having a failed request on top of them
 const FAILED_REQUEST_PROBABILITY = 0.2;
+
+// Probability of all tool reports being valid
 const OVERALL_VALID_PROBABILITY = 0.5;
 
 // (Below use uninclusive max)
