@@ -1,3 +1,4 @@
+import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DatasetValidatorResults,
@@ -36,6 +37,9 @@ const REQUIRED_MATCHING_METADATA_KEYS = [
   "key",
   "batch_job_id",
 ] as const;
+
+const HARD_CAP_BYTES_DEFAULT = 5 * 1024 * 1024;
+const SOFT_WARN_BYTES_DEFAULT = 500 * 1024;
 
 /**
  * Processes an SNS notification message providing dataset validation results
@@ -212,6 +216,18 @@ function requiredEnv(name: string): string {
   return value;
 }
 
+function getHardCapBytes(): number {
+  return Number(
+    process.env.VALIDATION_RESULT_HARD_CAP_BYTES ?? HARD_CAP_BYTES_DEFAULT,
+  );
+}
+
+function getSoftWarnBytes(): number {
+  return Number(
+    process.env.VALIDATION_RESULT_SOFT_WARN_BYTES ?? SOFT_WARN_BYTES_DEFAULT,
+  );
+}
+
 /**
  * Attempt to load and validate validation results from the S3 claim check
  * object corresponding to the given inline SNS-derived results. The
@@ -267,6 +283,17 @@ async function loadValidationResultsClaimCheck(
     };
   }
 
+  try {
+    validateClaimCheckJsonSize(body, bucket, key, fileId);
+  } catch (e) {
+    return {
+      bucket,
+      error: e,
+      key,
+      outcome: "error",
+    };
+  }
+
   let results: DatasetValidatorResults;
   try {
     results = await parseAndValidateValidationResults(
@@ -302,6 +329,35 @@ async function loadValidationResultsClaimCheck(
     outcome: "success",
     results,
   };
+}
+
+/**
+ * Size cap defense: bail before JSON.parse to avoid OOM (a 50 MB JSON string can require ~8x the heap to parse).
+ * Throw an error if the JSON size exceeds the hard cap, and log a warning if it exceeds the soft threshold.
+ * @param jsonText - Claim check JSON text to validate the size of.
+ * @param bucket - Bucket of the claim check object.
+ * @param key - Key of the claim check object.
+ * @param fileId - ID of the file that the claim check holds validation results for.
+ */
+function validateClaimCheckJsonSize(
+  jsonText: string,
+  bucket: string,
+  key: string,
+  fileId: string,
+): void {
+  const bodySize = Buffer.byteLength(jsonText, "utf8");
+  const hardCapBytes = getHardCapBytes();
+  if (bodySize > hardCapBytes) {
+    throw new Error(
+      `Validation result payload exceeded size limit (${formatFileSize(bodySize)} / ${formatFileSize(hardCapBytes)}). Bucket: ${bucket}, Key: ${key}. Object preserved for inspection; size review needed before reprocessing.`,
+    );
+  }
+  const softWarnBytes = getSoftWarnBytes();
+  if (bodySize > softWarnBytes) {
+    console.warn(
+      `Validation result payload size ${formatFileSize(bodySize)} exceeds soft warning threshold ${formatFileSize(softWarnBytes)} (hard cap ${formatFileSize(hardCapBytes)}) for file ${fileId} (s3://${bucket}/${key}).`,
+    );
+  }
 }
 
 /**

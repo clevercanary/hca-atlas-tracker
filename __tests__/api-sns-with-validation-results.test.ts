@@ -989,6 +989,185 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         }
       },
     );
+
+    describe("payload size limit", () => {
+      let originalHardCap: string | undefined;
+      let originalSoftWarn: string | undefined;
+
+      beforeEach(() => {
+        originalHardCap = process.env.VALIDATION_RESULT_HARD_CAP_BYTES;
+        originalSoftWarn = process.env.VALIDATION_RESULT_SOFT_WARN_BYTES;
+      });
+
+      afterEach(() => {
+        if (originalHardCap === undefined)
+          delete process.env.VALIDATION_RESULT_HARD_CAP_BYTES;
+        else process.env.VALIDATION_RESULT_HARD_CAP_BYTES = originalHardCap;
+        if (originalSoftWarn === undefined)
+          delete process.env.VALIDATION_RESULT_SOFT_WARN_BYTES;
+        else process.env.VALIDATION_RESULT_SOFT_WARN_BYTES = originalSoftWarn;
+      });
+
+      it("rejects payload exceeding hard cap without parsing JSON", async () => {
+        process.env.VALIDATION_RESULT_HARD_CAP_BYTES = "50";
+
+        const snsMessageId = "sns-message-hard-cap";
+        const snsMessageTime = "2025-10-15T09:00:00.000Z";
+        const batchJobId = "batch-job-hard-cap";
+        const validationTime = "2025-10-15T08:50:00.000Z";
+
+        // Non-JSON body larger than the hard cap. If `JSON.parse` ran, the
+        // test would surface a JSON-parse error message instead of the
+        // size-limit message we assert below.
+        const oversizedBody = "x".repeat(200);
+        mockClaimCheckObjectBody(oversizedBody);
+
+        const validationMetadata = createValidationResultsMetadata({
+          batchJobId,
+          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+          key: getTestFileKey(
+            FILE_SOURCE_DATASET_FOOBAR,
+            FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+          ),
+          timestamp: validationTime,
+        });
+        const snsMessage = createSNSMessage({
+          message: validationMetadata,
+          messageId: snsMessageId,
+          timestamp: snsMessageTime,
+          topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+        });
+
+        const res = await doSnsRequest(snsMessage, true);
+
+        expect(res.statusCode).toEqual(200);
+        expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(1);
+        expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+
+        const file = await getFileFromDatabase(FILE_SOURCE_DATASET_FOOBAR.id);
+        expect(file?.dataset_info).toBeNull();
+        expect(file?.integrity_checked_at?.toISOString()).toEqual(
+          validationTime,
+        );
+        expect(file?.integrity_status).toEqual(INTEGRITY_STATUS.PENDING);
+        expect(file?.validation_info).toEqual({
+          batchJobId,
+          errorMessage: expect.stringContaining(
+            "Validation result payload exceeded size limit",
+          ),
+          snsMessageId,
+          snsMessageTime,
+        });
+        expect(file?.validation_info?.errorMessage).toEqual(
+          expect.stringContaining("200 B"),
+        );
+        expect(file?.validation_info?.errorMessage).toEqual(
+          expect.stringContaining("50 B"),
+        );
+        expect(file?.validation_info?.errorMessage).toEqual(
+          expect.stringContaining("Object preserved for inspection"),
+        );
+        expect(file?.validation_reports).toBeNull();
+        expect(file?.validation_status).toEqual(
+          FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
+        );
+        expect(file?.validation_summary).toBeNull();
+      });
+
+      it("logs warning but proceeds for payload between soft and hard caps", async () => {
+        process.env.VALIDATION_RESULT_SOFT_WARN_BYTES = "100";
+
+        const snsMessageId = "sns-message-soft-warn";
+        const snsMessageTime = "2025-10-15T11:00:00.000Z";
+        const batchJobId = "batch-job-soft-warn";
+        const validationTime = "2025-10-15T10:50:00.000Z";
+
+        const validationMetadata = initValidationResults({
+          batchJobId,
+          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+          integrityStatus: INTEGRITY_STATUS.VALID,
+          key: getTestFileKey(
+            FILE_SOURCE_DATASET_FOOBAR,
+            FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+          ),
+          metadata: null,
+          timestamp: validationTime,
+        });
+        const snsMessage = createSNSMessage({
+          message: validationMetadata,
+          messageId: snsMessageId,
+          timestamp: snsMessageTime,
+          topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+        });
+
+        const warnMessages: unknown[][] = [];
+        const res = await doSnsRequest(snsMessage, true, {
+          warn: warnMessages,
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(1);
+
+        expect(
+          warnMessages.some((args) =>
+            args.some((arg) =>
+              String(arg).includes("exceeds soft warning threshold"),
+            ),
+          ),
+        ).toBe(true);
+
+        const file = await getFileFromDatabase(FILE_SOURCE_DATASET_FOOBAR.id);
+        expect(file?.validation_status).toEqual(
+          FILE_VALIDATION_STATUS.COMPLETED,
+        );
+      });
+
+      it("does not log size warning for payload below soft threshold", async () => {
+        const snsMessageId = "sns-message-below-soft";
+        const snsMessageTime = "2025-10-15T13:00:00.000Z";
+        const batchJobId = "batch-job-below-soft";
+        const validationTime = "2025-10-15T12:50:00.000Z";
+
+        const validationMetadata = initValidationResults({
+          batchJobId,
+          fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+          integrityStatus: INTEGRITY_STATUS.VALID,
+          key: getTestFileKey(
+            FILE_SOURCE_DATASET_FOOBAR,
+            FILE_SOURCE_DATASET_FOOBAR.resolvedAtlas,
+          ),
+          metadata: null,
+          timestamp: validationTime,
+        });
+        const snsMessage = createSNSMessage({
+          message: validationMetadata,
+          messageId: snsMessageId,
+          timestamp: snsMessageTime,
+          topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+        });
+
+        const warnMessages: unknown[][] = [];
+        const res = await doSnsRequest(snsMessage, true, {
+          warn: warnMessages,
+        });
+
+        expect(res.statusCode).toEqual(200);
+        expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(1);
+
+        expect(
+          warnMessages.some((args) =>
+            args.some((arg) =>
+              String(arg).includes("exceeds soft warning threshold"),
+            ),
+          ),
+        ).toBe(false);
+
+        const file = await getFileFromDatabase(FILE_SOURCE_DATASET_FOOBAR.id);
+        expect(file?.validation_status).toEqual(
+          FILE_VALIDATION_STATUS.COMPLETED,
+        );
+      });
+    });
   });
 });
 
