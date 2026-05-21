@@ -228,17 +228,17 @@ function requiredEnv(name: string): string {
  * misconfiguration is visible in CloudWatch even though it doesn't block
  * processing.
  *
- * @param inlineResults - Validation results parsed from the SNS message.
+ * @param validationMetadata - Validation results parsed from the SNS message.
  * @returns Loaded claim check (bucket, key, validated results), or error result
  *   (bucket if available, key, error, optional description of error context) if
  *   any failure occurred and the caller should save an error result.
  */
 async function loadValidationResultsClaimCheck(
-  inlineResults: DatasetValidatorResultsMetadata,
+  validationMetadata: DatasetValidatorResultsMetadata,
 ): Promise<ValidationResultsClaimCheck | ValidationResultsClaimCheckError> {
-  const fileId = inlineResults.file_id;
+  const fileId = validationMetadata.file_id;
 
-  const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
+  const key = `validation-metadata/${fileId}/${validationMetadata.batch_job_id}.json`;
 
   let bucket: string;
   try {
@@ -285,7 +285,7 @@ async function loadValidationResultsClaimCheck(
   }
 
   try {
-    confirmValidationResultsMatchMetadata(results, inlineResults);
+    confirmValidationResultsMatchMetadata(results, validationMetadata);
   } catch (e) {
     return {
       bucket,
