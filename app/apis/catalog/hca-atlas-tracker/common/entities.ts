@@ -20,13 +20,13 @@ export interface HCAAtlasTrackerAtlasSummary {
 }
 
 export interface HCAAtlasTrackerLinkedAtlasSummary {
+  generation: number;
   id: string;
   isImported: boolean;
   isLatest: boolean;
-  name: string;
   network: NetworkKey;
+  revision: number;
   shortName: string;
-  version: string;
 }
 
 export type HCAAtlasTrackerListAtlas = Omit<

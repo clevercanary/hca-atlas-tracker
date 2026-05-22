@@ -115,13 +115,13 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
           s.study_info,
           ARRAY_AGG(
             jsonb_build_object(
+              'generation', a.generation,
               'id', a.id,
               'isImported', FALSE, -- TODO: update this when importing is possible
               'isLatest', a.revision = a.max_revision,
-              'name', concat(a.overview->>'shortName', ' v', a.generation, '.', a.revision),
               'network', a.overview->>'network',
-              'shortName', a.overview->>'shortName',
-              'version', concat(a.generation, '.', a.revision)
+              'revision', a.revision,
+              'shortName', a.overview->>'shortName'
             )
           ) as atlases
         FROM hat.source_datasets d

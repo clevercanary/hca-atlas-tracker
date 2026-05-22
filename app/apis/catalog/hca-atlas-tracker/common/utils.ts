@@ -78,8 +78,16 @@ export function atlasInputMapper(
   };
 }
 
-export function getAtlasName(atlas: HCAAtlasTrackerAtlas): string {
-  return `${atlas.shortName} v${atlas.generation}.${atlas.revision}`;
+export function getAtlasName(
+  atlas: Pick<HCAAtlasTrackerAtlas, "shortName" | "generation" | "revision">,
+): string {
+  return `${atlas.shortName} v${getAtlasVersion(atlas)}`;
+}
+
+export function getAtlasVersion(
+  atlas: Pick<HCAAtlasTrackerAtlas, "generation" | "revision">,
+): string {
+  return `${atlas.generation}.${atlas.revision}`;
 }
 
 export function getAtlasGenerationName(atlas: HCAAtlasTrackerAtlas): string {
@@ -276,7 +284,7 @@ export function getLatestHomeAtlas(
 ): HCAAtlasTrackerLinkedAtlasSummary {
   const sortedHomeAtlasVersions = linkedAtlases
     .filter((atlas) => !atlas.isImported)
-    .sort((a, b) => b.version.localeCompare(a.version)); // TODO properly compare revision
+    .sort((a, b) => b.revision - a.revision);
   if (sortedHomeAtlasVersions.length === 0)
     throw new Error("No home atlas found in linked atlases");
   return sortedHomeAtlasVersions[0];
@@ -300,9 +308,9 @@ export function getLinkedAtlasFieldArrays(
   const versions = new Set<string>();
   const networks = new Set<NetworkKey>();
   for (const atlas of atlases) {
-    names.add(atlas.name);
+    names.add(getAtlasName(atlas));
     shortNames.add(atlas.shortName);
-    versions.add(atlas.version);
+    versions.add(getAtlasVersion(atlas));
     networks.add(atlas.network);
   }
   return {
