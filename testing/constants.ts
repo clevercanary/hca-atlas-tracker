@@ -2958,6 +2958,64 @@ export const SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES = {
   versionId: "30bd5051-9b85-4ab0-9924-f1c765817fa2",
 } satisfies TestSourceDataset;
 
+const BASE_FILE_SOURCE_DATASET_DRAFT_LATEST_DIFFERENT = {
+  bucket: "bucket-source-dataset-draft-latest-different",
+  fileName: "source-dataset-draft-latest-different.h5ad",
+  fileType: FILE_TYPE.SOURCE_DATASET,
+} satisfies Partial<TestFile>;
+const SOURCE_DATASET_ID_DRAFT_LATEST_DIFFERENT =
+  "8e2c2f49-1558-48a1-b44f-992551d95b2a";
+export const SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R1 = {
+  file: {
+    ...BASE_FILE_SOURCE_DATASET_DRAFT_LATEST_DIFFERENT,
+    atlas: (): TestAtlas => ATLAS_WITH_DRAFT_LATEST_R0,
+    etag: "df9c61ac1cc04a0cb550c8e8472234cb",
+    eventTime: "2026-05-22T20:21:12.402Z",
+    id: "92834de4-6e41-450e-987f-abde23d5955d",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "62821",
+    versionId: null,
+  },
+  id: SOURCE_DATASET_ID_DRAFT_LATEST_DIFFERENT,
+  publishedAt: "2026-05-22T20:37:52.402Z",
+  revision: 1,
+  versionId: "8f4361ba-a5e4-499c-a5d8-92a0fea03033",
+} satisfies TestSourceDataset;
+export const SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R2 = {
+  file: {
+    ...BASE_FILE_SOURCE_DATASET_DRAFT_LATEST_DIFFERENT,
+    atlas: (): TestAtlas => ATLAS_WITH_DRAFT_LATEST_R1,
+    etag: "86fdc9cad1484e06b9241828fd625468",
+    eventTime: "2026-05-22T20:54:32.402Z",
+    id: "58283b5e-9580-4d71-b2d3-3486006c3674",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "16030",
+    versionId: null,
+  },
+  id: SOURCE_DATASET_ID_DRAFT_LATEST_DIFFERENT,
+  publishedAt: null,
+  revision: 2,
+  versionId: "12f74d10-02aa-42c0-ade6-de0d9c7ed605",
+} satisfies TestSourceDataset;
+
+export const SOURCE_DATASET_DRAFT_LATEST_SAME = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_DRAFT_LATEST_R1,
+    bucket: "bucket-source-dataset-draft-latest-same",
+    etag: "cae36aa46a574a3e9dc5ff51e45a7387",
+    eventTime: "2026-05-22T21:11:12.402Z",
+    fileName: "source-dataset-draft-latest-same.h5ad",
+    fileType: FILE_TYPE.SOURCE_DATASET,
+    id: "bfe5ec37-6231-4cbb-9cb9-ecde4495208d",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "34288",
+    versionId: null,
+  },
+  id: SOURCE_DATASET_ID_DRAFT_LATEST_DIFFERENT,
+  publishedAt: "2026-05-22T21:27:52.402Z",
+  versionId: "12280a3e-4edc-47d4-bb1b-5129fa4cc50f",
+} satisfies TestSourceDataset;
+
 // Source datasets intitialized in the database before tests
 export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_FOO,
@@ -3014,6 +3072,9 @@ export const INITIAL_TEST_SOURCE_DATASETS: TestSourceDataset[] = [
   SOURCE_DATASET_STUDY_LINKED_ENTITIES_BAR_B,
   SOURCE_DATASET_PUBLISHED,
   SOURCE_DATASET_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
+  SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R1,
+  SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R2,
+  SOURCE_DATASET_DRAFT_LATEST_SAME,
 ];
 
 // ATLAS IDS
@@ -4615,7 +4676,6 @@ const BASE_ATLAS_WITH_DRAFT_LATEST = {
   network: "lung",
   publications: [],
   shortName: "test-with-draft-latest",
-  sourceDatasets: [],
   sourceStudies: [],
   status: ATLAS_STATUS.IN_PROGRESS,
   wave: "3",
@@ -4625,12 +4685,20 @@ export const ATLAS_WITH_DRAFT_LATEST_R0: TestAtlas = {
   id: ATLAS_ID_WITH_DRAFT_LATEST_R0,
   publishedAt: "2026-03-25T21:36:09.268Z",
   revision: 0,
+  sourceDatasets: [
+    SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R1.versionId,
+    SOURCE_DATASET_DRAFT_LATEST_SAME.versionId,
+  ],
 };
 export const ATLAS_WITH_DRAFT_LATEST_R1: TestAtlas = {
   ...BASE_ATLAS_WITH_DRAFT_LATEST,
   id: ATLAS_ID_WITH_DRAFT_LATEST_R1,
   publishedAt: null,
   revision: 1,
+  sourceDatasets: [
+    SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R2.versionId,
+    SOURCE_DATASET_DRAFT_LATEST_SAME.versionId,
+  ],
 };
 
 export const ATLAS_NONEXISTENT = {
