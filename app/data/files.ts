@@ -500,6 +500,18 @@ export async function getLastValidationTimestamp(
   return result.rows[0].integrity_checked_at;
 }
 
+export interface AddValidationResultsToFileParams {
+  client: pg.PoolClient;
+  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
+  fileId: string;
+  integrityStatus: INTEGRITY_STATUS;
+  validatedAt: Date;
+  validationInfo: HCAAtlasTrackerDBFileValidationInfo;
+  validationReports: FileValidationReports | null;
+  validationStatus: FILE_VALIDATION_STATUS;
+  validationSummary: FileValidationSummary | null;
+}
+
 /**
  * Add info from validation results to a file record.
  * @param params - Parameters.
@@ -513,17 +525,9 @@ export async function getLastValidationTimestamp(
  * @param params.validationStatus - Status of validation.
  * @param params.validationSummary - Summary of validation reports.
  */
-export async function addValidationResultsToFile(params: {
-  client: pg.PoolClient;
-  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
-  fileId: string;
-  integrityStatus: INTEGRITY_STATUS;
-  validatedAt: Date;
-  validationInfo: HCAAtlasTrackerDBFileValidationInfo;
-  validationReports: FileValidationReports | null;
-  validationStatus: FILE_VALIDATION_STATUS;
-  validationSummary: FileValidationSummary | null;
-}): Promise<void> {
+export async function addValidationResultsToFile(
+  params: AddValidationResultsToFileParams,
+): Promise<void> {
   const {
     client,
     datasetInfo,
@@ -546,7 +550,9 @@ export async function addValidationResultsToFile(params: {
         validation_status = $5,
         validation_reports = $6,
         validation_summary = $7
-      WHERE id = $8
+      -- To avoid saving results for a message that has already been received,
+      -- don't update a file record if its existing SNS message ID is the same as the new one
+      WHERE id = $8 AND validation_info->>'snsMessageId' IS DISTINCT FROM $9
     `,
     [
       integrityStatus,
@@ -557,6 +563,7 @@ export async function addValidationResultsToFile(params: {
       JSON.stringify(validationReports),
       JSON.stringify(validationSummary),
       fileId,
+      validationInfo.snsMessageId,
     ],
   );
 }

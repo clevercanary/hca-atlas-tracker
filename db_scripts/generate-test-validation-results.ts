@@ -29,9 +29,20 @@ import { toolReportsToValidationReportsAndSummary } from "../app/services/valida
  * added to them.
  */
 
+// Probability of failed validation (of various types) vs. successful validation containing tool reports etc.
 const FAILED_VALIDATION_PROBABILITY = 0.5;
-const JOB_ERROR_PROBABILITY = 0.5;
+
+// Probabilities of failure types, with the remaining possibility being an integrity failure
+const JOB_ERROR_PROBABILITY = 0.4;
+const CLAIM_CHECK_ERROR_PROBABILITY = 0.3;
+
+// Probability of an integrity failure being an error vs. invalid
+const INTEGRITY_ERROR_PROBABILITY = 0.5;
+
+// Probability of successful results having a failed request on top of them
 const FAILED_REQUEST_PROBABILITY = 0.2;
+
+// Probability of all tool reports being valid
 const OVERALL_VALID_PROBABILITY = 0.5;
 
 // (Below use uninclusive max)
@@ -48,11 +59,12 @@ const MAX_ARRAY_LENGTH = 6;
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
 interface SuccessRelatedFields {
-  dataset_info: HCAAtlasTrackerDBFileDatasetInfo | null;
-  integrity_status: INTEGRITY_STATUS;
-  validation_reports: FileValidationReports | null;
-  validation_status: FILE_VALIDATION_STATUS;
-  validation_summary: FileValidationSummary | null;
+  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
+  errorMessage?: string;
+  integrityStatus: INTEGRITY_STATUS;
+  validationReports: FileValidationReports | null;
+  validationStatus: FILE_VALIDATION_STATUS;
+  validationSummary: FileValidationSummary | null;
 }
 
 generateAndAddValidationResults();
@@ -94,36 +106,70 @@ async function addValidationResultsToFiles(
     }
     const validationInfo: HCAAtlasTrackerDBFileValidationInfo = {
       batchJobId: `test-batch-job-${crypto.randomUUID()}`,
+      errorMessage: successRelatedFields.errorMessage,
       snsMessageId: `test-sns-message-${crypto.randomUUID()}`,
       snsMessageTime: validatedAt.toISOString(),
     };
     await addValidationResultsToFile({
       client,
-      datasetInfo: successRelatedFields.dataset_info,
+      datasetInfo: successRelatedFields.datasetInfo,
       fileId,
-      integrityStatus: successRelatedFields.integrity_status,
+      integrityStatus: successRelatedFields.integrityStatus,
       validatedAt,
       validationInfo,
-      validationReports: successRelatedFields.validation_reports,
-      validationStatus: successRelatedFields.validation_status,
-      validationSummary: successRelatedFields.validation_summary,
+      validationReports: successRelatedFields.validationReports,
+      validationStatus: successRelatedFields.validationStatus,
+      validationSummary: successRelatedFields.validationSummary,
     });
   }
 }
 
 function getFailedValidationFields(): SuccessRelatedFields {
-  const isJobError = Math.random() < JOB_ERROR_PROBABILITY;
-  return {
-    dataset_info: null,
-    integrity_status: isJobError
-      ? INTEGRITY_STATUS.ERROR
-      : INTEGRITY_STATUS.INVALID,
-    validation_reports: null,
-    validation_status: isJobError
-      ? FILE_VALIDATION_STATUS.JOB_FAILED
-      : FILE_VALIDATION_STATUS.COMPLETED,
-    validation_summary: null,
-  };
+  let errorTypeSource = Math.random();
+
+  if (errorTypeSource < JOB_ERROR_PROBABILITY) {
+    return {
+      datasetInfo: null,
+      errorMessage: "Error in dataset validator",
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      validationReports: null,
+      validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
+      validationSummary: null,
+    };
+  }
+  errorTypeSource -= JOB_ERROR_PROBABILITY;
+
+  if (errorTypeSource < CLAIM_CHECK_ERROR_PROBABILITY) {
+    return {
+      datasetInfo: null,
+      errorMessage: "Error while reading claim check",
+      integrityStatus: INTEGRITY_STATUS.PENDING,
+      validationReports: null,
+      validationStatus: FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
+      validationSummary: null,
+    };
+  }
+
+  if (Math.random() < INTEGRITY_ERROR_PROBABILITY) {
+    return {
+      datasetInfo: null,
+      errorMessage:
+        "No source SHA256 metadata found - cannot validate file integrity",
+      integrityStatus: INTEGRITY_STATUS.ERROR,
+      validationReports: null,
+      validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
+      validationSummary: null,
+    };
+  } else {
+    return {
+      datasetInfo: null,
+      errorMessage: "File integrity verification failed",
+      integrityStatus: INTEGRITY_STATUS.INVALID,
+      validationReports: null,
+      validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+      validationSummary: null,
+    };
+  }
 }
 
 function getSuccessfulValidationFields(
@@ -133,7 +179,7 @@ function getSuccessfulValidationFields(
   const key = fileKeysById.get(fileId);
   const [validationReports, validationSummary] = makeValidationReports();
   return {
-    dataset_info: {
+    datasetInfo: {
       assay: generateArray("assay"),
       cellCount:
         Math.floor(Math.random() * (MAX_CELL_COUNT - MIN_CELL_COUNT)) +
@@ -146,13 +192,13 @@ function getSuccessfulValidationFields(
       tissue: generateArray("tissue"),
       title: `Test ${(key && key.split("/").pop()) || fileId}`,
     },
-    integrity_status: INTEGRITY_STATUS.VALID,
-    validation_reports: validationReports,
-    validation_status:
+    integrityStatus: INTEGRITY_STATUS.VALID,
+    validationReports: validationReports,
+    validationStatus:
       Math.random() < FAILED_REQUEST_PROBABILITY
         ? FILE_VALIDATION_STATUS.REQUEST_FAILED
         : FILE_VALIDATION_STATUS.COMPLETED,
-    validation_summary: validationSummary,
+    validationSummary: validationSummary,
   };
 }
 

@@ -1,6 +1,8 @@
 import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DatasetValidatorResults,
+  DatasetValidatorResultsMetadata,
+  datasetValidatorResultsMetadataSchema,
   datasetValidatorResultsSchema,
   DatasetValidatorToolReports,
   SNSMessage,
@@ -16,6 +18,7 @@ import {
 import { validateS3BucketAuthorization } from "../config/aws-resources";
 import {
   addValidationResultsToFile,
+  AddValidationResultsToFileParams,
   getLastValidationTimestamp,
 } from "../data/files";
 import { ConflictError, InvalidOperationError } from "../utils/api-errors";
@@ -35,34 +38,45 @@ const REQUIRED_MATCHING_METADATA_KEYS = [
 ] as const;
 
 /**
- * Processes an SNS notification message containing dataset validation results
- * @param snsMessage - The authorized SNS message containing validation results
- * @throws InvalidOperationError if the SNS message doesn't contain a valid validation results message
+ * Processes an SNS notification message providing dataset validation results
+ * @param snsMessage - The authorized SNS message containing validation metadata and pointer to validation results
+ * @throws InvalidOperationError if the SNS message doesn't contain a valid validation results metadata message
  */
 export async function processValidationResultsMessage(
   snsMessage: SNSMessage,
 ): Promise<void> {
   // Parse and validate SNS message data
 
-  let validationResults = await parseAndValidateValidationResults(
+  const validationMetadata = await parseAndValidateValidationResults(
     snsMessage.Message,
     `SNS message ${snsMessage.MessageId}`,
+    (data) => datasetValidatorResultsMetadataSchema.validate(data),
   );
 
-  // Attempt to load the validation results from the S3 claim check, falling
-  // back to the inline SNS data if the object is missing or unusable.
+  // Attempt to load the validation results metadata from the S3 claim check, saving
+  // an error result if the object is missing or unusable.
 
-  const claimCheck = await loadValidationResultsClaimCheck(validationResults);
-  if (claimCheck) validationResults = claimCheck.results;
+  const claimCheck = await loadValidationResultsClaimCheck(validationMetadata);
+
+  if (claimCheck.outcome === "error") {
+    await saveClaimCheckErrorResult(claimCheck, validationMetadata, snsMessage);
+    return;
+  }
+
+  const validationResults = claimCheck.results;
 
   // Save validation results
 
-  const s3Uri = `s3://${validationResults.bucket}/${validationResults.key}`;
+  const s3Uri = getS3UriFromValidationResults(validationResults);
 
   const fileId = validationResults.file_id;
   const newValidationTime = new Date(validationResults.timestamp);
   const datasetInfo = getDatasetInfoFromValidationResults(validationResults);
-  const validationInfo = getValidationInfo(validationResults, snsMessage);
+  const validationInfo = getValidationInfo(
+    validationResults,
+    snsMessage,
+    validationResults.error_message,
+  );
   const validationStatus =
     validationResults.status === "success"
       ? FILE_VALIDATION_STATUS.COMPLETED
@@ -72,49 +86,124 @@ export async function processValidationResultsMessage(
   const [validationReports, validationSummary] =
     getValidationReportsAndSummary(validationResults);
 
-  await doTransaction(async (client) => {
-    const lastValidationTime = await getLastValidationTimestamp(fileId, client);
-
-    if (lastValidationTime && newValidationTime < lastValidationTime) {
-      throw new ConflictError(
-        `Newer validation results already exist for file with ID ${fileId} (${s3Uri}); received time was ${newValidationTime}`,
-      );
-    }
-
-    await addValidationResultsToFile({
-      client,
-      datasetInfo,
-      fileId,
-      integrityStatus:
-        validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
-      validatedAt: newValidationTime,
-      validationInfo,
-      validationReports,
-      validationStatus,
-      validationSummary,
-    });
+  await saveValidationResults({
+    datasetInfo,
+    fileId,
+    integrityStatus:
+      validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
+    s3Uri,
+    validatedAt: newValidationTime,
+    validationInfo,
+    validationReports,
+    validationStatus,
+    validationSummary,
   });
 
   console.log(
     `Saved validation results from ${newValidationTime} for file ${fileId} (${s3Uri}), setting status to ${validationStatus}`,
   );
 
-  if (claimCheck) {
-    try {
-      await deleteObject(claimCheck.bucket, claimCheck.key);
-    } catch (e) {
-      console.error(
-        `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}:`,
-        e,
+  // Since claim check errors are handled earlier and exit the function, this will only run if the claim check is successful
+  try {
+    await deleteObject(claimCheck.bucket, claimCheck.key);
+  } catch (e) {
+    console.error(
+      `Failed to delete S3 claim check s3://${claimCheck.bucket}/${claimCheck.key} for file ${fileId}:`,
+      e,
+    );
+  }
+}
+
+/**
+ * Save an error result originating from a claim check failure to the associated file entry.
+ * @param claimCheck - Claim check error result.
+ * @param validationMetadata - Validation results metadata from the SNS message.
+ * @param snsMessage - SNS message.
+ */
+async function saveClaimCheckErrorResult(
+  claimCheck: ValidationResultsClaimCheckError,
+  validationMetadata: DatasetValidatorResultsMetadata,
+  snsMessage: SNSMessage,
+): Promise<void> {
+  console.error(
+    `Saving error result for claim check located at s3://${claimCheck.bucket ?? "<unknown bucket>"}/${claimCheck.key}:`,
+    ...(claimCheck.errorDescription ? [claimCheck.errorDescription + ":"] : []),
+    claimCheck.error,
+  );
+
+  await saveValidationResults({
+    datasetInfo: null,
+    fileId: validationMetadata.file_id,
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    s3Uri: getS3UriFromValidationResults(validationMetadata),
+    validatedAt: new Date(validationMetadata.timestamp),
+    validationInfo: getValidationInfo(
+      validationMetadata,
+      snsMessage,
+      (claimCheck.errorDescription ? claimCheck.errorDescription + ": " : "") +
+        String(claimCheck.error),
+    ),
+    validationReports: null,
+    validationStatus: FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
+    validationSummary: null,
+  });
+}
+
+/**
+ * Get the S3 URI of the file that was validated for the given validation results/metadata.
+ * @param validationResults - Object containing validation results metadata.
+ * @returns S3 URI of the associated file.
+ */
+function getS3UriFromValidationResults(
+  validationResults: DatasetValidatorResultsMetadata,
+): string {
+  return `s3://${validationResults.bucket}/${validationResults.key}`;
+}
+
+interface SaveValidationResultsParams extends Omit<
+  AddValidationResultsToFileParams,
+  "client"
+> {
+  s3Uri: string;
+}
+
+/**
+ * Add validation results to the associated file, ensuring that no newer results have already been saved.
+ * @param params - Parameters for `addValidationResultsToFile`, plus `s3Uri` for the file that was validated.
+ */
+async function saveValidationResults(
+  params: SaveValidationResultsParams,
+): Promise<void> {
+  const { s3Uri, ...addResultsParams } = params;
+  await doTransaction(async (client) => {
+    const lastValidationTime = await getLastValidationTimestamp(
+      params.fileId,
+      client,
+    );
+
+    if (lastValidationTime && params.validatedAt < lastValidationTime) {
+      throw new ConflictError(
+        `Newer validation results already exist for file with ID ${params.fileId} (${s3Uri}); received time was ${params.validatedAt}`,
       );
     }
-  }
+
+    await addValidationResultsToFile({ client, ...addResultsParams });
+  });
 }
 
 interface ValidationResultsClaimCheck {
   bucket: string;
   key: string;
+  outcome: "success";
   results: DatasetValidatorResults;
+}
+
+interface ValidationResultsClaimCheckError {
+  bucket: string | null;
+  error: unknown;
+  errorDescription?: string;
+  key: string;
+  outcome: "error";
 }
 
 function requiredEnv(name: string): string {
@@ -131,45 +220,51 @@ function requiredEnv(name: string): string {
  * and validated against `AWS_RESOURCE_CONFIG.s3_buckets` before any S3
  * operation. The key is constructed from `file_id` and `batch_job_id`.
  *
- * Every failure mode returns `null` so the caller falls back to the inline
- * SNS data. This includes deployment misconfiguration (env var unset, bucket
+ * Every failure mode returns an error result so the caller can save it to the
+ * file entry. This includes deployment misconfiguration (env var unset, bucket
  * not in `AWS_RESOURCE_CONFIG.s3_buckets`) as well as runtime failures (S3
  * fetch error, schema-invalid payload, metadata mismatch with the SNS
- * message). All failures are logged so misconfiguration is visible in
- * CloudWatch even though it doesn't block processing.
+ * message). The caller is responsible for logging errors to ensure that
+ * misconfiguration is visible in CloudWatch even though it doesn't block
+ * processing.
  *
- * @param inlineResults - Validation results parsed from the SNS message.
- * @returns Loaded claim check (bucket, key, validated results), or null if
- *   any failure occurred and the caller should fall back to inline data.
+ * @param validationMetadata - Validation results parsed from the SNS message.
+ * @returns Loaded claim check (bucket, key, validated results), or error result
+ *   (bucket if available, key, error, optional description of error context) if
+ *   any failure occurred and the caller should save an error result.
  */
 async function loadValidationResultsClaimCheck(
-  inlineResults: DatasetValidatorResults,
-): Promise<ValidationResultsClaimCheck | null> {
-  const fileId = inlineResults.file_id;
+  validationMetadata: DatasetValidatorResultsMetadata,
+): Promise<ValidationResultsClaimCheck | ValidationResultsClaimCheckError> {
+  const fileId = validationMetadata.file_id;
+
+  const key = `validation-metadata/${fileId}/${validationMetadata.batch_job_id}.json`;
 
   let bucket: string;
   try {
     bucket = requiredEnv("AWS_VALIDATION_RESULTS_BUCKET");
     validateS3BucketAuthorization(bucket);
   } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId} (claim-check bucket misconfiguration):`,
-      e,
-    );
-    return null;
+    return {
+      bucket: null,
+      error: e,
+      errorDescription: "Claim-check bucket misconfiguration",
+      key,
+      outcome: "error",
+    };
   }
-
-  const key = `validation-metadata/${fileId}/${inlineResults.batch_job_id}.json`;
 
   let body: string;
   try {
     body = await getObjectAsString(bucket, key);
   } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
-      e,
-    );
-    return null;
+    return {
+      bucket,
+      error: e,
+      errorDescription: "Failed to read S3 object",
+      key,
+      outcome: "error",
+    };
   }
 
   let results: DatasetValidatorResults;
@@ -177,24 +272,36 @@ async function loadValidationResultsClaimCheck(
     results = await parseAndValidateValidationResults(
       body,
       `S3 claim check s3://${bucket}/${key}`,
+      (data) => datasetValidatorResultsSchema.validate(data),
     );
   } catch (e) {
-    console.error(`Falling back to inline SNS for file ${fileId}:`, e);
-    return null;
+    return {
+      bucket,
+      error: e,
+      errorDescription: "Failed to parse valid data from JSON",
+      key,
+      outcome: "error",
+    };
   }
 
   try {
-    confirmValidationResultsMatchMetadata(results, inlineResults);
+    confirmValidationResultsMatchMetadata(results, validationMetadata);
   } catch (e) {
-    console.error(
-      `Falling back to inline SNS for file ${fileId} (results location s3://${bucket}/${key}):`,
-      e,
-    );
-    return null;
+    return {
+      bucket,
+      error: e,
+      key,
+      outcome: "error",
+    };
   }
 
-  console.log(`Using S3 claim check for file ${fileId}`);
-  return { bucket, key, results };
+  console.log(`Loaded S3 claim check for file ${fileId}`);
+  return {
+    bucket,
+    key,
+    outcome: "success",
+    results,
+  };
 }
 
 /**
@@ -204,7 +311,7 @@ async function loadValidationResultsClaimCheck(
  */
 function confirmValidationResultsMatchMetadata(
   validationResults: DatasetValidatorResults,
-  resultsMetadata: DatasetValidatorResults,
+  resultsMetadata: DatasetValidatorResultsMetadata,
 ): void {
   for (const key of REQUIRED_MATCHING_METADATA_KEYS) {
     if (validationResults[key] !== resultsMetadata[key]) {
@@ -215,10 +322,13 @@ function confirmValidationResultsMatchMetadata(
   }
 }
 
-async function parseAndValidateValidationResults(
+async function parseAndValidateValidationResults<
+  T extends DatasetValidatorResultsMetadata,
+>(
   jsonText: string,
   sourceDescription: string,
-): Promise<DatasetValidatorResults> {
+  validate: (data: unknown) => Promise<T>,
+): Promise<T> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(jsonText);
@@ -228,10 +338,10 @@ async function parseAndValidateValidationResults(
     );
   }
 
-  let validationResults: DatasetValidatorResults;
+  let validationResults: T;
 
   try {
-    validationResults = await datasetValidatorResultsSchema.validate(parsed);
+    validationResults = await validate(parsed);
   } catch (e) {
     console.error(
       `Validation results from ${sourceDescription} contained invalid data: ${truncateJsonText(jsonText)}`,
@@ -251,10 +361,29 @@ async function parseAndValidateValidationResults(
   return validationResults;
 }
 
+function truncateErrorMessage(message: string, maxLength = 10000): string {
+  return truncateText(message, maxLength, "message");
+}
+
 function truncateJsonText(jsonText: string, maxLength = 3000): string {
-  return jsonText.length > maxLength
-    ? `${jsonText.substring(0, maxLength)} (remaining ${jsonText.length - maxLength} characters of JSON truncated)`
-    : jsonText;
+  return truncateText(jsonText, maxLength, "JSON");
+}
+
+/**
+ * Truncate a given string if it surpasses a given maximum length, appending a message if truncation occurs.
+ * @param text - Text to truncate.
+ * @param maxLength - Maximum length before truncation will happen.
+ * @param textDescription - Noun referring to the text to be length-limited, to use in the potential truncation message.
+ * @returns potentially-truncated text.
+ */
+function truncateText(
+  text: string,
+  maxLength: number,
+  textDescription: string,
+): string {
+  return text.length > maxLength
+    ? `${text.substring(0, maxLength)} (remaining ${text.length - maxLength} characters of ${textDescription} truncated)`
+    : text;
 }
 
 /**
@@ -282,14 +411,18 @@ function getDatasetInfoFromValidationResults(
  * Get validation metadata to be saved in a file record.
  * @param validationResults - Validation results to get info from.
  * @param snsMessage - SNS message to get info from.
+ * @param errorMessage - Error message, if present, to include in the validation info.
  * @returns - Validation info.
  */
 function getValidationInfo(
-  validationResults: DatasetValidatorResults,
+  validationResults: DatasetValidatorResultsMetadata,
   snsMessage: SNSMessage,
+  errorMessage: string | null,
 ): HCAAtlasTrackerDBFileValidationInfo {
   return {
     batchJobId: validationResults.batch_job_id,
+    errorMessage:
+      errorMessage === null ? undefined : truncateErrorMessage(errorMessage),
     snsMessageId: snsMessage.MessageId,
     snsMessageTime: snsMessage.Timestamp,
   };
