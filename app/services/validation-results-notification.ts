@@ -361,10 +361,29 @@ async function parseAndValidateValidationResults<
   return validationResults;
 }
 
+function truncateErrorMessage(message: string, maxLength = 10000): string {
+  return truncateText(message, maxLength, "message");
+}
+
 function truncateJsonText(jsonText: string, maxLength = 3000): string {
-  return jsonText.length > maxLength
-    ? `${jsonText.substring(0, maxLength)} (remaining ${jsonText.length - maxLength} characters of JSON truncated)`
-    : jsonText;
+  return truncateText(jsonText, maxLength, "JSON");
+}
+
+/**
+ * Truncate a given string if it surpasses a given maximum length, appending a message if truncation occurs.
+ * @param text - Text to truncate.
+ * @param maxLength - Maximum length before truncation will happen.
+ * @param textDescription - Noun referring to the text to be length-limited, to use in the potential truncation message.
+ * @returns potentially-truncated text.
+ */
+function truncateText(
+  text: string,
+  maxLength: number,
+  textDescription: string,
+): string {
+  return text.length > maxLength
+    ? `${text.substring(0, maxLength)} (remaining ${text.length - maxLength} characters of ${textDescription} truncated)`
+    : text;
 }
 
 /**
@@ -402,7 +421,8 @@ function getValidationInfo(
 ): HCAAtlasTrackerDBFileValidationInfo {
   return {
     batchJobId: validationResults.batch_job_id,
-    errorMessage: errorMessage ?? undefined,
+    errorMessage:
+      errorMessage === null ? undefined : truncateErrorMessage(errorMessage),
     snsMessageId: snsMessage.MessageId,
     snsMessageTime: snsMessage.Timestamp,
   };
