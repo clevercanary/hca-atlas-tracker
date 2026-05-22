@@ -37,10 +37,10 @@ export async function getDownloadUrl(
 }
 
 /**
- * Fetch the content length of an S3 object as a string.
+ * Fetch the content length of an S3 object as a number.
  * @param bucket - Bucket name.
  * @param key - Object key.
- * @returns Object content length.
+ * @returns Object content length in bytes.
  */
 export async function getObjectSize(
   bucket: string,
