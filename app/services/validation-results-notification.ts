@@ -221,15 +221,33 @@ function requiredEnv(name: string): string {
 }
 
 function getHardCapBytes(): number {
-  return Number(
-    process.env.VALIDATION_RESULT_HARD_CAP_BYTES ?? HARD_CAP_BYTES_DEFAULT,
+  return resolveSizeLimitEnvVar(
+    "VALIDATION_RESULT_HARD_CAP_BYTES",
+    HARD_CAP_BYTES_DEFAULT,
   );
 }
 
 function getSoftWarnBytes(): number {
-  return Number(
-    process.env.VALIDATION_RESULT_SOFT_WARN_BYTES ?? SOFT_WARN_BYTES_DEFAULT,
+  return resolveSizeLimitEnvVar(
+    "VALIDATION_RESULT_SOFT_WARN_BYTES",
+    SOFT_WARN_BYTES_DEFAULT,
   );
+}
+
+function resolveSizeLimitEnvVar(
+  envVarName: string,
+  defaultValue: number,
+): number {
+  const envVarValue = process.env[envVarName];
+  if (envVarValue !== undefined) {
+    const parsedValue = Number(envVarValue);
+    if (isNaN(parsedValue) || parsedValue <= 0) {
+      console.warn(`Invalid value for ${envVarName}: ${envVarValue}`);
+    } else {
+      return parsedValue;
+    }
+  }
+  return defaultValue;
 }
 
 /**
