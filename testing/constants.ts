@@ -3011,7 +3011,7 @@ export const SOURCE_DATASET_DRAFT_LATEST_SAME = {
     sizeBytes: "34288",
     versionId: null,
   },
-  id: SOURCE_DATASET_ID_DRAFT_LATEST_DIFFERENT,
+  id: "cf942a7e-2bdd-4803-a668-d55c7fc38123",
   publishedAt: "2026-05-22T21:27:52.402Z",
   versionId: "12280a3e-4edc-47d4-bb1b-5129fa4cc50f",
 } satisfies TestSourceDataset;
