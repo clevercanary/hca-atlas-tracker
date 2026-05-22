@@ -292,18 +292,25 @@ async function loadValidationResultsClaimCheck(
     };
   }
 
+  let claimCheckSize: number;
   try {
-    validateClaimCheckJsonSize(
-      await getObjectSize(bucket, key),
-      bucket,
-      key,
-      fileId,
-    );
+    claimCheckSize = await getObjectSize(bucket, key);
   } catch (e) {
     return {
       bucket,
       error: e,
-      errorDescription: "Error while getting or validating claim check size",
+      errorDescription: "Failed to get claim check size",
+      key,
+      outcome: "error",
+    };
+  }
+
+  try {
+    validateClaimCheckJsonSize(claimCheckSize, bucket, key, fileId);
+  } catch (e) {
+    return {
+      bucket,
+      error: e,
       key,
       outcome: "error",
     };
