@@ -24,6 +24,7 @@ setUpAwsConfig();
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   NoSuchKey,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -79,6 +80,12 @@ beforeEach(() => {
   s3Mock.reset();
   // Default: claim check object does not exist, so handler falls back to inline SNS data.
   s3Mock.on(GetObjectCommand).rejects(
+    new NoSuchKey({
+      $metadata: {},
+      message: "The specified key does not exist.",
+    }),
+  );
+  s3Mock.on(HeadObjectCommand).rejects(
     new NoSuchKey({
       $metadata: {},
       message: "The specified key does not exist.",
@@ -827,6 +834,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       description: string;
       expectedErrorContent: string;
       expectGetObject: boolean;
+      expectHeadObject?: true;
       setUp?: (
         metdataOptions: ValidationResultsMetadataOptions,
       ) => (() => void) | void;
@@ -834,8 +842,9 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     }>([
       {
         description: "S3 object is missing",
-        expectGetObject: true,
-        expectedErrorContent: "Failed to read S3 object:",
+        expectGetObject: false,
+        expectHeadObject: true,
+        expectedErrorContent: "The specified key does not exist",
         // No setup; the mocked object will be missing by default.
         testId: "claim-check-object-missing",
       },
@@ -924,7 +933,13 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       },
     ])(
       "saves error result when $description",
-      async ({ expectedErrorContent, expectGetObject, setUp, testId }) => {
+      async ({
+        expectedErrorContent,
+        expectGetObject,
+        expectHeadObject,
+        setUp,
+        testId,
+      }) => {
         const snsMessageId = `sns-message-${testId}`;
         const snsMessageTime = "2025-10-15T07:00:00.000Z";
         const batchJobId = `batch-job-${testId}`;
@@ -956,7 +971,10 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
           const res = await doSnsRequest(snsMessage, true);
 
           expect(res.statusCode).toEqual(200);
-          // Appropriate number of calls for GetObjectCommand.
+          // Appropriate number of calls for HeadObjectCommand and GetObjectCommand.
+          expect(s3Mock.commandCalls(HeadObjectCommand)).toHaveLength(
+            expectGetObject || expectHeadObject ? 1 : 0,
+          );
           expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(
             expectGetObject ? 1 : 0,
           );
@@ -1041,7 +1059,8 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         const res = await doSnsRequest(snsMessage, true);
 
         expect(res.statusCode).toEqual(200);
-        expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(1);
+        expect(s3Mock.commandCalls(HeadObjectCommand)).toHaveLength(1);
+        expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(0);
         expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
 
         const file = await getFileFromDatabase(FILE_SOURCE_DATASET_FOOBAR.id);
@@ -1188,6 +1207,9 @@ function mockClaimCheckObjectBody(body: string): void {
   // SDK consumer can decode the body the way s3-operations does.
   const stream = Readable.from([body]);
   s3Mock.on(GetObjectCommand).resolves({ Body: sdkStreamMixin(stream) });
+  s3Mock
+    .on(HeadObjectCommand)
+    .resolves({ ContentLength: Buffer.byteLength(body, "utf8") });
 }
 
 async function doSnsRequest(

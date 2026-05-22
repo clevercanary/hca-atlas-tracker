@@ -24,7 +24,11 @@ import {
 } from "../data/files";
 import { ConflictError, InvalidOperationError } from "../utils/api-errors";
 import { doTransaction } from "./database";
-import { deleteObject, getObjectAsString } from "./s3-operations";
+import {
+  deleteObject,
+  getObjectAsString,
+  getObjectSize,
+} from "./s3-operations";
 
 /**
  * Fields to be checked for consistency between validation results in S3 and SNS message data.
@@ -270,6 +274,23 @@ async function loadValidationResultsClaimCheck(
     };
   }
 
+  try {
+    validateClaimCheckJsonSize(
+      await getObjectSize(bucket, key),
+      bucket,
+      key,
+      fileId,
+    );
+  } catch (e) {
+    return {
+      bucket,
+      error: e,
+      errorDescription: "Error while getting or validating claim check size",
+      key,
+      outcome: "error",
+    };
+  }
+
   let body: string;
   try {
     body = await getObjectAsString(bucket, key);
@@ -278,17 +299,6 @@ async function loadValidationResultsClaimCheck(
       bucket,
       error: e,
       errorDescription: "Failed to read S3 object",
-      key,
-      outcome: "error",
-    };
-  }
-
-  try {
-    validateClaimCheckJsonSize(body, bucket, key, fileId);
-  } catch (e) {
-    return {
-      bucket,
-      error: e,
       key,
       outcome: "error",
     };
@@ -332,30 +342,29 @@ async function loadValidationResultsClaimCheck(
 }
 
 /**
- * Size cap defense: bail before JSON.parse to avoid OOM (a 50 MB JSON string can require ~8x the heap to parse).
+ * Size cap defense: bail before requesting or calling JSON.parse to avoid OOM (a 50 MB JSON string can require ~8x the heap to parse).
  * Throw an error if the JSON size exceeds the hard cap, and log a warning if it exceeds the soft threshold.
- * @param jsonText - Claim check JSON text to validate the size of.
+ * @param jsonSize - Claim check JSON size (in bytes) to validate.
  * @param bucket - Bucket of the claim check object.
  * @param key - Key of the claim check object.
  * @param fileId - ID of the file that the claim check holds validation results for.
  */
 function validateClaimCheckJsonSize(
-  jsonText: string,
+  jsonSize: number,
   bucket: string,
   key: string,
   fileId: string,
 ): void {
-  const bodySize = Buffer.byteLength(jsonText, "utf8");
   const hardCapBytes = getHardCapBytes();
-  if (bodySize > hardCapBytes) {
+  if (jsonSize > hardCapBytes) {
     throw new Error(
-      `Validation result payload exceeded size limit (${formatFileSize(bodySize)} / ${formatFileSize(hardCapBytes)}). Bucket: ${bucket}, Key: ${key}. Object preserved for inspection; size review needed before reprocessing.`,
+      `Validation result payload exceeded size limit (${formatFileSize(jsonSize)} / ${formatFileSize(hardCapBytes)}). Bucket: ${bucket}, Key: ${key}. Object preserved for inspection; size review needed before reprocessing.`,
     );
   }
   const softWarnBytes = getSoftWarnBytes();
-  if (bodySize > softWarnBytes) {
+  if (jsonSize > softWarnBytes) {
     console.warn(
-      `Validation result payload size ${formatFileSize(bodySize)} exceeds soft warning threshold ${formatFileSize(softWarnBytes)} (hard cap ${formatFileSize(hardCapBytes)}) for file ${fileId} (s3://${bucket}/${key}).`,
+      `Validation result payload size ${formatFileSize(jsonSize)} exceeds soft warning threshold ${formatFileSize(softWarnBytes)} (hard cap ${formatFileSize(hardCapBytes)}) for file ${fileId} (s3://${bucket}/${key}).`,
     );
   }
 }
