@@ -11,6 +11,7 @@ import {
   FileValidatorName,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerLinkedAtlasSummary,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
@@ -263,6 +264,53 @@ export function getPublishedFromPublishedAt(
   publishedAt: Date | string | null,
 ): boolean {
   return publishedAt !== null;
+}
+
+/**
+ * Get the latest revision of the home atlas from the given linked atlas summaries.
+ * @param linkedAtlases - Linked atlas summaries.
+ * @returns latest revision of home atlas.
+ */
+export function getLatestHomeAtlas(
+  linkedAtlases: HCAAtlasTrackerLinkedAtlasSummary[],
+): HCAAtlasTrackerLinkedAtlasSummary {
+  const sortedHomeAtlasVersions = linkedAtlases
+    .filter((atlas) => !atlas.isImported)
+    .sort((a, b) => b.version.localeCompare(a.version)); // TODO properly compare revision
+  if (sortedHomeAtlasVersions.length === 0)
+    throw new Error("No home atlas found in linked atlases");
+  return sortedHomeAtlasVersions[0];
+}
+
+/**
+ * Convert linked atlas summaries to separate de-duplicated arrays for name, short name, version, and network.
+ * @param atlases - Linked atlas summaries to get field arrays from.
+ * @returns object containing arrays of unique values for atlas name, atlas short name, atlas version, and network.
+ */
+export function getLinkedAtlasFieldArrays(
+  atlases: HCAAtlasTrackerLinkedAtlasSummary[],
+): {
+  atlasNames: string[];
+  atlasShortNames: string[];
+  atlasVersions: string[];
+  networks: NetworkKey[];
+} {
+  const names = new Set<string>();
+  const shortNames = new Set<string>();
+  const versions = new Set<string>();
+  const networks = new Set<NetworkKey>();
+  for (const atlas of atlases) {
+    names.add(atlas.name);
+    shortNames.add(atlas.shortName);
+    versions.add(atlas.version);
+    networks.add(atlas.network);
+  }
+  return {
+    atlasNames: Array.from(names),
+    atlasShortNames: Array.from(shortNames),
+    atlasVersions: Array.from(versions),
+    networks: Array.from(networks),
+  };
 }
 
 /**

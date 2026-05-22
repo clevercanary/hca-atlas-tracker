@@ -42,6 +42,8 @@ import {
 } from "./entities";
 import {
   getCompositeTierOneMetadataStatus,
+  getLatestHomeAtlas,
+  getLinkedAtlasFieldArrays,
   getPublishedCitation,
   getPublishedFromPublishedAt,
   getUnpublishedCitation,
@@ -211,6 +213,8 @@ export function dbSourceDatasetToGlobalApiSourceDataset(
 ): HCAAtlasTrackerGlobalSourceDataset {
   return {
     ...dbSourceDatasetToApiSourceDataset(dbSourceDataset),
+    ...getLinkedAtlasFieldArrays(dbSourceDataset.atlases),
+    atlasId: getLatestHomeAtlas(dbSourceDataset.atlases).id,
     atlases: dbSourceDataset.atlases,
   };
 }

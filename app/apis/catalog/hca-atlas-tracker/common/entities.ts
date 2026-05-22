@@ -24,7 +24,7 @@ export interface HCAAtlasTrackerLinkedAtlasSummary {
   isImported: boolean;
   isLatest: boolean;
   name: string;
-  network: string;
+  network: NetworkKey;
   shortName: string;
   version: string;
 }
@@ -176,6 +176,11 @@ export interface HCAAtlasTrackerSourceDataset {
 
 export interface HCAAtlasTrackerGlobalSourceDataset extends HCAAtlasTrackerSourceDataset {
   atlases: HCAAtlasTrackerLinkedAtlasSummary[];
+  atlasId: string;
+  atlasNames: string[];
+  atlasShortNames: string[];
+  atlasVersions: string[];
+  networks: NetworkKey[];
 }
 
 export interface HCAAtlasTrackerDetailSourceDataset extends HCAAtlasTrackerSourceDataset {
