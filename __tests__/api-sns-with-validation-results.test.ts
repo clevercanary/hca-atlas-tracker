@@ -836,7 +836,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       expectGetObject: boolean;
       expectHeadObject?: boolean;
       setUp?: (
-        metdataOptions: ValidationResultsMetadataOptions,
+        metadataOptions: ValidationResultsMetadataOptions,
       ) => (() => void) | void;
       testId: string;
     }>([
