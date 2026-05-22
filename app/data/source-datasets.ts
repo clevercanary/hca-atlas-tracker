@@ -117,7 +117,7 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
             jsonb_build_object(
               'generation', a.generation,
               'id', a.id,
-              'isImported', FALSE, -- TODO: update this when importing is possible
+              'isPrimary', TRUE, -- TODO: update this when importing is possible
               'isLatest', a.revision = a.max_revision,
               'network', a.overview->>'network',
               'revision', a.revision,

@@ -283,7 +283,7 @@ export function getLatestHomeAtlas(
   linkedAtlases: HCAAtlasTrackerLinkedAtlasSummary[],
 ): HCAAtlasTrackerLinkedAtlasSummary {
   const sortedHomeAtlasVersions = linkedAtlases
-    .filter((atlas) => !atlas.isImported)
+    .filter((atlas) => atlas.isPrimary)
     .sort((a, b) => b.revision - a.revision);
   if (sortedHomeAtlasVersions.length === 0)
     throw new Error("No home atlas found in linked atlases");

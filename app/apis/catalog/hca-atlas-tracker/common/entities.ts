@@ -22,8 +22,8 @@ export interface HCAAtlasTrackerAtlasSummary {
 export interface HCAAtlasTrackerLinkedAtlasSummary {
   generation: number;
   id: string;
-  isImported: boolean;
   isLatest: boolean;
+  isPrimary: boolean;
   network: NetworkKey;
   revision: number;
   shortName: string;
