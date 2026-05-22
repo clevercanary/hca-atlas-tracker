@@ -241,7 +241,7 @@ function resolveSizeLimitEnvVar(
   const envVarValue = process.env[envVarName];
   if (envVarValue !== undefined) {
     const parsedValue = Number(envVarValue);
-    if (isNaN(parsedValue) || parsedValue <= 0) {
+    if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
       console.warn(`Invalid value for ${envVarName}: ${envVarValue}`);
     } else {
       return parsedValue;
