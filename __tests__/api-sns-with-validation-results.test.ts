@@ -834,7 +834,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       description: string;
       expectedErrorContent: string;
       expectGetObject: boolean;
-      expectHeadObject?: true;
+      expectHeadObject?: boolean;
       setUp?: (
         metdataOptions: ValidationResultsMetadataOptions,
       ) => (() => void) | void;
@@ -936,7 +936,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       async ({
         expectedErrorContent,
         expectGetObject,
-        expectHeadObject,
+        expectHeadObject = expectGetObject,
         setUp,
         testId,
       }) => {
@@ -973,7 +973,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
           expect(res.statusCode).toEqual(200);
           // Appropriate number of calls for HeadObjectCommand and GetObjectCommand.
           expect(s3Mock.commandCalls(HeadObjectCommand)).toHaveLength(
-            expectGetObject || expectHeadObject ? 1 : 0,
+            expectHeadObject ? 1 : 0,
           );
           expect(s3Mock.commandCalls(GetObjectCommand)).toHaveLength(
             expectGetObject ? 1 : 0,
