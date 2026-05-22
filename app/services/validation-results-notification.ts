@@ -367,7 +367,7 @@ async function loadValidationResultsClaimCheck(
 }
 
 /**
- * Size cap defense: bail before requesting or calling JSON.parse to avoid OOM (a 50 MB JSON string can require ~8x the heap to parse).
+ * Size cap defense: bail before requesting JSON or calling JSON.parse to avoid OOM (a 50 MB JSON string can require ~8x the heap to parse).
  * Throw an error if the JSON size exceeds the hard cap, and log a warning if it exceeds the soft threshold.
  * @param jsonSize - Claim check JSON size (in bytes) to validate.
  * @param bucket - Bucket of the claim check object.
