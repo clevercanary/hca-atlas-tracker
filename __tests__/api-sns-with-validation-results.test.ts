@@ -156,6 +156,40 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     );
   });
 
+  it("returns error 400 when message content has invalid shape", async () => {
+    const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+    const snsMessageId = "sns-message-invalid-message";
+    const snsMessageTime = "2025-09-14T00:00:36.672Z";
+    const batchJobId = "batch-job-invalid-message";
+    const validationMetadata: Record<string, unknown> =
+      createValidationResultsMetadata({
+        batchJobId,
+        fileId: FILE_SOURCE_DATASET_FOO.id,
+        key: getTestFileKey(
+          FILE_SOURCE_DATASET_FOO,
+          FILE_SOURCE_DATASET_FOO.resolvedAtlas,
+        ),
+        timestamp: "",
+      });
+    // Set timestamp to an invalid value
+    validationMetadata.timestamp = true;
+    const snsMessage = createSNSMessage({
+      message: validationMetadata,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    const res = await doSnsRequest(snsMessage, true);
+    expect(res.statusCode).toEqual(400);
+    expect(res._getJSONData().errors?.timestamp).toBeDefined();
+
+    const fileAfter = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+    expect(fileAfter).toEqual(fileBefore);
+  });
+
   it("returns error 409 when validation results are sent with out-of-order timestamps", async () => {
     // First request with later timestamp (2025-09-14)
     const firstSnsMessageId = "sns-message-ooo-first";
