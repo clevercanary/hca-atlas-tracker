@@ -12,11 +12,11 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
-  SOURCE_DATASET_BAR,
+  SOURCE_DATASET_BAZ,
   SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R1,
   SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R2,
   SOURCE_DATASET_DRAFT_LATEST_SAME,
-  SOURCE_DATASET_FOO,
+  SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W1,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
@@ -30,6 +30,7 @@ import {
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestSourceDataset, TestUser } from "../testing/entities";
 import {
+  expectApiEntityToMatchLinkedAtlases,
   expectApiSourceDatasetToMatchTest,
   testApiRole,
   withConsoleErrorHiding,
@@ -48,6 +49,7 @@ const TEST_ROUTE = "/api/atlases/[id]/source-datasets";
 
 const EXPECTED_PRESENT_SOURCE_DATASETS: Array<{
   atlasId: string;
+  latestAtlasIds: string[];
   otherAtlases?: TestAtlas[];
   primaryAtlases: TestAtlas[];
   sourceDataset: TestSourceDataset;
@@ -55,45 +57,53 @@ const EXPECTED_PRESENT_SOURCE_DATASETS: Array<{
   // Latest unpublished with no older versions and single unpublished atlas version
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+    latestAtlasIds: [ATLAS_WITH_MISC_SOURCE_STUDIES.id],
     primaryAtlases: [ATLAS_WITH_MISC_SOURCE_STUDIES],
-    sourceDataset: SOURCE_DATASET_FOO,
+    sourceDataset: SOURCE_DATASET_BAZ,
   },
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+    latestAtlasIds: [ATLAS_WITH_MISC_SOURCE_STUDIES.id],
     primaryAtlases: [ATLAS_WITH_MISC_SOURCE_STUDIES],
-    sourceDataset: SOURCE_DATASET_BAR,
+    sourceDataset: SOURCE_DATASET_FOOBAZ,
   },
   // Latest unpublished with older versions and single unpublished atlas version
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+    latestAtlasIds: [ATLAS_WITH_MISC_SOURCE_STUDIES_B.id],
     primaryAtlases: [ATLAS_WITH_MISC_SOURCE_STUDIES_B],
     sourceDataset: SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   },
   {
     atlasId: ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+    latestAtlasIds: [ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id],
     primaryAtlases: [ATLAS_WITH_NON_LATEST_METADATA_ENTITIES],
     sourceDataset: SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   },
   // Published with multiple published atlas versions
   {
     atlasId: ATLAS_PUBLISHED.id,
+    latestAtlasIds: [ATLAS_PUBLISHED.id],
     primaryAtlases: [ATLAS_PUBLISHED_R6, ATLAS_PUBLISHED],
     sourceDataset: SOURCE_DATASET_PUBLISHED,
   },
   // Published and unpublished in published and unpublished versions of same atlas
   {
     atlasId: ATLAS_WITH_DRAFT_LATEST_R0.id,
+    latestAtlasIds: [],
     primaryAtlases: [ATLAS_WITH_DRAFT_LATEST_R0],
     sourceDataset: SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R1,
   },
   {
     atlasId: ATLAS_WITH_DRAFT_LATEST_R1.id,
+    latestAtlasIds: [ATLAS_WITH_DRAFT_LATEST_R1.id],
     primaryAtlases: [ATLAS_WITH_DRAFT_LATEST_R1],
     sourceDataset: SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R2,
   },
   // Published with published and unpublished atlas versions
   {
     atlasId: ATLAS_WITH_DRAFT_LATEST_R1.id,
+    latestAtlasIds: [ATLAS_WITH_DRAFT_LATEST_R1.id],
     primaryAtlases: [ATLAS_WITH_DRAFT_LATEST_R0, ATLAS_WITH_DRAFT_LATEST_R1],
     sourceDataset: SOURCE_DATASET_DRAFT_LATEST_SAME,
   },
@@ -170,6 +180,13 @@ function expectSourceDatasetsToMatchConstants(
     expectApiSourceDatasetToMatchTest(
       sourceDataset,
       expectedInfo.sourceDataset,
+    );
+    expectApiEntityToMatchLinkedAtlases(
+      sourceDataset,
+      expectedInfo.primaryAtlases,
+      expectedInfo.otherAtlases ?? [],
+      expectedInfo.latestAtlasIds,
+      expectedInfo.atlasId,
     );
   }
   for (const expectedSourceDataset of EXPECTED_ABSENT_SOURCE_DATASETS) {

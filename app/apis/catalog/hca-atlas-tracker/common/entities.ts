@@ -174,13 +174,9 @@ export interface HCAAtlasTrackerSourceDataset {
   wipNumber: number;
 }
 
-export interface HCAAtlasTrackerGlobalSourceDataset extends HCAAtlasTrackerSourceDataset {
-  atlases: HCAAtlasTrackerLinkedAtlasSummary[];
+export interface HCAAtlasTrackerGlobalSourceDataset
+  extends HCAAtlasTrackerSourceDataset, LinkedAtlasFields {
   atlasId: string;
-  atlasNames: string[];
-  atlasShortNames: string[];
-  atlasVersions: string[];
-  networks: NetworkKey[];
 }
 
 export interface HCAAtlasTrackerDetailSourceDataset extends HCAAtlasTrackerSourceDataset {
@@ -272,6 +268,14 @@ export interface HCAAtlasTrackerUser {
   role: ROLE;
   roleAssociatedResourceIds: string[];
   roleAssociatedResourceNames: string[];
+}
+
+export interface LinkedAtlasFields {
+  atlases: HCAAtlasTrackerLinkedAtlasSummary[];
+  atlasNames: string[];
+  atlasShortNames: string[];
+  atlasVersions: string[];
+  networks: NetworkKey[];
 }
 
 export interface TaskStatusesUpdatedByDOIResult {

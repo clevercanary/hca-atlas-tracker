@@ -20,11 +20,14 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDetailComponentAtlas,
   HCAAtlasTrackerDetailSourceDataset,
+  HCAAtlasTrackerLinkedAtlasSummary,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   INTEGRITY_STATUS,
+  LinkedAtlasFields,
+  NetworkKey,
   PUBLICATION_STATUS,
   REPROCESSED_STATUS,
   ROLE,
@@ -796,6 +799,92 @@ export function expectApiComponentAtlasToMatchTest(
   doAdditionalChecks?.(testFile);
 }
 
+export function expectApiEntityToMatchLinkedAtlases(
+  apiEntity: LinkedAtlasFields & { atlasId?: string },
+  expectedPrimaryAtlases: TestAtlas[],
+  expectedOtherAtlases: TestAtlas[],
+  expectedLatestAtlasIds: string[],
+  expectedAtlasId?: string,
+): void {
+  if (expectedAtlasId === undefined) {
+    expect(apiEntity.atlasId).toBeUndefined();
+  } else {
+    expect(apiEntity.atlasId).toEqual(expectedAtlasId);
+  }
+
+  expect(apiEntity.atlases).toHaveLength(
+    expectedPrimaryAtlases.length + expectedOtherAtlases.length,
+  );
+
+  const expectedNames = new Set<string>();
+  const expectedShortNames = new Set<string>();
+  const expectedVersions = new Set<string>();
+  const expectedNetworks = new Set<NetworkKey>();
+  const addFieldValues = (atlas: TestAtlas): void => {
+    const version = `${atlas.generation}.${atlas.revision}`;
+    expectedNames.add(`${atlas.shortName} v${version}`);
+    expectedShortNames.add(atlas.shortName);
+    expectedVersions.add(version);
+    expectedNetworks.add(atlas.network);
+  };
+  for (const testAtlas of expectedPrimaryAtlases) {
+    const linkedAtlas = apiEntity.atlases.find((a) => a.id === testAtlas.id);
+    assertExpectDefined(linkedAtlas);
+    expectLinkedAtlasSummaryToMatchTestAtlas(
+      linkedAtlas,
+      testAtlas,
+      expectedLatestAtlasIds.includes(testAtlas.id),
+      true,
+    );
+    addFieldValues(testAtlas);
+  }
+  for (const testAtlas of expectedOtherAtlases) {
+    const linkedAtlas = apiEntity.atlases.find((a) => a.id === testAtlas.id);
+    assertExpectDefined(linkedAtlas);
+    expectLinkedAtlasSummaryToMatchTestAtlas(
+      linkedAtlas,
+      testAtlas,
+      expectedLatestAtlasIds.includes(testAtlas.id),
+      false,
+    );
+    addFieldValues(testAtlas);
+  }
+
+  expectStringArrayToUnorderedEqual(
+    apiEntity.atlasNames,
+    Array.from(expectedNames),
+  );
+  expectStringArrayToUnorderedEqual(
+    apiEntity.atlasShortNames,
+    Array.from(expectedShortNames),
+  );
+  expectStringArrayToUnorderedEqual(
+    apiEntity.atlasVersions,
+    Array.from(expectedVersions),
+  );
+  expectStringArrayToUnorderedEqual(
+    apiEntity.networks,
+    Array.from(expectedNetworks),
+  );
+}
+
+function expectLinkedAtlasSummaryToMatchTestAtlas(
+  linkedAtlas: HCAAtlasTrackerLinkedAtlasSummary,
+  testAtlas: TestAtlas,
+  expectedIsLatest: boolean,
+  expectedIsPrimary: boolean,
+): void {
+  expect(linkedAtlas).toEqual({
+    generation: testAtlas.generation,
+    id: testAtlas.id,
+    isLatest: expectedIsLatest,
+    isPrimary: expectedIsPrimary,
+    network: testAtlas.network,
+    revision: testAtlas.revision,
+    shortName: testAtlas.shortName,
+  } satisfies HCAAtlasTrackerLinkedAtlasSummary);
+}
+
 export function expectApiValidationsToMatchDb(
   apiValidations: HCAAtlasTrackerValidationRecordWithoutAtlases[],
   dbValidations: HCAAtlasTrackerDBValidation[],
@@ -877,6 +966,13 @@ export async function expectDbUserToMatchInputData(
   expect(dbUser.role_associated_resource_ids).toEqual(
     inputData.roleAssociatedResourceIds,
   );
+}
+
+function expectStringArrayToUnorderedEqual(
+  actual: string[],
+  expected: string[],
+): void {
+  expect(actual.toSorted()).toEqual(expected.toSorted());
 }
 
 export function assertExpectDefined<T>(
