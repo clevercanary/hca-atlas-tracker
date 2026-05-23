@@ -383,7 +383,7 @@ function validateClaimCheckJsonSize(
   const hardCapBytes = getHardCapBytes();
   if (jsonSize > hardCapBytes) {
     throw new Error(
-      `Validation result payload exceeded size limit (${formatFileSize(jsonSize)} / ${formatFileSize(hardCapBytes)}). Bucket: ${bucket}, Key: ${key}. Object preserved for inspection; size review needed before reprocessing.`,
+      `Validation result payload exceeded size limit (${formatFileSize(jsonSize)} / ${formatFileSize(hardCapBytes)}). File ID: ${fileId}, Bucket: ${bucket}, Key: ${key}. Object preserved for inspection; size review needed before reprocessing.`,
     );
   }
   const softWarnBytes = getSoftWarnBytes();
