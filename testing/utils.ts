@@ -3,6 +3,7 @@ import httpMocks from "node-mocks-http";
 import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
+  FILE_PUBLISHED_STATUS,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
   HCAAtlasTrackerAtlas,
@@ -687,6 +688,11 @@ export function expectApiSourceDatasetToMatchTest(
   expect(apiSourceDataset.sizeBytes).toEqual(Number(testFile.sizeBytes));
   expect(apiSourceDataset.sourceStudyId).toEqual(
     testSourceDataset.sourceStudyId,
+  );
+  expect(apiSourceDataset.status).toEqual(
+    testSourceDataset.publishedAt === null
+      ? FILE_PUBLISHED_STATUS.WIP
+      : FILE_PUBLISHED_STATUS.PUBLISHED,
   );
   expect(apiSourceDataset.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? [],

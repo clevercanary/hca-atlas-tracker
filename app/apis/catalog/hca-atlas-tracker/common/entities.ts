@@ -155,6 +155,7 @@ export interface HCAAtlasTrackerSourceDataset {
   sizeBytes: number;
   sourceStudyId: string | null;
   sourceStudyTitle: string | null;
+  status: FILE_PUBLISHED_STATUS;
   suspensionType: string[];
   tissue: string[];
   title: string;
@@ -810,6 +811,11 @@ export enum ENTITY_TYPE {
   ATLAS = "ATLAS",
   COMPONENT_ATLAS = "COMPONENT_ATLAS",
   SOURCE_STUDY = "SOURCE_STUDY",
+}
+
+export enum FILE_PUBLISHED_STATUS {
+  PUBLISHED = "published",
+  WIP = "wip",
 }
 
 export enum FILE_TYPE {
