@@ -1,7 +1,7 @@
-import { getSourceDatasetsForGlobalApi } from "app/data/source-datasets";
 import { dbSourceDatasetToGlobalApiSourceDataset } from "../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { METHOD } from "../../app/common/entities";
+import { getSourceDatasetsForGlobalApi } from "../../app/data/source-datasets";
 import { handler, method, role } from "../../app/utils/api-handler";
 
 export default handler(
