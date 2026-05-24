@@ -26,6 +26,7 @@ import {
   SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
 import { TestAtlas, TestSourceDataset, TestUser } from "../testing/entities";
@@ -137,6 +138,12 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 401 for logged out user", async () => {
     expect((await doSourceDatasetsRequest())._getStatusCode()).toEqual(401);
+  });
+
+  it("returns error 403 for unregistered user", async () => {
+    expect(
+      (await doSourceDatasetsRequest(USER_UNREGISTERED))._getStatusCode(),
+    ).toEqual(403);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
