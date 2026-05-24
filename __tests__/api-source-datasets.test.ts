@@ -45,7 +45,7 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
-const TEST_ROUTE = "/api/atlases/[id]/source-datasets";
+const TEST_ROUTE = "/api/source-datasets";
 
 const EXPECTED_PRESENT_SOURCE_DATASETS: Array<{
   atlasId: string;
