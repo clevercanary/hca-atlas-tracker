@@ -135,10 +135,8 @@ describe(TEST_ROUTE, () => {
     ).toEqual(405);
   });
 
-  it("returns error 403 for logged out user", async () => {
-    expect(
-      (await doSourceDatasetsRequest(undefined, METHOD.POST))._getStatusCode(),
-    ).toEqual(405);
+  it("returns error 401 for logged out user", async () => {
+    expect((await doSourceDatasetsRequest())._getStatusCode()).toEqual(401);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
