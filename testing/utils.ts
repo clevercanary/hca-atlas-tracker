@@ -20,13 +20,13 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDetailComponentAtlas,
   HCAAtlasTrackerDetailSourceDataset,
-  HCAAtlasTrackerLinkedAtlasSummary,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecordWithoutAtlases,
   INTEGRITY_STATUS,
   LinkedAtlasFields,
+  LinkedAtlasSummary,
   NetworkKey,
   PUBLICATION_STATUS,
   REPROCESSED_STATUS,
@@ -869,7 +869,7 @@ export function expectApiEntityToMatchLinkedAtlases(
 }
 
 function expectLinkedAtlasSummaryToMatchTestAtlas(
-  linkedAtlas: HCAAtlasTrackerLinkedAtlasSummary,
+  linkedAtlas: LinkedAtlasSummary,
   testAtlas: TestAtlas,
   expectedIsLatest: boolean,
   expectedIsPrimary: boolean,
@@ -882,7 +882,7 @@ function expectLinkedAtlasSummaryToMatchTestAtlas(
     network: testAtlas.network,
     revision: testAtlas.revision,
     shortName: testAtlas.shortName,
-  } satisfies HCAAtlasTrackerLinkedAtlasSummary);
+  } satisfies LinkedAtlasSummary);
 }
 
 export function expectApiValidationsToMatchDb(

@@ -19,16 +19,6 @@ export interface HCAAtlasTrackerAtlasSummary {
   version: string;
 }
 
-export interface HCAAtlasTrackerLinkedAtlasSummary {
-  generation: number;
-  id: string;
-  isLatest: boolean;
-  isPrimary: boolean;
-  network: NetworkKey;
-  revision: number;
-  shortName: string;
-}
-
 export type HCAAtlasTrackerListAtlas = Omit<
   HCAAtlasTrackerAtlas,
   "integrationLead"
@@ -271,7 +261,7 @@ export interface HCAAtlasTrackerUser {
 }
 
 export interface LinkedAtlasFields {
-  atlases: HCAAtlasTrackerLinkedAtlasSummary[];
+  atlases: LinkedAtlasSummary[];
   atlasNames: string[];
   atlasShortNames: string[];
   atlasVersions: string[];
@@ -483,7 +473,7 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
 
 export type HCAAtlasTrackerDBSourceDatasetForGlobalAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI & {
-    atlases: HCAAtlasTrackerLinkedAtlasSummary[];
+    atlases: LinkedAtlasSummary[];
   };
 
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
@@ -639,6 +629,16 @@ export type HCAAtlasTrackerDBUserWithAssociatedResources =
   HCAAtlasTrackerDBUser & {
     role_associated_resource_names: string[];
   };
+
+export interface LinkedAtlasSummary {
+  generation: number;
+  id: string;
+  isLatest: boolean;
+  isPrimary: boolean;
+  network: NetworkKey;
+  revision: number;
+  shortName: string;
+}
 
 export interface Heatmap {
   classes: HeatmapClass[];

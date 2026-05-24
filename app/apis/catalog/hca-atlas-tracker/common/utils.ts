@@ -11,13 +11,13 @@ import {
   FileValidatorName,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerLinkedAtlasSummary,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   HCAAtlasTrackerValidationRecord,
+  LinkedAtlasSummary,
   NetworkKey,
   PublicationInfo,
   REPROCESSED_STATUS,
@@ -280,8 +280,8 @@ export function getPublishedFromPublishedAt(
  * @returns latest revision of home atlas.
  */
 export function getLatestHomeAtlas(
-  linkedAtlases: HCAAtlasTrackerLinkedAtlasSummary[],
-): HCAAtlasTrackerLinkedAtlasSummary {
+  linkedAtlases: LinkedAtlasSummary[],
+): LinkedAtlasSummary {
   const sortedHomeAtlasVersions = linkedAtlases
     .filter((atlas) => atlas.isPrimary)
     .sort((a, b) => b.revision - a.revision);
@@ -295,9 +295,7 @@ export function getLatestHomeAtlas(
  * @param atlases - Linked atlas summaries to get field arrays from.
  * @returns object containing arrays of unique values for atlas name, atlas short name, atlas version, and network.
  */
-export function getLinkedAtlasFieldArrays(
-  atlases: HCAAtlasTrackerLinkedAtlasSummary[],
-): {
+export function getLinkedAtlasFieldArrays(atlases: LinkedAtlasSummary[]): {
   atlasNames: string[];
   atlasShortNames: string[];
   atlasVersions: string[];
