@@ -72,14 +72,14 @@ const EXTRA_INFO_TO_CHECK = [
     componentAtlasCount: 0,
     entrySheetValidationCount: 0,
     isLatest: false,
-    sourceDatasetCount: 0,
+    sourceDatasetCount: 2,
   },
   {
     atlasId: ATLAS_WITH_DRAFT_LATEST_R1.id,
     componentAtlasCount: 0,
     entrySheetValidationCount: 0,
     isLatest: true,
-    sourceDatasetCount: 0,
+    sourceDatasetCount: 2,
   },
 ];
 
