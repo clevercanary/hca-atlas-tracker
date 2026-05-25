@@ -28,11 +28,13 @@ import {
   HCAAtlasTrackerGlobalComponentAtlas,
   HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListSourceStudy,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
   IngestionTaskCounts,
+  LinkedAtlasSummary,
   Network,
   NetworkKey,
   SYSTEM,
@@ -624,6 +626,66 @@ export const buildSourceDatasetValidationStatus = (
 };
 
 /**
+ * Build props for the global source study list Atlas(es) LinksCell component.
+ * @param sourceStudy - Source study with linked atlas summaries.
+ * @returns Props to be used for the LinksCell component.
+ */
+export const buildSourceStudyAtlases = (
+  sourceStudy: HCAAtlasTrackerListSourceStudy,
+): ComponentProps<typeof C.LinksCell> => {
+  const { atlases, id: sourceStudyId } = sourceStudy;
+  return {
+    links: atlases.map((atlas) => ({
+      label: getAtlasName(atlas),
+      url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
+        atlasId: atlas.id,
+        sourceStudyId,
+      }),
+    })),
+  };
+};
+
+/**
+ * Build props for the global source study list BioNetworksCell component.
+ * Renders one stacked row per unique network (component itself de-dupes).
+ * @param sourceStudy - Source study with linked atlas summaries.
+ * @returns Props to be used for the BioNetworksCell component.
+ */
+export const buildSourceStudyBioNetworks = (
+  sourceStudy: HCAAtlasTrackerListSourceStudy,
+): ComponentProps<typeof C.BioNetworksCell> => {
+  return {
+    networkKeys: sourceStudy.networks,
+  };
+};
+
+/**
+ * Get the HCA Data Repository status label for a source study, derived from
+ * the underlying task statuses. Shared by the column cell and the input mapper
+ * (which exposes the label as a field for facet filtering) so the displayed
+ * labels stay in sync.
+ * @param sourceStudy - Source study.
+ * @returns one of the STATUS_LABEL values used for HCA data repository state.
+ */
+export function getSourceStudyHcaDataRepositoryLabel(
+  sourceStudy: HCAAtlasTrackerSourceStudy,
+): string {
+  const ingestStatus = getSourceStudyTaskStatus(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
+  );
+  if (ingestStatus !== TASK_STATUS.DONE) return STATUS_LABEL.TODO;
+  const primaryDataStatus = getSourceStudyTaskStatus(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
+  );
+  if (primaryDataStatus === TASK_STATUS.DONE) return STATUS_LABEL.FASTQS;
+  if (primaryDataStatus === TASK_STATUS.BLOCKED)
+    return STATUS_LABEL.FASTQS_BLOCKED;
+  return STATUS_LABEL.NEEDS_FASTQS;
+}
+
+/**
  * Build props for the HCA Data Repository IconStatusBadge component.
  * @param sourceStudy - Source study entity.
  * @returns Props to be used for the IconStatusBadge component.
@@ -631,36 +693,39 @@ export const buildSourceDatasetValidationStatus = (
 export const buildSourceStudyHcaDataRepositoryStatus = (
   sourceStudy: HCAAtlasTrackerSourceStudy,
 ): ComponentProps<typeof C.IconStatusBadge> => {
-  const ingestStatus = getSourceStudyTaskStatus(
-    sourceStudy,
-    VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
-  );
-  if (ingestStatus === TASK_STATUS.DONE) {
-    const primaryDataStatus = getSourceStudyTaskStatus(
-      sourceStudy,
-      VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
-    );
-    if (primaryDataStatus === TASK_STATUS.DONE)
-      return {
-        label: STATUS_LABEL.FASTQS,
-        status: ICON_STATUS.DONE,
-      };
-    else if (primaryDataStatus === TASK_STATUS.BLOCKED)
-      return {
-        label: STATUS_LABEL.FASTQS_BLOCKED,
-        status: ICON_STATUS.BLOCKED,
-      };
-    else
-      return {
-        label: STATUS_LABEL.NEEDS_FASTQS,
-        status: ICON_STATUS.PARTIALLY_COMPLETE,
-      };
-  } else {
-    return {
-      label: STATUS_LABEL.TODO,
-      status: ICON_STATUS.REQUIRED,
-    };
+  const label = getSourceStudyHcaDataRepositoryLabel(sourceStudy);
+  switch (label) {
+    case STATUS_LABEL.FASTQS:
+      return { label, status: ICON_STATUS.DONE };
+    case STATUS_LABEL.FASTQS_BLOCKED:
+      return { label, status: ICON_STATUS.BLOCKED };
+    case STATUS_LABEL.NEEDS_FASTQS:
+      return { label, status: ICON_STATUS.PARTIALLY_COMPLETE };
+    default:
+      return { label, status: ICON_STATUS.REQUIRED };
   }
+};
+
+/**
+ * Build props for the global source study list Name Link component.
+ * Picks the latest atlas (or first if none flagged latest) to host the detail link.
+ * @param sourceStudy - Source study with linked atlas summaries.
+ * @returns Props to be used for the Link component.
+ */
+export const buildSourceStudyName = (
+  sourceStudy: HCAAtlasTrackerListSourceStudy,
+): ComponentProps<typeof C.Link> => {
+  const { atlases, id: sourceStudyId } = sourceStudy;
+  const linkAtlas = pickPrimaryListAtlas(atlases);
+  return {
+    label: getSourceStudyCitation(sourceStudy),
+    url: linkAtlas
+      ? getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
+          atlasId: linkAtlas.id,
+          sourceStudyId,
+        })
+      : "",
+  };
 };
 
 /**
@@ -679,6 +744,34 @@ export const buildSourceStudyPublication = (
 };
 
 /**
+ * Build props for the global source study list publication status BasicCell.
+ * Reads the derived field set by the input mapper; the column itself is
+ * hidden in table options and only exposes the data for facet filtering.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildSourceStudyPublicationStatus = (
+  sourceStudy: HCAAtlasTrackerListSourceStudy,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: sourceStudy.publicationStatus,
+  };
+};
+
+/**
+ * Build props for the global source study list source-dataset count BasicCell component.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildSourceStudySourceDatasetCount = (
+  sourceStudy: HCAAtlasTrackerListSourceStudy,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: sourceStudy.sourceDatasetCount.toLocaleString(),
+  };
+};
+
+/**
  * Build props for the source study title Link component.
  * @param pathParameter - Path parameter.
  * @param sourceStudy - Source study entity.
@@ -691,7 +784,7 @@ export const buildSourceStudyTitle = (
   const { id: sourceStudyId } = sourceStudy;
   return {
     label: getSourceStudyCitation(sourceStudy),
-    url: getRouteURL(ROUTE.SOURCE_STUDY, {
+    url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
       ...pathParameter,
       sourceStudyId,
     }),
@@ -709,7 +802,7 @@ export const buildSourceStudyCount = (
   const { id: atlasId } = atlas;
   return {
     label: atlas.sourceStudyCount,
-    url: getRouteURL(ROUTE.SOURCE_STUDIES, { atlasId }),
+    url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDIES, { atlasId }),
   };
 };
 
@@ -874,7 +967,7 @@ export const buildTaskPublicationString = (
   const atlasId = atlasIds[0];
   return {
     label: task.publicationString ?? "",
-    url: getRouteURL(ROUTE.SOURCE_STUDY, { atlasId, sourceStudyId }),
+    url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, { atlasId, sourceStudyId }),
   };
 };
 
@@ -1791,6 +1884,20 @@ function getTissueColumnDef<
     cell: ({ row }) => C.NTagCell(buildTissue(row.original)),
     header: "Tissue",
   };
+}
+
+/**
+ * Pick a representative atlas to host a link in the global source-study list.
+ * Source studies have no intrinsic primary atlas (isPrimary is always false),
+ * so prefer the latest, otherwise fall back to the first entry.
+ * @param linkedAtlases - Linked atlas summaries.
+ * @returns selected atlas, or undefined if none are linked.
+ */
+function pickPrimaryListAtlas(
+  linkedAtlases: LinkedAtlasSummary[],
+): LinkedAtlasSummary | undefined {
+  if (linkedAtlases.length === 0) return undefined;
+  return linkedAtlases.find((atlas) => atlas.isLatest) ?? linkedAtlases[0];
 }
 
 /**

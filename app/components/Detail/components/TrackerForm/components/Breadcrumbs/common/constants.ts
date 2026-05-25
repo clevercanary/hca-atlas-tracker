@@ -68,14 +68,14 @@ export const BREADCRUMB_METADATA_ENTRY_SHEETS: Breadcrumb = {
 };
 
 export const BREADCRUMB_SOURCE_STUDIES: Breadcrumb = {
-  path: ROUTE.SOURCE_STUDIES,
-  route: ROUTE.SOURCE_STUDIES,
+  path: ROUTE.ATLAS_SOURCE_STUDIES,
+  route: ROUTE.ATLAS_SOURCE_STUDIES,
   text: "Source Studies",
 };
 
 export const BREADCRUMB_SOURCE_STUDY: Breadcrumb = {
-  path: ROUTE.SOURCE_STUDY,
-  route: ROUTE.SOURCE_STUDY,
+  path: ROUTE.ATLAS_SOURCE_STUDY,
+  route: ROUTE.ATLAS_SOURCE_STUDY,
   text: "Source Study",
 };
 

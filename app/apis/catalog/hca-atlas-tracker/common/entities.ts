@@ -138,6 +138,12 @@ export interface HCAAtlasTrackerUnpublishedSourceStudy extends HCAAtlasTrackerSo
 export type HCAAtlasTrackerGlobalSourceStudy = HCAAtlasTrackerSourceStudy &
   LinkedAtlasFields;
 
+export type HCAAtlasTrackerListSourceStudy =
+  HCAAtlasTrackerGlobalSourceStudy & {
+    hcaDataRepository: string;
+    publicationStatus: PUBLICATION_STATUS;
+  };
+
 export interface HCAAtlasTrackerSourceDataset {
   assay: string[];
   baseFileName: string;
