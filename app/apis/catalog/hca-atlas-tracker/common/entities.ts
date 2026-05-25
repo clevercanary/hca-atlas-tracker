@@ -155,6 +155,7 @@ export interface HCAAtlasTrackerSourceDataset {
   sizeBytes: number;
   sourceStudyId: string | null;
   sourceStudyTitle: string | null;
+  status: FILE_PUBLISHED_STATUS;
   suspensionType: string[];
   tissue: string[];
   title: string;
@@ -162,6 +163,11 @@ export interface HCAAtlasTrackerSourceDataset {
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
   wipNumber: number;
+}
+
+export interface HCAAtlasTrackerGlobalSourceDataset
+  extends HCAAtlasTrackerSourceDataset, LinkedAtlasFields {
+  atlasId: string;
 }
 
 export interface HCAAtlasTrackerDetailSourceDataset extends HCAAtlasTrackerSourceDataset {
@@ -253,6 +259,14 @@ export interface HCAAtlasTrackerUser {
   role: ROLE;
   roleAssociatedResourceIds: string[];
   roleAssociatedResourceNames: string[];
+}
+
+export interface LinkedAtlasFields {
+  atlases: LinkedAtlasSummary[];
+  atlasNames: string[];
+  atlasShortNames: string[];
+  atlasVersions: string[];
+  networks: NetworkKey[];
 }
 
 export interface TaskStatusesUpdatedByDOIResult {
@@ -458,6 +472,11 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
   > &
   Pick<HCAAtlasTrackerDBConcept, "base_filename"> & { file_id: string };
 
+export type HCAAtlasTrackerDBSourceDatasetForGlobalAPI =
+  HCAAtlasTrackerDBSourceDatasetForAPI & {
+    atlases: LinkedAtlasSummary[];
+  };
+
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI &
     Pick<HCAAtlasTrackerDBFile, "validation_reports">;
@@ -611,6 +630,16 @@ export type HCAAtlasTrackerDBUserWithAssociatedResources =
   HCAAtlasTrackerDBUser & {
     role_associated_resource_names: string[];
   };
+
+export interface LinkedAtlasSummary {
+  generation: number;
+  id: string;
+  isLatest: boolean;
+  isPrimary: boolean;
+  network: NetworkKey;
+  revision: number;
+  shortName: string;
+}
 
 export interface Heatmap {
   classes: HeatmapClass[];
@@ -782,6 +811,11 @@ export enum ENTITY_TYPE {
   ATLAS = "ATLAS",
   COMPONENT_ATLAS = "COMPONENT_ATLAS",
   SOURCE_STUDY = "SOURCE_STUDY",
+}
+
+export enum FILE_PUBLISHED_STATUS {
+  PUBLISHED = "published",
+  WIP = "wip",
 }
 
 export enum FILE_TYPE {

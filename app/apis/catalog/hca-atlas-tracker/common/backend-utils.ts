@@ -6,6 +6,7 @@ import {
   removeFileExtension,
 } from "../../../../utils/files";
 import {
+  FILE_PUBLISHED_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerAtlasSummary,
   HCAAtlasTrackerComment,
@@ -21,6 +22,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
+  HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBUserWithAssociatedResources,
@@ -29,6 +31,7 @@ import {
   HCAAtlasTrackerDetailComponentAtlas,
   HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerEntrySheetValidation,
+  HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListEntrySheetValidation,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
@@ -40,6 +43,8 @@ import {
 } from "./entities";
 import {
   getCompositeTierOneMetadataStatus,
+  getLatestHomeAtlas,
+  getLinkedAtlasFieldArrays,
   getPublishedCitation,
   getPublishedFromPublishedAt,
   getUnpublishedCitation,
@@ -204,6 +209,17 @@ export function dbSourceDatasetToDetailApiSourceDataset(
   };
 }
 
+export function dbSourceDatasetToGlobalApiSourceDataset(
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
+): HCAAtlasTrackerGlobalSourceDataset {
+  return {
+    ...dbSourceDatasetToApiSourceDataset(dbSourceDataset),
+    ...getLinkedAtlasFieldArrays(dbSourceDataset.atlases),
+    atlasId: getLatestHomeAtlas(dbSourceDataset.atlases).id,
+    atlases: dbSourceDataset.atlases,
+  };
+}
+
 export function dbSourceDatasetToApiSourceDataset(
   dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForAPI,
 ): HCAAtlasTrackerSourceDataset {
@@ -244,6 +260,7 @@ export function dbSourceDatasetToApiSourceDataset(
       studyInfo?.publication?.title ??
       studyInfo?.unpublishedInfo?.title ??
       null,
+    status: getDbMetadataEntityPublishedStatus(dbSourceDataset),
     suspensionType: dbSourceDataset.dataset_info?.suspensionType ?? [],
     tissue: dbSourceDataset.dataset_info?.tissue ?? [],
     title: dbSourceDataset.dataset_info?.title ?? "",
@@ -424,6 +441,19 @@ export function getDbEntityFileVersion(
     entity.wip_number,
     dbEntityIsPublished(entity),
   );
+}
+
+/**
+ * Get published status of a database-model component atlas or source dataset.
+ * @param entity - Component atlas or source dataset.
+ * @returns published status.
+ */
+export function getDbMetadataEntityPublishedStatus(
+  entity: HCAAtlasTrackerDBComponentAtlas | HCAAtlasTrackerDBSourceDataset,
+): FILE_PUBLISHED_STATUS {
+  return dbEntityIsPublished(entity)
+    ? FILE_PUBLISHED_STATUS.PUBLISHED
+    : FILE_PUBLISHED_STATUS.WIP;
 }
 
 /**
