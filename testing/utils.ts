@@ -690,9 +690,7 @@ export function expectApiSourceDatasetToMatchTest(
     testSourceDataset.sourceStudyId,
   );
   expect(apiSourceDataset.status).toEqual(
-    testSourceDataset.publishedAt === null
-      ? FILE_PUBLISHED_STATUS.WIP
-      : FILE_PUBLISHED_STATUS.PUBLISHED,
+    expectedFilePublishedStatus(testSourceDataset.publishedAt),
   );
   expect(apiSourceDataset.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? [],
