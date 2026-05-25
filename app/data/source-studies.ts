@@ -47,7 +47,7 @@ export async function getInitialJoinSourceStudiesForGlobalAPI(
         SELECT fd.id, fd.source_study_id
         FROM hat.source_datasets fd
         JOIN hat.files f ON f.id = fd.file_id
-        WHERE fd.version_id = ANY($2) AND NOT f.is_archived
+        WHERE NOT f.is_archived
       ) as d ON d.source_study_id=s.id
       JOIN atlases_with_revisions a ON a.source_studies ? s.id
       GROUP BY s.id
