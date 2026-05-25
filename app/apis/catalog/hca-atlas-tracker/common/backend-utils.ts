@@ -25,6 +25,7 @@ import {
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
   HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBSourceStudyForGlobalAPI,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBUserWithAssociatedResources,
   HCAAtlasTrackerDBValidation,
@@ -34,6 +35,7 @@ import {
   HCAAtlasTrackerEntrySheetValidation,
   HCAAtlasTrackerGlobalComponentAtlas,
   HCAAtlasTrackerGlobalSourceDataset,
+  HCAAtlasTrackerGlobalSourceStudy,
   HCAAtlasTrackerListEntrySheetValidation,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
@@ -164,6 +166,16 @@ export function dbComponentAtlasFileToApiComponentAtlas(
       dbComponentAtlas.validation_summary,
     ),
     wipNumber: dbComponentAtlas.wip_number,
+  };
+}
+
+export function dbSourceStudyToGlobalApiSourceStudy(
+  dbSourceStudy: HCAAtlasTrackerDBSourceStudyForGlobalAPI,
+): HCAAtlasTrackerGlobalSourceStudy {
+  return {
+    ...dbSourceStudyToApiSourceStudy(dbSourceStudy),
+    ...getLinkedAtlasFieldArrays(dbSourceStudy.atlases),
+    atlases: dbSourceStudy.atlases,
   };
 }
 

@@ -135,6 +135,9 @@ export interface HCAAtlasTrackerUnpublishedSourceStudy extends HCAAtlasTrackerSo
   title: string;
 }
 
+export type HCAAtlasTrackerGlobalSourceStudy = HCAAtlasTrackerSourceStudy &
+  LinkedAtlasFields;
+
 export interface HCAAtlasTrackerSourceDataset {
   assay: string[];
   baseFileName: string;
