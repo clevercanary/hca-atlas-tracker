@@ -33,6 +33,7 @@ export { HCABranding } from "./Layout/components/Footer/components/Branding/comp
 export { LabelIconMenuItem } from "./Layout/components/Header/components/Content/components/Navigation/components/NavigationMenuItems/components/LabelIconMenuItem/labelIconMenuItem";
 export { AnalysisPortalCell } from "./Table/components/TableCell/components/AnalysisPortalCell/analysisPortalCell";
 export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
+export { BioNetworksCell } from "./Table/components/TableCell/components/BioNetworksCell/bioNetworksCell";
 export { ButtonTextPrimaryCell } from "./Table/components/TableCell/components/ButtonTextPrimaryCell/buttonTextPrimaryCell.styles";
 export { CAPCell } from "./Table/components/TableCell/components/CAPCell/capCell";
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";

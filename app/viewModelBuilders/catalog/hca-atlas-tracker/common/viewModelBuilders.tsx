@@ -25,6 +25,7 @@ import {
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
@@ -40,6 +41,7 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getApiEntityFileVersion,
+  getAtlasName,
   getSourceStudyCitation,
   getSourceStudyTaskStatus,
   isTask,
@@ -417,6 +419,40 @@ export const buildResolvedAt = (
 };
 
 /**
+ * Build props for the global source dataset list Atlas(es) LinksCell component.
+ * @param sourceDataset - Source dataset with linked atlas summaries.
+ * @returns Props to be used for the LinksCell component.
+ */
+export const buildSourceDatasetAtlases = (
+  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+): ComponentProps<typeof C.LinksCell> => {
+  const { atlases, id: sourceDatasetId } = sourceDataset;
+  return {
+    links: atlases.map((atlas) => ({
+      label: getAtlasName(atlas),
+      url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
+        atlasId: atlas.id,
+        sourceDatasetId,
+      }),
+    })),
+  };
+};
+
+/**
+ * Build props for the global source dataset list BioNetworksCell component.
+ * Renders one stacked row per unique network (component itself de-dupes).
+ * @param sourceDataset - Source dataset with linked atlas summaries.
+ * @returns Props to be used for the BioNetworksCell component.
+ */
+export const buildSourceDatasetBioNetworks = (
+  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+): ComponentProps<typeof C.BioNetworksCell> => {
+  return {
+    networkKeys: sourceDataset.networks,
+  };
+};
+
+/**
  * Build props for the source dataset count cell component.
  * @param componentAtlas - Component atlas entity.
  * @returns Props to be used for the cell.
@@ -426,6 +462,59 @@ export const buildSourceDatasetCount = (
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: componentAtlas.sourceDatasetCount.toLocaleString(),
+  };
+};
+
+/**
+ * Build props for the global source dataset list file name Link component.
+ * Links to the atlas-scoped detail page on the primary atlas.
+ * @param sourceDataset - Source dataset with linked atlas summaries.
+ * @returns Props to be used for the Link component.
+ */
+export const buildSourceDatasetFileName = (
+  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+): ComponentProps<typeof C.Link> => {
+  const { atlasId, baseFileName, id: sourceDatasetId } = sourceDataset;
+  return {
+    label: baseFileName,
+    url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, { atlasId, sourceDatasetId }),
+  };
+};
+
+/**
+ * Build props for the global source dataset list title BasicCell component.
+ * @param sourceDataset - Source dataset entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildSourceDatasetTitle = (
+  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: sourceDataset.title,
+  };
+};
+
+/**
+ * Build props for the global source dataset list ValidationStatusCell component.
+ * Reuses the atlas-scoped cell by forwarding the row's CellContext.
+ * @param _ - Unused entity arg (data is read from cellContext).
+ * @param viewContext - View context carrying the row's CellContext.
+ * @returns Props to be used for the ValidationStatusCell component.
+ */
+export const buildSourceDatasetValidationStatus = (
+  _: HCAAtlasTrackerGlobalSourceDataset,
+  viewContext: ViewContext<HCAAtlasTrackerGlobalSourceDataset>,
+): ComponentProps<typeof C.ValidationStatusCell> => {
+  const { cellContext } = viewContext;
+  if (!cellContext) {
+    throw new Error("ValidationStatusCell requires a row CellContext");
+  }
+  return {
+    ...(cellContext as CellContext<
+      HCAAtlasTrackerGlobalSourceDataset,
+      HCAAtlasTrackerGlobalSourceDataset["validationStatus"]
+    >),
+    validationRoute: ROUTE.ATLAS_SOURCE_DATASET_VALIDATION,
   };
 };
 
@@ -1476,7 +1565,7 @@ function getSourceStudySourceDatasetCountColumnDef(
         getValue: () => ({
           children:
             atlasLinkedDatasetsByStudyId.get(row.original.id)?.length ?? 0,
-          href: getRouteURL(ROUTE.SOURCE_DATASETS, {
+          href: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, {
             ...pathParameter,
             sourceStudyId: row.original.id,
           }),

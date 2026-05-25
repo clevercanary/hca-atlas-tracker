@@ -80,8 +80,8 @@ export const BREADCRUMB_SOURCE_STUDY: Breadcrumb = {
 };
 
 export const BREADCRUMB_SOURCE_DATASETS: Breadcrumb = {
-  path: ROUTE.SOURCE_DATASETS,
-  route: ROUTE.SOURCE_DATASETS,
+  path: ROUTE.ATLAS_SOURCE_STUDY_SOURCE_DATASETS,
+  route: ROUTE.ATLAS_SOURCE_STUDY_SOURCE_DATASETS,
   text: "Datasets",
 };
 

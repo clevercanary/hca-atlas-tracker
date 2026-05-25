@@ -11,6 +11,7 @@ import {
   FileValidatorName,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
@@ -29,6 +30,12 @@ import {
 
 export function getAtlasId(atlas: HCAAtlasTrackerListAtlas): string {
   return atlas.id;
+}
+
+export function getSourceDatasetId(
+  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+): string {
+  return sourceDataset.id;
 }
 
 export function getTaskId(task: HCAAtlasTrackerListValidationRecord): string {
@@ -356,6 +363,17 @@ export function isWaveValue(value: unknown): value is Wave {
   return (
     typeof value === "string" && (WAVES as readonly string[]).includes(value)
   );
+}
+
+/**
+ * Maps the global API source dataset to the list source dataset.
+ * @param apiSourceDataset - API source dataset.
+ * @returns list source dataset.
+ */
+export function sourceDatasetInputMapper(
+  apiSourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+): HCAAtlasTrackerGlobalSourceDataset {
+  return apiSourceDataset;
 }
 
 /**
