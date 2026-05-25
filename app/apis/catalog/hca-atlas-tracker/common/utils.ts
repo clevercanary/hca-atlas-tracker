@@ -11,6 +11,7 @@ import {
   FileValidatorName,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerGlobalComponentAtlas,
   HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
@@ -30,6 +31,12 @@ import {
 
 export function getAtlasId(atlas: HCAAtlasTrackerListAtlas): string {
   return atlas.id;
+}
+
+export function getComponentAtlasId(
+  componentAtlas: HCAAtlasTrackerGlobalComponentAtlas,
+): string {
+  return componentAtlas.id;
 }
 
 export function getSourceDatasetId(
@@ -366,7 +373,20 @@ export function isWaveValue(value: unknown): value is Wave {
 }
 
 /**
- * Maps the global API source dataset to the list source dataset.
+ * Identity mapper required by EntityConfig.entityMapper; included as a hook
+ * for future API → list-shape transformations.
+ * @param apiComponentAtlas - API component atlas.
+ * @returns list component atlas.
+ */
+export function componentAtlasInputMapper(
+  apiComponentAtlas: HCAAtlasTrackerGlobalComponentAtlas,
+): HCAAtlasTrackerGlobalComponentAtlas {
+  return apiComponentAtlas;
+}
+
+/**
+ * Identity mapper required by EntityConfig.entityMapper; included as a hook
+ * for future API → list-shape transformations.
  * @param apiSourceDataset - API source dataset.
  * @returns list source dataset.
  */
