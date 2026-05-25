@@ -135,6 +135,9 @@ export interface HCAAtlasTrackerUnpublishedSourceStudy extends HCAAtlasTrackerSo
   title: string;
 }
 
+export type HCAAtlasTrackerGlobalSourceStudy = HCAAtlasTrackerSourceStudy &
+  LinkedAtlasFields;
+
 export interface HCAAtlasTrackerSourceDataset {
   assay: string[];
   baseFileName: string;
@@ -367,9 +370,7 @@ export type HCAAtlasTrackerDBComponentAtlasForAPI =
     };
 
 export type HCAAtlasTrackerDBComponentAtlasForGlobalAPI =
-  HCAAtlasTrackerDBComponentAtlasForAPI & {
-    atlases: LinkedAtlasSummary[];
-  };
+  WithLinkedAtlases<HCAAtlasTrackerDBComponentAtlasForAPI>;
 
 export type HCAAtlasTrackerDBComponentAtlasForDetailAPI =
   HCAAtlasTrackerDBComponentAtlasForAPI &
@@ -429,6 +430,9 @@ export type HCAAtlasTrackerDBSourceStudyWithRelatedEntities =
     validations: HCAAtlasTrackerDBValidation[];
   };
 
+export type HCAAtlasTrackerDBSourceStudyForGlobalAPI =
+  WithLinkedAtlases<HCAAtlasTrackerDBSourceStudyWithRelatedEntities>;
+
 export type HCAAtlasTrackerDBSourceStudyWithAtlasProperties =
   HCAAtlasTrackerDBSourceStudy & {
     atlas_names: string[];
@@ -484,9 +488,7 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
   Pick<HCAAtlasTrackerDBConcept, "base_filename"> & { file_id: string };
 
 export type HCAAtlasTrackerDBSourceDatasetForGlobalAPI =
-  HCAAtlasTrackerDBSourceDatasetForAPI & {
-    atlases: LinkedAtlasSummary[];
-  };
+  WithLinkedAtlases<HCAAtlasTrackerDBSourceDatasetForAPI>;
 
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI &
@@ -641,6 +643,8 @@ export type HCAAtlasTrackerDBUserWithAssociatedResources =
   HCAAtlasTrackerDBUser & {
     role_associated_resource_names: string[];
   };
+
+export type WithLinkedAtlases<T> = T & { atlases: LinkedAtlasSummary[] };
 
 export interface LinkedAtlasSummary {
   generation: number;

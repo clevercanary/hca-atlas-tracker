@@ -68,8 +68,10 @@ import {
   TestAtlas,
   TestComponentAtlas,
   TestFile,
+  TestPublishedSourceStudy,
   TestSourceDataset,
   TestSourceStudy,
+  TestUnpublishedSourceStudy,
   TestUser,
 } from "./entities";
 
@@ -153,25 +155,33 @@ export function makeTestSourceStudyOverview(
       }
     : {
         capId: study.capId ?? null,
-        cellxgeneCollectionId:
-          study.cellxgeneCollectionId === undefined
-            ? ((study.doi &&
-                TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(study.doi)
-                  ?.collection_id) ??
-              null)
-            : study.cellxgeneCollectionId,
+        cellxgeneCollectionId: getTestPublishedSourceStudyCellxGeneId(study),
         doiStatus: study.doiStatus,
-        hcaProjectId:
-          study.hcaProjectId === undefined
-            ? ((study.doi &&
-                TEST_HCA_PROJECTS_BY_DOI.get(study.doi)?.projects[0]
-                  .projectId) ??
-              null)
-            : study.hcaProjectId,
+        hcaProjectId: getTestPublishedSourceStudyHcaId(study),
         metadataSpreadsheets: study.metadataSpreadsheets ?? [],
         publication: study.publication,
         unpublishedInfo: null,
       };
+}
+
+function getTestPublishedSourceStudyCellxGeneId(
+  study: TestPublishedSourceStudy,
+): string | null {
+  return study.cellxgeneCollectionId === undefined
+    ? ((study.doi &&
+        TEST_CELLXGENE_COLLECTIONS_BY_DOI.get(study.doi)?.collection_id) ??
+        null)
+    : study.cellxgeneCollectionId;
+}
+
+function getTestPublishedSourceStudyHcaId(
+  study: TestPublishedSourceStudy,
+): string | null {
+  return study.hcaProjectId === undefined
+    ? ((study.doi &&
+        TEST_HCA_PROJECTS_BY_DOI.get(study.doi)?.projects[0].projectId) ??
+        null)
+    : study.hcaProjectId;
 }
 
 export function makeTestSourceDatasetInfo(
@@ -573,6 +583,87 @@ export function expectDbAtlasToMatchApi(
   expect(dbAtlas.revision).toEqual(apiAtlas.revision);
   expect(dbAtlas.overview.wave).toEqual(apiAtlas.wave);
   expect(apiAtlas.componentAtlasCount).toEqual(expectedComponentAtlasCount);
+}
+
+export function expectApiSourceStudyToMatchTest(
+  apiStudy: HCAAtlasTrackerSourceStudy,
+  testStudy: TestSourceStudy,
+): void {
+  if ("unpublishedInfo" in testStudy) {
+    expectApiSourceStudyToMatchUnpublishedTest(apiStudy, testStudy);
+  } else {
+    expectApiSourceStudyToMatchPublishedTest(apiStudy, testStudy);
+  }
+}
+
+export function expectApiSourceStudyToMatchPublishedTest(
+  apiStudy: HCAAtlasTrackerSourceStudy | undefined,
+  testStudy: TestPublishedSourceStudy,
+): void {
+  expect(apiStudy).toBeDefined();
+  if (!apiStudy) return;
+
+  expect(apiStudy.capId).toEqual(testStudy.capId ?? null);
+  expect(apiStudy.cellxgeneCollectionId).toEqual(
+    getTestPublishedSourceStudyCellxGeneId(testStudy),
+  );
+  expect(apiStudy.contactEmail).toBeNull();
+  expect(apiStudy.doi).toEqual(testStudy.doi);
+  expect(apiStudy.doiStatus).toEqual(testStudy.doiStatus);
+  expect(apiStudy.hcaProjectId).toEqual(
+    getTestPublishedSourceStudyHcaId(testStudy),
+  );
+  expect(apiStudy.id).toEqual(testStudy.id);
+  expect(apiStudy.metadataSpreadsheets).toEqual(
+    testStudy.metadataSpreadsheets ?? [],
+  );
+  expect(apiStudy.sourceDatasetCount).toEqual(expect.any(Number));
+  expect(apiStudy.tasks).toEqual(expect.arrayOf(expect.anything()));
+  if (testStudy.publication) {
+    expect(apiStudy.title).toEqual(testStudy.publication.title);
+    expect(apiStudy.journal).toEqual(testStudy.publication.journal);
+    expect(apiStudy.publicationDate).toEqual(
+      testStudy.publication.publicationDate,
+    );
+    expect(apiStudy.referenceAuthor).toEqual(
+      testStudy.publication.authors[0]?.name,
+    );
+  } else {
+    expect(apiStudy.title).toBeNull();
+    expect(apiStudy.journal).toBeNull();
+    expect(apiStudy.publicationDate).toBeNull();
+    expect(apiStudy.referenceAuthor).toBeNull();
+  }
+}
+
+export function expectApiSourceStudyToMatchUnpublishedTest(
+  apiStudy: HCAAtlasTrackerSourceStudy | undefined,
+  testStudy: TestUnpublishedSourceStudy,
+): void {
+  expect(apiStudy).toBeDefined();
+  if (!apiStudy) return;
+  expect(apiStudy.doi).toBeNull();
+  expect(apiStudy.doiStatus).toEqual(DOI_STATUS.NA);
+  expect(apiStudy.cellxgeneCollectionId).toEqual(
+    testStudy.cellxgeneCollectionId,
+  );
+  expect(apiStudy.contactEmail).toEqual(testStudy.unpublishedInfo.contactEmail);
+  expect(apiStudy.hcaProjectId).toEqual(testStudy.hcaProjectId);
+  expect(apiStudy.id).toEqual(testStudy.id);
+  expect(apiStudy.journal).toBeNull();
+  expect(apiStudy.metadataSpreadsheets).toEqual(
+    testStudy.metadataSpreadsheets ?? [],
+  );
+  expect(apiStudy.publicationDate).toBeNull();
+  expect(apiStudy.referenceAuthor).toEqual(
+    testStudy.unpublishedInfo.referenceAuthor,
+  );
+  expect(apiStudy.sourceDatasetCount).toEqual(expect.any(Number));
+  expect(apiStudy.tasks).toEqual(expect.arrayOf(expect.anything()));
+  expect(apiStudy.title).toEqual(testStudy.unpublishedInfo.title);
+
+  // Cap ID can exist for unpublished source studies in practice, but the test types currently don't allow specifying it
+  expect(apiStudy.capId).toBeNull();
 }
 
 export function expectSourceStudyToMatch(
