@@ -29,7 +29,7 @@ export async function getInitialJoinSourceStudiesForGlobalAPI(
         FROM hat.atlases ar
       ),
       source_dataset_counts AS (
-        SELECT fd.source_study_id, COUNT(*)::int AS source_dataset_count
+        SELECT fd.source_study_id, COUNT(DISTINCT fd.id)::int AS source_dataset_count
         FROM hat.source_datasets fd
         JOIN hat.files f ON f.id = fd.file_id
         WHERE NOT f.is_archived
