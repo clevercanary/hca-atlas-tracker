@@ -496,13 +496,14 @@ export const buildSourceDatasetTitle = (
 
 /**
  * Build props for the global source dataset list ValidationStatusCell component.
- * Reuses the atlas-scoped cell by forwarding the row's CellContext.
- * @param _ - Unused entity arg (data is read from cellContext).
+ * Reuses the atlas-scoped cell by forwarding the row's CellContext plus the
+ * sourceDatasetId needed by ValidationSummary to build validator detail links.
+ * @param sourceDataset - Source dataset entity.
  * @param viewContext - View context carrying the row's CellContext.
  * @returns Props to be used for the ValidationStatusCell component.
  */
 export const buildSourceDatasetValidationStatus = (
-  _: HCAAtlasTrackerGlobalSourceDataset,
+  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
   viewContext: ViewContext<HCAAtlasTrackerGlobalSourceDataset>,
 ): ComponentProps<typeof C.ValidationStatusCell> => {
   const { cellContext } = viewContext;
@@ -514,6 +515,7 @@ export const buildSourceDatasetValidationStatus = (
       HCAAtlasTrackerGlobalSourceDataset,
       HCAAtlasTrackerGlobalSourceDataset["validationStatus"]
     >),
+    sourceDatasetId: sourceDataset.id,
     validationRoute: ROUTE.ATLAS_SOURCE_DATASET_VALIDATION,
   };
 };
