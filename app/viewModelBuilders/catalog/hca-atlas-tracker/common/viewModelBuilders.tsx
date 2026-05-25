@@ -25,6 +25,7 @@ import {
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerComponentAtlas,
+  HCAAtlasTrackerGlobalComponentAtlas,
   HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListAtlas,
   HCAAtlasTrackerListValidationRecord,
@@ -332,6 +333,108 @@ export const buildIngestionCountsHca = (
   atlas: HCAAtlasTrackerListAtlas,
 ): ComponentProps<typeof C.TaskCountsCell> => {
   return buildIngestionCountsForSystem(atlas, SYSTEM.HCA_DATA_REPOSITORY);
+};
+
+/**
+ * Build props for the global integrated object list Atlas(es) LinksCell component.
+ * @param integratedObject - Integrated object with linked atlas summaries.
+ * @returns Props to be used for the LinksCell component.
+ */
+export const buildIntegratedObjectAtlases = (
+  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+): ComponentProps<typeof C.LinksCell> => {
+  const { atlases, id: componentAtlasId } = integratedObject;
+  return {
+    links: atlases.map((atlas) => ({
+      label: getAtlasName(atlas),
+      url: getRouteURL(ROUTE.COMPONENT_ATLAS, {
+        atlasId: atlas.id,
+        componentAtlasId,
+      }),
+    })),
+  };
+};
+
+/**
+ * Build props for the global integrated object list BioNetworksCell component.
+ * Renders one stacked row per unique network (component itself de-dupes).
+ * @param integratedObject - Integrated object with linked atlas summaries.
+ * @returns Props to be used for the BioNetworksCell component.
+ */
+export const buildIntegratedObjectBioNetworks = (
+  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+): ComponentProps<typeof C.BioNetworksCell> => {
+  return {
+    networkKeys: integratedObject.networks,
+  };
+};
+
+/**
+ * Build props for the global integrated object list file name Link component.
+ * Links to the atlas-scoped detail page on the primary atlas.
+ * @param integratedObject - Integrated object with linked atlas summaries.
+ * @returns Props to be used for the Link component.
+ */
+export const buildIntegratedObjectFileName = (
+  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+): ComponentProps<typeof C.Link> => {
+  const { atlasId, baseFileName, id: componentAtlasId } = integratedObject;
+  return {
+    label: baseFileName,
+    url: getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
+  };
+};
+
+/**
+ * Build props for the global integrated object list source-dataset count BasicCell component.
+ * @param integratedObject - Integrated object entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildIntegratedObjectSourceDatasetCount = (
+  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: integratedObject.sourceDatasetCount.toLocaleString(),
+  };
+};
+
+/**
+ * Build props for the global integrated object list title BasicCell component.
+ * @param integratedObject - Integrated object entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildIntegratedObjectTitle = (
+  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: integratedObject.title,
+  };
+};
+
+/**
+ * Build props for the global integrated object list ValidationStatusCell component.
+ * Forwards the row's CellContext plus the componentAtlasId needed by
+ * ValidationSummary to build validator detail links.
+ * @param integratedObject - Integrated object entity.
+ * @param viewContext - View context carrying the row's CellContext.
+ * @returns Props to be used for the ValidationStatusCell component.
+ */
+export const buildIntegratedObjectValidationStatus = (
+  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+  viewContext: ViewContext<HCAAtlasTrackerGlobalComponentAtlas>,
+): ComponentProps<typeof C.ValidationStatusCell> => {
+  const { cellContext } = viewContext;
+  if (!cellContext) {
+    throw new Error("ValidationStatusCell requires a row CellContext");
+  }
+  return {
+    ...(cellContext as CellContext<
+      HCAAtlasTrackerGlobalComponentAtlas,
+      HCAAtlasTrackerGlobalComponentAtlas["validationStatus"]
+    >),
+    componentAtlasId: integratedObject.id,
+    validationRoute: ROUTE.INTEGRATED_OBJECT_VALIDATION,
+  };
 };
 
 /**

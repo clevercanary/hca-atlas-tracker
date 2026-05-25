@@ -8,6 +8,7 @@ import { announcementsConfig } from "./announcements/announcementsConfig";
 import { authenticationConfig } from "./authentication/authentication";
 import { floating } from "./floating/floating";
 import { atlasEntityConfig } from "./index/atlas/atlasEntityConfig";
+import { integratedObjectsEntityConfig } from "./index/integratedObjects/integratedObjectsEntityConfig";
 import { sourceDatasetsEntityConfig } from "./index/sourceDatasets/sourceDatasetsEntityConfig";
 import { tasksEntityConfig } from "./index/tasks/tasksEntityConfig";
 import { userEntityConfig } from "./index/user/userEntityConfig";
@@ -40,6 +41,7 @@ export function makeConfig(
     entities: [
       atlasEntityConfig,
       sourceDatasetsEntityConfig,
+      integratedObjectsEntityConfig,
       tasksEntityConfig,
       userEntityConfig,
     ],
@@ -71,6 +73,7 @@ export function makeConfig(
               url: ROUTE.ATLASES,
             },
             { label: "Source Datasets", url: ROUTE.SOURCE_DATASETS },
+            { label: "Integrated Objects", url: ROUTE.INTEGRATED_OBJECTS },
             { label: "Reports", url: ROUTE.REPORTS },
             { label: "Team", url: ROUTE.USERS },
             {

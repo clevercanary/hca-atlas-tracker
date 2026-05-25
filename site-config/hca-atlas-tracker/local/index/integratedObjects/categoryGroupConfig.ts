@@ -29,10 +29,14 @@ export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.SUSPENSION_TYPE,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SUSPENSION_TYPE,
         },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
+        },
         VALIDATION_STATUS_CATEGORY_CONFIG,
       ],
       label: "",
     },
   ],
-  key: "sourceDatasets",
+  key: "integratedObjects",
 };

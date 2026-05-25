@@ -15,6 +15,7 @@ export const ROUTE = {
   CREATE_ATLAS: "/atlases/create",
   CREATE_SOURCE_STUDY: "/atlases/[atlasId]/source-studies/create",
   CREATE_USER: "/team/create",
+  INTEGRATED_OBJECTS: "/integrated-objects",
   INTEGRATED_OBJECT_SOURCE_DATASETS:
     "/atlases/[atlasId]/integrated-objects/[componentAtlasId]/source-datasets",
   INTEGRATED_OBJECT_VALIDATION:
