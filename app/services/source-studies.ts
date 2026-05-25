@@ -9,6 +9,7 @@ import {
   HCAAtlasTrackerDBPublishedSourceStudy,
   HCAAtlasTrackerDBPublishedSourceStudyInfo,
   HCAAtlasTrackerDBSourceStudy,
+  HCAAtlasTrackerDBSourceStudyForGlobalAPI,
   HCAAtlasTrackerDBSourceStudyMinimumColumns,
   HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
@@ -31,7 +32,10 @@ import {
   replaceSourceDatasetsSourceStudy,
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
-import { setSourceStudyMetadataSpreadsheets } from "../data/source-studies";
+import {
+  getInitialJoinSourceStudiesForGlobalAPI,
+  setSourceStudyMetadataSpreadsheets,
+} from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-errors";
 import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
 import { normalizeDoi } from "../utils/doi";
@@ -56,6 +60,21 @@ import {
   getValidationRecordsWithoutAtlasPropertiesForEntities,
   updateSourceStudyValidations,
 } from "./validations";
+
+/**
+ * Get all source studies joined with data used for global (as opposed to atlas-specific) API responses.
+ * @returns source studies with fields for global API.
+ */
+export async function getSourceStudiesForGlobalApi(): Promise<
+  HCAAtlasTrackerDBSourceStudyForGlobalAPI[]
+> {
+  return doTransaction(async (client) =>
+    addValidationsToSourceStudiesInfo(
+      await getInitialJoinSourceStudiesForGlobalAPI(client),
+      client,
+    ),
+  );
+}
 
 export async function getAtlasSourceStudies(
   atlasId: string,
@@ -183,10 +202,12 @@ export async function getSourceStudy(
  * @param client - Postgres client to use.
  * @returns sources studies with validation lists added.
  */
-async function addValidationsToSourceStudiesInfo(
-  sourceStudies: HCAAtlasTrackerDBSourceStudyWithSourceDatasets[],
+async function addValidationsToSourceStudiesInfo<
+  T extends HCAAtlasTrackerDBSourceStudy,
+>(
+  sourceStudies: T[],
   client: pg.PoolClient,
-): Promise<HCAAtlasTrackerDBSourceStudyWithRelatedEntities[]> {
+): Promise<Array<T & { validations: HCAAtlasTrackerDBValidation[] }>> {
   const validations =
     await getValidationRecordsWithoutAtlasPropertiesForEntities(
       sourceStudies.map((s) => s.id),
