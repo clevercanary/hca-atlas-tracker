@@ -149,12 +149,18 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 for logged out user", async () => {
-    expect((await doComponentAtlasesRequest())._getStatusCode()).toEqual(401);
+    expect(
+      (
+        await doComponentAtlasesRequest(undefined, METHOD.GET, true)
+      )._getStatusCode(),
+    ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doComponentAtlasesRequest(USER_UNREGISTERED))._getStatusCode(),
+      (
+        await doComponentAtlasesRequest(USER_UNREGISTERED, METHOD.GET, true)
+      )._getStatusCode(),
     ).toEqual(403);
   });
 

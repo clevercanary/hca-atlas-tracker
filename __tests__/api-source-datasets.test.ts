@@ -140,12 +140,18 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 401 for logged out user", async () => {
-    expect((await doSourceDatasetsRequest())._getStatusCode()).toEqual(401);
+    expect(
+      (
+        await doSourceDatasetsRequest(undefined, METHOD.GET, true)
+      )._getStatusCode(),
+    ).toEqual(401);
   });
 
   it("returns error 403 for unregistered user", async () => {
     expect(
-      (await doSourceDatasetsRequest(USER_UNREGISTERED))._getStatusCode(),
+      (
+        await doSourceDatasetsRequest(USER_UNREGISTERED, METHOD.GET, true)
+      )._getStatusCode(),
     ).toEqual(403);
   });
 
