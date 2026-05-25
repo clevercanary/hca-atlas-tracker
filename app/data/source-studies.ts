@@ -11,7 +11,7 @@ import {
  * @param client - Postgres client to use.
  * @returns initial-join source studies for global API.
  */
-export async function getInitialJoinSourceStudiesForGlobalAPI(
+export async function getInitialJoinSourceStudiesForGlobalApi(
   client: pg.PoolClient,
 ): Promise<
   WithLinkedAtlases<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>[]

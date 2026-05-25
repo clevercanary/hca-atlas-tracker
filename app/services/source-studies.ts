@@ -33,7 +33,7 @@ import {
   unlinkAllSourceDatasetsFromSourceStudy,
 } from "../data/source-datasets";
 import {
-  getInitialJoinSourceStudiesForGlobalAPI,
+  getInitialJoinSourceStudiesForGlobalApi,
   setSourceStudyMetadataSpreadsheets,
 } from "../data/source-studies";
 import { AccessError, NotFoundError } from "../utils/api-errors";
@@ -70,7 +70,7 @@ export async function getSourceStudiesForGlobalApi(): Promise<
 > {
   return doTransaction(async (client) =>
     addValidationsToSourceStudiesInfo(
-      await getInitialJoinSourceStudiesForGlobalAPI(client),
+      await getInitialJoinSourceStudiesForGlobalApi(client),
       client,
     ),
   );
