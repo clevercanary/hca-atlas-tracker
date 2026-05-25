@@ -24,12 +24,10 @@ import {
   expectApiSourceStudyToHaveMatchingDbValidations,
   resetDatabase,
 } from "../testing/db-utils";
+import { TestUser } from "../testing/entities";
 import {
-  TestPublishedSourceStudy,
-  TestUnpublishedSourceStudy,
-  TestUser,
-} from "../testing/entities";
-import {
+  expectApiSourceStudyToMatchPublishedTest,
+  expectApiSourceStudyToMatchUnpublishedTest,
   getTestAtlasShortNameSlug,
   testApiRole,
   withConsoleErrorHiding,
@@ -114,7 +112,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(studies).toHaveLength(1);
-    expectUnpublishedStudyPropertiesToMatch(
+    expectApiSourceStudyToMatchUnpublishedTest(
       studies.find((d) => d.id === SOURCE_STUDY_PUBLISHED.id),
       SOURCE_STUDY_PUBLISHED,
     );
@@ -137,11 +135,11 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
         expect(studies).toHaveLength(2);
-        expectStudyPropertiesToMatch(
+        expectApiSourceStudyToMatchPublishedTest(
           studies.find((d) => d.id === SOURCE_STUDY_PUBLIC_NO_CROSSREF.id),
           SOURCE_STUDY_PUBLIC_NO_CROSSREF,
         );
-        expectStudyPropertiesToMatch(
+        expectApiSourceStudyToMatchPublishedTest(
           studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
           SOURCE_STUDY_SHARED,
         );
@@ -161,15 +159,15 @@ describe(TEST_ROUTE, () => {
         expect(res._getStatusCode()).toEqual(200);
         const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
         expect(studies).toHaveLength(3);
-        expectStudyPropertiesToMatch(
+        expectApiSourceStudyToMatchPublishedTest(
           studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
           SOURCE_STUDY_DRAFT_OK,
         );
-        expectStudyPropertiesToMatch(
+        expectApiSourceStudyToMatchPublishedTest(
           studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
           SOURCE_STUDY_SHARED,
         );
-        expectStudyPropertiesToMatch(
+        expectApiSourceStudyToMatchPublishedTest(
           studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
           SOURCE_STUDY_DRAFT_NO_CROSSREF,
         );
@@ -182,15 +180,15 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(studies).toHaveLength(3);
-    expectStudyPropertiesToMatch(
+    expectApiSourceStudyToMatchPublishedTest(
       studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
       SOURCE_STUDY_DRAFT_OK,
     );
-    expectStudyPropertiesToMatch(
+    expectApiSourceStudyToMatchPublishedTest(
       studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
       SOURCE_STUDY_SHARED,
     );
-    expectStudyPropertiesToMatch(
+    expectApiSourceStudyToMatchPublishedTest(
       studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
       SOURCE_STUDY_DRAFT_NO_CROSSREF,
     );
@@ -205,15 +203,15 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(200);
     const studies = res._getJSONData() as HCAAtlasTrackerSourceStudy[];
     expect(studies).toHaveLength(3);
-    expectStudyPropertiesToMatch(
+    expectApiSourceStudyToMatchPublishedTest(
       studies.find((d) => d.id === SOURCE_STUDY_DRAFT_OK.id),
       SOURCE_STUDY_DRAFT_OK,
     );
-    expectStudyPropertiesToMatch(
+    expectApiSourceStudyToMatchPublishedTest(
       studies.find((d) => d.id === SOURCE_STUDY_SHARED.id),
       SOURCE_STUDY_SHARED,
     );
-    expectStudyPropertiesToMatch(
+    expectApiSourceStudyToMatchPublishedTest(
       studies.find((d) => d.id === SOURCE_STUDY_DRAFT_NO_CROSSREF.id),
       SOURCE_STUDY_DRAFT_NO_CROSSREF,
     );
@@ -256,49 +254,4 @@ async function doStudiesRequest(
 
 function getQueryValues(atlasId: string): Record<string, string> {
   return { atlasId };
-}
-
-function expectStudyPropertiesToMatch(
-  apiStudy: HCAAtlasTrackerSourceStudy | undefined,
-  testStudy: TestPublishedSourceStudy,
-): void {
-  expect(apiStudy).toBeDefined();
-  if (!apiStudy) return;
-  expect(apiStudy.id).toEqual(testStudy.id);
-  expect(apiStudy.doi).toEqual(testStudy.doi);
-  expect(apiStudy.doiStatus).toEqual(testStudy.doiStatus);
-  if (testStudy.publication) {
-    expect(apiStudy.title).toEqual(testStudy.publication.title);
-    expect(apiStudy.journal).toEqual(testStudy.publication.journal);
-    expect(apiStudy.publicationDate).toEqual(
-      testStudy.publication.publicationDate,
-    );
-    expect(apiStudy.referenceAuthor).toEqual(
-      testStudy.publication.authors[0]?.name,
-    );
-  } else {
-    expect(apiStudy.title).toBeNull();
-    expect(apiStudy.journal).toBeNull();
-    expect(apiStudy.publicationDate).toBeNull();
-    expect(apiStudy.referenceAuthor).toBeNull();
-  }
-}
-
-function expectUnpublishedStudyPropertiesToMatch(
-  apiStudy: HCAAtlasTrackerSourceStudy | undefined,
-  testStudy: TestUnpublishedSourceStudy,
-): void {
-  expect(apiStudy).toBeDefined();
-  if (!apiStudy) return;
-  expect(apiStudy.id).toEqual(testStudy.id);
-  expect(apiStudy.doi).toBeNull();
-  expect(apiStudy.cellxgeneCollectionId).toEqual(
-    testStudy.cellxgeneCollectionId,
-  );
-  expect(apiStudy.hcaProjectId).toEqual(testStudy.hcaProjectId);
-  expect(apiStudy.contactEmail).toEqual(testStudy.unpublishedInfo.contactEmail);
-  expect(apiStudy.referenceAuthor).toEqual(
-    testStudy.unpublishedInfo.referenceAuthor,
-  );
-  expect(apiStudy.title).toEqual(testStudy.unpublishedInfo.title);
 }
