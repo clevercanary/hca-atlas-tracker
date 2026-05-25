@@ -8,6 +8,7 @@ import { announcementsConfig } from "./announcements/announcementsConfig";
 import { authenticationConfig } from "./authentication/authentication";
 import { floating } from "./floating/floating";
 import { atlasEntityConfig } from "./index/atlas/atlasEntityConfig";
+import { sourceDatasetsEntityConfig } from "./index/sourceDatasets/sourceDatasetsEntityConfig";
 import { tasksEntityConfig } from "./index/tasks/tasksEntityConfig";
 import { userEntityConfig } from "./index/user/userEntityConfig";
 
@@ -36,7 +37,12 @@ export function makeConfig(
     dataSource: {
       url: browserUrl,
     },
-    entities: [atlasEntityConfig, tasksEntityConfig, userEntityConfig],
+    entities: [
+      atlasEntityConfig,
+      sourceDatasetsEntityConfig,
+      tasksEntityConfig,
+      userEntityConfig,
+    ],
     gitHubUrl,
     layout: {
       floating,
@@ -64,6 +70,7 @@ export function makeConfig(
               label: "Atlases",
               url: ROUTE.ATLASES,
             },
+            { label: "Source Datasets", url: ROUTE.SOURCE_DATASETS },
             { label: "Reports", url: ROUTE.REPORTS },
             { label: "Team", url: ROUTE.USERS },
             {

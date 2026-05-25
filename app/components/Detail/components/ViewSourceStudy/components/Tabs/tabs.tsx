@@ -39,7 +39,7 @@ export const Tabs = ({
             "Datasets",
             sourceStudy?.sourceDatasetCount,
           ),
-          value: ROUTE.SOURCE_DATASETS,
+          value: ROUTE.ATLAS_SOURCE_STUDY_SOURCE_DATASETS,
         },
       ]}
       value={route}

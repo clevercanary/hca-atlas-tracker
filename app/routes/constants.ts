@@ -8,6 +8,8 @@ export const ROUTE = {
     "/atlases/[atlasId]/source-datasets/[sourceDatasetId]/validations/[validatorName]",
   ATLAS_SOURCE_DATASET_VALIDATIONS:
     "/atlases/[atlasId]/source-datasets/[sourceDatasetId]/validations",
+  ATLAS_SOURCE_STUDY_SOURCE_DATASETS:
+    "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
   COMPONENT_ATLAS: "/atlases/[atlasId]/integrated-objects/[componentAtlasId]",
   COMPONENT_ATLASES: "/atlases/[atlasId]/integrated-objects",
   CREATE_ATLAS: "/atlases/create",
@@ -26,8 +28,7 @@ export const ROUTE = {
   METADATA_ENTRY_SHEETS: "/atlases/[atlasId]/metadata-entry-sheets",
   REPORTS: "/reports",
   REQUESTING_ELEVATED_PERMISSIONS: "/requesting-elevated-permissions",
-  SOURCE_DATASETS:
-    "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
+  SOURCE_DATASETS: "/source-datasets",
   SOURCE_STUDIES: "/atlases/[atlasId]/source-studies",
   SOURCE_STUDY: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
   USER: "/team/[userId]",

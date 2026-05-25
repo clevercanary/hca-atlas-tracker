@@ -1,4 +1,5 @@
 import { CellContext } from "@tanstack/react-table";
+import { HCAAtlasTrackerGlobalSourceDataset } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { RouteValue } from "../../../../../../routes/entities";
 import { AtlasSourceDataset } from "../../../../../../views/AtlasSourceDatasetsView/entities";
@@ -11,6 +12,11 @@ export type Props =
     > &
       TValue)
   | (CellContext<AtlasSourceDataset, AtlasSourceDataset["validationStatus"]> &
+      TValue)
+  | (CellContext<
+      HCAAtlasTrackerGlobalSourceDataset,
+      HCAAtlasTrackerGlobalSourceDataset["validationStatus"]
+    > &
       TValue);
 
 interface TValue extends PathParameter {
