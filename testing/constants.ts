@@ -4081,6 +4081,68 @@ export const COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES = {
   versionId: "52d7f766-3b12-43f7-b884-b5d8b7ad2fb8",
 } satisfies TestComponentAtlas;
 
+const BASE_FILE_COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT = {
+  bucket: "bucket-component-atlas-draft-latest-different",
+  fileName: "component-atlas-draft-latest-different.h5ad",
+  fileType: FILE_TYPE.INTEGRATED_OBJECT,
+} satisfies Partial<TestFile>;
+const COMPONENT_ATLAS_ID_DRAFT_LATEST_DIFFERENT =
+  "fb3c7c4a-fb1e-4d72-83cc-5c44a3a3e0c4";
+export const COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R1 = {
+  file: {
+    ...BASE_FILE_COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT,
+    atlas: (): TestAtlas => ATLAS_WITH_DRAFT_LATEST_R0,
+    etag: "e0b3aa1c12224b66b4e80b78de01b3a9",
+    eventTime: "2026-05-22T22:01:12.402Z",
+    id: "0c34a4e2-5d23-4c2c-9a51-2b35e1c0b9d7",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "78451",
+    versionId: null,
+  },
+  id: COMPONENT_ATLAS_ID_DRAFT_LATEST_DIFFERENT,
+  isLatest: false,
+  publishedAt: "2026-05-22T22:17:52.402Z",
+  revision: 1,
+  versionId: "1f7b9a0c-2d3e-4f5a-6b7c-8d9e0f1a2b3c",
+  wipNumber: 1,
+} satisfies TestComponentAtlas;
+export const COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R2 = {
+  file: {
+    ...BASE_FILE_COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT,
+    atlas: (): TestAtlas => ATLAS_WITH_DRAFT_LATEST_R1,
+    etag: "9c19b3f1d4ef4c4090c2d12f2c5e8a7d",
+    eventTime: "2026-05-22T22:34:32.402Z",
+    id: "1d45b5f3-6e34-5d3d-ab62-3c46f2d1cae8",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "21043",
+    versionId: null,
+  },
+  id: COMPONENT_ATLAS_ID_DRAFT_LATEST_DIFFERENT,
+  isLatest: true,
+  publishedAt: null,
+  revision: 2,
+  versionId: "2a8c0b1d-3e4f-5a6b-7c8d-9e0f1a2b3c4d",
+  wipNumber: 1,
+} satisfies TestComponentAtlas;
+
+export const COMPONENT_ATLAS_DRAFT_LATEST_SAME = {
+  file: {
+    atlas: (): TestAtlas => ATLAS_WITH_DRAFT_LATEST_R1,
+    bucket: "bucket-component-atlas-draft-latest-same",
+    etag: "76a91dde2b8a489298c6a07c7f02d6a1",
+    eventTime: "2026-05-22T22:51:12.402Z",
+    fileName: "component-atlas-draft-latest-same.h5ad",
+    fileType: FILE_TYPE.INTEGRATED_OBJECT,
+    id: "2e56c604-7f45-6e4e-bc73-4d57a3e2dbf9",
+    integrityStatus: INTEGRITY_STATUS.PENDING,
+    sizeBytes: "45921",
+    versionId: null,
+  },
+  id: "3b9d1c2e-4f5a-6b7c-8d9e-0f1a2b3c4d5e",
+  publishedAt: "2026-05-22T23:07:52.402Z",
+  versionId: "4caec3df-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+} satisfies TestComponentAtlas;
+
 // Component atlases to initialize in the database before tests
 export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_DRAFT_FOO,
@@ -4114,6 +4176,9 @@ export const INITIAL_TEST_COMPONENT_ATLASES: TestComponentAtlas[] = [
   COMPONENT_ATLAS_PUBLISH_STATUSES_PUBLISHED_BAR,
   COMPONENT_ATLAS_PUBLISHED,
   COMPONENT_ATLAS_WITH_BOOLEAN_VALIDATOR_SUMMARIES,
+  COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R1,
+  COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R2,
+  COMPONENT_ATLAS_DRAFT_LATEST_SAME,
 ];
 
 // ATLASES
@@ -4670,7 +4735,6 @@ export const ATLAS_WITH_LINKED_PUBLISH_STATUSES: TestAtlas = {
 const BASE_ATLAS_WITH_DRAFT_LATEST = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
-  componentAtlases: [],
   description: "foo foo bar baz bar foo barbar foo",
   generation: 6,
   highlights: "",
@@ -4684,6 +4748,10 @@ const BASE_ATLAS_WITH_DRAFT_LATEST = {
 } satisfies Partial<TestAtlas>;
 export const ATLAS_WITH_DRAFT_LATEST_R0: TestAtlas = {
   ...BASE_ATLAS_WITH_DRAFT_LATEST,
+  componentAtlases: [
+    COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R1.versionId,
+    COMPONENT_ATLAS_DRAFT_LATEST_SAME.versionId,
+  ],
   id: ATLAS_ID_WITH_DRAFT_LATEST_R0,
   publishedAt: "2026-03-25T21:36:09.268Z",
   revision: 0,
@@ -4694,6 +4762,10 @@ export const ATLAS_WITH_DRAFT_LATEST_R0: TestAtlas = {
 };
 export const ATLAS_WITH_DRAFT_LATEST_R1: TestAtlas = {
   ...BASE_ATLAS_WITH_DRAFT_LATEST,
+  componentAtlases: [
+    COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R2.versionId,
+    COMPONENT_ATLAS_DRAFT_LATEST_SAME.versionId,
+  ],
   id: ATLAS_ID_WITH_DRAFT_LATEST_R1,
   publishedAt: null,
   revision: 1,

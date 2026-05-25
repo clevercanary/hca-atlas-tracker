@@ -79,12 +79,18 @@ export interface HCAAtlasTrackerComponentAtlas {
   revision: number;
   sizeBytes: number;
   sourceDatasetCount: number;
+  status: FILE_PUBLISHED_STATUS;
   suspensionType: string[];
   tissue: string[];
   title: string;
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
   wipNumber: number;
+}
+
+export interface HCAAtlasTrackerGlobalComponentAtlas
+  extends HCAAtlasTrackerComponentAtlas, LinkedAtlasFields {
+  atlasId: string;
 }
 
 export interface HCAAtlasTrackerDetailComponentAtlas extends HCAAtlasTrackerComponentAtlas {
@@ -359,6 +365,11 @@ export type HCAAtlasTrackerDBComponentAtlasForAPI =
       file_id: string;
       source_dataset_count: number;
     };
+
+export type HCAAtlasTrackerDBComponentAtlasForGlobalAPI =
+  HCAAtlasTrackerDBComponentAtlasForAPI & {
+    atlases: LinkedAtlasSummary[];
+  };
 
 export type HCAAtlasTrackerDBComponentAtlasForDetailAPI =
   HCAAtlasTrackerDBComponentAtlasForAPI &

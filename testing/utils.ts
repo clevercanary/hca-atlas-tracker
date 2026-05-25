@@ -690,9 +690,7 @@ export function expectApiSourceDatasetToMatchTest(
     testSourceDataset.sourceStudyId,
   );
   expect(apiSourceDataset.status).toEqual(
-    testSourceDataset.publishedAt === null
-      ? FILE_PUBLISHED_STATUS.WIP
-      : FILE_PUBLISHED_STATUS.PUBLISHED,
+    expectedFilePublishedStatus(testSourceDataset.publishedAt),
   );
   expect(apiSourceDataset.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? [],
@@ -783,6 +781,9 @@ export function expectApiComponentAtlasToMatchTest(
   );
   expect(apiComponentAtlas.revision).toEqual(testComponentAtlas.revision ?? 1);
   expect(apiComponentAtlas.sizeBytes).toEqual(Number(testFile.sizeBytes));
+  expect(apiComponentAtlas.status).toEqual(
+    expectedFilePublishedStatus(testComponentAtlas.publishedAt),
+  );
   expect(apiComponentAtlas.suspensionType).toEqual(
     testFile.datasetInfo?.suspensionType ?? [],
   );
@@ -972,6 +973,14 @@ export async function expectDbUserToMatchInputData(
   expect(dbUser.role_associated_resource_ids).toEqual(
     inputData.roleAssociatedResourceIds,
   );
+}
+
+function expectedFilePublishedStatus(
+  publishedAt: string | null | undefined,
+): FILE_PUBLISHED_STATUS {
+  return publishedAt == null
+    ? FILE_PUBLISHED_STATUS.WIP
+    : FILE_PUBLISHED_STATUS.PUBLISHED;
 }
 
 function expectStringArrayToUnorderedEqual(

@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerGlobalSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerGlobalComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
-import sourceDatasetsHandler from "../pages/api/source-datasets";
+import componentAtlasesHandler from "../pages/api/component-atlases";
 import {
   ATLAS_PUBLISHED,
   ATLAS_PUBLISHED_R6,
@@ -12,28 +12,30 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
-  SOURCE_DATASET_BAZ,
-  SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R1,
-  SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R2,
-  SOURCE_DATASET_DRAFT_LATEST_SAME,
-  SOURCE_DATASET_FOOBAZ,
-  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
-  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W1,
-  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
-  SOURCE_DATASET_PUBLISHED,
-  SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES_W1,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES_W2,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
+  COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R1,
+  COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R2,
+  COMPONENT_ATLAS_DRAFT_LATEST_SAME,
+  COMPONENT_ATLAS_MISC_BAR,
+  COMPONENT_ATLAS_MISC_BAZ,
+  COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W1,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  COMPONENT_ATLAS_PUBLISHED,
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W1,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W2,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { resetDatabase } from "../testing/db-utils";
-import { TestAtlas, TestSourceDataset, TestUser } from "../testing/entities";
+import { TestAtlas, TestComponentAtlas, TestUser } from "../testing/entities";
 import {
+  expectApiComponentAtlasToMatchTest,
   expectApiEntityToMatchLinkedAtlases,
-  expectApiSourceDatasetToMatchTest,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -47,79 +49,86 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
-const TEST_ROUTE = "/api/source-datasets";
+const TEST_ROUTE = "/api/component-atlases";
 
-const EXPECTED_PRESENT_SOURCE_DATASETS: Array<{
+const EXPECTED_PRESENT_COMPONENT_ATLASES: Array<{
   atlasId: string;
+  componentAtlas: TestComponentAtlas;
   latestAtlasIds: string[];
   otherAtlases?: TestAtlas[];
   primaryAtlases: TestAtlas[];
-  sourceDataset: TestSourceDataset;
 }> = [
   // Latest unpublished with no older versions and single unpublished atlas version
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+    componentAtlas: COMPONENT_ATLAS_MISC_FOO,
     latestAtlasIds: [ATLAS_WITH_MISC_SOURCE_STUDIES.id],
     primaryAtlases: [ATLAS_WITH_MISC_SOURCE_STUDIES],
-    sourceDataset: SOURCE_DATASET_BAZ,
   },
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+    componentAtlas: COMPONENT_ATLAS_MISC_BAR,
     latestAtlasIds: [ATLAS_WITH_MISC_SOURCE_STUDIES.id],
     primaryAtlases: [ATLAS_WITH_MISC_SOURCE_STUDIES],
-    sourceDataset: SOURCE_DATASET_FOOBAZ,
+  },
+  {
+    atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+    componentAtlas: COMPONENT_ATLAS_MISC_BAZ,
+    latestAtlasIds: [ATLAS_WITH_MISC_SOURCE_STUDIES.id],
+    primaryAtlases: [ATLAS_WITH_MISC_SOURCE_STUDIES],
   },
   // Latest unpublished with older versions and single unpublished atlas version
   {
     atlasId: ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+    componentAtlas: COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
     latestAtlasIds: [ATLAS_WITH_MISC_SOURCE_STUDIES_B.id],
     primaryAtlases: [ATLAS_WITH_MISC_SOURCE_STUDIES_B],
-    sourceDataset: SOURCE_DATASET_WITH_MULTIPLE_FILES_W3,
   },
   {
     atlasId: ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+    componentAtlas: COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
     latestAtlasIds: [ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id],
     primaryAtlases: [ATLAS_WITH_NON_LATEST_METADATA_ENTITIES],
-    sourceDataset: SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   },
   // Published with multiple published atlas versions
   {
     atlasId: ATLAS_PUBLISHED.id,
+    componentAtlas: COMPONENT_ATLAS_PUBLISHED,
     latestAtlasIds: [ATLAS_PUBLISHED.id],
     primaryAtlases: [ATLAS_PUBLISHED_R6, ATLAS_PUBLISHED],
-    sourceDataset: SOURCE_DATASET_PUBLISHED,
   },
   // Published and unpublished in published and unpublished versions of same atlas
   {
     atlasId: ATLAS_WITH_DRAFT_LATEST_R0.id,
+    componentAtlas: COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R1,
     latestAtlasIds: [],
     primaryAtlases: [ATLAS_WITH_DRAFT_LATEST_R0],
-    sourceDataset: SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R1,
   },
   {
     atlasId: ATLAS_WITH_DRAFT_LATEST_R1.id,
+    componentAtlas: COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R2,
     latestAtlasIds: [ATLAS_WITH_DRAFT_LATEST_R1.id],
     primaryAtlases: [ATLAS_WITH_DRAFT_LATEST_R1],
-    sourceDataset: SOURCE_DATASET_DRAFT_LATEST_DIFFERENT_R2,
   },
   // Published with published and unpublished atlas versions
   {
     atlasId: ATLAS_WITH_DRAFT_LATEST_R1.id,
+    componentAtlas: COMPONENT_ATLAS_DRAFT_LATEST_SAME,
     latestAtlasIds: [ATLAS_WITH_DRAFT_LATEST_R1.id],
     primaryAtlases: [ATLAS_WITH_DRAFT_LATEST_R0, ATLAS_WITH_DRAFT_LATEST_R1],
-    sourceDataset: SOURCE_DATASET_DRAFT_LATEST_SAME,
   },
 ];
 
-const EXPECTED_ABSENT_SOURCE_DATASETS: TestSourceDataset[] = [
+const EXPECTED_ABSENT_COMPONENT_ATLASES: TestComponentAtlas[] = [
   // Not linked to any atlas
-  SOURCE_DATASET_WITH_MULTIPLE_FILES_W1,
-  SOURCE_DATASET_WITH_MULTIPLE_FILES_W2,
-  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W1,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W1,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W2,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W1,
   // Non-latest unpublished version linked to an atlas (not a case we expect to see in practice, but should be absent regardless)
-  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
-  // Archived latest version linked to draft atlas
-  SOURCE_DATASET_WITH_ARCHIVED_LATEST_W2,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+  // Archived latest version linked to atlas
+  COMPONENT_ATLAS_WITH_ARCHIVED_LATEST_W2,
 ];
 
 beforeAll(async () => {
@@ -134,7 +143,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 405 for non-GET request", async () => {
     expect(
       (
-        await doSourceDatasetsRequest(USER_CONTENT_ADMIN, METHOD.POST)
+        await doComponentAtlasesRequest(USER_CONTENT_ADMIN, METHOD.POST)
       )._getStatusCode(),
     ).toEqual(405);
   });
@@ -142,7 +151,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 401 for logged out user", async () => {
     expect(
       (
-        await doSourceDatasetsRequest(undefined, METHOD.GET, true)
+        await doComponentAtlasesRequest(undefined, METHOD.GET, true)
       )._getStatusCode(),
     ).toEqual(401);
   });
@@ -150,16 +159,16 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 for unregistered user", async () => {
     expect(
       (
-        await doSourceDatasetsRequest(USER_UNREGISTERED, METHOD.GET, true)
+        await doComponentAtlasesRequest(USER_UNREGISTERED, METHOD.GET, true)
       )._getStatusCode(),
     ).toEqual(403);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
-      "returns source datasets",
+      "returns component atlases",
       TEST_ROUTE,
-      sourceDatasetsHandler,
+      componentAtlasesHandler,
       METHOD.GET,
       role,
       undefined,
@@ -167,61 +176,63 @@ describe(TEST_ROUTE, () => {
       false,
       (res) => {
         expect(res._getStatusCode()).toEqual(200);
-        const sourceDatasets =
-          res._getJSONData() as HCAAtlasTrackerGlobalSourceDataset[];
-        expectSourceDatasetsToMatchConstants(sourceDatasets);
+        const componentAtlases =
+          res._getJSONData() as HCAAtlasTrackerGlobalComponentAtlas[];
+        expectComponentAtlasesToMatchConstants(componentAtlases);
       },
     );
   }
 
-  it("returns source datasets when requested by logged in user with CONTENT_ADMIN role", async () => {
-    const res = await doSourceDatasetsRequest(USER_CONTENT_ADMIN);
+  it("returns component atlases when requested by logged in user with CONTENT_ADMIN role", async () => {
+    const res = await doComponentAtlasesRequest(USER_CONTENT_ADMIN);
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDatasets =
-      res._getJSONData() as HCAAtlasTrackerGlobalSourceDataset[];
-    expectSourceDatasetsToMatchConstants(sourceDatasets);
+    const componentAtlases =
+      res._getJSONData() as HCAAtlasTrackerGlobalComponentAtlas[];
+    expectComponentAtlasesToMatchConstants(componentAtlases);
   });
 });
 
-function expectSourceDatasetsToMatchConstants(
-  sourceDatasets: HCAAtlasTrackerGlobalSourceDataset[],
+function expectComponentAtlasesToMatchConstants(
+  componentAtlases: HCAAtlasTrackerGlobalComponentAtlas[],
 ): void {
-  for (const expectedInfo of EXPECTED_PRESENT_SOURCE_DATASETS) {
-    const sourceDataset = expectFindSourceDataset(
-      sourceDatasets,
-      expectedInfo.sourceDataset.file.id,
+  for (const expectedInfo of EXPECTED_PRESENT_COMPONENT_ATLASES) {
+    const componentAtlas = expectFindComponentAtlas(
+      componentAtlases,
+      expectedInfo.componentAtlas.file.id,
     );
-    expectApiSourceDatasetToMatchTest(
-      sourceDataset,
-      expectedInfo.sourceDataset,
+    expectApiComponentAtlasToMatchTest(
+      componentAtlas,
+      expectedInfo.componentAtlas,
     );
     expectApiEntityToMatchLinkedAtlases(
-      sourceDataset,
+      componentAtlas,
       expectedInfo.primaryAtlases,
       expectedInfo.otherAtlases ?? [],
       expectedInfo.latestAtlasIds,
       expectedInfo.atlasId,
     );
   }
-  for (const expectedSourceDataset of EXPECTED_ABSENT_SOURCE_DATASETS) {
+  for (const expectedComponentAtlas of EXPECTED_ABSENT_COMPONENT_ATLASES) {
     expect(
-      sourceDatasets.filter((d) => d.fileId === expectedSourceDataset.file.id),
+      componentAtlases.filter(
+        (c) => c.fileId === expectedComponentAtlas.file.id,
+      ),
     ).toHaveLength(0);
   }
 }
 
-function expectFindSourceDataset(
-  sourceDatasets: HCAAtlasTrackerGlobalSourceDataset[],
+function expectFindComponentAtlas(
+  componentAtlases: HCAAtlasTrackerGlobalComponentAtlas[],
   fileId: string,
-): HCAAtlasTrackerGlobalSourceDataset {
-  const matchingSourceDatasets = sourceDatasets.filter(
-    (d) => d.fileId === fileId,
+): HCAAtlasTrackerGlobalComponentAtlas {
+  const matchingComponentAtlases = componentAtlases.filter(
+    (c) => c.fileId === fileId,
   );
-  expect(matchingSourceDatasets).toHaveLength(1);
-  return matchingSourceDatasets[0];
+  expect(matchingComponentAtlases).toHaveLength(1);
+  return matchingComponentAtlases[0];
 }
 
-async function doSourceDatasetsRequest(
+async function doComponentAtlasesRequest(
   user?: TestUser,
   method = METHOD.GET,
   hideConsoleError = false,
@@ -231,7 +242,7 @@ async function doSourceDatasetsRequest(
     method,
   });
   await withConsoleErrorHiding(
-    () => sourceDatasetsHandler(req, res),
+    () => componentAtlasesHandler(req, res),
     hideConsoleError,
   );
   return res;
