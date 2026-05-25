@@ -17,6 +17,7 @@ import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBComponentAtlasForAPI,
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
+  HCAAtlasTrackerDBComponentAtlasForGlobalAPI,
   HCAAtlasTrackerDBEntrySheetValidation,
   HCAAtlasTrackerDBEntrySheetValidationListFields,
   HCAAtlasTrackerDBSourceDataset,
@@ -31,6 +32,7 @@ import {
   HCAAtlasTrackerDetailComponentAtlas,
   HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerEntrySheetValidation,
+  HCAAtlasTrackerGlobalComponentAtlas,
   HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListEntrySheetValidation,
   HCAAtlasTrackerSourceDataset,
@@ -118,6 +120,17 @@ export function dbComponentAtlasFileToDetailApiComponentAtlas(
   };
 }
 
+export function dbComponentAtlasFileToGlobalApiComponentAtlas(
+  dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForGlobalAPI,
+): HCAAtlasTrackerGlobalComponentAtlas {
+  return {
+    ...dbComponentAtlasFileToApiComponentAtlas(dbComponentAtlas),
+    ...getLinkedAtlasFieldArrays(dbComponentAtlas.atlases),
+    atlasId: getLatestHomeAtlas(dbComponentAtlas.atlases).id,
+    atlases: dbComponentAtlas.atlases,
+  };
+}
+
 export function dbComponentAtlasFileToApiComponentAtlas(
   dbComponentAtlas: HCAAtlasTrackerDBComponentAtlasForAPI,
 ): HCAAtlasTrackerComponentAtlas {
@@ -142,6 +155,7 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     revision: dbComponentAtlas.revision,
     sizeBytes: Number(dbComponentAtlas.size_bytes),
     sourceDatasetCount: dbComponentAtlas.source_dataset_count,
+    status: getDbMetadataEntityPublishedStatus(dbComponentAtlas),
     suspensionType: dbComponentAtlas.dataset_info?.suspensionType ?? [],
     tissue: dbComponentAtlas.dataset_info?.tissue ?? [],
     title: dbComponentAtlas.dataset_info?.title ?? "",

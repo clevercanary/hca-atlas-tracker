@@ -1,5 +1,8 @@
 import pg from "pg";
-import { HCAAtlasTrackerDBComponentAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerDBComponentAtlasForGlobalAPI,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
 import { NotFoundError } from "../utils/api-errors";
 
@@ -74,6 +77,65 @@ export async function updateSourceDatasetVersionInComponentAtlases(
     "UPDATE hat.component_atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE is_latest",
     [existingVersionId, newVersionId],
   );
+}
+
+/**
+ * Get all component atlases joined with data used for global (as opposed to atlas-specific) API responses.
+ * @returns component atlases with fields for global API.
+ */
+export async function getComponentAtlasesForGlobalApi(): Promise<
+  HCAAtlasTrackerDBComponentAtlasForGlobalAPI[]
+> {
+  const { rows: componentAtlases } =
+    await query<HCAAtlasTrackerDBComponentAtlasForGlobalAPI>(
+      `
+        WITH atlases_with_revisions AS (
+          SELECT
+            ar.*,
+            MAX(ar.revision) OVER (
+              PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
+            ) AS max_revision
+          FROM hat.atlases ar
+        )
+        SELECT
+          ca.*,
+          (
+            SELECT COUNT(d.id)::int
+            FROM hat.source_datasets d
+            JOIN hat.files df ON df.id = d.file_id
+            WHERE d.version_id = ANY(ca.source_datasets) AND NOT df.is_archived
+          ) AS source_dataset_count,
+          f.event_info,
+          f.id as file_id,
+          f.integrity_status,
+          f.is_archived,
+          f.key,
+          f.size_bytes,
+          f.dataset_info,
+          f.validation_status,
+          f.validation_summary,
+          con.base_filename,
+          ARRAY_AGG(
+            jsonb_build_object(
+              'generation', a.generation,
+              'id', a.id,
+              'isPrimary', TRUE, -- TODO: update this when importing is possible
+              'isLatest', a.revision = a.max_revision,
+              'network', a.overview->>'network',
+              'revision', a.revision,
+              'shortName', a.overview->>'shortName'
+            )
+          ) as atlases
+        FROM hat.component_atlases ca
+        JOIN hat.files f ON f.id = ca.file_id
+        JOIN hat.concepts con ON con.id = ca.id
+        JOIN atlases_with_revisions a ON ca.version_id = ANY(a.component_atlases)
+        WHERE (ca.is_latest OR ca.published_at IS NOT NULL) AND NOT f.is_archived
+        GROUP BY ca.version_id, f.id, con.id
+      `,
+    );
+
+  return componentAtlases;
 }
 
 /**
