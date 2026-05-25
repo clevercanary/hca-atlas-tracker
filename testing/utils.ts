@@ -589,10 +589,10 @@ export function expectApiSourceStudyToMatchTest(
   apiStudy: HCAAtlasTrackerSourceStudy,
   testStudy: TestSourceStudy,
 ): void {
-  if ("publication" in testStudy) {
-    expectApiSourceStudyToMatchPublishedTest(apiStudy, testStudy);
-  } else {
+  if ("unpublishedInfo" in testStudy) {
     expectApiSourceStudyToMatchUnpublishedTest(apiStudy, testStudy);
+  } else {
+    expectApiSourceStudyToMatchPublishedTest(apiStudy, testStudy);
   }
 }
 
