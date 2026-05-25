@@ -49,7 +49,7 @@ export async function getInitialJoinSourceStudiesForGlobalAPI(
         JOIN hat.files f ON f.id = fd.file_id
         WHERE NOT f.is_archived
       ) as d ON d.source_study_id=s.id
-      JOIN atlases_with_revisions a ON a.source_studies ? s.id
+      JOIN atlases_with_revisions a ON a.source_studies ? s.id::text
       GROUP BY s.id
     `,
   );
