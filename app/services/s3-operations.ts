@@ -1,6 +1,7 @@
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -33,6 +34,25 @@ export async function getDownloadUrl(
   return await getSignedUrl(s3, command, {
     expiresIn: PRESIGNED_DOWNLOAD_URL_EXPIRATION_TIME,
   });
+}
+
+/**
+ * Fetch the content length of an S3 object as a number.
+ * @param bucket - Bucket name.
+ * @param key - Object key.
+ * @returns Object content length in bytes.
+ */
+export async function getObjectSize(
+  bucket: string,
+  key: string,
+): Promise<number> {
+  const response = await s3.send(
+    new HeadObjectCommand({ Bucket: bucket, Key: key }),
+  );
+  if (response.ContentLength === undefined) {
+    throw new Error(`No content length returned for s3://${bucket}/${key}`);
+  }
+  return response.ContentLength;
 }
 
 /**
