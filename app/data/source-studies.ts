@@ -5,18 +5,16 @@ import {
   HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
   WithLinkedAtlases,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { query } from "../services/database";
 
 /**
  * Get all source studies, under the initial database-level join with other entities needed for the global source studies API.
- * @param client - Postgres client to use.
  * @returns initial-join source studies for global API.
  */
-export async function getInitialJoinSourceStudiesForGlobalApi(
-  client: pg.PoolClient,
-): Promise<
+export async function getInitialJoinSourceStudiesForGlobalApi(): Promise<
   WithLinkedAtlases<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>[]
 > {
-  const queryResult = await client.query<
+  const queryResult = await query<
     WithLinkedAtlases<HCAAtlasTrackerDBSourceStudyWithSourceDatasets>
   >(
     `

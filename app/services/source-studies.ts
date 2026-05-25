@@ -68,11 +68,8 @@ import {
 export async function getSourceStudiesForGlobalApi(): Promise<
   HCAAtlasTrackerDBSourceStudyForGlobalAPI[]
 > {
-  return doTransaction(async (client) =>
-    addValidationsToSourceStudiesInfo(
-      await getInitialJoinSourceStudiesForGlobalApi(client),
-      client,
-    ),
+  return await addValidationsToSourceStudiesInfo(
+    await getInitialJoinSourceStudiesForGlobalApi(),
   );
 }
 
@@ -206,7 +203,7 @@ async function addValidationsToSourceStudiesInfo<
   T extends HCAAtlasTrackerDBSourceStudy,
 >(
   sourceStudies: T[],
-  client: pg.PoolClient,
+  client?: pg.PoolClient,
 ): Promise<Array<T & { validations: HCAAtlasTrackerDBValidation[] }>> {
   const validations =
     await getValidationRecordsWithoutAtlasPropertiesForEntities(

@@ -400,12 +400,13 @@ export async function getValidationRecords(
  */
 export async function getValidationRecordsWithoutAtlasPropertiesForEntities(
   entityIds: string[],
-  client: pg.PoolClient,
+  client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBValidation[]> {
   return (
-    await client.query<HCAAtlasTrackerDBValidation>(
+    await query<HCAAtlasTrackerDBValidation>(
       "SELECT * FROM hat.validations WHERE entity_id=ANY($1)",
       [entityIds],
+      client,
     )
   ).rows;
 }
