@@ -786,6 +786,9 @@ export function expectApiSourceDatasetToMatchTest(
   );
   expect(apiSourceDataset.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiSourceDataset.title).toEqual(testFile.datasetInfo?.title ?? "");
+  expect(apiSourceDataset.validationErrorMessage).toEqual(
+    testFile.validationInfo?.errorMessage ?? null,
+  );
   expect(apiSourceDataset.validationStatus).toEqual(testFile.validationStatus);
   expect(apiSourceDataset.validationSummary).toEqual(
     normalizeValidationSummary(testFile.validationSummary),
@@ -878,6 +881,9 @@ export function expectApiComponentAtlasToMatchTest(
   );
   expect(apiComponentAtlas.tissue).toEqual(testFile.datasetInfo?.tissue ?? []);
   expect(apiComponentAtlas.title).toEqual(testFile.datasetInfo?.title ?? "");
+  expect(apiComponentAtlas.validationErrorMessage).toEqual(
+    testFile.validationInfo?.errorMessage ?? null,
+  );
   expect(apiComponentAtlas.validationStatus).toEqual(testFile.validationStatus);
   expect(apiComponentAtlas.validationSummary).toEqual(
     normalizeValidationSummary(testFile.validationSummary),
