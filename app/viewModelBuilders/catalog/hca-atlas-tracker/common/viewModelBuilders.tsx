@@ -661,9 +661,9 @@ export const buildSourceStudyBioNetworks = (
 
 /**
  * Get the HCA Data Repository status label for a source study, derived from
- * the underlying task statuses. Shared by the column cell and the input mapper
- * (which exposes the label as a field for facet filtering) so the displayed
- * labels stay in sync.
+ * the underlying task statuses. Used by the column cell builder. A mirrored
+ * implementation lives in `deriveHcaDataRepositoryLabel` (utils.ts) to break
+ * a circular import — keep the two in sync if logic changes.
  * @param sourceStudy - Source study.
  * @returns one of the STATUS_LABEL values used for HCA data repository state.
  */
@@ -708,7 +708,9 @@ export const buildSourceStudyHcaDataRepositoryStatus = (
 
 /**
  * Build props for the global source study list Name Link component.
- * Picks the latest atlas (or first if none flagged latest) to host the detail link.
+ * Picks a representative atlas via `pickPrimaryListAtlas` (deterministic sort:
+ * isLatest desc → generation desc → revision desc → shortName asc) to host
+ * the detail link.
  * @param sourceStudy - Source study with linked atlas summaries.
  * @returns Props to be used for the Link component.
  */

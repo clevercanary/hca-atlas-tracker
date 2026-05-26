@@ -142,6 +142,7 @@ export type HCAAtlasTrackerListSourceStudy =
   HCAAtlasTrackerGlobalSourceStudy & {
     hcaDataRepository: string;
     publicationStatus: PUBLICATION_STATUS;
+    publicationString: string;
   };
 
 export interface HCAAtlasTrackerSourceDataset {

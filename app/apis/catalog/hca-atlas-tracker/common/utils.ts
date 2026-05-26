@@ -425,6 +425,7 @@ export function sourceStudyInputMapper(
       apiSourceStudy.doi === null
         ? PUBLICATION_STATUS.UNPUBLISHED
         : PUBLICATION_STATUS.PUBLISHED,
+    publicationString: getSourceStudyCitation(apiSourceStudy),
   };
 }
 

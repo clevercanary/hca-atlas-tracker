@@ -97,6 +97,6 @@ export const TITLE: ColumnConfig<HCAAtlasTrackerListSourceStudy> = {
   } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListSourceStudy>,
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
-  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TITLE,
+  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
   width: { max: "1.5fr", min: "240px" },
 };
