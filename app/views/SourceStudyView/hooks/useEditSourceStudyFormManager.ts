@@ -29,7 +29,9 @@ export const useEditSourceStudyFormManager = (
 
   const onDiscard = useCallback(
     (url?: string) => {
-      Router.push(url ?? getRouteURL(ROUTE.SOURCE_STUDIES, pathParameter));
+      Router.push(
+        url ?? getRouteURL(ROUTE.ATLAS_SOURCE_STUDIES, pathParameter),
+      );
     },
     [pathParameter],
   );
@@ -145,7 +147,11 @@ function onSuccess(
   url?: string,
 ): void {
   Router.push(
-    url ?? getRouteURL(ROUTE.SOURCE_STUDY, { ...pathParameter, sourceStudyId }),
+    url ??
+      getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
+        ...pathParameter,
+        sourceStudyId,
+      }),
   );
 }
 

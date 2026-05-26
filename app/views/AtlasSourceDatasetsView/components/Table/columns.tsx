@@ -146,7 +146,7 @@ const COLUMN_SOURCE_STUDY = {
     C.Link({
       label: row.original.publicationString || LABEL.UNSPECIFIED,
       url: row.original.sourceStudyId
-        ? getRouteURL(ROUTE.SOURCE_STUDY, {
+        ? getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
             atlasId: row.original.atlasId,
             sourceStudyId: row.original.sourceStudyId,
           })

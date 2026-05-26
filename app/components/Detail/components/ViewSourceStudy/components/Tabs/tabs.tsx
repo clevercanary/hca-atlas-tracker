@@ -33,7 +33,7 @@ export const Tabs = ({
     <DXTabs
       onTabChange={onChange}
       tabs={[
-        { label: "Overview", value: ROUTE.SOURCE_STUDY },
+        { label: "Overview", value: ROUTE.ATLAS_SOURCE_STUDY },
         {
           label: getTabLabelWithCount(
             "Datasets",

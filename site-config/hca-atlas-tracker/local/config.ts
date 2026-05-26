@@ -10,6 +10,7 @@ import { floating } from "./floating/floating";
 import { atlasEntityConfig } from "./index/atlas/atlasEntityConfig";
 import { integratedObjectsEntityConfig } from "./index/integratedObjects/integratedObjectsEntityConfig";
 import { sourceDatasetsEntityConfig } from "./index/sourceDatasets/sourceDatasetsEntityConfig";
+import { sourceStudiesEntityConfig } from "./index/sourceStudies/sourceStudiesEntityConfig";
 import { tasksEntityConfig } from "./index/tasks/tasksEntityConfig";
 import { userEntityConfig } from "./index/user/userEntityConfig";
 
@@ -41,6 +42,7 @@ export function makeConfig(
     entities: [
       atlasEntityConfig,
       sourceDatasetsEntityConfig,
+      sourceStudiesEntityConfig,
       integratedObjectsEntityConfig,
       tasksEntityConfig,
       userEntityConfig,
@@ -72,6 +74,7 @@ export function makeConfig(
               label: "Atlases",
               url: ROUTE.ATLASES,
             },
+            { label: "Source Studies", url: ROUTE.SOURCE_STUDIES },
             { label: "Source Datasets", url: ROUTE.SOURCE_DATASETS },
             { label: "Integrated Objects", url: ROUTE.INTEGRATED_OBJECTS },
             { label: "Reports", url: ROUTE.REPORTS },

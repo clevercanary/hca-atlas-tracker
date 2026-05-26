@@ -44,6 +44,10 @@ export function renderText(route?: RouteValue): string {
       return `"Source Dataset Validation" page`;
     case ROUTE.ATLAS_SOURCE_DATASET_VALIDATIONS:
       return `"Source Dataset Validations" tab`;
+    case ROUTE.ATLAS_SOURCE_STUDY:
+      return `"Source Study" page`;
+    case ROUTE.ATLAS_SOURCE_STUDIES:
+      return `"Source Studies" tab`;
     case ROUTE.COMPONENT_ATLAS:
       return `"Integrated Object" page`;
     case ROUTE.COMPONENT_ATLASES:
@@ -54,10 +58,6 @@ export function renderText(route?: RouteValue): string {
       return `"Integrated Object Validation" page`;
     case ROUTE.INTEGRATED_OBJECT_VALIDATIONS:
       return `"Integrated Object Validations" tab`;
-    case ROUTE.SOURCE_STUDY:
-      return `"Source Study" page`;
-    case ROUTE.SOURCE_STUDIES:
-      return `"Source Studies" tab`;
     default:
       return "";
   }

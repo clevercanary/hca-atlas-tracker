@@ -18,7 +18,7 @@ export const Alert = (): JSX.Element => {
         <ButtonLink
           color={BUTTON_COLOR.SECONDARY}
           href={{
-            pathname: ROUTE.SOURCE_STUDIES,
+            pathname: ROUTE.ATLAS_SOURCE_STUDIES,
             query: { atlasId: pathParameter?.atlasId },
           }}
         >

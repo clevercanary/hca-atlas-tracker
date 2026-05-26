@@ -44,5 +44,5 @@ export const useDeleteSourceStudy = (
  * @param pathParameter - Path parameter.
  */
 function onDeleteSuccess(pathParameter: PathParameter): void {
-  Router.push(getRouteURL(ROUTE.SOURCE_STUDIES, pathParameter));
+  Router.push(getRouteURL(ROUTE.ATLAS_SOURCE_STUDIES, pathParameter));
 }

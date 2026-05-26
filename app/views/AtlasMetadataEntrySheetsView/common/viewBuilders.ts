@@ -80,7 +80,7 @@ export function buildPublicationString(
   const { atlasId, publicationString, sourceStudyId } = row.original;
   return getPartialCellContext({
     children: publicationString,
-    href: getRouteURL(ROUTE.SOURCE_STUDY, { atlasId, sourceStudyId }),
+    href: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, { atlasId, sourceStudyId }),
   });
 }
 

@@ -2,6 +2,7 @@ import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
 import {
   FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED,
   NETWORK_KEYS,
+  STATUS_LABEL,
   UNPUBLISHED,
   WAVES,
 } from "./constants";
@@ -13,7 +14,9 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerGlobalComponentAtlas,
   HCAAtlasTrackerGlobalSourceDataset,
+  HCAAtlasTrackerGlobalSourceStudy,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListSourceStudy,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
@@ -21,6 +24,7 @@ import {
   HCAAtlasTrackerValidationRecord,
   LinkedAtlasSummary,
   NetworkKey,
+  PUBLICATION_STATUS,
   PublicationInfo,
   REPROCESSED_STATUS,
   TASK_STATUS,
@@ -43,6 +47,12 @@ export function getSourceDatasetId(
   sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
 ): string {
   return sourceDataset.id;
+}
+
+export function getSourceStudyId(
+  sourceStudy: HCAAtlasTrackerGlobalSourceStudy,
+): string {
+  return sourceStudy.id;
 }
 
 export function getTaskId(task: HCAAtlasTrackerListValidationRecord): string {
@@ -394,6 +404,56 @@ export function sourceDatasetInputMapper(
   apiSourceDataset: HCAAtlasTrackerGlobalSourceDataset,
 ): HCAAtlasTrackerGlobalSourceDataset {
   return apiSourceDataset;
+}
+
+/**
+ * Maps the global API source study to the list source study, augmenting it
+ * with a derived `hcaDataRepository` label so the field is available for
+ * facet filtering. Mirrors the label-deriving logic in
+ * `getSourceStudyHcaDataRepositoryLabel` (viewModelBuilders.tsx) to keep
+ * utils free of the view-builder import cycle.
+ * @param apiSourceStudy - API source study.
+ * @returns list source study with derived fields.
+ */
+export function sourceStudyInputMapper(
+  apiSourceStudy: HCAAtlasTrackerGlobalSourceStudy,
+): HCAAtlasTrackerListSourceStudy {
+  return {
+    ...apiSourceStudy,
+    hcaDataRepository: deriveHcaDataRepositoryLabel(apiSourceStudy),
+    publicationStatus:
+      apiSourceStudy.doi === null
+        ? PUBLICATION_STATUS.UNPUBLISHED
+        : PUBLICATION_STATUS.PUBLISHED,
+    publicationString: getSourceStudyCitation(apiSourceStudy),
+  };
+}
+
+/**
+ * Derive the HCA Data Repository status label for a source study from its
+ * underlying task statuses. Mirrors `getSourceStudyHcaDataRepositoryLabel` in
+ * viewModelBuilders.tsx; kept in sync manually to avoid a circular import
+ * (utils → viewModelBuilders → components pulls React client code into
+ * server-side paths).
+ * @param sourceStudy - Source study.
+ * @returns one of the STATUS_LABEL values used for HCA data repository state.
+ */
+function deriveHcaDataRepositoryLabel(
+  sourceStudy: HCAAtlasTrackerSourceStudy,
+): string {
+  const ingestStatus = getSourceStudyTaskStatus(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_IN_HCA_DATA_REPOSITORY,
+  );
+  if (ingestStatus !== TASK_STATUS.DONE) return STATUS_LABEL.TODO;
+  const primaryDataStatus = getSourceStudyTaskStatus(
+    sourceStudy,
+    VALIDATION_ID.SOURCE_STUDY_HCA_PROJECT_HAS_PRIMARY_DATA,
+  );
+  if (primaryDataStatus === TASK_STATUS.DONE) return STATUS_LABEL.FASTQS;
+  if (primaryDataStatus === TASK_STATUS.BLOCKED)
+    return STATUS_LABEL.FASTQS_BLOCKED;
+  return STATUS_LABEL.NEEDS_FASTQS;
 }
 
 /**
