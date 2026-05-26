@@ -177,7 +177,7 @@ Frontend Metadata Coverage tab renders pivots, filters, KPIs
 **Validator owns counts.**
 
 - For each entity class (obs / dataset / donor / sample), reports `record_count`.
-- For each (entity_class, field) pair, reports `complete` and an `issues` map keyed by issue type with counts. v0 issue types: `missing`, `inconsistent` (see "Issue types (v0)" for the full table and reserved future types).
+- For each (entity_class, field) pair, reports `complete` and a count per issue type as sibling keys (`missing`, `inconsistent`). See "Issue types (v0)" for the full table and reserved future types.
 - Reports the schema name and version it was built against.
 
 **Tracker owns the field catalog and presentation.**
@@ -210,14 +210,14 @@ The validator adds a new top-level `metadata_coverage` key to its existing resul
     "sample":  { "record_count": 18 }
   },
   "field_coverage": [
-    { "entity_class": "obs",    "field": "donor_id",                    "complete": 48500, "issues": { "missing": 1500 } },
-    { "entity_class": "obs",    "field": "sample_id",                   "complete": 50000, "issues": {} },
-    { "entity_class": "donor",  "field": "sex_ontology_term_id",        "complete": 247,   "issues": {} },
-    { "entity_class": "donor",  "field": "manner_of_death",             "complete": 246,   "issues": { "missing": 1 } },
-    { "entity_class": "donor",  "field": "ethnicity_ontology_term_id",  "complete": 246,   "issues": { "inconsistent": 1 } },
-    { "entity_class": "sample", "field": "tissue_ontology_term_id",     "complete": 17,    "issues": { "missing": 1 } },
-    { "entity_class": "sample", "field": "library_preparation_batch",   "complete": 17,    "issues": { "missing": 1 } },
-    { "entity_class": "sample", "field": "library_sequencing_run",      "complete": 16,    "issues": { "inconsistent": 2 } }
+    { "entity_class": "obs",    "field": "donor_id",                    "complete": 48500, "missing": 1500, "inconsistent": 0 },
+    { "entity_class": "obs",    "field": "sample_id",                   "complete": 50000, "missing": 0,    "inconsistent": 0 },
+    { "entity_class": "donor",  "field": "sex_ontology_term_id",        "complete": 247,   "missing": 0,    "inconsistent": 0 },
+    { "entity_class": "donor",  "field": "manner_of_death",             "complete": 246,   "missing": 1,    "inconsistent": 0 },
+    { "entity_class": "donor",  "field": "ethnicity_ontology_term_id",  "complete": 246,   "missing": 0,    "inconsistent": 1 },
+    { "entity_class": "sample", "field": "tissue_ontology_term_id",     "complete": 17,    "missing": 1,    "inconsistent": 0 },
+    { "entity_class": "sample", "field": "library_preparation_batch",   "complete": 17,    "missing": 1,    "inconsistent": 0 },
+    { "entity_class": "sample", "field": "library_sequencing_run",      "complete": 16,    "missing": 0,    "inconsistent": 2 }
   ]
 }
 ```
@@ -229,10 +229,12 @@ The validator adds a new top-level `metadata_coverage` key to its existing resul
 Each `field_coverage` entry summarises one `(entity_class, field)` pair. For every entry, the validator MUST emit a count such that:
 
 ```
-complete + sum(issues.values()) == entities[entity_class].record_count
+complete + missing + inconsistent == entities[entity_class].record_count
 ```
 
-This invariant makes the tracker's ingest a hard validator of payload integrity (mismatch → reject the blob, surface as a validator bug, not a silent miscount) and removes any ambiguity about whether an unreported field is "all complete" or "not checked." The validator emits an entry for every field it knows about for that entity class, including fields that came out 100% complete (empty `issues`).
+(With future issue types — see "Issue types (v0)" — each joins as another additive sibling term.)
+
+This invariant makes the tracker's ingest a hard validator of payload integrity (mismatch → reject the blob, surface as a validator bug, not a silent miscount) and removes any ambiguity about whether an unreported field is "all complete" or "not checked." The validator emits an entry for every field it knows about for that entity class, including fields that came out 100% complete (all issue counts zero).
 
 Per-instance evidence (which donors specifically had issues) is intentionally absent from this summary. The existing `tool_reports` already carries per-row error/warning strings; per-instance drill-down is a separate concern handled there, not by inflating this payload.
 
@@ -243,7 +245,7 @@ Fields fall into two grains depending on what they describe:
 - **Identifier fields** (`donor_id`, `sample_id`, `library_id`, …) link a cell _to_ an entity instance. They are reported at `entity_class = "obs"`, with `entities.obs.record_count` as the denominator (total cells in the file). A missing `donor_id` cell is an issue on `obs.donor_id`, not on any donor — it is by definition not attributable to a donor.
 - **Entity-property fields** (`donor.sex_ontology_term_id`, `sample.tissue_ontology_term_id`, `sample.library_preparation_batch`, …) describe an entity instance. They are reported at the entity grain, with `entities.<class>.record_count` as the denominator (distinct entity instances detected in the file). `entities.donor.record_count` only counts cells that carried a parseable `donor_id` — cells without one don't participate in donor-level coverage.
 
-Consequence: the no-donor-id case falls out cleanly. Cells with a missing `donor_id` show up exactly once, in `obs.donor_id` issues. They do not inflate the donor count and do not silently inflate donor-level field completeness.
+Consequence: the no-donor-id case falls out cleanly. Cells with a missing `donor_id` show up exactly once, under `obs.donor_id.missing`. They do not inflate the donor count and do not silently inflate donor-level field completeness.
 
 ### Entity classes are LinkML classes
 
@@ -295,7 +297,7 @@ Consequence for v0: a donor whose _only_ problem is an ontology-violating value 
 
 The wire format reserves `invalid_value` (and other future types) as an additive change — adding it later does not break v0 consumers.
 
-An entity instance contributes to _at most one_ bucket per field: either `complete`, or counted under exactly one issue type. When multiple issue types apply to the same (entity instance, field), the validator picks the most informative one. The reserved full precedence is `invalid_value > inconsistent > missing`; in v0 only the latter two are active, so the effective precedence is `inconsistent > missing`. This keeps the invariant `complete + sum(issues) == record_count` clean regardless of how many types are active.
+An entity instance contributes to _at most one_ bucket per field: either `complete`, or counted under exactly one issue type. When multiple issue types apply to the same (entity instance, field), the validator picks the most informative one. The reserved full precedence is `invalid_value > inconsistent > missing`; in v0 only the latter two are active, so the effective precedence is `inconsistent > missing`. This keeps the invariant `complete + missing + inconsistent == record_count` clean regardless of how many types are active.
 
 ### Why entity-class grain, not raw AnnData component grain
 
@@ -488,8 +490,8 @@ If corpus grows past ~5000 files or query patterns add complexity (cross-atlas t
 - **Integrated object** — A file under `integrated-objects/` in S3 (file_type = `integrated_object`). Combines multiple source datasets.
 - **Entry sheet** — Google Sheet that an atlas team fills in to describe a source study. Validated separately; powers the existing per-atlas Metadata Correctness tab.
 - **Entity class** — In v0: `obs`, `dataset`, `donor`, `sample`, `cell`. Each corresponds to a LinkML class (lowercased), except `obs` which is a synthetic class for identifier-grain fields. Entity-property fields live at their LinkML class's grain (e.g. `donor.sex_ontology_term_id`); identifier fields live at `obs` grain (e.g. `obs.donor_id`). Adding a class to LinkML adds an entity class to the wire format mechanically.
-- **Issue type** — A category of metadata problem (`missing`, `inconsistent`, `invalid_value`, …) reported by the validator as a count under `field_coverage[i].issues`. The validator buckets each entity instance into at most one issue type per field (highest-precedence wins).
-- **Complete** — A given (entity instance, field) is complete iff the validator did not bucket it into any issue type. Equivalently, `complete = record_count − sum(issues.values())` for that field.
+- **Issue type** — A category of metadata problem (`missing`, `inconsistent`, `invalid_value`, …) reported by the validator as a sibling count on each `field_coverage` entry. The validator buckets each entity instance into at most one issue type per field (highest-precedence wins).
+- **Complete** — A given (entity instance, field) is complete iff the validator did not bucket it into any issue type. Equivalently, `complete = record_count − (missing + inconsistent + …)` for that field.
 - **Coverage** — For a given field within a scope (corpus / atlas / network): the fraction of applicable entity instances that are complete for the field.
 - **Row filter / Denominator constraint** — A filter is a row filter when it matches the current pivot's row entity (and so removes rows); it's a denominator constraint when it doesn't match (and so scopes the records the coverage percentage is calculated over).
 - **Pivot** — Fields / Atlases / Networks selector that swaps what each row in the table represents.
@@ -517,25 +519,29 @@ If corpus grows past ~5000 files or query patterns add complexity (cross-atlas t
         "entity_class": "obs",
         "field": "donor_id",
         "complete": 36000,
-        "issues": {},
+        "missing": 0,
+        "inconsistent": 0,
       },
       {
         "entity_class": "donor",
         "field": "manner_of_death",
         "complete": 11,
-        "issues": { "missing": 1 },
+        "missing": 1,
+        "inconsistent": 0,
       },
       {
         "entity_class": "donor",
         "field": "sex_ontology_term_id",
         "complete": 12,
-        "issues": {},
+        "missing": 0,
+        "inconsistent": 0,
       },
       {
         "entity_class": "sample",
         "field": "tissue_ontology_term_id",
         "complete": 3,
-        "issues": {},
+        "missing": 0,
+        "inconsistent": 0,
       },
     ],
   },
@@ -564,13 +570,15 @@ Coverage derived by tracker for this file:
         "entity_class": "obs",
         "field": "donor_id",
         "complete": 1235000,
-        "issues": {},
+        "missing": 0,
+        "inconsistent": 0,
       },
       {
         "entity_class": "donor",
         "field": "ethnicity_ontology_term_id",
         "complete": 246,
-        "issues": { "inconsistent": 1 },
+        "missing": 0,
+        "inconsistent": 1,
       },
     ],
   },
@@ -599,13 +607,15 @@ Coverage derived by tracker:
         "entity_class": "obs",
         "field": "donor_id",
         "complete": 48500,
-        "issues": { "missing": 1500 },
+        "missing": 1500,
+        "inconsistent": 0,
       },
       {
         "entity_class": "donor",
         "field": "sex_ontology_term_id",
         "complete": 247,
-        "issues": {},
+        "missing": 0,
+        "inconsistent": 0,
       },
     ],
   },
@@ -635,25 +645,29 @@ Coverage derived by tracker:
         "entity_class": "obs",
         "field": "library_id",
         "complete": 50000,
-        "issues": {},
+        "missing": 0,
+        "inconsistent": 0,
       },
       {
         "entity_class": "sample",
         "field": "library_preparation_batch",
         "complete": 18,
-        "issues": {},
+        "missing": 0,
+        "inconsistent": 0,
       },
       {
         "entity_class": "sample",
         "field": "library_sequencing_run",
         "complete": 16,
-        "issues": { "inconsistent": 2 },
+        "missing": 0,
+        "inconsistent": 2,
       },
       {
         "entity_class": "sample",
         "field": "library_id_repository",
         "complete": 12,
-        "issues": { "missing": 6 },
+        "missing": 6,
+        "inconsistent": 0,
       },
     ],
   },
