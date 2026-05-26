@@ -1889,7 +1889,10 @@ function getTissueColumnDef<
 /**
  * Pick a representative atlas to host a link in the global source-study list.
  * Source studies have no intrinsic primary atlas (isPrimary is always false),
- * so prefer the latest, otherwise fall back to the first entry.
+ * so sort deterministically (isLatest desc, generation desc, revision desc,
+ * shortName asc) and take the first entry. Sorting — rather than relying on
+ * input order — guarantees the chosen atlas (and link target) is stable
+ * across requests even if the API returns rows in different orders.
  * @param linkedAtlases - Linked atlas summaries.
  * @returns selected atlas, or undefined if none are linked.
  */
@@ -1897,7 +1900,12 @@ function pickPrimaryListAtlas(
   linkedAtlases: LinkedAtlasSummary[],
 ): LinkedAtlasSummary | undefined {
   if (linkedAtlases.length === 0) return undefined;
-  return linkedAtlases.find((atlas) => atlas.isLatest) ?? linkedAtlases[0];
+  return [...linkedAtlases].sort((a, b) => {
+    if (a.isLatest !== b.isLatest) return a.isLatest ? -1 : 1;
+    if (a.generation !== b.generation) return b.generation - a.generation;
+    if (a.revision !== b.revision) return b.revision - a.revision;
+    return a.shortName.localeCompare(b.shortName);
+  })[0];
 }
 
 /**
