@@ -261,7 +261,7 @@ The one addition the wire format makes is **`obs` as an entity class for identif
 Entity classes emitted in v0:
 
 - `obs` — total cell rows. Always emitted.
-- `dataset`, `donor`, `sample`, `cell` — one entry per LinkML class, when fields from that class exist in the file. Record count = distinct identifier values for entity classes that have one; 1 for `Dataset`-class slots stored in `uns`.
+- `dataset`, `donor`, `sample` — one entry per LinkML class, when fields from that class exist in the file. Record count = distinct identifier values for entity classes that have one; 1 for `Dataset`-class slots stored in `uns`. (`Cell` is a LinkML class but emits no v0 entry — no slots are declared on it yet. It will join mechanically once it has slots.)
 
 ### Library is currently a Sample-grain concern
 
@@ -405,7 +405,7 @@ Follows the existing handler pattern (`app/utils/api-handler.ts`): method guard,
 
 When a row reads "manner_of_death — 71%", what is 71% of?
 
-Resolved: **the validator emits `complete` and `issues` counts per (entity_class, field).** Coverage = `complete / record_count` for that entity class. Each entity instance is bucketed exactly once: into `complete`, or into exactly one issue type. Reserved precedence is `invalid_value > inconsistent > missing`; v0 ships with `inconsistent > missing` (the upper type is deferred — see Open follow-ups).
+Resolved: **the validator emits `complete` plus per-issue-type counts (`missing`, `inconsistent`) as sibling keys per (entity_class, field).** Coverage = `complete / record_count` for that entity class. Each entity instance is bucketed exactly once: into `complete`, or into exactly one issue type. Reserved precedence is `invalid_value > inconsistent > missing`; v0 ships with `inconsistent > missing` (the upper type is deferred — see Open follow-ups).
 
 This subsumes the prior "cell-level vs record-level" question. Missing rows, partial denormalization, value disagreement, and ontology violations all flow through one mechanism. A single populated count would have hidden the partial-denormalization case (donor with metadata on 4500 of 5000 cells looks the same as donor with metadata on all 5000); breaking out issue _types_ distinguishes them. Identifier fields like `donor_id` are reported at obs grain (denominator = total cells), so the no-donor-id case is captured without inflating donor-level counts.
 
@@ -489,7 +489,7 @@ If corpus grows past ~5000 files or query patterns add complexity (cross-atlas t
 - **Source dataset** — A file under `source-datasets/` in S3 (file_type = `source_dataset`). One .h5ad file per dataset.
 - **Integrated object** — A file under `integrated-objects/` in S3 (file_type = `integrated_object`). Combines multiple source datasets.
 - **Entry sheet** — Google Sheet that an atlas team fills in to describe a source study. Validated separately; powers the existing per-atlas Metadata Correctness tab.
-- **Entity class** — In v0: `obs`, `dataset`, `donor`, `sample`, `cell`. Each corresponds to a LinkML class (lowercased), except `obs` which is a synthetic class for identifier-grain fields. Entity-property fields live at their LinkML class's grain (e.g. `donor.sex_ontology_term_id`); identifier fields live at `obs` grain (e.g. `obs.donor_id`). Adding a class to LinkML adds an entity class to the wire format mechanically.
+- **Entity class** — In v0: `obs`, `dataset`, `donor`, `sample`. Each corresponds to a LinkML class (lowercased), except `obs` which is a synthetic class for identifier-grain fields. (`Cell` is a LinkML class but emits no v0 entry — no slots declared yet.) Entity-property fields live at their LinkML class's grain (e.g. `donor.sex_ontology_term_id`); identifier fields live at `obs` grain (e.g. `obs.donor_id`). Adding a class to LinkML adds an entity class to the wire format mechanically.
 - **Issue type** — A category of metadata problem (`missing`, `inconsistent`, `invalid_value`, …) reported by the validator as a sibling count on each `field_coverage` entry. The validator buckets each entity instance into at most one issue type per field (highest-precedence wins).
 - **Complete** — A given (entity instance, field) is complete iff the validator did not bucket it into any issue type. Equivalently, `complete = record_count − (missing + inconsistent + …)` for that field.
 - **Coverage** — For a given field within a scope (corpus / atlas / network): the fraction of applicable entity instances that are complete for the field.
