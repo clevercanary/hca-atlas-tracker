@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.68.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.67.0...v1.68.0) (2026-05-26)
+
+
+### Features
+
+* add api to get all source datasets across atlases ([#1267](https://github.com/clevercanary/hca-atlas-tracker/issues/1267)) ([#1290](https://github.com/clevercanary/hca-atlas-tracker/issues/1290)) ([bffd262](https://github.com/clevercanary/hca-atlas-tracker/commit/bffd2622acf0bf82f68fb467078abde5ef9a1649))
+* add api to get all source studies across atlases ([#1272](https://github.com/clevercanary/hca-atlas-tracker/issues/1272)) ([#1294](https://github.com/clevercanary/hca-atlas-tracker/issues/1294)) ([799699d](https://github.com/clevercanary/hca-atlas-tracker/commit/799699d849d6dbbb61b45b502aaa9755edca66ae))
+* add api to list all component atlases across atlases ([#1268](https://github.com/clevercanary/hca-atlas-tracker/issues/1268)) ([#1291](https://github.com/clevercanary/hca-atlas-tracker/issues/1291)) ([9ecbb61](https://github.com/clevercanary/hca-atlas-tracker/commit/9ecbb611d593a324a4af5cf2752ccd5b94be979d))
+* ignore validation results in sns message and save error when claim check is unavailable ([#1275](https://github.com/clevercanary/hca-atlas-tracker/issues/1275)) ([#1283](https://github.com/clevercanary/hca-atlas-tracker/issues/1283)) ([9d0cf8a](https://github.com/clevercanary/hca-atlas-tracker/commit/9d0cf8a5921211e92de21e9f59c3fd1a99348dcc))
+* rename top-nav metadata tab to metadata dictionary ([#1276](https://github.com/clevercanary/hca-atlas-tracker/issues/1276)) ([#1278](https://github.com/clevercanary/hca-atlas-tracker/issues/1278)) ([3a11e1e](https://github.com/clevercanary/hca-atlas-tracker/commit/3a11e1e0a30cf21b37645104074fd9af50992437))
+* top-nav: global integrated objects list (client-side filtering) ([#1271](https://github.com/clevercanary/hca-atlas-tracker/issues/1271)) ([#1293](https://github.com/clevercanary/hca-atlas-tracker/issues/1293)) ([c393b33](https://github.com/clevercanary/hca-atlas-tracker/commit/c393b3336664b25f78e07831b0efeaeb024e6488))
+* top-nav: global source datasets list (client-side filtering) ([#1270](https://github.com/clevercanary/hca-atlas-tracker/issues/1270)) ([#1292](https://github.com/clevercanary/hca-atlas-tracker/issues/1292)) ([c2fc163](https://github.com/clevercanary/hca-atlas-tracker/commit/c2fc163a52fbf1fd54540785dafc7f931b05eb9a))
+* top-nav: global source studies list (client-side filtering) ([#1269](https://github.com/clevercanary/hca-atlas-tracker/issues/1269)) ([#1296](https://github.com/clevercanary/hca-atlas-tracker/issues/1296)) ([94eeb10](https://github.com/clevercanary/hca-atlas-tracker/commit/94eeb105bfadf2479648c472f82189e4f54e245b))
+* validate claim check json size based on soft and hard thresholds before parsing ([#1265](https://github.com/clevercanary/hca-atlas-tracker/issues/1265)) ([#1287](https://github.com/clevercanary/hca-atlas-tracker/issues/1287)) ([bf71bfd](https://github.com/clevercanary/hca-atlas-tracker/commit/bf71bfdc3e1de81879a661fe854deb3460764c41))
+* **validation-status:** adopt new validation summary icons from cc-design[#310](https://github.com/clevercanary/hca-atlas-tracker/issues/310) ([#1295](https://github.com/clevercanary/hca-atlas-tracker/issues/1295)) ([#1297](https://github.com/clevercanary/hca-atlas-tracker/issues/1297)) ([6eba6de](https://github.com/clevercanary/hca-atlas-tracker/commit/6eba6de26f4cc7b068db871cc026f2f9ffb5c0bd))
+
 ## [1.67.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.66.1...v1.67.0) (2026-05-17)
 
 
