@@ -114,7 +114,7 @@ The files table is organized into logical column categories for maintainability:
 - **Standard Metadata**: `id`, `created_at`, `updated_at`
 - **S3 Object Identity**: `bucket`, `key`, `version_id`
 - **File Identity & Integrity**: `etag`, `size_bytes`
-- **SHA256 Integrity Validation**: `sha256_client`, `sha256_server`, `integrity_status`, `integrity_checked_at`, `integrity_error`
+- **SHA256 Integrity Validation**: `sha256_client`, `sha256_server`, `integrity_status`, `integrity_checked_at`
 - **Version Management**: `is_latest`
 - **File Classification**: `file_type`
 - **Foreign Key Relationships**: `source_study_id`, `atlas_id`
