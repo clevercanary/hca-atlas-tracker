@@ -1,19 +1,17 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { useRouter } from "next/router";
-import { Fragment, JSX, useRef } from "react";
+import { Fragment, JSX } from "react";
 import { PathParameter } from "../../common/entities";
-import { getRouteURL } from "../../common/utils";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
+import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
-import { ROUTE } from "../../routes/constants";
 import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
 import { VIEW_INTEGRATED_OBJECT_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
@@ -25,8 +23,6 @@ interface Props {
 export const IntegratedObjectValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
-  const { query } = useRouter();
-  const fromList = useRef(query.from === "list");
   const { atlas } = useFetchAtlas(pathParameter);
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
   const formManager = useFormManager();
@@ -34,10 +30,10 @@ export const IntegratedObjectValidationView = ({
     access: { canView },
     isLoading,
   } = formManager;
-  const backPath = fromList.current
-    ? getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter)
-    : getRouteURL(ROUTE.COMPONENT_ATLAS, pathParameter);
+  const backPath = useBackPath(pathParameter);
+
   if (isLoading) return <Fragment />;
+
   return (
     <EntityProvider data={{ componentAtlas }} pathParameter={pathParameter}>
       <ConditionalComponent

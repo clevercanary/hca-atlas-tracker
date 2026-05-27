@@ -7,6 +7,7 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewSourceStudies } from "../../components/Detail/components/ViewSourceStudies/viewSourceStudies";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
+import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFetchSourceStudiesSourceDatasets } from "../../hooks/useFetchSourceStudiesSourceDatasets";
@@ -28,6 +29,7 @@ export const SourceStudiesView = ({
   const sourceStudiesSourceDatasets =
     useFetchSourceStudiesSourceDatasets(pathParameter);
   const formManager = useFormManager();
+  const backPath = useBackPath(pathParameter);
   const {
     access: { canView },
   } = formManager;
@@ -36,6 +38,7 @@ export const SourceStudiesView = ({
       isIn={shouldRenderView(canView, Boolean(atlas && sourceStudies))}
     >
       <StyledDetailView
+        backPath={backPath}
         breadcrumbs={
           <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
         }

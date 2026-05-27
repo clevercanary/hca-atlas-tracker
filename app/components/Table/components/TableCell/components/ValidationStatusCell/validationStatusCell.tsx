@@ -10,6 +10,7 @@ import { ValidationSummary } from "./components/ValidationSummary/validationSumm
 import { Props } from "./entities";
 
 export const ValidationStatusCell = ({
+  backOrigin,
   componentAtlasId,
   row,
   sourceDatasetId,
@@ -28,6 +29,7 @@ export const ValidationStatusCell = ({
       return (
         <ValidationSummary
           atlasId={atlasId}
+          backOrigin={backOrigin}
           componentAtlasId={componentAtlasId}
           reprocessedStatus={reprocessedStatus}
           sourceDatasetId={sourceDatasetId}

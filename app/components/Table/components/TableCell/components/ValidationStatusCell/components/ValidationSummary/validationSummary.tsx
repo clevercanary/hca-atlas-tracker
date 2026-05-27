@@ -22,6 +22,7 @@ import { StyledStack } from "./validationSummary.styles";
 
 export const ValidationSummary = ({
   atlasId,
+  backOrigin,
   componentAtlasId,
   reprocessedStatus,
   sourceDatasetId,
@@ -59,7 +60,7 @@ export const ValidationSummary = ({
               <ValidatorIcon status={value} />
               <Link
                 as={url}
-                href={{ pathname: url, query: { from: "list" } }}
+                href={{ pathname: url, query: { from: backOrigin } }}
                 rel={REL_ATTRIBUTE.NO_OPENER}
                 target={ANCHOR_TARGET.SELF}
               >

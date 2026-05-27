@@ -3,6 +3,7 @@ import { LinkProps } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
 import { getRouteURL } from "../../../common/utils";
+import { withBackOrigin } from "../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
 import { getPartialCellContext } from "../../../components/Table/components/utils";
 import { ROUTE } from "../../../routes/constants";
 import { buildSheetsUrl } from "../../../utils/google-sheets";
@@ -80,7 +81,10 @@ export function buildPublicationString(
   const { atlasId, publicationString, sourceStudyId } = row.original;
   return getPartialCellContext({
     children: publicationString,
-    href: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, { atlasId, sourceStudyId }),
+    href: withBackOrigin(
+      getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, { atlasId, sourceStudyId }),
+      "METADATA_ENTRY_SHEETS",
+    ),
   });
 }
 

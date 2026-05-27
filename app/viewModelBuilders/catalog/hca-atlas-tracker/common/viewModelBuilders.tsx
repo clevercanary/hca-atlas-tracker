@@ -52,6 +52,7 @@ import {
 import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
+import { withBackOrigin } from "../../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
 import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { ICON_STATUS } from "../../../../components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
 import { ROUTE } from "../../../../routes/constants";
@@ -114,7 +115,10 @@ export const buildAtlasSourceDatasetCount = (
   const { id: atlasId } = atlas;
   return {
     label: atlas.sourceDatasetCount,
-    url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASETS, { atlasId }),
+    url: withBackOrigin(
+      getRouteURL(ROUTE.ATLAS_SOURCE_DATASETS, { atlasId }),
+      "ATLASES",
+    ),
   };
 };
 
@@ -168,7 +172,10 @@ export const buildComponentAtlasCount = (
   const { id: atlasId } = atlas;
   return {
     label: atlas.componentAtlasCount,
-    url: getRouteURL(ROUTE.COMPONENT_ATLASES, { atlasId }),
+    url: withBackOrigin(
+      getRouteURL(ROUTE.COMPONENT_ATLASES, { atlasId }),
+      "ATLASES",
+    ),
   };
 };
 
@@ -192,7 +199,10 @@ export const buildComponentAtlasFileName = ({
   return {
     getValue: () => ({
       children: fileName,
-      href: getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
+      href: withBackOrigin(
+        getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
+        "COMPONENT_ATLASES",
+      ),
     }),
   };
 };
@@ -349,10 +359,13 @@ export const buildIntegratedObjectAtlases = (
   return {
     links: atlases.map((atlas) => ({
       label: getAtlasName(atlas),
-      url: getRouteURL(ROUTE.COMPONENT_ATLAS, {
-        atlasId: atlas.id,
-        componentAtlasId,
-      }),
+      url: withBackOrigin(
+        getRouteURL(ROUTE.COMPONENT_ATLAS, {
+          atlasId: atlas.id,
+          componentAtlasId,
+        }),
+        "INTEGRATED_OBJECTS",
+      ),
     })),
   };
 };
@@ -383,7 +396,10 @@ export const buildIntegratedObjectFileName = (
   const { atlasId, baseFileName, id: componentAtlasId } = integratedObject;
   return {
     label: baseFileName,
-    url: getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
+    url: withBackOrigin(
+      getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
+      "INTEGRATED_OBJECTS",
+    ),
   };
 };
 
@@ -434,6 +450,7 @@ export const buildIntegratedObjectValidationStatus = (
       HCAAtlasTrackerGlobalComponentAtlas,
       HCAAtlasTrackerGlobalComponentAtlas["validationStatus"]
     >),
+    backOrigin: "INTEGRATED_OBJECTS",
     componentAtlasId: integratedObject.id,
     validationRoute: ROUTE.INTEGRATED_OBJECT_VALIDATION,
   };
@@ -535,10 +552,13 @@ export const buildSourceDatasetAtlases = (
   return {
     links: atlases.map((atlas) => ({
       label: getAtlasName(atlas),
-      url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
-        atlasId: atlas.id,
-        sourceDatasetId,
-      }),
+      url: withBackOrigin(
+        getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
+          atlasId: atlas.id,
+          sourceDatasetId,
+        }),
+        "SOURCE_DATASETS",
+      ),
     })),
   };
 };
@@ -582,7 +602,10 @@ export const buildSourceDatasetFileName = (
   const { atlasId, baseFileName, id: sourceDatasetId } = sourceDataset;
   return {
     label: baseFileName,
-    url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, { atlasId, sourceDatasetId }),
+    url: withBackOrigin(
+      getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, { atlasId, sourceDatasetId }),
+      "SOURCE_DATASETS",
+    ),
   };
 };
 
@@ -620,6 +643,7 @@ export const buildSourceDatasetValidationStatus = (
       HCAAtlasTrackerGlobalSourceDataset,
       HCAAtlasTrackerGlobalSourceDataset["validationStatus"]
     >),
+    backOrigin: "SOURCE_DATASETS",
     sourceDatasetId: sourceDataset.id,
     validationRoute: ROUTE.ATLAS_SOURCE_DATASET_VALIDATION,
   };
@@ -637,10 +661,13 @@ export const buildSourceStudyAtlases = (
   return {
     links: atlases.map((atlas) => ({
       label: getAtlasName(atlas),
-      url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
-        atlasId: atlas.id,
-        sourceStudyId,
-      }),
+      url: withBackOrigin(
+        getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
+          atlasId: atlas.id,
+          sourceStudyId,
+        }),
+        "SOURCE_STUDIES",
+      ),
     })),
   };
 };
@@ -722,10 +749,13 @@ export const buildSourceStudyName = (
   return {
     label: getSourceStudyCitation(sourceStudy),
     url: linkAtlas
-      ? getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
-          atlasId: linkAtlas.id,
-          sourceStudyId,
-        })
+      ? withBackOrigin(
+          getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
+            atlasId: linkAtlas.id,
+            sourceStudyId,
+          }),
+          "SOURCE_STUDIES",
+        )
       : "",
   };
 };
@@ -786,10 +816,13 @@ export const buildSourceStudyTitle = (
   const { id: sourceStudyId } = sourceStudy;
   return {
     label: getSourceStudyCitation(sourceStudy),
-    url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
-      ...pathParameter,
-      sourceStudyId,
-    }),
+    url: withBackOrigin(
+      getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
+        ...pathParameter,
+        sourceStudyId,
+      }),
+      "ATLAS_SOURCE_STUDIES",
+    ),
   };
 };
 
@@ -804,7 +837,10 @@ export const buildSourceStudyCount = (
   const { id: atlasId } = atlas;
   return {
     label: atlas.sourceStudyCount,
-    url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDIES, { atlasId }),
+    url: withBackOrigin(
+      getRouteURL(ROUTE.ATLAS_SOURCE_STUDIES, { atlasId }),
+      "ATLASES",
+    ),
   };
 };
 
@@ -969,7 +1005,10 @@ export const buildTaskPublicationString = (
   const atlasId = atlasIds[0];
   return {
     label: task.publicationString ?? "",
-    url: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, { atlasId, sourceStudyId }),
+    url: withBackOrigin(
+      getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, { atlasId, sourceStudyId }),
+      "REPORTS",
+    ),
   };
 };
 
@@ -1642,6 +1681,7 @@ function getIntegratedObjectValidationStatusColumnDef(): ColumnDef<
     cell: (ctx): JSX.Element | null => {
       return C.ValidationStatusCell({
         ...ctx,
+        backOrigin: "COMPONENT_ATLASES",
         componentAtlasId: ctx.row.original.id,
         validationRoute: ROUTE.INTEGRATED_OBJECT_VALIDATION,
       });

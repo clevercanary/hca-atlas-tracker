@@ -72,6 +72,7 @@ export function renderSourceDatasetValidationStatus(
   const { id: sourceDatasetId } = row.original;
   return C.ValidationStatusCell({
     ...ctx,
+    backOrigin: "ATLAS_SOURCE_DATASETS",
     sourceDatasetId,
     validationRoute: ROUTE.ATLAS_SOURCE_DATASET_VALIDATION,
   });
