@@ -76,7 +76,7 @@ export const datasetValidatorResultsMetadataSchema = object({
   status: string()
     .required()
     .oneOf(["failure", "success"] as const),
-  timestamp: string().required(),
+  timestamp: string().datetime({ allowOffset: true }).required(),
 })
   .strict()
   .required();
