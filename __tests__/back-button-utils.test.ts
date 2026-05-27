@@ -25,6 +25,12 @@ describe("parseBackOrigin", () => {
     expect(parseBackOrigin("BOGUS_KEY")).toBeUndefined();
   });
 
+  it("rejects inherited Object.prototype keys (e.g. toString, __proto__)", () => {
+    expect(parseBackOrigin("toString")).toBeUndefined();
+    expect(parseBackOrigin("__proto__")).toBeUndefined();
+    expect(parseBackOrigin("hasOwnProperty")).toBeUndefined();
+  });
+
   it("returns the value for a valid global ROUTE key", () => {
     expect(parseBackOrigin("SOURCE_DATASETS")).toBe("SOURCE_DATASETS");
   });
@@ -93,5 +99,23 @@ describe("withBackOrigin", () => {
         "COMPONENT_ATLASES",
       ),
     ).toBe("/atlases/abc/integrated-objects/yyy?from=COMPONENT_ATLASES");
+  });
+
+  it("preserves an existing query string and joins with '&'", () => {
+    expect(withBackOrigin("/foo?bar=1", "SOURCE_DATASETS")).toBe(
+      "/foo?bar=1&from=SOURCE_DATASETS",
+    );
+  });
+
+  it("preserves a hash fragment", () => {
+    expect(withBackOrigin("/foo#section", "SOURCE_DATASETS")).toBe(
+      "/foo?from=SOURCE_DATASETS#section",
+    );
+  });
+
+  it("preserves both an existing query string and a hash fragment", () => {
+    expect(withBackOrigin("/foo?bar=1#section", "SOURCE_DATASETS")).toBe(
+      "/foo?bar=1&from=SOURCE_DATASETS#section",
+    );
   });
 });

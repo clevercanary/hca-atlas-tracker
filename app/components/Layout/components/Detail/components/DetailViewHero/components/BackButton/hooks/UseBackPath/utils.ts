@@ -37,6 +37,13 @@ export function resolveBackPath({
  * @returns Recognised back origin or undefined.
  */
 export function parseBackOrigin(value: unknown): BackOrigin | undefined {
-  if (typeof value === "string" && value in ROUTE) return value as BackOrigin;
+  // Use `hasOwnProperty` (not the `in` operator) to reject inherited keys
+  // like `__proto__` / `toString` that arrive from untrusted router query.
+  if (
+    typeof value === "string" &&
+    Object.prototype.hasOwnProperty.call(ROUTE, value)
+  ) {
+    return value as BackOrigin;
+  }
   return undefined;
 }

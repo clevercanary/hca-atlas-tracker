@@ -1,6 +1,7 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
 import { PathParameter } from "../../common/entities";
+import { getRouteURL } from "../../common/utils";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
 import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
@@ -12,6 +13,7 @@ import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
+import { ROUTE } from "../../routes/constants";
 import { useFetchAtlasSourceDataset } from "../AtlasSourceDatasetView/hooks/useFetchAtlasSourceDataset";
 import { VIEW_SOURCE_DATASET_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
@@ -30,7 +32,11 @@ export const AtlasSourceDatasetValidationView = ({
     access: { canView },
     isLoading,
   } = formManager;
-  const backPath = useBackPath(pathParameter);
+  // Deep-link fallback: source-dataset detail (not URL-trim, which would
+  // land on the validator-index route that server-redirects to "cap").
+  const backPath =
+    useBackPath(pathParameter) ??
+    getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, pathParameter);
 
   if (isLoading) return <Fragment />;
 
