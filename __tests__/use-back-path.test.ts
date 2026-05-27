@@ -4,7 +4,6 @@ jest.mock("next/router", () => ({
   useRouter: jest.fn(),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock requires require()-style import after mock is set up.
 import { useRouter } from "next/router";
 import { useBackPath } from "../app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 
