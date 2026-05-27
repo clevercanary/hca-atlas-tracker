@@ -197,6 +197,37 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     expect(fileAfter).toEqual(fileBefore);
   });
 
+  it("returns error 400 when `timestamp` does not contain a valid timestamp", async () => {
+    const fileBefore = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+    const snsMessageId = "sns-message-invalid-timestamp";
+    const snsMessageTime = "2026-05-27T21:39:01.482Z";
+    const batchJobId = "batch-job-invalid-timestamp";
+    const validationMetadata = createValidationResultsMetadata({
+      batchJobId,
+      fileId: FILE_SOURCE_DATASET_FOO.id,
+      key: getTestFileKey(
+        FILE_SOURCE_DATASET_FOO,
+        FILE_SOURCE_DATASET_FOO.resolvedAtlas,
+      ),
+      timestamp: "2026-05",
+    });
+    const snsMessage = createSNSMessage({
+      message: validationMetadata,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    const res = await doSnsRequest(snsMessage, true);
+    expect(res.statusCode).toEqual(400);
+    expect(res._getJSONData().errors?.timestamp).toBeDefined();
+
+    const fileAfter = await getFileFromDatabase(FILE_SOURCE_DATASET_FOO.id);
+
+    expect(fileAfter).toEqual(fileBefore);
+  });
+
   it("returns error 409 when validation results are sent with out-of-order timestamps", async () => {
     // First request with later timestamp (2025-09-14)
     const firstSnsMessageId = "sns-message-ooo-first";
@@ -500,6 +531,96 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     await expectDbFileValidationFieldsToMatch(
       FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
       validationTime,
+      INTEGRITY_STATUS.VALID,
+      metadata,
+      {
+        batchJobId,
+        snsMessageId,
+        snsMessageTime,
+      },
+      toolReports,
+      expectedValidationSummary,
+    );
+  });
+
+  it("successfully saves validation results when timestamp has a timezone offset", async () => {
+    const snsMessageId = "sns-message-timestamp-timezone";
+    const snsMessageTime = "2026-05-27T21:45:25.836Z";
+    const batchJobId = "batch-job-timestamp-timezone";
+    const validationTime = "2026-05-27T17:45:15.473-04:00";
+    const validationTimeUtc = "2026-05-27T21:45:15.473Z";
+    const metadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
+      assay: ["assay-timestamp-timezone"],
+      cellCount: 5346,
+      disease: ["disease-timestamp-timezone"],
+      geneCount: 12315,
+      suspensionType: ["suspension-type-timestamp-timezone"],
+      tissue: ["tissue-timestamp-timezone"],
+      title: "Timestamp Timezone",
+    };
+    const toolReports: DatasetValidatorToolReports = {
+      cap: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
+      cellxgene: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
+      hcaCellAnnotation: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
+      hcaSchema: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
+    };
+    const expectedValidationSummary: FileValidationSummary = {
+      overallValid: true,
+      validators: {
+        cap: { errorCount: 0, valid: true, warningCount: 0 },
+        cellxgene: { errorCount: 0, valid: true, warningCount: 0 },
+        hcaCellAnnotation: { errorCount: 0, valid: true, warningCount: 0 },
+        hcaSchema: { errorCount: 0, valid: true, warningCount: 0 },
+      },
+    };
+    const validationMetadata = initValidationResults({
+      batchJobId,
+      fileId: FILE_SOURCE_DATASET_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: getTestFileKey(
+        FILE_SOURCE_DATASET_FOO,
+        FILE_SOURCE_DATASET_FOO.resolvedAtlas,
+      ),
+      metadata,
+      timestamp: validationTime,
+      toolReports,
+    });
+    const snsMessage = createSNSMessage({
+      message: validationMetadata,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+    await expectDbFileValidationFieldsToMatch(
+      FILE_SOURCE_DATASET_FOO.id,
+      validationTimeUtc,
       INTEGRITY_STATUS.VALID,
       metadata,
       {
