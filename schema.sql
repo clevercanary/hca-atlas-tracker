@@ -57,7 +57,8 @@ CREATE TABLE hat.atlases (
     component_atlases uuid[] DEFAULT '{}'::uuid[] NOT NULL,
     generation integer DEFAULT 1 NOT NULL,
     revision integer DEFAULT 0 NOT NULL,
-    published_at timestamp without time zone
+    published_at timestamp without time zone,
+    short_name_slug text NOT NULL
 );
 
 
@@ -139,7 +140,6 @@ CREATE TABLE hat.files (
     file_type character varying(50) NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     integrity_checked_at timestamp without time zone,
-    integrity_error text,
     integrity_status character varying(20) DEFAULT '''pending'''::character varying NOT NULL,
     key text NOT NULL,
     sha256_client character varying(64),
@@ -158,7 +158,7 @@ CREATE TABLE hat.files (
     is_latest boolean DEFAULT true NOT NULL,
     concept_id uuid,
     CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'requested'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[]))),
-    CONSTRAINT ck_files_validation_status CHECK (((validation_status)::text = ANY ((ARRAY['completed'::character varying, 'job_failed'::character varying, 'pending'::character varying, 'request_failed'::character varying, 'requested'::character varying, 'stale'::character varying])::text[])))
+    CONSTRAINT ck_files_validation_status CHECK (((validation_status)::text = ANY ((ARRAY['completed'::character varying, 'job_failed'::character varying, 'pending'::character varying, 'request_failed'::character varying, 'requested'::character varying, 'results_not_loaded'::character varying, 'stale'::character varying])::text[])))
 );
 
 
@@ -181,13 +181,6 @@ COMMENT ON COLUMN hat.files.file_type IS 'File type: source_dataset, integrated_
 --
 
 COMMENT ON COLUMN hat.files.integrity_checked_at IS 'When integrity was last checked';
-
-
---
--- Name: COLUMN files.integrity_error; Type: COMMENT; Schema: hat; Owner: -
---
-
-COMMENT ON COLUMN hat.files.integrity_error IS 'Error message if integrity validation fails';
 
 
 --
@@ -368,6 +361,14 @@ ALTER TABLE ONLY hat.pgmigrations ALTER COLUMN id SET DEFAULT nextval('hat.pgmig
 --
 
 ALTER TABLE ONLY hat.users ALTER COLUMN id SET DEFAULT nextval('hat.users_id_seq'::regclass);
+
+
+--
+-- Name: atlases atlases_slug_version_unique; Type: CONSTRAINT; Schema: hat; Owner: -
+--
+
+ALTER TABLE ONLY hat.atlases
+    ADD CONSTRAINT atlases_slug_version_unique UNIQUE (short_name_slug, generation, revision);
 
 
 --
