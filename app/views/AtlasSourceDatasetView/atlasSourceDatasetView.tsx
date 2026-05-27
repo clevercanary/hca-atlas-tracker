@@ -7,6 +7,7 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
+import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { Payload } from "../../hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
@@ -40,8 +41,12 @@ export const AtlasSourceDatasetView = ({
     isLoading,
   } = formManager;
   const { data: sourceDataset } = formMethod;
+  const backPath = useBackPath(pathParameter);
+
   if (isLoading) return <Fragment />;
+
   const accessFallback = renderAccessFallback(formManager);
+
   return (
     <EntityProvider pathParameter={pathParameter}>
       <ConditionalComponent
@@ -60,6 +65,7 @@ export const AtlasSourceDatasetView = ({
               />
             )
           }
+          backPath={backPath}
           breadcrumbs={
             <Breadcrumbs
               breadcrumbs={getBreadcrumbs(pathParameter, atlas)}

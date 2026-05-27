@@ -5,6 +5,7 @@ import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { getApiEntityFileVersion } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
+import { withBackOrigin } from "../../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
 import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { ROUTE } from "../../../../routes/constants";
 import { formatISOToUTCDateTime } from "../../../../utils/date-fns";
@@ -80,10 +81,13 @@ const COLUMN_FILE_NAME = {
   cell: ({ row }) =>
     C.Link({
       label: row.original.baseFileName,
-      url: getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
-        atlasId: row.original.atlasId,
-        sourceDatasetId: row.original.id,
-      }),
+      url: withBackOrigin(
+        getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, {
+          atlasId: row.original.atlasId,
+          sourceDatasetId: row.original.id,
+        }),
+        "ATLAS_SOURCE_DATASETS",
+      ),
     }),
   header: "File Name",
   id: "fileName",
@@ -146,10 +150,13 @@ const COLUMN_SOURCE_STUDY = {
     C.Link({
       label: row.original.publicationString || LABEL.UNSPECIFIED,
       url: row.original.sourceStudyId
-        ? getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
-            atlasId: row.original.atlasId,
-            sourceStudyId: row.original.sourceStudyId,
-          })
+        ? withBackOrigin(
+            getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
+              atlasId: row.original.atlasId,
+              sourceStudyId: row.original.sourceStudyId,
+            }),
+            "ATLAS_SOURCE_DATASETS",
+          )
         : "",
     }),
   header: "Source Study",

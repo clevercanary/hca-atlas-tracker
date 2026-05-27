@@ -1,6 +1,5 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { useRouter } from "next/router";
-import { Fragment, JSX, useRef } from "react";
+import { Fragment, JSX } from "react";
 import { PathParameter } from "../../common/entities";
 import { getRouteURL } from "../../common/utils";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
@@ -8,6 +7,7 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
+import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
@@ -25,8 +25,6 @@ interface Props {
 export const IntegratedObjectValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
-  const { query } = useRouter();
-  const fromList = useRef(query.from === "list");
   const { atlas } = useFetchAtlas(pathParameter);
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
   const formManager = useFormManager();
@@ -34,10 +32,14 @@ export const IntegratedObjectValidationView = ({
     access: { canView },
     isLoading,
   } = formManager;
-  const backPath = fromList.current
-    ? getRouteURL(ROUTE.COMPONENT_ATLASES, pathParameter)
-    : getRouteURL(ROUTE.COMPONENT_ATLAS, pathParameter);
+  // Deep-link fallback: integrated-object detail (not URL-trim, which would
+  // land on the validator-index route that server-redirects to "cap").
+  const backPath =
+    useBackPath(pathParameter) ??
+    getRouteURL(ROUTE.COMPONENT_ATLAS, pathParameter);
+
   if (isLoading) return <Fragment />;
+
   return (
     <EntityProvider data={{ componentAtlas }} pathParameter={pathParameter}>
       <ConditionalComponent

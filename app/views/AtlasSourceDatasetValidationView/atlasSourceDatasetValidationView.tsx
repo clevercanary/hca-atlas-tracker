@@ -1,6 +1,5 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { useRouter } from "next/router";
-import { Fragment, JSX, useRef } from "react";
+import { Fragment, JSX } from "react";
 import { PathParameter } from "../../common/entities";
 import { getRouteURL } from "../../common/utils";
 import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
@@ -8,6 +7,7 @@ import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
+import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
@@ -25,8 +25,6 @@ interface Props {
 export const AtlasSourceDatasetValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
-  const { query } = useRouter();
-  const fromList = useRef(query.from === "list");
   const { atlas } = useFetchAtlas(pathParameter);
   const { sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
   const formManager = useFormManager();
@@ -34,10 +32,14 @@ export const AtlasSourceDatasetValidationView = ({
     access: { canView },
     isLoading,
   } = formManager;
-  const backPath = fromList.current
-    ? getRouteURL(ROUTE.ATLAS_SOURCE_DATASETS, pathParameter)
-    : getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, pathParameter);
+  // Deep-link fallback: source-dataset detail (not URL-trim, which would
+  // land on the validator-index route that server-redirects to "cap").
+  const backPath =
+    useBackPath(pathParameter) ??
+    getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, pathParameter);
+
   if (isLoading) return <Fragment />;
+
   return (
     <EntityProvider data={{ sourceDataset }} pathParameter={pathParameter}>
       <ConditionalComponent

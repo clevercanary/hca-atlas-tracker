@@ -7,6 +7,7 @@ import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/comp
 import { Actions } from "../../components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "../../components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
 import { ViewSourceStudy } from "../../components/Detail/components/ViewSourceStudy/viewSourceStudy";
+import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { getBreadcrumbs } from "./common/utils";
@@ -23,6 +24,7 @@ export const SourceStudyView = ({
   const { atlas } = useFetchAtlas(pathParameter);
   const formMethod = useEditSourceStudyForm(pathParameter);
   const formManager = useEditSourceStudyFormManager(pathParameter, formMethod);
+  const backPath = useBackPath(pathParameter);
   const {
     access: { canEdit, canView },
     formAction,
@@ -30,7 +32,9 @@ export const SourceStudyView = ({
     isLoading,
   } = formManager;
   const { data: sourceStudy } = formMethod;
+
   if (isLoading) return <Fragment />;
+
   return (
     <ConditionalComponent
       isIn={shouldRenderView(canView, Boolean(atlas && sourceStudy))}
@@ -39,6 +43,7 @@ export const SourceStudyView = ({
         actions={
           canEdit && <Actions isDirty={isDirty} pathParameter={pathParameter} />
         }
+        backPath={backPath}
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
