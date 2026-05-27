@@ -9,6 +9,7 @@ import { BackOrigin } from "../../../../../../../Layout/components/Detail/compon
 export interface Props extends PathParameter {
   backOrigin: BackOrigin;
   reprocessedStatus?: REPROCESSED_STATUS;
+  validationErrorMessage: string | null;
   validationRoute: RouteValue;
   validationSummary: FileValidationSummary;
 }

@@ -26,6 +26,7 @@ export const ValidationSummary = ({
   componentAtlasId,
   reprocessedStatus,
   sourceDatasetId,
+  validationErrorMessage,
   validationRoute,
   validationSummary,
 }: Props): JSX.Element | null => {
@@ -36,6 +37,7 @@ export const ValidationSummary = ({
       <ValidationStatusChipCell
         color={CHIP_PROPS.COLOR.DEFAULT}
         label="No relevant results"
+        errorMessage={validationErrorMessage}
       />
     );
 

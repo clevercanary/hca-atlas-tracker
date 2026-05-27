@@ -17,8 +17,13 @@ export const ValidationStatusCell = ({
   validationRoute,
 }: Props): JSX.Element | null => {
   const { original } = row;
-  const { atlasId, integrityStatus, validationStatus, validationSummary } =
-    original;
+  const {
+    atlasId,
+    integrityStatus,
+    validationErrorMessage,
+    validationStatus,
+    validationSummary,
+  } = original;
   const reprocessedStatus =
     "reprocessedStatus" in original ? original.reprocessedStatus : undefined;
 
@@ -33,6 +38,7 @@ export const ValidationStatusCell = ({
           componentAtlasId={componentAtlasId}
           reprocessedStatus={reprocessedStatus}
           sourceDatasetId={sourceDatasetId}
+          validationErrorMessage={validationErrorMessage}
           validationRoute={validationRoute}
           validationSummary={validationSummary}
         />
@@ -43,6 +49,7 @@ export const ValidationStatusCell = ({
         <ValidationStatusChipCell
           color={CHIP_PROPS.COLOR.ERROR}
           label="Integrity failed"
+          errorMessage={validationErrorMessage}
         />
       );
     else
@@ -51,10 +58,16 @@ export const ValidationStatusCell = ({
         <ValidationStatusChipCell
           color={CHIP_PROPS.COLOR.DEFAULT}
           label="Results not found"
+          errorMessage={validationErrorMessage}
         />
       );
   }
 
   // Render validation status otherwise.
-  return <ValidationStatus validationStatus={validationStatus} />;
+  return (
+    <ValidationStatus
+      validationErrorMessage={validationErrorMessage}
+      validationStatus={validationStatus}
+    />
+  );
 };
