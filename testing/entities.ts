@@ -120,7 +120,6 @@ export interface TestFile {
   fileType: FILE_TYPE;
   id: string;
   integrityCheckedAt?: string | null;
-  integrityError?: string | null;
   integrityStatus?: INTEGRITY_STATUS;
   isArchived?: boolean;
   isLatest?: boolean;
