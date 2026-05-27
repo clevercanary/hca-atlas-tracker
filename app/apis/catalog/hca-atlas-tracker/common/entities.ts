@@ -522,7 +522,6 @@ export interface HCAAtlasTrackerDBFile {
   file_type: FILE_TYPE;
   id: string;
   integrity_checked_at: Date | null;
-  integrity_error: string | null;
   integrity_status: INTEGRITY_STATUS;
   is_archived: boolean;
   is_latest: boolean;

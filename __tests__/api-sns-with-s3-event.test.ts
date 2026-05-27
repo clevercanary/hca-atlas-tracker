@@ -529,7 +529,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
-    expect(file.integrity_error).toBeNull();
     expect(file.file_type).toBe(FILE_TYPE.SOURCE_DATASET); // New field - should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
@@ -596,7 +595,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.integrity_status).toBe(INTEGRITY_STATUS.REQUESTED);
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
-    expect(file.integrity_error).toBeNull();
     expect(file.file_type).toBe(FILE_TYPE.INTEGRATED_OBJECT); // New field - should be derived from S3 path
     expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 

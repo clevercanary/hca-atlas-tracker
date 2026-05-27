@@ -256,7 +256,6 @@ async function initTestFile(
     fileType,
     id,
     integrityCheckedAt,
-    integrityError,
     integrityStatus,
     isArchived,
     isLatest,
@@ -299,8 +298,8 @@ async function initTestFile(
 
   await client.query(
     `
-      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_error, integrity_status, validation_status, is_latest, file_type, sns_message_id, dataset_info, validation_info, validation_summary, validation_reports, is_archived, concept_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+      INSERT INTO hat.files (id, bucket, key, version_id, etag, size_bytes, event_info, sha256_client, sha256_server, integrity_checked_at, integrity_status, validation_status, is_latest, file_type, sns_message_id, dataset_info, validation_info, validation_summary, validation_reports, is_archived, concept_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
     `,
     [
       id,
@@ -313,7 +312,6 @@ async function initTestFile(
       sha256Client,
       sha256Server,
       integrityCheckedAt,
-      integrityError,
       integrityStatus,
       validationStatus,
       isLatest,
