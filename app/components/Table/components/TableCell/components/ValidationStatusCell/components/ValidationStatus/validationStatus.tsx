@@ -4,9 +4,13 @@ import { Props } from "./entities";
 import { buildValidationStatus } from "./utils";
 
 export const ValidationStatus = ({
+  validationErrorMessage,
   validationStatus,
 }: Props): JSX.Element | null => {
   return (
-    <ValidationStatusChipCell {...buildValidationStatus(validationStatus)} />
+    <ValidationStatusChipCell
+      errorMessage={validationErrorMessage}
+      {...buildValidationStatus(validationStatus)}
+    />
   );
 };

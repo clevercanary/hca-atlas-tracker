@@ -83,6 +83,7 @@ export interface HCAAtlasTrackerComponentAtlas {
   suspensionType: string[];
   tissue: string[];
   title: string;
+  validationErrorMessage: string | null;
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
   wipNumber: number;
@@ -176,6 +177,7 @@ export interface HCAAtlasTrackerSourceDataset {
   tissue: string[];
   title: string;
   updatedAt: string;
+  validationErrorMessage: string | null;
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
   wipNumber: number;
@@ -368,6 +370,7 @@ export type HCAAtlasTrackerDBComponentAtlasForAPI =
       | "is_archived"
       | "key"
       | "size_bytes"
+      | "validation_info"
       | "validation_status"
       | "validation_summary"
     > &
@@ -489,6 +492,7 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
     | "event_info"
     | "integrity_status"
     | "is_archived"
+    | "validation_info"
     | "validation_status"
     | "validation_summary"
   > &

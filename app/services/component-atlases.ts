@@ -47,6 +47,7 @@ export async function getAtlasComponentAtlases(
           f.is_archived,
           f.key,
           f.size_bytes,
+          f.validation_info,
           f.validation_status,
           f.validation_summary,
           con.base_filename
@@ -94,6 +95,7 @@ export async function getComponentAtlas(
         f.is_archived,
         f.key,
         f.size_bytes,
+        f.validation_info,
         f.validation_status,
         f.validation_summary,
         f.validation_reports,

@@ -2257,6 +2257,13 @@ export const FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES = {
   integrityCheckedAt: "2025-09-16T02:48:08.838Z",
   integrityStatus: INTEGRITY_STATUS.VALID,
   sizeBytes: "434534",
+  validationInfo: {
+    batchJobId: "ae596ab2-2e2e-4bee-9eaa-c67ba35d3ac3",
+    errorMessage: "Validator error source dataset with multiple files C",
+    snsMessageId: "dc2e39bc-4376-4949-9542-8c2f88b321ae",
+    snsMessageTime: "2025-09-16T02:48:34.346Z",
+  },
+  validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
 } satisfies TestFile;
 export const SOURCE_DATASET_ID_WITH_MULTIPLE_FILES =
   "3a4658fa-049f-4465-9a10-9f411dbcfb7c";
@@ -3535,6 +3542,13 @@ export const FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES = {
   id: "69586fc2-95d3-415e-b505-9d5768feb1bb",
   integrityCheckedAt: "2025-09-16T03:02:19.235Z",
   integrityStatus: INTEGRITY_STATUS.VALID,
+  validationInfo: {
+    batchJobId: "0fad7ad5-b56c-4ab5-9ed6-028ac6eb2d95",
+    errorMessage: "Validator error component atlas with multiple files C",
+    snsMessageId: "0c7f0b88-8b35-4e27-8ec5-e592035d2044",
+    snsMessageTime: "2025-09-16T03:02:23.532Z",
+  },
+  validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
 } satisfies TestFile;
 export const COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES =
   "235920d2-b08b-408a-aa1a-9a1af9a98297";

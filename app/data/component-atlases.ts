@@ -112,6 +112,7 @@ export async function getComponentAtlasesForGlobalApi(): Promise<
           f.key,
           f.size_bytes,
           f.dataset_info,
+          f.validation_info,
           f.validation_status,
           f.validation_summary,
           con.base_filename,

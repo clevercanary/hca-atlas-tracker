@@ -161,6 +161,8 @@ export function dbComponentAtlasFileToApiComponentAtlas(
     suspensionType: dbComponentAtlas.dataset_info?.suspensionType ?? [],
     tissue: dbComponentAtlas.dataset_info?.tissue ?? [],
     title: dbComponentAtlas.dataset_info?.title ?? "",
+    validationErrorMessage:
+      dbComponentAtlas.validation_info?.errorMessage ?? null,
     validationStatus: dbComponentAtlas.validation_status,
     validationSummary: normalizeValidationSummary(
       dbComponentAtlas.validation_summary,
@@ -291,6 +293,8 @@ export function dbSourceDatasetToApiSourceDataset(
     tissue: dbSourceDataset.dataset_info?.tissue ?? [],
     title: dbSourceDataset.dataset_info?.title ?? "",
     updatedAt: dbSourceDataset.updated_at.toISOString(),
+    validationErrorMessage:
+      dbSourceDataset.validation_info?.errorMessage ?? null,
     validationStatus: dbSourceDataset.validation_status,
     validationSummary: normalizeValidationSummary(
       dbSourceDataset.validation_summary,
