@@ -145,6 +145,9 @@ export type S3EventRecord = InferType<typeof s3RecordSchema>;
 export type S3Event = InferType<typeof s3EventSchema>;
 export type SNSMessage = InferType<typeof snsMessageSchema>;
 
+export type DatasetValidatorMetadataCoverage = InferType<
+  typeof datasetValidatorMetadataCoverageSchema
+>;
 export type DatasetValidatorToolReport = InferType<
   typeof datasetValidatorToolReportSchema
 >;

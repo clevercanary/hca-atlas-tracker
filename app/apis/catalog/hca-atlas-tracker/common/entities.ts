@@ -3,6 +3,7 @@ import {
   EntrySheetValidationSummary,
   GoogleLastUpdateInfo,
 } from "../../../../utils/hca-validation-tools/hca-validation-tools";
+import { DatasetValidatorMetadataCoverage } from "../aws/schemas";
 import { API } from "./api";
 import { FILE_VALIDATOR_NAMES, NETWORK_KEYS, WAVES } from "./constants";
 
@@ -530,6 +531,7 @@ export interface HCAAtlasTrackerDBFile {
   is_archived: boolean;
   is_latest: boolean;
   key: string;
+  metadata_coverage: DatasetValidatorMetadataCoverage | null;
   sha256_client: string | null;
   sha256_server: string | null;
   size_bytes: string;
