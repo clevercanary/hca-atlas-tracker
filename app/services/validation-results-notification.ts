@@ -1,6 +1,7 @@
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
+  DatasetValidatorMetadataCoverageEntity,
   DatasetValidatorResults,
   DatasetValidatorResultsMetadata,
   datasetValidatorResultsMetadataSchema,
@@ -10,6 +11,9 @@ import {
 } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_VALIDATION_STATUS,
+  FileMetadataCoverage,
+  FileMetadataCoverageEntity,
+  FileMetadataFieldCoverage,
   FileValidationReports,
   FileValidationSummary,
   HCAAtlasTrackerDBFileDatasetInfo,
@@ -99,7 +103,8 @@ export async function processValidationResultsMessage(
     fileId,
     integrityStatus:
       validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
-    metadataCoverage: validationResults.metadata_coverage ?? null,
+    metadataCoverage:
+      getMetadataCoverageFromValidationResults(validationResults),
     s3Uri,
     validatedAt: newValidationTime,
     validationInfo,
@@ -497,6 +502,45 @@ function getDatasetInfoFromValidationResults(
     tissue: metadataSummary.tissue,
     title: metadataSummary.title,
   };
+}
+
+/**
+ * Convert metadata coverage info from the given validation results into info to be saved in a file record.
+ * @param validationResults - Validation results to get metadata coverage from.
+ * @returns - Metadata coverage, or null if metadata coverage is not present in the validation results.
+ */
+function getMetadataCoverageFromValidationResults(
+  validationResults: DatasetValidatorResults,
+): FileMetadataCoverage | null {
+  const metadataCoverage = validationResults.metadata_coverage;
+  if (!metadataCoverage) return null;
+  return {
+    entities: {
+      dataset: convertEntity(metadataCoverage.entities.dataset),
+      donor: convertEntity(metadataCoverage.entities.donor),
+      obs: convertEntity(metadataCoverage.entities.obs),
+      sample: convertEntity(metadataCoverage.entities.sample),
+    },
+    fieldCoverage: metadataCoverage.field_coverage.map(
+      (fieldInfo): FileMetadataFieldCoverage => ({
+        complete: fieldInfo.complete,
+        entityClass: fieldInfo.entity_class,
+        field: fieldInfo.field,
+        inconsistent: fieldInfo.inconsistent,
+        missing: fieldInfo.missing,
+      }),
+    ),
+    schemaName: metadataCoverage.schema_name,
+    schemaVersion: metadataCoverage.schema_version,
+  };
+
+  function convertEntity(
+    entity: DatasetValidatorMetadataCoverageEntity,
+  ): FileMetadataCoverageEntity {
+    return {
+      recordCount: entity.record_count,
+    };
+  }
 }
 
 /**

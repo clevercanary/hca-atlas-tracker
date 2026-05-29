@@ -1,9 +1,9 @@
 import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
-import { DatasetValidatorMetadataCoverage } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
+  FileMetadataCoverage,
   FileValidationReports,
   FileValidationSummary,
   HCAAtlasTrackerDBComponentAtlas,
@@ -506,7 +506,7 @@ export interface AddValidationResultsToFileParams {
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
   fileId: string;
   integrityStatus: INTEGRITY_STATUS;
-  metadataCoverage: DatasetValidatorMetadataCoverage | null;
+  metadataCoverage: FileMetadataCoverage | null;
   validatedAt: Date;
   validationInfo: HCAAtlasTrackerDBFileValidationInfo;
   validationReports: FileValidationReports | null;

@@ -70,7 +70,7 @@ const datasetValidatorMetadataCoverageSchema = object({
         complete: number().integer().required(),
         entity_class: string()
           .required()
-          .oneOf(["dataset", "donor", "obs", "sample"]),
+          .oneOf(["dataset", "donor", "obs", "sample"] as const),
         field: string().required(),
         inconsistent: number().integer().required(),
         missing: number().integer().required(),
@@ -145,6 +145,9 @@ export type S3EventRecord = InferType<typeof s3RecordSchema>;
 export type S3Event = InferType<typeof s3EventSchema>;
 export type SNSMessage = InferType<typeof snsMessageSchema>;
 
+export type DatasetValidatorMetadataCoverageEntity = InferType<
+  typeof datasetValidatorMetadataCoverageEntitySchema
+>;
 export type DatasetValidatorMetadataCoverage = InferType<
   typeof datasetValidatorMetadataCoverageSchema
 >;

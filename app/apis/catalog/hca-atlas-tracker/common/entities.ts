@@ -3,7 +3,6 @@ import {
   EntrySheetValidationSummary,
   GoogleLastUpdateInfo,
 } from "../../../../utils/hca-validation-tools/hca-validation-tools";
-import { DatasetValidatorMetadataCoverage } from "../aws/schemas";
 import { API } from "./api";
 import { FILE_VALIDATOR_NAMES, NETWORK_KEYS, WAVES } from "./constants";
 
@@ -531,7 +530,7 @@ export interface HCAAtlasTrackerDBFile {
   is_archived: boolean;
   is_latest: boolean;
   key: string;
-  metadata_coverage: DatasetValidatorMetadataCoverage | null;
+  metadata_coverage: FileMetadataCoverage | null;
   sha256_client: string | null;
   sha256_server: string | null;
   size_bytes: string;
@@ -786,6 +785,30 @@ export enum TIER_ONE_METADATA_STATUS {
 export interface FileEventInfo {
   eventName: string;
   eventTime: string;
+}
+
+export interface FileMetadataCoverage {
+  entities: {
+    dataset: FileMetadataCoverageEntity;
+    donor: FileMetadataCoverageEntity;
+    obs: FileMetadataCoverageEntity;
+    sample: FileMetadataCoverageEntity;
+  };
+  fieldCoverage: FileMetadataFieldCoverage[];
+  schemaName: string;
+  schemaVersion: string;
+}
+
+export interface FileMetadataCoverageEntity {
+  recordCount: number;
+}
+
+export interface FileMetadataFieldCoverage {
+  complete: number;
+  entityClass: "dataset" | "donor" | "obs" | "sample";
+  field: string;
+  inconsistent: number;
+  missing: number;
 }
 
 export type FileValidationReports = Partial<
