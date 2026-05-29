@@ -115,6 +115,7 @@ async function addValidationResultsToFiles(
       datasetInfo: successRelatedFields.datasetInfo,
       fileId,
       integrityStatus: successRelatedFields.integrityStatus,
+      metadataCoverage: null, // TODO
       validatedAt,
       validationInfo,
       validationReports: successRelatedFields.validationReports,

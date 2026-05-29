@@ -99,6 +99,7 @@ export async function processValidationResultsMessage(
     fileId,
     integrityStatus:
       validationResults.integrity_status ?? INTEGRITY_STATUS.PENDING,
+    metadataCoverage: validationResults.metadata_coverage ?? null,
     s3Uri,
     validatedAt: newValidationTime,
     validationInfo,
@@ -143,6 +144,7 @@ async function saveClaimCheckErrorResult(
     datasetInfo: null,
     fileId: validationMetadata.file_id,
     integrityStatus: INTEGRITY_STATUS.PENDING,
+    metadataCoverage: null,
     s3Uri: getS3UriFromValidationResults(validationMetadata),
     validatedAt: new Date(validationMetadata.timestamp),
     validationInfo: getValidationInfo(

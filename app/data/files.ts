@@ -1,5 +1,6 @@
 import pg from "pg";
 import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
+import { DatasetValidatorMetadataCoverage } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
@@ -505,6 +506,7 @@ export interface AddValidationResultsToFileParams {
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
   fileId: string;
   integrityStatus: INTEGRITY_STATUS;
+  metadataCoverage: DatasetValidatorMetadataCoverage | null;
   validatedAt: Date;
   validationInfo: HCAAtlasTrackerDBFileValidationInfo;
   validationReports: FileValidationReports | null;
@@ -519,6 +521,7 @@ export interface AddValidationResultsToFileParams {
  * @param params.datasetInfo - Dataset info to add to the file.
  * @param params.fileId - ID of the file to update.
  * @param params.integrityStatus - Integrity status to set on the file.
+ * @param params.metadataCoverage - Metadata coverage to set on the file.
  * @param params.validatedAt - Time at which the validation started.
  * @param params.validationInfo - Metadata of the validation.
  * @param params.validationReports - Validation reports for individual tools.
@@ -533,6 +536,7 @@ export async function addValidationResultsToFile(
     datasetInfo,
     fileId,
     integrityStatus,
+    metadataCoverage,
     validatedAt,
     validationInfo,
     validationReports,
@@ -549,7 +553,8 @@ export async function addValidationResultsToFile(
         integrity_checked_at = $4,
         validation_status = $5,
         validation_reports = $6,
-        validation_summary = $7
+        validation_summary = $7,
+        metadata_coverage = $10
       -- To avoid saving results for a message that has already been received,
       -- don't update a file record if its existing SNS message ID is the same as the new one
       WHERE id = $8 AND validation_info->>'snsMessageId' IS DISTINCT FROM $9
@@ -564,6 +569,7 @@ export async function addValidationResultsToFile(
       JSON.stringify(validationSummary),
       fileId,
       validationInfo.snsMessageId,
+      metadataCoverage,
     ],
   );
 }
