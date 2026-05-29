@@ -53,6 +53,34 @@ export const snsMessageSchema = object({
 // Dataset validator results schemas
 // Validates the structure of validation results received via SNS notification
 
+const datasetValidatorMetadataCoverageEntitySchema = object({
+  record_count: number().integer().required(),
+});
+
+const datasetValidatorMetadataCoverageSchema = object({
+  entities: object({
+    dataset: datasetValidatorMetadataCoverageEntitySchema.required(),
+    donor: datasetValidatorMetadataCoverageEntitySchema.required(),
+    obs: datasetValidatorMetadataCoverageEntitySchema.required(),
+    sample: datasetValidatorMetadataCoverageEntitySchema.required(),
+  }).required(),
+  field_coverage: array()
+    .of(
+      object({
+        complete: number().integer().required(),
+        entity_class: string()
+          .required()
+          .oneOf(["dataset", "donor", "obs", "sample"]),
+        field: string().required(),
+        inconsistent: number().integer().required(),
+        missing: number().integer().required(),
+      }),
+    )
+    .required(),
+  schema_name: string().required(),
+  schema_version: string().required(),
+});
+
 const datasetValidatorToolReportSchema = object({
   errors: array(string().required()).required(),
   finished_at: string().required(),
@@ -91,6 +119,7 @@ export const datasetValidatorResultsSchema =
         .oneOf(Object.values(INTEGRITY_STATUS))
         .defined()
         .nullable(),
+      metadata_coverage: datasetValidatorMetadataCoverageSchema.optional(),
       metadata_summary: object({
         assay: array(string().required()).required(),
         cell_count: number().required(),
