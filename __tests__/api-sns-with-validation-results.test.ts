@@ -1534,7 +1534,7 @@ function makeTestMetadataCoverage(
   return {
     entities,
     field_coverage: fieldCoverage,
-    schema_name: "Test",
+    schema_name: "test",
     schema_version: "1.0-test",
   };
 
