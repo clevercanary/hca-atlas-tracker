@@ -6,6 +6,7 @@ import {
 import { FILE_VALIDATOR_NAMES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
+  FileMetadataCoverage,
   FileValidationReports,
   FileValidationSummary,
   HCAAtlasTrackerDBComponentAtlas,
@@ -62,6 +63,7 @@ interface SuccessRelatedFields {
   datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
   errorMessage?: string;
   integrityStatus: INTEGRITY_STATUS;
+  metadataCoverage: FileMetadataCoverage | null;
   validationReports: FileValidationReports | null;
   validationStatus: FILE_VALIDATION_STATUS;
   validationSummary: FileValidationSummary | null;
@@ -115,7 +117,7 @@ async function addValidationResultsToFiles(
       datasetInfo: successRelatedFields.datasetInfo,
       fileId,
       integrityStatus: successRelatedFields.integrityStatus,
-      metadataCoverage: null, // TODO
+      metadataCoverage: successRelatedFields.metadataCoverage,
       validatedAt,
       validationInfo,
       validationReports: successRelatedFields.validationReports,
@@ -133,6 +135,7 @@ function getFailedValidationFields(): SuccessRelatedFields {
       datasetInfo: null,
       errorMessage: "Error in dataset validator",
       integrityStatus: INTEGRITY_STATUS.VALID,
+      metadataCoverage: null,
       validationReports: null,
       validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
       validationSummary: null,
@@ -145,6 +148,7 @@ function getFailedValidationFields(): SuccessRelatedFields {
       datasetInfo: null,
       errorMessage: "Error while reading claim check",
       integrityStatus: INTEGRITY_STATUS.PENDING,
+      metadataCoverage: null,
       validationReports: null,
       validationStatus: FILE_VALIDATION_STATUS.RESULTS_NOT_LOADED,
       validationSummary: null,
@@ -157,6 +161,7 @@ function getFailedValidationFields(): SuccessRelatedFields {
       errorMessage:
         "No source SHA256 metadata found - cannot validate file integrity",
       integrityStatus: INTEGRITY_STATUS.ERROR,
+      metadataCoverage: null,
       validationReports: null,
       validationStatus: FILE_VALIDATION_STATUS.JOB_FAILED,
       validationSummary: null,
@@ -166,6 +171,7 @@ function getFailedValidationFields(): SuccessRelatedFields {
       datasetInfo: null,
       errorMessage: "File integrity verification failed",
       integrityStatus: INTEGRITY_STATUS.INVALID,
+      metadataCoverage: null,
       validationReports: null,
       validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
       validationSummary: null,
@@ -194,6 +200,7 @@ function getSuccessfulValidationFields(
       title: `Test ${(key && key.split("/").pop()) || fileId}`,
     },
     integrityStatus: INTEGRITY_STATUS.VALID,
+    metadataCoverage: makeMetadataCoverage(),
     validationReports: validationReports,
     validationStatus:
       Math.random() < FAILED_REQUEST_PROBABILITY
@@ -201,6 +208,10 @@ function getSuccessfulValidationFields(
         : FILE_VALIDATION_STATUS.COMPLETED,
     validationSummary: validationSummary,
   };
+}
+
+function makeMetadataCoverage(): FileMetadataCoverage {
+  return "TODO" as unknown as FileMetadataCoverage;
 }
 
 function makeValidationReports(): [
