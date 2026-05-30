@@ -34,6 +34,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { Readable } from "stream";
 import {
+  DatasetValidatorMetadataCoverage,
+  DatasetValidatorMetadataCoverageEntity,
   DatasetValidatorResults,
   DatasetValidatorResultsMetadata,
   DatasetValidatorToolReports,
@@ -346,19 +348,19 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     });
 
     // Verify the file still has the first validation results (not overwritten)
-    await expectDbFileValidationFieldsToMatch(
-      FILE_SOURCE_DATASET_BAR.id,
-      firstValidationTime,
-      INTEGRITY_STATUS.VALID,
-      firstMetadata,
-      {
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: firstMetadata,
+      fileId: FILE_SOURCE_DATASET_BAR.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      validationInfo: {
         batchJobId: firstBatchJobId,
         snsMessageId: firstSnsMessageId,
         snsMessageTime: firstSnsMessageTime,
       },
-      firstToolReports,
-      firstExpectedValidationSummary,
-    );
+      validationReports: firstToolReports,
+      validationSummary: firstExpectedValidationSummary,
+      validationTime: firstValidationTime,
+    });
   });
 
   it("successfully saves validation results for dataset file", async () => {
@@ -375,6 +377,43 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       tissue: ["tissue-dataset-successful"],
       title: "Dataset Successful",
     };
+    const metadataCoverage = makeTestMetadataCoverage([
+      {
+        complete: 0,
+        entity_class: "sample",
+        field: "foo",
+        inconsistent: 6,
+        missing: 8,
+      },
+      {
+        complete: 12,
+        entity_class: "dataset",
+        field: "foo",
+        inconsistent: 0,
+        missing: 0,
+      },
+      {
+        complete: 0,
+        entity_class: "obs",
+        field: "bar",
+        inconsistent: 14,
+        missing: 0,
+      },
+      {
+        complete: 10,
+        entity_class: "donor",
+        field: "baz",
+        inconsistent: 0,
+        missing: 5,
+      },
+      {
+        complete: 2,
+        entity_class: "dataset",
+        field: "foobar",
+        inconsistent: 5,
+        missing: 5,
+      },
+    ]);
     const toolReports: DatasetValidatorToolReports = {
       cap: {
         errors: ["Error dataset successful CAP"],
@@ -423,6 +462,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         FILE_SOURCE_DATASET_FOO.resolvedAtlas,
       ),
       metadata,
+      metadataCoverage,
       timestamp: validationTime,
       toolReports,
     });
@@ -435,19 +475,20 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
     expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
-    await expectDbFileValidationFieldsToMatch(
-      FILE_SOURCE_DATASET_FOO.id,
-      validationTime,
-      INTEGRITY_STATUS.VALID,
-      metadata,
-      {
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: metadata,
+      fileId: FILE_SOURCE_DATASET_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      metadataCoverage,
+      validationInfo: {
         batchJobId,
         snsMessageId,
         snsMessageTime,
       },
-      toolReports,
-      expectedValidationSummary,
-    );
+      validationReports: toolReports,
+      validationSummary: expectedValidationSummary,
+      validationTime,
+    });
   });
 
   it("successfully saves validation results for integrated object file", async () => {
@@ -468,6 +509,36 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       ],
       title: "Integrated Object Successful",
     };
+    const metadataCoverage = makeTestMetadataCoverage([
+      {
+        complete: 1,
+        entity_class: "donor",
+        field: "bar",
+        inconsistent: 4,
+        missing: 6,
+      },
+      {
+        complete: 6,
+        entity_class: "sample",
+        field: "foobaz",
+        inconsistent: 0,
+        missing: 3,
+      },
+      {
+        complete: 7,
+        entity_class: "sample",
+        field: "baz",
+        inconsistent: 2,
+        missing: 0,
+      },
+      {
+        complete: 0,
+        entity_class: "obs",
+        field: "baz",
+        inconsistent: 0,
+        missing: 8,
+      },
+    ]);
     const toolReports: DatasetValidatorToolReports = {
       cap: {
         errors: ["Error IO successful CAP"],
@@ -516,6 +587,7 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         FILE_COMPONENT_ATLAS_DRAFT_FOO.atlas(),
       ),
       metadata,
+      metadataCoverage,
       timestamp: validationTime,
       toolReports,
     });
@@ -528,19 +600,119 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
     expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
-    await expectDbFileValidationFieldsToMatch(
-      FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
-      validationTime,
-      INTEGRITY_STATUS.VALID,
-      metadata,
-      {
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: metadata,
+      fileId: FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      metadataCoverage,
+      validationInfo: {
         batchJobId,
         snsMessageId,
         snsMessageTime,
       },
+      validationReports: toolReports,
+      validationSummary: expectedValidationSummary,
+      validationTime,
+    });
+  });
+
+  it("successfully saves validation results without metadata coverage", async () => {
+    const snsMessageId = "sns-message-no-metadata-coverage";
+    const snsMessageTime = "2026-05-30T03:00:04.483Z";
+    const batchJobId = "batch-job-no-metadata-coverage";
+    const validationTime = "2026-05-30T02:59:55.978Z";
+    const metadata: Required<HCAAtlasTrackerDBFileDatasetInfo> = {
+      assay: [
+        "assay-no-metadata-coverage-a",
+        "assay-no-metadata-coverage-b",
+        "disease-no-metadata-coverage-c",
+      ],
+      cellCount: 12356,
+      disease: ["disease-no-metadata-coverage"],
+      geneCount: 34462,
+      suspensionType: ["suspension-type-no-metadata-coverage"],
+      tissue: [
+        "tissue-no-metadata-coverage-a",
+        "tissue-no-metadata-coverage-b",
+      ],
+      title: "No Metadata Coverage",
+    };
+    const toolReports: DatasetValidatorToolReports = {
+      cap: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: ["Warning no metadata coverage CAP"],
+      },
+      cellxgene: {
+        errors: ["Error no metadata coverage CxG"],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: false,
+        warnings: [],
+      },
+      hcaCellAnnotation: {
+        errors: [],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: true,
+        warnings: [],
+      },
+      hcaSchema: {
+        errors: [
+          "Error A no metadata coverage HCA",
+          "Error B no metadata coverage HCA",
+        ],
+        finished_at: validationTime,
+        started_at: validationTime,
+        valid: false,
+        warnings: [],
+      },
+    };
+    const expectedValidationSummary: FileValidationSummary = {
+      overallValid: false,
+      validators: {
+        cap: { errorCount: 0, valid: true, warningCount: 1 },
+        cellxgene: { errorCount: 1, valid: false, warningCount: 0 },
+        hcaCellAnnotation: { errorCount: 0, valid: true, warningCount: 0 },
+        hcaSchema: { errorCount: 2, valid: false, warningCount: 0 },
+      },
+    };
+    const validationMetadata = initValidationResults({
+      batchJobId,
+      fileId: FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      key: getTestFileKey(
+        FILE_COMPONENT_ATLAS_DRAFT_FOO,
+        FILE_COMPONENT_ATLAS_DRAFT_FOO.atlas(),
+      ),
+      metadata,
+      timestamp: validationTime,
       toolReports,
-      expectedValidationSummary,
-    );
+    });
+    const snsMessage = createSNSMessage({
+      message: validationMetadata,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: metadata,
+      fileId: FILE_COMPONENT_ATLAS_DRAFT_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      validationInfo: {
+        batchJobId,
+        snsMessageId,
+        snsMessageTime,
+      },
+      validationReports: toolReports,
+      validationSummary: expectedValidationSummary,
+      validationTime,
+    });
   });
 
   it("successfully saves validation results when timestamp has a timezone offset", async () => {
@@ -618,19 +790,19 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
     expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
-    await expectDbFileValidationFieldsToMatch(
-      FILE_SOURCE_DATASET_FOO.id,
-      validationTimeUtc,
-      INTEGRITY_STATUS.VALID,
-      metadata,
-      {
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: metadata,
+      fileId: FILE_SOURCE_DATASET_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      validationInfo: {
         batchJobId,
         snsMessageId,
         snsMessageTime,
       },
-      toolReports,
-      expectedValidationSummary,
-    );
+      validationReports: toolReports,
+      validationSummary: expectedValidationSummary,
+      validationTime: validationTimeUtc,
+    });
   });
 
   it("successfully saves validation results from duplicate notification", async () => {
@@ -672,37 +844,37 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
 
     expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
-    await expectDbFileValidationFieldsToMatch(
-      FILE_SOURCE_DATASET_BAZ.id,
-      validationTime,
-      INTEGRITY_STATUS.VALID,
-      metadata,
-      {
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: metadata,
+      fileId: FILE_SOURCE_DATASET_BAZ.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      validationInfo: {
         batchJobId,
         snsMessageId,
         snsMessageTime,
       },
-      SUCCESSFUL_TOOL_REPORTS,
-      SUCCESSFUL_VALIDATION_SUMMARY,
-    );
+      validationReports: SUCCESSFUL_TOOL_REPORTS,
+      validationSummary: SUCCESSFUL_VALIDATION_SUMMARY,
+      validationTime,
+    });
 
     // Expect second, duplicate request to be successful
 
     expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
-    await expectDbFileValidationFieldsToMatch(
-      FILE_SOURCE_DATASET_BAZ.id,
-      validationTime,
-      INTEGRITY_STATUS.VALID,
-      metadata,
-      {
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: metadata,
+      fileId: FILE_SOURCE_DATASET_BAZ.id,
+      integrityStatus: INTEGRITY_STATUS.VALID,
+      validationInfo: {
         batchJobId,
         snsMessageId,
         snsMessageTime,
       },
-      SUCCESSFUL_TOOL_REPORTS,
-      SUCCESSFUL_VALIDATION_SUMMARY,
-    );
+      validationReports: SUCCESSFUL_TOOL_REPORTS,
+      validationSummary: SUCCESSFUL_VALIDATION_SUMMARY,
+      validationTime,
+    });
   });
 
   it.each([
@@ -869,19 +1041,19 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
       expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
 
       // S3 data should be persisted, not inline data.
-      await expectDbFileValidationFieldsToMatch(
-        FILE_SOURCE_DATASET_FOOBAR.id,
-        validationTime,
-        INTEGRITY_STATUS.VALID,
-        s3Metadata,
-        {
+      await expectDbFileValidationFieldsToMatch({
+        datasetInfo: s3Metadata,
+        fileId: FILE_SOURCE_DATASET_FOOBAR.id,
+        integrityStatus: INTEGRITY_STATUS.VALID,
+        validationInfo: {
           batchJobId,
           snsMessageId,
           snsMessageTime,
         },
-        s3ToolReports,
-        s3ExpectedSummary,
-      );
+        validationReports: s3ToolReports,
+        validationSummary: s3ExpectedSummary,
+        validationTime,
+      });
 
       const expectedKey = `validation-metadata/${FILE_SOURCE_DATASET_FOOBAR.id}/${batchJobId}.json`;
       const getCalls = s3Mock.commandCalls(GetObjectCommand);
@@ -1348,4 +1520,34 @@ async function doSnsRequest(
     consoleMessageOutputArrays,
   );
   return res;
+}
+
+function makeTestMetadataCoverage(
+  fieldCoverage: DatasetValidatorMetadataCoverage["field_coverage"],
+): DatasetValidatorMetadataCoverage {
+  const entities: DatasetValidatorMetadataCoverage["entities"] = {
+    dataset: getEntityInfo("dataset"),
+    donor: getEntityInfo("donor"),
+    obs: getEntityInfo("obs"),
+    sample: getEntityInfo("sample"),
+  };
+  return {
+    entities,
+    field_coverage: fieldCoverage,
+    schema_name: "Test",
+    schema_version: "1.0-test",
+  };
+
+  function getEntityInfo(
+    entityType: keyof DatasetValidatorMetadataCoverage["entities"],
+  ): DatasetValidatorMetadataCoverageEntity {
+    // Find an arbitrary field for the specified entity type, which can be used to determine the total record count
+    const fieldInfo = fieldCoverage.find((f) => f.entity_class === entityType);
+    return {
+      record_count:
+        fieldInfo === undefined
+          ? 0
+          : fieldInfo.complete + fieldInfo.inconsistent + fieldInfo.missing,
+    };
+  }
 }
