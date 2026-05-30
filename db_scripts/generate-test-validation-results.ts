@@ -7,6 +7,8 @@ import { FILE_VALIDATOR_NAMES } from "../app/apis/catalog/hca-atlas-tracker/comm
 import {
   FILE_VALIDATION_STATUS,
   FileMetadataCoverage,
+  FileMetadataCoverageEntity,
+  FileMetadataFieldCoverage,
   FileValidationReports,
   FileValidationSummary,
   HCAAtlasTrackerDBComponentAtlas,
@@ -47,6 +49,12 @@ const FAILED_REQUEST_PROBABILITY = 0.2;
 const OVERALL_VALID_PROBABILITY = 0.5;
 
 // (Below use uninclusive max)
+
+const MIN_METADATA_RECORD_COUNT = 100;
+const MAX_METADATA_RECORD_COUNT = 1000;
+
+const MIN_FIELD_COVERAGE_ENTRIES = 10;
+const MAX_FIELD_COVERAGE_ENTRIES = 50;
 
 const MIN_CELL_COUNT = 100;
 const MAX_CELL_COUNT = 10000;
@@ -211,7 +219,52 @@ function getSuccessfulValidationFields(
 }
 
 function makeMetadataCoverage(): FileMetadataCoverage {
-  return "TODO" as unknown as FileMetadataCoverage;
+  const ENTITY_TYPES = ["dataset", "donor", "obs", "sample"] as const;
+
+  const entities: FileMetadataCoverage["entities"] = {
+    dataset: generateEntity(),
+    donor: generateEntity(),
+    obs: generateEntity(),
+    sample: generateEntity(),
+  };
+
+  const fieldCoverage = generateArrayVia(
+    (l) => "field_" + l,
+    MIN_FIELD_COVERAGE_ENTRIES,
+    MAX_FIELD_COVERAGE_ENTRIES,
+  ).map((fieldName): FileMetadataFieldCoverage => {
+    const entityType =
+      ENTITY_TYPES[Math.floor(Math.random() * ENTITY_TYPES.length)];
+    const { recordCount } = entities[entityType];
+    const completeCount = Math.floor(Math.random() * (recordCount + 1));
+    const missingCount = Math.floor(
+      Math.random() * (recordCount - completeCount + 1),
+    );
+    return {
+      complete: completeCount,
+      entityClass: entityType,
+      field: fieldName,
+      inconsistent: recordCount - completeCount - missingCount,
+      missing: missingCount,
+    };
+  });
+
+  return {
+    entities,
+    fieldCoverage,
+    schemaName: "test",
+    schemaVersion: "1.0-test",
+  };
+
+  function generateEntity(): FileMetadataCoverageEntity {
+    return {
+      recordCount:
+        Math.floor(
+          Math.random() *
+            (MAX_METADATA_RECORD_COUNT - MIN_METADATA_RECORD_COUNT),
+        ) + MIN_METADATA_RECORD_COUNT,
+    };
+  }
 }
 
 function makeValidationReports(): [
@@ -256,13 +309,23 @@ function generateArray(itemBase: string): string[] {
   return generateArrayVia((l) => `${itemBase}-${l}`);
 }
 
-function generateArrayVia(makeItem: (letter: string) => string): string[] {
-  const lettersLeft = Array.from(LETTERS);
+function generateArrayVia(
+  makeItem: (letter: string) => string,
+  minLength = MIN_ARRAY_LENGTH,
+  maxLength = MAX_ARRAY_LENGTH,
+): string[] {
+  let prevLetters = Array.from(LETTERS);
+  let lettersLeft = prevLetters.slice();
   const amount =
-    Math.floor(Math.random() * (MAX_ARRAY_LENGTH - MIN_ARRAY_LENGTH)) +
-    MIN_ARRAY_LENGTH;
+    Math.floor(Math.random() * (maxLength - minLength)) + minLength;
   const result: string[] = [];
   for (let i = 0; i < amount; i++) {
+    if (lettersLeft.length === 0) {
+      prevLetters = prevLetters
+        .map((s) => Array.from(LETTERS, (l) => s + l))
+        .flat();
+      lettersLeft = prevLetters.slice();
+    }
     const j = Math.floor(Math.random() * lettersLeft.length);
     result.push(makeItem(lettersLeft[j]));
     lettersLeft.splice(j, 1);
