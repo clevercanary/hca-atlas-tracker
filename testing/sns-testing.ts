@@ -214,10 +214,10 @@ export interface ValidationResultsOptions extends ValidationResultsMetadataOptio
     tissue: string[];
     title: string;
   } | null;
-  metadataCoverage?: DatasetValidatorMetadataCoverage;
+  metadataCoverage?: DatasetValidatorMetadataCoverage | null;
   sha256?: string | null;
   sourceSha256?: string | null;
-  toolReports?: DatasetValidatorToolReports;
+  toolReports?: DatasetValidatorToolReports | null;
 }
 
 export function createValidationResultsMetadata(
@@ -261,7 +261,10 @@ export function createValidationResults(
         }
       : null,
     source_sha256: sourceSha256,
-    tool_reports: options.toolReports ?? SUCCESSFUL_TOOL_REPORTS,
+    tool_reports:
+      options.toolReports === undefined
+        ? SUCCESSFUL_TOOL_REPORTS
+        : options.toolReports,
   };
 }
 
@@ -464,7 +467,7 @@ export async function doS3Event(
 }
 
 export async function expectDbFileValidationFieldsToMatch(params: {
-  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo;
+  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
   fileId: string;
   integrityStatus: INTEGRITY_STATUS;
   metadataCoverage?: DatasetValidatorMetadataCoverage | null;

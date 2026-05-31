@@ -120,7 +120,9 @@ export const datasetValidatorResultsSchema =
         .oneOf(Object.values(INTEGRITY_STATUS))
         .defined()
         .nullable(),
-      metadata_coverage: datasetValidatorMetadataCoverageSchema.optional(),
+      metadata_coverage: datasetValidatorMetadataCoverageSchema
+        .nullable()
+        .optional(),
       metadata_summary: object({
         assay: array(string().required()).required(),
         cell_count: number().required(),

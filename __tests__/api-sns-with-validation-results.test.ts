@@ -616,6 +616,55 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     });
   });
 
+  it("successfully saves validation results representing an integrity failure", async () => {
+    const snsMessageId = "sns-message-integrity-failure";
+    const snsMessageTime = "2025-09-14T00:05:36.672Z";
+    const batchJobId = "batch-job-integrity-failure";
+    const validationTime = "2025-09-13T22:58:03.314Z";
+    const errorMessage = "File integrity verification failed";
+    const validationMetadata = initValidationResults({
+      batchJobId,
+      errorMessage,
+      fileId: FILE_SOURCE_DATASET_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.INVALID,
+      key: getTestFileKey(
+        FILE_SOURCE_DATASET_FOO,
+        FILE_SOURCE_DATASET_FOO.resolvedAtlas,
+      ),
+      metadata: null,
+      metadataCoverage: null,
+      sha256: "test-sha256-a",
+      sourceSha256: "test-sha256-b",
+      status: "failure",
+      timestamp: validationTime,
+      toolReports: null,
+    });
+    const snsMessage = createSNSMessage({
+      message: validationMetadata,
+      messageId: snsMessageId,
+      timestamp: snsMessageTime,
+      topicArn: TEST_SNS_TOPIC_VALIDATION_RESULTS,
+    });
+
+    expect((await doSnsRequest(snsMessage, true)).statusCode).toEqual(200);
+
+    await expectDbFileValidationFieldsToMatch({
+      datasetInfo: null,
+      fileId: FILE_SOURCE_DATASET_FOO.id,
+      integrityStatus: INTEGRITY_STATUS.INVALID,
+      metadataCoverage: null,
+      validationInfo: {
+        batchJobId,
+        errorMessage,
+        snsMessageId,
+        snsMessageTime,
+      },
+      validationReports: null,
+      validationSummary: null,
+      validationTime,
+    });
+  });
+
   it("successfully saves validation results without metadata coverage", async () => {
     const snsMessageId = "sns-message-no-metadata-coverage";
     const snsMessageTime = "2026-05-30T03:00:04.483Z";
