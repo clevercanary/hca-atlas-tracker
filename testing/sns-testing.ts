@@ -2,6 +2,7 @@ import { METHOD } from "app/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
+  DatasetValidatorMetadataCoverage,
   DatasetValidatorResults,
   DatasetValidatorResultsMetadata,
   DatasetValidatorToolReport,
@@ -10,7 +11,9 @@ import {
   S3Object,
   SNSMessage,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
+  FileMetadataCoverage,
   FileValidationReport,
   FileValidationReports,
   FileValidationSummary,
@@ -211,9 +214,10 @@ export interface ValidationResultsOptions extends ValidationResultsMetadataOptio
     tissue: string[];
     title: string;
   } | null;
+  metadataCoverage?: DatasetValidatorMetadataCoverage | null;
   sha256?: string | null;
   sourceSha256?: string | null;
-  toolReports?: DatasetValidatorToolReports;
+  toolReports?: DatasetValidatorToolReports | null;
 }
 
 export function createValidationResultsMetadata(
@@ -244,6 +248,7 @@ export function createValidationResults(
     downloaded_sha256: downloadedSha256,
     error_message: options.errorMessage ?? null,
     integrity_status: integrityStatus,
+    metadata_coverage: options.metadataCoverage,
     metadata_summary: options.metadata
       ? {
           assay: options.metadata.assay,
@@ -256,7 +261,10 @@ export function createValidationResults(
         }
       : null,
     source_sha256: sourceSha256,
-    tool_reports: options.toolReports ?? SUCCESSFUL_TOOL_REPORTS,
+    tool_reports:
+      options.toolReports === undefined
+        ? SUCCESSFUL_TOOL_REPORTS
+        : options.toolReports,
   };
 }
 
@@ -458,15 +466,27 @@ export async function doS3Event(
   return fileRows.rows;
 }
 
-export async function expectDbFileValidationFieldsToMatch(
-  fileId: string,
-  validationTime: string,
-  integrityStatus: INTEGRITY_STATUS,
-  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo,
-  validationInfo: HCAAtlasTrackerDBFileValidationInfo,
-  validationReports: DatasetValidatorToolReports | null,
-  validationSummary: FileValidationSummary | null,
-): Promise<void> {
+export async function expectDbFileValidationFieldsToMatch(params: {
+  datasetInfo: HCAAtlasTrackerDBFileDatasetInfo | null;
+  fileId: string;
+  integrityStatus: INTEGRITY_STATUS;
+  metadataCoverage?: DatasetValidatorMetadataCoverage | null;
+  validationInfo: HCAAtlasTrackerDBFileValidationInfo;
+  validationReports: DatasetValidatorToolReports | null;
+  validationSummary: FileValidationSummary | null;
+  validationTime: string;
+}): Promise<void> {
+  const {
+    datasetInfo,
+    fileId,
+    integrityStatus,
+    metadataCoverage = null,
+    validationInfo,
+    validationReports,
+    validationSummary,
+    validationTime,
+  } = params;
+
   const file = await getFileFromDatabase(fileId);
   if (!expectIsDefined(file)) return;
 
@@ -474,6 +494,18 @@ export async function expectDbFileValidationFieldsToMatch(
   expect(file.integrity_checked_at?.toISOString()).toEqual(validationTime);
   expect(file.integrity_status).toEqual(integrityStatus);
   expect(file.validation_info).toEqual(validationInfo);
+
+  if (metadataCoverage === null) {
+    expect(file.metadata_coverage).toBeNull();
+  } else {
+    expect(file.metadata_coverage).not.toBeNull();
+    if (file.metadata_coverage !== null) {
+      expectFileMetadataCoverageToMatchInput(
+        file.metadata_coverage,
+        metadataCoverage,
+      );
+    }
+  }
 
   if (validationReports === null) {
     expect(file.validation_reports).toBeNull();
@@ -488,6 +520,36 @@ export async function expectDbFileValidationFieldsToMatch(
   }
 
   expect(file.validation_summary).toEqual(validationSummary);
+}
+
+function expectFileMetadataCoverageToMatchInput(
+  metadataCoverage: FileMetadataCoverage,
+  inputMetadataCoverage: DatasetValidatorMetadataCoverage,
+): void {
+  for (const entityClass of FILE_METADATA_COVERAGE_ENTITY_TYPES) {
+    expect(metadataCoverage.entities[entityClass].recordCount).toEqual(
+      inputMetadataCoverage.entities[entityClass].record_count,
+    );
+  }
+
+  expect(metadataCoverage.fieldCoverage).toHaveLength(
+    inputMetadataCoverage.field_coverage.length,
+  );
+  for (const [i, fieldInfo] of metadataCoverage.fieldCoverage.entries()) {
+    const inputFieldInfo = inputMetadataCoverage.field_coverage[i];
+    expect(fieldInfo.complete).toEqual(inputFieldInfo.complete);
+    expect(fieldInfo.entityClass).toEqual(inputFieldInfo.entity_class);
+    expect(fieldInfo.field).toEqual(inputFieldInfo.field);
+    expect(fieldInfo.inconsistent).toEqual(inputFieldInfo.inconsistent);
+    expect(fieldInfo.missing).toEqual(inputFieldInfo.missing);
+  }
+
+  expect(metadataCoverage.schemaName).toEqual(
+    inputMetadataCoverage.schema_name,
+  );
+  expect(metadataCoverage.schemaVersion).toEqual(
+    inputMetadataCoverage.schema_version,
+  );
 }
 
 function expectFileValidationReportsToMatchInput(

@@ -213,6 +213,13 @@ export const FILE_VALIDATOR_NAMES = [
   "hcaCellAnnotation",
 ] as const;
 
+export const FILE_METADATA_COVERAGE_ENTITY_TYPES = [
+  "dataset",
+  "donor",
+  "obs",
+  "sample",
+] as const;
+
 export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
   cap: "CAP Upload",
   cellxgene: "CELLxGENE",

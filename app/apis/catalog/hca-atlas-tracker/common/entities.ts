@@ -4,7 +4,12 @@ import {
   GoogleLastUpdateInfo,
 } from "../../../../utils/hca-validation-tools/hca-validation-tools";
 import { API } from "./api";
-import { FILE_VALIDATOR_NAMES, NETWORK_KEYS, WAVES } from "./constants";
+import {
+  FILE_METADATA_COVERAGE_ENTITY_TYPES,
+  FILE_VALIDATOR_NAMES,
+  NETWORK_KEYS,
+  WAVES,
+} from "./constants";
 
 export type APIKey = keyof typeof API;
 export type APIValue = (typeof API)[APIKey];
@@ -530,6 +535,7 @@ export interface HCAAtlasTrackerDBFile {
   is_archived: boolean;
   is_latest: boolean;
   key: string;
+  metadata_coverage: FileMetadataCoverage | null;
   sha256_client: string | null;
   sha256_server: string | null;
   size_bytes: string;
@@ -784,6 +790,28 @@ export enum TIER_ONE_METADATA_STATUS {
 export interface FileEventInfo {
   eventName: string;
   eventTime: string;
+}
+
+export type FileMetadataCoverageEntityType =
+  (typeof FILE_METADATA_COVERAGE_ENTITY_TYPES)[number];
+
+export interface FileMetadataCoverage {
+  entities: Record<FileMetadataCoverageEntityType, FileMetadataCoverageEntity>;
+  fieldCoverage: FileMetadataFieldCoverage[];
+  schemaName: string;
+  schemaVersion: string;
+}
+
+export interface FileMetadataCoverageEntity {
+  recordCount: number;
+}
+
+export interface FileMetadataFieldCoverage {
+  complete: number;
+  entityClass: FileMetadataCoverageEntityType;
+  field: string;
+  inconsistent: number;
+  missing: number;
 }
 
 export type FileValidationReports = Partial<

@@ -157,6 +157,7 @@ CREATE TABLE hat.files (
     is_archived boolean DEFAULT false NOT NULL,
     is_latest boolean DEFAULT true NOT NULL,
     concept_id uuid,
+    metadata_coverage jsonb,
     CONSTRAINT ck_files_integrity_status CHECK (((integrity_status)::text = ANY ((ARRAY['pending'::character varying, 'requested'::character varying, 'valid'::character varying, 'invalid'::character varying, 'error'::character varying])::text[]))),
     CONSTRAINT ck_files_validation_status CHECK (((validation_status)::text = ANY ((ARRAY['completed'::character varying, 'job_failed'::character varying, 'pending'::character varying, 'request_failed'::character varying, 'requested'::character varying, 'results_not_loaded'::character varying, 'stale'::character varying])::text[])))
 );

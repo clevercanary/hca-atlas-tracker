@@ -1,4 +1,5 @@
 import { array, boolean, InferType, number, object, string } from "yup";
+import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "../common/constants";
 import { INTEGRITY_STATUS } from "../common/entities";
 
 // AWS S3 and SNS Event Validation Schemas
@@ -53,6 +54,34 @@ export const snsMessageSchema = object({
 // Dataset validator results schemas
 // Validates the structure of validation results received via SNS notification
 
+const datasetValidatorMetadataCoverageEntitySchema = object({
+  record_count: number().integer().required(),
+});
+
+const datasetValidatorMetadataCoverageSchema = object({
+  entities: object({
+    dataset: datasetValidatorMetadataCoverageEntitySchema.required(),
+    donor: datasetValidatorMetadataCoverageEntitySchema.required(),
+    obs: datasetValidatorMetadataCoverageEntitySchema.required(),
+    sample: datasetValidatorMetadataCoverageEntitySchema.required(),
+  }).required(),
+  field_coverage: array()
+    .of(
+      object({
+        complete: number().integer().required(),
+        entity_class: string()
+          .required()
+          .oneOf(FILE_METADATA_COVERAGE_ENTITY_TYPES),
+        field: string().required(),
+        inconsistent: number().integer().required(),
+        missing: number().integer().required(),
+      }),
+    )
+    .required(),
+  schema_name: string().required(),
+  schema_version: string().required(),
+});
+
 const datasetValidatorToolReportSchema = object({
   errors: array(string().required()).required(),
   finished_at: string().required(),
@@ -91,6 +120,9 @@ export const datasetValidatorResultsSchema =
         .oneOf(Object.values(INTEGRITY_STATUS))
         .defined()
         .nullable(),
+      metadata_coverage: datasetValidatorMetadataCoverageSchema
+        .nullable()
+        .optional(),
       metadata_summary: object({
         assay: array(string().required()).required(),
         cell_count: number().required(),
@@ -116,6 +148,12 @@ export type S3EventRecord = InferType<typeof s3RecordSchema>;
 export type S3Event = InferType<typeof s3EventSchema>;
 export type SNSMessage = InferType<typeof snsMessageSchema>;
 
+export type DatasetValidatorMetadataCoverageEntity = InferType<
+  typeof datasetValidatorMetadataCoverageEntitySchema
+>;
+export type DatasetValidatorMetadataCoverage = InferType<
+  typeof datasetValidatorMetadataCoverageSchema
+>;
 export type DatasetValidatorToolReport = InferType<
   typeof datasetValidatorToolReportSchema
 >;
