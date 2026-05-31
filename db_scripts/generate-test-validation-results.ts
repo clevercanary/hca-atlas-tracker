@@ -32,6 +32,12 @@ import { toolReportsToValidationReportsAndSummary } from "../app/services/valida
  * added to them.
  */
 
+// Probability of all fields listed by metadata coverage being forced to be entirely complete
+const METADATA_COVERAGE_ALL_COMPLETE_PROBABILITY = 0.3;
+
+// Probability of an individual field in metadata coverage being forced to be entirely complete
+const METADATA_COVERAGE_FIELD_ALL_COMPLETE_PROBABILITY = 0.2;
+
 // Probability of failed validation (of various types) vs. successful validation containing tool reports etc.
 const FAILED_VALIDATION_PROBABILITY = 0.5;
 
@@ -228,18 +234,33 @@ function makeMetadataCoverage(): FileMetadataCoverage {
     sample: generateEntity(),
   };
 
-  const fieldCoverage = generateArrayVia(
+  const fields = generateArrayVia(
     (l) => "field_" + l,
     MIN_FIELD_COVERAGE_ENTRIES,
     MAX_FIELD_COVERAGE_ENTRIES,
-  ).map((fieldName): FileMetadataFieldCoverage => {
+  );
+
+  const allComplete =
+    Math.random() < METADATA_COVERAGE_ALL_COMPLETE_PROBABILITY;
+
+  const fieldCoverage = fields.map((fieldName): FileMetadataFieldCoverage => {
     const entityType =
       ENTITY_TYPES[Math.floor(Math.random() * ENTITY_TYPES.length)];
+
     const { recordCount } = entities[entityType];
-    const completeCount = Math.floor(Math.random() * (recordCount + 1));
+
+    const fieldAllComplete =
+      allComplete ||
+      Math.random() < METADATA_COVERAGE_FIELD_ALL_COMPLETE_PROBABILITY;
+
+    const completeCount = fieldAllComplete
+      ? recordCount
+      : Math.floor(Math.random() * (recordCount + 1));
+
     const missingCount = Math.floor(
       Math.random() * (recordCount - completeCount + 1),
     );
+
     return {
       complete: completeCount,
       entityClass: entityType,
