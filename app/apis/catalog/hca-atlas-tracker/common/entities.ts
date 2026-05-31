@@ -4,7 +4,12 @@ import {
   GoogleLastUpdateInfo,
 } from "../../../../utils/hca-validation-tools/hca-validation-tools";
 import { API } from "./api";
-import { FILE_VALIDATOR_NAMES, NETWORK_KEYS, WAVES } from "./constants";
+import {
+  FILE_METADATA_COVERAGE_ENTITY_TYPES,
+  FILE_VALIDATOR_NAMES,
+  NETWORK_KEYS,
+  WAVES,
+} from "./constants";
 
 export type APIKey = keyof typeof API;
 export type APIValue = (typeof API)[APIKey];
@@ -787,13 +792,11 @@ export interface FileEventInfo {
   eventTime: string;
 }
 
+export type FileMetadataCoverageEntityType =
+  (typeof FILE_METADATA_COVERAGE_ENTITY_TYPES)[number];
+
 export interface FileMetadataCoverage {
-  entities: {
-    dataset: FileMetadataCoverageEntity;
-    donor: FileMetadataCoverageEntity;
-    obs: FileMetadataCoverageEntity;
-    sample: FileMetadataCoverageEntity;
-  };
+  entities: Record<FileMetadataCoverageEntityType, FileMetadataCoverageEntity>;
   fieldCoverage: FileMetadataFieldCoverage[];
   schemaName: string;
   schemaVersion: string;
@@ -805,7 +808,7 @@ export interface FileMetadataCoverageEntity {
 
 export interface FileMetadataFieldCoverage {
   complete: number;
-  entityClass: "dataset" | "donor" | "obs" | "sample";
+  entityClass: FileMetadataCoverageEntityType;
   field: string;
   inconsistent: number;
   missing: number;

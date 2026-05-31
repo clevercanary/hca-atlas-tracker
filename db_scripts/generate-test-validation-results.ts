@@ -3,7 +3,10 @@ import {
   DatasetValidatorToolReport,
   DatasetValidatorToolReports,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
-import { FILE_VALIDATOR_NAMES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  FILE_METADATA_COVERAGE_ENTITY_TYPES,
+  FILE_VALIDATOR_NAMES,
+} from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
   FileMetadataCoverage,
@@ -225,8 +228,6 @@ function getSuccessfulValidationFields(
 }
 
 function makeMetadataCoverage(): FileMetadataCoverage {
-  const ENTITY_TYPES = ["dataset", "donor", "obs", "sample"] as const;
-
   const entities: FileMetadataCoverage["entities"] = {
     dataset: generateEntity(),
     donor: generateEntity(),
@@ -245,7 +246,9 @@ function makeMetadataCoverage(): FileMetadataCoverage {
 
   const fieldCoverage = fields.map((fieldName): FileMetadataFieldCoverage => {
     const entityType =
-      ENTITY_TYPES[Math.floor(Math.random() * ENTITY_TYPES.length)];
+      FILE_METADATA_COVERAGE_ENTITY_TYPES[
+        Math.floor(Math.random() * FILE_METADATA_COVERAGE_ENTITY_TYPES.length)
+      ];
 
     const { recordCount } = entities[entityType];
 

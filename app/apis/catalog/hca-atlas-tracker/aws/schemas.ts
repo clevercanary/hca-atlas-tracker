@@ -1,4 +1,5 @@
 import { array, boolean, InferType, number, object, string } from "yup";
+import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "../common/constants";
 import { INTEGRITY_STATUS } from "../common/entities";
 
 // AWS S3 and SNS Event Validation Schemas
@@ -70,7 +71,7 @@ const datasetValidatorMetadataCoverageSchema = object({
         complete: number().integer().required(),
         entity_class: string()
           .required()
-          .oneOf(["dataset", "donor", "obs", "sample"] as const),
+          .oneOf(FILE_METADATA_COVERAGE_ENTITY_TYPES),
         field: string().required(),
         inconsistent: number().integer().required(),
         missing: number().integer().required(),

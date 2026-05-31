@@ -11,6 +11,7 @@ import {
   S3Object,
   SNSMessage,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FileMetadataCoverage,
   FileValidationReport,
@@ -522,10 +523,11 @@ function expectFileMetadataCoverageToMatchInput(
   metadataCoverage: FileMetadataCoverage,
   inputMetadataCoverage: DatasetValidatorMetadataCoverage,
 ): void {
-  expectEntityToMatch("dataset");
-  expectEntityToMatch("donor");
-  expectEntityToMatch("obs");
-  expectEntityToMatch("sample");
+  for (const entityClass of FILE_METADATA_COVERAGE_ENTITY_TYPES) {
+    expect(metadataCoverage.entities[entityClass].recordCount).toEqual(
+      inputMetadataCoverage.entities[entityClass].record_count,
+    );
+  }
 
   expect(metadataCoverage.fieldCoverage).toHaveLength(
     inputMetadataCoverage.field_coverage.length,
@@ -545,14 +547,6 @@ function expectFileMetadataCoverageToMatchInput(
   expect(metadataCoverage.schemaVersion).toEqual(
     inputMetadataCoverage.schema_version,
   );
-
-  function expectEntityToMatch(
-    entityType: keyof FileMetadataCoverage["entities"],
-  ): void {
-    expect(metadataCoverage.entities[entityType].recordCount).toEqual(
-      inputMetadataCoverage.entities[entityType].record_count,
-    );
-  }
 }
 
 function expectFileValidationReportsToMatchInput(
