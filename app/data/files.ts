@@ -569,7 +569,7 @@ export async function addValidationResultsToFile(
       JSON.stringify(validationSummary),
       fileId,
       validationInfo.snsMessageId,
-      metadataCoverage,
+      JSON.stringify(metadataCoverage),
     ],
   );
 }
