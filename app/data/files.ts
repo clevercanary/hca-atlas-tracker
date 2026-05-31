@@ -554,10 +554,10 @@ export async function addValidationResultsToFile(
         validation_status = $5,
         validation_reports = $6,
         validation_summary = $7,
-        metadata_coverage = $10
+        metadata_coverage = $8
       -- To avoid saving results for a message that has already been received,
       -- don't update a file record if its existing SNS message ID is the same as the new one
-      WHERE id = $8 AND validation_info->>'snsMessageId' IS DISTINCT FROM $9
+      WHERE id = $9 AND validation_info->>'snsMessageId' IS DISTINCT FROM $10
     `,
     [
       integrityStatus,
@@ -567,9 +567,9 @@ export async function addValidationResultsToFile(
       validationStatus,
       JSON.stringify(validationReports),
       JSON.stringify(validationSummary),
+      JSON.stringify(metadataCoverage),
       fileId,
       validationInfo.snsMessageId,
-      JSON.stringify(metadataCoverage),
     ],
   );
 }
