@@ -7,13 +7,6 @@ import { AdminFormResults } from "../../../common/AdminForm/components/AdminForm
 
 export const FilesAdminForm = (): JSX.Element => {
   const {
-    errors: syncErrors,
-    isRequesting: syncIsRequesting,
-    onAction: onSync,
-    requestCompleted: syncStarted,
-  } = useAdminAction("/api/sync-files", METHOD.POST);
-
-  const {
     errors: validateErrors,
     isRequesting: validateIsRequesting,
     onAction: onValidate,
@@ -22,23 +15,6 @@ export const FilesAdminForm = (): JSX.Element => {
 
   return (
     <>
-      <h2>Sync files from S3</h2>
-      <div>
-        <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
-          disabled={syncIsRequesting}
-          onClick={onSync}
-          size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
-        >
-          Sync
-        </Button>
-      </div>
-      <AdminFormResults
-        errors={syncErrors}
-        success={syncStarted ? "Sync started" : null}
-      />
-
       <h2>Validate all files</h2>
       <div>
         <Button
