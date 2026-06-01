@@ -10,6 +10,7 @@ import {
   USER_UNREGISTERED,
 } from "../testing/constants";
 import { TestUser } from "../testing/entities";
+import { withConsoleErrorHiding } from "../testing/utils";
 
 jest.mock(
   "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
@@ -43,7 +44,7 @@ describe(TEST_ROUTE, () => {
       USER_STAKEHOLDER,
       USER_CONTENT_ADMIN,
     ]) {
-      const res = await doSyncFilesRequest(user, METHOD.POST);
+      const res = await doSyncFilesRequest(user, METHOD.POST, true);
       expect(res._getStatusCode()).toEqual(501);
       expect(res._getJSONData()).toEqual({
         message:
@@ -59,11 +60,15 @@ describe(TEST_ROUTE, () => {
 async function doSyncFilesRequest(
   user: TestUser | undefined,
   method: METHOD,
+  hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     headers: { authorization: user?.authorization },
     method,
   });
-  await syncFilesHandler(req, res);
+  await withConsoleErrorHiding(
+    () => syncFilesHandler(req, res),
+    hideConsoleError,
+  );
   return res;
 }
