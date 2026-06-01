@@ -50,9 +50,9 @@ export const ReportContent = ({
             {title}
           </Typography>
           <Stack role="list" spacing={2} useFlexGap>
-            {messages.map((message) => (
+            {messages.map((message, i) => (
               <ValidationMessage
-                key={message}
+                key={`${message}-${i}`}
                 message={message}
                 severity={severity}
               />
