@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import { Container } from "@mui/material";
+import { Stack } from "@mui/material";
 
-export const StyledContainer = styled(Container)`
-  & {
-    padding: 24px;
-  }
+export const StyledStack = styled(Stack)`
+  align-items: stretch;
+  align-self: stretch;
+  padding: 20px;
 `;

@@ -1,44 +1,55 @@
+import { SEVERITY } from "@databiosphere/findable-ui/lib/styles/common/mui/alert";
 import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
   FileValidationReports,
   FileValidatorName,
 } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { ReportSeverity, ReportSummary } from "./entities";
 
 /**
- * Returns error and warning report values for a given validator.
+ * Builds an ordered list of severity-tagged report summaries (Errors first,
+ * Warnings second) for a given validator, omitting empty sections. Returns a
+ * fallback status string instead when no structured report is available for
+ * the validator, or when the report contains no errors or warnings.
  * @param validationStatus - Validation status.
  * @param validationReports - Validation reports.
  * @param validatorName - Validator name.
- * @returns Error and warning report values.
+ * @returns Either a non-empty list of report summaries to render, or a
+ * fallback status string when there is nothing to summarise.
  */
-export function getReportValues(
+export function getReportSummaries(
   validationStatus: FILE_VALIDATION_STATUS,
   validationReports?: FileValidationReports | null,
   validatorName?: FileValidatorName,
-): string[] {
-  const values: string[] = [];
-
+): ReportSummary[] | string {
   if (!validatorName || !validationReports) {
-    // If no validator name or validation reports are provided, return the validation status.
-    values.push(
-      `Validation Status: ${FILE_VALIDATION_STATUS_NAME_LABEL[validationStatus]}`,
-    );
-    return values;
+    return `Validation Status: ${FILE_VALIDATION_STATUS_NAME_LABEL[validationStatus]}`;
   }
 
-  // Get the validation report for the given validator.
   const { errors = [], warnings = [] } = validationReports[validatorName] || {};
 
-  // Add the errors and warnings to the values array.
-  values.push(...errors);
-  values.push(...warnings);
+  const summaries: ReportSummary[] = [];
 
-  if (values.length === 0) {
-    // If no errors or warnings are found, return a message indicating that no errors or warnings were reported.
-    values.push("No errors or warnings reported.");
+  if (errors.length > 0) {
+    summaries.push({
+      messages: errors,
+      severity: SEVERITY.ERROR as ReportSeverity,
+      title: `Errors (${errors.length})`,
+    });
   }
 
-  // Return the validation report values.
-  return values;
+  if (warnings.length > 0) {
+    summaries.push({
+      messages: warnings,
+      severity: SEVERITY.WARNING as ReportSeverity,
+      title: `Warnings (${warnings.length})`,
+    });
+  }
+
+  if (summaries.length === 0) {
+    return "No errors or warnings reported.";
+  }
+
+  return summaries;
 }
