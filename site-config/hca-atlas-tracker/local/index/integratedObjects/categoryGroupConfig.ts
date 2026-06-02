@@ -3,8 +3,10 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "../../../category";
-import { CAP_INGEST_STATUS_CATEGORY_CONFIG } from "../common/capIngestStatusCategoryConfig";
-import { VALIDATION_STATUS_CATEGORY_CONFIG } from "../common/validationStatusCategoryConfig";
+import {
+  CAP_INGEST_STATUS_CATEGORY_CONFIG,
+  VALIDATION_STATUS_CATEGORY_CONFIG,
+} from "../common/categoryConfig";
 
 export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
   categoryGroups: [
