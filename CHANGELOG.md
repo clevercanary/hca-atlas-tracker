@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.69.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.68.0...v1.69.0) (2026-06-02)
+
+
+### Features
+
+* add published cap ingest status when a cap url is set ([#1311](https://github.com/clevercanary/hca-atlas-tracker/issues/1311)) ([#1322](https://github.com/clevercanary/hca-atlas-tracker/issues/1322)) ([ada6b55](https://github.com/clevercanary/hca-atlas-tracker/commit/ada6b557da8c1ea8b2885fe3c3eb526103f9cf78))
+* disable s3 sync api route and remove button ([#1277](https://github.com/clevercanary/hca-atlas-tracker/issues/1277)) ([#1318](https://github.com/clevercanary/hca-atlas-tracker/issues/1318)) ([5b5de27](https://github.com/clevercanary/hca-atlas-tracker/commit/5b5de27402f170ae00c1c800707bd2f016a769ac))
+* drop unused `integrity_error` column ([#1262](https://github.com/clevercanary/hca-atlas-tracker/issues/1262)) ([#1308](https://github.com/clevercanary/hca-atlas-tracker/issues/1308)) ([7e43bc9](https://github.com/clevercanary/hca-atlas-tracker/commit/7e43bc9b0c481213f43e302fcde8658703403fac))
+* require that validation results timestamp be an actual timestamp ([#1286](https://github.com/clevercanary/hca-atlas-tracker/issues/1286)) ([#1307](https://github.com/clevercanary/hca-atlas-tracker/issues/1307)) ([5b8f602](https://github.com/clevercanary/hca-atlas-tracker/commit/5b8f6029e8abd36510c03566083eea0f22fbdd1a))
+* save metadata coverage from file validation results ([#1273](https://github.com/clevercanary/hca-atlas-tracker/issues/1273)) ([#1316](https://github.com/clevercanary/hca-atlas-tracker/issues/1316)) ([51ddd72](https://github.com/clevercanary/hca-atlas-tracker/commit/51ddd7217e8b7d0a63ed696c7b94edd95927ab4c))
+* show file validation error message in tooltip on status chip ([#1288](https://github.com/clevercanary/hca-atlas-tracker/issues/1288)) ([#1306](https://github.com/clevercanary/hca-atlas-tracker/issues/1306)) ([df9ea0e](https://github.com/clevercanary/hca-atlas-tracker/commit/df9ea0e4ebf67513ae23c90aee38e8d52a35963b))
+* style validation error reports per cc-design[#311](https://github.com/clevercanary/hca-atlas-tracker/issues/311) ([#1310](https://github.com/clevercanary/hca-atlas-tracker/issues/1310)) ([#1317](https://github.com/clevercanary/hca-atlas-tracker/issues/1317)) ([d1f523f](https://github.com/clevercanary/hca-atlas-tracker/commit/d1f523ff075bc2fd634dad2e5871dcd2bb2fa592))
+
+
+### Bug Fixes
+
+* detail-page back arrow should return to the originating list ([#1299](https://github.com/clevercanary/hca-atlas-tracker/issues/1299)) ([#1304](https://github.com/clevercanary/hca-atlas-tracker/issues/1304)) ([e70184b](https://github.com/clevercanary/hca-atlas-tracker/commit/e70184b5c89bb799da129fc0f3c0bdcf26e65d52))
+
+
+### Documentation
+
+* **prd:** Metadata Coverage ([#1301](https://github.com/clevercanary/hca-atlas-tracker/issues/1301)) ([177e624](https://github.com/clevercanary/hca-atlas-tracker/commit/177e624c5012f99f7635c5e61c49c669f3517dd0))
+* **prd:** metadata distributions — sibling to metadata coverage ([#1280](https://github.com/clevercanary/hca-atlas-tracker/issues/1280)) ([5b55644](https://github.com/clevercanary/hca-atlas-tracker/commit/5b55644b466e119a3eb76220ced7b2d171455730))
+* **prd:** Metadata Distributions ([#1302](https://github.com/clevercanary/hca-atlas-tracker/issues/1302)) ([5b55644](https://github.com/clevercanary/hca-atlas-tracker/commit/5b55644b466e119a3eb76220ced7b2d171455730))
+
 ## [1.68.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.67.0...v1.68.0) (2026-05-26)
 
 
