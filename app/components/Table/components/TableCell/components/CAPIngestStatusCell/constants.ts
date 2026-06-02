@@ -11,6 +11,7 @@ export const CAP_INGEST_STATUS_COLOR: Record<
   INFO_REQUIRED: CHIP_PROPS.COLOR.WARNING,
   NEEDS_VALIDATION: CHIP_PROPS.COLOR.WARNING,
   NOT_REQUIRED: CHIP_PROPS.COLOR.DEFAULT,
+  PUBLISHED: "successDark",
 };
 
 export const CAP_INGEST_STATUS_LABEL: Record<CAP_INGEST_STATUS, string> = {
@@ -19,6 +20,7 @@ export const CAP_INGEST_STATUS_LABEL: Record<CAP_INGEST_STATUS, string> = {
   INFO_REQUIRED: "Info Required",
   NEEDS_VALIDATION: "Needs Validation",
   NOT_REQUIRED: "Not Required",
+  PUBLISHED: "Published",
 };
 
 export const CAP_INGEST_STATUS_TOOLTIP: Partial<

@@ -61,9 +61,11 @@ export function getCapIngestStatus(
     if (!validationSummary) {
       return CAP_INGEST_STATUS.NEEDS_VALIDATION;
     }
-    // Status is "CAP_READY" with completed, successful validation.
+    // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
     if (validationSummary.validators.cap?.valid) {
-      return CAP_INGEST_STATUS.CAP_READY;
+      return original.capUrl
+        ? CAP_INGEST_STATUS.PUBLISHED
+        : CAP_INGEST_STATUS.CAP_READY;
     }
     // Status is "CAP_VALIDATION_FAILED" with completed validation with errors.
     return CAP_INGEST_STATUS.CAP_VALIDATION_FAILED;

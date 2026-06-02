@@ -60,6 +60,13 @@ export const MuiChip = (theme: Theme): Components<Theme>["MuiChip"] => {
           color: theme.palette.caution.main,
         },
       },
+      {
+        props: { color: "successDark" },
+        style: {
+          backgroundColor: theme.palette.success.dark,
+          color: theme.palette.success.light,
+        },
+      },
     ],
   };
 };
