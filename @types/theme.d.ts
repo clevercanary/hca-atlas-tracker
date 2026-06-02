@@ -19,5 +19,6 @@ declare module "@mui/material/styles/createPalette" {
 declare module "@mui/material/Chip" {
   interface ChipPropsColorOverrides {
     caution: true;
+    successDark: true;
   }
 }

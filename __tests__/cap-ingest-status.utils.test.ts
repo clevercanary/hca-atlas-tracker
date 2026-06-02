@@ -39,9 +39,10 @@ describe("getCapIngestStatus", () => {
     expect(status).toBe(CAP_INGEST_STATUS.NEEDS_VALIDATION);
   });
 
-  it("returns CAP_READY when CAP validator is successful", () => {
+  it("returns CAP_READY when CAP validator is successful and capUrl is not set", () => {
     const status = getCapIngestStatus(
       createComponentAtlas({
+        capUrl: null,
         validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
         validationSummary: {
           overallValid: true,
@@ -53,6 +54,23 @@ describe("getCapIngestStatus", () => {
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.CAP_READY);
+  });
+
+  it("returns PUBLISHED when CAP validator is successful and capUrl is set", () => {
+    const status = getCapIngestStatus(
+      createComponentAtlas({
+        capUrl: "https://celltype.info/cellxgene/foo",
+        validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+        validationSummary: {
+          overallValid: true,
+          validators: {
+            cap: { errorCount: 0, valid: true, warningCount: 0 },
+          },
+        },
+      }),
+    );
+
+    expect(status).toBe(CAP_INGEST_STATUS.PUBLISHED);
   });
 
   it("returns CAP_VALIDATION_FAILED when validation completed with errors", () => {

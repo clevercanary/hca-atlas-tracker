@@ -12,6 +12,10 @@ export const StyledTabs = styled(Tabs)`
   .MuiTab-root {
     font-weight: 400;
 
+    .MuiStack-root {
+      align-items: center;
+    }
+
     .MuiSvgIcon-colorError {
       color: ${PALETTE.ALERT_MAIN};
     }
