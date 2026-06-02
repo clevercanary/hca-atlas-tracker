@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.70.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.69.0...v1.70.0) (2026-06-02)
+
+
+### Features
+
+* add cap ingest status to global source datasets and integrated objects lists ([#1312](https://github.com/clevercanary/hca-atlas-tracker/issues/1312)) ([#1324](https://github.com/clevercanary/hca-atlas-tracker/issues/1324)) ([138d9c1](https://github.com/clevercanary/hca-atlas-tracker/commit/138d9c1abc68110147f146a4394c2505eae756d2))
+
 ## [1.69.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.68.0...v1.69.0) (2026-06-02)
 
 
