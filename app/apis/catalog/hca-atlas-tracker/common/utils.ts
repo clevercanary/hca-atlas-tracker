@@ -1,4 +1,3 @@
-import { getCapIngestStatus } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
 import {
   FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED,
@@ -8,8 +7,10 @@ import {
   WAVES,
 } from "./constants";
 import {
+  CAP_INGEST_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
+  FILE_VALIDATION_STATUS,
   FileValidatorName,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
@@ -119,6 +120,47 @@ export function getAtlasVersion(
 
 export function getAtlasGenerationName(atlas: HCAAtlasTrackerAtlas): string {
   return `${atlas.shortName} v${atlas.generation}`;
+}
+
+/**
+ * Determine CAP ingest status.
+ * @param original - Original row.
+ * @returns CAP ingest status.
+ */
+export function getCapIngestStatus(
+  original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
+): CAP_INGEST_STATUS {
+  const { validationStatus, validationSummary } = original;
+
+  // Determine CAP ingest status for source datasets with reprocessed status of "REPROCESSED" or "UNSPECIFIED".
+  if ("reprocessedStatus" in original) {
+    if (original.reprocessedStatus === REPROCESSED_STATUS.REPROCESSED) {
+      // Status is "NOT_REQUIRED" for reprocessed source datasets.
+      return CAP_INGEST_STATUS.NOT_REQUIRED;
+    }
+    if (original.reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
+      // Status is "INFO_REQUIRED" for unspecified source datasets.
+      return CAP_INGEST_STATUS.INFO_REQUIRED;
+    }
+  }
+
+  // Determine CAP ingest status with validation status of "COMPLETED".
+  if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED) {
+    // No validation summary available.
+    if (!validationSummary) {
+      return CAP_INGEST_STATUS.NEEDS_VALIDATION;
+    }
+    // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
+    if (validationSummary.validators.cap?.valid) {
+      return original.capUrl !== null
+        ? CAP_INGEST_STATUS.PUBLISHED
+        : CAP_INGEST_STATUS.CAP_READY;
+    }
+    // Status is "CAP_VALIDATION_FAILED" with completed validation with errors.
+    return CAP_INGEST_STATUS.CAP_VALIDATION_FAILED;
+  }
+
+  return CAP_INGEST_STATUS.NEEDS_VALIDATION;
 }
 
 /**

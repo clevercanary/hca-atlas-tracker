@@ -3,13 +3,6 @@ import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chi
 import { ChipProps } from "@mui/material";
 import { Getter } from "@tanstack/react-table";
 import { ComponentProps } from "react";
-import {
-  CAP_INGEST_STATUS,
-  FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerSourceDataset,
-  REPROCESSED_STATUS,
-} from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { CAP_INGEST_STATUS_COLOR, CAP_INGEST_STATUS_LABEL } from "./constants";
 import { Props } from "./entities";
 
@@ -32,45 +25,4 @@ export function buildCAPIngestStatus({
       };
     }) as Getter<ChipProps>,
   } as ComponentProps<typeof ChipCell>;
-}
-
-/**
- * Determine CAP ingest status.
- * @param original - Original row.
- * @returns CAP ingest status.
- */
-export function getCapIngestStatus(
-  original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
-): CAP_INGEST_STATUS {
-  const { validationStatus, validationSummary } = original;
-
-  // Determine CAP ingest status for source datasets with reprocessed status of "REPROCESSED" or "UNSPECIFIED".
-  if ("reprocessedStatus" in original) {
-    if (original.reprocessedStatus === REPROCESSED_STATUS.REPROCESSED) {
-      // Status is "NOT_REQUIRED" for reprocessed source datasets.
-      return CAP_INGEST_STATUS.NOT_REQUIRED;
-    }
-    if (original.reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
-      // Status is "INFO_REQUIRED" for unspecified source datasets.
-      return CAP_INGEST_STATUS.INFO_REQUIRED;
-    }
-  }
-
-  // Determine CAP ingest status with validation status of "COMPLETED".
-  if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED) {
-    // No validation summary available.
-    if (!validationSummary) {
-      return CAP_INGEST_STATUS.NEEDS_VALIDATION;
-    }
-    // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
-    if (validationSummary.validators.cap?.valid) {
-      return original.capUrl !== null
-        ? CAP_INGEST_STATUS.PUBLISHED
-        : CAP_INGEST_STATUS.CAP_READY;
-    }
-    // Status is "CAP_VALIDATION_FAILED" with completed validation with errors.
-    return CAP_INGEST_STATUS.CAP_VALIDATION_FAILED;
-  }
-
-  return CAP_INGEST_STATUS.NEEDS_VALIDATION;
 }

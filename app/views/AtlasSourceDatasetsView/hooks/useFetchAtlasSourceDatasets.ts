@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { getCapIngestStatus } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
 import { useArchivedState } from "../../../components/Entity/providers/archived/hook";
-import { getCapIngestStatus } from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { useFetchData } from "../../../hooks/useFetchData";
 import { useFetchDataState } from "../../../hooks/useFetchDataState";
 import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
