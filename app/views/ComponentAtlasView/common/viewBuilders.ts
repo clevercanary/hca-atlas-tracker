@@ -1,5 +1,9 @@
+import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  FILE_VALIDATION_STATUS_NAME_LABEL,
+  UNPUBLISHED,
+} from "../../../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   CAP_INGEST_STATUS,
   FILE_VALIDATION_STATUS,
@@ -23,6 +27,24 @@ export function buildCAPIngestStatus(value: unknown): Props["viewProps"] {
     label: CAP_INGEST_STATUS_LABEL[status],
     variant: CHIP_PROPS.VARIANT.STATUS,
   };
+}
+
+/**
+ * Build props for the release date input component. Returns chip props (the
+ * `Draft` status pill) when the value is the `UNPUBLISHED` sentinel; otherwise
+ * undefined so the input falls back to rendering the raw value as text.
+ * @param value - Release date, or the `UNPUBLISHED` sentinel when no release date is set.
+ * @returns Chip props for the unpublished case, or undefined when a release date is set.
+ */
+export function buildReleaseDate(value: unknown): Props["viewProps"] {
+  if (value === UNPUBLISHED) {
+    return {
+      color: STATUS_BADGE_COLOR.INFO,
+      label: "Draft",
+      variant: CHIP_PROPS.VARIANT.STATUS,
+    };
+  }
+  return undefined;
 }
 
 /**

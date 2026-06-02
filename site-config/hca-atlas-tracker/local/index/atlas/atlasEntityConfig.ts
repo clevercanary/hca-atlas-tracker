@@ -206,9 +206,12 @@ export const atlasEntityConfig: EntityConfig = {
       },
       {
         componentConfig: {
-          component: C.BasicCell,
-          viewBuilder: V.buildPublishedAt,
-        } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListAtlas>,
+          component: C.ReleaseDateCell,
+          viewBuilder: V.buildReleaseDate,
+        } as ComponentConfig<
+          typeof C.ReleaseDateCell,
+          HCAAtlasTrackerListAtlas
+        >,
         header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLISHED_AT,
         id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLISHED_AT,
         width: { max: "132px", min: "132px" },

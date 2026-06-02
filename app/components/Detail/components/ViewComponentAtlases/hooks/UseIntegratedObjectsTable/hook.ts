@@ -26,7 +26,7 @@ export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {
     enableRowSelection: canEdit,
     getRowId: (row) => row.id,
     initialState: {
-      sorting: [{ desc: SORT_DIRECTION.ASCENDING, id: "fileName" }],
+      sorting: [{ desc: SORT_DIRECTION.ASCENDING, id: "baseFileName" }],
     },
     meta: { canEdit },
     state: {

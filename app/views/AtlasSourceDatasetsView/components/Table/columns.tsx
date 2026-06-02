@@ -13,7 +13,7 @@ import {
   buildAssay,
   buildDisease,
   buildGeneCount,
-  buildPublishedAt,
+  buildReleaseDate,
   buildSuspensionType,
   buildTissue,
 } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
@@ -133,7 +133,7 @@ const COLUMN_FILE_EVENT_TIME = {
 
 const COLUMN_PUBLISHED_AT = {
   accessorKey: "publishedAt",
-  cell: ({ row }) => C.BasicCell(buildPublishedAt(row.original)),
+  cell: ({ row }) => C.ReleaseDateCell(buildReleaseDate(row.original)),
   header: "Release Date",
   meta: { width: { max: "1fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;
