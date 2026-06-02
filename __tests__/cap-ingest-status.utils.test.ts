@@ -1,11 +1,11 @@
 import {
+  CAP_INGEST_STATUS,
   FILE_VALIDATION_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
   REPROCESSED_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { CAP_INGEST_STATUS } from "../app/components/Table/components/TableCell/components/CAPIngestStatusCell/entities";
-import { getCapIngestStatus } from "../app/components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
+import { getCapIngestStatus } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 
 describe("getCapIngestStatus", () => {
   it("returns NOT_REQUIRED for reprocessed source datasets", () => {

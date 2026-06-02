@@ -7,8 +7,10 @@ import {
   WAVES,
 } from "./constants";
 import {
+  CAP_INGEST_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
+  FILE_VALIDATION_STATUS,
   FileValidatorName,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
@@ -16,6 +18,8 @@ import {
   HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerGlobalSourceStudy,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListComponentAtlas,
+  HCAAtlasTrackerListSourceDataset,
   HCAAtlasTrackerListSourceStudy,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
@@ -116,6 +120,47 @@ export function getAtlasVersion(
 
 export function getAtlasGenerationName(atlas: HCAAtlasTrackerAtlas): string {
   return `${atlas.shortName} v${atlas.generation}`;
+}
+
+/**
+ * Determine CAP ingest status.
+ * @param original - Original row.
+ * @returns CAP ingest status.
+ */
+export function getCapIngestStatus(
+  original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
+): CAP_INGEST_STATUS {
+  const { validationStatus, validationSummary } = original;
+
+  // Determine CAP ingest status for source datasets with reprocessed status of "REPROCESSED" or "UNSPECIFIED".
+  if ("reprocessedStatus" in original) {
+    if (original.reprocessedStatus === REPROCESSED_STATUS.REPROCESSED) {
+      // Status is "NOT_REQUIRED" for reprocessed source datasets.
+      return CAP_INGEST_STATUS.NOT_REQUIRED;
+    }
+    if (original.reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
+      // Status is "INFO_REQUIRED" for unspecified source datasets.
+      return CAP_INGEST_STATUS.INFO_REQUIRED;
+    }
+  }
+
+  // Determine CAP ingest status with validation status of "COMPLETED".
+  if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED) {
+    // No validation summary available.
+    if (!validationSummary) {
+      return CAP_INGEST_STATUS.NEEDS_VALIDATION;
+    }
+    // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
+    if (validationSummary.validators.cap?.valid) {
+      return original.capUrl !== null
+        ? CAP_INGEST_STATUS.PUBLISHED
+        : CAP_INGEST_STATUS.CAP_READY;
+    }
+    // Status is "CAP_VALIDATION_FAILED" with completed validation with errors.
+    return CAP_INGEST_STATUS.CAP_VALIDATION_FAILED;
+  }
+
+  return CAP_INGEST_STATUS.NEEDS_VALIDATION;
 }
 
 /**
@@ -383,27 +428,35 @@ export function isWaveValue(value: unknown): value is Wave {
 }
 
 /**
- * Identity mapper required by EntityConfig.entityMapper; included as a hook
- * for future API → list-shape transformations.
+ * Maps the global API component atlas to the list component atlas, augmenting
+ * it with a derived `capIngestStatus` so the field is available for column
+ * rendering and facet filtering.
  * @param apiComponentAtlas - API component atlas.
  * @returns list component atlas.
  */
 export function componentAtlasInputMapper(
   apiComponentAtlas: HCAAtlasTrackerGlobalComponentAtlas,
-): HCAAtlasTrackerGlobalComponentAtlas {
-  return apiComponentAtlas;
+): HCAAtlasTrackerListComponentAtlas {
+  return {
+    ...apiComponentAtlas,
+    capIngestStatus: getCapIngestStatus(apiComponentAtlas),
+  };
 }
 
 /**
- * Identity mapper required by EntityConfig.entityMapper; included as a hook
- * for future API → list-shape transformations.
+ * Maps the global API source dataset to the list source dataset, augmenting
+ * it with a derived `capIngestStatus` so the field is available for column
+ * rendering and facet filtering.
  * @param apiSourceDataset - API source dataset.
  * @returns list source dataset.
  */
 export function sourceDatasetInputMapper(
   apiSourceDataset: HCAAtlasTrackerGlobalSourceDataset,
-): HCAAtlasTrackerGlobalSourceDataset {
-  return apiSourceDataset;
+): HCAAtlasTrackerListSourceDataset {
+  return {
+    ...apiSourceDataset,
+    capIngestStatus: getCapIngestStatus(apiSourceDataset),
+  };
 }
 
 /**

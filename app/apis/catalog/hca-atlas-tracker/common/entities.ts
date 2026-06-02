@@ -99,6 +99,11 @@ export interface HCAAtlasTrackerGlobalComponentAtlas
   atlasId: string;
 }
 
+export type HCAAtlasTrackerListComponentAtlas =
+  HCAAtlasTrackerGlobalComponentAtlas & {
+    capIngestStatus: CAP_INGEST_STATUS;
+  };
+
 export interface HCAAtlasTrackerDetailComponentAtlas extends HCAAtlasTrackerComponentAtlas {
   validationReports: FileValidationReports | null;
 }
@@ -192,6 +197,11 @@ export interface HCAAtlasTrackerGlobalSourceDataset
   extends HCAAtlasTrackerSourceDataset, LinkedAtlasFields {
   atlasId: string;
 }
+
+export type HCAAtlasTrackerListSourceDataset =
+  HCAAtlasTrackerGlobalSourceDataset & {
+    capIngestStatus: CAP_INGEST_STATUS;
+  };
 
 export interface HCAAtlasTrackerDetailSourceDataset extends HCAAtlasTrackerSourceDataset {
   validationReports: FileValidationReports | null;
@@ -706,6 +716,15 @@ export type EntrySheetValidationId = HCAAtlasTrackerEntrySheetValidation["id"];
 export type FileId =
   | HCAAtlasTrackerComponentAtlas["fileId"]
   | HCAAtlasTrackerSourceDataset["fileId"];
+
+export enum CAP_INGEST_STATUS {
+  CAP_READY = "CAP_READY",
+  CAP_VALIDATION_FAILED = "CAP_VALIDATION_FAILED",
+  INFO_REQUIRED = "INFO_REQUIRED",
+  NEEDS_VALIDATION = "NEEDS_VALIDATION",
+  NOT_REQUIRED = "NOT_REQUIRED",
+  PUBLISHED = "PUBLISHED",
+}
 
 export enum DOI_STATUS {
   DOI_NOT_ON_CROSSREF = "DOI_NOT_ON_CROSSREF",

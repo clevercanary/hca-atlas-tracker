@@ -3,7 +3,7 @@ import {
   ListConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode/types";
-import { HCAAtlasTrackerGlobalComponentAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerListComponentAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   componentAtlasInputMapper,
   getComponentAtlasId,
@@ -31,7 +31,7 @@ export const integratedObjectsEntityConfig: EntityConfig = {
   list: {
     columns: COLUMNS,
     tableOptions: TABLE_OPTIONS,
-  } as ListConfig<HCAAtlasTrackerGlobalComponentAtlas>,
+  } as ListConfig<HCAAtlasTrackerListComponentAtlas>,
   listView: { disablePagination: true },
   route: "integrated-objects",
   ui: { title: "Integrated Objects" },

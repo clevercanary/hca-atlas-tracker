@@ -24,10 +24,11 @@ import {
 } from "../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
+  CAP_INGEST_STATUS,
   HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerGlobalComponentAtlas,
-  HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListComponentAtlas,
+  HCAAtlasTrackerListSourceDataset,
   HCAAtlasTrackerListSourceStudy,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
@@ -146,6 +147,27 @@ export const buildBioNetwork = (
   return {
     networkKey: entity.bioNetwork,
   };
+};
+
+/**
+ * Build props for the CAPIngestStatusCell shared by per-atlas and global lists, forwarding the
+ * row's CellContext so the cell can read `row.original.capIngestStatus`. Constrained to row
+ * types that carry `capIngestStatus` so wiring against a non-eligible row fails to typecheck.
+ * @param _ - Row entity (unused; status is read via the cell's CellContext).
+ * @param viewContext - View context carrying the row's CellContext.
+ * @returns Props to be used for the CAPIngestStatusCell component.
+ */
+export const buildCapIngestStatus = <
+  T extends { capIngestStatus: CAP_INGEST_STATUS },
+>(
+  _: T,
+  viewContext: ViewContext<T>,
+): ComponentProps<typeof C.CAPIngestStatusCell> => {
+  const { cellContext } = viewContext;
+  if (!cellContext) {
+    throw new Error("CAPIngestStatusCell requires a row CellContext");
+  }
+  return cellContext as unknown as ComponentProps<typeof C.CAPIngestStatusCell>;
 };
 
 /**
@@ -353,7 +375,7 @@ export const buildIngestionCountsHca = (
  * @returns Props to be used for the LinksCell component.
  */
 export const buildIntegratedObjectAtlases = (
-  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+  integratedObject: HCAAtlasTrackerListComponentAtlas,
 ): ComponentProps<typeof C.LinksCell> => {
   const { atlases, id: componentAtlasId } = integratedObject;
   return {
@@ -377,7 +399,7 @@ export const buildIntegratedObjectAtlases = (
  * @returns Props to be used for the BioNetworksCell component.
  */
 export const buildIntegratedObjectBioNetworks = (
-  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+  integratedObject: HCAAtlasTrackerListComponentAtlas,
 ): ComponentProps<typeof C.BioNetworksCell> => {
   return {
     networkKeys: integratedObject.networks,
@@ -391,7 +413,7 @@ export const buildIntegratedObjectBioNetworks = (
  * @returns Props to be used for the Link component.
  */
 export const buildIntegratedObjectFileName = (
-  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+  integratedObject: HCAAtlasTrackerListComponentAtlas,
 ): ComponentProps<typeof C.Link> => {
   const { atlasId, baseFileName, id: componentAtlasId } = integratedObject;
   return {
@@ -409,7 +431,7 @@ export const buildIntegratedObjectFileName = (
  * @returns Props to be used for the BasicCell component.
  */
 export const buildIntegratedObjectSourceDatasetCount = (
-  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+  integratedObject: HCAAtlasTrackerListComponentAtlas,
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: integratedObject.sourceDatasetCount.toLocaleString(),
@@ -422,7 +444,7 @@ export const buildIntegratedObjectSourceDatasetCount = (
  * @returns Props to be used for the BasicCell component.
  */
 export const buildIntegratedObjectTitle = (
-  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
+  integratedObject: HCAAtlasTrackerListComponentAtlas,
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: integratedObject.title,
@@ -438,8 +460,8 @@ export const buildIntegratedObjectTitle = (
  * @returns Props to be used for the ValidationStatusCell component.
  */
 export const buildIntegratedObjectValidationStatus = (
-  integratedObject: HCAAtlasTrackerGlobalComponentAtlas,
-  viewContext: ViewContext<HCAAtlasTrackerGlobalComponentAtlas>,
+  integratedObject: HCAAtlasTrackerListComponentAtlas,
+  viewContext: ViewContext<HCAAtlasTrackerListComponentAtlas>,
 ): ComponentProps<typeof C.ValidationStatusCell> => {
   const { cellContext } = viewContext;
   if (!cellContext) {
@@ -447,8 +469,8 @@ export const buildIntegratedObjectValidationStatus = (
   }
   return {
     ...(cellContext as CellContext<
-      HCAAtlasTrackerGlobalComponentAtlas,
-      HCAAtlasTrackerGlobalComponentAtlas["validationStatus"]
+      HCAAtlasTrackerListComponentAtlas,
+      HCAAtlasTrackerListComponentAtlas["validationStatus"]
     >),
     backOrigin: "INTEGRATED_OBJECTS",
     componentAtlasId: integratedObject.id,
@@ -546,7 +568,7 @@ export const buildResolvedAt = (
  * @returns Props to be used for the LinksCell component.
  */
 export const buildSourceDatasetAtlases = (
-  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+  sourceDataset: HCAAtlasTrackerListSourceDataset,
 ): ComponentProps<typeof C.LinksCell> => {
   const { atlases, id: sourceDatasetId } = sourceDataset;
   return {
@@ -570,7 +592,7 @@ export const buildSourceDatasetAtlases = (
  * @returns Props to be used for the BioNetworksCell component.
  */
 export const buildSourceDatasetBioNetworks = (
-  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+  sourceDataset: HCAAtlasTrackerListSourceDataset,
 ): ComponentProps<typeof C.BioNetworksCell> => {
   return {
     networkKeys: sourceDataset.networks,
@@ -597,7 +619,7 @@ export const buildSourceDatasetCount = (
  * @returns Props to be used for the Link component.
  */
 export const buildSourceDatasetFileName = (
-  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+  sourceDataset: HCAAtlasTrackerListSourceDataset,
 ): ComponentProps<typeof C.Link> => {
   const { atlasId, baseFileName, id: sourceDatasetId } = sourceDataset;
   return {
@@ -615,7 +637,7 @@ export const buildSourceDatasetFileName = (
  * @returns Props to be used for the BasicCell component.
  */
 export const buildSourceDatasetTitle = (
-  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
+  sourceDataset: HCAAtlasTrackerListSourceDataset,
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: sourceDataset.title,
@@ -631,8 +653,8 @@ export const buildSourceDatasetTitle = (
  * @returns Props to be used for the ValidationStatusCell component.
  */
 export const buildSourceDatasetValidationStatus = (
-  sourceDataset: HCAAtlasTrackerGlobalSourceDataset,
-  viewContext: ViewContext<HCAAtlasTrackerGlobalSourceDataset>,
+  sourceDataset: HCAAtlasTrackerListSourceDataset,
+  viewContext: ViewContext<HCAAtlasTrackerListSourceDataset>,
 ): ComponentProps<typeof C.ValidationStatusCell> => {
   const { cellContext } = viewContext;
   if (!cellContext) {
@@ -640,8 +662,8 @@ export const buildSourceDatasetValidationStatus = (
   }
   return {
     ...(cellContext as CellContext<
-      HCAAtlasTrackerGlobalSourceDataset,
-      HCAAtlasTrackerGlobalSourceDataset["validationStatus"]
+      HCAAtlasTrackerListSourceDataset,
+      HCAAtlasTrackerListSourceDataset["validationStatus"]
     >),
     backOrigin: "SOURCE_DATASETS",
     sourceDatasetId: sourceDataset.id,

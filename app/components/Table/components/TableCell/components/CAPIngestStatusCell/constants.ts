@@ -1,6 +1,7 @@
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { ChipProps } from "@mui/material";
-import { CAP_INGEST_STATUS } from "./entities";
+import { CAP_INGEST_STATUS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { CHIP_PROPS as APP_CHIP_PROPS } from "../../../../../../styles/common/mui/chip";
 
 export const CAP_INGEST_STATUS_COLOR: Record<
   CAP_INGEST_STATUS,
@@ -11,7 +12,7 @@ export const CAP_INGEST_STATUS_COLOR: Record<
   INFO_REQUIRED: CHIP_PROPS.COLOR.WARNING,
   NEEDS_VALIDATION: CHIP_PROPS.COLOR.WARNING,
   NOT_REQUIRED: CHIP_PROPS.COLOR.DEFAULT,
-  PUBLISHED: "successDark",
+  PUBLISHED: APP_CHIP_PROPS.COLOR.SUCCESS_DARK,
 };
 
 export const CAP_INGEST_STATUS_LABEL: Record<CAP_INGEST_STATUS, string> = {
