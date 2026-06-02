@@ -1,16 +1,11 @@
-import { syncFilesFromS3 } from "app/services/s3-sync";
-import { ROLE } from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { NotImplementedError } from "app/utils/api-errors";
 import { METHOD } from "../../app/common/entities";
-import { handler, method, role } from "../../app/utils/api-handler";
+import { handler, method } from "../../app/utils/api-handler";
 
-export default handler(
-  method(METHOD.POST),
-  role(ROLE.CONTENT_ADMIN),
-  async (req, res) => {
-    syncFilesFromS3().catch((e) => {
-      console.error("Encountered error while syncing from S3");
-      console.error(e);
-    });
-    res.status(202).end();
-  },
-);
+export default handler(method(METHOD.POST), async () => {
+  throw new NotImplementedError(
+    "S3 sync via this endpoint is disabled. File ingest is driven by " +
+      "S3 event notifications (processS3NotificationMessage). This route " +
+      "is preserved for possible future re-enablement.",
+  );
+});

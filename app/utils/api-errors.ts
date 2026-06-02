@@ -38,3 +38,8 @@ export class NotFoundError extends ApiError {
   name = "NotFoundError";
   statusCode = 404;
 }
+
+export class NotImplementedError extends ApiError {
+  name = "NotImplementedError";
+  statusCode = 501;
+}
