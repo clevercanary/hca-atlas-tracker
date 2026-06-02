@@ -1,7 +1,7 @@
 import { CellContext } from "@tanstack/react-table";
 import {
-  HCAAtlasTrackerGlobalComponentAtlas,
-  HCAAtlasTrackerGlobalSourceDataset,
+  HCAAtlasTrackerListComponentAtlas,
+  HCAAtlasTrackerListSourceDataset,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../../../../../common/entities";
 import { RouteValue } from "../../../../../../routes/entities";
@@ -18,13 +18,13 @@ export type Props =
   | (CellContext<AtlasSourceDataset, AtlasSourceDataset["validationStatus"]> &
       TValue)
   | (CellContext<
-      HCAAtlasTrackerGlobalSourceDataset,
-      HCAAtlasTrackerGlobalSourceDataset["validationStatus"]
+      HCAAtlasTrackerListSourceDataset,
+      HCAAtlasTrackerListSourceDataset["validationStatus"]
     > &
       TValue)
   | (CellContext<
-      HCAAtlasTrackerGlobalComponentAtlas,
-      HCAAtlasTrackerGlobalComponentAtlas["validationStatus"]
+      HCAAtlasTrackerListComponentAtlas,
+      HCAAtlasTrackerListComponentAtlas["validationStatus"]
     > &
       TValue);
 

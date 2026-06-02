@@ -1,12 +1,12 @@
 import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { ComponentProps } from "react";
+import { CAP_INGEST_STATUS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { Chip } from "../../../../../common/Chip/chip";
 import {
   CAP_INGEST_STATUS_COLOR,
   CAP_INGEST_STATUS_LABEL,
 } from "../CAPIngestStatusCell/constants";
-import { CAP_INGEST_STATUS } from "../CAPIngestStatusCell/entities";
 import { Props } from "./entities";
 
 /**

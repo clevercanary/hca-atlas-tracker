@@ -36,6 +36,7 @@ export { BioNetworkCell } from "./Table/components/TableCell/components/BioNetwo
 export { BioNetworksCell } from "./Table/components/TableCell/components/BioNetworksCell/bioNetworksCell";
 export { ButtonTextPrimaryCell } from "./Table/components/TableCell/components/ButtonTextPrimaryCell/buttonTextPrimaryCell.styles";
 export { CAPCell } from "./Table/components/TableCell/components/CAPCell/capCell";
+export { CAPIngestStatusCell } from "./Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCell/atlasCell";
 export { GroupedRowSelectionCell } from "./Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
 export { IconStatusBadge } from "./Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";

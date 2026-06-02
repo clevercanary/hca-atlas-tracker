@@ -4,13 +4,14 @@ import { ChipProps } from "@mui/material";
 import { Getter } from "@tanstack/react-table";
 import { ComponentProps } from "react";
 import {
+  CAP_INGEST_STATUS,
   FILE_VALIDATION_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
   REPROCESSED_STATUS,
 } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { CAP_INGEST_STATUS_COLOR, CAP_INGEST_STATUS_LABEL } from "./constants";
-import { CAP_INGEST_STATUS, Props } from "./entities";
+import { Props } from "./entities";
 
 /**
  * Build props for the CAP ingest status ChipCell component.
@@ -63,7 +64,7 @@ export function getCapIngestStatus(
     }
     // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
     if (validationSummary.validators.cap?.valid) {
-      return original.capUrl
+      return original.capUrl !== null
         ? CAP_INGEST_STATUS.PUBLISHED
         : CAP_INGEST_STATUS.CAP_READY;
     }

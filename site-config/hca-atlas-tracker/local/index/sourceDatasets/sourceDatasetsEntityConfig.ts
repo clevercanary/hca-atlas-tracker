@@ -3,7 +3,7 @@ import {
   ListConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode/types";
-import { HCAAtlasTrackerGlobalSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerListSourceDataset } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getSourceDatasetId,
   sourceDatasetInputMapper,
@@ -31,7 +31,7 @@ export const sourceDatasetsEntityConfig: EntityConfig = {
   list: {
     columns: COLUMNS,
     tableOptions: TABLE_OPTIONS,
-  } as ListConfig<HCAAtlasTrackerGlobalSourceDataset>,
+  } as ListConfig<HCAAtlasTrackerListSourceDataset>,
   listView: { disablePagination: true },
   route: "source-datasets",
   ui: { title: "Source Datasets" },

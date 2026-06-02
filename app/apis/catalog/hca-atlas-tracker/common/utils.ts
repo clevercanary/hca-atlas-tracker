@@ -1,3 +1,4 @@
+import { getCapIngestStatus } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/utils";
 import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
 import {
   FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED,
@@ -16,6 +17,8 @@ import {
   HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerGlobalSourceStudy,
   HCAAtlasTrackerListAtlas,
+  HCAAtlasTrackerListComponentAtlas,
+  HCAAtlasTrackerListSourceDataset,
   HCAAtlasTrackerListSourceStudy,
   HCAAtlasTrackerListValidationRecord,
   HCAAtlasTrackerSourceDataset,
@@ -383,27 +386,35 @@ export function isWaveValue(value: unknown): value is Wave {
 }
 
 /**
- * Identity mapper required by EntityConfig.entityMapper; included as a hook
- * for future API → list-shape transformations.
+ * Maps the global API component atlas to the list component atlas, augmenting
+ * it with a derived `capIngestStatus` so the field is available for column
+ * rendering and facet filtering.
  * @param apiComponentAtlas - API component atlas.
  * @returns list component atlas.
  */
 export function componentAtlasInputMapper(
   apiComponentAtlas: HCAAtlasTrackerGlobalComponentAtlas,
-): HCAAtlasTrackerGlobalComponentAtlas {
-  return apiComponentAtlas;
+): HCAAtlasTrackerListComponentAtlas {
+  return {
+    ...apiComponentAtlas,
+    capIngestStatus: getCapIngestStatus(apiComponentAtlas),
+  };
 }
 
 /**
- * Identity mapper required by EntityConfig.entityMapper; included as a hook
- * for future API → list-shape transformations.
+ * Maps the global API source dataset to the list source dataset, augmenting
+ * it with a derived `capIngestStatus` so the field is available for column
+ * rendering and facet filtering.
  * @param apiSourceDataset - API source dataset.
  * @returns list source dataset.
  */
 export function sourceDatasetInputMapper(
   apiSourceDataset: HCAAtlasTrackerGlobalSourceDataset,
-): HCAAtlasTrackerGlobalSourceDataset {
-  return apiSourceDataset;
+): HCAAtlasTrackerListSourceDataset {
+  return {
+    ...apiSourceDataset,
+    capIngestStatus: getCapIngestStatus(apiSourceDataset),
+  };
 }
 
 /**
