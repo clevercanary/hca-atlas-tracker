@@ -6,9 +6,14 @@ import {
 } from "../Controllers/common/entities";
 
 /**
- * Resolve the input component to render. If `inputProps.viewProps` is undefined
- * (i.e. the `viewBuilder` returned nothing), `inputComponent` is suppressed and
- * the field falls back to MUI's default text input.
+ * Resolve the input component to render. The convention is:
+ * `inputComponent` is used only when there are `viewProps` to feed it — i.e.,
+ * when a `viewBuilder` was provided and returned defined props. Otherwise
+ * (no `viewBuilder`, or `viewBuilder` returned undefined), `inputComponent` is
+ * suppressed and the field falls back to MUI's default text input.
+ *
+ * This means a static `inputComponent` without a paired `viewBuilder` is
+ * intentionally unsupported — pair them in the controller config.
  * @param inputComponent - Configured input component.
  * @param inputProps - Props returned by `getInputProps`.
  * @returns Effective input component, or undefined to fall back to default rendering.
