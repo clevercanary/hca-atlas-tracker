@@ -17,7 +17,7 @@ import {
   getAtlasSourceDatasetVersionIds,
   getComponentAtlasSourceDatasetVersionIds,
   getSourceDatasetForDetailApi,
-  getSourceDatasetsForApi,
+  getSourceDatasetsForListApi,
   getSourceDatasetVersionForAtlas,
   getSourceDatasetVersionForComponentAtlas,
   getSourceDatasetVersionsForAtlas,
@@ -54,7 +54,7 @@ export async function getSourceStudyDatasets(
   sourceStudyId: string,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  return await getSourceDatasetsForApi(
+  return await getSourceDatasetsForListApi(
     await getSourceStudySourceDatasetVersionIds(sourceStudyId, atlasId),
     true,
   );
@@ -70,7 +70,7 @@ export async function getAtlasDatasets(
   atlasId: string,
   isArchivedValue = false,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
-  return await getSourceDatasetsForApi(
+  return await getSourceDatasetsForListApi(
     await getAtlasSourceDatasetVersionIds(atlasId),
     true,
     [isArchivedValue],
@@ -91,7 +91,7 @@ export async function getComponentAtlasDatasets(
     componentAtlasId,
     atlasId,
   );
-  return await getSourceDatasetsForApi(
+  return await getSourceDatasetsForListApi(
     await getComponentAtlasSourceDatasetVersionIds(componentAtlasVersion),
     true,
   );
@@ -137,12 +137,7 @@ export async function getComponentAtlasSourceDataset(
     sourceDatasetId,
     componentAtlasVersion,
   );
-  const [sourceDataset] = await getSourceDatasetsForApi(
-    [sourceDatasetVersion],
-    false,
-    [true, false],
-  );
-  return sourceDataset;
+  return await getSourceDatasetForDetailApi(sourceDatasetVersion);
 }
 
 /**

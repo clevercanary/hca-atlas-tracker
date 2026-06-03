@@ -518,6 +518,9 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
 export type HCAAtlasTrackerDBSourceDatasetForGlobalAPI =
   WithLinkedAtlases<HCAAtlasTrackerDBSourceDatasetForAPI>;
 
+export type HCAAtlasTrackerDBSourceDatasetForListAPI =
+  HCAAtlasTrackerDBSourceDatasetForAPI;
+
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI &
     Pick<HCAAtlasTrackerDBFile, "validation_reports">;

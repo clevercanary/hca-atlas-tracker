@@ -3,9 +3,9 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
+  HCAAtlasTrackerDBSourceDatasetForListAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -139,21 +139,21 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
 }
 
 /**
- * Get specified source datasets joined with data used for API responses.
+ * Get specified source datasets joined with data used for list API responses.
  * @param sourceDatasetVersions - Version IDs of source datasets to get.
  * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
  * @param isArchivedValues - Values of `is_archived` to filter source datasets by. (Default `[false]`)
  * @param client - Postgres client to use.
- * @returns source datasets with fields for APIs.
+ * @returns source datasets with fields for list APIs.
  */
-export async function getSourceDatasetsForApi(
+export async function getSourceDatasetsForListApi(
   sourceDatasetVersions: string[],
   acceptSubset = false,
   isArchivedValues = [false],
   client?: pg.PoolClient,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
   const { rows: sourceDatasets } =
-    await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    await query<HCAAtlasTrackerDBSourceDatasetForListAPI>(
       `
         SELECT
           d.*,
