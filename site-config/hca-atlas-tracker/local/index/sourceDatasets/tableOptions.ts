@@ -6,9 +6,11 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListSourceDataset>["tableO
   {
     initialState: {
       columnVisibility: {
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.ASSAY]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.SUSPENSION_TYPE]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.TIER1_VALIDATION_STATUS]: false,
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.TISSUE]: false,
       },
     },
   };
