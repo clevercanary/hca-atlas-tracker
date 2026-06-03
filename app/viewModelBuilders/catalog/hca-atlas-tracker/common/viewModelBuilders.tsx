@@ -1254,19 +1254,6 @@ export const buildValidationType = (
 };
 
 /**
- * Build props for the wave BasicCell component.
- * @param atlas - Atlas entity.
- * @returns Props to be used for the BasicCell component.
- */
-export const buildWave = (
-  atlas: HCAAtlasTrackerListAtlas,
-): ComponentProps<typeof C.BasicCell> => {
-  return {
-    value: atlas.wave,
-  };
-};
-
-/**
  * Get props for the publish status badge component for the given published-at value.
  * @param publishedAt - Atlas published-at value.
  * @returns status badge props.

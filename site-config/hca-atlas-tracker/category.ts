@@ -49,7 +49,6 @@ export const HCA_ATLAS_TRACKER_CATEGORY_KEY = {
   VALIDATION_STATUS: "validationStatus",
   VALIDATION_TYPE: "validationType",
   VERSION: "version",
-  WAVE: "wave",
   WAVES: "waves",
 };
 
@@ -107,6 +106,5 @@ export const HCA_ATLAS_TRACKER_CATEGORY_LABEL = {
   VALIDATION_STATUS: "Validation Status",
   VALIDATION_TYPE: "Task Type",
   VERSION: "Atlas Version",
-  WAVE: "Wave",
   WAVES: "Wave",
 };
