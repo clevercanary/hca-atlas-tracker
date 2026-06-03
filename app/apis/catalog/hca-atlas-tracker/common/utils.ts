@@ -12,6 +12,7 @@ import {
   DoiPublicationInfo,
   FILE_VALIDATION_STATUS,
   FileValidatorName,
+  HCA_TIER1_VALIDATION_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerGlobalComponentAtlas,
@@ -184,6 +185,31 @@ export function getCompositeTierOneMetadataStatus(
     prevStatus = status;
   }
   return prevStatus ?? TIER_ONE_METADATA_STATUS.NA;
+}
+
+/**
+ * Determine the HCA Tier-1 validation status from an entity's validation
+ * summary. Collapses the underlying `hcaSchema` validator result into the
+ * three values used by the HCA Tier-1 Status filter on the global Source
+ * Datasets and Integrated Objects lists. Warnings are ignored — only the
+ * presence of errors distinguishes Invalid from Valid.
+ * @param original - Component atlas or source dataset.
+ * @returns HCA Tier-1 validation status.
+ */
+export function getHcaTier1ValidationStatus(
+  original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
+): HCA_TIER1_VALIDATION_STATUS {
+  const { validationStatus, validationSummary } = original;
+  if (validationStatus !== FILE_VALIDATION_STATUS.COMPLETED) {
+    return HCA_TIER1_VALIDATION_STATUS.UNKNOWN;
+  }
+  const hcaSchema = validationSummary?.validators.hcaSchema;
+  if (!hcaSchema) {
+    return HCA_TIER1_VALIDATION_STATUS.UNKNOWN;
+  }
+  return hcaSchema.errorCount > 0
+    ? HCA_TIER1_VALIDATION_STATUS.INVALID
+    : HCA_TIER1_VALIDATION_STATUS.VALID;
 }
 
 /**
@@ -429,8 +455,8 @@ export function isWaveValue(value: unknown): value is Wave {
 
 /**
  * Maps the global API component atlas to the list component atlas, augmenting
- * it with a derived `capIngestStatus` so the field is available for column
- * rendering and facet filtering.
+ * it with derived list-row fields (`capIngestStatus`, `hcaTier1ValidationStatus`)
+ * so they are available for column rendering and facet filtering.
  * @param apiComponentAtlas - API component atlas.
  * @returns list component atlas.
  */
@@ -440,13 +466,14 @@ export function componentAtlasInputMapper(
   return {
     ...apiComponentAtlas,
     capIngestStatus: getCapIngestStatus(apiComponentAtlas),
+    hcaTier1ValidationStatus: getHcaTier1ValidationStatus(apiComponentAtlas),
   };
 }
 
 /**
  * Maps the global API source dataset to the list source dataset, augmenting
- * it with a derived `capIngestStatus` so the field is available for column
- * rendering and facet filtering.
+ * it with derived list-row fields (`capIngestStatus`, `hcaTier1ValidationStatus`)
+ * so they are available for column rendering and facet filtering.
  * @param apiSourceDataset - API source dataset.
  * @returns list source dataset.
  */
@@ -456,6 +483,7 @@ export function sourceDatasetInputMapper(
   return {
     ...apiSourceDataset,
     capIngestStatus: getCapIngestStatus(apiSourceDataset),
+    hcaTier1ValidationStatus: getHcaTier1ValidationStatus(apiSourceDataset),
   };
 }
 

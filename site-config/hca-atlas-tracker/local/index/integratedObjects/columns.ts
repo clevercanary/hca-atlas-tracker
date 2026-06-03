@@ -16,4 +16,5 @@ export const COLUMNS: ColumnConfig<HCAAtlasTrackerListComponentAtlas>[] = [
   COLUMN.SUSPENSION_TYPE,
   COLUMN.DISEASE,
   COLUMN.CELL_COUNT,
+  COLUMN.TIER1_VALIDATION_STATUS,
 ];
