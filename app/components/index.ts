@@ -41,6 +41,7 @@ export { AtlasCell } from "./Table/components/TableCell/components/Cell/AtlasCel
 export { GroupedRowSelectionCell } from "./Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
 export { IconStatusBadge } from "./Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
 export { PinnedNTagCell } from "./Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
+export { ReleaseDateCell } from "./Table/components/TableCell/components/ReleaseDateCell/releaseDateCell";
 export { RowSelectionCell } from "./Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
 export { ValidationStatusCell } from "./Table/components/TableCell/components/ValidationStatusCell/validationStatusCell";

@@ -13,4 +13,5 @@ export const COLUMNS: ColumnConfig<HCAAtlasTrackerListSourceDataset>[] = [
   COLUMN.CELL_COUNT,
   COLUMN.VALIDATION_STATUS,
   COLUMN.CAP_INGEST_STATUS,
+  COLUMN.RELEASE_DATE,
 ];

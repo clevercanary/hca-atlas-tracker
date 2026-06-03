@@ -17,7 +17,7 @@ import {
 } from "../FormHelperText/formHelperText";
 import { FormLabel } from "../FormLabel/formLabel";
 import { InputFormControl as FormControl } from "./input.styles";
-import { getInputProps } from "./utils";
+import { getInputComponent, getInputProps } from "./utils";
 
 export interface InputProps<
   C extends ElementType = "input",
@@ -28,6 +28,12 @@ export interface InputProps<
   isFilled?: boolean;
   isFullWidth?: boolean;
   isRowStart?: boolean;
+  /**
+   * Builds the props passed to `inputComponent` from the current field value.
+   * Returning `undefined` signals "no special view to inject" — the field then
+   * falls back to MUI's default text input (i.e., `inputComponent` is suppressed
+   * for that render).
+   */
   viewBuilder?: ControllerViewBuilder<C>;
 }
 
@@ -38,6 +44,7 @@ function InputBase<C extends ElementType = "input">(
     error,
     helperText,
     helperTextProps,
+    inputComponent,
     isFilled = false,
     isFullWidth = false,
     isRowStart = false,
@@ -48,6 +55,7 @@ function InputBase<C extends ElementType = "input">(
   }: InputProps<C>,
   ref: Ref<HTMLInputElement>,
 ): JSX.Element {
+  const inputProps = getInputProps(value, viewBuilder);
   return (
     <FormControl
       className={className}
@@ -63,7 +71,10 @@ function InputBase<C extends ElementType = "input">(
         autoComplete="off"
         disabled={disabled}
         error={error}
-        inputProps={getInputProps(value, viewBuilder)}
+        inputComponent={getInputComponent(inputComponent, inputProps)}
+        // Safe to set (not merge) because `ControllerInputConfig` doesn't expose
+        // MUI's `inputProps` — `InputController` is the only caller.
+        inputProps={inputProps}
         ref={ref}
         size="small"
         // Handle null values.

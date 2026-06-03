@@ -60,6 +60,7 @@ import { ROUTE } from "../../../../routes/constants";
 import {
   formatDateToQuarterYear,
   formatISOToUTCDateTime,
+  getDateFromIsoString,
 } from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { AtlasIntegratedObject } from "../../../../views/ComponentAtlasesView/entities";
@@ -530,20 +531,19 @@ export function buildMetadataSpecification(
 }
 
 /**
- * Build props for the published-at cell component.
+ * Build props for the release date cell component. Renders a formatted date when
+ * `publishedAt` is set, otherwise the `Draft` status pill.
  * @param entity - Atlas, component atlas, or source dataset entity.
  * @returns Props to be used for the cell.
  */
-export const buildPublishedAt = (
+export const buildReleaseDate = (
   entity:
     | HCAAtlasTrackerListAtlas
     | HCAAtlasTrackerComponentAtlas
     | HCAAtlasTrackerSourceDataset,
-): ComponentProps<typeof C.BasicCell> => {
+): ComponentProps<typeof C.ReleaseDateCell> => {
   return {
-    value: entity.publishedAt
-      ? getDateFromIsoString(entity.publishedAt)
-      : "Unpublished",
+    publishedAt: entity.publishedAt,
   };
 };
 
@@ -1345,7 +1345,7 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     },
     {
       accessorKey: "publishedAt",
-      cell: ({ row }) => C.BasicCell(buildPublishedAt(row.original)),
+      cell: ({ row }) => C.ReleaseDateCell(buildReleaseDate(row.original)),
       header: "Release Date",
       meta: { width: { max: "1fr", min: "160px" } },
     },
@@ -1591,15 +1591,6 @@ export function getDOILink(doi: string | null): string {
 }
 
 /**
- * Get date-only string from ISO datetime with 4-digit year, defaulting to the full string if it's improperly formatted.
- * @param isoString - ISO datetime.
- * @returns date in YYYY-MM-DD format.
- */
-function getDateFromIsoString(isoString: string): string {
-  return /\d{4}-\d{2}-\d{2}/.exec(isoString)?.[0] ?? isoString;
-}
-
-/**
  * Returns the entity model from the table row.
  * @param row - Row.
  * @param isEntity - Entity type guard.
@@ -1670,6 +1661,7 @@ function getIntegratedObjectFileNameColumnDef(): ColumnDef<
     accessorKey: "baseFileName",
     cell: (ctx) => C.LinkCell(buildComponentAtlasFileName(ctx)),
     header: "File Name",
+    id: "baseFileName",
     meta: { columnPinned: true, width: { max: "1fr", min: "136px" } },
   };
 }

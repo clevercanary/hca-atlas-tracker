@@ -3,6 +3,7 @@ import { ControllerConfig } from "../../../components/common/Form/components/Con
 import { Chip } from "../../../components/Form/components/Input/inputComponent/Chip/chip";
 import {
   buildCAPIngestStatus,
+  buildReleaseDate,
   buildValidationStatus,
 } from "../../ComponentAtlasView/common/viewBuilders";
 import { FIELD_NAME } from "./constants";
@@ -92,13 +93,15 @@ const PUBLICATION_STATUS: CommonControllerConfig = {
   name: FIELD_NAME.PUBLICATION_STATUS,
 };
 
-const PUBLISHED_AT: CommonControllerConfig = {
+const PUBLISHED_AT: ChipInputControllerConfig = {
   inputProps: {
+    inputComponent: Chip,
     isFullWidth: false,
     label: "Release Date",
     readOnly: true,
   },
   name: FIELD_NAME.PUBLISHED_AT,
+  viewBuilder: buildReleaseDate,
 };
 
 const SIZE_BYTES: CommonControllerConfig = {

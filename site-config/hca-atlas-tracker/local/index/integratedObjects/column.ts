@@ -101,6 +101,20 @@ export const NETWORKS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   width: { max: "1fr", min: "212px" },
 };
 
+export const RELEASE_DATE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
+  componentConfig: {
+    component: C.ReleaseDateCell,
+    viewBuilder: V.buildReleaseDate,
+  } as ComponentConfig<
+    typeof C.ReleaseDateCell,
+    HCAAtlasTrackerListComponentAtlas
+  >,
+  enableGrouping: false,
+  header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLISHED_AT,
+  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLISHED_AT,
+  width: { max: "1fr", min: "160px" },
+};
+
 export const SOURCE_DATASET_COUNT: ColumnConfig<HCAAtlasTrackerListComponentAtlas> =
   {
     componentConfig: {
