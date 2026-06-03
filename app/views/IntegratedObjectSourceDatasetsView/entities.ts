@@ -1,6 +1,7 @@
 import {
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDetailComponentAtlas,
+  HCAAtlasTrackerLocalListSourceDataset,
   HCAAtlasTrackerSourceDataset,
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../common/entities";
@@ -19,6 +20,6 @@ export interface EntityData {
   integratedObjectSourceDatasets?: IntegratedObjectSourceDataset[];
 }
 
-export interface IntegratedObjectSourceDataset extends HCAAtlasTrackerSourceDataset {
+export interface IntegratedObjectSourceDataset extends HCAAtlasTrackerLocalListSourceDataset {
   atlasId: string;
 }

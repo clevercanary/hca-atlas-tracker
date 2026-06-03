@@ -3,6 +3,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
+  HCAAtlasTrackerDBSourceDatasetForListAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -52,9 +53,10 @@ export interface UpdatedSourceDatasetsInfo {
 export async function getSourceStudyDatasets(
   atlasId: string,
   sourceStudyId: string,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
   return await getSourceDatasetsForListApi(
+    atlasId,
     await getSourceStudySourceDatasetVersionIds(sourceStudyId, atlasId),
     true,
   );
@@ -69,8 +71,9 @@ export async function getSourceStudyDatasets(
 export async function getAtlasDatasets(
   atlasId: string,
   isArchivedValue = false,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
   return await getSourceDatasetsForListApi(
+    atlasId,
     await getAtlasSourceDatasetVersionIds(atlasId),
     true,
     [isArchivedValue],
@@ -86,12 +89,13 @@ export async function getAtlasDatasets(
 export async function getComponentAtlasDatasets(
   atlasId: string,
   componentAtlasId: string,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
     atlasId,
   );
   return await getSourceDatasetsForListApi(
+    atlasId,
     await getComponentAtlasSourceDatasetVersionIds(componentAtlasVersion),
     true,
   );

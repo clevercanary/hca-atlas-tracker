@@ -140,6 +140,7 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
 
 /**
  * Get specified source datasets joined with data used for list API responses.
+ * @param atlasId - ID of the atlas that the source datasets are accessed through, to determine linked component atlas versions.
  * @param sourceDatasetVersions - Version IDs of source datasets to get.
  * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
  * @param isArchivedValues - Values of `is_archived` to filter source datasets by. (Default `[false]`)
@@ -147,6 +148,7 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
  * @returns source datasets with fields for list APIs.
  */
 export async function getSourceDatasetsForListApi(
+  atlasId: string,
   sourceDatasetVersions: string[],
   acceptSubset = false,
   isArchivedValues = [false],
@@ -169,14 +171,30 @@ export async function getSourceDatasetsForListApi(
           f.validation_summary,
           con.base_filename,
           s.doi,
-          s.study_info
+          s.study_info,
+          (
+            SELECT
+              COALESCE(
+                ARRAY_AGG(
+                  jsonb_build_object(
+                    'id', ca.id,
+                    'name', ccon.base_filename
+                  )
+                ),
+                '{}'
+              )
+            FROM hat.component_atlases ca
+            JOIN hat.concepts ccon ON ccon.id = ca.id
+            WHERE d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases)
+          ) as component_atlases
         FROM hat.source_datasets d
         JOIN hat.files f ON f.id = d.file_id
         JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-        WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2)
+        JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
+        WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2) AND a.id = $3
       `,
-      [sourceDatasetVersions, isArchivedValues],
+      [sourceDatasetVersions, isArchivedValues, atlasId],
       client,
     );
 

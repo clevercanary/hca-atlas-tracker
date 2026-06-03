@@ -24,6 +24,7 @@ import {
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
+  HCAAtlasTrackerDBSourceDatasetForListAPI,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBSourceStudyForGlobalAPI,
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
@@ -37,6 +38,7 @@ import {
   HCAAtlasTrackerGlobalSourceDataset,
   HCAAtlasTrackerGlobalSourceStudy,
   HCAAtlasTrackerListEntrySheetValidation,
+  HCAAtlasTrackerLocalListSourceDataset,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
@@ -234,6 +236,15 @@ export function dbSourceDatasetToDetailApiSourceDataset(
   return {
     ...dbSourceDatasetToApiSourceDataset(dbSourceDataset),
     validationReports: dbSourceDataset.validation_reports,
+  };
+}
+
+export function dbSourceDatasetToListApiSourceDataset(
+  dbSourceDataset: HCAAtlasTrackerDBSourceDatasetForListAPI,
+): HCAAtlasTrackerLocalListSourceDataset {
+  return {
+    ...dbSourceDatasetToApiSourceDataset(dbSourceDataset),
+    componentAtlases: dbSourceDataset.component_atlases,
   };
 }
 
