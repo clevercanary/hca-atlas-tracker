@@ -60,6 +60,7 @@ import { ROUTE } from "../../../../routes/constants";
 import {
   formatDateToQuarterYear,
   formatISOToUTCDateTime,
+  getDateFromIsoString,
 } from "../../../../utils/date-fns";
 import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { AtlasIntegratedObject } from "../../../../views/ComponentAtlasesView/entities";
@@ -1587,15 +1588,6 @@ export function getDOILink(doi: string | null): string {
   if (!doi || doi === UNPUBLISHED) return "";
   if (doi.startsWith("https://doi.org/")) return doi;
   return `https://doi.org/${encodeURIComponent(doi)}`;
-}
-
-/**
- * Get date-only string from ISO datetime with 4-digit year, defaulting to the full string if it's improperly formatted.
- * @param isoString - ISO datetime.
- * @returns date in YYYY-MM-DD format.
- */
-export function getDateFromIsoString(isoString: string): string {
-  return /\d{4}-\d{2}-\d{2}/.exec(isoString)?.[0] ?? isoString;
 }
 
 /**

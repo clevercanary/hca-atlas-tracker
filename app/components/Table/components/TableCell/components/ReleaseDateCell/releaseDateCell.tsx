@@ -3,7 +3,7 @@ import {
   StatusBadge,
 } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { Fragment, JSX } from "react";
-import { getDateFromIsoString } from "../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { getDateFromIsoString } from "../../../../../../utils/date-fns";
 import { Props } from "./types";
 
 export const ReleaseDateCell = ({ publishedAt }: Props): JSX.Element => {

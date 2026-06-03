@@ -62,6 +62,15 @@ function getDate(year: number, month: number): Date {
 }
 
 /**
+ * Get date-only string from ISO datetime with 4-digit year, defaulting to the full string if it's improperly formatted.
+ * @param isoString - ISO datetime.
+ * @returns date in YYYY-MM-DD format.
+ */
+export function getDateFromIsoString(isoString: string): string {
+  return /\d{4}-\d{2}-\d{2}/.exec(isoString)?.[0] ?? isoString;
+}
+
+/**
  * Returns the formatted month for a given month number.
  * @param month - The month number (0 for January, 11 for December).
  * @returns The formatted month as a two-digit string.
