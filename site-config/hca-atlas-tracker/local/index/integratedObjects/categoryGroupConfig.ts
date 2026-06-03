@@ -5,6 +5,7 @@ import {
 } from "../../../category";
 import {
   CAP_INGEST_STATUS_CATEGORY_CONFIG,
+  TIER1_VALIDATION_STATUS_CATEGORY_CONFIG,
   VALIDATION_STATUS_CATEGORY_CONFIG,
 } from "../common/categoryConfig";
 
@@ -36,6 +37,7 @@ export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
         },
+        TIER1_VALIDATION_STATUS_CATEGORY_CONFIG,
         VALIDATION_STATUS_CATEGORY_CONFIG,
         CAP_INGEST_STATUS_CATEGORY_CONFIG,
       ],

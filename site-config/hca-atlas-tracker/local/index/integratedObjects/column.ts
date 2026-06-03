@@ -140,6 +140,19 @@ export const SUSPENSION_TYPE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> =
     width: { max: "1fr", min: "160px" },
   };
 
+export const TIER1_VALIDATION_STATUS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> =
+  {
+    componentConfig: {
+      component: C.BasicCell,
+      viewBuilder: V.buildHcaTier1ValidationStatus,
+    } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListComponentAtlas>,
+    enableGrouping: false,
+    enableHiding: false,
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TIER1_VALIDATION_STATUS,
+    id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TIER1_VALIDATION_STATUS,
+    width: { max: "1fr", min: "160px" },
+  };
+
 export const TISSUE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   componentConfig: {
     component: C.NTagCell,

@@ -102,6 +102,7 @@ export interface HCAAtlasTrackerGlobalComponentAtlas
 export type HCAAtlasTrackerListComponentAtlas =
   HCAAtlasTrackerGlobalComponentAtlas & {
     capIngestStatus: CAP_INGEST_STATUS;
+    hcaTier1ValidationStatus: HCA_TIER1_VALIDATION_STATUS;
   };
 
 export interface HCAAtlasTrackerDetailComponentAtlas extends HCAAtlasTrackerComponentAtlas {
@@ -201,6 +202,7 @@ export interface HCAAtlasTrackerGlobalSourceDataset
 export type HCAAtlasTrackerListSourceDataset =
   HCAAtlasTrackerGlobalSourceDataset & {
     capIngestStatus: CAP_INGEST_STATUS;
+    hcaTier1ValidationStatus: HCA_TIER1_VALIDATION_STATUS;
   };
 
 export interface HCAAtlasTrackerDetailSourceDataset extends HCAAtlasTrackerSourceDataset {
@@ -904,6 +906,12 @@ export enum FILE_VALIDATION_STATUS {
   REQUESTED = "requested",
   RESULTS_NOT_LOADED = "results_not_loaded",
   STALE = "stale",
+}
+
+export enum HCA_TIER1_VALIDATION_STATUS {
+  INVALID = "INVALID",
+  UNKNOWN = "UNKNOWN",
+  VALID = "VALID",
 }
 
 export enum INTEGRITY_STATUS {

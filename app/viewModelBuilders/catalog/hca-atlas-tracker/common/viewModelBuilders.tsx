@@ -18,6 +18,7 @@ import {
 import { BaseSyntheticEvent, ComponentProps, type JSX } from "react";
 import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
+  HCA_TIER1_VALIDATION_STATUS_LABEL,
   NETWORKS,
   STATUS_LABEL,
   UNPUBLISHED,
@@ -323,6 +324,21 @@ export const buildGeneCount = (
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: entity.geneCount?.toLocaleString() ?? "",
+  };
+};
+
+/**
+ * Build props for the HCA Tier-1 validation status BasicCell component. The
+ * column is hidden by default and exists only so the right-hand filter sidebar
+ * can render the HCA Tier-1 Status facet.
+ * @param entity - List component atlas or list source dataset entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildHcaTier1ValidationStatus = (
+  entity: HCAAtlasTrackerListComponentAtlas | HCAAtlasTrackerListSourceDataset,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: HCA_TIER1_VALIDATION_STATUS_LABEL[entity.hcaTier1ValidationStatus],
   };
 };
 
