@@ -16,8 +16,8 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListAtlas>["tableOptions"]
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.INGESTION_COUNTS_CAP]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.INTEGRATION_LEAD]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.METADATA_SPECIFICATION_URL]: false,
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLISHED_AT]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.VERSION]: false,
-        [HCA_ATLAS_TRACKER_CATEGORY_KEY.WAVE]: false,
       },
       expanded: true,
       sorting: [
