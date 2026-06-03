@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.71.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.70.0...v1.71.0) (2026-06-03)
+
+
+### Features
+
+* add hca tier-1 status filter to global source datasets and integrated objects lists ([#1327](https://github.com/clevercanary/hca-atlas-tracker/issues/1327)) ([#1330](https://github.com/clevercanary/hca-atlas-tracker/issues/1330)) ([9ffd0b3](https://github.com/clevercanary/hca-atlas-tracker/commit/9ffd0b3513c0c1934fdce0abdc669752a2b83f5a))
+* clean up atlases columns and filters ([#1314](https://github.com/clevercanary/hca-atlas-tracker/issues/1314)) ([#1333](https://github.com/clevercanary/hca-atlas-tracker/issues/1333)) ([14f47ea](https://github.com/clevercanary/hca-atlas-tracker/commit/14f47ea7aaa8d701d299c545becf627ae7733f87))
+* show draft pill instead of unpublished text in release date column ([#1323](https://github.com/clevercanary/hca-atlas-tracker/issues/1323)) ([#1326](https://github.com/clevercanary/hca-atlas-tracker/issues/1326)) ([7200a3a](https://github.com/clevercanary/hca-atlas-tracker/commit/7200a3ae66bb01122ff33384997cf8d77b1c81ac))
+
 ## [1.70.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.69.0...v1.70.0) (2026-06-02)
 
 
