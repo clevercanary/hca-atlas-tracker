@@ -18,7 +18,7 @@ export const ASSAY: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ASSAY,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ASSAY,
-  width: { max: "1fr", min: "160px" },
+  width: { max: "1fr", min: "112px" },
 };
 
 export const ATLASES: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
@@ -30,7 +30,7 @@ export const ATLASES: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableSorting: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
-  width: { max: "1fr", min: "180px" },
+  width: { max: "1fr", min: "128px" },
 };
 
 export const CAP_INGEST_STATUS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> =
@@ -46,7 +46,7 @@ export const CAP_INGEST_STATUS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> 
     enableSorting: false,
     header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CAP_INGEST_STATUS,
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.CAP_INGEST_STATUS,
-    width: { max: "1fr", min: "180px" },
+    width: { max: "1fr", min: "160px" },
   };
 
 export const CELL_COUNT: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
@@ -57,7 +57,7 @@ export const CELL_COUNT: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.CELL_COUNT,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.CELL_COUNT,
-  width: { max: "0.5fr", min: "112px" },
+  width: { max: "0.5fr", min: "100px" },
 };
 
 export const DISEASE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
@@ -84,7 +84,7 @@ export const FILE_NAME: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.FILE_NAME,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.FILE_NAME,
-  width: { max: "1.5fr", min: "240px" },
+  width: { max: "1.5fr", min: "128px" },
 };
 
 export const NETWORKS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
@@ -98,7 +98,7 @@ export const NETWORKS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
-  width: { max: "1fr", min: "212px" },
+  width: { max: "1fr", min: "180px" },
 };
 
 export const RELEASE_DATE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
@@ -112,7 +112,7 @@ export const RELEASE_DATE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLISHED_AT,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLISHED_AT,
-  width: { max: "1fr", min: "160px" },
+  width: { max: "1fr", min: "124px" },
 };
 
 export const SOURCE_DATASET_COUNT: ColumnConfig<HCAAtlasTrackerListComponentAtlas> =
@@ -161,7 +161,7 @@ export const TISSUE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TISSUE,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TISSUE,
-  width: { max: "1fr", min: "160px" },
+  width: { max: "1fr", min: "112px" },
 };
 
 export const TITLE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
@@ -172,7 +172,7 @@ export const TITLE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TITLE,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TITLE,
-  width: { max: "1.5fr", min: "220px" },
+  width: { max: "1.5fr", min: "128px" },
 };
 
 export const VALIDATION_STATUS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> =
