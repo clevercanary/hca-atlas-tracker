@@ -74,15 +74,47 @@ export function makeConfig(
               label: "Atlases",
               url: ROUTE.ATLASES,
             },
-            { label: "Source Studies", url: ROUTE.SOURCE_STUDIES },
-            { label: "Source Datasets", url: ROUTE.SOURCE_DATASETS },
-            { label: "Integrated Objects", url: ROUTE.INTEGRATED_OBJECTS },
-            { label: "Reports", url: ROUTE.REPORTS },
-            { label: "Team", url: ROUTE.USERS },
+            {
+              label: "Source Studies",
+              url: ROUTE.SOURCE_STUDIES,
+              visible: { md: false, sm: false },
+            },
+            {
+              label: "Source Datasets",
+              url: ROUTE.SOURCE_DATASETS,
+              visible: { md: false, sm: false },
+            },
+            {
+              label: "Integrated Objects",
+              url: ROUTE.INTEGRATED_OBJECTS,
+              visible: { md: false, sm: false },
+            },
+            {
+              label: "Reports",
+              url: ROUTE.REPORTS,
+              visible: { md: false, sm: false },
+            },
+            {
+              label: "Team",
+              url: ROUTE.USERS,
+              visible: { md: false, sm: false },
+            },
             {
               label: "Metadata Dictionary",
               target: ANCHOR_TARGET.BLANK,
               url: `${portalUrl}/metadata/tier-1`,
+            },
+            {
+              label: "More",
+              menuItems: [
+                { label: "Source Studies", url: ROUTE.SOURCE_STUDIES },
+                { label: "Source Datasets", url: ROUTE.SOURCE_DATASETS },
+                { label: "Integrated Objects", url: ROUTE.INTEGRATED_OBJECTS },
+                { label: "Reports", url: ROUTE.REPORTS },
+                { label: "Team", url: ROUTE.USERS },
+              ],
+              url: "",
+              visible: { lg: false, xs: false },
             },
           ],
           [
