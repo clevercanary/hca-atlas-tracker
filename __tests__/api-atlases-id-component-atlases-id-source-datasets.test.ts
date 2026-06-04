@@ -33,6 +33,7 @@ import {
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   FILE_A_COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ,
+  FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ARCHIVED_BAR,
   SOURCE_DATASET_ARCHIVED_FOO,
   SOURCE_DATASET_BAR,
@@ -45,6 +46,7 @@ import {
   SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
   SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
   SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+  SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
@@ -303,6 +305,27 @@ describe(TEST_ROUTE, () => {
           COMPONENT_ATLAS_MISC_BAZ,
         ],
         sourceDataset: SOURCE_DATASET_FOOFOO,
+      },
+    ]);
+  });
+
+  it("does not include archived component atlas in component atlas list", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets =
+      res._getJSONData() as HCAAtlasTrackerLocalListSourceDataset[];
+    const sourceDatasetMultipleFiles = sourceDatasets.find(
+      (d) => d.id === SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+    );
+    assertExpectDefined(sourceDatasetMultipleFiles);
+    expect(sourceDatasetMultipleFiles.componentAtlases).toEqual([
+      {
+        id: COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+        name: FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES.fileName,
       },
     ]);
   });
