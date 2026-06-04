@@ -44,6 +44,7 @@ export const JOURNAL: ColumnConfig<HCAAtlasTrackerListSourceStudy> = {
     viewBuilder: V.buildSourceStudyJournal,
   } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListSourceStudy>,
   enableGrouping: false,
+  enableHiding: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.JOURNAL,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.JOURNAL,
   width: { max: "1fr", min: "160px" },
