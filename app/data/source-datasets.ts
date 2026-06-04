@@ -140,7 +140,8 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
 
 /**
  * Get specified source datasets joined with data used for list API responses.
- * @param atlasId - ID of the atlas that the source datasets are accessed through, to determine linked component atlas versions.
+ * Only source datasets linked to the given atlas are returned; specified datasets not linked to the atlas are excluded.
+ * @param atlasId - ID of the atlas that the source datasets are accessed through, used to scope results to the atlas and to determine linked component atlas versions.
  * @param sourceDatasetVersions - Version IDs of source datasets to get.
  * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
  * @param isArchivedValues - Values of `is_archived` to filter source datasets by. (Default `[false]`)
