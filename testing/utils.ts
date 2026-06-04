@@ -47,7 +47,6 @@ import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
 import { slugifyAtlasShortName } from "../app/utils/atlases";
 import {
-  getFileBaseName,
   normalizeValidationSummary,
   removeFileExtension,
 } from "../app/utils/files";
@@ -724,7 +723,7 @@ export function expectApiSourceDatasetsToHaveComponentAtlases(
       );
       expect(componentAtlasSummary).toEqual({
         id: componentAtlas.id,
-        name: getFileBaseName(componentAtlas.file.fileName),
+        name: getTestEntityBaseFilename(componentAtlas),
       });
     }
   }
