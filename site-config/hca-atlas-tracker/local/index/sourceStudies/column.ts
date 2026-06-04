@@ -38,6 +38,17 @@ export const HCA_DATA_REPOSITORY_STATUS: ColumnConfig<HCAAtlasTrackerListSourceS
     width: { max: "160px", min: "160px" },
   };
 
+export const JOURNAL: ColumnConfig<HCAAtlasTrackerListSourceStudy> = {
+  componentConfig: {
+    component: C.BasicCell,
+    viewBuilder: V.buildSourceStudyJournal,
+  } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListSourceStudy>,
+  enableGrouping: false,
+  header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.JOURNAL,
+  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.JOURNAL,
+  width: { max: "1fr", min: "160px" },
+};
+
 export const NETWORKS: ColumnConfig<HCAAtlasTrackerListSourceStudy> = {
   componentConfig: {
     component: C.BioNetworksCell,

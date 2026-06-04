@@ -6,6 +6,7 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListSourceStudy>["tableOpt
   {
     initialState: {
       columnVisibility: {
+        [HCA_ATLAS_TRACKER_CATEGORY_KEY.JOURNAL]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS]: false,
       },
     },

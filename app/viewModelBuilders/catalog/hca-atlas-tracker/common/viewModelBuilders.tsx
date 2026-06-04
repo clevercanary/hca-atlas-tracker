@@ -772,6 +772,21 @@ export const buildSourceStudyHcaDataRepositoryStatus = (
 };
 
 /**
+ * Build props for the source study journal BasicCell component. The column is
+ * hidden by default and exists only so the right-hand filter sidebar can
+ * render the Journal facet on the global Source Studies list.
+ * @param sourceStudy - Source study entity.
+ * @returns Props to be used for the BasicCell component.
+ */
+export const buildSourceStudyJournal = (
+  sourceStudy: HCAAtlasTrackerSourceStudy,
+): ComponentProps<typeof C.BasicCell> => {
+  return {
+    value: sourceStudy.journal ?? UNPUBLISHED,
+  };
+};
+
+/**
  * Build props for the global source study list Name Link component.
  * Picks a representative atlas via `pickPrimaryListAtlas` (deterministic sort:
  * isLatest desc → generation desc → revision desc → shortName asc) to host
