@@ -87,7 +87,7 @@ const EXPECTED_PRESENT_SOURCE_STUDIES: Array<{
   {
     atlases: [ATLAS_WITH_NON_LATEST_METADATA_ENTITIES],
     latestAtlasIds: [ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id],
-    sourceDatasetCount: 1,
+    sourceDatasetCount: 2,
     sourceStudy: SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES,
   },
   {

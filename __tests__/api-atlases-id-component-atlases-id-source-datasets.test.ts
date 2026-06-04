@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBComponentAtlas,
+  HCAAtlasTrackerLocalListSourceDataset,
   HCAAtlasTrackerSourceDataset,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -14,19 +15,24 @@ import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/component-atla
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
+  ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   COMPONENT_ATLAS_ARCHIVED_FOO,
   COMPONENT_ATLAS_DRAFT_BAR,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+  COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
   COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
   COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_MISC_BAR,
+  COMPONENT_ATLAS_MISC_BAZ,
   COMPONENT_ATLAS_MISC_FOO,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
+  FILE_A_COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ,
   SOURCE_DATASET_ARCHIVED_BAR,
   SOURCE_DATASET_ARCHIVED_FOO,
   SOURCE_DATASET_BAR,
@@ -59,6 +65,8 @@ import {
 } from "../testing/db-utils";
 import { TestComponentAtlas, TestUser } from "../testing/entities";
 import {
+  assertExpectDefined,
+  expectApiSourceDatasetsToHaveComponentAtlases,
   expectApiSourceDatasetsToMatchTest,
   testApiRole,
   withConsoleErrorHiding,
@@ -267,6 +275,56 @@ describe(TEST_ROUTE, () => {
     const sourceDatasets = res._getJSONData() as HCAAtlasTrackerSourceDataset[];
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
       SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+    ]);
+  });
+
+  it("returns component atlas lists", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      COMPONENT_ATLAS_MISC_BAR.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets =
+      res._getJSONData() as HCAAtlasTrackerLocalListSourceDataset[];
+    expectApiSourceDatasetsToHaveComponentAtlases(sourceDatasets, [
+      {
+        componentAtlases: [COMPONENT_ATLAS_MISC_FOO, COMPONENT_ATLAS_MISC_BAR],
+        sourceDataset: SOURCE_DATASET_FOO,
+      },
+      {
+        componentAtlases: [COMPONENT_ATLAS_MISC_BAR],
+        sourceDataset: SOURCE_DATASET_BAR,
+      },
+      {
+        componentAtlases: [
+          COMPONENT_ATLAS_MISC_FOO,
+          COMPONENT_ATLAS_MISC_BAR,
+          COMPONENT_ATLAS_MISC_BAZ,
+        ],
+        sourceDataset: SOURCE_DATASET_FOOFOO,
+      },
+    ]);
+  });
+
+  it("returns component atlas list for source dataset linked to only a non-latest component atlas version", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets =
+      res._getJSONData() as HCAAtlasTrackerLocalListSourceDataset[];
+    const sourceDatasetBaz = sourceDatasets.find(
+      (d) => d.id === SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+    );
+    assertExpectDefined(sourceDatasetBaz);
+    expect(sourceDatasetBaz.componentAtlases).toEqual([
+      {
+        id: COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+        name: FILE_A_COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ.fileName,
+      },
     ]);
   });
 

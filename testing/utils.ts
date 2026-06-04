@@ -21,6 +21,7 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerDetailComponentAtlas,
   HCAAtlasTrackerDetailSourceDataset,
+  HCAAtlasTrackerLocalListSourceDataset,
   HCAAtlasTrackerSourceDataset,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
@@ -46,6 +47,7 @@ import { METHOD } from "../app/common/entities";
 import { Handler } from "../app/utils/api-handler";
 import { slugifyAtlasShortName } from "../app/utils/atlases";
 import {
+  getFileBaseName,
   normalizeValidationSummary,
   removeFileExtension,
 } from "../app/utils/files";
@@ -697,6 +699,34 @@ export function expectSourceStudyToMatch(
       expect(apiStudy.title).toBeNull();
     }
     expect(apiStudy.contactEmail).toBeNull();
+  }
+}
+
+export function expectApiSourceDatasetsToHaveComponentAtlases(
+  apiSourceDatasets: HCAAtlasTrackerLocalListSourceDataset[],
+  expectedComponentAtlases: Array<{
+    componentAtlases: TestComponentAtlas[];
+    sourceDataset: TestSourceDataset;
+  }>,
+): void {
+  expect(apiSourceDatasets).toHaveLength(expectedComponentAtlases.length);
+  for (const { componentAtlases, sourceDataset } of expectedComponentAtlases) {
+    const apiSourceDataset = apiSourceDatasets.find(
+      (d) => d.id === sourceDataset.id,
+    );
+    assertExpectDefined(apiSourceDataset);
+    expect(apiSourceDataset.componentAtlases).toHaveLength(
+      componentAtlases.length,
+    );
+    for (const componentAtlas of componentAtlases) {
+      const componentAtlasSummary = apiSourceDataset.componentAtlases.find(
+        (c) => c.id === componentAtlas.id,
+      );
+      expect(componentAtlasSummary).toEqual({
+        id: componentAtlas.id,
+        name: getFileBaseName(componentAtlas.file.fileName),
+      });
+    }
   }
 }
 
