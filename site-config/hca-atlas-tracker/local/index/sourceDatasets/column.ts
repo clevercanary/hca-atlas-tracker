@@ -60,6 +60,21 @@ export const CELL_COUNT: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
   width: { max: "0.5fr", min: "112px" },
 };
 
+export const DISEASE: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
+  componentConfig: {
+    component: C.PinnedNTagCell,
+    viewBuilder: V.buildDisease,
+  } as ComponentConfig<
+    typeof C.PinnedNTagCell,
+    HCAAtlasTrackerListSourceDataset
+  >,
+  enableGrouping: false,
+  enableHiding: false,
+  header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
+  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
+  width: { max: "1fr", min: "160px" },
+};
+
 export const FILE_NAME: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
   columnPinned: true,
   componentConfig: {
