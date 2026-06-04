@@ -185,7 +185,8 @@ export async function getSourceDatasetsForListApi(
               )
             FROM hat.component_atlases ca
             JOIN hat.concepts ccon ON ccon.id = ca.id
-            WHERE d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases)
+            JOIN hat.files cf ON cf.id = ca.file_id
+            WHERE d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases) AND NOT cf.is_archived
           ) as component_atlases
         FROM hat.source_datasets d
         JOIN hat.files f ON f.id = d.file_id
