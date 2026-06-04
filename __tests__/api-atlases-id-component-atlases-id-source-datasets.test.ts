@@ -184,7 +184,7 @@ describe(TEST_ROUTE, () => {
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
     testApiRole(
-      "returns source datasets",
+      "returns source datasets that are also linked to the atlas",
       TEST_ROUTE,
       sourceDatasetsHandler,
       METHOD.GET,
@@ -199,13 +199,12 @@ describe(TEST_ROUTE, () => {
         expectApiSourceDatasetsToMatchTest(sourceDatasets, [
           SOURCE_DATASET_FOOFOO,
           SOURCE_DATASET_FOOBAR,
-          SOURCE_DATASET_FOOBAZ,
         ]);
       },
     );
   }
 
-  it("returns source datasets when requested by logged in user with CONTENT_ADMIN role", async () => {
+  it("returns source datasets that are also linked to the atlas when requested by logged in user with CONTENT_ADMIN role", async () => {
     const res = await doSourceDatasetsRequest(
       ATLAS_DRAFT.id,
       COMPONENT_ATLAS_DRAFT_FOO.id,
@@ -216,7 +215,6 @@ describe(TEST_ROUTE, () => {
     expectApiSourceDatasetsToMatchTest(sourceDatasets, [
       SOURCE_DATASET_FOOFOO,
       SOURCE_DATASET_FOOBAR,
-      SOURCE_DATASET_FOOBAZ,
     ]);
   });
 
