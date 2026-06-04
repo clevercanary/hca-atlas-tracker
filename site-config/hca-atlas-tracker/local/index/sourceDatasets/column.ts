@@ -69,7 +69,6 @@ export const DISEASE: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
     HCAAtlasTrackerListSourceDataset
   >,
   enableGrouping: false,
-  enableHiding: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
   width: { max: "1fr", min: "160px" },
@@ -121,7 +120,6 @@ export const SUSPENSION_TYPE: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
     viewBuilder: V.buildSuspensionType,
   } as ComponentConfig<typeof C.NTagCell, HCAAtlasTrackerListSourceDataset>,
   enableGrouping: false,
-  enableHiding: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.SUSPENSION_TYPE,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SUSPENSION_TYPE,
   width: { max: "1fr", min: "160px" },
