@@ -6,7 +6,6 @@ import {
 import {
   CAP_INGEST_STATUS_CATEGORY_CONFIG,
   TIER1_VALIDATION_STATUS_CATEGORY_CONFIG,
-  VALIDATION_STATUS_CATEGORY_CONFIG,
 } from "../common/categoryConfig";
 
 export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
@@ -14,13 +13,18 @@ export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
     {
       categoryConfigs: [
         {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
-        },
-        {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
         },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
+        },
+      ],
+      label: "Biological Network",
+    },
+    {
+      categoryConfigs: [
         {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ASSAY,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ASSAY,
@@ -37,11 +41,15 @@ export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.DISEASE,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.DISEASE,
         },
-        TIER1_VALIDATION_STATUS_CATEGORY_CONFIG,
-        VALIDATION_STATUS_CATEGORY_CONFIG,
-        CAP_INGEST_STATUS_CATEGORY_CONFIG,
       ],
-      label: "",
+      label: "Dataset Metadata",
+    },
+    {
+      categoryConfigs: [
+        CAP_INGEST_STATUS_CATEGORY_CONFIG,
+        TIER1_VALIDATION_STATUS_CATEGORY_CONFIG,
+      ],
+      label: "Validation Status",
     },
   ],
   key: "integratedObjects",
