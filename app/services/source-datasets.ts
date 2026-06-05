@@ -58,7 +58,6 @@ export async function getSourceStudyDatasets(
   return await getSourceDatasetsForListApi(
     atlasId,
     await getSourceStudySourceDatasetVersionIds(sourceStudyId, atlasId),
-    true,
   );
 }
 
@@ -75,7 +74,6 @@ export async function getAtlasDatasets(
   return await getSourceDatasetsForListApi(
     atlasId,
     await getAtlasSourceDatasetVersionIds(atlasId),
-    true,
     [isArchivedValue],
   );
 }
@@ -97,7 +95,6 @@ export async function getComponentAtlasDatasets(
   return await getSourceDatasetsForListApi(
     atlasId,
     await getComponentAtlasSourceDatasetVersionIds(componentAtlasVersion),
-    true,
   );
 }
 

@@ -143,7 +143,6 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
  * Only source datasets linked to the given atlas are returned; specified datasets not linked to the atlas are excluded.
  * @param atlasId - ID of the atlas that the source datasets are accessed through, used to scope results to the atlas and to determine linked component atlas versions.
  * @param sourceDatasetVersions - Version IDs of source datasets to get.
- * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
  * @param isArchivedValues - Values of `is_archived` to filter source datasets by. (Default `[false]`)
  * @param client - Postgres client to use.
  * @returns source datasets with fields for list APIs.
@@ -151,7 +150,6 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
 export async function getSourceDatasetsForListApi(
   atlasId: string,
   sourceDatasetVersions: string[],
-  acceptSubset = false,
   isArchivedValues = [false],
   client?: pg.PoolClient,
 ): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
@@ -198,13 +196,6 @@ export async function getSourceDatasetsForListApi(
       `,
       [sourceDatasetVersions, isArchivedValues, atlasId],
       client,
-    );
-
-  if (!acceptSubset)
-    confirmQueryRowsContainVersionIds(
-      sourceDatasets,
-      sourceDatasetVersions,
-      PLURAL_ENTITY_NAME,
     );
 
   return sourceDatasets;
