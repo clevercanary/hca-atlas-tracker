@@ -199,6 +199,10 @@ export interface HCAAtlasTrackerGlobalSourceDataset
   atlasId: string;
 }
 
+export interface HCAAtlasTrackerLocalListSourceDataset extends HCAAtlasTrackerSourceDataset {
+  componentAtlases: LinkedComponentAtlasSummary[];
+}
+
 export type HCAAtlasTrackerListSourceDataset =
   HCAAtlasTrackerGlobalSourceDataset & {
     capIngestStatus: CAP_INGEST_STATUS;
@@ -518,6 +522,11 @@ export type HCAAtlasTrackerDBSourceDatasetForAPI = WithSourceStudyInfo<
 export type HCAAtlasTrackerDBSourceDatasetForGlobalAPI =
   WithLinkedAtlases<HCAAtlasTrackerDBSourceDatasetForAPI>;
 
+export type HCAAtlasTrackerDBSourceDatasetForListAPI =
+  HCAAtlasTrackerDBSourceDatasetForAPI & {
+    component_atlases: DBLinkedComponentAtlasSummary[];
+  };
+
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI &
     Pick<HCAAtlasTrackerDBFile, "validation_reports">;
@@ -682,6 +691,16 @@ export interface LinkedAtlasSummary {
   network: NetworkKey;
   revision: number;
   shortName: string;
+}
+
+export interface LinkedComponentAtlasSummary {
+  id: string;
+  name: string;
+}
+
+export interface DBLinkedComponentAtlasSummary {
+  baseFilename: string;
+  id: string;
 }
 
 export interface Heatmap {

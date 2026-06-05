@@ -2449,6 +2449,7 @@ export const SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1 = {
   },
   id: SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
   isLatest: false,
+  sourceStudyId: SOURCE_STUDY_WITH_NON_LATEST_METADATA_ENTITIES.id,
   versionId: "616798c6-e7ba-44dc-9e98-df7306030120",
   wipNumber: 1,
 } satisfies TestSourceDataset;
@@ -3384,7 +3385,11 @@ export const COMPONENT_ATLAS_MISC_BAR = {
     versionId: null,
   },
   id: "c8286c32-6e7a-40c4-89cc-175ac7361b61",
-  sourceDatasets: [],
+  sourceDatasets: [
+    SOURCE_DATASET_FOO,
+    SOURCE_DATASET_BAR,
+    SOURCE_DATASET_FOOFOO,
+  ],
   versionId: "3f2bfe87-e5a8-492a-a926-47af2171e1e2",
 } satisfies TestComponentAtlas;
 
@@ -3411,7 +3416,7 @@ export const COMPONENT_ATLAS_MISC_BAZ = {
     versionId: null,
   },
   id: "23f603d3-57cd-44b9-a3c0-14e671fb2835",
-  sourceDatasets: [],
+  sourceDatasets: [SOURCE_DATASET_FOOFOO],
   versionId: "89b3236e-64ed-45cf-997a-9816d01bc1ff",
 } satisfies TestComponentAtlas;
 
@@ -3916,7 +3921,7 @@ export const COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1 = {
   file: FILE_A_COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ,
   id: COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
   isLatest: false,
-  sourceDatasets: [],
+  sourceDatasets: [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1],
   versionId: "d3e4f5a6-b7c8-9d0e-1f2a-3b4c5d6e7f8a",
   wipNumber: 1,
 } satisfies TestComponentAtlas;

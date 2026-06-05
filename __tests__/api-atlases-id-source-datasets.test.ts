@@ -1,6 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerLocalListSourceDataset,
+  HCAAtlasTrackerSourceDataset,
+} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../app/common/entities";
 import { endPgPool } from "../app/services/database";
 import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/source-datasets";
@@ -10,6 +13,13 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
   ATLAS_WITH_MISC_SOURCE_STUDIES_C,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
+  COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+  COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+  COMPONENT_ATLAS_MISC_BAR,
+  COMPONENT_ATLAS_MISC_BAZ,
+  COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+  COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
   CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME,
   FILE_C_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ARCHIVED_BAR,
@@ -29,7 +39,9 @@ import {
   SOURCE_DATASET_FOOBAR,
   SOURCE_DATASET_FOOBAZ,
   SOURCE_DATASET_FOOFOO,
+  SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
   SOURCE_DATASET_ID_OUTDATED_FILENAME,
+  SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
@@ -47,10 +59,12 @@ import { resetDatabase } from "../testing/db-utils";
 import { TestUser } from "../testing/entities";
 import {
   assertExpectDefined,
+  expectApiSourceDatasetsToHaveComponentAtlases,
   expectApiSourceDatasetsToMatchTest,
   expectApiSourceDatasetToMatchTest,
   expectIsDefined,
   getTestAtlasShortNameSlug,
+  getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -328,6 +342,116 @@ describe(TEST_ROUTE, () => {
       CONCEPT_SOURCE_DATASET_OUTDATED_FILENAME.baseFilename,
     );
     expect(sourceDataset.baseFileName).not.toEqual(sourceDataset.fileName);
+  });
+
+  it("returns component atlas lists", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets =
+      res._getJSONData() as HCAAtlasTrackerLocalListSourceDataset[];
+    expectApiSourceDatasetsToHaveComponentAtlases(sourceDatasets, [
+      {
+        componentAtlases: [COMPONENT_ATLAS_MISC_FOO, COMPONENT_ATLAS_MISC_BAR],
+        sourceDataset: SOURCE_DATASET_FOO,
+      },
+      {
+        componentAtlases: [COMPONENT_ATLAS_MISC_BAR],
+        sourceDataset: SOURCE_DATASET_BAR,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_BAZ,
+      },
+      {
+        componentAtlases: [
+          COMPONENT_ATLAS_MISC_FOO,
+          COMPONENT_ATLAS_MISC_BAR,
+          COMPONENT_ATLAS_MISC_BAZ,
+        ],
+        sourceDataset: SOURCE_DATASET_FOOFOO,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_FOOBAR,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_FOOBAZ,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_ATLAS_LINKED_A_BAR,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_ATLAS_LINKED_B_FOO,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+      },
+      {
+        componentAtlases: [],
+        sourceDataset: SOURCE_DATASET_PUBLISHED_WITHOUT_CELLXGENE_ID_FOO,
+      },
+    ]);
+  });
+
+  it("does not include archived component atlas in component atlas list", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets =
+      res._getJSONData() as HCAAtlasTrackerLocalListSourceDataset[];
+    const sourceDatasetMultipleFiles = sourceDatasets.find(
+      (d) => d.id === SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+    );
+    assertExpectDefined(sourceDatasetMultipleFiles);
+    expect(sourceDatasetMultipleFiles.componentAtlases).toEqual([
+      {
+        id: COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+        name: getTestEntityDownloadName(COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3),
+      },
+    ]);
+  });
+
+  it("returns component atlas list for source dataset linked to only a non-latest component atlas version", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      USER_CONTENT_ADMIN,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const sourceDatasets =
+      res._getJSONData() as HCAAtlasTrackerLocalListSourceDataset[];
+    const sourceDatasetBaz = sourceDatasets.find(
+      (d) => d.id === SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+    );
+    assertExpectDefined(sourceDatasetBaz);
+    expect(sourceDatasetBaz.componentAtlases).toEqual([
+      {
+        id: COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
+        name: getTestEntityDownloadName(
+          COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+        ),
+      },
+    ]);
   });
 });
 

@@ -1,4 +1,4 @@
-import { dbSourceDatasetToApiSourceDataset } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { dbSourceDatasetToListApiSourceDataset } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
 import { METHOD } from "../../../../../../app/common/entities";
 import { getSourceStudyDatasets } from "../../../../../../app/services/source-datasets";
@@ -17,7 +17,7 @@ export default handler(
       .status(200)
       .json(
         (await getSourceStudyDatasets(atlasId, sourceStudyId)).map(
-          dbSourceDatasetToApiSourceDataset,
+          dbSourceDatasetToListApiSourceDataset,
         ),
       );
   },

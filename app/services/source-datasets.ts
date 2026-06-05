@@ -3,6 +3,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
+  HCAAtlasTrackerDBSourceDatasetForListAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -17,7 +18,7 @@ import {
   getAtlasSourceDatasetVersionIds,
   getComponentAtlasSourceDatasetVersionIds,
   getSourceDatasetForDetailApi,
-  getSourceDatasetsForApi,
+  getSourceDatasetsForListApi,
   getSourceDatasetVersionForAtlas,
   getSourceDatasetVersionForComponentAtlas,
   getSourceDatasetVersionsForAtlas,
@@ -52,11 +53,11 @@ export interface UpdatedSourceDatasetsInfo {
 export async function getSourceStudyDatasets(
   atlasId: string,
   sourceStudyId: string,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
   await confirmSourceStudyExistsOnAtlas(sourceStudyId, atlasId);
-  return await getSourceDatasetsForApi(
+  return await getSourceDatasetsForListApi(
+    atlasId,
     await getSourceStudySourceDatasetVersionIds(sourceStudyId, atlasId),
-    true,
   );
 }
 
@@ -69,10 +70,10 @@ export async function getSourceStudyDatasets(
 export async function getAtlasDatasets(
   atlasId: string,
   isArchivedValue = false,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
-  return await getSourceDatasetsForApi(
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
+  return await getSourceDatasetsForListApi(
+    atlasId,
     await getAtlasSourceDatasetVersionIds(atlasId),
-    true,
     [isArchivedValue],
   );
 }
@@ -86,14 +87,14 @@ export async function getAtlasDatasets(
 export async function getComponentAtlasDatasets(
   atlasId: string,
   componentAtlasId: string,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
   const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
     componentAtlasId,
     atlasId,
   );
-  return await getSourceDatasetsForApi(
+  return await getSourceDatasetsForListApi(
+    atlasId,
     await getComponentAtlasSourceDatasetVersionIds(componentAtlasVersion),
-    true,
   );
 }
 
@@ -137,12 +138,7 @@ export async function getComponentAtlasSourceDataset(
     sourceDatasetId,
     componentAtlasVersion,
   );
-  const [sourceDataset] = await getSourceDatasetsForApi(
-    [sourceDatasetVersion],
-    false,
-    [true, false],
-  );
-  return sourceDataset;
+  return await getSourceDatasetForDetailApi(sourceDatasetVersion);
 }
 
 /**

@@ -1,5 +1,5 @@
 import { ROLE_GROUP } from "app/apis/catalog/hca-atlas-tracker/common/constants";
-import { dbSourceDatasetToApiSourceDataset } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { dbSourceDatasetToListApiSourceDataset } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { componentAtlasAddSourceDatasetsSchema } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "../../../../../../app/common/entities";
@@ -22,7 +22,7 @@ const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
     .status(200)
     .json(
       (await getComponentAtlasDatasets(atlasId, componentAtlasId)).map(
-        dbSourceDatasetToApiSourceDataset,
+        dbSourceDatasetToListApiSourceDataset,
       ),
     );
 });

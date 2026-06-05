@@ -1,5 +1,5 @@
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerLocalListSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
 import { useFetchData } from "../../../hooks/useFetchData";
@@ -10,7 +10,7 @@ export const INTEGRATED_OBJECT_ATLAS_SOURCE_DATASETS =
   "integratedObjectAtlasSourceDatasets";
 
 interface UseFetchAssociatedAtlasSourceDatasets {
-  atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
+  atlasSourceDatasets?: HCAAtlasTrackerLocalListSourceDataset[];
 }
 
 export const useFetchAssociatedAtlasSourceDatasets = (
@@ -22,7 +22,7 @@ export const useFetchAssociatedAtlasSourceDatasets = (
   const shouldFetch = shouldFetchByKey[INTEGRATED_OBJECT_ATLAS_SOURCE_DATASETS];
 
   const { data: atlasSourceDatasets, progress } = useFetchData<
-    HCAAtlasTrackerSourceDataset[] | undefined
+    HCAAtlasTrackerLocalListSourceDataset[] | undefined
   >(
     getRequestURL(API.ATLAS_SOURCE_DATASETS, pathParameter),
     METHOD.GET,

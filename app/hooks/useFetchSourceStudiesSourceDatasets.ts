@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { API } from "../apis/catalog/hca-atlas-tracker/common/api";
 import {
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerLocalListSourceDataset,
   HCAAtlasTrackerSourceStudy,
   SourceStudyId,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -11,9 +11,9 @@ import { useFetchData } from "./useFetchData";
 
 export const useFetchSourceStudiesSourceDatasets = (
   pathParameter: PathParameter,
-): HCAAtlasTrackerSourceDataset[] | undefined => {
+): HCAAtlasTrackerLocalListSourceDataset[] | undefined => {
   const [sourceStudiesSourceDatasets, setSourceStudiesSourceDatasets] =
-    useState<HCAAtlasTrackerSourceDataset[]>();
+    useState<HCAAtlasTrackerLocalListSourceDataset[]>();
   const { data: sourceStudies } = useFetchData<
     HCAAtlasTrackerSourceStudy[] | undefined
   >(getRequestURL(API.ATLAS_SOURCE_STUDIES, pathParameter), METHOD.GET);

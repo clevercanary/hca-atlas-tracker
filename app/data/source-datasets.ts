@@ -3,9 +3,9 @@ import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetForAPI,
   HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
+  HCAAtlasTrackerDBSourceDatasetForListAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
@@ -139,22 +139,30 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
 }
 
 /**
- * Get specified source datasets joined with data used for API responses.
+ * Get specified source datasets joined with data used for list API responses.
+ * Only source datasets linked to the given atlas are returned; specified datasets not linked to the atlas are excluded.
+ * @param atlasId - ID of the atlas that the source datasets are accessed through, used to scope results to the atlas and to determine linked component atlas versions.
  * @param sourceDatasetVersions - Version IDs of source datasets to get.
- * @param acceptSubset - If false, an error will be thrown if any of the specified source datasets are unavailable. (Default false)
  * @param isArchivedValues - Values of `is_archived` to filter source datasets by. (Default `[false]`)
  * @param client - Postgres client to use.
- * @returns source datasets with fields for APIs.
+ * @returns source datasets with fields for list APIs.
  */
-export async function getSourceDatasetsForApi(
+export async function getSourceDatasetsForListApi(
+  atlasId: string,
   sourceDatasetVersions: string[],
-  acceptSubset = false,
   isArchivedValues = [false],
   client?: pg.PoolClient,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI[]> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForListAPI[]> {
   const { rows: sourceDatasets } =
-    await query<HCAAtlasTrackerDBSourceDatasetForAPI>(
+    await query<HCAAtlasTrackerDBSourceDatasetForListAPI>(
       `
+        WITH component_atlases AS (
+          SELECT c.id, c.source_datasets, c.version_id, ccon.base_filename
+          FROM hat.component_atlases c
+          JOIN hat.concepts ccon ON ccon.id = c.id
+          JOIN hat.files cf ON cf.id = c.file_id
+          WHERE NOT cf.is_archived
+        )
         SELECT
           d.*,
           f.event_info,
@@ -169,22 +177,27 @@ export async function getSourceDatasetsForApi(
           f.validation_summary,
           con.base_filename,
           s.doi,
-          s.study_info
+          s.study_info,
+          COALESCE(
+            ARRAY_AGG(
+              jsonb_build_object(
+                'baseFilename', ca.base_filename,
+                'id', ca.id
+              )
+            ) FILTER (WHERE ca.id IS NOT NULL),
+            '{}'
+          ) as component_atlases
         FROM hat.source_datasets d
         JOIN hat.files f ON f.id = d.file_id
         JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-        WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2)
+        JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
+        LEFT JOIN component_atlases ca ON d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases)
+        WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2) AND a.id = $3
+        GROUP BY d.version_id, f.id, con.id, s.id, a.id
       `,
-      [sourceDatasetVersions, isArchivedValues],
+      [sourceDatasetVersions, isArchivedValues, atlasId],
       client,
-    );
-
-  if (!acceptSubset)
-    confirmQueryRowsContainVersionIds(
-      sourceDatasets,
-      sourceDatasetVersions,
-      PLURAL_ENTITY_NAME,
     );
 
   return sourceDatasets;

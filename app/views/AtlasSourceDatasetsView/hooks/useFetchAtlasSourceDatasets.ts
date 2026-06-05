@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerLocalListSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { getCapIngestStatus } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD, PathParameter } from "../../../common/entities";
 import { getRequestURL } from "../../../common/utils";
@@ -30,7 +30,7 @@ export const useFetchAtlasSourceDatasets = (
   if (!pathParameter.atlasId) throw new Error("Atlas ID is required");
 
   const { data, progress } = useFetchData<
-    HCAAtlasTrackerSourceDataset[] | undefined
+    HCAAtlasTrackerLocalListSourceDataset[] | undefined
   >(
     `${getRequestURL(
       API.ATLAS_SOURCE_DATASETS,
@@ -61,7 +61,7 @@ export const useFetchAtlasSourceDatasets = (
  */
 function mapData(
   atlasId: string,
-  data: HCAAtlasTrackerSourceDataset[] = [],
+  data: HCAAtlasTrackerLocalListSourceDataset[] = [],
 ): AtlasSourceDataset[] {
   return data.map((atlasSourceDataset) => ({
     atlasId,

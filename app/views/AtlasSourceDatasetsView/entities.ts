@@ -2,13 +2,13 @@ import {
   AtlasId,
   CAP_INGEST_STATUS,
   HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerSourceDataset,
+  HCAAtlasTrackerLocalListSourceDataset,
   HCAAtlasTrackerSourceStudy,
 } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../common/entities";
 import { FormManager } from "../../hooks/useFormManager/common/entities";
 
-export interface AtlasSourceDataset extends HCAAtlasTrackerSourceDataset {
+export interface AtlasSourceDataset extends HCAAtlasTrackerLocalListSourceDataset {
   atlasId: AtlasId;
   capIngestStatus: CAP_INGEST_STATUS;
 }
