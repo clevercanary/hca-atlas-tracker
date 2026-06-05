@@ -77,9 +77,9 @@ export const DISEASE: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
 export const FILE_NAME: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
   columnPinned: true,
   componentConfig: {
-    component: C.Link,
+    component: C.TooltipLink,
     viewBuilder: V.buildSourceDatasetFileName,
-  } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListSourceDataset>,
+  } as ComponentConfig<typeof C.TooltipLink, HCAAtlasTrackerListSourceDataset>,
   enableGrouping: false,
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.FILE_NAME,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.FILE_NAME,
@@ -147,17 +147,6 @@ export const TISSUE: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
   header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TISSUE,
   id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TISSUE,
   width: { max: "1fr", min: "112px" },
-};
-
-export const TITLE: ColumnConfig<HCAAtlasTrackerListSourceDataset> = {
-  componentConfig: {
-    component: C.BasicCell,
-    viewBuilder: V.buildSourceDatasetTitle,
-  } as ComponentConfig<typeof C.BasicCell, HCAAtlasTrackerListSourceDataset>,
-  enableGrouping: false,
-  header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.TITLE,
-  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.TITLE,
-  width: { max: "1.5fr", min: "128px" },
 };
 
 export const VALIDATION_STATUS: ColumnConfig<HCAAtlasTrackerListSourceDataset> =

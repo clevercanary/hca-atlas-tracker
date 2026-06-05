@@ -89,6 +89,19 @@ export const PUBLICATION_STATUS: ColumnConfig<HCAAtlasTrackerListSourceStudy> =
     width: { max: "120px", min: "120px" },
   };
 
+export const PUBLICATION_STRING: ColumnConfig<HCAAtlasTrackerListSourceStudy> =
+  {
+    columnPinned: true,
+    componentConfig: {
+      component: C.TooltipLink,
+      viewBuilder: V.buildSourceStudyName,
+    } as ComponentConfig<typeof C.TooltipLink, HCAAtlasTrackerListSourceStudy>,
+    enableGrouping: false,
+    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
+    id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
+    width: { max: "1.5fr", min: "240px" },
+  };
+
 export const SOURCE_DATASET_COUNT: ColumnConfig<HCAAtlasTrackerListSourceStudy> =
   {
     componentConfig: {
@@ -100,15 +113,3 @@ export const SOURCE_DATASET_COUNT: ColumnConfig<HCAAtlasTrackerListSourceStudy> 
     id: HCA_ATLAS_TRACKER_CATEGORY_KEY.SOURCE_DATASET_COUNT,
     width: { max: "0.5fr", min: "112px" },
   };
-
-export const TITLE: ColumnConfig<HCAAtlasTrackerListSourceStudy> = {
-  columnPinned: true,
-  componentConfig: {
-    component: C.Link,
-    viewBuilder: V.buildSourceStudyName,
-  } as ComponentConfig<typeof C.Link, HCAAtlasTrackerListSourceStudy>,
-  enableGrouping: false,
-  header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STRING,
-  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STRING,
-  width: { max: "1.5fr", min: "240px" },
-};

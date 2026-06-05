@@ -44,4 +44,5 @@ export { PinnedNTagCell } from "./Table/components/TableCell/components/NTagCell
 export { ReleaseDateCell } from "./Table/components/TableCell/components/ReleaseDateCell/releaseDateCell";
 export { RowSelectionCell } from "./Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
+export { TooltipLink } from "./Table/components/TableCell/components/TooltipLink/tooltipLink";
 export { ValidationStatusCell } from "./Table/components/TableCell/components/ValidationStatusCell/validationStatusCell";

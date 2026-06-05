@@ -4,7 +4,6 @@ import * as COLUMN from "./column";
 
 export const COLUMNS: ColumnConfig<HCAAtlasTrackerListComponentAtlas>[] = [
   COLUMN.FILE_NAME,
-  COLUMN.TITLE,
   COLUMN.ATLASES,
   COLUMN.NETWORKS,
   COLUMN.VALIDATION_STATUS,

@@ -424,17 +424,25 @@ export const buildIntegratedObjectBioNetworks = (
 };
 
 /**
- * Build props for the global integrated object list file name Link component.
- * Links to the atlas-scoped detail page on the primary atlas.
+ * Build props for the global integrated object list file name TooltipLink.
+ * Links to the atlas-scoped detail page on the primary atlas and surfaces the
+ * integrated object's `title` as a hover tooltip; tooltip is suppressed when
+ * the title is empty/null.
  * @param integratedObject - Integrated object with linked atlas summaries.
- * @returns Props to be used for the Link component.
+ * @returns Props to be used for the TooltipLink component.
  */
 export const buildIntegratedObjectFileName = (
   integratedObject: HCAAtlasTrackerListComponentAtlas,
-): ComponentProps<typeof C.Link> => {
-  const { atlasId, baseFileName, id: componentAtlasId } = integratedObject;
+): ComponentProps<typeof C.TooltipLink> => {
+  const {
+    atlasId,
+    baseFileName,
+    id: componentAtlasId,
+    title,
+  } = integratedObject;
   return {
     label: baseFileName,
+    tooltip: title,
     url: withBackOrigin(
       getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
       "INTEGRATED_OBJECTS",
@@ -452,19 +460,6 @@ export const buildIntegratedObjectSourceDatasetCount = (
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: integratedObject.sourceDatasetCount.toLocaleString(),
-  };
-};
-
-/**
- * Build props for the global integrated object list title BasicCell component.
- * @param integratedObject - Integrated object entity.
- * @returns Props to be used for the BasicCell component.
- */
-export const buildIntegratedObjectTitle = (
-  integratedObject: HCAAtlasTrackerListComponentAtlas,
-): ComponentProps<typeof C.BasicCell> => {
-  return {
-    value: integratedObject.title,
   };
 };
 
@@ -629,34 +624,24 @@ export const buildSourceDatasetCount = (
 };
 
 /**
- * Build props for the global source dataset list file name Link component.
- * Links to the atlas-scoped detail page on the primary atlas.
+ * Build props for the global source dataset list file name TooltipLink.
+ * Links to the atlas-scoped detail page on the primary atlas and surfaces the
+ * source dataset's `title` as a hover tooltip; tooltip is suppressed when the
+ * title is empty/null.
  * @param sourceDataset - Source dataset with linked atlas summaries.
- * @returns Props to be used for the Link component.
+ * @returns Props to be used for the TooltipLink component.
  */
 export const buildSourceDatasetFileName = (
   sourceDataset: HCAAtlasTrackerListSourceDataset,
-): ComponentProps<typeof C.Link> => {
-  const { atlasId, baseFileName, id: sourceDatasetId } = sourceDataset;
+): ComponentProps<typeof C.TooltipLink> => {
+  const { atlasId, baseFileName, id: sourceDatasetId, title } = sourceDataset;
   return {
     label: baseFileName,
+    tooltip: title,
     url: withBackOrigin(
       getRouteURL(ROUTE.ATLAS_SOURCE_DATASET, { atlasId, sourceDatasetId }),
       "SOURCE_DATASETS",
     ),
-  };
-};
-
-/**
- * Build props for the global source dataset list title BasicCell component.
- * @param sourceDataset - Source dataset entity.
- * @returns Props to be used for the BasicCell component.
- */
-export const buildSourceDatasetTitle = (
-  sourceDataset: HCAAtlasTrackerListSourceDataset,
-): ComponentProps<typeof C.BasicCell> => {
-  return {
-    value: sourceDataset.title,
   };
 };
 
@@ -787,20 +772,22 @@ export const buildSourceStudyJournal = (
 };
 
 /**
- * Build props for the global source study list Name Link component.
+ * Build props for the global source study list Name TooltipLink.
  * Picks a representative atlas via `pickPrimaryListAtlas` (deterministic sort:
  * isLatest desc → generation desc → revision desc → shortName asc) to host
- * the detail link.
+ * the detail link, and surfaces the study `title` as a hover tooltip; tooltip
+ * is suppressed when the title is empty/null.
  * @param sourceStudy - Source study with linked atlas summaries.
- * @returns Props to be used for the Link component.
+ * @returns Props to be used for the TooltipLink component.
  */
 export const buildSourceStudyName = (
   sourceStudy: HCAAtlasTrackerListSourceStudy,
-): ComponentProps<typeof C.Link> => {
-  const { atlases, id: sourceStudyId } = sourceStudy;
+): ComponentProps<typeof C.TooltipLink> => {
+  const { atlases, id: sourceStudyId, title } = sourceStudy;
   const linkAtlas = pickPrimaryListAtlas(atlases);
   return {
     label: getSourceStudyCitation(sourceStudy),
+    tooltip: title,
     url: linkAtlas
       ? withBackOrigin(
           getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {

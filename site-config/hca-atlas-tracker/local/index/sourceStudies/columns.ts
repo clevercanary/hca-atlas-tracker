@@ -3,7 +3,7 @@ import { HCAAtlasTrackerListSourceStudy } from "../../../../../app/apis/catalog/
 import * as COLUMN from "./column";
 
 export const COLUMNS: ColumnConfig<HCAAtlasTrackerListSourceStudy>[] = [
-  COLUMN.TITLE,
+  COLUMN.PUBLICATION_STRING,
   COLUMN.PUBLICATION,
   COLUMN.ATLASES,
   COLUMN.NETWORKS,
