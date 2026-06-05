@@ -156,6 +156,13 @@ export async function getSourceDatasetsForListApi(
   const { rows: sourceDatasets } =
     await query<HCAAtlasTrackerDBSourceDatasetForListAPI>(
       `
+        WITH component_atlases AS (
+          SELECT c.id, c.source_datasets, c.version_id, ccon.base_filename
+          FROM hat.component_atlases c
+          JOIN hat.concepts ccon ON ccon.id = c.id
+          JOIN hat.files cf ON cf.id = c.file_id
+          WHERE NOT cf.is_archived
+        )
         SELECT
           d.*,
           f.event_info,
@@ -171,28 +178,23 @@ export async function getSourceDatasetsForListApi(
           con.base_filename,
           s.doi,
           s.study_info,
-          (
-            SELECT
-              COALESCE(
-                ARRAY_AGG(
-                  jsonb_build_object(
-                    'baseFilename', ccon.base_filename,
-                    'id', ca.id
-                  )
-                ),
-                '{}'
+          COALESCE(
+            ARRAY_AGG(
+              jsonb_build_object(
+                'baseFilename', ca.base_filename,
+                'id', ca.id
               )
-            FROM hat.component_atlases ca
-            JOIN hat.concepts ccon ON ccon.id = ca.id
-            JOIN hat.files cf ON cf.id = ca.file_id
-            WHERE d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases) AND NOT cf.is_archived
+            ) FILTER (WHERE ca.id IS NOT NULL),
+            '{}'
           ) as component_atlases
         FROM hat.source_datasets d
         JOIN hat.files f ON f.id = d.file_id
         JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
         JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
+        LEFT JOIN component_atlases ca ON d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases)
         WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2) AND a.id = $3
+        GROUP BY d.version_id, f.id, con.id, s.id, a.id
       `,
       [sourceDatasetVersions, isArchivedValues, atlasId],
       client,
