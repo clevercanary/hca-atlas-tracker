@@ -11,21 +11,18 @@ export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
     {
       categoryConfigs: [
         {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
-        },
-        {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.ATLAS_NAMES,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.ATLAS_NAMES,
         },
         {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.HCA_DATA_REPOSITORY,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.HCA_DATA_REPOSITORY,
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.NETWORKS,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.NETWORKS,
         },
-        {
-          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
-          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
-        },
+      ],
+      label: "Biological Network",
+    },
+    {
+      categoryConfigs: [
         {
           key: HCA_ATLAS_TRACKER_CATEGORY_KEY.JOURNAL,
           label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.JOURNAL,
@@ -33,8 +30,21 @@ export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
             (val) => val || UNPUBLISHED,
           ),
         },
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.PUBLICATION_STATUS,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION_STATUS,
+        },
       ],
-      label: "",
+      label: "Publication",
+    },
+    {
+      categoryConfigs: [
+        {
+          key: HCA_ATLAS_TRACKER_CATEGORY_KEY.HCA_DATA_REPOSITORY,
+          label: HCA_ATLAS_TRACKER_CATEGORY_LABEL.HCA_DATA_REPOSITORY,
+        },
+      ],
+      label: "Primary Data",
     },
   ],
   key: "sourceStudies",

@@ -75,8 +75,8 @@ export function makeConfig(
               url: ROUTE.ATLASES,
             },
             {
-              label: "Source Studies",
-              url: ROUTE.SOURCE_STUDIES,
+              label: "Integrated Objects",
+              url: ROUTE.INTEGRATED_OBJECTS,
               visible: { md: false, sm: false },
             },
             {
@@ -85,8 +85,8 @@ export function makeConfig(
               visible: { md: false, sm: false },
             },
             {
-              label: "Integrated Objects",
-              url: ROUTE.INTEGRATED_OBJECTS,
+              label: "Source Studies",
+              url: ROUTE.SOURCE_STUDIES,
               visible: { md: false, sm: false },
             },
             {
@@ -107,9 +107,9 @@ export function makeConfig(
             {
               label: "More",
               menuItems: [
-                { label: "Source Studies", url: ROUTE.SOURCE_STUDIES },
-                { label: "Source Datasets", url: ROUTE.SOURCE_DATASETS },
                 { label: "Integrated Objects", url: ROUTE.INTEGRATED_OBJECTS },
+                { label: "Source Datasets", url: ROUTE.SOURCE_DATASETS },
+                { label: "Source Studies", url: ROUTE.SOURCE_STUDIES },
                 { label: "Reports", url: ROUTE.REPORTS },
                 { label: "Team", url: ROUTE.USERS },
               ],
