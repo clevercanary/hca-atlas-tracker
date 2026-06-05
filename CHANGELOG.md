@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.73.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.72.0...v1.73.0) (2026-06-05)
+
+
+### Features
+
+* global lists: move title into a tooltip (remove title column) ([#1348](https://github.com/clevercanary/hca-atlas-tracker/issues/1348)) ([#1349](https://github.com/clevercanary/hca-atlas-tracker/issues/1349)) ([6f9867d](https://github.com/clevercanary/hca-atlas-tracker/commit/6f9867d681ef2164193558ccee101954770dc162))
+* group global source studies filters into sections; reorder top-nav ([#1345](https://github.com/clevercanary/hca-atlas-tracker/issues/1345)) ([#1346](https://github.com/clevercanary/hca-atlas-tracker/issues/1346)) ([a7465fd](https://github.com/clevercanary/hca-atlas-tracker/commit/a7465fd1e9cfe2d68e1be26b7f0568c34a6b9d03))
+
 ## [1.72.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.71.0...v1.72.0) (2026-06-05)
 
 
