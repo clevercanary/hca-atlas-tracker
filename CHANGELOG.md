@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.72.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.71.0...v1.72.0) (2026-06-05)
+
+
+### Features
+
+* add disease filter to global source datasets list ([#1328](https://github.com/clevercanary/hca-atlas-tracker/issues/1328)) ([#1331](https://github.com/clevercanary/hca-atlas-tracker/issues/1331)) ([c5e8425](https://github.com/clevercanary/hca-atlas-tracker/commit/c5e8425d848ab2ef10329c6c4f2d541aba84647c))
+* add journal filter to global source studies page ([#1315](https://github.com/clevercanary/hca-atlas-tracker/issues/1315)) ([#1337](https://github.com/clevercanary/hca-atlas-tracker/issues/1337)) ([fcfeca6](https://github.com/clevercanary/hca-atlas-tracker/commit/fcfeca686df223e5095cf29493ead90a6d2e6fdd))
+* collapse mid-priority nav items into a more menu at sm/md viewports ([#1305](https://github.com/clevercanary/hca-atlas-tracker/issues/1305)) ([#1338](https://github.com/clevercanary/hca-atlas-tracker/issues/1338)) ([868810e](https://github.com/clevercanary/hca-atlas-tracker/commit/868810e56dc612c764047f7a6107bc77776929f4))
+* column cleanup: global source datasets and integrated objects fit 1728×958 ([#1313](https://github.com/clevercanary/hca-atlas-tracker/issues/1313)) ([#1332](https://github.com/clevercanary/hca-atlas-tracker/issues/1332)) ([4e0dfee](https://github.com/clevercanary/hca-atlas-tracker/commit/4e0dfee7be2b7822559b821f8301b54bcade6afb))
+* group global filters into sections (integrated objects & source datasets) ([#1343](https://github.com/clevercanary/hca-atlas-tracker/issues/1343)) ([#1344](https://github.com/clevercanary/hca-atlas-tracker/issues/1344)) ([178b688](https://github.com/clevercanary/hca-atlas-tracker/commit/178b688aae86af7d89d66d386226b2dbf3d2199f))
+* make disease and suspension type columns toggleable on global lists ([#1335](https://github.com/clevercanary/hca-atlas-tracker/issues/1335)) ([#1336](https://github.com/clevercanary/hca-atlas-tracker/issues/1336)) ([915eaf9](https://github.com/clevercanary/hca-atlas-tracker/commit/915eaf9a684dffc71530deafe0ce1b3c2057c9e9))
+* return component atlas lists from source dataset list apis ([#1320](https://github.com/clevercanary/hca-atlas-tracker/issues/1320)) ([#1340](https://github.com/clevercanary/hca-atlas-tracker/issues/1340)) ([d0ce390](https://github.com/clevercanary/hca-atlas-tracker/commit/d0ce39006af5887c6fa91c0b488f9346554c5096))
+
 ## [1.71.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.70.0...v1.71.0) (2026-06-03)
 
 
