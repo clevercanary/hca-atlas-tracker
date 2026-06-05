@@ -524,7 +524,7 @@ export type HCAAtlasTrackerDBSourceDatasetForGlobalAPI =
 
 export type HCAAtlasTrackerDBSourceDatasetForListAPI =
   HCAAtlasTrackerDBSourceDatasetForAPI & {
-    component_atlases: LinkedComponentAtlasSummary[];
+    component_atlases: DBLinkedComponentAtlasSummary[];
   };
 
 export type HCAAtlasTrackerDBSourceDatasetForDetailAPI =
@@ -696,6 +696,11 @@ export interface LinkedAtlasSummary {
 export interface LinkedComponentAtlasSummary {
   id: string;
   name: string;
+}
+
+export interface DBLinkedComponentAtlasSummary {
+  baseFilename: string;
+  id: string;
 }
 
 export interface Heatmap {

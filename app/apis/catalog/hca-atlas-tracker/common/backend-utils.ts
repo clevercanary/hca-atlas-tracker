@@ -244,7 +244,12 @@ export function dbSourceDatasetToListApiSourceDataset(
 ): HCAAtlasTrackerLocalListSourceDataset {
   return {
     ...dbSourceDatasetToApiSourceDataset(dbSourceDataset),
-    componentAtlases: dbSourceDataset.component_atlases,
+    componentAtlases: dbSourceDataset.component_atlases.map(
+      ({ baseFilename, id }) => ({
+        id,
+        name: removeFileExtension(baseFilename),
+      }),
+    ),
   };
 }
 

@@ -178,8 +178,8 @@ export async function getSourceDatasetsForListApi(
               COALESCE(
                 ARRAY_AGG(
                   jsonb_build_object(
-                    'id', ca.id,
-                    'name', ccon.base_filename
+                    'baseFilename', ccon.base_filename,
+                    'id', ca.id
                   )
                 ),
                 '{}'

@@ -30,10 +30,9 @@ import {
   COMPONENT_ATLAS_MISC_FOO,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
-  FILE_A_COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ,
-  FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES,
   SOURCE_DATASET_ARCHIVED_BAR,
   SOURCE_DATASET_ARCHIVED_FOO,
   SOURCE_DATASET_BAR,
@@ -70,6 +69,7 @@ import {
   assertExpectDefined,
   expectApiSourceDatasetsToHaveComponentAtlases,
   expectApiSourceDatasetsToMatchTest,
+  getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
 } from "../testing/utils";
@@ -325,7 +325,7 @@ describe(TEST_ROUTE, () => {
     expect(sourceDatasetMultipleFiles.componentAtlases).toEqual([
       {
         id: COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
-        name: FILE_C_COMPONENT_ATLAS_WITH_MULTIPLE_FILES.fileName,
+        name: getTestEntityDownloadName(COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3),
       },
     ]);
   });
@@ -346,7 +346,9 @@ describe(TEST_ROUTE, () => {
     expect(sourceDatasetBaz.componentAtlases).toEqual([
       {
         id: COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
-        name: FILE_A_COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ.fileName,
+        name: getTestEntityDownloadName(
+          COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+        ),
       },
     ]);
   });

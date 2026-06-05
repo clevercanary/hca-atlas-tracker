@@ -723,7 +723,7 @@ export function expectApiSourceDatasetsToHaveComponentAtlases(
       );
       expect(componentAtlasSummary).toEqual({
         id: componentAtlas.id,
-        name: getTestEntityBaseFilename(componentAtlas),
+        name: getTestEntityDownloadName(componentAtlas),
       });
     }
   }
