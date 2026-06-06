@@ -1,11 +1,58 @@
 import pg from "pg";
-import { HCAAtlasTrackerDBAtlas } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  HCAAtlasTrackerDBAtlas,
+  HCAAtlasTrackerDBAtlasForStatusSummary,
+} from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
 import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
 import { AtlasSlugNameAndVersion } from "../utils/atlases";
 
 export const CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE =
   "atlases_slug_version_unique";
+
+/**
+ * Get data for an atlas and its linked entities to use to create an atlas status summary.
+ * @param atlasId - ID of the atlas to get status summary source data for.
+ * @returns atlas and linked entities for status summary.
+ */
+export async function getAtlasForStatusSummary(
+  atlasId: string,
+): Promise<HCAAtlasTrackerDBAtlasForStatusSummary> {
+  const queryResult = await query<HCAAtlasTrackerDBAtlasForStatusSummary>(
+    `
+      WITH atlas_source_studies AS (
+          SELECT s.doi
+          FROM hat.source_studies s
+          JOIN hat.atlases a ON a.source_studies ? s.id::text
+          WHERE a.id = $1
+        ),
+        atlas_source_datasets AS (
+          SELECT d.reprocessed_status, d.sd_info, f.validation_status, f.validation_summary
+          FROM hat.source_datasets d
+          JOIN hat.files f ON f.id = d.file_id
+          JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
+          WHERE a.id = $1
+        ),
+        atlas_component_atlases AS (
+          SELECT c.component_info, f.validation_status, f.validation_summary
+          FROM hat.component_atlases c
+          JOIN hat.files f ON f.id = c.file_id
+          JOIN hat.atlases a ON c.version_id = ANY(a.component_atlases)
+          WHERE a.id = $1
+        )
+      SELECT
+        a.status,
+        a.published_at,
+        (SELECT ARRAY_AGG(to_jsonb(s)) FROM atlas_source_studies s) AS source_studies,
+        (SELECT ARRAY_AGG(to_jsonb(d)) FROM atlas_source_datasets d) AS source_datasets,
+        (SELECT ARRAY_AGG(to_jsonb(c)) FROM atlas_component_atlases c) AS component_atlases
+      FROM hat.atlases a
+      WHERE id = $1
+    `,
+    [atlasId],
+  );
+  return getAtlasInfoFromIdBasedQuery(queryResult, atlasId);
+}
 
 /**
  * Get an atlas ID based on a case-insensitive short name slug, a generation number, and a revision number.

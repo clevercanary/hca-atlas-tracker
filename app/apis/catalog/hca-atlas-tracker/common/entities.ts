@@ -363,6 +363,21 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   wave: Wave;
 }
 
+export interface HCAAtlasTrackerDBAtlasForStatusSummary extends Pick<
+  HCAAtlasTrackerDBAtlas,
+  "status" | "published_at"
+> {
+  component_atlases: Array<
+    Pick<HCAAtlasTrackerDBComponentAtlas, "component_info"> &
+      Pick<HCAAtlasTrackerDBFile, "validation_summary" | "validation_status">
+  >;
+  source_datasets: Array<
+    Pick<HCAAtlasTrackerDBSourceDataset, "reprocessed_status" | "sd_info"> &
+      Pick<HCAAtlasTrackerDBFile, "validation_status" | "validation_summary">
+  >;
+  source_studies: Array<Pick<HCAAtlasTrackerDBSourceStudy, "doi">>;
+}
+
 export interface HCAAtlasTrackerDBComponentAtlas {
   component_info: HCAAtlasTrackerDBComponentAtlasInfo;
   created_at: Date;
