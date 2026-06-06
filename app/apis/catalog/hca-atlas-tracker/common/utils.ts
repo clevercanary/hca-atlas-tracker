@@ -11,6 +11,7 @@ import {
   DOI_STATUS,
   DoiPublicationInfo,
   FILE_VALIDATION_STATUS,
+  FileValidationSummary,
   FileValidatorName,
   HCA_TIER1_VALIDATION_STATUS,
   HCAAtlasTrackerAtlas,
@@ -131,15 +132,35 @@ export function getAtlasGenerationName(atlas: HCAAtlasTrackerAtlas): string {
 export function getCapIngestStatus(
   original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
 ): CAP_INGEST_STATUS {
-  const { validationStatus, validationSummary } = original;
+  return getCapIngestStatusFromParameters(
+    original.validationStatus,
+    original.validationSummary,
+    original.capUrl,
+    "reprocessedStatus" in original ? original.reprocessedStatus : undefined,
+  );
+}
 
+/**
+ * Determine CAP ingest status based on individual parameters.
+ * @param validationStatus - File validation status.
+ * @param validationSummary - File validation summary.
+ * @param capUrl - Entity CAP URL.
+ * @param reprocessedStatus - Entity reprocessed status.
+ * @returns CAP ingest status.
+ */
+export function getCapIngestStatusFromParameters(
+  validationStatus: FILE_VALIDATION_STATUS,
+  validationSummary: FileValidationSummary | null,
+  capUrl: string | null,
+  reprocessedStatus?: REPROCESSED_STATUS,
+): CAP_INGEST_STATUS {
   // Determine CAP ingest status for source datasets with reprocessed status of "REPROCESSED" or "UNSPECIFIED".
-  if ("reprocessedStatus" in original) {
-    if (original.reprocessedStatus === REPROCESSED_STATUS.REPROCESSED) {
+  if (reprocessedStatus !== undefined) {
+    if (reprocessedStatus === REPROCESSED_STATUS.REPROCESSED) {
       // Status is "NOT_REQUIRED" for reprocessed source datasets.
       return CAP_INGEST_STATUS.NOT_REQUIRED;
     }
-    if (original.reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
+    if (reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
       // Status is "INFO_REQUIRED" for unspecified source datasets.
       return CAP_INGEST_STATUS.INFO_REQUIRED;
     }
@@ -153,7 +174,7 @@ export function getCapIngestStatus(
     }
     // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
     if (validationSummary.validators.cap?.valid) {
-      return original.capUrl !== null
+      return capUrl !== null
         ? CAP_INGEST_STATUS.PUBLISHED
         : CAP_INGEST_STATUS.CAP_READY;
     }
