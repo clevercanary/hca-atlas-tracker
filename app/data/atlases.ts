@@ -43,9 +43,9 @@ export async function getAtlasForStatusSummary(
       SELECT
         a.status,
         a.published_at,
-        (SELECT ARRAY_AGG(to_jsonb(s)) FROM atlas_source_studies s) AS source_studies,
-        (SELECT ARRAY_AGG(to_jsonb(d)) FROM atlas_source_datasets d) AS source_datasets,
-        (SELECT ARRAY_AGG(to_jsonb(c)) FROM atlas_component_atlases c) AS component_atlases
+        (SELECT COALESCE(ARRAY_AGG(to_jsonb(s)), '{}') FROM atlas_source_studies s) AS source_studies,
+        (SELECT COALESCE(ARRAY_AGG(to_jsonb(d)), '{}') FROM atlas_source_datasets d) AS source_datasets,
+        (SELECT COALESCE(ARRAY_AGG(to_jsonb(c)), '{}') FROM atlas_component_atlases c) AS component_atlases
       FROM hat.atlases a
       WHERE id = $1
     `,
