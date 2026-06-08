@@ -461,6 +461,7 @@ export function testApiRole(
     res: httpMocks.MockResponse<NextApiResponse>,
     user: TestUser,
   ) => void | Promise<void>,
+  additionalParams?: { usersByRole?: Partial<Record<ROLE, TestUser>> },
 ): void {
   let user: TestUser;
   let testName: string;
@@ -477,12 +478,14 @@ export function testApiRole(
           : USER_INTEGRATION_LEAD_DRAFT;
       testName = `${testNameBase} when GET requested by user with INTEGRATION_LEAD role for another atlas`;
     } else {
-      user = INTEGRATION_LEADS_BY_ATLAS_ID[query.atlasId];
+      user =
+        additionalParams?.usersByRole?.INTEGRATION_LEAD ??
+        INTEGRATION_LEADS_BY_ATLAS_ID[query.atlasId];
       if (!user) throw new Error("No appropriate user found for test");
       testName = `${testNameBase} when ${method} requested by user with INTEGRATION_LEAD role for the atlas`;
     }
   } else {
-    user = DEFAULT_USERS_BY_ROLE[role];
+    user = additionalParams?.usersByRole?.[role] ?? DEFAULT_USERS_BY_ROLE[role];
     testName = `${testNameBase} when ${method} requested by user with ${role} role`;
   }
   it(testName, async () => {
