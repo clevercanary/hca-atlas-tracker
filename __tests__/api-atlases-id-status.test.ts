@@ -154,14 +154,14 @@ const SOURCE_DATASET_HANDLERS: ((
     }),
     reprocessedStatus: REPROCESSED_STATUS.REPROCESSED,
   }),
-  // Original, CAP ready, CAP required
+  // Original, CAP ready
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(sourceDataset, {
       cap: true,
     }),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   }),
-  // Original, CAP required
+  // Original
   // Note: this differs from the above in lacking CAP ready because CAP ingest status is partially based on validation status
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(
@@ -185,7 +185,7 @@ const SOURCE_DATASET_HANDLERS: ((
     }),
     reprocessedStatus: REPROCESSED_STATUS.REPROCESSED,
   }),
-  // Original, CAP invalid, CAP required
+  // Original, CAP invalid
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(sourceDataset, {
       cap: false,
@@ -208,7 +208,7 @@ const SOURCE_DATASET_HANDLERS: ((
     capUrl: makeTestSourceDatasetCapUrl(i),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   }),
-  // Original, Tier 1 valid, CAP invalid, CAP required
+  // Original, Tier 1 valid, CAP invalid
   // Note: because of how CAP ingest status is determined, validation results without CAP are counted as CAP invalid
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(sourceDataset, {
@@ -216,7 +216,7 @@ const SOURCE_DATASET_HANDLERS: ((
     }),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   }),
-  // Original, Tier 1 invalid, CAP invalid, CAP required
+  // Original, Tier 1 invalid, CAP invalid
   // See note above re: CAP invalid
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(sourceDataset, {
@@ -224,7 +224,7 @@ const SOURCE_DATASET_HANDLERS: ((
     }),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   }),
-  // Original, Tier 1 invalid, CAP ready, CAP required
+  // Original, Tier 1 invalid, CAP ready
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(sourceDataset, {
       cap: true,
@@ -261,7 +261,6 @@ const EXPECTED_STATUS_SUMMARY: AtlasStatusSummary = {
     capInvalid: 3,
     capPublished: 1,
     capReady: 2,
-    capRequired: 6,
     original: 7,
     reprocessed: 3,
     tier1Invalid: 2,

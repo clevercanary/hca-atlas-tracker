@@ -724,7 +724,6 @@ export interface AtlasStatusSummary {
     capInvalid: number;
     capPublished: number;
     capReady: number;
-    capRequired: number;
     original: number;
     reprocessed: number;
     tier1Invalid: number;

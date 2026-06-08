@@ -192,7 +192,6 @@ export async function getAtlasStatusSummary(
       capInvalid: 0,
       capPublished: 0,
       capReady: 0,
-      capRequired: 0,
       original: 0,
       reprocessed: 0,
       tier1Invalid: 0,
@@ -235,8 +234,6 @@ export async function getAtlasStatusSummary(
 
     if (sourceDataset.reprocessed_status === REPROCESSED_STATUS.ORIGINAL) {
       summary.sourceDatasets.original++;
-      if (sourceDataset.sd_info.capUrl === null)
-        summary.sourceDatasets.capRequired++;
     } else if (
       sourceDataset.reprocessed_status === REPROCESSED_STATUS.REPROCESSED
     ) {
