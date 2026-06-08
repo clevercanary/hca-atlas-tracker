@@ -230,6 +230,20 @@ export const FILE_METADATA_COVERAGE_ENTITY_TYPES = [
   "sample",
 ] as const;
 
+// Entity classes rolled up by the metadata completeness API. These are the
+// data-dictionary classes that carry fields; the blob's `obs` entity (the
+// dictionary's empty `cell` class) is intentionally excluded.
+export const METADATA_COVERAGE_CLASSES = [
+  "dataset",
+  "donor",
+  "sample",
+] as const;
+
+// Field requirement tiers selectable via the metadata completeness API's
+// `required` query parameter. The schema only carries `required: true/false`
+// today, mapping to `required` and `recommended` respectively.
+export const METADATA_COVERAGE_TIERS = ["recommended", "required"] as const;
+
 export const FILE_VALIDATOR_NAME_LABEL: Record<FileValidatorName, string> = {
   cap: "CAP Upload",
   cellxgene: "CELLxGENE",

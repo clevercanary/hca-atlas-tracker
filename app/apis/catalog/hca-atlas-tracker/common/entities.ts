@@ -7,6 +7,8 @@ import { API } from "./api";
 import {
   FILE_METADATA_COVERAGE_ENTITY_TYPES,
   FILE_VALIDATOR_NAMES,
+  METADATA_COVERAGE_CLASSES,
+  METADATA_COVERAGE_TIERS,
   NETWORK_KEYS,
   WAVES,
 } from "./constants";
@@ -911,6 +913,42 @@ export interface FileMetadataFieldCoverage {
   field: string;
   inconsistent: number;
   missing: number;
+}
+
+export type MetadataCoverageClass = (typeof METADATA_COVERAGE_CLASSES)[number];
+
+export type MetadataCoverageTier = (typeof METADATA_COVERAGE_TIERS)[number];
+
+export interface AtlasMetadataCoverageRollup {
+  atlases: AtlasMetadataCoverage[];
+}
+
+export interface AtlasMetadataCoverage {
+  atlasId: string;
+  bionetwork: AtlasMetadataCoverageBioNetwork;
+  classes: Record<MetadataCoverageClass, AtlasMetadataCoverageClass>;
+  generation: number;
+  integrationLeads: AtlasMetadataCoverageIntegrationLead[];
+  name: string;
+  total: number;
+  version: string;
+}
+
+export interface AtlasMetadataCoverageBioNetwork {
+  id: NetworkKey;
+  label: string;
+}
+
+export interface AtlasMetadataCoverageIntegrationLead {
+  id: string;
+  name: string;
+}
+
+export interface AtlasMetadataCoverageClass {
+  completion: number | null;
+  entityCount: number;
+  filledSlots: number;
+  totalSlots: number;
 }
 
 export type FileValidationReports = Partial<
