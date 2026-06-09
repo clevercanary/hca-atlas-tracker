@@ -39,6 +39,40 @@ describe("getCapIngestStatus", () => {
     expect(status).toBe(CAP_INGEST_STATUS.NEEDS_VALIDATION);
   });
 
+  it("returns CAP_VALIDATION_FAILED when CAP validator is unsuccessful and capUrl is not set", () => {
+    const status = getCapIngestStatus(
+      createComponentAtlas({
+        capUrl: null,
+        validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+        validationSummary: {
+          overallValid: true,
+          validators: {
+            cap: { errorCount: 3, valid: false, warningCount: 0 },
+          },
+        },
+      }),
+    );
+
+    expect(status).toBe(CAP_INGEST_STATUS.CAP_VALIDATION_FAILED);
+  });
+
+  it("returns CAP_VALIDATION_FAILED when CAP validator is unsuccessful and capUrl is set", () => {
+    const status = getCapIngestStatus(
+      createComponentAtlas({
+        capUrl: "https://celltype.info/cellxgene/foo",
+        validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
+        validationSummary: {
+          overallValid: true,
+          validators: {
+            cap: { errorCount: 3, valid: false, warningCount: 0 },
+          },
+        },
+      }),
+    );
+
+    expect(status).toBe(CAP_INGEST_STATUS.CAP_VALIDATION_FAILED);
+  });
+
   it("returns CAP_READY when CAP validator is successful and capUrl is not set", () => {
     const status = getCapIngestStatus(
       createComponentAtlas({
@@ -73,7 +107,7 @@ describe("getCapIngestStatus", () => {
     expect(status).toBe(CAP_INGEST_STATUS.PUBLISHED);
   });
 
-  it("returns CAP_VALIDATION_FAILED when validation completed with errors", () => {
+  it("returns NEEDS_VALIDATION when validation completed without CAP results (not expected in practice)", () => {
     const status = getCapIngestStatus(
       createComponentAtlas({
         validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
@@ -84,7 +118,7 @@ describe("getCapIngestStatus", () => {
       }),
     );
 
-    expect(status).toBe(CAP_INGEST_STATUS.CAP_VALIDATION_FAILED);
+    expect(status).toBe(CAP_INGEST_STATUS.NEEDS_VALIDATION);
   });
 
   it("returns NEEDS_VALIDATION when validation is not completed", () => {
@@ -95,6 +129,23 @@ describe("getCapIngestStatus", () => {
     );
 
     expect(status).toBe(CAP_INGEST_STATUS.NEEDS_VALIDATION);
+  });
+
+  it("returns CAP_READY when validation status is requested, existing summary has CAP validator successful, and capUrl is not set", () => {
+    const status = getCapIngestStatus(
+      createComponentAtlas({
+        capUrl: null,
+        validationStatus: FILE_VALIDATION_STATUS.REQUESTED,
+        validationSummary: {
+          overallValid: true,
+          validators: {
+            cap: { errorCount: 0, valid: true, warningCount: 0 },
+          },
+        },
+      }),
+    );
+
+    expect(status).toBe(CAP_INGEST_STATUS.CAP_READY);
   });
 });
 

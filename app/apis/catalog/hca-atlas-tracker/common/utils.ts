@@ -10,7 +10,6 @@ import {
   CAP_INGEST_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
-  FILE_VALIDATION_STATUS,
   FileValidationSummary,
   FileValidatorName,
   HCA_TIER1_VALIDATION_STATUS,
@@ -133,7 +132,6 @@ export function getCapIngestStatus(
   original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
 ): CAP_INGEST_STATUS {
   return getCapIngestStatusFromParameters(
-    original.validationStatus,
     original.validationSummary,
     original.capUrl,
     "reprocessedStatus" in original ? original.reprocessedStatus : undefined,
@@ -142,14 +140,12 @@ export function getCapIngestStatus(
 
 /**
  * Determine CAP ingest status based on individual parameters.
- * @param validationStatus - File validation status.
  * @param validationSummary - File validation summary.
  * @param capUrl - Entity CAP URL.
  * @param reprocessedStatus - Entity reprocessed status.
  * @returns CAP ingest status.
  */
 export function getCapIngestStatusFromParameters(
-  validationStatus: FILE_VALIDATION_STATUS,
   validationSummary: FileValidationSummary | null,
   capUrl: string | null,
   reprocessedStatus?: REPROCESSED_STATUS,
@@ -166,14 +162,11 @@ export function getCapIngestStatusFromParameters(
     }
   }
 
-  // Determine CAP ingest status with validation status of "COMPLETED".
-  if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED) {
-    // No validation summary available.
-    if (!validationSummary) {
-      return CAP_INGEST_STATUS.NEEDS_VALIDATION;
-    }
+  // Determine CAP ingest status with CAP validation results present.
+  const capValid = validationSummary?.validators.cap?.valid;
+  if (capValid !== undefined) {
     // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
-    if (validationSummary.validators.cap?.valid) {
+    if (capValid) {
       return capUrl !== null
         ? CAP_INGEST_STATUS.PUBLISHED
         : CAP_INGEST_STATUS.CAP_READY;
@@ -220,17 +213,17 @@ export function getCompositeTierOneMetadataStatus(
 export function getHcaTier1ValidationStatus(
   original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
 ): HCA_TIER1_VALIDATION_STATUS {
-  const { validationStatus, validationSummary } = original;
-  if (validationStatus !== FILE_VALIDATION_STATUS.COMPLETED) {
+  const { validationSummary } = original;
+  if (validationSummary === null) {
     return HCA_TIER1_VALIDATION_STATUS.UNKNOWN;
   }
-  const hcaSchema = validationSummary?.validators.hcaSchema;
+  const hcaSchema = validationSummary.validators.hcaSchema;
   if (!hcaSchema) {
     return HCA_TIER1_VALIDATION_STATUS.UNKNOWN;
   }
-  return hcaSchema.errorCount > 0
-    ? HCA_TIER1_VALIDATION_STATUS.INVALID
-    : HCA_TIER1_VALIDATION_STATUS.VALID;
+  return hcaSchema.valid
+    ? HCA_TIER1_VALIDATION_STATUS.VALID
+    : HCA_TIER1_VALIDATION_STATUS.INVALID;
 }
 
 /**

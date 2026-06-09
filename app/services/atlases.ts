@@ -8,7 +8,6 @@ import {
   AtlasStatusSummary,
   CAP_INGEST_STATUS,
   DoiPublicationInfo,
-  FILE_VALIDATION_STATUS,
   FileValidationSummary,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasForAPI,
@@ -220,7 +219,6 @@ export async function getAtlasStatusSummary(
 
     countMetadataEntityForStatusSummary(
       summary.integratedObjects,
-      componentAtlas.validation_status,
       validationSummary,
       componentAtlas.component_info.capUrl,
     );
@@ -242,7 +240,6 @@ export async function getAtlasStatusSummary(
 
     countMetadataEntityForStatusSummary(
       summary.sourceDatasets,
-      sourceDataset.validation_status,
       validationSummary,
       sourceDataset.sd_info.capUrl,
       sourceDataset.reprocessed_status,
@@ -264,7 +261,6 @@ export async function getAtlasStatusSummary(
 /**
  * Update counts in a metadata entity status summary to account for a given metadata entity.
  * @param entitySummary - Summary section to update counts in.
- * @param validationStatus - Validation status of the metadata entity to count.
  * @param validationSummary - Normalized validation summary of the metadata entity to count.
  * @param capUrl - CAP URL of the metadata entity to count.
  * @param reprocessedStatus - Reprocessed status, if applicable, of the metadata entity to count.
@@ -273,13 +269,11 @@ function countMetadataEntityForStatusSummary(
   entitySummary:
     | AtlasStatusSummary["integratedObjects"]
     | AtlasStatusSummary["sourceDatasets"],
-  validationStatus: FILE_VALIDATION_STATUS,
   validationSummary: FileValidationSummary | null,
   capUrl: string | null,
   reprocessedStatus?: REPROCESSED_STATUS,
 ): void {
   const capIngestStatus = getCapIngestStatusFromParameters(
-    validationStatus,
     validationSummary,
     capUrl,
     reprocessedStatus,

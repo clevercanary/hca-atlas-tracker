@@ -161,8 +161,7 @@ const SOURCE_DATASET_HANDLERS: ((
     }),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   }),
-  // Original
-  // Note: this differs from the above in lacking CAP ready because CAP ingest status is partially based on validation status
+  // Original, CAP ready
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(
       sourceDataset,
@@ -208,16 +207,14 @@ const SOURCE_DATASET_HANDLERS: ((
     capUrl: makeTestSourceDatasetCapUrl(i),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   }),
-  // Original, Tier 1 valid, CAP invalid
-  // Note: because of how CAP ingest status is determined, validation results without CAP are counted as CAP invalid
+  // Original, Tier 1 valid
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(sourceDataset, {
       hcaSchema: true,
     }),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
   }),
-  // Original, Tier 1 invalid, CAP invalid
-  // See note above re: CAP invalid
+  // Original, Tier 1 invalid
   (sourceDataset): TestSourceDataset => ({
     ...addValidationResults(sourceDataset, {
       hcaSchema: false,
@@ -258,9 +255,9 @@ const EXPECTED_STATUS_SUMMARY: AtlasStatusSummary = {
   ocEndorsed: false,
   publishedOnPortal: false,
   sourceDatasets: {
-    capInvalid: 3,
+    capInvalid: 1,
     capPublished: 1,
-    capReady: 2,
+    capReady: 3,
     original: 7,
     reprocessed: 3,
     tier1Invalid: 2,
