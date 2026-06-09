@@ -107,7 +107,7 @@ describe("getCapIngestStatus", () => {
     expect(status).toBe(CAP_INGEST_STATUS.PUBLISHED);
   });
 
-  it("returns NEEDS_VALIDATION when validation completed without CAP results (not expected in practice)", () => {
+  it("returns NEEDS_VALIDATION when validation completed with validation summary but no CAP results (not expected in practice)", () => {
     const status = getCapIngestStatus(
       createComponentAtlas({
         validationStatus: FILE_VALIDATION_STATUS.COMPLETED,
