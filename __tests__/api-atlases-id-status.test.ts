@@ -133,6 +133,14 @@ const COMPONENT_ATLAS_HANDLERS: ((
     }),
     capUrl: makeTestComponentAtlasCapUrl(i),
   }),
+  // Not counted
+  (componentAtlas): TestComponentAtlas => ({
+    ...componentAtlas,
+    file: {
+      ...componentAtlas.file,
+      isArchived: true,
+    },
+  }),
 ];
 
 const BASE_SOURCE_DATASET_ID = 0x33746d883f854bfda9ddb899a74b5e8cn;
@@ -231,6 +239,14 @@ const SOURCE_DATASET_HANDLERS: ((
       hcaSchema: false,
     }),
     reprocessedStatus: REPROCESSED_STATUS.ORIGINAL,
+  }),
+  // Not counted
+  (sourceDataset): TestSourceDataset => ({
+    ...sourceDataset,
+    file: {
+      ...sourceDataset.file,
+      isArchived: true,
+    },
   }),
 ];
 

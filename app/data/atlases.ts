@@ -31,14 +31,14 @@ export async function getAtlasForStatusSummary(
           FROM hat.source_datasets d
           JOIN hat.files f ON f.id = d.file_id
           JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
-          WHERE a.id = $1
+          WHERE a.id = $1 AND NOT f.is_archived
         ),
         atlas_component_atlases AS (
           SELECT c.component_info, f.validation_status, f.validation_summary
           FROM hat.component_atlases c
           JOIN hat.files f ON f.id = c.file_id
           JOIN hat.atlases a ON c.version_id = ANY(a.component_atlases)
-          WHERE a.id = $1
+          WHERE a.id = $1 AND NOT f.is_archived
         )
       SELECT
         a.status,
