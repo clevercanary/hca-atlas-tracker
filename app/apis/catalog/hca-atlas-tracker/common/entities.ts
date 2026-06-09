@@ -363,6 +363,32 @@ export interface HCAAtlasTrackerDBAtlasOverview {
   wave: Wave;
 }
 
+export interface HCAAtlasTrackerDBAtlasForStatusSummary extends Pick<
+  HCAAtlasTrackerDBAtlas,
+  "status" | "published_at"
+> {
+  component_atlases: HCAAtlasTrackerDBComponentAtlasForStatusSummary[];
+  source_datasets: HCAAtlasTrackerDBSourceDatasetForStatusSummary[];
+  source_studies: HCAAtlasTrackerDBSourceStudyForStatusSummary[];
+}
+
+export type HCAAtlasTrackerDBComponentAtlasForStatusSummary = Pick<
+  HCAAtlasTrackerDBComponentAtlas,
+  "component_info"
+> &
+  Pick<HCAAtlasTrackerDBFile, "validation_summary">;
+
+export type HCAAtlasTrackerDBSourceDatasetForStatusSummary = Pick<
+  HCAAtlasTrackerDBSourceDataset,
+  "reprocessed_status" | "sd_info"
+> &
+  Pick<HCAAtlasTrackerDBFile, "validation_summary">;
+
+export type HCAAtlasTrackerDBSourceStudyForStatusSummary = Pick<
+  HCAAtlasTrackerDBSourceStudy,
+  "doi"
+>;
+
 export interface HCAAtlasTrackerDBComponentAtlas {
   component_info: HCAAtlasTrackerDBComponentAtlasInfo;
   created_at: Date;
@@ -680,6 +706,36 @@ export type HCAAtlasTrackerDBUserWithAssociatedResources =
   HCAAtlasTrackerDBUser & {
     role_associated_resource_names: string[];
   };
+
+export interface AtlasStatusSummary {
+  integratedObjects: {
+    capInvalid: number;
+    capPublished: number;
+    capReady: number;
+    cellAnnotationInvalid: number;
+    cellAnnotationValid: number;
+    tier1Invalid: number;
+    tier1Valid: number;
+    total: number;
+  };
+  ocEndorsed: boolean;
+  publishedOnPortal: boolean;
+  sourceDatasets: {
+    capInvalid: number;
+    capPublished: number;
+    capReady: number;
+    original: number;
+    reprocessed: number;
+    tier1Invalid: number;
+    tier1Valid: number;
+    total: number;
+  };
+  sourceStudies: {
+    published: number;
+    total: number;
+    unpublished: number;
+  };
+}
 
 export type WithLinkedAtlases<T> = T & { atlases: LinkedAtlasSummary[] };
 

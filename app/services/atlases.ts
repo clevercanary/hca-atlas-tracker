@@ -4,10 +4,14 @@ import { InvalidOperationError } from "../../app/utils/api-errors";
 import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
 import {
   ATLAS_STATUS,
+  AtlasStatusSummary,
+  CAP_INGEST_STATUS,
   DoiPublicationInfo,
+  FileValidationSummary,
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasForAPI,
   HCAAtlasTrackerDBAtlasOverview,
+  REPROCESSED_STATUS,
   SYSTEM,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -15,6 +19,7 @@ import {
   NewAtlasData,
 } from "../apis/catalog/hca-atlas-tracker/common/schema";
 import {
+  getCapIngestStatusFromParameters,
   getPublishedFromPublishedAt,
   isUuid,
 } from "../apis/catalog/hca-atlas-tracker/common/utils";
@@ -24,6 +29,7 @@ import {
   CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE,
   createAtlasRevision,
   getAdvisoryLockForAtlas,
+  getAtlasForStatusSummary,
   getAtlasIdBySlugNameAndVersion,
   getAtlasInfoFromIdBasedQuery,
   getAtlasNotFoundError,
@@ -35,6 +41,7 @@ import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets
 import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
 import { parseAtlasNameUrlSlug, slugifyAtlasShortName } from "../utils/atlases";
 import { normalizeDoi } from "../utils/doi";
+import { normalizeValidationSummary } from "../utils/files";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { doTransaction, mapDatabaseError, query } from "./database";
 import { updateSourceStudyValidationsByEntityIds } from "./source-studies";
@@ -153,6 +160,136 @@ export async function getBaseModelAtlas(
   );
 
   return getAtlasInfoFromIdBasedQuery(queryResult, id);
+}
+
+/**
+ * Get the status summary for an atlas.
+ * @param atlasId - ID of the atlas to get status summary for.
+ * @returns status summary.
+ */
+export async function getAtlasStatusSummary(
+  atlasId: string,
+): Promise<AtlasStatusSummary> {
+  // Get info for atlas and linked entities
+  const atlasInfo = await getAtlasForStatusSummary(atlasId);
+
+  // Initialize summary with basic atlas info, and counts set to 0
+  const summary: AtlasStatusSummary = {
+    integratedObjects: {
+      capInvalid: 0,
+      capPublished: 0,
+      capReady: 0,
+      cellAnnotationInvalid: 0,
+      cellAnnotationValid: 0,
+      tier1Invalid: 0,
+      tier1Valid: 0,
+      total: 0,
+    },
+    ocEndorsed: atlasInfo.status === ATLAS_STATUS.OC_ENDORSED,
+    publishedOnPortal: getPublishedFromPublishedAt(atlasInfo.published_at),
+    sourceDatasets: {
+      capInvalid: 0,
+      capPublished: 0,
+      capReady: 0,
+      original: 0,
+      reprocessed: 0,
+      tier1Invalid: 0,
+      tier1Valid: 0,
+      total: 0,
+    },
+    sourceStudies: {
+      published: 0,
+      total: 0,
+      unpublished: 0,
+    },
+  };
+
+  // Count integrated objects
+  for (const componentAtlas of atlasInfo.component_atlases) {
+    const validationSummary = normalizeValidationSummary(
+      componentAtlas.validation_summary,
+    );
+
+    const cellAnnotationValid =
+      validationSummary?.validators.hcaCellAnnotation?.valid;
+    if (cellAnnotationValid === true)
+      summary.integratedObjects.cellAnnotationValid++;
+    else if (cellAnnotationValid === false)
+      summary.integratedObjects.cellAnnotationInvalid++;
+
+    countMetadataEntityForStatusSummary(
+      summary.integratedObjects,
+      validationSummary,
+      componentAtlas.component_info.capUrl,
+    );
+  }
+
+  // Count source datasets
+  for (const sourceDataset of atlasInfo.source_datasets) {
+    const validationSummary = normalizeValidationSummary(
+      sourceDataset.validation_summary,
+    );
+
+    if (sourceDataset.reprocessed_status === REPROCESSED_STATUS.ORIGINAL) {
+      summary.sourceDatasets.original++;
+    } else if (
+      sourceDataset.reprocessed_status === REPROCESSED_STATUS.REPROCESSED
+    ) {
+      summary.sourceDatasets.reprocessed++;
+    }
+
+    countMetadataEntityForStatusSummary(
+      summary.sourceDatasets,
+      validationSummary,
+      sourceDataset.sd_info.capUrl,
+      sourceDataset.reprocessed_status,
+    );
+  }
+
+  // Count source studies
+  for (const sourceStudy of atlasInfo.source_studies) {
+    if (sourceStudy.doi === null) summary.sourceStudies.unpublished++;
+    else summary.sourceStudies.published++;
+
+    summary.sourceStudies.total++;
+  }
+
+  // Return completed summary
+  return summary;
+}
+
+/**
+ * Update counts in a metadata entity status summary to account for a given metadata entity.
+ * @param entitySummary - Summary section to update counts in.
+ * @param validationSummary - Normalized validation summary of the metadata entity to count.
+ * @param capUrl - CAP URL of the metadata entity to count.
+ * @param reprocessedStatus - Reprocessed status, if applicable, of the metadata entity to count.
+ */
+function countMetadataEntityForStatusSummary(
+  entitySummary:
+    | AtlasStatusSummary["integratedObjects"]
+    | AtlasStatusSummary["sourceDatasets"],
+  validationSummary: FileValidationSummary | null,
+  capUrl: string | null,
+  reprocessedStatus?: REPROCESSED_STATUS,
+): void {
+  const capIngestStatus = getCapIngestStatusFromParameters(
+    validationSummary,
+    capUrl,
+    reprocessedStatus,
+  );
+
+  if (capIngestStatus === CAP_INGEST_STATUS.CAP_READY) entitySummary.capReady++;
+  else if (capIngestStatus === CAP_INGEST_STATUS.PUBLISHED)
+    entitySummary.capPublished++;
+  else if (capIngestStatus === CAP_INGEST_STATUS.CAP_VALIDATION_FAILED)
+    entitySummary.capInvalid++;
+
+  const tier1Valid = validationSummary?.validators.hcaSchema?.valid;
+  if (tier1Valid === true) entitySummary.tier1Valid++;
+  else if (tier1Valid === false) entitySummary.tier1Invalid++;
+
+  entitySummary.total++;
 }
 
 export async function createAtlas(

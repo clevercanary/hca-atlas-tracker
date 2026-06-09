@@ -10,7 +10,7 @@ import {
   CAP_INGEST_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
-  FILE_VALIDATION_STATUS,
+  FileValidationSummary,
   FileValidatorName,
   HCA_TIER1_VALIDATION_STATUS,
   HCAAtlasTrackerAtlas,
@@ -131,29 +131,43 @@ export function getAtlasGenerationName(atlas: HCAAtlasTrackerAtlas): string {
 export function getCapIngestStatus(
   original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
 ): CAP_INGEST_STATUS {
-  const { validationStatus, validationSummary } = original;
+  return getCapIngestStatusFromParameters(
+    original.validationSummary,
+    original.capUrl,
+    "reprocessedStatus" in original ? original.reprocessedStatus : undefined,
+  );
+}
 
+/**
+ * Determine CAP ingest status based on individual parameters.
+ * @param validationSummary - File validation summary.
+ * @param capUrl - Entity CAP URL.
+ * @param reprocessedStatus - Entity reprocessed status.
+ * @returns CAP ingest status.
+ */
+export function getCapIngestStatusFromParameters(
+  validationSummary: FileValidationSummary | null,
+  capUrl: string | null,
+  reprocessedStatus?: REPROCESSED_STATUS,
+): CAP_INGEST_STATUS {
   // Determine CAP ingest status for source datasets with reprocessed status of "REPROCESSED" or "UNSPECIFIED".
-  if ("reprocessedStatus" in original) {
-    if (original.reprocessedStatus === REPROCESSED_STATUS.REPROCESSED) {
+  if (reprocessedStatus !== undefined) {
+    if (reprocessedStatus === REPROCESSED_STATUS.REPROCESSED) {
       // Status is "NOT_REQUIRED" for reprocessed source datasets.
       return CAP_INGEST_STATUS.NOT_REQUIRED;
     }
-    if (original.reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
+    if (reprocessedStatus === REPROCESSED_STATUS.UNSPECIFIED) {
       // Status is "INFO_REQUIRED" for unspecified source datasets.
       return CAP_INGEST_STATUS.INFO_REQUIRED;
     }
   }
 
-  // Determine CAP ingest status with validation status of "COMPLETED".
-  if (validationStatus === FILE_VALIDATION_STATUS.COMPLETED) {
-    // No validation summary available.
-    if (!validationSummary) {
-      return CAP_INGEST_STATUS.NEEDS_VALIDATION;
-    }
+  // Determine CAP ingest status with CAP validation results present.
+  const capValid = validationSummary?.validators.cap?.valid;
+  if (capValid !== undefined) {
     // Status is "PUBLISHED" when CAP validator passes and the row has been published to CAP; otherwise "CAP_READY".
-    if (validationSummary.validators.cap?.valid) {
-      return original.capUrl !== null
+    if (capValid) {
+      return capUrl !== null
         ? CAP_INGEST_STATUS.PUBLISHED
         : CAP_INGEST_STATUS.CAP_READY;
     }
@@ -191,25 +205,26 @@ export function getCompositeTierOneMetadataStatus(
  * Determine the HCA Tier-1 validation status from an entity's validation
  * summary. Collapses the underlying `hcaSchema` validator result into the
  * three values used by the HCA Tier-1 Status filter on the global Source
- * Datasets and Integrated Objects lists. Warnings are ignored — only the
- * presence of errors distinguishes Invalid from Valid.
+ * Datasets and Integrated Objects lists. Validity is detemined by the `valid`
+ * field of the validator result, which by convention is true iff the error
+ * count is positive.
  * @param original - Component atlas or source dataset.
  * @returns HCA Tier-1 validation status.
  */
 export function getHcaTier1ValidationStatus(
   original: HCAAtlasTrackerComponentAtlas | HCAAtlasTrackerSourceDataset,
 ): HCA_TIER1_VALIDATION_STATUS {
-  const { validationStatus, validationSummary } = original;
-  if (validationStatus !== FILE_VALIDATION_STATUS.COMPLETED) {
+  const { validationSummary } = original;
+  if (validationSummary === null) {
     return HCA_TIER1_VALIDATION_STATUS.UNKNOWN;
   }
-  const hcaSchema = validationSummary?.validators.hcaSchema;
+  const hcaSchema = validationSummary.validators.hcaSchema;
   if (!hcaSchema) {
     return HCA_TIER1_VALIDATION_STATUS.UNKNOWN;
   }
-  return hcaSchema.errorCount > 0
-    ? HCA_TIER1_VALIDATION_STATUS.INVALID
-    : HCA_TIER1_VALIDATION_STATUS.VALID;
+  return hcaSchema.valid
+    ? HCA_TIER1_VALIDATION_STATUS.VALID
+    : HCA_TIER1_VALIDATION_STATUS.INVALID;
 }
 
 /**

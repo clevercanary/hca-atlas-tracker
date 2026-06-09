@@ -44,6 +44,7 @@ import {
 } from "./constants";
 import {
   TestComponentAtlas,
+  TestConcept,
   TestEntrySheetValidation,
   TestFile,
   TestSourceDataset,
@@ -78,18 +79,7 @@ export async function resetDatabase(initEntities = true): Promise<void> {
 }
 
 async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
-  for (const user of INITIAL_TEST_USERS) {
-    await client.query(
-      "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
-      [
-        user.disabled.toString(),
-        user.email,
-        user.name,
-        user.role,
-        user.roleAssociatedResourceIds,
-      ],
-    );
-  }
+  await initUsers(client);
 
   const dbUsersByEmail = await getDbUsersByEmail(client);
 
@@ -121,8 +111,29 @@ async function initDatabaseEntries(client: pg.PoolClient): Promise<void> {
   await updateTaskCounts(client);
 }
 
-async function initSourceStudies(client: pg.PoolClient): Promise<void> {
-  for (const study of INITIAL_TEST_SOURCE_STUDIES) {
+export async function initUsers(
+  client: pg.PoolClient,
+  testUsers = INITIAL_TEST_USERS,
+): Promise<void> {
+  for (const user of testUsers) {
+    await client.query(
+      "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
+      [
+        user.disabled.toString(),
+        user.email,
+        user.name,
+        user.role,
+        user.roleAssociatedResourceIds,
+      ],
+    );
+  }
+}
+
+export async function initSourceStudies(
+  client: pg.PoolClient,
+  testSourceStudies = INITIAL_TEST_SOURCE_STUDIES,
+): Promise<void> {
+  for (const study of testSourceStudies) {
     const sdInfo = makeTestSourceStudyOverview(study);
     await client.query(
       "INSERT INTO hat.source_studies (doi, id, study_info) VALUES ($1, $2, $3)",
@@ -156,8 +167,11 @@ export async function initSourceDatasets(
   }
 }
 
-async function initAtlases(client: pg.PoolClient): Promise<void> {
-  for (const atlas of INITIAL_TEST_ATLASES) {
+export async function initAtlases(
+  client: pg.PoolClient,
+  testAtlases = INITIAL_TEST_ATLASES,
+): Promise<void> {
+  for (const atlas of testAtlases) {
     const overview = makeTestAtlasOverview(atlas);
     await client.query(
       `
@@ -181,8 +195,11 @@ async function initAtlases(client: pg.PoolClient): Promise<void> {
   }
 }
 
-async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
-  for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
+export async function initComponentAtlases(
+  client: pg.PoolClient,
+  testComponentAtlases = INITIAL_TEST_COMPONENT_ATLASES,
+): Promise<void> {
+  for (const componentAtlas of testComponentAtlases) {
     const info: HCAAtlasTrackerDBComponentAtlasInfo = {
       capUrl: componentAtlas.capUrl ?? null,
     };
@@ -208,12 +225,30 @@ async function initComponentAtlases(client: pg.PoolClient): Promise<void> {
   }
 }
 
-async function initFiles(client: pg.PoolClient): Promise<void> {
+export async function initFiles(
+  client: pg.PoolClient,
+  testEntities: {
+    componentAtlases?: TestComponentAtlas[];
+    explicitConcepts?: TestConcept[];
+    sourceDatasets?: TestSourceDataset[];
+    standaloneFiles?: TestFile[];
+  } = {
+    componentAtlases: INITIAL_TEST_COMPONENT_ATLASES,
+    explicitConcepts: INITIAL_EXPLICIT_TEST_CONCEPTS,
+    sourceDatasets: INITIAL_TEST_SOURCE_DATASETS,
+    standaloneFiles: INITIAL_STANDALONE_TEST_FILES,
+  },
+): Promise<void> {
+  const {
+    componentAtlases = [],
+    explicitConcepts = [],
+    sourceDatasets = [],
+    standaloneFiles = [],
+  } = testEntities;
+
   const createdFiles = new Set<TestFile>();
-  const createdConcepts = new Set<string>(
-    INITIAL_EXPLICIT_TEST_CONCEPTS.map((c) => c.id),
-  );
-  for (const componentAtlas of INITIAL_TEST_COMPONENT_ATLASES) {
+  const createdConcepts = new Set<string>(explicitConcepts.map((c) => c.id));
+  for (const componentAtlas of componentAtlases) {
     await initTestFile(
       client,
       componentAtlas.file,
@@ -222,7 +257,7 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
       componentAtlas.id,
     );
   }
-  for (const sourceDataset of INITIAL_TEST_SOURCE_DATASETS) {
+  for (const sourceDataset of sourceDatasets) {
     await initTestFile(
       client,
       sourceDataset.file,
@@ -231,7 +266,7 @@ async function initFiles(client: pg.PoolClient): Promise<void> {
       sourceDataset.id,
     );
   }
-  for (const file of INITIAL_STANDALONE_TEST_FILES) {
+  for (const file of standaloneFiles) {
     await initTestFile(client, file, createdFiles, createdConcepts);
   }
 }
