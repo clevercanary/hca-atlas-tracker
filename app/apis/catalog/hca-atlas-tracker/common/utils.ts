@@ -205,8 +205,9 @@ export function getCompositeTierOneMetadataStatus(
  * Determine the HCA Tier-1 validation status from an entity's validation
  * summary. Collapses the underlying `hcaSchema` validator result into the
  * three values used by the HCA Tier-1 Status filter on the global Source
- * Datasets and Integrated Objects lists. Warnings are ignored — only the
- * presence of errors distinguishes Invalid from Valid.
+ * Datasets and Integrated Objects lists. Validity is detemined by the `valid`
+ * field of the validator result, which by convention is true iff the error
+ * count is positive.
  * @param original - Component atlas or source dataset.
  * @returns HCA Tier-1 validation status.
  */
