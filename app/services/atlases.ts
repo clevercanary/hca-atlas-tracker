@@ -1,4 +1,3 @@
-import { normalizeValidationSummary } from "app/utils/files";
 import pg from "pg";
 import { ValidationError } from "yup";
 import { InvalidOperationError } from "../../app/utils/api-errors";
@@ -42,6 +41,7 @@ import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets
 import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
 import { parseAtlasNameUrlSlug, slugifyAtlasShortName } from "../utils/atlases";
 import { normalizeDoi } from "../utils/doi";
+import { normalizeValidationSummary } from "../utils/files";
 import { getSheetTitleForApi } from "../utils/google-sheets-api";
 import { doTransaction, mapDatabaseError, query } from "./database";
 import { updateSourceStudyValidationsByEntityIds } from "./source-studies";

@@ -1,6 +1,6 @@
-import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
+import { FILE_VALIDATOR_NAMES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
   AtlasStatusSummary,
