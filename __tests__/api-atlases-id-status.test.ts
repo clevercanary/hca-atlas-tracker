@@ -54,13 +54,16 @@ jest.mock("../app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
-const ATLAS_ID = "0325474a-a038-4201-9651-f8f7406c3483";
+const ATLAS_ID_MAIN = "0325474a-a038-4201-9651-f8f7406c3483";
+const ATLAS_ID_ENDORSED = "ca70b4e8-ed0b-49ed-a683-9b78f20e0afa";
+const ATLAS_ID_PUBLISHED = "45c6ff6d-d138-4975-9e7d-dbac59e6327c";
+const ATLAS_ID_ENDORSED_PUBLISHED = "3594fded-6785-4382-9a95-5c2b9bda5073";
 
 const INTEGRATION_LEAD = makeTestUser(
   "test-integration-lead-atlas-status",
   ROLE.INTEGRATION_LEAD,
   false,
-  [ATLAS_ID],
+  [ATLAS_ID_MAIN],
 );
 
 const BASE_COMPONENT_ATLAS_ID = 0x9975ea7e331a429eacc2205368a6b645n;
@@ -241,7 +244,38 @@ const SOURCE_STUDIES: Array<{ published: boolean }> = [
   { published: true },
 ];
 
-const EXPECTED_STATUS_SUMMARY: AtlasStatusSummary = {
+const DEFAULT_STATUS_SUMMARY: AtlasStatusSummary = {
+  integratedObjects: {
+    capInvalid: 0,
+    capPublished: 0,
+    capReady: 0,
+    cellAnnotationInvalid: 0,
+    cellAnnotationValid: 0,
+    tier1Invalid: 0,
+    tier1Valid: 0,
+    total: 0,
+  },
+  ocEndorsed: false,
+  publishedOnPortal: false,
+  sourceDatasets: {
+    capInvalid: 0,
+    capPublished: 0,
+    capReady: 0,
+    original: 0,
+    reprocessed: 0,
+    tier1Invalid: 0,
+    tier1Valid: 0,
+    total: 0,
+  },
+  sourceStudies: {
+    published: 0,
+    total: 0,
+    unpublished: 0,
+  },
+};
+
+const EXPECTED_MAIN_STATUS_SUMMARY: AtlasStatusSummary = {
+  ...DEFAULT_STATUS_SUMMARY,
   integratedObjects: {
     capInvalid: 4,
     capPublished: 2,
@@ -252,8 +286,6 @@ const EXPECTED_STATUS_SUMMARY: AtlasStatusSummary = {
     tier1Valid: 2,
     total: 10,
   },
-  ocEndorsed: false,
-  publishedOnPortal: false,
   sourceDatasets: {
     capInvalid: 1,
     capPublished: 1,
@@ -286,7 +318,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 405 for POST request", async () => {
     expect(
       (
-        await doStatusRequest(ATLAS_ID, USER_CONTENT_ADMIN, METHOD.POST)
+        await doStatusRequest(ATLAS_ID_MAIN, USER_CONTENT_ADMIN, METHOD.POST)
       )._getStatusCode(),
     ).toEqual(405);
   });
@@ -294,7 +326,7 @@ describe(TEST_ROUTE, () => {
   it("returns error 401 when status summary is requested by logged out user", async () => {
     expect(
       (
-        await doStatusRequest(ATLAS_ID, undefined, METHOD.GET, true)
+        await doStatusRequest(ATLAS_ID_MAIN, undefined, METHOD.GET, true)
       )._getStatusCode(),
     ).toEqual(401);
   });
@@ -302,7 +334,12 @@ describe(TEST_ROUTE, () => {
   it("returns error 403 when status summary is requested by unregistered user", async () => {
     expect(
       (
-        await doStatusRequest(ATLAS_ID, USER_UNREGISTERED, METHOD.GET, true)
+        await doStatusRequest(
+          ATLAS_ID_MAIN,
+          USER_UNREGISTERED,
+          METHOD.GET,
+          true,
+        )
       )._getStatusCode(),
     ).toEqual(403);
   });
@@ -311,7 +348,7 @@ describe(TEST_ROUTE, () => {
     expect(
       (
         await doStatusRequest(
-          ATLAS_ID,
+          ATLAS_ID_MAIN,
           USER_DISABLED_CONTENT_ADMIN,
           METHOD.GET,
           true,
@@ -340,13 +377,13 @@ describe(TEST_ROUTE, () => {
       statusHandler,
       METHOD.GET,
       role,
-      getQueryValues(ATLAS_ID),
+      getQueryValues(ATLAS_ID_MAIN),
       undefined,
       false,
       async (res) => {
         expect(res._getStatusCode()).toEqual(200);
         const summary = res._getJSONData() as AtlasStatusSummary;
-        expect(summary).toEqual(EXPECTED_STATUS_SUMMARY);
+        expect(summary).toEqual(EXPECTED_MAIN_STATUS_SUMMARY);
       },
       {
         usersByRole: {
@@ -357,10 +394,57 @@ describe(TEST_ROUTE, () => {
   }
 
   it("returns status summary when requested by content admin", async () => {
-    const res = await doStatusRequest(ATLAS_ID, USER_CONTENT_ADMIN, METHOD.GET);
+    const res = await doStatusRequest(
+      ATLAS_ID_MAIN,
+      USER_CONTENT_ADMIN,
+      METHOD.GET,
+    );
     expect(res._getStatusCode()).toEqual(200);
     const summary = res._getJSONData() as AtlasStatusSummary;
-    expect(summary).toEqual(EXPECTED_STATUS_SUMMARY);
+    expect(summary).toEqual(EXPECTED_MAIN_STATUS_SUMMARY);
+  });
+
+  it("returns status summary for OC endorsed atlas", async () => {
+    const res = await doStatusRequest(
+      ATLAS_ID_ENDORSED,
+      USER_CONTENT_ADMIN,
+      METHOD.GET,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const summary = res._getJSONData() as AtlasStatusSummary;
+    expect(summary).toEqual({
+      ...DEFAULT_STATUS_SUMMARY,
+      ocEndorsed: true,
+    });
+  });
+
+  it("returns status summary for published atlas", async () => {
+    const res = await doStatusRequest(
+      ATLAS_ID_PUBLISHED,
+      USER_CONTENT_ADMIN,
+      METHOD.GET,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const summary = res._getJSONData() as AtlasStatusSummary;
+    expect(summary).toEqual({
+      ...DEFAULT_STATUS_SUMMARY,
+      publishedOnPortal: true,
+    });
+  });
+
+  it("returns status summary for published OC endorsed atlas", async () => {
+    const res = await doStatusRequest(
+      ATLAS_ID_ENDORSED_PUBLISHED,
+      USER_CONTENT_ADMIN,
+      METHOD.GET,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const summary = res._getJSONData() as AtlasStatusSummary;
+    expect(summary).toEqual({
+      ...DEFAULT_STATUS_SUMMARY,
+      ocEndorsed: true,
+      publishedOnPortal: true,
+    });
   });
 });
 
@@ -389,7 +473,7 @@ async function initStatusTestEntities(): Promise<void> {
       handler(
         {
           file: {
-            atlas: (): TestAtlas => testAtlas,
+            atlas: (): TestAtlas => mainAtlas,
             bucket: TEST_S3_BUCKET,
             etag: `atlas-status-component-atlas-${i}-etag`,
             eventTime: new Date().toISOString(),
@@ -411,7 +495,7 @@ async function initStatusTestEntities(): Promise<void> {
       handler(
         {
           file: {
-            atlas: (): TestAtlas => testAtlas,
+            atlas: (): TestAtlas => mainAtlas,
             bucket: TEST_S3_BUCKET,
             etag: `atlas-status-source-dataset-${i}-etag`,
             eventTime: new Date().toISOString(),
@@ -462,24 +546,29 @@ async function initStatusTestEntities(): Promise<void> {
     },
   );
 
-  const testAtlas: TestAtlas = {
-    cellxgeneAtlasCollection: null,
-    codeLinks: [],
+  const mainAtlas = makeTestAtlas(ATLAS_ID_MAIN, "test atlas status main", {
     componentAtlases: testComponentAtlases.map((c) => c.versionId),
-    description: "",
-    generation: 1,
-    highlights: "",
-    id: ATLAS_ID,
-    integrationLead: [INTEGRATION_LEAD],
-    network: "eye",
-    publications: [],
-    revision: 0,
-    shortName: "test atlas status",
     sourceDatasets: testSourceDatasets.map((d) => d.versionId),
     sourceStudies: testSourceStudies.map((s) => s.id),
-    status: ATLAS_STATUS.IN_PROGRESS,
-    wave: "1",
-  };
+  });
+
+  const testAtlases = [
+    mainAtlas,
+    makeTestAtlas(ATLAS_ID_ENDORSED, "test atlas status endorsed", {
+      status: ATLAS_STATUS.OC_ENDORSED,
+    }),
+    makeTestAtlas(ATLAS_ID_PUBLISHED, "test atlas status published", {
+      publishedAt: "2026-06-09T00:12:40.265Z",
+    }),
+    makeTestAtlas(
+      ATLAS_ID_ENDORSED_PUBLISHED,
+      "test atlas status published endorsed",
+      {
+        publishedAt: "2026-06-09T00:12:56.784Z",
+        status: ATLAS_STATUS.OC_ENDORSED,
+      },
+    ),
+  ];
 
   await doTransaction(async (client) => {
     await initUsers(client); // Since the default entities are not otherwise created for these tests, initialize default users here
@@ -490,9 +579,34 @@ async function initStatusTestEntities(): Promise<void> {
       sourceDatasets: testSourceDatasets,
     });
     await initSourceDatasets(client, testSourceDatasets);
-    await initAtlases(client, [testAtlas]);
+    await initAtlases(client, testAtlases);
     await initComponentAtlases(client, testComponentAtlases);
   });
+}
+
+function makeTestAtlas(
+  id: string,
+  shortName: string,
+  overrides?: Partial<TestAtlas>,
+): TestAtlas {
+  return {
+    cellxgeneAtlasCollection: null,
+    codeLinks: [],
+    componentAtlases: [],
+    description: "",
+    generation: 1,
+    highlights: "",
+    id,
+    integrationLead: [INTEGRATION_LEAD],
+    network: "eye",
+    publications: [],
+    revision: 0,
+    shortName,
+    sourceStudies: [],
+    status: ATLAS_STATUS.IN_PROGRESS,
+    wave: "1",
+    ...overrides,
+  };
 }
 
 function addValidationResults<T extends TestSourceDataset | TestComponentAtlas>(
