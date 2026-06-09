@@ -376,13 +376,13 @@ export type HCAAtlasTrackerDBComponentAtlasForStatusSummary = Pick<
   HCAAtlasTrackerDBComponentAtlas,
   "component_info"
 > &
-  Pick<HCAAtlasTrackerDBFile, "validation_summary" | "validation_status">;
+  Pick<HCAAtlasTrackerDBFile, "validation_summary">;
 
 export type HCAAtlasTrackerDBSourceDatasetForStatusSummary = Pick<
   HCAAtlasTrackerDBSourceDataset,
   "reprocessed_status" | "sd_info"
 > &
-  Pick<HCAAtlasTrackerDBFile, "validation_status" | "validation_summary">;
+  Pick<HCAAtlasTrackerDBFile, "validation_summary">;
 
 export type HCAAtlasTrackerDBSourceStudyForStatusSummary = Pick<
   HCAAtlasTrackerDBSourceStudy,
