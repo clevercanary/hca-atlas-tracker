@@ -115,6 +115,7 @@ async function addValidationResultsToFiles(
   for (const fileId of fileIds) {
     const validatedAt = new Date();
     let successRelatedFields: SuccessRelatedFields;
+    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
     if (Math.random() < FAILED_VALIDATION_PROBABILITY) {
       successRelatedFields = getFailedValidationFields();
     } else {
@@ -145,6 +146,7 @@ async function addValidationResultsToFiles(
 }
 
 function getFailedValidationFields(): SuccessRelatedFields {
+  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
   let errorTypeSource = Math.random();
 
   if (errorTypeSource < JOB_ERROR_PROBABILITY) {
@@ -172,6 +174,7 @@ function getFailedValidationFields(): SuccessRelatedFields {
     };
   }
 
+  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
   if (Math.random() < INTEGRITY_ERROR_PROBABILITY) {
     return {
       datasetInfo: null,
@@ -206,10 +209,12 @@ function getSuccessfulValidationFields(
     datasetInfo: {
       assay: generateArray("assay"),
       cellCount:
+        // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
         Math.floor(Math.random() * (MAX_CELL_COUNT - MIN_CELL_COUNT)) +
         MIN_CELL_COUNT,
       disease: generateArray("disease"),
       geneCount:
+        // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
         Math.floor(Math.random() * (MAX_GENE_COUNT - MIN_GENE_COUNT)) +
         MIN_GENE_COUNT,
       suspensionType: generateArray("suspension-type"),
@@ -220,6 +225,7 @@ function getSuccessfulValidationFields(
     metadataCoverage: makeMetadataCoverage(),
     validationReports: validationReports,
     validationStatus:
+      // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
       Math.random() < FAILED_REQUEST_PROBABILITY
         ? FILE_VALIDATION_STATUS.REQUEST_FAILED
         : FILE_VALIDATION_STATUS.COMPLETED,
@@ -242,11 +248,13 @@ function makeMetadataCoverage(): FileMetadataCoverage {
   );
 
   const allComplete =
+    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
     Math.random() < METADATA_COVERAGE_ALL_COMPLETE_PROBABILITY;
 
   const fieldCoverage = fields.map((fieldName): FileMetadataFieldCoverage => {
     const entityType =
       FILE_METADATA_COVERAGE_ENTITY_TYPES[
+        // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
         Math.floor(Math.random() * FILE_METADATA_COVERAGE_ENTITY_TYPES.length)
       ];
 
@@ -254,13 +262,16 @@ function makeMetadataCoverage(): FileMetadataCoverage {
 
     const fieldAllComplete =
       allComplete ||
+      // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
       Math.random() < METADATA_COVERAGE_FIELD_ALL_COMPLETE_PROBABILITY;
 
     const completeCount = fieldAllComplete
       ? recordCount
-      : Math.floor(Math.random() * (recordCount + 1));
+      : // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
+        Math.floor(Math.random() * (recordCount + 1));
 
     const missingCount = Math.floor(
+      // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
       Math.random() * (recordCount - completeCount + 1),
     );
 
@@ -284,6 +295,7 @@ function makeMetadataCoverage(): FileMetadataCoverage {
     return {
       recordCount:
         Math.floor(
+          // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
           Math.random() *
             (MAX_METADATA_RECORD_COUNT - MIN_METADATA_RECORD_COUNT),
         ) + MIN_METADATA_RECORD_COUNT,
@@ -311,11 +323,13 @@ function makeValidationReports(): [
 function generateToolReport(
   validatorValidProbability: number,
 ): DatasetValidatorToolReport {
+  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
   const valid = Math.random() < validatorValidProbability;
   const errors = valid
     ? []
     : generateArrayVia((l) => `Error ${l.toUpperCase()}`);
   const warnings =
+    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
     Math.random() < 0.5
       ? []
       : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
@@ -341,6 +355,7 @@ function generateArrayVia(
   let prevLetters = Array.from(LETTERS);
   let lettersLeft = prevLetters.slice();
   const amount =
+    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
     Math.floor(Math.random() * (maxLength - minLength)) + minLength;
   const result: string[] = [];
   for (let i = 0; i < amount; i++) {
@@ -350,6 +365,7 @@ function generateArrayVia(
         .flat();
       lettersLeft = prevLetters.slice();
     }
+    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
     const j = Math.floor(Math.random() * lettersLeft.length);
     result.push(makeItem(lettersLeft[j]));
     lettersLeft.splice(j, 1);

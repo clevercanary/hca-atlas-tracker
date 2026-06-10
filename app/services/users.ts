@@ -178,6 +178,7 @@ export async function addIntegrationLeadsFromAtlases(): Promise<void> {
         if (!integrationLeadInfo)
           integrationLeadInfoFromAtlases.set(
             integrationLead.email,
+            // eslint-disable-next-line sonarjs/no-nested-assignment -- track via #1380
             (integrationLeadInfo = {
               atlasIds: [],
               name: integrationLead.name,

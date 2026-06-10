@@ -2,6 +2,7 @@ import { BackOrigin } from "./constants";
 
 // Dummy base for parsing relative URLs through the URL API; never appears
 // in the output. We always return `pathname + search + hash`.
+// eslint-disable-next-line sonarjs/no-clear-text-protocols -- track via #1371
 const DUMMY_BASE = "http://x";
 
 /**

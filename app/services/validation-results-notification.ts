@@ -92,7 +92,8 @@ export async function processValidationResultsMessage(
   const validationStatus =
     validationResults.status === "success"
       ? FILE_VALIDATION_STATUS.COMPLETED
-      : validationResults.integrity_status === INTEGRITY_STATUS.INVALID // Currently, the dataset validator sets the status as "failure" when the integrity check doesn't pass
+      : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1381
+        validationResults.integrity_status === INTEGRITY_STATUS.INVALID // Currently, the dataset validator sets the status as "failure" when the integrity check doesn't pass
         ? FILE_VALIDATION_STATUS.COMPLETED
         : FILE_VALIDATION_STATUS.JOB_FAILED;
   const [validationReports, validationSummary] =

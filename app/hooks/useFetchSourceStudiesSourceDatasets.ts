@@ -44,6 +44,7 @@ export const useFetchSourceStudiesSourceDatasets = (
 
   useEffect(() => {
     if (!sourceStudies) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- track via #1375
     fetchData(
       sourceStudies.map(({ id }) => id),
       pathParameter,

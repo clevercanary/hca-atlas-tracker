@@ -1,4 +1,4 @@
-import { StyledGridEntityView } from "@databiosphere/findable-ui/lib/components/Index/index.styles";
+import { StyledGridEntityView } from "@databiosphere/findable-ui/lib/components/Index/indexView.styles";
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
 

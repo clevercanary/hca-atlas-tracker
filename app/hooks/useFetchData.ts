@@ -80,6 +80,7 @@ export const useFetchData = <D>(
   useEffect(() => {
     // If the user is unauthenticated, reset to the pending state and non-fetching progress.
     if (!isAuthenticated) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- track via #1374
       setState(PENDING_STATE);
       progressDispatch(FetchProgressActionKind.NotFetching);
       return;

@@ -299,6 +299,7 @@ function expectUrlInfoForFile(
   expect(info.url).toEqual(expect.stringContaining(testFile.fileName));
   expect(info.url).toEqual(expect.stringContaining(expectedFilename));
 
+  // eslint-disable-next-line sonarjs/slow-regex -- track via #1361
   const endingRegex = /(?:-r\d+(?:-wip-\d+)?)?\..+$/;
   const fileNameBeginning = testFile.fileName.replace(endingRegex, "");
   const apiNameBeginning = info.filename.replace(endingRegex, "");

@@ -63,6 +63,7 @@ export const InputController = <
             labelLink
               ? getLabelWithLink(
                   label,
+                  // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1373
                   labelLink === true ? {} : labelLink,
                   field.value,
                 )

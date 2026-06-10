@@ -76,7 +76,8 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
           <h2>Result</h2>
           {responseErrors
             ? buildResponseErrors(responseErrors)
-            : updateResult
+            : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1367
+              updateResult
               ? buildUpdateResult(updateResult)
               : ""}
         </>

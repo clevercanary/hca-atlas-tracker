@@ -16,7 +16,8 @@ export const AdminFormResults = ({
   return (
     <>
       {errors === null
-        ? success === null
+        ? // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1372
+          success === null
           ? ""
           : applyResultWrapper(success, wrapResult)
         : applyResultWrapper(<AdminFormErrors errors={errors} />, wrapResult)}

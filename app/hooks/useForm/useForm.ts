@@ -117,6 +117,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
   // Initialize data with given API response.
   useEffect(() => {
     if (!apiData) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- track via #1376
     setData(apiData);
   }, [apiData]);
 

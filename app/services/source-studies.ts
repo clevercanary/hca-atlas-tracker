@@ -219,6 +219,7 @@ async function addValidationsToSourceStudiesInfo<
     if (!studyValidations)
       validationsBySourceStudyId.set(
         validation.entity_id,
+        // eslint-disable-next-line sonarjs/no-nested-assignment -- track via #1379
         (studyValidations = []),
       );
     studyValidations.push(validation);

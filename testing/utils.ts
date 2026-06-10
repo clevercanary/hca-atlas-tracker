@@ -312,7 +312,8 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
   const validationInfo: HCAAtlasTrackerDBFileValidationInfo | null =
     file.validationInfo !== undefined
       ? file.validationInfo
-      : integrityCheckedAt === null
+      : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1387
+        integrityCheckedAt === null
         ? null
         : {
             batchJobId: `batch-job-${file.id}`,
@@ -440,7 +441,7 @@ export function promiseWithResolvers<T>(): [
     resolve = res;
     reject = rej;
   });
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- The function passed to the Promise constructor is called immediately, guaranteeing that these will be defined.
+
   return [promise, resolve!, reject!];
 }
 

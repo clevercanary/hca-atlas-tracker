@@ -12,9 +12,9 @@ import {
 export enum FETCH_STATUS {
   ACCEPTED = 202,
   CREATED = 201,
-  OK = 200,
   NOT_FOUND = 404,
   NOT_MODIFIED = 304,
+  OK = 200,
 }
 
 export enum METHOD {
