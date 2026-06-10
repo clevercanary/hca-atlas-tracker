@@ -74,9 +74,11 @@ function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
  * - When the user is unauthenticated.
  * - When the user is authenticated and authorized.
  *
- * Falls through to a placeholder only when the user is authenticated and
- * known to be unauthorized (disabled / unregistered), so the disabled-user
- * redirect can take over.
+ * Falls through to a placeholder when the user is authenticated and known
+ * to be unauthorized — i.e. `disabled` (the existing `useEffect` redirects
+ * them to `/account-disabled`) OR `UNREGISTERED` (no role yet, currently
+ * left as a blank placeholder; tracked as a follow-up so they're routed to
+ * a dedicated "awaiting access" page instead).
  * @param isSettled - Auth and (if authenticated) user fetch are both resolved.
  * @param isAuthenticated - User's authentication status.
  * @param isAuthorized - User's authorization status.
