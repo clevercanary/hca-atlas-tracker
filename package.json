@@ -44,7 +44,7 @@
     "next": "^15",
     "next-auth": "^4",
     "next-compose-plugins": "^2",
-    "next-mdx-remote": "^5",
+    "next-mdx-remote": "^6",
     "raw-body": "^3.0.0",
     "react": "^19",
     "react-dom": "^19",
