@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.74.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.73.0...v1.74.0) (2026-06-09)
+
+
+### Features
+
+* add atlas status summary api ([#1339](https://github.com/clevercanary/hca-atlas-tracker/issues/1339)) ([#1352](https://github.com/clevercanary/hca-atlas-tracker/issues/1352)) ([f01601a](https://github.com/clevercanary/hca-atlas-tracker/commit/f01601a4030a65a15814a489c52ea3526431d646))
+
 ## [1.73.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.72.0...v1.73.0) (2026-06-05)
 
 
