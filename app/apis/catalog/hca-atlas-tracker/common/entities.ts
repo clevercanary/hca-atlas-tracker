@@ -786,6 +786,7 @@ export interface HeatmapEntrySheet {
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
 export type ComponentAtlasId = string;
 
 export type EntrySheetValidationId = HCAAtlasTrackerEntrySheetValidation["id"];
@@ -871,8 +872,10 @@ export interface GoogleSheetInfo {
   title: string | null;
 }
 
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
 export type SourceDatasetId = string;
 
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
 export type SourceStudyId = string;
 
 export enum TIER_ONE_METADATA_STATUS {
@@ -946,8 +949,10 @@ export interface PresignedUrlInfo {
   url: string;
 }
 
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
 export type UserId = number;
 
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
 export type ValidatorName = FileValidatorName;
 
 export interface ValidationDifference {

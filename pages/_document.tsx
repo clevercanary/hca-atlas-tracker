@@ -1,11 +1,24 @@
-import Document, { Head, Html, Main, NextScript } from "next/document";
-import { JSX } from "react";
+import {
+  documentGetInitialProps,
+  DocumentHeadTags,
+  DocumentHeadTagsProps,
+} from "@mui/material-nextjs/v16-pagesRouter";
+import Document, {
+  DocumentContext,
+  DocumentInitialProps,
+  Head,
+  Html,
+  Main,
+  NextScript,
+} from "next/document";
+import type { JSX } from "react";
 
-class MyDocument extends Document {
+class MyDocument extends Document<DocumentHeadTagsProps> {
   render(): JSX.Element {
     return (
       <Html>
         <Head>
+          <DocumentHeadTags {...this.props} />
           {/* TODO self host fonts */}
           {/* TODO only load fonts required for the app being built */}
           <link rel="stylesheet" href="https://use.typekit.net/qhb0geh.css" />
@@ -22,5 +35,11 @@ class MyDocument extends Document {
     );
   }
 }
+
+MyDocument.getInitialProps = async (
+  ctx: DocumentContext,
+): Promise<DocumentHeadTagsProps & DocumentInitialProps> => {
+  return await documentGetInitialProps(ctx);
+};
 
 export default MyDocument;

@@ -55,6 +55,7 @@ export function parseS3AtlasVersion(s3Version: string): AtlasVersionNumbers {
     };
 
   // Major-minor, no leading zeros in either part except for minor version 0
+  // eslint-disable-next-line sonarjs/concise-regex -- track via #1382
   const match = /^([1-9]\d*)-(0|[1-9][0-9]*)$/.exec(v);
   if (match)
     return {

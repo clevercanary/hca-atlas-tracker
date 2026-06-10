@@ -16,6 +16,7 @@ export function useBackPath(pathParameter: PathParameter): string | undefined {
   const { query } = useRouter();
   const { from } = query;
   const originRef = useRef(parseBackOrigin(from));
+  // eslint-disable-next-line react-hooks/refs -- track via #1370
   const origin = originRef.current;
 
   return resolveBackPath({ origin, pathParameter });

@@ -120,6 +120,7 @@ export function makeRefreshService<TData, TRefreshParams>(
   if (initStoredInfo) {
     info = initStoredInfo;
   } else {
+    // eslint-disable-next-line sonarjs/no-nested-assignment -- track via #1377
     setStoredInfo((info = {}));
   }
 
@@ -139,7 +140,8 @@ export function makeRefreshService<TData, TRefreshParams>(
       return {
         currentActivity: info.refreshing
           ? REFRESH_ACTIVITY.REFRESHING
-          : info.attemptingRefresh
+          : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1378
+            info.attemptingRefresh
             ? REFRESH_ACTIVITY.ATTEMPTING_REFRESH
             : REFRESH_ACTIVITY.NOT_REFRESHING,
         errorMessage: info.errorMessage ?? null,

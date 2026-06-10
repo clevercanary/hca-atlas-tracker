@@ -24,6 +24,9 @@ export const MDX_COMPONENTS = {
 const MDX_SCOPE = { ROUTE };
 
 export const SERIALIZE_OPTIONS = {
+  // next-mdx-remote v6's default blockJS: true silently strips JSX
+  // expression attributes; opt out to preserve them.
+  blockJS: false,
   mdxOptions: {
     development: process.env.NODE_ENV === "development",
     rehypePlugins: [],

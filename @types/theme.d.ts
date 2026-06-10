@@ -3,7 +3,7 @@ import { PaletteColorOptions } from "@mui/material/styles";
 /**
  * Palette definitions.
  */
-declare module "@mui/material/styles/createPalette" {
+declare module "@mui/material/styles" {
   interface Palette {
     caution: PaletteColor;
   }

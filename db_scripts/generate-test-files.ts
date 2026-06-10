@@ -503,5 +503,6 @@ function chooseRandom<T>(arr: T[]): T {
 }
 
 function randomInRange(min: number, max: number): number {
+  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1385
   return min + Math.floor(Math.random() * (max - min + 1));
 }

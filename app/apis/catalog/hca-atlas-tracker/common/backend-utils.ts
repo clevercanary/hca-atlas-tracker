@@ -1,4 +1,4 @@
-import savedCellxgeneInfo from "../../../../../catalog/output/cellxgene-info.json";
+import savedCellxgeneInfoRaw from "../../../../../catalog/output/cellxgene-info.json";
 import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
 import {
   normalizeValidationSummary,
@@ -56,6 +56,20 @@ import {
   getUnpublishedCitation,
   makeFileVersionString,
 } from "./utils";
+
+// JSON import's literal type indexes only by its specific UUID keys; widen
+// to Record<string, ...> so dynamic IDs can be looked up.
+const savedCellxgeneInfo = savedCellxgeneInfoRaw as unknown as {
+  collections: Record<string, { datasets: string[] }>;
+  datasets: Record<
+    string,
+    {
+      datasetVersionId: string | null;
+      skippedReason?: string;
+      tierOneStatus: TIER_ONE_METADATA_STATUS;
+    }
+  >;
+};
 
 export function dbAtlasToAtlasSummary(
   dbAtlas: HCAAtlasTrackerDBAtlas,
@@ -464,7 +478,8 @@ export function getDbSourceStudyTierOneMetadataStatus(
 ): TIER_ONE_METADATA_STATUS {
   const collectionId = sourceStudy.study_info.cellxgeneCollectionId;
   return collectionId
-    ? Object.hasOwn(savedCellxgeneInfo.collections, collectionId)
+    ? // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1362
+      Object.hasOwn(savedCellxgeneInfo.collections, collectionId)
       ? getCompositeTierOneMetadataStatus(
           savedCellxgeneInfo.collections[collectionId].datasets.map(
             getCellxGeneDatasetTierOneMetadataStatus,

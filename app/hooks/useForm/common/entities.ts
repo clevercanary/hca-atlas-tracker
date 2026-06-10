@@ -1,5 +1,9 @@
-import { FieldValues, UseFormReturn } from "react-hook-form";
-import { UseFormProps, UseFormReset } from "react-hook-form/dist/types/form";
+import {
+  FieldValues,
+  UseFormProps,
+  UseFormReset,
+  UseFormReturn,
+} from "react-hook-form";
 import { InferType, ObjectSchema } from "yup";
 import { METHOD } from "../../../common/entities";
 import { UseForm } from "../useForm";

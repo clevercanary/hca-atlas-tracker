@@ -1,5 +1,5 @@
 import { Title } from "@databiosphere/findable-ui/lib/components/Index/components/EntityView/components/layout/Title/title";
-import { StyledGridEntityLayout } from "@databiosphere/findable-ui/lib/components/Index/index.styles";
+import { StyledGridEntityLayout } from "@databiosphere/findable-ui/lib/components/Index/indexView.styles";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { useLayoutSpacing } from "@databiosphere/findable-ui/lib/hooks/UseLayoutSpacing/hook";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";

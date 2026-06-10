@@ -27,7 +27,6 @@ export type FetchDataStateContextProps = {
 };
 
 export const FetchDataStateContext = createContext<FetchDataStateContextProps>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function -- allow dummy function for default state.
   fetchDataDispatch: () => {},
   fetchDataState: DEFAULT_FETCH_DATA_STATE,
 });
@@ -91,7 +90,7 @@ function fetchDataStateReducer(
   action: FetchDataAction,
 ): FetchDataState {
   const { payload, type } = action;
-  // eslint-disable-next-line sonarjs/no-small-switch -- allow small switch.
+
   switch (type) {
     case FetchDataActionKind.FetchData: {
       return fetchDataAction(state, payload);

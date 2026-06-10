@@ -58,10 +58,8 @@ export interface ProjectResponse {
   tissueAtlas: { atlas: string; version: string | null }[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO - revisit nested Azul structure.
 export type ProjectResponseContributedAnalyses = { [key: string]: unknown };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO - revisit nested Azul structure.
 export type ProjectResponseMatrices = { [key: string]: unknown };
 
 /**

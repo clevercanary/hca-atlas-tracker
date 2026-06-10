@@ -46,7 +46,8 @@ export const RefreshForm = (): JSX.Element => {
     <>
       {statusResponseErrors
         ? buildResponseErrors(statusResponseErrors)
-        : statuses
+        : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1369
+          statuses
           ? buildStatuses(statuses)
           : ""}
       <div style={{ marginBottom: "1em", marginTop: "1em" }}>
@@ -72,7 +73,8 @@ export const RefreshForm = (): JSX.Element => {
       </div>
       {refreshResponseErrors ? (
         buildResponseErrors(refreshResponseErrors)
-      ) : refreshStarted ? (
+      ) : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1369
+      refreshStarted ? (
         <div>Refresh started</div>
       ) : (
         ""

@@ -118,7 +118,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     });
 
     // Remove eventTime to simulate missing value in the incoming event
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mutates mock to drop eventTime
+
     delete (s3Event as any).Records[0].eventTime;
 
     const snsMessage = createSNSMessage({

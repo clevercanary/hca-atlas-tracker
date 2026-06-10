@@ -20,6 +20,12 @@ const customJestConfig = {
   },
   setupFilesAfterEnv: ["<rootDir>/testing/setup.ts"],
   testEnvironment: "jest-environment-jsdom",
+  // jsdom defaults customExportConditions to ['browser'], which resolves
+  // subpath imports (e.g. @aws-sdk/core/client) to browser builds missing
+  // node-only helpers. Restore node conditions so AWS SDK clients load.
+  testEnvironmentOptions: {
+    customExportConditions: ["node", "node-addons"],
+  },
   testPathIgnorePatterns: ["/node_modules/", "/e2e/"],
 };
 

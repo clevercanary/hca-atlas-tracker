@@ -75,7 +75,8 @@ export const Alert = ({
           <StyledDot />
           <code>{cell}</code>
         </Fragment>
-      ) : row ? (
+      ) : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1384
+      row ? (
         <Fragment>
           <StyledDot />
           <code>row {row + 1}</code>
