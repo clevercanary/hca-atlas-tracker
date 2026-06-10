@@ -1,5 +1,5 @@
 import { MenuItem as MMenuItem } from "@mui/material";
-import { Fragment, JSX, ReactNode } from "react";
+import { JSX } from "react";
 import { Controller } from "react-hook-form";
 import { useFetchAtlases } from "../../../..//hooks/useFetchAtlases";
 import {
@@ -23,19 +23,16 @@ import { Section } from "../../../Detail/components/TrackerForm/components/Secti
 import { TrackerForm } from "../../../Detail/components/TrackerForm/trackerForm";
 
 interface UserFormProps {
-  accessFallback: ReactNode;
   formManager: FormManagerProps;
   formMethod: FormMethod<NewUserData, HCAAtlasTrackerUser>;
 }
 
 export const UserForm = ({
-  accessFallback,
   formManager,
   formMethod,
 }: UserFormProps): JSX.Element => {
   const { atlases } = useFetchAtlases();
   const selectedRole = formMethod.watch(FIELD_NAME.ROLE);
-  if (accessFallback) return <Fragment>{accessFallback}</Fragment>;
   const {
     formStatus: { isReadOnly },
   } = formManager;

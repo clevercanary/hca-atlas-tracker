@@ -5,14 +5,11 @@ import { Button } from "@mui/material";
 import { JSX } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
-import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
@@ -30,9 +27,6 @@ export const AtlasMetadataEntrySheetsView = ({
   const { atlas } = useFetchAtlas(pathParameter);
   const { entrySheets } = useFetchEntrySheetsValidations(pathParameter);
   const formManager = useFormManager();
-  const {
-    access: { canView },
-  } = formManager;
   const { entrySheetSyncState, onSyncEntrySheets } =
     useAtlasEntrySheetsSync(pathParameter);
   return (
@@ -41,7 +35,7 @@ export const AtlasMetadataEntrySheetsView = ({
       formManager={formManager}
       pathParameter={pathParameter}
     >
-      <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
+      <ConditionalComponent isIn={Boolean(atlas)}>
         <StyledDetailView
           actions={
             <div>
@@ -61,7 +55,6 @@ export const AtlasMetadataEntrySheetsView = ({
           }
           mainColumn={
             <EntityView
-              accessFallback={renderAccessFallback(formManager)}
               sectionConfigs={VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS}
             />
           }
@@ -73,16 +66,3 @@ export const AtlasMetadataEntrySheetsView = ({
     </EntityProvider>
   );
 };
-
-/**
- * Returns the access fallback component from the form manager access state.
- * @param formManager - Form manager.
- * @returns access fallback component.
- */
-function renderAccessFallback(formManager: FormManager): JSX.Element | null {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView) return <AccessPrompt text="to view metadata entry sheets" />;
-  return null;
-}

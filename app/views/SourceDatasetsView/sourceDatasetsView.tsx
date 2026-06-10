@@ -2,7 +2,6 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { JSX } from "react";
 import { getSourceStudyCitation } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ViewSourceDatasets } from "../../components/Detail/components/ViewSourceDatasets/viewSourceDatasets";
 import { Actions } from "../../components/Detail/components/ViewSourceStudy/components/Actions/actions";
@@ -27,27 +26,19 @@ export const SourceDatasetsView = ({
   const { sourceDatasets } = useFetchSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const {
-    access: { canEdit, canView },
+    access: { canEdit },
   } = formManager;
   return (
     <EntityProvider pathParameter={pathParameter}>
       <ConditionalComponent
-        isIn={shouldRenderView(
-          canView,
-          Boolean(atlas && sourceStudy && sourceDatasets),
-        )}
+        isIn={Boolean(atlas && sourceStudy && sourceDatasets)}
       >
         <StyledDetailView
           actions={canEdit && <Actions pathParameter={pathParameter} />}
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }
-          mainColumn={
-            <ViewSourceDatasets
-              formManager={formManager}
-              sourceDatasets={sourceDatasets}
-            />
-          }
+          mainColumn={<ViewSourceDatasets sourceDatasets={sourceDatasets} />}
           subTitle={getSourceStudyCitation(sourceStudy)}
           tabs={
             <Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />

@@ -21,7 +21,6 @@ const BROWSER_URL = LOCALHOST;
 export const FONT_FAMILY_DIN = "'din-2014', sans-serif";
 export const GIT_HUB_REPO_URL =
   "https://github.com/clevercanary/hca-atlas-tracker";
-const HOME_PAGE_PATH = ROUTE.ATLASES;
 const ORG_URL = "https://www.humancellatlas.org";
 export const PORTAL_URL = "https://data.humancellatlas.dev.clevercanary.com";
 const MEDIA_TABLET_UP = "media (min-width: 768px)";
@@ -60,11 +59,11 @@ export function makeConfig(
       },
       header: {
         announcements: announcementsConfig,
-        authenticationEnabled: true,
+        authenticationEnabled: ROUTE.LANDING,
         logo: C.Logo({
           alt: APP_TITLE,
           height: 32.5,
-          link: HOME_PAGE_PATH,
+          link: ROUTE.LANDING,
           src: "/images/hcaAtlasTracker.svg",
         }),
         navigation: [
@@ -150,7 +149,7 @@ export function makeConfig(
       },
     },
     portalURL: portalUrl,
-    redirectRootToPath: HOME_PAGE_PATH,
+    redirectRootToPath: ROUTE.LANDING,
     themeOptions: {
       palette: {
         caution: {

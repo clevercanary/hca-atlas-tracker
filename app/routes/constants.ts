@@ -24,11 +24,12 @@ export const ROUTE = {
     "/atlases/[atlasId]/integrated-objects/[componentAtlasId]/validations/[validatorName]",
   INTEGRATED_OBJECT_VALIDATIONS:
     "/atlases/[atlasId]/integrated-objects/[componentAtlasId]/validations",
-  LOGIN: "/login",
+  LANDING: "/",
   METADATA_CORRECTNESS: "/atlases/[atlasId]/metadata-correctness",
   METADATA_ENTRY_SHEET:
     "/atlases/[atlasId]/metadata-entry-sheets/[entrySheetValidationId]",
   METADATA_ENTRY_SHEETS: "/atlases/[atlasId]/metadata-entry-sheets",
+  REFRESH: "/refresh",
   REPORTS: "/reports",
   REQUESTING_ELEVATED_PERMISSIONS: "/requesting-elevated-permissions",
   SOURCE_DATASETS: "/source-datasets",

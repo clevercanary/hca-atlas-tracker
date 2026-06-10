@@ -50,7 +50,6 @@ export const useFormManager = <T extends FieldValues, R = undefined>(
   } = formState || {};
   const access: FormAccess = {
     canEdit,
-    canView: isAuthenticated,
   };
   const isDisabled =
     !isDirty || isSubmitting || (isSubmitted && isSubmitSuccessful);

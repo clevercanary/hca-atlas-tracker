@@ -9,7 +9,6 @@ import { GeneralInfo } from "../TrackerForm/components/Section/components/Source
 import { Identifiers } from "../TrackerForm/components/Section/components/SourceStudy/components/View/components/Identifiers/identifiers";
 import { Metadata } from "../TrackerForm/components/Section/components/SourceStudy/components/View/components/Metadata/metadata";
 import { TrackerForm } from "../TrackerForm/trackerForm";
-import { RequestAccess } from "./components/RequestAccess/requestAccess";
 
 interface ViewSourceStudyProps {
   formManager: FormManagerProps;
@@ -20,10 +19,6 @@ export const ViewSourceStudy = ({
   formManager,
   formMethod,
 }: ViewSourceStudyProps): JSX.Element => {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView) return <RequestAccess />;
   return (
     <TrackerForm>
       <FormManager {...formManager} />

@@ -1,16 +1,37 @@
-import { Redirect } from "@databiosphere/findable-ui/lib/components/Redirect/redirect";
-import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
+import { GetServerSideProps } from "next";
+import { getServerSession } from "next-auth";
+import { ClientSafeProvider, getProviders } from "next-auth/react";
 import { JSX } from "react";
+import { ROUTE } from "../app/routes/constants";
+import { HomeView } from "../app/views/HomeView/homeView";
+import { nextAuthOptions } from "../site-config/hca-atlas-tracker/local/authentication/next-auth-config";
 
-const HomePage = (): JSX.Element => {
-  const { config } = useConfig();
-  const { redirectRootToPath } = config;
+interface Props {
+  providers: ClientSafeProvider[];
+}
 
-  if (redirectRootToPath) {
-    return <Redirect destination={redirectRootToPath} replace />;
+export const getServerSideProps: GetServerSideProps<Props> = async ({
+  req,
+  res,
+}) => {
+  const session = await getServerSession(req, res, nextAuthOptions);
+
+  if (session) {
+    return { redirect: { destination: ROUTE.ATLASES, permanent: false } };
   }
 
-  return <></>;
+  const providers = await getProviders();
+
+  return {
+    props: {
+      pageTitle: "HCA Atlas Tracker",
+      providers: Object.values(providers ?? {}),
+    },
+  };
+};
+
+const HomePage = ({ providers }: Props): JSX.Element => {
+  return <HomeView providers={providers} />;
 };
 
 export default HomePage;

@@ -3,15 +3,12 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { Fragment, JSX } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
-import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { useFetchSourceStudies } from "../SourceStudiesView/hooks/useFetchSourceStudies";
@@ -27,10 +24,7 @@ export const AtlasSourceDatasetsView = ({
   pathParameter,
 }: AtlasSourceDatasetsViewProps): JSX.Element => {
   const formManager = useFormManager();
-  const {
-    access: { canView },
-    isLoading,
-  } = formManager;
+  const { isLoading } = formManager;
   const { atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
   const { sourceStudies } = useFetchSourceStudies(pathParameter);
@@ -44,9 +38,7 @@ export const AtlasSourceDatasetsView = ({
       formManager={formManager}
       pathParameter={pathParameter}
     >
-      <ConditionalComponent
-        isIn={shouldRenderView(canView, Boolean(atlas && atlasSourceDatasets))}
-      >
+      <ConditionalComponent isIn={Boolean(atlas && atlasSourceDatasets)}>
         <StyledDetailView
           backPath={backPath}
           breadcrumbs={
@@ -54,7 +46,6 @@ export const AtlasSourceDatasetsView = ({
           }
           mainColumn={
             <EntityView
-              accessFallback={renderAccessFallback(formManager)}
               sectionConfigs={VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS}
             />
           }
@@ -66,16 +57,3 @@ export const AtlasSourceDatasetsView = ({
     </EntityProvider>
   );
 };
-
-/**
- * Returns the access fallback component from the form manager access state.
- * @param formManager - Form manager.
- * @returns access fallback component.
- */
-function renderAccessFallback(formManager: FormManager): JSX.Element | null {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView) return <AccessPrompt text="to view the source datasets" />;
-  return null;
-}

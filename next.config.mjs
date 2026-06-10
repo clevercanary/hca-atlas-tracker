@@ -1,5 +1,4 @@
 import nextMDX from "@next/mdx";
-import withPlugins from "next-compose-plugins";
 
 const ESM_PACKAGES = [
   "codsen-utils",
@@ -18,23 +17,21 @@ const withMDX = nextMDX({
   extension: /\.mdx?$/,
 });
 
-export default withPlugins(
-  [[withMDX, { pageExtensions: ["md", "mdx", "ts", "tsx"] }]],
-  {
-    basePath: "",
-    images: {
-      unoptimized: true,
-    },
-    reactStrictMode: true,
-    async redirects() {
-      return [
-        {
-          destination: "/reports",
-          permanent: true,
-          source: "/tasks",
-        },
-      ];
-    },
-    transpilePackages: [...ESM_PACKAGES],
+export default withMDX({
+  basePath: "",
+  images: {
+    unoptimized: true,
   },
-);
+  pageExtensions: ["md", "mdx", "ts", "tsx"],
+  reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        destination: "/reports",
+        permanent: true,
+        source: "/tasks",
+      },
+    ];
+  },
+  transpilePackages: [...ESM_PACKAGES],
+});

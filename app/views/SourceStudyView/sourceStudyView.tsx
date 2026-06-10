@@ -2,7 +2,6 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { Fragment, JSX } from "react";
 import { getSourceStudyCitation } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Actions } from "../../components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "../../components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
@@ -26,7 +25,7 @@ export const SourceStudyView = ({
   const formManager = useEditSourceStudyFormManager(pathParameter, formMethod);
   const backPath = useBackPath(pathParameter);
   const {
-    access: { canEdit, canView },
+    access: { canEdit },
     formAction,
     formStatus: { isDirty },
     isLoading,
@@ -36,9 +35,7 @@ export const SourceStudyView = ({
   if (isLoading) return <Fragment />;
 
   return (
-    <ConditionalComponent
-      isIn={shouldRenderView(canView, Boolean(atlas && sourceStudy))}
-    >
+    <ConditionalComponent isIn={Boolean(atlas && sourceStudy)}>
       <DetailView
         actions={
           canEdit && <Actions isDirty={isDirty} pathParameter={pathParameter} />

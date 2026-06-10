@@ -4,23 +4,15 @@ import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/m
 import { Typography } from "@mui/material";
 import { HCAAtlasTrackerAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { JSX } from "react";
-import { FormManager } from "../../../../hooks/useFormManager/common/entities";
-import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { SectionPaper } from "./vewAtlasMetadataCorrectness.styles";
 
 interface ViewAtlasMetadataCorrectness {
   atlas?: HCAAtlasTrackerAtlas;
-  formManager: FormManager;
 }
 
 export const ViewAtlasMetadataCorrectness = ({
   atlas,
-  formManager,
 }: ViewAtlasMetadataCorrectness): JSX.Element => {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView) return <RequestAccess />;
   return (
     <SectionPaper elevation={0}>
       <SectionTitle title="Metadata Correctness Report" />

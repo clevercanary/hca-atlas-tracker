@@ -20,7 +20,6 @@ import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePape
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { StyledToolbar } from "../../../Table/components/TableToolbar/tableToolbar.styles";
 import { Alert } from "./components/Alert/alert";
-import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 import { SubGrid } from "./viewAtlasSourceStudies.styles";
 
@@ -40,7 +39,7 @@ export const ViewSourceStudies = ({
   sourceStudiesSourceDatasets = [],
 }: ViewSourceStudiesProps): JSX.Element => {
   const {
-    access: { canEdit, canView },
+    access: { canEdit },
   } = formManager;
   const sortedSourceStudies = useMemo(
     () => sourceStudies.sort(sortSourceStudies),
@@ -64,7 +63,6 @@ export const ViewSourceStudies = ({
       }, new Map<string, HCAAtlasTrackerSourceDataset[]>()),
     [atlasSourceDatasets, sourceStudiesSourceDatasets],
   );
-  if (!canView) return <RequestAccess />;
   return (
     <SubGrid>
       {/* What is a Source Study? */}
